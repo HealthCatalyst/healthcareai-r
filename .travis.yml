@@ -1,10 +1,5 @@
-language: r
-# Required bc ranger package uses c++11 compiler
-sudo: required
-dist: trusty
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
-# Required bc of RODBC
-before_install:
-  - sudo apt-get install -y libiodbc2
-  - sudo apt-get install -y libiodbc2-dev
-
+language: R
+sudo: false
+cache: packages
