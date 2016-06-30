@@ -232,5 +232,9 @@ SelectData <- function(connection.string, query) {
 
 
 RemoveColsWithAllSameValue <- function(df) {
-  df[sapply(df, function(x) length(unique(x))>1)]
+  df <- df[sapply(df, function(x) length(unique(x))>1)]
+  if(ncol(df)==0){
+    message('All columns were removed.')
+  }
+  df
 }

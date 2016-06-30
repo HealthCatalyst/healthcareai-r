@@ -112,8 +112,7 @@ query = "
     [OrganizationLevel]
     ,[MaritalStatus]
     ,[Gender]
-    -- Change pred col from 0/1 to N/Y
-    ,IIF([SalariedFlag]=1,'Y','N') AS SalariedFlag
+    ,[SalariedFlag]
     ,[VacationHours]
     ,[SickLeaveHours]
   FROM [AdventureWorks2012].[HumanResources].[Employee]
@@ -126,7 +125,7 @@ set.seed(43)
 o <- DevelopSupervisedModel$new(type = 'classification',
                                 df = df,
                                 #grain.col = OPTIONAL/ENCOURAGED,
-                                predicted.col = 'SalariedFlag',
+                                predicted.col = 'MaritalStatus',
                                 impute = TRUE)
 
 o$grlasso(cores = 1,
