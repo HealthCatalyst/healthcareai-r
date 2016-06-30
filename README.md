@@ -4,7 +4,7 @@
 
 
 The aim of `HCRTools` is to make it easy to do data science with health care 
-data easier. It has three main goals:
+data. It has three main goals:
 
 -  Allow one to easily create models based on tabular data, and deploy a best
 model that pushes predictions to SQL Server
