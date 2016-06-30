@@ -85,7 +85,7 @@ head(totaldf)
 o <- DeploySupervisedModel$new(type = 'classification',
                                df = totaldf,
                                grain.col = 'GrainID',
-                               window.col = 'InWindow',
+                               window.col = 'InTestWindow',
                                predicted.col = 'SalariedFlag',
                                impute = TRUE,
                                debug = FALSE,  # <-- change to TRUE to debug
@@ -98,7 +98,7 @@ o$deploy(model = 'rf',
          # Note: Do not use [ or ] in output table
          dest.schema.table = 'dbo.HCRDeployTest1BASE',
          debug = FALSE,  # <-- change this to TRUE to debug
-)
+         rfmtry = 2)
 
 print(proc.time() - ptm)
 
@@ -147,7 +147,7 @@ totaldf <- subset(totaldf, select = -c(SalariedFlag))
 o <- DeploySupervisedModel$new(type = 'regression',
                                df = totaldf,
                                grain.col = 'GrainID',
-                               window.col = 'InWindow',
+                               window.col = 'InTestWindow',
                                predicted.col = 'VacationHours',
                                impute = TRUE,
                                debug = FALSE,  # <-- change to T for debug
