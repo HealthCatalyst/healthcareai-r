@@ -3,3 +3,6 @@
 ^inst/\.RData$
 ^rmodel_probability\.rda$
 ^rmodel_var_import\.rda$
+^\.travis\.yml$
+^\.vs$
+^\.vs/HCRTools/v14/\.suo$
