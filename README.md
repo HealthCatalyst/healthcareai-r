@@ -13,4 +13,5 @@ model that pushes predictions to SQL Server.
 
 -  Make data exporation easy via interactive Shiny apps. This is not only for 
 data residing (as-is) in SQL Server, but also provides interactivity
-with predictions made from a model (based on toggling input options).
+with alternative-scenario predictions made from a model (which helps with
+treatment protocol optimization).
