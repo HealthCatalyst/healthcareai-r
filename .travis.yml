@@ -1,1 +1,4 @@
 language: r
+# Required bc ranger package uses c++11 compiler
+sudo: required
+dist: trusty
