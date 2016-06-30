@@ -5,5 +5,5 @@ dist: trusty
 
 # Required bc of RODBC
 before_install:
-  - sudo apt-get install libiodbc2-dev
+  - sudo apt-get install libiodbc2
 
