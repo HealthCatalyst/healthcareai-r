@@ -32,5 +32,5 @@ test_that("Remove multiple columns", {
 test_that("All columns are removed when all columns have the same value in every row", {
   df1 = data.frame(a=c(1,1,1),b=c('Y','Y','Y'),c=c(FALSE,FALSE,FALSE),d=c(NA,NA,NA))
   resdf = df1[-c(1:4)]
-  expect_identical(RemoveColsWithAllSameValue(df1),resdf)
+  expect_identical(suppressMessages(RemoveColsWithAllSameValue(df1)),resdf)
 })
