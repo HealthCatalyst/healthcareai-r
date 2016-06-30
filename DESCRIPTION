@@ -1,0 +1,23 @@
+Package: HCRTools
+Type: Package
+Title: Provides tools related to model creation, comparison, and deployment
+Version: 0.1.7
+Date: 2015-06-06
+Author: Levi Thatcher
+Maintainer: Levi Thatcher <levi.thatcher@healthcatalyst.com>
+Description:  Allows one to create models and deploy predictions to SQL Server.
+License: file LICENSE
+LazyData: TRUE
+Imports:
+    caret,
+    data.table,
+    doParallel,
+    e1071,
+    grpreg,
+    pROC,
+    R6,
+    ranger,
+    ROCR,
+    RODBC
+RoxygenNote: 5.0.1
+Suggests: testthat
