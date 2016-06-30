@@ -1,8 +1,5 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^inst/\.RData$
-^HCRTools\.rxproj$
-^HCRTools\.sln$
-^\.vs$
 ^rmodel_probability\.rda$
 ^rmodel_var_import\.rda$
