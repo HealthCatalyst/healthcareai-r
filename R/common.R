@@ -238,3 +238,31 @@ RemoveColsWithAllSameValue <- function(df) {
   }
   df
 }
+
+#' @title
+#' Return number of columns in a dataframe with greater than 50 categories
+#'
+#' @description Return number of columns in a dataframe with greater than 50 categories
+#' @param df A dataframe
+#' @return numCols An integer that is the number of columns with greater than 50 categories
+#'
+#' @export
+#' @seealso \code{\link{HCRTools}}
+#' @examples
+#' df = data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+#'                     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1),
+#'                 b=c('a','b','c','d','e','f','g','h','i','j','k','l','m','n',
+#'                     'o','p','q','r','s','t','u','v','w','x','y','z','aa','bb',
+#'                     'cc','dd','ee','ff','gg','hh','ii','jj','kk','ll','mm','nn',
+#'                     'oo','pp','qq','rr','ss','tt','uu','vv','ww','xx','yy'))
+#' numCols = ReturnNumColsWithMoreThanFiftyFactors(df)
+
+ReturnNumColsWithMoreThanFiftyFactors <- function(df) {
+  numCols=0
+  for (column in names(df)){
+    if(nlevels(df[[column]])>50){
+      numCols=numCols+1
+    }
+  }
+  numCols
+}
