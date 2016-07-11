@@ -9,12 +9,12 @@ source('R/common.R')
 #' @import caret
 #' @import doParallel
 #' @import e1071
+#' @import grpreg
 #' @import pROC
 #' @importFrom R6 R6Class
 #' @import ranger
 #' @import ROCR
 #' @import RODBC
-#' @import grpreg
 #' @param type The type of model (either 'regression' or 'classification')
 #' @param df Dataframe whose columns are used for calc.
 #' @param grain.col The dataframe's column that has IDs pertaining to the grain
