@@ -13,5 +13,5 @@ model that pushes predictions to SQL Server.
 
 To get started, check out this [notebook.](notebooks/HCRToolsExample1.ipynb)
 
-After finding a model that works, see this
+After finding an accurate model, see this
 [notebook](notebooks/HCRToolsExample2.ipynb) to push predictions to SQL Server.
