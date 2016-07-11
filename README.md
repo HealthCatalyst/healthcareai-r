@@ -11,11 +11,6 @@ model that pushes predictions to SQL Server.
 
 -  Provide tools related to data cleaning, manipulation, and imputation.
 
--  Make data exploration easy via interactive Shiny apps. This is not only for 
-data residing as-is in SQL Server, but also to provide interactivity
-with alternative-scenario predictions made from a model (which helps with
-treatment protocol optimization).
-
 To get started, check out this [notebook](notebooks/HCRToolsExample1.ipynb)
 
 After finding a model that works, to push predictions to SQL Server, see this
