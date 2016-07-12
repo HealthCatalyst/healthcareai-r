@@ -35,5 +35,7 @@ Server.
 \code{\link{ImputeColumn}}
 
 \code{\link{RemoveRowsWithNAInSpecCol}}
+
+\code{\link{FindTrendsAboveThreshold}}
 }
 
