@@ -186,6 +186,12 @@ DevelopSupervisedModel <- R6Class("DevelopSupervisedModel",
       # For use in confusion matrices
       self$prevalence = table(df[[predicted.col]])[2]
 
+      if (length(ReturnColsWithMoreThanFiftyFactors(df))>0){
+        message('The following columns in the data frame have more than fifty factors:')
+        message(paste(shQuote(ReturnColsWithMoreThanFiftyFactors(df)), collapse=", "))
+        message('This drastically reduces performance. Consider combining these factors into a new column with fewer factors.')
+      }
+
       if (isTRUE(debug)) {
         print('Entire data set at the top of the constructor')
         print(str(df))

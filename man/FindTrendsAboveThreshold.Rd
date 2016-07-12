@@ -31,7 +31,4 @@ col_list <- FindTrendsAboveThreshold(d = data,
                                      datecol = 'x',
                                      threshold = 0.5)
 }
-\seealso{
-\code{\link{HCRTools}}
-}
 
