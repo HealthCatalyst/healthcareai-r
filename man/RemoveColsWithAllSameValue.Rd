@@ -13,7 +13,7 @@ RemoveColsWithAllSameValue(df)
 A dataframe with those columns removed
 }
 \description{
-Remove columns from a dataframe when all of their rows are the same value
+Removes all of the columns in the dataframe that have the same value in every row
 }
 \examples{
 df = data.frame(a=c(1,1,1),b=c('a','b','b'),c=c('a','a','a'),d = c(NA,'1',NA))
