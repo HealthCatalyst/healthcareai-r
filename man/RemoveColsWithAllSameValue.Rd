@@ -2,7 +2,8 @@
 % Please edit documentation in R/common.R
 \name{RemoveColsWithAllSameValue}
 \alias{RemoveColsWithAllSameValue}
-\title{Remove columns from a dataframe when those columns have the same values in each row}
+\title{Remove columns from a dataframe when those columns have the same values in
+each row}
 \usage{
 RemoveColsWithAllSameValue(df)
 }
@@ -13,7 +14,8 @@ RemoveColsWithAllSameValue(df)
 A dataframe with those columns removed
 }
 \description{
-Remove columns from a dataframe when all of their rows are the same value
+Remove columns from a dataframe when all of their rows are the
+same value
 }
 \examples{
 df = data.frame(a=c(1,1,1),b=c('a','b','b'),c=c('a','a','a'),d = c(NA,'1',NA))

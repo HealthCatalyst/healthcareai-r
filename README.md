@@ -11,7 +11,7 @@ model that pushes predictions to SQL Server.
 
 -  Provide tools related to data cleaning, manipulation, and imputation.
 
-To get started, check out this [notebook.](notebooks/HCRToolsExample1.ipynb)
+To get started, check out this [notebook.](inst/notebooks/HCRToolsExample1.ipynb)
 
 After finding an accurate model, see this
-[notebook](notebooks/HCRToolsExample2.ipynb) to push predictions to SQL Server.
+[notebook](inst/notebooks/HCRToolsExample2.ipynb) to push predictions to SQL Server.

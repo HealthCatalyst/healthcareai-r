@@ -160,6 +160,7 @@ RemoveRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' @export
 #' @seealso \code{\link{HCRTools}}
 #' @examples
+#' library(RODBC)
 #' connection.string = '
 #'   driver={SQL Server};
 #'   server=localhost;
@@ -218,9 +219,11 @@ SelectData <- function(connection.string, query) {
 }
 
 #' @title
-#' Remove columns from a dataframe when those columns have the same values in each row
+#' Remove columns from a dataframe when those columns have the same values in
+#' each row
 #'
-#' @description Remove columns from a dataframe when all of their rows are the same value
+#' @description Remove columns from a dataframe when all of their rows are the
+#' same value
 #' @param df A dataframe
 #' @return A dataframe with those columns removed
 #'
@@ -237,4 +240,61 @@ RemoveColsWithAllSameValue <- function(df) {
     message('All columns were removed.')
   }
   df
+}
+
+#' @title
+#' Find any columns that have a trend above a particular threshold
+#' @description
+#' Find numeric columns in dataframe that have an absolute slope greater than
+#' that specified via threshold argument.
+#' @param df A dataframe
+#' @return A vector of column names
+#'
+#' @export
+#' @seealso \code{\link{HCRTools}}
+#' @examples
+#' x <- seq(as.Date("2012-01-01"), as.Date("2012-01-06"), by = "days")
+#' y1 <- c(1,3,6,8,13,14)          # big positive
+#' y2 <- c(1,1.2,1.2,1.2,1.3,1.3)  # small positive
+#' y3 <- c(0,-2,-2,-4,-5,-7)       # big negative
+#' y4 <- c(0,-.5,-.5,-.5,-.5,-.6)  # small negative
+#' y5 <- c(0,1,1,2,5,5)            # factor col
+#'
+#' data <- data.frame(x,y1,y2,y3,y4,y5)
+#' data$y5 <- as.factor(data$y5)
+#'
+#' col_list <- FindTrendsAboveThreshold(d = data,
+#'                                      datecol = 'x',
+#'                                      threshold = 0.5)
+
+
+FindTrendsAboveThreshold <- function(df, datecol, threshold) {
+  # Order df by date col (descen)
+  # Create function to order rows by date DESC and ASC
+  #df <- df[order(as.Date(df[[datecol]],,format="%Y-%m-%d")),drop=FALSE]
+
+  # Pre-create empty trend vector
+  col_list <- vector('character')
+
+  # If time-trend of particular col is above thresh, add to list
+  count <- 1
+  for (i in names(df)) {
+    if (is.numeric(df[,i])) {
+      # Scale vector by dividing by its std deviation
+      df[[i]] = scale(df[[i]])
+
+      # Check if absolute slope is greater than threshold
+      model = lm(df[[i]] ~ df[[datecol]])
+      if (abs(model$coefficients[2]) > threshold) {
+        col_list <- c(col_list, i)
+        count <- count + 1
+      }
+    }
+  }
+  if (length(col_list) == 0) {
+    message('No trends of sufficient slope found')
+    return()
+  } else {
+    return(col_list)
+  }
 }
