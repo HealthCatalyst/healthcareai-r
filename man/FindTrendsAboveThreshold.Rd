@@ -39,4 +39,7 @@ col_list <- FindTrendsAboveThreshold(df = data,
                                      nelson = FALSE)
 
 }
+\seealso{
+\code{\link{HCRTools}}
+}
 
