@@ -224,21 +224,12 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
       }
 
       # Remove columns with zero variance
-      # removelist = nearZeroVar(x = df,
-      #                          names = T,
-      #                          freqCut = 500/1,
-      #                          uniqueCut = .002)
-      #
-      # # (Make sure predicted.col and window.col aren't removed)
-      # removelist = removelist[!removelist %in% c(predicted.col, window.col)]
-      # if (length(removelist) > 0) {
-      #   df <- df[, !(names(df) %in% removelist)]
-      # }
-      #
-      # if (isTRUE(debug)) {
-      #   print('Entire df after removing feature cols w/ near-zero var')
-      #   print(str(df))
-      # }
+      df <- RemoveColsWithAllSameValue(df)
+
+      if (isTRUE(debug)) {
+        print('Entire df after removing feature cols w/zero var')
+        print(str(df))
+      }
 
       # Remove grain.col from df; below we split it into graintest
       if (nchar(grain.col) != 0) {

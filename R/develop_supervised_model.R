@@ -197,6 +197,20 @@ DevelopSupervisedModel <- R6Class("DevelopSupervisedModel",
         print(str(df))
       }
 
+      if (isTRUE(debug)) {
+        print('Entire df after removing cols with DTS')
+        print(str(df))
+        print('Now going to remove zero-var cols...')
+      }
+
+      # Remove columns with zero variance
+      df <- RemoveColsWithAllSameValue(df)
+
+      if (isTRUE(debug)) {
+        print('Entire df after removing feature cols w/zero var')
+        print(str(df))
+      }
+
       if (type != 'regression' && type != 'classification') {
           stop('Your type must be regression or classification')
       }
