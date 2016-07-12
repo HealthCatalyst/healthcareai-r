@@ -281,6 +281,7 @@ ReturnColsWithMoreThanFiftyFactors <- function(df) {
 #'
 #' @importFrom stats lm
 #' @export
+#' @seealso \code{\link{HCRTools}}
 #' @examples
 #' x <- seq(as.Date("2012-01-01"), as.Date("2012-01-06"), by = "days")
 #' y1 <- c(1,3,6,8,13,14)          # big positive
