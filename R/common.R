@@ -220,6 +220,7 @@ SelectData <- function(connection.string, query) {
 #' @title
 #' Remove columns from a dataframe when those columns have the same values in each row
 #'
+#' @description Removes all of the columns in the dataframe that have the same value in every row
 #' @param df A dataframe
 #' @return A dataframe with those columns removed
 #'
@@ -241,6 +242,7 @@ RemoveColsWithAllSameValue <- function(df) {
 #' @title
 #' Return vector of columns in a dataframe with greater than 50 categories
 #'
+#' @description Returns a vector of the names of the columns that have more than 50 factors
 #' @param df A dataframe
 #' @return colList A vector that contains the names of the columns with greater than 50 categories
 #'

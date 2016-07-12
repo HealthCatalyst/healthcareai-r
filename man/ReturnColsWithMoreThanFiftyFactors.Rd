@@ -12,6 +12,9 @@ ReturnColsWithMoreThanFiftyFactors(df)
 \value{
 colList A vector that contains the names of the columns with greater than 50 categories
 }
+\description{
+Returns a vector of the names of the columns that have more than 50 factors
+}
 \examples{
 df = data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
                     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1),

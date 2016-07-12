@@ -12,6 +12,9 @@ RemoveColsWithAllSameValue(df)
 \value{
 A dataframe with those columns removed
 }
+\description{
+Removes all of the columns in the dataframe that have the same value in every row
+}
 \examples{
 df = data.frame(a=c(1,1,1),b=c('a','b','b'),c=c('a','a','a'),d = c(NA,'1',NA))
 resdf = RemoveColsWithAllSameValue(df)
