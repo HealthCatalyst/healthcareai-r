@@ -1,6 +1,6 @@
 # HCRTools
 
-[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/levithatcher/HCRTools?branch=master&svg=true)](https://ci.appveyor.com/project/levithatcher/hcrtools)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/levithatcher/hcrtools?branch=master&svg=true)](https://ci.appveyor.com/project/levithatcher/hcrtools)
 
 
 The aim of `HCRTools` is to make it easy to do data science with healthcare 
