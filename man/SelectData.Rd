@@ -20,6 +20,7 @@ Select data from an ODBC database and return the results as
 a data frame.
 }
 \examples{
+library(RODBC)
 connection.string = '
   driver={SQL Server};
   server=localhost;

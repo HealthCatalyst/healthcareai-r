@@ -2,6 +2,7 @@
 
 export(DeploySupervisedModel)
 export(DevelopSupervisedModel)
+export(FindTrendsAboveThreshold)
 export(GroupedLOCF)
 export(ImputeColumn)
 export(IsBinary)
