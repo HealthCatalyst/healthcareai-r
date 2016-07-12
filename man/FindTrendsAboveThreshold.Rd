@@ -27,9 +27,17 @@ y5 <- c(0,1,1,2,5,5)            # factor col
 data <- data.frame(x,y1,y2,y3,y4,y5)
 data$y5 <- as.factor(data$y5)
 
-col_list <- FindTrendsAboveThreshold(d = data,
+# Using nelson rule 3 (ie six data points mono decr or incr)
+col_list <- FindTrendsAboveThreshold(df = data,
                                      datecol = 'x',
-                                     threshold = 0.5)
+                                     nelson = TRUE)
+
+# Using linear slope thresholds (overall entire series)
+col_list <- FindTrendsAboveThreshold(df = data,
+                                     datecol = 'x',
+                                     threshold = 0.5,
+                                     nelson = FALSE)
+
 }
 \seealso{
 \code{\link{HCRTools}}
