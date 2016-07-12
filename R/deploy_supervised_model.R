@@ -187,6 +187,12 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
 
       # TODO: if type is not specified at all - print a helpful message.
 
+      if (length(ReturnColsWithMoreThanFiftyFactors(df))>0){
+        message('The following columns in the data frame have more than fifty factors:')
+        message(paste(shQuote(ReturnColsWithMoreThanFiftyFactors(df)), collapse=", "))
+        message('This drastically reduces performance. Consider combining these factors into a new column with fewer factors.')
+      }
+
       if (type != 'regression' && type != 'classification') {
         stop('Your type must be regression or classification')
       }

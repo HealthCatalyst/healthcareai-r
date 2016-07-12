@@ -220,7 +220,6 @@ SelectData <- function(connection.string, query) {
 #' @title
 #' Remove columns from a dataframe when those columns have the same values in each row
 #'
-#' @description Remove columns from a dataframe when all of their rows are the same value
 #' @param df A dataframe
 #' @return A dataframe with those columns removed
 #'
@@ -233,18 +232,17 @@ SelectData <- function(connection.string, query) {
 
 RemoveColsWithAllSameValue <- function(df) {
   df <- df[sapply(df, function(x) length(unique(x))>1)]
-  if(ncol(df)==0){
+  if (ncol(df)==0){
     message('All columns were removed.')
   }
   df
 }
 
 #' @title
-#' Return number of columns in a dataframe with greater than 50 categories
+#' Return vector of columns in a dataframe with greater than 50 categories
 #'
-#' @description Return number of columns in a dataframe with greater than 50 categories
 #' @param df A dataframe
-#' @return numCols An integer that is the number of columns with greater than 50 categories
+#' @return colList A vector that contains the names of the columns with greater than 50 categories
 #'
 #' @export
 #' @seealso \code{\link{HCRTools}}
@@ -255,14 +253,14 @@ RemoveColsWithAllSameValue <- function(df) {
 #'                     'o','p','q','r','s','t','u','v','w','x','y','z','aa','bb',
 #'                     'cc','dd','ee','ff','gg','hh','ii','jj','kk','ll','mm','nn',
 #'                     'oo','pp','qq','rr','ss','tt','uu','vv','ww','xx','yy'))
-#' numCols = ReturnNumColsWithMoreThanFiftyFactors(df)
+#' colList = ReturnColsWithMoreThanFiftyFactors(df)
 
-ReturnNumColsWithMoreThanFiftyFactors <- function(df) {
-  numCols=0
-  for (column in names(df)){
-    if(nlevels(df[[column]])>50){
-      numCols=numCols+1
+ReturnColsWithMoreThanFiftyFactors <- function(df) {
+  colList=vector('character')
+  for (columnName in names(df)){
+    if (nlevels(df[[columnName]])>50){
+      colList<-c(colList,columnName)
     }
   }
-  numCols
+  colList
 }
