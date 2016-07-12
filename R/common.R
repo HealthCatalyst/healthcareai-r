@@ -268,26 +268,43 @@ RemoveColsWithAllSameValue <- function(df) {
 #'                                      threshold = 0.5)
 
 
-FindTrendsAboveThreshold <- function(df, datecol, threshold) {
+FindTrendsAboveThreshold <- function(df, datecol, threshold=0.5, nelson=TRUE) {
   # Order df by date col (descen)
   # Create function to order rows by date DESC and ASC
   #df <- df[order(as.Date(df[[datecol]],,format="%Y-%m-%d")),drop=FALSE]
 
   # Pre-create empty trend vector
   col_list <- vector('character')
-
-  # If time-trend of particular col is above thresh, add to list
   count <- 1
-  for (i in names(df)) {
-    if (is.numeric(df[,i])) {
-      # Scale vector by dividing by its std deviation
-      df[[i]] = scale(df[[i]])
 
-      # Check if absolute slope is greater than threshold
-      model = lm(df[[i]] ~ df[[datecol]])
-      if (abs(model$coefficients[2]) > threshold) {
-        col_list <- c(col_list, i)
-        count <- count + 1
+  # If the last six values are monotonically increasing, add col name to list
+  if (isTRUE(nelson)) { # Using nelson rule three
+    for (i in names(df)) {
+      if (is.numeric(df[,i])) {
+
+        # Check if last six values are monotonically increasing
+        check.incr = all(tail(df[[i]],6) == cummax(tail(df[[i]],6)))
+        check.decr = all(tail(df[[i]],6) == cummin(tail(df[[i]],6)))
+        if (isTRUE(check.incr) || isTRUE(check.decr)) {
+          col_list <- c(col_list, i)
+          count <- count + 1
+        }
+      }
+    }
+  } else {
+
+    # If time-trend of particular col is above thresh, add to list
+    for (i in names(df)) {
+      if (is.numeric(df[,i])) {
+        # Scale vector by dividing by its std deviation
+        df[[i]] = scale(df[[i]])
+
+        # Check if absolute slope is greater than threshold
+        model = lm(df[[i]] ~ df[[datecol]])
+        if (abs(model$coefficients[2]) > threshold) {
+          col_list <- c(col_list, i)
+          count <- count + 1
+        }
       }
     }
   }

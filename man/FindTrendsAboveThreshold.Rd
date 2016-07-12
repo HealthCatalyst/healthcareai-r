@@ -4,7 +4,7 @@
 \alias{FindTrendsAboveThreshold}
 \title{Find any columns that have a trend above a particular threshold}
 \usage{
-FindTrendsAboveThreshold(df, datecol, threshold)
+FindTrendsAboveThreshold(df, datecol, threshold = 0.5, nelson = TRUE)
 }
 \arguments{
 \item{df}{A dataframe}
