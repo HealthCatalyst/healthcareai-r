@@ -11,11 +11,6 @@ install:
   ps: Bootstrap
 
 # Adapt as necessary starting from here
-environment:
-  global:
-  - R_VERSION: release
-  - R_ARCH: x64
-
 build_script:
   - Rscript -e "source('http://bioconductor.org/biocLite.R')"
   - travis-tool.sh install_deps
@@ -27,12 +22,9 @@ on_failure:
   - 7z a failure.zip *.Rcheck\*
   - appveyor PushArtifact failure.zip
 
-on_success:
-  - Rscript -e 'covr::codecov()'
-
 environment:
   global:
-    WARNINGS_ARE_ERRORS: 1
+    WARNINGS_ARE_ERRORS: 0
     _R_CHECK_FORCE_SUGGESTS_: 0
     R_ARCH: x64
 
