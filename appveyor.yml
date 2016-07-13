@@ -2,8 +2,12 @@
 
 # Download script file from GitHub
 init:
-  # Fix line endings in Windows. (runs before repo cloning)
-  - git config --global core.autocrlf input
+  ps: |
+        $ErrorActionPreference = "Stop"
+        Invoke-WebRequest http://raw.github.com/krlmlr/r-appveyor/master/scripts/appveyor-tool.ps1 -OutFile "..\appveyor-tool.ps1"
+        Import-Module '..\appveyor-tool.ps1'
+install:
+  ps: Bootstrap
 
 # Adapt as necessary starting from here
 build_script:
