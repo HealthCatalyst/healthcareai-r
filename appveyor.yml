@@ -5,9 +5,6 @@ init:
   # Fix line endings in Windows. (runs before repo cloning)
   - git config --global core.autocrlf input
 
-init:
-  - git config --global core.autocrlf input
-
 install:
   ps: Bootstrap
 
@@ -50,3 +47,13 @@ artifacts:
 
   - path: '\*_*.zip'
     name: Bits
+
+notifications:
+ - provider: Email
+   to:
+     - healthcatalystslc+appveyor@mailbox.org
+   subject: 'r-appveyor build {{status}}'                          # optional
+   message: "https://ci.appveyor.com/project/krlmlr/r-appveyor"    # optional
+   on_build_success: false
+   on_build_failure: true
+   on_build_status_changed: true
