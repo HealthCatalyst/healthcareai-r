@@ -12,6 +12,7 @@ install:
 
 # Adapt as necessary starting from here
 environment:
+  global:
   - R_VERSION: release
     R_ARCH: x64
 
