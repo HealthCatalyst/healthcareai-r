@@ -11,6 +11,9 @@ install:
   ps: Bootstrap
 
 # Adapt as necessary starting from here
+environment:
+  - R_VERSION: release
+    R_ARCH: x64
 
 build_script:
   - Rscript -e "source('http://bioconductor.org/biocLite.R')"
