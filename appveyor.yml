@@ -5,9 +5,6 @@ init:
   # Fix line endings in Windows. (runs before repo cloning)
   - git config --global core.autocrlf input
 
-install:
-  ps: Bootstrap
-
 # Adapt as necessary starting from here
 build_script:
   - Rscript -e "source('http://bioconductor.org/biocLite.R')"
