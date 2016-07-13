@@ -11,7 +11,8 @@ install:
 
 # Adapt as necessary starting from here
 build_script:
-  - Rscript -e "source('http://bioconductor.org/biocLite.R')"
+  - Rscript -e "source('http://bioconductor.org/biocLite.R')",
+  "chooseCRANmirror(ind=81)"
   - travis-tool.sh install_deps
 
 test_script:
