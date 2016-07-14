@@ -281,6 +281,7 @@ ReturnColsWithMoreThanFiftyFactors <- function(df) {
 #'
 #' @importFrom stats lm
 #' @export
+#' @seealso \code{\link{HCRTools}}
 #' @examples
 #' x <- seq(as.Date("2012-01-01"), as.Date("2012-01-06"), by = "days")
 #' y1 <- c(1,3,6,8,13,14)          # big positive
@@ -292,31 +293,54 @@ ReturnColsWithMoreThanFiftyFactors <- function(df) {
 #' data <- data.frame(x,y1,y2,y3,y4,y5)
 #' data$y5 <- as.factor(data$y5)
 #'
-#' col_list <- FindTrendsAboveThreshold(d = data,
+#' # Using nelson rule 3 (ie six data points mono decr or incr)
+#' col_list <- FindTrendsAboveThreshold(df = data,
 #'                                      datecol = 'x',
-#'                                      threshold = 0.5)
+#'                                      nelson = TRUE)
+#'
+#' # Using linear slope thresholds (overall entire series)
+#' col_list <- FindTrendsAboveThreshold(df = data,
+#'                                      datecol = 'x',
+#'                                      threshold = 0.5,
+#'                                      nelson = FALSE)
+#'
 
-
-FindTrendsAboveThreshold <- function(df, datecol, threshold) {
-  # Order df by date col (descen)
-  # Create function to order rows by date DESC and ASC
+FindTrendsAboveThreshold <- function(df, datecol, threshold=0.5, nelson=TRUE) {
+  #TODO: Create function to order rows by date DESC and ASC
   #df <- df[order(as.Date(df[[datecol]],,format="%Y-%m-%d")),drop=FALSE]
 
   # Pre-create empty trend vector
   col_list <- vector('character')
-
-  # If time-trend of particular col is above thresh, add to list
   count <- 1
-  for (i in names(df)) {
-    if (is.numeric(df[,i])) {
-      # Scale vector by dividing by its std deviation
-      df[[i]] = scale(df[[i]])
 
-      # Check if absolute slope is greater than threshold
-      model = lm(df[[i]] ~ df[[datecol]])
-      if (abs(model$coefficients[2]) > threshold) {
-        col_list <- c(col_list, i)
-        count <- count + 1
+  # If the last six values are monotonically increasing, add col name to list
+  if (isTRUE(nelson)) { # Using nelson rule three
+    for (i in names(df)) {
+      if (is.numeric(df[,i])) {
+
+        # Check if last six values are monotonically increasing
+        check.incr = all(tail(df[[i]],6) == cummax(tail(df[[i]],6)))
+        check.decr = all(tail(df[[i]],6) == cummin(tail(df[[i]],6)))
+        if (isTRUE(check.incr) || isTRUE(check.decr)) {
+          col_list <- c(col_list, i)
+          count <- count + 1
+        }
+      }
+    }
+  } else {
+
+    # If time-trend of particular col is above thresh, add to list
+    for (i in names(df)) {
+      if (is.numeric(df[,i])) {
+        # Scale vector by dividing by its std deviation
+        df[[i]] = scale(df[[i]])
+
+        # Check if absolute slope is greater than threshold
+        model = lm(df[[i]] ~ df[[datecol]])
+        if (abs(model$coefficients[2]) > threshold) {
+          col_list <- c(col_list, i)
+          count <- count + 1
+        }
       }
     }
   }

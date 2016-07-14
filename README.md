@@ -1,6 +1,6 @@
 # HCRTools
 
-[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/levithatcher/HCRTools?branch=master&svg=true)](https://ci.appveyor.com/project/levithatcher/HCRTools)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/guud9xoxk62rdngr?svg=true)](https://ci.appveyor.com/project/levithatcher/hcrtools/branch/master)
 
 
 The aim of `HCRTools` is to make it easy to do data science with healthcare 
@@ -10,6 +10,14 @@ data. The package has two main goals:
 model that pushes predictions to SQL Server.
 
 -  Provide tools related to data cleaning, manipulation, and imputation.
+
+To install:
+
+- Click on 'Clone or download' above and download the zip file
+
+- In RStudio's console, type setwd('C:/Path/To/Zip')
+
+- Then type install.packages('HCRTools_0.1.7.zip', repos=NULL, type='binary')
 
 To get started, check out this [notebook.](inst/notebooks/HCRToolsExample1.ipynb)
 

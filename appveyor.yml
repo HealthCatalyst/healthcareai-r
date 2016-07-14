@@ -6,13 +6,12 @@ init:
         $ErrorActionPreference = "Stop"
         Invoke-WebRequest http://raw.github.com/krlmlr/r-appveyor/master/scripts/appveyor-tool.ps1 -OutFile "..\appveyor-tool.ps1"
         Import-Module '..\appveyor-tool.ps1'
-
 install:
   ps: Bootstrap
 
 # Adapt as necessary starting from here
-
 build_script:
+  - Rscript -e "source('http://bioconductor.org/biocLite.R')" -e "chooseCRANmirror(ind=81)"
   - travis-tool.sh install_deps
 
 test_script:
@@ -21,6 +20,15 @@ test_script:
 on_failure:
   - 7z a failure.zip *.Rcheck\*
   - appveyor PushArtifact failure.zip
+
+environment:
+  global:
+    WARNINGS_ARE_ERRORS: 0
+    _R_CHECK_FORCE_SUGGESTS_: 1
+    R_ARCH: x64
+
+  matrix:
+    - R_VERSION: release
 
 artifacts:
   - path: '*.Rcheck\**\*.log'
@@ -40,3 +48,13 @@ artifacts:
 
   - path: '\*_*.zip'
     name: Bits
+
+notifications:
+ - provider: Email
+   to:
+     - healthcatalystslc+appveyor@mailbox.org
+   subject: 'r-appveyor build {{status}}'                          # optional
+   message: "https://ci.appveyor.com/project/krlmlr/r-appveyor"    # optional
+   on_build_success: false
+   on_build_failure: true
+   on_build_status_changed: true

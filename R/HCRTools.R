@@ -21,6 +21,7 @@
 #' @seealso \code{\link{IsBinary}}
 #' @seealso \code{\link{ImputeColumn}}
 #' @seealso \code{\link{RemoveRowsWithNAInSpecCol}}
+#' @seealso \code{\link{FindTrendsAboveThreshold}}
 #' @docType package
 #' @name HCRTools
 NULL
