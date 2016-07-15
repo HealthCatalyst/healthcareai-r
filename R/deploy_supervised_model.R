@@ -190,7 +190,8 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
       if (length(ReturnColsWithMoreThanFiftyFactors(df))>0){
         message('The following columns in the data frame have more than fifty factors:')
         message(paste(shQuote(ReturnColsWithMoreThanFiftyFactors(df)), collapse=", "))
-        message('This drastically reduces performance. Consider combining these factors into a new column with fewer factors.')
+        message(paste('This drastically reduces performance.',
+                      'Consider combining these factors into a new column with fewer factors.'))
       }
 
       if (type != 'regression' && type != 'classification') {
