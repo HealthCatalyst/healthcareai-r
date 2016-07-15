@@ -8,8 +8,8 @@
 #' @param dt data.table sorted by an ID column and a time or sequence number
 #' column.
 #' @param id A column name (in ticks) in dt to group rows by.
-#' @return A data.table where the last non-NA values are carried forward (overwriting
-#' NAs) until the group ID changes.
+#' @return A data.table where the last non-NA values are carried forward
+#' (overwriting NAs) until the group ID changes.
 #'
 #' @import data.table
 #' @export
@@ -97,7 +97,7 @@ ImputeColumn <- function(v) {
 #' @title
 #' Check if a vector has only two unique values.
 #'
-#' @description Check if a vector is binary (not counting NA's)
+#' @description Check if a vector is binary (not count_trending NA's)
 #' @param v A vector, or column of values
 #' @return A boolean
 #'
@@ -113,7 +113,7 @@ IsBinary <- function(v) {
   #   v: Vector, a column of values.
   #
   # Returns:
-  #   Boolean of whether column has only two unique values (not counting NA)
+  #   Boolean of whether column has only two unique values (not count_trending NA)
   #
   x <- unique(v)
   length(x) - sum(is.na(x)) == 2L
@@ -280,6 +280,7 @@ ReturnColsWithMoreThanFiftyFactors <- function(df) {
 #' @return A vector of column names
 #'
 #' @importFrom stats lm
+#' @import dplyr
 #' @export
 #' @seealso \code{\link{HCRTools}}
 #' @examples
@@ -294,27 +295,42 @@ ReturnColsWithMoreThanFiftyFactors <- function(df) {
 #' data$y5 <- as.factor(data$y5)
 #'
 #' # Using nelson rule 3 (ie six data points mono decr or incr)
-#' col_list <- FindTrendsAboveThreshold(df = data,
+#' metric.trend.list <- FindTrendsAboveThreshold(df = data,
 #'                                      datecol = 'x',
 #'                                      nelson = TRUE)
 #'
 #' # Using linear slope thresholds (overall entire series)
-#' col_list <- FindTrendsAboveThreshold(df = data,
+#' metric.trend.list <- FindTrendsAboveThreshold(df = data,
 #'                                      datecol = 'x',
 #'                                      threshold = 0.5,
 #'                                      nelson = FALSE)
 #'
-
-FindTrendsAboveThreshold <- function(df, datecol, threshold=0.5, nelson=TRUE) {
+library(dplyr)
+FindTrendsAboveThreshold <- function(df,
+                                     datecol,
+                                     coltoaggregate
+                                     ) {
   #TODO: Create function to order rows by date DESC and ASC
   #df <- df[order(as.Date(df[[datecol]],,format="%Y-%m-%d")),drop=FALSE]
 
-  # Pre-create empty trend vector
-  col_list <- vector('character')
-  count <- 1
+  df <- df %>%
+    mutate(month = format(datecol, "%m"), year = format(datecol, "%Y")) %>%
+    group_by(coltoaggregate, month, year) %>%
+    summarise_each(funs(sum))
+
+  df$datecol <- NULL
+  head(df,n=6)
+
+  # Pre-create empty vectors
+  metric.trend.list <- vector('character')
+  aggregated.col.list <- vector('character')
 
   # If the last six values are monotonically increasing, add col name to list
-  if (isTRUE(nelson)) { # Using nelson rule three
+  for (j in unique(df$coltoaggregate)) {
+    # Just grab rows corresponding to a particular category in the factor col
+
+    df = filter(df, coltoaggregate == j)
+
     for (i in names(df)) {
       if (is.numeric(df[,i])) {
 
@@ -322,32 +338,18 @@ FindTrendsAboveThreshold <- function(df, datecol, threshold=0.5, nelson=TRUE) {
         check.incr = all(tail(df[[i]],6) == cummax(tail(df[[i]],6)))
         check.decr = all(tail(df[[i]],6) == cummin(tail(df[[i]],6)))
         if (isTRUE(check.incr) || isTRUE(check.decr)) {
-          col_list <- c(col_list, i)
-          count <- count + 1
-        }
-      }
-    }
-  } else {
-
-    # If time-trend of particular col is above thresh, add to list
-    for (i in names(df)) {
-      if (is.numeric(df[,i])) {
-        # Scale vector by dividing by its std deviation
-        df[[i]] = scale(df[[i]])
-
-        # Check if absolute slope is greater than threshold
-        model = lm(df[[i]] ~ df[[datecol]])
-        if (abs(model$coefficients[2]) > threshold) {
-          col_list <- c(col_list, i)
-          count <- count + 1
+          # If true, append col names to list to output
+          aggregated.col.list <- c(aggregated.col.list, j)
+          metric.trend.list <- c(metric.trend.list, i)
         }
       }
     }
   }
-  if (length(col_list) == 0) {
-    message('No trends of sufficient slope found')
+
+  if (length(metric.trend.list) == 0) {
+    message('No trends of length found')
     return()
   } else {
-    return(col_list)
+    return(data.frame(aggregated.col.list,metric.trend.list))
   }
 }
