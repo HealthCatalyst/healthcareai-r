@@ -357,6 +357,7 @@ FindTrendsAboveThreshold <- function(df, datecol, threshold=0.5, nelson=TRUE) {
 #'
 #' @description Returns a dataframe that's ordered by its date column
 #' @param df A dataframe
+#' @param dateCol Name of column in dataframe that contains dates
 #' @return df A dataframe ordered by date column
 #'
 #' @export
@@ -364,16 +365,16 @@ FindTrendsAboveThreshold <- function(df, datecol, threshold=0.5, nelson=TRUE) {
 #' @examples
 #' df = data.frame(date=c('2009-01-01','2010-01-01','2009-03-08','2009-01-19','2010-11-11'),
 #'                 a=c(1,2,3,4,5))
-#' resdf = OrderByDate(df)
+#' resdf = OrderByDate(df,'date')
 
 
-OrderByDate <- function(df,descending=FALSE) {
-  df$YearMonthNM <- ymd(df$YearMonthNM)
+OrderByDate <- function(df,datecol,descending=FALSE) {
+  df[[datecol]] <- ymd_hms(df[[datecol]],truncated = 5)
 
   if (descending == FALSE) {
-    df <- df[order(df$YearMonthNM),]
+    df <- df[order(df[[datecol]]),]
   } else {
-    df <- df[rev(order(df$YearMonthNM)),]
+    df <- df[rev(order(df[[datecol]])),]
   }
   df
 }
