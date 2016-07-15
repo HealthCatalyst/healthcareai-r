@@ -306,8 +306,7 @@ ReturnColsWithMoreThanFiftyFactors <- function(df) {
 #'
 
 FindTrendsAboveThreshold <- function(df, datecol, threshold=0.5, nelson=TRUE) {
-  #TODO: Create function to order rows by date DESC and ASC
-  #df <- df[order(as.Date(df[[datecol]],,format="%Y-%m-%d")),drop=FALSE]
+  df <- OrderByDate(df,datecol)
 
   # Pre-create empty trend vector
   col_list <- vector('character')
