@@ -12,6 +12,7 @@ Imports:
     caret,
     data.table,
     doParallel,
+    dplyr,
     e1071,
     grpreg,
     pROC,
