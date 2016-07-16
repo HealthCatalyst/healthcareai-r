@@ -8,13 +8,17 @@ ConvertDateTimeColToDummies(df, date.time.col, depth = "h",
   return.dt.col = FALSE)
 }
 \arguments{
-\item{df}{A dataframe, which includes the datetime column.}
+\item{df}{A dataframe. Indicates the datetime column.}
 
-\item{date.time.col}{A column name (in ticks) in df that will be converted
+\item{date.time.col}{A string. Column name in df that will be converted
 into several columns.}
 
-\item{depth}{The specificity with which to expand extra columns. 'h' expands
-to hour, 'm' expands to minute, and 's' expands to second.}
+\item{depth}{A string. Specifies the depth with which to expand extra columns
+(starting with a year col. 'd' expands to day, 'h' expands to hour (default),
+'m' expands to minute, and 's' expands to second.}
+
+\item{return.dt.col}{A boolean. Return the original date.time.col with
+the modified dataframe?}
 }
 \value{
 A dataframe which now includes several columns based on time

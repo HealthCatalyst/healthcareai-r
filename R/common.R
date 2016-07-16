@@ -63,11 +63,14 @@ GroupedLOCF <- function(dt, id) {
 #' Convert datetime column into dummy columns of day, hour, etc, such that one
 #' can use daily and seasonal patterns in their model building.
 #'
-#' @param df A dataframe, which includes the datetime column.
-#' @param date.time.col A column name (in ticks) in df that will be converted
+#' @param df A dataframe. Indicates the datetime column.
+#' @param date.time.col A string. Column name in df that will be converted
 #' into several columns.
-#' @param depth The specificity with which to expand extra columns. 'h' expands
-#' to hour, 'm' expands to minute, and 's' expands to second.
+#' @param depth A string. Specifies the depth with which to expand extra columns
+#' (starting with a year col. 'd' expands to day, 'h' expands to hour (default),
+#' 'm' expands to minute, and 's' expands to second.
+#' @param return.dt.col A boolean. Return the original date.time.col with
+#' the modified dataframe?
 #' @return A dataframe which now includes several columns based on time
 #' rather than just one datetime column
 #'
