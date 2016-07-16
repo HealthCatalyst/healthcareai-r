@@ -67,8 +67,8 @@ GroupedLOCF <- function(dt, id) {
 #' @param date.time.col A string. Column name in df that will be converted
 #' into several columns.
 #' @param depth A string. Specifies the depth with which to expand extra columns
-#' (starting with a year col. 'd' expands to day, 'h' expands to hour (default),
-#' 'm' expands to minute, and 's' expands to second.
+#' (starting with a year column). 'd' expands to day, 'h' expands to hour
+#' (default), m' expands to minute, and 's' expands to second.
 #' @param return.dt.col A boolean. Return the original date.time.col with
 #' the modified dataframe?
 #' @return A dataframe which now includes several columns based on time
