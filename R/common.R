@@ -87,25 +87,33 @@ ConvertDateTimeColToDummies <- function(df,
                                         date.time.col,
                                         depth='h',
                                         return.dt.col=FALSE) {
-
-  if (depth == 'h') {
+  if (depth == 'd') {
 
     df[[date.time.col]] <- as.POSIXct(df[[date.time.col]])
     df$Year <- as.POSIXlt(df[[date.time.col]])$year + 1900
-    df$Month <- as.POSIXlt(df[[date.time.col]])$mo
+    df$Month <- as.POSIXlt(df[[date.time.col]])$mo + 1
     df$WeekofYear <- strftime(df[[date.time.col]],format="%W")
     df$DayOfMonth <- as.POSIXlt(df[[date.time.col]])$mday
-    df$DayOfWeek <- as.POSIXlt(df[[date.time.col]])$wday
+    df$DayOfWeek <- as.POSIXlt(df[[date.time.col]])$wday + 1
+
+  } else if (depth == 'h') {
+
+    df[[date.time.col]] <- as.POSIXct(df[[date.time.col]])
+    df$Year <- as.POSIXlt(df[[date.time.col]])$year + 1900
+    df$Month <- as.POSIXlt(df[[date.time.col]])$mo + 1
+    df$WeekofYear <- strftime(df[[date.time.col]],format="%W")
+    df$DayOfMonth <- as.POSIXlt(df[[date.time.col]])$mday
+    df$DayOfWeek <- as.POSIXlt(df[[date.time.col]])$wday + 1
     df$Hour <- as.POSIXlt(df[[date.time.col]])$hour
 
   } else if (depth == 'm') {
 
     df[[date.time.col]] <- as.POSIXct(df[[date.time.col]])
     df$Year <- as.POSIXlt(df[[date.time.col]])$year + 1900
-    df$Month <- as.POSIXlt(df[[date.time.col]])$mo
+    df$Month <- as.POSIXlt(df[[date.time.col]])$mo + 1
     df$WeekofYear <- strftime(df[[date.time.col]],format="%W")
     df$DayOfMonth <- as.POSIXlt(df[[date.time.col]])$mday
-    df$DayOfWeek <- as.POSIXlt(df[[date.time.col]])$wday
+    df$DayOfWeek <- as.POSIXlt(df[[date.time.col]])$wday + 1
     df$Hour <- as.POSIXlt(df[[date.time.col]])$hour
     df$Min <- as.POSIXlt(df[[date.time.col]])$min
 
@@ -113,10 +121,10 @@ ConvertDateTimeColToDummies <- function(df,
 
     df[[date.time.col]] <- as.POSIXct(df[[date.time.col]])
     df$Year <- as.POSIXlt(df[[date.time.col]])$year + 1900
-    df$Month <- as.POSIXlt(df[[date.time.col]])$mo
+    df$Month <- as.POSIXlt(df[[date.time.col]])$mo + 1
     df$WeekofYear <- strftime(df[[date.time.col]],format="%W")
     df$DayOfMonth <- as.POSIXlt(df[[date.time.col]])$mday
-    df$DayOfWeek <- as.POSIXlt(df[[date.time.col]])$wday
+    df$DayOfWeek <- as.POSIXlt(df[[date.time.col]])$wday + 1
     df$Hour <- as.POSIXlt(df[[date.time.col]])$hour
     df$Min <- as.POSIXlt(df[[date.time.col]])$min
     df$Sec <- as.POSIXlt(df[[date.time.col]])$sec
