@@ -22,6 +22,7 @@
 #' @seealso \code{\link{ImputeColumn}}
 #' @seealso \code{\link{RemoveRowsWithNAInSpecCol}}
 #' @seealso \code{\link{FindTrendsAboveThreshold}}
+#' @seealso \code{\link{ConvertDateTimeColToDummies}}
 #' @docType package
 #' @name HCRTools
 NULL

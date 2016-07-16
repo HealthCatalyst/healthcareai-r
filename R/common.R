@@ -57,6 +57,89 @@ GroupedLOCF <- function(dt, id) {
 }
 
 #' @title
+#' Convert datetime column into dummy columns
+#'
+#' @description
+#' Convert datetime column into dummy columns of day, hour, etc, such that one
+#' can use daily and seasonal patterns in their model building.
+#'
+#' @param df A dataframe. Indicates the datetime column.
+#' @param date.time.col A string. Column name in df that will be converted
+#' into several columns.
+#' @param depth A string. Specifies the depth with which to expand extra columns
+#' (starting with a year column). 'd' expands to day, 'h' expands to hour
+#' (default), m' expands to minute, and 's' expands to second.
+#' @param return.dt.col A boolean. Return the original date.time.col with
+#' the modified dataframe?
+#' @return A dataframe which now includes several columns based on time
+#' rather than just one datetime column
+#'
+#' @export
+#' @seealso \code{\link{HCRTools}}
+#' @examples
+#' DTCol = c("2001-06-09 12:45:05","2002-01-29 09:30:05","2002-02-02 07:36:50",
+#'           "2002-03-04 16:45:01","2002-11-13 20:00:10","2003-01-29 07:31:43",
+#'           "2003-07-07 17:30:02","2003-09-28 01:03:20")
+#' y1 <- c(.5,1,3,6,8,13,14,1)
+#' y2 <- c(.8,1,1.2,1.2,1.2,1.3,1.3,1)
+#' df <- data.frame(DTCol,y1,y2)
+#'
+#' df <- ConvertDateTimeColToDummies(df, 'DTCol')
+
+ConvertDateTimeColToDummies <- function(df,
+                                        date.time.col,
+                                        depth='h',
+                                        return.dt.col=FALSE) {
+  if (depth == 'd') {
+
+    df[[date.time.col]] <- as.POSIXct(df[[date.time.col]])
+    df$Year <- as.POSIXlt(df[[date.time.col]])$year + 1900
+    df$Month <- as.POSIXlt(df[[date.time.col]])$mo + 1
+    df$WeekofYear <- strftime(df[[date.time.col]],format="%W")
+    df$DayOfMonth <- as.POSIXlt(df[[date.time.col]])$mday
+    df$DayOfWeek <- as.POSIXlt(df[[date.time.col]])$wday + 1
+
+  } else if (depth == 'h') {
+
+    df[[date.time.col]] <- as.POSIXct(df[[date.time.col]])
+    df$Year <- as.POSIXlt(df[[date.time.col]])$year + 1900
+    df$Month <- as.POSIXlt(df[[date.time.col]])$mo + 1
+    df$WeekofYear <- strftime(df[[date.time.col]],format="%W")
+    df$DayOfMonth <- as.POSIXlt(df[[date.time.col]])$mday
+    df$DayOfWeek <- as.POSIXlt(df[[date.time.col]])$wday + 1
+    df$Hour <- as.POSIXlt(df[[date.time.col]])$hour
+
+  } else if (depth == 'm') {
+
+    df[[date.time.col]] <- as.POSIXct(df[[date.time.col]])
+    df$Year <- as.POSIXlt(df[[date.time.col]])$year + 1900
+    df$Month <- as.POSIXlt(df[[date.time.col]])$mo + 1
+    df$WeekofYear <- strftime(df[[date.time.col]],format="%W")
+    df$DayOfMonth <- as.POSIXlt(df[[date.time.col]])$mday
+    df$DayOfWeek <- as.POSIXlt(df[[date.time.col]])$wday + 1
+    df$Hour <- as.POSIXlt(df[[date.time.col]])$hour
+    df$Min <- as.POSIXlt(df[[date.time.col]])$min
+
+  } else if (depth == 's') {
+
+    df[[date.time.col]] <- as.POSIXct(df[[date.time.col]])
+    df$Year <- as.POSIXlt(df[[date.time.col]])$year + 1900
+    df$Month <- as.POSIXlt(df[[date.time.col]])$mo + 1
+    df$WeekofYear <- strftime(df[[date.time.col]],format="%W")
+    df$DayOfMonth <- as.POSIXlt(df[[date.time.col]])$mday
+    df$DayOfWeek <- as.POSIXlt(df[[date.time.col]])$wday + 1
+    df$Hour <- as.POSIXlt(df[[date.time.col]])$hour
+    df$Min <- as.POSIXlt(df[[date.time.col]])$min
+    df$Sec <- as.POSIXlt(df[[date.time.col]])$sec
+  }
+
+  if (isTRUE(!return.dt.col)) {
+    df[[date.time.col]] <- NULL
+  }
+  df
+}
+
+#' @title
 #' Perform imputation on a vector
 #'
 #' @description This class performs imputation on a vector. For numeric vectors
