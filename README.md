@@ -22,11 +22,12 @@ To install:
   - Check the top-level repo box
   - Store token in secure place
   
-- Use this token to download and install HCRTools via this command in the
-console: 
+- Use your username/token to download and install HCRTools via the console: 
 
-```R library(devtools)
-devtools::install_github(repo='HealthCatalystSLC/HCRTools',user='username',auth_token='yourtoken')```
+```R 
+library(devtools)
+devtools::install_github(repo='HealthCatalystSLC/HCRTools',user='username',auth_token='yourtoken')
+```
 
 To get started creating models on your data, check out this [notebook.](inst/notebooks/HCRToolsExample1.ipynb)
 
