@@ -25,10 +25,11 @@ To install:
 - Use this token to download and install HCRTools via this command in the
 console: 
 
-library(devtools)
-devtools::install_github(repo='HealthCatalystSLC/HCRTools',user='username',auth_token='yourtoken')
+```R library(devtools)
+devtools::install_github(repo='HealthCatalystSLC/HCRTools',user='username',auth_token='yourtoken')```
 
-To get started, check out this [notebook.](inst/notebooks/HCRToolsExample1.ipynb)
+To get started creating models on your data, check out this [notebook.](inst/notebooks/HCRToolsExample1.ipynb)
 
 After finding an accurate model, see this
-[notebook](inst/notebooks/HCRToolsExample2.ipynb) to push predictions to SQL Server.
+[notebook](inst/notebooks/HCRToolsExample2.ipynb) to push predictions to SQL 
+Server.
