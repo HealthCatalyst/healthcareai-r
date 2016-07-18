@@ -13,12 +13,21 @@ source('R/common.R')
 #' @param group.col Column that we'll use to differentiate
 #' @param impute Set all-column imputation to F or T.
 #'
-#' This uses mean replacement for numeric columns
-#' and most frequent for factorized columns.
-#' F leads to removal of rows containing NULLs.
-#' @param debug Provides the user extended output to the console, in order
-#' to monitor the calculations throughout. Use T or F.
 #' @references \url{http://products.healthcatalyst.com/Predictive}
-#' @seealso \code{\link{DeploySupervisedModel}}
 #' @seealso \code{\link{HCRTools}}
-#' @examples
+
+RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
+  public = list(
+
+    # Add attributes here
+    df = NA,
+
+
+  initialize = function(df, predicted.col, group.col, impute) {
+    # Clean and impute data
+
+
+
+  }
+ )
+)
