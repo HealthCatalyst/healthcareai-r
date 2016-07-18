@@ -74,16 +74,16 @@ connection.string <- 'driver={SQL Server};
 # Can delete this line in your work:
 csvfile <- system.file("extdata", "HREmployeeDeploy.csv",package = "HCRTools")
 
-totaldf <- read.csv(file = csvfile, #<--replace with 'your/path'
+df <- read.csv(file = csvfile, #<--replace with 'your/path'
                     header = TRUE,
                     na.strings = 'NULL')
 
-totaldf$VacationHours <- NULL
+df$VacationHours <- NULL
 
-head(totaldf)
+head(df)
 
 o <- DeploySupervisedModel$new(type = 'classification',
-                               df = totaldf,
+                               df = df,
                                grain.col = 'GrainID',
                                window.col = 'InTestWindow',
                                predicted.col = 'SalariedFlag',
@@ -132,20 +132,20 @@ connection.string <- 'driver={SQL Server};
 
 # Use this for an example SQL source:
 # query <- "SELECT * FROM [SAM].[YourCoolSAM].[SomeTrainingSetTable]"
-# totaldf <- SelectData(connection.string, query)
+# df <- SelectData(connection.string, query)
 
 # Can delete these four lines when you set up your SQL connection/query
 csvfile <- system.file("extdata", "HREmployeeDeploy.csv",package = "HCRTools")
-totaldf <- read.csv(file = csvfile,
+df <- read.csv(file = csvfile,
                     header = TRUE,
                     na.strings = 'NULL')
 
-head(totaldf)
+head(df)
 
-totaldf <- subset(totaldf, select = -c(SalariedFlag))
+df <- subset(df, select = -c(SalariedFlag))
 
 o <- DeploySupervisedModel$new(type = 'regression',
-                               df = totaldf,
+                               df = df,
                                grain.col = 'GrainID',
                                window.col = 'InTestWindow',
                                predicted.col = 'VacationHours',

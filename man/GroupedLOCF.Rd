@@ -13,8 +13,8 @@ column.}
 \item{id}{A column name (in ticks) in dt to group rows by.}
 }
 \value{
-A data.table where the last non-NA values are carried forward (overwriting
-NAs) until the group ID changes.
+A data.table where the last non-NA values are carried forward
+(overwriting NAs) until the group ID changes.
 }
 \description{
 Carries the last observed value forward for all columns in a data.table

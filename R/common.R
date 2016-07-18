@@ -97,7 +97,7 @@ ImputeColumn <- function(v) {
 #' @title
 #' Check if a vector has only two unique values.
 #'
-#' @description Check if a vector is binary (not count_trending NA's)
+#' @description Check if a vector is binary (not countings NA's)
 #' @param v A vector, or column of values
 #' @return A boolean
 #'
@@ -113,7 +113,7 @@ IsBinary <- function(v) {
   #   v: Vector, a column of values.
   #
   # Returns:
-  #   Boolean of whether column has only two unique values (not count_trending NA)
+  #   Boolean of whether column has only two unique values (not counting NA)
   #
   x <- unique(v)
   length(x) - sum(is.na(x)) == 2L
@@ -279,77 +279,90 @@ ReturnColsWithMoreThanFiftyFactors <- function(df) {
 #' @param df A dataframe
 #' @return A vector of column names
 #'
-#' @importFrom stats lm
-#' @import dplyr
 #' @export
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' x <- seq(as.Date("2012-01-01"), as.Date("2012-01-06"), by = "days")
-#' y1 <- c(1,3,6,8,13,14)          # big positive
-#' y2 <- c(1,1.2,1.2,1.2,1.3,1.3)  # small positive
-#' y3 <- c(0,-2,-2,-4,-5,-7)       # big negative
-#' y4 <- c(0,-.5,-.5,-.5,-.5,-.6)  # small negative
-#' y5 <- c(0,1,1,2,5,5)            # factor col
+#'x <- c(as.Date("2012-01-01"),as.Date("2012-01-02"),as.Date("2012-02-01"),
+#'       as.Date("2012-03-01"),as.Date("2012-04-01"),as.Date("2012-05-01"),
+#'       as.Date("2012-06-01"),as.Date("2012-06-02"))
+#'y1 <- c(0,1,2,6,8,13,14,16)         # large positive
+#'y2 <- c(.8,1,1.2,1.2,1.2,1.3,1.3,1.5)  # small positive
+#'y3 <- c(1,0,-2,-2,-4,-5,-7,-8)       # big negative
+#'y4 <- c(.5,0,-.5,-.5,-.5,-.5,-.6,0)  # small negative
+#'y5 <- c('M','F','F','F','F','F','F','F')            # factor col
+#'df <- data.frame(x,y1,y2,y3,y4,y5)
 #'
-#' data <- data.frame(x,y1,y2,y3,y4,y5)
-#' data$y5 <- as.factor(data$y5)
+#'res = FindTrendsAboveThreshold(df = df,
+#'                               datecol = 'x',
+#'                               coltoaggregate = 'y5')
 #'
-#' # Using nelson rule 3 (ie six data points mono decr or incr)
-#' metric.trend.list <- FindTrendsAboveThreshold(df = data,
-#'                                      datecol = 'x',
-#'                                      nelson = TRUE)
-#'
-#' # Using linear slope thresholds (overall entire series)
-#' metric.trend.list <- FindTrendsAboveThreshold(df = data,
-#'                                      datecol = 'x',
-#'                                      threshold = 0.5,
-#'                                      nelson = FALSE)
-#'
-library(dplyr)
 FindTrendsAboveThreshold <- function(df,
                                      datecol,
-                                     coltoaggregate
-                                     ) {
-  #TODO: Create function to order rows by date DESC and ASC
-  #df <- df[order(as.Date(df[[datecol]],,format="%Y-%m-%d")),drop=FALSE]
+                                     coltoaggregate) {
 
-  df <- df %>%
-    mutate(month = format(datecol, "%m"), year = format(datecol, "%Y")) %>%
-    group_by(coltoaggregate, month, year) %>%
-    summarise_each(funs(sum))
+  df$year <- as.POSIXlt(df[[datecol]])$year + 1900
+  df$month <- as.POSIXlt(df[[datecol]])$mo + 1
 
-  df$datecol <- NULL
-  head(df,n=6)
+  df[[datecol]] <- NULL
+
+  df <- aggregate(formula(paste0(".~", coltoaggregate, "+year+month")),
+                      data=df,
+                      FUN=sum)
+
+  df <- df[with(df, order(year, month)), ]
+
+  # TODO: alter this last month dynamically when we search over all time
+  final_yr_month = paste0(month.abb[df$month[length(df$month)]],
+                         '-',
+                         df$year[length(df$year)])
 
   # Pre-create empty vectors
   metric.trend.list <- vector('character')
   aggregated.col.list <- vector('character')
 
+  # Create list that doesn't have cols we aggregated by
+  coliterlist = names(df)
+  remove <- c(coltoaggregate,"year","month")
+  coliterlist <- coliterlist[!coliterlist %in% remove]
+
   # If the last six values are monotonically increasing, add col name to list
-  for (j in unique(df$coltoaggregate)) {
+  for (j in unique(df[[coltoaggregate]])) {
     # Just grab rows corresponding to a particular category in the factor col
+    dftemp <- df[df[[coltoaggregate]] == j,]
 
-    df = filter(df, coltoaggregate == j)
+    print('Dataframe after grouping and focusing on one category in group col:')
+    print(tail(dftemp,n=6))
 
-    for (i in names(df)) {
-      if (is.numeric(df[,i])) {
-
+    # Iterate over all columns except for cols that we aggregated by
+    for (i in coliterlist) {
+      if (is.numeric(dftemp[[i]])) {
         # Check if last six values are monotonically increasing
-        check.incr = all(tail(df[[i]],6) == cummax(tail(df[[i]],6)))
-        check.decr = all(tail(df[[i]],6) == cummin(tail(df[[i]],6)))
-        if (isTRUE(check.incr) || isTRUE(check.decr)) {
-          # If true, append col names to list to output
-          aggregated.col.list <- c(aggregated.col.list, j)
-          metric.trend.list <- c(metric.trend.list, i)
+        n <- nrow(dftemp)
+        if (n>5) {
+          check.incr = all(dftemp[[i]][(n-5):n] == cummax(dftemp[[i]][(n-5):n]))
+          check.decr = all(dftemp[[i]][(n-5):n] == cummin(dftemp[[i]][(n-5):n]))
+          if (isTRUE(check.incr) || isTRUE(check.decr)) {
+            # If true, append col names to list to output
+            aggregated.col.list <- c(aggregated.col.list, j)
+            metric.trend.list <- c(metric.trend.list, i)
+          }
         }
       }
     }
   }
 
   if (length(metric.trend.list) == 0) {
-    message('No trends of length found')
+    message('No trends of sufficient length found')
     return()
   } else {
-    return(data.frame(aggregated.col.list,metric.trend.list))
+    dfreturn = data.frame(coltoaggregate,
+                          aggregated.col.list,
+                          metric.trend.list,
+                          final_yr_month)
+    colnames(dfreturn) <- c("DimAttribute",
+                            "GroupBy",
+                            "MeasuresTrending",
+                            "FinalDate")
+    return(dfreturn)
   }
 }
