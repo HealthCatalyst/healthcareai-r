@@ -8,8 +8,8 @@
 #' @param dt data.table sorted by an ID column and a time or sequence number
 #' column.
 #' @param id A column name (in ticks) in dt to group rows by.
-#' @return A data.table where the last non-NA values are carried forward (overwriting
-#' NAs) until the group ID changes.
+#' @return A data.table where the last non-NA values are carried forward
+#' (overwriting NAs) until the group ID changes.
 #'
 #' @import data.table
 #' @export
@@ -180,7 +180,7 @@ ImputeColumn <- function(v) {
 #' @title
 #' Check if a vector has only two unique values.
 #'
-#' @description Check if a vector is binary (not counting NA's)
+#' @description Check if a vector is binary (not countings NA's)
 #' @param v A vector, or column of values
 #' @return A boolean
 #'
@@ -362,75 +362,90 @@ ReturnColsWithMoreThanFiftyFactors <- function(df) {
 #' @param df A dataframe
 #' @return A vector of column names
 #'
-#' @importFrom stats lm
 #' @export
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' x <- seq(as.Date("2012-01-01"), as.Date("2012-01-06"), by = "days")
-#' y1 <- c(1,3,6,8,13,14)          # big positive
-#' y2 <- c(1,1.2,1.2,1.2,1.3,1.3)  # small positive
-#' y3 <- c(0,-2,-2,-4,-5,-7)       # big negative
-#' y4 <- c(0,-.5,-.5,-.5,-.5,-.6)  # small negative
-#' y5 <- c(0,1,1,2,5,5)            # factor col
+#'x <- c(as.Date("2012-01-01"),as.Date("2012-01-02"),as.Date("2012-02-01"),
+#'       as.Date("2012-03-01"),as.Date("2012-04-01"),as.Date("2012-05-01"),
+#'       as.Date("2012-06-01"),as.Date("2012-06-02"))
+#'y1 <- c(0,1,2,6,8,13,14,16)         # large positive
+#'y2 <- c(.8,1,1.2,1.2,1.2,1.3,1.3,1.5)  # small positive
+#'y3 <- c(1,0,-2,-2,-4,-5,-7,-8)       # big negative
+#'y4 <- c(.5,0,-.5,-.5,-.5,-.5,-.6,0)  # small negative
+#'y5 <- c('M','F','F','F','F','F','F','F')            # factor col
+#'df <- data.frame(x,y1,y2,y3,y4,y5)
 #'
-#' data <- data.frame(x,y1,y2,y3,y4,y5)
-#' data$y5 <- as.factor(data$y5)
+#'res = FindTrendsAboveThreshold(df = df,
+#'                               datecol = 'x',
+#'                               coltoaggregate = 'y5')
 #'
-#' # Using nelson rule 3 (ie six data points mono decr or incr)
-#' col_list <- FindTrendsAboveThreshold(df = data,
-#'                                      datecol = 'x',
-#'                                      nelson = TRUE)
-#'
-#' # Using linear slope thresholds (overall entire series)
-#' col_list <- FindTrendsAboveThreshold(df = data,
-#'                                      datecol = 'x',
-#'                                      threshold = 0.5,
-#'                                      nelson = FALSE)
-#'
+FindTrendsAboveThreshold <- function(df,
+                                     datecol,
+                                     coltoaggregate) {
 
-FindTrendsAboveThreshold <- function(df, datecol, threshold=0.5, nelson=TRUE) {
-  #TODO: Create function to order rows by date DESC and ASC
-  #df <- df[order(as.Date(df[[datecol]],,format="%Y-%m-%d")),drop=FALSE]
+  df$year <- as.POSIXlt(df[[datecol]])$year + 1900
+  df$month <- as.POSIXlt(df[[datecol]])$mo + 1
 
-  # Pre-create empty trend vector
-  col_list <- vector('character')
-  count <- 1
+  df[[datecol]] <- NULL
+
+  df <- aggregate(formula(paste0(".~", coltoaggregate, "+year+month")),
+                      data=df,
+                      FUN=sum)
+
+  df <- df[with(df, order(year, month)), ]
+
+  # TODO: alter this last month dynamically when we search over all time
+  final_yr_month = paste0(month.abb[df$month[length(df$month)]],
+                         '-',
+                         df$year[length(df$year)])
+
+  # Pre-create empty vectors
+  metric.trend.list <- vector('character')
+  aggregated.col.list <- vector('character')
+
+  # Create list that doesn't have cols we aggregated by
+  coliterlist = names(df)
+  remove <- c(coltoaggregate,"year","month")
+  coliterlist <- coliterlist[!coliterlist %in% remove]
 
   # If the last six values are monotonically increasing, add col name to list
-  if (isTRUE(nelson)) { # Using nelson rule three
-    for (i in names(df)) {
-      if (is.numeric(df[,i])) {
+  for (j in unique(df[[coltoaggregate]])) {
+    # Just grab rows corresponding to a particular category in the factor col
+    dftemp <- df[df[[coltoaggregate]] == j,]
 
+    print('Dataframe after grouping and focusing on one category in group col:')
+    print(tail(dftemp,n=6))
+
+    # Iterate over all columns except for cols that we aggregated by
+    for (i in coliterlist) {
+      if (is.numeric(dftemp[[i]])) {
         # Check if last six values are monotonically increasing
-        check.incr = all(tail(df[[i]],6) == cummax(tail(df[[i]],6)))
-        check.decr = all(tail(df[[i]],6) == cummin(tail(df[[i]],6)))
-        if (isTRUE(check.incr) || isTRUE(check.decr)) {
-          col_list <- c(col_list, i)
-          count <- count + 1
-        }
-      }
-    }
-  } else {
-
-    # If time-trend of particular col is above thresh, add to list
-    for (i in names(df)) {
-      if (is.numeric(df[,i])) {
-        # Scale vector by dividing by its std deviation
-        df[[i]] = scale(df[[i]])
-
-        # Check if absolute slope is greater than threshold
-        model = lm(df[[i]] ~ df[[datecol]])
-        if (abs(model$coefficients[2]) > threshold) {
-          col_list <- c(col_list, i)
-          count <- count + 1
+        n <- nrow(dftemp)
+        if (n>5) {
+          check.incr = all(dftemp[[i]][(n-5):n] == cummax(dftemp[[i]][(n-5):n]))
+          check.decr = all(dftemp[[i]][(n-5):n] == cummin(dftemp[[i]][(n-5):n]))
+          if (isTRUE(check.incr) || isTRUE(check.decr)) {
+            # If true, append col names to list to output
+            aggregated.col.list <- c(aggregated.col.list, j)
+            metric.trend.list <- c(metric.trend.list, i)
+          }
         }
       }
     }
   }
-  if (length(col_list) == 0) {
-    message('No trends of sufficient slope found')
+
+  if (length(metric.trend.list) == 0) {
+    message('No trends of sufficient length found')
     return()
   } else {
-    return(col_list)
+    dfreturn = data.frame(coltoaggregate,
+                          aggregated.col.list,
+                          metric.trend.list,
+                          final_yr_month)
+    colnames(dfreturn) <- c("DimAttribute",
+                            "GroupBy",
+                            "MeasuresTrending",
+                            "FinalDate")
+    return(dfreturn)
   }
 }
