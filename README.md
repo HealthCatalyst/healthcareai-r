@@ -13,11 +13,20 @@ model that pushes predictions to SQL Server.
 
 To install:
 
-- Click on 'Clone or download' above and download the zip file
+- Open RStudio or RGui
 
-- In RStudio's console, type setwd('C:/Path/To/Zip')
+- Install devtools via the console: install.packages('devtools')
 
-- Then type install.packages('HCRTools_0.1.7.zip', repos=NULL, type='binary')
+- Generate github personal access token (PAT)
+  - Naviagate here: https://github.com/settings/tokens/
+  - Check the top-level repo box
+  - Store token in secure place
+  
+- Use this token to download and install HCRTools via this command in the
+console: 
+
+library(devtools)
+devtools::install_github(repo='HealthCatalystSLC/HCRTools',user='username',auth_token='yourtoken')
 
 To get started, check out this [notebook.](inst/notebooks/HCRToolsExample1.ipynb)
 
