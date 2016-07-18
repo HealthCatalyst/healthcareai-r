@@ -280,6 +280,7 @@ ReturnColsWithMoreThanFiftyFactors <- function(df) {
 #' @return A vector of column names
 #'
 #' @importFrom stats lm
+#' @importFrom utils tail
 #' @export
 #' @seealso \code{\link{HCRTools}}
 #' @examples
@@ -306,7 +307,6 @@ ReturnColsWithMoreThanFiftyFactors <- function(df) {
 #'
 
 FindTrendsAboveThreshold <- function(df, datecol, threshold=0.5, nelson=TRUE) {
-  df <- OrderByDate(df,datecol)
 
   # Pre-create empty trend vector
   col_list <- vector('character')
@@ -357,14 +357,17 @@ FindTrendsAboveThreshold <- function(df, datecol, threshold=0.5, nelson=TRUE) {
 #' @description Returns a dataframe that's ordered by its date column
 #' @param df A dataframe
 #' @param dateCol Name of column in dataframe that contains dates
+#' @param descending Boolean for whether the output should be in descending order
 #' @return df A dataframe ordered by date column
 #'
+#' @import lubridate
 #' @export
 #' @seealso \code{\link{HCRTools}}
 #' @examples
+#' library(lubridate)
 #' df = data.frame(date=c('2009-01-01','2010-01-01','2009-03-08','2009-01-19','2010-11-11'),
 #'                 a=c(1,2,3,4,5))
-#' resdf = OrderByDate(df,'date')
+#' resdf = OrderByDate(df,'date',descending=FALSE)
 
 
 OrderByDate <- function(df,datecol,descending=FALSE) {
