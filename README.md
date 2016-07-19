@@ -20,8 +20,9 @@ To install:
 install.packages('devtools')
 ```
 
-- Generate github personal access token (PAT)
-  - Naviagate here: https://github.com/settings/tokens/
+- Generate a github token
+  - Navigate [here](https://github.com/settings/tokens) and click on 'Generate a 
+  personal access token'
   - Check the top-level repo box
   - Store token in secure place
   
@@ -31,6 +32,7 @@ install.packages('devtools')
 library(devtools)
 devtools::install_github(repo='HealthCatalystSLC/HCRTools',user='username',auth_token='yourtoken')
 ```
+
 
 To get started creating models on your data, check out this [notebook.](inst/notebooks/HCRToolsExample1.ipynb)
 
