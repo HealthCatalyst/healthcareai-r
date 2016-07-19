@@ -11,7 +11,7 @@ model that pushes predictions to SQL Server.
 
 -  Provide tools related to data cleaning, manipulation, and imputation.
 
-To install:
+Installation:
 
 - Open RGui (which comes with R) or RStudio (which is downloaded separately)
 
@@ -33,7 +33,7 @@ library(devtools)
 devtools::install_github(repo='HealthCatalystSLC/HCRTools',user='username',auth_token='yourtoken')
 ```
 
-To get started:
+Getting started:
 
 - To create a couple models on your data, check out this [notebook.](inst/notebooks/HCRToolsExample1.ipynb)
 
