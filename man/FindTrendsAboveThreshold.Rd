@@ -4,7 +4,7 @@
 \alias{FindTrendsAboveThreshold}
 \title{Find any columns that have a trend above a particular threshold}
 \usage{
-FindTrendsAboveThreshold(df, datecol, threshold = 0.5, nelson = TRUE)
+FindTrendsAboveThreshold(df, datecol, coltoaggregate)
 }
 \arguments{
 \item{df}{A dataframe}
@@ -17,26 +17,19 @@ Find numeric columns in dataframe that have an absolute slope greater than
 that specified via threshold argument.
 }
 \examples{
-x <- seq(as.Date("2012-01-01"), as.Date("2012-01-06"), by = "days")
-y1 <- c(1,3,6,8,13,14)          # big positive
-y2 <- c(1,1.2,1.2,1.2,1.3,1.3)  # small positive
-y3 <- c(0,-2,-2,-4,-5,-7)       # big negative
-y4 <- c(0,-.5,-.5,-.5,-.5,-.6)  # small negative
-y5 <- c(0,1,1,2,5,5)            # factor col
+x <- c(as.Date("2012-01-01"),as.Date("2012-01-02"),as.Date("2012-02-01"),
+      as.Date("2012-03-01"),as.Date("2012-04-01"),as.Date("2012-05-01"),
+      as.Date("2012-06-01"),as.Date("2012-06-02"))
+y1 <- c(0,1,2,6,8,13,14,16)         # large positive
+y2 <- c(.8,1,1.2,1.2,1.2,1.3,1.3,1.5)  # small positive
+y3 <- c(1,0,-2,-2,-4,-5,-7,-8)       # big negative
+y4 <- c(.5,0,-.5,-.5,-.5,-.5,-.6,0)  # small negative
+y5 <- c('M','F','F','F','F','F','F','F')            # factor col
+df <- data.frame(x,y1,y2,y3,y4,y5)
 
-data <- data.frame(x,y1,y2,y3,y4,y5)
-data$y5 <- as.factor(data$y5)
-
-# Using nelson rule 3 (ie six data points mono decr or incr)
-col_list <- FindTrendsAboveThreshold(df = data,
-                                     datecol = 'x',
-                                     nelson = TRUE)
-
-# Using linear slope thresholds (overall entire series)
-col_list <- FindTrendsAboveThreshold(df = data,
-                                     datecol = 'x',
-                                     threshold = 0.5,
-                                     nelson = FALSE)
+res = FindTrendsAboveThreshold(df = df,
+                              datecol = 'x',
+                              coltoaggregate = 'y5')
 
 }
 \seealso{
