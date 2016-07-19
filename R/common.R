@@ -362,6 +362,8 @@ ReturnColsWithMoreThanFiftyFactors <- function(df) {
 #' @param df A dataframe
 #' @return A vector of column names
 #'
+#' @importFrom stats aggregate formula
+#' @importFrom utils tail
 #' @export
 #' @seealso \code{\link{HCRTools}}
 #' @examples
@@ -448,4 +450,34 @@ FindTrendsAboveThreshold <- function(df,
                             "FinalDate")
     return(dfreturn)
   }
+}
+
+#' @title
+#' Return a dataframe ordered by date
+#'
+#' @description Returns a dataframe that's ordered by its date column
+#' @param df A dataframe
+#' @param dateCol Name of column in dataframe that contains dates
+#' @param descending Boolean for whether the output should be in descending order
+#' @return df A dataframe ordered by date column
+#'
+#' @importFrom lubridate ymd_hms
+#' @export
+#' @seealso \code{\link{HCRTools}}
+#' @examples
+#' library(lubridate)
+#' df = data.frame(date=c('2009-01-01','2010-01-01','2009-03-08','2009-01-19','2010-11-11'),
+#'                 a=c(1,2,3,4,5))
+#' resdf = OrderByDate(df,'date',descending=FALSE)
+
+
+OrderByDate <- function(df,datecol,descending=FALSE) {
+  df[[datecol]] <- ymd_hms(df[[datecol]],truncated = 5)
+
+  if (descending == FALSE) {
+    df <- df[order(df[[datecol]]),]
+  } else {
+    df <- df[rev(order(df[[datecol]])),]
+  }
+  df
 }
