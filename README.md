@@ -13,7 +13,7 @@ model that pushes predictions to SQL Server.
 
 Installation:
 
-- Open RGui (which comes with R) or RStudio (which is downloaded separately)
+- Open RGui (which comes with R) or RStudio (which is recommended and downloaded separately)
 
 - Install prerequisites:
 ```R
