@@ -15,6 +15,12 @@ Installation:
 
 - Open RGui (which comes with R) or RStudio (which is downloaded separately)
 
+- Install prerequisites:
+```R
+install.packages(c('caret','data.table','doParallel','e1071','grpreg','pROC','R6','ranger','ROCR','RODBC'
+),repos = "https://cran.cnr.berkeley.edu/")
+```
+
 - Install devtools via the console: 
 ```R
 install.packages('devtools')
