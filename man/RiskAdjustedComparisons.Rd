@@ -24,6 +24,35 @@ see how well group A does against what the model would predict. Ranking each
 of the groups this way provides a sense of which group's doing best in
 terms of a particular measure.
 }
+\examples{
+# The examples will run as-is, but you can find the data used here
+# C:\\Users\\levi.thatcher\\Documents\\R\\win-library\\3.2\\HCRTools\\extdata OR
+# C:\\Program Files\\R\\R-3.2.3\\library\\HCRTools\\extdata
+
+#### Example using csv data ####
+library(HCRTools)
+#setwd("C:/Your/script/location") # Needed if using YOUR CSV file
+ptm <- proc.time()
+
+# Can delete this line in your work
+csvfile <- system.file("extdata", "HREmployeeDev.csv", package = "HCRTools")
+
+totaldf <- read.csv(file = csvfile, #<-- Replace with 'your/path'
+                    header = TRUE,
+                    na.strings = 'NULL')
+
+head(totaldf)
+
+set.seed(43)
+o <- RiskAdjustedComparisons$new(df = totaldf,
+                                 group.col = 'Gender',
+                                 #grain.col = OPTIONAL/ENCOURAGED
+                                 predicted.col = 'SalariedFlag',
+                                 impute = TRUE)
+
+o$compare(debug=TRUE)
+
+}
 \references{
 \url{http://products.healthcatalyst.com/Predictive}
 }
