@@ -66,23 +66,3 @@ Models compared: Logistic Regression (glm-logit), Random Forest (rf)
 ```{r plot, echo = FALSE, message = FALSE, warning = FALSE, error = FALSE}
 o$plotROC()
 ```
-
-***
-
-Logistic Regression:
-```{r chunk4, echo = FALSE, message = FALSE, warning = FALSE, error = FALSE}
-o$logit.conf.matrix
-library(caret)
-dotPlot(o$logit.var.imp)
-```
-
-***
-
-Random Forest:
-```{r chunk5, echo = FALSE, message = FALSE, warning = FALSE, error = FALSE}
-o$rf.conf.matrix
-library(caret)
-dotPlot(o$rf.var.imp)
-```
-
-***
