@@ -30,8 +30,7 @@ install.packages('devtools')
 
 ```R 
 library(devtools)
-devtools::install_github(repo='HealthCatalystSLC/HCRTools',user='yourusername',
-auth_token='yourtoken')
+devtools::install_github(repo='HealthCatalystSLC/HCRTools',user='yourusername',auth_token='yourtoken')
 ```
 
 Getting started:
