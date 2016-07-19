@@ -360,7 +360,7 @@ FindTrendsAboveThreshold <- function(df, datecol, threshold=0.5, nelson=TRUE) {
 #' @param descending Boolean for whether the output should be in descending order
 #' @return df A dataframe ordered by date column
 #'
-#' @import lubridate
+#' @importFrom lubridate ymd_hms
 #' @export
 #' @seealso \code{\link{HCRTools}}
 #' @examples
