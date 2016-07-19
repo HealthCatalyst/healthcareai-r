@@ -189,11 +189,26 @@ DevelopSupervisedModel <- R6Class("DevelopSupervisedModel",
       if (length(ReturnColsWithMoreThanFiftyFactors(df))>0){
         message('The following columns in the data frame have more than fifty factors:')
         message(paste(shQuote(ReturnColsWithMoreThanFiftyFactors(df)), collapse=", "))
-        message('This drastically reduces performance. Consider combining these factors into a new column with fewer factors.')
+        message(paste('This drastically reduces performance.',
+                      'Consider combining these factors into a new column with fewer factors.'))
       }
 
       if (isTRUE(debug)) {
         print('Entire data set at the top of the constructor')
+        print(str(df))
+      }
+
+      if (isTRUE(debug)) {
+        print('Entire df after removing cols with DTS')
+        print(str(df))
+        print('Now going to remove zero-var cols...')
+      }
+
+      # Remove columns with zero variance
+      df <- RemoveColsWithAllSameValue(df)
+
+      if (isTRUE(debug)) {
+        print('Entire df after removing feature cols w/zero var')
         print(str(df))
       }
 
