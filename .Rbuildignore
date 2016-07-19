@@ -7,3 +7,5 @@
 ^\.vs$
 ^\.vs/HCRTools/v14/\.suo$
 ^appveyor\.yml$
+^inst/RMarkdown/DartmouthNoShowsReport\.html$
+^inst/RMarkdown/DartmouthNoShowsReport\.Rmd$
