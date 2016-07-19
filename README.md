@@ -13,9 +13,12 @@ model that pushes predictions to SQL Server.
 
 To install:
 
-- Open RStudio or RGui
+- Open RGui (which comes with R) or RStudio (which is downloaded separately)
 
-- Install devtools via the console: install.packages('devtools')
+- Install devtools via the console: 
+```R
+install.packages('devtools')
+```
 
 - Generate github personal access token (PAT)
   - Naviagate here: https://github.com/settings/tokens/
