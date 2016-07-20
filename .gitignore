@@ -5,3 +5,6 @@
 rmodel_probability.rda
 rmodel_var_import.rda
 .vs/
+inst/RMarkdown/DartmouthNoShowsReport.Rmd
+inst/RMarkdown/DartmouthNoShowsReport.html
+tests/testthat/Rplots.pdf
