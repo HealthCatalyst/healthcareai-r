@@ -202,10 +202,11 @@ RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
                                  (mean(as.numeric(comparative.performance))))
 
       dfreturn <- data.frame(group.by.list, comparative.performance)
-      print("Finished calculating your risk-adjusted comparison")
-      print('Note that positive values denote performance above expected:')
-      print(dfreturn)
-      }
+    }
+
+    print("Finished calculating your risk-adjusted comparison")
+    print('Note that positive values denote performance above expected:')
+    print(dfreturn)
 
     return(invisible(dfreturn))
 

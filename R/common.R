@@ -180,7 +180,7 @@ ImputeColumn <- function(v) {
 #' @title
 #' Check if a vector has only two unique values.
 #'
-#' @description Check if a vector is binary (not countings NA's)
+#' @description Check if a vector is binary (not counting NA's)
 #' @param v A vector, or column of values
 #' @return A boolean
 #'

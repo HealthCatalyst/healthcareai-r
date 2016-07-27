@@ -14,8 +14,7 @@
 #' Server.
 #' }
 #
-#' @seealso \code{\link{DevelopSupervisedModel}}
-#' @seealso \code{\link{DeploySupervisedModel}}
+#' @seealso \code{\link{RiskAdjustedComparisons}}
 #' @seealso \code{\link{GroupedLOCF}}
 #' @seealso \code{\link{SelectData}}
 #' @seealso \code{\link{IsBinary}}

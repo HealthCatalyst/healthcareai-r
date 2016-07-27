@@ -22,9 +22,7 @@ Server.
 }
 }
 \seealso{
-\code{\link{DevelopSupervisedModel}}
-
-\code{\link{DeploySupervisedModel}}
+\code{\link{RiskAdjustedComparisons}}
 
 \code{\link{GroupedLOCF}}
 

@@ -40,7 +40,7 @@ source('R/common.R')
 #' # This example requires
 #' #    1) You set your working directory to source file location
 #' #    2) To receive predictions from R back to SQL Server, you'll need to save
-#' #       and run an entity in SAMD that has the following columns
+#' #       and run an entity in SAMD that has only the following columns
 #' #
 #' # GrainID decimal(38,0) not null, <--change col to match ID in summary table
 #' # PredictedProbNBR decimal(38,2),
@@ -100,7 +100,7 @@ source('R/common.R')
 #' # This example requires
 #' #     1) You set your working directory to source file location
 #' #     2) To receive predictions from R back to SQL Server, you'll need to
-#' #        save and run an entity in SAMD that has the following columns
+#' #        save and run an entity in SAMD that has only the following columns
 #'
 #' # GrainID decimal(38,0) not null, <--change col to match ID in summary table
 #' # PredictedValueNBR decimal(38,2),
