@@ -17,13 +17,8 @@ Installation:
 
 - Install prerequisites:
 ```R
-install.packages(c('caret','data.table','doParallel','e1071','grpreg','lubridate','pROC','R6','ranger','ROCR','RODBC'
+install.packages(c('caret','data.table','devtools','doParallel','e1071','grpreg','lubridate','pROC','R6','ranger','ROCR','RODBC'
 ),repos = "https://cran.cnr.berkeley.edu/")
-```
-
-- Install devtools via the console: 
-```R
-install.packages('devtools')
 ```
 
 - Generate a github token

@@ -89,7 +89,7 @@ test_that("rmse_rf is the same each time the test is run non-factor column", {
   capture.output(o$randForest(cores = 1,
                               debug = FALSE))
 
-  expect_equal(as.numeric(o$rmse_rf),5.75427780855753)
+  expect_equal(as.numeric(o$rmse_rf),5.75480614)
 })
 
 test_that("mae_rf is the same each time the test is run non-factor column", {
@@ -101,5 +101,5 @@ test_that("mae_rf is the same each time the test is run non-factor column", {
   capture.output(o$randForest(cores = 1,
                               debug = FALSE))
 
-  expect_equal(as.numeric(o$mae_rf),2.9240442062118)
+  expect_equal(as.numeric(o$mae_rf),2.91958186)
 })
