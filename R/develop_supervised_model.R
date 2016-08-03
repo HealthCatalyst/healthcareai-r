@@ -233,6 +233,32 @@ DevelopSupervisedModel <- R6Class("DevelopSupervisedModel",
         print(str(df))
       }
 
+      # Remove columns that are only NA
+      df <- df[,colSums(is.na(df)) < nrow(df)]
+
+      # Remove date columns
+      datelist = grep("DTS$", colnames(df))
+      if (length(datelist) > 0) {
+        df = df[, -datelist]
+      }
+
+      if (isTRUE(debug)) {
+        print('Entire data set after removing cols with DTS (ie date cols)')
+        print(str(df))
+        print('Now going to remove zero-var cols...')
+      }
+
+      # If grain.col is specified, remove this col
+      if (nchar(grain.col) != 0) {
+        df[[grain.col]] <- NULL
+      }
+
+      if (isTRUE(debug) && nchar(grain.col) != 0) {
+        print('Entire data set after separating out grain col')
+        print(str(df))
+        print('Now performing imputation validation set')
+      }
+
       if (isTRUE(impute)) {
           df[] <- lapply(df, ImputeColumn)
 
@@ -258,36 +284,15 @@ DevelopSupervisedModel <- R6Class("DevelopSupervisedModel",
           }
       }
 
-      # Remove columns that are only NA
-      df <- df[,colSums(is.na(df)) < nrow(df)]
-
-      # Remove date columns
-      datelist = grep("DTS$", colnames(df))
-      if (length(datelist) > 0) {
-          df = df[, -datelist]
-      }
-
-      if (isTRUE(debug)) {
-        print('Entire data set after removing cols with DTS (ie date cols)')
-        print(str(df))
-        print('Now going to remove zero-var cols...')
-
-      }
-
-      # If grain.col is specified, remove this col
-      if (nchar(grain.col) != 0) {
-          df[[grain.col]] <- NULL
-      }
-
-      if (isTRUE(debug) && nchar(grain.col) != 0) {
-        print('Entire data set after separating out grain col')
-        print(str(df))
-        print('Now splitting training set from validation set')
-      }
-
       #Declare that the predicted col is a factor, or category to be predicted.
       if (type == 'classification') {
           df[[predicted.col]] = as.factor(df[[predicted.col]])
+      }
+
+      if (isTRUE(debug)) {
+        print('Entire data set after imputation and making pred col factor')
+        print(str(df))
+        print('Now going to split train from test...')
       }
 
       trainIndex = createDataPartition(y = df[[predicted.col]],

@@ -19,7 +19,7 @@ source('R/common.R')
 #' @param type The type of model (either 'regression' or 'classification')
 #' @param df Dataframe whose columns are used for calc.
 #' @param grain.col The dataframe's column that has IDs pertaining to the grain
-#' @param window.col This column dictates the split between model training and
+#' @param test.window.col This column dictates the split between model training and
 #' test sets. Those rows with zeros in this column indicate the training set
 #' while those that have ones indicate the test set
 #' @param predicted.col Column that you want to predict.
@@ -78,7 +78,7 @@ source('R/common.R')
 #' o <- DeploySupervisedModel$new(type = 'classification',
 #'                                df = df,
 #'                                grain.col = 'GrainID',
-#'                                window.col = 'InTestWindow',
+#'                                test.window.col = 'InTestWindow',
 #'                                predicted.col = 'SalariedFlag',
 #'                                impute = TRUE,
 #'                                debug = FALSE,  # <-- change to TRUE to debug
@@ -140,7 +140,7 @@ source('R/common.R')
 #' o <- DeploySupervisedModel$new(type = 'regression',
 #'                                df = df,
 #'                                grain.col = 'GrainID',
-#'                                window.col = 'InTestWindow',
+#'                                test.window.col = 'InTestWindow',
 #'                                predicted.col = 'VacationHours',
 #'                                impute = TRUE,
 #'                                debug = FALSE,  # <-- change to T for debug
@@ -164,7 +164,7 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
 
     df = NA,
     grain.col = NA,
-    window.col = NA,
+    test.window.col = NA,
     use.saved.model = NA,
     predicted.col = NA,
     impute = NA,
@@ -179,7 +179,7 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
     initialize = function(type,
                           df,
                           grain.col,
-                          window.col,
+                          test.window.col,
                           predicted.col,
                           impute,
                           use.saved.model,
@@ -244,7 +244,53 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
       if (isTRUE(debug)) {
         print('Entire data set after separating out grain col')
         print(str(df))
-        print('Now creating dummy variables')
+        print('Now doing imputation')
+      }
+
+      # Split df into temp train and test (then rejoin for dummy creation)
+      # Sadly, this even has to be done nightly (with a saved model)
+      df.train.temp <- df[df[[test.window.col]] == 'N',]
+      df.test.temp <- df[df[[test.window.col]] == 'Y',]
+
+      # Use imputation on train set (if we're creating new model)
+      if (isTRUE(impute) && isTRUE(!use.saved.model)) {
+
+        # Remove rows where predicted.col is null in train
+        df.train.temp = RemoveRowsWithNAInSpecCol(df.train.temp, predicted.col)
+        if (isTRUE(debug)) {
+          print('Training data set after removing rows where pred col is null')
+          print('Doing imputation on training set...')
+        }
+        df.train.temp[] <- lapply(df.train.temp, ImputeColumn)
+
+        if (isTRUE(debug)) {
+          print('Training set after doing imputation')
+          print(str(df.train.temp))
+        }
+
+        # If user doesn't ask for imputation, remove rows with any NA's
+      } else if (isTRUE(!impute) && isTRUE(!use.saved.model)) {
+        df.train.temp = na.omit(df.train.temp)
+
+        if (isTRUE(debug)) {
+          print('Training set after removing rows with NULLs')
+          print(str(df.train.temp))
+        }
+      }
+
+      # Always do imputation on all of test set (since each row needs pred)
+      df.test.temp[] <- lapply(df.test.temp, ImputeColumn)
+
+      # Join temp train and test back together, so dummy creation is consistent
+      df <- rbind(df.train.temp, df.test.temp)
+
+      df.train.temp <- NULL # Were only used for imputation
+      df.test.temp <- NULL
+
+      if (isTRUE(debug)) {
+        print('Entire data set after imputation')
+        print(str(df))
+        print('Now creating dummy variables...')
       }
 
       # Make sure label column is numeric before creating dummy var
@@ -270,32 +316,23 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
 
       # If creating new model, split train set from df
       if (isTRUE(!use.saved.model)) {
-        # Note that the paste0 is needed here bc window.col is now dummy var
+        # Note that the paste0 is needed here bc test.window.col is now dummy var
         # For now it's assumed that dummyVars always sets Y to 1
-        dfTrain = df[df[[paste0(window.col,'.Y')]] == 0,]
+        dfTrain = df[df[[paste0(test.window.col,'.Y')]] == 0,]
         # Drop window col from train set, as it's no longer needed
-        dfTrain <- dfTrain[, !(names(dfTrain) %in% c(window.col,
-                                                     paste0(window.col,'.Y')))]
+        dfTrain <- dfTrain[, !(names(dfTrain) %in% c(test.window.col,
+                                                     paste0(test.window.col,'.Y')))]
 
         if (isTRUE(debug)) {
           print('Training data set after splitting from main df')
           print(str(dfTrain))
         }
-
-        # Remove rows where predicted.col is null in train
-        dfTrain = RemoveRowsWithNAInSpecCol(dfTrain, predicted.col)
-
-        if (isTRUE(debug)) {
-          print('Training data set after removing rows where pred col is null')
-          print(str(dfTrain))
-          print('Splitting train and test from main df...')
-        }
       }
 
-      # Always create test set from df, and drop window.cols from test set
-      dfTest = df[df[[paste0(window.col,'.Y')]] == 1,]
-      dfTest <- dfTest[, !(names(dfTest) %in% c(window.col,
-                                                 paste0(window.col,'.Y')))]
+      # Always create test set from df, and drop test.window.cols from test set
+      dfTest = df[df[[paste0(test.window.col,'.Y')]] == 1,]
+      dfTest <- dfTest[, !(names(dfTest) %in% c(test.window.col,
+                                                 paste0(test.window.col,'.Y')))]
 
       if (isTRUE(debug)) {
         print('Test set after splitting from df (and then removing windowcol)')
@@ -304,7 +341,7 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
 
       # Now that we have train/test, split grain col into test (for use at end)
       if (nchar(grain.col) != 0) {
-          graintest <- full.grain[df[[paste0(window.col,'.Y')]] == 1]
+          graintest <- full.grain[df[[paste0(test.window.col,'.Y')]] == 1]
 
           if (isTRUE(debug)) {
             print('Grain col vector with rows of test set (after created)')
@@ -316,28 +353,6 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
           TuneSupervisedModel')
       }
 
-      # Use imputation on train set (if we're creating new model)
-      if (isTRUE(impute) && isTRUE(!use.saved.model)) {
-          if (isTRUE(debug)) {
-            print('Doing imputation on training set...')
-          }
-          dfTrain[] <- lapply(dfTrain, ImputeColumn)
-
-          if (isTRUE(debug)) {
-            print('Training set after doing imputation')
-            print(str(dfTrain))
-          }
-
-      # If user doesn't ask for imputation, remove rows with any NA's
-      } else if (isTRUE(!impute) && isTRUE(!use.saved.model)) {
-          dfTrain = na.omit(dfTrain)
-
-          if (isTRUE(debug)) {
-            print('Training set after removing rows with NULLs')
-            print(str(dfTrain))
-          }
-      }
-
       # Pass raw (un-imputed) dfTest to object, so important factors aren't null
       self$dfTestRAW <- dfTest[, !(names(dfTest) %in% c(predicted.col))]
 
@@ -345,9 +360,6 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
         print('Raw test set (sans imputation) created for mult with coeffs')
         print(str(self$dfTestRAW))
       }
-
-      # Always do imputation on all of test set (since now no NAs in pred.col)
-      dfTest[] <- lapply(dfTest, ImputeColumn)
 
       if (isTRUE(debug)) {
         print('Test set after undergoing imputation')
