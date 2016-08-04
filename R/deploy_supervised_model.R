@@ -259,6 +259,7 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
         df.train.temp = RemoveRowsWithNAInSpecCol(df.train.temp, predicted.col)
         if (isTRUE(debug)) {
           print('Training data set after removing rows where pred col is null')
+          print(str(df.train.temp))
           print('Doing imputation on training set...')
         }
         df.train.temp[] <- lapply(df.train.temp, ImputeColumn)
