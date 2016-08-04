@@ -59,21 +59,21 @@ print(proc.time() - ptm)
 
 #### Example using csv data ####
 library(HCRTools)
-#setwd("C:/Your/script/location") # Needed if using YOUR CSV file
+#setwd('C:/Your/script/location') # Needed if using YOUR CSV file (R uses /)
 ptm <- proc.time()
 
 # Can delete this line in your work
 csvfile <- system.file("extdata", "HREmployeeDev.csv", package = "HCRTools")
 
-totaldf <- read.csv(file = csvfile, #<-- Replace with 'your/path'
+df <- read.csv(file = csvfile, #<-- Replace with 'yourfilename'
                     header = TRUE,
                     na.strings = 'NULL')
 
-head(totaldf)
+head(df)
 
 set.seed(43)
 o <- DevelopSupervisedModel$new(type = 'classification',
-                                df = totaldf,
+                                df = df,
                                 #grain.col = OPTIONAL/ENCOURAGED
                                 predicted.col = 'SalariedFlag',
                                 impute = FALSE)

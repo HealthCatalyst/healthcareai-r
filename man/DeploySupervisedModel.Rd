@@ -15,7 +15,7 @@ DeploySupervisedModel
 
 \item{grain.col}{The dataframe's column that has IDs pertaining to the grain}
 
-\item{window.col}{This column dictates the split between model training and
+\item{test.window.col}{This column dictates the split between model training and
 test sets. Those rows with zeros in this column indicate the training set
 while those that have ones indicate the test set}
 
@@ -85,7 +85,7 @@ head(df)
 o <- DeploySupervisedModel$new(type = 'classification',
                                df = df,
                                grain.col = 'GrainID',
-                               window.col = 'InTestWindow',
+                               test.window.col = 'InTestWindow',
                                predicted.col = 'SalariedFlag',
                                impute = TRUE,
                                debug = FALSE,  # <-- change to TRUE to debug
@@ -147,7 +147,7 @@ df <- subset(df, select = -c(SalariedFlag))
 o <- DeploySupervisedModel$new(type = 'regression',
                                df = df,
                                grain.col = 'GrainID',
-                               window.col = 'InTestWindow',
+                               test.window.col = 'InTestWindow',
                                predicted.col = 'VacationHours',
                                impute = TRUE,
                                debug = FALSE,  # <-- change to T for debug
