@@ -5,9 +5,9 @@
 #' Carries the last observed value forward for all columns in a data.table
 #' grouped by an id.
 #'
-#' @param dt data.table sorted by an ID column and a time or sequence number
+#' @param df data.frame sorted by an ID column and a time or sequence number
 #' column.
-#' @param id A column name (in ticks) in dt to group rows by.
+#' @param id A column name (in ticks) in df to group rows by.
 #' @return A data.table where the last non-NA values are carried forward
 #' (overwriting NAs) until the group ID changes.
 #'
@@ -15,45 +15,46 @@
 #' @export
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' library(data.table)
-#' dt = data.table(PersonID=c(1,1,2,2,3,3,3),
+#' df = data.frame(PersonID=c(1,1,2,2,3,3,3),
 #'                 wt=c(.5,NA,NA,NA,.3,.7,NA),
 #'                 ht=c(NA,1,3,NA,4,NA,NA),
 #'                 date=c('01/01/2015','01/15/2015','01/01/2015','01/15/2015',
 #'                        '01/01/2015','01/15/2015','01/30/2015'))
 #'
-#' head(dt,n=7)
+#' head(df,n=7)
 #'
-#' df.result = GroupedLOCF(dt, 'PersonID')
+#' df.result = GroupedLOCF(df, 'PersonID')
 #'
 #' head(df.result,n=7)
-GroupedLOCF <- function(dt, id) {
+GroupedLOCF <- function(df, id) {
   # Carries the last observed value forward for all columns in a data.table
   # grouped by an id.
   #
   # Args:
-  #   dt: data.table sorted by an ID column and a time or sequence number column.
+  #   df: data.frame sorted by an ID column and a time or sequence number column.
   #
-  #   id: a column name in dt to group rows by.
+  #   id: a column name in df to group rows by.
   #
   # Returns:
   #   A data.table where the last non-NA values are carried forward (overwriting
   #   NAs) until the group ID changes.
   #
 
+  df <- data.table(df)
+
   # Create a vector of booleans where each element is mapped to a row
   # in the data.table.  Each value is FALSE unless the corresponding
   # row is the first row of a person.  In other words, each TRUE
   # represents a change of PersonID in the data.table.
-  change.flags <- c(TRUE, get(id, dt)[-1] != get(id, dt)[-nrow(dt)])
+  change.flags <- c(TRUE, get(id, df)[-1] != get(id, df)[-nrow(df)])
 
-  # A helper that finds the last non-NA value for a given column x in dt.
-  locf <- function(x) x[cummax(((!is.na(x)) | change.flags) * seq_len(nrow(dt)))]
+  # A helper that finds the last non-NA value for a given column x in df.
+  locf <- function(x) x[cummax(((!is.na(x)) | change.flags) * seq_len(nrow(df)))]
 
   # By avoiding using the 'by' operator of data.table, we're reducing
   # the number of calls from (N rows / P people) * C columns to just C columns;
   # this is just once for each column in the data.table.
-  dt[, lapply(.SD, locf)]
+  df[, lapply(.SD, locf)]
 }
 
 #' @title
