@@ -95,7 +95,7 @@ ConvertDateTimeColToDummies <- function(df,
     df[[date.time.col]] <- as.POSIXct(df[[date.time.col]])
     df$Year <- as.POSIXlt(df[[date.time.col]])$year + 1900
     df$Month <- as.POSIXlt(df[[date.time.col]])$mo + 1
-    df$WeekofYear <- strftime(df[[date.time.col]],format="%W")
+    df$WeekOfYear <- strftime(df[[date.time.col]],format="%W")
     df$DayOfMonth <- as.POSIXlt(df[[date.time.col]])$mday
     df$DayOfWeek <- as.POSIXlt(df[[date.time.col]])$wday + 1
 
@@ -104,7 +104,7 @@ ConvertDateTimeColToDummies <- function(df,
     df[[date.time.col]] <- as.POSIXct(df[[date.time.col]])
     df$Year <- as.POSIXlt(df[[date.time.col]])$year + 1900
     df$Month <- as.POSIXlt(df[[date.time.col]])$mo + 1
-    df$WeekofYear <- strftime(df[[date.time.col]],format="%W")
+    df$WeekOfYear <- strftime(df[[date.time.col]],format="%W")
     df$DayOfMonth <- as.POSIXlt(df[[date.time.col]])$mday
     df$DayOfWeek <- as.POSIXlt(df[[date.time.col]])$wday + 1
     df$Hour <- as.POSIXlt(df[[date.time.col]])$hour
@@ -114,7 +114,7 @@ ConvertDateTimeColToDummies <- function(df,
     df[[date.time.col]] <- as.POSIXct(df[[date.time.col]])
     df$Year <- as.POSIXlt(df[[date.time.col]])$year + 1900
     df$Month <- as.POSIXlt(df[[date.time.col]])$mo + 1
-    df$WeekofYear <- strftime(df[[date.time.col]],format="%W")
+    df$WeekOfYear <- strftime(df[[date.time.col]],format="%W")
     df$DayOfMonth <- as.POSIXlt(df[[date.time.col]])$mday
     df$DayOfWeek <- as.POSIXlt(df[[date.time.col]])$wday + 1
     df$Hour <- as.POSIXlt(df[[date.time.col]])$hour
@@ -125,7 +125,7 @@ ConvertDateTimeColToDummies <- function(df,
     df[[date.time.col]] <- as.POSIXct(df[[date.time.col]])
     df$Year <- as.POSIXlt(df[[date.time.col]])$year + 1900
     df$Month <- as.POSIXlt(df[[date.time.col]])$mo + 1
-    df$WeekofYear <- strftime(df[[date.time.col]],format="%W")
+    df$WeekOfYear <- strftime(df[[date.time.col]],format="%W")
     df$DayOfMonth <- as.POSIXlt(df[[date.time.col]])$mday
     df$DayOfWeek <- as.POSIXlt(df[[date.time.col]])$wday + 1
     df$Hour <- as.POSIXlt(df[[date.time.col]])$hour
