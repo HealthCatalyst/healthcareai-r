@@ -24,6 +24,9 @@ df = data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
                     'oo','pp','qq','rr','ss','tt','uu','vv','ww','xx','yy'))
 colList = ReturnColsWithMoreThanFiftyFactors(df)
 }
+\references{
+\url{https://community.healthcatalyst.com/community/data-science}
+}
 \seealso{
 \code{\link{HCRTools}}
 }

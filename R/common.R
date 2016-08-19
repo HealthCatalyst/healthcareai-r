@@ -13,8 +13,10 @@
 #'
 #' @import data.table
 #' @export
+#' @references \url{https://community.healthcatalyst.com/community/data-science}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
+#' library(HCRTools)
 #' df = data.frame(PersonID=c(1,1,2,2,3,3,3),
 #'                 wt=c(.5,NA,NA,NA,.3,.7,NA),
 #'                 ht=c(NA,1,3,NA,4,NA,NA),
@@ -40,6 +42,7 @@ GroupedLOCF <- function(df, id) {
   #   NAs) until the group ID changes.
   #
 
+  # Note that the object that results acts as both a dataframe and datatable
   df <- data.table(df)
 
   # Create a vector of booleans where each element is mapped to a row
@@ -76,6 +79,7 @@ GroupedLOCF <- function(df, id) {
 #' rather than just one datetime column
 #'
 #' @export
+#' @references \url{https://community.healthcatalyst.com/community/data-science}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' DTCol = c("2001-06-09 12:45:05","2002-01-29 09:30:05","2002-02-02 07:36:50",
@@ -149,6 +153,7 @@ ConvertDateTimeColToDummies <- function(df,
 #' @return A vector, or column of values now with no NAs
 #'
 #' @export
+#' @references \url{https://community.healthcatalyst.com/community/data-science}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' # For a numeric vector
@@ -186,6 +191,7 @@ ImputeColumn <- function(v) {
 #' @return A boolean
 #'
 #' @export
+#' @references \url{https://community.healthcatalyst.com/community/data-science}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' IsBinary(c(1,2,NA))
@@ -211,6 +217,7 @@ IsBinary <- function(v) {
 #' @return The input dataframe with rows removed
 #'
 #' @export
+#' @references \url{https://community.healthcatalyst.com/community/data-science}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' df = data.frame(a=c(1,2,3),b=c('Y','N',NA),c=c(NA,'Y','N'))
@@ -242,9 +249,10 @@ RemoveRowsWithNAInSpecCol <- function(df, desiredCol) {
 #'
 #' @import RODBC
 #' @export
+#' @references \url{https://community.healthcatalyst.com/community/data-science}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' library(RODBC)
+#' library(HCRTools)
 #' connection.string = '
 #'   driver={SQL Server};
 #'   server=localhost;
@@ -312,6 +320,7 @@ SelectData <- function(connection.string, query) {
 #' @return A dataframe with those columns removed
 #'
 #' @export
+#' @references \url{https://community.healthcatalyst.com/community/data-science}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' df = data.frame(a=c(1,1,1),b=c('a','b','b'),c=c('a','a','a'),d = c(NA,'1',NA))
@@ -334,6 +343,7 @@ RemoveColsWithAllSameValue <- function(df) {
 #' @return colList A vector that contains the names of the columns with greater than 50 categories
 #'
 #' @export
+#' @references \url{https://community.healthcatalyst.com/community/data-science}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' df = data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -366,6 +376,7 @@ ReturnColsWithMoreThanFiftyFactors <- function(df) {
 #' @importFrom stats aggregate formula
 #' @importFrom utils tail
 #' @export
+#' @references \url{https://community.healthcatalyst.com/community/data-science}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #'x <- c(as.Date("2012-01-01"),as.Date("2012-01-02"),as.Date("2012-02-01"),
@@ -464,9 +475,10 @@ FindTrendsAboveThreshold <- function(df,
 #'
 #' @importFrom lubridate ymd_hms
 #' @export
+#' @references \url{https://community.healthcatalyst.com/community/data-science}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' library(lubridate)
+#' library(HCRTools)
 #' df = data.frame(date=c('2009-01-01','2010-01-01','2009-03-08','2009-01-19','2010-11-11'),
 #'                 a=c(1,2,3,4,5))
 #' resdf = OrderByDate(df,'date',descending=FALSE)

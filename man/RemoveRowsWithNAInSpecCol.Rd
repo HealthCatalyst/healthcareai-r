@@ -21,6 +21,9 @@ Remove rows from a dataframe where a particular col is NA
 df = data.frame(a=c(1,2,3),b=c('Y','N',NA),c=c(NA,'Y','N'))
 resdf = RemoveRowsWithNAInSpecCol(df,'b')
 }
+\references{
+\url{https://community.healthcatalyst.com/community/data-science}
+}
 \seealso{
 \code{\link{HCRTools}}
 }

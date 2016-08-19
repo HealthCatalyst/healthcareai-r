@@ -8,7 +8,6 @@ source('R/common.R')
 #' see how well group A does against what the model would predict. Ranking each
 #' of the groups this way provides a sense of which group's doing best in
 #' terms of a particular measure.
-#' @docType class
 #' @import caret
 #' @import ranger
 #' @param df Dataframe whose columns are used for calc.
@@ -16,13 +15,9 @@ source('R/common.R')
 #' @param group.col Column that we'll use to differentiate
 #' @param impute Set all-column imputation to F or T.
 #'
-#' @references \url{http://products.healthcatalyst.com/Predictive}
+#' @references \url{https://community.healthcatalyst.com/community/data-science}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' # The examples will run as-is, but you can find the data used here
-#' # C:\Users\levi.thatcher\Documents\R\win-library\3.2\HCRTools\extdata OR
-#' # C:\Program Files\R\R-3.2.3\library\HCRTools\extdata
-#'
 #' #### Example using csv data ####
 #' library(HCRTools)
 #' #setwd("C:/Your/script/location") # Needed if using YOUR CSV file

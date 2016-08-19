@@ -20,10 +20,13 @@ df A dataframe ordered by date column
 Returns a dataframe that's ordered by its date column
 }
 \examples{
-library(lubridate)
+library(HCRTools)
 df = data.frame(date=c('2009-01-01','2010-01-01','2009-03-08','2009-01-19','2010-11-11'),
                 a=c(1,2,3,4,5))
 resdf = OrderByDate(df,'date',descending=FALSE)
+}
+\references{
+\url{https://community.healthcatalyst.com/community/data-science}
 }
 \seealso{
 \code{\link{HCRTools}}

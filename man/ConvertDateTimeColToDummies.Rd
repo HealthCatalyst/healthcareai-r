@@ -38,6 +38,9 @@ df <- data.frame(DTCol,y1,y2)
 
 df <- ConvertDateTimeColToDummies(df, 'DTCol')
 }
+\references{
+\url{https://community.healthcatalyst.com/community/data-science}
+}
 \seealso{
 \code{\link{HCRTools}}
 }

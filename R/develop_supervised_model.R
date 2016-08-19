@@ -5,7 +5,6 @@ source('R/common.R')
 #'
 #' @description This step allows one to create test models on your data
 #' and helps determine which performs best.
-#' @docType class
 #' @import caret
 #' @import doParallel
 #' @import e1071
@@ -25,7 +24,7 @@ source('R/common.R')
 #' F leads to removal of rows containing NULLs.
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
-#' @references \url{http://products.healthcatalyst.com/Predictive}
+#' @references \url{https://community.healthcatalyst.com/community/data-science}
 #' @seealso \code{\link{DeploySupervisedModel}}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
@@ -47,11 +46,11 @@ source('R/common.R')
 #'                                 predicted.col = 'Sepal.Width',
 #'                                 impute = TRUE)
 #'
-#' o$grlasso(var.imp = TRUE,
+#' o$linear(var.imp = TRUE,
 #'           cores = 1,
 #'           debug = TRUE)
 #'
-#' o$randForest(cores = 1,
+#' o$random_forest(cores = 1,
 #'              debug = FALSE)
 #
 #' print(proc.time() - ptm)
@@ -78,18 +77,18 @@ source('R/common.R')
 #'                                 predicted.col = 'SalariedFlag',
 #'                                 impute = FALSE)
 #'
-#' o$grlasso(var.imp = TRUE,
+#' o$linear(var.imp = TRUE,
 #'           cores = 1,
 #'           debug = TRUE)
 #'
 #'
-#' o$randForest(cores = 1,
+#' o$random_forest(cores = 1,
 #'              debug = FALSE)
 #'
-#' o$plotROC()
+#' o$plot_ROC()
 #'
 #' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-#' o$getCutOffs('rf', .6)
+#' o$get_cut_point(method='rf', tpr=.6)
 #' print(proc.time() - ptm)
 #'
 #'
@@ -128,13 +127,13 @@ source('R/common.R')
 #'                                 predicted.col = 'MaritalStatus',
 #'                                 impute = TRUE)
 #'
-#' o$grlasso(cores = 1,
+#' o$linear(cores = 1,
 #'           debug = FALSE)
 #'
-#' o$randForest(cores = 1,
+#' o$random_forest(cores = 1,
 #'              debug = FALSE)
 #'
-#' o$plotROC()
+#' o$plot_ROC()
 #' print(proc.time() - ptm)
 #'
 #' @export
@@ -176,7 +175,7 @@ DevelopSupervisedModel <- R6Class("DevelopSupervisedModel",
                           df,
                           grain.col = "",
                           predicted.col,
-                          impute,
+                          impute = TRUE,
                           debug = FALSE) {
 
       # Creating attributes for performance report
@@ -325,7 +324,7 @@ DevelopSupervisedModel <- R6Class("DevelopSupervisedModel",
       self$type = type
     },
 
-    grlasso = function(var.imp = TRUE,
+    linear = function(var.imp = TRUE,
                        print.results = TRUE, # For rmarkdown report
                        cores = 4,
                        debug = FALSE) {
@@ -380,7 +379,7 @@ DevelopSupervisedModel <- R6Class("DevelopSupervisedModel",
 
       if (self$type == 'classification') {
 
-        fit.grlasso = cv.grpreg(X = modMat,
+        fit.lasso = cv.grpreg(X = modMat,
                                 y = dfTrainTEMP[[self$predicted.col]],
                                 group = group,
                                 #lambda = can enter values here, but we will use default
@@ -390,12 +389,12 @@ DevelopSupervisedModel <- R6Class("DevelopSupervisedModel",
 
         #Index of largest lambda within one cvse of the lambda with lowest cve:
         #These are sorted from largest to smallest lambda, hence pulling the minimum index.
-        ind.lambda1se = min(which(fit.grlasso$cve <= (fit.grlasso$cve+fit.grlasso$cvse)[fit.grlasso$min]))
+        ind.lambda1se = min(which(fit.lasso$cve <= (fit.lasso$cve+fit.lasso$cvse)[fit.lasso$min]))
 
         #largest lambda within one cvse of the lambda with lowest cve (ie. lambda to use in final fit):
-        lambda.1se = fit.grlasso$lambda[ind.lambda1se]
+        lambda.1se = fit.lasso$lambda[ind.lambda1se]
 
-        predictprob = predict(object = fit.grlasso,
+        predictprob = predict(object = fit.lasso,
                               X = model.matrix(modfmla, data=dfTestTEMP)[,-1],
                               lambda = lambda.1se,
                               type ="response")
@@ -405,7 +404,7 @@ DevelopSupervisedModel <- R6Class("DevelopSupervisedModel",
         self$perflasso <- performance(pred, "tpr", "fpr")
 
         #NOTE THAT THE CLASS WILL BE 0 OR 1.
-        predictclass = predict(object = fit.grlasso,
+        predictclass = predict(object = fit.lasso,
                                X = model.matrix(modfmla, data=dfTestTEMP)[,-1],
                                lambda = lambda.1se,
                                type ="class")
@@ -431,17 +430,17 @@ DevelopSupervisedModel <- R6Class("DevelopSupervisedModel",
         self$ROC_lasso = ROC_lasso
 
         print("Grouped Lasso coefficients:")
-        print(fit.grlasso$fit$beta[,ind.lambda1se])
+        print(fit.lasso$fit$beta[,ind.lambda1se])
 
 
         if (isTRUE(var.imp)) {
-          lasso.imp = names(dfTrainTEMP[ ,!(colnames(dfTrainTEMP) == self$predicted.col)])[predict(fit.grlasso, modMat,type = "groups",
+          lasso.imp = names(dfTrainTEMP[ ,!(colnames(dfTrainTEMP) == self$predicted.col)])[predict(fit.lasso, modMat,type = "groups",
                                                                                                    lambda = lambda.1se)]
         }
 
       } else if (self$type == 'regression') {
 
-        fit.grlasso = cv.grpreg(X = modMat,
+        fit.lasso = cv.grpreg(X = modMat,
                                 y = dfTrainTEMP[[self$predicted.col]],
                                 group = group,
                                 #lambda = can enter values here, but we will use default
@@ -451,12 +450,12 @@ DevelopSupervisedModel <- R6Class("DevelopSupervisedModel",
 
         #Index of largest lambda within one cvse of the lambda with lowest cve:
         #These are sorted from largest to smallest lambda, hence pulling the minimum index.
-        ind.lambda1se = min(which(fit.grlasso$cve <= (fit.grlasso$cve+fit.grlasso$cvse)[fit.grlasso$min]))
+        ind.lambda1se = min(which(fit.lasso$cve <= (fit.lasso$cve+fit.lasso$cvse)[fit.lasso$min]))
 
         #largest lambda within one cvse of the lambda with lowest cve (ie. lambda to use in final fit):
-        lambda.1se = fit.grlasso$lambda[ind.lambda1se]
+        lambda.1se = fit.lasso$lambda[ind.lambda1se]
 
-        predictions = predict(object = fit.grlasso,
+        predictions = predict(object = fit.lasso,
                               X = model.matrix(modfmla, data=dfTestTEMP)[,-1],
                               lambda = lambda.1se,
                               type ="response")
@@ -480,7 +479,7 @@ DevelopSupervisedModel <- R6Class("DevelopSupervisedModel",
           print(paste0('MAE: ', round(self$mae_lasso, 2)))
 
           print("Grouped Lasso coefficients:")
-          print(fit.grlasso$fit$beta[,ind.lambda1se])
+          print(fit.lasso$fit$beta[,ind.lambda1se])
           }
       }
 
@@ -490,14 +489,14 @@ DevelopSupervisedModel <- R6Class("DevelopSupervisedModel",
       }
 
       if (isTRUE(var.imp)) {
-        self$lasso.imp = names(dfTrainTEMP[ ,!(colnames(dfTrainTEMP) == self$predicted.col)])[predict(fit.grlasso, modMat,type = "groups",lambda = lambda.1se)]
+        self$lasso.imp = names(dfTrainTEMP[ ,!(colnames(dfTrainTEMP) == self$predicted.col)])[predict(fit.lasso, modMat,type = "groups",lambda = lambda.1se)]
         print(paste0("Variables with non-zero coefficients: ",paste0(self$lasso.imp, collapse=", ")))
       }
 
-      return(invisible(fit.grlasso))
+      return(invisible(fit.lasso))
     },
 
-randForest = function(var.imp = TRUE,
+random_forest = function(var.imp = TRUE,
                       print.results = TRUE, # For rmarkdown report
                       cores = 4,
                       tune = FALSE,
@@ -688,7 +687,7 @@ randForest = function(var.imp = TRUE,
       return(invisible(fit.rf))
    },
 
-plotROC = function() {
+plot_ROC = function() {
   if (IsBinary(self$df[[self$predicted.col]])) {
     plot(self$ROC_rf, col = "red", legacy.axes=TRUE,
          mar=c(4, 4, 3, 2)+.1)
@@ -706,9 +705,9 @@ plotROC = function() {
     }
    },
 
-   getCutOffs = function(method, tpr) {
-     if (method != 'rf' && method != 'lasso') {
-       print("method argument has to be 'rf' or 'lasso'")
+   get_cut_point = function(method, tpr) {
+     if (method != 'rf' && method != 'linear') {
+       print("method argument has to be 'rf' or 'linear'")
      }
 
      if (method == 'rf') {
@@ -723,7 +722,7 @@ plotROC = function() {
        print('Corresponding false-positive rate:')
        print(self$perfrf@x.values[[1]][indy[1]][[1]])
 
-     } else if (method == 'lasso') {
+     } else if (method == 'linear') {
        # Get index of when true-positive rate is > tpr
        indy <- which(as.numeric(unlist(self$perflasso@y.values)) > tpr)
 

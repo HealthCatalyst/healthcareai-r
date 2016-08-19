@@ -35,7 +35,7 @@ test_that("AUC_lasso is the same each time the test is run", {
                                   df = totaldf,
                                   predicted.col = 'SalariedFlag',
                                   impute = FALSE)
-  capture.output(o$grlasso(var.imp = TRUE,
+  capture.output(o$linear(var.imp = TRUE,
             cores = 1,
             debug = FALSE))
 
@@ -48,7 +48,7 @@ test_that("rmse_lasso is the same each time the test is run non-factor column", 
                                   df = totaldf,
                                   predicted.col = 'SickLeaveHours',
                                   impute = FALSE)
-  capture.output(o$grlasso(var.imp = TRUE,
+  capture.output(o$linear(var.imp = TRUE,
                            cores = 1,
                            debug = TRUE))
 
@@ -61,7 +61,7 @@ test_that("mae_lasso is the same each time the test is run non-factor column", {
                                   df = totaldf,
                                   predicted.col = 'SickLeaveHours',
                                   impute = FALSE)
-  capture.output(o$grlasso(var.imp = TRUE,
+  capture.output(o$linear(var.imp = TRUE,
                            cores = 1,
                            debug = TRUE))
 
@@ -74,7 +74,7 @@ test_that("AUC_rf is the same each time the test is run", {
                                   df = totaldf,
                                   predicted.col = 'SalariedFlag',
                                   impute = FALSE)
-  capture.output(o$randForest(cores = 1,
+  capture.output(o$random_forest(cores = 1,
                               debug = FALSE))
 
   expect_equal(as.numeric(o$AUC_rf),0.914893617021277)
@@ -86,7 +86,7 @@ test_that("rmse_rf is the same each time the test is run non-factor column", {
                                   df = totaldf,
                                   predicted.col = 'SickLeaveHours',
                                   impute = FALSE)
-  capture.output(o$randForest(cores = 1,
+  capture.output(o$random_forest(cores = 1,
                               debug = FALSE))
 
   expect_equal(as.numeric(o$rmse_rf),5.75480614)
@@ -98,7 +98,7 @@ test_that("mae_rf is the same each time the test is run non-factor column", {
                                   df = totaldf,
                                   predicted.col = 'SickLeaveHours',
                                   impute = FALSE)
-  capture.output(o$randForest(cores = 1,
+  capture.output(o$random_forest(cores = 1,
                               debug = FALSE))
 
   expect_equal(as.numeric(o$mae_rf),2.91958186)

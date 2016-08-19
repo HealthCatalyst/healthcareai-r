@@ -21,6 +21,7 @@ Carries the last observed value forward for all columns in a data.table
 grouped by an id.
 }
 \examples{
+library(HCRTools)
 df = data.frame(PersonID=c(1,1,2,2,3,3,3),
                 wt=c(.5,NA,NA,NA,.3,.7,NA),
                 ht=c(NA,1,3,NA,4,NA,NA),
@@ -32,6 +33,9 @@ head(df,n=7)
 df.result = GroupedLOCF(df, 'PersonID')
 
 head(df.result,n=7)
+}
+\references{
+\url{https://community.healthcatalyst.com/community/data-science}
 }
 \seealso{
 \code{\link{HCRTools}}

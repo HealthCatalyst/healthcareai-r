@@ -18,8 +18,10 @@ based on your data.
 \item Once you've determined which model is best, use
 \code{\link{DeploySupervisedModel}} to create a final model, automatically
 save it, predict against test data, and push predicted values into SQL
-Server.
+Server.}
 }
+\references{
+\url{https://community.healthcatalyst.com/community/data-science}
 }
 \seealso{
 \code{\link{RiskAdjustedComparisons}}

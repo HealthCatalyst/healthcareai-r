@@ -21,6 +21,9 @@ same value
 df = data.frame(a=c(1,1,1),b=c('a','b','b'),c=c('a','a','a'),d = c(NA,'1',NA))
 resdf = RemoveColsWithAllSameValue(df)
 }
+\references{
+\url{https://community.healthcatalyst.com/community/data-science}
+}
 \seealso{
 \code{\link{HCRTools}}
 }

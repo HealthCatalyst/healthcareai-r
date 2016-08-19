@@ -32,6 +32,9 @@ res = FindTrendsAboveThreshold(df = df,
                               coltoaggregate = 'y5')
 
 }
+\references{
+\url{https://community.healthcatalyst.com/community/data-science}
+}
 \seealso{
 \code{\link{HCRTools}}
 }

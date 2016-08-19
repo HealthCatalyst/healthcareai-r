@@ -39,10 +39,6 @@ This step allows one to
 }
 }
 \examples{
-# The data will read in as-is and you can find the data itself here
-# C:\\Users\\levi.thatcher\\Documents\\R\\win-library\\3.2\\HCRTools\\extdata OR
-# C:\\Program Files\\R\\R-3.2.3\\library\\HCRTools\\extdata
-
 #### Classification example using data from csv ####
 # This example requires
 #    1) You set your working directory to source file location
@@ -56,13 +52,13 @@ This step allows one to
 # Factor3TXT varchar(255),
 
 # If you prefer to not use SAMD, execute this in SSMS to create output table:
-# CREATE TABLE dbo.HCRDeployTest1BASE(
+# CREATE TABLE dbo.HCRDeployClassificationBASE(
 #   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
 #   GrainID int <--change to match inputID, PredictedProbNBR decimal(38, 2),
 #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 # )
 
-#setwd("C:/Your/script/location") # Needed if using YOUR CSV file
+#setwd("C:/Yourscriptlocation/Useforwardslashes") # Encomment this command #
 ptm <- proc.time()
 library(HCRTools)
 
@@ -96,12 +92,11 @@ o$deploy(model = 'rf',
          cores = 1,
          sqlcnxn = connection.string,
          # Note: Do not use [ or ] in output table
-         dest.schema.table = 'dbo.HCRDeployTest1BASE',
+         dest.schema.table = 'dbo.HCRDeployClassificationBASE',
          debug = FALSE,  # <-- change this to TRUE to debug
          rfmtry = 2)
 
 print(proc.time() - ptm)
-
 
 #### Regression example using data from SQL Server ####
 # This example requires
@@ -116,12 +111,13 @@ print(proc.time() - ptm)
 # Factor3TXT varchar(255),
 
 # If you prefer to not use SAMD, execute this in SSMS to create output table:
-# CREATE TABLE dbo.HCRDeployTest2BASE(
+# CREATE TABLE dbo.HCRDeployRegressionBASE(
 #   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
 #   GrainID int <--change to match inputID, PredictedValueNBR decimal(38, 2),
 #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 # )
 
+#setwd("C:/Yourscriptlocation/Useforwardslashes") # Encomment this command #
 ptm <- proc.time()
 library(HCRTools)
 
@@ -158,7 +154,7 @@ o$deploy(model = 'logit',
          sqlcnxn = connection.string,
          debug = FALSE,  # <-- change this to TRUE to debug
          # Note: Do not use [ or ] in output table
-         dest.schema.table = 'dbo.HCRDeployTest2BASE')
+         dest.schema.table = 'dbo.HCRDeployRegressionBASE')
 
 print(proc.time() - ptm)
 
