@@ -171,6 +171,10 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
 
     type = NA,
 
+    # For unit tests
+    linear.predictedVALS = NA,
+    rf.predictedVALS = NA,
+
     initialize = function(type,
                           df,
                           grain.col,
@@ -492,11 +496,13 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
         if (model == 'rf') {  #  these are probabilities
            predictedVALStemp = predict(fit, data = self$dfTest)
            predictedVALS <- predictedVALStemp$predictions[,2]
+           self$rf.predictedVALS <- predictedVALS[5] # for unit test
            print('Probability predictions are based on random forest')
 
-        } else {              #  these are probabilities
+        } else {  #linear        these are probabilities
            predictedVALS = predict(fit,
                                    newdata = self$dfTest, type = "response")
+           self$linear.predictedVALS <- predictedVALS[5] # for unit test
            print('Probability predictions are based on logistic')
         }
 
