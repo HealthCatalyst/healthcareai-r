@@ -86,10 +86,10 @@ o$linear(var.imp = TRUE,
 o$random_forest(cores = 1,
              debug = FALSE)
 
-o$plotROC()
+o$plot_ROC()
 
 # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-o$getCutOffs('rf', .6)
+o$get_cut_point(method='rf', tpr=.6)
 print(proc.time() - ptm)
 
 
@@ -134,7 +134,7 @@ o$linear(cores = 1,
 o$random_forest(cores = 1,
              debug = FALSE)
 
-o$plotROC()
+o$plot_ROC()
 print(proc.time() - ptm)
 
 }

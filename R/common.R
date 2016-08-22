@@ -43,7 +43,7 @@ GroupedLOCF <- function(df, id) {
   #
 
   # Note that the object that results acts as both a dataframe and datatable
-  df <- data.table(df)
+  df <- setDT(df)
 
   # Create a vector of booleans where each element is mapped to a row
   # in the data.table.  Each value is FALSE unless the corresponding
@@ -338,9 +338,11 @@ RemoveColsWithAllSameValue <- function(df) {
 #' @title
 #' Return vector of columns in a dataframe with greater than 50 categories
 #'
-#' @description Returns a vector of the names of the columns that have more than 50 factors
+#' @description Returns a vector of the names of the columns that have more than
+#' 50 categories
 #' @param df A dataframe
-#' @return colList A vector that contains the names of the columns with greater than 50 categories
+#' @return colList A vector that contains the names of the columns with greater
+#' than 50 categories
 #'
 #' @export
 #' @references \url{https://community.healthcatalyst.com/community/data-science}
@@ -352,10 +354,9 @@ RemoveColsWithAllSameValue <- function(df) {
 #'                     'o','p','q','r','s','t','u','v','w','x','y','z','aa','bb',
 #'                     'cc','dd','ee','ff','gg','hh','ii','jj','kk','ll','mm','nn',
 #'                     'oo','pp','qq','rr','ss','tt','uu','vv','ww','xx','yy'))
-#' colList = ReturnColsWithMoreThanFiftyFactors(df)
+#' colList = ReturnColsWithMoreThanFiftyCategories(df)
 
-
-ReturnColsWithMoreThanFiftyFactors <- function(df) {
+ReturnColsWithMoreThanFiftyCategories <- function(df) {
   colList=vector('character')
   for (columnName in names(df)){
     if (nlevels(df[[columnName]])>50){
@@ -479,13 +480,13 @@ FindTrendsAboveThreshold <- function(df,
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' library(HCRTools)
-#' df = data.frame(date=c('2009-01-01','2010-01-01','2009-03-08','2009-01-19','2010-11-11'),
+#' df = data.frame(date=c('2009-01-01','2010-01-01','2009-03-08','2009-01-19',
+#'                        '2010-11-11'),
 #'                 a=c(1,2,3,4,5))
 #' resdf = OrderByDate(df,'date',descending=FALSE)
 
-
 OrderByDate <- function(df,datecol,descending=FALSE) {
-  df[[datecol]] <- ymd_hms(df[[datecol]],truncated = 5)
+  df[[datecol]] <- lubridate::ymd_hms(df[[datecol]],truncated = 5)
 
   if (descending == FALSE) {
     df <- df[order(df[[datecol]]),]
