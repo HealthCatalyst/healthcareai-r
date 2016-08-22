@@ -63,9 +63,9 @@ RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
                         debug=FALSE) {
     # Clean and impute data
 
-    if (length(ReturnColsWithMoreThanFiftyFactors(df))>0){
+    if (length(ReturnColsWithMoreThanFiftyCategories(df))>0){
       message('The following columns in the data frame have more than fifty factors:')
-      message(paste(shQuote(ReturnColsWithMoreThanFiftyFactors(df)), collapse=", "))
+      message(paste(shQuote(ReturnColsWithMoreThanFiftyCategories(df)), collapse=", "))
       message('This drastically reduces performance. Consider combining these factors into a new column with fewer factors.')
     }
 

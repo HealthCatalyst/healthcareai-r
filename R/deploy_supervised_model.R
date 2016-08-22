@@ -186,15 +186,14 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
 
       # TODO: if type is not specified at all - print a helpful message.
 
-      if (length(ReturnColsWithMoreThanFiftyFactors(df))>0){
-        message('The following columns in the data frame have more than fifty factors:')
-        message(paste(shQuote(ReturnColsWithMoreThanFiftyFactors(df)), collapse=", "))
-        message(paste('This drastically reduces performance.',
-                      'Consider combining these factors into a new column with fewer factors.'))
-      }
-
       if (type != 'regression' && type != 'classification') {
         stop('Your type must be regression or classification')
+      }
+
+      if (isTRUE(debug)) {
+        print('Entire data set at the top of the constructor')
+        print(str(df))
+        print('Now going to convert chr cols to factor cols...')
       }
 
       # Convert to data.frame (in case of data.table)
@@ -220,7 +219,15 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
       if (isTRUE(debug)) {
         print('Entire df after removing cols with DTS')
         print(str(df))
-        print('Now going to remove zero-var cols...')
+        print('Now going to check for cols with fifty+ categories...')
+      }
+
+      if (length(ReturnColsWithMoreThanFiftyCategories(df))>0){
+        message('These columns in the df have more than fifty categories:')
+        message(paste(shQuote(ReturnColsWithMoreThanFiftyCategories(df)),
+                              collapse=", "))
+        message(paste('This drastically reduces performance.',
+                      'Consider combining into new col with fewer categories.'))
       }
 
       # Remove columns with zero variance

@@ -185,20 +185,8 @@ DevelopSupervisedModel <- R6Class("DevelopSupervisedModel",
       # For use in confusion matrices
       self$prevalence = table(df[[predicted.col]])[2]
 
-      if (length(ReturnColsWithMoreThanFiftyFactors(df))>0){
-        message('The following columns in the data frame have more than fifty factors:')
-        message(paste(shQuote(ReturnColsWithMoreThanFiftyFactors(df)), collapse=", "))
-        message(paste('This drastically reduces performance.',
-                      'Consider combining these factors into a new column with fewer factors.'))
-      }
-
       if (isTRUE(debug)) {
         print('Entire data set at the top of the constructor')
-        print(str(df))
-      }
-
-      if (isTRUE(debug)) {
-        print('Entire df after removing cols with DTS')
         print(str(df))
         print('Now going to remove zero-var cols...')
       }
@@ -242,9 +230,17 @@ DevelopSupervisedModel <- R6Class("DevelopSupervisedModel",
       }
 
       if (isTRUE(debug)) {
-        print('Entire data set after removing cols with DTS (ie date cols)')
+        print('Entire df after removing cols with DTS')
         print(str(df))
-        print('Now going to remove zero-var cols...')
+        print('Now going to check for cols with fifty+ categories...')
+      }
+
+      if (length(ReturnColsWithMoreThanFiftyCategories(df))>0){
+        message('These columns in the df have more than fifty categories:')
+        message(paste(shQuote(ReturnColsWithMoreThanFiftyCategories(df)),
+                      collapse=", "))
+        message(paste('This drastically reduces performance.',
+                      'Consider combining into new col with fewer categories.'))
       }
 
       # If grain.col is specified, remove this col

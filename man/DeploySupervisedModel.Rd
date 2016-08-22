@@ -93,8 +93,7 @@ o$deploy(model = 'rf',
          sqlcnxn = connection.string,
          # Note: Do not use [ or ] in output table
          dest.schema.table = 'dbo.HCRDeployClassificationBASE',
-         debug = FALSE,  # <-- change this to TRUE to debug
-         rfmtry = 2)
+         debug = FALSE)  # <-- change this to TRUE to debug
 
 print(proc.time() - ptm)
 
