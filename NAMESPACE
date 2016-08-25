@@ -3,7 +3,7 @@
 export(ConvertDateTimeColToDummies)
 export(DeploySupervisedModel)
 export(DevelopSupervisedModel)
-export(FindTrendsAboveThreshold)
+export(FindTrends)
 export(GroupedLOCF)
 export(ImputeColumn)
 export(IsBinary)

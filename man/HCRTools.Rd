@@ -36,7 +36,7 @@ Server.}
 
 \code{\link{RemoveRowsWithNAInSpecCol}}
 
-\code{\link{FindTrendsAboveThreshold}}
+\code{\link{FindTrends}}
 
 \code{\link{ConvertDateTimeColToDummies}}
 }

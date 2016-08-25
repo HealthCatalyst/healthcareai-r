@@ -390,13 +390,13 @@ ReturnColsWithMoreThanFiftyCategories <- function(df) {
 #'y5 <- c('M','F','F','F','F','F','F','F')            # factor col
 #'df <- data.frame(x,y1,y2,y3,y4,y5)
 #'
-#'res = FindTrendsAboveThreshold(df = df,
-#'                               datecol = 'x',
-#'                               coltoaggregate = 'y5')
+#'res = FindTrends(df = df,
+#'                 datecol = 'x',
+#'                 coltoaggregate = 'y5')
 #'
-FindTrendsAboveThreshold <- function(df,
-                                     datecol,
-                                     coltoaggregate) {
+FindTrends <- function(df,
+                       datecol,
+                       coltoaggregate) {
 
   df$year <- as.POSIXlt(df[[datecol]])$year + 1900
   df$month <- as.POSIXlt(df[[datecol]])$mo + 1
@@ -461,6 +461,8 @@ FindTrendsAboveThreshold <- function(df,
                             "GroupBy",
                             "MeasuresTrending",
                             "FinalDate")
+    print('Trends were found:')
+    print(dfreturn)
     return(dfreturn)
   }
 }
