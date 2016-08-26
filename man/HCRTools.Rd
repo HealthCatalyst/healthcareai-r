@@ -39,5 +39,9 @@ Server.}
 \code{\link{FindTrends}}
 
 \code{\link{ConvertDateTimeColToDummies}}
+
+\code{\link{CalculateTargetedCorrelations}}
+
+\code{\link{CalculateAllCorrelations}}
 }
 

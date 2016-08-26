@@ -2,7 +2,7 @@
 % Please edit documentation in R/common.R
 \name{OrderByDate}
 \alias{OrderByDate}
-\title{Return a dataframe ordered by date}
+\title{Order the rows in a dataframe by date}
 \usage{
 OrderByDate(df, datecol, descending = FALSE)
 }

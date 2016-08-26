@@ -21,6 +21,8 @@
 #' @seealso \code{\link{RemoveRowsWithNAInSpecCol}}
 #' @seealso \code{\link{FindTrends}}
 #' @seealso \code{\link{ConvertDateTimeColToDummies}}
+#' @seealso \code{\link{CalculateTargetedCorrelations}}
+#' @seealso \code{\link{CalculateAllCorrelations}}
 #' @docType package
 #' @name HCRTools
 NULL

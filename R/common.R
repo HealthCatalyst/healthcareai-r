@@ -468,7 +468,7 @@ FindTrends <- function(df,
 }
 
 #' @title
-#' Return a dataframe ordered by date
+#' Order the rows in a dataframe by date
 #'
 #' @description Returns a dataframe that's ordered by its date column
 #' @param df A dataframe
@@ -497,3 +497,95 @@ OrderByDate <- function(df,datecol,descending=FALSE) {
   }
   df
 }
+
+
+#' @title
+#' Correlation analysis on an input table, focusing on one target variable
+#'
+#' @description Calculates correlations between each numeric column in a table
+#' and and a target column
+#' @param df A dataframe
+#' @param target.col Name of target column against which correlations will be
+#' calculated
+#' @return df A dataframe with column names and corresponding correlations and
+#' p-values with the target column
+#'
+#' @export
+#' @references \url{https://community.healthcatalyst.com/community/data-science}
+#' @seealso \code{\link{HCRTools}}
+#' @examples
+#' library(HCRTools)
+#'
+#' df <- data.frame(a=c(1,2,3,4,5,6),
+#' b=c(6,5,4,3,2,1),
+#' c=c(3,4,2,1,3,5),
+#' d=c('M','F','F','F','M','F')) <- is ignored
+#'
+#' res <- CalculateTargetedCorrelations(df,'c')
+#' res
+
+CalculateTargetedCorrelations <- function(df,targetcol) {
+  if (!is.numeric(df[[targetcol]])) {
+    stop("Your target column must be numeric")
+  }
+
+  # Initialize variable, since we will iterate
+  pvalue <- vector('numeric')
+
+  # Pull only numeric columns
+  # Pull only numeric columns
+  nums <- sapply(df, is.numeric)
+  df <- df[ , nums]
+
+
+  collist <- names(df)
+  # Trim list of col names, so target doesn't check against itself
+  collist <- collist[collist != targetcol]
+
+  # Make list of correlations
+  cor <- cor(as.matrix(df[[targetcol]]), as.matrix(df[ ,!(colnames(df) == targetcol)]))
+
+  # Make list of corr-related p-values
+  for (i in collist) {
+    pvalue <- c(pvalue,cor.test(df[[targetcol]], df[,i])$p.value)
+  }
+
+  dfout <- data.frame(t(cor),pvalue)
+  # Change name of corr col
+  names(dfout)[names(dfout) == 't.cor.'] <- 'correlation'
+
+  # Change row name to actual col
+  dfout <- cbind(column = rownames(dfout), dfout)
+  rownames(dfout) <- NULL
+
+  dfout
+}
+
+#' @title
+#' Correlation analysis on an input table over all numeric columns
+#'
+#' @description Calculate correlations between every numeric column in a table
+#' @param df A dataframe
+#' @return df A dataframe with column names and corresponding correlations
+#' with the target column
+#'
+#' @export
+#' @references \url{https://community.healthcatalyst.com/community/data-science}
+#' @seealso \code{\link{HCRTools}}
+#' @examples
+#' library(HCRTools)
+#'
+#' df <- data.frame(a=c(1,2,3,4,5,6),
+#' b=c(6,5,4,3,2,1),
+#' c=c(3,4,2,1,3,5),
+#' d=c('M','F','F','F','M','F')) <- is ignored
+#'
+#' res <- CalculateAllCorrelations(df,'c')
+#' res
+
+CalculateAllCorrelations <- function(df) {
+  dfout <- cor(df[sapply(df, is.numeric)])
+
+  dfout
+}
+
