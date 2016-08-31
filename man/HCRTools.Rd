@@ -13,7 +13,7 @@ models on your data, and then deploy the model that is most accurate.
 This is done in a two-step process:
 
 \itemize{
-\item Use \code{\link{DevelopSupervisedModel}} to test and compare models
+\item Use \code{\link{GroupLasso}} or \code{\link{RandomForest}} to test and compare models
 based on your data.
 \item Once you've determined which model is best, use
 \code{\link{DeploySupervisedModel}} to create a final model, automatically
@@ -22,7 +22,9 @@ Server.
 }
 }
 \seealso{
-\code{\link{DevelopSupervisedModel}}
+\code{\link{GroupLasso}}
+
+\code{\link{RandomForest}}
 
 \code{\link{DeploySupervisedModel}}
 

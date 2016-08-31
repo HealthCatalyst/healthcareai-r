@@ -13,7 +13,7 @@ IsBinary(v)
 A boolean
 }
 \description{
-Check if a vector is binary (not counting NA's)
+Check if a vector is binary (not countings NA's)
 }
 \examples{
 IsBinary(c(1,2,NA))
