@@ -1,9 +1,4 @@
 # Import the common functions.
-library(R6)
-library(grpreg)
-library(pROC)
-library(ROCR)
-
 source('R/common.R')
 source('R/SupervisedModel.R')
 
@@ -24,6 +19,7 @@ source('R/common.R')
 #' @import ranger
 #' @import ROCR
 #' @import RODBC
+#' @param object of SuperviseModelParameters class for $new() constructor
 #' @param type The type of model (either 'regression' or 'classification')
 #' @param df Dataframe whose columns are used for calc.
 #' @param grain.col The dataframe's column that has IDs pertaining to the grain

@@ -29,7 +29,6 @@ source('R/common.R')
 #' F leads to removal of rows containing NULLs.
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
-#' @seealso \code{\link{DevelopSupervisedModel}}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' # The data will read in as-is and you can find the data itself here
@@ -49,7 +48,7 @@ source('R/common.R')
 #' # Factor3TXT varchar(255),
 #'
 #' # If you prefer to not use SAMD, execute this in SSMS to create output table:
-#' # CREATE TABLE dbo.HCRDeployTest1BASE(
+#' # CREATE TABLE dbo.HCRDeployClassificationBASE(
 #' #   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
 #' #   GrainID int <--change to match inputID, PredictedProbNBR decimal(38, 2),
 #' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
@@ -89,7 +88,7 @@ source('R/common.R')
 #'          cores = 1,
 #'          sqlcnxn = connection.string,
 #'          # Note: Do not use [ or ] in output table
-#'          dest.schema.table = 'dbo.HCRDeployTest1BASE',
+#'          dest.schema.table = 'dbo.HCRDeployClassificationBASE',
 #'          debug = FALSE,  # <-- change this to TRUE to debug
 #'          rfmtry = 2)
 #'
@@ -151,7 +150,7 @@ source('R/common.R')
 #'          sqlcnxn = connection.string,
 #'          debug = FALSE,  # <-- change this to TRUE to debug
 #'          # Note: Do not use [ or ] in output table
-#'          dest.schema.table = 'dbo.HCRDeployTest2BASE')
+#'          dest.schema.table = 'dbo.HCRDeployRegressionBASE')
 #'
 #' print(proc.time() - ptm)
 #'

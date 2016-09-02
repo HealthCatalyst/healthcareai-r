@@ -9,6 +9,8 @@
 RandomForest
 }
 \arguments{
+\item{object}{of SuperviseModelParameters class for $new() constructor}
+
 \item{type}{The type of model (either 'regression' or 'classification')}
 
 \item{df}{Dataframe whose columns are used for calc.}

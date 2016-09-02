@@ -1,9 +1,19 @@
 # Import the common functions.
-library(R6)
-library(caret)
-
 source('R/common.R')
 source('R/SupervisedModelParameters.R')
+
+#' Compare predictive models, created on your data
+#'
+#' @description This step allows one to create test models on your data
+#' and helps determine which performs best.
+#' @docType class
+#' @import caret
+#' @importFrom R6 R6Class
+#' @param object of SuperviseModelParameters class for $new() constructor
+#' @references \url{http://products.healthcatalyst.com/Predictive}
+#' @seealso \code{\link{HCRTools}}
+#'
+#' @export
 
 SupervisedModel <- R6Class("SupervisedModel",
 
@@ -50,18 +60,21 @@ SupervisedModel <- R6Class("SupervisedModel",
       if(!is.null(p$df))
         self$params$df <- p$df
 
+      if(!is.null(p$groupCol))
+        self$params$groupCol <- p$groupCol
+
       if(!is.null(p$grainCol))
         self$params$grainCol <- p$grainCol
 
       if(!is.null(p$predictedCol))
         self$params$predictedCol <- p$predictedCol
 
-      if(!is.null(p$type)) {
+      if(!is.null(p$type) && p$type != '') {
         self$params$type <- p$type
 
         # validation on type string values
         if (self$params$type != 'REGRESSION' && self$params$type != 'CLASSIFICATION') {
-          stop('Your type must be regression or classification')
+          print('Warning: Your type must be regression or classification')
         }
         if (self$params$type =='CLASSIFICATION' && IsBinary(self$params$df[[self$params$predictedCol]]) == FALSE){
           stop('Dependent variable must be binary for classification')
