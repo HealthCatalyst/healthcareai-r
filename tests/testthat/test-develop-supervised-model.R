@@ -48,7 +48,7 @@ test_that("AUC_lasso is the same each time the test is run", {
   p$predictedCol = 'SalariedFlag'
 
   capture.output(grlasso <- GroupLasso$new(p))
-  grlasso$run()
+  capture.output(grlasso$run())
 
   expect_true(as.numeric(grlasso$getAUC()) - 0.8263889 < 1.0e-6) #0.800236406619385)
 })
@@ -62,6 +62,7 @@ test_that("rmse_lasso is the same each time the test is run non-factor column", 
   capture.output(grlasso$run())
 
   expect_true(as.numeric(grlasso$getRMSE()) - 5.2771911 < 1.0e-6) #5.35177750023664)
+
 })
 
 test_that("mae_lasso is the same each time the test is run non-factor column", {
@@ -73,6 +74,7 @@ test_that("mae_lasso is the same each time the test is run non-factor column", {
   capture.output(grlasso$run())
 
   expect_true(as.numeric(grlasso$getMAE()) - 2.615982 < 1.0e-6)# 2.6402310211195)
+
 })
 
 
@@ -89,6 +91,7 @@ test_that("AUC_rf is the same each time the test is run", {
   capture.output(rf$run())
 
   expect_true(as.numeric(rf$getAUC()) - 0.9148936 < 1.0e-6) #0.914893617021277)
+
 })
 
 test_that("rmse_rf is the same each time the test is run non-factor column", {
@@ -101,6 +104,7 @@ test_that("rmse_rf is the same each time the test is run non-factor column", {
   capture.output(rf$run())
 
   expect_true(as.numeric(rf$getRMSE()) - 5.754806 < 1.0e-6) #5.75427780855753)
+
 })
 
 test_that("mae_rf is the same each time the test is run non-factor column", {
@@ -113,4 +117,5 @@ test_that("mae_rf is the same each time the test is run non-factor column", {
   capture.output(rf$run())
 
   expect_true(as.numeric(rf$getMAE()) - 2.919582 < 1.0e-6) #2.9240442062118)
+
 })

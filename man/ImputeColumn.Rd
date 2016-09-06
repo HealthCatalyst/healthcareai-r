@@ -28,6 +28,9 @@ df = data.frame(a=c(1,2,3,NA),
                 b=c('Y','N','Y',NA))
 df[] <- lapply(df, ImputeColumn)
 }
+\references{
+\url{https://community.healthcatalyst.com/community/data-science}
+}
 \seealso{
 \code{\link{HCRTools}}
 }

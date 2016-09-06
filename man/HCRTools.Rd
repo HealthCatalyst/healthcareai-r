@@ -21,12 +21,17 @@ save it, predict against test data, and push predicted values into SQL
 Server.
 }
 }
+\references{
+\url{https://community.healthcatalyst.com/community/data-science}
+}
 \seealso{
 \code{\link{GroupLasso}}
 
 \code{\link{RandomForest}}
 
 \code{\link{DeploySupervisedModel}}
+
+\code{\link{RiskAdjustedComparisons}}
 
 \code{\link{GroupedLOCF}}
 
@@ -38,8 +43,12 @@ Server.
 
 \code{\link{RemoveRowsWithNAInSpecCol}}
 
-\code{\link{FindTrendsAboveThreshold}}
+\code{\link{FindTrends}}
 
 \code{\link{ConvertDateTimeColToDummies}}
+
+\code{\link{CalculateTargetedCorrelations}}
+
+\code{\link{CalculateAllCorrelations}}
 }
 

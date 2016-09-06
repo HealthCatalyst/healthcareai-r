@@ -15,7 +15,7 @@ DeploySupervisedModel
 
 \item{grain.col}{The dataframe's column that has IDs pertaining to the grain}
 
-\item{window.col}{This column dictates the split between model training and
+\item{test.window.col}{This column dictates the split between model training and
 test sets. Those rows with zeros in this column indicate the training set
 while those that have ones indicate the test set}
 
@@ -39,15 +39,11 @@ This step allows one to
 }
 }
 \examples{
-# The data will read in as-is and you can find the data itself here
-# C:\\Users\\levi.thatcher\\Documents\\R\\win-library\\3.2\\HCRTools\\extdata OR
-# C:\\Program Files\\R\\R-3.2.3\\library\\HCRTools\\extdata
-
 #### Classification example using data from csv ####
 # This example requires
 #    1) You set your working directory to source file location
 #    2) To receive predictions from R back to SQL Server, you'll need to save
-#       and run an entity in SAMD that has the following columns
+#       and run an entity in SAMD that has only the following columns
 #
 # GrainID decimal(38,0) not null, <--change col to match ID in summary table
 # PredictedProbNBR decimal(38,2),
@@ -62,7 +58,7 @@ This step allows one to
 #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 # )
 
-#setwd("C:/Your/script/location") # Needed if using YOUR CSV file
+#setwd("C:/Yourscriptlocation/Useforwardslashes") # Encomment this command #
 ptm <- proc.time()
 library(HCRTools)
 
@@ -85,7 +81,7 @@ head(df)
 o <- DeploySupervisedModel$new(type = 'classification',
                                df = df,
                                grain.col = 'GrainID',
-                               window.col = 'InTestWindow',
+                               test.window.col = 'InTestWindow',
                                predicted.col = 'SalariedFlag',
                                impute = TRUE,
                                debug = FALSE,  # <-- change to TRUE to debug
@@ -102,12 +98,11 @@ o$deploy(model = 'rf',
 
 print(proc.time() - ptm)
 
-
 #### Regression example using data from SQL Server ####
 # This example requires
 #     1) You set your working directory to source file location
 #     2) To receive predictions from R back to SQL Server, you'll need to
-#        save and run an entity in SAMD that has the following columns
+#        save and run an entity in SAMD that has only the following columns
 
 # GrainID decimal(38,0) not null, <--change col to match ID in summary table
 # PredictedValueNBR decimal(38,2),
@@ -116,12 +111,13 @@ print(proc.time() - ptm)
 # Factor3TXT varchar(255),
 
 # If you prefer to not use SAMD, execute this in SSMS to create output table:
-# CREATE TABLE dbo.HCRDeployTest2BASE(
+# CREATE TABLE dbo.HCRDeployRegressionBASE(
 #   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
 #   GrainID int <--change to match inputID, PredictedValueNBR decimal(38, 2),
 #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 # )
 
+#setwd("C:/Yourscriptlocation/Useforwardslashes") # Encomment this command #
 ptm <- proc.time()
 library(HCRTools)
 
@@ -147,7 +143,7 @@ df <- subset(df, select = -c(SalariedFlag))
 o <- DeploySupervisedModel$new(type = 'regression',
                                df = df,
                                grain.col = 'GrainID',
-                               window.col = 'InTestWindow',
+                               test.window.col = 'InTestWindow',
                                predicted.col = 'VacationHours',
                                impute = TRUE,
                                debug = FALSE,  # <-- change to T for debug

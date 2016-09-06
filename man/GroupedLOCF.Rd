@@ -4,13 +4,13 @@
 \alias{GroupedLOCF}
 \title{Last observation carried forward}
 \usage{
-GroupedLOCF(dt, id)
+GroupedLOCF(df, id)
 }
 \arguments{
-\item{dt}{data.table sorted by an ID column and a time or sequence number
+\item{df}{data.frame sorted by an ID column and a time or sequence number
 column.}
 
-\item{id}{A column name (in ticks) in dt to group rows by.}
+\item{id}{A column name (in ticks) in df to group rows by.}
 }
 \value{
 A data.table where the last non-NA values are carried forward
@@ -21,18 +21,21 @@ Carries the last observed value forward for all columns in a data.table
 grouped by an id.
 }
 \examples{
-library(data.table)
-dt = data.table(PersonID=c(1,1,2,2,3,3,3),
+library(HCRTools)
+df = data.frame(PersonID=c(1,1,2,2,3,3,3),
                 wt=c(.5,NA,NA,NA,.3,.7,NA),
                 ht=c(NA,1,3,NA,4,NA,NA),
                 date=c('01/01/2015','01/15/2015','01/01/2015','01/15/2015',
                        '01/01/2015','01/15/2015','01/30/2015'))
 
-head(dt,n=7)
+head(df,n=7)
 
-df.result = GroupedLOCF(dt, 'PersonID')
+df.result = GroupedLOCF(df, 'PersonID')
 
 head(df.result,n=7)
+}
+\references{
+\url{https://community.healthcatalyst.com/community/data-science}
 }
 \seealso{
 \code{\link{HCRTools}}

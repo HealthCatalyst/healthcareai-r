@@ -1,4 +1,4 @@
-context("Checking list of columns with greater than fifty factors in a dataframe")
+context("Checking list of columns with greater than fifty categories in a dataframe")
 
 test_that("Correct list is returned when there are zero columns with greater than fifty factors", {
   df = data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -7,7 +7,7 @@ test_that("Correct list is returned when there are zero columns with greater tha
                       'r','s','t','u','v','w','x','y','z','aa','bb','cc','dd','ee','ff','gg',
                       'hh','ii','jj','kk','ll','mm','nn','oo','pp','qq','rr','ss','tt','uu',
                       'vv','ww','aa','aa'))
-  colList = ReturnColsWithMoreThanFiftyFactors(df)
+  colList = ReturnColsWithMoreThanFiftyCategories(df)
 
   expect_equal(colList, vector('character'))
 })
@@ -19,7 +19,7 @@ test_that("Correct list is returned when there is one column with greater than f
                       'r','s','t','u','v','w','x','y','z','aa','bb','cc','dd','ee','ff','gg',
                       'hh','ii','jj','kk','ll','mm','nn','oo','pp','qq','rr','ss','tt','uu',
                       'vv','ww','xx','yy'))
-  colList = ReturnColsWithMoreThanFiftyFactors(df)
+  colList = ReturnColsWithMoreThanFiftyCategories(df)
 
   expect_equal(colList, c('b'))
 })
@@ -35,7 +35,7 @@ test_that("Correct list is returned when there are more than one columns with gr
                       'r','s','t','u','v','w','x','y','z','aa','bb','cc','dd','ee','ff','gg',
                       'hh','ii','jj','kk','ll','mm','nn','oo','pp','qq','rr','ss','tt','uu',
                       'vv','ww','xx','yy',NA))
-  colList = ReturnColsWithMoreThanFiftyFactors(df)
+  colList = ReturnColsWithMoreThanFiftyCategories(df)
 
   expect_equal(colList, c('b','c'))
 })

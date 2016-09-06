@@ -2,9 +2,6 @@
 source('R/common.R')
 source('R/SupervisedModel.R')
 
-# Import the common functions.
-source('R/common.R')
-
 #' Compare predictive models, created on your data
 #'
 #' @description This step allows one to create test models on your data

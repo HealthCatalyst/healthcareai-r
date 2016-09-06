@@ -20,7 +20,7 @@ Select data from an ODBC database and return the results as
 a data frame.
 }
 \examples{
-library(RODBC)
+library(HCRTools)
 connection.string = '
   driver={SQL Server};
   server=localhost;
@@ -33,6 +33,9 @@ query = '
   FROM [AdventureWorks2012].[HumanResources].[Employee]'
 
 dataframe <- SelectData(connection.string, query)
+}
+\references{
+\url{https://community.healthcatalyst.com/community/data-science}
 }
 \seealso{
 \code{\link{HCRTools}}

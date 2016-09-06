@@ -74,7 +74,7 @@ SupervisedModel <- R6Class("SupervisedModel",
 
         # validation on type string values
         if (self$params$type != 'REGRESSION' && self$params$type != 'CLASSIFICATION') {
-          print('Warning: Your type must be regression or classification')
+          stop('Your type must be regression or classification')
         }
         if (self$params$type =='CLASSIFICATION' && IsBinary(self$params$df[[self$params$predictedCol]]) == FALSE){
           stop('Dependent variable must be binary for classification')
@@ -120,9 +120,9 @@ SupervisedModel <- R6Class("SupervisedModel",
       # For use in confusion matrices
       private$prevalence = table(self$params$df[[self$params$predictedCol]])[2]
 
-      if (length(ReturnColsWithMoreThanFiftyFactors(self$params$df))>0){
+      if (length(ReturnColsWithMoreThanFiftyCategories(self$params$df))>0){
         message('The following columns in the data frame have more than fifty factors:')
-        message(paste(shQuote(ReturnColsWithMoreThanFiftyFactors(self$params$df)), collapse=", "))
+        message(paste(shQuote(ReturnColsWithMoreThanFiftyCategories(self$params$df)), collapse=", "))
         message(paste('This drastically reduces performance.',
                       'Consider combining these factors into a new column with fewer factors.'))
       }

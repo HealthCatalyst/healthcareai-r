@@ -19,7 +19,7 @@ source('R/common.R')
 #' @param type The type of model (either 'regression' or 'classification')
 #' @param df Dataframe whose columns are used for calc.
 #' @param grain.col The dataframe's column that has IDs pertaining to the grain
-#' @param window.col This column dictates the split between model training and
+#' @param test.window.col This column dictates the split between model training and
 #' test sets. Those rows with zeros in this column indicate the training set
 #' while those that have ones indicate the test set
 #' @param predicted.col Column that you want to predict.
@@ -31,15 +31,11 @@ source('R/common.R')
 #' to monitor the calculations throughout. Use T or F.
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' # The data will read in as-is and you can find the data itself here
-#' # C:\Users\levi.thatcher\Documents\R\win-library\3.2\HCRTools\extdata OR
-#' # C:\Program Files\R\R-3.2.3\library\HCRTools\extdata
-#'
 #' #### Classification example using data from csv ####
 #' # This example requires
 #' #    1) You set your working directory to source file location
 #' #    2) To receive predictions from R back to SQL Server, you'll need to save
-#' #       and run an entity in SAMD that has the following columns
+#' #       and run an entity in SAMD that has only the following columns
 #' #
 #' # GrainID decimal(38,0) not null, <--change col to match ID in summary table
 #' # PredictedProbNBR decimal(38,2),
@@ -54,7 +50,7 @@ source('R/common.R')
 #' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 #' # )
 #'
-#' #setwd("C:/Your/script/location") # Needed if using YOUR CSV file
+#' #setwd("C:/Yourscriptlocation/Useforwardslashes") # Encomment this command #
 #' ptm <- proc.time()
 #' library(HCRTools)
 #'
@@ -77,7 +73,7 @@ source('R/common.R')
 #' o <- DeploySupervisedModel$new(type = 'classification',
 #'                                df = df,
 #'                                grain.col = 'GrainID',
-#'                                window.col = 'InTestWindow',
+#'                                test.window.col = 'InTestWindow',
 #'                                predicted.col = 'SalariedFlag',
 #'                                impute = TRUE,
 #'                                debug = FALSE,  # <-- change to TRUE to debug
@@ -94,12 +90,11 @@ source('R/common.R')
 #'
 #' print(proc.time() - ptm)
 #'
-#'
 #' #### Regression example using data from SQL Server ####
 #' # This example requires
 #' #     1) You set your working directory to source file location
 #' #     2) To receive predictions from R back to SQL Server, you'll need to
-#' #        save and run an entity in SAMD that has the following columns
+#' #        save and run an entity in SAMD that has only the following columns
 #'
 #' # GrainID decimal(38,0) not null, <--change col to match ID in summary table
 #' # PredictedValueNBR decimal(38,2),
@@ -108,12 +103,13 @@ source('R/common.R')
 #' # Factor3TXT varchar(255),
 #'
 #' # If you prefer to not use SAMD, execute this in SSMS to create output table:
-#' # CREATE TABLE dbo.HCRDeployTest2BASE(
+#' # CREATE TABLE dbo.HCRDeployRegressionBASE(
 #' #   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
 #' #   GrainID int <--change to match inputID, PredictedValueNBR decimal(38, 2),
 #' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 #' # )
 #'
+#' #setwd("C:/Yourscriptlocation/Useforwardslashes") # Encomment this command #
 #' ptm <- proc.time()
 #' library(HCRTools)
 #'
@@ -139,7 +135,7 @@ source('R/common.R')
 #' o <- DeploySupervisedModel$new(type = 'regression',
 #'                                df = df,
 #'                                grain.col = 'GrainID',
-#'                                window.col = 'InTestWindow',
+#'                                test.window.col = 'InTestWindow',
 #'                                predicted.col = 'VacationHours',
 #'                                impute = TRUE,
 #'                                debug = FALSE,  # <-- change to T for debug
@@ -163,7 +159,7 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
 
     df = NA,
     grain.col = NA,
-    window.col = NA,
+    test.window.col = NA,
     use.saved.model = NA,
     predicted.col = NA,
     impute = NA,
@@ -175,26 +171,29 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
 
     type = NA,
 
+    # For unit tests
+    linear.predictedVALS = NA,
+    rf.predictedVALS = NA,
+
     initialize = function(type,
                           df,
                           grain.col,
-                          window.col,
+                          test.window.col,
                           predicted.col,
-                          impute,
+                          impute = TRUE,
                           use.saved.model,
                           debug = FALSE) {
 
       # TODO: if type is not specified at all - print a helpful message.
 
-      if (length(ReturnColsWithMoreThanFiftyFactors(df))>0){
-        message('The following columns in the data frame have more than fifty factors:')
-        message(paste(shQuote(ReturnColsWithMoreThanFiftyFactors(df)), collapse=", "))
-        message(paste('This drastically reduces performance.',
-                      'Consider combining these factors into a new column with fewer factors.'))
-      }
-
       if (type != 'regression' && type != 'classification') {
         stop('Your type must be regression or classification')
+      }
+
+      if (isTRUE(debug)) {
+        print('Entire data set at the top of the constructor')
+        print(str(df))
+        print('Now going to convert chr cols to factor cols...')
       }
 
       # Convert to data.frame (in case of data.table)
@@ -220,7 +219,15 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
       if (isTRUE(debug)) {
         print('Entire df after removing cols with DTS')
         print(str(df))
-        print('Now going to remove zero-var cols...')
+        print('Now going to check for cols with fifty+ categories...')
+      }
+
+      if (length(ReturnColsWithMoreThanFiftyCategories(df))>0){
+        message('These columns in the df have more than fifty categories:')
+        message(paste(shQuote(ReturnColsWithMoreThanFiftyCategories(df)),
+                              collapse=", "))
+        message(paste('This drastically reduces performance.',
+                      'Consider combining into new col with fewer categories.'))
       }
 
       # Remove columns with zero variance
@@ -243,7 +250,54 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
       if (isTRUE(debug)) {
         print('Entire data set after separating out grain col')
         print(str(df))
-        print('Now creating dummy variables')
+        print('Now doing imputation')
+      }
+
+      # Split df into temp train and test (then rejoin for dummy creation)
+      # Sadly, this even has to be done nightly (with a saved model)
+      df.train.temp <- df[df[[test.window.col]] == 'N',]
+      df.test.temp <- df[df[[test.window.col]] == 'Y',]
+
+      # Use imputation on train set (if we're creating new model)
+      if (isTRUE(impute) && isTRUE(!use.saved.model)) {
+
+        # Remove rows where predicted.col is null in train
+        df.train.temp = RemoveRowsWithNAInSpecCol(df.train.temp, predicted.col)
+        if (isTRUE(debug)) {
+          print('Training data set after removing rows where pred col is null')
+          print(str(df.train.temp))
+          print('Doing imputation on training set...')
+        }
+        df.train.temp[] <- lapply(df.train.temp, ImputeColumn)
+
+        if (isTRUE(debug)) {
+          print('Training set after doing imputation')
+          print(str(df.train.temp))
+        }
+
+        # If user doesn't ask for imputation, remove rows with any NA's
+      } else if (isTRUE(!impute) && isTRUE(!use.saved.model)) {
+        df.train.temp = na.omit(df.train.temp)
+
+        if (isTRUE(debug)) {
+          print('Training set after removing rows with NULLs')
+          print(str(df.train.temp))
+        }
+      }
+
+      # Always do imputation on all of test set (since each row needs pred)
+      df.test.temp[] <- lapply(df.test.temp, ImputeColumn)
+
+      # Join temp train and test back together, so dummy creation is consistent
+      df <- rbind(df.train.temp, df.test.temp)
+
+      df.train.temp <- NULL # Were only used for imputation
+      df.test.temp <- NULL
+
+      if (isTRUE(debug)) {
+        print('Entire data set after imputation')
+        print(str(df))
+        print('Now creating dummy variables...')
       }
 
       # Make sure label column is numeric before creating dummy var
@@ -269,32 +323,23 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
 
       # If creating new model, split train set from df
       if (isTRUE(!use.saved.model)) {
-        # Note that the paste0 is needed here bc window.col is now dummy var
+        # Note that the paste0 is needed here bc test.window.col is now dummy var
         # For now it's assumed that dummyVars always sets Y to 1
-        dfTrain = df[df[[paste0(window.col,'.Y')]] == 0,]
+        dfTrain = df[df[[paste0(test.window.col,'.Y')]] == 0,]
         # Drop window col from train set, as it's no longer needed
-        dfTrain <- dfTrain[, !(names(dfTrain) %in% c(window.col,
-                                                     paste0(window.col,'.Y')))]
+        dfTrain <- dfTrain[, !(names(dfTrain) %in% c(test.window.col,
+                                                     paste0(test.window.col,'.Y')))]
 
         if (isTRUE(debug)) {
           print('Training data set after splitting from main df')
           print(str(dfTrain))
         }
-
-        # Remove rows where predicted.col is null in train
-        dfTrain = RemoveRowsWithNAInSpecCol(dfTrain, predicted.col)
-
-        if (isTRUE(debug)) {
-          print('Training data set after removing rows where pred col is null')
-          print(str(dfTrain))
-          print('Splitting train and test from main df...')
-        }
       }
 
-      # Always create test set from df, and drop window.cols from test set
-      dfTest = df[df[[paste0(window.col,'.Y')]] == 1,]
-      dfTest <- dfTest[, !(names(dfTest) %in% c(window.col,
-                                                 paste0(window.col,'.Y')))]
+      # Always create test set from df, and drop test.window.cols from test set
+      dfTest = df[df[[paste0(test.window.col,'.Y')]] == 1,]
+      dfTest <- dfTest[, !(names(dfTest) %in% c(test.window.col,
+                                                 paste0(test.window.col,'.Y')))]
 
       if (isTRUE(debug)) {
         print('Test set after splitting from df (and then removing windowcol)')
@@ -303,7 +348,7 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
 
       # Now that we have train/test, split grain col into test (for use at end)
       if (nchar(grain.col) != 0) {
-          graintest <- full.grain[df[[paste0(window.col,'.Y')]] == 1]
+          graintest <- full.grain[df[[paste0(test.window.col,'.Y')]] == 1]
 
           if (isTRUE(debug)) {
             print('Grain col vector with rows of test set (after created)')
@@ -315,28 +360,6 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
           TuneSupervisedModel')
       }
 
-      # Use imputation on train set (if we're creating new model)
-      if (isTRUE(impute) && isTRUE(!use.saved.model)) {
-          if (isTRUE(debug)) {
-            print('Doing imputation on training set...')
-          }
-          dfTrain[] <- lapply(dfTrain, ImputeColumn)
-
-          if (isTRUE(debug)) {
-            print('Training set after doing imputation')
-            print(str(dfTrain))
-          }
-
-      # If user doesn't ask for imputation, remove rows with any NA's
-      } else if (isTRUE(!impute) && isTRUE(!use.saved.model)) {
-          dfTrain = na.omit(dfTrain)
-
-          if (isTRUE(debug)) {
-            print('Training set after removing rows with NULLs')
-            print(str(dfTrain))
-          }
-      }
-
       # Pass raw (un-imputed) dfTest to object, so important factors aren't null
       self$dfTestRAW <- dfTest[, !(names(dfTest) %in% c(predicted.col))]
 
@@ -344,9 +367,6 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
         print('Raw test set (sans imputation) created for mult with coeffs')
         print(str(self$dfTestRAW))
       }
-
-      # Always do imputation on all of test set (since now no NAs in pred.col)
-      dfTest[] <- lapply(dfTest, ImputeColumn)
 
       if (isTRUE(debug)) {
         print('Test set after undergoing imputation')
@@ -457,7 +477,7 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
                 registerDoSEQ()
               }
 
-          } else {
+          } else { # if linear
               fit = fit.logit # set to logit, if logit is chosen over rf
           }
       }
@@ -483,11 +503,13 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
         if (model == 'rf') {  #  these are probabilities
            predictedVALStemp = predict(fit, data = self$dfTest)
            predictedVALS <- predictedVALStemp$predictions[,2]
+           self$rf.predictedVALS <- predictedVALS[5] # for unit test
            print('Probability predictions are based on random forest')
 
-        } else {              #  these are probabilities
+        } else {  #linear        these are probabilities
            predictedVALS = predict(fit,
                                    newdata = self$dfTest, type = "response")
+           self$linear.predictedVALS <- predictedVALS[5] # for unit test
            print('Probability predictions are based on logistic')
         }
 
