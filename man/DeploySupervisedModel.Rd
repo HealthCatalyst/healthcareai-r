@@ -93,7 +93,8 @@ o$deploy(model = 'rf',
          sqlcnxn = connection.string,
          # Note: Do not use [ or ] in output table
          dest.schema.table = 'dbo.HCRDeployClassificationBASE',
-         debug = FALSE)  # <-- change this to TRUE to debug
+         debug = FALSE,  # <-- change this to TRUE to debug
+         rfmtry = 2)
 
 print(proc.time() - ptm)
 
@@ -159,8 +160,6 @@ print(proc.time() - ptm)
 
 }
 \seealso{
-\code{\link{DevelopSupervisedModel}}
-
 \code{\link{HCRTools}}
 }
 \keyword{datasets}

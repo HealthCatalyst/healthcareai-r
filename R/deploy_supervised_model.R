@@ -29,7 +29,6 @@ source('R/common.R')
 #' F leads to removal of rows containing NULLs.
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
-#' @seealso \code{\link{DevelopSupervisedModel}}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' #### Classification example using data from csv ####
@@ -86,7 +85,8 @@ source('R/common.R')
 #'          sqlcnxn = connection.string,
 #'          # Note: Do not use [ or ] in output table
 #'          dest.schema.table = 'dbo.HCRDeployClassificationBASE',
-#'          debug = FALSE)  # <-- change this to TRUE to debug
+#'          debug = FALSE,  # <-- change this to TRUE to debug
+#'          rfmtry = 2)
 #'
 #' print(proc.time() - ptm)
 #'

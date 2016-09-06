@@ -519,7 +519,7 @@ OrderByDate <- function(df,datecol,descending=FALSE) {
 #' df <- data.frame(a=c(1,2,3,4,5,6),
 #' b=c(6,5,4,3,2,1),
 #' c=c(3,4,2,1,3,5),
-#' d=c('M','F','F','F','M','F')) <- is ignored
+#' d=c('M','F','F','F','M','F')) #<- is ignored
 #'
 #' res <- CalculateTargetedCorrelations(df,'c')
 #' res
@@ -569,6 +569,7 @@ CalculateTargetedCorrelations <- function(df,targetcol) {
 #' @return df A dataframe with column names and corresponding correlations
 #' with the target column
 #'
+#' @importFrom stats cor cor.test
 #' @export
 #' @references \url{https://community.healthcatalyst.com/community/data-science}
 #' @seealso \code{\link{HCRTools}}
@@ -578,14 +579,45 @@ CalculateTargetedCorrelations <- function(df,targetcol) {
 #' df <- data.frame(a=c(1,2,3,4,5,6),
 #' b=c(6,5,4,3,2,1),
 #' c=c(3,4,2,1,3,5),
-#' d=c('M','F','F','F','M','F')) <- is ignored
+#' d=c('M','F','F','F','M','F')) #<- is ignored
 #'
-#' res <- CalculateAllCorrelations(df,'c')
+#' res <- CalculateAllCorrelations(df)
 #' res
 
 CalculateAllCorrelations <- function(df) {
   dfout <- cor(df[sapply(df, is.numeric)])
 
   dfout
+}
+
+#' @title
+#' Return vector of columns in a dataframe with greater than 50 categories
+#'
+#' @description Returns a vector of the names of the columns that have more than
+#' 50 categories
+#' @param df A dataframe
+#' @return colList A vector that contains the names of the columns with greater
+#' than 50 categories
+#'
+#' @export
+#' @references \url{https://community.healthcatalyst.com/community/data-science}
+#' @seealso \code{\link{HCRTools}}
+#' @examples
+#' df = data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+#'                     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1),
+#'                 b=c('a','b','c','d','e','f','g','h','i','j','k','l','m','n',
+#'                     'o','p','q','r','s','t','u','v','w','x','y','z','aa','bb',
+#'                     'cc','dd','ee','ff','gg','hh','ii','jj','kk','ll','mm','nn',
+#'                     'oo','pp','qq','rr','ss','tt','uu','vv','ww','xx','yy'))
+#' colList = ReturnColsWithMoreThanFiftyCategories(df)
+
+ReturnColsWithMoreThanFiftyCategories <- function(df) {
+  colList=vector('character')
+  for (columnName in names(df)){
+    if (nlevels(df[[columnName]])>50){
+      colList<-c(colList,columnName)
+    }
+  }
+  colList
 }
 

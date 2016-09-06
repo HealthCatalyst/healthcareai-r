@@ -6,13 +6,17 @@
 #' This is done in a two-step process:
 #'
 #' \itemize{
-#' \item Use \code{\link{DevelopSupervisedModel}} to test and compare models
+#' \item Use \code{\link{GroupLasso}} or \code{\link{RandomForest}} to test and compare models
 #' based on your data.
 #' \item Once you've determined which model is best, use
 #' \code{\link{DeploySupervisedModel}} to create a final model, automatically
 #' save it, predict against test data, and push predicted values into SQL
-#' Server.}
+#' Server.
+#' }
 #' @references \url{https://community.healthcatalyst.com/community/data-science}
+#' @seealso \code{\link{GroupLasso}}
+#' @seealso \code{\link{RandomForest}}
+#' @seealso \code{\link{DeploySupervisedModel}}
 #' @seealso \code{\link{RiskAdjustedComparisons}}
 #' @seealso \code{\link{GroupedLOCF}}
 #' @seealso \code{\link{SelectData}}

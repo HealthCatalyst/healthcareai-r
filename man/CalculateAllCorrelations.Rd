@@ -22,9 +22,9 @@ library(HCRTools)
 df <- data.frame(a=c(1,2,3,4,5,6),
 b=c(6,5,4,3,2,1),
 c=c(3,4,2,1,3,5),
-d=c('M','F','F','F','M','F')) <- is ignored
+d=c('M','F','F','F','M','F')) #<- is ignored
 
-res <- CalculateAllCorrelations(df,'c')
+res <- CalculateAllCorrelations(df)
 res
 }
 \references{
