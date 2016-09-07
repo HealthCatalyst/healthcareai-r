@@ -73,13 +73,13 @@ SupervisedModel <- R6Class("SupervisedModel",
         self$params$type <- p$type
 
         # validation on type string values
-        if (self$params$type != 'REGRESSION' && self$params$type != 'CLASSIFICATION') {
+        if (self$params$type != 'regression' && self$params$type != 'classification') {
           stop('Your type must be regression or classification')
         }
-        if (self$params$type =='CLASSIFICATION' && IsBinary(self$params$df[[self$params$predictedCol]]) == FALSE){
+        if (self$params$type =='classification' && IsBinary(self$params$df[[self$params$predictedCol]]) == FALSE){
           stop('Dependent variable must be binary for classification')
         }
-        if (self$params$type =='REGRESSION' && IsBinary(self$params$df[[self$params$predictedCol]]) == TRUE){
+        if (self$params$type =='regression' && IsBinary(self$params$df[[self$params$predictedCol]]) == TRUE){
           stop('Dependent variable cannot be binary for regression')
         }
       }
@@ -205,7 +205,7 @@ SupervisedModel <- R6Class("SupervisedModel",
       }
 
       #Declare that the predicted col is a factor, or category to be predicted.
-      if (self$params$type == 'CLASSIFICATION') {
+      if (self$params$type == 'classification') {
         self$params$df[[self$params$predictedCol]] = as.factor(self$params$df[[self$params$predictedCol]])
       }
 

@@ -7,15 +7,15 @@
 RemoveRowsWithNAInSpecCol(df, desiredCol)
 }
 \arguments{
-\item{df}{A dataframe to be altered}
+\item{df}{A data frame to be altered}
 
 \item{desiredCol}{A column name in the df (in ticks)}
 }
 \value{
-The input dataframe with rows removed
+The input data frame with rows removed
 }
 \description{
-Remove rows from a dataframe where a particular col is NA
+Remove rows from a data frame where a particular col is NA
 }
 \examples{
 df = data.frame(a=c(1,2,3),b=c('Y','N',NA),c=c(NA,'Y','N'))

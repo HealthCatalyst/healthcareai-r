@@ -7,7 +7,7 @@ totaldf <- read.csv(file = csvfile,
 
 p <- SupervisedModelParameters$new()
 p$df = totaldf
-p$type = 'CLASSIFICATION'
+p$type = 'classification'
 p$impute = TRUE
 p$grainCol = ''
 p$predictedCol = 'SalariedFlag'
@@ -24,30 +24,30 @@ p$numberOfTrees = 201
 
 test_that("Error is thrown when type != regression or classification", {
   p$type = 'a'
-  expect_error(GroupLasso$new(p), 'Your type must be regression or classification')
+  expect_error(Lasso$new(p), 'Your type must be regression or classification')
 })
 
 test_that("Error is thrown when predicted column isn't binary and type is classification", {
-  p$type = 'CLASSIFICATION'
+  p$type = 'classification'
   p$predictedCol = 'OrganizationLevel'
-  expect_error(GroupLasso$new(p), 'Dependent variable must be binary for classification')
+  expect_error(Lasso$new(p), 'Dependent variable must be binary for classification')
 })
 
 test_that("Error is thrown when predicted column is binary and type is regression", {
-  p$type = 'REGRESSION'
+  p$type = 'regression'
   p$predictedCol = 'SalariedFlag'
-  expect_error(GroupLasso$new(p), 'Dependent variable cannot be binary for regression')
+  expect_error(Lasso$new(p), 'Dependent variable cannot be binary for regression')
 })
 
 ###########
-#GroupLasso
+#Lasso
 
 test_that("AUC_lasso is the same each time the test is run", {
   set.seed(43)
-  p$type = 'CLASSIFICATION'
+  p$type = 'classification'
   p$predictedCol = 'SalariedFlag'
 
-  capture.output(grlasso <- GroupLasso$new(p))
+  capture.output(grlasso <- Lasso$new(p))
   capture.output(grlasso$run())
 
   expect_true(as.numeric(grlasso$getAUC()) - 0.8263889 < 1.0e-6) #0.800236406619385)
@@ -55,10 +55,10 @@ test_that("AUC_lasso is the same each time the test is run", {
 
 test_that("rmse_lasso is the same each time the test is run non-factor column", {
   set.seed(43)
-  p$type = 'REGRESSION'
+  p$type = 'regression'
   p$predictedCol = 'SickLeaveHours'
 
-  capture.output(grlasso <- GroupLasso$new(p))
+  capture.output(grlasso <- Lasso$new(p))
   capture.output(grlasso$run())
 
   expect_true(as.numeric(grlasso$getRMSE()) - 5.2771911 < 1.0e-6) #5.35177750023664)
@@ -67,10 +67,10 @@ test_that("rmse_lasso is the same each time the test is run non-factor column", 
 
 test_that("mae_lasso is the same each time the test is run non-factor column", {
   set.seed(43)
-  p$type = 'REGRESSION'
+  p$type = 'regression'
   p$predictedCol = 'SickLeaveHours'
 
-  capture.output(grlasso <- GroupLasso$new(p))
+  capture.output(grlasso <- Lasso$new(p))
   capture.output(grlasso$run())
 
   expect_true(as.numeric(grlasso$getMAE()) - 2.615982 < 1.0e-6)# 2.6402310211195)
@@ -83,7 +83,7 @@ test_that("mae_lasso is the same each time the test is run non-factor column", {
 
 test_that("AUC_rf is the same each time the test is run", {
   set.seed(43)
-  p$type = 'CLASSIFICATION'
+  p$type = 'classification'
   p$predictedCol = 'SalariedFlag'
   p$impute = FALSE
 
@@ -96,7 +96,7 @@ test_that("AUC_rf is the same each time the test is run", {
 
 test_that("rmse_rf is the same each time the test is run non-factor column", {
   set.seed(43)
-  p$type = 'REGRESSION'
+  p$type = 'regression'
   p$predictedCol = 'SickLeaveHours'
   p$impute = FALSE
 
@@ -109,7 +109,7 @@ test_that("rmse_rf is the same each time the test is run non-factor column", {
 
 test_that("mae_rf is the same each time the test is run non-factor column", {
   set.seed(43)
-  p$type = 'REGRESSION'
+  p$type = 'regression'
   p$predictedCol = 'SickLeaveHours'
   p$impute = FALSE
 

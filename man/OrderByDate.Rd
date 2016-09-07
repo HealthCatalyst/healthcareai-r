@@ -2,22 +2,22 @@
 % Please edit documentation in R/common.R
 \name{OrderByDate}
 \alias{OrderByDate}
-\title{Order the rows in a dataframe by date}
+\title{Order the rows in a data frame by date}
 \usage{
 OrderByDate(df, datecol, descending = FALSE)
 }
 \arguments{
-\item{df}{A dataframe}
+\item{df}{A data frame}
 
 \item{descending}{Boolean for whether the output should be in descending order}
 
-\item{dateCol}{Name of column in dataframe that contains dates}
+\item{dateCol}{Name of column in data frame that contains dates}
 }
 \value{
-df A dataframe ordered by date column
+df A data frame ordered by date column
 }
 \description{
-Returns a dataframe that's ordered by its date column
+Returns a data frame that's ordered by its date column
 }
 \examples{
 library(HCRTools)

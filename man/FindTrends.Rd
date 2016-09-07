@@ -7,13 +7,13 @@
 FindTrends(df, datecol, coltoaggregate)
 }
 \arguments{
-\item{df}{A dataframe}
+\item{df}{A data frame}
 }
 \value{
 A vector of column names
 }
 \description{
-Find numeric columns in dataframe that have an absolute slope greater than
+Find numeric columns in data frame that have an absolute slope greater than
 that specified via threshold argument.
 }
 \examples{

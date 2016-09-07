@@ -23,7 +23,7 @@ v_result = ImputeColumn(c(1,2,3,NA))
 # For a factor vector
 v_result = ImputeColumn(c('Y','N','Y',NA))
 
-# To use this function on an entire dataframe:
+# To use this function on an entire data frame:
 df = data.frame(a=c(1,2,3,NA),
                 b=c('Y','N','Y',NA))
 df[] <- lapply(df, ImputeColumn)

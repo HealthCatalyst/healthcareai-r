@@ -5,10 +5,10 @@
 #' Carries the last observed value forward for all columns in a data.table
 #' grouped by an id.
 #'
-#' @param df data.frame sorted by an ID column and a time or sequence number
+#' @param df data frame sorted by an ID column and a time or sequence number
 #' column.
 #' @param id A column name (in ticks) in df to group rows by.
-#' @return A data.table where the last non-NA values are carried forward
+#' @return A data frame where the last non-NA values are carried forward
 #' (overwriting NAs) until the group ID changes.
 #'
 #' @import data.table
@@ -29,21 +29,8 @@
 #'
 #' head(df.result,n=7)
 GroupedLOCF <- function(df, id) {
-  # Carries the last observed value forward for all columns in a data.table
-  # grouped by an id.
-  #
-  # Args:
-  #   df: data.frame sorted by an ID column and a time or sequence number column.
-  #
-  #   id: a column name in df to group rows by.
-  #
-  # Returns:
-  #   A data.table where the last non-NA values are carried forward (overwriting
-  #   NAs) until the group ID changes.
-  #
-
-  # Note that the object that results acts as both a dataframe and datatable
-  df <- setDT(df)
+  # Note that the object that results acts as both a data frame and datatable
+  df <- data.table::setDT(df)
 
   # Create a vector of booleans where each element is mapped to a row
   # in the data.table.  Each value is FALSE unless the corresponding
@@ -67,15 +54,15 @@ GroupedLOCF <- function(df, id) {
 #' Convert datetime column into dummy columns of day, hour, etc, such that one
 #' can use daily and seasonal patterns in their model building.
 #'
-#' @param df A dataframe. Indicates the datetime column.
+#' @param df A data frame. Indicates the datetime column.
 #' @param date.time.col A string. Column name in df that will be converted
 #' into several columns.
 #' @param depth A string. Specifies the depth with which to expand extra columns
 #' (starting with a year column). 'd' expands to day, 'h' expands to hour
 #' (default), m' expands to minute, and 's' expands to second.
 #' @param return.dt.col A boolean. Return the original date.time.col with
-#' the modified dataframe?
-#' @return A dataframe which now includes several columns based on time
+#' the modified data frame?
+#' @return A data frame which now includes several columns based on time
 #' rather than just one datetime column
 #'
 #' @export
@@ -162,19 +149,11 @@ ConvertDateTimeColToDummies <- function(df,
 #' # For a factor vector
 #' v_result = ImputeColumn(c('Y','N','Y',NA))
 #'
-#' # To use this function on an entire dataframe:
+#' # To use this function on an entire data frame:
 #' df = data.frame(a=c(1,2,3,NA),
 #'                 b=c('Y','N','Y',NA))
 #' df[] <- lapply(df, ImputeColumn)
 ImputeColumn <- function(v) {
-  # Does imputation for NA values in a column
-  #
-  # Args:
-  #   v: Vector, a column of values.
-  #
-  # Returns:
-  #   A vector (or column) whose values have been imputed
-  #
   if (is.numeric(v)) {
     v[is.na(v)] <- mean(v, na.rm = TRUE)
   } else {
@@ -197,24 +176,16 @@ ImputeColumn <- function(v) {
 #' IsBinary(c(1,2,NA))
 #' IsBinary(c(1,2,3))
 IsBinary <- function(v) {
-  # Checks if a vector (or column) has only two unique values
-  #
-  # Args:
-  #   v: Vector, a column of values.
-  #
-  # Returns:
-  #   Boolean of whether column has only two unique values (not counting NA)
-  #
   x <- unique(v)
   length(x) - sum(is.na(x)) == 2L
 }
 
 #' @title
 #' Remove rows where specified col is NA
-#' @description Remove rows from a dataframe where a particular col is NA
-#' @param df A dataframe to be altered
+#' @description Remove rows from a data frame where a particular col is NA
+#' @param df A data frame to be altered
 #' @param desiredCol A column name in the df (in ticks)
-#' @return The input dataframe with rows removed
+#' @return The input data frame with rows removed
 #'
 #' @export
 #' @references \url{https://community.healthcatalyst.com/community/data-science}
@@ -223,16 +194,6 @@ IsBinary <- function(v) {
 #' df = data.frame(a=c(1,2,3),b=c('Y','N',NA),c=c(NA,'Y','N'))
 #' resdf = RemoveRowsWithNAInSpecCol(df,'b')
 RemoveRowsWithNAInSpecCol <- function(df, desiredCol) {
-  # Removes rows from df where specified col is NA
-  #
-  # Args:
-  #   df: Dataframe that is to be altered
-  #
-  #   desiredCol: Column that has NA's of concern
-  #
-  # Returns:
-  #   A dataframe that has had rows removed
-  #
   completeVec <- stats::complete.cases(df[[desiredCol]])
 
   return(df[completeVec, ])
@@ -245,7 +206,7 @@ RemoveRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' @param connection.string A string specifying the driver, server, database,
 #' and whether Windows Authentication will be used.
 #' @param query The SQL query (in ticks)
-#' @return dataframe
+#' @return data frame containing the selected rows
 #'
 #' @import RODBC
 #' @export
@@ -268,25 +229,11 @@ RemoveRowsWithNAInSpecCol <- function(df, desiredCol) {
 
 
 SelectData <- function(connection.string, query) {
-  # Select data from an ODBC database and return the results as a data frame.
-  #
-  # If the query contains errors or returns too few rows, an error message is
-  # printed and this function invokes 'stop', halting execution.
-  #
-  # Args:
-  #   connection.string: A string representation of an ODBC connection string.
-  #
-  #  query: A string SQL query to select data from the database.
-  #
-  # Returns:
-  #   A dataframe containing the selected rows.
-  #
-
   # TODO: if debug: cat(connection.string)
   cnxn <- odbcDriverConnect(connection.string)
 
   # TODO: if debug: cat(query)
-  # TODO: if debug: time this operation and print the time it takes to select everything.
+  # TODO: if debug: time this operation and print the time spent to pull data.
   df <- sqlQuery(
     channel = cnxn,
     na.strings = 'NULL',
@@ -311,13 +258,13 @@ SelectData <- function(connection.string, query) {
 }
 
 #' @title
-#' Remove columns from a dataframe when those columns have the same values in
+#' Remove columns from a data frame when those columns have the same values in
 #' each row
 #'
-#' @description Remove columns from a dataframe when all of their rows are the
+#' @description Remove columns from a data frame when all of their rows are the
 #' same value
-#' @param df A dataframe
-#' @return A dataframe with those columns removed
+#' @param df A data frame
+#' @return A data frame with those columns removed
 #'
 #' @export
 #' @references \url{https://community.healthcatalyst.com/community/data-science}
@@ -336,11 +283,11 @@ RemoveColsWithAllSameValue <- function(df) {
 }
 
 #' @title
-#' Return vector of columns in a dataframe with greater than 50 categories
+#' Return vector of columns in a data frame with greater than 50 categories
 #'
 #' @description Returns a vector of the names of the columns that have more than
 #' 50 categories
-#' @param df A dataframe
+#' @param df A data frame
 #' @return colList A vector that contains the names of the columns with greater
 #' than 50 categories
 #'
@@ -369,9 +316,9 @@ ReturnColsWithMoreThanFiftyCategories <- function(df) {
 #' @title
 #' Find any columns that have a trend above a particular threshold
 #' @description
-#' Find numeric columns in dataframe that have an absolute slope greater than
+#' Find numeric columns in data frame that have an absolute slope greater than
 #' that specified via threshold argument.
-#' @param df A dataframe
+#' @param df A data frame
 #' @return A vector of column names
 #'
 #' @importFrom stats aggregate formula
@@ -428,7 +375,7 @@ FindTrends <- function(df,
     # Just grab rows corresponding to a particular category in the factor col
     dftemp <- df[df[[coltoaggregate]] == j,]
 
-    print('Dataframe after grouping and focusing on one category in group col:')
+    print('df after grouping and focusing on one category in group col:')
     print(tail(dftemp,n=6))
 
     # Iterate over all columns except for cols that we aggregated by
@@ -468,13 +415,13 @@ FindTrends <- function(df,
 }
 
 #' @title
-#' Order the rows in a dataframe by date
+#' Order the rows in a data frame by date
 #'
-#' @description Returns a dataframe that's ordered by its date column
-#' @param df A dataframe
-#' @param dateCol Name of column in dataframe that contains dates
+#' @description Returns a data frame that's ordered by its date column
+#' @param df A data frame
+#' @param dateCol Name of column in data frame that contains dates
 #' @param descending Boolean for whether the output should be in descending order
-#' @return df A dataframe ordered by date column
+#' @return df A data frame ordered by date column
 #'
 #' @importFrom lubridate ymd_hms
 #' @export
@@ -504,10 +451,10 @@ OrderByDate <- function(df,datecol,descending=FALSE) {
 #'
 #' @description Calculates correlations between each numeric column in a table
 #' and and a target column
-#' @param df A dataframe
+#' @param df A data frame
 #' @param target.col Name of target column against which correlations will be
 #' calculated
-#' @return df A dataframe with column names and corresponding correlations and
+#' @return df A data frame with column names and corresponding correlations and
 #' p-values with the target column
 #'
 #' @export
@@ -524,8 +471,8 @@ OrderByDate <- function(df,datecol,descending=FALSE) {
 #' res <- CalculateTargetedCorrelations(df,'c')
 #' res
 
-CalculateTargetedCorrelations <- function(df,targetcol) {
-  if (!is.numeric(df[[targetcol]])) {
+CalculateTargetedCorrelations <- function(df,target.col) {
+  if (!is.numeric(df[[target.col]])) {
     stop("Your target column must be numeric")
   }
 
@@ -540,14 +487,14 @@ CalculateTargetedCorrelations <- function(df,targetcol) {
 
   collist <- names(df)
   # Trim list of col names, so target doesn't check against itself
-  collist <- collist[collist != targetcol]
+  collist <- collist[collist != target.col]
 
   # Make list of correlations
-  cor <- cor(as.matrix(df[[targetcol]]), as.matrix(df[ ,!(colnames(df) == targetcol)]))
+  cor <- cor(as.matrix(df[[target.col]]), as.matrix(df[ ,!(colnames(df) == target.col)]))
 
   # Make list of corr-related p-values
   for (i in collist) {
-    pvalue <- c(pvalue,cor.test(df[[targetcol]], df[,i])$p.value)
+    pvalue <- c(pvalue,cor.test(df[[target.col]], df[,i])$p.value)
   }
 
   dfout <- data.frame(t(cor),pvalue)
@@ -565,8 +512,8 @@ CalculateTargetedCorrelations <- function(df,targetcol) {
 #' Correlation analysis on an input table over all numeric columns
 #'
 #' @description Calculate correlations between every numeric column in a table
-#' @param df A dataframe
-#' @return df A dataframe with column names and corresponding correlations
+#' @param df A data frame
+#' @return df A data frame with column names and corresponding correlations
 #' with the target column
 #'
 #' @importFrom stats cor cor.test
@@ -591,11 +538,11 @@ CalculateAllCorrelations <- function(df) {
 }
 
 #' @title
-#' Return vector of columns in a dataframe with greater than 50 categories
+#' Return vector of columns in a data frame with greater than 50 categories
 #'
 #' @description Returns a vector of the names of the columns that have more than
 #' 50 categories
-#' @param df A dataframe
+#' @param df A data frame
 #' @return colList A vector that contains the names of the columns with greater
 #' than 50 categories
 #'

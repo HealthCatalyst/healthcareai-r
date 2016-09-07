@@ -13,7 +13,7 @@ and whether Windows Authentication will be used.}
 \item{query}{The SQL query (in ticks)}
 }
 \value{
-dataframe
+data frame containing the selected rows
 }
 \description{
 Select data from an ODBC database and return the results as

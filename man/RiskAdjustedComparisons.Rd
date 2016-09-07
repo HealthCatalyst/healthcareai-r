@@ -25,9 +25,6 @@ of the groups this way provides a sense of which group's doing best in
 terms of a particular measure.
 }
 \examples{
-# The examples will run as-is, but you can find the data used here
-# C:\\Users\\levi.thatcher\\Documents\\R\\win-library\\3.2\\HCRTools\\extdata OR
-# C:\\Program Files\\R\\R-3.2.3\\library\\HCRTools\\extdata
 
 #### Example using csv data ####
 library(HCRTools)
@@ -48,9 +45,8 @@ p$df = totaldf
 p$groupCol = 'Gender'
 p$impute = TRUE
 p$predictedCol = 'SalariedFlag'
-p$debug = TRUE
-p$varImp = TRUE
-p$numberOfTrees = 200
+p$debug = FALSE
+p$cores = 1
 
 riskAdjComp <- RiskAdjustedComparisons$new(p)
 riskAdjComp$run()

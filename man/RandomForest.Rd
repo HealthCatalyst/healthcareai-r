@@ -32,9 +32,6 @@ This step allows one to create test models on your data
 and helps determine which performs best.
 }
 \examples{
-# The examples will run as-is, but you can find the data used here
-# C:\\Users\\levi.thatcher\\Documents\\R\\win-library\\3.2\\HCRTools\\extdata OR
-# C:\\Program Files\\R\\R-3.2.3\\library\\HCRTools\\extdata
 
 #### Example using iris dataset ####
 ptm <- proc.time()
@@ -47,13 +44,11 @@ set.seed(43)
 
 p <- SupervisedModelParameters$new()
 p$df = iris
-p$type = 'REGRESSION'
+p$type = 'regression'
 p$impute = TRUE
 p$grainCol = ''
 p$predictedCol = 'Sepal.Width'
 p$debug = FALSE
-p$varImp = TRUE
-p$printResults = TRUE
 p$cores = 1
 
 
@@ -81,13 +76,11 @@ head(totaldf)
 
 p <- SupervisedModelParameters$new()
 p$df = totaldf
-p$type = 'CLASSIFICATION'
+p$type = 'classification'
 p$impute = FALSE
 p$grainCol = ''
 p$predictedCol = 'SalariedFlag'
 p$debug = TRUE
-p$varImp = TRUE
-p$printResults = TRUE
 p$cores = 1
 
 
@@ -107,7 +100,6 @@ print(proc.time() - ptm)
 
 ptm <- proc.time()
 library(HCRTools)
-library(RODBC)
 
 connection.string = "
 driver={SQL Server};
@@ -118,10 +110,10 @@ trusted_connection=true
 
 query = "
 SELECT
-[OrganizationLevel]
+ [OrganizationLevel]
 ,[MaritalStatus]
 ,[Gender]
-,[SalariedFlag]
+,IIF([SalariedFlag]=0,'N','Y') AS SalariedFlag
 ,[VacationHours]
 ,[SickLeaveHours]
 FROM [AdventureWorks2012].[HumanResources].[Employee]
@@ -134,13 +126,11 @@ set.seed(43)
 
 p <- SupervisedModelParameters$new()
 p$df = df
-p$type = 'CLASSIFICATION'
+p$type = 'classification'
 p$impute = TRUE
 p$grainCol = ''
-p$predictedCol = 'MaritalStatus'
+p$predictedCol = 'SalariedFlag'
 p$debug = FALSE
-p$varImp = TRUE
-p$printResults = TRUE
 p$cores = 1
 
 # Run RandomForest

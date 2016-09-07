@@ -7,10 +7,10 @@
 CalculateAllCorrelations(df)
 }
 \arguments{
-\item{df}{A dataframe}
+\item{df}{A data frame}
 }
 \value{
-df A dataframe with column names and corresponding correlations
+df A data frame with column names and corresponding correlations
 with the target column
 }
 \description{

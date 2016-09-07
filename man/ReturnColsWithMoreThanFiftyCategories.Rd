@@ -2,16 +2,16 @@
 % Please edit documentation in R/common.R
 \name{ReturnColsWithMoreThanFiftyCategories}
 \alias{ReturnColsWithMoreThanFiftyCategories}
-\title{Return vector of columns in a dataframe with greater than 50 categories}
+\title{Return vector of columns in a data frame with greater than 50 categories}
 \usage{
 ReturnColsWithMoreThanFiftyCategories(df)
 
 ReturnColsWithMoreThanFiftyCategories(df)
 }
 \arguments{
-\item{df}{A dataframe}
+\item{df}{A data frame}
 
-\item{df}{A dataframe}
+\item{df}{A data frame}
 }
 \value{
 colList A vector that contains the names of the columns with greater

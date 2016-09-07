@@ -4,16 +4,16 @@
 \alias{CalculateTargetedCorrelations}
 \title{Correlation analysis on an input table, focusing on one target variable}
 \usage{
-CalculateTargetedCorrelations(df, targetcol)
+CalculateTargetedCorrelations(df, target.col)
 }
 \arguments{
-\item{df}{A dataframe}
+\item{df}{A data frame}
 
 \item{target.col}{Name of target column against which correlations will be
 calculated}
 }
 \value{
-df A dataframe with column names and corresponding correlations and
+df A data frame with column names and corresponding correlations and
 p-values with the target column
 }
 \description{

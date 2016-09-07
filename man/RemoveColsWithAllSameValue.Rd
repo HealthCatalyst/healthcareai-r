@@ -2,19 +2,19 @@
 % Please edit documentation in R/common.R
 \name{RemoveColsWithAllSameValue}
 \alias{RemoveColsWithAllSameValue}
-\title{Remove columns from a dataframe when those columns have the same values in
+\title{Remove columns from a data frame when those columns have the same values in
 each row}
 \usage{
 RemoveColsWithAllSameValue(df)
 }
 \arguments{
-\item{df}{A dataframe}
+\item{df}{A data frame}
 }
 \value{
-A dataframe with those columns removed
+A data frame with those columns removed
 }
 \description{
-Remove columns from a dataframe when all of their rows are the
+Remove columns from a data frame when all of their rows are the
 same value
 }
 \examples{

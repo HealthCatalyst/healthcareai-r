@@ -31,9 +31,6 @@ source('R/SupervisedModel.R')
 #' @seealso \code{\link{DeploySupervisedModel}}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' # The examples will run as-is, but you can find the data used here
-#' # C:\Users\levi.thatcher\Documents\R\win-library\3.2\HCRTools\extdata OR
-#' # C:\Program Files\R\R-3.2.3\library\HCRTools\extdata
 #'
 #' #### Example using iris dataset ####
 #' ptm <- proc.time()
@@ -46,13 +43,11 @@ source('R/SupervisedModel.R')
 #'
 #' p <- SupervisedModelParameters$new()
 #' p$df = iris
-#' p$type = 'REGRESSION'
+#' p$type = 'regression'
 #' p$impute = TRUE
 #' p$grainCol = ''
 #' p$predictedCol = 'Sepal.Width'
 #' p$debug = FALSE
-#' p$varImp = TRUE
-#' p$printResults = TRUE
 #' p$cores = 1
 #'
 #'
@@ -80,13 +75,11 @@ source('R/SupervisedModel.R')
 #'
 #' p <- SupervisedModelParameters$new()
 #' p$df = totaldf
-#' p$type = 'CLASSIFICATION'
+#' p$type = 'classification'
 #' p$impute = FALSE
 #' p$grainCol = ''
 #' p$predictedCol = 'SalariedFlag'
 #' p$debug = TRUE
-#' p$varImp = TRUE
-#' p$printResults = TRUE
 #' p$cores = 1
 #'
 #'
@@ -106,7 +99,6 @@ source('R/SupervisedModel.R')
 #'
 #' ptm <- proc.time()
 #' library(HCRTools)
-#' library(RODBC)
 #'
 #' connection.string = "
 #' driver={SQL Server};
@@ -117,10 +109,10 @@ source('R/SupervisedModel.R')
 #'
 #' query = "
 #' SELECT
-#' [OrganizationLevel]
+#'  [OrganizationLevel]
 #' ,[MaritalStatus]
 #' ,[Gender]
-#' ,[SalariedFlag]
+#' ,IIF([SalariedFlag]=0,'N','Y') AS SalariedFlag
 #' ,[VacationHours]
 #' ,[SickLeaveHours]
 #' FROM [AdventureWorks2012].[HumanResources].[Employee]
@@ -133,13 +125,11 @@ source('R/SupervisedModel.R')
 #'
 #' p <- SupervisedModelParameters$new()
 #' p$df = df
-#' p$type = 'CLASSIFICATION'
+#' p$type = 'classification'
 #' p$impute = TRUE
 #' p$grainCol = ''
-#' p$predictedCol = 'MaritalStatus'
+#' p$predictedCol = 'SalariedFlag'
 #' p$debug = FALSE
-#' p$varImp = TRUE
-#' p$printResults = TRUE
 #' p$cores = 1
 #'
 #' # Run RandomForest
@@ -196,10 +186,10 @@ RandomForest <- R6Class("RandomForest",
 
         # Create reasonable gridsearch for mtry
         # This optimal value comes from randomForest documentation
-        if(self$params$type == 'CLASSIFICATION') {
+        if(self$params$type == 'classification') {
           optimal = floor(sqrt(ncol(private$dfTrain)))
         }
-        else if (self$params$type == 'REGRESSION') {
+        else if (self$params$type == 'regression') {
           optimal = max(floor(ncol(private$dfTrain)/3), 1)
         }
 
@@ -220,10 +210,10 @@ RandomForest <- R6Class("RandomForest",
         private$grid <-  data.frame(mtry = mtry_list) # Number of features/tree
       }
       else {
-        if(self$params$type == 'CLASSIFICATION') {
+        if(self$params$type == 'classification') {
           private$grid <- data.frame(.mtry = floor(sqrt(ncol(private$dfTrain))))
         }
-        else if (self$params$type == 'REGRESSION') {
+        else if (self$params$type == 'regression') {
           private$grid <- data.frame(.mtry = max(floor(ncol(private$dfTrain)/3), 1))
         }
       }
@@ -272,7 +262,7 @@ RandomForest <- R6Class("RandomForest",
 
       # create train control object
       train.control = NA
-      if(self$params$type == 'CLASSIFICATION') {
+      if(self$params$type == 'classification') {
 
         train.control <- trainControl(
           method = trainControlParams.method,
@@ -284,8 +274,8 @@ RandomForest <- R6Class("RandomForest",
 
         rfTrainParams.metric = "ROC"
       }
-      #REGRESSION
-      else if (self$params$type == 'REGRESSION') {
+      #regression
+      else if (self$params$type == 'regression') {
 
         train.control <- trainControl(
           method = trainControlParams.method,
@@ -298,10 +288,10 @@ RandomForest <- R6Class("RandomForest",
 
       #Train RandomForest
       adjustedY = NA
-      if(self$params$type == 'CLASSIFICATION') {
+      if(self$params$type == 'classification') {
         adjustedY = factor(private$dfTrain[[self$params$predictedCol]])
       }
-      else if (self$params$type == 'REGRESSION') {
+      else if (self$params$type == 'regression') {
         adjustedY = private$dfTrain[[self$params$predictedCol]]
       }
       private$fit.rf = train(
@@ -320,12 +310,12 @@ RandomForest <- R6Class("RandomForest",
     # Perform prediction
     performPrediction = function () {
 
-      if(self$params$type == 'CLASSIFICATION') {
+      if(self$params$type == 'classification') {
         private$predictions = predict(object = private$fit.rf,
                                       newdata = private$dfTest,
                                       type = 'prob')
       }
-      else if (self$params$type == 'REGRESSION') {
+      else if (self$params$type == 'regression') {
         private$predictions = predict(private$fit.rf, newdata = private$dfTest)
       }
 
@@ -334,7 +324,7 @@ RandomForest <- R6Class("RandomForest",
     #generate performance metrics
     generatePerformanceMetrics = function () {
 
-      if(self$params$type == 'CLASSIFICATION') {
+      if(self$params$type == 'classification') {
         predictprob <- private$predictions
 
         if (isTRUE(self$params$debug)) {
@@ -355,22 +345,17 @@ RandomForest <- R6Class("RandomForest",
           print(predictclass[1:10])
         }
 
-        #output related metrics
-        private$confMatrix = confusionMatrix(predictclass,
-                                             private$dfTest[[self$params$predictedCol]],
-                                             prevalence=private$prevalence)
         private$ROC = roc(ytest~predictprob[,2])
         private$AUC = auc(private$ROC)
 
         #Show results
         if (isTRUE(self$params$printResults)) {
-          print(private$confMatrix)
           print(paste0('AUC: ', round(private$AUC, 2)))
           print(paste0('95% CI AUC: (', round(ci(private$AUC)[1],2), ',', round(ci(private$AUC)[3],2), ')'))
         }
       }
-      #REGRESSION
-      else if (self$params$type == 'REGRESSION') {
+      #regression
+      else if (self$params$type == 'regression') {
 
         if (isTRUE(self$params$debug)) {
           print(paste0('Rows in regression prediction: ', length(private$predictions)))

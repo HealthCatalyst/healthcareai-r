@@ -31,9 +31,6 @@ source('R/SupervisedModel.R')
 #' @seealso \code{\link{DeploySupervisedModel}}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' # The examples will run as-is, but you can find the data used here
-#' # C:\Users\levi.thatcher\Documents\R\win-library\3.2\HCRTools\extdata OR
-#' # C:\Program Files\R\R-3.2.3\library\HCRTools\extdata
 #'
 #' #### Example using iris dataset ####
 #' ptm <- proc.time()
@@ -46,7 +43,7 @@ source('R/SupervisedModel.R')
 #'
 #' p <- SupervisedModelParameters$new()
 #' p$df = iris
-#' p$type = 'REGRESSION'
+#' p$type = 'regression'
 #' p$impute = TRUE
 #' p$grainCol = ''
 #' p$predictedCol = 'Sepal.Width'
@@ -56,9 +53,9 @@ source('R/SupervisedModel.R')
 #' p$cores = 1
 #'
 #'
-#' # Run GroupLasso
-#' grlasso <- GroupLasso$new(p)
-#' grlasso$run()
+#' # Run Lasso
+#' lasso <- Lasso$new(p)
+#' lasso$run()
 #'
 #' print(proc.time() - ptm)
 #'
@@ -79,7 +76,7 @@ source('R/SupervisedModel.R')
 #'
 #' p <- SupervisedModelParameters$new()
 #' p$df = totaldf
-#' p$type = 'CLASSIFICATION'
+#' p$type = 'classification'
 #' p$impute = FALSE
 #' p$grainCol = ''
 #' p$predictedCol = 'SalariedFlag'
@@ -89,14 +86,14 @@ source('R/SupervisedModel.R')
 #' p$cores = 1
 #'
 #'
-#' # Run GroupLasso
-#' grlasso <- GroupLasso$new(p)
-#' grlasso$run()
+#' # Run Lasso
+#' lasso <- Lasso$new(p)
+#' lasso$run()
 #'
 #'
 #'
 #' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-#' grlasso$getCutOffs(.6)
+#' lasso$getCutOffs(.6)
 #' print(proc.time() - ptm)
 #'
 #'
@@ -106,7 +103,6 @@ source('R/SupervisedModel.R')
 #'
 #' ptm <- proc.time()
 #' library(HCRTools)
-#' library(RODBC)
 #'
 #' connection.string = "
 #' driver={SQL Server};
@@ -120,7 +116,7 @@ source('R/SupervisedModel.R')
 #' [OrganizationLevel]
 #' ,[MaritalStatus]
 #' ,[Gender]
-#' ,[SalariedFlag]
+#' ,IIF([SalariedFlag]=0,'N','Y') AS SalariedFlag
 #' ,[VacationHours]
 #' ,[SickLeaveHours]
 #' FROM [AdventureWorks2012].[HumanResources].[Employee]
@@ -133,10 +129,10 @@ source('R/SupervisedModel.R')
 #'
 #' p <- SupervisedModelParameters$new()
 #' p$df = df
-#' p$type = 'CLASSIFICATION'
+#' p$type = 'classification'
 #' p$impute = TRUE
 #' p$grainCol = ''
-#' p$predictedCol = 'MaritalStatus'
+#' p$predictedCol = 'SalariedFlag'
 #' p$debug = FALSE
 #' p$varImp = TRUE
 #' p$printResults = TRUE
@@ -146,17 +142,17 @@ source('R/SupervisedModel.R')
 #' rf <- RandomForest$new(p)
 #' rf$run()
 #'
-#' # Run GroupLasso
-#' grlasso <- GroupLasso$new(p)
-#' grlasso$run()
+#' # Run Lasso
+#' lasso <- Lasso$new(p)
+#' lasso$run()
 #'
 #'
 #' #Plot ROCs from both supervised model classes
 #' plot(rf$getROC(), col = "red", legacy.axes=TRUE, mar=c(4, 4, 3, 2)+.1)
-#' plot(grlasso$getROC(), add = TRUE, col = "blue", lty=2)
+#' plot(lasso$getROC(), add = TRUE, col = "blue", lty=2)
 #' title(main = "ROC")
 #' legend("bottomright",
-#'        c("RandomForest", "GroupLasso"),
+#'        c("RandomForest", "Lasso"),
 #'        cex = 0.8,
 #'        col = c("red", "blue"),
 #'        lty = 1:2,
@@ -167,7 +163,7 @@ source('R/SupervisedModel.R')
 #' @export
 
 
-GroupLasso <- R6Class("GroupLasso",
+Lasso <- R6Class("Lasso",
 
   #Inheritance
   inherit = SupervisedModel,
@@ -259,15 +255,16 @@ GroupLasso <- R6Class("GroupLasso",
 
       #Generate fit grlasso object
       familyModuleName = ""
-      if(self$params$type == 'CLASSIFICATION')
+      if(self$params$type == 'classification')
         familyModuleName = "binomial"
-      else if(self$params$type == 'REGRESSION')
+      else if(self$params$type == 'regression')
         familyModuleName = "gaussian"
 
       private$fit.grlasso = cv.grpreg(X = private$modMat,
                                       y = private$dfTrainTEMP[[self$params$predictedCol]],
                                       group = private$group,
-                                      #lambda = can enter values here, but we will use default
+                                      #lambda = can enter values here,
+                                      #  but we will use default
                                       family = familyModuleName,
                                       penalty = "grLasso",
                                       nfolds = 5)
@@ -295,8 +292,8 @@ GroupLasso <- R6Class("GroupLasso",
     #generate performance metrics
     generatePerformanceMetrics = function () {
 
-      # CLASSIFICATION
-      if(self$params$type == 'CLASSIFICATION') {
+      # classification
+      if(self$params$type == 'classification') {
 
         predictprob <- private$predictions
 
@@ -320,23 +317,18 @@ GroupLasso <- R6Class("GroupLasso",
           print(round(predictprob[1:10],2))
         }
 
-        #output related metrics
-        private$confMatrix = confusionMatrix(predictclass,
-                                             private$dfTestTEMP[[self$params$predictedCol]],
-                                             prevalence=private$prevalence)
         private$ROC = roc(ytest~predictprob)
         private$AUC = auc(private$ROC)
 
         #Show results
         if (isTRUE(self$params$printResults)) {
-          print(private$confMatrix)
           print(paste0('AUC: ', round(private$AUC, 2)))
           print(paste0('95% CI AUC: (', round(ci(private$AUC)[1],2), ',', round(ci(private$AUC)[3],2), ')'))
         }
 
       }
-      #REGRESSION
-      else if (self$params$type == 'REGRESSION') {
+      #regression
+      else if (self$params$type == 'regression') {
 
         if (isTRUE(self$params$debug)) {
           print(paste0('Rows in regression prediction: ', nrow(private$predictions)))
