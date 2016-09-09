@@ -50,14 +50,15 @@ source('R/SupervisedModel.R')
 #' p$debug = FALSE
 #' p$cores = 1
 #'
+#' # Run Lasso
+#' lasso <- Lasso$new(p)
+#' lasso$run()
 #'
 #' # Run RandomForest
 #' rf <- RandomForest$new(p)
 #' rf$run()
 #'
-#'
 #' print(proc.time() - ptm)
-#'
 #'
 #' #### Example using csv data ####
 #' library(HCRTools)
@@ -82,14 +83,16 @@ source('R/SupervisedModel.R')
 #' p$debug = TRUE
 #' p$cores = 1
 #'
+#' # Run Lasso
+#' lasso <- Lasso$new(p)
+#' lasso$run()
 #'
 #' # Run RandomForest
 #' rf <- RandomForest$new(p)
 #' rf$run()
 #'
-#'
 #' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-#' rf$getCutOffs(.6)
+#' rf$getCutOffs(tpr=0.8)
 #' print(proc.time() - ptm)
 #'
 #'
@@ -132,10 +135,13 @@ source('R/SupervisedModel.R')
 #' p$debug = FALSE
 #' p$cores = 1
 #'
+#' # Run Lasso
+#' lasso <- Lasso$new(p)
+#' lasso$run()
+#'
 #' # Run RandomForest
 #' rf <- RandomForest$new(p)
 #' rf$run()
-#'
 #'
 #' #Plot ROCs from both supervised model classes
 #' plot(rf$getROC(), col = "red", legacy.axes=TRUE, mar=c(4, 4, 3, 2)+.1)

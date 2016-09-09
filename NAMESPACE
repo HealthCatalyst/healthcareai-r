@@ -3,6 +3,7 @@
 export(CalculateAllCorrelations)
 export(CalculateTargetedCorrelations)
 export(ConvertDateTimeColToDummies)
+export(CountPercentEmpty)
 export(DeploySupervisedModel)
 export(FindTrends)
 export(GroupedLOCF)

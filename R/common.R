@@ -225,7 +225,8 @@ RemoveRowsWithNAInSpecCol <- function(df, desiredCol) {
 #'     [OrganizationLevel]
 #'   FROM [AdventureWorks2012].[HumanResources].[Employee]'
 #'
-#' dataframe <- SelectData(connection.string, query)
+#' df <- SelectData(connection.string, query)
+#' head(df)
 
 
 SelectData <- function(connection.string, query) {
@@ -566,5 +567,29 @@ ReturnColsWithMoreThanFiftyCategories <- function(df) {
     }
   }
   colList
+}
+
+#' @title
+#' Calculates percentage of each column in df that is NULL (NA)
+#'
+#' @description Returns a vector with percentage of each column that is NULL
+#' in the original data frame
+#' @param df A data frame
+#' @return colList A vector that contains the names of the columns with greater
+#' than 50 categories
+#'
+#' @export
+#' @references \url{https://community.healthcatalyst.com/community/data-science}
+#' @seealso \code{\link{HCRTools}}
+#' @examples
+#' df = data.frame(a=c(1,2,NA,NA,3),
+#'                 b=c(NA,NA,NA,NA,NA),
+#'                 c=c(NA,NA,'F','M',NA))
+#' df.result = CountPercentEmpty(df)
+#' df.result
+
+CountPercentEmpty <- function(df) {
+  percentNULL <- colMeans(is.na(df))
+  percentNULL
 }
 

@@ -48,17 +48,17 @@ source('R/SupervisedModel.R')
 #' p$grainCol = ''
 #' p$predictedCol = 'Sepal.Width'
 #' p$debug = FALSE
-#' p$varImp = TRUE
-#' p$printResults = TRUE
 #' p$cores = 1
-#'
 #'
 #' # Run Lasso
 #' lasso <- Lasso$new(p)
 #' lasso$run()
 #'
-#' print(proc.time() - ptm)
+#' # Run RandomForest
+#' rf <- RandomForest$new(p)
+#' rf$run()
 #'
+#' print(proc.time() - ptm)
 #'
 #' #### Example using csv data ####
 #' library(HCRTools)
@@ -81,21 +81,19 @@ source('R/SupervisedModel.R')
 #' p$grainCol = ''
 #' p$predictedCol = 'SalariedFlag'
 #' p$debug = TRUE
-#' p$varImp = TRUE
-#' p$printResults = TRUE
 #' p$cores = 1
-#'
 #'
 #' # Run Lasso
 #' lasso <- Lasso$new(p)
 #' lasso$run()
 #'
-#'
+#' # Run RandomForest
+#' rf <- RandomForest$new(p)
+#' rf$run()
 #'
 #' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-#' lasso$getCutOffs(.6)
+#' lasso$getCutOffs(tpr=.8)
 #' print(proc.time() - ptm)
-#'
 #'
 #' #### Example using SQL Server data ####
 #' # This example requires:
@@ -103,6 +101,7 @@ source('R/SupervisedModel.R')
 #'
 #' ptm <- proc.time()
 #' library(HCRTools)
+#' library(RODBC)
 #'
 #' connection.string = "
 #' driver={SQL Server};
@@ -134,18 +133,15 @@ source('R/SupervisedModel.R')
 #' p$grainCol = ''
 #' p$predictedCol = 'SalariedFlag'
 #' p$debug = FALSE
-#' p$varImp = TRUE
-#' p$printResults = TRUE
 #' p$cores = 1
-#'
-#' # Run RandomForest
-#' rf <- RandomForest$new(p)
-#' rf$run()
 #'
 #' # Run Lasso
 #' lasso <- Lasso$new(p)
 #' lasso$run()
 #'
+#' # Run RandomForest
+#' rf <- RandomForest$new(p)
+#' rf$run()
 #'
 #' #Plot ROCs from both supervised model classes
 #' plot(rf$getROC(), col = "red", legacy.axes=TRUE, mar=c(4, 4, 3, 2)+.1)
@@ -157,6 +153,9 @@ source('R/SupervisedModel.R')
 #'        col = c("red", "blue"),
 #'        lty = 1:2,
 #'        inset = .1)
+#'
+#' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
+#' lasso$getCutOffs(tpr=.8)
 #'
 #' print(proc.time() - ptm)
 #'

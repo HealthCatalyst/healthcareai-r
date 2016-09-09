@@ -32,7 +32,8 @@ query = '
     [OrganizationLevel]
   FROM [AdventureWorks2012].[HumanResources].[Employee]'
 
-dataframe <- SelectData(connection.string, query)
+df <- SelectData(connection.string, query)
+head(df)
 }
 \references{
 \url{https://community.healthcatalyst.com/community/data-science}
