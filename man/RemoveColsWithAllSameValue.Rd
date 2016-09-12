@@ -18,8 +18,12 @@ Remove columns from a data frame when all of their rows are the
 same value
 }
 \examples{
-df = data.frame(a=c(1,1,1),b=c('a','b','b'),c=c('a','a','a'),d = c(NA,'1',NA))
+df = data.frame(a=c(1,1,1),
+                b=c('a','b','b'),
+                c=c('a','a','a'),
+                d = c(NA,'1',NA))
 resdf = RemoveColsWithAllSameValue(df)
+resdf
 }
 \references{
 \url{https://community.healthcatalyst.com/community/data-science}

@@ -50,5 +50,9 @@ Server.
 \code{\link{CalculateTargetedCorrelations}}
 
 \code{\link{CalculateAllCorrelations}}
+
+\code{\link{CountPercentEmpty}}
+
+\code{\link{RemoveColsWithAllSameValue}}
 }
 

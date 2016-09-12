@@ -27,6 +27,8 @@
 #' @seealso \code{\link{ConvertDateTimeColToDummies}}
 #' @seealso \code{\link{CalculateTargetedCorrelations}}
 #' @seealso \code{\link{CalculateAllCorrelations}}
+#' @seealso \code{\link{CountPercentEmpty}}
+#' @seealso \code{\link{RemoveColsWithAllSameValue}}
 #' @docType package
 #' @name HCRTools
 NULL

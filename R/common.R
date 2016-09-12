@@ -271,12 +271,16 @@ SelectData <- function(connection.string, query) {
 #' @references \url{https://community.healthcatalyst.com/community/data-science}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' df = data.frame(a=c(1,1,1),b=c('a','b','b'),c=c('a','a','a'),d = c(NA,'1',NA))
+#' df = data.frame(a=c(1,1,1),
+#'                 b=c('a','b','b'),
+#'                 c=c('a','a','a'),
+#'                 d = c(NA,'1',NA))
 #' resdf = RemoveColsWithAllSameValue(df)
+#' resdf
 
 
 RemoveColsWithAllSameValue <- function(df) {
-  df <- df[sapply(df, function(x) length(unique(x))>1)]
+  df <- df[sapply(df, function(x) length(unique(x[!is.na(x)]))>1)]
   if (ncol(df)==0){
     message('All columns were removed.')
   }
