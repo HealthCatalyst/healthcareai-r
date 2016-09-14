@@ -22,9 +22,10 @@ DeploySupervisedModelParameters <- R6Class("DeploySupervisedModelParameters",
     type = "",
     grainCol = "",
     predictedCol = NULL,
-    testWindowCol = NULL,
-    useSavedModel = NULL,
-    impute = FALSE,
+    testWindowCol = "",
+    useSavedModel = FALSE,
+    impute = TRUE,
+    debug = FALSE,
 
     #Constructor
     initialize = function () {
