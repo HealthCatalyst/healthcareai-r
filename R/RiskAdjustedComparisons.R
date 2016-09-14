@@ -23,21 +23,30 @@ source('R/common.R')
 #'
 #' #### Example using csv data ####
 #' library(HCRTools)
-#' #setwd("C:/Your/script/location") # Needed if using YOUR CSV file
-#' ptm <- proc.time()
+#' connection.string = "
+#' driver={SQL Server};
+#' server=localhost;
+#' database=AdventureWorks2012;
+#' trusted_connection=true
+#' "
 #'
-#' # Can delete this line in your work
-#' csvfile <- system.file("extdata", "HREmployeeDev.csv", package = "HCRTools")
+#' query = "
+#' SELECT
+#' [OrganizationLevel]
+#' ,[MaritalStatus]
+#' ,[Gender]
+#' ,IIF([SalariedFlag]=0,'N','Y') AS SalariedFlag
+#' ,[VacationHours]
+#' ,[SickLeaveHours]
+#' FROM [AdventureWorks2012].[HumanResources].[Employee]
+#' WHERE OrganizationLevel <> 0
+#' "
 #'
-#' totaldf <- read.csv(file = csvfile, #<-- Replace with 'your/path'
-#'                     header = TRUE,
-#'                     na.strings = 'NULL')
-#'
-#' head(totaldf)
+#' df <- SelectData(connection.string, query)
 #'
 #' p <- SupervisedModelParameters$new()
-#' p$df = totaldf
-#' p$groupCol = 'Gender'
+#' p$df = df
+#' p$groupCol = 'OrganizationLevel'
 #' p$impute = TRUE
 #' p$predictedCol = 'SalariedFlag'
 #' p$debug = FALSE
@@ -58,30 +67,26 @@ RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
     dfTemp = NA,
     grid = NA,
     fit.rf = NA,
-    predicted = NA,
-    dfReturn = NA
+    predicted = NA
 
   ),
 
   public = list(
 
-    #Constructor
-    #p: new SuperviseModelParameters class object, i.e. p = SuperviseModelParameters$new()
-    initialize = function (p) {
+    dfReturn = NA,
+
+    # Constructor
+    # p: new SuperviseModelParameters class object,
+    # i.e. p = SuperviseModelParameters$new()
+    initialize = function(p) {
       super$initialize(p)
     },
 
-    buildModel = function (group.by.list, j) {
+    buildModel = function(group.by.list, j) {
 
       # Just grab rows corresponding to a particular category in the factor col
-      private$dfTemp <- self$params$df[self$params$df[[self$params$groupCol]] == j,]
-
-      trainIndex = createDataPartition(y = private$dfTemp[[self$params$predictedCol]],
-                                       p = 0.8,
-                                       list = FALSE, times = 1)
-
-      private$dfTrain = private$dfTemp[ trainIndex,]
-      private$dfTest  = private$dfTemp[-trainIndex,]
+      private$dfTest <- self$params$df[self$params$df[[self$params$groupCol]] == j,]
+      private$dfTrain <- self$params$df[self$params$df[[self$params$groupCol]] != j,]
 
       private$grid <- data.frame(.mtry = floor(sqrt(ncol(private$dfTrain))))
 
@@ -114,28 +119,8 @@ RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
 
     },
 
-    generatePerformanceMetrics = function (group.by.list, comparative.performance) {
-
-      # Performed above or below predicted (neg is bad performance)
-      diff <- (ifelse(private$dfTest[[self$params$predictedCol]] == 'Y', 1, 0)
-               - ifelse(private$predicted == 'Y', 1, 0))
-
-      comparative.performance <- c(comparative.performance, sum(diff))
-
-      # Calculate mean-centered prediction error
-      comparative.performance <- (as.numeric(comparative.performance) -
-                                    (mean(as.numeric(comparative.performance))))
-
-      private$dfReturn <- data.frame(group.by.list, comparative.performance)
-
-      print("Finished calculating your risk-adjusted comparison")
-      print('Note that positive values denote performance above expected:')
-      print(private$dfReturn)
-
-    },
-
     #Override: run prediction
-    run = function () {
+    run = function() {
 
       # Pre-create empty vectors
       group.by.list <- vector('character')
@@ -150,14 +135,24 @@ RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
         # Perform prediction
         self$performPrediction()
 
-        # Generate performance metrics
-        self$generatePerformanceMetrics(group.by.list, comparative.performance)
+        # Performed above or below predicted (neg is bad performance)
+        diff <- (ifelse(private$dfTest[[self$params$predictedCol]] == 'Y', 1, 0)
+                 - ifelse(private$predicted == 'Y', 1, 0))
+
+        comparative.performance <- c(comparative.performance, sum(diff))
       }
 
-      return(invisible(private$dfReturn))
+      # Calculate mean-centered prediction error
+      comparative.performance <- (as.numeric(comparative.performance) -
+                                    (mean(as.numeric(comparative.performance))))
+
+      self$dfReturn <- data.frame(group.by.list, comparative.performance)
+
+      print("Finished calculating your risk-adjusted comparison")
+      print('Note that positive values denote performance above expected:')
+      print(self$dfReturn)
+
+      return(invisible(self$dfReturn))
     }
-
-
   )
-
 )
