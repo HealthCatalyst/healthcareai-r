@@ -10,7 +10,7 @@ CountPercentEmpty(df)
 \item{df}{A data frame}
 }
 \value{
-colList A vector that contains the names of the columns with greater
+A vector that contains the names of the columns with greater
 than 50 categories
 }
 \description{
@@ -21,8 +21,8 @@ in the original data frame
 df = data.frame(a=c(1,2,NA,NA,3),
                 b=c(NA,NA,NA,NA,NA),
                 c=c(NA,NA,'F','M',NA))
-df.result = CountPercentEmpty(df)
-df.result
+col_list = CountPercentEmpty(df)
+col_list
 }
 \references{
 \url{https://community.healthcatalyst.com/community/data-science}

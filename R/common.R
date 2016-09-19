@@ -25,9 +25,10 @@
 #'
 #' head(df,n=7)
 #'
-#' df.result = GroupedLOCF(df, 'PersonID')
+#' df_result = GroupedLOCF(df, 'PersonID')
 #'
-#' head(df.result,n=7)
+#' head(df_result, n = 7)
+
 GroupedLOCF <- function(df, id) {
   # Note that the object that results acts as both a data frame and datatable
   df <- data.table::setDT(df)
@@ -44,7 +45,8 @@ GroupedLOCF <- function(df, id) {
   # By avoiding using the 'by' operator of data.table, we're reducing
   # the number of calls from (N rows / P people) * C columns to just C columns;
   # this is just once for each column in the data.table.
-  df[, lapply(.SD, locf)]
+  df_result <- df[, lapply(.SD, locf)]
+  df_result
 }
 
 #' @title
@@ -69,14 +71,15 @@ GroupedLOCF <- function(df, id) {
 #' @references \url{https://community.healthcatalyst.com/community/data-science}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' DTCol = c("2001-06-09 12:45:05","2002-01-29 09:30:05","2002-02-02 07:36:50",
+#' dt_col = c("2001-06-09 12:45:05","2002-01-29 09:30:05","2002-02-02 07:36:50",
 #'           "2002-03-04 16:45:01","2002-11-13 20:00:10","2003-01-29 07:31:43",
 #'           "2003-07-07 17:30:02","2003-09-28 01:03:20")
 #' y1 <- c(.5,1,3,6,8,13,14,1)
 #' y2 <- c(.8,1,1.2,1.2,1.2,1.3,1.3,1)
-#' df <- data.frame(DTCol,y1,y2)
+#' df <- data.frame(dt_col,y1,y2)
 #'
-#' df <- ConvertDateTimeColToDummies(df, 'DTCol')
+#' df <- ConvertDateTimeColToDummies(df, 'dt_col')
+#' head(df)
 
 ConvertDateTimeColToDummies <- function(df,
                                         date.time.col,
@@ -87,7 +90,7 @@ ConvertDateTimeColToDummies <- function(df,
     df[[date.time.col]] <- as.POSIXct(df[[date.time.col]])
     df$Year <- as.POSIXlt(df[[date.time.col]])$year + 1900
     df$Month <- as.POSIXlt(df[[date.time.col]])$mo + 1
-    df$WeekOfYear <- strftime(df[[date.time.col]],format="%W")
+    df$WeekOfYear <- strftime(df[[date.time.col]],format = "%W")
     df$DayOfMonth <- as.POSIXlt(df[[date.time.col]])$mday
     df$DayOfWeek <- as.POSIXlt(df[[date.time.col]])$wday + 1
 
@@ -96,7 +99,7 @@ ConvertDateTimeColToDummies <- function(df,
     df[[date.time.col]] <- as.POSIXct(df[[date.time.col]])
     df$Year <- as.POSIXlt(df[[date.time.col]])$year + 1900
     df$Month <- as.POSIXlt(df[[date.time.col]])$mo + 1
-    df$WeekOfYear <- strftime(df[[date.time.col]],format="%W")
+    df$WeekOfYear <- strftime(df[[date.time.col]],format = "%W")
     df$DayOfMonth <- as.POSIXlt(df[[date.time.col]])$mday
     df$DayOfWeek <- as.POSIXlt(df[[date.time.col]])$wday + 1
     df$Hour <- as.POSIXlt(df[[date.time.col]])$hour
@@ -106,7 +109,7 @@ ConvertDateTimeColToDummies <- function(df,
     df[[date.time.col]] <- as.POSIXct(df[[date.time.col]])
     df$Year <- as.POSIXlt(df[[date.time.col]])$year + 1900
     df$Month <- as.POSIXlt(df[[date.time.col]])$mo + 1
-    df$WeekOfYear <- strftime(df[[date.time.col]],format="%W")
+    df$WeekOfYear <- strftime(df[[date.time.col]],format = "%W")
     df$DayOfMonth <- as.POSIXlt(df[[date.time.col]])$mday
     df$DayOfWeek <- as.POSIXlt(df[[date.time.col]])$wday + 1
     df$Hour <- as.POSIXlt(df[[date.time.col]])$hour
@@ -117,7 +120,7 @@ ConvertDateTimeColToDummies <- function(df,
     df[[date.time.col]] <- as.POSIXct(df[[date.time.col]])
     df$Year <- as.POSIXlt(df[[date.time.col]])$year + 1900
     df$Month <- as.POSIXlt(df[[date.time.col]])$mo + 1
-    df$WeekOfYear <- strftime(df[[date.time.col]],format="%W")
+    df$WeekOfYear <- strftime(df[[date.time.col]],format = "%W")
     df$DayOfMonth <- as.POSIXlt(df[[date.time.col]])$mday
     df$DayOfWeek <- as.POSIXlt(df[[date.time.col]])$wday + 1
     df$Hour <- as.POSIXlt(df[[date.time.col]])$hour
@@ -153,6 +156,8 @@ ConvertDateTimeColToDummies <- function(df,
 #' df = data.frame(a=c(1,2,3,NA),
 #'                 b=c('Y','N','Y',NA))
 #' df[] <- lapply(df, ImputeColumn)
+#' head(df)
+
 ImputeColumn <- function(v) {
   if (is.numeric(v)) {
     v[is.na(v)] <- mean(v, na.rm = TRUE)
@@ -175,28 +180,32 @@ ImputeColumn <- function(v) {
 #' @examples
 #' IsBinary(c(1,2,NA))
 #' IsBinary(c(1,2,3))
+
 IsBinary <- function(v) {
   x <- unique(v)
-  length(x) - sum(is.na(x)) == 2L
+  bool_result <- length(x) - sum(is.na(x)) == 2L
+  bool_result
 }
 
 #' @title
 #' Remove rows where specified col is NA
 #' @description Remove rows from a data frame where a particular col is NA
 #' @param df A data frame to be altered
-#' @param desiredCol A column name in the df (in ticks)
-#' @return The input data frame with rows removed
+#' @param desired_col A column name in the df (in ticks)
+#' @return df_result The input data frame with rows removed
 #'
 #' @export
 #' @references \url{https://community.healthcatalyst.com/community/data-science}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' df = data.frame(a=c(1,2,3),b=c('Y','N',NA),c=c(NA,'Y','N'))
-#' resdf = RemoveRowsWithNAInSpecCol(df,'b')
-RemoveRowsWithNAInSpecCol <- function(df, desiredCol) {
-  completeVec <- stats::complete.cases(df[[desiredCol]])
+#' df_result = RemoveRowsWithNAInSpecCol(df,'b')
+#' head(df_result)
 
-  return(df[completeVec, ])
+RemoveRowsWithNAInSpecCol <- function(df, desired_col) {
+  completeVec <- stats::complete.cases(df[[desired_col]])
+  df_result <- df[completeVec,]
+  df_result
 }
 
 #' @title
@@ -205,8 +214,8 @@ RemoveRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' a data frame.
 #' @param connection.string A string specifying the driver, server, database,
 #' and whether Windows Authentication will be used.
-#' @param query The SQL query (in ticks)
-#' @return data frame containing the selected rows
+#' @param query The SQL query (in ticks or quotes)
+#' @return df A data frame containing the selected rows
 #'
 #' @import RODBC
 #' @export
@@ -214,20 +223,21 @@ RemoveRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' library(HCRTools)
-#' connection.string = '
+#' connection.string = "
 #'   driver={SQL Server};
 #'   server=localhost;
 #'   database=AdventureWorks2012;
-#'   trusted_connection=true'
+#'   trusted_connection=true
+#'   "
 #'
-#' query = '
+#' query = "
 #'   SELECT
 #'     [OrganizationLevel]
-#'   FROM [AdventureWorks2012].[HumanResources].[Employee]'
+#'   FROM [AdventureWorks2012].[HumanResources].[Employee]
+#'   "
 #'
 #' df <- SelectData(connection.string, query)
 #' head(df)
-
 
 SelectData <- function(connection.string, query) {
   # TODO: if debug: cat(connection.string)
@@ -263,9 +273,9 @@ SelectData <- function(connection.string, query) {
 #' each row
 #'
 #' @description Remove columns from a data frame when all of their rows are the
-#' same value
+#' same value (after removing NA's)
 #' @param df A data frame
-#' @return A data frame with those columns removed
+#' @return A data frame with zero-variance columns removed
 #'
 #' @export
 #' @references \url{https://community.healthcatalyst.com/community/data-science}
@@ -274,17 +284,16 @@ SelectData <- function(connection.string, query) {
 #' df = data.frame(a=c(1,1,1),
 #'                 b=c('a','b','b'),
 #'                 c=c('a','a','a'),
-#'                 d = c(NA,'1',NA))
-#' resdf = RemoveColsWithAllSameValue(df)
-#' resdf
-
+#'                 d=c(NA,'1',NA))
+#' df_result = RemoveColsWithAllSameValue(df)
+#' head(df_result)
 
 RemoveColsWithAllSameValue <- function(df) {
-  df <- df[sapply(df, function(x) length(unique(x[!is.na(x)]))>1)]
-  if (ncol(df)==0){
+  df_result <- df[sapply(df, function(x) length(unique(x[!is.na(x)])) > 1)]
+  if (ncol(df_result) == 0) {
     message('All columns were removed.')
   }
-  df
+  df_result
 }
 
 #' @title
@@ -293,7 +302,7 @@ RemoveColsWithAllSameValue <- function(df) {
 #' @description Returns a vector of the names of the columns that have more than
 #' 50 categories
 #' @param df A data frame
-#' @return colList A vector that contains the names of the columns with greater
+#' @return A vector that contains the names of the columns with greater
 #' than 50 categories
 #'
 #' @export
@@ -306,16 +315,16 @@ RemoveColsWithAllSameValue <- function(df) {
 #'                     'o','p','q','r','s','t','u','v','w','x','y','z','aa','bb',
 #'                     'cc','dd','ee','ff','gg','hh','ii','jj','kk','ll','mm','nn',
 #'                     'oo','pp','qq','rr','ss','tt','uu','vv','ww','xx','yy'))
-#' colList = ReturnColsWithMoreThanFiftyCategories(df)
+#' col_list = ReturnColsWithMoreThanFiftyCategories(df)
 
 ReturnColsWithMoreThanFiftyCategories <- function(df) {
-  colList=vector('character')
-  for (columnName in names(df)){
-    if (nlevels(df[[columnName]])>50){
-      colList<-c(colList,columnName)
+  col_list <- vector('character')
+  for (columnName in names(df)) {
+    if (nlevels(df[[columnName]]) > 50) {
+      col_list <- c(col_list,columnName)
     }
   }
-  colList
+  col_list
 }
 
 #' @title
@@ -324,7 +333,9 @@ ReturnColsWithMoreThanFiftyCategories <- function(df) {
 #' Find numeric columns in data frame that have an absolute slope greater than
 #' that specified via threshold argument.
 #' @param df A data frame
-#' @return A vector of column names
+#' @return A data frame containing the dimensional attribute (ie gender), the
+#' subset the data was grouped by (ie M/F), the measures that had trends
+#' (ie, mortality or readmission), and the ending month.
 #'
 #' @importFrom stats aggregate formula
 #' @importFrom utils tail
@@ -332,20 +343,20 @@ ReturnColsWithMoreThanFiftyCategories <- function(df) {
 #' @references \url{https://community.healthcatalyst.com/community/data-science}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#'x <- c(as.Date("2012-01-01"),as.Date("2012-01-02"),as.Date("2012-02-01"),
-#'       as.Date("2012-03-01"),as.Date("2012-04-01"),as.Date("2012-05-01"),
-#'       as.Date("2012-06-01"),as.Date("2012-06-02"))
-#'y1 <- c(0,1,2,6,8,13,14,16)         # large positive
-#'y2 <- c(.8,1,1.2,1.2,1.2,1.3,1.3,1.5)  # small positive
-#'y3 <- c(1,0,-2,-2,-4,-5,-7,-8)       # big negative
-#'y4 <- c(.5,0,-.5,-.5,-.5,-.5,-.6,0)  # small negative
-#'y5 <- c('M','F','F','F','F','F','F','F')            # factor col
-#'df <- data.frame(x,y1,y2,y3,y4,y5)
+#'dates <- c(as.Date("2012-01-01"),as.Date("2012-01-02"),as.Date("2012-02-01"),
+#'           as.Date("2012-03-01"),as.Date("2012-04-01"),as.Date("2012-05-01"),
+#'           as.Date("2012-06-01"),as.Date("2012-06-02"))
+#'y1 <- c(0,1,2,6,8,13,14,16)               # large positive
+#'y2 <- c(.8,1,1.2,1.2,1.2,1.3,1.3,1.5)     # small positive
+#'y3 <- c(1,0,-2,-2,-4,-5,-7,-8)            # big negative
+#'y4 <- c(.5,0,-.5,-.5,-.5,-.5,-.6,0)       # small negative
+#'gender <- c('M','F','F','F','F','F','F','F')
+#'df <- data.frame(dates,y1,y2,y3,y4,gender)
 #'
-#'res = FindTrends(df = df,
-#'                 datecol = 'x',
-#'                 coltoaggregate = 'y5')
-#'
+#'df_result = FindTrends(df = df,
+#'                       datecol = 'dates',
+#'                       coltoaggregate = 'gender')
+
 FindTrends <- function(df,
                        datecol,
                        coltoaggregate) {
@@ -356,8 +367,8 @@ FindTrends <- function(df,
   df[[datecol]] <- NULL
 
   df <- aggregate(formula(paste0(".~", coltoaggregate, "+year+month")),
-                      data=df,
-                      FUN=sum)
+                      data = df,
+                      FUN = sum)
 
   df <- df[with(df, order(year, month)), ]
 
@@ -381,16 +392,17 @@ FindTrends <- function(df,
     dftemp <- df[df[[coltoaggregate]] == j,]
 
     print('df after grouping and focusing on one category in group col:')
-    print(tail(dftemp,n=6))
+    print(tail(dftemp, n = 6))
 
     # Iterate over all columns except for cols that we aggregated by
     for (i in coliterlist) {
       if (is.numeric(dftemp[[i]])) {
         # Check if last six values are monotonically increasing
         n <- nrow(dftemp)
-        if (n>5) {
-          check.incr = all(dftemp[[i]][(n-5):n] == cummax(dftemp[[i]][(n-5):n]))
-          check.decr = all(dftemp[[i]][(n-5):n] == cummin(dftemp[[i]][(n-5):n]))
+        if (n > 5) {
+          # TODO: make this check into a function
+          check.incr = all(dftemp[[i]][(n - 5):n] == cummax(dftemp[[i]][(n - 5):n]))
+          check.decr = all(dftemp[[i]][(n - 5):n] == cummin(dftemp[[i]][(n - 5):n]))
           if (isTRUE(check.incr) || isTRUE(check.decr)) {
             # If true, append col names to list to output
             aggregated.col.list <- c(aggregated.col.list, j)
@@ -405,17 +417,16 @@ FindTrends <- function(df,
     message('No trends of sufficient length found')
     return()
   } else {
-    dfreturn = data.frame(coltoaggregate,
+    df_result = data.frame(coltoaggregate,
                           aggregated.col.list,
                           metric.trend.list,
                           final_yr_month)
-    colnames(dfreturn) <- c("DimAttribute",
+    colnames(df_result) <- c("DimAttribute",
                             "GroupBy",
                             "MeasuresTrending",
                             "FinalDate")
     print('Trends were found:')
-    print(dfreturn)
-    return(dfreturn)
+    print(df_result)
   }
 }
 
@@ -426,7 +437,7 @@ FindTrends <- function(df,
 #' @param df A data frame
 #' @param dateCol Name of column in data frame that contains dates
 #' @param descending Boolean for whether the output should be in descending order
-#' @return df A data frame ordered by date column
+#' @return A data frame ordered by date column
 #'
 #' @importFrom lubridate ymd_hms
 #' @export
@@ -434,22 +445,21 @@ FindTrends <- function(df,
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' library(HCRTools)
-#' df = data.frame(date=c('2009-01-01','2010-01-01','2009-03-08','2009-01-19',
-#'                        '2010-11-11'),
-#'                 a=c(1,2,3,4,5))
-#' resdf = OrderByDate(df,'date',descending=FALSE)
+#' df = data.frame(date=c('2009-01-01','2010-01-01','2009-03-08','2009-01-19'),
+#'                 a=c(1,2,3,4))
+#' df_result = OrderByDate(df,'date', descending=FALSE)
+#' head(df_result)
 
 OrderByDate <- function(df,datecol,descending=FALSE) {
   df[[datecol]] <- lubridate::ymd_hms(df[[datecol]],truncated = 5)
 
   if (descending == FALSE) {
-    df <- df[order(df[[datecol]]),]
+    df_result <- df[order(df[[datecol]]),]
   } else {
-    df <- df[rev(order(df[[datecol]])),]
+    df_result <- df[rev(order(df[[datecol]])),]
   }
-  df
+  df_result
 }
-
 
 #' @title
 #' Correlation analysis on an input table, focusing on one target variable
@@ -459,7 +469,7 @@ OrderByDate <- function(df,datecol,descending=FALSE) {
 #' @param df A data frame
 #' @param target.col Name of target column against which correlations will be
 #' calculated
-#' @return df A data frame with column names and corresponding correlations and
+#' @return A data frame with column names and corresponding correlations and
 #' p-values with the target column
 #'
 #' @export
@@ -473,8 +483,8 @@ OrderByDate <- function(df,datecol,descending=FALSE) {
 #' c=c(3,4,2,1,3,5),
 #' d=c('M','F','F','F','M','F')) #<- is ignored
 #'
-#' res <- CalculateTargetedCorrelations(df,'c')
-#' res
+#' df_result <- CalculateTargetedCorrelations(df=df,target.col='c')
+#' df_result
 
 CalculateTargetedCorrelations <- function(df,target.col) {
   if (!is.numeric(df[[target.col]])) {
@@ -485,7 +495,6 @@ CalculateTargetedCorrelations <- function(df,target.col) {
   pvalue <- vector('numeric')
 
   # Pull only numeric columns
-  # Pull only numeric columns
   nums <- sapply(df, is.numeric)
   df <- df[ , nums]
 
@@ -495,22 +504,23 @@ CalculateTargetedCorrelations <- function(df,target.col) {
   collist <- collist[collist != target.col]
 
   # Make list of correlations
-  cor <- cor(as.matrix(df[[target.col]]), as.matrix(df[ ,!(colnames(df) == target.col)]))
+  cor <- cor(as.matrix(df[[target.col]]),
+             as.matrix(df[ ,!(colnames(df) == target.col)]))
 
   # Make list of corr-related p-values
   for (i in collist) {
     pvalue <- c(pvalue,cor.test(df[[target.col]], df[,i])$p.value)
   }
 
-  dfout <- data.frame(t(cor),pvalue)
+  df_result <- data.frame(t(cor),pvalue)
   # Change name of corr col
-  names(dfout)[names(dfout) == 't.cor.'] <- 'correlation'
+  names(df_result)[names(df_result) == 't.cor.'] <- 'correlation'
 
   # Change row name to actual col
-  dfout <- cbind(column = rownames(dfout), dfout)
-  rownames(dfout) <- NULL
+  df_result <- cbind(column = rownames(df_result), df_result)
+  rownames(df_result) <- NULL
 
-  dfout
+  df_result
 }
 
 #' @title
@@ -518,7 +528,7 @@ CalculateTargetedCorrelations <- function(df,target.col) {
 #'
 #' @description Calculate correlations between every numeric column in a table
 #' @param df A data frame
-#' @return df A data frame with column names and corresponding correlations
+#' @return A data frame with column names and corresponding correlations
 #' with the target column
 #'
 #' @importFrom stats cor cor.test
@@ -533,13 +543,12 @@ CalculateTargetedCorrelations <- function(df,target.col) {
 #' c=c(3,4,2,1,3,5),
 #' d=c('M','F','F','F','M','F')) #<- is ignored
 #'
-#' res <- CalculateAllCorrelations(df)
-#' res
+#' df_result <- CalculateAllCorrelations(df)
+#' df_result
 
 CalculateAllCorrelations <- function(df) {
-  dfout <- cor(df[sapply(df, is.numeric)])
-
-  dfout
+  df_result <- cor(df[sapply(df, is.numeric)])
+  df_result
 }
 
 #' @title
@@ -548,7 +557,7 @@ CalculateAllCorrelations <- function(df) {
 #' @description Returns a vector of the names of the columns that have more than
 #' 50 categories
 #' @param df A data frame
-#' @return colList A vector that contains the names of the columns with greater
+#' @return A vector that contains the names of the columns with greater
 #' than 50 categories
 #'
 #' @export
@@ -561,16 +570,16 @@ CalculateAllCorrelations <- function(df) {
 #'                     'o','p','q','r','s','t','u','v','w','x','y','z','aa','bb',
 #'                     'cc','dd','ee','ff','gg','hh','ii','jj','kk','ll','mm','nn',
 #'                     'oo','pp','qq','rr','ss','tt','uu','vv','ww','xx','yy'))
-#' colList = ReturnColsWithMoreThanFiftyCategories(df)
+#' col_list = ReturnColsWithMoreThanFiftyCategories(df)
 
 ReturnColsWithMoreThanFiftyCategories <- function(df) {
-  colList=vector('character')
-  for (columnName in names(df)){
-    if (nlevels(df[[columnName]])>50){
-      colList<-c(colList,columnName)
+  col_list <- vector('character')
+  for (columnName in names(df)) {
+    if (nlevels(df[[columnName]]) > 50) {
+      col_list <- c(col_list,columnName)
     }
   }
-  colList
+  col_list
 }
 
 #' @title
@@ -579,7 +588,7 @@ ReturnColsWithMoreThanFiftyCategories <- function(df) {
 #' @description Returns a vector with percentage of each column that is NULL
 #' in the original data frame
 #' @param df A data frame
-#' @return colList A vector that contains the names of the columns with greater
+#' @return A vector that contains the names of the columns with greater
 #' than 50 categories
 #'
 #' @export
@@ -589,11 +598,11 @@ ReturnColsWithMoreThanFiftyCategories <- function(df) {
 #' df = data.frame(a=c(1,2,NA,NA,3),
 #'                 b=c(NA,NA,NA,NA,NA),
 #'                 c=c(NA,NA,'F','M',NA))
-#' df.result = CountPercentEmpty(df)
-#' df.result
+#' col_list = CountPercentEmpty(df)
+#' col_list
 
 CountPercentEmpty <- function(df) {
-  percentNULL <- colMeans(is.na(df))
-  percentNULL
+  col_list <- colMeans(is.na(df))
+  col_list
 }
 

@@ -4,22 +4,23 @@
 \alias{RemoveRowsWithNAInSpecCol}
 \title{Remove rows where specified col is NA}
 \usage{
-RemoveRowsWithNAInSpecCol(df, desiredCol)
+RemoveRowsWithNAInSpecCol(df, desired_col)
 }
 \arguments{
 \item{df}{A data frame to be altered}
 
-\item{desiredCol}{A column name in the df (in ticks)}
+\item{desired_col}{A column name in the df (in ticks)}
 }
 \value{
-The input data frame with rows removed
+df_result The input data frame with rows removed
 }
 \description{
 Remove rows from a data frame where a particular col is NA
 }
 \examples{
 df = data.frame(a=c(1,2,3),b=c('Y','N',NA),c=c(NA,'Y','N'))
-resdf = RemoveRowsWithNAInSpecCol(df,'b')
+df_result = RemoveRowsWithNAInSpecCol(df,'b')
+head(df_result)
 }
 \references{
 \url{https://community.healthcatalyst.com/community/data-science}

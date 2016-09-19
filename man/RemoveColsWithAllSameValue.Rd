@@ -11,19 +11,19 @@ RemoveColsWithAllSameValue(df)
 \item{df}{A data frame}
 }
 \value{
-A data frame with those columns removed
+A data frame with zero-variance columns removed
 }
 \description{
 Remove columns from a data frame when all of their rows are the
-same value
+same value (after removing NA's)
 }
 \examples{
 df = data.frame(a=c(1,1,1),
                 b=c('a','b','b'),
                 c=c('a','a','a'),
-                d = c(NA,'1',NA))
-resdf = RemoveColsWithAllSameValue(df)
-resdf
+                d=c(NA,'1',NA))
+df_result = RemoveColsWithAllSameValue(df)
+head(df_result)
 }
 \references{
 \url{https://community.healthcatalyst.com/community/data-science}

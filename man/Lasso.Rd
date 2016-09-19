@@ -40,7 +40,7 @@ library(HCRTools)
 data(iris)
 head(iris)
 
-set.seed(43)
+set.seed(42)
 
 p <- SupervisedModelParameters$new()
 p$df = iris
@@ -69,14 +69,16 @@ ptm <- proc.time()
 # Can delete this line in your work
 csvfile <- system.file("extdata", "HREmployeeDev.csv", package = "HCRTools")
 
-totaldf <- read.csv(file = csvfile, #<-- Replace with 'your/path'
+df <- read.csv(file = csvfile, #<-- Replace with 'your/path'
                     header = TRUE,
                     na.strings = 'NULL')
 
-head(totaldf)
+head(df)
+
+set.seed(42)
 
 p <- SupervisedModelParameters$new()
-p$df = totaldf
+p$df = df
 p$type = 'classification'
 p$impute = FALSE
 p$grainCol = ''
@@ -125,7 +127,7 @@ FROM [AdventureWorks2012].[HumanResources].[Employee]
 df <- SelectData(connection.string, query)
 head(df)
 
-set.seed(43)
+set.seed(42)
 
 p <- SupervisedModelParameters$new()
 p$df = df

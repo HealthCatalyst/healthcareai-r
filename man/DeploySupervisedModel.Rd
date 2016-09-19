@@ -67,6 +67,10 @@ connection.string <- 'driver={SQL Server};
                       database=SAM;
                       trusted_connection=true'
 
+# Use this for an example SQL source:
+# query <- "SELECT * FROM [SAM].[YourCoolSAM].[SomeTrainingSetTable]"
+# df <- SelectData(connection.string, query)
+
 # Can delete this line in your work:
 csvfile <- system.file("extdata", "HREmployeeDeploy.csv",package = "HCRTools")
 

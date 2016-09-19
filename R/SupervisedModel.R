@@ -227,7 +227,8 @@ SupervisedModel <- R6Class("SupervisedModel",
       }
 
       # Remove rows where predicted.col is null in train
-      private$dfTrain = RemoveRowsWithNAInSpecCol(private$dfTrain, self$params$predictedCol)
+      private$dfTrain = RemoveRowsWithNAInSpecCol(private$dfTrain,
+                                                  self$params$predictedCol)
 
       if (isTRUE(self$params$debug)) {
         print('Training data set after removing rows where pred col is null')

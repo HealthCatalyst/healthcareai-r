@@ -14,17 +14,17 @@ OrderByDate(df, datecol, descending = FALSE)
 \item{dateCol}{Name of column in data frame that contains dates}
 }
 \value{
-df A data frame ordered by date column
+A data frame ordered by date column
 }
 \description{
 Returns a data frame that's ordered by its date column
 }
 \examples{
 library(HCRTools)
-df = data.frame(date=c('2009-01-01','2010-01-01','2009-03-08','2009-01-19',
-                       '2010-11-11'),
-                a=c(1,2,3,4,5))
-resdf = OrderByDate(df,'date',descending=FALSE)
+df = data.frame(date=c('2009-01-01','2010-01-01','2009-03-08','2009-01-19'),
+                a=c(1,2,3,4))
+df_result = OrderByDate(df,'date', descending=FALSE)
+head(df_result)
 }
 \references{
 \url{https://community.healthcatalyst.com/community/data-science}

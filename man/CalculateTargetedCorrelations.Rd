@@ -13,7 +13,7 @@ CalculateTargetedCorrelations(df, target.col)
 calculated}
 }
 \value{
-df A data frame with column names and corresponding correlations and
+A data frame with column names and corresponding correlations and
 p-values with the target column
 }
 \description{
@@ -28,8 +28,8 @@ b=c(6,5,4,3,2,1),
 c=c(3,4,2,1,3,5),
 d=c('M','F','F','F','M','F')) #<- is ignored
 
-res <- CalculateTargetedCorrelations(df,'c')
-res
+df_result <- CalculateTargetedCorrelations(df=df,target.col='c')
+df_result
 }
 \references{
 \url{https://community.healthcatalyst.com/community/data-science}
