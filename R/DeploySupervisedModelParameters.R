@@ -27,6 +27,13 @@ DeploySupervisedModelParameters <- R6Class("DeploySupervisedModelParameters",
     impute = TRUE,
     debug = FALSE,
 
+    model = NULL,
+    cores = 4,
+    sqlConn = NULL,
+    destSchemaTable = NULL,
+    rfmtry = "",
+    trees = 201,
+
     #Constructor
     initialize = function () {
     }

@@ -24,19 +24,32 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
     # Variables
 
     dfTest = NULL,
-    dfTestTemp = NULL,
     dfTestRAW = NULL,
     dfTrain = NULL,
-    dfTrainTemp = NULL,
-
     grainTest = NULL,
+  	fit = NULL,
+  	fit.logit = NULL,
+    PredictedVALS = NA,
 
-    # For unit tests
-    linearPredictedVALS = NA,
-    rfPredictedVALS = NA,
+    clustersOnCores = NA,
 
     ###########
     # Functions
+
+    registerClustersOnCores = function () {
+      if (self$params$cores > 1) {
+        suppressMessages(library(doParallel))
+        private$clustersOnCores <- makeCluster(self$params$cores)
+        registerDoParallel(private$clustersOnCores)
+      }
+    },
+
+    stopClustersOnCores = function () {
+      if (self$params$cores > 1) {
+        stopCluster(private$clustersOnCores)
+        registerDoSEQ()
+      }
+    },
 
     setConfigs = function (p) {
       self$params <- DeploySupervisedModelParameters$new()
@@ -69,9 +82,28 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
       if (!is.null(p$debug))
         self$params$debug <- p$debug
 
+
+      # for deploy method
+      if (!is.null(p$model))
+        self$params$model <- p$model
+
+      if (!is.null(p$cores))
+        self$params$cores <- p$cores
+
+      if (!is.null(p$sqlConn))
+        self$params$sqlConn <- p$sqlConn
+
+      if (!is.null(p$destSchemaTable))
+        self$params$destSchemaTable <- p$destSchemaTable
+
+      if (!is.null(p$rfmtry))
+        self$params$rfmtry <- p$rfmtry
+
+      if (!is.null(p$trees))
+        self$params$trees <- p$trees
+
     },
 
-    #TODO: Load data
     loadData = function () {
 
       if (isTRUE(self$params$debug)) {
@@ -288,10 +320,16 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
 
     },
 
-    #Deploy the Prediction Model
-    deploy = function () {
+    #Build fit object
+    buildFitObject= function () {
 
-    }
+
+
+    },
+
+    #Deploy the Model
+    deploy = function () {
+	  }
 
   )
 
