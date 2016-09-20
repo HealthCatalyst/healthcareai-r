@@ -146,7 +146,7 @@ source('R/SupervisedModel.R')
 #'
 #' # Plot ROCs from both supervised model classes
 #' plot(lasso$getROC(), col = "blue", legacy.axes=TRUE, mar=c(4, 4, 3, 2)+.1)
-#' par(new=T)
+#' par(new=TRUE)
 #' plot(rf$getROC(), col = "red", legacy.axes=TRUE, mar=c(4, 4, 3, 2)+.1)
 #' title(main = "ROC")
 #' legend("bottomright",
