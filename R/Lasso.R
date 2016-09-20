@@ -73,7 +73,7 @@ source('R/SupervisedModel.R')
 #'                     na.strings = 'NULL')
 #'
 #' head(df)
-#' 
+#'
 #' set.seed(42)
 #'
 #' p <- SupervisedModelParameters$new()
@@ -145,15 +145,16 @@ source('R/SupervisedModel.R')
 #' rf <- RandomForest$new(p)
 #' rf$run()
 #'
-#' #Plot ROCs from both supervised model classes
+#' # Plot ROCs from both supervised model classes
+#' plot(lasso$getROC(), col = "blue", legacy.axes=TRUE, mar=c(4, 4, 3, 2)+.1)
+#' par(new=T)
 #' plot(rf$getROC(), col = "red", legacy.axes=TRUE, mar=c(4, 4, 3, 2)+.1)
-#' plot(lasso$getROC(), add = TRUE, col = "blue", lty=2)
 #' title(main = "ROC")
 #' legend("bottomright",
-#'        c("RandomForest", "Lasso"),
+#'        c("Lasso","RandomForest"),
 #'        cex = 0.8,
-#'        col = c("red", "blue"),
-#'        lty = 1:2,
+#'        col = c("blue","red"),
+#'        lty = 1,
 #'        inset = .1)
 #'
 #' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
@@ -166,32 +167,31 @@ source('R/SupervisedModel.R')
 
 Lasso <- R6Class("Lasso",
 
-  #Inheritance
+  # Inheritance
   inherit = SupervisedModel,
 
-  #Private members
+  # Private members
   private = list(
 
-  	#data related
+  	# Data related
   	dfTrainTEMP = NA,
   	dfTestTEMP = NA,
 
-  	#models for formula and matrix
+  	# Models for formula and matrix
   	modfmla = NA,
   	modMat = NA,
 
-  	#groups for the grouped Lasso model
+  	# Groups for the grouped Lasso model
   	group = NA,
 
-  	#fit model and lamda values
+  	# Fit model and lamda values
   	fit.grlasso = NA,
   	ind.lambda1se = NA,
   	lambda.1se = NA,
 
-  	#predictions
   	predictions = NA,
 
-  	#performance metrics
+  	# Performance metrics
   	confMatrix = NA,
   	ROC = NA,
   	AUC = NA,
@@ -202,33 +202,34 @@ Lasso <- R6Class("Lasso",
 
   ),
 
-  #Public members
+  # Public members
   public = list(
 
-    #Constructor
-    #p: new SuperviseModelParameters class object, i.e. p = SuperviseModelParameters$new()
+    # Constructor
+    # p: new SuperviseModelParameters class object,
+    # i.e. p = SuperviseModelParameters$new()
     initialize = function(p) {
       super$initialize(p)
     },
 
-    #Override: build Grouped Lasso model
+    # Override: build Grouped Lasso model
     buildModel = function() {
 
       private$dfTrainTEMP = private$dfTrain
       private$dfTestTEMP = private$dfTest
 
-      #Create a model formula, without the predicted variable, for use in
-      #creating the model matrix.
+      # Create a model formula, without the predicted variable, for use in
+      # creating the model matrix.
       private$modfmla = as.formula(paste("~",paste(names(private$dfTrainTEMP[ ,!(colnames(private$dfTrainTEMP) == self$params$predictedCol)]),
                                            collapse = "+")))
 
-      #Create the model matrix, without the intercept column, to be used in the
-      #grouped Lasso function.
+      # Create the model matrix, without the intercept column, to be used in the
+      # grouped Lasso function.
       private$modMat = model.matrix(private$modfmla, data = private$dfTrainTEMP)[,-1]
 
-      #Make sure the dependent variable is numeric in both the train and test set.
-      #If it is a factor, the first level alphabetically will be set to 0 and the other level
-      #will be set to 1.
+      # Make sure the dependent variable is numeric in both the train and
+      # test set. If it is a factor, the first level alphabetically will be
+      # set to 0 and the other level will be set to 1.
       if (is.factor(private$dfTrainTEMP[[self$params$predictedCol]])) {
         private$dfTrainTEMP[[self$params$predictedCol]] =
           ifelse(private$dfTrainTEMP[[self$params$predictedCol]] == levels(private$dfTrainTEMP[[self$params$predictedCol]])[1],0,1)
@@ -239,22 +240,21 @@ Lasso <- R6Class("Lasso",
           ifelse(private$dfTestTEMP[[self$params$predictedCol]] == levels(private$dfTestTEMP[[self$params$predictedCol]])[1],0,1)
       }
 
-
-      #Creating the groups for the grouped Lasso model.
-      #Factor variables have a group that is one less than the number of levels.
-      #Everything else has length one.
-      #The length of this vector should be the same as the number of columns in modMat.
+      # Creating the groups for the grouped Lasso model.
+      # Factor variables have a group that is one less than the number of levels.
+      # Everything else has length one.
+      # The length of this vector should be the same as the number of columns in modMat.
       private$group <- rep(1:(ncol(private$dfTrainTEMP) - 1 ),
                   times <- sapply(private$dfTrainTEMP[ ,!(colnames(private$dfTrainTEMP) == self$params$predictedCol)],
                                function(x) ifelse(is.factor(x), length(levels(x)) - 1, 1)))
 
       if (length(private$group) != ncol(private$modMat)) {
         stop('There is a mismatch in group definition and model matrix definition')
-        #This message should likely be refined, perhaps something different for greater than
-        #or less than ...
+        # This message should likely be refined, perhaps something different for
+        # greater than or less than ...
       }
 
-      #Generate fit grlasso object
+      # Generate fit grlasso object
       familyModuleName = ""
       if (self$params$type == 'classification')
         familyModuleName = "binomial"
@@ -272,39 +272,41 @@ Lasso <- R6Class("Lasso",
 
     },
 
-    #predict results
+    # Predict results
     performPrediction = function() {
 
-      #Index of largest lambda within one cvse of the lambda with lowest cve:
-      #These are sorted from largest to smallest lambda, hence pulling the minimum index.
+      # Index of largest lambda within one cvse of the lambda with lowest cve:
+      # These are sorted from largest to smallest lambda, hence pulling the 
+      # minimum index.
       private$ind.lambda1se = min(which(private$fit.grlasso$cve <= (private$fit.grlasso$cve + private$fit.grlasso$cvse)[private$fit.grlasso$min]))
 
-      #largest lambda within one cvse of the lambda with lowest cve (ie. lambda to use in final fit):
+      # Largest lambda within one cvse of the lambda with lowest cve (ie. lambda
+      # to use in final fit):
       private$lambda.1se = private$fit.grlasso$lambda[private$ind.lambda1se]
 
-      #predictions (in terms of probability)
+      # Predictions (in terms of probability)
       private$predictions = predict(object = private$fit.grlasso,
                                     X = model.matrix(private$modfmla, data = private$dfTestTEMP)[,-1],
                                     lambda = private$lambda.1se,
                                     type = "response")
     },
 
-    #generate performance metrics
+    # Generate performance metrics
     generatePerformanceMetrics = function() {
 
-      # classification
+      # Classification
       if (self$params$type == 'classification') {
 
         predictprob <- private$predictions
 
-        #prediction
+        # Prediction
         ytest = private$dfTestTEMP[[self$params$predictedCol]]
         pred <- ROCR::prediction(private$predictions, ytest)
 
-        #performance
+        # Performance
         private$perf <- ROCR::performance(pred, "tpr", "fpr")
 
-        #NOTE THAT THE CLASS WILL BE 0 OR 1.
+        # NOTE THAT THE CLASS WILL BE 0 OR 1.
         predictclass = predict(object = private$fit.grlasso,
                                X = model.matrix(private$modfmla, data = private$dfTestTEMP)[,-1],
                                lambda = private$lambda.1se,
@@ -319,13 +321,13 @@ Lasso <- R6Class("Lasso",
         private$ROC = roc(ytest~predictprob)
         private$AUC = auc(private$ROC)
 
-        #Show results
+        # Show results
         if (isTRUE(self$params$printResults)) {
           print(paste0('AUC: ', round(private$AUC, 2)))
           print(paste0('95% CI AUC: (', round(ci(private$AUC)[1],2), ',', round(ci(private$AUC)[3],2), ')'))
         }
       }
-      #regression
+      # Regression
       else if (self$params$type == 'regression') {
 
         if (isTRUE(self$params$debug)) {
@@ -334,10 +336,10 @@ Lasso <- R6Class("Lasso",
           print(round(private$predictions[1:10],2))
         }
 
-        #IF predicted.col IS NOT NUMERIC TO BEGIN WITH, THIS IS NOT GOING TO FIX IT.
+        # Necessary to convert col to numeric, even though it's N/Y
         ytest = as.numeric(private$dfTestTEMP[[self$params$predictedCol]])
 
-        #Show error measures for Regression
+        # Show error measures for Regression
         private$rmse = sqrt(mean((ytest - private$predictions) ^ 2))
         private$mae = mean(abs(ytest - private$predictions))
 
@@ -362,7 +364,7 @@ Lasso <- R6Class("Lasso",
       return(invisible(private$fit.grlasso))
     },
 
-    #Override: run prediction
+    # Override: run prediction
     run = function() {
 
       # Build Model
@@ -375,37 +377,30 @@ Lasso <- R6Class("Lasso",
       self$generatePerformanceMetrics()
     },
 
-    #get ROC
     getROC = function() {
       if (!IsBinary(self$params$df[[self$params$predictedCol]])) {
         print("ROC is not created because the column you're predicting is not binary")
         return(NULL)
       }
-
       return(private$ROC)
     },
 
-    #getAUC
     getAUC = function() {
       return(private$AUC)
     },
 
-    #getRMSE
     getRMSE = function() {
       return(private$rmse)
     },
 
-    #getMAE
     getMAE = function() {
       return(private$mae)
     },
 
-    #getPerformanceMetric
     getPerf = function() {
       return(private$perf)
     },
 
-    #getCutOffs
     getCutOffs = function(tpr) {
       # Get index of when true-positive rate is > tpr
       indy <- which(as.numeric(unlist(private$perf@y.values)) > tpr)
@@ -418,6 +413,5 @@ Lasso <- R6Class("Lasso",
       print('Corresponding false-positive rate:')
       print(private$perf@x.values[[1]][indy[1]][[1]])
     }
-
   )
 )

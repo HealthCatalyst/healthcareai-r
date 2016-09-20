@@ -146,15 +146,16 @@ lasso$run()
 rf <- RandomForest$new(p)
 rf$run()
 
-#Plot ROCs from both supervised model classes
+# Plot ROCs from both supervised model classes
+plot(lasso$getROC(), col = "blue", legacy.axes=TRUE, mar=c(4, 4, 3, 2)+.1)
+par(new=T)
 plot(rf$getROC(), col = "red", legacy.axes=TRUE, mar=c(4, 4, 3, 2)+.1)
-plot(lasso$getROC(), add = TRUE, col = "blue", lty=2)
 title(main = "ROC")
 legend("bottomright",
-       c("RandomForest", "Lasso"),
+       c("Lasso","RandomForest"),
        cex = 0.8,
-       col = c("red", "blue"),
-       lty = 1:2,
+       col = c("blue","red"),
+       lty = 1,
        inset = .1)
 
 # For a given true-positive rate, get false-pos rate and 0/1 cutoff
