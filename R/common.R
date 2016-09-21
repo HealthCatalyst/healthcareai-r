@@ -268,6 +268,61 @@ SelectData <- function(connection.string, query) {
   df  # Return the selected data.
 }
 
+
+#' @title
+#' Write data to database
+#' @description Write data frame to database via ODBC connection
+#' @param df A data frame being written to a database
+#' @param server A string.
+#' @param database A string.
+#' @param schema_dot_table A string representing the destination schema and
+#' table. Note that brackets aren't expected.
+#' @return Nothing
+#'
+#' @import RODBC
+#' @export
+#' @references \url{https://community.healthcatalyst.com/community/data-science}
+#' @seealso \code{\link{HCRTools}}
+#' @examples
+#' library(HCRTools)
+#' df <- data.frame(a=c(1,2,3),
+#'                  b=c(2,4,6),
+#'                  c=c('one','two','three'))
+#'
+#' #WriteData(df,'localhost','SAM','dbo.HCRWriteData')
+
+WriteData <- function(df, server, database, schema_dot_table) {
+
+  # TODO: use sub function to remove brackets from schema_dot_table
+  # TODO: add try/catch around sqlSave
+  connection.string <-
+    paste0("driver={SQL Server};
+           server=",server,";
+           database=",database,";
+           trusted_connection=true")
+
+  sqlcnxn <- odbcDriverConnect(connection.string)
+
+  # Save df to table in specified database
+  out <- sqlSave(channel = sqlcnxn,
+                dat = df,
+                tablename = schema_dot_table,
+                append = T,
+                rownames = F,
+                colnames = F,
+                safer = T,
+                nastring = NULL)
+
+  # Clean up.
+  odbcCloseAll()
+
+  if (out == 1) {
+    print('SQL Server insert was successful')
+  } else {
+    print('SQL Server insert failed')
+  }
+}
+
 #' @title
 #' Remove columns from a data frame when those columns have the same values in
 #' each row
@@ -498,7 +553,6 @@ CalculateTargetedCorrelations <- function(df,target.col) {
   nums <- sapply(df, is.numeric)
   df <- df[ , nums]
 
-
   collist <- names(df)
   # Trim list of col names, so target doesn't check against itself
   collist <- collist[collist != target.col]
@@ -519,6 +573,8 @@ CalculateTargetedCorrelations <- function(df,target.col) {
   # Change row name to actual col
   df_result <- cbind(column = rownames(df_result), df_result)
   rownames(df_result) <- NULL
+
+  colnames(df_result) <- c('Column','Correlation','PValue')
 
   df_result
 }
