@@ -20,6 +20,7 @@
 #' @seealso \code{\link{RiskAdjustedComparisons}}
 #' @seealso \code{\link{GroupedLOCF}}
 #' @seealso \code{\link{SelectData}}
+#' @seealso \code{\link{WriteData}}
 #' @seealso \code{\link{IsBinary}}
 #' @seealso \code{\link{ImputeColumn}}
 #' @seealso \code{\link{RemoveRowsWithNAInSpecCol}}

@@ -37,6 +37,8 @@ Server.
 
 \code{\link{SelectData}}
 
+\code{\link{WriteData}}
+
 \code{\link{IsBinary}}
 
 \code{\link{ImputeColumn}}
