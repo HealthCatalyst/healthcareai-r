@@ -662,3 +662,35 @@ CountPercentEmpty <- function(df) {
   col_list
 }
 
+#' @title
+#' Creates column based on days since first date
+#'
+#' @description Adds a new column to the data frame, which shows days since
+#' first day in input column
+#' @param df A data frame
+#' @param date_col A string denoting the date-time column of interest
+#' @return A data frame that now has a new column
+#'
+#' @export
+#' @references \url{https://community.healthcatalyst.com/community/data-science}
+#' @seealso \code{\link{HCRTools}}
+#' @examples
+#' dt_col = c("2001-06-09 12:45:05","2002-01-29 09:30:05","2002-02-02 07:36:50",
+#' "2002-03-04 16:45:01","2002-11-13 20:00:10","2003-01-29 07:31:43",
+#' "2003-07-07 17:30:02","2003-09-28 01:03:20")
+#' y1 <- c(.5,1,3,6,8,13,14,1)
+#' df <- data.frame(dt_col, y1)
+#' head(df)
+#' df_result <- CountDaysSinceFirstDate(df, dt_col)
+#' head(df_result)
+
+CountDaysSinceFirstDate <- function(df, date_col) {
+  # Find first date in date list
+  earliest <- date_col[order(format(as.Date(date_col),"%y%m%d"))[1]]
+  # Find diff between each date and first date
+  day_diff <- as.numeric(difftime(date_col, earliest, units = 'days'))
+  # Make output col name include input name (in case of multiple uses)
+  combined_name <- paste0(deparse(substitute(date_col)),'DaysSinceFirstDate')
+  df[[combined_name]] <- day_diff
+  df
+}
