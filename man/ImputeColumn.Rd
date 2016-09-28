@@ -30,7 +30,7 @@ df[] <- lapply(df, ImputeColumn)
 head(df)
 }
 \references{
-\url{https://community.healthcatalyst.com/community/data-science}
+\url{http://healthcareml.org/}
 }
 \seealso{
 \code{\link{HCRTools}}

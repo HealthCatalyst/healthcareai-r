@@ -165,7 +165,7 @@ print(proc.time() - ptm)
 
 }
 \references{
-\url{http://products.healthcatalyst.com/Predictive}
+\url{http://healthcareml.org/}
 }
 \seealso{
 \code{\link{DeploySupervisedModel}}

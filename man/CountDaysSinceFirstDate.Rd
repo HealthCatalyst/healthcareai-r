@@ -4,12 +4,15 @@
 \alias{CountDaysSinceFirstDate}
 \title{Creates column based on days since first date}
 \usage{
-CountDaysSinceFirstDate(df, date_col)
+CountDaysSinceFirstDate(df, dt_col, return_dt_col = FALSE)
 }
 \arguments{
 \item{df}{A data frame}
 
-\item{date_col}{A string denoting the date-time column of interest}
+\item{dt_col}{A string denoting the date-time column of interest}
+
+\item{return_dt_col}{A boolean. Return the original dt_col with the modified
+data frame?}
 }
 \value{
 A data frame that now has a new column
@@ -22,14 +25,14 @@ first day in input column
 dt_col = c("2001-06-09 12:45:05","2002-01-29 09:30:05","2002-02-02 07:36:50",
 "2002-03-04 16:45:01","2002-11-13 20:00:10","2003-01-29 07:31:43",
 "2003-07-07 17:30:02","2003-09-28 01:03:20")
-y1 <- c(.5,1,3,6,8,13,14,1)
+y1 <- c(.5,1,3,6,8,13,14,1) # Not being used at all
 df <- data.frame(dt_col, y1)
 head(df)
 df_result <- CountDaysSinceFirstDate(df, dt_col)
 head(df_result)
 }
 \references{
-\url{https://community.healthcatalyst.com/community/data-science}
+\url{http://healthcareml.org/}
 }
 \seealso{
 \code{\link{HCRTools}}

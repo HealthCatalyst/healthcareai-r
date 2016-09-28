@@ -28,7 +28,7 @@ df_result <- CalculateAllCorrelations(df)
 df_result
 }
 \references{
-\url{https://community.healthcatalyst.com/community/data-science}
+\url{http://healthcareml.org/}
 }
 \seealso{
 \code{\link{HCRTools}}

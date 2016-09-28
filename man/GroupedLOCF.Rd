@@ -35,7 +35,7 @@ df_result = GroupedLOCF(df, 'PersonID')
 head(df_result, n = 7)
 }
 \references{
-\url{https://community.healthcatalyst.com/community/data-science}
+\url{http://healthcareml.org/}
 }
 \seealso{
 \code{\link{HCRTools}}

@@ -13,7 +13,7 @@
 #'
 #' @import data.table
 #' @export
-#' @references \url{https://community.healthcatalyst.com/community/data-science}
+#' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' library(HCRTools)
@@ -68,7 +68,7 @@ GroupedLOCF <- function(df, id) {
 #' rather than just one datetime column
 #'
 #' @export
-#' @references \url{https://community.healthcatalyst.com/community/data-science}
+#' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' dt_col = c("2001-06-09 12:45:05","2002-01-29 09:30:05","2002-02-02 07:36:50",
@@ -143,7 +143,7 @@ ConvertDateTimeColToDummies <- function(df,
 #' @return A vector, or column of values now with no NAs
 #'
 #' @export
-#' @references \url{https://community.healthcatalyst.com/community/data-science}
+#' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' # For a numeric vector
@@ -175,7 +175,7 @@ ImputeColumn <- function(v) {
 #' @return A boolean
 #'
 #' @export
-#' @references \url{https://community.healthcatalyst.com/community/data-science}
+#' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' IsBinary(c(1,2,NA))
@@ -195,7 +195,7 @@ IsBinary <- function(v) {
 #' @return df_result The input data frame with rows removed
 #'
 #' @export
-#' @references \url{https://community.healthcatalyst.com/community/data-science}
+#' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' df = data.frame(a=c(1,2,3),b=c('Y','N',NA),c=c(NA,'Y','N'))
@@ -219,7 +219,7 @@ RemoveRowsWithNAInSpecCol <- function(df, desired_col) {
 #'
 #' @import RODBC
 #' @export
-#' @references \url{https://community.healthcatalyst.com/community/data-science}
+#' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' library(HCRTools)
@@ -281,7 +281,7 @@ SelectData <- function(connection.string, query) {
 #'
 #' @import RODBC
 #' @export
-#' @references \url{https://community.healthcatalyst.com/community/data-science}
+#' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' library(HCRTools)
@@ -333,7 +333,7 @@ WriteData <- function(df, server, database, schema_dot_table) {
 #' @return A data frame with zero-variance columns removed
 #'
 #' @export
-#' @references \url{https://community.healthcatalyst.com/community/data-science}
+#' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' df = data.frame(a=c(1,1,1),
@@ -361,7 +361,7 @@ RemoveColsWithAllSameValue <- function(df) {
 #' than 50 categories
 #'
 #' @export
-#' @references \url{https://community.healthcatalyst.com/community/data-science}
+#' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' df = data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -395,7 +395,7 @@ ReturnColsWithMoreThanFiftyCategories <- function(df) {
 #' @importFrom stats aggregate formula
 #' @importFrom utils tail
 #' @export
-#' @references \url{https://community.healthcatalyst.com/community/data-science}
+#' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #'dates <- c(as.Date("2012-01-01"),as.Date("2012-01-02"),as.Date("2012-02-01"),
@@ -496,7 +496,7 @@ FindTrends <- function(df,
 #'
 #' @importFrom lubridate ymd_hms
 #' @export
-#' @references \url{https://community.healthcatalyst.com/community/data-science}
+#' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' library(HCRTools)
@@ -528,7 +528,7 @@ OrderByDate <- function(df,datecol,descending=FALSE) {
 #' p-values with the target column
 #'
 #' @export
-#' @references \url{https://community.healthcatalyst.com/community/data-science}
+#' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' library(HCRTools)
@@ -589,7 +589,7 @@ CalculateTargetedCorrelations <- function(df,target.col) {
 #'
 #' @importFrom stats cor cor.test
 #' @export
-#' @references \url{https://community.healthcatalyst.com/community/data-science}
+#' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' library(HCRTools)
@@ -617,7 +617,7 @@ CalculateAllCorrelations <- function(df) {
 #' than 50 categories
 #'
 #' @export
-#' @references \url{https://community.healthcatalyst.com/community/data-science}
+#' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' df = data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -648,7 +648,7 @@ ReturnColsWithMoreThanFiftyCategories <- function(df) {
 #' than 50 categories
 #'
 #' @export
-#' @references \url{https://community.healthcatalyst.com/community/data-science}
+#' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' df = data.frame(a=c(1,2,NA,NA,3),
@@ -668,29 +668,37 @@ CountPercentEmpty <- function(df) {
 #' @description Adds a new column to the data frame, which shows days since
 #' first day in input column
 #' @param df A data frame
-#' @param date_col A string denoting the date-time column of interest
+#' @param dt_col A string denoting the date-time column of interest
+#' @param return_dt_col A boolean. Return the original dt_col with the modified
+#' data frame?
 #' @return A data frame that now has a new column
 #'
 #' @export
-#' @references \url{https://community.healthcatalyst.com/community/data-science}
+#' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' dt_col = c("2001-06-09 12:45:05","2002-01-29 09:30:05","2002-02-02 07:36:50",
 #' "2002-03-04 16:45:01","2002-11-13 20:00:10","2003-01-29 07:31:43",
 #' "2003-07-07 17:30:02","2003-09-28 01:03:20")
-#' y1 <- c(.5,1,3,6,8,13,14,1)
+#' y1 <- c(.5,1,3,6,8,13,14,1) # Not being used at all
 #' df <- data.frame(dt_col, y1)
 #' head(df)
 #' df_result <- CountDaysSinceFirstDate(df, dt_col)
 #' head(df_result)
 
-CountDaysSinceFirstDate <- function(df, date_col) {
+CountDaysSinceFirstDate <- function(df, dt_col, return_dt_col=FALSE) {
+
   # Find first date in date list
-  earliest <- date_col[order(format(as.Date(date_col),"%y%m%d"))[1]]
+  earliest <- df[[dt_col]][order(format(as.Date(df[[dt_col]]),"%y%m%d"))[1]]
   # Find diff between each date and first date
-  day_diff <- as.numeric(difftime(date_col, earliest, units = 'days'))
+  day_diff <- as.numeric(difftime(df[[dt_col]], earliest, units = 'days'))
   # Make output col name include input name (in case of multiple uses)
-  combined_name <- paste0(deparse(substitute(date_col)),'DaysSinceFirstDate')
+  combined_name <- paste0(dt_col,'DaysSinceFirstDate')
   df[[combined_name]] <- day_diff
+
+  if (isTRUE(!return_dt_col)) {
+    df[[dt_col]] <- NULL
+  }
+
   df
 }

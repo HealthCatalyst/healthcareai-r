@@ -27,7 +27,7 @@ source('R/SupervisedModel.R')
 #' F leads to removal of rows containing NULLs.
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
-#' @references \url{http://products.healthcatalyst.com/Predictive}
+#' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{DeploySupervisedModel}}
 #' @seealso \code{\link{HCRTools}}
 #' @examples

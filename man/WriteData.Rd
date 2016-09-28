@@ -31,7 +31,7 @@ df <- data.frame(a=c(1,2,3),
 #WriteData(df,'localhost','SAM','dbo.HCRWriteData')
 }
 \references{
-\url{https://community.healthcatalyst.com/community/data-science}
+\url{http://healthcareml.org/}
 }
 \seealso{
 \code{\link{HCRTools}}

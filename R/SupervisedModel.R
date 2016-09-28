@@ -10,7 +10,7 @@ source('R/SupervisedModelParameters.R')
 #' @import caret
 #' @importFrom R6 R6Class
 #' @param object of SuperviseModelParameters class for $new() constructor
-#' @references \url{http://products.healthcatalyst.com/Predictive}
+#' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #'
 #' @export

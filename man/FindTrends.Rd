@@ -34,7 +34,7 @@ df_result = FindTrends(df = df,
                       coltoaggregate = 'gender')
 }
 \references{
-\url{https://community.healthcatalyst.com/community/data-science}
+\url{http://healthcareml.org/}
 }
 \seealso{
 \code{\link{HCRTools}}
