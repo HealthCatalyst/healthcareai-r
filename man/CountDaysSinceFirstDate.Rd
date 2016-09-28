@@ -28,7 +28,7 @@ dt_col = c("2001-06-09 12:45:05","2002-01-29 09:30:05","2002-02-02 07:36:50",
 y1 <- c(.5,1,3,6,8,13,14,1) # Not being used at all
 df <- data.frame(dt_col, y1)
 head(df)
-df_result <- CountDaysSinceFirstDate(df, dt_col)
+df_result <- CountDaysSinceFirstDate(df, 'dt_col')
 head(df_result)
 }
 \references{

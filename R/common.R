@@ -683,7 +683,7 @@ CountPercentEmpty <- function(df) {
 #' y1 <- c(.5,1,3,6,8,13,14,1) # Not being used at all
 #' df <- data.frame(dt_col, y1)
 #' head(df)
-#' df_result <- CountDaysSinceFirstDate(df, dt_col)
+#' df_result <- CountDaysSinceFirstDate(df, 'dt_col')
 #' head(df_result)
 
 CountDaysSinceFirstDate <- function(df, dt_col, return_dt_col=FALSE) {
