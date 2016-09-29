@@ -41,6 +41,8 @@ Server.
 
 \code{\link{WriteData}}
 
+\code{\link{OrderByDate}}
+
 \code{\link{IsBinary}}
 
 \code{\link{RemoveRowsWithNAInSpecCol}}

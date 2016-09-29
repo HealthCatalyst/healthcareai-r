@@ -60,14 +60,17 @@ SupervisedModel <- R6Class("SupervisedModel",
       if(!is.null(p$df))
         self$params$df <- p$df
 
-      if(!is.null(p$groupCol))
-        self$params$groupCol <- p$groupCol
-
       if(!is.null(p$grainCol))
         self$params$grainCol <- p$grainCol
 
       if(!is.null(p$predictedCol))
         self$params$predictedCol <- p$predictedCol
+
+      if(!is.null(p$personCol))
+        self$params$personCol <- p$personCol
+
+      if(!is.null(p$groupCol))
+        self$params$groupCol <- p$groupCol
 
       if(!is.null(p$type) && p$type != '') {
         self$params$type <- p$type
