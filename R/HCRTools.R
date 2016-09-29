@@ -22,15 +22,17 @@
 #' @seealso \code{\link{GroupedLOCF}}
 #' @seealso \code{\link{SelectData}}
 #' @seealso \code{\link{WriteData}}
+#' @seealso \code{\link{OrderByDate}}
 #' @seealso \code{\link{IsBinary}}
 #' @seealso \code{\link{RemoveRowsWithNAInSpecCol}}
+#' @seealso \code{\link{CountPercentEmpty}}
+#' @seealso \code{\link{RemoveColsWithAllSameValue}}
+#' @seealso \code{\link{ReturnColsWithMoreThanFiftyCategories}}
 #' @seealso \code{\link{FindTrends}}
 #' @seealso \code{\link{ConvertDateTimeColToDummies}}
 #' @seealso \code{\link{CountDaysSinceFirstDate}}
 #' @seealso \code{\link{CalculateTargetedCorrelations}}
 #' @seealso \code{\link{CalculateAllCorrelations}}
-#' @seealso \code{\link{CountPercentEmpty}}
-#' @seealso \code{\link{RemoveColsWithAllSameValue}}
 #' @docType package
 #' @name HCRTools
 NULL

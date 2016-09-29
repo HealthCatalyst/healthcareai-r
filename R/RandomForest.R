@@ -4,8 +4,8 @@ source('R/SupervisedModel.R')
 
 #' Compare predictive models, created on your data
 #'
-#' @description This step allows one to create test models on your data
-#' and helps determine which performs best.
+#' @description This step allows you to create a random forest model, based on
+#' your data.
 #' @docType class
 #' @import caret
 #' @import doParallel
@@ -341,6 +341,9 @@ RandomForest <- R6Class("RandomForest",
           print('First 10 raw classification probability predictions')
           print(round(predictprob[1:10,2],2))
         }
+
+        print('PredictedCol')
+        print(self$params$predictedCol)
 
         ytest = as.numeric(private$dfTest[[self$params$predictedCol]])
         pred <- prediction(predictprob[,2], ytest)

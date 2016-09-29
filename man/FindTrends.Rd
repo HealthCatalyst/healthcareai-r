@@ -4,10 +4,14 @@
 \alias{FindTrends}
 \title{Find any columns that have a trend above a particular threshold}
 \usage{
-FindTrends(df, datecol, coltoaggregate)
+FindTrends(df, date_col, group_by_col)
 }
 \arguments{
 \item{df}{A data frame}
+
+\item{date_col}{A string denoting the date column}
+
+\item{group_by_col}{A string denoting the column by which to group}
 }
 \value{
 A data frame containing the dimensional attribute (ie gender), the
@@ -30,8 +34,9 @@ gender <- c('M','F','F','F','F','F','F','F')
 df <- data.frame(dates,y1,y2,y3,y4,gender)
 
 df_result = FindTrends(df = df,
-                      datecol = 'dates',
-                      coltoaggregate = 'gender')
+                      date_col = 'dates',
+                      group_by_col = 'gender')
+df_result
 }
 \references{
 \url{http://healthcareml.org/}

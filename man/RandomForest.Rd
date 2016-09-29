@@ -28,8 +28,8 @@ F leads to removal of rows containing NULLs.}
 to monitor the calculations throughout. Use T or F.}
 }
 \description{
-This step allows one to create test models on your data
-and helps determine which performs best.
+This step allows you to create a random forest model, based on
+your data.
 }
 \examples{
 

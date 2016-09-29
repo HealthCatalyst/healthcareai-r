@@ -4,8 +4,8 @@ source('R/SupervisedModel.R')
 
 #' Compare predictive models, created on your data
 #'
-#' @description This step allows one to create test models on your data
-#' and helps determine which performs best.
+#' @description This step allows you to create a lasso model, based on
+#' your data.
 #' @docType class
 #' @import caret
 #' @import doParallel
