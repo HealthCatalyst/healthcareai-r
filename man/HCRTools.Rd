@@ -41,9 +41,17 @@ Server.
 
 \code{\link{WriteData}}
 
+\code{\link{OrderByDate}}
+
 \code{\link{IsBinary}}
 
 \code{\link{RemoveRowsWithNAInSpecCol}}
+
+\code{\link{CountPercentEmpty}}
+
+\code{\link{RemoveColsWithAllSameValue}}
+
+\code{\link{ReturnColsWithMoreThanFiftyCategories}}
 
 \code{\link{FindTrends}}
 
@@ -54,9 +62,5 @@ Server.
 \code{\link{CalculateTargetedCorrelations}}
 
 \code{\link{CalculateAllCorrelations}}
-
-\code{\link{CountPercentEmpty}}
-
-\code{\link{RemoveColsWithAllSameValue}}
 }
 

@@ -4,13 +4,15 @@
 \alias{SelectData}
 \title{Pull data into R via an ODBC connection}
 \usage{
-SelectData(connection.string, query)
+SelectData(connection.string, query, randomize = FALSE)
 }
 \arguments{
 \item{connection.string}{A string specifying the driver, server, database,
 and whether Windows Authentication will be used.}
 
 \item{query}{The SQL query (in ticks or quotes)}
+
+\item{randomize}{Boolean that dictates whether returned rows are randomized}
 }
 \value{
 df A data frame containing the selected rows

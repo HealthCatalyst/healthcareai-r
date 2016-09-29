@@ -215,6 +215,7 @@ RemoveRowsWithNAInSpecCol <- function(df, desired_col) {
 #' @param connection.string A string specifying the driver, server, database,
 #' and whether Windows Authentication will be used.
 #' @param query The SQL query (in ticks or quotes)
+#' @param randomize Boolean that dictates whether returned rows are randomized
 #' @return df A data frame containing the selected rows
 #'
 #' @import RODBC
@@ -239,7 +240,17 @@ RemoveRowsWithNAInSpecCol <- function(df, desired_col) {
 #' df <- SelectData(connection.string, query)
 #' head(df)
 
-SelectData <- function(connection.string, query) {
+SelectData <- function(connection.string, query, randomize=FALSE) {
+  if (isTRUE(randomize)) {
+    orderpres <- grep('order', tolower(query))
+
+    if (length(orderpres == 0)) {
+      stop("You cannot randomize while using the SQL order keyword.")
+    }
+
+    query <- paste0(query, " ORDER BY NEWID()")
+  }
+
   # TODO: if debug: cat(connection.string)
   cnxn <- odbcDriverConnect(connection.string)
 
@@ -371,6 +382,7 @@ RemoveColsWithAllSameValue <- function(df) {
 #'                     'cc','dd','ee','ff','gg','hh','ii','jj','kk','ll','mm','nn',
 #'                     'oo','pp','qq','rr','ss','tt','uu','vv','ww','xx','yy'))
 #' col_list = ReturnColsWithMoreThanFiftyCategories(df)
+#' col_list
 
 ReturnColsWithMoreThanFiftyCategories <- function(df) {
   col_list <- vector('character')
@@ -388,6 +400,8 @@ ReturnColsWithMoreThanFiftyCategories <- function(df) {
 #' Find numeric columns in data frame that have an absolute slope greater than
 #' that specified via threshold argument.
 #' @param df A data frame
+#' @param date_col A string denoting the date column
+#' @param group_by_col A string denoting the column by which to group
 #' @return A data frame containing the dimensional attribute (ie gender), the
 #' subset the data was grouped by (ie M/F), the measures that had trends
 #' (ie, mortality or readmission), and the ending month.
@@ -409,19 +423,20 @@ ReturnColsWithMoreThanFiftyCategories <- function(df) {
 #'df <- data.frame(dates,y1,y2,y3,y4,gender)
 #'
 #'df_result = FindTrends(df = df,
-#'                       datecol = 'dates',
-#'                       coltoaggregate = 'gender')
+#'                       date_col = 'dates',
+#'                       group_by_col = 'gender')
+#'df_result
 
 FindTrends <- function(df,
-                       datecol,
-                       coltoaggregate) {
+                       date_col,
+                       group_by_col) {
 
-  df$year <- as.POSIXlt(df[[datecol]])$year + 1900
-  df$month <- as.POSIXlt(df[[datecol]])$mo + 1
+  df$year <- as.POSIXlt(df[[date_col]])$year + 1900
+  df$month <- as.POSIXlt(df[[date_col]])$mo + 1
 
-  df[[datecol]] <- NULL
+  df[[date_col]] <- NULL
 
-  df <- aggregate(formula(paste0(".~", coltoaggregate, "+year+month")),
+  df <- aggregate(formula(paste0(".~", group_by_col, "+year+month")),
                       data = df,
                       FUN = sum)
 
@@ -438,13 +453,13 @@ FindTrends <- function(df,
 
   # Create list that doesn't have cols we aggregated by
   coliterlist = names(df)
-  remove <- c(coltoaggregate,"year","month")
+  remove <- c(group_by_col,"year","month")
   coliterlist <- coliterlist[!coliterlist %in% remove]
 
   # If the last six values are monotonically increasing, add col name to list
-  for (j in unique(df[[coltoaggregate]])) {
+  for (j in unique(df[[group_by_col]])) {
     # Just grab rows corresponding to a particular category in the factor col
-    dftemp <- df[df[[coltoaggregate]] == j,]
+    dftemp <- df[df[[group_by_col]] == j,]
 
     print('df after grouping and focusing on one category in group col:')
     print(tail(dftemp, n = 6))
@@ -472,7 +487,7 @@ FindTrends <- function(df,
     message('No trends of sufficient length found')
     return()
   } else {
-    df_result = data.frame(coltoaggregate,
+    df_result = data.frame(group_by_col,
                           aggregated.col.list,
                           metric.trend.list,
                           final_yr_month)
@@ -490,7 +505,7 @@ FindTrends <- function(df,
 #'
 #' @description Returns a data frame that's ordered by its date column
 #' @param df A data frame
-#' @param dateCol Name of column in data frame that contains dates
+#' @param date_col Name of column in data frame that contains dates
 #' @param descending Boolean for whether the output should be in descending order
 #' @return A data frame ordered by date column
 #'
@@ -505,13 +520,13 @@ FindTrends <- function(df,
 #' df_result = OrderByDate(df,'date', descending=FALSE)
 #' head(df_result)
 
-OrderByDate <- function(df,datecol,descending=FALSE) {
-  df[[datecol]] <- lubridate::ymd_hms(df[[datecol]],truncated = 5)
+OrderByDate <- function(df,date_col,descending=FALSE) {
+  df[[date_col]] <- lubridate::ymd_hms(df[[date_col]],truncated = 5)
 
   if (descending == FALSE) {
-    df_result <- df[order(df[[datecol]]),]
+    df_result <- df[order(df[[date_col]]),]
   } else {
-    df_result <- df[rev(order(df[[datecol]])),]
+    df_result <- df[rev(order(df[[date_col]])),]
   }
   df_result
 }
