@@ -27,7 +27,7 @@ source('R/SupervisedModel.R')
 #' F leads to removal of rows containing NULLs.
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
-#' @references \url{http://products.healthcatalyst.com/Predictive}
+#' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{DeploySupervisedModel}}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
@@ -39,7 +39,7 @@ source('R/SupervisedModel.R')
 #' data(iris)
 #' head(iris)
 #'
-#' set.seed(43)
+#' set.seed(42)
 #'
 #' p <- SupervisedModelParameters$new()
 #' p$df = iris
@@ -50,14 +50,15 @@ source('R/SupervisedModel.R')
 #' p$debug = FALSE
 #' p$cores = 1
 #'
+#' # Run Lasso
+#' lasso <- Lasso$new(p)
+#' lasso$run()
 #'
 #' # Run RandomForest
 #' rf <- RandomForest$new(p)
 #' rf$run()
 #'
-#'
 #' print(proc.time() - ptm)
-#'
 #'
 #' #### Example using csv data ####
 #' library(HCRTools)
@@ -67,14 +68,16 @@ source('R/SupervisedModel.R')
 #' # Can delete this line in your work
 #' csvfile <- system.file("extdata", "HREmployeeDev.csv", package = "HCRTools")
 #'
-#' totaldf <- read.csv(file = csvfile, #<-- Replace with 'your/path'
+#' df <- read.csv(file = csvfile, #<-- Replace with 'your/path'
 #'                     header = TRUE,
 #'                     na.strings = 'NULL')
 #'
-#' head(totaldf)
+#' head(df)
+#'
+#' set.seed(42)
 #'
 #' p <- SupervisedModelParameters$new()
-#' p$df = totaldf
+#' p$df = df
 #' p$type = 'classification'
 #' p$impute = FALSE
 #' p$grainCol = ''
@@ -82,14 +85,16 @@ source('R/SupervisedModel.R')
 #' p$debug = TRUE
 #' p$cores = 1
 #'
+#' # Run Lasso
+#' lasso <- Lasso$new(p)
+#' lasso$run()
 #'
 #' # Run RandomForest
 #' rf <- RandomForest$new(p)
 #' rf$run()
 #'
-#'
 #' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-#' rf$getCutOffs(.6)
+#' rf$getCutOffs(tpr=0.8)
 #' print(proc.time() - ptm)
 #'
 #'
@@ -103,7 +108,6 @@ source('R/SupervisedModel.R')
 #' connection.string = "
 #' driver={SQL Server};
 #' server=localhost;
-#' database=AdventureWorks2012;
 #' trusted_connection=true
 #' "
 #'
@@ -121,7 +125,7 @@ source('R/SupervisedModel.R')
 #' df <- SelectData(connection.string, query)
 #' head(df)
 #'
-#' set.seed(43)
+#' set.seed(42)
 #'
 #' p <- SupervisedModelParameters$new()
 #' p$df = df
@@ -132,19 +136,24 @@ source('R/SupervisedModel.R')
 #' p$debug = FALSE
 #' p$cores = 1
 #'
+#' # Run Lasso
+#' lasso <- Lasso$new(p)
+#' lasso$run()
+#'
 #' # Run RandomForest
 #' rf <- RandomForest$new(p)
 #' rf$run()
 #'
-#'
-#' #Plot ROCs from both supervised model classes
+#' # Plot ROCs from both supervised model classes
+#' plot(lasso$getROC(), col = "blue", legacy.axes=TRUE, mar=c(4, 4, 3, 2)+.1)
+#' par(new=TRUE)
 #' plot(rf$getROC(), col = "red", legacy.axes=TRUE, mar=c(4, 4, 3, 2)+.1)
 #' title(main = "ROC")
 #' legend("bottomright",
-#'        c("RandomForest"),
+#'        c("Lasso","RandomForest"),
 #'        cex = 0.8,
-#'        col = c("red"),
-#'        lty = 1:2,
+#'        col = c("blue","red"),
+#'        lty = 1,
 #'        inset = .1)
 #'
 #' print(proc.time() - ptm)
@@ -154,22 +163,21 @@ source('R/SupervisedModel.R')
 
 RandomForest <- R6Class("RandomForest",
 
-  #Inheritance
+  # Inheritance
   inherit = SupervisedModel,
 
-  #Private members
+  # Private members
   private = list(
 
-    # grid object for grid search
+    # Grid object for grid search
     grid = NA,
 
-    # fit random forest model
+    # Git random forest model
     fit.rf = NA,
 
-    #predictions
     predictions = NA,
 
-    #performance metrics
+    # Performance metrics
     confMatrix = NA,
     ROC = NA,
     AUC = NA,
@@ -178,21 +186,21 @@ RandomForest <- R6Class("RandomForest",
     perf = NA,
     prevalence = NA,
 
-    #functions
-    buildGrid = function () {
+    # Start of functions
+    buildGrid = function() {
 
       if (isTRUE(self$params$tune)) {
         optimal = NA
 
         # Create reasonable gridsearch for mtry
         # This optimal value comes from randomForest documentation
-        if(self$params$type == 'classification') {
+        # TODO: make mtry calc a function (incl both tune and not)
+        if (self$params$type == 'classification') {
           optimal = floor(sqrt(ncol(private$dfTrain)))
         }
         else if (self$params$type == 'regression') {
           optimal = max(floor(ncol(private$dfTrain)/3), 1)
         }
-
 
         mtry_list = c(optimal - 1, optimal, optimal + 1)
         # Make it such that lowest mtry is 2
@@ -210,7 +218,7 @@ RandomForest <- R6Class("RandomForest",
         private$grid <-  data.frame(mtry = mtry_list) # Number of features/tree
       }
       else {
-        if(self$params$type == 'classification') {
+        if (self$params$type == 'classification') {
           private$grid <- data.frame(.mtry = floor(sqrt(ncol(private$dfTrain))))
         }
         else if (self$params$type == 'regression') {
@@ -223,33 +231,33 @@ RandomForest <- R6Class("RandomForest",
 
   ),
 
-  #Public members
+  # Public members
   public = list(
 
-    #Constructor
-    #p: new SuperviseModelParameters class object, i.e. p = SuperviseModelParameters$new()
-    initialize = function (p) {
+    # Constructor
+    # p: new SuperviseModelParameters class object,
+    # i.e. p = SuperviseModelParameters$new()
+    initialize = function(p) {
       super$initialize(p)
 
-      #variables
-      if(!is.null(p$tune)) {
+      if (!is.null(p$tune)) {
         self$params$tune = p$tune
       }
-      if(!is.null(p$numberOfTrees)) {
+      if (!is.null(p$numberOfTrees)) {
         self$params$numberOfTrees = p$numberOfTrees
       }
 
     },
 
-    #Override: build RandomForest model
-    buildModel = function () {
+    # Override: build RandomForest model
+    buildModel = function() {
 
       trainControlParams.method = ""
       trainControlParams.number = 1
 
       rfTrainParams.metric = ""
 
-      # build grid for grid search
+      # Build grid for grid search
       private$buildGrid()
 
       if (isTRUE(self$params$tune)) {
@@ -260,9 +268,9 @@ RandomForest <- R6Class("RandomForest",
         trainControlParams.number = 1
       }
 
-      # create train control object
+      # Create train control object
       train.control = NA
-      if(self$params$type == 'classification') {
+      if (self$params$type == 'classification') {
 
         train.control <- trainControl(
           method = trainControlParams.method,
@@ -274,7 +282,7 @@ RandomForest <- R6Class("RandomForest",
 
         rfTrainParams.metric = "ROC"
       }
-      #regression
+      # Regression
       else if (self$params$type == 'regression') {
 
         train.control <- trainControl(
@@ -286,16 +294,17 @@ RandomForest <- R6Class("RandomForest",
         rfTrainParams.metric = "RMSE"
       }
 
-      #Train RandomForest
+      # Train RandomForest
       adjustedY = NA
-      if(self$params$type == 'classification') {
+      if (self$params$type == 'classification') {
         adjustedY = factor(private$dfTrain[[self$params$predictedCol]])
       }
       else if (self$params$type == 'regression') {
         adjustedY = private$dfTrain[[self$params$predictedCol]]
       }
       private$fit.rf = train(
-        x = private$dfTrain[ ,!(colnames(private$dfTrain) == self$params$predictedCol)],
+        x = private$dfTrain[ ,!(colnames(private$dfTrain) ==
+                                  self$params$predictedCol)],
         y = adjustedY,
         method = "ranger",
         importance = "impurity",
@@ -308,9 +317,9 @@ RandomForest <- R6Class("RandomForest",
     },
 
     # Perform prediction
-    performPrediction = function () {
+    performPrediction = function() {
 
-      if(self$params$type == 'classification') {
+      if (self$params$type == 'classification') {
         private$predictions = predict(object = private$fit.rf,
                                       newdata = private$dfTest,
                                       type = 'prob')
@@ -321,10 +330,10 @@ RandomForest <- R6Class("RandomForest",
 
     },
 
-    #generate performance metrics
-    generatePerformanceMetrics = function () {
+    # Generate performance metrics
+    generatePerformanceMetrics = function() {
 
-      if(self$params$type == 'classification') {
+      if (self$params$type == 'classification') {
         predictprob <- private$predictions
 
         if (isTRUE(self$params$debug)) {
@@ -348,28 +357,32 @@ RandomForest <- R6Class("RandomForest",
         private$ROC = roc(ytest~predictprob[,2])
         private$AUC = auc(private$ROC)
 
-        #Show results
+        # Show results
         if (isTRUE(self$params$printResults)) {
           print(paste0('AUC: ', round(private$AUC, 2)))
-          print(paste0('95% CI AUC: (', round(ci(private$AUC)[1],2), ',', round(ci(private$AUC)[3],2), ')'))
+          print(paste0('95% CI AUC: (', round(ci(private$AUC)[1],2),
+                       ',',
+                       round(ci(private$AUC)[3],2), ')'))
         }
       }
-      #regression
+
+      # Regression
       else if (self$params$type == 'regression') {
 
         if (isTRUE(self$params$debug)) {
-          print(paste0('Rows in regression prediction: ', length(private$predictions)))
+          print(paste0('Rows in regression prediction: ',
+                       length(private$predictions)))
           print('First 10 raw regression predictions (with row # first)')
           print(round(private$predictions[1:10],2))
         }
 
         ytest = as.numeric(private$dfTest[[self$params$predictedCol]])
 
-        # error measures
-        private$rmse = sqrt(mean((ytest - private$predictions)^2))
+        # Error measures
+        private$rmse = sqrt(mean((ytest - private$predictions) ^ 2))
         private$mae = mean(abs(ytest - private$predictions))
 
-        #Show results
+        # Show results
         if (isTRUE(self$params$printResults)) {
           print(paste0('RMSE: ', round(private$rmse, 8)))
           print(paste0('MAE: ', round(private$mae, 8)))
@@ -381,16 +394,14 @@ RandomForest <- R6Class("RandomForest",
 
       if (isTRUE(self$params$varImp)) {
         self$params$varImp <- varImp(private$fit.rf, top = 20)
-
         print(self$params$varImp)
-        print(dotPlot(self$params$varImp))
       }
 
       return(invisible(private$fit.rf))
     },
 
-    #Override: run RandomForest algorithm
-    run = function () {
+    # Override: run RandomForest algorithm
+    run = function() {
 
       # Build Model
       self$buildModel()
@@ -402,38 +413,32 @@ RandomForest <- R6Class("RandomForest",
       self$generatePerformanceMetrics()
     },
 
-    #get ROC
-    getROC = function () {
+    getROC = function() {
       if (!IsBinary(self$params$df[[self$params$predictedCol]])) {
         print("ROC is not created because the column you're predicting is not binary")
-        return (NULL)
+        return(NULL)
       }
 
-      return (private$ROC)
+      return(private$ROC)
     },
 
-    #getAUC
-    getAUC = function () {
+    getAUC = function() {
       return(private$AUC)
     },
 
-    #getRMSE
-    getRMSE = function () {
+    getRMSE = function() {
       return(private$rmse)
     },
 
-    #getMAE
-    getMAE = function () {
+    getMAE = function() {
       return(private$mae)
     },
 
-    #getPerformanceMetric
-    getPerf = function () {
+    getPerf = function() {
       return(private$perf)
     },
 
-    #getCutOffs
-    getCutOffs = function (tpr) {
+    getCutOffs = function(tpr) {
       # Get index of when true-positive rate is > tpr
       indy <- which(as.numeric(unlist(private$perf@y.values)) > tpr)
 
@@ -445,6 +450,5 @@ RandomForest <- R6Class("RandomForest",
       print('Corresponding false-positive rate:')
       print(private$perf@x.values[[1]][indy[1]][[1]])
     }
-
   )
 )

@@ -22,7 +22,7 @@ Server.
 }
 }
 \references{
-\url{https://community.healthcatalyst.com/community/data-science}
+\url{http://healthcareml.org/}
 }
 \seealso{
 \code{\link{Lasso}}
@@ -33,13 +33,15 @@ Server.
 
 \code{\link{RiskAdjustedComparisons}}
 
+\code{\link{ImputeColumn}}
+
 \code{\link{GroupedLOCF}}
 
 \code{\link{SelectData}}
 
-\code{\link{IsBinary}}
+\code{\link{WriteData}}
 
-\code{\link{ImputeColumn}}
+\code{\link{IsBinary}}
 
 \code{\link{RemoveRowsWithNAInSpecCol}}
 
@@ -47,8 +49,14 @@ Server.
 
 \code{\link{ConvertDateTimeColToDummies}}
 
+\code{\link{CountDaysSinceFirstDate}}
+
 \code{\link{CalculateTargetedCorrelations}}
 
 \code{\link{CalculateAllCorrelations}}
+
+\code{\link{CountPercentEmpty}}
+
+\code{\link{RemoveColsWithAllSameValue}}
 }
 

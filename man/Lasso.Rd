@@ -40,7 +40,7 @@ library(HCRTools)
 data(iris)
 head(iris)
 
-set.seed(43)
+set.seed(42)
 
 p <- SupervisedModelParameters$new()
 p$df = iris
@@ -49,17 +49,17 @@ p$impute = TRUE
 p$grainCol = ''
 p$predictedCol = 'Sepal.Width'
 p$debug = FALSE
-p$varImp = TRUE
-p$printResults = TRUE
 p$cores = 1
-
 
 # Run Lasso
 lasso <- Lasso$new(p)
 lasso$run()
 
-print(proc.time() - ptm)
+# Run RandomForest
+rf <- RandomForest$new(p)
+rf$run()
 
+print(proc.time() - ptm)
 
 #### Example using csv data ####
 library(HCRTools)
@@ -69,34 +69,34 @@ ptm <- proc.time()
 # Can delete this line in your work
 csvfile <- system.file("extdata", "HREmployeeDev.csv", package = "HCRTools")
 
-totaldf <- read.csv(file = csvfile, #<-- Replace with 'your/path'
+df <- read.csv(file = csvfile, #<-- Replace with 'your/path'
                     header = TRUE,
                     na.strings = 'NULL')
 
-head(totaldf)
+head(df)
+
+set.seed(42)
 
 p <- SupervisedModelParameters$new()
-p$df = totaldf
+p$df = df
 p$type = 'classification'
 p$impute = FALSE
 p$grainCol = ''
 p$predictedCol = 'SalariedFlag'
 p$debug = TRUE
-p$varImp = TRUE
-p$printResults = TRUE
 p$cores = 1
-
 
 # Run Lasso
 lasso <- Lasso$new(p)
 lasso$run()
 
-
+# Run RandomForest
+rf <- RandomForest$new(p)
+rf$run()
 
 # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-lasso$getCutOffs(.6)
+lasso$getCutOffs(tpr=.8)
 print(proc.time() - ptm)
-
 
 #### Example using SQL Server data ####
 # This example requires:
@@ -104,6 +104,7 @@ print(proc.time() - ptm)
 
 ptm <- proc.time()
 library(HCRTools)
+library(RODBC)
 
 connection.string = "
 driver={SQL Server};
@@ -126,7 +127,7 @@ FROM [AdventureWorks2012].[HumanResources].[Employee]
 df <- SelectData(connection.string, query)
 head(df)
 
-set.seed(43)
+set.seed(42)
 
 p <- SupervisedModelParameters$new()
 p$df = df
@@ -135,35 +136,36 @@ p$impute = TRUE
 p$grainCol = ''
 p$predictedCol = 'SalariedFlag'
 p$debug = FALSE
-p$varImp = TRUE
-p$printResults = TRUE
 p$cores = 1
-
-# Run RandomForest
-rf <- RandomForest$new(p)
-rf$run()
 
 # Run Lasso
 lasso <- Lasso$new(p)
 lasso$run()
 
+# Run RandomForest
+rf <- RandomForest$new(p)
+rf$run()
 
-#Plot ROCs from both supervised model classes
+# Plot ROCs from both supervised model classes
+plot(lasso$getROC(), col = "blue", legacy.axes=TRUE, mar=c(4, 4, 3, 2)+.1)
+par(new=TRUE)
 plot(rf$getROC(), col = "red", legacy.axes=TRUE, mar=c(4, 4, 3, 2)+.1)
-plot(lasso$getROC(), add = TRUE, col = "blue", lty=2)
 title(main = "ROC")
 legend("bottomright",
-       c("RandomForest", "Lasso"),
+       c("Lasso","RandomForest"),
        cex = 0.8,
-       col = c("red", "blue"),
-       lty = 1:2,
+       col = c("blue","red"),
+       lty = 1,
        inset = .1)
+
+# For a given true-positive rate, get false-pos rate and 0/1 cutoff
+lasso$getCutOffs(tpr=.8)
 
 print(proc.time() - ptm)
 
 }
 \references{
-\url{http://products.healthcatalyst.com/Predictive}
+\url{http://healthcareml.org/}
 }
 \seealso{
 \code{\link{DeploySupervisedModel}}

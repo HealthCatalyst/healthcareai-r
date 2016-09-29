@@ -40,7 +40,7 @@ library(HCRTools)
 data(iris)
 head(iris)
 
-set.seed(43)
+set.seed(42)
 
 p <- SupervisedModelParameters$new()
 p$df = iris
@@ -51,14 +51,15 @@ p$predictedCol = 'Sepal.Width'
 p$debug = FALSE
 p$cores = 1
 
+# Run Lasso
+lasso <- Lasso$new(p)
+lasso$run()
 
 # Run RandomForest
 rf <- RandomForest$new(p)
 rf$run()
 
-
 print(proc.time() - ptm)
-
 
 #### Example using csv data ####
 library(HCRTools)
@@ -68,14 +69,16 @@ ptm <- proc.time()
 # Can delete this line in your work
 csvfile <- system.file("extdata", "HREmployeeDev.csv", package = "HCRTools")
 
-totaldf <- read.csv(file = csvfile, #<-- Replace with 'your/path'
+df <- read.csv(file = csvfile, #<-- Replace with 'your/path'
                     header = TRUE,
                     na.strings = 'NULL')
 
-head(totaldf)
+head(df)
+
+set.seed(42)
 
 p <- SupervisedModelParameters$new()
-p$df = totaldf
+p$df = df
 p$type = 'classification'
 p$impute = FALSE
 p$grainCol = ''
@@ -83,14 +86,16 @@ p$predictedCol = 'SalariedFlag'
 p$debug = TRUE
 p$cores = 1
 
+# Run Lasso
+lasso <- Lasso$new(p)
+lasso$run()
 
 # Run RandomForest
 rf <- RandomForest$new(p)
 rf$run()
 
-
 # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-rf$getCutOffs(.6)
+rf$getCutOffs(tpr=0.8)
 print(proc.time() - ptm)
 
 
@@ -104,7 +109,6 @@ library(HCRTools)
 connection.string = "
 driver={SQL Server};
 server=localhost;
-database=AdventureWorks2012;
 trusted_connection=true
 "
 
@@ -122,7 +126,7 @@ FROM [AdventureWorks2012].[HumanResources].[Employee]
 df <- SelectData(connection.string, query)
 head(df)
 
-set.seed(43)
+set.seed(42)
 
 p <- SupervisedModelParameters$new()
 p$df = df
@@ -133,26 +137,31 @@ p$predictedCol = 'SalariedFlag'
 p$debug = FALSE
 p$cores = 1
 
+# Run Lasso
+lasso <- Lasso$new(p)
+lasso$run()
+
 # Run RandomForest
 rf <- RandomForest$new(p)
 rf$run()
 
-
-#Plot ROCs from both supervised model classes
+# Plot ROCs from both supervised model classes
+plot(lasso$getROC(), col = "blue", legacy.axes=TRUE, mar=c(4, 4, 3, 2)+.1)
+par(new=TRUE)
 plot(rf$getROC(), col = "red", legacy.axes=TRUE, mar=c(4, 4, 3, 2)+.1)
 title(main = "ROC")
 legend("bottomright",
-       c("RandomForest"),
+       c("Lasso","RandomForest"),
        cex = 0.8,
-       col = c("red"),
-       lty = 1:2,
+       col = c("blue","red"),
+       lty = 1,
        inset = .1)
 
 print(proc.time() - ptm)
 
 }
 \references{
-\url{http://products.healthcatalyst.com/Predictive}
+\url{http://healthcareml.org/}
 }
 \seealso{
 \code{\link{DeploySupervisedModel}}

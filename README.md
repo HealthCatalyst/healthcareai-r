@@ -17,7 +17,7 @@ Installation:
 
 - Install prerequisites:
 ```R
-install.packages(c('caret','data.table','devtools','doParallel','e1071','grpreg','lubridate','pROC','R6','ranger','ROCR','RODBC'
+install.packages(c('caret','data.table','devtools','doParallel','e1071','grpreg','lme4','lubridate','pROC','R6','ranger','ROCR','RODBC'
 ),repos = "https://cran.cnr.berkeley.edu/")
 ```
 

@@ -6,7 +6,7 @@ Date: 2015-06-06
 Author: Levi Thatcher
 Maintainer: Levi Thatcher <levi.thatcher@healthcatalyst.com>
 Description: Healthcare model creation, comparison, and deployment.
-License: file LICENSE
+License: MIT + file LICENSE
 LazyData: TRUE
 Imports:
   caret,

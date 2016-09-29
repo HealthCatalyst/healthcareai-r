@@ -13,7 +13,7 @@ This step allows one to create test models on your data
 and helps determine which performs best.
 }
 \references{
-\url{http://products.healthcatalyst.com/Predictive}
+\url{http://healthcareml.org/}
 }
 \seealso{
 \code{\link{HCRTools}}

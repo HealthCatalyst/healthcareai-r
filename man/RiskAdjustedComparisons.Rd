@@ -28,21 +28,30 @@ terms of a particular measure.
 
 #### Example using csv data ####
 library(HCRTools)
-#setwd("C:/Your/script/location") # Needed if using YOUR CSV file
-ptm <- proc.time()
+connection.string = "
+driver={SQL Server};
+server=localhost;
+database=AdventureWorks2012;
+trusted_connection=true
+"
 
-# Can delete this line in your work
-csvfile <- system.file("extdata", "HREmployeeDev.csv", package = "HCRTools")
+query = "
+SELECT
+[OrganizationLevel]
+,[MaritalStatus]
+,[Gender]
+,IIF([SalariedFlag]=0,'N','Y') AS SalariedFlag
+,[VacationHours]
+,[SickLeaveHours]
+FROM [AdventureWorks2012].[HumanResources].[Employee]
+WHERE OrganizationLevel <> 0
+"
 
-totaldf <- read.csv(file = csvfile, #<-- Replace with 'your/path'
-                    header = TRUE,
-                    na.strings = 'NULL')
-
-head(totaldf)
+df <- SelectData(connection.string, query)
 
 p <- SupervisedModelParameters$new()
-p$df = totaldf
-p$groupCol = 'Gender'
+p$df = df
+p$groupCol = 'OrganizationLevel'
 p$impute = TRUE
 p$predictedCol = 'SalariedFlag'
 p$debug = FALSE
@@ -53,7 +62,7 @@ riskAdjComp$run()
 
 }
 \references{
-\url{http://products.healthcatalyst.com/Predictive}
+\url{http://healthcareml.org/}
 }
 \seealso{
 \code{\link{HCRTools}}

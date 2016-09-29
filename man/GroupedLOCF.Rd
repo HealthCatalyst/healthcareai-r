@@ -30,12 +30,12 @@ df = data.frame(PersonID=c(1,1,2,2,3,3,3),
 
 head(df,n=7)
 
-df.result = GroupedLOCF(df, 'PersonID')
+df_result = GroupedLOCF(df, 'PersonID')
 
-head(df.result,n=7)
+head(df_result, n = 7)
 }
 \references{
-\url{https://community.healthcatalyst.com/community/data-science}
+\url{http://healthcareml.org/}
 }
 \seealso{
 \code{\link{HCRTools}}

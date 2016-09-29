@@ -10,7 +10,7 @@ CalculateAllCorrelations(df)
 \item{df}{A data frame}
 }
 \value{
-df A data frame with column names and corresponding correlations
+A data frame with column names and corresponding correlations
 with the target column
 }
 \description{
@@ -24,11 +24,11 @@ b=c(6,5,4,3,2,1),
 c=c(3,4,2,1,3,5),
 d=c('M','F','F','F','M','F')) #<- is ignored
 
-res <- CalculateAllCorrelations(df)
-res
+df_result <- CalculateAllCorrelations(df)
+df_result
 }
 \references{
-\url{https://community.healthcatalyst.com/community/data-science}
+\url{http://healthcareml.org/}
 }
 \seealso{
 \code{\link{HCRTools}}

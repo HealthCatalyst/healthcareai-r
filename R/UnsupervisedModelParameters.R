@@ -14,8 +14,7 @@ UnsupervisedModelParameters <- R6Class("UnsupervisedModelParameters",
     cores = 4,
 
     #Constructor
-    initialize = function () {
+    initialize = function() {
     }
   )
-
 )

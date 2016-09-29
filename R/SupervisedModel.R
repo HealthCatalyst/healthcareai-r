@@ -10,7 +10,7 @@ source('R/SupervisedModelParameters.R')
 #' @import caret
 #' @importFrom R6 R6Class
 #' @param object of SuperviseModelParameters class for $new() constructor
-#' @references \url{http://products.healthcatalyst.com/Predictive}
+#' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #'
 #' @export
@@ -227,7 +227,8 @@ SupervisedModel <- R6Class("SupervisedModel",
       }
 
       # Remove rows where predicted.col is null in train
-      private$dfTrain = RemoveRowsWithNAInSpecCol(private$dfTrain, self$params$predictedCol)
+      private$dfTrain = RemoveRowsWithNAInSpecCol(private$dfTrain,
+                                                  self$params$predictedCol)
 
       if (isTRUE(self$params$debug)) {
         print('Training data set after removing rows where pred col is null')

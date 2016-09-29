@@ -10,10 +10,10 @@ SelectData(connection.string, query)
 \item{connection.string}{A string specifying the driver, server, database,
 and whether Windows Authentication will be used.}
 
-\item{query}{The SQL query (in ticks)}
+\item{query}{The SQL query (in ticks or quotes)}
 }
 \value{
-data frame containing the selected rows
+df A data frame containing the selected rows
 }
 \description{
 Select data from an ODBC database and return the results as
@@ -21,21 +21,24 @@ a data frame.
 }
 \examples{
 library(HCRTools)
-connection.string = '
+connection.string = "
   driver={SQL Server};
   server=localhost;
   database=AdventureWorks2012;
-  trusted_connection=true'
+  trusted_connection=true
+  "
 
-query = '
+query = "
   SELECT
     [OrganizationLevel]
-  FROM [AdventureWorks2012].[HumanResources].[Employee]'
+  FROM [AdventureWorks2012].[HumanResources].[Employee]
+  "
 
-dataframe <- SelectData(connection.string, query)
+df <- SelectData(connection.string, query)
+head(df)
 }
 \references{
-\url{https://community.healthcatalyst.com/community/data-science}
+\url{http://healthcareml.org/}
 }
 \seealso{
 \code{\link{HCRTools}}
