@@ -35,6 +35,7 @@ df = data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
                     'cc','dd','ee','ff','gg','hh','ii','jj','kk','ll','mm','nn',
                     'oo','pp','qq','rr','ss','tt','uu','vv','ww','xx','yy'))
 col_list = ReturnColsWithMoreThanFiftyCategories(df)
+col_list
 df = data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
                     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1),
                 b=c('a','b','c','d','e','f','g','h','i','j','k','l','m','n',

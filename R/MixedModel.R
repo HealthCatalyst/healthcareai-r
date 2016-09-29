@@ -16,8 +16,6 @@ source('R/SupervisedModel.R')
 #' @import ranger
 #' @import ROCR
 #' @import RODBC
-#' @examples
-#'
 #' @export
 
 LinearMixedModel <- R6Class("LinearMixedModel",

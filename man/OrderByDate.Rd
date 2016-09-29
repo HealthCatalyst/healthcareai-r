@@ -4,14 +4,14 @@
 \alias{OrderByDate}
 \title{Order the rows in a data frame by date}
 \usage{
-OrderByDate(df, datecol, descending = FALSE)
+OrderByDate(df, date_col, descending = FALSE)
 }
 \arguments{
 \item{df}{A data frame}
 
-\item{descending}{Boolean for whether the output should be in descending order}
+\item{date_col}{Name of column in data frame that contains dates}
 
-\item{dateCol}{Name of column in data frame that contains dates}
+\item{descending}{Boolean for whether the output should be in descending order}
 }
 \value{
 A data frame ordered by date column
