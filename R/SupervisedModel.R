@@ -37,7 +37,7 @@ SupervisedModel <- R6Class("SupervisedModel",
     ###########
     # Functions
 
-    registerClustersOnCores = function () {
+    registerClustersOnCores = function() {
       if (self$params$cores > 1) {
         suppressMessages(library(doParallel))
         private$clustersOnCores <- makeCluster(self$params$cores)
@@ -45,7 +45,7 @@ SupervisedModel <- R6Class("SupervisedModel",
       }
     },
 
-    stopClustersOnCores = function () {
+    stopClustersOnCores = function() {
       if (self$params$cores > 1) {
         stopCluster(private$clustersOnCores)
         registerDoSEQ()
@@ -53,7 +53,7 @@ SupervisedModel <- R6Class("SupervisedModel",
     },
 
     #Set config parameters for the algorithm
-    setConfigs = function (p) {
+    setConfigs = function(p) {
 
       self$params <- SupervisedModelParameters$new()
 
@@ -110,7 +110,7 @@ SupervisedModel <- R6Class("SupervisedModel",
     },
 
     #Load data
-    loadData = function () {
+    loadData = function() {
 
       # init dataset variables
       private$memsize_of_dataset = format(object.size(self$params$df), units = "Mb")
@@ -252,8 +252,9 @@ SupervisedModel <- R6Class("SupervisedModel",
     # Functions
 
     #Constructor
-    #p: new SuperviseModelParameters class object, i.e. p = SuperviseModelParameters$new()
-    initialize = function (p) {
+    #p: new SuperviseModelParameters class object,
+    #   i.e. p = SuperviseModelParameters$new()
+    initialize = function(p) {
 
       #Set config parameters
       private$setConfigs(p)
@@ -264,11 +265,11 @@ SupervisedModel <- R6Class("SupervisedModel",
     },
 
     #Build the Model
-    buildModel = function () {
+    buildModel = function() {
     },
 
     #Run the Model for Prediction
-    run = function () {
+    run = function() {
     }
 
   )

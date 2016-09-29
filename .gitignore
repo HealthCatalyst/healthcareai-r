@@ -2,8 +2,9 @@
 .Rhistory
 .RData
 .Ruserdata
-rmodel_probability.rda
 rmodel_var_import.rda
+rmodel_probability.rda
+rmodel_combined.rda
 .vs/
 inst/RMarkdown/DartmouthNoShowsReport.Rmd
 inst/RMarkdown/DartmouthNoShowsReport.html

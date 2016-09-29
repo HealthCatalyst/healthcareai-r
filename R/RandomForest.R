@@ -19,8 +19,8 @@ source('R/SupervisedModel.R')
 #' @param object of SuperviseModelParameters class for $new() constructor
 #' @param type The type of model (either 'regression' or 'classification')
 #' @param df Dataframe whose columns are used for calc.
-#' @param grain.col The dataframe's column that has IDs pertaining to the grain
-#' @param predicted.col Column that you want to predict.
+#' @param grainCol The dataframe's column that has IDs pertaining to the grain
+#' @param predictedCol Column that you want to predict.
 #' @param impute Set all-column imputation to F or T.
 #' This uses mean replacement for numeric columns
 #' and most frequent for factorized columns.
