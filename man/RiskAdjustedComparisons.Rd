@@ -11,9 +11,9 @@ RiskAdjustedComparisons
 \arguments{
 \item{df}{Dataframe whose columns are used for calc.}
 
-\item{predicted.col}{Column that you want to predict.}
+\item{predictedCol}{Column that you want to predict.}
 
-\item{group.col}{Column that we'll use to differentiate}
+\item{groupCol}{Column that we'll use to differentiate}
 
 \item{impute}{Set all-column imputation to F or T.}
 }

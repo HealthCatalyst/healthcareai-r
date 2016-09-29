@@ -2,6 +2,99 @@
 source('R/common.R')
 source('R/DeploySupervisedModel.R')
 
+#' Deploy a production-ready predictive Lasso model
+#'
+#' @description This step allows one to
+#' \itemize{
+#' \item Create a final model on all of your training data
+#' \item Automatically save the model
+#' \item Run the model against test data to generate predictions
+#' \item Push these predictions to SQL Server
+#' }
+#' @docType class
+#' @import caret
+#' @import doParallel
+#' @importFrom R6 R6Class
+#' @import ranger
+#' @import RODBC
+#' @param type The type of model (either 'regression' or 'classification')
+#' @param df Dataframe whose columns are used for calc.
+#' @param grainCol The dataframe's column that has IDs pertaining to the grain
+#' @param testWindowCol This column dictates the split between model training and
+#' test sets. Those rows with zeros in this column indicate the training set
+#' while those that have ones indicate the test set
+#' @param predictedCol Column that you want to predict.
+#' @param impute For training df, set all-column imputation to F or T.
+#' This uses mean replacement for numeric columns
+#' and most frequent for factorized columns.
+#' F leads to removal of rows containing NULLs.
+#' @param debug Provides the user extended output to the console, in order
+#' to monitor the calculations throughout. Use T or F.
+#' @seealso \code{\link{HCRTools}}
+#' @examples
+#' #### Regression example using data from SQL Server ####
+#' # This example requires
+#' #     1) You set your working directory to source file location
+#' #     2) To receive predictions from R back to SQL Server, you'll need to
+#' #        save and run an entity in SAMD that has only the following columns
+#'
+#' # GrainID decimal(38,0) not null, <--change col to match ID in summary table
+#' # PredictedValueNBR decimal(38,2),
+#' # Factor1TXT varchar(255),
+#' # Factor2TXT varchar(255),
+#' # Factor3TXT varchar(255),
+#'
+#' # If you prefer to not use SAMD, execute this in SSMS to create output table:
+#' # CREATE TABLE dbo.HCRDeployRegressionBASE(
+#' #   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
+#' #   GrainID int <--change to match inputID, PredictedValueNBR decimal(38, 2),
+#' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
+#' # )
+#'
+#' #setwd("C:/Yourscriptlocation/Useforwardslashes") # Encomment this command #
+#' ptm <- proc.time()
+#' library(HCRTools)
+#'
+#' connection.string <- 'driver={SQL Server};
+#'                       server=localhost;
+#'                       database=SAM;
+#'                       trusted_connection=true'
+#'
+#' # Use this for an example SQL source:
+#' # query <- "SELECT * FROM [SAM].[YourCoolSAM].[SomeTrainingSetTable]"
+#' # df <- SelectData(connection.string, query)
+#'
+#' # Can delete these four lines when you set up your SQL connection/query
+#' csvfile <- system.file("extdata", "HREmployeeDeploy.csv",package = "HCRTools")
+#' df <- read.csv(file = csvfile,
+#'                     header = TRUE,
+#'                     na.strings = 'NULL')
+#'
+#' head(df)
+#'
+#' # Remove unnecessary columns
+#' df <- subset(df, select = -c(SalariedFlag))
+#'
+#' p <- DeploySupervisedModelParameters$new()
+#' p$type = 'regression'
+#' p$df = df
+#' p$grainCol = 'GrainID'
+#' p$testWindowCol = 'InTestWindow'
+#' p$predictedCol = 'VacationHours'
+#' p$impute = TRUE
+#' p$debug = TRUE
+#' p$useSavedModel = FALSE
+#' p$cores = 1
+#' p$sqlConn = connection.string
+#' p$destSchemaTable = 'dbo.HCRDeployRegressionBASE'
+#'
+#' dL <- DeployLasso$new(p)
+#' dL$deploy()
+#'
+#' print(proc.time() - ptm)
+#'
+#' @export
+
 
 DeployLasso <- R6Class("DeployLasso",
 
@@ -10,34 +103,30 @@ DeployLasso <- R6Class("DeployLasso",
 
   #Private members
   private = list(
-    dfTestTemp = NULL,
-    dfTrainTemp = NULL,
 
+    # variables
     coefficients = NULL,
     multiply_res = NULL,
-    ordered.factors = NULL
-  ),
+    ordered.factors = NULL,
+    predictedValsForUnitTest = NULL,
 
-  #Public members
-  public = list(
-    #Constructor
-    #p: new DeploySupervisedModelParameters class object, i.e. p = DeploySupervisedModelParameters$new()
-    initialize = function (p) {
-      super$initialize(p)
-    },
-
-    connectDataSource = function () {
+    # functions
+    connectDataSource = function() {
       odbcCloseAll()
       # Convert the connection string into a real connection object.
       self$params$sqlConn <-
         odbcDriverConnect(self$params$sqlConn)
     },
 
-    closeDataSource = function () {
+    closeDataSource = function() {
       odbcCloseAll()
     },
 
-    fitGeneralizedLinearModel = function () {
+    fitGeneralizedLinearModel = function() {
+      if (isTRUE(self$params$debug)) {
+        print('generating fit.logit...')
+      }
+
       if (self$params$type == 'classification') {
         private$fit.logit = glm(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
@@ -58,37 +147,15 @@ DeployLasso <- R6Class("DeployLasso",
       }
     },
 
-    #Override: Build fit object
-    buildFitObject = function () {
-
-      # Get fit object by linear model
-      # if linear, set to logit for logistic
-      private$fit = private$fit.logit
-
-    },
-
-    buildDeployModel = function () {
+    saveModel = function() {
       if (isTRUE(self$params$debug)) {
-        print('Training data set immediately before training')
-        print(str(private$dfTrain))
+        print('Saving model...')
       }
 
-      # Start default logit (for var importance)
-      self$fitGeneralizedLinearModel()
-
-      # Build fit object
-      self$buildFitObject()
-
-      print('Details for proability model:')
-      print(private$fit)
-
-    },
-
-    saveModel = function () {
-      # Save models if specified
+      #NOTE: save(private$fit, ...) does not work!
       if (isTRUE(!self$params$useSavedModel)) {
-        save(private$fit.logit, file = "rmodel_var_import.rda")
-        save(private$fit, file = "rmodel_probability.rda")
+        fitObj = private$fit
+        save(fitObj, file = "rmodel_combined.rda")
       }
 
       # This isn't needed if formula interface is used in randomForest
@@ -101,37 +168,40 @@ DeployLasso <- R6Class("DeployLasso",
 
     },
 
-    performPrediction = function () {
-
+    performPrediction = function() {
       if (self$params$type == 'classification') {
         #  linear , these are probabilities
-        private$predictedVALS = predict(private$fit,
-                                        newdata = self$dfTest,
-                                        type = "response")
+        private$predictedVals = predict(private$fit,
+                                  newdata = private$dfTest,
+                                  type = "response")
+        private$predictedValsForUnitTest <- private$predictedVals[5] # for unit test
 
         print('Probability predictions are based on logistic')
 
         if (isTRUE(self$params$debug)) {
-          print(paste0('Rows in prob prediction: ', nrow(private$predictedVALS)))
+          print(paste0('Rows in prob prediction: ', nrow(private$predictedVals)))
           print('First 10 raw classification probability predictions')
-          print(round(private$predictedVALS[1:10], 2))
+          print(round(private$predictedVals[1:10], 2))
         }
 
-      } else if (self$type == 'regression') {
+      } else if (self$params$type == 'regression') {
         # this is in-kind prediction
-        private$predictedVALS = predict(private$fit, newdata = private$dfTest)
+        private$predictedVals = predict(private$fit, newdata = private$dfTest)
 
         if (isTRUE(self$params$debug)) {
-          print(paste0('Rows in regression prediction: ',length(private$predictedVALS)))
+          print(paste0(
+            'Rows in regression prediction: ',
+            length(private$predictedVals)
+          ))
           print('First 10 raw regression predictions (with row # first)')
-          print(round(private$predictedVALS[1:10], 2))
+          print(round(private$predictedVals[1:10], 2))
         }
 
       }
 
     },
 
-    calculateCoeffcients = function () {
+    calculateCoeffcients = function() {
       # Do semi-manual calc to rank cols by order of importance
       coefftemp <- private$fit.logit$coefficients
 
@@ -140,11 +210,12 @@ DeployLasso <- R6Class("DeployLasso",
         print(coefftemp)
       }
 
-      private$coefficients <- coefftemp[2:length(coefftemp)] # drop intercept
+      private$coefficients <-
+        coefftemp[2:length(coefftemp)] # drop intercept
 
     },
 
-    calculateMultiplyRes = function () {
+    calculateMultiplyRes = function() {
       # Apply multiplication of coeff across each row of test set
       # Remove y (label) so we do multiplication only on X (features)
       private$dfTest[[self$params$predictedCol]] <- NULL
@@ -154,45 +225,47 @@ DeployLasso <- R6Class("DeployLasso",
         print(str(private$dfTest))
       }
 
-      private$multiply_res <- sweep(private$dfTestRAW, 2, private$coefficients, `*`)
+      private$multiply_res <-
+        sweep(private$dfTestRAW, 2, private$coefficients, `*`)
 
       if (isTRUE(self$params$debug)) {
         print('Data frame after multiplying raw vals by coeffs')
-        print(private$multiply_res[1:10, ])
+        print(private$multiply_res[1:10,])
       }
 
     },
 
-    calculateOrderedFactors = function () {
+    calculateOrderedFactors = function() {
       # Calculate ordered factors of importance for each row's prediction
       private$ordered.factors = t(sapply
                                   (1:nrow(private$multiply_res),
                                   function(i)
-                                    colnames(private$multiply_res[order(private$multiply_res[i, ],
+                                    colnames(private$multiply_res[order(private$multiply_res[i,],
                                                                         decreasing = TRUE)])))
 
       if (isTRUE(self$params$debug)) {
         print('Data frame after getting column importance ordered')
-        print(private$ordered.factors[1:10, ])
+        print(private$ordered.factors[1:10,])
       }
 
     },
 
-    saveDataIntoSAMDb = function () {
+    saveDataIntoDb = function() {
       dtstamp = as.POSIXlt(Sys.time(), "GMT")
 
       # Combine grain.col, prediction, and time to be put back into SAM table
-      outdf <- data.frame(0,                           # BindingID
-                          'R',                         # BindingNM
-                          dtstamp,                     # LastLoadDTS
-                          private$grainTest,           # GrainID
-                          private$predictedVALS,       # PredictedProbab
-                          private$ordered.factors[,1:3]) # Top 3 Factors
+      outdf <- data.frame(
+        0,                                 # BindingID
+        'R',                               # BindingNM
+        dtstamp,                           # LastLoadDTS
+        private$grainTest,                 # GrainID
+        private$predictedVals,             # PredictedProbab
+        private$ordered.factors[, 1:3])    # Top 3 Factors
 
       prediectedResultsName = ""
-      if (self$type == 'classification') {
+      if (self$params$type == 'classification') {
         prediectedResultsName = "PredictedProbNBR"
-      } else if (self$type == 'regression') {
+      } else if (self$params$type == 'regression') {
         prediectedResultsName = "PredictedValueNBR"
       }
       colnames(outdf) <- c(
@@ -213,32 +286,67 @@ DeployLasso <- R6Class("DeployLasso",
 
 
       # Save df to table in SAM database
-      out = sqlSave(channel = self$params$sqlConn,
-                    dat = outdf,
-                    tablename = self$params$destSchemaTable,
-                    append = T,
-                    rownames = F,
-                    colnames = F,
-                    safer = T,
-                    nastring = NULL,
-                    verbose = self$params$debug)
+      out = sqlSave(
+        channel = self$params$sqlConn,
+        dat = outdf,
+        tablename = self$params$destSchemaTable,
+        append = T,
+        rownames = F,
+        colnames = F,
+        safer = T,
+        nastring = NULL,
+        verbose = self$params$debug
+      )
 
       # Print success if insert was successful
       if (out == 1) {
         print('SQL Server insert was successful')
       }
 
+    }
+  ),
+
+  #Public members
+  public = list(
+    #Constructor
+    #p: new DeploySupervisedModelParameters class object, i.e. p = DeploySupervisedModelParameters$new()
+    initialize = function(p) {
+      super$initialize(p)
+    },
+
+    buildFitObject = function() {
+      # Get fit object by linear model
+      # if linear, set to logit for logistic
+      private$fit = private$fit.logit
+
+    },
+
+    #Override: Build Deploy Model
+    buildDeployModel = function() {
+      if (isTRUE(self$params$debug)) {
+        print('Training data set immediately before training')
+        print(str(private$dfTrain))
+      }
+
+      # Start default logit (for var importance)
+      private$fitGeneralizedLinearModel()
+
+      # Build fit object
+      self$buildFitObject()
+
+      print('Details for proability model:')
+      print(private$fit)
+
     },
 
     #Override: deploy the model
-    deploy = function () {
-
+    deploy = function() {
       # Connect to sql via odbc driver
-      self$connectDataSource()
+      private$connectDataSource()
 
       if (isTRUE(self$params$useSavedModel)) {
-        load("rmodel_var_import.rda")  # Produces fit.logit object
-        load("rmodel_probability.rda") # Produces fit object (for probability)
+        load("rmodel_combined.rda") # Produces fit object (for probability)
+        private$fit <- fit
       } else {
         private$registerClustersOnCores()
 
@@ -247,26 +355,33 @@ DeployLasso <- R6Class("DeployLasso",
       }
 
       # Save model
-      self$saveModel()
+      private$saveModel()
 
       # Predict
-      self$performPrediction()
+      private$performPrediction()
 
       # Calculate Coeffcients
-      self$calculateCoeffcients()
+      private$calculateCoeffcients()
 
       # Calculate MultiplyRes
-      self$calculateMultiplyRes()
+      private$calculateMultiplyRes()
 
       # Calculate Ordered Factors
-      self$calculateOrderedFactors()
+      private$calculateOrderedFactors()
 
-      # Save data into SAM db
-      self$saveDataIntoSAMDb()
+      # Save data into db
+      private$saveDataIntoDb()
 
       # Clean up.
-      private$stopClustersOnCores()
-      self$closeDataSource()
+      if (isTRUE(!self$params$useSavedModel)) {
+        private$stopClustersOnCores()
+      }
+      private$closeDataSource()
+    },
+
+    #Get predicted values
+    getPredictedValsForUnitTest = function() {
+      return(private$predictedValsForUnitTest)
     }
   )
 

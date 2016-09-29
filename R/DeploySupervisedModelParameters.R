@@ -1,7 +1,8 @@
 # Import the common functions.
 library(R6)
 
-#' DeploySupervisedModelParameters class to set up parameters required to deploy SupervisedModel classes
+#' DeploySupervisedModelParameters class to set up parameters required to build
+#' DeploySupervisedModel classes
 #'
 #' @description This step allows one to create deploy models on your data
 #' and helps determine which performs best.
@@ -21,21 +22,20 @@ DeploySupervisedModelParameters <- R6Class("DeploySupervisedModelParameters",
     df = NULL,
     type = "",
     grainCol = "",
-    predictedCol = NULL,
+    predictedCol = "",
     testWindowCol = "",
     useSavedModel = FALSE,
     impute = TRUE,
     debug = FALSE,
-
-    model = NULL,
     cores = 4,
-    sqlConn = NULL,
-    destSchemaTable = NULL,
-    rfmtry = "",
+    sqlConn = "",
+    destSchemaTable = "",
+    rfmtry = 0,
     trees = 201,
 
     #Constructor
-    initialize = function () {
+    initialize = function() {
+
     }
   )
 

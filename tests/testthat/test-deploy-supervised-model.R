@@ -14,88 +14,102 @@ test_that("rf predicted val (with spec mtry) is the same each time", {
 
   df$VacationHours <- NULL # This is set as regression prediction col
 
-  o <- DeploySupervisedModel$new(type = 'classification',
-                                 df = df,
-                                 grain.col = 'GrainID',
-                                 test.window.col = 'InTestWindow',
-                                 predicted.col = 'SalariedFlag',
-                                 impute = TRUE,
-                                 use.saved.model = FALSE)
+  p <- DeploySupervisedModelParameters$new()
+  p$type = 'classification'
+  p$df = df
+  p$grainCol = 'GrainID'
+  p$testWindowCol = 'InTestWindow'
+  p$predictedCol = 'SalariedFlag'
+  p$impute = TRUE
+  p$debug = FALSE
+  p$useSavedModel = FALSE
+  p$cores = 1
+  p$sqlConn = connection.string
+  p$destSchemaTable = 'dbo.HCRDeployClassificationBASE'
+  p$rfmtry = 3
 
   set.seed(43)
-  capture.output(o$deploy(model = 'rf',
-                 cores = 1,
-                 sqlcnxn = connection.string,
-                 dest.schema.table = 'dbo.HCRDeployClassificationBASE',
-                 rfmtry = 3))
 
-  expect_equal(as.numeric(o$rf.predictedVALS),0.917870962647079)
+  capture.output(dRF <- DeployRandomForest$new(p))
+  capture.output(dRF$deploy())
+
+  expect_equal(as.numeric(dRF$getPredictedValsForUnitTest()), 0.917870962647079)
 })
 
 test_that("lasso predicted val (with spec mtry) is the same each time", {
 
   df$VacationHours <- NULL # This is set as regression prediction col
 
-  o <- DeploySupervisedModel$new(type = 'classification',
-                                 df = df,
-                                 grain.col = 'GrainID',
-                                 test.window.col = 'InTestWindow',
-                                 predicted.col = 'SalariedFlag',
-                                 impute = TRUE,
-                                 use.saved.model = FALSE)
+  p <- DeploySupervisedModelParameters$new()
+  p$type = 'classification'
+  p$df = df
+  p$grainCol = 'GrainID'
+  p$testWindowCol = 'InTestWindow'
+  p$predictedCol = 'SalariedFlag'
+  p$impute = TRUE
+  p$debug = FALSE
+  p$useSavedModel = FALSE
+  p$cores = 1
+  p$sqlConn = connection.string
+  p$destSchemaTable = 'dbo.HCRDeployClassificationBASE'
+  p$rfmtry = 3
 
   set.seed(43)
-  capture.output(o$deploy(model = 'lasso',
-                          cores = 1,
-                          sqlcnxn = connection.string,
-                          dest.schema.table = 'dbo.HCRDeployClassificationBASE',
-                          rfmtry = 3))
 
-  expect_equal(as.numeric(o$linear.predictedVALS),0.877035858794219)
+  capture.output(dL <- DeployLasso$new(p))
+  capture.output(dL$deploy())
+
+  expect_equal(as.numeric(dL$getPredictedValsForUnitTest()), 0.877035858794219)
 })
 
 test_that("rf predicted val (w/out spec mtry) is the same each time", {
 
   df$VacationHours <- NULL # This is set as regression prediction col
 
-  o <- DeploySupervisedModel$new(type = 'classification',
-                                 df = df,
-                                 grain.col = 'GrainID',
-                                 test.window.col = 'InTestWindow',
-                                 predicted.col = 'SalariedFlag',
-                                 impute = TRUE,
-                                 use.saved.model = FALSE)
+  p <- DeploySupervisedModelParameters$new()
+  p$type = 'classification'
+  p$df = df
+  p$grainCol = 'GrainID'
+  p$testWindowCol = 'InTestWindow'
+  p$predictedCol = 'SalariedFlag'
+  p$impute = TRUE
+  p$debug = FALSE
+  p$useSavedModel = FALSE
+  p$cores = 1
+  p$sqlConn = connection.string
+  p$destSchemaTable = 'dbo.HCRDeployClassificationBASE'
 
   set.seed(43)
-  capture.output(o$deploy(model = 'rf',
-                          cores = 1,
-                          sqlcnxn = connection.string,
-                          dest.schema.table = 'dbo.HCRDeployClassificationBASE'
-                          ))
 
-  expect_equal(as.numeric(o$rf.predictedVALS),0.707460652364422)
+  capture.output(dRF <- DeployRandomForest$new(p))
+  capture.output(dRF$deploy())
+
+  expect_equal(as.numeric(dRF$getPredictedValsForUnitTest()), 0.707460652364422)
 })
 
 test_that("lasso predicted val (w/out spec mtry) is the same each time", {
 
   df$VacationHours <- NULL # This is set as regression prediction col
 
-  o <- DeploySupervisedModel$new(type = 'classification',
-                                 df = df,
-                                 grain.col = 'GrainID',
-                                 test.window.col = 'InTestWindow',
-                                 predicted.col = 'SalariedFlag',
-                                 impute = TRUE,
-                                 use.saved.model = FALSE)
+  p <- DeploySupervisedModelParameters$new()
+  p$type = 'classification'
+  p$df = df
+  p$grainCol = 'GrainID'
+  p$testWindowCol = 'InTestWindow'
+  p$predictedCol = 'SalariedFlag'
+  p$impute = TRUE
+  p$debug = FALSE
+  p$useSavedModel = FALSE
+  p$cores = 1
+  p$sqlConn = connection.string
+  p$destSchemaTable = 'dbo.HCRDeployClassificationBASE'
 
   set.seed(43)
-  capture.output(o$deploy(model = 'lasso',
-                          cores = 1,
-                          sqlcnxn = connection.string,
-                          dest.schema.table = 'dbo.HCRDeployClassificationBASE'
-  ))
 
-  expect_equal(as.numeric(o$linear.predictedVALS),0.877035858794219)
+  capture.output(dL <- DeployLasso$new(p))
+  capture.output(dL$deploy())
+
+  expect_equal(as.numeric(dL$getPredictedValsForUnitTest()), 0.877035858794219)
 })
 
 

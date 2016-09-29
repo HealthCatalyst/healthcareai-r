@@ -13,8 +13,8 @@ source('R/common.R')
 #' @import ranger
 #' @importFrom R6 R6Class
 #' @param df Dataframe whose columns are used for calc.
-#' @param predicted.col Column that you want to predict.
-#' @param group.col Column that we'll use to differentiate
+#' @param predictedCol Column that you want to predict.
+#' @param groupCol Column that we'll use to differentiate
 #' @param impute Set all-column imputation to F or T.
 #'
 #' @references \url{http://products.healthcatalyst.com/Predictive}

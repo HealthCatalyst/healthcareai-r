@@ -15,9 +15,9 @@ Lasso
 
 \item{df}{Dataframe whose columns are used for calc.}
 
-\item{grain.col}{The dataframe's column that has IDs pertaining to the grain}
+\item{grainCol}{The dataframe's column that has IDs pertaining to the grain}
 
-\item{predicted.col}{Column that you want to predict.}
+\item{predictedCol}{Column that you want to predict.}
 
 \item{impute}{Set all-column imputation to F or T.
 This uses mean replacement for numeric columns
