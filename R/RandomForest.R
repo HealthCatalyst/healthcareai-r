@@ -342,9 +342,6 @@ RandomForest <- R6Class("RandomForest",
           print(round(predictprob[1:10,2],2))
         }
 
-        print('PredictedCol')
-        print(self$params$predictedCol)
-
         ytest = as.numeric(private$dfTest[[self$params$predictedCol]])
         pred <- prediction(predictprob[,2], ytest)
         private$perf <- ROCR::performance(pred, "tpr", "fpr")

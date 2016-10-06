@@ -16,6 +16,76 @@ source('R/SupervisedModel.R')
 #' @import ranger
 #' @import ROCR
 #' @import RODBC
+#' @param object of SuperviseModelParameters class for $new() constructor
+#' @param type The type of model (either 'regression' or 'classification')
+#' @param df Dataframe whose columns are used for calc.
+#' @param grainCol The data frame's ID column pertaining to the grain
+#' @param personCol The data frame's ID column pertaining to the person/patient
+#' @param predictedCol Column that you want to predict.
+#' @param impute Set all-column imputation to F or T.
+#' This uses mean replacement for numeric columns
+#' and most frequent for factorized columns.
+#' F leads to removal of rows containing NULLs.
+#' @param debug Provides the user extended output to the console, in order
+#' to monitor the calculations throughout. Use T or F.
+#' @references \url{http://healthcareml.org/}
+#' @seealso \code{\link{HCRTools}}
+#' @examples
+#'
+#' ### Doing classification
+#' library(HCRTools)
+#' library(lme4)
+#'
+#' df <- sleepstudy
+#'
+#' str(df)
+#'
+#' # Create binary column for classification
+#' df$ReactionFLG <- ifelse(df$Reaction > 300, 'Y','N')
+#' df$Reaction <- NULL
+#'
+#' set.seed(42)
+#' p <- SupervisedModelParameters$new()
+#' p$df = df
+#' p$type = 'classification'
+#' p$impute = TRUE
+#' p$personCol = 'Subject' # Think of this as PatientID
+#' p$predictedCol = 'ReactionFLG'
+#' p$debug = TRUE
+#' p$cores = 1
+#'
+#' # Create Mixed Model
+#' lmm <- LinearMixedModel$new(p)
+#' lmm$run()
+#'
+#' ### Doing regression
+#' library(HCRTools)
+#' library(lme4)
+#'
+#' # SQL query and connection goes here - see SelectData function.
+#'
+#' df <- sleepstudy
+#'
+#' # Add GrainID, which is equivalent to PatientEncounterID
+#' df$GrainID <- seq.int(nrow(df))
+#'
+#' str(df)
+#'
+#' set.seed(42)
+#' p <- SupervisedModelParameters$new()
+#' p$df = df
+#' p$type = 'regression'
+#' p$impute = TRUE
+#' p$grainCol = 'GrainID' # Think of this as PatientEnounterID
+#' p$personCol = 'Subject' # Think of this as PatientID
+#' p$predictedCol = 'Reaction'
+#' p$debug = FALSE
+#' p$cores = 1
+#'
+#' # Create Mixed Model
+#' lmm <- LinearMixedModel$new(p)
+#' lmm$run()
+#'
 #' @export
 
 LinearMixedModel <- R6Class("LinearMixedModel",
@@ -124,7 +194,7 @@ LinearMixedModel <- R6Class("LinearMixedModel",
                                 family = binomial(link = 'logit'))
       }
       else if (self$params$type == 'regression') {
-        private$fit.lmm = glmer(formula = formula,
+        private$fit.lmm = lmer(formula = formula,
                                 data = private$lmm_train)
       }
     },

@@ -16,9 +16,9 @@ This is done in a two-step process:
 \item Use \code{\link{Lasso}} or \code{\link{RandomForest}} to test and
 compare models based on your data.
 \item Once you've determined which model is best, use
-\code{\link{DeploySupervisedModel}} to create a final model, automatically
-save it, predict against test data, and push predicted values into SQL
-Server.
+\code{\link{DeployLasso}} or \code{\link{DeployRandomForest}} to create a
+final model, automatically save it, predict against test data, and push
+predicted values into SQL Server.
 }
 }
 \references{
@@ -28,8 +28,6 @@ Server.
 \code{\link{Lasso}}
 
 \code{\link{RandomForest}}
-
-\code{\link{DeploySupervisedModel}}
 
 \code{\link{RiskAdjustedComparisons}}
 

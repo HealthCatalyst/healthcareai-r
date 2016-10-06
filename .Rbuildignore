@@ -3,9 +3,8 @@
 ^inst/\.RData$
 ^rmodel_probability\.rda$
 ^rmodel_var_import\.rda$
+^rmodel_combined\.rda$
 ^\.travis\.yml$
 ^\.vs$
 ^\.vs/HCRTools/v14/\.suo$
 ^appveyor\.yml$
-^inst/RMarkdown/DartmouthNoShowsReport\.html$
-^inst/RMarkdown/DartmouthNoShowsReport\.Rmd$
