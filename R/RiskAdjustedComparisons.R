@@ -66,7 +66,7 @@ RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
 
     dfTemp = NA,
     grid = NA,
-    fit.rf = NA,
+    fitRf = NA,
     predicted = NA
 
   ),
@@ -82,7 +82,7 @@ RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
       super$initialize(p)
     },
 
-    buildModel = function(group.by.list, j) {
+    buildModel = function(groupbyList, j) {
 
       # Just grab rows corresponding to a particular category in the factor col
       private$dfTest <- self$params$df[self$params$df[[self$params$groupCol]] == j,]
@@ -90,7 +90,7 @@ RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
 
       private$grid <- data.frame(.mtry = floor(sqrt(ncol(private$dfTrain))))
 
-      train.control <- trainControl(
+      trainCtrl <- trainControl(
         method = "none",
         number = 1,
         verboseIter = isTRUE(self$params$debug),
@@ -98,22 +98,22 @@ RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
         summaryFunction = twoClassSummary
       )
 
-      private$fit.rf = train(
+      private$fitRf = train(
         x = private$dfTrain[ ,!(colnames(private$dfTrain) == self$params$predictedCol)],
         y = factor(private$dfTrain[[self$params$predictedCol]]),
         method = "ranger",
         importance = 'impurity',
         metric = "ROC",
-        num.trees = self$params$numberOfTrees,
+        numTrees = self$params$numberOfTrees,
         tuneGrid = private$grid,
-        trControl = train.control
+        trControl = trainCtrl
       )
 
     },
 
-    performPrediction = function () {
+    performPrediction = function() {
 
-      private$predicted = predict(object = private$fit.rf,
+      private$predicted = predict(object = private$fitRf,
                           newdata = private$dfTest,
                           type = 'raw')
 
@@ -123,14 +123,14 @@ RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
     run = function() {
 
       # Pre-create empty vectors
-      group.by.list <- vector('character')
-      comparative.performance <- vector('character')
+      groupbyList <- vector('character')
+      comparativePerformance <- vector('character')
 
       for (j in unique(self$params$df[[self$params$groupCol]])) {
-        group.by.list <- c(group.by.list, j)
+        groupbyList <- c(groupbyList, j)
 
         # Build Model
-        self$buildModel(group.by.list, j)
+        self$buildModel(groupbyList, j)
 
         # Perform prediction
         self$performPrediction()
@@ -139,14 +139,14 @@ RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
         diff <- (ifelse(private$dfTest[[self$params$predictedCol]] == 'Y', 1, 0)
                  - ifelse(private$predicted == 'Y', 1, 0))
 
-        comparative.performance <- c(comparative.performance, sum(diff))
+        comparativePerformance <- c(comparativePerformance, sum(diff))
       }
 
       # Calculate mean-centered prediction error
-      comparative.performance <- (as.numeric(comparative.performance) -
-                                    (mean(as.numeric(comparative.performance))))
+      comparativePerformance <- (as.numeric(comparativePerformance) -
+                                    (mean(as.numeric(comparativePerformance))))
 
-      self$dfReturn <- data.frame(group.by.list, comparative.performance)
+      self$dfReturn <- data.frame(groupbyList, comparativePerformance)
 
       print("Finished calculating your risk-adjusted comparison")
       print('Note that positive values denote performance above expected:')

@@ -46,8 +46,8 @@ DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
 
     # variables
     coefficients = NULL,
-    multiply_res = NULL,
-    ordered.factors = NULL,
+    multiplyRes = NULL,
+    orderedFactors = NULL,
     predictedValsForUnitTest = NULL,
 
     # functions
@@ -63,11 +63,11 @@ DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
 
     fitGeneralizedLinearModel = function() {
       if (isTRUE(self$params$debug)) {
-        print('generating fit.logit...')
+        print('generating fitLogit...')
       }
 
       if (self$params$type == 'classification') {
-        private$fit.logit = glm(
+        private$fitLogit = glm(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
           data = private$dfTrain,
           family = binomial(link = "logit"),
@@ -77,7 +77,7 @@ DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
         )
 
       } else if (self$params$type == 'regression') {
-        private$fit.logit = glm(
+        private$fitLogit = glm(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
           data = private$dfTrain,
           metric = "RMSE",
@@ -95,8 +95,8 @@ DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
       # Save models if specified
       if (isTRUE(!self$params$useSavedModel)) {
 
-        #NOTE: save(private$fit.logit, ...) does not work!
-        fitLogitObj = private$fit.logit
+        #NOTE: save(private$fitLogit, ...) does not work!
+        fitLogitObj = private$fitLogit
         fitObj = private$fit
 
         save(fitLogitObj, file = "rmodel_var_import.rda")
@@ -131,8 +131,8 @@ DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
 
       } else if (self$params$type == 'regression') {
         # this is in-kind prediction
-        predictedVALStemp = predict(private$fit, data = self$dfTest)
-        private$predictedVals <- predictedVALStemp$predictions
+        predictedValsTemp = predict(private$fit, data = self$dfTest)
+        private$predictedVals <- predictedValsTemp$predictions
 
         if (isTRUE(self$params$debug)) {
           print(paste0(
@@ -147,15 +147,15 @@ DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
 
     calculateCoeffcients = function() {
       # Do semi-manual calc to rank cols by order of importance
-      coefftemp <- private$fit.logit$coefficients
+      coeffTemp <- private$fitLogit$coefficients
 
       if (isTRUE(self$params$debug)) {
         print('Coefficients for the default logit (for ranking var import)')
-        print(coefftemp)
+        print(coeffTemp)
       }
 
       private$coefficients <-
-        coefftemp[2:length(coefftemp)] # drop intercept
+        coeffTemp[2:length(coeffTemp)] # drop intercept
 
     },
 
@@ -169,54 +169,54 @@ DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
         print(str(private$dfTest))
       }
 
-      private$multiply_res <-
+      private$multiplyRes <-
         sweep(private$dfTestRAW, 2, private$coefficients, `*`)
 
       if (isTRUE(self$params$debug)) {
         print('Data frame after multiplying raw vals by coeffs')
-        print(private$multiply_res[1:10, ])
+        print(private$multiplyRes[1:10, ])
       }
 
     },
 
     calculateOrderedFactors = function() {
       # Calculate ordered factors of importance for each row's prediction
-      private$ordered.factors = t(sapply
-                                  (1:nrow(private$multiply_res),
+      private$orderedFactors = t(sapply
+                                  (1:nrow(private$multiplyRes),
                                   function(i)
-                                    colnames(private$multiply_res[order(private$multiply_res[i, ],
+                                    colnames(private$multiplyRes[order(private$multiplyRes[i, ],
                                                                         decreasing = TRUE)])))
 
       if (isTRUE(self$params$debug)) {
         print('Data frame after getting column importance ordered')
-        print(private$ordered.factors[1:10, ])
+        print(private$orderedFactors[1:10, ])
       }
     },
 
     saveDataIntoDb = function() {
-      dtstamp = as.POSIXlt(Sys.time(), "GMT")
+      dtStamp = as.POSIXlt(Sys.time(), "GMT")
 
       # Combine grain.col, prediction, and time to be put back into SAM table
       outdf <- data.frame(
         0,                                 # BindingID
         'R',                               # BindingNM
-        dtstamp,                           # LastLoadDTS
+        dtStamp,                           # LastLoadDTS
         private$grainTest,                 # GrainID
         private$predictedVals,             # PredictedProbab
-        private$ordered.factors[, 1:3])    # Top 3 Factors
+        private$orderedFactors[, 1:3])    # Top 3 Factors
 
-      prediectedResultsName = ""
+      predictedResultsName = ""
       if (self$params$type == 'classification') {
-        prediectedResultsName = "PredictedProbNBR"
+        predictedResultsName = "PredictedProbNBR"
       } else if (self$params$type == 'regression') {
-        prediectedResultsName = "PredictedValueNBR"
+        predictedResultsName = "PredictedValueNBR"
       }
       colnames(outdf) <- c(
         "BindingID",
         "BindingNM",
         "LastLoadDTS",
         self$params$grainCol,
-        prediectedResultsName,
+        predictedResultsName,
         "Factor1TXT",
         "Factor2TXT",
         "Factor3TXT"
@@ -255,8 +255,8 @@ DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
     initialize = function(p) {
       super$initialize(p)
 
-      if (!is.null(p$rfmtry))
-        self$params$rfmtry <- p$rfmtry
+      if (!is.null(p$rfMtry))
+        self$params$rfMtry <- p$rfMtry
 
       if (!is.null(p$trees))
         self$params$trees <- p$trees
@@ -268,22 +268,22 @@ DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
 
       # Create formula for lmm
       # Start building formula by grabbing column names
-      col_list <- colnames(private$dfTrain)
+      colList <- colnames(private$dfTrain)
 
       # Remove target col from list
-      col_list <- col_list[col_list != self$params$predictedCol]
+      colList <- colList[colList != self$params$predictedCol]
 
       # Remove grain col from list
-      col_list <- col_list[col_list != self$params$grainCol]
+      colList <- colList[colList != self$params$grainCol]
 
       # Remove random-effects col from list
-      fixed_cols_temp <- col_list[col_list != self$params$personCol]
+      fixedColsTemp <- colList[colList != self$params$personCol]
 
       # Collapse columns in list into a large string of cols
-      fixed_cols <- paste(fixed_cols_temp, "+ ", collapse = "")
+      fixedCols <- paste(fixedColsTemp, "+ ", collapse = "")
 
       formula <- paste0(self$params$predictedCol, " ~ ",
-                        fixed_cols,
+                        fixedCols,
                         "(1|", self$params$personCol, ")")
 
       if (isTRUE(self$params$debug)) {
@@ -335,8 +335,8 @@ DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
       private$connectDataSource()
 
       if (isTRUE(self$params$useSavedModel)) {
-        load("rmodel_var_import.rda")  # Produces fit.logit object
-        private$fit.logit <- fit.logit
+        load("rmodel_var_import.rda")  # Produces fitLogit object
+        private$fitLogit <- fitLogit
 
         load("rmodel_probability.rda") # Produces fit object (for probability)
         private$fit <- fit

@@ -98,12 +98,12 @@ LinearMixedModel <- R6Class("LinearMixedModel",
   private = list(
 
     # Mixed model-specific datasets
-    train_test = NA,
-    lmm_train = NA,
-    lmm_test = NA,
+    trainTest = NA,
+    lmmTrain = NA,
+    lmmTest = NA,
 
     # Git random forest model
-    fit.lmm = NA,
+    fitLmm = NA,
 
     predictions = NA,
 
@@ -133,11 +133,11 @@ LinearMixedModel <- R6Class("LinearMixedModel",
       # user wants to predict for row that's not the last in the person group
       # Combine test/train (which was randomly generated in base class)
 
-      private$train_test <- rbind(private$dfTrain,private$dfTest)
+      private$trainTest <- rbind(private$dfTrain,private$dfTest)
 
       if (isTRUE(self$params$debug)) {
         print('Re-combined train/test for MM specific use')
-        print(str(private$train_test))
+        print(str(private$trainTest))
       }
 
       # TODO Later: figure out why orderering in sql query is better auc than internal
@@ -146,14 +146,14 @@ LinearMixedModel <- R6Class("LinearMixedModel",
 
       # Split out test/train by taking last row of each PersonID for test set
       # TODO Soon: do this split using the InTestWindowCol
-      private$lmm_train <- setDT(private$train_test)[, .SD[1:.N-1], by = eval(self$params$personCol)]
-      private$lmm_test <- setDT(private$train_test)[, .SD[.N], by = eval(self$params$personCol)]
+      private$lmmTrain <- setDT(private$trainTest)[, .SD[1:.N-1], by = eval(self$params$personCol)]
+      private$lmmTest <- setDT(private$trainTest)[, .SD[.N], by = eval(self$params$personCol)]
 
       if (isTRUE(self$params$debug)) {
         print('Mixed model-specific training set after creation')
-        print(str(private$lmm_train))
+        print(str(private$lmmTrain))
         print('Mixed model-specific test set after creation')
-        print(str(private$lmm_test))
+        print(str(private$lmmTest))
       }
 
     },
@@ -163,22 +163,22 @@ LinearMixedModel <- R6Class("LinearMixedModel",
     buildModel = function() {
 
       # Start build formula by grabbing column names
-      col_list <- colnames(private$lmm_train)
+      colList <- colnames(private$lmmTrain)
 
       # Remove target col from list
-      col_list <- col_list[col_list != self$params$predictedCol]
+      colList <- colList[colList != self$params$predictedCol]
 
       # Remove grain col from list
-      col_list <- col_list[col_list != self$params$grainCol]
+      colList <- colList[colList != self$params$grainCol]
 
       # Remove random-effects col from list
-      fixed_cols_temp <- col_list[col_list != self$params$personCol]
+      fixedColsTemp <- colList[colList != self$params$personCol]
 
       # Collapse columns in list into a large string of cols
-      fixed_cols <- paste(fixed_cols_temp, "+ ", collapse = "")
+      fixedCols <- paste(fixedColsTemp, "+ ", collapse = "")
 
       formula <- paste0(self$params$predictedCol, " ~ ",
-                        fixed_cols,
+                        fixedCols,
                         "(1|", self$params$personCol, ")")
 
       if (isTRUE(self$params$debug)) {
@@ -189,13 +189,13 @@ LinearMixedModel <- R6Class("LinearMixedModel",
       }
 
       if (self$params$type == 'classification') {
-        private$fit.lmm = glmer(formula = formula,
-                                data = private$lmm_train,
+        private$fitLmm = glmer(formula = formula,
+                                data = private$lmmTrain,
                                 family = binomial(link = 'logit'))
       }
       else if (self$params$type == 'regression') {
-        private$fit.lmm = lmer(formula = formula,
-                                data = private$lmm_train)
+        private$fitLmm = lmer(formula = formula,
+                                data = private$lmmTrain)
       }
     },
 
@@ -203,14 +203,14 @@ LinearMixedModel <- R6Class("LinearMixedModel",
     performPrediction = function() {
 
       if (self$params$type == 'classification') {
-        private$predictions <- predict(object = private$fit.lmm,
-                                       newdata = private$lmm_test,
+        private$predictions <- predict(object = private$fitLmm,
+                                       newdata = private$lmmTest,
                                        allow.new.levels = TRUE,
                                        type = "response")
       }
       else if (self$params$type == 'regression') {
-        private$predictions <- predict(object = private$fit.lmm,
-                                       newdata = private$lmm_test,
+        private$predictions <- predict(object = private$fitLmm,
+                                       newdata = private$lmmTest,
                                        allow.new.levels = TRUE)
       }
     },
@@ -219,19 +219,19 @@ LinearMixedModel <- R6Class("LinearMixedModel",
     generatePerformanceMetrics = function() {
 
       if (self$params$type == 'classification') {
-        predictprob <- private$predictions
+        predictProb <- private$predictions
 
         if (isTRUE(self$params$debug)) {
-          print(paste0('Rows in probability prediction: ', nrow(predictprob)))
+          print(paste0('Rows in probability prediction: ', nrow(predictProb)))
           print('First 10 raw classification probability predictions')
-          print(round(predictprob[1:10],2))
+          print(round(predictProb[1:10],2))
         }
 
-        ytest = as.numeric(private$lmm_test[[self$params$predictedCol]])
-        pred <- prediction(predictprob, ytest)
+        ytest = as.numeric(private$lmmTest[[self$params$predictedCol]])
+        pred <- prediction(predictProb, ytest)
         private$perf <- ROCR::performance(pred, "tpr", "fpr")
 
-        private$ROC = pROC::roc(ytest~predictprob)
+        private$ROC = pROC::roc(ytest~predictProb)
         private$AUC = pROC::auc(private$ROC)
 
         # Show results
@@ -253,7 +253,7 @@ LinearMixedModel <- R6Class("LinearMixedModel",
           print(round(private$predictions[1:10],2))
         }
 
-        ytest = as.numeric(private$lmm_test[[self$params$predictedCol]])
+        ytest = as.numeric(private$lmmTest[[self$params$predictedCol]])
 
         # Error measures
         private$rmse = sqrt(mean((ytest - private$predictions) ^ 2))
@@ -268,7 +268,7 @@ LinearMixedModel <- R6Class("LinearMixedModel",
 
       private$stopClustersOnCores()
 
-      return(invisible(private$fit.lmm))
+      return(invisible(private$fitLmm))
     },
 
     # Override: run RandomForest algorithm
@@ -287,7 +287,7 @@ LinearMixedModel <- R6Class("LinearMixedModel",
     },
 
     getROC = function() {
-      if (!IsBinary(self$params$df[[self$params$predictedCol]])) {
+      if (!isBinary(self$params$df[[self$params$predictedCol]])) {
         print("ROC is not created because the column you're predicting is not binary")
         return(NULL)
       }

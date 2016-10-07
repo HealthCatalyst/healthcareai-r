@@ -30,9 +30,9 @@ SupervisedModel <- R6Class("SupervisedModel",
     clustersOnCores = NA,
 
     # Creating attributes for performance report
-    memsize_of_dataset = NA,
-    initial_dataset_rows = NA,
-    initial_dataset_cols = NA,
+    memsizeOfDataset = NA,
+    initialDatasetRows = NA,
+    initialDatasetCols = NA,
 
     ###########
     # Functions
@@ -116,16 +116,16 @@ SupervisedModel <- R6Class("SupervisedModel",
     loadData = function() {
 
       # init dataset variables
-      private$memsize_of_dataset = format(object.size(self$params$df), units = "Mb")
-      private$initial_dataset_rows = nrow(self$params$df)
-      private$initial_dataset_cols = ncol(self$params$df)
+      private$memsizeOfDataset = format(object.size(self$params$df), units = "Mb")
+      private$initialDatasetRows = nrow(self$params$df)
+      private$initialDatasetCols = ncol(self$params$df)
 
       # For use in confusion matrices
       private$prevalence = table(self$params$df[[self$params$predictedCol]])[2]
 
-      if (length(ReturnColsWithMoreThanFiftyCategories(self$params$df))>0){
+      if (length(returnColsWithMoreThanFiftyCategories(self$params$df))>0){
         message('The following columns in the data frame have more than fifty factors:')
-        message(paste(shQuote(ReturnColsWithMoreThanFiftyCategories(self$params$df)), collapse=", "))
+        message(paste(shQuote(returnColsWithMoreThanFiftyCategories(self$params$df)), collapse=", "))
         message(paste('This drastically reduces performance.',
                       'Consider combining these factors into a new column with fewer factors.'))
       }
@@ -142,7 +142,7 @@ SupervisedModel <- R6Class("SupervisedModel",
       }
 
       # Remove columns with zero variance
-      self$params$df <- RemoveColsWithAllSameValue(self$params$df)
+      self$params$df <- removeColsWithAllSameValue(self$params$df)
 
       if (isTRUE(self$params$debug)) {
         print('Entire df after removing feature cols w/zero var')
@@ -159,7 +159,7 @@ SupervisedModel <- R6Class("SupervisedModel",
       }
 
       if (isTRUE(self$params$impute)) {
-        self$params$df[] <- lapply(self$params$df, ImputeColumn)
+        self$params$df[] <- lapply(self$params$df, imputeColumn)
 
         if (isTRUE(self$params$debug)) {
           print('Entire data set after imputation')
@@ -185,9 +185,9 @@ SupervisedModel <- R6Class("SupervisedModel",
       self$params$df <- self$params$df[,colSums(is.na(self$params$df)) < nrow(self$params$df)]
 
       # Remove date columns
-      datelist = grep("DTS$", colnames(self$params$df))
-      if (length(datelist) > 0) {
-        self$params$df = self$params$df[, -datelist]
+      dateList = grep("DTS$", colnames(self$params$df))
+      if (length(dateList) > 0) {
+        self$params$df = self$params$df[, -dateList]
       }
 
       if (isTRUE(self$params$debug)) {
@@ -230,7 +230,7 @@ SupervisedModel <- R6Class("SupervisedModel",
       }
 
       # Remove rows where predicted.col is null in train
-      private$dfTrain = RemoveRowsWithNAInSpecCol(private$dfTrain,
+      private$dfTrain = removeRowsWithNAInSpecCol(private$dfTrain,
                                                   self$params$predictedCol)
 
       if (isTRUE(self$params$debug)) {

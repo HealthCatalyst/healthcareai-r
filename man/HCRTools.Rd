@@ -31,34 +31,34 @@ predicted values into SQL Server.
 
 \code{\link{RiskAdjustedComparisons}}
 
-\code{\link{ImputeColumn}}
+\code{\link{imputeColumn}}
 
-\code{\link{GroupedLOCF}}
+\code{\link{groupedLOCF}}
 
-\code{\link{SelectData}}
+\code{\link{selectData}}
 
-\code{\link{WriteData}}
+\code{\link{writeData}}
 
-\code{\link{OrderByDate}}
+\code{\link{orderByDate}}
 
-\code{\link{IsBinary}}
+\code{\link{isBinary}}
 
-\code{\link{RemoveRowsWithNAInSpecCol}}
+\code{\link{removeRowsWithNAInSpecCol}}
 
-\code{\link{CountPercentEmpty}}
+\code{\link{countPercentEmpty}}
 
-\code{\link{RemoveColsWithAllSameValue}}
+\code{\link{removeColsWithAllSameValue}}
 
-\code{\link{ReturnColsWithMoreThanFiftyCategories}}
+\code{\link{returnColsWithMoreThanFiftyCategories}}
 
-\code{\link{FindTrends}}
+\code{\link{findTrends}}
 
-\code{\link{ConvertDateTimeColToDummies}}
+\code{\link{convertDateTimeColToDummies}}
 
-\code{\link{CountDaysSinceFirstDate}}
+\code{\link{countDaysSinceFirstDate}}
 
-\code{\link{CalculateTargetedCorrelations}}
+\code{\link{calculateTargetedCorrelations}}
 
-\code{\link{CalculateAllCorrelations}}
+\code{\link{calculateAllCorrelations}}
 }
 

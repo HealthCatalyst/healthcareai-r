@@ -106,8 +106,8 @@ DeployLasso <- R6Class("DeployLasso",
 
     # variables
     coefficients = NULL,
-    multiply_res = NULL,
-    ordered.factors = NULL,
+    multiplyRes = NULL,
+    orderedFactors = NULL,
     predictedValsForUnitTest = NULL,
 
     # functions
@@ -124,11 +124,11 @@ DeployLasso <- R6Class("DeployLasso",
 
     fitGeneralizedLinearModel = function() {
       if (isTRUE(self$params$debug)) {
-        print('generating fit.logit...')
+        print('generating fitLogit...')
       }
 
       if (self$params$type == 'classification') {
-        private$fit.logit = glm(
+        private$fitLogit = glm(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
           data = private$dfTrain,
           family = binomial(link = "logit"),
@@ -138,7 +138,7 @@ DeployLasso <- R6Class("DeployLasso",
         )
 
       } else if (self$params$type == 'regression') {
-        private$fit.logit = glm(
+        private$fitLogit = glm(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
           data = private$dfTrain,
           metric = "RMSE",
@@ -203,15 +203,15 @@ DeployLasso <- R6Class("DeployLasso",
 
     calculateCoeffcients = function() {
       # Do semi-manual calc to rank cols by order of importance
-      coefftemp <- private$fit.logit$coefficients
+      coeffTemp <- private$fitLogit$coefficients
 
       if (isTRUE(self$params$debug)) {
         print('Coefficients for the default logit (for ranking var import)')
-        print(coefftemp)
+        print(coeffTemp)
       }
 
       private$coefficients <-
-        coefftemp[2:length(coefftemp)] # drop intercept
+        coeffTemp[2:length(coeffTemp)] # drop intercept
 
     },
 
@@ -225,55 +225,55 @@ DeployLasso <- R6Class("DeployLasso",
         print(str(private$dfTest))
       }
 
-      private$multiply_res <-
-        sweep(private$dfTestRAW, 2, private$coefficients, `*`)
+      private$multiplyRes <-
+        sweep(private$dfTestRaw, 2, private$coefficients, `*`)
 
       if (isTRUE(self$params$debug)) {
         print('Data frame after multiplying raw vals by coeffs')
-        print(private$multiply_res[1:10,])
+        print(private$multiplyRes[1:10,])
       }
 
     },
 
     calculateOrderedFactors = function() {
       # Calculate ordered factors of importance for each row's prediction
-      private$ordered.factors = t(sapply
-                                  (1:nrow(private$multiply_res),
+      private$orderedFactors = t(sapply
+                                  (1:nrow(private$multiplyRes),
                                   function(i)
-                                    colnames(private$multiply_res[order(private$multiply_res[i,],
+                                    colnames(private$multiplyRes[order(private$multiplyRes[i,],
                                                                         decreasing = TRUE)])))
 
       if (isTRUE(self$params$debug)) {
         print('Data frame after getting column importance ordered')
-        print(private$ordered.factors[1:10,])
+        print(private$orderedFactors[1:10,])
       }
 
     },
 
     saveDataIntoDb = function() {
-      dtstamp = as.POSIXlt(Sys.time(), "GMT")
+      dtStamp = as.POSIXlt(Sys.time(), "GMT")
 
       # Combine grain.col, prediction, and time to be put back into SAM table
-      outdf <- data.frame(
+      outDf <- data.frame(
         0,                                 # BindingID
         'R',                               # BindingNM
-        dtstamp,                           # LastLoadDTS
+        dtStamp,                           # LastLoadDTS
         private$grainTest,                 # GrainID
         private$predictedVals,             # PredictedProbab
-        private$ordered.factors[, 1:3])    # Top 3 Factors
+        private$orderedFactors[, 1:3])    # Top 3 Factors
 
-      prediectedResultsName = ""
+      predictedResultsName = ""
       if (self$params$type == 'classification') {
-        prediectedResultsName = "PredictedProbNBR"
+        predictedResultsName = "PredictedProbNBR"
       } else if (self$params$type == 'regression') {
-        prediectedResultsName = "PredictedValueNBR"
+        predictedResultsName = "PredictedValueNBR"
       }
-      colnames(outdf) <- c(
+      colnames(outDf) <- c(
         "BindingID",
         "BindingNM",
         "LastLoadDTS",
         self$params$grainCol,
-        prediectedResultsName,
+        predictedResultsName,
         "Factor1TXT",
         "Factor2TXT",
         "Factor3TXT"
@@ -281,14 +281,14 @@ DeployLasso <- R6Class("DeployLasso",
 
       if (isTRUE(self$params$debug)) {
         print('Dataframe going to SQL Server:')
-        print(str(outdf))
+        print(str(outDf))
       }
 
 
       # Save df to table in SAM database
       out = sqlSave(
         channel = self$params$sqlConn,
-        dat = outdf,
+        dat = outDf,
         tablename = self$params$destSchemaTable,
         append = T,
         rownames = F,
@@ -317,7 +317,7 @@ DeployLasso <- R6Class("DeployLasso",
     buildFitObject = function() {
       # Get fit object by linear model
       # if linear, set to logit for logistic
-      private$fit = private$fit.logit
+      private$fit = private$fitLogit
 
     },
 
