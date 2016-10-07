@@ -6,7 +6,7 @@ test_that("Data frame outputted is same as data frame inputted when no NAs are p
                   ht=c(1,1,3,4,4,6,6),
                   date=c('01/01/2015','01/15/2015','01/01/2015','01/15/2015',
                          '01/01/2015','01/15/2015','01/30/2015'))
-  expect_identical(GroupedLOCF(dt,'PersonID'), dt)
+  expect_identical(groupedLOCF(dt,'PersonID'), dt)
 })
 
 test_that("Observation carried forward with single NA", {
@@ -20,7 +20,7 @@ test_that("Observation carried forward with single NA", {
                          ht=c(1,1,3,3,4,6,6),
                          date=c('01/01/2015','01/15/2015','01/01/2015','01/15/2015',
                                 '01/01/2015','01/15/2015','01/30/2015'))
-  expect_identical(GroupedLOCF(dt,'PersonID'), dtresult)
+  expect_identical(groupedLOCF(dt,'PersonID'), dtresult)
 })
 
 test_that("Observation carried forward with multiple NAs", {
@@ -34,7 +34,7 @@ test_that("Observation carried forward with multiple NAs", {
                         ht=c(1,1,3,4,4,4,4),
                         date=c('01/01/2015','01/15/2015','01/01/2015','01/15/2015',
                                '01/01/2015','01/15/2015','01/30/2015'))
-  expect_identical(GroupedLOCF(dt,'PersonID'), dtresult)
+  expect_identical(groupedLOCF(dt,'PersonID'), dtresult)
 })
 
 test_that("NA between two observations", {
@@ -48,7 +48,7 @@ test_that("NA between two observations", {
                         ht=c(1,1,3,4,4,4,6),
                         date=c('01/01/2015','01/15/2015','01/01/2015','01/15/2015',
                                '01/01/2015','01/15/2015','01/30/2015'))
-  expect_identical(GroupedLOCF(dt,'PersonID'), dtresult)
+  expect_identical(groupedLOCF(dt,'PersonID'), dtresult)
 })
 
 test_that("Two observations with same time or sequence column value carried forward", {
@@ -62,7 +62,7 @@ test_that("Two observations with same time or sequence column value carried forw
                         ht=c(1,1,3,4,4,4,4),
                         date=c('01/01/2015','01/15/2015','01/01/2015','01/15/2015',
                                '01/01/2015','01/15/2015','01/15/2015'))
-  expect_identical(GroupedLOCF(dt,'PersonID'), dtresult)
+  expect_identical(groupedLOCF(dt,'PersonID'), dtresult)
 })
 
 test_that("Observation is still carried forward when time or sequence column goes back in value for some person", {
@@ -76,7 +76,7 @@ test_that("Observation is still carried forward when time or sequence column goe
                         ht=c(1,1,3,4,4,4,5),
                         date=c('01/15/2015','01/01/2015','01/01/2015','01/15/2015',
                                '01/01/2015','01/15/2015','01/30/2015'))
-  expect_identical(GroupedLOCF(dt1,'PersonID'), dt1result)
+  expect_identical(groupedLOCF(dt1,'PersonID'), dt1result)
 
   dt2 = data.table(PersonID=c(1,1,2,2,3,3,3),
                   wt=c(NA,.6,.2,.2,.3,.3,.5),
@@ -88,7 +88,7 @@ test_that("Observation is still carried forward when time or sequence column goe
                         ht=c(NA,1,3,4,4,4,5),
                         date=c('01/15/2015','01/01/2015','01/01/2015','01/15/2015',
                                '01/01/2015','01/15/2015','01/30/2015'))
-  expect_identical(GroupedLOCF(dt2,'PersonID'), dt2result)
+  expect_identical(groupedLOCF(dt2,'PersonID'), dt2result)
 })
 
 test_that("No observation carried forward when all values are NA", {
@@ -102,7 +102,7 @@ test_that("No observation carried forward when all values are NA", {
                         ht=c(1,1,NA,NA,4,4,4),
                         date=c('01/01/2015','01/15/2015','01/01/2015','01/15/2015',
                                '01/01/2015','01/15/2015','01/30/2015'))
-  expect_identical(GroupedLOCF(dt,'PersonID'), dtresult)
+  expect_identical(groupedLOCF(dt,'PersonID'), dtresult)
 })
 
 test_that("Observation carried forward when observation type is string", {
@@ -118,7 +118,7 @@ test_that("Observation carried forward when observation type is string", {
                         letter=c('a','b','d','d','e','e','e'),
                         date=c('01/01/2015','01/15/2015','01/01/2015','01/15/2015',
                                '01/01/2015','01/15/2015','01/30/2015'))
-  expect_identical(GroupedLOCF(dt,'PersonID'), dtresult)
+  expect_identical(groupedLOCF(dt,'PersonID'), dtresult)
 })
 
 test_that("Observation carried forward when observation type is boolean", {
@@ -134,5 +134,5 @@ test_that("Observation carried forward when observation type is boolean", {
                         boolean=c(TRUE,FALSE,TRUE,TRUE,FALSE,FALSE,TRUE),
                         date=c('01/01/2015','01/15/2015','01/01/2015','01/15/2015',
                                '01/01/2015','01/15/2015','01/30/2015'))
-  expect_identical(GroupedLOCF(dt,'PersonID'), dtresult)
+  expect_identical(groupedLOCF(dt,'PersonID'), dtresult)
 })

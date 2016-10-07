@@ -414,7 +414,7 @@ RandomForest <- R6Class("RandomForest",
     },
 
     getROC = function() {
-      if (!IsBinary(self$params$df[[self$params$predictedCol]])) {
+      if (!isBinary(self$params$df[[self$params$predictedCol]])) {
         print("ROC is not created because the column you're predicting is not binary")
         return(NULL)
       }
