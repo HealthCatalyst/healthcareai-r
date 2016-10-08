@@ -42,7 +42,7 @@ source('R/common.R')
 #' WHERE OrganizationLevel <> 0
 #' "
 #'
-#' df <- SelectData(connection.string, query)
+#' df <- selectData(connection.string, query)
 #'
 #' p <- SupervisedModelParameters$new()
 #' p$df = df

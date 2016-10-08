@@ -103,7 +103,7 @@ DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
         save(fitObj, file = "rmodel_probability.rda")
       }
 
-      # This isn't needed if formula interface is used in randomForest
+      # This isn't needed since formula interface is used
       private$dfTest[[self$params$predictedCol]] <- NULL
 
       if (isTRUE(self$params$debug)) {

@@ -51,7 +51,7 @@ source('R/SupervisedModel.R')
 #' p$impute = TRUE
 #' p$personCol = 'Subject' # Think of this as PatientID
 #' p$predictedCol = 'ReactionFLG'
-#' p$debug = TRUE
+#' p$debug = FALSE
 #' p$cores = 1
 #'
 #' # Create Mixed Model
@@ -76,7 +76,7 @@ source('R/SupervisedModel.R')
 #' p$df = df
 #' p$type = 'regression'
 #' p$impute = TRUE
-#' p$grainCol = 'GrainID' # Think of this as PatientEnounterID
+#' p$grainCol = 'GrainID'  # Think of this as PatientEnounterID
 #' p$personCol = 'Subject' # Think of this as PatientID
 #' p$predictedCol = 'Reaction'
 #' p$debug = FALSE

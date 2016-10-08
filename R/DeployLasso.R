@@ -62,7 +62,7 @@ source('R/DeploySupervisedModel.R')
 #'
 #' # Use this for an example SQL source:
 #' # query <- "SELECT * FROM [SAM].[YourCoolSAM].[SomeTrainingSetTable]"
-#' # df <- SelectData(connection.string, query)
+#' # df <- selectData(connection.string, query)
 #'
 #' # Can delete these four lines when you set up your SQL connection/query
 #' csvfile <- system.file("extdata", "HREmployeeDeploy.csv",package = "HCRTools")

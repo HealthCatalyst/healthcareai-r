@@ -83,7 +83,7 @@ p$type = 'classification'
 p$impute = FALSE
 p$grainCol = ''
 p$predictedCol = 'SalariedFlag'
-p$debug = TRUE
+p$debug = FALSE
 p$cores = 1
 
 # Run Lasso
@@ -123,7 +123,7 @@ SELECT
 FROM [AdventureWorks2012].[HumanResources].[Employee]
 "
 
-df <- SelectData(connection.string, query)
+df <- selectData(connection.string, query)
 head(df)
 
 set.seed(42)
