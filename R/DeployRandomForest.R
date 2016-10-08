@@ -349,21 +349,19 @@ DeployRandomForest <- R6Class("DeployRandomForest",
           )),
           data = private$dfTrain,
           probability = TRUE,
-          numTrees = self$params$trees,
-          writeForest = TRUE,
+          num.trees = self$params$trees,
+          write.forest = TRUE,
           mtry = rfMtryTemp
         )
-
       } else if (self$params$type == 'regression') {
         private$fit = ranger(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
           data = private$dfTrain,
-          numTrees = self$params$trees,
-          writeForest = TRUE,
+          num.trees = self$params$trees,
+          write.forest = TRUE,
           mtry = rfMtryTemp
         )
       }
-
     },
 
     buildFitObject = function() {

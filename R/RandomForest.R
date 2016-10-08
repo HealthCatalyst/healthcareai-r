@@ -309,7 +309,7 @@ RandomForest <- R6Class("RandomForest",
         method = "ranger",
         importance = "impurity",
         metric = rfTrainParams.metric,
-        numTrees = self$params$numberOfTrees,
+        num.trees = self$params$numberOfTrees,
         tuneGrid = private$grid,
         trControl = train.control
       )

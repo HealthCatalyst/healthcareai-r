@@ -1,4 +1,4 @@
-context("Testing Risk-adjusted Comparisons")
+context("Checking Risk-adjusted Comparisons")
 
 connection.string = "
 driver={SQL Server};
@@ -19,7 +19,7 @@ FROM [AdventureWorks2012].[HumanResources].[Employee]
 WHERE OrganizationLevel <> 0
 "
 
-df <- SelectData(connection.string, query)
+df <- selectData(connection.string, query)
 
 p <- SupervisedModelParameters$new()
 p$df = df
