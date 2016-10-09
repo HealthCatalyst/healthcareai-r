@@ -44,7 +44,7 @@ source('R/common.R')
 #'
 #' df <- selectData(connection.string, query)
 #'
-#' p <- SupervisedModelParameters$new()
+#' p <- SupervisedModelDevelopmentParams$new()
 #' p$df = df
 #' p$groupCol = 'OrganizationLevel'
 #' p$impute = TRUE
@@ -60,7 +60,7 @@ source('R/common.R')
 RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
 
   #Inheritance
-  inherit = SupervisedModel,
+  inherit = SupervisedModelDevelopment,
 
   private = list(
 

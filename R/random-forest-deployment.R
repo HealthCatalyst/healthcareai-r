@@ -1,6 +1,6 @@
 # Import the common functions.
 source('R/common.R')
-source('R/DeploySupervisedModel.R')
+source('R/supervised-model-deployment.R')
 
 #' Deploy a production-ready predictive RandomForest model
 #'
@@ -72,7 +72,7 @@ source('R/DeploySupervisedModel.R')
 #'
 #' head(df)
 #'
-#' p <- DeploySupervisedModelParameters$new()
+#' p <- SupervisedModelDeploymentParams$new()
 #' p$type = 'classification'
 #' p$df = df
 #' p$grainCol = 'GrainID'
@@ -86,17 +86,17 @@ source('R/DeploySupervisedModel.R')
 #' p$destSchemaTable = 'dbo.HCRDeployClassificationBASE'
 #' p$rfmtry = 2
 #'
-#' dRF <- DeployRandomForest$new(p)
+#' dRF <- RandomForestDeployment$new(p)
 #' dRF$deploy()
 #'
 #' print(proc.time() - ptm)
 #' @export
 
 
-DeployRandomForest <- R6Class("DeployRandomForest",
+RandomForestDeployment <- R6Class("RandomForestDeployment",
 
   #Inheritance
-  inherit = DeploySupervisedModel,
+  inherit = SupervisedModelDeployment,
 
   #Private members
   private = list(
@@ -312,8 +312,8 @@ DeployRandomForest <- R6Class("DeployRandomForest",
   #Public members
   public = list(
     #Constructor
-    #p: new DeploySupervisedModelParameters class object,
-    #   i.e. p = DeploySupervisedModelParameters$new()
+    #p: new SupervisedModelDeploymentParams class object,
+    #   i.e. p = SupervisedModelDeploymentParams$new()
     initialize = function(p) {
       super$initialize(p)
 

@@ -6,16 +6,21 @@
 #' This is done in a two-step process:
 #'
 #' \itemize{
-#' \item Use \code{\link{Lasso}} or \code{\link{RandomForest}} to test and
+#' \item Use \code{\link{LassoDevelopment}} or
+#' \code{\link{RandomForestDevelopment}} to test and
 #' compare models based on your data.
 #' \item Once you've determined which model is best, use
-#' \code{\link{DeployLasso}} or \code{\link{DeployRandomForest}} to create a
-#' final model, automatically save it, predict against test data, and push
-#' predicted values into SQL Server.
+#' \code{\link{LassoDeployment}} or \code{\link{RandomForestDeployment}} to
+#' create a final model, automatically save it, predict against test data, and
+#' push predicted values into SQL Server.
 #' }
 #' @references \url{http://healthcareml.org/}
-#' @seealso \code{\link{Lasso}}
-#' @seealso \code{\link{RandomForest}}
+#' @seealso \code{\link{LassoDevelopment}}
+#' @seealso \code{\link{RandomForestDevelopment}}
+#' @seealso \code{\link{LinearMixedModelDevelopment}}
+#' @seealso \code{\link{LassoDeployment}}
+#' @seealso \code{\link{RandomForestDeployment}}
+#' @seealso \code{\link{LinearMixedModelDeployment}}
 #' @seealso \code{\link{RiskAdjustedComparisons}}
 #' @seealso \code{\link{imputeColumn}}
 #' @seealso \code{\link{groupedLOCF}}

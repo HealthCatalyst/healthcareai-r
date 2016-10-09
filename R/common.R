@@ -347,11 +347,11 @@ writeData <- function(df, server, database, schemaDotTable) {
 #' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' df = data.frame(a=c(1,1,1),
+#' df <- data.frame(a=c(1,1,1),
 #'                 b=c('a','b','b'),
 #'                 c=c('a','a','a'),
 #'                 d=c(NA,'1',NA))
-#' dfResult = removeColsWithAllSameValue(df)
+#' dfResult <- removeColsWithAllSameValue(df)
 #' head(dfResult)
 
 removeColsWithAllSameValue <- function(df) {

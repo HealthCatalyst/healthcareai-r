@@ -21,7 +21,7 @@ WHERE OrganizationLevel <> 0
 
 df <- selectData(connection.string, query)
 
-p <- SupervisedModelParameters$new()
+p <- SupervisedModelDevelopmentParams$new()
 p$df = df
 p$groupCol = 'OrganizationLevel'
 p$impute = TRUE

@@ -1,6 +1,6 @@
 # Import the common functions.
 source('R/common.R')
-source('R/DeploySupervisedModel.R')
+source('R/supervised-model-deployment.R')
 
 #' Deploy a production-ready predictive Lasso model
 #'
@@ -75,7 +75,7 @@ source('R/DeploySupervisedModel.R')
 #' # Remove unnecessary columns
 #' df <- subset(df, select = -c(SalariedFlag))
 #'
-#' p <- DeploySupervisedModelParameters$new()
+#' p <- SupervisedModelDeploymentParams$new()
 #' p$type = 'regression'
 #' p$df = df
 #' p$grainCol = 'GrainID'
@@ -88,7 +88,7 @@ source('R/DeploySupervisedModel.R')
 #' p$sqlConn = connection.string
 #' p$destSchemaTable = 'dbo.HCRDeployRegressionBASE'
 #'
-#' dL <- DeployLasso$new(p)
+#' dL <- LassoDeployment$new(p)
 #' dL$deploy()
 #'
 #' print(proc.time() - ptm)
@@ -96,10 +96,10 @@ source('R/DeploySupervisedModel.R')
 #' @export
 
 
-DeployLasso <- R6Class("DeployLasso",
+LassoDeployment <- R6Class("LassoDeployment",
 
   #Inheritance
-  inherit = DeploySupervisedModel,
+  inherit = SupervisedModelDeployment,
 
   #Private members
   private = list(
@@ -306,10 +306,11 @@ DeployLasso <- R6Class("DeployLasso",
     }
   ),
 
-  #Public members
+  # Public members
   public = list(
-    #Constructor
-    #p: new DeploySupervisedModelParameters class object, i.e. p = DeploySupervisedModelParameters$new()
+    # Constructor
+    # p: new SupervisedModelDeploymentParams class object,
+    # i.e. p = SupervisedModelDeploymentParams$new()
     initialize = function(p) {
       super$initialize(p)
     },

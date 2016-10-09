@@ -1,6 +1,6 @@
 # Import the common functions.
 source('R/common.R')
-source('R/DeploySupervisedModel.R')
+source('R/supervised-model-deployment.R')
 
 #' Deploy a production-ready predictive RandomForest model
 #'
@@ -36,10 +36,10 @@ source('R/DeploySupervisedModel.R')
 #' @export
 
 
-DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
+LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
   #Inheritance
-  inherit = DeploySupervisedModel,
+  inherit = SupervisedModelDeployment,
 
   #Private members
   private = list(
