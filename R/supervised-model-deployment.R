@@ -1,6 +1,6 @@
 # Import the common functions.
 source('R/common.R')
-source('R/DeploySupervisedModelParameters.R')
+source('R/supervised-model-deployment-params.R')
 
 #' Deploy predictive models, created on your data
 #'
@@ -9,13 +9,13 @@ source('R/DeploySupervisedModelParameters.R')
 #' @docType class
 #' @import caret
 #' @importFrom R6 R6Class
-#' @param object of DeploySupervisedModelParameters class for $new() constructor
+#' @param object of SupervisedModelDeploymentParams class for $new() constructor
 #' @references \url{http://products.healthcatalyst.com/Predictive}
 #' @seealso \code{\link{HCRTools}}
 #'
 #' @export
 
-DeploySupervisedModel <- R6Class("DeploySupervisedModel",
+SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
  #Private members
  private = list(
@@ -24,14 +24,14 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
    # Variables
 
    dfTest = NULL,
-   dfTestRAW = NULL,
+   dfTestRaw = NULL,
    dfTrain = NULL,
    dfTrainTemp = NULL,
    dfTestTemp = NULL,
 
    grainTest = NULL,
    fit = NA,
-   fit.logit = NA,
+   fitLogit = NA,
    predictedVals = NA,
 
    clustersOnCores = NA,
@@ -55,7 +55,7 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
    },
 
    setConfigs = function(p) {
-     self$params <- DeploySupervisedModelParameters$new()
+     self$params <- SupervisedModelDeploymentParams$new()
 
      if (!is.null(p$df))
        self$params$df <- p$df
@@ -128,9 +128,9 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
      }
 
      # Remove date columns
-     datelist = grep("DTS$", colnames(self$params$df))
-     if (length(datelist) > 0) {
-       self$params$df = self$params$df[, -datelist]
+     dateList = grep("DTS$", colnames(self$params$df))
+     if (length(dateList) > 0) {
+       self$params$df = self$params$df[, -dateList]
      }
 
      if (isTRUE(self$params$debug)) {
@@ -139,11 +139,11 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
        print('Now going to check for cols with fifty+ categories...')
      }
 
-     if (length(ReturnColsWithMoreThanFiftyCategories(self$params$df)) >
+     if (length(returnColsWithMoreThanFiftyCategories(self$params$df)) >
          0) {
        message('These columns in the df have more than fifty categories:')
        message(paste(
-         shQuote(ReturnColsWithMoreThanFiftyCategories(self$params$df)),
+         shQuote(returnColsWithMoreThanFiftyCategories(self$params$df)),
          collapse = ", "
        ))
        message(
@@ -155,7 +155,7 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
      }
 
      # Remove columns with zero variance
-     self$params$df <- RemoveColsWithAllSameValue(self$params$df)
+     self$params$df <- removeColsWithAllSameValue(self$params$df)
 
      if (isTRUE(self$params$debug)) {
        print('Entire df after removing feature cols w/zero var')
@@ -164,7 +164,7 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
 
      # Remove grain.col from df; below we split it into graintest
      if (nchar(self$params$grainCol) != 0) {
-       full.grain <- self$params$df[[self$params$grainCol]]
+       fullGrain <- self$params$df[[self$params$grainCol]]
        self$params$df[[self$params$grainCol]] <- NULL
      } else {
        stop('You must specify a GrainID column when initializing TuneSupervisedModel')
@@ -196,7 +196,7 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
      if (isTRUE(self$params$impute) &&
          isTRUE(!self$params$useSavedModel)) {
        # Remove rows where predicted.col is null in train
-       private$dfTrainTemp = RemoveRowsWithNAInSpecCol(private$dfTrainTemp,
+       private$dfTrainTemp = removeRowsWithNAInSpecCol(private$dfTrainTemp,
                                                        self$params$predictedCol)
        if (isTRUE(self$params$debug)) {
          print('Training data set after removing rows where pred col is null')
@@ -204,7 +204,7 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
          print('Doing imputation on training set...')
        }
        private$dfTrainTemp[] <-
-         lapply(private$dfTrainTemp, ImputeColumn)
+         lapply(private$dfTrainTemp, imputeColumn)
 
        if (isTRUE(self$params$debug)) {
          print('Training set after doing imputation')
@@ -223,7 +223,7 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
      }
 
      # Always do imputation on all of test set (since each row needs pred)
-     private$dfTestTemp[] <- lapply(private$dfTestTemp, ImputeColumn)
+     private$dfTestTemp[] <- lapply(private$dfTestTemp, imputeColumn)
 
      # Join temp train and test back together, so dummy creation is consistent
      self$params$df <-
@@ -297,7 +297,7 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
      # Now that we have train/test, split grain col into test (for use at end)
      if (nchar(self$params$grainCol) != 0) {
        private$grainTest <-
-         full.grain[self$params$df[[paste0(self$params$testWindowCol, '.Y')]] == 1]
+         fullGrain[self$params$df[[paste0(self$params$testWindowCol, '.Y')]] == 1]
 
        if (isTRUE(self$params$debug)) {
          print('Grain col vector with rows of test set (after created)')
@@ -310,12 +310,12 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
     }
 
     # Pass raw (un-imputed) dfTest to object, so important factors aren't null
-    private$dfTestRAW <-
+    private$dfTestRaw <-
       private$dfTest[, !(names(private$dfTest) %in% c(self$params$predictedCol))]
 
     if (isTRUE(self$params$debug)) {
       print('Raw test set (sans imputation) created for mult with coeffs')
-      print(str(private$dfTestRAW))
+      print(str(private$dfTestRaw))
     }
 
     if (isTRUE(self$params$debug)) {
@@ -342,8 +342,8 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
     # Functions
 
     #Constructor
-    #p: new DeploySupervisedModelParameters class object,
-    #   i.e. p = DeploySupervisedModelParameters$new()
+    #p: new SupervisedModelDeploymentParams class object,
+    #   i.e. p = SupervisedModelDeploymentParams$new()
     initialize = function(p) {
       #Set config parameters
       private$setConfigs(p)

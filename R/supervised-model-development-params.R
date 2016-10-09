@@ -1,7 +1,7 @@
 # Import the common functions.
 library(R6)
 
-#' SupervisedModelParameters class to set up parameters required to build SupervisedModel classes
+#' SupervisedModelDevelopmentParams class to set up parameters required to build SupervisedModel classes
 #'
 #' @description This step allows one to create test models on your data
 #' and helps determine which performs best.
@@ -12,7 +12,7 @@ library(R6)
 #'
 #' @export
 
-SupervisedModelParameters <- R6Class("SupervisedModelParameters",
+SupervisedModelDevelopmentParams <- R6Class("SupervisedModelDevelopmentParams",
 
   #Public members
   public = list(
