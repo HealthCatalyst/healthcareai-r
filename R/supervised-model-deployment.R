@@ -1,6 +1,6 @@
 # Import the common functions.
 source('R/common.R')
-source('R/DeploySupervisedModelParameters.R')
+source('R/supervised-model-deployment-params.R')
 
 #' Deploy predictive models, created on your data
 #'
@@ -9,13 +9,13 @@ source('R/DeploySupervisedModelParameters.R')
 #' @docType class
 #' @import caret
 #' @importFrom R6 R6Class
-#' @param object of DeploySupervisedModelParameters class for $new() constructor
+#' @param object of SupervisedModelDeploymentParams class for $new() constructor
 #' @references \url{http://products.healthcatalyst.com/Predictive}
 #' @seealso \code{\link{HCRTools}}
 #'
 #' @export
 
-DeploySupervisedModel <- R6Class("DeploySupervisedModel",
+SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
  #Private members
  private = list(
@@ -55,7 +55,7 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
    },
 
    setConfigs = function(p) {
-     self$params <- DeploySupervisedModelParameters$new()
+     self$params <- SupervisedModelDeploymentParams$new()
 
      if (!is.null(p$df))
        self$params$df <- p$df
@@ -342,8 +342,8 @@ DeploySupervisedModel <- R6Class("DeploySupervisedModel",
     # Functions
 
     #Constructor
-    #p: new DeploySupervisedModelParameters class object,
-    #   i.e. p = DeploySupervisedModelParameters$new()
+    #p: new SupervisedModelDeploymentParams class object,
+    #   i.e. p = SupervisedModelDeploymentParams$new()
     initialize = function(p) {
       #Set config parameters
       private$setConfigs(p)

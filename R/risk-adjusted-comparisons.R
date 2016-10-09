@@ -42,9 +42,9 @@ source('R/common.R')
 #' WHERE OrganizationLevel <> 0
 #' "
 #'
-#' df <- SelectData(connection.string, query)
+#' df <- selectData(connection.string, query)
 #'
-#' p <- SupervisedModelParameters$new()
+#' p <- SupervisedModelDevelopmentParams$new()
 #' p$df = df
 #' p$groupCol = 'OrganizationLevel'
 #' p$impute = TRUE
@@ -60,7 +60,7 @@ source('R/common.R')
 RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
 
   #Inheritance
-  inherit = SupervisedModel,
+  inherit = SupervisedModelDevelopment,
 
   private = list(
 
@@ -104,7 +104,7 @@ RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
         method = "ranger",
         importance = 'impurity',
         metric = "ROC",
-        numTrees = self$params$numberOfTrees,
+        num.trees = self$params$numberOfTrees,
         tuneGrid = private$grid,
         trControl = trainCtrl
       )

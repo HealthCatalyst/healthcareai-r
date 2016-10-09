@@ -1,6 +1,6 @@
 # Import the common functions.
 source('R/common.R')
-source('R/SupervisedModelParameters.R')
+source('R/supervised-model-development-params.R')
 
 #' Compare predictive models, created on your data
 #'
@@ -15,7 +15,7 @@ source('R/SupervisedModelParameters.R')
 #'
 #' @export
 
-SupervisedModel <- R6Class("SupervisedModel",
+SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
 
   #Private members
   private = list(
@@ -55,24 +55,24 @@ SupervisedModel <- R6Class("SupervisedModel",
     #Set config parameters for the algorithm
     setConfigs = function(p) {
 
-      self$params <- SupervisedModelParameters$new()
+      self$params <- SupervisedModelDevelopmentParams$new()
 
-      if(!is.null(p$df))
+      if (!is.null(p$df))
         self$params$df <- p$df
 
-      if(!is.null(p$grainCol))
+      if (!is.null(p$grainCol))
         self$params$grainCol <- p$grainCol
 
-      if(!is.null(p$predictedCol))
+      if (!is.null(p$predictedCol))
         self$params$predictedCol <- p$predictedCol
 
-      if(!is.null(p$personCol))
+      if (!is.null(p$personCol))
         self$params$personCol <- p$personCol
 
-      if(!is.null(p$groupCol))
+      if (!is.null(p$groupCol))
         self$params$groupCol <- p$groupCol
 
-      if(!is.null(p$type) && p$type != '') {
+      if (!is.null(p$type) && p$type != '') {
         self$params$type <- p$type
 
         # validation on type string values
@@ -87,19 +87,19 @@ SupervisedModel <- R6Class("SupervisedModel",
         }
       }
 
-      if(!is.null(p$impute))
+      if (!is.null(p$impute))
         self$params$impute <- p$impute
 
-      if(!is.null(p$debug))
+      if (!is.null(p$debug))
         self$params$debug <- p$debug
 
-      if(!is.null(p$varImp))
+      if (!is.null(p$varImp))
         self$params$varImp <- p$varImp
 
-      if(!is.null(p$printResults))
+      if (!is.null(p$printResults))
         self$params$printResults <- p$printResults
 
-      if(!is.null(p$cores))
+      if (!is.null(p$cores))
         self$params$cores <- p$cores
 
       #Set additional settings
@@ -193,11 +193,12 @@ SupervisedModel <- R6Class("SupervisedModel",
       if (isTRUE(self$params$debug)) {
         print('Entire data set after removing cols with DTS (ie date cols)')
         print(str(self$params$df))
-        print('Now going to remove zero-var cols...')
+        print('Now going to remove grainCol...')
       }
 
-      # If grain.col is specified, remove this col
-      if (nchar(self$params$grainCol) != 0) {
+      # For rf/lasso, remove grain col (if specified)
+      # For LMM, don't remove grain col even if specified--note personCol
+      if ((nchar(self$params$grainCol) != 0) && (nchar(self$params$personCol) == 0)) {
         df[[self$params$grainCol]] <- NULL
       }
 
@@ -255,8 +256,8 @@ SupervisedModel <- R6Class("SupervisedModel",
     # Functions
 
     #Constructor
-    #p: new SuperviseModelParameters class object,
-    #   i.e. p = SuperviseModelParameters$new()
+    #p: new SupervisedModelDevelopmentParams class object,
+    #   i.e. p = SuperviseModelParams$new()
     initialize = function(p) {
 
       #Set config parameters

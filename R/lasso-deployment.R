@@ -1,8 +1,8 @@
 # Import the common functions.
 source('R/common.R')
-source('R/DeploySupervisedModel.R')
+source('R/supervised-model-deployment.R')
 
-#' Deploy a production-ready predictive RandomForest model
+#' Deploy a production-ready predictive Lasso model
 #'
 #' @description This step allows one to
 #' \itemize{
@@ -14,14 +14,12 @@ source('R/DeploySupervisedModel.R')
 #' @docType class
 #' @import caret
 #' @import doParallel
-#' @import lme4
 #' @importFrom R6 R6Class
 #' @import ranger
 #' @import RODBC
 #' @param type The type of model (either 'regression' or 'classification')
 #' @param df Dataframe whose columns are used for calc.
-#' @param grainCol The data frame's column that has IDs pertaining to the grain
-#' @param personCol The data frame's columns that represents the patient/person
+#' @param grainCol The dataframe's column that has IDs pertaining to the grain
 #' @param testWindowCol This column dictates the split between model training and
 #' test sets. Those rows with zeros in this column indicate the training set
 #' while those that have ones indicate the test set
@@ -33,13 +31,75 @@ source('R/DeploySupervisedModel.R')
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
 #' @seealso \code{\link{HCRTools}}
+#' @examples
+#' #### Regression example using data from SQL Server ####
+#' # This example requires
+#' #     1) You set your working directory to source file location
+#' #     2) To receive predictions from R back to SQL Server, you'll need to
+#' #        save and run an entity in SAMD that has only the following columns
+#'
+#' # GrainID decimal(38,0) not null, <--change col to match ID in summary table
+#' # PredictedValueNBR decimal(38,2),
+#' # Factor1TXT varchar(255),
+#' # Factor2TXT varchar(255),
+#' # Factor3TXT varchar(255),
+#'
+#' # If you prefer to not use SAMD, execute this in SSMS to create output table:
+#' # CREATE TABLE dbo.HCRDeployRegressionBASE(
+#' #   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
+#' #   GrainID int <--change to match inputID, PredictedValueNBR decimal(38, 2),
+#' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
+#' # )
+#'
+#' #setwd("C:/Yourscriptlocation/Useforwardslashes") # Encomment this command #
+#' ptm <- proc.time()
+#' library(HCRTools)
+#'
+#' connection.string <- 'driver={SQL Server};
+#'                       server=localhost;
+#'                       database=SAM;
+#'                       trusted_connection=true'
+#'
+#' # Use this for an example SQL source:
+#' # query <- "SELECT * FROM [SAM].[YourCoolSAM].[SomeTrainingSetTable]"
+#' # df <- selectData(connection.string, query)
+#'
+#' # Can delete these four lines when you set up your SQL connection/query
+#' csvfile <- system.file("extdata", "HREmployeeDeploy.csv",package = "HCRTools")
+#' df <- read.csv(file = csvfile,
+#'                     header = TRUE,
+#'                     na.strings = 'NULL')
+#'
+#' head(df)
+#'
+#' # Remove unnecessary columns
+#' df <- subset(df, select = -c(SalariedFlag))
+#'
+#' p <- SupervisedModelDeploymentParams$new()
+#' p$type = 'regression'
+#' p$df = df
+#' p$grainCol = 'GrainID'
+#' p$testWindowCol = 'InTestWindow'
+#' p$predictedCol = 'VacationHours'
+#' p$impute = TRUE
+#' p$debug = TRUE
+#' p$useSavedModel = FALSE
+#' p$cores = 1
+#' p$sqlConn = connection.string
+#' p$destSchemaTable = 'dbo.HCRDeployRegressionBASE'
+#'
+#' dL <- LassoDeployment$new(p)
+#' dL$deploy()
+#'
+#' print(proc.time() - ptm)
+#'
 #' @export
 
 
-DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
+LassoDeployment <- R6Class("LassoDeployment",
 
   #Inheritance
-  inherit = DeploySupervisedModel,
+  inherit = SupervisedModelDeployment,
 
   #Private members
   private = list(
@@ -54,7 +114,8 @@ DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
     connectDataSource = function() {
       odbcCloseAll()
       # Convert the connection string into a real connection object.
-      self$params$sqlConn <- odbcDriverConnect(self$params$sqlConn)
+      self$params$sqlConn <-
+        odbcDriverConnect(self$params$sqlConn)
     },
 
     closeDataSource = function() {
@@ -87,20 +148,14 @@ DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
     },
 
     saveModel = function() {
-
       if (isTRUE(self$params$debug)) {
         print('Saving model...')
       }
 
-      # Save models if specified
+      #NOTE: save(private$fit, ...) does not work!
       if (isTRUE(!self$params$useSavedModel)) {
-
-        #NOTE: save(private$fitLogit, ...) does not work!
-        fitLogitObj = private$fitLogit
         fitObj = private$fit
-
-        save(fitLogitObj, file = "rmodel_var_import.rda")
-        save(fitObj, file = "rmodel_probability.rda")
+        save(fitObj, file = "rmodel_combined.rda")
       }
 
       # This isn't needed if formula interface is used in randomForest
@@ -110,18 +165,18 @@ DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
         print('Test set before being used in predict(), after removing y')
         print(str(private$dfTest))
       }
+
     },
 
     performPrediction = function() {
       if (self$params$type == 'classification') {
-        # These are probabilities
+        #  linear , these are probabilities
         private$predictedVals = predict(private$fit,
-                                        data = private$dfTest,
-                                        allow.new.levels = TRUE)
-        # For unit test
-        private$predictedValsForUnitTest <- private$predictedVals[5]
+                                  newdata = private$dfTest,
+                                  type = "response")
+        private$predictedValsForUnitTest <- private$predictedVals[5] # for unit test
 
-        print('Probability predictions are based on Linear Mixed Model')
+        print('Probability predictions are based on logistic')
 
         if (isTRUE(self$params$debug)) {
           print(paste0('Rows in prob prediction: ', nrow(private$predictedVals)))
@@ -131,8 +186,7 @@ DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
 
       } else if (self$params$type == 'regression') {
         # this is in-kind prediction
-        predictedValsTemp = predict(private$fit, data = self$dfTest)
-        private$predictedVals <- predictedValsTemp$predictions
+        private$predictedVals = predict(private$fit, newdata = private$dfTest)
 
         if (isTRUE(self$params$debug)) {
           print(paste0(
@@ -142,7 +196,9 @@ DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
           print('First 10 raw regression predictions (with row # first)')
           print(round(private$predictedVals[1:10], 2))
         }
+
       }
+
     },
 
     calculateCoeffcients = function() {
@@ -170,11 +226,11 @@ DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
       }
 
       private$multiplyRes <-
-        sweep(private$dfTestRAW, 2, private$coefficients, `*`)
+        sweep(private$dfTestRaw, 2, private$coefficients, `*`)
 
       if (isTRUE(self$params$debug)) {
         print('Data frame after multiplying raw vals by coeffs')
-        print(private$multiplyRes[1:10, ])
+        print(private$multiplyRes[1:10,])
       }
 
     },
@@ -184,20 +240,21 @@ DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
       private$orderedFactors = t(sapply
                                   (1:nrow(private$multiplyRes),
                                   function(i)
-                                    colnames(private$multiplyRes[order(private$multiplyRes[i, ],
+                                    colnames(private$multiplyRes[order(private$multiplyRes[i,],
                                                                         decreasing = TRUE)])))
 
       if (isTRUE(self$params$debug)) {
         print('Data frame after getting column importance ordered')
-        print(private$orderedFactors[1:10, ])
+        print(private$orderedFactors[1:10,])
       }
+
     },
 
     saveDataIntoDb = function() {
       dtStamp = as.POSIXlt(Sys.time(), "GMT")
 
       # Combine grain.col, prediction, and time to be put back into SAM table
-      outdf <- data.frame(
+      outDf <- data.frame(
         0,                                 # BindingID
         'R',                               # BindingNM
         dtStamp,                           # LastLoadDTS
@@ -211,7 +268,7 @@ DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
       } else if (self$params$type == 'regression') {
         predictedResultsName = "PredictedValueNBR"
       }
-      colnames(outdf) <- c(
+      colnames(outDf) <- c(
         "BindingID",
         "BindingNM",
         "LastLoadDTS",
@@ -224,13 +281,14 @@ DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
 
       if (isTRUE(self$params$debug)) {
         print('Dataframe going to SQL Server:')
-        print(str(outdf))
+        print(str(outDf))
       }
+
 
       # Save df to table in SAM database
       out = sqlSave(
         channel = self$params$sqlConn,
-        dat = outdf,
+        dat = outDf,
         tablename = self$params$destSchemaTable,
         append = T,
         rownames = F,
@@ -244,70 +302,23 @@ DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
       if (out == 1) {
         print('SQL Server insert was successful')
       }
+
     }
   ),
 
-  #Public members
+  # Public members
   public = list(
-    #Constructor
-    #p: new DeploySupervisedModelParameters class object,
-    #   i.e. p = DeploySupervisedModelParameters$new()
+    # Constructor
+    # p: new SupervisedModelDeploymentParams class object,
+    # i.e. p = SupervisedModelDeploymentParams$new()
     initialize = function(p) {
       super$initialize(p)
-
-      if (!is.null(p$rfMtry))
-        self$params$rfMtry <- p$rfMtry
-
-      if (!is.null(p$trees))
-        self$params$trees <- p$trees
-    },
-
-    #This would be a user-defined method
-    # which gets called by buildFitObject function
-    fitLinearMixedModel = function() {
-
-      # Create formula for lmm
-      # Start building formula by grabbing column names
-      colList <- colnames(private$dfTrain)
-
-      # Remove target col from list
-      colList <- colList[colList != self$params$predictedCol]
-
-      # Remove grain col from list
-      colList <- colList[colList != self$params$grainCol]
-
-      # Remove random-effects col from list
-      fixedColsTemp <- colList[colList != self$params$personCol]
-
-      # Collapse columns in list into a large string of cols
-      fixedCols <- paste(fixedColsTemp, "+ ", collapse = "")
-
-      formula <- paste0(self$params$predictedCol, " ~ ",
-                        fixedCols,
-                        "(1|", self$params$personCol, ")")
-
-      if (isTRUE(self$params$debug)) {
-        print('Formula to be used:')
-        print(formula)
-        print('Training the general linear mixed-model...')
-        print('Using random intercept with fixed mean...')
-      }
-
-      if (self$params$type == 'classification') {
-        private$fit = glmer(formula = formula,
-                            data = private$dfTrain,
-                            family = binomial(link = 'logit'))
-      }
-      else if (self$params$type == 'regression') {
-        private$fit = lmer(formula = formula,
-                            data = private$dfTrain)
-      }
     },
 
     buildFitObject = function() {
-
-      # Get fit object by random forest
-      self$fitLinearMixedModel()
+      # Get fit object by linear model
+      # if linear, set to logit for logistic
+      private$fit = private$fitLogit
 
     },
 
@@ -326,19 +337,16 @@ DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
 
       print('Details for proability model:')
       print(private$fit)
+
     },
 
     #Override: deploy the model
     deploy = function() {
-
       # Connect to sql via odbc driver
       private$connectDataSource()
 
       if (isTRUE(self$params$useSavedModel)) {
-        load("rmodel_var_import.rda")  # Produces fitLogit object
-        private$fitLogit <- fitLogit
-
-        load("rmodel_probability.rda") # Produces fit object (for probability)
+        load("rmodel_combined.rda") # Produces fit object (for probability)
         private$fit <- fit
       } else {
         private$registerClustersOnCores()
@@ -377,4 +385,5 @@ DeployLinearMixedModel <- R6Class("DeployLinearMixedModel",
       return(private$predictedValsForUnitTest)
     }
   )
+
 )

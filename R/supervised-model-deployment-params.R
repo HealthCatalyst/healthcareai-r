@@ -1,8 +1,8 @@
 # Import the common functions.
 library(R6)
 
-#' DeploySupervisedModelParameters class to set up parameters required to build
-#' DeploySupervisedModel classes
+#' SupervisedModelDeploymentParams class to set up parameters required to build
+#' SupervisedModelDeployment class
 #'
 #' @description This step allows one to create deploy models on your data
 #' and helps determine which performs best.
@@ -13,7 +13,7 @@ library(R6)
 #'
 #' @export
 
-DeploySupervisedModelParameters <- R6Class("DeploySupervisedModelParameters",
+SupervisedModelDeploymentParams <- R6Class("SupervisedModelDeploymentParams",
 
   #Public members
   public = list(

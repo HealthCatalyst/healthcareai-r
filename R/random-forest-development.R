@@ -1,6 +1,6 @@
 # Import the common functions.
 source('R/common.R')
-source('R/SupervisedModel.R')
+source('R/supervised-model-development.R')
 
 #' Compare predictive models, created on your data
 #'
@@ -28,7 +28,8 @@ source('R/SupervisedModel.R')
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
 #' @references \url{http://healthcareml.org/}
-#' @seealso \code{\link{DeploySupervisedModel}}
+#' @seealso \code{\link{LassoDevelopment}}
+#'@seealso \code{\link{LinearMixedModelDevelopment}}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #'
@@ -41,7 +42,7 @@ source('R/SupervisedModel.R')
 #'
 #' set.seed(42)
 #'
-#' p <- SupervisedModelParameters$new()
+#' p <- SupervisedModelDevelopmentParams$new()
 #' p$df = iris
 #' p$type = 'regression'
 #' p$impute = TRUE
@@ -51,11 +52,11 @@ source('R/SupervisedModel.R')
 #' p$cores = 1
 #'
 #' # Run Lasso
-#' lasso <- Lasso$new(p)
+#' lasso <- LassoDevelopment$new(p)
 #' lasso$run()
 #'
 #' # Run RandomForest
-#' rf <- RandomForest$new(p)
+#' rf <- RandomForestDevelopment$new(p)
 #' rf$run()
 #'
 #' print(proc.time() - ptm)
@@ -76,21 +77,21 @@ source('R/SupervisedModel.R')
 #'
 #' set.seed(42)
 #'
-#' p <- SupervisedModelParameters$new()
+#' p <- SupervisedModelDevelopmentParams$new()
 #' p$df = df
 #' p$type = 'classification'
 #' p$impute = FALSE
 #' p$grainCol = ''
 #' p$predictedCol = 'SalariedFlag'
-#' p$debug = TRUE
+#' p$debug = FALSE
 #' p$cores = 1
 #'
 #' # Run Lasso
-#' lasso <- Lasso$new(p)
+#' lasso <- LassoDevelopment$new(p)
 #' lasso$run()
 #'
 #' # Run RandomForest
-#' rf <- RandomForest$new(p)
+#' rf <- RandomForestDevelopment$new(p)
 #' rf$run()
 #'
 #' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
@@ -122,12 +123,12 @@ source('R/SupervisedModel.R')
 #' FROM [AdventureWorks2012].[HumanResources].[Employee]
 #' "
 #'
-#' df <- SelectData(connection.string, query)
+#' df <- selectData(connection.string, query)
 #' head(df)
 #'
 #' set.seed(42)
 #'
-#' p <- SupervisedModelParameters$new()
+#' p <- SupervisedModelDevelopmentParams$new()
 #' p$df = df
 #' p$type = 'classification'
 #' p$impute = TRUE
@@ -137,11 +138,11 @@ source('R/SupervisedModel.R')
 #' p$cores = 1
 #'
 #' # Run Lasso
-#' lasso <- Lasso$new(p)
+#' lasso <- LassoDevelopment$new(p)
 #' lasso$run()
 #'
 #' # Run RandomForest
-#' rf <- RandomForest$new(p)
+#' rf <- RandomForestDevelopment$new(p)
 #' rf$run()
 #'
 #' # Plot ROCs from both supervised model classes
@@ -161,10 +162,10 @@ source('R/SupervisedModel.R')
 #' @export
 
 
-RandomForest <- R6Class("RandomForest",
+RandomForestDevelopment <- R6Class("RandomForestDevelopment",
 
   # Inheritance
-  inherit = SupervisedModel,
+  inherit = SupervisedModelDevelopment,
 
   # Private members
   private = list(
@@ -309,7 +310,7 @@ RandomForest <- R6Class("RandomForest",
         method = "ranger",
         importance = "impurity",
         metric = rfTrainParams.metric,
-        numTrees = self$params$numberOfTrees,
+        num.trees = self$params$numberOfTrees,
         tuneGrid = private$grid,
         trControl = train.control
       )

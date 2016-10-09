@@ -1,5 +1,5 @@
 source('R/common.R')
-source('R/SupervisedModel.R')
+source('R/supervised-model-development.R')
 
 #' Compare predictive models, created on your data
 #'
@@ -45,17 +45,17 @@ source('R/SupervisedModel.R')
 #' df$Reaction <- NULL
 #'
 #' set.seed(42)
-#' p <- SupervisedModelParameters$new()
+#' p <- SupervisedModelDevelopmentParams$new()
 #' p$df = df
 #' p$type = 'classification'
 #' p$impute = TRUE
 #' p$personCol = 'Subject' # Think of this as PatientID
 #' p$predictedCol = 'ReactionFLG'
-#' p$debug = TRUE
+#' p$debug = FALSE
 #' p$cores = 1
 #'
 #' # Create Mixed Model
-#' lmm <- LinearMixedModel$new(p)
+#' lmm <- LinearMixedModelDevelopment$new(p)
 #' lmm$run()
 #'
 #' ### Doing regression
@@ -72,27 +72,27 @@ source('R/SupervisedModel.R')
 #' str(df)
 #'
 #' set.seed(42)
-#' p <- SupervisedModelParameters$new()
+#' p <- SupervisedModelDevelopmentParams$new()
 #' p$df = df
 #' p$type = 'regression'
 #' p$impute = TRUE
-#' p$grainCol = 'GrainID' # Think of this as PatientEnounterID
+#' p$grainCol = 'GrainID'  # Think of this as PatientEnounterID
 #' p$personCol = 'Subject' # Think of this as PatientID
 #' p$predictedCol = 'Reaction'
-#' p$debug = FALSE
+#' p$debug = TRUE
 #' p$cores = 1
 #'
 #' # Create Mixed Model
-#' lmm <- LinearMixedModel$new(p)
+#' lmm <- LinearMixedModelDevelopment$new(p)
 #' lmm$run()
 #'
 #' @export
 
-LinearMixedModel <- R6Class("LinearMixedModel",
+LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
 
 
   # Inheritance
-  inherit = SupervisedModel,
+  inherit = SupervisedModelDevelopment,
 
   # Private members
   private = list(
@@ -146,8 +146,8 @@ LinearMixedModel <- R6Class("LinearMixedModel",
 
       # Split out test/train by taking last row of each PersonID for test set
       # TODO Soon: do this split using the InTestWindowCol
-      private$lmmTrain <- setDT(private$trainTest)[, .SD[1:.N-1], by = eval(self$params$personCol)]
-      private$lmmTest <- setDT(private$trainTest)[, .SD[.N], by = eval(self$params$personCol)]
+      private$lmmTrain <- data.table::setDT(private$trainTest)[, .SD[1:.N-1], by = eval(self$params$personCol)]
+      private$lmmTest <- data.table::setDT(private$trainTest)[, .SD[.N], by = eval(self$params$personCol)]
 
       if (isTRUE(self$params$debug)) {
         print('Mixed model-specific training set after creation')

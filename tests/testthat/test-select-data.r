@@ -27,7 +27,7 @@ SELECT
 FROM [AdventureWorks2012].[HumanResources].[Addresss]'
 
 test_that("Returns correct selected data in data frame", {
-  expect_equal(SelectData(connection.string,query1),
+  expect_equal(selectData(connection.string,query1),
                data.frame(OrganizationLevel=c(0,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,
                                               3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
                                               3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
@@ -39,7 +39,7 @@ test_that("Returns correct selected data in data frame", {
 })
 
 test_that("Returns too few rows message when <200 rows 199 rows edge case", {
-  expect_equal(capture.output(SelectData(connection.string,query2)),
+  expect_equal(capture.output(selectData(connection.string,query2)),
                capture.output(rbind(cat('Too few rows returned from SQL: 199 rows returned.Adjust your query to return more data!'),
                data.frame(BirthDate=c('1945-11-17','1946-04-03','1946-06-13','1946-10-29','1947-06-01','1948-05-25','1949-03-02','1950-02-16',
                                       '1950-04-27','1950-04-30','1950-05-03','1950-05-06','1950-07-06','1950-08-12','1950-09-08','1950-10-01',
@@ -69,12 +69,12 @@ test_that("Returns too few rows message when <200 rows 199 rows edge case", {
 })
 
 test_that("Returns too few rows message when 0 rows edge case", {
-  expect_equal(capture.output(SelectData(connection.string,query3)),
+  expect_equal(capture.output(selectData(connection.string,query3)),
                capture.output(cbind(cat('Too few rows returned from SQL: 0 rows returned.Adjust your query to return more data!'),data.frame(BirthDate=character(),stringsAsFactors = FALSE))))
 })
 
 test_that("Returns coorect selected data in data frame 200 rows edge case", {
-  expect_equal(SelectData(connection.string,query4),
+  expect_equal(selectData(connection.string,query4),
                data.frame(BirthDate=c('1945-11-17','1946-04-03','1946-06-13','1946-10-29','1947-06-01','1948-05-25','1949-03-02','1950-02-16',
                                       '1950-04-27','1950-04-30','1950-05-03','1950-05-06','1950-07-06','1950-08-12','1950-09-08','1950-10-01',
                                       '1950-11-09','1951-10-22','1953-04-11','1953-08-29','1955-06-03','1956-09-29','1956-10-14','1956-10-14',
@@ -103,6 +103,6 @@ test_that("Returns coorect selected data in data frame 200 rows edge case", {
 })
 
 test_that("Returns SQL error message when SQL error", {
-  expect_error(capture.output(SelectData(connection.string,query5)),
+  expect_error(capture.output(selectData(connection.string,query5)),
                'Your SQL contains an error.')
 })

@@ -1,10 +1,10 @@
 # Import the common functions.
 source('R/common.R')
-source('R/SupervisedModel.R')
+source('R/supervised-model-development.R')
 
 #' Compare predictive models, created on your data
 #'
-#' @description This step allows you to create a lasso model, based on
+#' @description This step allows you to create a Lasso model, based on
 #' your data.
 #' @docType class
 #' @import caret
@@ -28,7 +28,8 @@ source('R/SupervisedModel.R')
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
 #' @references \url{http://healthcareml.org/}
-#' @seealso \code{\link{DeploySupervisedModel}}
+#' @seealso \code{\link{RandomForestDevelopment}}
+#' @seealso \code{\link{LinearMixedModelDevelopment}}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #'
@@ -41,7 +42,7 @@ source('R/SupervisedModel.R')
 #'
 #' set.seed(42)
 #'
-#' p <- SupervisedModelParameters$new()
+#' p <- SupervisedModelDevelopmentParams$new()
 #' p$df = iris
 #' p$type = 'regression'
 #' p$impute = TRUE
@@ -51,11 +52,11 @@ source('R/SupervisedModel.R')
 #' p$cores = 1
 #'
 #' # Run Lasso
-#' lasso <- Lasso$new(p)
-#' lasso$run()
+#' Lasso <- LassoDevelopment$new(p)
+#' Lasso$run()
 #'
-#' # Run RandomForest
-#' rf <- RandomForest$new(p)
+#' # Run Random Forest
+#' rf <- RandomForestDevelopment$new(p)
 #' rf$run()
 #'
 #' print(proc.time() - ptm)
@@ -76,25 +77,25 @@ source('R/SupervisedModel.R')
 #'
 #' set.seed(42)
 #'
-#' p <- SupervisedModelParameters$new()
+#' p <- SupervisedModelDevelopmentParams$new()
 #' p$df = df
 #' p$type = 'classification'
 #' p$impute = FALSE
 #' p$grainCol = ''
 #' p$predictedCol = 'SalariedFlag'
-#' p$debug = TRUE
+#' p$debug = FALSE
 #' p$cores = 1
 #'
 #' # Run Lasso
-#' lasso <- Lasso$new(p)
-#' lasso$run()
+#' Lasso <- LassoDevelopment$new(p)
+#' Lasso$run()
 #'
-#' # Run RandomForest
-#' rf <- RandomForest$new(p)
+#' # Run Random Forest
+#' rf <- RandomForestDevelopment$new(p)
 #' rf$run()
 #'
 #' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-#' lasso$getCutOffs(tpr=.8)
+#' Lasso$getCutOffs(tpr=.8)
 #' print(proc.time() - ptm)
 #'
 #' #### Example using SQL Server data ####
@@ -123,12 +124,12 @@ source('R/SupervisedModel.R')
 #' FROM [AdventureWorks2012].[HumanResources].[Employee]
 #' "
 #'
-#' df <- SelectData(connection.string, query)
+#' df <- selectData(connection.string, query)
 #' head(df)
 #'
 #' set.seed(42)
 #'
-#' p <- SupervisedModelParameters$new()
+#' p <- SupervisedModelDevelopmentParams$new()
 #' p$df = df
 #' p$type = 'classification'
 #' p$impute = TRUE
@@ -138,37 +139,37 @@ source('R/SupervisedModel.R')
 #' p$cores = 1
 #'
 #' # Run Lasso
-#' lasso <- Lasso$new(p)
-#' lasso$run()
+#' Lasso <- LassoDevelopment$new(p)
+#' Lasso$run()
 #'
-#' # Run RandomForest
-#' rf <- RandomForest$new(p)
+#' # Run Random Forest
+#' rf <- RandomForestDevelopment$new(p)
 #' rf$run()
 #'
 #' # Plot ROCs from both supervised model classes
-#' plot(lasso$getROC(), col = "blue", legacy.axes=TRUE, mar=c(4, 4, 3, 2)+.1)
+#' plot(Lasso$getROC(), col = "blue", legacy.axes=TRUE, mar=c(4, 4, 3, 2)+.1)
 #' par(new=TRUE)
 #' plot(rf$getROC(), col = "red", legacy.axes=TRUE, mar=c(4, 4, 3, 2)+.1)
 #' title(main = "ROC")
 #' legend("bottomright",
-#'        c("Lasso","RandomForest"),
+#'        c("Lasso","RandomForestDevelopment"),
 #'        cex = 0.8,
 #'        col = c("blue","red"),
 #'        lty = 1,
 #'        inset = .1)
 #'
 #' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-#' lasso$getCutOffs(tpr=.8)
+#' Lasso$getCutOffs(tpr=.8)
 #'
 #' print(proc.time() - ptm)
 #'
 #' @export
 
 
-Lasso <- R6Class("Lasso",
+LassoDevelopment <- R6Class("LassoDevelopment",
 
   # Inheritance
-  inherit = SupervisedModel,
+  inherit = SupervisedModelDevelopment,
 
   # Private members
   private = list(
@@ -254,7 +255,7 @@ Lasso <- R6Class("Lasso",
         # greater than or less than ...
       }
 
-      # Generate fit grlasso object
+      # Generate fit grLasso object
       familyModuleName = ""
       if (self$params$type == 'classification')
         familyModuleName = "binomial"

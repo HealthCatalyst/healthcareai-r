@@ -1,7 +1,7 @@
 # Import the common functions.
 library(R6)
 
-UnsupervisedModelParameters <- R6Class("UnsupervisedModelParameters",
+UnsupervisedModelParams <- R6Class("UnsupervisedModelParams",
 
   #Public members
   public = list(

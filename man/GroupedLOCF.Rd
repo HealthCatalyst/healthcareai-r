@@ -30,7 +30,7 @@ df = data.frame(personID=c(1,1,2,2,3,3,3),
 
 head(df,n=7)
 
-dfResult = groupedLOCF(df, 'PersonID')
+dfResult = groupedLOCF(df, 'personID')
 
 head(dfResult, n = 7)
 }

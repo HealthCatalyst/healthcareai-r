@@ -18,11 +18,11 @@ Remove columns from a data frame when all of their rows are the
 same value (after removing NA's)
 }
 \examples{
-df = data.frame(a=c(1,1,1),
+df <- data.frame(a=c(1,1,1),
                 b=c('a','b','b'),
                 c=c('a','a','a'),
                 d=c(NA,'1',NA))
-dfResult = removeColsWithAllSameValue(df)
+dfResult <- removeColsWithAllSameValue(df)
 head(dfResult)
 }
 \references{
