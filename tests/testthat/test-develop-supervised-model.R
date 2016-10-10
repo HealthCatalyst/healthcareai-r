@@ -3,7 +3,7 @@ context("Checking develop supervised model")
 csvfile <- system.file("extdata", "HREmployeeDev.csv", package = "HCRTools")
 totaldf <- read.csv(file = csvfile,
                     header = TRUE,
-                    na.strings = 'NULL')
+                    na.strings =  c('NULL', 'NA', ""))
 
 p <- SupervisedModelDevelopmentParams$new()
 p$df = totaldf
