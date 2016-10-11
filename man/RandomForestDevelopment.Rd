@@ -97,8 +97,6 @@ Lasso$run()
 rf <- RandomForestDevelopment$new(p)
 rf$run()
 
-# For a given true-positive rate, get false-pos rate and 0/1 cutoff
-Lasso$getCutOffs(tpr=.8)
 print(proc.time() - ptm)
 
 #### Example using SQL Server data ####
@@ -107,6 +105,7 @@ print(proc.time() - ptm)
 
 ptm <- proc.time()
 library(HCRTools)
+library(RODBC)
 
 connection.string = "
 driver={SQL Server};
@@ -153,9 +152,6 @@ Lasso$run()
 # Run Random Forest
 rf <- RandomForestDevelopment$new(p)
 rf$run()
-
-# For a given true-positive rate, get false-pos rate and 0/1 cutoff
-Lasso$getCutOffs(tpr=.8)
 
 print(proc.time() - ptm)
 

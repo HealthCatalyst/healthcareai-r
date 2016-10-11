@@ -107,6 +107,7 @@ print(proc.time() - ptm)
 
 ptm <- proc.time()
 library(HCRTools)
+library(RODBC)
 
 connection.string = "
 driver={SQL Server};
