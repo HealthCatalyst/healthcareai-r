@@ -68,7 +68,7 @@ source('R/supervised-model-deployment.R')
 #' csvfile <- system.file("extdata", "HREmployeeDeploy.csv",package = "HCRTools")
 #' df <- read.csv(file = csvfile,
 #'                     header = TRUE,
-#'                     na.strings = 'NULL')
+#'                     na.strings = c('NULL', 'NA', ""))
 #'
 #' head(df)
 #'

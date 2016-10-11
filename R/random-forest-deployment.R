@@ -65,7 +65,7 @@ source('R/supervised-model-deployment.R')
 #'
 #' df <- read.csv(file = csvfile, #<--replace with 'your/path'
 #'                     header = TRUE,
-#'                     na.strings = 'NULL')
+#'                     na.strings =  c('NULL', 'NA', ""))
 #'
 #' # Remove unnecessary columns
 #' df$VacationHours <- NULL

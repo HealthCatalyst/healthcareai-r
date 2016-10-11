@@ -71,7 +71,7 @@ csvfile <- system.file("extdata", "HREmployeeDev.csv", package = "HCRTools")
 
 df <- read.csv(file = csvfile, #<-- Replace with 'your/path'
                     header = TRUE,
-                    na.strings = 'NULL')
+                    na.strings =  c('NULL', 'NA', ""))
 
 head(df)
 

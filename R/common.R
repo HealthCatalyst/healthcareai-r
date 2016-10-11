@@ -258,7 +258,7 @@ selectData <- function(connectionString, query, randomize=FALSE) {
   # TODO: if debug: time this operation and print the time spent to pull data.
   df <- sqlQuery(
     channel = cnxn,
-    na.strings = 'NULL',
+    na.strings =  c('NULL', 'NA', ""),
     query = query
   )
 
