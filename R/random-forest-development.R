@@ -1,6 +1,6 @@
 # Import the common functions.
 source('R/common.R')
-source('R/SupervisedModel.R')
+source('R/supervised-model-development.R')
 
 #' Compare predictive models, created on your data
 #'
@@ -28,7 +28,8 @@ source('R/SupervisedModel.R')
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
 #' @references \url{http://healthcareml.org/}
-#' @seealso \code{\link{DeploySupervisedModel}}
+#' @seealso \code{\link{LassoDevelopment}}
+#'@seealso \code{\link{LinearMixedModelDevelopment}}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #'
@@ -41,7 +42,7 @@ source('R/SupervisedModel.R')
 #'
 #' set.seed(42)
 #'
-#' p <- SupervisedModelParameters$new()
+#' p <- SupervisedModelDevelopmentParams$new()
 #' p$df = iris
 #' p$type = 'regression'
 #' p$impute = TRUE
@@ -51,11 +52,11 @@ source('R/SupervisedModel.R')
 #' p$cores = 1
 #'
 #' # Run Lasso
-#' lasso <- Lasso$new(p)
+#' lasso <- LassoDevelopment$new(p)
 #' lasso$run()
 #'
 #' # Run RandomForest
-#' rf <- RandomForest$new(p)
+#' rf <- RandomForestDevelopment$new(p)
 #' rf$run()
 #'
 #' print(proc.time() - ptm)
@@ -70,27 +71,27 @@ source('R/SupervisedModel.R')
 #'
 #' df <- read.csv(file = csvfile, #<-- Replace with 'your/path'
 #'                     header = TRUE,
-#'                     na.strings = 'NULL')
+#'                     na.strings =  c('NULL', 'NA', ""))
 #'
 #' head(df)
 #'
 #' set.seed(42)
 #'
-#' p <- SupervisedModelParameters$new()
+#' p <- SupervisedModelDevelopmentParams$new()
 #' p$df = df
 #' p$type = 'classification'
 #' p$impute = FALSE
 #' p$grainCol = ''
 #' p$predictedCol = 'SalariedFlag'
-#' p$debug = TRUE
+#' p$debug = FALSE
 #' p$cores = 1
 #'
 #' # Run Lasso
-#' lasso <- Lasso$new(p)
+#' lasso <- LassoDevelopment$new(p)
 #' lasso$run()
 #'
 #' # Run RandomForest
-#' rf <- RandomForest$new(p)
+#' rf <- RandomForestDevelopment$new(p)
 #' rf$run()
 #'
 #' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
@@ -122,12 +123,12 @@ source('R/SupervisedModel.R')
 #' FROM [AdventureWorks2012].[HumanResources].[Employee]
 #' "
 #'
-#' df <- SelectData(connection.string, query)
+#' df <- selectData(connection.string, query)
 #' head(df)
 #'
 #' set.seed(42)
 #'
-#' p <- SupervisedModelParameters$new()
+#' p <- SupervisedModelDevelopmentParams$new()
 #' p$df = df
 #' p$type = 'classification'
 #' p$impute = TRUE
@@ -137,11 +138,11 @@ source('R/SupervisedModel.R')
 #' p$cores = 1
 #'
 #' # Run Lasso
-#' lasso <- Lasso$new(p)
+#' lasso <- LassoDevelopment$new(p)
 #' lasso$run()
 #'
 #' # Run RandomForest
-#' rf <- RandomForest$new(p)
+#' rf <- RandomForestDevelopment$new(p)
 #' rf$run()
 #'
 #' # Plot ROCs from both supervised model classes
@@ -161,10 +162,10 @@ source('R/SupervisedModel.R')
 #' @export
 
 
-RandomForest <- R6Class("RandomForest",
+RandomForestDevelopment <- R6Class("RandomForestDevelopment",
 
   # Inheritance
-  inherit = SupervisedModel,
+  inherit = SupervisedModelDevelopment,
 
   # Private members
   private = list(
@@ -173,7 +174,7 @@ RandomForest <- R6Class("RandomForest",
     grid = NA,
 
     # Git random forest model
-    fit.rf = NA,
+    fitRF = NA,
 
     predictions = NA,
 
@@ -202,20 +203,20 @@ RandomForest <- R6Class("RandomForest",
           optimal = max(floor(ncol(private$dfTrain)/3), 1)
         }
 
-        mtry_list = c(optimal - 1, optimal, optimal + 1)
+        mtryList = c(optimal - 1, optimal, optimal + 1)
         # Make it such that lowest mtry is 2
-        if (length(which(mtry_list < 0)) > 0) {
-          mtry_list = mtry_list + 3
-        } else if (length(which(mtry_list == 0)) > 0) {
-          mtry_list = mtry_list + 2
-        } else if (length(which(mtry_list == 1)) > 0) {
-          mtry_list = mtry_list + 1
+        if (length(which(mtryList < 0)) > 0) {
+          mtryList = mtryList + 3
+        } else if (length(which(mtryList == 0)) > 0) {
+          mtryList = mtryList + 2
+        } else if (length(which(mtryList == 1)) > 0) {
+          mtryList = mtryList + 1
         }
 
         print(paste(c('Performing grid search across these mtry values: ',
-                      mtry_list), collapse = " "))
+                      mtryList), collapse = " "))
 
-        private$grid <-  data.frame(mtry = mtry_list) # Number of features/tree
+        private$grid <-  data.frame(mtry = mtryList) # Number of features/tree
       }
       else {
         if (self$params$type == 'classification') {
@@ -302,7 +303,7 @@ RandomForest <- R6Class("RandomForest",
       else if (self$params$type == 'regression') {
         adjustedY = private$dfTrain[[self$params$predictedCol]]
       }
-      private$fit.rf = train(
+      private$fitRF = train(
         x = private$dfTrain[ ,!(colnames(private$dfTrain) ==
                                   self$params$predictedCol)],
         y = adjustedY,
@@ -320,12 +321,12 @@ RandomForest <- R6Class("RandomForest",
     performPrediction = function() {
 
       if (self$params$type == 'classification') {
-        private$predictions = predict(object = private$fit.rf,
+        private$predictions = predict(object = private$fitRF,
                                       newdata = private$dfTest,
                                       type = 'prob')
       }
       else if (self$params$type == 'regression') {
-        private$predictions = predict(private$fit.rf, newdata = private$dfTest)
+        private$predictions = predict(private$fitRF, newdata = private$dfTest)
       }
 
     },
@@ -334,30 +335,27 @@ RandomForest <- R6Class("RandomForest",
     generatePerformanceMetrics = function() {
 
       if (self$params$type == 'classification') {
-        predictprob <- private$predictions
+        predictProb <- private$predictions
 
         if (isTRUE(self$params$debug)) {
-          print(paste0('Rows in probability prediction: ', nrow(predictprob)))
+          print(paste0('Rows in probability prediction: ', nrow(predictProb)))
           print('First 10 raw classification probability predictions')
-          print(round(predictprob[1:10,2],2))
+          print(round(predictProb[1:10,2],2))
         }
-
-        print('PredictedCol')
-        print(self$params$predictedCol)
 
         ytest = as.numeric(private$dfTest[[self$params$predictedCol]])
-        pred <- prediction(predictprob[,2], ytest)
+        pred <- prediction(predictProb[,2], ytest)
         private$perf <- ROCR::performance(pred, "tpr", "fpr")
 
-        predictclass = predict(private$fit.rf, newdata = private$dfTest)
+        predictClass = predict(private$fitRF, newdata = private$dfTest)
 
         if (isTRUE(self$params$debug)) {
-          print(paste0('Rows in discrete prediction: ', nrow(predictprob)))
+          print(paste0('Rows in discrete prediction: ', nrow(predictProb)))
           print('First 10 raw classification discrete predictions')
-          print(predictclass[1:10])
+          print(predictClass[1:10])
         }
 
-        private$ROC = roc(ytest~predictprob[,2])
+        private$ROC = roc(ytest~predictProb[,2])
         private$AUC = auc(private$ROC)
 
         # Show results
@@ -396,11 +394,11 @@ RandomForest <- R6Class("RandomForest",
       private$stopClustersOnCores()
 
       if (isTRUE(self$params$varImp)) {
-        self$params$varImp <- varImp(private$fit.rf, top = 20)
+        self$params$varImp <- varImp(private$fitRF, top = 20)
         print(self$params$varImp)
       }
 
-      return(invisible(private$fit.rf))
+      return(invisible(private$fitRF))
     },
 
     # Override: run RandomForest algorithm
@@ -417,7 +415,7 @@ RandomForest <- R6Class("RandomForest",
     },
 
     getROC = function() {
-      if (!IsBinary(self$params$df[[self$params$predictedCol]])) {
+      if (!isBinary(self$params$df[[self$params$predictedCol]])) {
         print("ROC is not created because the column you're predicting is not binary")
         return(NULL)
       }

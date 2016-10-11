@@ -1,4 +1,4 @@
-context("Testing Risk-adjusted Comparisons")
+context("Checking Risk-adjusted Comparisons")
 
 connection.string = "
 driver={SQL Server};
@@ -19,9 +19,9 @@ FROM [AdventureWorks2012].[HumanResources].[Employee]
 WHERE OrganizationLevel <> 0
 "
 
-df <- SelectData(connection.string, query)
+df <- selectData(connection.string, query)
 
-p <- SupervisedModelParameters$new()
+p <- SupervisedModelDevelopmentParams$new()
 p$df = df
 p$groupCol = 'OrganizationLevel'
 p$impute = TRUE
@@ -35,20 +35,20 @@ capture.output(riskAdjComp$run())
 
 test_that("Risk-adjusted comparison is as expected for group 1", {
 
-  expect_identical(riskAdjComp$dfReturn[1,'comparative.performance'], 31.5)
+  expect_identical(riskAdjComp$dfReturn[1,'comparativePerformance'], 31.5)
 })
 
 test_that("Risk-adjusted comparison is as expected for group 2", {
 
-  expect_identical(riskAdjComp$dfReturn[2,'comparative.performance'], 20.5)
+  expect_identical(riskAdjComp$dfReturn[2,'comparativePerformance'], 20.5)
 })
 
 test_that("Risk-adjusted comparison is as expected for group 3", {
 
-  expect_identical(riskAdjComp$dfReturn[3,'comparative.performance'], -14.5)
+  expect_identical(riskAdjComp$dfReturn[3,'comparativePerformance'], -14.5)
 })
 
 test_that("Risk-adjusted comparison is as expected for group 4", {
 
-  expect_identical(riskAdjComp$dfReturn[4,'comparative.performance'], -37.5)
+  expect_identical(riskAdjComp$dfReturn[4,'comparativePerformance'], -37.5)
 })

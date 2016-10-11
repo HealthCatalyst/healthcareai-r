@@ -1,11 +1,26 @@
-.Rproj.user
+# History files
 .Rhistory
+.Rapp.history
+
+# Session Data files
 .RData
+
+# Example code in package build process
+*-Ex.R
+
+# Output files from R CMD build
+/*.tar.gz
+
+# Output files from R CMD check
+/*.Rcheck/
+
+# RStudio files
+.Rproj.user/
 .Ruserdata
-rmodel_var_import.rda
-rmodel_probability.rda
-rmodel_combined.rda
-.vs/
-inst/RMarkdown/DartmouthNoShowsReport.Rmd
-inst/RMarkdown/DartmouthNoShowsReport.html
+
+# Saved objects
+*.rda
+
+# Genered plots from tests
 tests/testthat/Rplots.pdf
+.Rproj.user

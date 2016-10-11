@@ -13,54 +13,61 @@ models on your data, and then deploy the model that is most accurate.
 This is done in a two-step process:
 
 \itemize{
-\item Use \code{\link{Lasso}} or \code{\link{RandomForest}} to test and
+\item Use \code{\link{LassoDevelopment}} or
+\code{\link{RandomForestDevelopment}} to test and
 compare models based on your data.
 \item Once you've determined which model is best, use
-\code{\link{DeploySupervisedModel}} to create a final model, automatically
-save it, predict against test data, and push predicted values into SQL
-Server.
+\code{\link{LassoDeployment}} or \code{\link{RandomForestDeployment}} to
+create a final model, automatically save it, predict against test data, and
+push predicted values into SQL Server.
 }
 }
 \references{
 \url{http://healthcareml.org/}
 }
 \seealso{
-\code{\link{Lasso}}
+\code{\link{LassoDevelopment}}
 
-\code{\link{RandomForest}}
+\code{\link{RandomForestDevelopment}}
 
-\code{\link{DeploySupervisedModel}}
+\code{\link{LinearMixedModelDevelopment}}
+
+\code{\link{LassoDeployment}}
+
+\code{\link{RandomForestDeployment}}
+
+\code{\link{LinearMixedModelDeployment}}
 
 \code{\link{RiskAdjustedComparisons}}
 
-\code{\link{ImputeColumn}}
+\code{\link{imputeColumn}}
 
-\code{\link{GroupedLOCF}}
+\code{\link{groupedLOCF}}
 
-\code{\link{SelectData}}
+\code{\link{selectData}}
 
-\code{\link{WriteData}}
+\code{\link{writeData}}
 
-\code{\link{OrderByDate}}
+\code{\link{orderByDate}}
 
-\code{\link{IsBinary}}
+\code{\link{isBinary}}
 
-\code{\link{RemoveRowsWithNAInSpecCol}}
+\code{\link{removeRowsWithNAInSpecCol}}
 
-\code{\link{CountPercentEmpty}}
+\code{\link{countPercentEmpty}}
 
-\code{\link{RemoveColsWithAllSameValue}}
+\code{\link{removeColsWithAllSameValue}}
 
-\code{\link{ReturnColsWithMoreThanFiftyCategories}}
+\code{\link{returnColsWithMoreThanFiftyCategories}}
 
-\code{\link{FindTrends}}
+\code{\link{findTrends}}
 
-\code{\link{ConvertDateTimeColToDummies}}
+\code{\link{convertDateTimeColToDummies}}
 
-\code{\link{CountDaysSinceFirstDate}}
+\code{\link{countDaysSinceFirstDate}}
 
-\code{\link{CalculateTargetedCorrelations}}
+\code{\link{calculateTargetedCorrelations}}
 
-\code{\link{CalculateAllCorrelations}}
+\code{\link{calculateAllCorrelations}}
 }
 

@@ -6,33 +6,37 @@
 #' This is done in a two-step process:
 #'
 #' \itemize{
-#' \item Use \code{\link{Lasso}} or \code{\link{RandomForest}} to test and
+#' \item Use \code{\link{LassoDevelopment}} or
+#' \code{\link{RandomForestDevelopment}} to test and
 #' compare models based on your data.
 #' \item Once you've determined which model is best, use
-#' \code{\link{DeploySupervisedModel}} to create a final model, automatically
-#' save it, predict against test data, and push predicted values into SQL
-#' Server.
+#' \code{\link{LassoDeployment}} or \code{\link{RandomForestDeployment}} to
+#' create a final model, automatically save it, predict against test data, and
+#' push predicted values into SQL Server.
 #' }
 #' @references \url{http://healthcareml.org/}
-#' @seealso \code{\link{Lasso}}
-#' @seealso \code{\link{RandomForest}}
-#' @seealso \code{\link{DeploySupervisedModel}}
+#' @seealso \code{\link{LassoDevelopment}}
+#' @seealso \code{\link{RandomForestDevelopment}}
+#' @seealso \code{\link{LinearMixedModelDevelopment}}
+#' @seealso \code{\link{LassoDeployment}}
+#' @seealso \code{\link{RandomForestDeployment}}
+#' @seealso \code{\link{LinearMixedModelDeployment}}
 #' @seealso \code{\link{RiskAdjustedComparisons}}
-#' @seealso \code{\link{ImputeColumn}}
-#' @seealso \code{\link{GroupedLOCF}}
-#' @seealso \code{\link{SelectData}}
-#' @seealso \code{\link{WriteData}}
-#' @seealso \code{\link{OrderByDate}}
-#' @seealso \code{\link{IsBinary}}
-#' @seealso \code{\link{RemoveRowsWithNAInSpecCol}}
-#' @seealso \code{\link{CountPercentEmpty}}
-#' @seealso \code{\link{RemoveColsWithAllSameValue}}
-#' @seealso \code{\link{ReturnColsWithMoreThanFiftyCategories}}
-#' @seealso \code{\link{FindTrends}}
-#' @seealso \code{\link{ConvertDateTimeColToDummies}}
-#' @seealso \code{\link{CountDaysSinceFirstDate}}
-#' @seealso \code{\link{CalculateTargetedCorrelations}}
-#' @seealso \code{\link{CalculateAllCorrelations}}
+#' @seealso \code{\link{imputeColumn}}
+#' @seealso \code{\link{groupedLOCF}}
+#' @seealso \code{\link{selectData}}
+#' @seealso \code{\link{writeData}}
+#' @seealso \code{\link{orderByDate}}
+#' @seealso \code{\link{isBinary}}
+#' @seealso \code{\link{removeRowsWithNAInSpecCol}}
+#' @seealso \code{\link{countPercentEmpty}}
+#' @seealso \code{\link{removeColsWithAllSameValue}}
+#' @seealso \code{\link{returnColsWithMoreThanFiftyCategories}}
+#' @seealso \code{\link{findTrends}}
+#' @seealso \code{\link{convertDateTimeColToDummies}}
+#' @seealso \code{\link{countDaysSinceFirstDate}}
+#' @seealso \code{\link{calculateTargetedCorrelations}}
+#' @seealso \code{\link{calculateAllCorrelations}}
 #' @docType package
 #' @name HCRTools
 NULL

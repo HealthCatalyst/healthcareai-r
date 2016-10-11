@@ -1,6 +1,6 @@
 # Import the common functions.
 source('R/common.R')
-source('R/SupervisedModelParameters.R')
+source('R/supervised-model-development-params.R')
 
 #' Compare predictive models, created on your data
 #'
@@ -15,7 +15,7 @@ source('R/SupervisedModelParameters.R')
 #'
 #' @export
 
-SupervisedModel <- R6Class("SupervisedModel",
+SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
 
   #Private members
   private = list(
@@ -30,9 +30,9 @@ SupervisedModel <- R6Class("SupervisedModel",
     clustersOnCores = NA,
 
     # Creating attributes for performance report
-    memsize_of_dataset = NA,
-    initial_dataset_rows = NA,
-    initial_dataset_cols = NA,
+    memsizeOfDataset = NA,
+    initialDatasetRows = NA,
+    initialDatasetCols = NA,
 
     ###########
     # Functions
@@ -55,51 +55,51 @@ SupervisedModel <- R6Class("SupervisedModel",
     #Set config parameters for the algorithm
     setConfigs = function(p) {
 
-      self$params <- SupervisedModelParameters$new()
+      self$params <- SupervisedModelDevelopmentParams$new()
 
-      if(!is.null(p$df))
+      if (!is.null(p$df))
         self$params$df <- p$df
 
-      if(!is.null(p$grainCol))
+      if (!is.null(p$grainCol))
         self$params$grainCol <- p$grainCol
 
-      if(!is.null(p$predictedCol))
+      if (!is.null(p$predictedCol))
         self$params$predictedCol <- p$predictedCol
 
-      if(!is.null(p$personCol))
+      if (!is.null(p$personCol))
         self$params$personCol <- p$personCol
 
-      if(!is.null(p$groupCol))
+      if (!is.null(p$groupCol))
         self$params$groupCol <- p$groupCol
 
-      if(!is.null(p$type) && p$type != '') {
+      if (!is.null(p$type) && p$type != '') {
         self$params$type <- p$type
 
         # validation on type string values
         if (self$params$type != 'regression' && self$params$type != 'classification') {
           stop('Your type must be regression or classification')
         }
-        if (self$params$type =='classification' && IsBinary(self$params$df[[self$params$predictedCol]]) == FALSE){
+        if (self$params$type =='classification' && isBinary(self$params$df[[self$params$predictedCol]]) == FALSE){
           stop('Dependent variable must be binary for classification')
         }
-        if (self$params$type =='regression' && IsBinary(self$params$df[[self$params$predictedCol]]) == TRUE){
+        if (self$params$type =='regression' && isBinary(self$params$df[[self$params$predictedCol]]) == TRUE){
           stop('Dependent variable cannot be binary for regression')
         }
       }
 
-      if(!is.null(p$impute))
+      if (!is.null(p$impute))
         self$params$impute <- p$impute
 
-      if(!is.null(p$debug))
+      if (!is.null(p$debug))
         self$params$debug <- p$debug
 
-      if(!is.null(p$varImp))
+      if (!is.null(p$varImp))
         self$params$varImp <- p$varImp
 
-      if(!is.null(p$printResults))
+      if (!is.null(p$printResults))
         self$params$printResults <- p$printResults
 
-      if(!is.null(p$cores))
+      if (!is.null(p$cores))
         self$params$cores <- p$cores
 
       #Set additional settings
@@ -116,16 +116,16 @@ SupervisedModel <- R6Class("SupervisedModel",
     loadData = function() {
 
       # init dataset variables
-      private$memsize_of_dataset = format(object.size(self$params$df), units = "Mb")
-      private$initial_dataset_rows = nrow(self$params$df)
-      private$initial_dataset_cols = ncol(self$params$df)
+      private$memsizeOfDataset = format(object.size(self$params$df), units = "Mb")
+      private$initialDatasetRows = nrow(self$params$df)
+      private$initialDatasetCols = ncol(self$params$df)
 
       # For use in confusion matrices
       private$prevalence = table(self$params$df[[self$params$predictedCol]])[2]
 
-      if (length(ReturnColsWithMoreThanFiftyCategories(self$params$df))>0){
+      if (length(returnColsWithMoreThanFiftyCategories(self$params$df))>0){
         message('The following columns in the data frame have more than fifty factors:')
-        message(paste(shQuote(ReturnColsWithMoreThanFiftyCategories(self$params$df)), collapse=", "))
+        message(paste(shQuote(returnColsWithMoreThanFiftyCategories(self$params$df)), collapse=", "))
         message(paste('This drastically reduces performance.',
                       'Consider combining these factors into a new column with fewer factors.'))
       }
@@ -142,7 +142,7 @@ SupervisedModel <- R6Class("SupervisedModel",
       }
 
       # Remove columns with zero variance
-      self$params$df <- RemoveColsWithAllSameValue(self$params$df)
+      self$params$df <- removeColsWithAllSameValue(self$params$df)
 
       if (isTRUE(self$params$debug)) {
         print('Entire df after removing feature cols w/zero var')
@@ -159,7 +159,7 @@ SupervisedModel <- R6Class("SupervisedModel",
       }
 
       if (isTRUE(self$params$impute)) {
-        self$params$df[] <- lapply(self$params$df, ImputeColumn)
+        self$params$df[] <- lapply(self$params$df, imputeColumn)
 
         if (isTRUE(self$params$debug)) {
           print('Entire data set after imputation')
@@ -185,19 +185,20 @@ SupervisedModel <- R6Class("SupervisedModel",
       self$params$df <- self$params$df[,colSums(is.na(self$params$df)) < nrow(self$params$df)]
 
       # Remove date columns
-      datelist = grep("DTS$", colnames(self$params$df))
-      if (length(datelist) > 0) {
-        self$params$df = self$params$df[, -datelist]
+      dateList = grep("DTS$", colnames(self$params$df))
+      if (length(dateList) > 0) {
+        self$params$df = self$params$df[, -dateList]
       }
 
       if (isTRUE(self$params$debug)) {
         print('Entire data set after removing cols with DTS (ie date cols)')
         print(str(self$params$df))
-        print('Now going to remove zero-var cols...')
+        print('Now going to remove grainCol...')
       }
 
-      # If grain.col is specified, remove this col
-      if (nchar(self$params$grainCol) != 0) {
+      # For rf/lasso, remove grain col (if specified)
+      # For LMM, don't remove grain col even if specified--note personCol
+      if ((nchar(self$params$grainCol) != 0) && (nchar(self$params$personCol) == 0)) {
         df[[self$params$grainCol]] <- NULL
       }
 
@@ -230,7 +231,7 @@ SupervisedModel <- R6Class("SupervisedModel",
       }
 
       # Remove rows where predicted.col is null in train
-      private$dfTrain = RemoveRowsWithNAInSpecCol(private$dfTrain,
+      private$dfTrain = removeRowsWithNAInSpecCol(private$dfTrain,
                                                   self$params$predictedCol)
 
       if (isTRUE(self$params$debug)) {
@@ -255,8 +256,8 @@ SupervisedModel <- R6Class("SupervisedModel",
     # Functions
 
     #Constructor
-    #p: new SuperviseModelParameters class object,
-    #   i.e. p = SuperviseModelParameters$new()
+    #p: new SupervisedModelDevelopmentParams class object,
+    #   i.e. p = SuperviseModelParams$new()
     initialize = function(p) {
 
       #Set config parameters

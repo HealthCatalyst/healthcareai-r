@@ -17,7 +17,7 @@
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' library(HCRTools)
-#' df = data.frame(PersonID=c(1,1,2,2,3,3,3),
+#' df = data.frame(personID=c(1,1,2,2,3,3,3),
 #'                 wt=c(.5,NA,NA,NA,.3,.7,NA),
 #'                 ht=c(NA,1,3,NA,4,NA,NA),
 #'                 date=c('01/01/2015','01/15/2015','01/01/2015','01/15/2015',
@@ -25,11 +25,11 @@
 #'
 #' head(df,n=7)
 #'
-#' df_result = GroupedLOCF(df, 'PersonID')
+#' dfResult = groupedLOCF(df, 'personID')
 #'
-#' head(df_result, n = 7)
+#' head(dfResult, n = 7)
 
-GroupedLOCF <- function(df, id) {
+groupedLOCF <- function(df, id) {
   # Note that the object that results acts as both a data frame and datatable
   df <- data.table::setDT(df)
 
@@ -37,16 +37,16 @@ GroupedLOCF <- function(df, id) {
   # in the data.table.  Each value is FALSE unless the corresponding
   # row is the first row of a person.  In other words, each TRUE
   # represents a change of PersonID in the data.table.
-  change.flags <- c(TRUE, get(id, df)[-1] != get(id, df)[-nrow(df)])
+  changeFlags <- c(TRUE, get(id, df)[-1] != get(id, df)[-nrow(df)])
 
   # A helper that finds the last non-NA value for a given column x in df.
-  locf <- function(x) x[cummax(((!is.na(x)) | change.flags) * seq_len(nrow(df)))]
+  locf <- function(x) x[cummax(((!is.na(x)) | changeFlags) * seq_len(nrow(df)))]
 
   # By avoiding using the 'by' operator of data.table, we're reducing
   # the number of calls from (N rows / P people) * C columns to just C columns;
   # this is just once for each column in the data.table.
-  df_result <- df[, lapply(.SD, locf)]
-  df_result
+  dfResult <- df[, lapply(.SD, locf)]
+  dfResult
 }
 
 #' @title
@@ -57,12 +57,12 @@ GroupedLOCF <- function(df, id) {
 #' can use daily and seasonal patterns in their model building.
 #'
 #' @param df A data frame. Indicates the datetime column.
-#' @param date.time.col A string. Column name in df that will be converted
+#' @param dateTimeCol A string. Column name in df that will be converted
 #' into several columns.
 #' @param depth A string. Specifies the depth with which to expand extra columns
 #' (starting with a year column). 'd' expands to day, 'h' expands to hour
 #' (default), m' expands to minute, and 's' expands to second.
-#' @param return.dt.col A boolean. Return the original date.time.col with
+#' @param returnDtCol A boolean. Return the original dateTimeCol with
 #' the modified data frame?
 #' @return A data frame which now includes several columns based on time
 #' rather than just one datetime column
@@ -71,65 +71,65 @@ GroupedLOCF <- function(df, id) {
 #' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' dt_col = c("2001-06-09 12:45:05","2002-01-29 09:30:05","2002-02-02 07:36:50",
+#' dtCol = c("2001-06-09 12:45:05","2002-01-29 09:30:05","2002-02-02 07:36:50",
 #'           "2002-03-04 16:45:01","2002-11-13 20:00:10","2003-01-29 07:31:43",
 #'           "2003-07-07 17:30:02","2003-09-28 01:03:20")
 #' y1 <- c(.5,1,3,6,8,13,14,1)
 #' y2 <- c(.8,1,1.2,1.2,1.2,1.3,1.3,1)
-#' df <- data.frame(dt_col,y1,y2)
+#' df <- data.frame(dtCol,y1,y2)
 #'
-#' df <- ConvertDateTimeColToDummies(df, 'dt_col')
+#' df <- convertDateTimeColToDummies(df, 'dtCol')
 #' head(df)
 
-ConvertDateTimeColToDummies <- function(df,
-                                        date.time.col,
+convertDateTimeColToDummies <- function(df,
+                                        dateTimeCol,
                                         depth='h',
-                                        return.dt.col=FALSE) {
+                                        returnDtCol=FALSE) {
   if (depth == 'd') {
 
-    df[[date.time.col]] <- as.POSIXct(df[[date.time.col]])
-    df$Year <- as.POSIXlt(df[[date.time.col]])$year + 1900
-    df$Month <- as.POSIXlt(df[[date.time.col]])$mo + 1
-    df$WeekOfYear <- strftime(df[[date.time.col]],format = "%W")
-    df$DayOfMonth <- as.POSIXlt(df[[date.time.col]])$mday
-    df$DayOfWeek <- as.POSIXlt(df[[date.time.col]])$wday + 1
+    df[[dateTimeCol]] <- as.POSIXct(df[[dateTimeCol]])
+    df$year <- as.POSIXlt(df[[dateTimeCol]])$year + 1900
+    df$month <- as.POSIXlt(df[[dateTimeCol]])$mo + 1
+    df$weekOfYear <- strftime(df[[dateTimeCol]],format = "%W")
+    df$dayOfMonth <- as.POSIXlt(df[[dateTimeCol]])$mday
+    df$dayOfWeek <- as.POSIXlt(df[[dateTimeCol]])$wday + 1
 
   } else if (depth == 'h') {
 
-    df[[date.time.col]] <- as.POSIXct(df[[date.time.col]])
-    df$Year <- as.POSIXlt(df[[date.time.col]])$year + 1900
-    df$Month <- as.POSIXlt(df[[date.time.col]])$mo + 1
-    df$WeekOfYear <- strftime(df[[date.time.col]],format = "%W")
-    df$DayOfMonth <- as.POSIXlt(df[[date.time.col]])$mday
-    df$DayOfWeek <- as.POSIXlt(df[[date.time.col]])$wday + 1
-    df$Hour <- as.POSIXlt(df[[date.time.col]])$hour
+    df[[dateTimeCol]] <- as.POSIXct(df[[dateTimeCol]])
+    df$year <- as.POSIXlt(df[[dateTimeCol]])$year + 1900
+    df$month <- as.POSIXlt(df[[dateTimeCol]])$mo + 1
+    df$weekOfYear <- strftime(df[[dateTimeCol]],format = "%W")
+    df$dayOfMonth <- as.POSIXlt(df[[dateTimeCol]])$mday
+    df$dayOfWeek <- as.POSIXlt(df[[dateTimeCol]])$wday + 1
+    df$hour <- as.POSIXlt(df[[dateTimeCol]])$hour
 
   } else if (depth == 'm') {
 
-    df[[date.time.col]] <- as.POSIXct(df[[date.time.col]])
-    df$Year <- as.POSIXlt(df[[date.time.col]])$year + 1900
-    df$Month <- as.POSIXlt(df[[date.time.col]])$mo + 1
-    df$WeekOfYear <- strftime(df[[date.time.col]],format = "%W")
-    df$DayOfMonth <- as.POSIXlt(df[[date.time.col]])$mday
-    df$DayOfWeek <- as.POSIXlt(df[[date.time.col]])$wday + 1
-    df$Hour <- as.POSIXlt(df[[date.time.col]])$hour
-    df$Min <- as.POSIXlt(df[[date.time.col]])$min
+    df[[dateTimeCol]] <- as.POSIXct(df[[dateTimeCol]])
+    df$year <- as.POSIXlt(df[[dateTimeCol]])$year + 1900
+    df$month <- as.POSIXlt(df[[dateTimeCol]])$mo + 1
+    df$weekOfYear <- strftime(df[[dateTimeCol]],format = "%W")
+    df$dayOfMonth <- as.POSIXlt(df[[dateTimeCol]])$mday
+    df$dayOfWeek <- as.POSIXlt(df[[dateTimeCol]])$wday + 1
+    df$hour <- as.POSIXlt(df[[dateTimeCol]])$hour
+    df$min <- as.POSIXlt(df[[dateTimeCol]])$min
 
   } else if (depth == 's') {
 
-    df[[date.time.col]] <- as.POSIXct(df[[date.time.col]])
-    df$Year <- as.POSIXlt(df[[date.time.col]])$year + 1900
-    df$Month <- as.POSIXlt(df[[date.time.col]])$mo + 1
-    df$WeekOfYear <- strftime(df[[date.time.col]],format = "%W")
-    df$DayOfMonth <- as.POSIXlt(df[[date.time.col]])$mday
-    df$DayOfWeek <- as.POSIXlt(df[[date.time.col]])$wday + 1
-    df$Hour <- as.POSIXlt(df[[date.time.col]])$hour
-    df$Min <- as.POSIXlt(df[[date.time.col]])$min
-    df$Sec <- as.POSIXlt(df[[date.time.col]])$sec
+    df[[dateTimeCol]] <- as.POSIXct(df[[dateTimeCol]])
+    df$year <- as.POSIXlt(df[[dateTimeCol]])$year + 1900
+    df$month <- as.POSIXlt(df[[dateTimeCol]])$mo + 1
+    df$weekOfYear <- strftime(df[[dateTimeCol]],format = "%W")
+    df$dayOfMonth <- as.POSIXlt(df[[dateTimeCol]])$mday
+    df$dayOfWeek <- as.POSIXlt(df[[dateTimeCol]])$wday + 1
+    df$hour <- as.POSIXlt(df[[dateTimeCol]])$hour
+    df$min <- as.POSIXlt(df[[dateTimeCol]])$min
+    df$Sec <- as.POSIXlt(df[[dateTimeCol]])$sec
   }
 
-  if (isTRUE(!return.dt.col)) {
-    df[[date.time.col]] <- NULL
+  if (isTRUE(!returnDtCol)) {
+    df[[dateTimeCol]] <- NULL
   }
   df
 }
@@ -147,18 +147,18 @@ ConvertDateTimeColToDummies <- function(df,
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' # For a numeric vector
-#' v_result = ImputeColumn(c(1,2,3,NA))
+#' vResult = imputeColumn(c(1,2,3,NA))
 #'
 #' # For a factor vector
-#' v_result = ImputeColumn(c('Y','N','Y',NA))
+#' vResult = imputeColumn(c('Y','N','Y',NA))
 #'
 #' # To use this function on an entire data frame:
 #' df = data.frame(a=c(1,2,3,NA),
 #'                 b=c('Y','N','Y',NA))
-#' df[] <- lapply(df, ImputeColumn)
+#' df[] <- lapply(df, imputeColumn)
 #' head(df)
 
-ImputeColumn <- function(v) {
+imputeColumn <- function(v) {
   if (is.numeric(v)) {
     v[is.na(v)] <- mean(v, na.rm = TRUE)
   } else {
@@ -178,41 +178,41 @@ ImputeColumn <- function(v) {
 #' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' IsBinary(c(1,2,NA))
-#' IsBinary(c(1,2,3))
+#' isBinary(c(1,2,NA))
+#' isBinary(c(1,2,3))
 
-IsBinary <- function(v) {
+isBinary <- function(v) {
   x <- unique(v)
-  bool_result <- length(x) - sum(is.na(x)) == 2L
-  bool_result
+  boolResult <- length(x) - sum(is.na(x)) == 2L
+  boolResult
 }
 
 #' @title
 #' Remove rows where specified col is NA
 #' @description Remove rows from a data frame where a particular col is NA
 #' @param df A data frame to be altered
-#' @param desired_col A column name in the df (in ticks)
-#' @return df_result The input data frame with rows removed
+#' @param desiredCol A column name in the df (in ticks)
+#' @return dfResult The input data frame with rows removed
 #'
 #' @export
 #' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' df = data.frame(a=c(1,2,3),b=c('Y','N',NA),c=c(NA,'Y','N'))
-#' df_result = RemoveRowsWithNAInSpecCol(df,'b')
-#' head(df_result)
+#' dfResult = removeRowsWithNAInSpecCol(df,'b')
+#' head(dfResult)
 
-RemoveRowsWithNAInSpecCol <- function(df, desired_col) {
-  completeVec <- stats::complete.cases(df[[desired_col]])
-  df_result <- df[completeVec,]
-  df_result
+removeRowsWithNAInSpecCol <- function(df, desiredCol) {
+  completeVec <- stats::complete.cases(df[[desiredCol]])
+  dfResult <- df[completeVec,]
+  dfResult
 }
 
 #' @title
 #' Pull data into R via an ODBC connection
 #' @description Select data from an ODBC database and return the results as
 #' a data frame.
-#' @param connection.string A string specifying the driver, server, database,
+#' @param connectionString A string specifying the driver, server, database,
 #' and whether Windows Authentication will be used.
 #' @param query The SQL query (in ticks or quotes)
 #' @param randomize Boolean that dictates whether returned rows are randomized
@@ -224,11 +224,11 @@ RemoveRowsWithNAInSpecCol <- function(df, desired_col) {
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' library(HCRTools)
-#' connection.string = "
+#' connectionString = "
 #'   driver={SQL Server};
 #'   server=localhost;
 #'   database=AdventureWorks2012;
-#'   trusted_connection=true
+#'   trustedConnection=true
 #'   "
 #'
 #' query = "
@@ -237,28 +237,28 @@ RemoveRowsWithNAInSpecCol <- function(df, desired_col) {
 #'   FROM [AdventureWorks2012].[HumanResources].[Employee]
 #'   "
 #'
-#' df <- SelectData(connection.string, query)
+#' df <- selectData(connectionString, query)
 #' head(df)
 
-SelectData <- function(connection.string, query, randomize=FALSE) {
+selectData <- function(connectionString, query, randomize=FALSE) {
   if (isTRUE(randomize)) {
-    orderpres <- grep('order', tolower(query))
+    orderPres <- grep('order', tolower(query))
 
-    if (length(orderpres == 0)) {
+    if (length(orderPres == 0)) {
       stop("You cannot randomize while using the SQL order keyword.")
     }
 
     query <- paste0(query, " ORDER BY NEWID()")
   }
 
-  # TODO: if debug: cat(connection.string)
-  cnxn <- odbcDriverConnect(connection.string)
+  # TODO: if debug: cat(connectionString)
+  cnxn <- odbcDriverConnect(connectionString)
 
   # TODO: if debug: cat(query)
   # TODO: if debug: time this operation and print the time spent to pull data.
   df <- sqlQuery(
     channel = cnxn,
-    na.strings = 'NULL',
+    na.strings =  c('NULL', 'NA', ""),
     query = query
   )
 
@@ -286,7 +286,7 @@ SelectData <- function(connection.string, query, randomize=FALSE) {
 #' @param df A data frame being written to a database
 #' @param server A string.
 #' @param database A string.
-#' @param schema_dot_table A string representing the destination schema and
+#' @param schemaDotTable A string representing the destination schema and
 #' table. Note that brackets aren't expected.
 #' @return Nothing
 #'
@@ -300,24 +300,24 @@ SelectData <- function(connection.string, query, randomize=FALSE) {
 #'                  b=c(2,4,6),
 #'                  c=c('one','two','three'))
 #'
-#' #WriteData(df,'localhost','SAM','dbo.HCRWriteData')
+#' #writeData(df,'localhost','SAM','dbo.HCRwriteData')
 
-WriteData <- function(df, server, database, schema_dot_table) {
+writeData <- function(df, server, database, schemaDotTable) {
 
-  # TODO: use sub function to remove brackets from schema_dot_table
+  # TODO: use sub function to remove brackets from schemaDotTable
   # TODO: add try/catch around sqlSave
-  connection.string <-
+  connectionString <-
     paste0("driver={SQL Server};
            server=",server,";
            database=",database,";
-           trusted_connection=true")
+           trustedConnection=true")
 
-  sqlcnxn <- odbcDriverConnect(connection.string)
+  sqlCnxn <- odbcDriverConnect(connectionString)
 
   # Save df to table in specified database
-  out <- sqlSave(channel = sqlcnxn,
+  out <- sqlSave(channel = sqlCnxn,
                 dat = df,
-                tablename = schema_dot_table,
+                tablename = schemaDotTable,
                 append = T,
                 rownames = F,
                 colnames = F,
@@ -347,19 +347,19 @@ WriteData <- function(df, server, database, schema_dot_table) {
 #' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' df = data.frame(a=c(1,1,1),
+#' df <- data.frame(a=c(1,1,1),
 #'                 b=c('a','b','b'),
 #'                 c=c('a','a','a'),
 #'                 d=c(NA,'1',NA))
-#' df_result = RemoveColsWithAllSameValue(df)
-#' head(df_result)
+#' dfResult <- removeColsWithAllSameValue(df)
+#' head(dfResult)
 
-RemoveColsWithAllSameValue <- function(df) {
-  df_result <- df[sapply(df, function(x) length(unique(x[!is.na(x)])) > 1)]
-  if (ncol(df_result) == 0) {
+removeColsWithAllSameValue <- function(df) {
+  dfResult <- df[sapply(df, function(x) length(unique(x[!is.na(x)])) > 1)]
+  if (ncol(dfResult) == 0) {
     message('All columns were removed.')
   }
-  df_result
+  dfResult
 }
 
 #' @title
@@ -381,17 +381,17 @@ RemoveColsWithAllSameValue <- function(df) {
 #'                     'o','p','q','r','s','t','u','v','w','x','y','z','aa','bb',
 #'                     'cc','dd','ee','ff','gg','hh','ii','jj','kk','ll','mm','nn',
 #'                     'oo','pp','qq','rr','ss','tt','uu','vv','ww','xx','yy'))
-#' col_list = ReturnColsWithMoreThanFiftyCategories(df)
-#' col_list
+#' colList = returnColsWithMoreThanFiftyCategories(df)
+#' colList
 
-ReturnColsWithMoreThanFiftyCategories <- function(df) {
-  col_list <- vector('character')
+returnColsWithMoreThanFiftyCategories <- function(df) {
+  colList <- vector('character')
   for (columnName in names(df)) {
     if (nlevels(df[[columnName]]) > 50) {
-      col_list <- c(col_list,columnName)
+      colList <- c(colList,columnName)
     }
   }
-  col_list
+  colList
 }
 
 #' @title
@@ -400,8 +400,8 @@ ReturnColsWithMoreThanFiftyCategories <- function(df) {
 #' Find numeric columns in data frame that have an absolute slope greater than
 #' that specified via threshold argument.
 #' @param df A data frame
-#' @param date_col A string denoting the date column
-#' @param group_by_col A string denoting the column by which to group
+#' @param dateCol A string denoting the date column
+#' @param groupbyCol A string denoting the column by which to group
 #' @return A data frame containing the dimensional attribute (ie gender), the
 #' subset the data was grouped by (ie M/F), the measures that had trends
 #' (ie, mortality or readmission), and the ending month.
@@ -422,81 +422,81 @@ ReturnColsWithMoreThanFiftyCategories <- function(df) {
 #'gender <- c('M','F','F','F','F','F','F','F')
 #'df <- data.frame(dates,y1,y2,y3,y4,gender)
 #'
-#'df_result = FindTrends(df = df,
-#'                       date_col = 'dates',
-#'                       group_by_col = 'gender')
-#'df_result
+#'dfResult = findTrends(df = df,
+#'                       dateCol = 'dates',
+#'                       groupbyCol = 'gender')
+#'dfResult
 
-FindTrends <- function(df,
-                       date_col,
-                       group_by_col) {
+findTrends <- function(df,
+                       dateCol,
+                       groupbyCol) {
 
-  df$year <- as.POSIXlt(df[[date_col]])$year + 1900
-  df$month <- as.POSIXlt(df[[date_col]])$mo + 1
+  df$year <- as.POSIXlt(df[[dateCol]])$year + 1900
+  df$month <- as.POSIXlt(df[[dateCol]])$mo + 1
 
-  df[[date_col]] <- NULL
+  df[[dateCol]] <- NULL
 
-  df <- aggregate(formula(paste0(".~", group_by_col, "+year+month")),
+  df <- aggregate(formula(paste0(".~", groupbyCol, "+year+month")),
                       data = df,
                       FUN = sum)
 
   df <- df[with(df, order(year, month)), ]
 
   # TODO: alter this last month dynamically when we search over all time
-  final_yr_month = paste0(month.abb[df$month[length(df$month)]],
+  finalYrMonth = paste0(month.abb[df$month[length(df$month)]],
                          '-',
                          df$year[length(df$year)])
 
   # Pre-create empty vectors
-  metric.trend.list <- vector('character')
-  aggregated.col.list <- vector('character')
+  metricTrendList <- vector('character')
+  aggregatedColList <- vector('character')
 
   # Create list that doesn't have cols we aggregated by
-  coliterlist = names(df)
-  remove <- c(group_by_col,"year","month")
-  coliterlist <- coliterlist[!coliterlist %in% remove]
+  colIterList = names(df)
+  remove <- c(groupbyCol,"year","month")
+  colIterList <- colIterList[!colIterList %in% remove]
 
   # If the last six values are monotonically increasing, add col name to list
-  for (j in unique(df[[group_by_col]])) {
+  for (j in unique(df[[groupbyCol]])) {
     # Just grab rows corresponding to a particular category in the factor col
-    dftemp <- df[df[[group_by_col]] == j,]
+    dfTemp <- df[df[[groupbyCol]] == j,]
 
     print('df after grouping and focusing on one category in group col:')
-    print(tail(dftemp, n = 6))
+    print(tail(dfTemp, n = 6))
 
     # Iterate over all columns except for cols that we aggregated by
-    for (i in coliterlist) {
-      if (is.numeric(dftemp[[i]])) {
+    for (i in colIterList) {
+      if (is.numeric(dfTemp[[i]])) {
         # Check if last six values are monotonically increasing
-        n <- nrow(dftemp)
+        n <- nrow(dfTemp)
         if (n > 5) {
           # TODO: make this check into a function
-          check.incr = all(dftemp[[i]][(n - 5):n] == cummax(dftemp[[i]][(n - 5):n]))
-          check.decr = all(dftemp[[i]][(n - 5):n] == cummin(dftemp[[i]][(n - 5):n]))
-          if (isTRUE(check.incr) || isTRUE(check.decr)) {
+          checkIncr = all(dfTemp[[i]][(n - 5):n] == cummax(dfTemp[[i]][(n - 5):n]))
+          checkDecr = all(dfTemp[[i]][(n - 5):n] == cummin(dfTemp[[i]][(n - 5):n]))
+          if (isTRUE(checkIncr) || isTRUE(checkDecr)) {
             # If true, append col names to list to output
-            aggregated.col.list <- c(aggregated.col.list, j)
-            metric.trend.list <- c(metric.trend.list, i)
+            aggregatedColList <- c(aggregatedColList, j)
+            metricTrendList <- c(metricTrendList, i)
           }
         }
       }
     }
   }
 
-  if (length(metric.trend.list) == 0) {
+  if (length(metricTrendList) == 0) {
     message('No trends of sufficient length found')
     return()
   } else {
-    df_result = data.frame(group_by_col,
-                          aggregated.col.list,
-                          metric.trend.list,
-                          final_yr_month)
-    colnames(df_result) <- c("DimAttribute",
+    dfResult = data.frame(groupbyCol,
+                          aggregatedColList,
+                          metricTrendList,
+                          finalYrMonth)
+    colnames(dfResult) <- c("DimAttribute",
                             "GroupBy",
                             "MeasuresTrending",
                             "FinalDate")
     print('Trends were found:')
-    print(df_result)
+    print(dfResult)
   }
 }
 
@@ -505,7 +505,7 @@ FindTrends <- function(df,
 #'
 #' @description Returns a data frame that's ordered by its date column
 #' @param df A data frame
-#' @param date_col Name of column in data frame that contains dates
+#' @param dateCol Name of column in data frame that contains dates
 #' @param descending Boolean for whether the output should be in descending order
 #' @return A data frame ordered by date column
 #'
@@ -517,18 +517,18 @@ FindTrends <- function(df,
 #' library(HCRTools)
 #' df = data.frame(date=c('2009-01-01','2010-01-01','2009-03-08','2009-01-19'),
 #'                 a=c(1,2,3,4))
-#' df_result = OrderByDate(df,'date', descending=FALSE)
-#' head(df_result)
+#' dfResult = orderByDate(df,'date', descending=FALSE)
+#' head(dfResult)
 
-OrderByDate <- function(df,date_col,descending=FALSE) {
-  df[[date_col]] <- lubridate::ymd_hms(df[[date_col]],truncated = 5)
+orderByDate <- function(df,dateCol,descending=FALSE) {
+  df[[dateCol]] <- lubridate::ymd_hms(df[[dateCol]],truncated = 5)
 
   if (descending == FALSE) {
-    df_result <- df[order(df[[date_col]]),]
+    dfResult <- df[order(df[[dateCol]]),]
   } else {
-    df_result <- df[rev(order(df[[date_col]])),]
+    dfResult <- df[rev(order(df[[dateCol]])),]
   }
-  df_result
+  dfResult
 }
 
 #' @title
@@ -537,7 +537,7 @@ OrderByDate <- function(df,date_col,descending=FALSE) {
 #' @description Calculates correlations between each numeric column in a table
 #' and and a target column
 #' @param df A data frame
-#' @param target.col Name of target column against which correlations will be
+#' @param targetCol Name of target column against which correlations will be
 #' calculated
 #' @return A data frame with column names and corresponding correlations and
 #' p-values with the target column
@@ -553,45 +553,45 @@ OrderByDate <- function(df,date_col,descending=FALSE) {
 #' c=c(3,4,2,1,3,5),
 #' d=c('M','F','F','F','M','F')) #<- is ignored
 #'
-#' df_result <- CalculateTargetedCorrelations(df=df,target.col='c')
-#' df_result
+#' dfResult <- calculateTargetedCorrelations(df=df,targetCol='c')
+#' dfResult
 
-CalculateTargetedCorrelations <- function(df,target.col) {
-  if (!is.numeric(df[[target.col]])) {
+calculateTargetedCorrelations <- function(df,targetCol) {
+  if (!is.numeric(df[[targetCol]])) {
     stop("Your target column must be numeric")
   }
 
   # Initialize variable, since we will iterate
-  pvalue <- vector('numeric')
+  pValue <- vector('numeric')
 
   # Pull only numeric columns
   nums <- sapply(df, is.numeric)
   df <- df[ , nums]
 
-  collist <- names(df)
+  colList <- names(df)
   # Trim list of col names, so target doesn't check against itself
-  collist <- collist[collist != target.col]
+  colList <- colList[colList != targetCol]
 
   # Make list of correlations
-  cor <- cor(as.matrix(df[[target.col]]),
-             as.matrix(df[ ,!(colnames(df) == target.col)]))
+  cor <- cor(as.matrix(df[[targetCol]]),
+             as.matrix(df[ ,!(colnames(df) == targetCol)]))
 
   # Make list of corr-related p-values
-  for (i in collist) {
-    pvalue <- c(pvalue,cor.test(df[[target.col]], df[,i])$p.value)
+  for (i in colList) {
+    pValue <- c(pValue,cor.test(df[[targetCol]], df[,i])$p.value)
   }
 
-  df_result <- data.frame(t(cor),pvalue)
+  dfResult <- data.frame(t(cor),pValue)
   # Change name of corr col
-  names(df_result)[names(df_result) == 't.cor.'] <- 'correlation'
+  names(dfResult)[names(dfResult) == 't.cor.'] <- 'correlation'
 
   # Change row name to actual col
-  df_result <- cbind(column = rownames(df_result), df_result)
-  rownames(df_result) <- NULL
+  dfResult <- cbind(column = rownames(dfResult), dfResult)
+  rownames(dfResult) <- NULL
 
-  colnames(df_result) <- c('Column','Correlation','PValue')
+  colnames(dfResult) <- c('Column','Correlation','PValue')
 
-  df_result
+  dfResult
 }
 
 #' @title
@@ -614,12 +614,12 @@ CalculateTargetedCorrelations <- function(df,target.col) {
 #' c=c(3,4,2,1,3,5),
 #' d=c('M','F','F','F','M','F')) #<- is ignored
 #'
-#' df_result <- CalculateAllCorrelations(df)
-#' df_result
+#' dfResult <- calculateAllCorrelations(df)
+#' dfResult
 
-CalculateAllCorrelations <- function(df) {
-  df_result <- cor(df[sapply(df, is.numeric)])
-  df_result
+calculateAllCorrelations <- function(df) {
+  dfResult <- cor(df[sapply(df, is.numeric)])
+  dfResult
 }
 
 #' @title
@@ -641,16 +641,16 @@ CalculateAllCorrelations <- function(df) {
 #'                     'o','p','q','r','s','t','u','v','w','x','y','z','aa','bb',
 #'                     'cc','dd','ee','ff','gg','hh','ii','jj','kk','ll','mm','nn',
 #'                     'oo','pp','qq','rr','ss','tt','uu','vv','ww','xx','yy'))
-#' col_list = ReturnColsWithMoreThanFiftyCategories(df)
+#' colList = returnColsWithMoreThanFiftyCategories(df)
 
-ReturnColsWithMoreThanFiftyCategories <- function(df) {
-  col_list <- vector('character')
+returnColsWithMoreThanFiftyCategories <- function(df) {
+  colList <- vector('character')
   for (columnName in names(df)) {
     if (nlevels(df[[columnName]]) > 50) {
-      col_list <- c(col_list,columnName)
+      colList <- c(colList,columnName)
     }
   }
-  col_list
+  colList
 }
 
 #' @title
@@ -669,12 +669,12 @@ ReturnColsWithMoreThanFiftyCategories <- function(df) {
 #' df = data.frame(a=c(1,2,NA,NA,3),
 #'                 b=c(NA,NA,NA,NA,NA),
 #'                 c=c(NA,NA,'F','M',NA))
-#' col_list = CountPercentEmpty(df)
-#' col_list
+#' colList = countPercentEmpty(df)
+#' colList
 
-CountPercentEmpty <- function(df) {
-  col_list <- colMeans(is.na(df))
-  col_list
+countPercentEmpty <- function(df) {
+  colList <- colMeans(is.na(df))
+  colList
 }
 
 #' @title
@@ -683,8 +683,8 @@ CountPercentEmpty <- function(df) {
 #' @description Adds a new column to the data frame, which shows days since
 #' first day in input column
 #' @param df A data frame
-#' @param dt_col A string denoting the date-time column of interest
-#' @param return_dt_col A boolean. Return the original dt_col with the modified
+#' @param dtCol A string denoting the date-time column of interest
+#' @param returnDtCol A boolean. Return the original dtCol with the modified
 #' data frame?
 #' @return A data frame that now has a new column
 #'
@@ -692,27 +692,27 @@ CountPercentEmpty <- function(df) {
 #' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' dt_col = c("2001-06-09 12:45:05","2002-01-29 09:30:05","2002-02-02 07:36:50",
+#' dtCol = c("2001-06-09 12:45:05","2002-01-29 09:30:05","2002-02-02 07:36:50",
 #' "2002-03-04 16:45:01","2002-11-13 20:00:10","2003-01-29 07:31:43",
 #' "2003-07-07 17:30:02","2003-09-28 01:03:20")
 #' y1 <- c(.5,1,3,6,8,13,14,1) # Not being used at all
-#' df <- data.frame(dt_col, y1)
+#' df <- data.frame(dtCol, y1)
 #' head(df)
-#' df_result <- CountDaysSinceFirstDate(df, 'dt_col')
-#' head(df_result)
+#' dfResult <- countDaysSinceFirstDate(df, 'dtCol')
+#' head(dfResult)
 
-CountDaysSinceFirstDate <- function(df, dt_col, return_dt_col=FALSE) {
+countDaysSinceFirstDate <- function(df, dtCol, returnDtCol=FALSE) {
 
   # Find first date in date list
-  earliest <- df[[dt_col]][order(format(as.Date(df[[dt_col]]),"%y%m%d"))[1]]
+  earliest <- df[[dtCol]][order(format(as.Date(df[[dtCol]]),"%y%m%d"))[1]]
   # Find diff between each date and first date
-  day_diff <- as.numeric(difftime(df[[dt_col]], earliest, units = 'days'))
+  dayDiff <- as.numeric(difftime(df[[dtCol]], earliest, units = 'days'))
   # Make output col name include input name (in case of multiple uses)
-  combined_name <- paste0(dt_col,'DaysSinceFirstDate')
-  df[[combined_name]] <- day_diff
+  combinedName <- paste0(dtCol,'DaysSinceFirstDate')
+  df[[combinedName]] <- dayDiff
 
-  if (isTRUE(!return_dt_col)) {
-    df[[dt_col]] <- NULL
+  if (isTRUE(!returnDtCol)) {
+    df[[dtCol]] <- NULL
   }
 
   df
