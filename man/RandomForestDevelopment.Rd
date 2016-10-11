@@ -67,7 +67,7 @@ library(HCRTools)
 ptm <- proc.time()
 
 # Can delete this line in your work
-csvfile <- system.file("extdata", "HREmployeeDev.csv", package = "HCRTools")
+csvfile <- system.file("extdata", "DiabetesClinical.csv", package = "HCRTools")
 
 df <- read.csv(file = csvfile, #<-- Replace with 'your/path'
                     header = TRUE,
@@ -75,29 +75,31 @@ df <- read.csv(file = csvfile, #<-- Replace with 'your/path'
 
 head(df)
 
+df$PatientEncounterFLG <- NULL
+df$InTestWindowFLG <- NULL
+
 set.seed(42)
 
 p <- SupervisedModelDevelopmentParams$new()
 p$df = df
-p$type = 'classification'
-p$impute = FALSE
-p$grainCol = ''
-p$predictedCol = 'SalariedFlag'
+p$type = 'regression'
+p$impute = TRUE
+p$grainCol = 'PatientID'
+p$predictedCol = 'A1CNBR'
 p$debug = FALSE
 p$cores = 1
 
 # Run Lasso
-lasso <- LassoDevelopment$new(p)
-lasso$run()
+Lasso <- LassoDevelopment$new(p)
+Lasso$run()
 
-# Run RandomForest
+# Run Random Forest
 rf <- RandomForestDevelopment$new(p)
 rf$run()
 
 # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-rf$getCutOffs(tpr=0.8)
+Lasso$getCutOffs(tpr=.8)
 print(proc.time() - ptm)
-
 
 #### Example using SQL Server data ####
 # This example requires:
@@ -109,53 +111,51 @@ library(HCRTools)
 connection.string = "
 driver={SQL Server};
 server=localhost;
+database=SAM;
 trusted_connection=true
 "
 
 query = "
 SELECT
- [OrganizationLevel]
-,[MaritalStatus]
-,[Gender]
-,IIF([SalariedFlag]=0,'N','Y') AS SalariedFlag
-,[VacationHours]
-,[SickLeaveHours]
-FROM [AdventureWorks2012].[HumanResources].[Employee]
+ [PatientEncounterID]
+,[PatientID]
+,[SystolicBPNBR]
+,[LDLNBR]
+,[A1CNBR]
+,[GenderFLG]
+,[ThirtyDayReadmitFLG]
+,[InTestWindowFLG]
+FROM [SAM].[dbo].[DiabetesClinical]
+WHERE InTestWindowFLG = 'N'
 "
 
 df <- selectData(connection.string, query)
 head(df)
 
+df$PatientEncounterFLG <- NULL
+df$InTestWindowFLG <- NULL
+
 set.seed(42)
 
 p <- SupervisedModelDevelopmentParams$new()
 p$df = df
-p$type = 'classification'
+p$type = 'regression'
 p$impute = TRUE
-p$grainCol = ''
-p$predictedCol = 'SalariedFlag'
+p$grainCol = 'PatientID'
+p$predictedCol = 'A1CNBR'
 p$debug = FALSE
 p$cores = 1
 
 # Run Lasso
-lasso <- LassoDevelopment$new(p)
-lasso$run()
+Lasso <- LassoDevelopment$new(p)
+Lasso$run()
 
-# Run RandomForest
+# Run Random Forest
 rf <- RandomForestDevelopment$new(p)
 rf$run()
 
-# Plot ROCs from both supervised model classes
-plot(lasso$getROC(), col = "blue", legacy.axes=TRUE, mar=c(4, 4, 3, 2)+.1)
-par(new=TRUE)
-plot(rf$getROC(), col = "red", legacy.axes=TRUE, mar=c(4, 4, 3, 2)+.1)
-title(main = "ROC")
-legend("bottomright",
-       c("Lasso","RandomForest"),
-       cex = 0.8,
-       col = c("blue","red"),
-       lty = 1,
-       inset = .1)
+# For a given true-positive rate, get false-pos rate and 0/1 cutoff
+Lasso$getCutOffs(tpr=.8)
 
 print(proc.time() - ptm)
 
