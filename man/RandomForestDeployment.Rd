@@ -72,7 +72,7 @@ csvfile <- system.file("extdata", "HREmployeeDeploy.csv",package = "HCRTools")
 
 df <- read.csv(file = csvfile, #<--replace with 'your/path'
                     header = TRUE,
-                    na.strings = 'NULL')
+                    na.strings =  c('NULL', 'NA', ""))
 
 # Remove unnecessary columns
 df$VacationHours <- NULL
