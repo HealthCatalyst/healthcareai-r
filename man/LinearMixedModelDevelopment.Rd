@@ -35,7 +35,7 @@ and helps determine which performs best.
 }
 \examples{
 
-### Doing classification
+### Built-in example; Doing classification
 library(HCRTools)
 library(lme4)
 
@@ -89,6 +89,102 @@ p$cores = 1
 lmm <- LinearMixedModelDevelopment$new(p)
 lmm$run()
 
+#### Example using csv data ####
+library(HCRTools)
+#setwd("C:/Your/script/location") # Needed if using YOUR CSV file
+ptm <- proc.time()
+
+# Can delete this line in your work
+csvfile <- system.file("extdata", "DiabetesClinical.csv", package = "HCRTools")
+
+df <- read.csv(file = csvfile, #<-- Replace with 'your/path'
+                    header = TRUE,
+                    na.strings =  c('NULL', 'NA', ""))
+
+head(df)
+
+df$InTestWindowFLG <- NULL
+
+set.seed(42)
+
+p <- SupervisedModelDevelopmentParams$new()
+p$df = df
+p$type = 'classification'
+p$impute = TRUE
+p$grainCol = 'PatientEncounterID'
+p$personCol = 'PatientID'
+p$predictedCol = 'ThirtyDayReadmitFLG'
+p$debug = FALSE
+p$cores = 1
+
+# Create Mixed Model
+lmm <- LinearMixedModelDevelopment$new(p)
+lmm$run()
+
+# Run Lasso
+Lasso <- LassoDevelopment$new(p)
+Lasso$run()
+
+# For a given true-positive rate, get false-pos rate and 0/1 cutoff
+Lasso$getCutOffs(tpr=.8)
+print(proc.time() - ptm)
+
+#### Example using SQL Server data ####
+# This example requires:
+#    1) That your local SQL Server has AdventureWorks2012 installed
+
+ptm <- proc.time()
+library(HCRTools)
+
+connection.string = "
+driver={SQL Server};
+server=localhost;
+database=SAM;
+trusted_connection=true
+"
+
+query = "
+SELECT
+ [PatientEncounterID]
+,[PatientID]
+,[SystolicBPNBR]
+,[LDLNBR]
+,[A1CNBR]
+,[GenderFLG]
+,[ThirtyDayReadmitFLG]
+,[InTestWindowFLG]
+FROM [SAM].[dbo].[DiabetesClinical]
+"
+
+df <- selectData(connection.string, query)
+head(df)
+
+df$InTestWindowFLG <- NULL
+
+set.seed(42)
+
+p <- SupervisedModelDevelopmentParams$new()
+p$df = df
+p$type = 'classification'
+p$impute = TRUE
+p$grainCol = 'PatientEncounterID'
+p$personCol = 'PatientID'
+p$predictedCol = 'ThirtyDayReadmitFLG'
+p$debug = FALSE
+p$cores = 1
+
+# Create Mixed Model
+lmm <- LinearMixedModelDevelopment$new(p)
+lmm$run()
+
+# Run Lasso
+Lasso <- LassoDevelopment$new(p)
+Lasso$run()
+
+# For a given true-positive rate, get false-pos rate and 0/1 cutoff
+Lasso$getCutOffs(tpr=.8)
+
+print(proc.time() - ptm)
 }
 \references{
 \url{http://healthcareml.org/}

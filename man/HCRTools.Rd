@@ -26,15 +26,7 @@ push predicted values into SQL Server.
 \url{http://healthcareml.org/}
 }
 \seealso{
-\code{\link{LassoDevelopment}}
-
-\code{\link{RandomForestDevelopment}}
-
 \code{\link{LinearMixedModelDevelopment}}
-
-\code{\link{LassoDeployment}}
-
-\code{\link{RandomForestDeployment}}
 
 \code{\link{LinearMixedModelDeployment}}
 

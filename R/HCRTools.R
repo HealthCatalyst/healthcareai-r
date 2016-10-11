@@ -15,11 +15,7 @@
 #' push predicted values into SQL Server.
 #' }
 #' @references \url{http://healthcareml.org/}
-#' @seealso \code{\link{LassoDevelopment}}
-#' @seealso \code{\link{RandomForestDevelopment}}
 #' @seealso \code{\link{LinearMixedModelDevelopment}}
-#' @seealso \code{\link{LassoDeployment}}
-#' @seealso \code{\link{RandomForestDeployment}}
 #' @seealso \code{\link{LinearMixedModelDeployment}}
 #' @seealso \code{\link{RiskAdjustedComparisons}}
 #' @seealso \code{\link{imputeColumn}}
