@@ -13,7 +13,7 @@ model that pushes predictions to SQL Server.
 
 Installation:
 
-- Open RGui (which comes with R) or RStudio (which is recommended and downloaded separately)
+- Find the console of RGui (which comes with R) or RStudio (which is recommended and downloaded separately).
 
 - Install prerequisites:
 ```R
@@ -21,7 +21,7 @@ install.packages(c('caret','data.table','devtools','doParallel','e1071','grpreg'
 ),repos = "https://cran.cnr.berkeley.edu/")
 ```
 
-- Install HCRTools via the console: 
+- Install HCRTools: 
 
 ```R 
 library(devtools)
