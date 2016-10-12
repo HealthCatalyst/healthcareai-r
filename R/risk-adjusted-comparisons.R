@@ -23,32 +23,34 @@ source('R/common.R')
 #'
 #' #### Example using csv data ####
 #' library(HCRTools)
+#'
 #' connection.string = "
 #' driver={SQL Server};
 #' server=localhost;
-#' database=AdventureWorks2012;
+#' database=SAM;
 #' trusted_connection=true
 #' "
 #'
 #' query = "
 #' SELECT
-#' [OrganizationLevel]
-#' ,[MaritalStatus]
-#' ,[Gender]
-#' ,IIF([SalariedFlag]=0,'N','Y') AS SalariedFlag
-#' ,[VacationHours]
-#' ,[SickLeaveHours]
-#' FROM [AdventureWorks2012].[HumanResources].[Employee]
-#' WHERE OrganizationLevel <> 0
+#'  [PatientEncounterID]
+#' ,[PatientID]
+#' ,[SystolicBPNBR]
+#' ,[LDLNBR]
+#' ,[A1CNBR]
+#' ,[GenderFLG]
+#' ,[ThirtyDayReadmitFLG]
+#' ,[InTestWindowFLG]
+#' FROM [SAM].[dbo].[DiabetesClinical]
 #' "
 #'
 #' df <- selectData(connection.string, query)
 #'
 #' p <- SupervisedModelDevelopmentParams$new()
 #' p$df = df
-#' p$groupCol = 'OrganizationLevel'
+#' p$groupCol = 'GenderFLG'
 #' p$impute = TRUE
-#' p$predictedCol = 'SalariedFlag'
+#' p$predictedCol = 'ThirtyDayReadmitFLG'
 #' p$debug = FALSE
 #' p$cores = 1
 #'

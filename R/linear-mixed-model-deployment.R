@@ -95,7 +95,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       # Save models if specified
       if (isTRUE(!self$params$useSavedModel)) {
 
-        #NOTE: save(private$fitLogit, ...) does not work!
+        #NOTE: save(private$fitLogit, ...) directly, did not work!
         fitLogitObj = private$fitLogit
         fitObj = private$fit
 
@@ -115,9 +115,13 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     performPrediction = function() {
       if (self$params$type == 'classification') {
         # These are probabilities
+        print('Rows in private$dfTest')
+        print(row(private$dfTest))
+
         private$predictedVals = predict(private$fit,
                                         data = private$dfTest,
-                                        allow.new.levels = TRUE)
+                                        allow.new.levels = TRUE,
+                                        type="response")
         # For unit test
         private$predictedValsForUnitTest <- private$predictedVals[5]
 
@@ -131,7 +135,8 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
       } else if (self$params$type == 'regression') {
         # this is in-kind prediction
-        predictedValsTemp = predict(private$fit, data = self$dfTest)
+        predictedValsTemp = predict(private$fit,
+                                    data = self$dfTest)
         private$predictedVals <- predictedValsTemp$predictions
 
         if (isTRUE(self$params$debug)) {
@@ -149,6 +154,9 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       # Do semi-manual calc to rank cols by order of importance
       coeffTemp <- private$fitLogit$coefficients
 
+      print('type of coeffs!')
+      print(typeof(coeffTemp))
+
       if (isTRUE(self$params$debug)) {
         print('Coefficients for the default logit (for ranking var import)')
         print(coeffTemp)
@@ -164,19 +172,28 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       # Remove y (label) so we do multiplication only on X (features)
       private$dfTest[[self$params$predictedCol]] <- NULL
 
+      # For LMM, remove GrainID col so it doesn't interfere with logit calcs
+      if (nchar(self$params$personCol) != 0) {
+        private$coefficients <- private$coefficient[private$coefficient != self$params$grainCol]
+      }
+
+      if (isTRUE(self$params$debug)) {
+        print('Coeffs after removing GrainID coeff...')
+        print(private$coefficient)
+      }
+
       if (isTRUE(self$params$debug)) {
         print('Test set after removing predicted column')
         print(str(private$dfTest))
       }
 
       private$multiplyRes <-
-        sweep(private$dfTestRAW, 2, private$coefficients, `*`)
+        sweep(private$dfTestRaw, 2, private$coefficients, `*`)
 
       if (isTRUE(self$params$debug)) {
         print('Data frame after multiplying raw vals by coeffs')
         print(private$multiplyRes[1:10, ])
       }
-
     },
 
     calculateOrderedFactors = function() {
@@ -194,6 +211,13 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     },
 
     saveDataIntoDb = function() {
+
+      print('Hello!')
+      print('Length of Grain in Test')
+      print(length(private$grainTest))
+      print('Length of private$predictedVals')
+      print(length(private$predictedVals))
+
       dtStamp = as.POSIXlt(Sys.time(), "GMT")
 
       # Combine grain.col, prediction, and time to be put back into SAM table
@@ -202,8 +226,8 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
         'R',                               # BindingNM
         dtStamp,                           # LastLoadDTS
         private$grainTest,                 # GrainID
-        private$predictedVals,             # PredictedProbab
-        private$orderedFactors[, 1:3])    # Top 3 Factors
+        private$predictedVals,             # PredictedProbab or PredictedValues
+        private$orderedFactors[, 1:3])     # Top 3 Factors
 
       predictedResultsName = ""
       if (self$params$type == 'classification') {

@@ -24,3 +24,6 @@
 # Genered plots from tests
 tests/testthat/Rplots.pdf
 .Rproj.user
+
+# Notebook checks
+inst/notebooks/.ipynb_checkpoints

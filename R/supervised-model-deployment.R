@@ -313,6 +313,11 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     private$dfTestRaw <-
       private$dfTest[, !(names(private$dfTest) %in% c(self$params$predictedCol))]
 
+    # For LMM, remove ID col so it doesn't interfere with row-based varimp calc
+    if (nchar(self$params$personCol) != 0) {
+       private$dfTestRaw[[self$params$personCol]] <- NULL
+    }
+
     if (isTRUE(self$params$debug)) {
       print('Raw test set (sans imputation) created for mult with coeffs')
       print(str(private$dfTestRaw))

@@ -1,6 +1,6 @@
 context("Checking deploy supervised model")
 
-csvfile <- system.file("extdata", "HREmployeeDeploy.csv", package = "HCRTools")
+csvfile <- system.file("extdata", "DiabetesClinical.csv", package = "HCRTools")
 df <- read.csv(file = csvfile,
                     header = TRUE,
                     na.strings =  c('NULL', 'NA', ""))
@@ -10,16 +10,16 @@ connection.string <- 'driver={SQL Server};
                       database=SAM;
                       trusted_connection=true'
 
-test_that("rf predicted val (with spec mtry) is the same each time", {
+df$PatientID <- NULL
 
-  df$VacationHours <- NULL # This is set as regression prediction col
+test_that("rf predicted val (with spec mtry) is the same each time", {
 
   p <- SupervisedModelDeploymentParams$new()
   p$type = 'classification'
   p$df = df
-  p$grainCol = 'GrainID'
-  p$testWindowCol = 'InTestWindow'
-  p$predictedCol = 'SalariedFlag'
+  p$grainCol = 'PatientEncounterID'
+  p$testWindowCol = 'InTestWindowFLG'
+  p$predictedCol = 'ThirtyDayReadmitFLG'
   p$impute = TRUE
   p$debug = FALSE
   p$useSavedModel = FALSE
@@ -33,19 +33,17 @@ test_that("rf predicted val (with spec mtry) is the same each time", {
   capture.output(dRF <- RandomForestDeployment$new(p))
   capture.output(dRF$deploy())
 
-  expect_equal(as.numeric(dRF$getPredictedValsForUnitTest()), 0.917870962647079)
+  expect_equal(as.numeric(dRF$getPredictedValsForUnitTest()), 0.03000869)
 })
 
 test_that("lasso predicted val (with spec mtry) is the same each time", {
 
-  df$VacationHours <- NULL # This is set as regression prediction col
-
   p <- SupervisedModelDeploymentParams$new()
   p$type = 'classification'
   p$df = df
-  p$grainCol = 'GrainID'
-  p$testWindowCol = 'InTestWindow'
-  p$predictedCol = 'SalariedFlag'
+  p$grainCol = 'PatientEncounterID'
+  p$testWindowCol = 'InTestWindowFLG'
+  p$predictedCol = 'ThirtyDayReadmitFLG'
   p$impute = TRUE
   p$debug = FALSE
   p$useSavedModel = FALSE
@@ -59,19 +57,17 @@ test_that("lasso predicted val (with spec mtry) is the same each time", {
   capture.output(dL <- LassoDeployment$new(p))
   capture.output(dL$deploy())
 
-  expect_equal(as.numeric(dL$getPredictedValsForUnitTest()), 0.877035858794219)
+  expect_equal(as.numeric(dL$getPredictedValsForUnitTest()), 0.02694817)
 })
 
 test_that("rf predicted val (w/out spec mtry) is the same each time", {
 
-  df$VacationHours <- NULL # This is set as regression prediction col
-
   p <- SupervisedModelDeploymentParams$new()
   p$type = 'classification'
   p$df = df
-  p$grainCol = 'GrainID'
-  p$testWindowCol = 'InTestWindow'
-  p$predictedCol = 'SalariedFlag'
+  p$grainCol = 'PatientEncounterID'
+  p$testWindowCol = 'InTestWindowFLG'
+  p$predictedCol = 'ThirtyDayReadmitFLG'
   p$impute = TRUE
   p$debug = FALSE
   p$useSavedModel = FALSE
@@ -84,19 +80,17 @@ test_that("rf predicted val (w/out spec mtry) is the same each time", {
   capture.output(dRF <- RandomForestDeployment$new(p))
   capture.output(dRF$deploy())
 
-  expect_equal(as.numeric(dRF$getPredictedValsForUnitTest()), 0.707460652364422)
+  expect_equal(as.numeric(dRF$getPredictedValsForUnitTest()), 0.03352681)
 })
 
 test_that("lasso predicted val (w/out spec mtry) is the same each time", {
 
-  df$VacationHours <- NULL # This is set as regression prediction col
-
   p <- SupervisedModelDeploymentParams$new()
   p$type = 'classification'
   p$df = df
-  p$grainCol = 'GrainID'
-  p$testWindowCol = 'InTestWindow'
-  p$predictedCol = 'SalariedFlag'
+  p$grainCol = 'PatientEncounterID'
+  p$testWindowCol = 'InTestWindowFLG'
+  p$predictedCol = 'ThirtyDayReadmitFLG'
   p$impute = TRUE
   p$debug = FALSE
   p$useSavedModel = FALSE
@@ -109,7 +103,7 @@ test_that("lasso predicted val (w/out spec mtry) is the same each time", {
   capture.output(dL <- LassoDeployment$new(p))
   capture.output(dL$deploy())
 
-  expect_equal(as.numeric(dL$getPredictedValsForUnitTest()), 0.877035858794219)
+  expect_equal(as.numeric(dL$getPredictedValsForUnitTest()), 0.02694817)
 })
 
 

@@ -32,26 +32,17 @@ source('R/supervised-model-deployment.R')
 #' to monitor the calculations throughout. Use T or F.
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' #### Regression example using data from SQL Server ####
-#' # This example requires
-#' #     1) You set your working directory to source file location
-#' #     2) To receive predictions from R back to SQL Server, you'll need to
-#' #        save and run an entity in SAMD that has only the following columns
-#'
-#' # GrainID decimal(38,0) not null, <--change col to match ID in summary table
-#' # PredictedValueNBR decimal(38,2),
-#' # Factor1TXT varchar(255),
-#' # Factor2TXT varchar(255),
-#' # Factor3TXT varchar(255),
-#'
+#' #### Regression example using diabetes data ####
+#' # This example requires you to first create a table in SQL Server
 #' # If you prefer to not use SAMD, execute this in SSMS to create output table:
 #' # CREATE TABLE dbo.HCRDeployRegressionBASE(
 #' #   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
-#' #   GrainID int <--change to match inputID, PredictedValueNBR decimal(38, 2),
+#' #   PatientEncounterID int, <--change to match inputID
+#' #   PredictedValueNBR decimal(38, 2),
 #' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 #' # )
 #'
-#' #setwd("C:/Yourscriptlocation/Useforwardslashes") # Encomment this command #
+#' #setwd("C:/Yourscriptlocation/Useforwardslashes") # Uncomment if using csv
 #' ptm <- proc.time()
 #' library(HCRTools)
 #'
@@ -65,7 +56,7 @@ source('R/supervised-model-deployment.R')
 #' # df <- selectData(connection.string, query)
 #'
 #' # Can delete these four lines when you set up your SQL connection/query
-#' csvfile <- system.file("extdata", "HREmployeeDeploy.csv",package = "HCRTools")
+#' csvfile <- system.file("extdata", "DiabetesClinical.csv",package = "HCRTools")
 #' df <- read.csv(file = csvfile,
 #'                     header = TRUE,
 #'                     na.strings = c('NULL', 'NA', ""))
@@ -73,16 +64,16 @@ source('R/supervised-model-deployment.R')
 #' head(df)
 #'
 #' # Remove unnecessary columns
-#' df <- subset(df, select = -c(SalariedFlag))
+#' df$PatientID <- NULL
 #'
 #' p <- SupervisedModelDeploymentParams$new()
 #' p$type = 'regression'
 #' p$df = df
-#' p$grainCol = 'GrainID'
-#' p$testWindowCol = 'InTestWindow'
-#' p$predictedCol = 'VacationHours'
+#' p$grainCol = 'PatientEncounterID'
+#' p$testWindowCol = 'InTestWindowFLG'
+#' p$predictedCol = 'A1CNBR'
 #' p$impute = TRUE
-#' p$debug = TRUE
+#' p$debug = FALSE
 #' p$useSavedModel = FALSE
 #' p$cores = 1
 #' p$sqlConn = connection.string
