@@ -717,3 +717,47 @@ countDaysSinceFirstDate <- function(df, dtCol, returnDtCol=FALSE) {
 
   df
 }
+
+#' @title
+#' Plot ROCs from SupervisedModel classes
+#'
+#' @description Plot ROCs calculated by children classes of SupervisedModel
+#' @param rocs A vector/array/list of ROC values
+#' @param names A vector of algorithm/class names
+#' @param legendLoc Location of the legend string to display
+#'
+#' @export
+#' @references \url{http://healthcareml.org/}
+#' @seealso \code{\link{HCRTools}}
+
+
+plotROCs <- function(rocs, names, legendLoc) {
+
+  # generate color vector
+  # TODO: auto generate these colors dynamically as rgb values
+  #         based on the length of rocs list
+  colvec <- c("red", "blue", "green", "orange", "brown", "magenta")
+
+  # plot ROCs
+  rocIndex = 1
+  for (roc in rocs) {
+    if (rocIndex == 1) {
+      plot(roc, col = colvec[rocIndex], legacy.axes = TRUE, mar = c(4, 4, 3, 2) + .1)
+      title(main = "ROC")
+    }
+    else {
+      plot(roc, add = TRUE, col = colvec[rocIndex], lty = 2)
+    }
+    rocIndex <- rocIndex + 1
+  }
+
+  # legend
+  legend(legendLoc,
+         names,
+         cex = 0.8,
+         col = colvec,
+         lty = 1:2,
+         inset = .1)
+
+  return()
+}
