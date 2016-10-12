@@ -21,23 +21,15 @@ install.packages(c('caret','data.table','devtools','doParallel','e1071','grpreg'
 ),repos = "https://cran.cnr.berkeley.edu/")
 ```
 
-- Generate a github token
-  - Navigate [here](https://github.com/settings/tokens) and click on 'Generate a 
-  personal access token'
-  - Check the top-level repo box
-  - Store token in secure place
-  
-- Use your username/token to download and install HCRTools via the console: 
+- Install HCRTools via the console: 
 
 ```R 
 library(devtools)
-devtools::install_github(repo='HealthCatalystSLC/HCRTools',user='yourusername',auth_token='yourtoken')
+devtools::install_github(repo='HealthCatalystSLC/HCRTools')
 ```
 
 Getting started:
 
 - To create a couple models on your data, check out this [notebook.](inst/notebooks/HCRToolsExample1.ipynb)
 
-- After finding an accurate model, see this
-[notebook](inst/notebooks/HCRToolsExample2.ipynb) to push predictions to SQL 
-Server.
+- After finding an accurate model, see this [notebook](inst/notebooks/HCRToolsExample2.ipynb) to push predictions to SQL Server.
