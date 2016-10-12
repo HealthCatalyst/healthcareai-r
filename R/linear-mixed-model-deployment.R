@@ -119,7 +119,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
         print(row(private$dfTest))
 
         private$predictedVals = predict(private$fit,
-                                        data = private$dfTest,
+                                        newdata = private$dfTest,
                                         allow.new.levels = TRUE,
                                         type="response")
         # For unit test
