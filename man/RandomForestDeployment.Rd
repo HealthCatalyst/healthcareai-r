@@ -86,7 +86,7 @@ p$cores = 1
 p$sqlConn = connection.string
 p$destSchemaTable = 'dbo.HCRDeployClassificationBASE'
 
-dL <- LassoDeployment$new(p)
+dL <- RandomForestDeployment$new(p)
 dL$deploy()
 
 print(proc.time() - ptm)
