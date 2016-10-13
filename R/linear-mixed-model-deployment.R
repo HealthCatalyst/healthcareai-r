@@ -33,6 +33,107 @@ source('R/supervised-model-deployment.R')
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
 #' @seealso \code{\link{HCRTools}}
+#' @examples
+#' #### Classification example using diabetes data ####
+#' # This example requires you to first create a table in SQL Server
+#' # If you prefer to not use SAMD, execute this in SSMS to create output table:
+#' # CREATE TABLE dbo.HCRDeployRegressionBASE(
+#' #   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
+#' #   PatientEncounterID int, <--change to match inputID
+#' #   PredictedProbNBR decimal(38, 2),
+#' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
+#' # )
+#'
+#' #setwd("C:/Yourscriptlocation/Useforwardslashes") # Uncomment if using csv
+#' ptm <- proc.time()
+#' library(HCRTools)
+#'
+#' connection.string <- 'driver={SQL Server};
+#'                       server=localhost;
+#'                       database=SAM;
+#'                       trusted_connection=true'
+#'
+#' # Use this for an example SQL source:
+#' # query <- "SELECT * FROM [SAM].[YourCoolSAM].[SomeTrainingSetTable]"
+#' # df <- selectData(connection.string, query)
+#'
+#' # Can delete these four lines when you set up your SQL connection/query
+#' csvfile <- system.file("extdata", "DiabetesClinical.csv",package = "HCRTools")
+#' df <- read.csv(file = csvfile,
+#'                     header = TRUE,
+#'                     na.strings = c('NULL', 'NA', ""))
+#'
+#' head(df)
+#'
+#' p <- SupervisedModelDeploymentParams$new()
+#' p$type = 'classification'
+#' p$df = df
+#' p$grainCol = 'PatientEncounterID'
+#' p$testWindowCol = 'InTestWindowFLG'
+#' p$predictedCol = 'ThirtyDayReadmitFLG'
+#' p$personCol = 'PatientID'
+#' p$impute = FALSE
+#' p$debug = FALSE
+#' p$useSavedModel = FALSE
+#' p$cores = 1
+#' p$sqlConn = connection.string
+#' p$destSchemaTable = 'dbo.HCRDeployClassificationBASE'
+#'
+#' lMM <- LinearMixedModelDeployment$new(p)
+#' lMM$deploy()
+#'
+#' print(proc.time() - ptm)
+#'
+#' #### Regression example using diabetes data ####
+#' # This example requires you to first create a table in SQL Server
+#' # If you prefer to not use SAMD, execute this in SSMS to create output table:
+#' # CREATE TABLE dbo.HCRDeployRegressionBASE(
+#' #   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
+#' #   PatientEncounterID int, <--change to match inputID
+#' #   PredictedValueNBR decimal(38, 2),
+#' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
+#' # )
+#'
+#' #setwd("C:/Yourscriptlocation/Useforwardslashes") # Uncomment if using csv
+#' ptm <- proc.time()
+#' library(HCRTools)
+#'
+#' connection.string <- 'driver={SQL Server};
+#'                       server=localhost;
+#'                       database=SAM;
+#'                       trusted_connection=true'
+#'
+#' # Use this for an example SQL source:
+#' # query <- "SELECT * FROM [SAM].[YourCoolSAM].[SomeTrainingSetTable]"
+#' # df <- selectData(connection.string, query)
+#'
+#' # Can delete these four lines when you set up your SQL connection/query
+#' csvfile <- system.file("extdata", "DiabetesClinical.csv",package = "HCRTools")
+#' df <- read.csv(file = csvfile,
+#'                     header = TRUE,
+#'                     na.strings = c('NULL', 'NA', ""))
+#'
+#' head(df)
+#'
+#' p <- SupervisedModelDeploymentParams$new()
+#' p$type = 'regression'
+#' p$df = df
+#' p$grainCol = 'PatientEncounterID'
+#' p$testWindowCol = 'InTestWindowFLG'
+#' p$predictedCol = 'A1CNBR'
+#' p$personCol = 'PatientID'
+#' p$impute = TRUE
+#' p$debug = FALSE
+#' p$useSavedModel = FALSE
+#' p$cores = 1
+#' p$sqlConn = connection.string
+#' p$destSchemaTable = 'dbo.HCRDeployRegressionBASE'
+#'
+#' lMM <- LinearMixedModelDeployment$new(p)
+#' lMM$deploy()
+#'
+#' print(proc.time() - ptm)
+#'
 #' @export
 
 
@@ -115,9 +216,6 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     performPrediction = function() {
       if (self$params$type == 'classification') {
         # These are probabilities
-        print('Rows in private$dfTest')
-        print(row(private$dfTest))
-
         private$predictedVals = predict(private$fit,
                                         newdata = private$dfTest,
                                         allow.new.levels = TRUE,
@@ -135,9 +233,8 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
       } else if (self$params$type == 'regression') {
         # this is in-kind prediction
-        predictedValsTemp = predict(private$fit,
-                                    data = self$dfTest)
-        private$predictedVals <- predictedValsTemp$predictions
+        private$predictedVals = predict(private$fit,
+                                        newdata = private$dfTest)
 
         if (isTRUE(self$params$debug)) {
           print(paste0(
@@ -154,9 +251,6 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       # Do semi-manual calc to rank cols by order of importance
       coeffTemp <- private$fitLogit$coefficients
 
-      print('type of coeffs!')
-      print(typeof(coeffTemp))
-
       if (isTRUE(self$params$debug)) {
         print('Coefficients for the default logit (for ranking var import)')
         print(coeffTemp)
@@ -165,6 +259,11 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       private$coefficients <-
         coeffTemp[2:length(coeffTemp)] # drop intercept
 
+      if (isTRUE(self$params$debug)) {
+        print('Coefficients after dropping intercept:')
+        print(private$coefficients)
+      }
+
     },
 
     calculateMultiplyRes = function() {
@@ -172,19 +271,19 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       # Remove y (label) so we do multiplication only on X (features)
       private$dfTest[[self$params$predictedCol]] <- NULL
 
+      if (isTRUE(self$params$debug)) {
+        print('Test set after removing predicted column')
+        print(str(private$dfTest))
+      }
+
       # For LMM, remove GrainID col so it doesn't interfere with logit calcs
       if (nchar(self$params$personCol) != 0) {
-        private$coefficients <- private$coefficient[private$coefficient != self$params$grainCol]
+        private$coefficients <- private$coefficients[private$coefficients != self$params$grainCol]
       }
 
       if (isTRUE(self$params$debug)) {
         print('Coeffs after removing GrainID coeff...')
-        print(private$coefficient)
-      }
-
-      if (isTRUE(self$params$debug)) {
-        print('Test set after removing predicted column')
-        print(str(private$dfTest))
+        print(private$coefficients)
       }
 
       private$multiplyRes <-
@@ -211,12 +310,6 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     },
 
     saveDataIntoDb = function() {
-
-      print('Hello!')
-      print('Length of Grain in Test')
-      print(length(private$grainTest))
-      print('Length of private$predictedVals')
-      print(length(private$predictedVals))
 
       dtStamp = as.POSIXlt(Sys.time(), "GMT")
 

@@ -38,7 +38,7 @@ source('R/supervised-model-deployment.R')
 #' # CREATE TABLE dbo.HCRDeployRegressionBASE(
 #' #   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
 #' #   PatientEncounterID int, <--change to match inputID
-#' #   PredictedValueNBR decimal(38, 2),
+#' #   PredictedProbNBR decimal(38, 2),
 #' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 #' # )
 #'

@@ -16,12 +16,6 @@ plotROCs(rocs, names, legendLoc)
 \description{
 Plot ROCs calculated by children classes of SupervisedModel
 }
-\examples{
-rocs <- list(rf$getROC(), lasso$getROC())
-names <- c("RandomForest", "Lasso")
-legendLoc <- "bottomright"
-plotROCs(rocs, names, legendLoc)
-}
 \references{
 \url{http://healthcareml.org/}
 }

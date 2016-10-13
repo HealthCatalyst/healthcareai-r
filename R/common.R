@@ -726,6 +726,7 @@ countDaysSinceFirstDate <- function(df, dtCol, returnDtCol=FALSE) {
 #' @param names A vector of algorithm/class names
 #' @param legendLoc Location of the legend string to display
 #'
+#' @importFrom graphics legend title
 #' @export
 #' @references \url{http://healthcareml.org/}
 #' @seealso \code{\link{HCRTools}}
