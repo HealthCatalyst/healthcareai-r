@@ -89,8 +89,8 @@ p$debug = FALSE
 p$cores = 1
 
 # Run Lasso
-Lasso <- LassoDevelopment$new(p)
-Lasso$run()
+lasso <- LassoDevelopment$new(p)
+lasso$run()
 
 # Run Random Forest
 rf <- RandomForestDevelopment$new(p)
@@ -144,12 +144,21 @@ p$debug = FALSE
 p$cores = 1
 
 # Run Lasso
-Lasso <- LassoDevelopment$new(p)
-Lasso$run()
+lasso <- LassoDevelopment$new(p)
+lasso$run()
 
 # Run Random Forest
 rf <- RandomForestDevelopment$new(p)
 rf$run()
+
+# Plot ROC
+rocs = list(rf$getROC(), lasso$getROC())
+names = c('Random Forest','Lasso')
+legendLoc = 'bottomright'
+plotROCs(rocs, names, legendLoc)
+
+# For a given true-positive rate, get false-pos rate and 0/1 cutoff
+lasso$getCutOffs(tpr=.8)
 
 print(proc.time() - ptm)
 
