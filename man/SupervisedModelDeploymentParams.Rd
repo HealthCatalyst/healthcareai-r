@@ -14,7 +14,7 @@ This step allows one to create deploy models on your data
 and helps determine which performs best.
 }
 \references{
-\url{http://products.healthcatalyst.com/Predictive}
+\url{http://hctools.org/}
 }
 \seealso{
 \code{\link{HCRTools}}

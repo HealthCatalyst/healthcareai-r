@@ -27,7 +27,7 @@ dfResult = orderByDate(df,'date', descending=FALSE)
 head(dfResult)
 }
 \references{
-\url{http://healthcareml.org/}
+\url{http://hctools.org/}
 }
 \seealso{
 \code{\link{HCRTools}}

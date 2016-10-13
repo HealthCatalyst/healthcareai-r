@@ -187,7 +187,7 @@ Lasso$getCutOffs(tpr=.8)
 print(proc.time() - ptm)
 }
 \references{
-\url{http://healthcareml.org/}
+\url{http://hctools.org/}
 }
 \seealso{
 \code{\link{HCRTools}}

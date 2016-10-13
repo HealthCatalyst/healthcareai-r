@@ -40,7 +40,7 @@ df <- selectData(connectionString, query)
 head(df)
 }
 \references{
-\url{http://healthcareml.org/}
+\url{http://hctools.org/}
 }
 \seealso{
 \code{\link{HCRTools}}

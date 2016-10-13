@@ -26,7 +26,7 @@ dfResult <- removeColsWithAllSameValue(df)
 head(dfResult)
 }
 \references{
-\url{http://healthcareml.org/}
+\url{http://hctools.org/}
 }
 \seealso{
 \code{\link{HCRTools}}

@@ -35,7 +35,7 @@ dfResult = groupedLOCF(df, 'personID')
 head(dfResult, n = 7)
 }
 \references{
-\url{http://healthcareml.org/}
+\url{http://hctools.org/}
 }
 \seealso{
 \code{\link{HCRTools}}

@@ -31,7 +31,7 @@ df <- data.frame(a=c(1,2,3),
 #writeData(df,'localhost','SAM','dbo.HCRwriteData')
 }
 \references{
-\url{http://healthcareml.org/}
+\url{http://hctools.org/}
 }
 \seealso{
 \code{\link{HCRTools}}

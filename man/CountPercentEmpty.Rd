@@ -25,7 +25,7 @@ colList = countPercentEmpty(df)
 colList
 }
 \references{
-\url{http://healthcareml.org/}
+\url{http://hctools.org/}
 }
 \seealso{
 \code{\link{HCRTools}}

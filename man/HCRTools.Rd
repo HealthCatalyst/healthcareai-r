@@ -23,7 +23,7 @@ push predicted values into SQL Server.
 }
 }
 \references{
-\url{http://healthcareml.org/}
+\url{http://hctools.org/}
 }
 \seealso{
 \code{\link{LinearMixedModelDevelopment}}

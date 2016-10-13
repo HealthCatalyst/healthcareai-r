@@ -45,9 +45,9 @@ df = data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 colList = returnColsWithMoreThanFiftyCategories(df)
 }
 \references{
-\url{http://healthcareml.org/}
+\url{http://hctools.org/}
 
-\url{http://healthcareml.org/}
+\url{http://hctools.org/}
 }
 \seealso{
 \code{\link{HCRTools}}

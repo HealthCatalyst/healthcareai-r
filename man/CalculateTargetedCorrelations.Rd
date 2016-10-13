@@ -32,7 +32,7 @@ dfResult <- calculateTargetedCorrelations(df=df,targetCol='c')
 dfResult
 }
 \references{
-\url{http://healthcareml.org/}
+\url{http://hctools.org/}
 }
 \seealso{
 \code{\link{HCRTools}}

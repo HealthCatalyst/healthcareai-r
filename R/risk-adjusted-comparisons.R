@@ -17,7 +17,7 @@ source('R/common.R')
 #' @param groupCol Column that we'll use to differentiate
 #' @param impute Set all-column imputation to F or T.
 #'
-#' @references \url{http://healthcareml.org/}
+#' @references \url{http://hctools.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #'

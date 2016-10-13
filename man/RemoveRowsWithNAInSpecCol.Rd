@@ -23,7 +23,7 @@ dfResult = removeRowsWithNAInSpecCol(df,'b')
 head(dfResult)
 }
 \references{
-\url{http://healthcareml.org/}
+\url{http://hctools.org/}
 }
 \seealso{
 \code{\link{HCRTools}}
