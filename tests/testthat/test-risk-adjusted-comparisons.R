@@ -1,31 +1,17 @@
 context("Checking Risk-adjusted Comparisons")
 
-connection.string = "
-driver={SQL Server};
-server=localhost;
-database=AdventureWorks2012;
-trusted_connection=true
-"
+# Can delete these four lines when you set up your SQL connection/querycsvfile <- system.file("extdata", "DiabetesClinical.csv",package = "HCRTools")
+csvfile <- system.file("extdata", "DiabetesClinical.csv", package = "HCRTools")
+df <- read.csv(file = csvfile,
+                    header = TRUE,
+                    na.strings = c('NULL', 'NA', ""))
 
-query = "
-SELECT
-[OrganizationLevel]
-,[MaritalStatus]
-,[Gender]
-,IIF([SalariedFlag]=0,'N','Y') AS SalariedFlag
-,[VacationHours]
-,[SickLeaveHours]
-FROM [AdventureWorks2012].[HumanResources].[Employee]
-WHERE OrganizationLevel <> 0
-"
-
-df <- selectData(connection.string, query)
 
 p <- SupervisedModelDevelopmentParams$new()
 p$df = df
-p$groupCol = 'OrganizationLevel'
+p$groupCol = 'GenderFLG'
 p$impute = TRUE
-p$predictedCol = 'SalariedFlag'
+p$predictedCol = 'ThirtyDayReadmitFLG'
 p$debug = FALSE
 p$cores = 1
 
@@ -35,20 +21,10 @@ capture.output(riskAdjComp$run())
 
 test_that("Risk-adjusted comparison is as expected for group 1", {
 
-  expect_identical(riskAdjComp$dfReturn[1,'comparativePerformance'], 31.5)
+  expect_identical(riskAdjComp$dfReturn[1,'comparativePerformance'], -6.5)
 })
 
 test_that("Risk-adjusted comparison is as expected for group 2", {
 
-  expect_identical(riskAdjComp$dfReturn[2,'comparativePerformance'], 20.5)
-})
-
-test_that("Risk-adjusted comparison is as expected for group 3", {
-
-  expect_identical(riskAdjComp$dfReturn[3,'comparativePerformance'], -14.5)
-})
-
-test_that("Risk-adjusted comparison is as expected for group 4", {
-
-  expect_identical(riskAdjComp$dfReturn[4,'comparativePerformance'], -37.5)
+  expect_identical(riskAdjComp$dfReturn[2,'comparativePerformance'], 6.5)
 })
