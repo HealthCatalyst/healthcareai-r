@@ -40,7 +40,7 @@ df <- convertDateTimeColToDummies(df, 'dtCol')
 head(df)
 }
 \references{
-\url{http://healthcareml.org/}
+\url{http://hctools.org/}
 }
 \seealso{
 \code{\link{HCRTools}}

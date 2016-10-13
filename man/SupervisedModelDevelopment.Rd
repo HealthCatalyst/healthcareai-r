@@ -16,7 +16,7 @@ This step allows one to create test models on your data
 and helps determine which performs best.
 }
 \references{
-\url{http://healthcareml.org/}
+\url{http://hctools.org/}
 }
 \seealso{
 \code{\link{HCRTools}}

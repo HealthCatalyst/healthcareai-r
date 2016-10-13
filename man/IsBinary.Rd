@@ -20,7 +20,7 @@ isBinary(c(1,2,NA))
 isBinary(c(1,2,3))
 }
 \references{
-\url{http://healthcareml.org/}
+\url{http://hctools.org/}
 }
 \seealso{
 \code{\link{HCRTools}}

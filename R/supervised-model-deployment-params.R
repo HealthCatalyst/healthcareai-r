@@ -8,7 +8,7 @@ library(R6)
 #' and helps determine which performs best.
 #' @docType class
 #' @importFrom R6 R6Class
-#' @references \url{http://products.healthcatalyst.com/Predictive}
+#' @references \url{http://hctools.org/}
 #' @seealso \code{\link{HCRTools}}
 #'
 #' @export

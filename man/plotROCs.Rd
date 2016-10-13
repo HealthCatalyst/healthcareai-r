@@ -17,7 +17,7 @@ plotROCs(rocs, names, legendLoc)
 Plot ROCs calculated by children classes of SupervisedModel
 }
 \references{
-\url{http://healthcareml.org/}
+\url{http://hctools.org/}
 }
 \seealso{
 \code{\link{HCRTools}}

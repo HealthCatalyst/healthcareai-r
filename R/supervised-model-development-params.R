@@ -7,7 +7,7 @@ library(R6)
 #' and helps determine which performs best.
 #' @docType class
 #' @importFrom R6 R6Class
-#' @references \url{http://healthcareml.org/}
+#' @references \url{http://hctools.org/}
 #' @seealso \code{\link{HCRTools}}
 #'
 #' @export
