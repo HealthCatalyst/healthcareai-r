@@ -1,0 +1,68 @@
+---
+title: "CLIENT NAME Algorithm Performance Report"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: html_document
+---
+
+
+### <span style="color:blue"> Question to be answered: FILL THIS OUT!
+
+
+```{r chunk1, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, tidy.opts=list(width.cutoff=60))
+```
+
+### Model Summary
+
+Total number of input variables: `r o$initial_dataset_cols - 1`
+
+Total number of rows in data set: `r o$initial_dataset_rows`
+
+Number of rows in test set: `r as.integer(o$initial_dataset_rows*.2)`
+
+Size of dataset in memory: `r o$memsize_of_dataset`
+
+Best Model: <span style="color:red">Random Forest with 200 trees</span>
+
+***
+#### Algorithm Performance 
+Standard metrics for evaluating model performance as shown below.
+```{r chunk2, echo = FALSE, message = FALSE, warning = FALSE, error = FALSE}
+##
+## Change this based on model chosen--also note this in summary, above
+##
+o$rf.conf.matrix
+```
+
+#### Variable Importance 
+The graph below shows the relative importance of the predictor variables in the best model, sorted from highest to lowest. Variables with an importance score of zero won't be included in the final model.
+```{r chunk3, echo = FALSE, message = FALSE, warning = FALSE, error = FALSE}
+##
+## Change this based on model chosen
+##
+library(caret)
+dotPlot(o$rf.var.imp)
+```
+
+<span style="color:blue">`r date()`</br>POWERED BY DATA SCIENCE @ HEALTH CATALYST</span>
+
+![](ignite_small.jpg)
+
+***
+### Machine Details
+
+`r R.version.string`
+
+Platform: `r R.version$platform`
+
+R Packages Required: HCRTools (caret, doParallel, e1071, pROC, R6, rmarkdown, 
+ranger, ROCR, RODBC)
+
+***
+
+#### Model Comparison 
+Models compared: Logistic Regression (glm-logit), Random Forest (rf)
+
+```{r plot, echo = FALSE, message = FALSE, warning = FALSE, error = FALSE}
+o$plotROC()
+```
