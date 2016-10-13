@@ -75,7 +75,6 @@ source('R/supervised-model-development.R')
 #'
 #' head(df)
 #'
-#' df$PatientEncounterFLG <- NULL
 #' df$InTestWindowFLG <- NULL
 #'
 #' set.seed(42)
@@ -131,17 +130,16 @@ source('R/supervised-model-development.R')
 #' df <- selectData(connection.string, query)
 #' head(df)
 #'
-#' df$PatientEncounterFLG <- NULL
 #' df$InTestWindowFLG <- NULL
 #'
 #' set.seed(42)
 #'
 #' p <- SupervisedModelDevelopmentParams$new()
 #' p$df = df
-#' p$type = 'regression'
+#' p$type = 'classification'
 #' p$impute = TRUE
 #' p$grainCol = 'PatientID'
-#' p$predictedCol = 'A1CNBR'
+#' p$predictedCol = 'ThirtyDayReadmitFLG'
 #' p$debug = FALSE
 #' p$cores = 1
 #'
