@@ -135,9 +135,8 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
       } else if (self$params$type == 'regression') {
         # this is in-kind prediction
-        predictedValsTemp = predict(private$fit,
-                                    data = self$dfTest)
-        private$predictedVals <- predictedValsTemp$predictions
+        private$predictedVals = predict(private$fit,
+                                        newdata = self$dfTest)
 
         if (isTRUE(self$params$debug)) {
           print(paste0(
@@ -165,6 +164,11 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       private$coefficients <-
         coeffTemp[2:length(coeffTemp)] # drop intercept
 
+      if (isTRUE(self$params$debug)) {
+        print('Coefficients after dropping intercept:')
+        print(private$coefficients)
+      }
+
     },
 
     calculateMultiplyRes = function() {
@@ -172,19 +176,19 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       # Remove y (label) so we do multiplication only on X (features)
       private$dfTest[[self$params$predictedCol]] <- NULL
 
+      if (isTRUE(self$params$debug)) {
+        print('Test set after removing predicted column')
+        print(str(private$dfTest))
+      }
+
       # For LMM, remove GrainID col so it doesn't interfere with logit calcs
       if (nchar(self$params$personCol) != 0) {
-        private$coefficients <- private$coefficient[private$coefficient != self$params$grainCol]
+        private$coefficients <- private$coefficients[private$coefficients != self$params$grainCol]
       }
 
       if (isTRUE(self$params$debug)) {
         print('Coeffs after removing GrainID coeff...')
-        print(private$coefficient)
-      }
-
-      if (isTRUE(self$params$debug)) {
-        print('Test set after removing predicted column')
-        print(str(private$dfTest))
+        print(private$coefficients)
       }
 
       private$multiplyRes <-
