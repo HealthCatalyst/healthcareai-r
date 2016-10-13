@@ -136,7 +136,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       } else if (self$params$type == 'regression') {
         # this is in-kind prediction
         private$predictedVals = predict(private$fit,
-                                        newdata = self$dfTest)
+                                        newdata = private$dfTest)
 
         if (isTRUE(self$params$debug)) {
           print(paste0(
