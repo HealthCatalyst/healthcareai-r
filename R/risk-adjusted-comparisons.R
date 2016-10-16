@@ -41,7 +41,7 @@ source('R/common.R')
 #' ,[GenderFLG]
 #' ,[ThirtyDayReadmitFLG]
 #' ,[InTestWindowFLG]
-#' FROM [SAM].[dbo].[DiabetesClinical]
+#' FROM [SAM].[dbo].[HCRDiabetesClinical]
 #' "
 #'
 #' df <- selectData(connection.string, query)

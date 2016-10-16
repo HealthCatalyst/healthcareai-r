@@ -1,6 +1,6 @@
 context("Checking deploy supervised model")
 
-csvfile <- system.file("extdata", "DiabetesClinical.csv", package = "HCRTools")
+csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "HCRTools")
 df <- read.csv(file = csvfile,
                     header = TRUE,
                     na.strings =  c('NULL', 'NA', ""))
