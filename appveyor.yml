@@ -31,7 +31,7 @@ environment:
     - R_VERSION: release
 
 services:
-  - SQL2012SP1
+  - mssql2012sp1
 
 artifacts:
   - path: SAM.dacpac
@@ -58,7 +58,7 @@ artifacts:
 deploy:
   - provider: SqlDatabase
     artifact: SAM
-    connection_string: 'Server=(local)\localhost;Database=SAM;Integrated Security=SSPI'
+    connection_string: 'Server=(local)\SQL2012SP1;Database=SAM;Integrated Security=SSPI'
 
 notifications:
  - provider: Email
