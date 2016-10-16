@@ -300,7 +300,7 @@ selectData <- function(connectionString, query, randomize=FALSE) {
 #'                  b=c(2,4,6),
 #'                  c=c('one','two','three'))
 #'
-#' #writeData(df,'localhost','SAM','dbo.HCRwriteData')
+#' writeData(df,'localhost','SAM','dbo.HCRWriteData')
 
 writeData <- function(df, server, database, schemaDotTable) {
 
