@@ -30,6 +30,9 @@ environment:
   matrix:
     - R_VERSION: release
 
+artifacts:
+  artifacts:
+
   - path: '*.Rcheck\**\*.log'
     name: Logs
 
