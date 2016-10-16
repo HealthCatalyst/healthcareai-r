@@ -34,7 +34,7 @@ services:
   - SQL2012SP1
 
 artifacts:
-  - path: C:\Users\levi.thatcher\Desktop\SAM.dacpac
+  - path: SAM.dacpac
     name: SAM
 
   - path: '*.Rcheck\**\*.log'
