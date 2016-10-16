@@ -128,7 +128,7 @@ source('R/supervised-model-development.R')
 #'
 #' #### Example using SQL Server data ####
 #' # This example requires:
-#' #    1) That your local SQL Server has AdventureWorks2012 installed
+#' #    1) That you alter your connection string / query
 #'
 #' ptm <- proc.time()
 #' library(HCRTools)
