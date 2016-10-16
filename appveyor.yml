@@ -58,7 +58,7 @@ artifacts:
 deploy:
   - provider: SqlDatabase
     artifact: SAM
-    connection_string: 'Server=(localhost)\SQL2012;Database=SAM;Integrated Security=SSPI'
+    connection_string: 'Server=(local)\SQL2012;Database=SAM;Integrated Security=SSPI'
 
 notifications:
  - provider: Email
