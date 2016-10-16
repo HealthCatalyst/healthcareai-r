@@ -30,7 +30,13 @@ environment:
   matrix:
     - R_VERSION: release
 
+services:
+  - SQL2012SP1
+
 artifacts:
+  - path: C:\Users\levi.thatcher\Desktop\SAM.dacpac
+    name: SAM
+
   - path: '*.Rcheck\**\*.log'
     name: Logs
 
@@ -49,6 +55,10 @@ artifacts:
 #  - path: '\*_*.zip'
 #    name: Bits
 
+deploy:
+  - provider: SqlDatabase
+    artifact: SAM
+    connection_string: 'Server=(localhost)\SQL2012;Database=SAM;Integrated Security=SSPI'
 
 notifications:
  - provider: Email
