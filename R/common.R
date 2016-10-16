@@ -227,14 +227,14 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' connectionString = "
 #'   driver={SQL Server};
 #'   server=localhost;
-#'   database=AdventureWorks2012;
+#'   database=SAM;
 #'   trustedConnection=true
 #'   "
 #'
 #' query = "
 #'   SELECT
-#'     [OrganizationLevel]
-#'   FROM [AdventureWorks2012].[HumanResources].[Employee]
+#'     A1CNBR
+#'   FROM SAM.dbo.HCRDiabetesClinical
 #'   "
 #'
 #' df <- selectData(connectionString, query)

@@ -92,7 +92,7 @@ source('R/supervised-model-development.R')
 #' ptm <- proc.time()
 #'
 #' # Can delete this line in your work
-#' csvfile <- system.file("extdata", "DiabetesClinical.csv", package = "HCRTools")
+#' csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "HCRTools")
 #'
 #' df <- read.csv(file = csvfile, #<-- Replace with 'your/path'
 #'                     header = TRUE,
@@ -150,7 +150,7 @@ source('R/supervised-model-development.R')
 #' ,[GenderFLG]
 #' ,[ThirtyDayReadmitFLG]
 #' ,[InTestWindowFLG]
-#' FROM [SAM].[dbo].[DiabetesClinical]
+#' FROM [SAM].[dbo].[HCRDiabetesClinical]
 #' "
 #'
 #' df <- selectData(connection.string, query)

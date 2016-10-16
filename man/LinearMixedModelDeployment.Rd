@@ -65,7 +65,7 @@ connection.string <- 'driver={SQL Server};
 # df <- selectData(connection.string, query)
 
 # Can delete these four lines when you set up your SQL connection/query
-csvfile <- system.file("extdata", "DiabetesClinical.csv",package = "HCRTools")
+csvfile <- system.file("extdata", "HCRDiabetesClinical.csv",package = "HCRTools")
 df <- read.csv(file = csvfile,
                     header = TRUE,
                     na.strings = c('NULL', 'NA', ""))
@@ -115,7 +115,7 @@ connection.string <- 'driver={SQL Server};
 # df <- selectData(connection.string, query)
 
 # Can delete these four lines when you set up your SQL connection/query
-csvfile <- system.file("extdata", "DiabetesClinical.csv",package = "HCRTools")
+csvfile <- system.file("extdata", "HCRDiabetesClinical.csv",package = "HCRTools")
 df <- read.csv(file = csvfile,
                     header = TRUE,
                     na.strings = c('NULL', 'NA', ""))
