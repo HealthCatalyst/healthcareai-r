@@ -9,6 +9,13 @@ init:
 install:
   ps: Bootstrap
 
+#---------------------------------#
+#       build configuration       #
+#---------------------------------#
+
+build_script:
+  - ps: .\DBCreate.ps1
+
 # Adapt as necessary starting from here
 build_script:
   - Rscript -e "source('http://bioconductor.org/biocLite.R')" -e "chooseCRANmirror(ind=81)"
@@ -55,8 +62,10 @@ services:
 #  - path: '\*_*.zip'
 #    name: Bits
 
-before_deploy:
-  - ps: ./DBCreate.ps1
+
+#---------------------------------#
+#  notifications configuration    #
+#---------------------------------#
 
 notifications:
  - provider: Email
