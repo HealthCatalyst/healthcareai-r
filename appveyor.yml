@@ -17,6 +17,8 @@ build_script:
 test_script:
   - travis-tool.sh run_tests
 
+test: off
+
 on_failure:
   - 7z a failure.zip *.Rcheck\*
   - appveyor PushArtifact failure.zip
@@ -34,9 +36,6 @@ services:
   - mssql2012sp1
 
 artifacts:
-  - path: SAM.dacpac
-    name: SAM
-
   - path: '*.Rcheck\**\*.log'
     name: Logs
 
@@ -55,10 +54,9 @@ artifacts:
 #  - path: '\*_*.zip'
 #    name: Bits
 
-deploy:
-  - provider: SqlDatabase
-    artifact: SAM
-    connection_string: 'Server=(local)\SQL2012SP1;Database=SAM;Integrated Security=True'
+before_deploy:
+  - path: DBCreate.ps1
+    name: DBCreate
 
 notifications:
  - provider: Email
