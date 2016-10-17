@@ -14,6 +14,9 @@ install:
 #---------------------------------#
 
 # Adapt as necessary starting from here
+services:
+  - mssql2012sp1
+
 build_script:
   - ps: .\CIBuild_DBCreate.ps1
   - Rscript -e "source('http://bioconductor.org/biocLite.R')" -e "chooseCRANmirror(ind=81)"
@@ -34,9 +37,6 @@ environment:
 
   matrix:
     - R_VERSION: release
-
-services:
-  - mssql2012sp1
 
 #artifacts:
 #  - path: DBCreate.ps1
