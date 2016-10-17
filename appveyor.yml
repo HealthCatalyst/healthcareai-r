@@ -33,7 +33,10 @@ environment:
 services:
   - mssql2012sp1
 
-artifacts:
+#artifacts:
+#  - path: DBCreate.ps1
+#    name: DBCreate
+
 #  - path: '*.Rcheck\**\*.log'
 #    name: Logs
 
@@ -53,8 +56,8 @@ artifacts:
 #    name: Bits
 
 before_deploy:
-  - provider: SqlDatabase
-    artifact: DBCreate
+  - path: DBCreate.ps1
+    name: DBCreate
 
 notifications:
  - provider: Email
