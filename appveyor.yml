@@ -13,11 +13,9 @@ install:
 #       build configuration       #
 #---------------------------------#
 
-build_script:
-  - ps: .\DBCreate.ps1
-
 # Adapt as necessary starting from here
 build_script:
+  - ps: .\DBCreate.ps1
   - Rscript -e "source('http://bioconductor.org/biocLite.R')" -e "chooseCRANmirror(ind=81)"
   - travis-tool.sh install_deps
 
