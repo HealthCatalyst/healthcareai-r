@@ -243,7 +243,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
        as.numeric(self$params$df[[self$params$predictedCol]])
 
      # Split factor columns into dummy columns (for use in deploypred method)
-     data <- dummyVars(~ ., data = self$params$df, fullRank = T)
+     data <- dummyVars(~., data = self$params$df, fullRank = T)
      self$params$df <-
        data.frame(predict(data, newdata = self$params$df, na.action = na.pass))
 
