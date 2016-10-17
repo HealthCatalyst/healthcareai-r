@@ -17,8 +17,6 @@ build_script:
 test_script:
   - travis-tool.sh run_tests
 
-test: off
-
 on_failure:
   - 7z a failure.zip *.Rcheck\*
   - appveyor PushArtifact failure.zip
@@ -36,14 +34,14 @@ services:
   - mssql2012sp1
 
 artifacts:
-  - path: '*.Rcheck\**\*.log'
-    name: Logs
+#  - path: '*.Rcheck\**\*.log'
+#    name: Logs
 
-  - path: '*.Rcheck\**\*.out'
-    name: Logs
+#  - path: '*.Rcheck\**\*.out'
+#    name: Logs
 
-  - path: '*.Rcheck\**\*.fail'
-    name: Logs
+#  - path: '*.Rcheck\**\*.fail'
+#    name: Logs
 
 #  - path: '*.Rcheck\**\*.Rout'
 #    name: Logs
@@ -55,8 +53,8 @@ artifacts:
 #    name: Bits
 
 before_deploy:
-  - path: DBCreate.ps1
-    name: DBCreate
+  - provider: SqlDatabase
+    artifact: DBCreate
 
 notifications:
  - provider: Email
