@@ -36,8 +36,6 @@ SupervisedModelDeploymentParams <- R6Class("SupervisedModelDeploymentParams",
 
     #Constructor
     initialize = function() {
-
     }
   )
-
 )

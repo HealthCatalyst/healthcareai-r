@@ -86,7 +86,6 @@ source('R/supervised-model-deployment.R')
 #' @export
 
 RandomForestDeployment <- R6Class("RandomForestDeployment",
-
   #Inheritance
   inherit = SupervisedModelDeployment,
 
@@ -133,11 +132,9 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
           control = list(maxit = 10000)
         )
       }
-
     },
 
     saveModel = function() {
-
       if (isTRUE(self$params$debug)) {
         print('Saving model...')
       }
@@ -160,7 +157,6 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         print('Test set before being used in predict(), after removing y')
         print(str(private$dfTest))
       }
-
     },
 
     performPrediction = function() {
@@ -191,9 +187,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
           print('First 10 raw regression predictions (with row # first)')
           print(round(private$predictedVals[1:10], 2))
         }
-
       }
-
     },
 
     calculateCoeffcients = function() {
@@ -207,7 +201,6 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
       private$coefficients <-
         coeffTemp[2:length(coeffTemp)] # drop intercept
-
     },
 
     calculateMultiplyRes = function() {
@@ -227,7 +220,6 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         print('Data frame after multiplying raw vals by coeffs')
         print(private$multiplyRes[1:10, ])
       }
-
     },
 
     calculateOrderedFactors = function() {
@@ -242,7 +234,6 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         print('Data frame after getting column importance ordered')
         print(private$orderedFactors[1:10, ])
       }
-
     },
 
     saveDataIntoDb = function() {
@@ -296,9 +287,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       if (out == 1) {
         print('SQL Server insert was successful')
       }
-
     }
-
   ),
 
   #Public members
@@ -307,6 +296,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     #p: new SupervisedModelDeploymentParams class object,
     #   i.e. p = SupervisedModelDeploymentParams$new()
     initialize = function(p) {
+
       super$initialize(p)
 
       if (!is.null(p$rfmtry))
@@ -319,6 +309,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     #This would be a user-defined method
     # which gets called by buildFitObject function
     fitRandomForest = function() {
+
       # Set proper mtry (either based on recc default or specified)
       if (nchar(self$params$rfmtry) == 0 &&
           self$params$type == 'classification') {
@@ -360,11 +351,11 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
       # Get fit object by random forest
       self$fitRandomForest()
-
     },
 
     #Override: Build Deploy Model
     buildDeployModel = function() {
+
       if (isTRUE(self$params$debug)) {
         print('Training data set immediately before training')
         print(str(private$dfTrain))
@@ -378,7 +369,6 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
       print('Details for proability model:')
       print(private$fit)
-
     },
 
     #Override: deploy the model
@@ -430,5 +420,4 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       return(private$predictedValsForUnitTest)
     }
   )
-
 )

@@ -33,18 +33,18 @@ groupedLOCF <- function(df, id) {
   # Note that the object that results acts as both a data frame and datatable
   df <- data.table::setDT(df)
 
-  # Create a vector of booleans where each element is mapped to a row
-  # in the data.table.  Each value is FALSE unless the corresponding
-  # row is the first row of a person.  In other words, each TRUE
-  # represents a change of PersonID in the data.table.
+  # Create a vector of booleans where each element is mapped to a row in the
+  # data.table.  Each value is FALSE unless the corresponding row is the first row
+  # of a person.  In other words, each TRUE represents a change of PersonID in the
+  # data.table.
   changeFlags <- c(TRUE, get(id, df)[-1] != get(id, df)[-nrow(df)])
 
   # A helper that finds the last non-NA value for a given column x in df.
   locf <- function(x) x[cummax(((!is.na(x)) | changeFlags) * seq_len(nrow(df)))]
 
-  # By avoiding using the 'by' operator of data.table, we're reducing
-  # the number of calls from (N rows / P people) * C columns to just C columns;
-  # this is just once for each column in the data.table.
+  # By avoiding using the 'by' operator of data.table, we're reducing the number of
+  # calls from (N rows / P people) * C columns to just C columns; this is just once
+  # for each column in the data.table.
   dfResult <- df[, lapply(.SD, locf)]
   dfResult
 }
@@ -71,9 +71,9 @@ groupedLOCF <- function(df, id) {
 #' @references \url{http://hctools.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' dtCol = c("2001-06-09 12:45:05","2002-01-29 09:30:05","2002-02-02 07:36:50",
-#'           "2002-03-04 16:45:01","2002-11-13 20:00:10","2003-01-29 07:31:43",
-#'           "2003-07-07 17:30:02","2003-09-28 01:03:20")
+#' dtCol = c('2001-06-09 12:45:05','2002-01-29 09:30:05','2002-02-02 07:36:50',
+#'           '2002-03-04 16:45:01','2002-11-13 20:00:10','2003-01-29 07:31:43',
+#'           '2003-07-07 17:30:02','2003-09-28 01:03:20')
 #' y1 <- c(.5,1,3,6,8,13,14,1)
 #' y2 <- c(.8,1,1.2,1.2,1.2,1.3,1.3,1)
 #' df <- data.frame(dtCol,y1,y2)
@@ -81,46 +81,39 @@ groupedLOCF <- function(df, id) {
 #' df <- convertDateTimeColToDummies(df, 'dtCol')
 #' head(df)
 
-convertDateTimeColToDummies <- function(df,
-                                        dateTimeCol,
-                                        depth='h',
-                                        returnDtCol=FALSE) {
-  if (depth == 'd') {
-
+convertDateTimeColToDummies <- function(df, dateTimeCol, depth = "h", returnDtCol = FALSE) {
+  if (depth == "d") {
     df[[dateTimeCol]] <- as.POSIXct(df[[dateTimeCol]])
     df$year <- as.POSIXlt(df[[dateTimeCol]])$year + 1900
     df$month <- as.POSIXlt(df[[dateTimeCol]])$mo + 1
-    df$weekOfYear <- strftime(df[[dateTimeCol]],format = "%W")
+    df$weekOfYear <- strftime(df[[dateTimeCol]], format = "%W")
     df$dayOfMonth <- as.POSIXlt(df[[dateTimeCol]])$mday
     df$dayOfWeek <- as.POSIXlt(df[[dateTimeCol]])$wday + 1
 
-  } else if (depth == 'h') {
-
+  } else if (depth == "h") {
     df[[dateTimeCol]] <- as.POSIXct(df[[dateTimeCol]])
     df$year <- as.POSIXlt(df[[dateTimeCol]])$year + 1900
     df$month <- as.POSIXlt(df[[dateTimeCol]])$mo + 1
-    df$weekOfYear <- strftime(df[[dateTimeCol]],format = "%W")
+    df$weekOfYear <- strftime(df[[dateTimeCol]], format = "%W")
     df$dayOfMonth <- as.POSIXlt(df[[dateTimeCol]])$mday
     df$dayOfWeek <- as.POSIXlt(df[[dateTimeCol]])$wday + 1
     df$hour <- as.POSIXlt(df[[dateTimeCol]])$hour
 
-  } else if (depth == 'm') {
-
+  } else if (depth == "m") {
     df[[dateTimeCol]] <- as.POSIXct(df[[dateTimeCol]])
     df$year <- as.POSIXlt(df[[dateTimeCol]])$year + 1900
     df$month <- as.POSIXlt(df[[dateTimeCol]])$mo + 1
-    df$weekOfYear <- strftime(df[[dateTimeCol]],format = "%W")
+    df$weekOfYear <- strftime(df[[dateTimeCol]], format = "%W")
     df$dayOfMonth <- as.POSIXlt(df[[dateTimeCol]])$mday
     df$dayOfWeek <- as.POSIXlt(df[[dateTimeCol]])$wday + 1
     df$hour <- as.POSIXlt(df[[dateTimeCol]])$hour
     df$min <- as.POSIXlt(df[[dateTimeCol]])$min
 
-  } else if (depth == 's') {
-
+  } else if (depth == "s") {
     df[[dateTimeCol]] <- as.POSIXct(df[[dateTimeCol]])
     df$year <- as.POSIXlt(df[[dateTimeCol]])$year + 1900
     df$month <- as.POSIXlt(df[[dateTimeCol]])$mo + 1
-    df$weekOfYear <- strftime(df[[dateTimeCol]],format = "%W")
+    df$weekOfYear <- strftime(df[[dateTimeCol]], format = "%W")
     df$dayOfMonth <- as.POSIXlt(df[[dateTimeCol]])$mday
     df$dayOfWeek <- as.POSIXlt(df[[dateTimeCol]])$wday + 1
     df$hour <- as.POSIXlt(df[[dateTimeCol]])$hour
@@ -204,7 +197,7 @@ isBinary <- function(v) {
 
 removeRowsWithNAInSpecCol <- function(df, desiredCol) {
   completeVec <- stats::complete.cases(df[[desiredCol]])
-  dfResult <- df[completeVec,]
+  dfResult <- df[completeVec, ]
   dfResult
 }
 
@@ -224,25 +217,25 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' library(HCRTools)
-#' connectionString = "
+#' connectionString = '
 #'   driver={SQL Server};
 #'   server=localhost;
 #'   database=SAM;
 #'   trustedConnection=true
-#'   "
+#'   '
 #'
-#' query = "
+#' query = '
 #'   SELECT
 #'     A1CNBR
 #'   FROM SAM.dbo.HCRDiabetesClinical
-#'   "
+#'   '
 #'
 #' df <- selectData(connectionString, query)
 #' head(df)
 
-selectData <- function(connectionString, query, randomize=FALSE) {
+selectData <- function(connectionString, query, randomize = FALSE) {
   if (isTRUE(randomize)) {
-    orderPres <- grep('order', tolower(query))
+    orderPres <- grep("order", tolower(query))
 
     if (length(orderPres == 0)) {
       stop("You cannot randomize while using the SQL order keyword.")
@@ -254,13 +247,9 @@ selectData <- function(connectionString, query, randomize=FALSE) {
   # TODO: if debug: cat(connectionString)
   cnxn <- odbcDriverConnect(connectionString)
 
-  # TODO: if debug: cat(query)
-  # TODO: if debug: time this operation and print the time spent to pull data.
-  df <- sqlQuery(
-    channel = cnxn,
-    na.strings =  c('NULL', 'NA', ""),
-    query = query
-  )
+  # TODO: if debug: cat(query) TODO: if debug: time this operation and print the
+  # time spent to pull data.
+  df <- sqlQuery(channel = cnxn, na.strings = c("NULL", "NA", ""), query = query)
 
   odbcCloseAll()
 
@@ -303,34 +292,27 @@ selectData <- function(connectionString, query, randomize=FALSE) {
 #' writeData(df,'localhost','SAM','dbo.HCRWriteData')
 
 writeData <- function(df, server, database, schemaDotTable) {
-
-  # TODO: use sub function to remove brackets from schemaDotTable
-  # TODO: add try/catch around sqlSave
-  connectionString <-
-    paste0("driver={SQL Server};
-           server=",server,";
-           database=",database,";
-           trustedConnection=true")
+  # TODO: use sub function to remove brackets from schemaDotTable TODO: add
+  # try/catch around sqlSave
+  connectionString <- paste0("driver={SQL Server};
+                             server=",
+                             server, ";
+                             database=", database, ";
+                             trustedConnection=true")
 
   sqlCnxn <- odbcDriverConnect(connectionString)
 
   # Save df to table in specified database
-  out <- sqlSave(channel = sqlCnxn,
-                dat = df,
-                tablename = schemaDotTable,
-                append = T,
-                rownames = F,
-                colnames = F,
-                safer = T,
-                nastring = NULL)
+  out <- sqlSave(channel = sqlCnxn, dat = df, tablename = schemaDotTable, append = T,
+                 rownames = F, colnames = F, safer = T, nastring = NULL)
 
   # Clean up.
   odbcCloseAll()
 
   if (out == 1) {
-    print('SQL Server insert was successful')
+    print("SQL Server insert was successful")
   } else {
-    print('SQL Server insert failed')
+    print("SQL Server insert failed")
   }
 }
 
@@ -357,7 +339,7 @@ writeData <- function(df, server, database, schemaDotTable) {
 removeColsWithAllSameValue <- function(df) {
   dfResult <- df[sapply(df, function(x) length(unique(x[!is.na(x)])) > 1)]
   if (ncol(dfResult) == 0) {
-    message('All columns were removed.')
+    message("All columns were removed.")
   }
   dfResult
 }
@@ -385,10 +367,10 @@ removeColsWithAllSameValue <- function(df) {
 #' colList
 
 returnColsWithMoreThanFiftyCategories <- function(df) {
-  colList <- vector('character')
+  colList <- vector("character")
   for (columnName in names(df)) {
     if (nlevels(df[[columnName]]) > 50) {
-      colList <- c(colList,columnName)
+      colList <- c(colList, columnName)
     }
   }
   colList
@@ -412,9 +394,9 @@ returnColsWithMoreThanFiftyCategories <- function(df) {
 #' @references \url{http://hctools.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#'dates <- c(as.Date("2012-01-01"),as.Date("2012-01-02"),as.Date("2012-02-01"),
-#'           as.Date("2012-03-01"),as.Date("2012-04-01"),as.Date("2012-05-01"),
-#'           as.Date("2012-06-01"),as.Date("2012-06-02"))
+#'dates <- c(as.Date('2012-01-01'),as.Date('2012-01-02'),as.Date('2012-02-01'),
+#'           as.Date('2012-03-01'),as.Date('2012-04-01'),as.Date('2012-05-01'),
+#'           as.Date('2012-06-01'),as.Date('2012-06-02'))
 #'y1 <- c(0,1,2,6,8,13,14,16)               # large positive
 #'y2 <- c(.8,1,1.2,1.2,1.2,1.3,1.3,1.5)     # small positive
 #'y3 <- c(1,0,-2,-2,-4,-5,-7,-8)            # big negative
@@ -427,41 +409,35 @@ returnColsWithMoreThanFiftyCategories <- function(df) {
 #'                       groupbyCol = 'gender')
 #'dfResult
 
-findTrends <- function(df,
-                       dateCol,
-                       groupbyCol) {
-
+findTrends <- function(df, dateCol, groupbyCol) {
   df$year <- as.POSIXlt(df[[dateCol]])$year + 1900
   df$month <- as.POSIXlt(df[[dateCol]])$mo + 1
 
   df[[dateCol]] <- NULL
 
-  df <- aggregate(formula(paste0(".~", groupbyCol, "+year+month")),
-                      data = df,
-                      FUN = sum)
+  df <- aggregate(formula(paste0(".~", groupbyCol, "+year+month")), data = df,
+                  FUN = sum)
 
   df <- df[with(df, order(year, month)), ]
 
   # TODO: alter this last month dynamically when we search over all time
-  finalYrMonth = paste0(month.abb[df$month[length(df$month)]],
-                         '-',
-                         df$year[length(df$year)])
+  finalYrMonth <- paste0(month.abb[df$month[length(df$month)]], "-", df$year[length(df$year)])
 
   # Pre-create empty vectors
-  metricTrendList <- vector('character')
-  aggregatedColList <- vector('character')
+  metricTrendList <- vector("character")
+  aggregatedColList <- vector("character")
 
   # Create list that doesn't have cols we aggregated by
-  colIterList = names(df)
-  remove <- c(groupbyCol,"year","month")
+  colIterList <- names(df)
+  remove <- c(groupbyCol, "year", "month")
   colIterList <- colIterList[!colIterList %in% remove]
 
   # If the last six values are monotonically increasing, add col name to list
   for (j in unique(df[[groupbyCol]])) {
     # Just grab rows corresponding to a particular category in the factor col
-    dfTemp <- df[df[[groupbyCol]] == j,]
+    dfTemp <- df[df[[groupbyCol]] == j, ]
 
-    print('df after grouping and focusing on one category in group col:')
+    print("df after grouping and focusing on one category in group col:")
     print(tail(dfTemp, n = 6))
 
     # Iterate over all columns except for cols that we aggregated by
@@ -471,8 +447,10 @@ findTrends <- function(df,
         n <- nrow(dfTemp)
         if (n > 5) {
           # TODO: make this check into a function
-          checkIncr = all(dfTemp[[i]][(n - 5):n] == cummax(dfTemp[[i]][(n - 5):n]))
-          checkDecr = all(dfTemp[[i]][(n - 5):n] == cummin(dfTemp[[i]][(n - 5):n]))
+          checkIncr <- all(dfTemp[[i]][(n - 5):n] == cummax(dfTemp[[i]][(n -
+                                                                           5):n]))
+          checkDecr <- all(dfTemp[[i]][(n - 5):n] == cummin(dfTemp[[i]][(n -
+                                                                           5):n]))
           if (isTRUE(checkIncr) || isTRUE(checkDecr)) {
             # If true, append col names to list to output
             aggregatedColList <- c(aggregatedColList, j)
@@ -484,18 +462,12 @@ findTrends <- function(df,
   }
 
   if (length(metricTrendList) == 0) {
-    message('No trends of sufficient length found')
+    message("No trends of sufficient length found")
     return()
   } else {
-    dfResult = data.frame(groupbyCol,
-                          aggregatedColList,
-                          metricTrendList,
-                          finalYrMonth)
-    colnames(dfResult) <- c("DimAttribute",
-                            "GroupBy",
-                            "MeasuresTrending",
-                            "FinalDate")
-    print('Trends were found:')
+    dfResult <- data.frame(groupbyCol, aggregatedColList, metricTrendList, finalYrMonth)
+    colnames(dfResult) <- c("DimAttribute", "GroupBy", "MeasuresTrending", "FinalDate")
+    print("Trends were found:")
     print(dfResult)
   }
 }
@@ -520,13 +492,13 @@ findTrends <- function(df,
 #' dfResult = orderByDate(df,'date', descending=FALSE)
 #' head(dfResult)
 
-orderByDate <- function(df,dateCol,descending=FALSE) {
-  df[[dateCol]] <- lubridate::ymd_hms(df[[dateCol]],truncated = 5)
+orderByDate <- function(df, dateCol, descending = FALSE) {
+  df[[dateCol]] <- lubridate::ymd_hms(df[[dateCol]], truncated = 5)
 
   if (descending == FALSE) {
-    dfResult <- df[order(df[[dateCol]]),]
+    dfResult <- df[order(df[[dateCol]]), ]
   } else {
-    dfResult <- df[rev(order(df[[dateCol]])),]
+    dfResult <- df[rev(order(df[[dateCol]])), ]
   }
   dfResult
 }
@@ -556,40 +528,39 @@ orderByDate <- function(df,dateCol,descending=FALSE) {
 #' dfResult <- calculateTargetedCorrelations(df=df,targetCol='c')
 #' dfResult
 
-calculateTargetedCorrelations <- function(df,targetCol) {
+calculateTargetedCorrelations <- function(df, targetCol) {
   if (!is.numeric(df[[targetCol]])) {
     stop("Your target column must be numeric")
   }
 
   # Initialize variable, since we will iterate
-  pValue <- vector('numeric')
+  pValue <- vector("numeric")
 
   # Pull only numeric columns
   nums <- sapply(df, is.numeric)
-  df <- df[ , nums]
+  df <- df[, nums]
 
   colList <- names(df)
   # Trim list of col names, so target doesn't check against itself
   colList <- colList[colList != targetCol]
 
   # Make list of correlations
-  cor <- cor(as.matrix(df[[targetCol]]),
-             as.matrix(df[ ,!(colnames(df) == targetCol)]))
+  cor <- cor(as.matrix(df[[targetCol]]), as.matrix(df[, !(colnames(df) == targetCol)]))
 
   # Make list of corr-related p-values
   for (i in colList) {
-    pValue <- c(pValue,cor.test(df[[targetCol]], df[,i])$p.value)
+    pValue <- c(pValue, cor.test(df[[targetCol]], df[, i])$p.value)
   }
 
-  dfResult <- data.frame(t(cor),pValue)
+  dfResult <- data.frame(t(cor), pValue)
   # Change name of corr col
-  names(dfResult)[names(dfResult) == 't.cor.'] <- 'correlation'
+  names(dfResult)[names(dfResult) == "t.cor."] <- "correlation"
 
   # Change row name to actual col
   dfResult <- cbind(column = rownames(dfResult), dfResult)
   rownames(dfResult) <- NULL
 
-  colnames(dfResult) <- c('Column','Correlation','PValue')
+  colnames(dfResult) <- c("Column", "Correlation", "PValue")
 
   dfResult
 }
@@ -644,10 +615,10 @@ calculateAllCorrelations <- function(df) {
 #' colList = returnColsWithMoreThanFiftyCategories(df)
 
 returnColsWithMoreThanFiftyCategories <- function(df) {
-  colList <- vector('character')
+  colList <- vector("character")
   for (columnName in names(df)) {
     if (nlevels(df[[columnName]]) > 50) {
-      colList <- c(colList,columnName)
+      colList <- c(colList, columnName)
     }
   }
   colList
@@ -692,29 +663,27 @@ countPercentEmpty <- function(df) {
 #' @references \url{http://hctools.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' dtCol = c("2001-06-09 12:45:05","2002-01-29 09:30:05","2002-02-02 07:36:50",
-#' "2002-03-04 16:45:01","2002-11-13 20:00:10","2003-01-29 07:31:43",
-#' "2003-07-07 17:30:02","2003-09-28 01:03:20")
+#' dtCol = c('2001-06-09 12:45:05','2002-01-29 09:30:05','2002-02-02 07:36:50',
+#' '2002-03-04 16:45:01','2002-11-13 20:00:10','2003-01-29 07:31:43',
+#' '2003-07-07 17:30:02','2003-09-28 01:03:20')
 #' y1 <- c(.5,1,3,6,8,13,14,1) # Not being used at all
 #' df <- data.frame(dtCol, y1)
 #' head(df)
 #' dfResult <- countDaysSinceFirstDate(df, 'dtCol')
 #' head(dfResult)
 
-countDaysSinceFirstDate <- function(df, dtCol, returnDtCol=FALSE) {
-
+countDaysSinceFirstDate <- function(df, dtCol, returnDtCol = FALSE) {
   # Find first date in date list
-  earliest <- df[[dtCol]][order(format(as.Date(df[[dtCol]]),"%y%m%d"))[1]]
+  earliest <- df[[dtCol]][order(format(as.Date(df[[dtCol]]), "%y%m%d"))[1]]
   # Find diff between each date and first date
-  dayDiff <- as.numeric(difftime(df[[dtCol]], earliest, units = 'days'))
+  dayDiff <- as.numeric(difftime(df[[dtCol]], earliest, units = "days"))
   # Make output col name include input name (in case of multiple uses)
-  combinedName <- paste0(dtCol,'DaysSinceFirstDate')
+  combinedName <- paste0(dtCol, "DaysSinceFirstDate")
   df[[combinedName]] <- dayDiff
 
   if (isTRUE(!returnDtCol)) {
     df[[dtCol]] <- NULL
   }
-
   df
 }
 
@@ -731,34 +700,24 @@ countDaysSinceFirstDate <- function(df, dtCol, returnDtCol=FALSE) {
 #' @references \url{http://hctools.org/}
 #' @seealso \code{\link{HCRTools}}
 
-
 plotROCs <- function(rocs, names, legendLoc) {
-
-  # generate color vector
-  # TODO: auto generate these colors dynamically as rgb values
-  #         based on the length of rocs list
+  # generate color vector TODO: auto generate these colors dynamically as rgb
+  # values based on the length of rocs list
   colvec <- c("red", "blue", "green", "orange", "brown", "magenta")
 
   # plot ROCs
-  rocIndex = 1
+  rocIndex <- 1
   for (roc in rocs) {
     if (rocIndex == 1) {
-      plot(roc, col = colvec[rocIndex], legacy.axes = TRUE, mar = c(4, 4, 3, 2) + .1)
+      plot(roc, col = colvec[rocIndex], legacy.axes = TRUE, mar = c(4, 4, 3,
+                                                                    2) + 0.1)
       title(main = "ROC")
-    }
-    else {
+    } else {
       plot(roc, add = TRUE, col = colvec[rocIndex], lty = 2)
     }
     rocIndex <- rocIndex + 1
   }
-
   # legend
-  legend(legendLoc,
-         names,
-         cex = 0.8,
-         col = colvec,
-         lty = 1:2,
-         inset = .1)
-
+  legend(legendLoc, names, cex = 0.8, col = colvec, lty = 1:2, inset = 0.1)
   return()
 }

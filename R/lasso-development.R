@@ -168,7 +168,6 @@ source('R/supervised-model-development.R')
 #'
 #' @export
 
-
 LassoDevelopment <- R6Class("LassoDevelopment",
 
   # Inheritance
@@ -203,7 +202,6 @@ LassoDevelopment <- R6Class("LassoDevelopment",
   	mae = NA,
   	perf = NA,
   	prevalence = NA
-
   ),
 
   # Public members
@@ -273,7 +271,6 @@ LassoDevelopment <- R6Class("LassoDevelopment",
                                       family = familyModuleName,
                                       penalty = "grLasso",
                                       nfolds = 5)
-
     },
 
     # Predict results
@@ -328,14 +325,16 @@ LassoDevelopment <- R6Class("LassoDevelopment",
         # Show results
         if (isTRUE(self$params$printResults)) {
           print(paste0('AUC: ', round(private$AUC, 2)))
-          print(paste0('95% CI AUC: (', round(ci(private$AUC)[1],2), ',', round(ci(private$AUC)[3],2), ')'))
+          print(paste0('95% CI AUC: (', round(ci(private$AUC)[1],2), ',',
+                       round(ci(private$AUC)[3],2), ')'))
         }
       }
       # Regression
       else if (self$params$type == 'regression') {
 
         if (isTRUE(self$params$debug)) {
-          print(paste0('Rows in regression prediction: ', nrow(private$predictions)))
+          print(paste0('Rows in regression prediction: ',
+                       nrow(private$predictions)))
           print('First 10 raw regression predictions (with row # first)')
           print(round(private$predictions[1:10],2))
         }

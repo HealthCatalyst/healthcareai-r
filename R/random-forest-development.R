@@ -164,7 +164,6 @@ source('R/supervised-model-development.R')
 #'
 #' @export
 
-
 RandomForestDevelopment <- R6Class("RandomForestDevelopment",
 
   # Inheritance
@@ -192,7 +191,6 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
 
     # Start of functions
     buildGrid = function() {
-
       if (isTRUE(self$params$tune)) {
         optimal = NA
 
@@ -229,10 +227,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
           private$grid <- data.frame(.mtry = max(floor(ncol(private$dfTrain)/3), 1))
         }
       }
-
     }
-
-
   ),
 
   # Public members
@@ -250,12 +245,10 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       if (!is.null(p$numberOfTrees)) {
         self$params$numberOfTrees = p$numberOfTrees
       }
-
     },
 
     # Override: build RandomForest model
     buildModel = function() {
-
       trainControlParams.method = ""
       trainControlParams.number = 1
 
@@ -317,21 +310,17 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         tuneGrid = private$grid,
         trControl = train.control
       )
-
     },
 
     # Perform prediction
     performPrediction = function() {
-
       if (self$params$type == 'classification') {
         private$predictions = predict(object = private$fitRF,
                                       newdata = private$dfTest,
                                       type = 'prob')
-      }
-      else if (self$params$type == 'regression') {
+      } else if (self$params$type == 'regression') {
         private$predictions = predict(private$fitRF, newdata = private$dfTest)
       }
-
     },
 
     # Generate performance metrics
@@ -372,7 +361,6 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
 
       # Regression
       else if (self$params$type == 'regression') {
-
         if (isTRUE(self$params$debug)) {
           print(paste0('Rows in regression prediction: ',
                        length(private$predictions)))
@@ -391,7 +379,6 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
           print(paste0('RMSE: ', round(private$rmse, 8)))
           print(paste0('MAE: ', round(private$mae, 8)))
         }
-
       }
 
       private$stopClustersOnCores()
