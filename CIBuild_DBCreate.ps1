@@ -12,4 +12,4 @@
 #$ldfFile = "SAM_log.ldf"
 
 'hello3'
-sqlcmd -S "SQL2012SP1" -Q "CREATE DATABASE [SAM2] ON (FILENAME = 'SAM.mdf'), (FILENAME = 'SAM_log.ldf') for ATTACH"
+sqlcmd -S "(local)\SQL2012SP1" -Q "CREATE DATABASE [SAM2] ON (FILENAME = 'SAM.mdf'), (FILENAME = 'SAM_log.ldf') for ATTACH"
