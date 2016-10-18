@@ -9,34 +9,6 @@ init:
 install:
   ps: Bootstrap
 
-test: on
-build: on
-
-#artifacts:
-#  - path: SAM.mdf
-#    name: SAM
-
-#  - path: SAM_log.ldf
-#    name: SAM_log
-
-#  - path: '*.Rcheck\**\*.log'
-#    name: Logs
-
-#  - path: '*.Rcheck\**\*.out'
-#    name: Logs
-
-#  - path: '*.Rcheck\**\*.fail'
-#    name: Logs
-
-#  - path: '*.Rcheck\**\*.Rout'
-#    name: Logs
-
-#  - path: '\*_*.tar.gz'
-#    name: Bits
-
-#  - path: '\*_*.zip'
-#    name: Bits
-
 #---------------------------------#
 #       build configuration       #
 #---------------------------------#
@@ -75,7 +47,6 @@ notifications:
    to:
      - healthcatalystslc+appveyor@mailbox.org
    subject: 'r-appveyor build {{status}}'                          # optional
-   message: "https://ci.appveyor.com/project/krlmlr/r-appveyor"    # optional
    on_build_success: false
    on_build_failure: true
    on_build_status_changed: true
