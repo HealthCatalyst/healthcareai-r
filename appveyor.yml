@@ -18,7 +18,7 @@ services:
   - mssql2012sp1
 
 build_script:
-  - ps: iex .\CIBuild_DBCreate.ps1
+  - ps: iex .\inst\CIDatabase\CIBuild_DBCreate.ps1
   - Rscript -e "source('http://bioconductor.org/biocLite.R')" -e "chooseCRANmirror(ind=81)"
   - travis-tool.sh install_deps
 
