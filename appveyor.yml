@@ -9,8 +9,8 @@ init:
 install:
   ps: Bootstrap
 
-test: off
-build: off
+test: on
+build: on
 
 #artifacts:
 #  - path: SAM.mdf
