@@ -12,6 +12,9 @@ install:
 test: off
 build: off
 
+environment:
+  APPVEYOR_BUILD_FOLDER: "C:\projects\HCRTools\"
+
 #artifacts:
 #  - path: SAM.mdf
 #    name: SAM

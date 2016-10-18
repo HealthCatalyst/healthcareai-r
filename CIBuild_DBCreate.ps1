@@ -1,7 +1,7 @@
 
 # Push artifacts up
-Push-AppveyorArtifact SAM.mdf
-Push-AppveyorArtifact SAM_log.ldf
+#Push-AppveyorArtifact SAM.mdf
+#Push-AppveyorArtifact SAM_log.ldf
 
 # Attach mdf to local instance
 $mdfFile = "C:\projects\HCRTools\SAM.mdf"
