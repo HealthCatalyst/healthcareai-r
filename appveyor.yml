@@ -39,10 +39,10 @@ environment:
     - R_VERSION: release
 
 artifacts:
-  - path: SAM.mdf
+  - path: C:\Source\DataScience\HCRTools\SAM.mdf
     name: SAM
 
-  - path: SAM_log.ldf
+  - path: C:\Source\DataScience\HCRTools\SAM_log.ldf
     name: SAM_log
 
 #  - path: '*.Rcheck\**\*.log'
