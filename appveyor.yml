@@ -9,12 +9,15 @@ init:
 install:
   ps: Bootstrap
 
-#artifacts:
-#  - path: SAM.mdf
-#    name: SAM
+test: off
+build: off
 
-#  - path: SAM_log.ldf
-#    name: SAM_log
+artifacts:
+  - path: SAM.mdf
+    name: SAM
+
+  - path: SAM_log.ldf
+    name: SAM_log
 
 #  - path: '*.Rcheck\**\*.log'
 #    name: Logs
