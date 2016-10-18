@@ -9,9 +9,6 @@ init:
 install:
   ps: Bootstrap
 
-before_build:
-  - APPVEYOR_BUILD_FOLDER = 'C:\Source\DataScience\HCRTools'
-
 test: off
 build: off
 
