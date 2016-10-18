@@ -136,7 +136,6 @@ source('R/supervised-model-deployment.R')
 #'
 #' @export
 
-
 LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
   #Inheritance
@@ -195,7 +194,6 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
       # Save models if specified
       if (isTRUE(!self$params$useSavedModel)) {
-
         #NOTE: save(private$fitLogit, ...) directly, did not work!
         fitLogitObj = private$fitLogit
         fitObj = private$fit
@@ -219,7 +217,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
         private$predictedVals = predict(private$fit,
                                         newdata = private$dfTest,
                                         allow.new.levels = TRUE,
-                                        type="response")
+                                        type = "response")
         # For unit test
         private$predictedValsForUnitTest <- private$predictedVals[5]
 
@@ -230,12 +228,10 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
           print('First 10 raw classification probability predictions')
           print(round(private$predictedVals[1:10], 2))
         }
-
       } else if (self$params$type == 'regression') {
         # this is in-kind prediction
         private$predictedVals = predict(private$fit,
                                         newdata = private$dfTest)
-
         if (isTRUE(self$params$debug)) {
           print(paste0(
             'Rows in regression prediction: ',
@@ -263,7 +259,6 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
         print('Coefficients after dropping intercept:')
         print(private$coefficients)
       }
-
     },
 
     calculateMultiplyRes = function() {
@@ -296,6 +291,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     },
 
     calculateOrderedFactors = function() {
+
       # Calculate ordered factors of importance for each row's prediction
       private$orderedFactors = t(sapply
                                   (1:nrow(private$multiplyRes),
@@ -425,7 +421,6 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
       # Get fit object by random forest
       self$fitLinearMixedModel()
-
     },
 
     #Override: Build Deploy Model

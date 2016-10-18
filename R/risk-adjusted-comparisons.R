@@ -65,16 +65,13 @@ RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
   inherit = SupervisedModelDevelopment,
 
   private = list(
-
     dfTemp = NA,
     grid = NA,
     fitRf = NA,
     predicted = NA
-
   ),
 
   public = list(
-
     dfReturn = NA,
 
     # Constructor
@@ -85,7 +82,6 @@ RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
     },
 
     buildModel = function(groupbyList, j) {
-
       # Just grab rows corresponding to a particular category in the factor col
       private$dfTest <- self$params$df[self$params$df[[self$params$groupCol]] == j,]
       private$dfTrain <- self$params$df[self$params$df[[self$params$groupCol]] != j,]
@@ -110,20 +106,16 @@ RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
         tuneGrid = private$grid,
         trControl = trainCtrl
       )
-
     },
 
     performPrediction = function() {
-
       private$predicted = predict(object = private$fitRf,
                           newdata = private$dfTest,
                           type = 'raw')
-
     },
 
     #Override: run prediction
     run = function() {
-
       # Pre-create empty vectors
       groupbyList <- vector('character')
       comparativePerformance <- vector('character')

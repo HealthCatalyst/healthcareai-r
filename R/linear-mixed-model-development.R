@@ -242,7 +242,7 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
 
       # Split out test/train by taking last row of each PersonID for test set
       # TODO Soon: do this split using the InTestWindowCol
-      private$lmmTrain <- data.table::setDT(private$trainTest)[, .SD[1:.N-1], by = eval(self$params$personCol)]
+      private$lmmTrain <- data.table::setDT(private$trainTest)[, .SD[1:.N - 1], by = eval(self$params$personCol)]
       private$lmmTest <- data.table::setDT(private$trainTest)[, .SD[.N], by = eval(self$params$personCol)]
 
       if (isTRUE(self$params$debug)) {
@@ -251,7 +251,6 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
         print('Mixed model-specific test set after creation')
         print(str(private$lmmTest))
       }
-
     },
 
     # Override: build model

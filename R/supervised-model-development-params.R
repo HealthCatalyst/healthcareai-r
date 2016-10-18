@@ -33,8 +33,7 @@ SupervisedModelDevelopmentParams <- R6Class("SupervisedModelDevelopmentParams",
     numberOfTrees = 201,
 
     #Constructor
-    initialize = function () {
+    initialize = function() {
     }
   )
-
 )

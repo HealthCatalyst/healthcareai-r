@@ -42,7 +42,7 @@ source('R/supervised-model-deployment.R')
 #' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 #' # )
 #'
-#' #setwd("C:/Yourscriptlocation/Useforwardslashes") # Uncomment if using csv
+#' #setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 #' ptm <- proc.time()
 #' library(HCRTools)
 #'
@@ -52,14 +52,14 @@ source('R/supervised-model-deployment.R')
 #'                       trusted_connection=true'
 #'
 #' # Use this for an example SQL source:
-#' # query <- "SELECT * FROM [SAM].[YourCoolSAM].[SomeTrainingSetTable]"
+#' # query <- 'SELECT * FROM [SAM].[YourCoolSAM].[SomeTrainingSetTable]'
 #' # df <- selectData(connection.string, query)
 #'
 #' # Can delete these four lines when you set up your SQL connection/query
-#' csvfile <- system.file("extdata", "HCRDiabetesClinical.csv",package = "HCRTools")
+#' csvfile <- system.file('extdata', 'HCRDiabetesClinical.csv',package = 'HCRTools')
 #' df <- read.csv(file = csvfile,
 #'                     header = TRUE,
-#'                     na.strings = c('NULL', 'NA', ""))
+#'                     na.strings = c('NULL', 'NA', ''))
 #'
 #' head(df)
 #'
@@ -86,15 +86,14 @@ source('R/supervised-model-deployment.R')
 #'
 #' @export
 
-
-LassoDeployment <- R6Class("LassoDeployment",
+LassoDeployment <- R6Class(
+  "LassoDeployment",
 
   #Inheritance
   inherit = SupervisedModelDeployment,
 
   #Private members
   private = list(
-
     # variables
     coefficients = NULL,
     multiplyRes = NULL,
@@ -102,11 +101,10 @@ LassoDeployment <- R6Class("LassoDeployment",
     predictedValsForUnitTest = NULL,
 
     # functions
-    connectDataSource = function() {
+    connectDataSource <- function() {
       odbcCloseAll()
       # Convert the connection string into a real connection object.
-      self$params$sqlConn <-
-        odbcDriverConnect(self$params$sqlConn)
+      self$params$sqlConn <- odbcDriverConnect(self$params$sqlConn)
     },
 
     closeDataSource = function() {
@@ -156,16 +154,16 @@ LassoDeployment <- R6Class("LassoDeployment",
         print('Test set before being used in predict(), after removing y')
         print(str(private$dfTest))
       }
-
     },
 
     performPrediction = function() {
       if (self$params$type == 'classification') {
         #  linear , these are probabilities
         private$predictedVals = predict(private$fit,
-                                  newdata = private$dfTest,
-                                  type = "response")
-        private$predictedValsForUnitTest <- private$predictedVals[5] # for unit test
+                                        newdata = private$dfTest,
+                                        type = "response")
+        private$predictedValsForUnitTest <-
+          private$predictedVals[5] # for unit test
 
         print('Probability predictions are based on logistic')
 
@@ -174,7 +172,6 @@ LassoDeployment <- R6Class("LassoDeployment",
           print('First 10 raw classification probability predictions')
           print(round(private$predictedVals[1:10], 2))
         }
-
       } else if (self$params$type == 'regression') {
         # this is in-kind prediction
         private$predictedVals = predict(private$fit, newdata = private$dfTest)
@@ -187,9 +184,7 @@ LassoDeployment <- R6Class("LassoDeployment",
           print('First 10 raw regression predictions (with row # first)')
           print(round(private$predictedVals[1:10], 2))
         }
-
       }
-
     },
 
     calculateCoeffcients = function() {
@@ -203,7 +198,6 @@ LassoDeployment <- R6Class("LassoDeployment",
 
       private$coefficients <-
         coeffTemp[2:length(coeffTemp)] # drop intercept
-
     },
 
     calculateMultiplyRes = function() {
@@ -221,24 +215,22 @@ LassoDeployment <- R6Class("LassoDeployment",
 
       if (isTRUE(self$params$debug)) {
         print('Data frame after multiplying raw vals by coeffs')
-        print(private$multiplyRes[1:10,])
+        print(private$multiplyRes[1:10, ])
       }
-
     },
 
     calculateOrderedFactors = function() {
       # Calculate ordered factors of importance for each row's prediction
       private$orderedFactors = t(sapply
-                                  (1:nrow(private$multiplyRes),
-                                  function(i)
-                                    colnames(private$multiplyRes[order(private$multiplyRes[i,],
-                                                                        decreasing = TRUE)])))
+                                 (1:nrow(private$multiplyRes),
+                                 function(i)
+                                   colnames(private$multiplyRes[order(private$multiplyRes[i, ],
+                                                                      decreasing = TRUE)])))
 
       if (isTRUE(self$params$debug)) {
         print('Data frame after getting column importance ordered')
-        print(private$orderedFactors[1:10,])
+        print(private$orderedFactors[1:10, ])
       }
-
     },
 
     saveDataIntoDb = function() {
@@ -246,12 +238,18 @@ LassoDeployment <- R6Class("LassoDeployment",
 
       # Combine grain.col, prediction, and time to be put back into SAM table
       outDf <- data.frame(
-        0,                                 # BindingID
-        'R',                               # BindingNM
-        dtStamp,                           # LastLoadDTS
-        private$grainTest,                 # GrainID
-        private$predictedVals,             # PredictedProbab
-        private$orderedFactors[, 1:3])    # Top 3 Factors
+        0,
+        # BindingID
+        'R',
+        # BindingNM
+        dtStamp,
+        # LastLoadDTS
+        private$grainTest,
+        # GrainID
+        private$predictedVals,
+        # PredictedProbab
+        private$orderedFactors[, 1:3]
+      )    # Top 3 Factors
 
       predictedResultsName = ""
       if (self$params$type == 'classification') {
@@ -293,7 +291,6 @@ LassoDeployment <- R6Class("LassoDeployment",
       if (out == 1) {
         print('SQL Server insert was successful')
       }
-
     }
   ),
 
@@ -310,7 +307,6 @@ LassoDeployment <- R6Class("LassoDeployment",
       # Get fit object by linear model
       # if linear, set to logit for logistic
       private$fit = private$fitLogit
-
     },
 
     #Override: Build Deploy Model
@@ -328,7 +324,6 @@ LassoDeployment <- R6Class("LassoDeployment",
 
       print('Details for proability model:')
       print(private$fit)
-
     },
 
     #Override: deploy the model
@@ -376,5 +371,4 @@ LassoDeployment <- R6Class("LassoDeployment",
       return(private$predictedValsForUnitTest)
     }
   )
-
 )
