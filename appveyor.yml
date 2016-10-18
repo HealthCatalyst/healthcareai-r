@@ -9,6 +9,31 @@ init:
 install:
   ps: Bootstrap
 
+artifacts:
+  - path: SAM.mdf
+    name: SAM
+
+  - path: SAM_log.ldf
+    name: SAM_log
+
+#  - path: '*.Rcheck\**\*.log'
+#    name: Logs
+
+#  - path: '*.Rcheck\**\*.out'
+#    name: Logs
+
+#  - path: '*.Rcheck\**\*.fail'
+#    name: Logs
+
+#  - path: '*.Rcheck\**\*.Rout'
+#    name: Logs
+
+#  - path: '\*_*.tar.gz'
+#    name: Bits
+
+#  - path: '\*_*.zip'
+#    name: Bits
+
 #---------------------------------#
 #       build configuration       #
 #---------------------------------#
@@ -37,32 +62,6 @@ environment:
 
   matrix:
     - R_VERSION: release
-
-artifacts:
-  - path: C:\Source\DataScience\HCRTools\SAM.mdf
-    name: SAM
-
-  - path: C:\Source\DataScience\HCRTools\SAM_log.ldf
-    name: SAM_log
-
-#  - path: '*.Rcheck\**\*.log'
-#    name: Logs
-
-#  - path: '*.Rcheck\**\*.out'
-#    name: Logs
-
-#  - path: '*.Rcheck\**\*.fail'
-#    name: Logs
-
-#  - path: '*.Rcheck\**\*.Rout'
-#    name: Logs
-
-#  - path: '\*_*.tar.gz'
-#    name: Bits
-
-#  - path: '\*_*.zip'
-#    name: Bits
-
 
 #---------------------------------#
 #  notifications configuration    #
