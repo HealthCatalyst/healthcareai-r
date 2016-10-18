@@ -38,9 +38,12 @@ environment:
   matrix:
     - R_VERSION: release
 
-#artifacts:
-#  - path: DBCreate.ps1
-#    name: DBCreate
+artifacts:
+  - path: SAM.mdf
+    name: SAM
+
+  - path: SAM_log.ldf
+    name: SAM_log
 
 #  - path: '*.Rcheck\**\*.log'
 #    name: Logs
