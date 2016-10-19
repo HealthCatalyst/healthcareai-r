@@ -7,8 +7,8 @@
 #$mdfFile = "c:\projects\HCRTools\inst\CIDatabase\SAM.mdf"
 #$ldfFile = "c:\projects\HCRTools\inst\CIDatabase\SAM_log.ldf"
 
-$mdfFile = "c:\projects\HCRTools\SAM.mdf"
-$ldfFile = "c:\projects\HCRTools\SAM_log.ldf"
+$mdfFile = "SAM.mdf"
+$ldfFile = "SAM_log.ldf"
 
 sqlcmd -b -S "(local)\SQL2012SP1" -Q "CREATE DATABASE [SAM] ON (FILENAME = '$mdfFile'), (FILENAME = '$ldfFile') for ATTACH"
 
