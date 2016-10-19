@@ -19,5 +19,7 @@ $ldfFile = "c:\projects\HCRTools\inst\CIDatabase\SAM_log.ldf"
 
 sqlcmd -b -S "(local)\SQL2012SP1" -Q "CREATE DATABASE [SAM] ON (FILENAME = '$mdfFile'), (FILENAME = '$ldfFile') for ATTACH"
 
+Get-ChildItem -Path c:\projects\HCRTools\inst\CIDatabase
+
 #Copy-Item c:\projects\HCRTools\inst\CIDatabase\SAM2.mdf c:\projects\HCRTools\inst\CIDatabase\SAM.mdf
 #Copy-Item c:\projects\HCRTools\inst\CIDatabase\SAM_log2.ldf c:\projects\HCRTools\inst\CIDatabase\SAM_log.ldf
