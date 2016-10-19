@@ -296,8 +296,9 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
      # Now that we have train/test, split grain col into test (for use at end)
      if (nchar(self$params$grainCol) != 0) {
-       private$grainTest <-
-         fullGrain[self$params$df[[paste0(self$params$testWindowCol, '.Y')]] == 1]
+        tempMask <-
+          rownames(self$params$df[self$params$df[[paste0(self$params$testWindowCol, '.Y')]] == 1,])
+       private$grainTest <- fullGrain[as.integer(tempMask)]
 
        if (isTRUE(self$params$debug)) {
          print('Grain col vector with rows of test set (after created)')
