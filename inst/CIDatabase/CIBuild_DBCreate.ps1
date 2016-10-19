@@ -14,10 +14,10 @@ foreach ($artifactName in $artifacts.keys) {
   $artifacts[$artifactName]
 }
 
-$mdfFile = $artifacts[$SAM.mdf].path
-$ldfFile = $artifacts[$SAM_log.ldf].path
+#$mdfFile = $artifacts[$SAM.mdf].path
+#$ldfFile = $artifacts[$SAM_log.ldf].path
 
-$mdfFile
+#$mdfFile
 
 #sqlcmd -b -S "(local)\SQL2012SP1" -Q "CREATE DATABASE [SAM] ON (FILENAME = '$mdfFile'), (FILENAME = '$ldfFile') for ATTACH"
 
