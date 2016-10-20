@@ -5,7 +5,7 @@ init:
   ps: |
         $ErrorActionPreference = "Stop"
         # Invoke-WebRequest http://raw.github.com/krlmlr/r-appveyor/master/scripts/appveyor-tool.ps1 -OutFile "..\appveyor-tool.ps1"
-        Import-Module 'inst\CIDatabase\appveyor-tool.ps1'
+        Import-Module 'c:\projects\HCRTools\inst\CIDatabase\appveyor-tool.ps1'
 
 install:
   ps: Bootstrap

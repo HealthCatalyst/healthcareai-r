@@ -39,7 +39,7 @@ Function TravisTool
       [string[]]$Params
   )
 
-  Exec { bash.exe travis-tool.sh $Params }
+  Exec { bash.exe c:\projects\HCRTools\travis-tool.sh $Params }
 }
 
 Function InstallR {
@@ -163,7 +163,7 @@ Function Bootstrap {
   Progress "Running travis-tool.sh"
   # Levi's edits
   # Invoke-WebRequest https://raw.github.com/krlmlr/r-appveyor/master/r-travis/scripts/travis-tool.sh -OutFile "..\travis-tool.sh"
-  echo '@bash.exe travis-tool.sh %*' | Out-File -Encoding ASCII .\travis-tool.sh.cmd
+  echo '@bash.exe c:\projects\HCRTools\travis-tool.sh %*' | Out-File -Encoding ASCII .\travis-tool.sh.cmd
   cat .\travis-tool.sh.cmd
   bash -c "echo '^travis-tool\.sh\.cmd$' >> .Rbuildignore"
   cat .\.Rbuildignore
