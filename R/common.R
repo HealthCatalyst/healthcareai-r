@@ -762,3 +762,50 @@ plotROCs <- function(rocs, names, legendLoc) {
 
   return()
 }
+
+#' @title
+#' Calculate half std deviation up/down for each numeric field in row
+#'
+#' @description Add/subtract each numeric col (for each row) by half std dev
+#' such that we have a new alternate data frame
+#' @param r Single row coming from a data frame
+#'
+#' @export
+#' @references \url{http://hctools.org/}
+#' @seealso \code{\link{HCRTools}}
+
+calculateHalfSD <- function(df1, returnOriginal=FALSE) {
+
+  # Create new (empty) from one-row data frame from argument
+  if (isTRUE(!returnOriginal)) {
+    dfStart <- df1[0,]
+  }
+
+  # Find list of numeric cols in r
+  colIterList <- names(df1)
+  numericList <- character()
+
+  for (v in colIterList) {
+    if (is.numeric(df1[[v]])) {
+      numericList <- c(numericList,v)
+    }
+  }
+
+  # For length of this numeric list, create that many new rows * 2
+  # This way, we can replace the up and down value into the pre-existing data
+  dfExpanded <- df1[rep(seq_len(nrow(df1)), each=length(numericList)*2),]
+  dfExpanded
+
+  # For each numeric col, calculate up/down
+  j <- 0
+  for (i in numericList) {
+    dfExpanded[[j,i]] <-
+    j <- j + 1
+
+  }
+  # For each up, create a new row and append to new df
+
+  # For each up, create a new row and append to new df
+
+  #r
+}
