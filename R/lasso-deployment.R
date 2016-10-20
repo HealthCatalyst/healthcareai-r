@@ -101,7 +101,7 @@ LassoDeployment <- R6Class(
     predictedValsForUnitTest = NULL,
 
     # functions
-    connectDataSource <- function() {
+    connectDataSource = function() {
       odbcCloseAll()
       # Convert the connection string into a real connection object.
       self$params$sqlConn <- odbcDriverConnect(self$params$sqlConn)
@@ -113,75 +113,61 @@ LassoDeployment <- R6Class(
 
     fitGeneralizedLinearModel = function() {
       if (isTRUE(self$params$debug)) {
-        print('generating fitLogit...')
+        print("generating fitLogit...")
       }
 
-      if (self$params$type == 'classification') {
-        private$fitLogit = glm(
-          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrain,
-          family = binomial(link = "logit"),
-          metric = "ROC",
-          control = list(maxit = 10000),
-          trControl = trainControl(classProbs = TRUE, summaryFunction = twoClassSummary)
-        )
+      if (self$params$type == "classification") {
+        private$fitLogit <- glm(as.formula(paste(self$params$predictedCol, ".", sep = " ~ ")),
+                                data = private$dfTrain, family = binomial(link = "logit"), metric = "ROC",
+                                control = list(maxit = 10000), trControl = trainControl(classProbs = TRUE,
+                                                                                        summaryFunction = twoClassSummary))
 
-      } else if (self$params$type == 'regression') {
-        private$fitLogit = glm(
-          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrain,
-          metric = "RMSE",
-          control = list(maxit = 10000)
-        )
+      } else if (self$params$type == "regression") {
+        private$fitLogit <- glm(as.formula(paste(self$params$predictedCol, ".", sep = " ~ ")),
+                                data = private$dfTrain, metric = "RMSE", control = list(maxit = 10000))
       }
     },
 
     saveModel = function() {
       if (isTRUE(self$params$debug)) {
-        print('Saving model...')
+        print("Saving model...")
       }
 
-      #NOTE: save(private$fit, ...) does not work!
+      # NOTE: save(private$fit, ...) does not work!
       if (isTRUE(!self$params$useSavedModel)) {
-        fitObj = private$fit
+        fitObj <- private$fit
         save(fitObj, file = "rmodel_combined.rda")
       }
 
       # This isn't needed if formula interface is used in randomForest
-      private$dfTest[[self$params$predictedCol]] <- NULL
+      private$dfTest[[self$params$predictedCol]] = NULL
 
       if (isTRUE(self$params$debug)) {
-        print('Test set before being used in predict(), after removing y')
+        print("Test set before being used in predict(), after removing y")
         print(str(private$dfTest))
       }
     },
 
     performPrediction = function() {
-      if (self$params$type == 'classification') {
-        #  linear , these are probabilities
-        private$predictedVals = predict(private$fit,
-                                        newdata = private$dfTest,
-                                        type = "response")
-        private$predictedValsForUnitTest <-
-          private$predictedVals[5] # for unit test
+      if (self$params$type == "classification") {
+        # linear , these are probabilities
+        private$predictedVals <- predict(private$fit, newdata = private$dfTest, type = "response")
+        private$predictedValsForUnitTest <- private$predictedVals[5]  # for unit test
 
-        print('Probability predictions are based on logistic')
+        print("Probability predictions are based on logistic")
 
         if (isTRUE(self$params$debug)) {
-          print(paste0('Rows in prob prediction: ', nrow(private$predictedVals)))
-          print('First 10 raw classification probability predictions')
+          print(paste0("Rows in prob prediction: ", nrow(private$predictedVals)))
+          print("First 10 raw classification probability predictions")
           print(round(private$predictedVals[1:10], 2))
         }
-      } else if (self$params$type == 'regression') {
+      } else if (self$params$type == "regression") {
         # this is in-kind prediction
-        private$predictedVals = predict(private$fit, newdata = private$dfTest)
+        private$predictedVals <- predict(private$fit, newdata = private$dfTest)
 
         if (isTRUE(self$params$debug)) {
-          print(paste0(
-            'Rows in regression prediction: ',
-            length(private$predictedVals)
-          ))
-          print('First 10 raw regression predictions (with row # first)')
+          print(paste0("Rows in regression prediction: ", length(private$predictedVals)))
+          print("First 10 raw regression predictions (with row # first)")
           print(round(private$predictedVals[1:10], 2))
         }
       }
@@ -192,49 +178,44 @@ LassoDeployment <- R6Class(
       coeffTemp <- private$fitLogit$coefficients
 
       if (isTRUE(self$params$debug)) {
-        print('Coefficients for the default logit (for ranking var import)')
+        print("Coefficients for the default logit (for ranking var import)")
         print(coeffTemp)
       }
 
-      private$coefficients <-
-        coeffTemp[2:length(coeffTemp)] # drop intercept
+      private$coefficients <- coeffTemp[2:length(coeffTemp)]  # drop intercept
     },
 
     calculateMultiplyRes = function() {
-      # Apply multiplication of coeff across each row of test set
-      # Remove y (label) so we do multiplication only on X (features)
+      # Apply multiplication of coeff across each row of test set Remove y (label) so
+      # we do multiplication only on X (features)
       private$dfTest[[self$params$predictedCol]] <- NULL
 
       if (isTRUE(self$params$debug)) {
-        print('Test set after removing predicted column')
+        print("Test set after removing predicted column")
         print(str(private$dfTest))
       }
 
-      private$multiplyRes <-
-        sweep(private$dfTestRaw, 2, private$coefficients, `*`)
+      private$multiplyRes <- sweep(private$dfTestRaw, 2, private$coefficients, `*`)
 
       if (isTRUE(self$params$debug)) {
-        print('Data frame after multiplying raw vals by coeffs')
+        print("Data frame after multiplying raw vals by coeffs")
         print(private$multiplyRes[1:10, ])
       }
     },
 
     calculateOrderedFactors = function() {
       # Calculate ordered factors of importance for each row's prediction
-      private$orderedFactors = t(sapply
-                                 (1:nrow(private$multiplyRes),
-                                 function(i)
-                                   colnames(private$multiplyRes[order(private$multiplyRes[i, ],
-                                                                      decreasing = TRUE)])))
+      private$orderedFactors <- t(sapply(1:nrow(private$multiplyRes), function(i) colnames(private$multiplyRes[order(private$multiplyRes[i,
+                                                                                                                                         ], decreasing = TRUE)])))
 
       if (isTRUE(self$params$debug)) {
-        print('Data frame after getting column importance ordered')
+        print("Data frame after getting column importance ordered")
         print(private$orderedFactors[1:10, ])
       }
     },
 
     saveDataIntoDb = function() {
-      dtStamp = as.POSIXlt(Sys.time(), "GMT")
+      dtStamp <- as.POSIXlt(Sys.time(), "GMT")
 
       # Combine grain.col, prediction, and time to be put back into SAM table
       outDf <- data.frame(
@@ -251,11 +232,11 @@ LassoDeployment <- R6Class(
         private$orderedFactors[, 1:3]
       )    # Top 3 Factors
 
-      predictedResultsName = ""
-      if (self$params$type == 'classification') {
-        predictedResultsName = "PredictedProbNBR"
-      } else if (self$params$type == 'regression') {
-        predictedResultsName = "PredictedValueNBR"
+      predictedResultsName <- ""
+      if (self$params$type == "classification") {
+        predictedResultsName <- "PredictedProbNBR"
+      } else if (self$params$type == "regression") {
+        predictedResultsName <- "PredictedValueNBR"
       }
       colnames(outDf) <- c(
         "BindingID",
@@ -275,7 +256,7 @@ LassoDeployment <- R6Class(
 
 
       # Save df to table in SAM database
-      out = sqlSave(
+      out <- sqlSave(
         channel = self$params$sqlConn,
         dat = outDf,
         tablename = self$params$destSchemaTable,

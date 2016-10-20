@@ -236,7 +236,7 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
         print(str(private$trainTest))
       }
 
-      # TODO Later: figure out why orderering in sql query is better auc than internal
+      # TODO Later: figure out why ordering in sql query is better auc than internal
       # ordering. http://stackoverflow.com/a/1296745/5636012
       # If ordering using with, access PersonID col via df[[PersonID]]
 
@@ -284,12 +284,12 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
       }
 
       if (self$params$type == 'classification') {
-        private$fitLmm = glmer(formula = formula,
+        private$fitLmm <- glmer(formula = formula,
                                 data = private$lmmTrain,
                                 family = binomial(link = 'logit'))
       }
       else if (self$params$type == 'regression') {
-        private$fitLmm = lmer(formula = formula,
+        private$fitLmm <- lmer(formula = formula,
                                 data = private$lmmTrain)
       }
     },
@@ -322,12 +322,12 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
           print(round(predictProb[1:10],2))
         }
 
-        ytest = as.numeric(private$lmmTest[[self$params$predictedCol]])
+        ytest <- as.numeric(private$lmmTest[[self$params$predictedCol]])
         pred <- prediction(predictProb, ytest)
         private$perf <- ROCR::performance(pred, "tpr", "fpr")
 
-        private$ROC = pROC::roc(ytest~predictProb)
-        private$AUC = pROC::auc(private$ROC)
+        private$ROC <- pROC::roc(ytest~predictProb)
+        private$AUC <- pROC::auc(private$ROC)
 
         # Show results
         if (isTRUE(self$params$printResults)) {
@@ -348,11 +348,11 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
           print(round(private$predictions[1:10],2))
         }
 
-        ytest = as.numeric(private$lmmTest[[self$params$predictedCol]])
+        ytest <- as.numeric(private$lmmTest[[self$params$predictedCol]])
 
         # Error measures
-        private$rmse = sqrt(mean((ytest - private$predictions) ^ 2))
-        private$mae = mean(abs(ytest - private$predictions))
+        private$rmse <- sqrt(mean((ytest - private$predictions) ^ 2))
+        private$mae <- mean(abs(ytest - private$predictions))
 
         # Show results
         if (isTRUE(self$params$printResults)) {

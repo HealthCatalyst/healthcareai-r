@@ -128,9 +128,9 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
      }
 
      # Remove date columns
-     dateList = grep("DTS$", colnames(self$params$df))
+     dateList <- grep("DTS$", colnames(self$params$df))
      if (length(dateList) > 0) {
-       self$params$df = self$params$df[, -dateList]
+       self$params$df <- self$params$df[, -dateList]
      }
 
      if (isTRUE(self$params$debug)) {
@@ -214,7 +214,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
        # If user doesn't ask for imputation, remove rows with any NA's
      } else if (isTRUE(!self$params$impute) &&
                 isTRUE(!self$params$useSavedModel)) {
-       private$dfTrainTemp = na.omit(private$dfTrainTemp)
+       private$dfTrainTemp <- na.omit(private$dfTrainTemp)
 
        if (isTRUE(self$params$debug)) {
          print('Training set after removing rows with NULLs')
@@ -282,7 +282,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
      }
 
      # Always create test set from df, and drop test.window.cols from test set
-     private$dfTest = self$params$df[self$params$df[[paste0(self$params$testWindowCol, '.Y')]] == 1, ]
+     private$dfTest <- self$params$df[self$params$df[[paste0(self$params$testWindowCol, '.Y')]] == 1, ]
      private$dfTest <-
        private$dfTest[, !(names(private$dfTest) %in% c(
          self$params$testWindowCol,
@@ -356,17 +356,14 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
       #Load data
       private$loadData()
-
     },
 
     #Override: Build Deploy Model
     buildDeployModel = function() {
-
     },
 
     #Deploy the Model
     deploy = function() {
-
     }
   )
 )

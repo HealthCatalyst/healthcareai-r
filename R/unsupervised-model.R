@@ -96,7 +96,5 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
     #Run the Model
     run = function() {
     }
-
   )
-
 )

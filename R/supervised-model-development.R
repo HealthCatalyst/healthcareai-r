@@ -116,12 +116,12 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
     loadData = function() {
 
       # init dataset variables
-      private$memsizeOfDataset = format(object.size(self$params$df), units = "Mb")
-      private$initialDatasetRows = nrow(self$params$df)
-      private$initialDatasetCols = ncol(self$params$df)
+      private$memsizeOfDataset <- format(object.size(self$params$df), units = "Mb")
+      private$initialDatasetRows <- nrow(self$params$df)
+      private$initialDatasetCols <- ncol(self$params$df)
 
       # For use in confusion matrices
-      private$prevalence = table(self$params$df[[self$params$predictedCol]])[2]
+      private$prevalence <- table(self$params$df[[self$params$predictedCol]])[2]
 
       if (length(returnColsWithMoreThanFiftyCategories(self$params$df))>0){
         message('The following columns in the data frame have more than fifty factors:')
@@ -172,7 +172,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         }
 
         # Remove rows with any NA's
-        self$params$df = na.omit(self$params$df)
+        self$params$df <- na.omit(self$params$df)
 
         if (isTRUE(self$params$debug)) {
           print(paste0("Rows in data set after removing rows with NA's: ", nrow(self$params$df)))
@@ -185,9 +185,9 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       self$params$df <- self$params$df[,colSums(is.na(self$params$df)) < nrow(self$params$df)]
 
       # Remove date columns
-      dateList = grep("DTS$", colnames(self$params$df))
+      dateList <- grep("DTS$", colnames(self$params$df))
       if (length(dateList) > 0) {
-        self$params$df = self$params$df[, -dateList]
+        self$params$df <- self$params$df[, -dateList]
       }
 
       if (isTRUE(self$params$debug)) {
@@ -213,12 +213,12 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         self$params$df[[self$params$predictedCol]] = as.factor(self$params$df[[self$params$predictedCol]])
       }
 
-      trainIndex = createDataPartition(y = self$params$df[[self$params$predictedCol]],
+      trainIndex <- createDataPartition(y = self$params$df[[self$params$predictedCol]],
                                        p = 0.8,
                                        list = FALSE, times = 1)
 
-      private$dfTrain = self$params$df[ trainIndex,]
-      private$dfTest  = self$params$df[-trainIndex,]
+      private$dfTrain <- self$params$df[ trainIndex,]
+      private$dfTest  <- self$params$df[-trainIndex,]
 
       if (isTRUE(self$params$debug)) {
         print('Training data set after splitting from main df')
@@ -231,16 +231,14 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       }
 
       # Remove rows where predicted.col is null in train
-      private$dfTrain = removeRowsWithNAInSpecCol(private$dfTrain,
+      private$dfTrain <- removeRowsWithNAInSpecCol(private$dfTrain,
                                                   self$params$predictedCol)
 
       if (isTRUE(self$params$debug)) {
         print('Training data set after removing rows where pred col is null')
         print(str(private$dfTrain))
       }
-
     }
-
   ),
 
   #Public members
@@ -265,7 +263,6 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
 
       #Load data
       private$loadData()
-
     },
 
     #Build the Model
@@ -275,7 +272,5 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
     #Run the Model for Prediction
     run = function() {
     }
-
   )
-
 )
