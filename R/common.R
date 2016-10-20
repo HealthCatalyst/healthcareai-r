@@ -806,6 +806,6 @@ calculateHalfSD <- function(df1, returnOriginal=FALSE) {
   # For each up, create a new row and append to new df
 
   # For each up, create a new row and append to new df
-
+}
   #r
 }
