@@ -192,26 +192,26 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     # Start of functions
     buildGrid = function() {
       if (isTRUE(self$params$tune)) {
-        optimal = NA
+        optimal <- NA
 
         # Create reasonable gridsearch for mtry
         # This optimal value comes from randomForest documentation
         # TODO: make mtry calc a function (incl both tune and not)
         if (self$params$type == 'classification') {
-          optimal = floor(sqrt(ncol(private$dfTrain)))
+          optimal <- floor(sqrt(ncol(private$dfTrain)))
         }
         else if (self$params$type == 'regression') {
-          optimal = max(floor(ncol(private$dfTrain)/3), 1)
+          optimal <- max(floor(ncol(private$dfTrain)/3), 1)
         }
 
-        mtryList = c(optimal - 1, optimal, optimal + 1)
+        mtryList <- c(optimal - 1, optimal, optimal + 1)
         # Make it such that lowest mtry is 2
         if (length(which(mtryList < 0)) > 0) {
-          mtryList = mtryList + 3
+          mtryList <- mtryList + 3
         } else if (length(which(mtryList == 0)) > 0) {
-          mtryList = mtryList + 2
+          mtryList <- mtryList + 2
         } else if (length(which(mtryList == 1)) > 0) {
-          mtryList = mtryList + 1
+          mtryList <- mtryList + 1
         }
 
         print(paste(c('Performing grid search across these mtry values: ',
@@ -249,24 +249,24 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
 
     # Override: build RandomForest model
     buildModel = function() {
-      trainControlParams.method = ""
-      trainControlParams.number = 1
+      trainControlParams.method <- ""
+      trainControlParams.number <- 1
 
-      rfTrainParams.metric = ""
+      rfTrainParams.metric <- ""
 
       # Build grid for grid search
       private$buildGrid()
 
       if (isTRUE(self$params$tune)) {
-        trainControlParams.method = "CV"
-        trainControlParams.number = 5
+        trainControlParams.method <- "CV"
+        trainControlParams.number <- 5
       } else {
-        trainControlParams.method = "none"
-        trainControlParams.number = 1
+        trainControlParams.method <- "none"
+        trainControlParams.number <- 1
       }
 
       # Create train control object
-      train.control = NA
+      train.control <- NA
       if (self$params$type == 'classification') {
 
         train.control <- trainControl(
@@ -277,7 +277,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
           summaryFunction = twoClassSummary
         )
 
-        rfTrainParams.metric = "ROC"
+        rfTrainParams.metric <- "ROC"
       }
       # Regression
       else if (self$params$type == 'regression') {
@@ -288,18 +288,18 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
           verboseIter = isTRUE(self$params$debug)
         )
 
-        rfTrainParams.metric = "RMSE"
+        rfTrainParams.metric <- "RMSE"
       }
 
       # Train RandomForest
-      adjustedY = NA
+      adjustedY <- NA
       if (self$params$type == 'classification') {
-        adjustedY = factor(private$dfTrain[[self$params$predictedCol]])
+        adjustedY <- factor(private$dfTrain[[self$params$predictedCol]])
       }
       else if (self$params$type == 'regression') {
-        adjustedY = private$dfTrain[[self$params$predictedCol]]
+        adjustedY <- private$dfTrain[[self$params$predictedCol]]
       }
-      private$fitRF = train(
+      private$fitRF <- train(
         x = private$dfTrain[ ,!(colnames(private$dfTrain) ==
                                   self$params$predictedCol)],
         y = adjustedY,
@@ -315,11 +315,11 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     # Perform prediction
     performPrediction = function() {
       if (self$params$type == 'classification') {
-        private$predictions = predict(object = private$fitRF,
+        private$predictions <- predict(object = private$fitRF,
                                       newdata = private$dfTest,
                                       type = 'prob')
       } else if (self$params$type == 'regression') {
-        private$predictions = predict(private$fitRF, newdata = private$dfTest)
+        private$predictions <- predict(private$fitRF, newdata = private$dfTest)
       }
     },
 
@@ -335,11 +335,11 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
           print(round(predictProb[1:10,2],2))
         }
 
-        ytest = as.numeric(private$dfTest[[self$params$predictedCol]])
+        ytest <- as.numeric(private$dfTest[[self$params$predictedCol]])
         pred <- prediction(predictProb[,2], ytest)
         private$perf <- ROCR::performance(pred, "tpr", "fpr")
 
-        predictClass = predict(private$fitRF, newdata = private$dfTest)
+        predictClass <- predict(private$fitRF, newdata = private$dfTest)
 
         if (isTRUE(self$params$debug)) {
           print(paste0('Rows in discrete prediction: ', nrow(predictProb)))
@@ -347,8 +347,8 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
           print(predictClass[1:10])
         }
 
-        private$ROC = roc(ytest~predictProb[,2])
-        private$AUC = auc(private$ROC)
+        private$ROC <- roc(ytest~predictProb[,2])
+        private$AUC <- auc(private$ROC)
 
         # Show results
         if (isTRUE(self$params$printResults)) {
@@ -368,11 +368,11 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
           print(round(private$predictions[1:10],2))
         }
 
-        ytest = as.numeric(private$dfTest[[self$params$predictedCol]])
+        ytest <- as.numeric(private$dfTest[[self$params$predictedCol]])
 
         # Error measures
-        private$rmse = sqrt(mean((ytest - private$predictions) ^ 2))
-        private$mae = mean(abs(ytest - private$predictions))
+        private$rmse <- sqrt(mean((ytest - private$predictions) ^ 2))
+        private$mae <- mean(abs(ytest - private$predictions))
 
         # Show results
         if (isTRUE(self$params$printResults)) {

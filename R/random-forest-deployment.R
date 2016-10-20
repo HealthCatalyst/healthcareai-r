@@ -115,7 +115,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       }
 
       if (self$params$type == 'classification') {
-        private$fitLogit = glm(
+        private$fitLogit <- glm(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
           data = private$dfTrain,
           family = binomial(link = "logit"),
@@ -125,7 +125,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         )
 
       } else if (self$params$type == 'regression') {
-        private$fitLogit = glm(
+        private$fitLogit <- glm(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
           data = private$dfTrain,
           metric = "RMSE",
@@ -143,8 +143,8 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       if (isTRUE(!self$params$useSavedModel)) {
 
         #NOTE: save(private$fitLogit, ...) does not work!
-        fitLogitObj = private$fitLogit
-        fitObj = private$fit
+        fitLogitObj <- private$fitLogit
+        fitObj <- private$fit
 
         save(fitLogitObj, file = "rmodel_var_import.rda")
         save(fitObj, file = "rmodel_probability.rda")
@@ -162,7 +162,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     performPrediction = function() {
       if (self$params$type == 'classification') {
         #  these are probabilities
-        predictedValsTemp = predict(private$fit, data = private$dfTest)
+        predictedValsTemp <- predict(private$fit, data = private$dfTest)
         private$predictedVals <- predictedValsTemp$predictions[, 2]
         private$predictedValsForUnitTest <- private$predictedVals[5] # for unit test
 
@@ -176,7 +176,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
       } else if (self$params$type == 'regression') {
         # this is in-kind prediction
-        predictedValsTemp = predict(private$fit, data = self$dfTest)
+        predictedValsTemp <- predict(private$fit, data = self$dfTest)
         private$predictedVals <- predictedValsTemp$predictions
 
         if (isTRUE(self$params$debug)) {
@@ -224,7 +224,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
     calculateOrderedFactors = function() {
       # Calculate ordered factors of importance for each row's prediction
-      private$orderedFactors = t(sapply
+      private$orderedFactors <- t(sapply
                                   (1:nrow(private$multiplyRes),
                                   function(i)
                                     colnames(private$multiplyRes[order(private$multiplyRes[i, ],
@@ -237,7 +237,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     },
 
     saveDataIntoDb = function() {
-      dtStamp = as.POSIXlt(Sys.time(), "GMT")
+      dtStamp <- as.POSIXlt(Sys.time(), "GMT")
 
       # Combine grain.col, prediction, and time to be put back into SAM table
       outDf <- data.frame(
@@ -271,7 +271,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       }
 
       # Save df to table in SAM database
-      out = sqlSave(
+      out <- sqlSave(
         channel = self$params$sqlConn,
         dat = outDf,
         tablename = self$params$destSchemaTable,
@@ -326,7 +326,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       }
 
       if (self$params$type == 'classification') {
-        private$fit = ranger(
+        private$fit <- ranger(
           as.formula(paste(
             self$params$predictedCol, '.', sep = " ~ "
           )),
@@ -337,7 +337,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
           mtry = rfMtryTemp
         )
       } else if (self$params$type == 'regression') {
-        private$fit = ranger(
+        private$fit <- ranger(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
           data = private$dfTrain,
           num.trees = self$params$trees,
