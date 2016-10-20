@@ -159,11 +159,10 @@ Function Bootstrap {
     Progress "Skipping download of Rtools because src/ directory is missing."
   }
 
-  # Progress "Downloading and installing travis-tool.sh"
-  Progress "Running travis-tool.sh"
+  Progress "Downloading and installing travis-tool.sh"
   # Levi's edits
-  # Invoke-WebRequest https://raw.github.com/krlmlr/r-appveyor/master/r-travis/scripts/travis-tool.sh -OutFile "..\travis-tool.sh"
-  echo '@bash.exe c:\projects\HCRTools\travis-tool.sh %*' | Out-File -Encoding ASCII .\travis-tool.sh.cmd
+  Invoke-WebRequest https://raw.githubusercontent.com/HealthCatalystSLC/HCRTools/master/inst/CIDatabase/travis-tool.sh -OutFile "..\travis-tool.sh"
+  echo '@bash.exe ../travis-tool.sh %*' | Out-File -Encoding ASCII .\travis-tool.sh.cmd
   cat .\travis-tool.sh.cmd
   bash -c "echo '^travis-tool\.sh\.cmd$' >> .Rbuildignore"
   cat .\.Rbuildignore
