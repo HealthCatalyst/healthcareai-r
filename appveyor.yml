@@ -32,7 +32,6 @@ on_failure:
 
 environment:
   global:
-    WARNINGS_ARE_ERRORS: 0
     _R_CHECK_FORCE_SUGGESTS_: 1
     R_ARCH: x64
 
