@@ -160,7 +160,7 @@ Function Bootstrap {
   }
 
   Progress "Downloading and installing travis-tool.sh"
-  # Levi's edits
+  # HCRTools' specific edit
   Invoke-WebRequest https://raw.githubusercontent.com/HealthCatalystSLC/HCRTools/master/inst/CIDatabase/travis-tool.sh -OutFile "..\travis-tool.sh"
   echo '@bash.exe ../travis-tool.sh %*' | Out-File -Encoding ASCII .\travis-tool.sh.cmd
   cat .\travis-tool.sh.cmd
