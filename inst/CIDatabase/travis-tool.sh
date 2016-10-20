@@ -273,9 +273,9 @@ RunTests() {
     fi
 
     # Levi edits -- necessary because we're copying mdf
-    net stop SQL2012SP1
+    net stop 'SQL Server (SQL2012SP1)'
     R CMD build ${R_BUILD_ARGS} .
-    net start SQL2012SP1
+    net start 'SQL Server (SQL2012SP1)'
 
     # We want to grab the version we just built.
     FILE=$(ls -1t *.tar.gz | head -n 1)
