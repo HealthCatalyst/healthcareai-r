@@ -65,8 +65,7 @@ source('R/supervised-model-deployment.R')
 #' # Remove unnecessary columns
 #' df$PatientID <- NULL
 #'
-#' p <- S
-#' ervisedModelDeploymentParams$new()
+#' p <- SupervisedModelDeploymentParams$new()
 #' p$type <- "classification"
 #' p$df <- df
 #' p$grainCol <- "PatientEncounterID"

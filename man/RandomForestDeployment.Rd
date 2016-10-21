@@ -72,8 +72,7 @@ head(df)
 # Remove unnecessary columns
 df$PatientID <- NULL
 
-p <- S
-ervisedModelDeploymentParams$new()
+p <- SupervisedModelDeploymentParams$new()
 p$type <- "classification"
 p$df <- df
 p$grainCol <- "PatientEncounterID"
