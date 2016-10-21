@@ -38,20 +38,20 @@ source('R/supervised-model-deployment.R')
 #' # This example requires you to first create a table in SQL Server
 #' # If you prefer to not use SAMD, execute this in SSMS to create output table:
 #' # CREATE TABLE dbo.HCRDeployRegressionBASE(
-#' #   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
-#' #   PatientEncounterID int, <--change to match inputID
-#' #   PredictedProbNBR decimal(38, 2),
-#' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
+#' # BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
+#' # PatientEncounterID int, <--change to match inputID
+#' # PredictedValueNBR decimal(38, 2),
+#' # Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 #' # )
 #'
-#' #setwd("C:/Yourscriptlocation/Useforwardslashes") # Uncomment if using csv
+#' # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 #' ptm <- proc.time()
 #' library(HCRTools)
 #'
-#' connection.string <- 'driver={SQL Server};
-#'                       server=localhost;
-#'                       database=SAM;
-#'                       trusted_connection=true'
+#' connection.string <- "driver={SQL Server};
+#' server=localhost;
+#' database=SAM;
+#' trusted_connection=true"
 #'
 #' # Use this for an example SQL source:
 #' # query <- "SELECT * FROM [SAM].[YourCoolSAM].[SomeTrainingSetTable]"
@@ -66,18 +66,18 @@ source('R/supervised-model-deployment.R')
 #' head(df)
 #'
 #' p <- SupervisedModelDeploymentParams$new()
-#' p$type = 'classification'
-#' p$df = df
-#' p$grainCol = 'PatientEncounterID'
-#' p$testWindowCol = 'InTestWindowFLG'
-#' p$predictedCol = 'ThirtyDayReadmitFLG'
-#' p$personCol = 'PatientID'
-#' p$impute = FALSE
-#' p$debug = FALSE
-#' p$useSavedModel = FALSE
-#' p$cores = 1
-#' p$sqlConn = connection.string
-#' p$destSchemaTable = 'dbo.HCRDeployClassificationBASE'
+#' p$type <- "classification"
+#' p$df <- df
+#' p$grainCol <- "PatientEncounterID"
+#' p$testWindowCol <- "InTestWindowFLG"
+#' p$predictedCol <- "ThirtyDayReadmitFLG"
+#' p$personCol <- "PatientID"
+#' p$impute <- FALSE
+#' p$debug <- FALSE
+#' p$useSavedModel <- FALSE
+#' p$cores <- 1
+#' p$sqlConn <- connection.string
+#' p$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
 #'
 #' lMM <- LinearMixedModelDeployment$new(p)
 #' lMM$deploy()
@@ -94,7 +94,7 @@ source('R/supervised-model-deployment.R')
 #' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 #' # )
 #'
-#' #setwd("C:/Yourscriptlocation/Useforwardslashes") # Uncomment if using csv
+#' # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 #' ptm <- proc.time()
 #' library(HCRTools)
 #'
@@ -108,26 +108,24 @@ source('R/supervised-model-deployment.R')
 #' # df <- selectData(connection.string, query)
 #'
 #' # Can delete these four lines when you set up your SQL connection/query
-#' csvfile <- system.file("extdata", "HCRDiabetesClinical.csv",package = "HCRTools")
-#' df <- read.csv(file = csvfile,
-#'                     header = TRUE,
-#'                     na.strings = c('NULL', 'NA', ""))
+#' csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "HCRTools")
+#' df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 #'
 #' head(df)
 #'
 #' p <- SupervisedModelDeploymentParams$new()
-#' p$type = 'regression'
-#' p$df = df
-#' p$grainCol = 'PatientEncounterID'
-#' p$testWindowCol = 'InTestWindowFLG'
-#' p$predictedCol = 'A1CNBR'
-#' p$personCol = 'PatientID'
-#' p$impute = TRUE
-#' p$debug = FALSE
-#' p$useSavedModel = FALSE
-#' p$cores = 1
-#' p$sqlConn = connection.string
-#' p$destSchemaTable = 'dbo.HCRDeployRegressionBASE'
+#' p$type <- "regression"
+#' p$df <- df
+#' p$grainCol <- "PatientEncounterID"
+#' p$testWindowCol <- "InTestWindowFLG"
+#' p$predictedCol <- "A1CNBR"
+#' p$personCol <- "PatientID"
+#' p$impute <- TRUE
+#' p$debug <- FALSE
+#' p$useSavedModel <- FALSE
+#' p$cores <- 1
+#' p$sqlConn <- connection.string
+#' p$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
 #'
 #' lMM <- LinearMixedModelDeployment$new(p)
 #' lMM$deploy()
@@ -135,7 +133,6 @@ source('R/supervised-model-deployment.R')
 #' print(proc.time() - ptm)
 #'
 #' @export
-
 
 LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
@@ -168,7 +165,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       }
 
       if (self$params$type == 'classification') {
-        private$fitLogit = glm(
+        private$fitLogit <- glm(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
           data = private$dfTrain,
           family = binomial(link = "logit"),
@@ -178,7 +175,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
         )
 
       } else if (self$params$type == 'regression') {
-        private$fitLogit = glm(
+        private$fitLogit <- glm(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
           data = private$dfTrain,
           metric = "RMSE",
@@ -188,18 +185,15 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     },
 
     saveModel = function() {
-
       if (isTRUE(self$params$debug)) {
         print('Saving model...')
       }
 
       # Save models if specified
       if (isTRUE(!self$params$useSavedModel)) {
-
         #NOTE: save(private$fitLogit, ...) directly, did not work!
-        fitLogitObj = private$fitLogit
-        fitObj = private$fit
-
+        fitLogitObj <- private$fitLogit
+        fitObj <- private$fit
         save(fitLogitObj, file = "rmodel_var_import.rda")
         save(fitObj, file = "rmodel_probability.rda")
       }
@@ -216,10 +210,10 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     performPrediction = function() {
       if (self$params$type == 'classification') {
         # These are probabilities
-        private$predictedVals = predict(private$fit,
+        private$predictedVals <- predict(private$fit,
                                         newdata = private$dfTest,
                                         allow.new.levels = TRUE,
-                                        type="response")
+                                        type = "response")
         # For unit test
         private$predictedValsForUnitTest <- private$predictedVals[5]
 
@@ -230,12 +224,10 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
           print('First 10 raw classification probability predictions')
           print(round(private$predictedVals[1:10], 2))
         }
-
       } else if (self$params$type == 'regression') {
         # this is in-kind prediction
-        private$predictedVals = predict(private$fit,
+        private$predictedVals <- predict(private$fit,
                                         newdata = private$dfTest)
-
         if (isTRUE(self$params$debug)) {
           print(paste0(
             'Rows in regression prediction: ',
@@ -263,7 +255,6 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
         print('Coefficients after dropping intercept:')
         print(private$coefficients)
       }
-
     },
 
     calculateMultiplyRes = function() {
@@ -310,8 +301,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     },
 
     saveDataIntoDb = function() {
-
-      dtStamp = as.POSIXlt(Sys.time(), "GMT")
+      dtStamp <- as.POSIXlt(Sys.time(), "GMT")
 
       # Combine grain.col, prediction, and time to be put back into SAM table
       outdf <- data.frame(
@@ -322,11 +312,11 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
         private$predictedVals,             # PredictedProbab or PredictedValues
         private$orderedFactors[, 1:3])     # Top 3 Factors
 
-      predictedResultsName = ""
+      predictedResultsName <- ""
       if (self$params$type == 'classification') {
-        predictedResultsName = "PredictedProbNBR"
+        predictedResultsName <- "PredictedProbNBR"
       } else if (self$params$type == 'regression') {
-        predictedResultsName = "PredictedValueNBR"
+        predictedResultsName <- "PredictedValueNBR"
       }
       colnames(outdf) <- c(
         "BindingID",
@@ -345,7 +335,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       }
 
       # Save df to table in SAM database
-      out = sqlSave(
+      out <- sqlSave(
         channel = self$params$sqlConn,
         dat = outdf,
         tablename = self$params$destSchemaTable,
@@ -425,7 +415,6 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
       # Get fit object by random forest
       self$fitLinearMixedModel()
-
     },
 
     #Override: Build Deploy Model

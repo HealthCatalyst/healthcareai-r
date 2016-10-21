@@ -42,24 +42,23 @@ source('R/supervised-model-deployment.R')
 #' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 #' # )
 #'
-#' #setwd("C:/Yourscriptlocation/Useforwardslashes") # Uncomment if using csv
+#' #setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 #' ptm <- proc.time()
 #' library(HCRTools)
 #'
-#' connection.string <- 'driver={SQL Server};
+#' connection.string <- "driver={SQL Server};
 #'                       server=localhost;
 #'                       database=SAM;
-#'                       trusted_connection=true'
+#'                       trusted_connection=true"
 #'
 #' # Use this for an example SQL source:
-#' # query <- "SELECT * FROM [SAM].[YourCoolSAM].[SomeTrainingSetTable]"
+#' # query <- 'SELECT * FROM [SAM].[YourCoolSAM].[SomeTrainingSetTable]'
 #' # df <- selectData(connection.string, query)
 #'
-#' # Can delete these four lines when you set up your SQL connection/query
-#' csvfile <- system.file("extdata", "HCRDiabetesClinical.csv",package = "HCRTools")
-#' df <- read.csv(file = csvfile,
-#'                     header = TRUE,
-#'                     na.strings = c('NULL', 'NA', ""))
+#' # Can delete these four lines when you set your SQL connection/query
+#' csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "HCRTools")
+#' # Change csvfile to 'path/to/yourfile'
+#' df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 #'
 #' head(df)
 #'
@@ -67,17 +66,17 @@ source('R/supervised-model-deployment.R')
 #' df$PatientID <- NULL
 #'
 #' p <- SupervisedModelDeploymentParams$new()
-#' p$type = 'classification'
-#' p$df = df
-#' p$grainCol = 'PatientEncounterID'
-#' p$testWindowCol = 'InTestWindowFLG'
-#' p$predictedCol = 'ThirtyDayReadmitFLG'
-#' p$impute = TRUE
-#' p$debug = FALSE
-#' p$useSavedModel = FALSE
-#' p$cores = 1
-#' p$sqlConn = connection.string
-#' p$destSchemaTable = 'dbo.HCRDeployClassificationBASE'
+#' p$type <- "classification"
+#' p$df <- df
+#' p$grainCol <- "PatientEncounterID"
+#' p$testWindowCol <- "InTestWindowFLG"
+#' p$predictedCol <- "ThirtyDayReadmitFLG"
+#' p$impute <- TRUE
+#' p$debug <- FALSE
+#' p$useSavedModel <- FALSE
+#' p$cores <- 1
+#' p$sqlConn <- connection.string
+#' p$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
 #'
 #' dL <- RandomForestDeployment$new(p)
 #' dL$deploy()
@@ -86,7 +85,6 @@ source('R/supervised-model-deployment.R')
 #' @export
 
 RandomForestDeployment <- R6Class("RandomForestDeployment",
-
   #Inheritance
   inherit = SupervisedModelDeployment,
 
@@ -116,7 +114,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       }
 
       if (self$params$type == 'classification') {
-        private$fitLogit = glm(
+        private$fitLogit <- glm(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
           data = private$dfTrain,
           family = binomial(link = "logit"),
@@ -126,18 +124,16 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         )
 
       } else if (self$params$type == 'regression') {
-        private$fitLogit = glm(
+        private$fitLogit <- glm(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
           data = private$dfTrain,
           metric = "RMSE",
           control = list(maxit = 10000)
         )
       }
-
     },
 
     saveModel = function() {
-
       if (isTRUE(self$params$debug)) {
         print('Saving model...')
       }
@@ -146,8 +142,8 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       if (isTRUE(!self$params$useSavedModel)) {
 
         #NOTE: save(private$fitLogit, ...) does not work!
-        fitLogitObj = private$fitLogit
-        fitObj = private$fit
+        fitLogitObj <- private$fitLogit
+        fitObj <- private$fit
 
         save(fitLogitObj, file = "rmodel_var_import.rda")
         save(fitObj, file = "rmodel_probability.rda")
@@ -160,13 +156,12 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         print('Test set before being used in predict(), after removing y')
         print(str(private$dfTest))
       }
-
     },
 
     performPrediction = function() {
       if (self$params$type == 'classification') {
         #  these are probabilities
-        predictedValsTemp = predict(private$fit, data = private$dfTest)
+        predictedValsTemp <- predict(private$fit, data = private$dfTest)
         private$predictedVals <- predictedValsTemp$predictions[, 2]
         private$predictedValsForUnitTest <- private$predictedVals[5] # for unit test
 
@@ -180,7 +175,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
       } else if (self$params$type == 'regression') {
         # this is in-kind prediction
-        predictedValsTemp = predict(private$fit, data = self$dfTest)
+        predictedValsTemp <- predict(private$fit, data = self$dfTest)
         private$predictedVals <- predictedValsTemp$predictions
 
         if (isTRUE(self$params$debug)) {
@@ -191,9 +186,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
           print('First 10 raw regression predictions (with row # first)')
           print(round(private$predictedVals[1:10], 2))
         }
-
       }
-
     },
 
     calculateCoeffcients = function() {
@@ -207,7 +200,6 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
       private$coefficients <-
         coeffTemp[2:length(coeffTemp)] # drop intercept
-
     },
 
     calculateMultiplyRes = function() {
@@ -227,12 +219,11 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         print('Data frame after multiplying raw vals by coeffs')
         print(private$multiplyRes[1:10, ])
       }
-
     },
 
     calculateOrderedFactors = function() {
       # Calculate ordered factors of importance for each row's prediction
-      private$orderedFactors = t(sapply
+      private$orderedFactors <- t(sapply
                                   (1:nrow(private$multiplyRes),
                                   function(i)
                                     colnames(private$multiplyRes[order(private$multiplyRes[i, ],
@@ -242,11 +233,10 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         print('Data frame after getting column importance ordered')
         print(private$orderedFactors[1:10, ])
       }
-
     },
 
     saveDataIntoDb = function() {
-      dtStamp = as.POSIXlt(Sys.time(), "GMT")
+      dtStamp <- as.POSIXlt(Sys.time(), "GMT")
 
       # Combine grain.col, prediction, and time to be put back into SAM table
       outDf <- data.frame(
@@ -280,7 +270,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       }
 
       # Save df to table in SAM database
-      out = sqlSave(
+      out <- sqlSave(
         channel = self$params$sqlConn,
         dat = outDf,
         tablename = self$params$destSchemaTable,
@@ -296,9 +286,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       if (out == 1) {
         print('SQL Server insert was successful')
       }
-
     }
-
   ),
 
   #Public members
@@ -307,6 +295,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     #p: new SupervisedModelDeploymentParams class object,
     #   i.e. p = SupervisedModelDeploymentParams$new()
     initialize = function(p) {
+
       super$initialize(p)
 
       if (!is.null(p$rfmtry))
@@ -319,6 +308,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     #This would be a user-defined method
     # which gets called by buildFitObject function
     fitRandomForest = function() {
+
       # Set proper mtry (either based on recc default or specified)
       if (nchar(self$params$rfmtry) == 0 &&
           self$params$type == 'classification') {
@@ -335,7 +325,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       }
 
       if (self$params$type == 'classification') {
-        private$fit = ranger(
+        private$fit <- ranger(
           as.formula(paste(
             self$params$predictedCol, '.', sep = " ~ "
           )),
@@ -346,7 +336,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
           mtry = rfMtryTemp
         )
       } else if (self$params$type == 'regression') {
-        private$fit = ranger(
+        private$fit <- ranger(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
           data = private$dfTrain,
           num.trees = self$params$trees,
@@ -360,11 +350,11 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
       # Get fit object by random forest
       self$fitRandomForest()
-
     },
 
     #Override: Build Deploy Model
     buildDeployModel = function() {
+
       if (isTRUE(self$params$debug)) {
         print('Training data set immediately before training')
         print(str(private$dfTrain))
@@ -378,7 +368,6 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
       print('Details for proability model:')
       print(private$fit)
-
     },
 
     #Override: deploy the model
@@ -430,5 +419,4 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       return(private$predictedValsForUnitTest)
     }
   )
-
 )

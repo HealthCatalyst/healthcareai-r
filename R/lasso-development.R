@@ -43,13 +43,13 @@ source('R/supervised-model-development.R')
 #' set.seed(42)
 #'
 #' p <- SupervisedModelDevelopmentParams$new()
-#' p$df = iris
-#' p$type = 'regression'
-#' p$impute = TRUE
-#' p$grainCol = ''
-#' p$predictedCol = 'Sepal.Width'
-#' p$debug = FALSE
-#' p$cores = 1
+#' p$df <- iris
+#' p$type <- "regression"
+#' p$impute <- TRUE
+#' p$grainCol <- ""
+#' p$predictedCol <- "Sepal.Width"
+#' p$debug <- FALSE
+#' p$cores <- 1
 #'
 #' # Run Lasso
 #' lasso <- LassoDevelopment$new(p)
@@ -63,15 +63,13 @@ source('R/supervised-model-development.R')
 #'
 #' #### Example using csv data ####
 #' library(HCRTools)
-#' #setwd("C:/Your/script/location") # Needed if using YOUR CSV file
+#' # setwd('C:/Your/script/location') # Needed if using YOUR CSV file
 #' ptm <- proc.time()
 #'
 #' # Can delete this line in your work
 #' csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "HCRTools")
-#'
-#' df <- read.csv(file = csvfile, #<-- Replace with 'your/path'
-#'                     header = TRUE,
-#'                     na.strings =  c('NULL', 'NA', ""))
+#' # Replace csvfile with '/path/to/yourfile'
+#' df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 #'
 #' head(df)
 #'
@@ -81,13 +79,13 @@ source('R/supervised-model-development.R')
 #' set.seed(42)
 #'
 #' p <- SupervisedModelDevelopmentParams$new()
-#' p$df = df
-#' p$type = 'classification'
-#' p$impute = TRUE
-#' p$grainCol = 'PatientEncounterID'
-#' p$predictedCol = 'ThirtyDayReadmitFLG'
-#' p$debug = FALSE
-#' p$cores = 1
+#' p$df <- df
+#' p$type <- "classification"
+#' p$impute <- TRUE
+#' p$grainCol <- "PatientEncounterID"
+#' p$predictedCol <- "ThirtyDayReadmitFLG"
+#' p$debug <- FALSE
+#' p$cores <- 1
 #'
 #' # Run Lasso
 #' lasso <- LassoDevelopment$new(p)
@@ -98,27 +96,26 @@ source('R/supervised-model-development.R')
 #' rf$run()
 #'
 #' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-#' lasso$getCutOffs(tpr=.8)
+#' lasso$getCutOffs(tpr = 0.8)
 #' print(proc.time() - ptm)
 #'
-#' #### Example using SQL Server data ####
-#' # This example requires:
-#' #    1) That you alter your connection string / query
+#' #### Example using SQL Server data #### This example requires: 1) That you alter
+#' #### your connection string / query
 #'
 #' ptm <- proc.time()
 #' library(HCRTools)
 #' library(RODBC)
 #'
-#' connection.string = "
+#' connection.string <- "
 #' driver={SQL Server};
 #' server=localhost;
 #' database=SAM;
 #' trusted_connection=true
 #' "
 #'
-#' query = "
+#' query <- "
 #' SELECT
-#'  [PatientEncounterID]
+#' [PatientEncounterID]
 #' ,[PatientID]
 #' ,[SystolicBPNBR]
 #' ,[LDLNBR]
@@ -139,13 +136,13 @@ source('R/supervised-model-development.R')
 #' set.seed(42)
 #'
 #' p <- SupervisedModelDevelopmentParams$new()
-#' p$df = df
-#' p$type = 'classification'
-#' p$impute = TRUE
-#' p$grainCol = 'PatientEncounterID'
-#' p$predictedCol = 'ThirtyDayReadmitFLG'
-#' p$debug = FALSE
-#' p$cores = 1
+#' p$df <- df
+#' p$type <- "classification"
+#' p$impute <- TRUE
+#' p$grainCol <- "PatientEncounterID"
+#' p$predictedCol <- "ThirtyDayReadmitFLG"
+#' p$debug <- FALSE
+#' p$cores <- 1
 #'
 #' # Run Lasso
 #' lasso <- LassoDevelopment$new(p)
@@ -156,18 +153,17 @@ source('R/supervised-model-development.R')
 #' rf$run()
 #'
 #' # Plot ROC
-#' rocs = list(rf$getROC(), lasso$getROC())
-#' names = c('Random Forest','Lasso')
-#' legendLoc = 'bottomright'
+#' rocs <- list(rf$getROC(), lasso$getROC())
+#' names <- c("Random Forest", "Lasso")
+#' legendLoc <- "bottomright"
 #' plotROCs(rocs, names, legendLoc)
 #'
 #' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-#' lasso$getCutOffs(tpr=.8)
+#' lasso$getCutOffs(tpr = 0.8)
 #'
 #' print(proc.time() - ptm)
 #'
 #' @export
-
 
 LassoDevelopment <- R6Class("LassoDevelopment",
 
@@ -176,7 +172,6 @@ LassoDevelopment <- R6Class("LassoDevelopment",
 
   # Private members
   private = list(
-
   	# Data related
   	dfTrainTemp = NA,
   	dfTestTemp = NA,
@@ -203,7 +198,6 @@ LassoDevelopment <- R6Class("LassoDevelopment",
   	mae = NA,
   	perf = NA,
   	prevalence = NA
-
   ),
 
   # Public members
@@ -219,28 +213,28 @@ LassoDevelopment <- R6Class("LassoDevelopment",
     # Override: build Grouped Lasso model
     buildModel = function() {
 
-      private$dfTrainTemp = private$dfTrain
-      private$dfTestTemp = private$dfTest
+      private$dfTrainTemp <- private$dfTrain
+      private$dfTestTemp <- private$dfTest
 
       # Create a model formula, without the predicted variable, for use in
       # creating the model matrix.
-      private$modFmla = as.formula(paste("~",paste(names(private$dfTrainTemp[ ,!(colnames(private$dfTrainTemp) == self$params$predictedCol)]),
+      private$modFmla <- as.formula(paste("~",paste(names(private$dfTrainTemp[ ,!(colnames(private$dfTrainTemp) == self$params$predictedCol)]),
                                            collapse = "+")))
 
       # Create the model matrix, without the intercept column, to be used in the
       # grouped Lasso function.
-      private$modMat = model.matrix(private$modFmla, data = private$dfTrainTemp)[,-1]
+      private$modMat <- model.matrix(private$modFmla, data = private$dfTrainTemp)[,-1]
 
       # Make sure the dependent variable is numeric in both the train and
       # test set. If it is a factor, the first level alphabetically will be
       # set to 0 and the other level will be set to 1.
       if (is.factor(private$dfTrainTemp[[self$params$predictedCol]])) {
-        private$dfTrainTemp[[self$params$predictedCol]] =
+        private$dfTrainTemp[[self$params$predictedCol]] <-
           ifelse(private$dfTrainTemp[[self$params$predictedCol]] == levels(private$dfTrainTemp[[self$params$predictedCol]])[1],0,1)
       }
 
       if (is.factor(private$dfTestTemp[[self$params$predictedCol]])) {
-        private$dfTestTemp[[self$params$predictedCol]] =
+        private$dfTestTemp[[self$params$predictedCol]] <-
           ifelse(private$dfTestTemp[[self$params$predictedCol]] == levels(private$dfTestTemp[[self$params$predictedCol]])[1],0,1)
       }
 
@@ -259,13 +253,13 @@ LassoDevelopment <- R6Class("LassoDevelopment",
       }
 
       # Generate fit grLasso object
-      familyModuleName = ""
+      familyModuleName <- ""
       if (self$params$type == 'classification')
-        familyModuleName = "binomial"
+        familyModuleName <- "binomial"
       else if (self$params$type == 'regression')
-        familyModuleName = "gaussian"
+        familyModuleName <- "gaussian"
 
-      private$fitGrLasso = cv.grpreg(X = private$modMat,
+      private$fitGrLasso <- cv.grpreg(X = private$modMat,
                                       y = private$dfTrainTemp[[self$params$predictedCol]],
                                       group = private$group,
                                       #lambda = can enter values here,
@@ -273,7 +267,6 @@ LassoDevelopment <- R6Class("LassoDevelopment",
                                       family = familyModuleName,
                                       penalty = "grLasso",
                                       nfolds = 5)
-
     },
 
     # Predict results
@@ -282,14 +275,14 @@ LassoDevelopment <- R6Class("LassoDevelopment",
       # Index of largest lambda within one cvse of the lambda with lowest cve:
       # These are sorted from largest to smallest lambda, hence pulling the
       # minimum index.
-      private$indLambda1se = min(which(private$fitGrLasso$cve <= (private$fitGrLasso$cve + private$fitGrLasso$cvse)[private$fitGrLasso$min]))
+      private$indLambda1se <- min(which(private$fitGrLasso$cve <= (private$fitGrLasso$cve + private$fitGrLasso$cvse)[private$fitGrLasso$min]))
 
       # Largest lambda within one cvse of the lambda with lowest cve (ie. lambda
       # to use in final fit):
-      private$lambda1se = private$fitGrLasso$lambda[private$indLambda1se]
+      private$lambda1se <- private$fitGrLasso$lambda[private$indLambda1se]
 
       # Predictions (in terms of probability)
-      private$predictions = predict(object = private$fitGrLasso,
+      private$predictions <- predict(object = private$fitGrLasso,
                                     X = model.matrix(private$modFmla, data = private$dfTestTemp)[,-1],
                                     lambda = private$lambda1se,
                                     type = "response")
@@ -304,17 +297,11 @@ LassoDevelopment <- R6Class("LassoDevelopment",
         predictProb <- private$predictions
 
         # Prediction
-        ytest = private$dfTestTemp[[self$params$predictedCol]]
+        ytest <- private$dfTestTemp[[self$params$predictedCol]]
         pred <- ROCR::prediction(private$predictions, ytest)
 
         # Performance
         private$perf <- ROCR::performance(pred, "tpr", "fpr")
-
-        # NOTE THAT THE CLASS WILL BE 0 OR 1.
-        predictClass = predict(object = private$fitGrLasso,
-                               X = model.matrix(private$modFmla, data = private$dfTestTemp)[,-1],
-                               lambda = private$lambda1se,
-                               type = "class")
 
         if (isTRUE(self$params$debug)) {
           print(paste0('Rows in probability prediction: ', length(predictProb)))
@@ -322,30 +309,32 @@ LassoDevelopment <- R6Class("LassoDevelopment",
           print(round(predictProb[1:10],2))
         }
 
-        private$ROC = roc(ytest~predictProb)
-        private$AUC = auc(private$ROC)
+        private$ROC <- roc(ytest~predictProb)
+        private$AUC <- auc(private$ROC)
 
         # Show results
         if (isTRUE(self$params$printResults)) {
           print(paste0('AUC: ', round(private$AUC, 2)))
-          print(paste0('95% CI AUC: (', round(ci(private$AUC)[1],2), ',', round(ci(private$AUC)[3],2), ')'))
+          print(paste0('95% CI AUC: (', round(ci(private$AUC)[1],2), ',',
+                       round(ci(private$AUC)[3],2), ')'))
         }
       }
       # Regression
       else if (self$params$type == 'regression') {
 
         if (isTRUE(self$params$debug)) {
-          print(paste0('Rows in regression prediction: ', nrow(private$predictions)))
+          print(paste0('Rows in regression prediction: ',
+                       nrow(private$predictions)))
           print('First 10 raw regression predictions (with row # first)')
           print(round(private$predictions[1:10],2))
         }
 
         # Necessary to convert col to numeric, even though it's N/Y
-        ytest = as.numeric(private$dfTestTemp[[self$params$predictedCol]])
+        ytest <- as.numeric(private$dfTestTemp[[self$params$predictedCol]])
 
         # Show error measures for Regression
-        private$rmse = sqrt(mean((ytest - private$predictions) ^ 2))
-        private$mae = mean(abs(ytest - private$predictions))
+        private$rmse <- sqrt(mean((ytest - private$predictions) ^ 2))
+        private$mae <- mean(abs(ytest - private$predictions))
 
         if (isTRUE(self$params$printResults)) {
           print(paste0('RMSE: ', round(private$rmse, 2)))

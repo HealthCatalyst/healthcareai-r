@@ -43,13 +43,13 @@ source('R/supervised-model-development.R')
 #' set.seed(42)
 #'
 #' p <- SupervisedModelDevelopmentParams$new()
-#' p$df = iris
-#' p$type = 'regression'
-#' p$impute = TRUE
-#' p$grainCol = ''
-#' p$predictedCol = 'Sepal.Width'
-#' p$debug = FALSE
-#' p$cores = 1
+#' p$df <- iris
+#' p$type <- "regression"
+#' p$impute <- TRUE
+#' p$grainCol <- ""
+#' p$predictedCol <- "Sepal.Width"
+#' p$debug <- FALSE
+#' p$cores <- 1
 #'
 #' # Run Lasso
 #' lasso <- LassoDevelopment$new(p)
@@ -63,15 +63,14 @@ source('R/supervised-model-development.R')
 #'
 #' #### Example using csv data ####
 #' library(HCRTools)
-#' #setwd("C:/Your/script/location") # Needed if using YOUR CSV file
+#' # setwd('C:/Your/script/location') # Needed if using YOUR CSV file
 #' ptm <- proc.time()
 #'
 #' # Can delete this line in your work
 #' csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "HCRTools")
 #'
-#' df <- read.csv(file = csvfile, #<-- Replace with 'your/path'
-#'                     header = TRUE,
-#'                     na.strings =  c('NULL', 'NA', ""))
+#' # Replace csvfile with 'your/path'
+#' df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 #'
 #' head(df)
 #'
@@ -80,13 +79,13 @@ source('R/supervised-model-development.R')
 #' set.seed(42)
 #'
 #' p <- SupervisedModelDevelopmentParams$new()
-#' p$df = df
-#' p$type = 'regression'
-#' p$impute = TRUE
-#' p$grainCol = 'PatientID'
-#' p$predictedCol = 'A1CNBR'
-#' p$debug = FALSE
-#' p$cores = 1
+#' p$df <- df
+#' p$type <- "regression"
+#' p$impute <- TRUE
+#' p$grainCol <- "PatientID"
+#' p$predictedCol <- "A1CNBR"
+#' p$debug <- FALSE
+#' p$cores <- 1
 #'
 #' # Run Lasso
 #' lasso <- LassoDevelopment$new(p)
@@ -98,24 +97,23 @@ source('R/supervised-model-development.R')
 #'
 #' print(proc.time() - ptm)
 #'
-#' #### Example using SQL Server data ####
-#' # This example requires:
-#' #    1) That you alter your connection string / query
+#' #### Example using SQL Server data #### This example requires: 1) That you alter
+#' #### your connection string / query
 #'
 #' ptm <- proc.time()
 #' library(HCRTools)
 #' library(RODBC)
 #'
-#' connection.string = "
+#' connection.string <- "
 #' driver={SQL Server};
 #' server=localhost;
 #' database=SAM;
 #' trusted_connection=true
 #' "
 #'
-#' query = "
+#' query <- "
 #' SELECT
-#'  [PatientEncounterID]
+#' [PatientEncounterID]
 #' ,[PatientID]
 #' ,[SystolicBPNBR]
 #' ,[LDLNBR]
@@ -135,13 +133,13 @@ source('R/supervised-model-development.R')
 #' set.seed(42)
 #'
 #' p <- SupervisedModelDevelopmentParams$new()
-#' p$df = df
-#' p$type = 'classification'
-#' p$impute = TRUE
-#' p$grainCol = 'PatientID'
-#' p$predictedCol = 'ThirtyDayReadmitFLG'
-#' p$debug = FALSE
-#' p$cores = 1
+#' p$df <- df
+#' p$type <- "classification"
+#' p$impute <- TRUE
+#' p$grainCol <- "PatientID"
+#' p$predictedCol <- "ThirtyDayReadmitFLG"
+#' p$debug <- FALSE
+#' p$cores <- 1
 #'
 #' # Run Lasso
 #' lasso <- LassoDevelopment$new(p)
@@ -152,18 +150,17 @@ source('R/supervised-model-development.R')
 #' rf$run()
 #'
 #' # Plot ROC
-#' rocs = list(rf$getROC(), lasso$getROC())
-#' names = c('Random Forest','Lasso')
-#' legendLoc = 'bottomright'
+#' rocs <- list(rf$getROC(), lasso$getROC())
+#' names <- c("Random Forest", "Lasso")
+#' legendLoc <- "bottomright"
 #' plotROCs(rocs, names, legendLoc)
 #'
 #' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-#' lasso$getCutOffs(tpr=.8)
+#' lasso$getCutOffs(tpr = 0.8)
 #'
 #' print(proc.time() - ptm)
 #'
 #' @export
-
 
 RandomForestDevelopment <- R6Class("RandomForestDevelopment",
 
@@ -192,28 +189,27 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
 
     # Start of functions
     buildGrid = function() {
-
       if (isTRUE(self$params$tune)) {
-        optimal = NA
+        optimal <- NA
 
         # Create reasonable gridsearch for mtry
         # This optimal value comes from randomForest documentation
         # TODO: make mtry calc a function (incl both tune and not)
         if (self$params$type == 'classification') {
-          optimal = floor(sqrt(ncol(private$dfTrain)))
+          optimal <- floor(sqrt(ncol(private$dfTrain)))
         }
         else if (self$params$type == 'regression') {
-          optimal = max(floor(ncol(private$dfTrain)/3), 1)
+          optimal <- max(floor(ncol(private$dfTrain)/3), 1)
         }
 
-        mtryList = c(optimal - 1, optimal, optimal + 1)
+        mtryList <- c(optimal - 1, optimal, optimal + 1)
         # Make it such that lowest mtry is 2
         if (length(which(mtryList < 0)) > 0) {
-          mtryList = mtryList + 3
+          mtryList <- mtryList + 3
         } else if (length(which(mtryList == 0)) > 0) {
-          mtryList = mtryList + 2
+          mtryList <- mtryList + 2
         } else if (length(which(mtryList == 1)) > 0) {
-          mtryList = mtryList + 1
+          mtryList <- mtryList + 1
         }
 
         print(paste(c('Performing grid search across these mtry values: ',
@@ -229,10 +225,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
           private$grid <- data.frame(.mtry = max(floor(ncol(private$dfTrain)/3), 1))
         }
       }
-
     }
-
-
   ),
 
   # Public members
@@ -250,30 +243,28 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       if (!is.null(p$numberOfTrees)) {
         self$params$numberOfTrees = p$numberOfTrees
       }
-
     },
 
     # Override: build RandomForest model
     buildModel = function() {
+      trainControlParams.method <- ""
+      trainControlParams.number <- 1
 
-      trainControlParams.method = ""
-      trainControlParams.number = 1
-
-      rfTrainParams.metric = ""
+      rfTrainParams.metric <- ""
 
       # Build grid for grid search
       private$buildGrid()
 
       if (isTRUE(self$params$tune)) {
-        trainControlParams.method = "CV"
-        trainControlParams.number = 5
+        trainControlParams.method <- "CV"
+        trainControlParams.number <- 5
       } else {
-        trainControlParams.method = "none"
-        trainControlParams.number = 1
+        trainControlParams.method <- "none"
+        trainControlParams.number <- 1
       }
 
       # Create train control object
-      train.control = NA
+      train.control <- NA
       if (self$params$type == 'classification') {
 
         train.control <- trainControl(
@@ -284,7 +275,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
           summaryFunction = twoClassSummary
         )
 
-        rfTrainParams.metric = "ROC"
+        rfTrainParams.metric <- "ROC"
       }
       # Regression
       else if (self$params$type == 'regression') {
@@ -295,18 +286,18 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
           verboseIter = isTRUE(self$params$debug)
         )
 
-        rfTrainParams.metric = "RMSE"
+        rfTrainParams.metric <- "RMSE"
       }
 
       # Train RandomForest
-      adjustedY = NA
+      adjustedY <- NA
       if (self$params$type == 'classification') {
-        adjustedY = factor(private$dfTrain[[self$params$predictedCol]])
+        adjustedY <- factor(private$dfTrain[[self$params$predictedCol]])
       }
       else if (self$params$type == 'regression') {
-        adjustedY = private$dfTrain[[self$params$predictedCol]]
+        adjustedY <- private$dfTrain[[self$params$predictedCol]]
       }
-      private$fitRF = train(
+      private$fitRF <- train(
         x = private$dfTrain[ ,!(colnames(private$dfTrain) ==
                                   self$params$predictedCol)],
         y = adjustedY,
@@ -317,21 +308,17 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         tuneGrid = private$grid,
         trControl = train.control
       )
-
     },
 
     # Perform prediction
     performPrediction = function() {
-
       if (self$params$type == 'classification') {
-        private$predictions = predict(object = private$fitRF,
+        private$predictions <- predict(object = private$fitRF,
                                       newdata = private$dfTest,
                                       type = 'prob')
+      } else if (self$params$type == 'regression') {
+        private$predictions <- predict(private$fitRF, newdata = private$dfTest)
       }
-      else if (self$params$type == 'regression') {
-        private$predictions = predict(private$fitRF, newdata = private$dfTest)
-      }
-
     },
 
     # Generate performance metrics
@@ -346,11 +333,11 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
           print(round(predictProb[1:10,2],2))
         }
 
-        ytest = as.numeric(private$dfTest[[self$params$predictedCol]])
+        ytest <- as.numeric(private$dfTest[[self$params$predictedCol]])
         pred <- prediction(predictProb[,2], ytest)
         private$perf <- ROCR::performance(pred, "tpr", "fpr")
 
-        predictClass = predict(private$fitRF, newdata = private$dfTest)
+        predictClass <- predict(private$fitRF, newdata = private$dfTest)
 
         if (isTRUE(self$params$debug)) {
           print(paste0('Rows in discrete prediction: ', nrow(predictProb)))
@@ -358,8 +345,8 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
           print(predictClass[1:10])
         }
 
-        private$ROC = roc(ytest~predictProb[,2])
-        private$AUC = auc(private$ROC)
+        private$ROC <- roc(ytest~predictProb[,2])
+        private$AUC <- auc(private$ROC)
 
         # Show results
         if (isTRUE(self$params$printResults)) {
@@ -372,7 +359,6 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
 
       # Regression
       else if (self$params$type == 'regression') {
-
         if (isTRUE(self$params$debug)) {
           print(paste0('Rows in regression prediction: ',
                        length(private$predictions)))
@@ -380,18 +366,17 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
           print(round(private$predictions[1:10],2))
         }
 
-        ytest = as.numeric(private$dfTest[[self$params$predictedCol]])
+        ytest <- as.numeric(private$dfTest[[self$params$predictedCol]])
 
         # Error measures
-        private$rmse = sqrt(mean((ytest - private$predictions) ^ 2))
-        private$mae = mean(abs(ytest - private$predictions))
+        private$rmse <- sqrt(mean((ytest - private$predictions) ^ 2))
+        private$mae <- mean(abs(ytest - private$predictions))
 
         # Show results
         if (isTRUE(self$params$printResults)) {
           print(paste0('RMSE: ', round(private$rmse, 8)))
           print(paste0('MAE: ', round(private$mae, 8)))
         }
-
       }
 
       private$stopClustersOnCores()

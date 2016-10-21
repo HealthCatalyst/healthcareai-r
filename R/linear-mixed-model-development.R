@@ -41,18 +41,18 @@ source('R/supervised-model-development.R')
 #' str(df)
 #'
 #' # Create binary column for classification
-#' df$ReactionFLG <- ifelse(df$Reaction > 300, 'Y','N')
+#' df$ReactionFLG <- ifelse(df$Reaction > 300, "Y", "N")
 #' df$Reaction <- NULL
 #'
 #' set.seed(42)
 #' p <- SupervisedModelDevelopmentParams$new()
-#' p$df = df
-#' p$type = 'classification'
-#' p$impute = TRUE
-#' p$personCol = 'Subject' # Think of this as PatientID
-#' p$predictedCol = 'ReactionFLG'
-#' p$debug = FALSE
-#' p$cores = 1
+#' p$df <- df
+#' p$type <- "classification"
+#' p$impute <- TRUE
+#' p$personCol <- "Subject"  # Think of this as PatientID
+#' p$predictedCol <- "ReactionFLG"
+#' p$debug <- FALSE
+#' p$cores <- 1
 #'
 #' # Create Mixed Model
 #' lmm <- LinearMixedModelDevelopment$new(p)
@@ -73,14 +73,14 @@ source('R/supervised-model-development.R')
 #'
 #' set.seed(42)
 #' p <- SupervisedModelDevelopmentParams$new()
-#' p$df = df
-#' p$type = 'regression'
-#' p$impute = TRUE
-#' p$grainCol = 'GrainID'  # Think of this as PatientEnounterID
-#' p$personCol = 'Subject' # Think of this as PatientID
-#' p$predictedCol = 'Reaction'
-#' p$debug = TRUE
-#' p$cores = 1
+#' p$df <- df
+#' p$type <- "regression"
+#' p$impute <- TRUE
+#' p$grainCol <- "GrainID"  # Think of this as PatientEnounterID
+#' p$personCol <- "Subject"  # Think of this as PatientID
+#' p$predictedCol <- "Reaction"
+#' p$debug <- TRUE
+#' p$cores <- 1
 #'
 #' # Create Mixed Model
 #' lmm <- LinearMixedModelDevelopment$new(p)
@@ -88,15 +88,13 @@ source('R/supervised-model-development.R')
 #'
 #' #### Example using csv data ####
 #' library(HCRTools)
-#' #setwd("C:/Your/script/location") # Needed if using YOUR CSV file
+#' # setwd('C:/Your/script/location') # Needed if using YOUR CSV file
 #' ptm <- proc.time()
 #'
 #' # Can delete this line in your work
 #' csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "HCRTools")
-#'
-#' df <- read.csv(file = csvfile, #<-- Replace with 'your/path'
-#'                     header = TRUE,
-#'                     na.strings =  c('NULL', 'NA', ""))
+#' #Replace csvfile with "path/to/yourfile"
+#' df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 #'
 #' head(df)
 #'
@@ -105,14 +103,14 @@ source('R/supervised-model-development.R')
 #' set.seed(42)
 #'
 #' p <- SupervisedModelDevelopmentParams$new()
-#' p$df = df
-#' p$type = 'classification'
-#' p$impute = TRUE
-#' p$grainCol = 'PatientEncounterID'
-#' p$personCol = 'PatientID'
-#' p$predictedCol = 'ThirtyDayReadmitFLG'
-#' p$debug = FALSE
-#' p$cores = 1
+#' p$df <- df
+#' p$type <- "classification"
+#' p$impute <- TRUE
+#' p$grainCol <- "PatientEncounterID"
+#' p$personCol <- "PatientID"
+#' p$predictedCol <- "ThirtyDayReadmitFLG"
+#' p$debug <- FALSE
+#' p$cores <- 1
 #'
 #' # Create Mixed Model
 #' lmm <- LinearMixedModelDevelopment$new(p)
@@ -123,24 +121,24 @@ source('R/supervised-model-development.R')
 #' Lasso$run()
 #'
 #' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-#' Lasso$getCutOffs(tpr=.8)
+#' Lasso$getCutOffs(tpr = 0.8)
 #' print(proc.time() - ptm)
 #'
 #' #### Example using SQL Server data ####
-#' # This example requires:
-#' #    1) That you alter your connection string / query
+#' # This example requires that you alter your connection string / query
+#' # to read in your own data
 #'
 #' ptm <- proc.time()
 #' library(HCRTools)
 #'
-#' connection.string = "
+#' connection.string <- "
 #' driver={SQL Server};
 #' server=localhost;
 #' database=SAM;
 #' trusted_connection=true
 #' "
 #'
-#' query = "
+#' query <- "
 #' SELECT
 #'  [PatientEncounterID]
 #' ,[PatientID]
@@ -161,14 +159,14 @@ source('R/supervised-model-development.R')
 #' set.seed(42)
 #'
 #' p <- SupervisedModelDevelopmentParams$new()
-#' p$df = df
-#' p$type = 'classification'
-#' p$impute = TRUE
-#' p$grainCol = 'PatientEncounterID'
-#' p$personCol = 'PatientID'
-#' p$predictedCol = 'ThirtyDayReadmitFLG'
-#' p$debug = FALSE
-#' p$cores = 1
+#' p$df <- df
+#' p$type <- "classification"
+#' p$impute <- TRUE
+#' p$grainCol <- "PatientEncounterID"
+#' p$personCol <- "PatientID"
+#' p$predictedCol <- "ThirtyDayReadmitFLG"
+#' p$debug <- FALSE
+#' p$cores <- 1
 #'
 #' # Create Mixed Model
 #' lmm <- LinearMixedModelDevelopment$new(p)
@@ -179,7 +177,7 @@ source('R/supervised-model-development.R')
 #' Lasso$run()
 #'
 #' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-#' Lasso$getCutOffs(tpr=.8)
+#' Lasso$getCutOffs(tpr = 0.8)
 #'
 #' print(proc.time() - ptm)
 #' @export
@@ -236,13 +234,13 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
         print(str(private$trainTest))
       }
 
-      # TODO Later: figure out why orderering in sql query is better auc than internal
+      # TODO Later: figure out why ordering in sql query is better auc than internal
       # ordering. http://stackoverflow.com/a/1296745/5636012
       # If ordering using with, access PersonID col via df[[PersonID]]
 
       # Split out test/train by taking last row of each PersonID for test set
       # TODO Soon: do this split using the InTestWindowCol
-      private$lmmTrain <- data.table::setDT(private$trainTest)[, .SD[1:.N-1], by = eval(self$params$personCol)]
+      private$lmmTrain <- data.table::setDT(private$trainTest)[, .SD[1:.N - 1], by = eval(self$params$personCol)]
       private$lmmTest <- data.table::setDT(private$trainTest)[, .SD[.N], by = eval(self$params$personCol)]
 
       if (isTRUE(self$params$debug)) {
@@ -251,7 +249,6 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
         print('Mixed model-specific test set after creation')
         print(str(private$lmmTest))
       }
-
     },
 
     # Override: build model
@@ -285,12 +282,12 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
       }
 
       if (self$params$type == 'classification') {
-        private$fitLmm = glmer(formula = formula,
+        private$fitLmm <- glmer(formula = formula,
                                 data = private$lmmTrain,
                                 family = binomial(link = 'logit'))
       }
       else if (self$params$type == 'regression') {
-        private$fitLmm = lmer(formula = formula,
+        private$fitLmm <- lmer(formula = formula,
                                 data = private$lmmTrain)
       }
     },
@@ -323,12 +320,12 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
           print(round(predictProb[1:10],2))
         }
 
-        ytest = as.numeric(private$lmmTest[[self$params$predictedCol]])
+        ytest <- as.numeric(private$lmmTest[[self$params$predictedCol]])
         pred <- prediction(predictProb, ytest)
         private$perf <- ROCR::performance(pred, "tpr", "fpr")
 
-        private$ROC = pROC::roc(ytest~predictProb)
-        private$AUC = pROC::auc(private$ROC)
+        private$ROC <- pROC::roc(ytest~predictProb)
+        private$AUC <- pROC::auc(private$ROC)
 
         # Show results
         if (isTRUE(self$params$printResults)) {
@@ -349,11 +346,11 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
           print(round(private$predictions[1:10],2))
         }
 
-        ytest = as.numeric(private$lmmTest[[self$params$predictedCol]])
+        ytest <- as.numeric(private$lmmTest[[self$params$predictedCol]])
 
         # Error measures
-        private$rmse = sqrt(mean((ytest - private$predictions) ^ 2))
-        private$mae = mean(abs(ytest - private$predictions))
+        private$rmse <- sqrt(mean((ytest - private$predictions) ^ 2))
+        private$mae <- mean(abs(ytest - private$predictions))
 
         # Show results
         if (isTRUE(self$params$printResults)) {

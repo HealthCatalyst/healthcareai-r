@@ -18,7 +18,7 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
     ###########
     # Functions
 
-    registerClustersOnCores = function () {
+    registerClustersOnCores = function() {
       if (self$params$cores > 1) {
         suppressMessages(library(doParallel))
         private$clustersOnCores <-
@@ -27,7 +27,7 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
       }
     },
 
-    stopClustersOnCores = function () {
+    stopClustersOnCores = function() {
       if (self$params$cores > 1) {
         stopCluster(private$clustersOnCores)
         registerDoSEQ()
@@ -35,7 +35,7 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
     },
 
     #Set config parameters for the algorithm
-    setConfigs = function (p) {
+    setConfigs = function(p) {
       self$params <- UnsupervisedModelParameters$new()
 
       if (!is.null(p$df))
@@ -43,9 +43,6 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
 
       if (!is.null(p$type)) {
         self$params$type <- p$type
-
-        # validation on type string values
-
       }
 
       if (!is.null(p$debug))
@@ -59,19 +56,15 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
 
       #Set additional settings
       if (isTRUE(self$params$debug)) {
-
       }
 
       #Set up clusters on cores
       private$registerClustersOnCores()
-
     },
 
     #Load data
-    loadData = function () {
-
+    loadData = function() {
     }
-
   ),
 
   #Public members
@@ -87,26 +80,21 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
 
     #Constructor
     #p: new UnsuperviseModelParameters class object, i.e. p = UnsuperviseModelParameters$new()
-    initialize = function (p) {
+    initialize = function(p) {
 
       #Set config parameters
       private$setConfigs(p)
 
       #Load data
       private$loadData()
-
     },
 
     #Build the Model
-    buildModel = function () {
-
+    buildModel = function() {
     },
 
     #Run the Model
-    run = function () {
-
+    run = function() {
     }
-
   )
-
 )

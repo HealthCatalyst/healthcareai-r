@@ -18,8 +18,8 @@ dfResult The input data frame with rows removed
 Remove rows from a data frame where a particular col is NA
 }
 \examples{
-df = data.frame(a=c(1,2,3),b=c('Y','N',NA),c=c(NA,'Y','N'))
-dfResult = removeRowsWithNAInSpecCol(df,'b')
+df <- data.frame(a=c(1,2,3),b=c('Y','N',NA),c=c(NA,'Y','N'))
+dfResult <- removeRowsWithNAInSpecCol(df,'b')
 head(dfResult)
 }
 \references{
