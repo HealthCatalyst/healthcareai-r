@@ -23,18 +23,18 @@ a data frame.
 }
 \examples{
 library(HCRTools)
-connectionString = "
+connectionString <- '
   driver={SQL Server};
   server=localhost;
   database=SAM;
   trustedConnection=true
-  "
+  '
 
-query = "
+query <- '
   SELECT
     A1CNBR
   FROM SAM.dbo.HCRDiabetesClinical
-  "
+  '
 
 df <- selectData(connectionString, query)
 head(df)
