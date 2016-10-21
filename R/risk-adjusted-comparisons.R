@@ -1,6 +1,7 @@
 # Import the common functions.
 source('R/common.R')
 
+
 #' Make risk adjusted comparisons between groups/units or years/months
 #'
 #' @description This class allows you to create a model based on the
@@ -24,16 +25,16 @@ source('R/common.R')
 #' #### Example using csv data ####
 #' library(HCRTools)
 #'
-#' connection.string = "
+#' connection.string <- "
 #' driver={SQL Server};
 #' server=localhost;
 #' database=SAM;
 #' trusted_connection=true
 #' "
 #'
-#' query = "
+#' query <- "
 #' SELECT
-#'  [PatientEncounterID]
+#' [PatientEncounterID]
 #' ,[PatientID]
 #' ,[SystolicBPNBR]
 #' ,[LDLNBR]
@@ -47,12 +48,12 @@ source('R/common.R')
 #' df <- selectData(connection.string, query)
 #'
 #' p <- SupervisedModelDevelopmentParams$new()
-#' p$df = df
-#' p$groupCol = 'GenderFLG'
-#' p$impute = TRUE
-#' p$predictedCol = 'ThirtyDayReadmitFLG'
-#' p$debug = FALSE
-#' p$cores = 1
+#' p$df <- df
+#' p$groupCol <- "GenderFLG"
+#' p$impute <- TRUE
+#' p$predictedCol <- "ThirtyDayReadmitFLG"
+#' p$debug <- FALSE
+#' p$cores <- 1
 #'
 #' riskAdjComp <- RiskAdjustedComparisons$new(p)
 #' riskAdjComp$run()

@@ -44,18 +44,18 @@ df <- sleepstudy
 str(df)
 
 # Create binary column for classification
-df$ReactionFLG <- ifelse(df$Reaction > 300, 'Y','N')
+df$ReactionFLG <- ifelse(df$Reaction > 300, "Y", "N")
 df$Reaction <- NULL
 
 set.seed(42)
 p <- SupervisedModelDevelopmentParams$new()
-p$df = df
-p$type = 'classification'
-p$impute = TRUE
-p$personCol = 'Subject' # Think of this as PatientID
-p$predictedCol = 'ReactionFLG'
-p$debug = FALSE
-p$cores = 1
+p$df <- df
+p$type <- "classification"
+p$impute <- TRUE
+p$personCol <- "Subject"  # Think of this as PatientID
+p$predictedCol <- "ReactionFLG"
+p$debug <- FALSE
+p$cores <- 1
 
 # Create Mixed Model
 lmm <- LinearMixedModelDevelopment$new(p)
@@ -76,14 +76,14 @@ str(df)
 
 set.seed(42)
 p <- SupervisedModelDevelopmentParams$new()
-p$df = df
-p$type = 'regression'
-p$impute = TRUE
-p$grainCol = 'GrainID'  # Think of this as PatientEnounterID
-p$personCol = 'Subject' # Think of this as PatientID
-p$predictedCol = 'Reaction'
-p$debug = TRUE
-p$cores = 1
+p$df <- df
+p$type <- "regression"
+p$impute <- TRUE
+p$grainCol <- "GrainID"  # Think of this as PatientEnounterID
+p$personCol <- "Subject"  # Think of this as PatientID
+p$predictedCol <- "Reaction"
+p$debug <- TRUE
+p$cores <- 1
 
 # Create Mixed Model
 lmm <- LinearMixedModelDevelopment$new(p)
@@ -91,15 +91,13 @@ lmm$run()
 
 #### Example using csv data ####
 library(HCRTools)
-#setwd("C:/Your/script/location") # Needed if using YOUR CSV file
+# setwd('C:/Your/script/location') # Needed if using YOUR CSV file
 ptm <- proc.time()
 
 # Can delete this line in your work
 csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "HCRTools")
-
-df <- read.csv(file = csvfile, #<-- Replace with 'your/path'
-                    header = TRUE,
-                    na.strings =  c('NULL', 'NA', ""))
+#Replace csvfile with "path/to/yourfile"
+df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 
 head(df)
 
@@ -108,14 +106,14 @@ df$InTestWindowFLG <- NULL
 set.seed(42)
 
 p <- SupervisedModelDevelopmentParams$new()
-p$df = df
-p$type = 'classification'
-p$impute = TRUE
-p$grainCol = 'PatientEncounterID'
-p$personCol = 'PatientID'
-p$predictedCol = 'ThirtyDayReadmitFLG'
-p$debug = FALSE
-p$cores = 1
+p$df <- df
+p$type <- "classification"
+p$impute <- TRUE
+p$grainCol <- "PatientEncounterID"
+p$personCol <- "PatientID"
+p$predictedCol <- "ThirtyDayReadmitFLG"
+p$debug <- FALSE
+p$cores <- 1
 
 # Create Mixed Model
 lmm <- LinearMixedModelDevelopment$new(p)
@@ -126,24 +124,24 @@ Lasso <- LassoDevelopment$new(p)
 Lasso$run()
 
 # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-Lasso$getCutOffs(tpr=.8)
+Lasso$getCutOffs(tpr = 0.8)
 print(proc.time() - ptm)
 
 #### Example using SQL Server data ####
-# This example requires:
-#    1) That you alter your connection string / query
+# This example requires that you alter your connection string / query
+# to read in your own data
 
 ptm <- proc.time()
 library(HCRTools)
 
-connection.string = "
+connection.string <- "
 driver={SQL Server};
 server=localhost;
 database=SAM;
 trusted_connection=true
 "
 
-query = "
+query <- "
 SELECT
  [PatientEncounterID]
 ,[PatientID]
@@ -164,14 +162,14 @@ df$InTestWindowFLG <- NULL
 set.seed(42)
 
 p <- SupervisedModelDevelopmentParams$new()
-p$df = df
-p$type = 'classification'
-p$impute = TRUE
-p$grainCol = 'PatientEncounterID'
-p$personCol = 'PatientID'
-p$predictedCol = 'ThirtyDayReadmitFLG'
-p$debug = FALSE
-p$cores = 1
+p$df <- df
+p$type <- "classification"
+p$impute <- TRUE
+p$grainCol <- "PatientEncounterID"
+p$personCol <- "PatientID"
+p$predictedCol <- "ThirtyDayReadmitFLG"
+p$debug <- FALSE
+p$cores <- 1
 
 # Create Mixed Model
 lmm <- LinearMixedModelDevelopment$new(p)
@@ -182,7 +180,7 @@ Lasso <- LassoDevelopment$new(p)
 Lasso$run()
 
 # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-Lasso$getCutOffs(tpr=.8)
+Lasso$getCutOffs(tpr = 0.8)
 
 print(proc.time() - ptm)
 }

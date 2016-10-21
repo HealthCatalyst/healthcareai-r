@@ -24,9 +24,8 @@ while those that have ones indicate the test set}
 \item{impute}{For training df, set all-column imputation to F or T.
 This uses mean replacement for numeric columns
 and most frequent for factorized columns.
-F leads to removal of rows containing NULLs.}
-
-\item{debug}{Provides the user extended output to the console, in order
+F leads to removal of rows containing NULLs.
+#' @param debug Provides the user extended output to the console, in order
 to monitor the calculations throughout. Use T or F.}
 }
 \description{
@@ -49,24 +48,22 @@ This step allows one to
 #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 # )
 
-#setwd("C:/Yourscriptlocation/Useforwardslashes") # Uncomment if using csv
+# setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 ptm <- proc.time()
 library(HCRTools)
 
-connection.string <- 'driver={SQL Server};
-                      server=localhost;
-                      database=SAM;
-                      trusted_connection=true'
+connection.string <- "driver={SQL Server};
+server=localhost;
+database=SAM;
+trusted_connection=true"
 
-# Use this for an example SQL source:
-# query <- "SELECT * FROM [SAM].[YourCoolSAM].[SomeTrainingSetTable]"
-# df <- selectData(connection.string, query)
+# Use this for an example SQL source: query <- 'SELECT * FROM
+# [SAM].[YourCoolSAM].[SomeTrainingSetTable]' df <- selectData(connection.string,
+# query)
 
 # Can delete these four lines when you set up your SQL connection/query
-csvfile <- system.file("extdata", "HCRDiabetesClinical.csv",package = "HCRTools")
-df <- read.csv(file = csvfile,
-                    header = TRUE,
-                    na.strings = c('NULL', 'NA', ""))
+csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "HCRTools")
+df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 
 head(df)
 
@@ -74,17 +71,17 @@ head(df)
 df$PatientID <- NULL
 
 p <- SupervisedModelDeploymentParams$new()
-p$type = 'regression'
-p$df = df
-p$grainCol = 'PatientEncounterID'
-p$testWindowCol = 'InTestWindowFLG'
-p$predictedCol = 'A1CNBR'
-p$impute = TRUE
-p$debug = FALSE
-p$useSavedModel = FALSE
-p$cores = 1
-p$sqlConn = connection.string
-p$destSchemaTable = 'dbo.HCRDeployRegressionBASE'
+p$type <- "regression"
+p$df <- df
+p$grainCol <- "PatientEncounterID"
+p$testWindowCol <- "InTestWindowFLG"
+p$predictedCol <- "A1CNBR"
+p$impute <- TRUE
+p$debug <- FALSE
+p$useSavedModel <- FALSE
+p$cores <- 1
+p$sqlConn <- connection.string
+p$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
 
 dL <- LassoDeployment$new(p)
 dL$deploy()

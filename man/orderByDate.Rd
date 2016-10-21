@@ -21,9 +21,9 @@ Returns a data frame that's ordered by its date column
 }
 \examples{
 library(HCRTools)
-df = data.frame(date=c('2009-01-01','2010-01-01','2009-03-08','2009-01-19'),
+df <- data.frame(date=c('2009-01-01','2010-01-01','2009-03-08','2009-01-19'),
                 a=c(1,2,3,4))
-dfResult = orderByDate(df,'date', descending=FALSE)
+dfResult <- orderByDate(df,'date', descending=FALSE)
 head(dfResult)
 }
 \references{

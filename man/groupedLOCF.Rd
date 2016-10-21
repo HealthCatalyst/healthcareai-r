@@ -22,7 +22,7 @@ grouped by an id.
 }
 \examples{
 library(HCRTools)
-df = data.frame(personID=c(1,1,2,2,3,3,3),
+df <- data.frame(personID=c(1,1,2,2,3,3,3),
                 wt=c(.5,NA,NA,NA,.3,.7,NA),
                 ht=c(NA,1,3,NA,4,NA,NA),
                 date=c('01/01/2015','01/15/2015','01/01/2015','01/15/2015',
@@ -30,7 +30,7 @@ df = data.frame(personID=c(1,1,2,2,3,3,3),
 
 head(df,n=7)
 
-dfResult = groupedLOCF(df, 'personID')
+dfResult <- groupedLOCF(df, 'personID')
 
 head(dfResult, n = 7)
 }

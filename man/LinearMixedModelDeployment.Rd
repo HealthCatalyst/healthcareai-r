@@ -45,20 +45,20 @@ This step allows one to
 # This example requires you to first create a table in SQL Server
 # If you prefer to not use SAMD, execute this in SSMS to create output table:
 # CREATE TABLE dbo.HCRDeployRegressionBASE(
-#   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
-#   PatientEncounterID int, <--change to match inputID
-#   PredictedProbNBR decimal(38, 2),
-#   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
+# BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
+# PatientEncounterID int, <--change to match inputID
+# PredictedValueNBR decimal(38, 2),
+# Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 # )
 
-#setwd("C:/Yourscriptlocation/Useforwardslashes") # Uncomment if using csv
+# setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 ptm <- proc.time()
 library(HCRTools)
 
-connection.string <- 'driver={SQL Server};
-                      server=localhost;
-                      database=SAM;
-                      trusted_connection=true'
+connection.string <- "driver={SQL Server};
+server=localhost;
+database=SAM;
+trusted_connection=true"
 
 # Use this for an example SQL source:
 # query <- "SELECT * FROM [SAM].[YourCoolSAM].[SomeTrainingSetTable]"
@@ -73,18 +73,18 @@ df <- read.csv(file = csvfile,
 head(df)
 
 p <- SupervisedModelDeploymentParams$new()
-p$type = 'classification'
-p$df = df
-p$grainCol = 'PatientEncounterID'
-p$testWindowCol = 'InTestWindowFLG'
-p$predictedCol = 'ThirtyDayReadmitFLG'
-p$personCol = 'PatientID'
-p$impute = FALSE
-p$debug = FALSE
-p$useSavedModel = FALSE
-p$cores = 1
-p$sqlConn = connection.string
-p$destSchemaTable = 'dbo.HCRDeployClassificationBASE'
+p$type <- "classification"
+p$df <- df
+p$grainCol <- "PatientEncounterID"
+p$testWindowCol <- "InTestWindowFLG"
+p$predictedCol <- "ThirtyDayReadmitFLG"
+p$personCol <- "PatientID"
+p$impute <- FALSE
+p$debug <- FALSE
+p$useSavedModel <- FALSE
+p$cores <- 1
+p$sqlConn <- connection.string
+p$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
 
 lMM <- LinearMixedModelDeployment$new(p)
 lMM$deploy()
@@ -101,7 +101,7 @@ print(proc.time() - ptm)
 #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 # )
 
-#setwd("C:/Yourscriptlocation/Useforwardslashes") # Uncomment if using csv
+# setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 ptm <- proc.time()
 library(HCRTools)
 
@@ -115,26 +115,24 @@ connection.string <- 'driver={SQL Server};
 # df <- selectData(connection.string, query)
 
 # Can delete these four lines when you set up your SQL connection/query
-csvfile <- system.file("extdata", "HCRDiabetesClinical.csv",package = "HCRTools")
-df <- read.csv(file = csvfile,
-                    header = TRUE,
-                    na.strings = c('NULL', 'NA', ""))
+csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "HCRTools")
+df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 
 head(df)
 
 p <- SupervisedModelDeploymentParams$new()
-p$type = 'regression'
-p$df = df
-p$grainCol = 'PatientEncounterID'
-p$testWindowCol = 'InTestWindowFLG'
-p$predictedCol = 'A1CNBR'
-p$personCol = 'PatientID'
-p$impute = TRUE
-p$debug = FALSE
-p$useSavedModel = FALSE
-p$cores = 1
-p$sqlConn = connection.string
-p$destSchemaTable = 'dbo.HCRDeployRegressionBASE'
+p$type <- "regression"
+p$df <- df
+p$grainCol <- "PatientEncounterID"
+p$testWindowCol <- "InTestWindowFLG"
+p$predictedCol <- "A1CNBR"
+p$personCol <- "PatientID"
+p$impute <- TRUE
+p$debug <- FALSE
+p$useSavedModel <- FALSE
+p$cores <- 1
+p$sqlConn <- connection.string
+p$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
 
 lMM <- LinearMixedModelDeployment$new(p)
 lMM$deploy()

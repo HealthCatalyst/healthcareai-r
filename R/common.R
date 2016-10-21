@@ -17,7 +17,7 @@
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' library(HCRTools)
-#' df = data.frame(personID=c(1,1,2,2,3,3,3),
+#' df <- data.frame(personID=c(1,1,2,2,3,3,3),
 #'                 wt=c(.5,NA,NA,NA,.3,.7,NA),
 #'                 ht=c(NA,1,3,NA,4,NA,NA),
 #'                 date=c('01/01/2015','01/15/2015','01/01/2015','01/15/2015',
@@ -25,7 +25,7 @@
 #'
 #' head(df,n=7)
 #'
-#' dfResult = groupedLOCF(df, 'personID')
+#' dfResult <- groupedLOCF(df, 'personID')
 #'
 #' head(dfResult, n = 7)
 
@@ -71,7 +71,7 @@ groupedLOCF <- function(df, id) {
 #' @references \url{http://hctools.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' dtCol = c('2001-06-09 12:45:05','2002-01-29 09:30:05','2002-02-02 07:36:50',
+#' dtCol <- c('2001-06-09 12:45:05','2002-01-29 09:30:05','2002-02-02 07:36:50',
 #'           '2002-03-04 16:45:01','2002-11-13 20:00:10','2003-01-29 07:31:43',
 #'           '2003-07-07 17:30:02','2003-09-28 01:03:20')
 #' y1 <- c(.5,1,3,6,8,13,14,1)
@@ -140,13 +140,13 @@ convertDateTimeColToDummies <- function(df, dateTimeCol, depth = "h", returnDtCo
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' # For a numeric vector
-#' vResult = imputeColumn(c(1,2,3,NA))
+#' vResult <- imputeColumn(c(1,2,3,NA))
 #'
 #' # For a factor vector
-#' vResult = imputeColumn(c('Y','N','Y',NA))
+#' vResult <- imputeColumn(c('Y','N','Y',NA))
 #'
 #' # To use this function on an entire data frame:
-#' df = data.frame(a=c(1,2,3,NA),
+#' df <- data.frame(a=c(1,2,3,NA),
 #'                 b=c('Y','N','Y',NA))
 #' df[] <- lapply(df, imputeColumn)
 #' head(df)
@@ -191,8 +191,8 @@ isBinary <- function(v) {
 #' @references \url{http://hctools.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' df = data.frame(a=c(1,2,3),b=c('Y','N',NA),c=c(NA,'Y','N'))
-#' dfResult = removeRowsWithNAInSpecCol(df,'b')
+#' df <- data.frame(a=c(1,2,3),b=c('Y','N',NA),c=c(NA,'Y','N'))
+#' dfResult <- removeRowsWithNAInSpecCol(df,'b')
 #' head(dfResult)
 
 removeRowsWithNAInSpecCol <- function(df, desiredCol) {
@@ -217,14 +217,14 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' library(HCRTools)
-#' connectionString = '
+#' connectionString <- '
 #'   driver={SQL Server};
 #'   server=localhost;
 #'   database=SAM;
 #'   trustedConnection=true
 #'   '
 #'
-#' query = '
+#' query <- '
 #'   SELECT
 #'     A1CNBR
 #'   FROM SAM.dbo.HCRDiabetesClinical
@@ -357,13 +357,13 @@ removeColsWithAllSameValue <- function(df) {
 #' @references \url{http://hctools.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' df = data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+#' df <- data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 #'                     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1),
 #'                 b=c('a','b','c','d','e','f','g','h','i','j','k','l','m','n',
 #'                     'o','p','q','r','s','t','u','v','w','x','y','z','aa','bb',
 #'                     'cc','dd','ee','ff','gg','hh','ii','jj','kk','ll','mm','nn',
 #'                     'oo','pp','qq','rr','ss','tt','uu','vv','ww','xx','yy'))
-#' colList = returnColsWithMoreThanFiftyCategories(df)
+#' colList <- returnColsWithMoreThanFiftyCategories(df)
 #' colList
 
 returnColsWithMoreThanFiftyCategories <- function(df) {
@@ -404,7 +404,7 @@ returnColsWithMoreThanFiftyCategories <- function(df) {
 #'gender <- c('M','F','F','F','F','F','F','F')
 #'df <- data.frame(dates,y1,y2,y3,y4,gender)
 #'
-#'dfResult = findTrends(df = df,
+#'dfResult <- findTrends(df = df,
 #'                       dateCol = 'dates',
 #'                       groupbyCol = 'gender')
 #'dfResult
@@ -487,9 +487,9 @@ findTrends <- function(df, dateCol, groupbyCol) {
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' library(HCRTools)
-#' df = data.frame(date=c('2009-01-01','2010-01-01','2009-03-08','2009-01-19'),
+#' df <- data.frame(date=c('2009-01-01','2010-01-01','2009-03-08','2009-01-19'),
 #'                 a=c(1,2,3,4))
-#' dfResult = orderByDate(df,'date', descending=FALSE)
+#' dfResult <- orderByDate(df,'date', descending=FALSE)
 #' head(dfResult)
 
 orderByDate <- function(df, dateCol, descending = FALSE) {
@@ -606,13 +606,13 @@ calculateAllCorrelations <- function(df) {
 #' @references \url{http://hctools.org/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' df = data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+#' df <- data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 #'                     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1),
 #'                 b=c('a','b','c','d','e','f','g','h','i','j','k','l','m','n',
 #'                     'o','p','q','r','s','t','u','v','w','x','y','z','aa','bb',
 #'                     'cc','dd','ee','ff','gg','hh','ii','jj','kk','ll','mm','nn',
 #'                     'oo','pp','qq','rr','ss','tt','uu','vv','ww','xx','yy'))
-#' colList = returnColsWithMoreThanFiftyCategories(df)
+#' colList <- returnColsWithMoreThanFiftyCategories(df)
 
 returnColsWithMoreThanFiftyCategories <- function(df) {
   colList <- vector("character")

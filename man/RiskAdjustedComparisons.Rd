@@ -29,16 +29,16 @@ terms of a particular measure.
 #### Example using csv data ####
 library(HCRTools)
 
-connection.string = "
+connection.string <- "
 driver={SQL Server};
 server=localhost;
 database=SAM;
 trusted_connection=true
 "
 
-query = "
+query <- "
 SELECT
- [PatientEncounterID]
+[PatientEncounterID]
 ,[PatientID]
 ,[SystolicBPNBR]
 ,[LDLNBR]
@@ -52,12 +52,12 @@ FROM [SAM].[dbo].[HCRDiabetesClinical]
 df <- selectData(connection.string, query)
 
 p <- SupervisedModelDevelopmentParams$new()
-p$df = df
-p$groupCol = 'GenderFLG'
-p$impute = TRUE
-p$predictedCol = 'ThirtyDayReadmitFLG'
-p$debug = FALSE
-p$cores = 1
+p$df <- df
+p$groupCol <- "GenderFLG"
+p$impute <- TRUE
+p$predictedCol <- "ThirtyDayReadmitFLG"
+p$debug <- FALSE
+p$cores <- 1
 
 riskAdjComp <- RiskAdjustedComparisons$new(p)
 riskAdjComp$run()

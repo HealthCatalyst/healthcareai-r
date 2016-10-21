@@ -49,42 +49,42 @@ This step allows one to
 #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 # )
 
-#setwd("C:/Yourscriptlocation/Useforwardslashes") # Uncomment if using csv
+#setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 ptm <- proc.time()
 library(HCRTools)
 
-connection.string <- 'driver={SQL Server};
+connection.string <- "driver={SQL Server};
                       server=localhost;
                       database=SAM;
-                      trusted_connection=true'
+                      trusted_connection=true"
 
 # Use this for an example SQL source:
-# query <- "SELECT * FROM [SAM].[YourCoolSAM].[SomeTrainingSetTable]"
+# query <- 'SELECT * FROM [SAM].[YourCoolSAM].[SomeTrainingSetTable]'
 # df <- selectData(connection.string, query)
 
-# Can delete these four lines when you set up your SQL connection/query
-csvfile <- system.file("extdata", "HCRDiabetesClinical.csv",package = "HCRTools")
-df <- read.csv(file = csvfile,
-                    header = TRUE,
-                    na.strings = c('NULL', 'NA', ""))
+# Can delete these four lines when you set your SQL connection/query
+csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "HCRTools")
+# Change csvfile to 'path/to/yourfile'
+df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 
 head(df)
 
 # Remove unnecessary columns
 df$PatientID <- NULL
 
-p <- SupervisedModelDeploymentParams$new()
-p$type = 'classification'
-p$df = df
-p$grainCol = 'PatientEncounterID'
-p$testWindowCol = 'InTestWindowFLG'
-p$predictedCol = 'ThirtyDayReadmitFLG'
-p$impute = TRUE
-p$debug = FALSE
-p$useSavedModel = FALSE
-p$cores = 1
-p$sqlConn = connection.string
-p$destSchemaTable = 'dbo.HCRDeployClassificationBASE'
+p <- S
+ervisedModelDeploymentParams$new()
+p$type <- "classification"
+p$df <- df
+p$grainCol <- "PatientEncounterID"
+p$testWindowCol <- "InTestWindowFLG"
+p$predictedCol <- "ThirtyDayReadmitFLG"
+p$impute <- TRUE
+p$debug <- FALSE
+p$useSavedModel <- FALSE
+p$cores <- 1
+p$sqlConn <- connection.string
+p$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
 
 dL <- RandomForestDeployment$new(p)
 dL$deploy()
