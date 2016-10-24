@@ -721,3 +721,5 @@ plotROCs <- function(rocs, names, legendLoc) {
   legend(legendLoc, names, cex = 0.8, col = colvec, lty = 1:2, inset = 0.1)
   return()
 }
+
+
