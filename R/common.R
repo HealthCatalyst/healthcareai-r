@@ -722,4 +722,102 @@ plotROCs <- function(rocs, names, legendLoc) {
   return()
 }
 
+#' @title
+#' Calculate half std deviation up/down for each numeric field in row
+#'
+#' @description Add/subtract each numeric col (for each row) by half std dev
+#' such that we have a new alternate data frame
+#' @param dfOriginal Data frame from which we'll draw a row for alt-scenarios
+#' @param rowNum Row in dfOriginal that we'll create alt-scenarios for
+#' @param numColLeaveOut Numeric columns to leave out of alterlative scenarios
+#' @param sizeOfSDPerturb Default is 0.5. Shrink or expand SD drop/addition
+#' @param returnOriginal Return original row of interest in final df
+#'
+#' @export
+#' @references \url{http://hctools.org/}
+#' @seealso \code{\link{HCRTools}}
+#' @examples
+#' df <- data.frame(a=c(1,2,3),
+#'                  b=c('m','f','m'),
+#'                  c=c(0.7,1.4,2.4),
+#'                  d=c(100,250,200),
+#'                  e=c(400,500,505))
+#'
+#'
+#' dfResult <- calculateSDChanges(dfOriginal = df,
+#'                                rowNum = 2,
+#'                                numColLeaveOut = c('d','e'),
+#'                                sizeOfSDPerturb = 0.5,
+#'                                returnOriginal = FALSE)
+#' dfResult
 
+calculateSDChanges <- function(dfOriginal,
+                            rowNum,
+                            numColLeaveOut,
+                            sizeOfSDPerturb=0.5,
+                            returnOriginal=FALSE) {
+
+  df1 <- dfOriginal[rowNum,]
+
+  # Find list of numeric cols in rowNum
+  colIterList <- names(df1)
+  numericList <- character()
+
+  for (v in colIterList) {
+    if (is.numeric(df1[[v]])) {
+      numericList <- c(numericList,v)
+    }
+  }
+
+  # Remove any undesired num columns from being considered (ie, PatientID, etc)
+  if (!missing(numColLeaveOut)) {
+    numericList <- numericList[!numericList %in% numColLeaveOut]
+  }
+
+  # For length of this numeric col list, create that many new rows * 2
+  # This way, we can replace the up and down value into the pre-existing data
+  # If we hit the pop max/min, we'll remove extra rows below the for loop
+  dfAlternative <- df1[rep(seq_len(nrow(df1)), each = length(numericList)*2),]
+  dfAlternative
+
+  # For each numeric col, calculate up/down and push into data frame
+  # There's a new row for plus and then a new row for minus
+  j <- 1
+  for (i in numericList) {
+    tempAdd <- dfAlternative[j,i] +
+      (stats::sd(dfOriginal[,i]) * sizeOfSDPerturb)
+
+    # Check if adding half SD puts person over max of entire pop
+    if (tempAdd <= max(dfOriginal[,i])) {
+      # If this keeps them within pop, let's consider this scenario
+      dfAlternative[j,i] <- tempAdd
+      j <- j + 1
+
+    }
+
+    tempSubtract <- dfAlternative[j,i] -
+      (stats::sd(dfOriginal[,i]) * sizeOfSDPerturb)
+
+    # Check if subtracting half SD puts person under min of entire pop
+    if (tempSubtract >= min(dfOriginal[,i])) {
+      # If this keeps them within pop, let's consider this scenario
+      dfAlternative[j,i] <- tempSubtract
+      j <- j + 1
+    }
+  }
+
+  outOfBoundsCount <- nrow(dfAlternative) - (j-1)
+
+  # Trim extra rows, if max or min were reached immediately above
+  if (outOfBoundsCount > 0) {
+    # Grab all but last outOfBoundsCount # of rows
+    dfAlternative <- utils::head(dfAlternative, -outOfBoundsCount)
+  }
+
+  # If returning original row, append to new df
+  if (isTRUE(returnOriginal)) {
+    dfAlternative <- rbind(df1,dfAlternative)
+  }
+
+  dfAlternative
+}
