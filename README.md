@@ -1,6 +1,6 @@
 # HCRTools
 
-[![Build status](https://ci.appveyor.com/api/projects/status/hlns1lbdmjbid9e4?svg=true)](https://ci.appveyor.com/project/CatalystAdmin/hcrtools)
+[![Build status](https://ci.appveyor.com/api/projects/status/fv4x17kl26h167qd?svg=true)](https://ci.appveyor.com/project/CatalystAdmin/hcrtools)
 
 The aim of `HCRTools` is to make it easy to do machine learning with healthcare 
 data. The package has two main goals:
