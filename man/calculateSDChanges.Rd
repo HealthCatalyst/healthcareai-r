@@ -2,7 +2,7 @@
 % Please edit documentation in R/common.R
 \name{calculateSDChanges}
 \alias{calculateSDChanges}
-\title{Calculate half std deviation up/down for each numeric field in row}
+\title{Calculate std deviation up/down for each numeric field in row}
 \usage{
 calculateSDChanges(dfOriginal, rowNum, numColLeaveOut, sizeOfSDPerturb = 0.5,
   returnOriginal = FALSE)
@@ -19,8 +19,8 @@ calculateSDChanges(dfOriginal, rowNum, numColLeaveOut, sizeOfSDPerturb = 0.5,
 \item{returnOriginal}{Return original row of interest in final df}
 }
 \description{
-Add/subtract each numeric col (for each row) by half std dev
-such that we have a new alternate data frame
+Add/subtract each numeric col (for each row) by std dev, such
+that we have a new alternate data frame
 }
 \examples{
 df <- data.frame(a=c(1,2,3),
@@ -38,7 +38,7 @@ dfResult <- calculateSDChanges(dfOriginal = df,
 dfResult
 }
 \references{
-\url{http://hctools.org/}
+\url{http://healthcare.ai/}
 }
 \seealso{
 \code{\link{HCRTools}}

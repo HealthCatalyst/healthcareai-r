@@ -13,7 +13,7 @@
 #'
 #' @import data.table
 #' @export
-#' @references \url{http://hctools.org/}
+#' @references \url{http://healthcare.ai/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' library(HCRTools)
@@ -68,7 +68,7 @@ groupedLOCF <- function(df, id) {
 #' rather than just one datetime column
 #'
 #' @export
-#' @references \url{http://hctools.org/}
+#' @references \url{http://healthcare.ai/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' dtCol <- c('2001-06-09 12:45:05','2002-01-29 09:30:05','2002-02-02 07:36:50',
@@ -136,7 +136,7 @@ convertDateTimeColToDummies <- function(df, dateTimeCol, depth = "h", returnDtCo
 #' @return A vector, or column of values now with no NAs
 #'
 #' @export
-#' @references \url{http://hctools.org/}
+#' @references \url{http://healthcare.ai/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' # For a numeric vector
@@ -168,7 +168,7 @@ imputeColumn <- function(v) {
 #' @return A boolean
 #'
 #' @export
-#' @references \url{http://hctools.org/}
+#' @references \url{http://healthcare.ai/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' isBinary(c(1,2,NA))
@@ -188,7 +188,7 @@ isBinary <- function(v) {
 #' @return dfResult The input data frame with rows removed
 #'
 #' @export
-#' @references \url{http://hctools.org/}
+#' @references \url{http://healthcare.ai/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' df <- data.frame(a=c(1,2,3),b=c('Y','N',NA),c=c(NA,'Y','N'))
@@ -213,7 +213,7 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #'
 #' @import RODBC
 #' @export
-#' @references \url{http://hctools.org/}
+#' @references \url{http://healthcare.ai/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' library(HCRTools)
@@ -281,7 +281,7 @@ selectData <- function(connectionString, query, randomize = FALSE) {
 #'
 #' @import RODBC
 #' @export
-#' @references \url{http://hctools.org/}
+#' @references \url{http://healthcare.ai/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' library(HCRTools)
@@ -326,7 +326,7 @@ writeData <- function(df, server, database, schemaDotTable) {
 #' @return A data frame with zero-variance columns removed
 #'
 #' @export
-#' @references \url{http://hctools.org/}
+#' @references \url{http://healthcare.ai/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' df <- data.frame(a=c(1,1,1),
@@ -354,7 +354,7 @@ removeColsWithAllSameValue <- function(df) {
 #' than 50 categories
 #'
 #' @export
-#' @references \url{http://hctools.org/}
+#' @references \url{http://healthcare.ai/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' df <- data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -391,7 +391,7 @@ returnColsWithMoreThanFiftyCategories <- function(df) {
 #' @importFrom stats aggregate formula
 #' @importFrom utils tail
 #' @export
-#' @references \url{http://hctools.org/}
+#' @references \url{http://healthcare.ai/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #'dates <- c(as.Date('2012-01-01'),as.Date('2012-01-02'),as.Date('2012-02-01'),
@@ -483,7 +483,7 @@ findTrends <- function(df, dateCol, groupbyCol) {
 #'
 #' @importFrom lubridate ymd_hms
 #' @export
-#' @references \url{http://hctools.org/}
+#' @references \url{http://healthcare.ai/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' library(HCRTools)
@@ -515,7 +515,7 @@ orderByDate <- function(df, dateCol, descending = FALSE) {
 #' p-values with the target column
 #'
 #' @export
-#' @references \url{http://hctools.org/}
+#' @references \url{http://healthcare.ai/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' library(HCRTools)
@@ -575,7 +575,7 @@ calculateTargetedCorrelations <- function(df, targetCol) {
 #'
 #' @importFrom stats cor cor.test
 #' @export
-#' @references \url{http://hctools.org/}
+#' @references \url{http://healthcare.ai/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' library(HCRTools)
@@ -603,7 +603,7 @@ calculateAllCorrelations <- function(df) {
 #' than 50 categories
 #'
 #' @export
-#' @references \url{http://hctools.org/}
+#' @references \url{http://healthcare.ai/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' df <- data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -634,7 +634,7 @@ returnColsWithMoreThanFiftyCategories <- function(df) {
 #' than 50 categories
 #'
 #' @export
-#' @references \url{http://hctools.org/}
+#' @references \url{http://healthcare.ai/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' df = data.frame(a=c(1,2,NA,NA,3),
@@ -660,7 +660,7 @@ countPercentEmpty <- function(df) {
 #' @return A data frame that now has a new column
 #'
 #' @export
-#' @references \url{http://hctools.org/}
+#' @references \url{http://healthcare.ai/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' dtCol = c('2001-06-09 12:45:05','2002-01-29 09:30:05','2002-02-02 07:36:50',
@@ -697,7 +697,7 @@ countDaysSinceFirstDate <- function(df, dtCol, returnDtCol = FALSE) {
 #'
 #' @importFrom graphics legend title
 #' @export
-#' @references \url{http://hctools.org/}
+#' @references \url{http://healthcare.ai/}
 #' @seealso \code{\link{HCRTools}}
 
 plotROCs <- function(rocs, names, legendLoc) {
@@ -723,10 +723,10 @@ plotROCs <- function(rocs, names, legendLoc) {
 }
 
 #' @title
-#' Calculate half std deviation up/down for each numeric field in row
+#' Calculate std deviation up/down for each numeric field in row
 #'
-#' @description Add/subtract each numeric col (for each row) by half std dev
-#' such that we have a new alternate data frame
+#' @description Add/subtract each numeric col (for each row) by std dev, such
+#' that we have a new alternate data frame
 #' @param dfOriginal Data frame from which we'll draw a row for alt-scenarios
 #' @param rowNum Row in dfOriginal that we'll create alt-scenarios for
 #' @param numColLeaveOut Numeric columns to leave out of alterlative scenarios
@@ -734,7 +734,7 @@ plotROCs <- function(rocs, names, legendLoc) {
 #' @param returnOriginal Return original row of interest in final df
 #'
 #' @export
-#' @references \url{http://hctools.org/}
+#' @references \url{http://healthcare.ai/}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' df <- data.frame(a=c(1,2,3),
@@ -752,10 +752,10 @@ plotROCs <- function(rocs, names, legendLoc) {
 #' dfResult
 
 calculateSDChanges <- function(dfOriginal,
-                            rowNum,
-                            numColLeaveOut,
-                            sizeOfSDPerturb=0.5,
-                            returnOriginal=FALSE) {
+                               rowNum,
+                               numColLeaveOut,
+                               sizeOfSDPerturb=0.5,
+                               returnOriginal=FALSE) {
 
   df1 <- dfOriginal[rowNum,]
 
@@ -806,7 +806,7 @@ calculateSDChanges <- function(dfOriginal,
     }
   }
 
-  outOfBoundsCount <- nrow(dfAlternative) - (j-1)
+  outOfBoundsCount <- nrow(dfAlternative) - (j - 1)
 
   # Trim extra rows, if max or min were reached immediately above
   if (outOfBoundsCount > 0) {
@@ -820,4 +820,51 @@ calculateSDChanges <- function(dfOriginal,
   }
 
   dfAlternative
+}
+
+#' @title
+#' Recalculate predicted value based on alternate scenarios
+#'
+#' @description After getting alternate features via calculateSDChanges
+#' recalculate predicted values for each row in df.
+#' @param df Data frame from which we'll calculate alternate predictions
+#' @param modelObj Object representing the model that is used for predictions
+#' @param type String representing which type of model is used
+#' @param outVectorAppend Optional list of values that we'll append predictions
+#' to. If not used, then a new vector is created.
+#'
+#' @export
+#' @references \url{http://healthcare.ai/}
+#' @seealso \code{\link{HCRTools}}
+
+calulcateAlternatePredictions <- function(df,
+                                          modelObj,
+                                          type,
+                                          outVectorAppend){
+
+  if (type != 'rf' && type != 'lasso' && type != 'lmm') {
+    stop('Your type of model has to be rf, lasso, or lmm')
+  }
+
+  if (missing(outVectorAppend)) {
+    outVectorAppend <- list()
+  }
+
+  # For each row in df, calculate new prediction and append to vector
+  for (i in 1:nrow(df)) {
+
+    if (type == 'rf') {
+      outTemp <- stats::predict(object = modelObj,newdata = df[i,],type = 'prob')
+      outVectorAppend <- c(outVectorAppend,outTemp[2])
+
+    } else if (type == 'lasso') {
+      outTemp <- stats::predict(object = modelObj,newdata = df[i,],type = 'prob')
+      outVectorAppend <- c(outVectorAppend,outTemp[2])
+
+    } else if (type == 'lmm') {
+      outTemp <- stats::predict(object = modelObj,newdata = df[i,],type = 'prob')
+      outVectorAppend <- c(outVectorAppend,outTemp[2])
+    }
+  }
+  outVectorAppend
 }
