@@ -45,9 +45,9 @@ df <- data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 colList <- returnColsWithMoreThanFiftyCategories(df)
 }
 \references{
-\url{http://healthcare.ai/}
+\url{http://healthcare.ai}
 
-\url{http://healthcare.ai/}
+\url{http://healthcare.ai}
 }
 \seealso{
 \code{\link{HCRTools}}

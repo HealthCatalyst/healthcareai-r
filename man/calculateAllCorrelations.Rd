@@ -28,7 +28,7 @@ dfResult <- calculateAllCorrelations(df)
 dfResult
 }
 \references{
-\url{http://healthcare.ai/}
+\url{http://healthcare.ai}
 }
 \seealso{
 \code{\link{HCRTools}}

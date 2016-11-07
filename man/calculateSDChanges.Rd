@@ -4,8 +4,7 @@
 \alias{calculateSDChanges}
 \title{Calculate std deviation up/down for each numeric field in row}
 \usage{
-calculateSDChanges(dfOriginal, rowNum, numColLeaveOut, sizeOfSDPerturb = 0.5,
-  returnOriginal = FALSE)
+calculateSDChanges(dfOriginal, rowNum, numColLeaveOut, sizeOfSDPerturb = 0.5)
 }
 \arguments{
 \item{dfOriginal}{Data frame from which we'll draw a row for alt-scenarios}
@@ -15,8 +14,6 @@ calculateSDChanges(dfOriginal, rowNum, numColLeaveOut, sizeOfSDPerturb = 0.5,
 \item{numColLeaveOut}{Numeric columns to leave out of alterlative scenarios}
 
 \item{sizeOfSDPerturb}{Default is 0.5. Shrink or expand SD drop/addition}
-
-\item{returnOriginal}{Return original row of interest in final df}
 }
 \description{
 Add/subtract each numeric col (for each row) by std dev, such
@@ -33,12 +30,11 @@ df <- data.frame(a=c(1,2,3),
 dfResult <- calculateSDChanges(dfOriginal = df,
                                rowNum = 2,
                                numColLeaveOut = c('d','e'),
-                               sizeOfSDPerturb = 0.5,
-                               returnOriginal = FALSE)
+                               sizeOfSDPerturb = 0.5)
 dfResult
 }
 \references{
-\url{http://healthcare.ai/}
+\url{http://healthcare.ai}
 }
 \seealso{
 \code{\link{HCRTools}}

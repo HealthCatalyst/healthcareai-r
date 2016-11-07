@@ -35,7 +35,7 @@ dfResult <- groupedLOCF(df, 'personID')
 head(dfResult, n = 7)
 }
 \references{
-\url{http://healthcare.ai/}
+\url{http://healthcare.ai}
 }
 \seealso{
 \code{\link{HCRTools}}
