@@ -27,7 +27,7 @@ dfResult <- orderByDate(df,'date', descending=FALSE)
 head(dfResult)
 }
 \references{
-\url{http://hctools.org/}
+\url{http://healthcare.ai/}
 }
 \seealso{
 \code{\link{HCRTools}}

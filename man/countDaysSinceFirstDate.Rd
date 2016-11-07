@@ -32,7 +32,7 @@ dfResult <- countDaysSinceFirstDate(df, 'dtCol')
 head(dfResult)
 }
 \references{
-\url{http://hctools.org/}
+\url{http://healthcare.ai/}
 }
 \seealso{
 \code{\link{HCRTools}}
