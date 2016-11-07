@@ -36,7 +36,7 @@ dfResult <- calculateSDChanges(df=df,
 y <- c('y','n','y','n')
 
 # Train model on original data frame
-glmOb <- stats::train(x = df,y = y,method = 'glm',family = 'binomial')
+glmOb <- caret::train(x = df,y = y,method = 'glm',family = 'binomial')
 
 outList <- calulcateAlternatePredictions(df=dfResult,
                                          modelObj=glmOb,
