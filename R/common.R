@@ -16,7 +16,6 @@
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' library(HCRTools)
 #' df <- data.frame(personID=c(1,1,2,2,3,3,3),
 #'                 wt=c(.5,NA,NA,NA,.3,.7,NA),
 #'                 ht=c(NA,1,3,NA,4,NA,NA),
@@ -216,7 +215,6 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' library(HCRTools)
 #' connectionString <- '
 #'   driver={SQL Server};
 #'   server=localhost;
@@ -284,7 +282,6 @@ selectData <- function(connectionString, query, randomize = FALSE) {
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' library(HCRTools)
 #' df <- data.frame(a=c(1,2,3),
 #'                  b=c(2,4,6),
 #'                  c=c('one','two','three'))
@@ -486,7 +483,6 @@ findTrends <- function(df, dateCol, groupbyCol) {
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' library(HCRTools)
 #' df <- data.frame(date=c('2009-01-01','2010-01-01','2009-03-08','2009-01-19'),
 #'                 a=c(1,2,3,4))
 #' dfResult <- orderByDate(df,'date', descending=FALSE)
@@ -518,8 +514,6 @@ orderByDate <- function(df, dateCol, descending = FALSE) {
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' library(HCRTools)
-#'
 #' df <- data.frame(a=c(1,2,3,4,5,6),
 #' b=c(6,5,4,3,2,1),
 #' c=c(3,4,2,1,3,5),
@@ -578,8 +572,6 @@ calculateTargetedCorrelations <- function(df, targetCol) {
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' library(HCRTools)
-#'
 #' df <- data.frame(a=c(1,2,3,4,5,6),
 #' b=c(6,5,4,3,2,1),
 #' c=c(3,4,2,1,3,5),
@@ -835,6 +827,7 @@ calculateSDChanges <- function(dfOriginal,
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
+#' library(caret)
 #' df <- data.frame(a=c(1,2,3,1),
 #'                  b=c('m','f','m','m'),
 #'                  c=c(0.7,1.4,2.4,2.0),
@@ -849,7 +842,7 @@ calculateSDChanges <- function(dfOriginal,
 #' y <- c('y','n','y','n')
 #'
 #' # Train model on original data frame
-#' glmOb <- caret::train(x = df,y = y,method = 'glm',family = 'binomial')
+#' glmOb <- train(x = df,y = y,method = 'glm',family = 'binomial')
 #'
 #' outList <- calulcateAlternatePredictions(df=dfResult,
 #'                                          modelObj=glmOb,
@@ -910,6 +903,7 @@ calulcateAlternatePredictions <- function(df,
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
+#' library(caret)
 #' df <- data.frame(a = c(1,2,3,1),
 #'                  b = c('m','f','m','m'),
 #'                  c = c(0.7,1.4,2.4,2.0),

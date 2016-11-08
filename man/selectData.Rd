@@ -22,7 +22,6 @@ Select data from an ODBC database and return the results as
 a data frame.
 }
 \examples{
-library(HCRTools)
 connectionString <- '
   driver={SQL Server};
   server=localhost;

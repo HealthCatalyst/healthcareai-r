@@ -22,6 +22,7 @@ After getting alternate features via calculateSDChanges
 recalculate predicted values for each row in df.
 }
 \examples{
+library(caret)
 df <- data.frame(a=c(1,2,3,1),
                  b=c('m','f','m','m'),
                  c=c(0.7,1.4,2.4,2.0),
@@ -36,7 +37,7 @@ dfResult <- calculateSDChanges(df=df,
 y <- c('y','n','y','n')
 
 # Train model on original data frame
-glmOb <- caret::train(x = df,y = y,method = 'glm',family = 'binomial')
+glmOb <- train(x = df,y = y,method = 'glm',family = 'binomial')
 
 outList <- calulcateAlternatePredictions(df=dfResult,
                                          modelObj=glmOb,

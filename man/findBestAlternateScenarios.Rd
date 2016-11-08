@@ -24,6 +24,7 @@ which ones are lowest compared to the original; return the top three column
 names that lead to the biggest drop and their target value.
 }
 \examples{
+library(caret)
 df <- data.frame(a = c(1,2,3,1),
                  b = c('m','f','m','m'),
                  c = c(0.7,1.4,2.4,2.0),
