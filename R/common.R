@@ -13,10 +13,9 @@
 #'
 #' @import data.table
 #' @export
-#' @references \url{http://healthcare.ai/}
+#' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' library(HCRTools)
 #' df <- data.frame(personID=c(1,1,2,2,3,3,3),
 #'                 wt=c(.5,NA,NA,NA,.3,.7,NA),
 #'                 ht=c(NA,1,3,NA,4,NA,NA),
@@ -68,7 +67,7 @@ groupedLOCF <- function(df, id) {
 #' rather than just one datetime column
 #'
 #' @export
-#' @references \url{http://healthcare.ai/}
+#' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' dtCol <- c('2001-06-09 12:45:05','2002-01-29 09:30:05','2002-02-02 07:36:50',
@@ -136,7 +135,7 @@ convertDateTimeColToDummies <- function(df, dateTimeCol, depth = "h", returnDtCo
 #' @return A vector, or column of values now with no NAs
 #'
 #' @export
-#' @references \url{http://healthcare.ai/}
+#' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' # For a numeric vector
@@ -168,7 +167,7 @@ imputeColumn <- function(v) {
 #' @return A boolean
 #'
 #' @export
-#' @references \url{http://healthcare.ai/}
+#' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' isBinary(c(1,2,NA))
@@ -188,7 +187,7 @@ isBinary <- function(v) {
 #' @return dfResult The input data frame with rows removed
 #'
 #' @export
-#' @references \url{http://healthcare.ai/}
+#' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' df <- data.frame(a=c(1,2,3),b=c('Y','N',NA),c=c(NA,'Y','N'))
@@ -213,10 +212,9 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #'
 #' @import RODBC
 #' @export
-#' @references \url{http://healthcare.ai/}
+#' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' library(HCRTools)
 #' connectionString <- '
 #'   driver={SQL Server};
 #'   server=localhost;
@@ -281,10 +279,9 @@ selectData <- function(connectionString, query, randomize = FALSE) {
 #'
 #' @import RODBC
 #' @export
-#' @references \url{http://healthcare.ai/}
+#' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' library(HCRTools)
 #' df <- data.frame(a=c(1,2,3),
 #'                  b=c(2,4,6),
 #'                  c=c('one','two','three'))
@@ -326,7 +323,7 @@ writeData <- function(df, server, database, schemaDotTable) {
 #' @return A data frame with zero-variance columns removed
 #'
 #' @export
-#' @references \url{http://healthcare.ai/}
+#' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' df <- data.frame(a=c(1,1,1),
@@ -354,7 +351,7 @@ removeColsWithAllSameValue <- function(df) {
 #' than 50 categories
 #'
 #' @export
-#' @references \url{http://healthcare.ai/}
+#' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' df <- data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -391,7 +388,7 @@ returnColsWithMoreThanFiftyCategories <- function(df) {
 #' @importFrom stats aggregate formula
 #' @importFrom utils tail
 #' @export
-#' @references \url{http://healthcare.ai/}
+#' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #'dates <- c(as.Date('2012-01-01'),as.Date('2012-01-02'),as.Date('2012-02-01'),
@@ -483,10 +480,9 @@ findTrends <- function(df, dateCol, groupbyCol) {
 #'
 #' @importFrom lubridate ymd_hms
 #' @export
-#' @references \url{http://healthcare.ai/}
+#' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' library(HCRTools)
 #' df <- data.frame(date=c('2009-01-01','2010-01-01','2009-03-08','2009-01-19'),
 #'                 a=c(1,2,3,4))
 #' dfResult <- orderByDate(df,'date', descending=FALSE)
@@ -515,11 +511,9 @@ orderByDate <- function(df, dateCol, descending = FALSE) {
 #' p-values with the target column
 #'
 #' @export
-#' @references \url{http://healthcare.ai/}
+#' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' library(HCRTools)
-#'
 #' df <- data.frame(a=c(1,2,3,4,5,6),
 #' b=c(6,5,4,3,2,1),
 #' c=c(3,4,2,1,3,5),
@@ -575,11 +569,9 @@ calculateTargetedCorrelations <- function(df, targetCol) {
 #'
 #' @importFrom stats cor cor.test
 #' @export
-#' @references \url{http://healthcare.ai/}
+#' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
-#' library(HCRTools)
-#'
 #' df <- data.frame(a=c(1,2,3,4,5,6),
 #' b=c(6,5,4,3,2,1),
 #' c=c(3,4,2,1,3,5),
@@ -603,7 +595,7 @@ calculateAllCorrelations <- function(df) {
 #' than 50 categories
 #'
 #' @export
-#' @references \url{http://healthcare.ai/}
+#' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' df <- data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -634,7 +626,7 @@ returnColsWithMoreThanFiftyCategories <- function(df) {
 #' than 50 categories
 #'
 #' @export
-#' @references \url{http://healthcare.ai/}
+#' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' df = data.frame(a=c(1,2,NA,NA,3),
@@ -660,7 +652,7 @@ countPercentEmpty <- function(df) {
 #' @return A data frame that now has a new column
 #'
 #' @export
-#' @references \url{http://healthcare.ai/}
+#' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' dtCol = c('2001-06-09 12:45:05','2002-01-29 09:30:05','2002-02-02 07:36:50',
@@ -697,7 +689,7 @@ countDaysSinceFirstDate <- function(df, dtCol, returnDtCol = FALSE) {
 #'
 #' @importFrom graphics legend title
 #' @export
-#' @references \url{http://healthcare.ai/}
+#' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 
 plotROCs <- function(rocs, names, legendLoc) {
@@ -731,10 +723,9 @@ plotROCs <- function(rocs, names, legendLoc) {
 #' @param rowNum Row in dfOriginal that we'll create alt-scenarios for
 #' @param numColLeaveOut Numeric columns to leave out of alterlative scenarios
 #' @param sizeOfSDPerturb Default is 0.5. Shrink or expand SD drop/addition
-#' @param returnOriginal Return original row of interest in final df
 #'
 #' @export
-#' @references \url{http://healthcare.ai/}
+#' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
 #' @examples
 #' df <- data.frame(a=c(1,2,3),
@@ -747,15 +738,13 @@ plotROCs <- function(rocs, names, legendLoc) {
 #' dfResult <- calculateSDChanges(dfOriginal = df,
 #'                                rowNum = 2,
 #'                                numColLeaveOut = c('d','e'),
-#'                                sizeOfSDPerturb = 0.5,
-#'                                returnOriginal = FALSE)
+#'                                sizeOfSDPerturb = 0.5)
 #' dfResult
 
 calculateSDChanges <- function(dfOriginal,
                                rowNum,
                                numColLeaveOut,
-                               sizeOfSDPerturb=0.5,
-                               returnOriginal=FALSE) {
+                               sizeOfSDPerturb=0.5) {
 
   df1 <- dfOriginal[rowNum,]
 
@@ -780,6 +769,9 @@ calculateSDChanges <- function(dfOriginal,
   dfAlternative <- df1[rep(seq_len(nrow(df1)), each = length(numericList)*2),]
   dfAlternative
 
+  # Add column denoting which column is being perturbed
+  dfAlternative$AlteredCol <- NULL
+
   # For each numeric col, calculate up/down and push into data frame
   # There's a new row for plus and then a new row for minus
   j <- 1
@@ -791,8 +783,9 @@ calculateSDChanges <- function(dfOriginal,
     if (tempAdd <= max(dfOriginal[,i])) {
       # If this keeps them within pop, let's consider this scenario
       dfAlternative[j,i] <- tempAdd
+      # Name which column was altered for this row
+      dfAlternative[j,'AlteredCol'] <- i
       j <- j + 1
-
     }
 
     tempSubtract <- dfAlternative[j,i] -
@@ -802,6 +795,8 @@ calculateSDChanges <- function(dfOriginal,
     if (tempSubtract >= min(dfOriginal[,i])) {
       # If this keeps them within pop, let's consider this scenario
       dfAlternative[j,i] <- tempSubtract
+      # Name which column was altered for this row
+      dfAlternative[j,'AlteredCol'] <- i
       j <- j + 1
     }
   }
@@ -812,11 +807,6 @@ calculateSDChanges <- function(dfOriginal,
   if (outOfBoundsCount > 0) {
     # Grab all but last outOfBoundsCount # of rows
     dfAlternative <- utils::head(dfAlternative, -outOfBoundsCount)
-  }
-
-  # If returning original row, append to new df
-  if (isTRUE(returnOriginal)) {
-    dfAlternative <- rbind(df1,dfAlternative)
   }
 
   dfAlternative
@@ -834,13 +824,36 @@ calculateSDChanges <- function(dfOriginal,
 #' to. If not used, then a new vector is created.
 #'
 #' @export
-#' @references \url{http://healthcare.ai/}
+#' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{HCRTools}}
+#' @examples
+#' library(caret)
+#' df <- data.frame(a=c(1,2,3,1),
+#'                  b=c('m','f','m','m'),
+#'                  c=c(0.7,1.4,2.4,2.0),
+#'                  d=c(100,250,200,150))
+#'
+#' # Get alternate feature scenarios
+#' dfResult <- calculateSDChanges(df=df,
+#'                                rowNum=2,
+#'                                sizeOfSDPerturb = 0.5,
+#'                                numColLeaveOut='d')
+#'
+#' y <- c('y','n','y','n')
+#'
+#' # Train model on original data frame
+#' glmOb <- train(x = df,y = y,method = 'glm',family = 'binomial')
+#'
+#' outList <- calulcateAlternatePredictions(df=dfResult,
+#'                                          modelObj=glmOb,
+#'                                          type='lasso')
+#' outList
 
 calulcateAlternatePredictions <- function(df,
                                           modelObj,
                                           type,
-                                          outVectorAppend){
+                                          outVectorAppend=NULL,
+                                          removeCols=NULL){
 
   if (type != 'rf' && type != 'lasso' && type != 'lmm') {
     stop('Your type of model has to be rf, lasso, or lmm')
@@ -848,6 +861,10 @@ calulcateAlternatePredictions <- function(df,
 
   if (missing(outVectorAppend)) {
     outVectorAppend <- list()
+  }
+
+  if (!missing(removeCols)) {
+    df <- df[, !(colnames(df) %in% removeCols)]
   }
 
   # For each row in df, calculate new prediction and append to vector
@@ -868,3 +885,104 @@ calulcateAlternatePredictions <- function(df,
   }
   outVectorAppend
 }
+
+#' @title
+#' Find most biggest drop in predictive probability across alternate features
+#'
+#' @description Compare each alternate probability prediction and determine
+#' which ones are lowest compared to the original; return the top three column
+#' names that lead to the biggest drop and their target value.
+#' @param dfAlternateFeat Data frame of alternate feature values
+#' @param originalRow Row from original data frame upon which alternates are
+#' based
+#' @param predictionVector List of alternate predictions
+#' @param predictionOriginal Scalar representing original prediction for
+#' row, without alternative scenario
+#'
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{HCRTools}}
+#' @examples
+#' library(caret)
+#' df <- data.frame(a = c(1,2,3,1),
+#'                  b = c('m','f','m','m'),
+#'                  c = c(0.7,1.4,2.4,2.0),
+#'                  d = c(100,250,200,150))
+#'
+#' y <- c('y','n','y','n')
+#'
+#' dfAlt <- calculateSDChanges(df = df,
+#'                             rowNum = 2,
+#'                             sizeOfSDPerturb = 0.5,
+#'                             numColLeaveOut = 'd')
+#'
+#' glmOb <- train(x = df,y = y,method = 'glm',family = 'binomial')
+#'
+#' originalPred <- predict(object = glmOb,
+#'                         newdata = df[4,],
+#'                         type = 'prob')
+#'
+#' alternatePred <- calulcateAlternatePredictions(df = dfAlt,
+#'                                                modelObj = glmOb,
+#'                                                type = 'lasso',
+#'                                                removeCols = 'AlteredCol')
+#'
+#' dfResult <- findBestAlternateScenarios(dfAlternateFeat = dfAlt,
+#'                                        originalRow = df[4,],
+#'                                        predictionVector = as.numeric(alternatePred),
+#'                                        predictionOriginal = originalPred[[2]])
+#'
+#' dfResult
+
+findBestAlternateScenarios <- function(dfAlternateFeat,
+                                       originalRow,
+                                       predictionVector,
+                                       predictionOriginal) {
+
+  # Initialize vectors
+  predDiff <- numeric()
+  colChanged <- character()
+  alternateValue <- numeric()
+
+  # For each Row in alternate scenario df, calculate distance
+  # between original prediction and alternate prediction
+  for (i in 1:nrow(dfAlternateFeat)) {
+    # Finding drop from original probability (so drop is a positive number)
+    tempDiff <- predictionOriginal - predictionVector[i]
+    predDiff <- c(predDiff,tempDiff)
+
+    # Finding col that had been alternated
+    colChanged <- c(colChanged,dfAlternateFeat[i,'AlteredCol'])
+
+    # Finding alternate value for altered col
+    # Double brackets make resulting value a scalar instead of list
+    tempColChanged <- colChanged[i]
+
+    alternateValue <- c(alternateValue, dfAlternateFeat[[i,tempColChanged]])
+  }
+
+  # Find index of greatest drop in predicted probability
+  orderedPredDiffIndex <- order(-predDiff)
+
+  # Order by greatest drop in predicted probability
+  orderedProbDrop <- predDiff[orderedPredDiffIndex]
+  print('orderedProbDrop')
+  print(orderedProbDrop)
+
+  # Find associated features that were changed
+  orderedColChanged <- colChanged[orderedPredDiffIndex]
+  print('orderedColChanged')
+  print(orderedColChanged)
+
+  # Find associated alternate values
+  orderedAlternateValue <- alternateValue[orderedPredDiffIndex]
+  print('orderedAlternateValue')
+  print(orderedAlternateValue)
+
+  dfOptResult <- data.frame(orderedProbDrop,
+                            orderedColChanged,
+                            orderedAlternateValue)
+
+  dfOptResult
+}
+

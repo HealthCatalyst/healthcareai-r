@@ -4,7 +4,8 @@
 \alias{calulcateAlternatePredictions}
 \title{Recalculate predicted value based on alternate scenarios}
 \usage{
-calulcateAlternatePredictions(df, modelObj, type, outVectorAppend)
+calulcateAlternatePredictions(df, modelObj, type, outVectorAppend = NULL,
+  removeCols = NULL)
 }
 \arguments{
 \item{df}{Data frame from which we'll calculate alternate predictions}
@@ -20,8 +21,31 @@ to. If not used, then a new vector is created.}
 After getting alternate features via calculateSDChanges
 recalculate predicted values for each row in df.
 }
+\examples{
+library(caret)
+df <- data.frame(a=c(1,2,3,1),
+                 b=c('m','f','m','m'),
+                 c=c(0.7,1.4,2.4,2.0),
+                 d=c(100,250,200,150))
+
+# Get alternate feature scenarios
+dfResult <- calculateSDChanges(df=df,
+                               rowNum=2,
+                               sizeOfSDPerturb = 0.5,
+                               numColLeaveOut='d')
+
+y <- c('y','n','y','n')
+
+# Train model on original data frame
+glmOb <- train(x = df,y = y,method = 'glm',family = 'binomial')
+
+outList <- calulcateAlternatePredictions(df=dfResult,
+                                         modelObj=glmOb,
+                                         type='lasso')
+outList
+}
 \references{
-\url{http://healthcare.ai/}
+\url{http://healthcare.ai}
 }
 \seealso{
 \code{\link{HCRTools}}

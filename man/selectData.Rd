@@ -22,7 +22,6 @@ Select data from an ODBC database and return the results as
 a data frame.
 }
 \examples{
-library(HCRTools)
 connectionString <- '
   driver={SQL Server};
   server=localhost;
@@ -40,7 +39,7 @@ df <- selectData(connectionString, query)
 head(df)
 }
 \references{
-\url{http://healthcare.ai/}
+\url{http://healthcare.ai}
 }
 \seealso{
 \code{\link{HCRTools}}
