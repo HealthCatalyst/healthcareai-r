@@ -25,7 +25,7 @@ install.packages(c('caret','data.table','devtools','doParallel','e1071','grpreg'
 
 ```R 
 library(devtools)
-devtools::install_github(repo='HealthCatalystSLC/healthcareai-r')
+devtools::install_github(repo='HealthCatalystSLC/HCRTools')
 ```
 
 Getting started:
