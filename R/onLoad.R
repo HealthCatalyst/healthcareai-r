@@ -1,3 +1,3 @@
 .onAttach <- function(lib, pkg) {
-  packageStartupMessage("Type ?HCRTools to read the docs.")
+  packageStartupMessage("Type ?healthcareai to read the docs.")
 }

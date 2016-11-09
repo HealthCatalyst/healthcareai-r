@@ -14,7 +14,7 @@
 #' create a final model, automatically save it, predict against test data, and
 #' push predicted values into SQL Server.
 #' }
-#' @references \url{http://hctools.org/}
+#' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{LinearMixedModelDevelopment}}
 #' @seealso \code{\link{LinearMixedModelDeployment}}
 #' @seealso \code{\link{RiskAdjustedComparisons}}

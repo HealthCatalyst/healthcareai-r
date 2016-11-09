@@ -50,8 +50,8 @@ colList <- returnColsWithMoreThanFiftyCategories(df)
 \url{http://healthcare.ai}
 }
 \seealso{
-\code{\link{HCRTools}}
+\code{\link{healthcareai}}
 
-\code{\link{HCRTools}}
+\code{\link{healthcareai}}
 }
 

@@ -37,6 +37,6 @@ dfResult
 \url{http://healthcare.ai}
 }
 \seealso{
-\code{\link{HCRTools}}
+\code{\link{healthcareai}}
 }
 

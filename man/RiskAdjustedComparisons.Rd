@@ -27,7 +27,7 @@ terms of a particular measure.
 \examples{
 
 #### Example using csv data ####
-library(HCRTools)
+library(healthcareai)
 
 connection.string <- "
 driver={SQL Server};
@@ -64,10 +64,10 @@ riskAdjComp$run()
 
 }
 \references{
-\url{http://hctools.org/}
+\url{http://healthcare.ai}
 }
 \seealso{
-\code{\link{HCRTools}}
+\code{\link{healthcareai}}
 }
 \keyword{datasets}
 

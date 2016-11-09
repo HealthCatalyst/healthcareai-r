@@ -1,4 +1,4 @@
 library(testthat)
-library(HCRTools)
+library(healthcareai)
 
-test_check("HCRTools")
+test_check("healthcareai")

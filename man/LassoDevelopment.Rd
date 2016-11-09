@@ -35,7 +35,7 @@ your data.
 
 #### Example using iris dataset ####
 ptm <- proc.time()
-library(HCRTools)
+library(healthcareai)
 
 data(iris)
 head(iris)
@@ -62,12 +62,12 @@ rf$run()
 print(proc.time() - ptm)
 
 #### Example using csv data ####
-library(HCRTools)
+library(healthcareai)
 # setwd('C:/Your/script/location') # Needed if using YOUR CSV file
 ptm <- proc.time()
 
 # Can delete this line in your work
-csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "HCRTools")
+csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "healthcareai")
 # Replace csvfile with '/path/to/yourfile'
 df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 
@@ -103,7 +103,7 @@ print(proc.time() - ptm)
 #### your connection string / query
 
 ptm <- proc.time()
-library(HCRTools)
+library(healthcareai)
 library(RODBC)
 
 connection.string <- "
@@ -165,14 +165,14 @@ print(proc.time() - ptm)
 
 }
 \references{
-\url{http://hctools.org/}
+\url{http://healthcare.ai}
 }
 \seealso{
 \code{\link{RandomForestDevelopment}}
 
 \code{\link{LinearMixedModelDevelopment}}
 
-\code{\link{HCRTools}}
+\code{\link{healthcareai}}
 }
 \keyword{datasets}
 

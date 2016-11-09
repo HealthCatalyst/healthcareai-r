@@ -3,7 +3,7 @@
 \docType{class}
 \name{LinearMixedModelDeployment}
 \alias{LinearMixedModelDeployment}
-\title{Deploy a production-ready predictive RandomForest model}
+\title{Deploy a production-ready predictive Random Forest model}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
 LinearMixedModelDeployment
@@ -53,19 +53,23 @@ This step allows one to
 
 # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 ptm <- proc.time()
-library(HCRTools)
+library(healthcareai)
+library(lme4)
 
 connection.string <- "driver={SQL Server};
-server=localhost;
-database=SAM;
-trusted_connection=true"
+                      server=localhost;
+                      database=SAM;
+                      trusted_connection=true"
 
 # Use this for an example SQL source:
 # query <- "SELECT * FROM [SAM].[YourCoolSAM].[SomeTrainingSetTable]"
 # df <- selectData(connection.string, query)
 
 # Can delete these four lines when you set up your SQL connection/query
-csvfile <- system.file("extdata", "HCRDiabetesClinical.csv",package = "HCRTools")
+csvfile <- system.file("extdata",
+                       "HCRDiabetesClinical.csv",
+                        package = "healthcareai")
+
 df <- read.csv(file = csvfile,
                     header = TRUE,
                     na.strings = c('NULL', 'NA', ""))
@@ -103,7 +107,8 @@ print(proc.time() - ptm)
 
 # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 ptm <- proc.time()
-library(HCRTools)
+library(healthcareai)
+library(lme4)
 
 connection.string <- 'driver={SQL Server};
                       server=localhost;
@@ -115,7 +120,7 @@ connection.string <- 'driver={SQL Server};
 # df <- selectData(connection.string, query)
 
 # Can delete these four lines when you set up your SQL connection/query
-csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "HCRTools")
+csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "healthcareai")
 df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 
 head(df)
@@ -141,7 +146,7 @@ print(proc.time() - ptm)
 
 }
 \seealso{
-\code{\link{HCRTools}}
+\code{\link{healthcareai}}
 }
 \keyword{datasets}
 

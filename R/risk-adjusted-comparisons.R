@@ -18,12 +18,12 @@ source('R/common.R')
 #' @param groupCol Column that we'll use to differentiate
 #' @param impute Set all-column imputation to F or T.
 #'
-#' @references \url{http://hctools.org/}
-#' @seealso \code{\link{HCRTools}}
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #'
 #' #### Example using csv data ####
-#' library(HCRTools)
+#' library(healthcareai)
 #'
 #' connection.string <- "
 #' driver={SQL Server};

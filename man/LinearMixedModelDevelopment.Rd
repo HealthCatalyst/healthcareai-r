@@ -36,7 +36,7 @@ and helps determine which performs best.
 \examples{
 
 ### Built-in example; Doing classification
-library(HCRTools)
+library(healthcareai)
 library(lme4)
 
 df <- sleepstudy
@@ -62,7 +62,7 @@ lmm <- LinearMixedModelDevelopment$new(p)
 lmm$run()
 
 ### Doing regression
-library(HCRTools)
+library(healthcareai)
 library(lme4)
 
 # SQL query and connection goes here - see SelectData function.
@@ -90,12 +90,12 @@ lmm <- LinearMixedModelDevelopment$new(p)
 lmm$run()
 
 #### Example using csv data ####
-library(HCRTools)
+library(healthcareai)
 # setwd('C:/Your/script/location') # Needed if using YOUR CSV file
 ptm <- proc.time()
 
 # Can delete this line in your work
-csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "HCRTools")
+csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "healthcareai")
 #Replace csvfile with "path/to/yourfile"
 df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 
@@ -132,7 +132,7 @@ print(proc.time() - ptm)
 # to read in your own data
 
 ptm <- proc.time()
-library(HCRTools)
+library(healthcareai)
 
 connection.string <- "
 driver={SQL Server};
@@ -185,10 +185,10 @@ Lasso$getCutOffs(tpr = 0.8)
 print(proc.time() - ptm)
 }
 \references{
-\url{http://hctools.org/}
+\url{http://healthcare.ai/}
 }
 \seealso{
-\code{\link{HCRTools}}
+\code{\link{healthcareai}}
 }
 \keyword{datasets}
 

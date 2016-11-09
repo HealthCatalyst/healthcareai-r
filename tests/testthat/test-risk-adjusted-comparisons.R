@@ -1,7 +1,10 @@
 context("Checking Risk-adjusted Comparisons")
 
-# Can delete these four lines when you set up your SQL connection/querycsvfile <- system.file("extdata", "DiabetesClinical.csv",package = "HCRTools")
-csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "HCRTools")
+# Can delete these four lines when you set up your SQL connection/querycsvfile <- system.file("extdata", "DiabetesClinical.csv",package = "healthcareai")
+csvfile <- system.file("extdata",
+                       "HCRDiabetesClinical.csv",
+                       package = "healthcareai")
+
 df <- read.csv(file = csvfile,
                     header = TRUE,
                     na.strings = c('NULL', 'NA', ""))

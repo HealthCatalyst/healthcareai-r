@@ -30,7 +30,7 @@ source('R/supervised-model-deployment.R')
 #' F leads to removal of rows containing NULLs.
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
-#' @seealso \code{\link{HCRTools}}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #' #### Classification example using diabetes data ####
 #' # This example requires you to first create a table in SQL Server
@@ -44,7 +44,7 @@ source('R/supervised-model-deployment.R')
 #'
 #' #setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 #' ptm <- proc.time()
-#' library(HCRTools)
+#' library(healthcareai)
 #'
 #' connection.string <- "driver={SQL Server};
 #'                       server=localhost;
@@ -56,7 +56,7 @@ source('R/supervised-model-deployment.R')
 #' # df <- selectData(connection.string, query)
 #'
 #' # Can delete these four lines when you set your SQL connection/query
-#' csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "HCRTools")
+#' csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "healthcareai")
 #' # Change csvfile to 'path/to/yourfile'
 #' df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 #'

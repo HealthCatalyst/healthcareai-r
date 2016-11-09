@@ -13,10 +13,10 @@ This step allows one to create test models on your data
 and helps determine which performs best.
 }
 \references{
-\url{http://hctools.org/}
+\url{http://healthcare.ai}
 }
 \seealso{
-\code{\link{HCRTools}}
+\code{\link{healthcareai}}
 }
 \keyword{datasets}
 

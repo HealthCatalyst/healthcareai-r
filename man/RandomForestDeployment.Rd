@@ -51,7 +51,7 @@ This step allows one to
 
 #setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 ptm <- proc.time()
-library(HCRTools)
+library(healthcareai)
 
 connection.string <- "driver={SQL Server};
                       server=localhost;
@@ -63,7 +63,7 @@ connection.string <- "driver={SQL Server};
 # df <- selectData(connection.string, query)
 
 # Can delete these four lines when you set your SQL connection/query
-csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "HCRTools")
+csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "healthcareai")
 # Change csvfile to 'path/to/yourfile'
 df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 
@@ -91,7 +91,7 @@ dL$deploy()
 print(proc.time() - ptm)
 }
 \seealso{
-\code{\link{HCRTools}}
+\code{\link{healthcareai}}
 }
 \keyword{datasets}
 

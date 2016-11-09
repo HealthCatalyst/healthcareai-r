@@ -27,15 +27,15 @@ source('R/supervised-model-development.R')
 #' F leads to removal of rows containing NULLs.
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
-#' @references \url{http://hctools.org/}
+#' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{RandomForestDevelopment}}
 #' @seealso \code{\link{LinearMixedModelDevelopment}}
-#' @seealso \code{\link{HCRTools}}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #'
 #' #### Example using iris dataset ####
 #' ptm <- proc.time()
-#' library(HCRTools)
+#' library(healthcareai)
 #'
 #' data(iris)
 #' head(iris)
@@ -62,12 +62,12 @@ source('R/supervised-model-development.R')
 #' print(proc.time() - ptm)
 #'
 #' #### Example using csv data ####
-#' library(HCRTools)
+#' library(healthcareai)
 #' # setwd('C:/Your/script/location') # Needed if using YOUR CSV file
 #' ptm <- proc.time()
 #'
 #' # Can delete this line in your work
-#' csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "HCRTools")
+#' csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "healthcareai")
 #' # Replace csvfile with '/path/to/yourfile'
 #' df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 #'
@@ -103,7 +103,7 @@ source('R/supervised-model-development.R')
 #' #### your connection string / query
 #'
 #' ptm <- proc.time()
-#' library(HCRTools)
+#' library(healthcareai)
 #' library(RODBC)
 #'
 #' connection.string <- "
