@@ -14,7 +14,7 @@
 #' @import data.table
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{HCRTools}}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #' df <- data.frame(personID=c(1,1,2,2,3,3,3),
 #'                 wt=c(.5,NA,NA,NA,.3,.7,NA),
@@ -68,7 +68,7 @@ groupedLOCF <- function(df, id) {
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{HCRTools}}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #' dtCol <- c('2001-06-09 12:45:05','2002-01-29 09:30:05','2002-02-02 07:36:50',
 #'           '2002-03-04 16:45:01','2002-11-13 20:00:10','2003-01-29 07:31:43',
@@ -136,7 +136,7 @@ convertDateTimeColToDummies <- function(df, dateTimeCol, depth = "h", returnDtCo
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{HCRTools}}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #' # For a numeric vector
 #' vResult <- imputeColumn(c(1,2,3,NA))
@@ -168,7 +168,7 @@ imputeColumn <- function(v) {
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{HCRTools}}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #' isBinary(c(1,2,NA))
 #' isBinary(c(1,2,3))
@@ -188,7 +188,7 @@ isBinary <- function(v) {
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{HCRTools}}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #' df <- data.frame(a=c(1,2,3),b=c('Y','N',NA),c=c(NA,'Y','N'))
 #' dfResult <- removeRowsWithNAInSpecCol(df,'b')
@@ -213,7 +213,7 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' @import RODBC
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{HCRTools}}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #' connectionString <- '
 #'   driver={SQL Server};
@@ -280,7 +280,7 @@ selectData <- function(connectionString, query, randomize = FALSE) {
 #' @import RODBC
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{HCRTools}}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #' df <- data.frame(a=c(1,2,3),
 #'                  b=c(2,4,6),
@@ -324,7 +324,7 @@ writeData <- function(df, server, database, schemaDotTable) {
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{HCRTools}}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #' df <- data.frame(a=c(1,1,1),
 #'                 b=c('a','b','b'),
@@ -352,7 +352,7 @@ removeColsWithAllSameValue <- function(df) {
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{HCRTools}}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #' df <- data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 #'                     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1),
@@ -389,7 +389,7 @@ returnColsWithMoreThanFiftyCategories <- function(df) {
 #' @importFrom utils tail
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{HCRTools}}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #'dates <- c(as.Date('2012-01-01'),as.Date('2012-01-02'),as.Date('2012-02-01'),
 #'           as.Date('2012-03-01'),as.Date('2012-04-01'),as.Date('2012-05-01'),
@@ -481,7 +481,7 @@ findTrends <- function(df, dateCol, groupbyCol) {
 #' @importFrom lubridate ymd_hms
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{HCRTools}}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #' df <- data.frame(date=c('2009-01-01','2010-01-01','2009-03-08','2009-01-19'),
 #'                 a=c(1,2,3,4))
@@ -512,7 +512,7 @@ orderByDate <- function(df, dateCol, descending = FALSE) {
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{HCRTools}}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #' df <- data.frame(a=c(1,2,3,4,5,6),
 #' b=c(6,5,4,3,2,1),
@@ -570,7 +570,7 @@ calculateTargetedCorrelations <- function(df, targetCol) {
 #' @importFrom stats cor cor.test
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{HCRTools}}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #' df <- data.frame(a=c(1,2,3,4,5,6),
 #' b=c(6,5,4,3,2,1),
@@ -596,7 +596,7 @@ calculateAllCorrelations <- function(df) {
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{HCRTools}}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #' df <- data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 #'                     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1),
@@ -627,7 +627,7 @@ returnColsWithMoreThanFiftyCategories <- function(df) {
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{HCRTools}}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #' df = data.frame(a=c(1,2,NA,NA,3),
 #'                 b=c(NA,NA,NA,NA,NA),
@@ -653,7 +653,7 @@ countPercentEmpty <- function(df) {
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{HCRTools}}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #' dtCol = c('2001-06-09 12:45:05','2002-01-29 09:30:05','2002-02-02 07:36:50',
 #' '2002-03-04 16:45:01','2002-11-13 20:00:10','2003-01-29 07:31:43',
@@ -690,7 +690,7 @@ countDaysSinceFirstDate <- function(df, dtCol, returnDtCol = FALSE) {
 #' @importFrom graphics legend title
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{HCRTools}}
+#' @seealso \code{\link{healthcareai}}
 
 plotROCs <- function(rocs, names, legendLoc) {
   # generate color vector TODO: auto generate these colors dynamically as rgb
@@ -726,7 +726,7 @@ plotROCs <- function(rocs, names, legendLoc) {
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{HCRTools}}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #' df <- data.frame(a=c(1,2,3),
 #'                  b=c('m','f','m'),
@@ -825,7 +825,7 @@ calculateSDChanges <- function(dfOriginal,
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{HCRTools}}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #' library(caret)
 #' df <- data.frame(a=c(1,2,3,1),
@@ -901,7 +901,7 @@ calulcateAlternatePredictions <- function(df,
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{HCRTools}}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #' library(caret)
 #' df <- data.frame(a = c(1,2,3,1),

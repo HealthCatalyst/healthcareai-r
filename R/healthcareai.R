@@ -1,6 +1,6 @@
-#' HCRTools: a streamlined way to develop and deploy models
+#' healthcareai: a streamlined way to develop and deploy models
 #'
-#' HCRTools provide a clean interface that lets one create and compare multiple
+#' healthcareai provides a clean interface that lets one create and compare multiple
 #' models on your data, and then deploy the model that is most accurate.
 #'
 #' This is done in a two-step process:
@@ -34,5 +34,5 @@
 #' @seealso \code{\link{calculateTargetedCorrelations}}
 #' @seealso \code{\link{calculateAllCorrelations}}
 #' @docType package
-#' @name HCRTools
+#' @name healthcareai
 NULL
