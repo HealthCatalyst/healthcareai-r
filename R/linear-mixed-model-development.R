@@ -28,12 +28,12 @@ source('R/supervised-model-development.R')
 #' F leads to removal of rows containing NULLs.
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
-#' @references \url{http://hctools.org/}
-#' @seealso \code{\link{HCRTools}}
+#' @references \url{http://healthcare.ai/}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #'
 #' ### Built-in example; Doing classification
-#' library(HCRTools)
+#' library(healthcareai)
 #' library(lme4)
 #'
 #' df <- sleepstudy
@@ -59,7 +59,7 @@ source('R/supervised-model-development.R')
 #' lmm$run()
 #'
 #' ### Doing regression
-#' library(HCRTools)
+#' library(healthcareai)
 #' library(lme4)
 #'
 #' # SQL query and connection goes here - see SelectData function.
@@ -87,12 +87,12 @@ source('R/supervised-model-development.R')
 #' lmm$run()
 #'
 #' #### Example using csv data ####
-#' library(HCRTools)
+#' library(healthcareai)
 #' # setwd('C:/Your/script/location') # Needed if using YOUR CSV file
 #' ptm <- proc.time()
 #'
 #' # Can delete this line in your work
-#' csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "HCRTools")
+#' csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "healthcareai")
 #' #Replace csvfile with "path/to/yourfile"
 #' df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 #'
@@ -129,7 +129,7 @@ source('R/supervised-model-development.R')
 #' # to read in your own data
 #'
 #' ptm <- proc.time()
-#' library(HCRTools)
+#' library(healthcareai)
 #'
 #' connection.string <- "
 #' driver={SQL Server};

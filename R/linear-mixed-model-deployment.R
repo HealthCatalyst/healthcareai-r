@@ -2,7 +2,7 @@
 source('R/common.R')
 source('R/supervised-model-deployment.R')
 
-#' Deploy a production-ready predictive RandomForest model
+#' Deploy a production-ready predictive Random Forest model
 #'
 #' @description This step allows one to
 #' \itemize{
@@ -32,7 +32,7 @@ source('R/supervised-model-deployment.R')
 #' F leads to removal of rows containing NULLs.
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
-#' @seealso \code{\link{HCRTools}}
+#' @seealso \code{\link{healthcareai}}
 #' @examples
 #' #### Classification example using diabetes data ####
 #' # This example requires you to first create a table in SQL Server
@@ -46,19 +46,23 @@ source('R/supervised-model-deployment.R')
 #'
 #' # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 #' ptm <- proc.time()
-#' library(HCRTools)
+#' library(healthcareai)
+#' library(lme4)
 #'
 #' connection.string <- "driver={SQL Server};
-#' server=localhost;
-#' database=SAM;
-#' trusted_connection=true"
+#'                       server=localhost;
+#'                       database=SAM;
+#'                       trusted_connection=true"
 #'
 #' # Use this for an example SQL source:
 #' # query <- "SELECT * FROM [SAM].[YourCoolSAM].[SomeTrainingSetTable]"
 #' # df <- selectData(connection.string, query)
 #'
 #' # Can delete these four lines when you set up your SQL connection/query
-#' csvfile <- system.file("extdata", "HCRDiabetesClinical.csv",package = "HCRTools")
+#' csvfile <- system.file("extdata",
+#'                        "HCRDiabetesClinical.csv",
+#'                         package = "healthcareai")
+#'
 #' df <- read.csv(file = csvfile,
 #'                     header = TRUE,
 #'                     na.strings = c('NULL', 'NA', ""))
@@ -96,7 +100,8 @@ source('R/supervised-model-deployment.R')
 #'
 #' # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 #' ptm <- proc.time()
-#' library(HCRTools)
+#' library(healthcareai)
+#' library(lme4)
 #'
 #' connection.string <- 'driver={SQL Server};
 #'                       server=localhost;
@@ -108,7 +113,7 @@ source('R/supervised-model-deployment.R')
 #' # df <- selectData(connection.string, query)
 #'
 #' # Can delete these four lines when you set up your SQL connection/query
-#' csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "HCRTools")
+#' csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "healthcareai")
 #' df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 #'
 #' head(df)

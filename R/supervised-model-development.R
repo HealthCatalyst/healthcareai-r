@@ -10,8 +10,8 @@ source('R/supervised-model-development-params.R')
 #' @import caret
 #' @importFrom R6 R6Class
 #' @param object of SuperviseModelParameters class for $new() constructor
-#' @references \url{http://hctools.org/}
-#' @seealso \code{\link{HCRTools}}
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
 #'
 #' @export
 

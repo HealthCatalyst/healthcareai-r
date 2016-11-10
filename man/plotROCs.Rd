@@ -20,6 +20,6 @@ Plot ROCs calculated by children classes of SupervisedModel
 \url{http://healthcare.ai}
 }
 \seealso{
-\code{\link{HCRTools}}
+\code{\link{healthcareai}}
 }
 

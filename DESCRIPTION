@@ -1,4 +1,4 @@
-Package: HCRTools
+Package: healthcareai
 Type: Package
 Title: Tools for healthcare machine learning
 Version: 0.1.9

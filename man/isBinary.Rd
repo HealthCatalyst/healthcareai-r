@@ -23,6 +23,6 @@ isBinary(c(1,2,3))
 \url{http://healthcare.ai}
 }
 \seealso{
-\code{\link{HCRTools}}
+\code{\link{healthcareai}}
 }
 
