@@ -39,7 +39,7 @@ Function TravisTool
       [string[]]$Params
   )
 
-  Exec { bash.exe c:\projects\HCRTools\travis-tool.sh $Params }
+  Exec { bash.exe c:\projects\healthcareai-r\inst\CIDatabase\travis-tool.sh $Params }
 }
 
 Function InstallR {

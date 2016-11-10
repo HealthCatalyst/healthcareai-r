@@ -6,7 +6,7 @@
 ^rmodel_combined\.rda$
 ^\.travis\.yml$
 ^\.vs$
-^\.vs/HCRTools/v14/\.suo$
+^\.vs/healthcareai-r/v14/\.suo$
 ^appveyor\.yml$
 ^inst/notebooks/\.ipynb_checkpoints$
 ^inst/CIDatabase$
