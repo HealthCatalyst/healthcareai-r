@@ -1,6 +1,6 @@
 # healthcareai
 
-[![Build status](https://ci.appveyor.com/api/projects/status/fv4x17kl26h167qd?svg=true)](https://ci.appveyor.com/project/CatalystAdmin/hcrtools)
+[![Build status](https://ci.appveyor.com/api/projects/status/0xrpe233o9a16l4l/branch/master?svg=true)](https://ci.appveyor.com/project/CatalystAdmin/hcrtools)
 
 Note! We'll be changing the name of the package to healthcareai (the morning of 11/9), so please bear with any temporary inconsistencies.
 
