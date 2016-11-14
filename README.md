@@ -1,8 +1,6 @@
 # healthcareai
 
-[![Build status](https://ci.appveyor.com/api/projects/status/0xrpe233o9a16l4l/branch/master?svg=true)](https://ci.appveyor.com/project/CatalystAdmin/hcrtools)
-
-Note! We'll be changing the name of the package to healthcareai (the morning of 11/9), so please bear with any temporary inconsistencies.
+[![Build status](https://ci.appveyor.com/api/projects/status/0xrpe233o9a16l4l/branch/master?svg=true)](https://ci.appveyor.com/project/CatalystAdmin/healthcareai-r/branch/master)
 
 The aim of `healthcareai` is to make it easy to do machine learning with healthcare 
 data. The package has two main goals:

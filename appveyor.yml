@@ -4,7 +4,7 @@
 init:
   ps: |
         $ErrorActionPreference = "Stop"
-        Invoke-WebRequest https://raw.githubusercontent.com/HealthCatalystSLC/HCRTools/master/inst/CIDatabase/appveyor-tool.ps1 -OutFile "..\appveyor-tool.ps1"
+        Invoke-WebRequest https://raw.githubusercontent.com/HealthCatalystSLC/healthcareai-r/master/inst/CIDatabase/appveyor-tool.ps1 -OutFile "..\appveyor-tool.ps1"
         Import-Module '..\appveyor-tool.ps1'
 
 install:
