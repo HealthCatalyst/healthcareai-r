@@ -93,9 +93,6 @@ LassoDeployment <- R6Class(
   #Private members
   private = list(
     # variables
-    coefficients = NULL,
-    multiplyRes = NULL,
-    orderedFactors = NULL,
     predictedValsForUnitTest = NULL,
 
     # functions
@@ -149,8 +146,12 @@ LassoDeployment <- R6Class(
     performPrediction = function() {
       if (self$params$type == "classification") {
         # linear , these are probabilities
-        private$predictedVals <- predict(private$fit, newdata = private$dfTest, type = "response")
-        private$predictedValsForUnitTest <- private$predictedVals[5]  # for unit test
+        private$predictedVals <- predict(private$fit, 
+                                         newdata = private$dfTest, 
+                                         type = "response")
+        
+        # for unit test
+        private$predictedValsForUnitTest <- private$predictedVals[5]
 
         print("Probability predictions are based on logistic")
 
@@ -171,48 +172,33 @@ LassoDeployment <- R6Class(
       }
     },
 
-    calculateCoeffcients = function() {
-      # Do semi-manual calc to rank cols by order of importance
-      coeffTemp <- private$fitLogit$coefficients
-
-      if (isTRUE(self$params$debug)) {
-        print("Coefficients for the default logit (for ranking var import)")
-        print(coeffTemp)
-      }
-
-      private$coefficients <- coeffTemp[2:length(coeffTemp)]  # drop intercept
-    },
-
-    calculateMultiplyRes = function() {
-      # Apply multiplication of coeff across each row of test set Remove y (label) so
-      # we do multiplication only on X (features)
-      private$dfTest[[self$params$predictedCol]] <- NULL
-
-      if (isTRUE(self$params$debug)) {
-        print("Test set after removing predicted column")
-        print(str(private$dfTest))
-      }
-
-      private$multiplyRes <- sweep(private$dfTestRaw, 2, private$coefficients, `*`)
-
-      if (isTRUE(self$params$debug)) {
-        print("Data frame after multiplying raw vals by coeffs")
-        print(private$multiplyRes[1:10, ])
-      }
-    },
-
-    calculateOrderedFactors = function() {
-      # Calculate ordered factors of importance for each row's prediction
-      private$orderedFactors <- t(sapply(1:nrow(private$multiplyRes), function(i) colnames(private$multiplyRes[order(private$multiplyRes[i,
-                                                                                                                                         ], decreasing = TRUE)])))
-
-      if (isTRUE(self$params$debug)) {
-        print("Data frame after getting column importance ordered")
-        print(private$orderedFactors[1:10, ])
-      }
-    },
-
     saveDataIntoDb = function() {
+      
+      print('OriginalTestRow')
+      print(private$dfTest[1,])
+      
+      leaveOutOfAlt <- c('SystolicBPNBR','LDLNBR')
+      
+      dfAlt <- calculateSDChanges(df = private$dfTrain,
+                                  rowToBeAltered = private$dfTest[1,],
+                                  sizeOfSDPerturb = 0.5,
+                                  colsToAlter = leaveOutOfAlt)
+      
+      alternatePred <- calulcateAlternatePredictions(df = dfAlt,
+                                                     modelObj = private$fitLogit,
+                                                     type = 'lasso',
+                                                     removeCols = 'AlteredCol')
+      
+      dfResult <- findBestAlternateScenarios(dfAlternateFeat = dfAlt,
+                                             originalRow = private$dfTest[1,],
+                                             predictionVector = alternatePred,
+                                             predictionOriginal = private$predictedVals[1])
+      
+      print('OrderedDropsInAltPrediction')
+      print(dfResult)
+      
+      stop('That is all!')
+      
       dtStamp <- as.POSIXlt(Sys.time(), "GMT")
 
       # Combine grain.col, prediction, and time to be put back into SAM table
@@ -251,7 +237,6 @@ LassoDeployment <- R6Class(
         print('Dataframe going to SQL Server:')
         print(str(outDf))
       }
-
 
       # Save df to table in SAM database
       out <- sqlSave(
@@ -325,15 +310,6 @@ LassoDeployment <- R6Class(
 
       # Predict
       private$performPrediction()
-
-      # Calculate Coeffcients
-      private$calculateCoeffcients()
-
-      # Calculate MultiplyRes
-      private$calculateMultiplyRes()
-
-      # Calculate Ordered Factors
-      private$calculateOrderedFactors()
 
       # Save data into db
       private$saveDataIntoDb()

@@ -723,7 +723,7 @@ plotROCs <- function(rocs, names, legendLoc) {
 #' that we have a new alternate data frame
 #' @param dfOriginal Data frame from which we'll draw a row for alt-scenarios
 #' @param rowNum Row in dfOriginal that we'll create alt-scenarios for
-#' @param numColLeaveOut Numeric columns to leave out of alterlative scenarios
+#' @param colsToAlter Numeric columns to leave out of alterlative scenarios
 #' @param sizeOfSDPerturb Default is 0.5. Shrink or expand SD drop/addition
 #'
 #' @export
@@ -739,36 +739,37 @@ plotROCs <- function(rocs, names, legendLoc) {
 #'
 #' dfResult <- calculateSDChanges(dfOriginal = df,
 #'                                rowNum = 2,
-#'                                numColLeaveOut = c('d','e'),
+#'                                colsToAlter = c('d','e'),
 #'                                sizeOfSDPerturb = 0.5)
 #' dfResult
 
 calculateSDChanges <- function(dfOriginal,
-                               rowNum,
-                               numColLeaveOut,
+                               rowToBeAltered,
+                               colsToAlter=NULL,
                                sizeOfSDPerturb=0.5) {
 
-  df1 <- dfOriginal[rowNum,]
+  #df1 <- dfOriginal[rowNum,]
 
   # Find list of numeric cols in rowNum
-  colIterList <- names(df1)
+  colIterList <- names(rowToBeAltered)
   numericList <- character()
 
   for (v in colIterList) {
-    if (is.numeric(df1[[v]])) {
+    if (is.numeric(rowToBeAltered[[v]])) {
       numericList <- c(numericList,v)
     }
   }
 
   # Remove any undesired num columns from being considered (ie, PatientID, etc)
-  if (!missing(numColLeaveOut)) {
-    numericList <- numericList[!numericList %in% numColLeaveOut]
+  if (!missing(colsToAlter)) {
+    numericList <- numericList[numericList %in% colsToAlter]
   }
 
   # For length of this numeric col list, create that many new rows * 2
   # This way, we can replace the up and down value into the pre-existing data
   # If we hit the pop max/min, we'll remove extra rows below the for loop
-  dfAlternative <- df1[rep(seq_len(nrow(df1)), each = length(numericList)*2),]
+  dfAlternative <- rowToBeAltered[rep(seq_len(nrow(rowToBeAltered)), 
+                                      each = length(numericList)*2),]
   dfAlternative
 
   # Add column denoting which column is being perturbed
@@ -839,7 +840,7 @@ calculateSDChanges <- function(dfOriginal,
 #' dfResult <- calculateSDChanges(df=df,
 #'                                rowNum=2,
 #'                                sizeOfSDPerturb = 0.5,
-#'                                numColLeaveOut='d')
+#'                                colsToAlter=c('a','c'))
 #'
 #' y <- c('y','n','y','n')
 #'
@@ -877,8 +878,8 @@ calulcateAlternatePredictions <- function(df,
       outVectorAppend <- c(outVectorAppend,outTemp[2])
 
     } else if (type == 'lasso') {
-      outTemp <- stats::predict(object = modelObj,newdata = df[i,],type = 'prob')
-      outVectorAppend <- c(outVectorAppend,outTemp[2])
+      outTemp <- stats::predict(object = modelObj,newdata = df[i,],type = 'response')
+      outVectorAppend <- c(outVectorAppend,outTemp)
 
     } else if (type == 'lmm') {
       outTemp <- stats::predict(object = modelObj,newdata = df[i,],type = 'prob')
@@ -916,7 +917,7 @@ calulcateAlternatePredictions <- function(df,
 #' dfAlt <- calculateSDChanges(df = df,
 #'                             rowNum = 2,
 #'                             sizeOfSDPerturb = 0.5,
-#'                             numColLeaveOut = 'd')
+#'                             colsToAlter = c('a','c'))
 #'
 #' glmOb <- train(x = df,y = y,method = 'glm',family = 'binomial')
 #'
@@ -940,17 +941,22 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
                                        originalRow,
                                        predictionVector,
                                        predictionOriginal) {
+  
+  predictionVector <- as.numeric(predictionVector)
+  
 
   # Initialize vectors
   predDiff <- numeric()
   colChanged <- character()
   alternateValue <- numeric()
+  alternateProb <- numeric()
+  originalValue <- numeric()
 
   # For each Row in alternate scenario df, calculate distance
   # between original prediction and alternate prediction
   for (i in 1:nrow(dfAlternateFeat)) {
     # Finding drop from original probability (so drop is a positive number)
-    tempDiff <- predictionOriginal - predictionVector[i]
+    tempDiff <- predictionVector[i] - predictionOriginal
     predDiff <- c(predDiff,tempDiff)
 
     # Finding col that had been alternated
@@ -961,29 +967,33 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
     tempColChanged <- colChanged[i]
 
     alternateValue <- c(alternateValue, dfAlternateFeat[[i,tempColChanged]])
+    alternateProb <- c(alternateProb, predictionVector[i])
+    originalValue <- c(originalValue, originalRow[[tempColChanged]])
   }
 
   # Find index of greatest drop in predicted probability
-  orderedPredDiffIndex <- order(-predDiff)
+  orderedPredDiffIndex <- order(predDiff)
 
   # Order by greatest drop in predicted probability
-  orderedProbDrop <- predDiff[orderedPredDiffIndex]
-  print('orderedProbDrop')
-  print(orderedProbDrop)
+  orderedProbChange <- predDiff[orderedPredDiffIndex]
 
-  # Find associated features that were changed
+  # Order associated features by Pred differences
   orderedColChanged <- colChanged[orderedPredDiffIndex]
-  print('orderedColChanged')
-  print(orderedColChanged)
 
-  # Find associated alternate values
-  orderedAlternateValue <- alternateValue[orderedPredDiffIndex]
-  print('orderedAlternateValue')
-  print(orderedAlternateValue)
+  # Order original features by Pred differences
+  orderedOrigFeatValue <- originalValue[orderedPredDiffIndex]
+  
+  # ORder associated alternate values by Pred differences
+  orderedAltFeatValue <- alternateValue[orderedPredDiffIndex]
 
-  dfOptResult <- data.frame(orderedProbDrop,
-                            orderedColChanged,
-                            orderedAlternateValue)
+  orderedAltProb <- alternateProb[orderedPredDiffIndex]
+  
+  # Wrap it all up for the return
+  dfOptResult <- data.frame(orderedColChanged,
+                            orderedOrigFeatValue,
+                            orderedAltFeatValue,
+                            orderedAltProb,
+                            orderedProbChange)
 
   dfOptResult
 }
