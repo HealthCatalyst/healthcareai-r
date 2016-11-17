@@ -722,7 +722,7 @@ plotROCs <- function(rocs, names, legendLoc) {
 #' @description Add/subtract each numeric col (for each row) by std dev, such
 #' that we have a new alternate data frame
 #' @param dfOriginal Data frame from which we'll draw a row for alt-scenarios
-#' @param rowNum Row in dfOriginal that we'll create alt-scenarios for
+#' @param rowToBeAltered Row in dfOriginal that we'll create alt-scenarios for
 #' @param colsToAlter Numeric columns to leave out of alterlative scenarios
 #' @param sizeOfSDPerturb Default is 0.5. Shrink or expand SD drop/addition
 #'
@@ -738,7 +738,7 @@ plotROCs <- function(rocs, names, legendLoc) {
 #'
 #'
 #' dfResult <- calculateSDChanges(dfOriginal = df,
-#'                                rowNum = 2,
+#'                                rowToBeAltered = 2,
 #'                                colsToAlter = c('d','e'),
 #'                                sizeOfSDPerturb = 0.5)
 #' dfResult
@@ -748,9 +748,7 @@ calculateSDChanges <- function(dfOriginal,
                                colsToAlter=NULL,
                                sizeOfSDPerturb=0.5) {
 
-  #df1 <- dfOriginal[rowNum,]
-
-  # Find list of numeric cols in rowNum
+  # Find list of numeric cols in rowToBeAltered
   colIterList <- names(rowToBeAltered)
   numericList <- character()
 
@@ -838,7 +836,7 @@ calculateSDChanges <- function(dfOriginal,
 #'
 #' # Get alternate feature scenarios
 #' dfResult <- calculateSDChanges(df=df,
-#'                                rowNum=2,
+#'                                rowToBeAltered=2,
 #'                                sizeOfSDPerturb = 0.5,
 #'                                colsToAlter=c('a','c'))
 #'
@@ -915,7 +913,7 @@ calulcateAlternatePredictions <- function(df,
 #' y <- c('y','n','y','n')
 #'
 #' dfAlt <- calculateSDChanges(df = df,
-#'                             rowNum = 2,
+#'                             rowToBeAltered = 2,
 #'                             sizeOfSDPerturb = 0.5,
 #'                             colsToAlter = c('a','c'))
 #'

@@ -174,65 +174,88 @@ LassoDeployment <- R6Class(
 
     saveDataIntoDb = function() {
       
-      print('OriginalTestRow')
-      print(private$dfTest[1,])
+      modifiableDataFrame <- data.frame()
       
-      leaveOutOfAlt <- c('SystolicBPNBR','LDLNBR')
+      for (i in 1:nrow(private$dfTest)) {
       
-      dfAlt <- calculateSDChanges(df = private$dfTrain,
-                                  rowToBeAltered = private$dfTest[1,],
-                                  sizeOfSDPerturb = 0.5,
-                                  colsToAlter = leaveOutOfAlt)
+        print('OriginalTestRow')
+        print(private$dfTest[i,])
+        
+        
+        # Run alternate modifiable scenarios for one encounter row
+        dfAltMod <- calculateSDChanges(df = private$dfTrain,
+                                       rowToBeAltered = private$dfTest[i,],
+                                       sizeOfSDPerturb = 0.5,
+                                       colsToAlter = self$params$modifiableCols)
+        
+        print('dfAlt')
+        print(dfAltMod)
+        
+        alternatePredMod <- calulcateAlternatePredictions(df = dfAltMod,
+                                                       modelObj = private$fitLogit,
+                                                       type = 'lasso',
+                                                       removeCols = 'AlteredCol')
+        print('alternatePred')
+        print(alternatePredMod)
+        
+        dfResultMod <- findBestAlternateScenarios(dfAlternateFeat = dfAltMod,
+                                               originalRow = private$dfTest[i,],
+                                               predictionVector = alternatePredMod,
+                                               predictionOriginal = private$predictedVals[i])
+        
+
+        # For one encounter (row), join multiple data frames into one (horiz)
+        tempEncounterWide <- cbind(dfResultMod[1,1:4],
+                                   dfResultMod[2,1:4],
+                                   dfResultMod[3,1:4])
+
+        modifiableDataFrame <- rbind(modifiableDataFrame,tempEncounterWide)
+      }
       
-      alternatePred <- calulcateAlternatePredictions(df = dfAlt,
-                                                     modelObj = private$fitLogit,
-                                                     type = 'lasso',
-                                                     removeCols = 'AlteredCol')
-      
-      dfResult <- findBestAlternateScenarios(dfAlternateFeat = dfAlt,
-                                             originalRow = private$dfTest[1,],
-                                             predictionVector = alternatePred,
-                                             predictionOriginal = private$predictedVals[1])
-      
-      print('OrderedDropsInAltPrediction')
-      print(dfResult)
-      
-      stop('That is all!')
+      print('Entire first importance for all test rows')
+      print(modifiableDataFrame)
       
       dtStamp <- as.POSIXlt(Sys.time(), "GMT")
-
+      
       # Combine grain.col, prediction, and time to be put back into SAM table
       outDf <- data.frame(
-        0,
-        # BindingID
-        'R',
-        # BindingNM
-        dtStamp,
-        # LastLoadDTS
-        private$grainTest,
-        # GrainID
-        private$predictedVals,
-        # PredictedProbab
-        private$orderedFactors[, 1:3]
-      )    # Top 3 Factors
-
+        0,                     # BindingID
+        'R',                   # BindingNM
+        dtStamp,               # LastLoadDTS
+        private$grainTest,     # GrainID
+        private$predictedVals, # Probability
+        modifiableDataFrame    # Alternative scenarios
+      )
+      
       predictedResultsName <- ""
       if (self$params$type == "classification") {
         predictedResultsName <- "PredictedProbNBR"
       } else if (self$params$type == "regression") {
         predictedResultsName <- "PredictedValueNBR"
       }
-      colnames(outDf) <- c(
-        "BindingID",
-        "BindingNM",
-        "LastLoadDTS",
-        self$params$grainCol,
-        predictedResultsName,
-        "Factor1TXT",
-        "Factor2TXT",
-        "Factor3TXT"
-      )
-
+        
+      colnames(outDf) <- c("BindingID",
+                           "BindingNM",
+                           "LastLoadDTS",
+                           self$params$grainCol,
+                           predictedResultsName,
+                           "FirstFeatModifiable",
+                           "FirstFeatModifiableCurrent",
+                           "FirstFeatModifiableAltered",
+                           "FirstAlternateProb",
+                           "SecondFeatModifiable",
+                           "SecondFeatModifiableCurrent",
+                           "SecondFeatModifiableAltered",
+                           "SecondAlternateProb",
+                           "ThirdFeatModifiable",
+                           "ThirdFeatModifiableCurrent",
+                           "ThirdFeatModifiableAltered",
+                           "ThirdAlternateProb")
+      print('outDf')
+      print(outDf)
+      
+      stop('That is all!')
+      
       if (isTRUE(self$params$debug)) {
         print('Dataframe going to SQL Server:')
         print(str(outDf))

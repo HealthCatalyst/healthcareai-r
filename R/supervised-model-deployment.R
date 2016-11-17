@@ -91,18 +91,22 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
      if (!is.null(p$debug))
        self$params$debug <- p$debug
 
-
-     # for deploy method
      if (!is.null(p$cores))
        self$params$cores <- p$cores
 
-     if (!is.null(p$sqlConn))
+     # for deploy method
+     if (!is.null(p$modifiableCols)) {
+       self$params$modifiableCols <- p$modifiableCols
+     }
+
+     if (!is.null(p$sqlConn)) {
        self$params$sqlConn <- p$sqlConn
+     }
 
-     if (!is.null(p$destSchemaTable))
+     if (!is.null(p$destSchemaTable)) {
        self$params$destSchemaTable <- p$destSchemaTable
-
-     },
+     }
+   },
 
    loadData = function() {
      if (isTRUE(self$params$debug)) {

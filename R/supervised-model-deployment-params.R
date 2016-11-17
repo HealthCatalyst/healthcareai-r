@@ -31,6 +31,7 @@ SupervisedModelDeploymentParams <- R6Class("SupervisedModelDeploymentParams",
     cores = 4,
     sqlConn = "",
     destSchemaTable = "",
+    modifiableCols = NULL,
     rfmtry = 0,
     trees = 201,
 
