@@ -5,7 +5,7 @@
 \title{Find most biggest drop in predictive probability across alternate features}
 \usage{
 findBestAlternateScenarios(dfAlternateFeat, originalRow, predictionVector,
-  predictionOriginal)
+  predictionOriginal, removeIncreasedProbRows = TRUE)
 }
 \arguments{
 \item{dfAlternateFeat}{Data frame of alternate feature values}
@@ -25,33 +25,37 @@ names that lead to the biggest drop and their target value.
 }
 \examples{
 library(caret)
-df <- data.frame(a = c(1,2,3,1),
-                 b = c('m','f','m','m'),
-                 c = c(0.7,1.4,2.4,2.0),
-                 d = c(100,250,200,150))
+X <- data.frame(a=c(1,2,3,1),
+                b=c('m','f','f','m'),
+                c=c(0.7,1.4,2.4,2.0),
+                d=c(100,250,200,150))
 
 y <- c('y','n','y','n')
 
-dfAlt <- calculateSDChanges(df = df,
-                            rowNum = 2,
+X_alt <- calculateSDChanges(df = X,
+                            rowToBeAltered = X[4,],
                             sizeOfSDPerturb = 0.5,
-                            numColLeaveOut = 'd')
+                            colsToAlter = c('a','c'))
 
-glmOb <- train(x = df,y = y,method = 'glm',family = 'binomial')
+combined = cbind(X,y)
+
+glmOb <- glm(y ~ a + b + c + d,
+             data = combined,
+             family = binomial(link = "logit"))
 
 originalPred <- predict(object = glmOb,
-                        newdata = df[4,],
-                        type = 'prob')
+                        newdata = X[4,],
+                        type = 'response')
 
-alternatePred <- calulcateAlternatePredictions(df = dfAlt,
+alternatePred <- calulcateAlternatePredictions(df = X_alt,
                                                modelObj = glmOb,
                                                type = 'lasso',
                                                removeCols = 'AlteredCol')
 
-dfResult <- findBestAlternateScenarios(dfAlternateFeat = dfAlt,
-                                       originalRow = df[4,],
-                                       predictionVector = as.numeric(alternatePred),
-                                       predictionOriginal = originalPred[[2]])
+dfResult <- findBestAlternateScenarios(dfAlternateFeat = X_alt,
+                                       originalRow = X[4,],
+                                       predictionVector = alternatePred,
+                                       predictionOriginal = originalPred)
 
 dfResult
 }

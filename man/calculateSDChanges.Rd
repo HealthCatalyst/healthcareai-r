@@ -4,14 +4,15 @@
 \alias{calculateSDChanges}
 \title{Calculate std deviation up/down for each numeric field in row}
 \usage{
-calculateSDChanges(dfOriginal, rowNum, numColLeaveOut, sizeOfSDPerturb = 0.5)
+calculateSDChanges(dfOriginal, rowToBeAltered, colsToAlter = NULL,
+  sizeOfSDPerturb = 0.5)
 }
 \arguments{
 \item{dfOriginal}{Data frame from which we'll draw a row for alt-scenarios}
 
-\item{rowNum}{Row in dfOriginal that we'll create alt-scenarios for}
+\item{rowToBeAltered}{Row in dfOriginal that we'll create alt-scenarios for}
 
-\item{numColLeaveOut}{Numeric columns to leave out of alterlative scenarios}
+\item{colsToAlter}{Numeric columns to leave out of alterlative scenarios}
 
 \item{sizeOfSDPerturb}{Default is 0.5. Shrink or expand SD drop/addition}
 }
@@ -20,16 +21,15 @@ Add/subtract each numeric col (for each row) by std dev, such
 that we have a new alternate data frame
 }
 \examples{
-df <- data.frame(a=c(1,2,3),
-                 b=c('m','f','m'),
-                 c=c(0.7,1.4,2.4),
-                 d=c(100,250,200),
-                 e=c(400,500,505))
+df <- data.frame(a=c(1,2,3,1),
+                 b=c('m','f','f','m'),
+                 c=c(0.7,1.4,2.4,2.0),
+                 d=c(100,250,200,150))
 
 
 dfResult <- calculateSDChanges(dfOriginal = df,
-                               rowNum = 2,
-                               numColLeaveOut = c('d','e'),
+                               rowToBeAltered = df[4,],
+                               colsToAlter = c('d','e'),
                                sizeOfSDPerturb = 0.5)
 dfResult
 }

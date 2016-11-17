@@ -23,26 +23,38 @@ recalculate predicted values for each row in df.
 }
 \examples{
 library(caret)
-df <- data.frame(a=c(1,2,3,1),
-                 b=c('m','f','m','m'),
-                 c=c(0.7,1.4,2.4,2.0),
-                 d=c(100,250,200,150))
-
-# Get alternate feature scenarios
-dfResult <- calculateSDChanges(df=df,
-                               rowNum=2,
-                               sizeOfSDPerturb = 0.5,
-                               numColLeaveOut='d')
+X <- data.frame(a=c(1,2,3,1),
+                b=c('m','f','f','m'),
+                c=c(0.7,1.4,2.4,2.0),
+                d=c(100,250,200,150))
 
 y <- c('y','n','y','n')
 
-# Train model on original data frame
-glmOb <- train(x = df,y = y,method = 'glm',family = 'binomial')
+X_alt <- calculateSDChanges(df = X,
+                            rowToBeAltered = X[4,],
+                            sizeOfSDPerturb = 0.5,
+                            colsToAlter = c('a','c'))
 
-outList <- calulcateAlternatePredictions(df=dfResult,
-                                         modelObj=glmOb,
-                                         type='lasso')
-outList
+X_alt
+
+combined = cbind(X,y)
+
+glmOb <- glm(y ~ a + b + c + d,
+             data = combined,
+             family = binomial(link = "logit"))
+
+glmOb
+
+originalPred <- predict(object = glmOb,
+                        newdata = X[4,],
+                        type = 'response')
+originalPred
+
+alternatePred <- calulcateAlternatePredictions(df = X_alt,
+                                               modelObj = glmOb,
+                                               type = 'lasso',
+                                               removeCols = 'AlteredCol')
+alternatePred
 }
 \references{
 \url{http://healthcare.ai}

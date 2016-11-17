@@ -730,15 +730,14 @@ plotROCs <- function(rocs, names, legendLoc) {
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
-#' df <- data.frame(a=c(1,2,3),
-#'                  b=c('m','f','m'),
-#'                  c=c(0.7,1.4,2.4),
-#'                  d=c(100,250,200),
-#'                  e=c(400,500,505))
+#' df <- data.frame(a=c(1,2,3,1),
+#'                  b=c('m','f','f','m'),
+#'                  c=c(0.7,1.4,2.4,2.0),
+#'                  d=c(100,250,200,150))
 #'
 #'
 #' dfResult <- calculateSDChanges(dfOriginal = df,
-#'                                rowToBeAltered = 2,
+#'                                rowToBeAltered = df[4,],
 #'                                colsToAlter = c('d','e'),
 #'                                sizeOfSDPerturb = 0.5)
 #' dfResult
@@ -768,7 +767,6 @@ calculateSDChanges <- function(dfOriginal,
   # If we hit the pop max/min, we'll remove extra rows below the for loop
   dfAlternative <- rowToBeAltered[rep(seq_len(nrow(rowToBeAltered)), 
                                       each = length(numericList)*2),]
-  dfAlternative
 
   # Add column denoting which column is being perturbed
   dfAlternative$AlteredCol <- NULL
@@ -829,26 +827,38 @@ calculateSDChanges <- function(dfOriginal,
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' library(caret)
-#' df <- data.frame(a=c(1,2,3,1),
-#'                  b=c('m','f','m','m'),
-#'                  c=c(0.7,1.4,2.4,2.0),
-#'                  d=c(100,250,200,150))
-#'
-#' # Get alternate feature scenarios
-#' dfResult <- calculateSDChanges(df=df,
-#'                                rowToBeAltered=2,
-#'                                sizeOfSDPerturb = 0.5,
-#'                                colsToAlter=c('a','c'))
-#'
+#' X <- data.frame(a=c(1,2,3,1),
+#'                 b=c('m','f','f','m'),
+#'                 c=c(0.7,1.4,2.4,2.0),
+#'                 d=c(100,250,200,150))
+#' 
 #' y <- c('y','n','y','n')
-#'
-#' # Train model on original data frame
-#' glmOb <- train(x = df,y = y,method = 'glm',family = 'binomial')
-#'
-#' outList <- calulcateAlternatePredictions(df=dfResult,
-#'                                          modelObj=glmOb,
-#'                                          type='lasso')
-#' outList
+#' 
+#' X_alt <- calculateSDChanges(df = X,
+#'                             rowToBeAltered = X[4,],
+#'                             sizeOfSDPerturb = 0.5,
+#'                             colsToAlter = c('a','c'))
+#' 
+#' X_alt
+#' 
+#' combined = cbind(X,y)
+#' 
+#' glmOb <- glm(y ~ a + b + c + d,
+#'              data = combined,
+#'              family = binomial(link = "logit"))
+#' 
+#' glmOb
+#' 
+#' originalPred <- predict(object = glmOb,
+#'                         newdata = X[4,],
+#'                         type = 'response')
+#' originalPred
+#' 
+#' alternatePred <- calulcateAlternatePredictions(df = X_alt,
+#'                                                modelObj = glmOb,
+#'                                                type = 'lasso',
+#'                                                removeCols = 'AlteredCol')
+#' alternatePred
 
 calulcateAlternatePredictions <- function(df,
                                           modelObj,
@@ -905,40 +915,45 @@ calulcateAlternatePredictions <- function(df,
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' library(caret)
-#' df <- data.frame(a = c(1,2,3,1),
-#'                  b = c('m','f','m','m'),
-#'                  c = c(0.7,1.4,2.4,2.0),
-#'                  d = c(100,250,200,150))
-#'
+#' X <- data.frame(a=c(1,2,3,1),
+#'                 b=c('m','f','f','m'),
+#'                 c=c(0.7,1.4,2.4,2.0),
+#'                 d=c(100,250,200,150))
+#' 
 #' y <- c('y','n','y','n')
-#'
-#' dfAlt <- calculateSDChanges(df = df,
-#'                             rowToBeAltered = 2,
+#' 
+#' X_alt <- calculateSDChanges(df = X,
+#'                             rowToBeAltered = X[4,],
 #'                             sizeOfSDPerturb = 0.5,
 #'                             colsToAlter = c('a','c'))
-#'
-#' glmOb <- train(x = df,y = y,method = 'glm',family = 'binomial')
-#'
+#' 
+#' combined = cbind(X,y)
+#' 
+#' glmOb <- glm(y ~ a + b + c + d,
+#'              data = combined,
+#'              family = binomial(link = "logit"))
+#' 
 #' originalPred <- predict(object = glmOb,
-#'                         newdata = df[4,],
-#'                         type = 'prob')
-#'
-#' alternatePred <- calulcateAlternatePredictions(df = dfAlt,
+#'                         newdata = X[4,],
+#'                         type = 'response')
+#' 
+#' alternatePred <- calulcateAlternatePredictions(df = X_alt,
 #'                                                modelObj = glmOb,
 #'                                                type = 'lasso',
 #'                                                removeCols = 'AlteredCol')
 #'
-#' dfResult <- findBestAlternateScenarios(dfAlternateFeat = dfAlt,
-#'                                        originalRow = df[4,],
-#'                                        predictionVector = as.numeric(alternatePred),
-#'                                        predictionOriginal = originalPred[[2]])
+#' dfResult <- findBestAlternateScenarios(dfAlternateFeat = X_alt,
+#'                                        originalRow = X[4,],
+#'                                        predictionVector = alternatePred,
+#'                                        predictionOriginal = originalPred)
 #'
 #' dfResult
 
 findBestAlternateScenarios <- function(dfAlternateFeat,
                                        originalRow,
                                        predictionVector,
-                                       predictionOriginal) {
+                                       predictionOriginal,
+                                       removeIncreasedProbRows=TRUE) {
   
   predictionVector <- as.numeric(predictionVector)
   
@@ -981,7 +996,7 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
   # Order original features by Pred differences
   orderedOrigFeatValue <- originalValue[orderedPredDiffIndex]
   
-  # ORder associated alternate values by Pred differences
+  # Order associated alternate values by Pred differences
   orderedAltFeatValue <- alternateValue[orderedPredDiffIndex]
 
   orderedAltProb <- alternateProb[orderedPredDiffIndex]
@@ -993,6 +1008,109 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
                             orderedAltProb,
                             orderedProbChange)
 
+  # Remove alt scenarios (ie, rows) where probability increases
+  if (isTRUE(removeIncreasedProbRows)) {
+    dfOptResult <- subset(dfOptResult, orderedProbChange < 0)
+  }
+  
   dfOptResult
 }
 
+#' @title
+#' For each test row, find alternate scenarios that reduce probability
+#'
+#' @description For each test row, drop/add by some SD fraction to see if there
+#' are plausible feature changes that lower the probability of something
+#' @param trainingData Data frame used for training model. This is needed for 
+#' the standard deviation calculations.
+#' @param testData Data frame. Reasonable alternate scenarios are calculated
+#' for each row.
+#' @param SDChange Number used to defines what a reasonable person change is.
+#' @param typeOfModel String. Can Be 'lasso' 'rf' or 'lmm'.
+#' @param modelObj The actual model object.
+#'
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
+#' @examples
+#' library(caret)
+#' df <- data.frame(a=c(1,2,3,1,1),
+#'                  b=c('m','f','f','m','m'),
+#'                  c=c(0.7,1.4,2.4,2.0,3.4),
+#'                  d=c(100,250,200,150,100),
+#'                  y=c('n','n','y','y','n'))
+#' 
+#' train <- df[1:3,]
+#' test <- df[4:5,]
+#' test$y <- NULL
+#' 
+#' glmOb <- glm(y ~ a + b + c + d,
+#'              data = train,
+#'              family = binomial(link = "logit"))
+#' 
+#' originalPred <- predict(object = glmOb,
+#'                         newdata = test,
+#'                         type = 'response')
+#' originalPred
+#' 
+#' resultAltScen <- findAltScenarioForEachTestRow(trainingData=train,
+#'                                                testData=test,
+#'                                                originalPredictions=originalPred,
+#'                                                SDChange=0.5,
+#'                                                typeOfModel='lasso',
+#'                                                modelObj=glmOb,
+#'                                                colsToAlter=c('a','c','d'),
+#'                                                removeIncreasedProbRows=FALSE) 
+#' 
+#' resultAltScen
+
+findAltScenarioForEachTestRow <- function(trainingData,
+                                          testData,
+                                          originalPredictions,
+                                          SDChange,
+                                          typeOfModel,
+                                          modelObj,
+                                          colsToAlter,
+                                          removeIncreasedProbRows=TRUE) {
+  modifiableDataFrame <- data.frame()
+  
+  for (i in 1:nrow(testData)) {
+    dfAltMod <- calculateSDChanges(df = trainingData,
+                                   rowToBeAltered = testData[i,],
+                                   sizeOfSDPerturb = SDChange,
+                                   colsToAlter = colsToAlter)
+    
+    alternatePredMod <- calulcateAlternatePredictions(df = dfAltMod,
+                                                      modelObj = modelObj,
+                                                      type = typeOfModel,
+                                                      removeCols = 'AlteredCol')
+
+    dfResultMod <- findBestAlternateScenarios(dfAlternateFeat = dfAltMod,
+                                              originalRow = testData,
+                                              predictionVector = alternatePredMod,
+                                              predictionOriginal = originalPredictions[i],
+                                              removeIncreasedProbRows = removeIncreasedProbRows)
+
+    
+    # For one encounter (row), join multiple data frames into one (horiz)
+    tempEncounterWide <- cbind(dfResultMod[1,1:4],
+                               dfResultMod[2,1:4],
+                               dfResultMod[3,1:4])
+    
+    modifiableDataFrame <- rbind(modifiableDataFrame,tempEncounterWide)
+  }
+  colnames(modifiableDataFrame) <- c("FirstFeatModifiable",
+                                    "FirstFeatModifiableCurrent",
+                                    "FirstFeatModifiableAltered",
+                                    "FirstAlternateProb",
+                                    "SecondFeatModifiable",
+                                    "SecondFeatModifiableCurrent",
+                                    "SecondFeatModifiableAltered",
+                                    "SecondAlternateProb",
+                                    "ThirdFeatModifiable",
+                                    "ThirdFeatModifiableCurrent",
+                                    "ThirdFeatModifiableAltered",
+                                    "ThirdAlternateProb")
+  
+  modifiableDataFrame
+}
