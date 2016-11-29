@@ -72,9 +72,11 @@ After that's done, here's the contribution workflow:
 
 ## For issues
 
-- Double and triple check that the code follows the examples found via the built-in docs
-  - `library(healthcareai)`
-  - `?healthcareai`
+- Double check that the code follows the examples in the built-in docs
+```R
+library(healthcareai)
+?healthcareai
+```
   
 - Make sure you've thoroughly read the descriptions found [here](http://healthcare.ai/r/)
 
@@ -83,4 +85,4 @@ After that's done, here's the contribution workflow:
   - Goals (ie, what are you trying to accomplish)
   - Crystal clear steps for reproducing the error
   
-- If you're unsure, feel free to email [Levi Thatcher](mailto:levi.thatcher@healthcataylst.com)
+- If you're unsure, feel free to email [Levi Thatcher](mailto:levi.thatcher@healthcatalyst.com)
