@@ -29,8 +29,8 @@ df <- data.frame(a=c(1,2,3,1),
 
 dfResult <- calculateSDChanges(dfOriginal = df,
                                rowToBeAltered = df[4,],
-                               colsToAlter = c('d','e'),
-                               sizeOfSDPerturb = 0.5)
+                               sizeOfSDPerturb = 0.5,
+                               colsToAlter = c('d','e'))
 dfResult
 }
 \references{

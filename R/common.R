@@ -738,8 +738,8 @@ plotROCs <- function(rocs, names, legendLoc) {
 #'
 #' dfResult <- calculateSDChanges(dfOriginal = df,
 #'                                rowToBeAltered = df[4,],
-#'                                colsToAlter = c('d','e'),
-#'                                sizeOfSDPerturb = 0.5)
+#'                                sizeOfSDPerturb = 0.5,
+#'                                colsToAlter = c('d','e'))
 #' dfResult
 
 calculateSDChanges <- function(dfOriginal,
@@ -777,7 +777,7 @@ calculateSDChanges <- function(dfOriginal,
   for (i in numericList) {
     tempAdd <- dfAlternative[j,i] +
       (stats::sd(dfOriginal[,i]) * sizeOfSDPerturb)
-
+    
     # Check if adding half SD puts person over max of entire pop
     if (tempAdd <= max(dfOriginal[,i])) {
       # If this keeps them within pop, let's consider this scenario
@@ -834,7 +834,7 @@ calculateSDChanges <- function(dfOriginal,
 #' 
 #' y <- c('y','n','y','n')
 #' 
-#' X_alt <- calculateSDChanges(df = X,
+#' X_alt <- calculateSDChanges(dfOriginal = X,
 #'                             rowToBeAltered = X[4,],
 #'                             sizeOfSDPerturb = 0.5,
 #'                             colsToAlter = c('a','c'))
@@ -922,7 +922,7 @@ calulcateAlternatePredictions <- function(df,
 #' 
 #' y <- c('y','n','y','n')
 #' 
-#' X_alt <- calculateSDChanges(df = X,
+#' X_alt <- calculateSDChanges(dfOriginal = X,
 #'                             rowToBeAltered = X[4,],
 #'                             sizeOfSDPerturb = 0.5,
 #'                             colsToAlter = c('a','c'))
@@ -965,6 +965,12 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
   alternateProb <- numeric()
   originalValue <- numeric()
 
+  print('dfAlternateFeat')
+  print(dfAlternateFeat)
+  
+  print('originalRow')
+  print(originalRow)
+  
   # For each Row in alternate scenario df, calculate distance
   # between original prediction and alternate prediction
   for (i in 1:nrow(dfAlternateFeat)) {
@@ -978,10 +984,20 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
     # Finding alternate value for altered col
     # Double brackets make resulting value a scalar instead of list
     tempColChanged <- colChanged[i]
+    
+    print('tempColChanged')
+    print(tempColChanged)
+    
+    print('originalRow[[tempColChanged]]')
+    print(originalRow[[tempColChanged]])
 
     alternateValue <- c(alternateValue, dfAlternateFeat[[i,tempColChanged]])
     alternateProb <- c(alternateProb, predictionVector[i])
     originalValue <- c(originalValue, originalRow[[tempColChanged]])
+    
+    #print('originalValue')
+    #print(originalValue)
+    print('')
   }
 
   # Find index of greatest drop in predicted probability
@@ -1075,7 +1091,7 @@ findAltScenarioForEachTestRow <- function(trainingData,
   modifiableDataFrame <- data.frame()
   
   for (i in 1:nrow(testData)) {
-    dfAltMod <- calculateSDChanges(df = trainingData,
+    dfAltMod <- calculateSDChanges(dfOriginal = trainingData,
                                    rowToBeAltered = testData[i,],
                                    sizeOfSDPerturb = SDChange,
                                    colsToAlter = colsToAlter)
@@ -1099,18 +1115,6 @@ findAltScenarioForEachTestRow <- function(trainingData,
     
     modifiableDataFrame <- rbind(modifiableDataFrame,tempEncounterWide)
   }
-  colnames(modifiableDataFrame) <- c("FirstFeatModifiable",
-                                    "FirstFeatModifiableCurrent",
-                                    "FirstFeatModifiableAltered",
-                                    "FirstAlternateProb",
-                                    "SecondFeatModifiable",
-                                    "SecondFeatModifiableCurrent",
-                                    "SecondFeatModifiableAltered",
-                                    "SecondAlternateProb",
-                                    "ThirdFeatModifiable",
-                                    "ThirdFeatModifiableCurrent",
-                                    "ThirdFeatModifiableAltered",
-                                    "ThirdAlternateProb")
-  
+
   modifiableDataFrame
 }

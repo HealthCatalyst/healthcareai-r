@@ -30,7 +30,7 @@ X <- data.frame(a=c(1,2,3,1),
 
 y <- c('y','n','y','n')
 
-X_alt <- calculateSDChanges(df = X,
+X_alt <- calculateSDChanges(dfOriginal = X,
                             rowToBeAltered = X[4,],
                             sizeOfSDPerturb = 0.5,
                             colsToAlter = c('a','c'))
