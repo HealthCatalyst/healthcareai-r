@@ -65,7 +65,7 @@ This is for Windows; for macOS see [here](https://developer.apple.com/xcode/); f
   - Can accept defaults on `Select Destination Location` and `Select Components` screens
   - On `Select Additional Tasks` step, check the PATH box
   - If you ever see issues related to Rtools, see [here](https://github.com/stan-dev/rstan/wiki/Install-Rtools-for-Windows)
-- If using macOS, the Xcode install [above](##Set up Git) has you covered
+- If using macOS, install [Xcode](https://developer.apple.com/xcode/) if you haven't already
 - In RStudio, install these packages via Tools -> Install Packages
   - devtools
   - roxygen2
@@ -105,3 +105,41 @@ CREATE TABLE [dbo].[HCRWriteData](
 )
 ```
   
+## Verify you can build the healthcareai package
+
+1) In RStudio, if you don't see healthcareai-r in the top right corner
+   - Click the project tab in the top right -> Open Project
+   
+2) Click on the build tab in the top right corner
+   
+3) Click Build and verify that you can build successfully (without errors)
+   - Note that you may see warnings about versioning, which is fine
+   
+4) Run tests via `devtools::tests()` or CTRL+SHIFT+D or Build dropdown -> Test Package
+   - Verify that these pass without seeing errors
+   
+5) Run the roxygen2 examples via `devtools::run_examples()`. Verify that these finish without errors
+   - Verify that these pass without seeing errors
+   
+6) Under the build tab, run 'Check'
+   - Verify that only one warning arises
+     - This warning is due to the [limitations](https://github.com/wch/R6/issues/3) of roxygen and R6 method documentation
+     - This is the only warning/error/note that's allowed when merging to master
+
+## Configure git
+
+1) Open RStudio -> Git tab -> Gear Icon -> Shell
+
+2) Set up your email and user name (for [proper attribution](https://help.github.com/articles/setting-your-username-in-git/))
+   - `git config user.name "Billy Everyteen`
+   - `git config --global user.email "your_email@example.com"`
+
+3) Configure line endings via `git config core.autocrlf true`
+
+4) Make git case-sensitive via `git config core.ignorecase false`
+
+5) If you use a personal email for github, and would rather have notifications go to your Health Cataylst email
+   - See [here]()https://github.com/settings/notifications -> Notification email -> Custom routing
+
+6) Set up SSH so you can push without typing password (optional, but nice)
+   - See [here](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/), [here](https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/), and then [here](https://help.github.com/enterprise/11.10.340/user/articles/changing-a-remote-s-url/)
