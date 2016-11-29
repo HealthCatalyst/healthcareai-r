@@ -80,7 +80,7 @@ library(healthcareai)
   
 - Make sure you've thoroughly read the descriptions found [here](http://healthcare.ai/r/)
 
-- If you're still seeing an error, file an issue that contains
+- If you're still seeing an error, [file an issue](https://github.com/HealthCatalystSLC/healthcareai-r/issues) that contains
   - Details on your environment (OS, database type)
   - Goals (ie, what are you trying to accomplish)
   - Crystal clear steps for reproducing the error
