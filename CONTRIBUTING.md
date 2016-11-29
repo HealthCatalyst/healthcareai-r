@@ -8,7 +8,9 @@
 
 3) Follow the healthcare.ai [install instructions](https://github.com/HealthCatalystSLC/HCRTools/blob/master/README.md)
 
-## Set up Git (Windows-specific) - OSX instructions [here](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git#Installing-on-Mac)
+## Set up Git 
+
+This is for Windows; for macOS see [here](https://developer.apple.com/xcode/); for linux see [here](https://git-scm.com/download/linux)
 
 - Download and install [Git for Windows](https://git-scm.com/download/win)
   - Choose Use Git from Git Bash only
@@ -56,3 +58,50 @@
   - Under Display, check check 'Show margin' and set to 80 characters
   - Under Diagnostics, check all boxes
 
+## Set up environment for R dev
+
+- If using Windows, [Download](https://cran.r-project.org/bin/windows/Rtools/) and install RTools
+  - Note: this installs a C++ compiler (called [g++](https://gcc.gnu.org/onlinedocs/gcc-3.3.6/gcc/G_002b_002b-and-GCC.html))
+  - Can accept defaults on `Select Destination Location` and `Select Components` screens
+  - On `Select Additional Tasks` step, check the PATH box
+  - If you ever see issues related to Rtools, see [here](https://github.com/stan-dev/rstan/wiki/Install-Rtools-for-Windows)
+- If using macOS, the Xcode install [above](##Set up Git) has you covered
+- In RStudio, install these packages via Tools -> Install Packages
+  - devtools
+  - roxygen2
+  - testthat
+  - evaluate
+- Set up SQL Server, if you haven't already
+  - If on Windows, [install](http://stackoverflow.com/a/11278818/5636012) both SQL Server Express and SSMS Express
+  - Create tables (on localhost) to receive predictive output using the code below (use SSMS if on Windows):
+  - Note that these will go in the SAM database, if using the Health Catalyst analytics environment
+```SQL
+CREATE TABLE [dbo].[HCRDeployClassificationBASE](
+	[BindingID] [int] NULL,
+	[BindingNM] [varchar](255) NULL,
+	[LastLoadDTS] [datetime2](7) NULL,
+	[PatientEncounterID] [decimal](38, 0) NULL,
+	[PredictedProbNBR] [decimal](38, 2) NULL,
+	[Factor1TXT] [varchar](255) NULL,
+	[Factor2TXT] [varchar](255) NULL,
+	[Factor3TXT] [varchar](255) NULL
+)
+
+CREATE TABLE [dbo].[HCRDeployRegressionBASE](
+	[BindingID] [int] NULL,
+	[BindingNM] [varchar](255) NULL,
+	[LastLoadDTS] [datetime2](7) NULL,
+	[PatientEncounterID] [decimal](38, 0) NULL,
+	[PredictedValueNBR] [decimal](38, 2) NULL,
+	[Factor1TXT] [varchar](255) NULL,
+	[Factor2TXT] [varchar](255) NULL,
+	[Factor3TXT] [varchar](255) NULL
+)
+
+CREATE TABLE [dbo].[HCRWriteData](
+	[a] [float] NULL,
+	[b] [float] NULL,
+	[c] [varchar](255) NULL
+)
+```
+  
