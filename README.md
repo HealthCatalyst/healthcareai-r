@@ -54,7 +54,7 @@ After that's done, here's the contribution workflow:
 4) As you make changes
    - Document any new functions, methods, etc via [roxygen2](http://r-pkgs.had.co.nz/man.html)
    - Be sure to build often
-     - Building checks for errors and allows you to use the latest code
+     - Note: building checks for errors and allows you to use the latest code
    - Make small commits after getting a small piece working
    - Push often so your changes are backed up. See [here](https://gist.github.com/blackfalcon/8428401#push-your-branch) for more
    
