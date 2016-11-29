@@ -41,7 +41,7 @@ You want to help? Wohoo! We welcome that and are willing to help newbies get sta
 
 First, See [here](CONTRIBUTING.md) for instructions on setting up your development environment
 
-After that's done, here's the contribution workflow:
+After that's done, *here's the contribution workflow:*
 
 1) Identify an issue that suits your skill level [here](https://github.com/HealthCatalystSLC/healthcareai-r/issues)
    - Only look for issues in the Backlog category
