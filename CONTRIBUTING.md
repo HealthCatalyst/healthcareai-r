@@ -143,7 +143,7 @@ CREATE TABLE [dbo].[HCRWriteData](
 5) Improve merge conflict resolution via `git config --global merge.conflictstyle diff3`
 
 6) If you use a personal email for github, and would rather have notifications go to your Health Cataylst email
-   - See [here]()https://github.com/settings/notifications -> Notification email -> Custom routing
+   - See [here](https://github.com/settings/notifications) -> Notification email -> Custom routing
 
 7) Set up SSH so you can push without typing password (optional, but nice)
    - See [here](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/), [here](https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/), and then [here](https://help.github.com/enterprise/11.10.340/user/articles/changing-a-remote-s-url/)
