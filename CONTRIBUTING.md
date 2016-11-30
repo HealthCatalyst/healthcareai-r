@@ -34,7 +34,7 @@ This is for Windows; for macOS see [here](https://developer.apple.com/xcode/); f
 -	Note that a git tab now appears in RStudio
 
 ## Create a topic branch that you can work in
-1) In RStudio, click Git tab -> Gear Icon -> Shell
+1) In RStudio -> Tools (at top) -> Shell
 
 2) Type `git checkout -b nameofbranch`
    - This creates the your local branch for work
@@ -128,7 +128,7 @@ CREATE TABLE [dbo].[HCRWriteData](
 
 ## Configure git
 
-1) Open RStudio -> Git tab -> Gear Icon -> Shell
+1) Open RStudio -> Tools (at top) -> Shell
 
 2) Set up your email and user name (for [proper attribution](https://help.github.com/articles/setting-your-username-in-git/))
    - `git config user.name "Billy Everyteen`
