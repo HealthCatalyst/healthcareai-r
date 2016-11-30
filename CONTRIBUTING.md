@@ -13,10 +13,12 @@
 This is for Windows; for macOS see [here](https://developer.apple.com/xcode/); for linux see [here](https://git-scm.com/download/linux)
 
 - Download and install [Git for Windows](https://git-scm.com/download/win)
-  - Choose Use Git from Git Bash only
+  - Choose "64-bit Git for Windows Setup"
+  - On the Select Components screen, accept the defaults
+  - After selecting install location, choose "Use Git from the Windows Command Prompt"
   - Checkout using Windows-style
-  - Choose Mintty
-- Restart RStudio
+  - Choose MinTTy
+  - Restart RStudio
 - Open RStudio
   - Open Tools --> Global Options
   - Look for git.exe in the bin folder in C:\Program Files\Git\bin
