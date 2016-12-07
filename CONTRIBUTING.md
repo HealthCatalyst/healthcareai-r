@@ -26,7 +26,7 @@ This is for Windows; for macOS see [here](https://developer.apple.com/xcode/); f
 ## Clone healthcareai-r repo
 
 -	Create a data science folder (if you don't have one)
--	In github repo, click green 'Clone or download' and copy git link
+-	In github repo (online in browser), click green 'Clone or download' and copy git link. You'll want to use the HTML address unless you have an SSH key for git already.
 -	Open RStudio
   - Look for Project dropdown (top right corner)
   - Click New Project
@@ -52,13 +52,14 @@ This is for Windows; for macOS see [here](https://developer.apple.com/xcode/); f
   - Select the healthcareai-r.Rproj file (that's at the top-level of the repo you downloaded)
 - Click on Tools (at top menu of RStudio) -> Project Options -> Build Tools
   - Check 'Use devtools package functions if available
-  - Check 'Generate documentation with Roxygen'
+  - Check 'Generate documentation with Roxygen' If you don't see this option, you must install Roxygen2 by entering the following into the command line:
+  install.packages("roxygen2")
   - Click on 'Configure' Button -> Check all boxes
   - Click OK twice
 - Click again on Tools -> Global Options
-  - Under Editing, check 'Always save R scripts before sourcing'
-  - Under Display, check check 'Show margin' and set to 80 characters
-  - Under Diagnostics, check all boxes
+  - Under Code -> Editing, check 'Always save R scripts before sourcing'
+  - Under Code -> Display, check check 'Show margin' and set to 80 characters
+  - Under Code -> Diagnostics, check all boxes
 
 ## Set up environment for R dev
 
@@ -77,6 +78,8 @@ This is for Windows; for macOS see [here](https://developer.apple.com/xcode/); f
   - If on Windows, [install](http://stackoverflow.com/a/11278818/5636012) both SQL Server Express and SSMS Express
   - Create tables (on localhost) to receive predictive output using the code below (use SSMS if on Windows):
   - Note that these will go in the SAM database, if using the Health Catalyst analytics environment
+  - Modify the command to include your path to the Healthcare.ai package where it says "YOUR_PATH_HERE"
+  
 ```SQL
 CREATE TABLE [dbo].[HCRDeployClassificationBASE](
 	[BindingID] [int] NULL,
@@ -98,6 +101,26 @@ CREATE TABLE [dbo].[HCRDeployRegressionBASE](
 	[Factor1TXT] [varchar](255) NULL,
 	[Factor2TXT] [varchar](255) NULL,
 	[Factor3TXT] [varchar](255) NULL
+)
+
+CREATE TABLE [dbo].[HCRDiabetesClinical](
+	[PatientEncounterID] [float] NULL,
+	[PatientID] [float] NULL,
+	[SystolicBPNBR] [float] NULL,
+	[LDLNBR] [float] NULL,
+	[A1CNBR] [float] NULL,
+	[GenderFLG] [nvarchar](255) NULL,
+	[ThirtyDayReadmitFLG] [nvarchar](255) NULL,
+	[InTestWindowFLG] [nvarchar](255) NULL
+)
+BULK INSERT dbo.HCRDiabetesClinical
+FROM 'YOUR_PATH_HERE\healthcareai-r\inst\extdata\HCRDiabetesClinical.csv'
+WITH
+(
+    FIRSTROW = 2,
+    FIELDTERMINATOR = ',',  --CSV field delimiter
+    ROWTERMINATOR = '\n',   --Use to shift the control to next row
+	KEEPNULLS
 )
 
 CREATE TABLE [dbo].[HCRWriteData](
