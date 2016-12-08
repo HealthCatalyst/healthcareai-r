@@ -8,13 +8,15 @@ trusted_connection=true'
 
 query1 = '
 SELECT TOP 10
-      [SystolicBPNBR]
+      SystolicBPNBR
 FROM [SAM].[dbo].[HCRDiabetesClinical] order by PatientEncounterID'
 
 query2 = '
-select top 30
-       LDLNBR
-from [SAM].[dbo].[HCRDiabetesClinical] order by LDLNBR'
+SELECT TOP 30
+      LDLNBR
+FROM [SAM].[dbo].[HCRDiabetesClinical] 
+WHERE LDLNBR is not NULL
+ORDER BY LDLNBR'
 
 query3 = '
 select top 0
@@ -27,19 +29,19 @@ SELECT [A1CNBR] FROM [SAM].[dbo].[DiabetesClinicall]'
 test_that("Returns correct selected data in data frame", {
   expect_equal(capture.output(selectData(connection.string,query1)),
                capture.output(rbind(cat('Too few rows returned from SQL: 10 rows returned.Adjust your query to return more data!'),
-               data.frame(SystolicBPNBR = c(167,160,126,112,121,
-                                            125,133,129,129,145)))))
+               data.frame(SystolicBPNBR = c(167,153,170,187,188,
+                                            185,189,149,155,160)))))
 })
 
 test_that("Returns too few rows message when <200 rows 199 rows edge case", {
   expect_equal(capture.output(selectData(connection.string,query2)),
                capture.output(rbind(cat('Too few rows returned from SQL: 30 rows returned.Adjust your query to return more data!'),
-               data.frame(LDLNBR = c(100,100,100,100,100,
-                                    100,101,101,101,101,
-                                    101,102,102,102,102,
-                                    102,102,102,102,102,
-                                    103,103,103,103,103,
-                                    103,103,104,104,104)))))
+               data.frame(LDLNBR = c(71,71,72,72,73,
+                                    73,74,74,74,74,
+                                    75,75,75,75,76,
+                                    76,76,76,77,77,
+                                    77,78,78,78,78,
+                                    78,79,79,80,80)))))
 })
 
 test_that("Returns too few rows message when 0 rows edge case", {
