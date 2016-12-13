@@ -78,7 +78,7 @@ This is for Windows; for macOS see [here](https://developer.apple.com/xcode/); f
   - If on Windows, [install](http://stackoverflow.com/a/11278818/5636012) both SQL Server Express and SSMS Express
   - Create tables (on localhost) to receive predictive output using the code below (use SSMS if on Windows):
   - Note that these will go in the SAM database, if using the Health Catalyst analytics environment
-  - Modify the command to include your path to the Healthcare.ai package where it says "YOUR_PATH_HERE"
+  - Modify the command to include your path to the local healthcare.ai repo where it says "YOUR_PATH_HERE"
   
 ```SQL
 CREATE TABLE [dbo].[HCRDeployClassificationBASE](
