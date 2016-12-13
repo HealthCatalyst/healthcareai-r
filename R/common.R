@@ -1005,7 +1005,22 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' 
+#' # generate data
+#' df <- data.frame(a = rep( seq(0,1,by=0.1), times=5),
+#'                  b = rep(0,times=55))
+#' # add positive labels
+#' df[c(seq(11,55,by=11)),2] <- 1
+#' df[c(seq(10,55,by=11)),2] <- 1
+#' df[c(seq(9,55,by=22)),2] <- 1
+#' df[c(4, 18, 30, 39, 52 ),2 ] <- 1
 
+#' # prepare vectors
+#' pred <- df[,1]
+#' labels <- df[,2]
+#' 
+#' # generate the AUC
+#' auc = generateAUC(pred,labels,'SS','TRUE')
+#' 
 generateAUC <- function(predictions, labels, aucType, plotFlg) {
   # Error check for uneven length predictions and labels
   if (length(predictions) != length(labels)) {
