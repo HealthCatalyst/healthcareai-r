@@ -10,3 +10,4 @@
 ^appveyor\.yml$
 ^inst/notebooks/\.ipynb_checkpoints$
 ^inst/CIDatabase$
+^CONTRIBUTING.md
