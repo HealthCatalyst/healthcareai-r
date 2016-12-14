@@ -26,7 +26,9 @@ Precision/Recall.
 \examples{
 
 # generate data
+# example probablities
 df <- data.frame(a = rep( seq(0,1,by=0.1), times=9))
+# example ground truth values
 df[,'b'] <- (runif(99,0,1)*df[,'a']) > 0.5
 
 # prepare vectors

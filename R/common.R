@@ -717,6 +717,43 @@ plotROCs <- function(rocs, names, legendLoc) {
 }
 
 #' @title
+#' Plot PR Curves from SupervisedModel classes
+#'
+#' @description Plot ROCs calculated by children classes of SupervisedModel
+#' @param PRCurves A vector/array/list of PR curves
+#' @param names A vector of algorithm/class names
+#' @param legendLoc Location of the legend string to display
+#'
+#' @importFrom graphics legend title
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
+
+plotPRCurve <- function(PRCurves, names, legendLoc) {
+  # generate color vector TODO: auto generate these colors dynamically as rgb
+  # values based on the length of PRCurves list
+  colvec <- c("red", "blue", "green", "orange", "brown", "magenta")
+  
+  # plot PRCurves
+  rocIndex <- 1
+  for (roc in PRCurves) {
+    if (rocIndex == 1) {
+      plot(roc,
+           col = colvec[rocIndex],
+           legacy.axes = TRUE,
+           mar = c(4, 4, 3, 2) + 0.1)
+      title(main = "PR Curve")
+    } else {
+      plot(roc, add = TRUE, col = colvec[rocIndex], lty = 2)
+    }
+    rocIndex <- rocIndex + 1
+  }
+  # legend
+  legend(legendLoc, names, cex = 0.8, col = colvec, lty = 1:2, inset = 0.1)
+  return()
+}
+
+#' @title
 #' Calculate std deviation up/down for each numeric field in row
 #'
 #' @description Add/subtract each numeric col (for each row) by std dev, such

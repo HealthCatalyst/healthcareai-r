@@ -345,8 +345,8 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
           print(predictClass[1:10])
         }
 
-        private$ROC <- roc(ytest~predictProb[,2])
-        private$AUC <- auc(private$ROC)
+        private$ROC <- pROC::roc(ytest~predictProb[,2])
+        private$AUC <- pROC::auc(private$ROC)
 
         # Show results
         if (isTRUE(self$params$printResults)) {

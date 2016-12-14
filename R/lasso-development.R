@@ -196,7 +196,8 @@ LassoDevelopment <- R6Class("LassoDevelopment",
   	AUC = NA,
   	rmse = NA,
   	mae = NA,
-  	perf = NA,
+  	perfSS = NA,
+  	perfPRCurve = NA,
   	prevalence = NA
   ),
 
@@ -301,7 +302,8 @@ LassoDevelopment <- R6Class("LassoDevelopment",
         pred <- ROCR::prediction(private$predictions, ytest)
 
         # Performance
-        private$perf <- ROCR::performance(pred, "tpr", "fpr")
+        private$perfSS <- ROCR::performance(pred, "tpr", "fpr")
+        private$perfPRCurve <- ROCR::performance(pred, "prec", "rec")
 
         if (isTRUE(self$params$debug)) {
           print(paste0('Rows in probability prediction: ', length(predictProb)))
@@ -377,6 +379,18 @@ LassoDevelopment <- R6Class("LassoDevelopment",
       }
       return(private$ROC)
     },
+    
+    getPRCurve = function() {
+      if (!isBinary(self$params$df[[self$params$predictedCol]])) {
+        print("ROC is not created because the column you're predicting is not binary")
+        return(NULL)
+      }
+      return(private$perfPRCurve)
+    },
+    
+    getPerfPRCurve = function() {
+      return(private$perfPRCurve)
+    },
 
     getAUC = function() {
       return(private$AUC)
@@ -390,21 +404,17 @@ LassoDevelopment <- R6Class("LassoDevelopment",
       return(private$mae)
     },
 
-    getPerf = function() {
-      return(private$perf)
-    },
-
     getCutOffs = function(tpr) {
       # Get index of when true-positive rate is > tpr
-      indy <- which(as.numeric(unlist(private$perf@y.values)) > tpr)
+      indy <- which(as.numeric(unlist(private$perfSS@y.values)) > tpr)
 
       # Correpsonding probability cutoff value (ie when category falls to 1)
       print('Corresponding cutoff for 0/1 fallover:')
-      print(private$perf@alpha.values[[1]][indy[1]])
+      print(private$perfSS@alpha.values[[1]][indy[1]])
 
       # Corresponding false-positive rate
       print('Corresponding false-positive rate:')
-      print(private$perf@x.values[[1]][indy[1]][[1]])
+      print(private$perfSS@x.values[[1]][indy[1]][[1]])
     }
   )
 )
