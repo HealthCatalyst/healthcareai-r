@@ -701,12 +701,14 @@ plotROCs <- function(rocs, names, legendLoc) {
   rocIndex <- 1
   for (roc in rocs) {
     if (rocIndex == 1) {
+      par(pty="s")
       plot(roc,
            col = colvec[rocIndex],
            legacy.axes = TRUE,
            mar = c(4, 4, 3, 2) + 0.1)
       title(main = "ROC")
     } else {
+      par(pty="s")
       plot(roc, add = TRUE, col = colvec[rocIndex], lty = 2)
     }
     rocIndex <- rocIndex + 1
