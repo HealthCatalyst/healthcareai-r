@@ -4,7 +4,7 @@
 \alias{generateAUC}
 \title{Generate ROC curve for a dataset.}
 \usage{
-generateAUC(predictions, labels, aucType, plotFlg)
+generateAUC(predictions, labels, aucType = "SS", plotFlg = FALSE)
 }
 \arguments{
 \item{predictions}{A vector of predictions from a machine learning model.}
@@ -12,12 +12,12 @@ generateAUC(predictions, labels, aucType, plotFlg)
 \item{labels}{A vector of the true labels. Must be the same length as 
 predictions.}
 
-\item{aucType}{Can be "SS" or "PR". Defaults to SS.}
+\item{aucType}{A string. Indicates AUC_ROC or AU_PR and can be "SS" or "PR". Defaults to SS.}
 
 \item{plotFlg}{Binary value controlling plots Defaults to FALSE (no).}
 }
 \value{
-auc Integral AUC of ROC plot.
+auc A number between 0 and 1. Integral AUC of chosen plot type.
 }
 \description{
 Generates ROC curve and AUC for Sensitivity/Specificity or 
@@ -26,16 +26,12 @@ Precision/Recall.
 \examples{
 
 # generate data
-df <- data.frame(a = rep( seq(0,1,by=0.1), times=5),
-                 b = rep(0,times=55))
-# add positive labels
-df[c(seq(11,55,by=11)),2] <- 1
-df[c(seq(10,55,by=11)),2] <- 1
-df[c(seq(9,55,by=22)),2] <- 1
-df[c(4, 18, 30, 39, 52 ),2 ] <- 1
+df <- data.frame(a = rep( seq(0,1,by=0.1), times=9))
+df[,'b'] <- (runif(99,0,1)*df[,'a']) > 0.5
+
 # prepare vectors
-pred <- df[,1]
-labels <- df[,2]
+pred <- df[,'a']
+labels <- df[,'b']
 
 # generate the AUC
 auc = generateAUC(pred,labels,'SS','TRUE')

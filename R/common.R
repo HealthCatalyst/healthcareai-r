@@ -995,9 +995,9 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
 #' @param predictions A vector of predictions from a machine learning model.
 #' @param labels A vector of the true labels. Must be the same length as 
 #' predictions.
-#' @param aucType Can be "SS" or "PR". Defaults to SS.
+#' @param aucType A string. Indicates AUC_ROC or AU_PR and can be "SS" or "PR". Defaults to SS.
 #' @param plotFlg Binary value controlling plots Defaults to FALSE (no).
-#' @return auc Integral AUC of ROC plot.
+#' @return auc A number between 0 and 1. Integral AUC of chosen plot type.
 #'
 #' @import ROCR
 #' @export
@@ -1006,49 +1006,49 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
 #' @examples
 #' 
 #' # generate data
-#' df <- data.frame(a = rep( seq(0,1,by=0.1), times=5),
-#'                  b = rep(0,times=55))
-#' # add positive labels
-#' df[c(seq(11,55,by=11)),2] <- 1
-#' df[c(seq(10,55,by=11)),2] <- 1
-#' df[c(seq(9,55,by=22)),2] <- 1
-#' df[c(4, 18, 30, 39, 52 ),2 ] <- 1
-
+#' df <- data.frame(a = rep( seq(0,1,by=0.1), times=9))
+#' df[,'b'] <- (runif(99,0,1)*df[,'a']) > 0.5
+#' 
 #' # prepare vectors
-#' pred <- df[,1]
-#' labels <- df[,2]
+#' pred <- df[,'a']
+#' labels <- df[,'b']
 #' 
 #' # generate the AUC
 #' auc = generateAUC(pred,labels,'SS','TRUE')
 #' 
-generateAUC <- function(predictions, labels, aucType, plotFlg) {
+generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE) {
   # Error check for uneven length predictions and labels
   if (length(predictions) != length(labels)) {
     stop('Data vectors are not equal length!')
   }
   
-  # use SS if aucType is missing
-  if (missing(aucType)) {
+  # use SS if lowecase
+  if (aucType == 'ss') {
     aucType <- 'SS'
   }
-  
-  # plot ROC curve if flag is missing
-  if (missing(plotFlg)) {
-    plotFlg <- FALSE
+  # use PR if lowecase
+  if (aucType == 'pr') {
+    aucType <- 'PR'
+  }
+  # default to SS if something else is entered
+  if (aucType!='SS' && aucType!='PR'){
+    print('Drawing ROC curve with Sensitivity/Specificity')
+    aucType <- 'SS'
   }
   
   # generate ROC data
   roc1 <- prediction( predictions, labels)
   
   # get performance and AUC from either curve type
+  # PR
   if (aucType == 'PR') {
     # ROC Curve Precision/Recall
     perf <- performance(roc1, "prec", "rec")
     perf.auc <- performance(roc1, measure = "auc")
     cat("Area under the curve: ", perf.auc@y.values[[1]])
   }
-  # defaults to SS
-  else {
+  # SS
+  else if (aucType == 'SS') {
     perf <- performance(roc1, "tpr","fpr")
     perf.auc <- performance(roc1, measure = "auc")
     cat("Area under the curve: ", perf.auc@y.values[[1]])
