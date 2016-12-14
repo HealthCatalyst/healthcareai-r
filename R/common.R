@@ -256,7 +256,7 @@ selectData <- function(connectionString, query, randomize = FALSE) {
     cat(df)  # Print the SQL error, which is contained in df.
     stop("Your SQL contains an error.")
   }
-  if (nrow(df) < 200) {
+  if (nrow(df) == 0) {
     cat("Too few rows returned from SQL: ")
     cat(nrow(df))
     cat(" rows returned.")
