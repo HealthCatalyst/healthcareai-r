@@ -705,11 +705,16 @@ plotROCs <- function(rocs, names, legendLoc) {
       plot(roc,
            col = colvec[rocIndex],
            legacy.axes = TRUE,
-           mar = c(4, 4, 3, 2) + 0.1)
-      title(main = "ROC")
+           mar = c(4, 4, 3, 2) + 0.1,
+           xlab="False Positive Rate", ylab="True Positive Rate")
+      
     } else {
       par(pty="s")
-      plot(roc, add = TRUE, col = colvec[rocIndex], lty = 2)
+      plot(roc, 
+           add = TRUE, 
+           col = colvec[rocIndex], 
+           lty = 2,
+           xlab="False Positive Rate", ylab="True Positive Rate")
     }
     rocIndex <- rocIndex + 1
   }
@@ -721,7 +726,7 @@ plotROCs <- function(rocs, names, legendLoc) {
 #' @title
 #' Plot PR Curves from SupervisedModel classes
 #'
-#' @description Plot ROCs calculated by children classes of SupervisedModel
+#' @description Plot PRCurves calculated by children classes of SupervisedModel
 #' @param PRCurves A vector/array/list of PR curves
 #' @param names A vector of algorithm/class names
 #' @param legendLoc Location of the legend string to display
@@ -737,18 +742,22 @@ plotPRCurve <- function(PRCurves, names, legendLoc) {
   colvec <- c("red", "blue", "green", "orange", "brown", "magenta")
   
   # plot PRCurves
-  rocIndex <- 1
-  for (roc in PRCurves) {
-    if (rocIndex == 1) {
-      plot(roc,
-           col = colvec[rocIndex],
+  prIndex <- 1
+  for (pr in PRCurves) {
+    if (prIndex == 1) {
+      plot(pr,
+           col = colvec[prIndex],
            legacy.axes = TRUE,
-           mar = c(4, 4, 3, 2) + 0.1)
-      title(main = "PR Curve")
+           mar = c(4, 4, 3, 2) + 0.1,
+           main = "PR Curve")
     } else {
-      plot(roc, add = TRUE, col = colvec[rocIndex], lty = 2)
+      plot(pr, 
+           add = TRUE, 
+           col = colvec[prIndex], 
+           lty = 2,
+           main = "PR Curve")
     }
-    rocIndex <- rocIndex + 1
+    prIndex <- prIndex + 1
   }
   # legend
   legend(legendLoc, names, cex = 0.8, col = colvec, lty = 1:2, inset = 0.1)
