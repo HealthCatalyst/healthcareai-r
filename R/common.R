@@ -988,3 +988,79 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
   dfOptResult
 }
 
+#' @title
+#' Generate ROC curve for a dataset.
+#' @description Generates ROC curve and AUC for Sensitivity/Specificity or 
+#' Precision/Recall.
+#' @param predictions A vector of predictions from a machine learning model.
+#' @param labels A vector of the true labels. Must be the same length as 
+#' predictions.
+#' @param aucType A string. Indicates AUC_ROC or AU_PR and can be "SS" or "PR". Defaults to SS.
+#' @param plotFlg Binary value controlling plots Defaults to FALSE (no).
+#' @return auc A number between 0 and 1. Integral AUC of chosen plot type.
+#'
+#' @import ROCR
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
+#' @examples
+#' 
+#' # generate data
+#' # example probablities
+#' df <- data.frame(a = rep( seq(0,1,by=0.1), times=9))
+#' # example ground truth values
+#' df[,'b'] <- (runif(99,0,1)*df[,'a']) > 0.5
+#' 
+#' # prepare vectors
+#' pred <- df[,'a']
+#' labels <- df[,'b']
+#' 
+#' # generate the AUC
+#' auc = generateAUC(pred,labels,'SS','TRUE')
+#' 
+generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE) {
+  # Error check for uneven length predictions and labels
+  if (length(predictions) != length(labels)) {
+    stop('Data vectors are not equal length!')
+  }
+  
+  # use SS if lowecase
+  if (aucType == 'ss') {
+    aucType <- 'SS'
+  }
+  # use PR if lowecase
+  if (aucType == 'pr') {
+    aucType <- 'PR'
+  }
+  # default to SS if something else is entered
+  if (aucType!='SS' && aucType!='PR'){
+    print('Drawing ROC curve with Sensitivity/Specificity')
+    aucType <- 'SS'
+  }
+  
+  # generate ROC data
+  roc1 <- prediction( predictions, labels)
+  
+  # get performance and AUC from either curve type
+  # PR
+  if (aucType == 'PR') {
+    # ROC Curve Precision/Recall
+    perf <- performance(roc1, "prec", "rec")
+    perf.auc <- performance(roc1, measure = "auc")
+    cat("Area under the curve: ", perf.auc@y.values[[1]])
+  }
+  # SS
+  else if (aucType == 'SS') {
+    perf <- performance(roc1, "tpr","fpr")
+    perf.auc <- performance(roc1, measure = "auc")
+    cat("Area under the curve: ", perf.auc@y.values[[1]])
+  }
+  
+  # plot AUC 
+  if (plotFlg == TRUE){
+    plot(perf, col = "blue", lwd = 2)
+  }
+  
+  # return AUC
+  return(perf.auc@y.values[[1]])
+}
