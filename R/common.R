@@ -1132,20 +1132,14 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE) {
 calculatePerformance <- function(predictions, ytest, type) {
   if (type == 'classification') {
 
-    print('predictions')
-    print(predictions[1:10,2])
-    
-    print('ytest')
-    print(ytest[1:10])
-    
     # Performance curves for return and plotting
-    predROCR <- ROCR::prediction(predictions[,2], ytest)
+    predROCR <- ROCR::prediction(predictions, ytest)
     ROCPlot <- ROCR::performance(predROCR, "tpr", "fpr")
     PRCurvePlot <- ROCR::performance(predROCR, "prec", "rec")
     
     # Performance AUC calcs (AUPR is ROCR-based)
-    AUPR <- generateAUC(predictions[,2], ytest,'PR','FALSE')
-    ROCConf <- pROC::roc(ytest~predictions[,2]) # need pROC for 95% confidence
+    AUPR <- generateAUC(predictions, ytest,'PR','FALSE')
+    ROCConf <- pROC::roc(ytest~predictions) # need pROC for 95% confidence
     AUROC <- pROC::auc(ROCConf)                  
     
     # Show results
@@ -1155,7 +1149,7 @@ calculatePerformance <- function(predictions, ytest, type) {
                  round(ci(AUROC)[3],2), ')'))
     print(paste0('AU_PR: ', round(AUPR, 2)))
     
-    return(ROCPlot)
+    return(list(ROCPlot,PRCurvePlot))
   }
   
   else if ('regression') {

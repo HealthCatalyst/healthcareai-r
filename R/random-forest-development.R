@@ -186,13 +186,11 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
 
     # Performance metrics
     ROCPlot = NA,
+    PRCurvePlot = NA,
     AUROC = NA,
     AUPR = NA,
     rmse = NA,
     mae = NA,
-    perfSS = NA,
-    perfPRCurve = NA,
-    prevalence = NA,
 
     # Start of functions
     buildGrid = function() {
@@ -349,9 +347,12 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       
       ytest <- as.numeric(private$dfTest[[self$params$predictedCol]])
 
-      private$ROCPlot <- calculatePerformance(private$predictions, 
-                                              ytest, 
-                                              self$params$type)
+      plots <- calculatePerformance(private$predictions[,2], 
+                                    ytest, 
+                                    self$params$type)
+      
+      private$ROCPlot <- plots[[1]]
+      private$PRCurvePlot <- plots[[2]]
       
       print(caret::varImp(private$fitRF, top = 20))
       
