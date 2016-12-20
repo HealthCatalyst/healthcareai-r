@@ -155,6 +155,12 @@ names <- c("Random Forest", "Lasso")
 legendLoc <- "bottomright"
 plotROCs(rocs, names, legendLoc)
 
+# Plot PR Curve
+rocs <- list(rf$getPRCurve(), lasso$getPRCurve())
+names <- c("Random Forest","Lasso")
+legendLoc <- "bottomleft"
+plotPRCurve(rocs, names, legendLoc)
+
 # For a given true-positive rate, get false-pos rate and 0/1 cutoff
 lasso$getCutOffs(tpr = 0.8)
 
