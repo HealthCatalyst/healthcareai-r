@@ -7,7 +7,8 @@
 calculateSDChanges(dfOriginal, rowNum, numColLeaveOut, sizeOfSDPerturb = 0.5)
 }
 \arguments{
-\item{dfOriginal}{Data frame from which we'll draw a row for alt-scenarios}
+\item{dfOriginal}{Data frame from Error in as.double(y) : 
+cannot coerce type 'S4' to vector of type 'double' which we'll draw a row for alt-scenarios}
 
 \item{rowNum}{Row in dfOriginal that we'll create alt-scenarios for}
 

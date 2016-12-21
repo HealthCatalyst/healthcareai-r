@@ -14,7 +14,7 @@ plotPRCurve(PRCurves, names, legendLoc)
 \item{legendLoc}{Location of the legend string to display}
 }
 \description{
-Plot ROCs calculated by children classes of SupervisedModel
+Plot PRCurves calculated by children classes of SupervisedModel
 }
 \references{
 \url{http://healthcare.ai}

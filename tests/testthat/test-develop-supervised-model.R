@@ -53,7 +53,7 @@ test_that("AUC_lmm is the same each time the test is run", {
   capture.output(lmm <- LinearMixedModelDevelopment$new(p))
   capture.output(expect_warning(lmm$run()))
 
-  expect_true(as.numeric(lmm$getAUC()) - 0.849 < 1.0e-6)
+  expect_true(as.numeric(lmm$getAUROC()) - 0.849 < 1.0e-6)
 
 })
 
@@ -99,7 +99,7 @@ test_that("AUC_lasso is the same each time the test is run", {
   capture.output(grLasso <- LassoDevelopment$new(p))
   capture.output(grLasso$run())
 
-  expect_true(as.numeric(grLasso$getAUC()) - 0.6935 < 1.0e-6)
+  expect_true(as.numeric(grLasso$getAUROC()) - 0.6935 < 1.0e-6)
 })
 
 test_that("rmse_lasso is the same each time the test is run non-factor column", {
@@ -128,7 +128,6 @@ test_that("mae_lasso is the same each time the test is run non-factor column", {
 
 })
 
-
 #############
 #RandomForest
 
@@ -141,7 +140,7 @@ test_that("AUC_rf is the same each time the test is run", {
   capture.output(rf <- RandomForestDevelopment$new(p))
   capture.output(rf$run())
 
-  expect_true(as.numeric(rf$getAUC()) - 0.9301775 < 1.0e-6)
+  expect_true(as.numeric(rf$getAUROC()) - 0.9301775 < 1.0e-6)
 
 })
 

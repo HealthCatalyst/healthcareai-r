@@ -157,7 +157,7 @@ source('R/supervised-model-development.R')
 #' 
 #' # Plot PR Curve
 #' rocs <- list(rf$getPRCurve(), lasso$getPRCurve())
-#' names <- c("Random Forest","Lasso")
+#' names <- c("Random Forest", "Lasso")
 #' legendLoc <- "bottomleft"
 #' plotPRCurve(rocs, names, legendLoc)
 #'
@@ -189,8 +189,8 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     PRCurvePlot = NA,
     AUROC = NA,
     AUPR = NA,
-    rmse = NA,
-    mae = NA,
+    RMSE = NA,
+    MAE = NA,
 
     # Start of functions
     buildGrid = function() {
@@ -321,11 +321,12 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         private$predictions <- predict(object = private$fitRF,
                                       newdata = private$dfTest,
                                       type = 'prob')
+        private$predictions <- private$predictions[,2]
         
         if (isTRUE(self$params$debug)) {
           print(paste0('Number of predictions: ', nrow(private$predictions)))
           print('First 10 raw classification probability predictions')
-          print(round(private$predictions[1:10,2],2))
+          print(round(private$predictions[1:10],2))
         }
         
       } else if (self$params$type == 'regression') {
@@ -347,12 +348,17 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       
       ytest <- as.numeric(private$dfTest[[self$params$predictedCol]])
 
-      plots <- calculatePerformance(private$predictions[,2], 
-                                    ytest, 
-                                    self$params$type)
+      calcObjList <- .calculatePerformance(private$predictions, 
+                                           ytest, 
+                                           self$params$type)
       
-      private$ROCPlot <- plots[[1]]
-      private$PRCurvePlot <- plots[[2]]
+      # Make these objects available for plotting and unit tests
+      private$ROCPlot <- calcObjList[[1]]
+      private$PRCurvePlot <- calcObjList[[2]]
+      private$AUROC <- calcObjList[[3]]
+      private$AUPR <- calcObjList[[4]]
+      private$RMSE <- calcObjList[[5]]
+      private$MAE <- calcObjList[[6]]
       
       print(caret::varImp(private$fitRF, top = 20))
       
@@ -382,7 +388,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     
     getPRCurve = function() {
       if (!isBinary(self$params$df[[self$params$predictedCol]])) {
-        print("ROC is not created because the column you're predicting is not binary")
+        print("PR Curve is not created because the column you're predicting is not binary")
         return(NULL)
       }
       return(private$PRCurvePlot)
@@ -397,25 +403,25 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     },
     
     getRMSE = function() {
-      return(private$rmse)
+      return(private$RMSE)
     },
 
     getMAE = function() {
-      return(private$mae)
+      return(private$MAE)
     },
 
     # TODO: move to common, to reduce duplication
     getCutOffs = function(tpr) {
       # Get index of when true-positive rate is > tpr
-      indy <- which(as.numeric(unlist(private$perfSS@y.values)) > tpr)
+      indy <- which(as.numeric(unlist(private$ROCPlot@y.values)) > tpr)
 
       # Correpsonding probability cutoff value (ie when category falls to 1)
       print('Corresponding cutoff for 0/1 fallover:')
-      print(private$perfSS@alpha.values[[1]][indy[1]])
+      print(private$ROCPlot@alpha.values[[1]][indy[1]])
 
       # Corresponding false-positive rate
       print('Corresponding false-positive rate:')
-      print(private$perfSS@x.values[[1]][indy[1]][[1]])
+      print(private$ROCPlot@x.values[[1]][indy[1]][[1]])
     }
   )
 )

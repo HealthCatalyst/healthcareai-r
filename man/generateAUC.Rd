@@ -12,7 +12,8 @@ generateAUC(predictions, labels, aucType = "SS", plotFlg = FALSE)
 \item{labels}{A vector of the true labels. Must be the same length as 
 predictions.}
 
-\item{aucType}{A string. Indicates AUC_ROC or AU_PR and can be "SS" or "PR". Defaults to SS.}
+\item{aucType}{A string. Indicates AUC_ROC or AU_PR and can be "SS" or "PR". 
+Defaults to SS.}
 
 \item{plotFlg}{Binary value controlling plots Defaults to FALSE (no).}
 }
