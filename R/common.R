@@ -702,7 +702,7 @@ plotROCs <- function(rocs, names, legendLoc) {
   rocIndex <- 1
   for (roc in rocs) {
     if (rocIndex == 1) {
-      par(pty="s")
+      par(pty = "s")
       plot(roc,
            col = colvec[rocIndex],
            legacy.axes = TRUE,
@@ -711,7 +711,7 @@ plotROCs <- function(rocs, names, legendLoc) {
            xlab = "False Positive Rate", ylab = "True Positive Rate")
       
     } else {
-      par(pty="s")
+      par(pty = "s")
       plot(roc, 
            add = TRUE, 
            col = colvec[rocIndex], 
@@ -748,12 +748,14 @@ plotPRCurve <- function(PRCurves, names, legendLoc) {
   prIndex <- 1
   for (pr in PRCurves) {
     if (prIndex == 1) {
+      par(pty = "s")
       plot(pr,
            col = colvec[prIndex],
            legacy.axes = TRUE,
            mar = c(4, 4, 3, 2) + 0.1,
            main = "PR Curve")
     } else {
+      par(pty = "s")
       plot(pr, 
            add = TRUE, 
            col = colvec[prIndex], 
@@ -763,7 +765,7 @@ plotPRCurve <- function(PRCurves, names, legendLoc) {
     prIndex <- prIndex + 1
   }
   # legend
-  legend(x=legendLoc, names, cex = 0.8, col = colvec, lty = 1:2, inset = 0.1)
+  legend(x = legendLoc, names, cex = 0.8, col = colvec, lty = 1:2, inset = 0.1)
   return()
 }
 
