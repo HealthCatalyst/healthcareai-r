@@ -1082,18 +1082,19 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE) {
   aucType <- toupper(aucType)
   
   # default to SS if something else is entered
-  if (aucType != 'SS' && aucType != 'PR'){
+  if (aucType != 'SS' && aucType != 'PR') {
     print('Drawing ROC curve with Sensitivity/Specificity')
     aucType <- 'SS'
   }
   
   # generate ROC data
-  roc1 <- prediction(predictions, labels)
+  # TODO: standardize on :: vs ImportFrom (in header)
+  roc1 <- ROCR::prediction(predictions, labels)
   
   # get performance and AUC from either curve type
   # PR
   if (aucType == 'PR') {
-    perf <- performance(roc1, "prec", "rec")
+    perf <- ROCR::performance(roc1, "prec", "rec")
     x <- as.numeric(unlist(perf@x.values))
     y <- as.numeric(unlist(perf@y.values))
     
@@ -1104,8 +1105,8 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE) {
   }
   # SS
   else if (aucType == 'SS') {
-    perf <- performance(roc1, "tpr","fpr")
-    perf.auc <- performance(roc1, measure = "auc")
+    perf <- ROCR::performance(roc1, "tpr","fpr")
+    perf.auc <- ROCR::performance(roc1, measure = "auc")
     area <- perf.auc@y.values[[1]]
   }
   
