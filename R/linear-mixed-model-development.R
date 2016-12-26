@@ -341,7 +341,7 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
 
       ytest <- as.numeric(private$lmmTest[[self$params$predictedCol]])
       
-      calcObjList <- .calculatePerformance(private$predictions, 
+      calcObjList <- calculatePerformance(private$predictions, 
                                            ytest, 
                                            self$params$type)
       

@@ -703,21 +703,25 @@ plotROCs <- function(rocs, names, legendLoc) {
   for (roc in rocs) {
     if (rocIndex == 1) {
       par(pty = "s")
-      plot(roc,
+      plot(x = roc@x.values[[1]],
+           y = roc@y.values[[1]],
            col = colvec[rocIndex],
-           legacy.axes = TRUE,
            mar = c(4, 4, 3, 2) + 0.1,
+           type = 'l',
            main = "ROC",
            xlab = "False Positive Rate", ylab = "True Positive Rate")
       
     } else {
       par(pty = "s")
-      plot(roc, 
-           add = TRUE, 
+      par(new = TRUE) # lay second line over first
+      plot(x = roc@x.values[[1]],
+           y = roc@y.values[[1]], 
            col = colvec[rocIndex], 
            lty = 2,
+           type = 'l',
            main = "ROC",
-           xlab = "False Positive Rate", ylab = "True Positive Rate")
+           xlab = "False Positive Rate", ylab = "True Positive Rate",
+           yaxt = "n") # turn off extra y axis
     }
     rocIndex <- rocIndex + 1
   }
@@ -749,18 +753,24 @@ plotPRCurve <- function(PRCurves, names, legendLoc) {
   for (pr in PRCurves) {
     if (prIndex == 1) {
       par(pty = "s")
-      plot(pr,
+      plot(x = pr@x.values[[1]],
+           y = pr@y.values[[1]],
            col = colvec[prIndex],
-           legacy.axes = TRUE,
            mar = c(4, 4, 3, 2) + 0.1,
-           main = "PR Curve")
+           type = 'l',
+           main = "PR Curve",
+           xlab = "Recall", ylab = "Precision")
     } else {
       par(pty = "s")
-      plot(pr, 
-           add = TRUE, 
+      par(new = TRUE) # lay second line over first
+      plot(x = pr@x.values[[1]],
+           y = pr@y.values[[1]],
            col = colvec[prIndex], 
            lty = 2,
-           main = "PR Curve")
+           type = 'l',
+           main = "PR Curve",
+           xlab = "Recall", ylab = "Precision",
+           yaxt = "n") # turn off extra y axis
     }
     prIndex <- prIndex + 1
   }
@@ -1112,13 +1122,23 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE) {
   
   if (aucType == 'SS') {
     titleTemp <- 'ROC'
+    xtitle <- 'False Positive Rate'
+    ytitle <- 'True Positive Rate'
   } else if (aucType == 'PR') {
     titleTemp <- 'PR Curve'
+    xtitle <- 'Recall'
+    ytitle <- 'Precision'
   }
   
   # plot AUC 
   if (plotFlg == TRUE){
-    plot(perf, col = "blue", lwd = 2, main = titleTemp)
+    plot(x = perf@x.values[[1]],
+         y = perf@y.values[[1]],
+         col = "blue", 
+         lwd = 2, 
+         main = titleTemp,
+         xlab = xtitle,
+         ylab = ytitle)
   }
   
   # return AUC
@@ -1139,7 +1159,7 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE) {
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
 
-.calculatePerformance <- function(predictions, ytest, type) {
+calculatePerformance <- function(predictions, ytest, type) {
   
   # These are returned for plotting
   ROCPlot <- NULL

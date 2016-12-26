@@ -348,7 +348,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       
       ytest <- as.numeric(private$dfTest[[self$params$predictedCol]])
 
-      calcObjList <- .calculatePerformance(private$predictions, 
+      calcObjList <- calculatePerformance(private$predictions, 
                                            ytest, 
                                            self$params$type)
       
