@@ -1110,9 +1110,15 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE) {
     area <- perf.auc@y.values[[1]]
   }
   
+  if (aucType == 'SS') {
+    titleTemp <- 'ROC'
+  } else if (aucType == 'PR') {
+    titleTemp <- 'PR Curve'
+  }
+  
   # plot AUC 
   if (plotFlg == TRUE){
-    plot(perf, col = "blue", lwd = 2)
+    plot(perf, col = "blue", lwd = 2, main = titleTemp)
   }
   
   # return AUC
