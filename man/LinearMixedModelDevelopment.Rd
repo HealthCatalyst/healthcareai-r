@@ -175,12 +175,29 @@ p$cores <- 1
 lmm <- LinearMixedModelDevelopment$new(p)
 lmm$run()
 
-# Run Lasso
-Lasso <- LassoDevelopment$new(p)
-Lasso$run()
+# Remove person col, since RF can't use it
+df$personCol <- NULL
+p$df <- df
+p$personCol <- NULL
+
+# Run Random Forest
+rf <- RandomForestDevelopment$new(p)
+rf$run()
+
+# Plot ROC
+rocs <- list(lmm$getROC(), rf$getROC())
+names <- c("Linear Mixed Model", "Random Forest")
+legendLoc <- "bottomright"
+plotROCs(rocs, names, legendLoc)
+
+# Plot PR Curve
+rocs <- list(lmm$getPRCurve(), rf$getPRCurve())
+names <- c("Linear Mixed Model", "Random Forest")
+legendLoc <- "bottomleft"
+plotPRCurve(rocs, names, legendLoc)
 
 # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-Lasso$getCutOffs(tpr = 0.8)
+lmm$getCutOffs(tpr = 0.8)
 
 print(proc.time() - ptm)
 }

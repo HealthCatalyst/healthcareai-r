@@ -687,7 +687,8 @@ countDaysSinceFirstDate <- function(df, dtCol, returnDtCol = FALSE) {
 #' @param names A vector of algorithm/class names
 #' @param legendLoc Location of the legend string to display
 #'
-#' @importFrom graphics legend title
+#' @importFrom graphics legend title par
+#' @importFrom utils head
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
@@ -701,18 +702,80 @@ plotROCs <- function(rocs, names, legendLoc) {
   rocIndex <- 1
   for (roc in rocs) {
     if (rocIndex == 1) {
-      plot(roc,
+      par(pty = "s")
+      plot(x = roc@x.values[[1]],
+           y = roc@y.values[[1]],
            col = colvec[rocIndex],
-           legacy.axes = TRUE,
-           mar = c(4, 4, 3, 2) + 0.1)
-      title(main = "ROC")
+           mar = c(4, 4, 3, 2) + 0.1,
+           type = 'l',
+           main = "ROC",
+           xlab = "False Positive Rate", ylab = "True Positive Rate")
+      
     } else {
-      plot(roc, add = TRUE, col = colvec[rocIndex], lty = 2)
+      par(pty = "s")
+      par(new = TRUE) # lay second line over first
+      plot(x = roc@x.values[[1]],
+           y = roc@y.values[[1]], 
+           col = colvec[rocIndex], 
+           lty = 2,
+           type = 'l',
+           main = "ROC",
+           xlab = "False Positive Rate", ylab = "True Positive Rate",
+           yaxt = "n") # turn off extra y axis
     }
     rocIndex <- rocIndex + 1
   }
   # legend
-  legend(legendLoc, names, cex = 0.8, col = colvec, lty = 1:2, inset = 0.1)
+  legend(x=legendLoc, names, cex = 0.8, col = colvec, lty = 1:2, inset = 0.1)
+  return()
+}
+
+#' @title
+#' Plot PR Curves from SupervisedModel classes
+#'
+#' @description Plot PRCurves calculated by children classes of SupervisedModel
+#' @param PRCurves A vector/array/list of PR curves
+#' @param names A vector of algorithm/class names
+#' @param legendLoc Location of the legend string to display
+#'
+#' @importFrom graphics legend title
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
+
+plotPRCurve <- function(PRCurves, names, legendLoc) {
+  # generate color vector TODO: auto generate these colors dynamically as rgb
+  # values based on the length of PRCurves list
+  colvec <- c("red", "blue", "green", "orange", "brown", "magenta")
+  
+  # plot PRCurves
+  prIndex <- 1
+  for (pr in PRCurves) {
+    if (prIndex == 1) {
+      par(pty = "s")
+      plot(x = pr@x.values[[1]],
+           y = pr@y.values[[1]],
+           col = colvec[prIndex],
+           mar = c(4, 4, 3, 2) + 0.1,
+           type = 'l',
+           main = "PR Curve",
+           xlab = "Recall", ylab = "Precision")
+    } else {
+      par(pty = "s")
+      par(new = TRUE) # lay second line over first
+      plot(x = pr@x.values[[1]],
+           y = pr@y.values[[1]],
+           col = colvec[prIndex], 
+           lty = 2,
+           type = 'l',
+           main = "PR Curve",
+           xlab = "Recall", ylab = "Precision",
+           yaxt = "n") # turn off extra y axis
+    }
+    prIndex <- prIndex + 1
+  }
+  # legend
+  legend(x = legendLoc, names, cex = 0.8, col = colvec, lty = 1:2, inset = 0.1)
   return()
 }
 
@@ -721,7 +784,8 @@ plotROCs <- function(rocs, names, legendLoc) {
 #'
 #' @description Add/subtract each numeric col (for each row) by std dev, such
 #' that we have a new alternate data frame
-#' @param dfOriginal Data frame from which we'll draw a row for alt-scenarios
+#' @param dfOriginal Data frame from Error in as.double(y) : 
+#' cannot coerce type 'S4' to vector of type 'double' which we'll draw a row for alt-scenarios
 #' @param rowNum Row in dfOriginal that we'll create alt-scenarios for
 #' @param numColLeaveOut Numeric columns to leave out of alterlative scenarios
 #' @param sizeOfSDPerturb Default is 0.5. Shrink or expand SD drop/addition
@@ -995,7 +1059,8 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
 #' @param predictions A vector of predictions from a machine learning model.
 #' @param labels A vector of the true labels. Must be the same length as 
 #' predictions.
-#' @param aucType A string. Indicates AUC_ROC or AU_PR and can be "SS" or "PR". Defaults to SS.
+#' @param aucType A string. Indicates AUC_ROC or AU_PR and can be "SS" or "PR". 
+#' Defaults to SS.
 #' @param plotFlg Binary value controlling plots Defaults to FALSE (no).
 #' @return auc A number between 0 and 1. Integral AUC of chosen plot type.
 #'
@@ -1024,43 +1089,115 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE) {
     stop('Data vectors are not equal length!')
   }
   
-  # use SS if lowecase
-  if (aucType == 'ss') {
-    aucType <- 'SS'
-  }
-  # use PR if lowecase
-  if (aucType == 'pr') {
-    aucType <- 'PR'
-  }
+  aucType <- toupper(aucType)
+  
   # default to SS if something else is entered
-  if (aucType!='SS' && aucType!='PR'){
+  if (aucType != 'SS' && aucType != 'PR') {
     print('Drawing ROC curve with Sensitivity/Specificity')
     aucType <- 'SS'
   }
   
   # generate ROC data
-  roc1 <- prediction( predictions, labels)
+  # TODO: standardize on :: vs ImportFrom (in header)
+  roc1 <- ROCR::prediction(predictions, labels)
   
   # get performance and AUC from either curve type
   # PR
   if (aucType == 'PR') {
-    # ROC Curve Precision/Recall
-    perf <- performance(roc1, "prec", "rec")
-    perf.auc <- performance(roc1, measure = "auc")
-    cat("Area under the curve: ", perf.auc@y.values[[1]])
+    perf <- ROCR::performance(roc1, "prec", "rec")
+    x <- as.numeric(unlist(perf@x.values))
+    y <- as.numeric(unlist(perf@y.values))
+    
+    # Convert NaNs to zero
+    y[ is.nan(y) ] <- 0
+    # From: http://stackoverflow.com/a/30280873/5636012
+    area <- sum(diff(x) * (head(y,-1) + tail(y,-1)))/2
   }
   # SS
   else if (aucType == 'SS') {
-    perf <- performance(roc1, "tpr","fpr")
-    perf.auc <- performance(roc1, measure = "auc")
-    cat("Area under the curve: ", perf.auc@y.values[[1]])
+    perf <- ROCR::performance(roc1, "tpr","fpr")
+    perf.auc <- ROCR::performance(roc1, measure = "auc")
+    area <- perf.auc@y.values[[1]]
+  }
+  
+  if (aucType == 'SS') {
+    titleTemp <- 'ROC'
+    xtitle <- 'False Positive Rate'
+    ytitle <- 'True Positive Rate'
+  } else if (aucType == 'PR') {
+    titleTemp <- 'PR Curve'
+    xtitle <- 'Recall'
+    ytitle <- 'Precision'
   }
   
   # plot AUC 
   if (plotFlg == TRUE){
-    plot(perf, col = "blue", lwd = 2)
+    plot(x = perf@x.values[[1]],
+         y = perf@y.values[[1]],
+         col = "blue", 
+         lwd = 2, 
+         main = titleTemp,
+         xlab = xtitle,
+         ylab = ytitle)
   }
   
   # return AUC
-  return(perf.auc@y.values[[1]])
+  area
+}
+
+#' @title
+#' Generate performance metrics after model has been trained
+#' @description Generates AU_ROC and AU_PR (including 95% confidence)
+#' @param predictions A vector of predictions from a machine learning model.
+#' @param ytest A vector of the true labels. Must be the same length as 
+#' predictions.
+#' @return Curves (if classification); otherwise nothing. Prints results.
+#'
+#' @import ROCR
+#' @import pROC
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
+
+calculatePerformance <- function(predictions, ytest, type) {
+  
+  # These are returned for plotting
+  ROCPlot <- NULL
+  PRCurvePlot <- NULL
+  
+  # These are returned for unit tests
+  AUROC <- NULL
+  AUPR <- NULL
+  RMSE <- NULL
+  MAE <- NULL
+  
+  if (type == 'classification') {
+
+    # Performance curves for return and plotting
+    predROCR <- ROCR::prediction(predictions, ytest)
+    ROCPlot <- ROCR::performance(predROCR, "tpr", "fpr")
+    PRCurvePlot <- ROCR::performance(predROCR, "prec", "rec")
+    
+    # Performance AUC calcs (AUPR is ROCR-based)
+    AUPR <- generateAUC(predictions, ytest, 'PR', 'FALSE')
+    ROCConf <- pROC::roc(ytest~predictions) # need pROC for 95% confidence
+    AUROC <- pROC::auc(ROCConf)                  
+    
+    # Show results
+    print(paste0('AU_ROC: ', round(AUROC, 2)))
+    print(paste0('95% CI AU_ROC: (', round(ci(AUROC)[1],2),
+                 ',',
+                 round(ci(AUROC)[3],2), ')'))
+    print(paste0('AU_PR: ', round(AUPR, 2)))
+
+  } else if (type == 'regression') {
+    
+    RMSE <- sqrt(mean((ytest - predictions) ^ 2))
+    MAE <- mean(abs(ytest - predictions))
+    
+    print(paste0('RMSE: ', round(RMSE, 8)))
+    print(paste0('MAE: ', round(MAE, 8)))
+  }
+  
+  return(list(ROCPlot,PRCurvePlot,AUROC,AUPR,RMSE,MAE))
 }

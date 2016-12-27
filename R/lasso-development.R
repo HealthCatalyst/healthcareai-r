@@ -157,6 +157,12 @@ source('R/supervised-model-development.R')
 #' names <- c("Random Forest", "Lasso")
 #' legendLoc <- "bottomright"
 #' plotROCs(rocs, names, legendLoc)
+#' 
+#' # Plot PR Curve
+#' rocs <- list(rf$getPRCurve(), lasso$getPRCurve())
+#' names <- c("Random Forest", "Lasso")
+#' legendLoc <- "bottomleft"
+#' plotPRCurve(rocs, names, legendLoc)
 #'
 #' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
 #' lasso$getCutOffs(tpr = 0.8)
@@ -191,13 +197,12 @@ LassoDevelopment <- R6Class("LassoDevelopment",
   	predictions = NA,
 
   	# Performance metrics
-  	confMatrix = NA,
-  	ROC = NA,
-  	AUC = NA,
-  	rmse = NA,
-  	mae = NA,
-  	perf = NA,
-  	prevalence = NA
+  	ROCPlot = NA,
+  	PRCurvePlot = NA,
+  	AUROC = NA,
+  	AUPR = NA,
+  	RMSE = NA,
+  	MAE = NA
   ),
 
   # Public members
@@ -254,10 +259,11 @@ LassoDevelopment <- R6Class("LassoDevelopment",
 
       # Generate fit grLasso object
       familyModuleName <- ""
-      if (self$params$type == 'classification')
+      if (self$params$type == 'classification') {
         familyModuleName <- "binomial"
-      else if (self$params$type == 'regression')
+      } else if (self$params$type == 'regression') {
         familyModuleName <- "gaussian"
+      }
 
       private$fitGrLasso <- cv.grpreg(X = private$modMat,
                                       y = private$dfTrainTemp[[self$params$predictedCol]],
@@ -286,68 +292,35 @@ LassoDevelopment <- R6Class("LassoDevelopment",
                                     X = model.matrix(private$modFmla, data = private$dfTestTemp)[,-1],
                                     lambda = private$lambda1se,
                                     type = "response")
+      
+      if (isTRUE(self$params$debug)) {
+        print(paste0("Rows in prob prediction: ", nrow(private$predictedVals)))
+        print("First 10 raw classification probability predictions")
+        print(round(private$predictions[1:10], 2))
+      }
     },
 
     # Generate performance metrics
     generatePerformanceMetrics = function() {
 
-      # Classification
-      if (self$params$type == 'classification') {
-
-        predictProb <- private$predictions
-
-        # Prediction
-        ytest <- private$dfTestTemp[[self$params$predictedCol]]
-        pred <- ROCR::prediction(private$predictions, ytest)
-
-        # Performance
-        private$perf <- ROCR::performance(pred, "tpr", "fpr")
-
-        if (isTRUE(self$params$debug)) {
-          print(paste0('Rows in probability prediction: ', length(predictProb)))
-          print('First 10 raw classification probability predictions')
-          print(round(predictProb[1:10],2))
-        }
-
-        private$ROC <- roc(ytest~predictProb)
-        private$AUC <- auc(private$ROC)
-
-        # Show results
-        if (isTRUE(self$params$printResults)) {
-          print(paste0('AUC: ', round(private$AUC, 2)))
-          print(paste0('95% CI AUC: (', round(ci(private$AUC)[1],2), ',',
-                       round(ci(private$AUC)[3],2), ')'))
-        }
-      }
-      # Regression
-      else if (self$params$type == 'regression') {
-
-        if (isTRUE(self$params$debug)) {
-          print(paste0('Rows in regression prediction: ',
-                       nrow(private$predictions)))
-          print('First 10 raw regression predictions (with row # first)')
-          print(round(private$predictions[1:10],2))
-        }
-
-        # Necessary to convert col to numeric, even though it's N/Y
-        ytest <- as.numeric(private$dfTestTemp[[self$params$predictedCol]])
-
-        # Show error measures for Regression
-        private$rmse <- sqrt(mean((ytest - private$predictions) ^ 2))
-        private$mae <- mean(abs(ytest - private$predictions))
-
-        if (isTRUE(self$params$printResults)) {
-          print(paste0('RMSE: ', round(private$rmse, 2)))
-          print(paste0('MAE: ', round(private$mae, 2)))
-        }
-      }
+      ytest <- as.numeric(private$dfTest[[self$params$predictedCol]])
+      
+      calcObjList <- calculatePerformance(private$predictions, 
+                                           ytest, 
+                                           self$params$type)
+      
+      # Make these objects available for plotting and unit tests
+      private$ROCPlot <- calcObjList[[1]]
+      private$PRCurvePlot <- calcObjList[[2]]
+      private$AUROC <- calcObjList[[3]]
+      private$AUPR <- calcObjList[[4]]
+      private$RMSE <- calcObjList[[5]]
+      private$MAE <- calcObjList[[6]]
 
       if (isTRUE(self$params$printResults)) {
         print("Grouped Lasso coefficients:")
         print(private$fitGrLasso$fit$beta[,private$indLambda1se])
       }
-
-      private$stopClustersOnCores()
 
       if (isTRUE(self$params$varImp)) {
         imp = names(private$dfTrainTemp[ ,!(colnames(private$dfTrainTemp) == self$params$predictedCol)])[predict(private$fitGrLasso, private$modMat,type = "groups", lambda = private$lambda1se)]
@@ -375,36 +348,40 @@ LassoDevelopment <- R6Class("LassoDevelopment",
         print("ROC is not created because the column you're predicting is not binary")
         return(NULL)
       }
-      return(private$ROC)
+      return(private$ROCPlot)
     },
-
-    getAUC = function() {
-      return(private$AUC)
+    
+    getPRCurve = function() {
+      if (!isBinary(self$params$df[[self$params$predictedCol]])) {
+        print("PR Curve is not created because the column you're predicting is not binary")
+        return(NULL)
+      }
+      return(private$PRCurvePlot)
+    },
+    
+    getAUROC = function() {
+      return(private$AUROC)
     },
 
     getRMSE = function() {
-      return(private$rmse)
+      return(private$RMSE)
     },
 
     getMAE = function() {
-      return(private$mae)
-    },
-
-    getPerf = function() {
-      return(private$perf)
+      return(private$MAE)
     },
 
     getCutOffs = function(tpr) {
       # Get index of when true-positive rate is > tpr
-      indy <- which(as.numeric(unlist(private$perf@y.values)) > tpr)
+      indy <- which(as.numeric(unlist(private$ROCPlot@y.values)) > tpr)
 
       # Correpsonding probability cutoff value (ie when category falls to 1)
       print('Corresponding cutoff for 0/1 fallover:')
-      print(private$perf@alpha.values[[1]][indy[1]])
+      print(private$ROCPlot@alpha.values[[1]][indy[1]])
 
       # Corresponding false-positive rate
       print('Corresponding false-positive rate:')
-      print(private$perf@x.values[[1]][indy[1]][[1]])
+      print(private$ROCPlot@x.values[[1]][indy[1]][[1]])
     }
   )
 )
