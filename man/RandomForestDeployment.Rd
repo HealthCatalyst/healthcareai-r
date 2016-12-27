@@ -52,7 +52,6 @@ This step allows one to
 #setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 ptm <- proc.time()
 library(healthcareai)
-library(RODBC)
 
 connection.string <- "
 driver={SQL Server};

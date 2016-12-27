@@ -60,7 +60,6 @@ source('R/supervised-model-development.R')
 #'
 #' ### Doing regression
 #' library(healthcareai)
-#' library(lme4)
 #'
 #' # SQL query and connection goes here - see SelectData function.
 #'

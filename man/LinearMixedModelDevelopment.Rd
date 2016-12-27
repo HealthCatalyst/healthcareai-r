@@ -63,7 +63,6 @@ lmm$run()
 
 ### Doing regression
 library(healthcareai)
-library(lme4)
 
 # SQL query and connection goes here - see SelectData function.
 
@@ -133,7 +132,6 @@ print(proc.time() - ptm)
 
 ptm <- proc.time()
 library(healthcareai)
-library(RODBC)
 
 connection.string <- "
 driver={SQL Server};

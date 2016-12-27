@@ -104,7 +104,6 @@ source('R/supervised-model-development.R')
 #'
 #' ptm <- proc.time()
 #' library(healthcareai)
-#' library(RODBC)
 #'
 #' connection.string <- "
 #' driver={SQL Server};
