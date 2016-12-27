@@ -133,6 +133,7 @@ print(proc.time() - ptm)
 
 ptm <- proc.time()
 library(healthcareai)
+library(RODBC)
 
 connection.string <- "
 driver={SQL Server};
@@ -152,6 +153,7 @@ SELECT
 ,[ThirtyDayReadmitFLG]
 ,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
+--no WHERE clause, because we want train AND test
 "
 
 df <- selectData(connection.string, query)

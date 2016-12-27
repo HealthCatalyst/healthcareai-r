@@ -54,25 +54,30 @@ This step allows one to
 # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 ptm <- proc.time()
 library(healthcareai)
-library(lme4)
+library(RODBC)
 
-connection.string <- "driver={SQL Server};
-                      server=localhost;
-                      database=SAM;
-                      trusted_connection=true"
+connection.string <- "
+driver={SQL Server};
+server=localhost;
+database=SAM;
+trusted_connection=true
+"
 
-# Use this for an example SQL source:
-# query <- "SELECT * FROM [SAM].[YourCoolSAM].[SomeTrainingSetTable]"
-# df <- selectData(connection.string, query)
+query <- "
+SELECT
+ [PatientEncounterID]
+,[PatientID]           --Mixed model needs two ID columns
+,[SystolicBPNBR]
+,[LDLNBR]
+,[A1CNBR]
+,[GenderFLG]
+,[ThirtyDayReadmitFLG]
+,[InTestWindowFLG]
+FROM [SAM].[dbo].[HCRDiabetesClinical]
+--no WHERE clause, because we want train AND test
+"
 
-# Can delete these four lines when you set up your SQL connection/query
-csvfile <- system.file("extdata",
-                       "HCRDiabetesClinical.csv",
-                        package = "healthcareai")
-
-df <- read.csv(file = csvfile,
-                    header = TRUE,
-                    na.strings = c('NULL', 'NA', ""))
+df <- selectData(connection.string, query)
 
 head(df)
 
@@ -108,20 +113,29 @@ print(proc.time() - ptm)
 # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 ptm <- proc.time()
 library(healthcareai)
-library(lme4)
 
-connection.string <- 'driver={SQL Server};
-                      server=localhost;
-                      database=SAM;
-                      trusted_connection=true'
+connection.string <- "
+driver={SQL Server};
+server=localhost;
+database=SAM;
+trusted_connection=true
+"
 
-# Use this for an example SQL source:
-# query <- "SELECT * FROM [SAM].[YourCoolSAM].[SomeTrainingSetTable]"
-# df <- selectData(connection.string, query)
+query <- "
+SELECT
+ [PatientEncounterID]
+,[PatientID]           --Mixed model needs two ID columns
+,[SystolicBPNBR]
+,[LDLNBR]
+,[A1CNBR]
+,[GenderFLG]
+,[ThirtyDayReadmitFLG]
+,[InTestWindowFLG]
+FROM [SAM].[dbo].[HCRDiabetesClinical]
+--no WHERE clause, because we want train AND test
+"
 
-# Can delete these four lines when you set up your SQL connection/query
-csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "healthcareai")
-df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
+df <- selectData(connection.string, query)
 
 head(df)
 

@@ -149,6 +149,7 @@ source('R/supervised-model-development.R')
 #' ,[ThirtyDayReadmitFLG]
 #' ,[InTestWindowFLG]
 #' FROM [SAM].[dbo].[HCRDiabetesClinical]
+#' --no WHERE clause, because we want train AND test
 #' "
 #'
 #' df <- selectData(connection.string, query)
