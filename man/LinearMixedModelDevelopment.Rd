@@ -63,7 +63,6 @@ lmm$run()
 
 ### Doing regression
 library(healthcareai)
-library(lme4)
 
 # SQL query and connection goes here - see SelectData function.
 
@@ -152,6 +151,7 @@ SELECT
 ,[ThirtyDayReadmitFLG]
 ,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
+--no WHERE clause, because we want train AND test
 "
 
 df <- selectData(connection.string, query)

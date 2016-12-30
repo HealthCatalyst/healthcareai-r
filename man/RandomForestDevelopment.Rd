@@ -102,7 +102,6 @@ print(proc.time() - ptm)
 
 ptm <- proc.time()
 library(healthcareai)
-library(RODBC)
 
 connection.string <- "
 driver={SQL Server};
