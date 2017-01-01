@@ -21,19 +21,27 @@ Installation:
 install.packages(c('caret','data.table','devtools','doParallel','e1071','grpreg','lme4','lubridate','pROC','R6','ranger','ROCR','RODBC'),repos = "https://cran.cnr.berkeley.edu/")
 ```
 
-- Install healthcareai: 
+- Install the latest release of healthcareai
 
-```R 
+```{r}
+library(devtools)
+devtools::install_url('https://github.com/HealthCatalystSLC/healthcareai-r/archive/v0.1.10.zip')
+```
+
+- Note: if you want the bleeding edge version, use this:
+
+```{r}
 library(devtools)
 devtools::install_github(repo='HealthCatalystSLC/healthcareai-r')
 ```
 
-Getting started:
+- Load the package you just installed and read the built-in docs
+```{r}
+library(healthcareai)
+?healthcareai
+```
 
-- To create a couple models on your data, check out this [notebook.](inst/notebooks/Example1.ipynb)
-
-- After finding an accurate model, see this [notebook](inst/notebooks/Example2.ipynb) to push predictions to SQL Server.
-
+- If you like Jupyter notebooks, check out [step 1](inst/notebooks/Example1.ipynb) and [step 2](inst/notebooks/Example2.ipynb) in model building with healthcareai.
 
 ## Contributing
 
@@ -69,6 +77,8 @@ After that's done, *here's the contribution workflow:*
    4. Under the build tab, run 'Check' and verify that only one roxygen warning arises
       - This warning is due to the [limitations](https://github.com/wch/R6/issues/3) of roxygen and R6 method documentation
       - This is the only warning/error/note that's allowed when merging to master
+      
+   5. Create a [pull request](https://yangsu.github.io/pull-request-tutorial/) so that your changes can be reviewed before merging
 
 ## For issues
 
