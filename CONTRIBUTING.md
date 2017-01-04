@@ -140,7 +140,7 @@ CREATE TABLE [dbo].[HCRWriteData](
 3) Click Build and verify that you can build successfully (without errors)
    - Note that you may see warnings about versioning, which is fine
    
-4) Run tests via `devtools::tests()` or CTRL+SHIFT+D or Build dropdown -> Test Package
+4) Run tests via `devtools::test()` or CTRL+SHIFT+D or Build dropdown -> Test Package
    - Verify that these pass without seeing errors
    
 5) Run the roxygen2 examples via `devtools::run_examples()`. Verify that these finish without errors
