@@ -129,6 +129,8 @@ CREATE TABLE [dbo].[HCRWriteData](
 	[c] [varchar](255) NULL
 )
 ```
+
+**Note, if you have issues connecting to localhost in SSMS or RStudio, see [here](https://github.com/HealthCatalystSLC/healthcareai-py/blob/master/localhost_config.rst) to create an alias.**
   
 ## Verify you can build the healthcareai package
 
