@@ -12,6 +12,7 @@ source('R/supervised-model-deployment.R')
 #' \item Push these predictions to SQL Server
 #' }
 #' @docType class
+#' @usage LassoDeployment(type, df, grainCol, testWindowCol, predictedCol, impute)
 #' @import caret
 #' @import doParallel
 #' @importFrom R6 R6Class
@@ -105,18 +106,7 @@ source('R/supervised-model-deployment.R')
 #'
 #' @export
 
-LassoDeployment <- function(type = 'classification',
-                            df = NA,
-                            grainCol = NA,
-                            testWindowCol  = NA,
-                            predictedCol = NA,
-                            impute = NA) {
-LassoDeploymentx$new(type = type, df = df, grainCol = grainCol,
-                    testWindowCol = testWindowCol, predictedCol = predictedCol,
-                    impute = impute)
-}
-
-LassoDeploymentx <- R6Class(
+LassoDeployment <- R6Class(
   "LassoDeployment",
   
   #Inheritance
@@ -319,15 +309,6 @@ LassoDeploymentx <- R6Class(
     initialize = function(p) {
       super$initialize(p)
     },
-    
-    # initialize = function(type, df, grainCol, testWindowCol, predictedCol, impute) {
-    #   if (!missing(type)) self$type <- type
-    #   if (!missing(df)) self$df <- df
-    #   if (!missing(grainCol)) self$grainCol <- grainCol
-    #   if (!missing(testWindowCol)) self$testWindowCol <- testWindowCol
-    #   if (!missing(predictedCol)) self$predictedCol <- predictedCol
-    #   if (!missing(impute)) self$impute <- impute
-    # },
 
     buildFitObject = function() {
       # Get fit object by linear model
