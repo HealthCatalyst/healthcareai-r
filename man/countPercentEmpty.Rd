@@ -7,7 +7,7 @@
 countPercentEmpty(df)
 }
 \arguments{
-\item{df12}{A data frame}
+\item{df}{A data frame}
 }
 \value{
 A vector that contains the percentage of NULL in each column

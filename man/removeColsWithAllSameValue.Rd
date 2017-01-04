@@ -8,7 +8,7 @@ each row}
 removeColsWithAllSameValue(df)
 }
 \arguments{
-\item{df5}{A data frame}
+\item{df}{A data frame}
 }
 \value{
 A data frame with zero-variance columns removed

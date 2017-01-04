@@ -8,6 +8,8 @@ calulcateAlternatePredictions(df, modelObj, type, outVectorAppend = NULL,
   removeCols = NULL)
 }
 \arguments{
+\item{df}{Data frame from which we'll calculate alternate predictions}
+
 \item{modelObj}{Object representing the model that is used for predictions}
 
 \item{type}{String representing which type of model is used}
@@ -17,8 +19,6 @@ to. If not used, then a new vector is created.}
 
 \item{removeCols}{Optional list of column names to remove before calculating
 alternate predictions.}
-
-\item{df14}{Data frame from which we'll calculate alternate predictions}
 }
 \description{
 After getting alternate features via calculateSDChanges

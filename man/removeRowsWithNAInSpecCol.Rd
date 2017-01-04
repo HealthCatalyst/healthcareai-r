@@ -7,9 +7,9 @@
 removeRowsWithNAInSpecCol(df, desiredCol)
 }
 \arguments{
-\item{desiredCol}{A column name in the df (in ticks)}
+\item{df}{A data frame to be altered}
 
-\item{df3}{A data frame to be altered}
+\item{desiredCol}{A column name in the df (in ticks)}
 }
 \value{
 dfResult The input data frame with rows removed
