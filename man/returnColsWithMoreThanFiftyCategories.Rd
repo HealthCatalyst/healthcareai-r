@@ -5,25 +5,15 @@
 \title{Return vector of columns in a data frame with greater than 50 categories}
 \usage{
 returnColsWithMoreThanFiftyCategories(df)
-
-returnColsWithMoreThanFiftyCategories(df)
 }
 \arguments{
-\item{df6}{A data frame}
-
-\item{df11}{A data frame}
+\item{df}{A data frame}
 }
 \value{
 A vector that contains the names of the columns with greater
 than 50 categories
-
-A vector that contains the names of the columns with greater
-than 50 categories
 }
 \description{
-Returns a vector of the names of the columns that have more than
-50 categories
-
 Returns a vector of the names of the columns that have more than
 50 categories
 }
@@ -35,23 +25,11 @@ df <- data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
                     'cc','dd','ee','ff','gg','hh','ii','jj','kk','ll','mm','nn',
                     'oo','pp','qq','rr','ss','tt','uu','vv','ww','xx','yy'))
 colList <- returnColsWithMoreThanFiftyCategories(df)
-colList
-df <- data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-                    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1),
-                b=c('a','b','c','d','e','f','g','h','i','j','k','l','m','n',
-                    'o','p','q','r','s','t','u','v','w','x','y','z','aa','bb',
-                    'cc','dd','ee','ff','gg','hh','ii','jj','kk','ll','mm','nn',
-                    'oo','pp','qq','rr','ss','tt','uu','vv','ww','xx','yy'))
-colList <- returnColsWithMoreThanFiftyCategories(df)
 }
 \references{
 \url{http://healthcare.ai}
-
-\url{http://healthcare.ai}
 }
 \seealso{
-\code{\link{healthcareai}}
-
 \code{\link{healthcareai}}
 }
 

@@ -7,10 +7,10 @@
 calculateTargetedCorrelations(df, targetCol)
 }
 \arguments{
+\item{df}{A data frame}
+
 \item{targetCol}{Name of target column against which correlations will be
 calculated}
-
-\item{df9}{A data frame}
 }
 \value{
 A data frame with column names and corresponding correlations and

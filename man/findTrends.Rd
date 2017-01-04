@@ -7,11 +7,11 @@
 findTrends(df, dateCol, groupbyCol)
 }
 \arguments{
+\item{df}{A data frame}
+
 \item{dateCol}{A string denoting the date column}
 
 \item{groupbyCol}{A string denoting the column by which to group}
-
-\item{df7}{A data frame}
 }
 \value{
 A data frame containing the dimensional attribute (ie gender), the
