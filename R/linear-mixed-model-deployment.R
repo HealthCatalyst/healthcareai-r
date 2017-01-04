@@ -13,7 +13,7 @@ source('R/supervised-model-deployment.R')
 #' }
 #' @docType class
 #' @usage LinearMixedModelDeployment(type, df, 
-#' grainCol, testWindowCol, predictedCol, impute)
+#' grainCol, personCol, testWindowCol, predictedCol, impute, debug)
 #' @import caret
 #' @import doParallel
 #' @import lme4

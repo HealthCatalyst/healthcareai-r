@@ -13,7 +13,7 @@ source('R/supervised-model-deployment.R')
 #' }
 #' @docType class
 #' @usage RandomForestDeployment(type, df, grainCol, testWindowCol, 
-#' predictedCol, impute)
+#' predictedCol, impute, debug)
 #' @import caret
 #' @import doParallel
 #' @importFrom R6 R6Class

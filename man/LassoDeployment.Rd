@@ -37,18 +37,6 @@ This step allows one to
 \item Push these predictions to SQL Server
 }
 }
-\section{LassoDeployment methods}{
-
-\strong{Methods}
-  \describe{
-    \item{\code{buildFitObject()}}{
-     Build a fit object using the linear model
-    }
-    \item{\code{buildDeployModel()}}{
-     Build entire deploy model
-    }
-  }
-}
 \examples{
 #### Regression example using diabetes data ####
 # This example requires you to first create a table in SQL Server

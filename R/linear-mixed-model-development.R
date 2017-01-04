@@ -7,7 +7,7 @@ source('R/supervised-model-development.R')
 #' and helps determine which performs best.
 #' @docType class
 #' @usage LinearMixedModelDevelopment(object, type, df, 
-#' grainCol, predictedCol, impute)
+#' grainCol, personCol, predictedCol, impute, debug)
 #' @import caret
 #' @import doParallel
 #' @import e1071

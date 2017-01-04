@@ -6,7 +6,7 @@
 \title{Deploy predictive models, created on your data}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-SupervisedModelDeployment
+SupervisedModelDeployment(object)
 }
 \arguments{
 \item{object}{of SupervisedModelDeploymentParams class for $new() constructor}
