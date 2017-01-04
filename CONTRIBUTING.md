@@ -170,3 +170,7 @@ CREATE TABLE [dbo].[HCRWriteData](
 
 7) Set up SSH so you can push without typing password (optional, but nice)
    - See [here](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/), [here](https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/), and then [here](https://help.github.com/enterprise/11.10.340/user/articles/changing-a-remote-s-url/)
+   
+## Getting started with contributions
+
+- When your dev environment is set up, see [here](README.md#contributing) for the contribution workflow.
