@@ -27,7 +27,7 @@ This is for Windows; for macOS see [here](https://developer.apple.com/xcode/); f
 
 - Create a data science folder on your hard drive (if you don't have one)
 - Fork the repo [here](https://github.com/HealthCatalystSLC/healthcareai-r) (look for the link in the top right corner).
-- Click green 'Clone or download' button and copy git link. You'll want to use the HTML address unless you have an SSH key for git already.
+- Click the green 'Clone or download' button and copy git link. You'll want to use the HTML address unless you have an SSH key for git already.
 - Open RStudio
   - Look for Project dropdown (top right corner)
   - Click New Project
