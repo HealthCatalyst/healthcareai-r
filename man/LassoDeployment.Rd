@@ -4,9 +4,9 @@
 \name{LassoDeployment}
 \alias{LassoDeployment}
 \title{Deploy a production-ready predictive Lasso model}
-\format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-LassoDeployment
+LassoDeployment(type = "classification", df = NA, grainCol = NA,
+  testWindowCol = NA, predictedCol = NA, impute = NA)
 }
 \arguments{
 \item{type}{The type of model (either 'regression' or 'classification')}
@@ -36,6 +36,18 @@ This step allows one to
 \item Run the model against test data to generate predictions
 \item Push these predictions to SQL Server
 }
+}
+\section{LassoDeployment methods}{
+
+\strong{Methods}
+  \describe{
+    \item{\code{buildFitObject()}}{
+     Build a fit object using the linear model
+    }
+    \item{\code{buildDeployModel()}}{
+     Build entire deploy model
+    }
+  }
 }
 \examples{
 #### Regression example using diabetes data ####
@@ -101,5 +113,4 @@ print(proc.time() - ptm)
 \seealso{
 \code{\link{healthcareai}}
 }
-\keyword{datasets}
 
