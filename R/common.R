@@ -888,6 +888,8 @@ calculateSDChanges <- function(dfOriginal,
 #' @param type String representing which type of model is used
 #' @param outVectorAppend Optional list of values that we'll append predictions
 #' to. If not used, then a new vector is created.
+#' @param removeCols Optional list of column names to remove before calculating
+#' alternate predictions.
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
@@ -1151,6 +1153,9 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE) {
 #' @param predictions A vector of predictions from a machine learning model.
 #' @param ytest A vector of the true labels. Must be the same length as 
 #' predictions.
+#' @param type A string. Indicates model type and can be "regression" or 
+#' "classification". 
+#' Defaults to SS.
 #' @return Curves (if classification); otherwise nothing. Prints results.
 #'
 #' @import ROCR
