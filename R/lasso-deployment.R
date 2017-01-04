@@ -31,6 +31,18 @@ source('R/supervised-model-deployment.R')
 #' #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
 #' @seealso \code{\link{healthcareai}}
+
+#' @section LassoDeployment methods:
+#' \strong{Methods}
+#'   \describe{
+#'     \item{\code{buildFitObject()}}{
+#'      Build a fit object using the linear model
+#'     }
+#'     \item{\code{buildDeployModel()}}{
+#'      Build entire deploy model
+#'     }
+#'   }  
+#'     
 #' @examples
 #' #### Regression example using diabetes data ####
 #' # This example requires you to first create a table in SQL Server
@@ -93,9 +105,20 @@ source('R/supervised-model-deployment.R')
 #'
 #' @export
 
-LassoDeployment <- R6Class(
-  "LassoDeployment",
+LassoDeployment <- function(type = 'classification',
+                            df = NA,
+                            grainCol = NA,
+                            testWindowCol  = NA,
+                            predictedCol = NA,
+                            impute = NA) {
+LassoDeployment$new(type = type, df = df, grainCol = grainCol,
+                    testWindowCol = testWindowCol, predictedCol = predictedCol,
+                    impute = impute)
+}
 
+LassoDeploymentR6 <- R6Class(
+  "LassoDeployment",
+  
   #Inheritance
   inherit = SupervisedModelDeployment,
 
@@ -106,7 +129,7 @@ LassoDeployment <- R6Class(
     multiplyRes = NULL,
     orderedFactors = NULL,
     predictedValsForUnitTest = NULL,
-
+  
     # functions
     connectDataSource = function() {
       odbcCloseAll()
@@ -284,11 +307,26 @@ LassoDeployment <- R6Class(
 
   # Public members
   public = list(
-    # Constructor
-    # p: new SupervisedModelDeploymentParams class object,
-    # i.e. p = SupervisedModelDeploymentParams$new()
-    initialize = function(p) {
-      super$initialize(p)
+    type = 'classification',
+    df = NA,
+    grainCol = NA,
+    testWindowCol  = NA,
+    predictedCol = NA,
+    impute = NA,
+    # # Constructor
+    # # p: new SupervisedModelDeploymentParams class object,
+    # # i.e. p = SupervisedModelDeploymentParams$new()
+    # initialize = function(p) {
+    #   super$initialize(p)
+    # },
+    
+    initialize = function(type, df, grainCol, testWindowCol, predictedCol, impute) {
+      if (!missing(type)) self$type <- type
+      if (!missing(df)) self$df <- df
+      if (!missing(grainCol)) self$grainCol <- grainCol
+      if (!missing(testWindowCol)) self$testWindowCol <- testWindowCol
+      if (!missing(predictedCol)) self$predictedCol <- predictedCol
+      if (!missing(impute)) self$impute <- impute
     },
 
     buildFitObject = function() {
