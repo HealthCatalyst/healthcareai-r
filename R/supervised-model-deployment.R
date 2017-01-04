@@ -7,6 +7,7 @@ source('R/supervised-model-deployment-params.R')
 #' @description This step allows one to create deploy models on your data
 #' and helps determine which performs best.
 #' @docType class
+#' @usage SupervisedModelDeployment(object)
 #' @import caret
 #' @importFrom R6 R6Class
 #' @param object of SupervisedModelDeploymentParams class for $new() constructor
