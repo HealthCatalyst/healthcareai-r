@@ -7,11 +7,11 @@
 orderByDate(df, dateCol, descending = FALSE)
 }
 \arguments{
-\item{df}{A data frame}
-
 \item{dateCol}{Name of column in data frame that contains dates}
 
 \item{descending}{Boolean for whether the output should be in descending order}
+
+\item{df8}{A data frame}
 }
 \value{
 A data frame ordered by date column

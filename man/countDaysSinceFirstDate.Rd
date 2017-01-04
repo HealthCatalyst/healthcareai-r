@@ -7,12 +7,12 @@
 countDaysSinceFirstDate(df, dtCol, returnDtCol = FALSE)
 }
 \arguments{
-\item{df}{A data frame}
-
 \item{dtCol}{A string denoting the date-time column of interest}
 
 \item{returnDtCol}{A boolean. Return the original dtCol with the modified
 data frame?}
+
+\item{df13}{A data frame}
 }
 \value{
 A data frame that now has a new column

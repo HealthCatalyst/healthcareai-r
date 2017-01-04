@@ -8,8 +8,6 @@ convertDateTimeColToDummies(df, dateTimeCol, depth = "h",
   returnDtCol = FALSE)
 }
 \arguments{
-\item{df}{A data frame. Indicates the datetime column.}
-
 \item{dateTimeCol}{A string. Column name in df that will be converted
 into several columns.}
 
@@ -19,6 +17,8 @@ into several columns.}
 
 \item{returnDtCol}{A boolean. Return the original dateTimeCol with
 the modified data frame?}
+
+\item{df2}{A data frame. Indicates the datetime column.}
 }
 \value{
 A data frame which now includes several columns based on time

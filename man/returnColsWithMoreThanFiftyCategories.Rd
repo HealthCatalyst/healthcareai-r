@@ -9,9 +9,9 @@ returnColsWithMoreThanFiftyCategories(df)
 returnColsWithMoreThanFiftyCategories(df)
 }
 \arguments{
-\item{df}{A data frame}
+\item{df6}{A data frame}
 
-\item{df}{A data frame}
+\item{df11}{A data frame}
 }
 \value{
 A vector that contains the names of the columns with greater
