@@ -313,21 +313,21 @@ LassoDeploymentR6 <- R6Class(
     testWindowCol  = NA,
     predictedCol = NA,
     impute = NA,
-    # # Constructor
-    # # p: new SupervisedModelDeploymentParams class object,
-    # # i.e. p = SupervisedModelDeploymentParams$new()
-    # initialize = function(p) {
-    #   super$initialize(p)
-    # },
-    
-    initialize = function(type, df, grainCol, testWindowCol, predictedCol, impute) {
-      if (!missing(type)) self$type <- type
-      if (!missing(df)) self$df <- df
-      if (!missing(grainCol)) self$grainCol <- grainCol
-      if (!missing(testWindowCol)) self$testWindowCol <- testWindowCol
-      if (!missing(predictedCol)) self$predictedCol <- predictedCol
-      if (!missing(impute)) self$impute <- impute
+    # Constructor
+    # p: new SupervisedModelDeploymentParams class object,
+    # i.e. p = SupervisedModelDeploymentParams$new()
+    initialize = function(p) {
+      super$initialize(p)
     },
+    
+    # initialize = function(type, df, grainCol, testWindowCol, predictedCol, impute) {
+    #   if (!missing(type)) self$type <- type
+    #   if (!missing(df)) self$df <- df
+    #   if (!missing(grainCol)) self$grainCol <- grainCol
+    #   if (!missing(testWindowCol)) self$testWindowCol <- testWindowCol
+    #   if (!missing(predictedCol)) self$predictedCol <- predictedCol
+    #   if (!missing(impute)) self$impute <- impute
+    # },
 
     buildFitObject = function() {
       # Get fit object by linear model
