@@ -73,8 +73,9 @@ After that's done, *here's the contribution workflow:*
    ```
    git checkout LeviBugFix
    git fetch
-   git merge origin/master
+   git merge --no-ff origin/master
    ```
+     - This opens a text editor called [vim](https://github.com/yuanqing/vim-basics/blob/master/README.md), where you type `i`, type your commit message, and [then save](http://stackoverflow.com/a/6098842/5636012)
    
    2. Build and fix any errors
 
