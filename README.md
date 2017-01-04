@@ -68,7 +68,7 @@ After that's done, *here's the contribution workflow:*
    
 5) When you're done with the issue you chose, do the following
    
-   1. Merge the master branch into your topic branch (so that you have the latest changes in master)
+   1. Merge the master branch into your topic branch (so that you have the latest changes from master)
    
    ```
    git checkout LeviBugFix
