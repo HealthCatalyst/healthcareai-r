@@ -68,17 +68,25 @@ After that's done, *here's the contribution workflow:*
    
 5) When you're done with the issue you chose, do the following
    
-   1. Build and fix any errors
-
-   2. Run tests via `devtools::tests()` or CTRL+SHIFT+D and fix any errors
+   1. Merge the master branch into your topic branch (so that you have the latest changes in master)
    
-   3. Run the roxygen2 examples via `devtools::run_examples()` and fix any errors
+   ```
+   git checkout LeviBugFix
+   git fetch
+   git merge origin/master
+   ```
+   
+   2. Build and fix any errors
 
-   4. Under the build tab, run 'Check' and verify that only one roxygen warning arises
+   3. Run tests via `devtools::tests()` or CTRL+SHIFT+D and fix any errors
+   
+   4. Run the roxygen2 examples via `devtools::run_examples()` and fix any errors
+
+   5. Under the build tab, run 'Check' and verify that only one roxygen warning arises
       - This warning is due to the [limitations](https://github.com/wch/R6/issues/3) of roxygen and R6 method documentation
       - This is the only warning/error/note that's allowed when merging to master
       
-   5. Create a [pull request](https://yangsu.github.io/pull-request-tutorial/) so that your changes can be reviewed before merging
+   6. Create a [pull request](https://yangsu.github.io/pull-request-tutorial/) so that your changes can be reviewed before merging
 
 ## For issues
 
