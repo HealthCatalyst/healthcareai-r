@@ -55,7 +55,7 @@ After that's done, *here's the contribution workflow:*
    - Only look for issues in the Backlog category
    - Please reach out with questions on details and where to start
 
-2) Create a topic branch to work in, as described [here](CONTRIBUTING.md/create-a-topic-branch-that-you-can-work-in)
+2) Create a topic branch to work in, as described [here](CONTRIBUTING.md#create-a-topic-branch-that-you-can-work-in)
 
 3) Create a throwaway file on the Desktop (or somewhere outside the repo), based on an example
 
