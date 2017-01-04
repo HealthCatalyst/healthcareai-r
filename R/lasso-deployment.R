@@ -32,17 +32,6 @@ source('R/supervised-model-deployment.R')
 #' #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
 #' @seealso \code{\link{healthcareai}}
-
-#' @section LassoDeployment methods:
-#' \strong{Methods}
-#'   \describe{
-#'     \item{\code{buildFitObject()}}{
-#'      Build a fit object using the linear model
-#'     }
-#'     \item{\code{buildDeployModel()}}{
-#'      Build entire deploy model
-#'     }
-#'   }  
 #'     
 #' @examples
 #' #### Regression example using diabetes data ####
