@@ -7,7 +7,7 @@
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
 LinearMixedModelDevelopment(object, type, df, 
-grainCol, predictedCol, impute)
+grainCol, personCol, predictedCol, impute, debug)
 }
 \arguments{
 \item{object}{of SuperviseModelParameters class for $new() constructor}

@@ -7,11 +7,10 @@
 countPercentEmpty(df)
 }
 \arguments{
-\item{df}{A data frame}
+\item{df12}{A data frame}
 }
 \value{
-A vector that contains the names of the columns with greater
-than 50 categories
+A vector that contains the percentage of NULL in each column
 }
 \description{
 Returns a vector with percentage of each column that is NULL

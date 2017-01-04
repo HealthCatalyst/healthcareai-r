@@ -7,7 +7,7 @@
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
 RandomForestDeployment(type, df, grainCol, testWindowCol, 
-predictedCol, impute)
+predictedCol, impute, debug)
 }
 \arguments{
 \item{type}{The type of model (either 'regression' or 'classification')}

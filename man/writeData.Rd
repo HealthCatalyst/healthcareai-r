@@ -7,14 +7,14 @@
 writeData(df, server, database, schemaDotTable)
 }
 \arguments{
-\item{df}{A data frame being written to a database}
-
 \item{server}{A string.}
 
 \item{database}{A string.}
 
 \item{schemaDotTable}{A string representing the destination schema and
 table. Note that brackets aren't expected.}
+
+\item{df4}{A data frame being written to a database}
 }
 \value{
 Nothing

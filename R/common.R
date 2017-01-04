@@ -342,38 +342,6 @@ removeColsWithAllSameValue <- function(df) {
 }
 
 #' @title
-#' Return vector of columns in a data frame with greater than 50 categories
-#'
-#' @description Returns a vector of the names of the columns that have more than
-#' 50 categories
-#' @param df A data frame
-#' @return A vector that contains the names of the columns with greater
-#' than 50 categories
-#'
-#' @export
-#' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{healthcareai}}
-#' @examples
-#' df <- data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-#'                     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1),
-#'                 b=c('a','b','c','d','e','f','g','h','i','j','k','l','m','n',
-#'                     'o','p','q','r','s','t','u','v','w','x','y','z','aa','bb',
-#'                     'cc','dd','ee','ff','gg','hh','ii','jj','kk','ll','mm','nn',
-#'                     'oo','pp','qq','rr','ss','tt','uu','vv','ww','xx','yy'))
-#' colList <- returnColsWithMoreThanFiftyCategories(df)
-#' colList
-
-returnColsWithMoreThanFiftyCategories <- function(df) {
-  colList <- vector("character")
-  for (columnName in names(df)) {
-    if (nlevels(df[[columnName]]) > 50) {
-      colList <- c(colList, columnName)
-    }
-  }
-  colList
-}
-
-#' @title
 #' Find any columns that have a trend above a particular threshold
 #' @description
 #' Find numeric columns in data frame that have an absolute slope greater than
@@ -622,8 +590,7 @@ returnColsWithMoreThanFiftyCategories <- function(df) {
 #' @description Returns a vector with percentage of each column that is NULL
 #' in the original data frame
 #' @param df A data frame
-#' @return A vector that contains the names of the columns with greater
-#' than 50 categories
+#' @return A vector that contains the percentage of NULL in each column
 #'
 #' @export
 #' @references \url{http://healthcare.ai}

@@ -7,10 +7,10 @@
 groupedLOCF(df, id)
 }
 \arguments{
-\item{df}{data frame sorted by an ID column and a time or sequence number
-column.}
-
 \item{id}{A column name (in ticks) in df to group rows by.}
+
+\item{df1}{data frame sorted by an ID column and a time or sequence number
+column.}
 }
 \value{
 A data frame where the last non-NA values are carried forward
