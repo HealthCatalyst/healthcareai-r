@@ -111,12 +111,12 @@ LassoDeployment <- function(type = 'classification',
                             testWindowCol  = NA,
                             predictedCol = NA,
                             impute = NA) {
-LassoDeployment$new(type = type, df = df, grainCol = grainCol,
+LassoDeploymentx$new(type = type, df = df, grainCol = grainCol,
                     testWindowCol = testWindowCol, predictedCol = predictedCol,
                     impute = impute)
 }
 
-LassoDeploymentR6 <- R6Class(
+LassoDeploymentx <- R6Class(
   "LassoDeployment",
   
   #Inheritance
