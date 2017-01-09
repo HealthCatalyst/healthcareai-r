@@ -54,7 +54,8 @@ CREATE TABLE [dbo].[HCRWriteData](
     [a] [float] NULL,
     [b] [float] NULL,
     [c] [varchar](255) NULL
-)
+)"
+
 sqlcmd -S "(local)\SQL2012SP1" -Q "exec sp_tables"
 
 # Look at contents of a few relevant directories
