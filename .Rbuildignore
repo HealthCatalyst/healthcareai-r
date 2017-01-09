@@ -11,3 +11,4 @@
 ^inst/notebooks/\.ipynb_checkpoints$
 ^inst/CIDatabase$
 ^CONTRIBUTING.md
+^Rplot.png

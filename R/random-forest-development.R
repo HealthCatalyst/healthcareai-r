@@ -7,6 +7,8 @@ source('R/supervised-model-development.R')
 #' @description This step allows you to create a random forest model, based on
 #' your data.
 #' @docType class
+#' @usage RandomForestDevelopment(object, type, df, grainCol, predictedCol, 
+#' impute, debug)
 #' @import caret
 #' @import doParallel
 #' @import e1071
@@ -102,7 +104,6 @@ source('R/supervised-model-development.R')
 #'
 #' ptm <- proc.time()
 #' library(healthcareai)
-#' library(RODBC)
 #'
 #' connection.string <- "
 #' driver={SQL Server};
@@ -154,6 +155,12 @@ source('R/supervised-model-development.R')
 #' names <- c("Random Forest", "Lasso")
 #' legendLoc <- "bottomright"
 #' plotROCs(rocs, names, legendLoc)
+#' 
+#' # Plot PR Curve
+#' rocs <- list(rf$getPRCurve(), lasso$getPRCurve())
+#' names <- c("Random Forest", "Lasso")
+#' legendLoc <- "bottomleft"
+#' plotPRCurve(rocs, names, legendLoc)
 #'
 #' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
 #' lasso$getCutOffs(tpr = 0.8)
@@ -179,13 +186,12 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     predictions = NA,
 
     # Performance metrics
-    confMatrix = NA,
-    ROC = NA,
-    AUC = NA,
-    rmse = NA,
-    mae = NA,
-    perf = NA,
-    prevalence = NA,
+    ROCPlot = NA,
+    PRCurvePlot = NA,
+    AUROC = NA,
+    AUPR = NA,
+    RMSE = NA,
+    MAE = NA,
 
     # Start of functions
     buildGrid = function() {
@@ -316,76 +322,47 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         private$predictions <- predict(object = private$fitRF,
                                       newdata = private$dfTest,
                                       type = 'prob')
+        private$predictions <- private$predictions[,2]
+        
+        if (isTRUE(self$params$debug)) {
+          print(paste0('Number of predictions: ', nrow(private$predictions)))
+          print('First 10 raw classification probability predictions')
+          print(round(private$predictions[1:10],2))
+        }
+        
       } else if (self$params$type == 'regression') {
         private$predictions <- predict(private$fitRF, newdata = private$dfTest)
-      }
-    },
-
-    # Generate performance metrics
-    generatePerformanceMetrics = function() {
-
-      if (self$params$type == 'classification') {
-        predictProb <- private$predictions
-
-        if (isTRUE(self$params$debug)) {
-          print(paste0('Rows in probability prediction: ', nrow(predictProb)))
-          print('First 10 raw classification probability predictions')
-          print(round(predictProb[1:10,2],2))
-        }
-
-        ytest <- as.numeric(private$dfTest[[self$params$predictedCol]])
-        pred <- prediction(predictProb[,2], ytest)
-        private$perf <- ROCR::performance(pred, "tpr", "fpr")
-
-        predictClass <- predict(private$fitRF, newdata = private$dfTest)
-
-        if (isTRUE(self$params$debug)) {
-          print(paste0('Rows in discrete prediction: ', nrow(predictProb)))
-          print('First 10 raw classification discrete predictions')
-          print(predictClass[1:10])
-        }
-
-        private$ROC <- roc(ytest~predictProb[,2])
-        private$AUC <- auc(private$ROC)
-
-        # Show results
-        if (isTRUE(self$params$printResults)) {
-          print(paste0('AUC: ', round(private$AUC, 2)))
-          print(paste0('95% CI AUC: (', round(ci(private$AUC)[1],2),
-                       ',',
-                       round(ci(private$AUC)[3],2), ')'))
-        }
-      }
-
-      # Regression
-      else if (self$params$type == 'regression') {
+        
         if (isTRUE(self$params$debug)) {
           print(paste0('Rows in regression prediction: ',
                        length(private$predictions)))
           print('First 10 raw regression predictions (with row # first)')
           print(round(private$predictions[1:10],2))
         }
-
-        ytest <- as.numeric(private$dfTest[[self$params$predictedCol]])
-
-        # Error measures
-        private$rmse <- sqrt(mean((ytest - private$predictions) ^ 2))
-        private$mae <- mean(abs(ytest - private$predictions))
-
-        # Show results
-        if (isTRUE(self$params$printResults)) {
-          print(paste0('RMSE: ', round(private$rmse, 8)))
-          print(paste0('MAE: ', round(private$mae, 8)))
-        }
       }
+      
 
-      private$stopClustersOnCores()
+    },
 
-      if (isTRUE(self$params$varImp)) {
-        self$params$varImp <- varImp(private$fitRF, top = 20)
-        print(self$params$varImp)
-      }
+    # Generate performance metrics
+    generatePerformanceMetrics = function() {
+      
+      ytest <- as.numeric(private$dfTest[[self$params$predictedCol]])
 
+      calcObjList <- calculatePerformance(private$predictions, 
+                                           ytest, 
+                                           self$params$type)
+      
+      # Make these objects available for plotting and unit tests
+      private$ROCPlot <- calcObjList[[1]]
+      private$PRCurvePlot <- calcObjList[[2]]
+      private$AUROC <- calcObjList[[3]]
+      private$AUPR <- calcObjList[[4]]
+      private$RMSE <- calcObjList[[5]]
+      private$MAE <- calcObjList[[6]]
+      
+      print(caret::varImp(private$fitRF, top = 20))
+      
       return(invisible(private$fitRF))
     },
 
@@ -407,37 +384,45 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         print("ROC is not created because the column you're predicting is not binary")
         return(NULL)
       }
-
-      return(private$ROC)
+      return(private$ROCPlot)
+    },
+    
+    getPRCurve = function() {
+      if (!isBinary(self$params$df[[self$params$predictedCol]])) {
+        print("PR Curve is not created because the column you're predicting is not binary")
+        return(NULL)
+      }
+      return(private$PRCurvePlot)
     },
 
-    getAUC = function() {
-      return(private$AUC)
+    getAUROC = function() {
+      return(private$AUROC)
     },
 
+    getAUPR = function() {
+      return(private$AUPR)
+    },
+    
     getRMSE = function() {
-      return(private$rmse)
+      return(private$RMSE)
     },
 
     getMAE = function() {
-      return(private$mae)
+      return(private$MAE)
     },
 
-    getPerf = function() {
-      return(private$perf)
-    },
-
+    # TODO: move to common, to reduce duplication
     getCutOffs = function(tpr) {
       # Get index of when true-positive rate is > tpr
-      indy <- which(as.numeric(unlist(private$perf@y.values)) > tpr)
+      indy <- which(as.numeric(unlist(private$ROCPlot@y.values)) > tpr)
 
       # Correpsonding probability cutoff value (ie when category falls to 1)
       print('Corresponding cutoff for 0/1 fallover:')
-      print(private$perf@alpha.values[[1]][indy[1]])
+      print(private$ROCPlot@alpha.values[[1]][indy[1]])
 
       # Corresponding false-positive rate
       print('Corresponding false-positive rate:')
-      print(private$perf@x.values[[1]][indy[1]][[1]])
+      print(private$ROCPlot@x.values[[1]][indy[1]][[1]])
     }
   )
 )

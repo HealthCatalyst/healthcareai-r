@@ -23,19 +23,27 @@ Installation:
 install.packages(c('caret','data.table','devtools','doParallel','e1071','grpreg','lme4','lubridate','pROC','R6','ranger','ROCR','RODBC'),repos = "https://cran.cnr.berkeley.edu/")
 ```
 
-- Install healthcareai: 
+- Install the latest release of healthcareai
 
-```R 
+```{r}
+library(devtools)
+devtools::install_url('https://github.com/HealthCatalystSLC/healthcareai-r/archive/v0.1.10.zip')
+```
+
+- Note: if you want the bleeding edge version, use this:
+
+```{r}
 library(devtools)
 devtools::install_github(repo='HealthCatalystSLC/healthcareai-r')
 ```
 
-Getting started:
+- Load the package you just installed and read the built-in docs
+```{r}
+library(healthcareai)
+?healthcareai
+```
 
-- To create a couple models on your data, check out this [notebook.](inst/notebooks/Example1.ipynb)
-
-- After finding an accurate model, see this [notebook](inst/notebooks/Example2.ipynb) to push predictions to SQL Server.
-
+- If you like Jupyter notebooks, check out [step 1](inst/notebooks/Example1.ipynb) and [step 2](inst/notebooks/Example2.ipynb) in model building with healthcareai.
 
 ## Contributing
 
@@ -49,7 +57,7 @@ After that's done, *here's the contribution workflow:*
    - Only look for issues in the Backlog category
    - Please reach out with questions on details and where to start
 
-2) Create a topic branch to work in, as described [here](CONTRIBUTING.md/create-a-topic-branch-that-you-can-work-in)
+2) Create a topic branch to work in, as described [here](CONTRIBUTING.md#create-a-topic-branch-that-you-can-work-in)
 
 3) Create a throwaway file on the Desktop (or somewhere outside the repo), based on an example
 
@@ -62,15 +70,26 @@ After that's done, *here's the contribution workflow:*
    
 5) When you're done with the issue you chose, do the following
    
-   1. Build and fix any errors
-
-   2. Run tests via `devtools::tests()` or CTRL+SHIFT+D and fix any errors
+   1. Merge the master branch into your topic branch (so that you have the latest changes from master)
    
-   3. Run the roxygen2 examples via `devtools::run_examples()` and fix any errors
+   ```
+   git checkout LeviBugFix
+   git fetch
+   git merge --no-ff origin/master
+   ```
+     - This opens a text editor called [vim](https://github.com/yuanqing/vim-basics/blob/master/README.md), where you type `i`, type your commit message, and [then save](http://stackoverflow.com/a/6098842/5636012)
+   
+   2. Build and fix any errors
 
-   4. Under the build tab, run 'Check' and verify that only one roxygen warning arises
+   3. Run tests via `devtools::tests()` or CTRL+SHIFT+D and fix any errors
+   
+   4. Run the roxygen2 examples via `devtools::run_examples()` and fix any errors
+
+   5. Under the build tab, run 'Check' and verify that only one roxygen warning arises
       - This warning is due to the [limitations](https://github.com/wch/R6/issues/3) of roxygen and R6 method documentation
       - This is the only warning/error/note that's allowed when merging to master
+      
+   6. Create a [pull request](https://yangsu.github.io/pull-request-tutorial/) so that your changes can be reviewed before merging
 
 ## For issues
 

@@ -12,7 +12,8 @@ generateAUC(predictions, labels, aucType = "SS", plotFlg = FALSE)
 \item{labels}{A vector of the true labels. Must be the same length as 
 predictions.}
 
-\item{aucType}{A string. Indicates AUC_ROC or AU_PR and can be "SS" or "PR". Defaults to SS.}
+\item{aucType}{A string. Indicates AUC_ROC or AU_PR and can be "SS" or "PR". 
+Defaults to SS.}
 
 \item{plotFlg}{Binary value controlling plots Defaults to FALSE (no).}
 }
@@ -26,7 +27,9 @@ Precision/Recall.
 \examples{
 
 # generate data
+# example probablities
 df <- data.frame(a = rep( seq(0,1,by=0.1), times=9))
+# example ground truth values
 df[,'b'] <- (runif(99,0,1)*df[,'a']) > 0.5
 
 # prepare vectors

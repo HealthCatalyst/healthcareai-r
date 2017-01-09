@@ -7,6 +7,7 @@ source('R/supervised-model-development-params.R')
 #' @description This step allows one to create test models on your data
 #' and helps determine which performs best.
 #' @docType class
+#' @usage SupervisedModelDevelopment(object)
 #' @import caret
 #' @importFrom R6 R6Class
 #' @param object of SuperviseModelParameters class for $new() constructor

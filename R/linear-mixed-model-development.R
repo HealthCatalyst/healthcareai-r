@@ -6,6 +6,8 @@ source('R/supervised-model-development.R')
 #' @description This step allows one to create test models on your data
 #' and helps determine which performs best.
 #' @docType class
+#' @usage LinearMixedModelDevelopment(object, type, df, 
+#' grainCol, personCol, predictedCol, impute, debug)
 #' @import caret
 #' @import doParallel
 #' @import e1071
@@ -60,7 +62,6 @@ source('R/supervised-model-development.R')
 #'
 #' ### Doing regression
 #' library(healthcareai)
-#' library(lme4)
 #'
 #' # SQL query and connection goes here - see SelectData function.
 #'
@@ -149,6 +150,7 @@ source('R/supervised-model-development.R')
 #' ,[ThirtyDayReadmitFLG]
 #' ,[InTestWindowFLG]
 #' FROM [SAM].[dbo].[HCRDiabetesClinical]
+#' --no WHERE clause, because we want train AND test
 #' "
 #'
 #' df <- selectData(connection.string, query)
@@ -171,13 +173,30 @@ source('R/supervised-model-development.R')
 #' # Create Mixed Model
 #' lmm <- LinearMixedModelDevelopment$new(p)
 #' lmm$run()
-#'
-#' # Run Lasso
-#' Lasso <- LassoDevelopment$new(p)
-#' Lasso$run()
+#' 
+#' # Remove person col, since RF can't use it
+#' df$personCol <- NULL
+#' p$df <- df
+#' p$personCol <- NULL
+#' 
+#' # Run Random Forest
+#' rf <- RandomForestDevelopment$new(p)
+#' rf$run()
+#' 
+#' # Plot ROC
+#' rocs <- list(lmm$getROC(), rf$getROC())
+#' names <- c("Linear Mixed Model", "Random Forest")
+#' legendLoc <- "bottomright"
+#' plotROCs(rocs, names, legendLoc)
+#' 
+#' # Plot PR Curve
+#' rocs <- list(lmm$getPRCurve(), rf$getPRCurve())
+#' names <- c("Linear Mixed Model", "Random Forest")
+#' legendLoc <- "bottomleft"
+#' plotPRCurve(rocs, names, legendLoc)
 #'
 #' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-#' Lasso$getCutOffs(tpr = 0.8)
+#' lmm$getCutOffs(tpr = 0.8)
 #'
 #' print(proc.time() - ptm)
 #' @export
@@ -202,13 +221,12 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
     predictions = NA,
 
     # Performance metrics
-    confMatrix = NA,
-    ROC = NA,
-    AUC = NA,
-    rmse = NA,
-    mae = NA,
-    perf = NA,
-    prevalence = NA
+    ROCPlot = NA,
+    PRCurvePlot = NA,
+    AUROC = NA,
+    AUPR = NA,
+    RMSE = NA,
+    MAE = NA
   ),
 
   # Public members
@@ -285,8 +303,7 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
         private$fitLmm <- glmer(formula = formula,
                                 data = private$lmmTrain,
                                 family = binomial(link = 'logit'))
-      }
-      else if (self$params$type == 'regression') {
+      } else if (self$params$type == 'regression') {
         private$fitLmm <- lmer(formula = formula,
                                 data = private$lmmTrain)
       }
@@ -300,66 +317,43 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
                                        newdata = private$lmmTest,
                                        allow.new.levels = TRUE,
                                        type = "response")
+        
+        if (isTRUE(self$params$debug)) {
+          print(paste0('Predictions generated: ', nrow(private$predictions)))
+          print('First 10 raw classification probability predictions')
+          print(round(private$predictions[1:10],2))
+        }
       }
       else if (self$params$type == 'regression') {
         private$predictions <- predict(object = private$fitLmm,
                                        newdata = private$lmmTest,
                                        allow.new.levels = TRUE)
+        
+        if (isTRUE(self$params$debug)) {
+          print(paste0('Predictions generated: ',
+                       length(private$predictions)))
+          print('First 10 raw regression predictions (with row # first)')
+          print(round(private$predictions[1:10],2))
+        }
       }
     },
 
     # Generate performance metrics
     generatePerformanceMetrics = function() {
 
-      if (self$params$type == 'classification') {
-        predictProb <- private$predictions
-
-        if (isTRUE(self$params$debug)) {
-          print(paste0('Rows in probability prediction: ', nrow(predictProb)))
-          print('First 10 raw classification probability predictions')
-          print(round(predictProb[1:10],2))
-        }
-
-        ytest <- as.numeric(private$lmmTest[[self$params$predictedCol]])
-        pred <- prediction(predictProb, ytest)
-        private$perf <- ROCR::performance(pred, "tpr", "fpr")
-
-        private$ROC <- pROC::roc(ytest~predictProb)
-        private$AUC <- pROC::auc(private$ROC)
-
-        # Show results
-        if (isTRUE(self$params$printResults)) {
-          print(paste0('AUC: ', round(private$AUC, 2)))
-          print(paste0('95% CI AUC: (', round(ci(private$AUC)[1],2),
-                       ',',
-                       round(ci(private$AUC)[3],2), ')'))
-        }
-      }
-
-      # Regression
-      else if (self$params$type == 'regression') {
-
-        if (isTRUE(self$params$debug)) {
-          print(paste0('Rows in regression prediction: ',
-                       length(private$predictions)))
-          print('First 10 raw regression predictions (with row # first)')
-          print(round(private$predictions[1:10],2))
-        }
-
-        ytest <- as.numeric(private$lmmTest[[self$params$predictedCol]])
-
-        # Error measures
-        private$rmse <- sqrt(mean((ytest - private$predictions) ^ 2))
-        private$mae <- mean(abs(ytest - private$predictions))
-
-        # Show results
-        if (isTRUE(self$params$printResults)) {
-          print(paste0('RMSE: ', round(private$rmse, 8)))
-          print(paste0('MAE: ', round(private$mae, 8)))
-        }
-      }
-
-      private$stopClustersOnCores()
+      ytest <- as.numeric(private$lmmTest[[self$params$predictedCol]])
+      
+      calcObjList <- calculatePerformance(private$predictions, 
+                                           ytest, 
+                                           self$params$type)
+      
+      # Make these objects available for plotting and unit tests
+      private$ROCPlot <- calcObjList[[1]]
+      private$PRCurvePlot <- calcObjList[[2]]
+      private$AUROC <- calcObjList[[3]]
+      private$AUPR <- calcObjList[[4]]
+      private$RMSE <- calcObjList[[5]]
+      private$MAE <- calcObjList[[6]]
 
       return(invisible(private$fitLmm))
     },
@@ -384,20 +378,27 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
         print("ROC is not created because the column you're predicting is not binary")
         return(NULL)
       }
-
-      return(private$ROC)
+      return(private$ROCPlot)
     },
-
-    getAUC = function() {
-      return(private$AUC)
+    
+    getPRCurve = function() {
+      if (!isBinary(self$params$df[[self$params$predictedCol]])) {
+        print("PR Curve is not created because the column you're predicting is not binary")
+        return(NULL)
+      }
+      return(private$PRCurvePlot)
+    },
+    
+    getAUROC = function() {
+      return(private$AUROC)
     },
 
     getRMSE = function() {
-      return(private$rmse)
+      return(private$RMSE)
     },
 
     getMAE = function() {
-      return(private$mae)
+      return(private$MAE)
     },
 
     getPerf = function() {
@@ -406,15 +407,15 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
 
     getCutOffs = function(tpr) {
       # Get index of when true-positive rate is > tpr
-      indy <- which(as.numeric(unlist(private$perf@y.values)) > tpr)
+      indy <- which(as.numeric(unlist(private$ROCPlot@y.values)) > tpr)
 
       # Correpsonding probability cutoff value (ie when category falls to 1)
       print('Corresponding cutoff for 0/1 fallover:')
-      print(private$perf@alpha.values[[1]][indy[1]])
+      print(private$ROCPlot@alpha.values[[1]][indy[1]])
 
       # Corresponding false-positive rate
       print('Corresponding false-positive rate:')
-      print(private$perf@x.values[[1]][indy[1]][[1]])
+      print(private$ROCPlot@x.values[[1]][indy[1]][[1]])
     }
   )
 )

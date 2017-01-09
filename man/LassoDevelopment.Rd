@@ -6,7 +6,8 @@
 \title{Compare predictive models, created on your data}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-LassoDevelopment
+LassoDevelopment(object, type, df, grainCol, predictedCol, impute, 
+debug)
 }
 \arguments{
 \item{object}{of SuperviseModelParameters class for $new() constructor}
@@ -104,7 +105,6 @@ print(proc.time() - ptm)
 
 ptm <- proc.time()
 library(healthcareai)
-library(RODBC)
 
 connection.string <- "
 driver={SQL Server};
@@ -157,6 +157,12 @@ rocs <- list(rf$getROC(), lasso$getROC())
 names <- c("Random Forest", "Lasso")
 legendLoc <- "bottomright"
 plotROCs(rocs, names, legendLoc)
+
+# Plot PR Curve
+rocs <- list(rf$getPRCurve(), lasso$getPRCurve())
+names <- c("Random Forest", "Lasso")
+legendLoc <- "bottomleft"
+plotPRCurve(rocs, names, legendLoc)
 
 # For a given true-positive rate, get false-pos rate and 0/1 cutoff
 lasso$getCutOffs(tpr = 0.8)

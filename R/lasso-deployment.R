@@ -12,6 +12,7 @@ source('R/supervised-model-deployment.R')
 #' \item Push these predictions to SQL Server
 #' }
 #' @docType class
+#' @usage LassoDeployment(type, df, grainCol, testWindowCol, predictedCol, impute)
 #' @import caret
 #' @import doParallel
 #' @importFrom R6 R6Class
@@ -31,6 +32,7 @@ source('R/supervised-model-deployment.R')
 #' #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
 #' @seealso \code{\link{healthcareai}}
+#'     
 #' @examples
 #' #### Regression example using diabetes data ####
 #' # This example requires you to first create a table in SQL Server
@@ -46,23 +48,32 @@ source('R/supervised-model-deployment.R')
 #' ptm <- proc.time()
 #' library(healthcareai)
 #'
-#' connection.string <- "driver={SQL Server};
+#' connection.string <- "
+#' driver={SQL Server};
 #' server=localhost;
 #' database=SAM;
-#' trusted_connection=true"
+#' trusted_connection=true
+#' "
 #'
-#' # Use this for an example SQL source: query <- 'SELECT * FROM
-#' # [SAM].[YourCoolSAM].[SomeTrainingSetTable]' df <- selectData(connection.string,
-#' # query)
+#' query <- "
+#' SELECT
+#'  [PatientEncounterID] --Only need one ID column for lasso
+#' ,[SystolicBPNBR]
+#' ,[LDLNBR]
+#' ,[A1CNBR]
+#' ,[GenderFLG]
+#' ,[ThirtyDayReadmitFLG]
+#' ,[InTestWindowFLG]
+#' FROM [SAM].[dbo].[HCRDiabetesClinical]
+#' --no WHERE clause, because we want train AND test
+#' "
 #'
-#' # Can delete these four lines when you set up your SQL connection/query
-#' csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "healthcareai")
-#' df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
+#' df <- selectData(connection.string, query)
 #'
 #' head(df)
 #'
 #' # Remove unnecessary columns
-#' df$PatientID <- NULL
+#' df$SomeColumn <- NULL
 #'
 #' p <- SupervisedModelDeploymentParams$new()
 #' p$type <- "regression"
@@ -86,7 +97,7 @@ source('R/supervised-model-deployment.R')
 
 LassoDeployment <- R6Class(
   "LassoDeployment",
-
+  
   #Inheritance
   inherit = SupervisedModelDeployment,
 
@@ -97,7 +108,7 @@ LassoDeployment <- R6Class(
     multiplyRes = NULL,
     orderedFactors = NULL,
     predictedValsForUnitTest = NULL,
-
+  
     # functions
     connectDataSource = function() {
       odbcCloseAll()
@@ -275,6 +286,12 @@ LassoDeployment <- R6Class(
 
   # Public members
   public = list(
+    type = 'classification',
+    df = NA,
+    grainCol = NA,
+    testWindowCol  = NA,
+    predictedCol = NA,
+    impute = NA,
     # Constructor
     # p: new SupervisedModelDeploymentParams class object,
     # i.e. p = SupervisedModelDeploymentParams$new()

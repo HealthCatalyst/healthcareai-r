@@ -6,7 +6,7 @@
 \title{Deploy a production-ready predictive Lasso model}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-LassoDeployment
+LassoDeployment(type, df, grainCol, testWindowCol, predictedCol, impute)
 }
 \arguments{
 \item{type}{The type of model (either 'regression' or 'classification')}
@@ -52,23 +52,32 @@ This step allows one to
 ptm <- proc.time()
 library(healthcareai)
 
-connection.string <- "driver={SQL Server};
+connection.string <- "
+driver={SQL Server};
 server=localhost;
 database=SAM;
-trusted_connection=true"
+trusted_connection=true
+"
 
-# Use this for an example SQL source: query <- 'SELECT * FROM
-# [SAM].[YourCoolSAM].[SomeTrainingSetTable]' df <- selectData(connection.string,
-# query)
+query <- "
+SELECT
+ [PatientEncounterID] --Only need one ID column for lasso
+,[SystolicBPNBR]
+,[LDLNBR]
+,[A1CNBR]
+,[GenderFLG]
+,[ThirtyDayReadmitFLG]
+,[InTestWindowFLG]
+FROM [SAM].[dbo].[HCRDiabetesClinical]
+--no WHERE clause, because we want train AND test
+"
 
-# Can delete these four lines when you set up your SQL connection/query
-csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "healthcareai")
-df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
+df <- selectData(connection.string, query)
 
 head(df)
 
 # Remove unnecessary columns
-df$PatientID <- NULL
+df$SomeColumn <- NULL
 
 p <- SupervisedModelDeploymentParams$new()
 p$type <- "regression"
