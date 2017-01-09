@@ -9,7 +9,7 @@ sqlcmd -S "(local)\SQL2012SP1" -Q "exec sp_databases"
 
 # Write the tables
 sqlcmd -S "(local)\SQL2012SP1" -Q "
-CREATE TABLE [SAM_test_for_R].[HCRDeployClassificationBASE](
+CREATE TABLE [SAM_test_for_R].[dbo].[HCRDeployClassificationBASE](
     [BindingID] [int] NULL,
     [BindingNM] [varchar](255) NULL,
     [LastLoadDTS] [datetime2](7) NULL,
@@ -20,7 +20,7 @@ CREATE TABLE [SAM_test_for_R].[HCRDeployClassificationBASE](
     [Factor3TXT] [varchar](255) NULL
 )
 
-CREATE TABLE [SAM_test_for_R].[HCRDeployRegressionBASE](
+CREATE TABLE [SAM_test_for_R].[dbo].[HCRDeployRegressionBASE](
     [BindingID] [int] NULL,
     [BindingNM] [varchar](255) NULL,
     [LastLoadDTS] [datetime2](7) NULL,
@@ -31,7 +31,7 @@ CREATE TABLE [SAM_test_for_R].[HCRDeployRegressionBASE](
     [Factor3TXT] [varchar](255) NULL
 )
 
-CREATE TABLE [SAM_test_for_R].[HCRDiabetesClinical](
+CREATE TABLE [SAM_test_for_R].[dbo].[HCRDiabetesClinical](
     [PatientEncounterID] [float] NULL,
     [PatientID] [float] NULL,
     [SystolicBPNBR] [float] NULL,
@@ -42,7 +42,7 @@ CREATE TABLE [SAM_test_for_R].[HCRDiabetesClinical](
     [InTestWindowFLG] [nvarchar](255) NULL
 )
 
-CREATE TABLE [SAM_test_for_R].[HCRWriteData](
+CREATE TABLE [SAM_test_for_R].[dbo].[HCRWriteData](
     [a] [float] NULL,
     [b] [float] NULL,
     [c] [varchar](255) NULL
