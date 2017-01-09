@@ -12,6 +12,7 @@ source('R/supervised-model-deployment.R')
 #' \item Push these predictions to SQL Server
 #' }
 #' @docType class
+#' @usage LassoDeployment(type, df, grainCol, testWindowCol, predictedCol, impute)
 #' @import caret
 #' @import doParallel
 #' @importFrom R6 R6Class
@@ -31,6 +32,7 @@ source('R/supervised-model-deployment.R')
 #' #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
 #' @seealso \code{\link{healthcareai}}
+#'     
 #' @examples
 #' #### Regression example using diabetes data ####
 #' # This example requires you to first create a table in SQL Server
@@ -95,7 +97,7 @@ source('R/supervised-model-deployment.R')
 
 LassoDeployment <- R6Class(
   "LassoDeployment",
-
+  
   #Inheritance
   inherit = SupervisedModelDeployment,
 
@@ -106,7 +108,7 @@ LassoDeployment <- R6Class(
     multiplyRes = NULL,
     orderedFactors = NULL,
     predictedValsForUnitTest = NULL,
-
+  
     # functions
     connectDataSource = function() {
       odbcCloseAll()
@@ -284,6 +286,12 @@ LassoDeployment <- R6Class(
 
   # Public members
   public = list(
+    type = 'classification',
+    df = NA,
+    grainCol = NA,
+    testWindowCol  = NA,
+    predictedCol = NA,
+    impute = NA,
     # Constructor
     # p: new SupervisedModelDeploymentParams class object,
     # i.e. p = SupervisedModelDeploymentParams$new()

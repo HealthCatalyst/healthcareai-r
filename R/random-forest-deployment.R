@@ -12,6 +12,8 @@ source('R/supervised-model-deployment.R')
 #' \item Push these predictions to SQL Server
 #' }
 #' @docType class
+#' @usage RandomForestDeployment(type, df, grainCol, testWindowCol, 
+#' predictedCol, impute, debug)
 #' @import caret
 #' @import doParallel
 #' @importFrom R6 R6Class

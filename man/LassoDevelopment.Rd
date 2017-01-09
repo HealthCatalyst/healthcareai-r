@@ -6,7 +6,8 @@
 \title{Compare predictive models, created on your data}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-LassoDevelopment
+LassoDevelopment(object, type, df, grainCol, predictedCol, impute, 
+debug)
 }
 \arguments{
 \item{object}{of SuperviseModelParameters class for $new() constructor}

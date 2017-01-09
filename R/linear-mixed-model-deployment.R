@@ -12,6 +12,8 @@ source('R/supervised-model-deployment.R')
 #' \item Push these predictions to SQL Server
 #' }
 #' @docType class
+#' @usage LinearMixedModelDeployment(type, df, 
+#' grainCol, personCol, testWindowCol, predictedCol, impute, debug)
 #' @import caret
 #' @import doParallel
 #' @import lme4

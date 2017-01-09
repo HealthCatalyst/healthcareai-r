@@ -7,6 +7,8 @@ source('R/supervised-model-development.R')
 #' @description This step allows you to create a Lasso model, based on
 #' your data.
 #' @docType class
+#' @usage LassoDevelopment(object, type, df, grainCol, predictedCol, impute, 
+#' debug)
 #' @import caret
 #' @import doParallel
 #' @import e1071

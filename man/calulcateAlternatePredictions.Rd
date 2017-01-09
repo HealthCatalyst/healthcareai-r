@@ -16,6 +16,9 @@ calulcateAlternatePredictions(df, modelObj, type, outVectorAppend = NULL,
 
 \item{outVectorAppend}{Optional list of values that we'll append predictions
 to. If not used, then a new vector is created.}
+
+\item{removeCols}{Optional list of column names to remove before calculating
+alternate predictions.}
 }
 \description{
 After getting alternate features via calculateSDChanges

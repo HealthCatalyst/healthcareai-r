@@ -6,6 +6,8 @@ source('R/supervised-model-development.R')
 #' @description This step allows one to create test models on your data
 #' and helps determine which performs best.
 #' @docType class
+#' @usage LinearMixedModelDevelopment(object, type, df, 
+#' grainCol, personCol, predictedCol, impute, debug)
 #' @import caret
 #' @import doParallel
 #' @import e1071

@@ -10,6 +10,7 @@ source('R/common.R')
 #' of the groups this way provides a sense of which group's doing best in
 #' terms of a particular measure.
 #' @docType class
+#' @usage RiskAdjustedComparisons(df, predictedCol, groupCol, impute)
 #' @import caret
 #' @import ranger
 #' @importFrom R6 R6Class
