@@ -44,6 +44,17 @@ CREATE TABLE [dbo].[HCRDiabetesClinical](
     [InTestWindowFLG] [nvarchar](255) NULL
 )
 
+CREATE TABLE [dbo].[HCRWriteData](
+    [a] [float] NULL,
+    [b] [float] NULL,
+    [c] [varchar](255) NULL
+)"
+# view the generated tables
+sqlcmd -S "(local)\SQL2012SP1" -Q "SELECT * FROM SAM_test_for_R.INFORMATION_SCHEMA.TABLES"
+
+# Write the tables
+sqlcmd -S "(local)\SQL2012SP1" -q "
+USE SAM_test_for_R;
 BULK INSERT dbo.HCRDiabetesClinical
 FROM 'c:\projects\healthcareai-r\inst\extdata\HCRDiabetesClinical.csv'
 WITH
@@ -52,15 +63,8 @@ WITH
     FIELDTERMINATOR = ',',  --CSV field delimiter
     ROWTERMINATOR = '\n',   --Use to shift the control to next row
     KEEPNULLS
-)
-
-CREATE TABLE [dbo].[HCRWriteData](
-    [a] [float] NULL,
-    [b] [float] NULL,
-    [c] [varchar](255) NULL
 )"
-
-sqlcmd -S "(local)\SQL2012SP1" -Q "SELECT * FROM SAM_test_for_R.INFORMATION_SCHEMA.TABLES"
+# try to see the top 10 after insertion.
 sqlcmd -S "(local)\SQL2012SP1" -Q "SELECT TOP 10 * FROM SAM_test_for_R.dbo.HCRDiabetesClinical"
 
 
