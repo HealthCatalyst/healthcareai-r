@@ -48,7 +48,7 @@ CREATE TABLE [HCRWriteData](
     [c] [varchar](255) NULL
 )"
 
-sqlcmd -S "(local)\SQL2012SP1" -Q "exec sp_tables[@table_qualifier = 'SAM_test_for_R']"
+sqlcmd -S "(local)\SQL2012SP1" -Q "exec sp_tables"
 
 
 # Look at contents of a few relevant directories
