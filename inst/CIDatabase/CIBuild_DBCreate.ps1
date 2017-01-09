@@ -4,8 +4,10 @@ Push-AppveyorArtifact inst/extdata/HCRDiabetesClinical.csv
 # Use csv file to create SAM db and populate tables
 $csvFile = "c:\projects\healthcareai-r\inst\extdata\HCRDiabetesClinical.csv"
 
+# Create SAM database
 sqlcmd -b -S "(local)\SQL2012SP1" -Q "CREATE DATABASE [SAM]"
-sqlcmd -S "(local)\SQL2012SP1" -Q "exec sp_databases"
+# View databases
+# sqlcmd -S "(local)\SQL2012SP1" -Q "exec sp_databases"
 
 # Write the tables
 sqlcmd -S "(local)\SQL2012SP1" -Q "
@@ -49,10 +51,11 @@ CREATE TABLE [dbo].[HCRWriteData](
     [b] [float] NULL,
     [c] [varchar](255) NULL
 )"
-# view the generated tables
-sqlcmd -S "(local)\SQL2012SP1" -Q "SELECT * FROM SAM.INFORMATION_SCHEMA.TABLES"
 
-# Write the tables
+# View the generated tables
+# sqlcmd -S "(local)\SQL2012SP1" -Q "SELECT * FROM SAM.INFORMATION_SCHEMA.TABLES"
+
+# Import the CSV data
 sqlcmd -S "(local)\SQL2012SP1" -Q "
 USE SAM;
 BULK INSERT SAM.dbo.HCRDiabetesClinical
@@ -64,8 +67,9 @@ WITH
     ROWTERMINATOR = '0x0a',   --Use to shift the control to next row
     KEEPNULLS
 )"
-# try to see the top 10 after insertion.
-sqlcmd -S "(local)\SQL2012SP1" -Q "SELECT TOP 10 * FROM SAM.dbo.HCRDiabetesClinical"
+
+# Look at top 10 rows after CSV insertion.
+# sqlcmd -S "(local)\SQL2012SP1" -Q "SELECT TOP 10 * FROM SAM.dbo.HCRDiabetesClinical"
 
 
 # Look at contents of a few relevant directories

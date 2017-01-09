@@ -120,13 +120,14 @@ lmm <- LinearMixedModelDevelopment$new(p)
 lmm$run()
 
 # Run Lasso
-Lasso <- LassoDevelopment$new(p)
-Lasso$run()
+# Lasso <- LassoDevelopment$new(p)
+# Lasso$run()
 
 # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-Lasso$getCutOffs(tpr = 0.8)
+# Lasso$getCutOffs(tpr = 0.8)
 print(proc.time() - ptm)
 
+\donttest{
 #### Example using SQL Server data ####
 # This example requires that you alter your connection string / query
 # to read in your own data
@@ -201,6 +202,8 @@ plotPRCurve(rocs, names, legendLoc)
 lmm$getCutOffs(tpr = 0.8)
 
 print(proc.time() - ptm)
+}
+
 }
 \references{
 \url{http://healthcare.ai/}
