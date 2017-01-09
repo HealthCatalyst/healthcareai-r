@@ -8,10 +8,10 @@ sqlcmd -b -S "(local)\SQL2012SP1" -Q "CREATE DATABASE [SAM_test_for_R]"
 sqlcmd -S "(local)\SQL2012SP1" -Q "exec sp_databases"
 
 # Write the tables
-sqlcmd -S "(local)\SQL2012SP1" -Q "USE SAM_test_for_R"
-
 sqlcmd -S "(local)\SQL2012SP1" -Q "
-CREATE TABLE dbo.HCRDeployClassificationBASE(
+USE SAM_test_for_R;
+
+CREATE TABLE [dbo].HCRDeployClassificationBASE(
     [BindingID] [int] NULL,
     [BindingNM] [varchar](255) NULL,
     [LastLoadDTS] [datetime2](7) NULL,
@@ -22,7 +22,7 @@ CREATE TABLE dbo.HCRDeployClassificationBASE(
     [Factor3TXT] [varchar](255) NULL
 )
 
-CREATE TABLE [SAM_test_for_R].[dbo].[HCRDeployRegressionBASE](
+CREATE TABLE [dbo].[HCRDeployRegressionBASE](
     [BindingID] [int] NULL,
     [BindingNM] [varchar](255) NULL,
     [LastLoadDTS] [datetime2](7) NULL,
@@ -33,7 +33,7 @@ CREATE TABLE [SAM_test_for_R].[dbo].[HCRDeployRegressionBASE](
     [Factor3TXT] [varchar](255) NULL
 )
 
-CREATE TABLE [SAM_test_for_R].[dbo].[HCRDiabetesClinical](
+CREATE TABLE [dbo].[HCRDiabetesClinical](
     [PatientEncounterID] [float] NULL,
     [PatientID] [float] NULL,
     [SystolicBPNBR] [float] NULL,
@@ -44,13 +44,13 @@ CREATE TABLE [SAM_test_for_R].[dbo].[HCRDiabetesClinical](
     [InTestWindowFLG] [nvarchar](255) NULL
 )
 
-CREATE TABLE [SAM_test_for_R].[dbo].[HCRWriteData](
+CREATE TABLE [dbo].[HCRWriteData](
     [a] [float] NULL,
     [b] [float] NULL,
     [c] [varchar](255) NULL
 )"
 
-sqlcmd -S "(local)\SQL2012SP1" -Q "exec sp_tables"
+sqlcmd -S "(local)\SQL2012SP1" -Q "SELECT * FROM SAM_test_for_R.INFORMATION_SCHEMA.TABLES"
 
 
 # Look at contents of a few relevant directories
