@@ -41,14 +41,6 @@ CREATE TABLE [dbo].[HCRDiabetesClinical](
     [ThirtyDayReadmitFLG] [nvarchar](255) NULL,
     [InTestWindowFLG] [nvarchar](255) NULL
 )
-BULK INSERT dbo.HCRDiabetesClinical
-WITH
-(
-    FIRSTROW = 2,
-    FIELDTERMINATOR = ',',  --CSV field delimiter
-    ROWTERMINATOR = '\n',   --Use to shift the control to next row
-    KEEPNULLS
-)
 
 CREATE TABLE [dbo].[HCRWriteData](
     [a] [float] NULL,
@@ -56,7 +48,7 @@ CREATE TABLE [dbo].[HCRWriteData](
     [c] [varchar](255) NULL
 )"
 
-sqlcmd -S "(local)\SQL2012SP1" -Q "exec sp_tables"
+sqlcmd -S "(local)\SQL2012SP1" -Q "exec SELECT TABLE_NAME FROM SAM_test_for_R.INFORMATION_SCHEMA.Tables WHERE TABLE_TYPE = 'BASE TABLE'"
 
 # Look at contents of a few relevant directories
 Get-ChildItem -Path c:\projects\healthcareai-r\inst\CIDatabase
