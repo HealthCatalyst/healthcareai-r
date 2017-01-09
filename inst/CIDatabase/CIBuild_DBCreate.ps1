@@ -8,9 +8,10 @@ sqlcmd -b -S "(local)\SQL2012SP1" -Q "CREATE DATABASE [SAM_test_for_R]"
 sqlcmd -S "(local)\SQL2012SP1" -Q "exec sp_databases"
 
 # Write the tables
+sqlcmd -S "(local)\SQL2012SP1" -Q "USE SAM_test_for_R"
+
 sqlcmd -S "(local)\SQL2012SP1" -Q "
-USE SAM_test_for_R;
-CREATE TABLE HCRDeployClassificationBASE(
+CREATE TABLE dbo.HCRDeployClassificationBASE(
     [BindingID] [int] NULL,
     [BindingNM] [varchar](255) NULL,
     [LastLoadDTS] [datetime2](7) NULL,
