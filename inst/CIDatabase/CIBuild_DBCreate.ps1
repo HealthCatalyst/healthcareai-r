@@ -61,7 +61,7 @@ CREATE TABLE [dbo].[HCRWriteData](
 )"
 
 sqlcmd -S "(local)\SQL2012SP1" -Q "SELECT * FROM SAM_test_for_R.INFORMATION_SCHEMA.TABLES"
-sqlcmd -S "(local)\SQL2012SP1" -Q "SELECT TOP 10 FROM SAM_test_for_R.dbo.HCRDiabetesClinical"
+sqlcmd -S "(local)\SQL2012SP1" -Q "SELECT TOP 10 * FROM SAM_test_for_R.dbo.HCRDiabetesClinical"
 
 
 # Look at contents of a few relevant directories
