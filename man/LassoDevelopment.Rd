@@ -100,6 +100,7 @@ rf$run()
 lasso$getCutOffs(tpr = 0.8)
 print(proc.time() - ptm)
 
+\donttest{
 #### Example using SQL Server data #### This example requires: 1) That you alter
 #### your connection string / query
 
@@ -168,6 +169,7 @@ plotPRCurve(rocs, names, legendLoc)
 lasso$getCutOffs(tpr = 0.8)
 
 print(proc.time() - ptm)
+}
 
 }
 \references{

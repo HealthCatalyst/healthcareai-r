@@ -1,12 +1,11 @@
 # Push artifacts up
-Push-AppveyorArtifact inst/CIDatabase/SAM.mdf
-Push-AppveyorArtifact inst/CIDatabase/SAM_log.ldf
+Push-AppveyorArtifact inst/extdata/HCRDiabetesClinical.csv
 
-# Use mdf/ldf to create SAM db
-$mdfFile = "c:\projects\healthcareai-r\inst\CIDatabase\SAM.mdf"
-$ldfFile = "c:\projects\healthcareai-r\inst\CIDatabase\SAM_log.ldf"
+# Use csv file to create SAM db and populate tables
+$csvFile = "c:\projects\healthcareai-r\inst\extdata\HCRDiabetesClinical.csv"
 
-sqlcmd -b -S "(local)\SQL2012SP1" -Q "CREATE DATABASE [SAM] ON (FILENAME = '$mdfFile'), (FILENAME = '$ldfFile') for ATTACH"
+sqlcmd -b -S "(local)\SQL2012SP1" -Q "CREATE DATABASE [SAM]"
+sqlcmd -S "(local)\SQL2012SP1" -Q "exec sp_databases"
 
 # Look at contents of a few relevant directories
 Get-ChildItem -Path c:\projects\healthcareai-r\inst\CIDatabase
