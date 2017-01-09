@@ -48,7 +48,7 @@ CREATE TABLE [dbo].[HCRWriteData](
     [c] [varchar](255) NULL
 )"
 
-sqlcmd -S "(local)\SQL2012SP1" -Q "exec SELECT TABLE_NAME FROM SAM_test_for_R.INFORMATION_SCHEMA.Tables WHERE TABLE_TYPE = 'BASE TABLE'"
+sqlcmd -S "(local)\SQL2012SP1" -Q "SELECT TABLE_NAME FROM SAM_test_for_R.INFORMATION_SCHEMA.Tables WHERE TABLE_TYPE = 'BASE TABLE'"
 
 
 # Look at contents of a few relevant directories
