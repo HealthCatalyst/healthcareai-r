@@ -53,9 +53,9 @@ CREATE TABLE [dbo].[HCRWriteData](
 sqlcmd -S "(local)\SQL2012SP1" -Q "SELECT * FROM SAM_test_for_R.INFORMATION_SCHEMA.TABLES"
 
 # Write the tables
-sqlcmd -S "(local)\SQL2012SP1" -q "
+sqlcmd -S "(local)\SQL2012SP1" -Q "
 USE SAM_test_for_R;
-BULK INSERT dbo.HCRDiabetesClinical
+BULK INSERT SAM_test_for_R.dbo.HCRDiabetesClinical
 FROM 'c:\projects\healthcareai-r\inst\extdata\HCRDiabetesClinical.csv'
 WITH
 (
