@@ -48,7 +48,11 @@ CREATE TABLE [dbo].[HCRWriteData](
     [c] [varchar](255) NULL
 )"
 
+<<<<<<< HEAD
 sqlcmd -S "(local)\SQL2012SP1" -Q "exec SELECT TABLE_NAME FROM SAM_test_for_R.INFORMATION_SCHEMA.Tables WHERE TABLE_TYPE = 'BASE TABLE'"
+=======
+sqlcmd -S "(local)\SQL2012SP1" -Q "exec SELECT TABLE_NAME FROM <SAM_test_for_R>.INFORMATION_SCHEMA.Tables WHERE TABLE_TYPE = 'BASE TABLE'"
+>>>>>>> b431e3b8cdffefdc0bd30d291ac6417f7665b912
 
 # Look at contents of a few relevant directories
 Get-ChildItem -Path c:\projects\healthcareai-r\inst\CIDatabase
