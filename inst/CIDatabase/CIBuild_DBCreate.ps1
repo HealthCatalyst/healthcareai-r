@@ -4,12 +4,12 @@ Push-AppveyorArtifact inst/extdata/HCRDiabetesClinical.csv
 # Use csv file to create SAM db and populate tables
 $csvFile = "c:\projects\healthcareai-r\inst\extdata\HCRDiabetesClinical.csv"
 
-sqlcmd -b -S "(local)\SQL2012SP1" -Q "CREATE DATABASE [SAM_test_for_R]"
+sqlcmd -b -S "(local)\SQL2012SP1" -Q "CREATE DATABASE [SAM]"
 sqlcmd -S "(local)\SQL2012SP1" -Q "exec sp_databases"
 
 # Write the tables
 sqlcmd -S "(local)\SQL2012SP1" -Q "
-USE SAM_test_for_R;
+USE SAM;
 
 CREATE TABLE [dbo].HCRDeployClassificationBASE(
     [BindingID] [int] NULL,
@@ -50,12 +50,12 @@ CREATE TABLE [dbo].[HCRWriteData](
     [c] [varchar](255) NULL
 )"
 # view the generated tables
-sqlcmd -S "(local)\SQL2012SP1" -Q "SELECT * FROM SAM_test_for_R.INFORMATION_SCHEMA.TABLES"
+sqlcmd -S "(local)\SQL2012SP1" -Q "SELECT * FROM SAM.INFORMATION_SCHEMA.TABLES"
 
 # Write the tables
 sqlcmd -S "(local)\SQL2012SP1" -Q "
-USE SAM_test_for_R;
-BULK INSERT SAM_test_for_R.dbo.HCRDiabetesClinical
+USE SAM;
+BULK INSERT SAM.dbo.HCRDiabetesClinical
 FROM 'c:\projects\healthcareai-r\inst\extdata\HCRDiabetesClinical.csv'
 WITH
 (
@@ -65,11 +65,11 @@ WITH
     KEEPNULLS
 )"
 # try to see the top 10 after insertion.
-sqlcmd -S "(local)\SQL2012SP1" -Q "SELECT TOP 10 * FROM SAM_test_for_R.dbo.HCRDiabetesClinical"
+sqlcmd -S "(local)\SQL2012SP1" -Q "SELECT TOP 10 * FROM SAM.dbo.HCRDiabetesClinical"
 
 
 # Look at contents of a few relevant directories
-Get-ChildItem -Path c:\projects\healthcareai-r\inst\extdata
+Get-ChildItem -Path c:\projects\healthcareai-r\inst\CIDatabase
 Get-ChildItem -Path c:\projects\healthcareai-r
 Get-ChildItem -Path c:\projects\
 
