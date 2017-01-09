@@ -61,7 +61,7 @@ WITH
 (
     FIRSTROW = 2,
     FIELDTERMINATOR = ',',  --CSV field delimiter
-    ROWTERMINATOR = '\n',   --Use to shift the control to next row
+    ROWTERMINATOR = '0x0a',   --Use to shift the control to next row
     KEEPNULLS
 )"
 # try to see the top 10 after insertion.
