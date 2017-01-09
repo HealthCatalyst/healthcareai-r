@@ -65,7 +65,7 @@ sqlcmd -S "(local)\SQL2012SP1" -Q "SELECT TOP 10 * FROM SAM_test_for_R.dbo.HCRDi
 
 
 # Look at contents of a few relevant directories
-Get-ChildItem -Path c:\projects\healthcareai-r\inst\CIDatabase
+Get-ChildItem -Path c:\projects\healthcareai-r\inst\extdata
 Get-ChildItem -Path c:\projects\healthcareai-r
 Get-ChildItem -Path c:\projects\
 
