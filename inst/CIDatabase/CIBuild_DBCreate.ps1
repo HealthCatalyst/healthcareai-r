@@ -44,6 +44,16 @@ CREATE TABLE [dbo].[HCRDiabetesClinical](
     [InTestWindowFLG] [nvarchar](255) NULL
 )
 
+BULK INSERT dbo.HCRDiabetesClinical
+FROM 'c:\projects\healthcareai-r\inst\extdata\HCRDiabetesClinical.csv'
+WITH
+(
+    FIRSTROW = 2,
+    FIELDTERMINATOR = ',',  --CSV field delimiter
+    ROWTERMINATOR = '\n',   --Use to shift the control to next row
+    KEEPNULLS
+)
+
 CREATE TABLE [dbo].[HCRWriteData](
     [a] [float] NULL,
     [b] [float] NULL,
@@ -51,6 +61,7 @@ CREATE TABLE [dbo].[HCRWriteData](
 )"
 
 sqlcmd -S "(local)\SQL2012SP1" -Q "SELECT * FROM SAM_test_for_R.INFORMATION_SCHEMA.TABLES"
+sqlcmd -S "(local)\SQL2012SP1" -Q "SELECT TOP 10 FROM SAM_test_for_R.dbo.HCRDiabetesClinical"
 
 
 # Look at contents of a few relevant directories
