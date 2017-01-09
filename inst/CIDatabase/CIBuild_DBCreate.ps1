@@ -9,7 +9,7 @@ sqlcmd -S "(local)\SQL2012SP1" -Q "exec sp_databases"
 
 # Write the tables
 sqlcmd -S "(local)\SQL2012SP1" -Q "
-CREATE TABLE [dbo].[HCRDeployClassificationBASE](
+CREATE TABLE [HCRDeployClassificationBASE](
     [BindingID] [int] NULL,
     [BindingNM] [varchar](255) NULL,
     [LastLoadDTS] [datetime2](7) NULL,
@@ -20,7 +20,7 @@ CREATE TABLE [dbo].[HCRDeployClassificationBASE](
     [Factor3TXT] [varchar](255) NULL
 )
 
-CREATE TABLE [dbo].[HCRDeployRegressionBASE](
+CREATE TABLE [HCRDeployRegressionBASE](
     [BindingID] [int] NULL,
     [BindingNM] [varchar](255) NULL,
     [LastLoadDTS] [datetime2](7) NULL,
@@ -31,7 +31,7 @@ CREATE TABLE [dbo].[HCRDeployRegressionBASE](
     [Factor3TXT] [varchar](255) NULL
 )
 
-CREATE TABLE [dbo].[HCRDiabetesClinical](
+CREATE TABLE [HCRDiabetesClinical](
     [PatientEncounterID] [float] NULL,
     [PatientID] [float] NULL,
     [SystolicBPNBR] [float] NULL,
@@ -42,7 +42,7 @@ CREATE TABLE [dbo].[HCRDiabetesClinical](
     [InTestWindowFLG] [nvarchar](255) NULL
 )
 
-CREATE TABLE [dbo].[HCRWriteData](
+CREATE TABLE [HCRWriteData](
     [a] [float] NULL,
     [b] [float] NULL,
     [c] [varchar](255) NULL
