@@ -37,6 +37,9 @@ environment:
 
   matrix:
     - R_VERSION: release
+    - R_VERSION: devel
+    - RTOOLS_VERSION: 3.4
+    - WARNINGS_ARE_ERRORS: 1
 
 #---------------------------------#
 #  notifications configuration    #

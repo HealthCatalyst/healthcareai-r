@@ -292,7 +292,7 @@ RunTests() {
     fi
     _R_CHECK_CRAN_INCOMING_=${_R_CHECK_CRAN_INCOMING_} R_QPDF=true R CMD check "${FILE}" ${R_CHECK_ARGS} ${R_CHECK_INSTALL_ARGS}
 
-    # Check 
+    # Check examples flagged with \donttest
     check()
     
     # Check reverse dependencies

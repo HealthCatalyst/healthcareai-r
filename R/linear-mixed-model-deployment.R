@@ -94,7 +94,7 @@ source('R/supervised-model-deployment.R')
 #'
 #' print(proc.time() - ptm)
 #'
-#' \donttest{
+#' \dontrun{
 #' #### Regression example using diabetes data ####
 #' # This example requires you to first create a table in SQL Server
 #' # If you prefer to not use SAMD, execute this in SSMS to create output table:
