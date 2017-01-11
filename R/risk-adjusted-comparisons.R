@@ -23,7 +23,9 @@ source('R/common.R')
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #'
-#' #### Example using csv data ####
+#' #### Example using SQL data ####
+#' 
+#' \donttest{
 #' library(healthcareai)
 #'
 #' connection.string <- "
@@ -58,6 +60,7 @@ source('R/common.R')
 #'
 #' riskAdjComp <- RiskAdjustedComparisons$new(p)
 #' riskAdjComp$run()
+#' }
 #'
 #' @export
 
