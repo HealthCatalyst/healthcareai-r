@@ -11,6 +11,7 @@ addons:
     packages:
       - gcc-4.9
       - g++-4.9
+      - unixodbc-dev
 
 before_install: |
   mkdir ~/.R
