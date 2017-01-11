@@ -127,7 +127,7 @@ lmm$run()
 # Lasso$getCutOffs(tpr = 0.8)
 print(proc.time() - ptm)
 
-\donttest{
+\dontrun{
 #### Example using SQL Server data ####
 # This example requires that you alter your connection string / query
 # to read in your own data

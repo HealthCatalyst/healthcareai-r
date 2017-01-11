@@ -98,7 +98,7 @@ rf$run()
 
 print(proc.time() - ptm)
 
-\donttest{
+\dontrun{
 #### Example using SQL Server data #### This example requires: 1) That you alter
 #### your connection string / query
 

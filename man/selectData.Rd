@@ -22,6 +22,8 @@ Select data from an ODBC database and return the results as
 a data frame.
 }
 \examples{
+
+\dontrun{
 connectionString <- '
   driver={SQL Server};
   server=localhost;
@@ -37,6 +39,7 @@ query <- '
 
 df <- selectData(connectionString, query)
 head(df)
+}
 }
 \references{
 \url{http://healthcare.ai}
