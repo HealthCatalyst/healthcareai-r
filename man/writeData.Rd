@@ -23,11 +23,13 @@ Nothing
 Write data frame to database via ODBC connection
 }
 \examples{
+\donttest{
 df <- data.frame(a=c(1,2,3),
                  b=c(2,4,6),
                  c=c('one','two','three'))
 
 writeData(df,'localhost','SAM','dbo.HCRWriteData')
+}
 }
 \references{
 \url{http://healthcare.ai}

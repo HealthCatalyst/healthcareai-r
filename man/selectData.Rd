@@ -23,7 +23,7 @@ a data frame.
 }
 \examples{
 
-\dontrun{
+\donttest{
 connectionString <- '
   driver={SQL Server};
   server=localhost;

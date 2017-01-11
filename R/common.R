@@ -216,7 +216,7 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' 
-#' \dontrun{
+#' \donttest{
 #' connectionString <- '
 #'   driver={SQL Server};
 #'   server=localhost;
@@ -285,11 +285,13 @@ selectData <- function(connectionString, query, randomize = FALSE) {
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
+#' \donttest{
 #' df <- data.frame(a=c(1,2,3),
 #'                  b=c(2,4,6),
 #'                  c=c('one','two','three'))
 #'
 #' writeData(df,'localhost','SAM','dbo.HCRWriteData')
+#' }
 
 writeData <- function(df, server, database, schemaDotTable) {
   # TODO: use sub function to remove brackets from schemaDotTable TODO: add
