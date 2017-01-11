@@ -46,6 +46,7 @@ source('R/supervised-model-deployment.R')
 #' # Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 #' # )
 #'
+#' \dontrun{
 #' # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 #' ptm <- proc.time()
 #' library(healthcareai)
@@ -94,7 +95,6 @@ source('R/supervised-model-deployment.R')
 #'
 #' print(proc.time() - ptm)
 #'
-#' \dontrun{
 #' #### Regression example using diabetes data ####
 #' # This example requires you to first create a table in SQL Server
 #' # If you prefer to not use SAMD, execute this in SSMS to create output table:

@@ -34,6 +34,7 @@ source('R/supervised-model-deployment.R')
 #' to monitor the calculations throughout. Use T or F.
 #' @seealso \code{\link{healthcareai}}
 #' @examples
+#' \dontrun{
 #' #### Classification example using diabetes data ####
 #' # This example requires you to first create a table in SQL Server
 #' # If you prefer to not use SAMD, execute this in SSMS to create output table:
@@ -92,6 +93,7 @@ source('R/supervised-model-deployment.R')
 #' dL$deploy()
 #'
 #' print(proc.time() - ptm)
+#' }
 #' @export
 
 RandomForestDeployment <- R6Class("RandomForestDeployment",

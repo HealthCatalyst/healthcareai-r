@@ -215,6 +215,8 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
+#' 
+#' \dontrun{
 #' connectionString <- '
 #'   driver={SQL Server};
 #'   server=localhost;
@@ -230,6 +232,7 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #'
 #' df <- selectData(connectionString, query)
 #' head(df)
+#' }
 
 selectData <- function(connectionString, query, randomize = FALSE) {
   if (isTRUE(randomize)) {
