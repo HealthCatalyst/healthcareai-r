@@ -31,10 +31,10 @@ This is for Windows; for macOS see [here](https://developer.apple.com/xcode/); f
 - Open RStudio
   - Look for Project dropdown (top right corner)
   - Click New Project
-  -	Click Version Control
+  - Click Version Control
   - Click Git
-  -	Copy git link into 'Repository URL' and create project as subdirectory of your data science folder
--	Note that a git tab now appears in RStudio
+  - Paste git link into 'Repository URL' and create project as subdirectory of your data science folder
+- Note that a git tab now appears in RStudio
 
 ## Create a topic branch that you can work in
 1) In RStudio -> Tools (at top) -> Shell
