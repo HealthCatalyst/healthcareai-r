@@ -101,7 +101,7 @@ source('R/supervised-model-development.R')
 #' lasso$getCutOffs(tpr = 0.8)
 #' print(proc.time() - ptm)
 #'
-#' \dontrun{
+#' \donttest{
 #' #### Example using SQL Server data #### This example requires: 1) That you alter
 #' #### your connection string / query
 #'
