@@ -23,9 +23,15 @@ addons:
       - gcc-4.9
       - g++-4.9
       - unixodbc-dev
+      - r-cran-rodbc
 
 before_install: |
   mkdir ~/.R
   cat <<EOF > ~/.R/Makevars
   CXX1X=g++-4.9
   CXX1XSTD=-std=c++11
+  
+  
+install:
+  - ./travis-tool.sh aptget_install r-cran-rodbc
+    - ./travis-tool.sh install_deps
