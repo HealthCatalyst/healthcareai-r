@@ -13,6 +13,7 @@ matrix:
       r: release
     - os: osx
       r: release
+      sudo: required
 
 addons:
   apt:
