@@ -7,10 +7,10 @@ warnings_are_errors: false
 
 matrix:
   include:
-    - os: linux
-      dist: precise
-      sudo: false
-      r: release
+#    - os: linux
+#      dist: precise
+#      sudo: false
+#      r: release
     - os: osx
       r: release
       sudo: required
