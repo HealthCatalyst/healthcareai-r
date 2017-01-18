@@ -7,10 +7,10 @@ warnings_are_errors: false
 
 matrix:
   include:
-#    - os: linux
-#      dist: precise
-#      sudo: false
-#      r: release
+    - os: linux
+      dist: precise
+      sudo: false
+      r: release
     - os: osx
       osx_image: xcode8.2
       r: release
@@ -24,17 +24,15 @@ addons:
       - gcc-4.9
       - g++-4.9
       - unixodbc-dev
+      - unixODBC
+      
+r_binary_packages: rodbc      
 
 before_install:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then mkdir ~/.R; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then  cat <<EOF > ~/.R/Makevars; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then  CXX1X=g++-4.9; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then  CXX1XSTD=-std=c++11; fi
+  - mkdir ~/.R
+  - cat <<EOF > ~/.R/Makevars
+  - CXX1X=g++-4.9
+  - CXX1XSTD=-std=c++11
 
-install:  
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then sudo brew update; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then sudo brew install unixODBC; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then sudo wget "https://cran.r-project.org/src/contrib/RODBC_1.3-14.tar.gz"; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then sudo R CMD INSTALL RODBC_1.3-14.tar.gz ; fi
 
   
