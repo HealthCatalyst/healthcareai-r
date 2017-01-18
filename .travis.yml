@@ -26,7 +26,7 @@ addons:
       - unixodbc-dev
       - unixODBC
       
-r_binary_packages: rodbc      
+r_binary_packages: RODBC    
 
 before_install:
   - mkdir ~/.R
