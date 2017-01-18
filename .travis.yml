@@ -31,7 +31,6 @@ before_install: |
   CXX1X=g++-4.9
   CXX1XSTD=-std=c++11
   
-  
-# install:
-#   - ./travis-tool.sh aptget_install r-cran-rodbc
-#   - ./travis-tool.sh install_deps
+install:
+   - ./travis-tool.sh aptget_install r-cran-rodbc
+   - ./travis-tool.sh install_deps
