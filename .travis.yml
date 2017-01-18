@@ -12,6 +12,7 @@ matrix:
 #      sudo: false
 #      r: release
     - os: osx
+      osx_image: xcode8
       r: release
       sudo: required
 
