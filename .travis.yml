@@ -25,11 +25,11 @@ addons:
       - g++-4.9
       - unixodbc-dev
 
-before_install: |
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then mkdir ~/.R
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then  cat <<EOF > ~/.R/Makevars
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then  CXX1X=g++-4.9
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then  CXX1XSTD=-std=c++11
+before_install:
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then mkdir ~/.R; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then  cat <<EOF > ~/.R/Makevars; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then  CXX1X=g++-4.9; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then  CXX1XSTD=-std=c++11; fi
 
 install:  
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then sudo brew update; fi
