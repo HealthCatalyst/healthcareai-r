@@ -23,8 +23,8 @@ addons:
     packages:
       - gcc-4.9
       - g++-4.9
-      - unixodbc-dev
-      - unixODBC
+#      - unixodbc-dev
+#      - unixODBC
       - iodbc 
       - libiodbc2
       - libiodbc2-dev
