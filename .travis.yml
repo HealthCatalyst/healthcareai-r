@@ -25,7 +25,9 @@ addons:
       - g++-4.9
       - unixodbc-dev
       - unixODBC
-      - libiodbc
+      - iodbc 
+      - libiodbc2
+      - libiodbc2-dev
       
 r_binary_packages: RODBC    
 
