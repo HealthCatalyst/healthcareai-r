@@ -7,10 +7,6 @@ warnings_are_errors: false
 
 matrix:
   include:
-    - os: linux
-      dist: precise
-      sudo: false
-      r: release
     - os: osx
       osx_image: xcode8.2
       r: release
@@ -18,24 +14,14 @@ matrix:
 
 addons:
   apt:
-    sources:
-      - ubuntu-toolchain-r-test
     packages:
-      - gcc-4.9
-      - g++-4.9
-#      - unixodbc-dev
-#      - unixODBC
-      - iodbc 
-      - libiodbc2
-      - libiodbc2-dev
       
 r_binary_packages: RODBC    
 
 before_install:
-  - mkdir ~/.R
-  - cat <<EOF > ~/.R/Makevars
-  - CXX1X=g++-4.9
-  - CXX1XSTD=-std=c++11
+ - brew update
+ - brew install unixodbc
+ - brew install freetds --with-unixodbc
 
 
   
