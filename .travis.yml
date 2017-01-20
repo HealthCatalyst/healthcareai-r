@@ -15,13 +15,10 @@ matrix:
 addons:
   apt:
     packages:
+      - unixODBC
+      - unixodbc-dev
       
-r_binary_packages: RODBC    
-
-before_install:
- - brew update
- - brew install unixodbc
- - brew install freetds --with-unixodbc
+r_binary_packages: RODBC
 
 
   
