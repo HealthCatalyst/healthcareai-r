@@ -1,10 +1,4 @@
-# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
-
-language: R
-cache: packages
-
-warnings_are_errors: false
-
+language: r
 matrix:
   include:
     - os: osx
@@ -12,13 +6,11 @@ matrix:
       r: release
       sudo: required
 
-apt_packages:
- - iodbc 
- - libiodbc2
- - libiodbc2-dev
-
-# must use binary package to install this at all.
-r_binary_packages: RODBC  
- 
-
-  
+before_install:
+    - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
+    - chmod 755 ./travis-tool.sh
+    - ./travis-tool.sh bootstrap
+    
+install:
+    - ./travis-tool.sh aptget_install r-cran-rodbc
+    - ./travis-tool.sh install_deps
