@@ -1,16 +1,12 @@
 language: r
-matrix:
-  include:
-    - os: osx
-      osx_image: xcode8.2
-      r: release
-      sudo: required
+r: release
+sudo: required
+      
+os:
+  - osx
 
-before_install:
-    - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
-    - chmod 755 ./travis-tool.sh
-    - ./travis-tool.sh bootstrap
+r_binary_packages: RODBC 
     
 install:
-    - ./travis-tool.sh aptget_install r-cran-rodbc
-    - ./travis-tool.sh install_deps
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update ; fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install unixodbc ; fi
