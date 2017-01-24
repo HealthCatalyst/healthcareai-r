@@ -1,6 +1,8 @@
 language: r
 r: release
 sudo: required
+
+os: osx      
       
 matrix:
   - include:
