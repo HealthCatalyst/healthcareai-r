@@ -13,4 +13,4 @@ before_install:
 install:
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install unixodbc ; fi
     
-r_binary_packages: RODBC 
+r_binary_packages: RODBC
