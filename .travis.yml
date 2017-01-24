@@ -4,9 +4,12 @@ sudo: required
       
 os:
   - osx
+  - osx_image: xcode8.2
 
-r_binary_packages: RODBC 
+before_install:
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update ; fi
     
 install:
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update ; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install unixodbc ; fi
+    
+r_binary_packages: RODBC 
