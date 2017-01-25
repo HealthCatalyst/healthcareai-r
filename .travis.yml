@@ -6,10 +6,10 @@ os: osx
 osx_image: xcode8.2
 
 before_install:
+    - cd project
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update ; fi
     
 install:
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install unixodbc ; fi
-    - brew link unixodbc
     
 r_binary_packages: RODBC
