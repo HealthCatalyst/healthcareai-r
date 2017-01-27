@@ -5,6 +5,9 @@ sudo: required
 os: osx      
 osx_image: xcode8.2
 
+r_github_packages:
+  - hadley/devtools
+
 before_install:
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update ; fi
     
