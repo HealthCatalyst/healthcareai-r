@@ -15,5 +15,3 @@ install:
     - Rscript -e 'install.packages("caret","data.table","doParallel","e1071", repos = "http://cran.rstudio.com")'
     - Rscript -e 'install.packages("grpreg","lme4","lubridate","pROC", repos = "http://cran.rstudio.com")'
     - Rscript -e 'install.packages("ranger","ROCR","testthat","RODBC", repos = "http://cran.rstudio.com")'
-    
-# r_binary_packages: RODBC
