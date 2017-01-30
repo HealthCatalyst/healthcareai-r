@@ -5,14 +5,12 @@ sudo: required
 os: osx      
 osx_image: xcode8.2
 
-r_github_packages:
-  - hadley/devtools
-
 before_install:
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update ; fi
     
 install:
     - sudo chown -R $(whoami) /usr/local/share/man/man7
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install unixodbc ; fi
+    - Rscript -e 'install.packages("devtools", repos = "http://cran.rstudio.com")'
     
 r_binary_packages: RODBC
