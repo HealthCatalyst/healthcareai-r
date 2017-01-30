@@ -139,7 +139,7 @@ test_that("AUC_rf is the same each time the test is run", {
 
   capture.output(rf <- RandomForestDevelopment$new(p))
   capture.output(rf$run())
-
+  print(as.numeric(rf$getAUROC())) # for debugging.
   expect_true(as.numeric(rf$getAUROC()) - 0.9301775 < 1.0e-6)
 
 })
