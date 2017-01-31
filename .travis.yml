@@ -1,18 +1,21 @@
 language: r
-r: release
-sudo: required
 warnings_are_errors: false
 
 matrix:
   include:
     - os: osx      
       osx_image: xcode8.2
+      sudo: required
+      r: release
+      
     - os: linux
+      sudo: false
+      r: release
+      addons:
+        apt:
+          sources:
+            - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ubuntu-toolchain-r-test ; fi
 
-addons:
-  apt:
-    sources:
-      - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ubuntu-toolchain-r-test ; fi
 
 packages:
    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then gcc-4.9 ; fi
