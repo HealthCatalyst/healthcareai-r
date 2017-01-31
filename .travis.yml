@@ -7,28 +7,27 @@ matrix:
       osx_image: xcode8.2
       sudo: required
       r: release
-      
+      before_install:
+        - brew update
+      install:
+        - sudo chown -R $(whoami) /usr/local/share/man/man7
+        - brew install unixodbc
+      packages:
+        - Rscript -e 'install.packages("devtools", repos = "http://cran.rstudio.com")'
+        - Rscript -e 'install.packages(c("caret","data.table","doParallel","e1071"), repos = "http://cran.rstudio.com")'
+        - Rscript -e 'install.packages(c("grpreg","lme4","lubridate","pROC"), repos = "http://cran.rstudio.com")'
+        - Rscript -e 'install.packages(c("ranger","ROCR","testthat","RODBC"), repos = "http://cran.rstudio.com")'
+    
     - os: linux
       sudo: false
       r: release
       addons:
         apt:
           sources:
-            - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ubuntu-toolchain-r-test ; fi
-
-
-packages:
-   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then gcc-4.9 ; fi
-   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then g++-4.9 ; fi
-   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then unixodbc-dev ; fi
-
-before_install:
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update ; fi
-    
-install:
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo chown -R $(whoami) /usr/local/share/man/man7 ; fi
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install unixodbc ; fi
-    - Rscript -e 'install.packages("devtools", repos = "http://cran.rstudio.com")'
-    - Rscript -e 'install.packages(c("caret","data.table","doParallel","e1071"), repos = "http://cran.rstudio.com")'
-    - Rscript -e 'install.packages(c("grpreg","lme4","lubridate","pROC"), repos = "http://cran.rstudio.com")'
-    - Rscript -e 'install.packages(c("ranger","ROCR","testthat","RODBC"), repos = "http://cran.rstudio.com")'
+            - ubuntu-toolchain-r-test
+      before_install:
+       - mkdir ~/.R\ncat <<EOF > ~/.R/Makevars\nCXX1X=g++-4.9\nCXX1XSTD=-std=c++11\n
+      packages: 
+       - then gcc-4.9
+       - g++-4.9
+       - unixodbc-dev
