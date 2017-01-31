@@ -83,7 +83,7 @@ After that's done, *here's the contribution workflow:*
    - Make small commits after getting a small piece working
    - Push often so your changes are backed up. See [here](https://gist.github.com/blackfalcon/8428401#push-your-branch) for more
    
-5) Early on, create a [pull request](https://yangsu.github.io/pull-request-tutorial/) such that Levi and co. can discuss the changes that you're making. Conversation is good.
+5) Early on, create a [pull request](https://yangsu.github.io/pull-request-tutorial/) such that Levi and team can discuss the changes that you're making. Conversation is good.
    
 6) When you're done with the issue you chose, do the following
    
