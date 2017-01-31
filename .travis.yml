@@ -32,7 +32,7 @@ matrix:
             - gcc-4.9
             - g++-4.9
             - unixodbc-dev
-      before_install:
+      before_install: |
         mkdir ~/.R
         cat <<EOF > ~/.R/Makevars
         CXX1X=g++-4.9
