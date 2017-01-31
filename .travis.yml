@@ -3,7 +3,8 @@ warnings_are_errors: false
 
 matrix:
   include:
-    - os: osx      
+    - os: osx 
+      compiler: clang
       osx_image: xcode8.2
       sudo: required
       r: release
@@ -21,6 +22,7 @@ matrix:
     - os: linux
       sudo: false
       r: release
+      cache: packages
       addons:
         apt:
           sources:
@@ -31,6 +33,6 @@ matrix:
         - CXX1X=g++-4.9
         - CXX1XSTD=-std=c++11
       packages: 
-       - then gcc-4.9
+       - gcc-4.9
        - g++-4.9
        - unixodbc-dev

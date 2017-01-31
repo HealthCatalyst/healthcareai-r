@@ -109,5 +109,5 @@ NULL
 [3] "[1] \"Finished calculating your risk-adjusted comparison\""          
 [4] "[1] \"Note that positive values denote performance above expected:\""
 [5] "  groupbyList comparativePerformance"                                
-[6] "1           M                   -6.5"                                
-[7] "2           F                    6.5"
+[6] "1           M                     -6"                                
+[7] "2           F                      6"   
