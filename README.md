@@ -67,7 +67,9 @@ After that's done, *here's the contribution workflow:*
    - Make small commits after getting a small piece working
    - Push often so your changes are backed up. See [here](https://gist.github.com/blackfalcon/8428401#push-your-branch) for more
    
-5) When you're done with the issue you chose, do the following
+5) Early on, create a [pull request](https://yangsu.github.io/pull-request-tutorial/) such that Levi and co. can discuss the changes that you're making. Conversation is good.
+   
+6) When you're done with the issue you chose, do the following
    
    1. Merge the master branch into your topic branch (so that you have the latest changes from master)
    
@@ -88,7 +90,7 @@ After that's done, *here's the contribution workflow:*
       - This warning is due to the [limitations](https://github.com/wch/R6/issues/3) of roxygen and R6 method documentation
       - This is the only warning/error/note that's allowed when merging to master
       
-   6. Create a [pull request](https://yangsu.github.io/pull-request-tutorial/) so that your changes can be reviewed before merging
+   6. Now that your changes are working, communicate that to Levi in the pull request, such that he knows to do the code review associated with the PR. Please *don't* do tons of work and *then* start a PR. Early is good.
 
 ## For issues
 
