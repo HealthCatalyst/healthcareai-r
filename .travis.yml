@@ -21,6 +21,7 @@ matrix:
     
     - os: linux
       sudo: false
+      dist: precise
       r: release
       cache: packages
       addons:
@@ -32,8 +33,8 @@ matrix:
             - g++-4.9
             - unixodbc-dev
       before_install:
-        - mkdir ~/.R
-        - cat <<EOF > ~/.R/Makevars
-        - CXX1X=g++-4.9
-        - CXX1XSTD=-std=c++11
+        mkdir ~/.R
+        cat <<EOF > ~/.R/Makevars
+        CXX1X=g++-4.9
+        CXX1XSTD=-std=c++11
       
