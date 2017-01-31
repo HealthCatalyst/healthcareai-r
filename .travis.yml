@@ -6,7 +6,7 @@ os: osx
 osx_image: xcode8.2
 
 before_install:
-    - rvm get stable
+    # - rvm get stable
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update ; fi
     
 install:
