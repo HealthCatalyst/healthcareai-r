@@ -22,6 +22,8 @@ addons:
     packages:
       - gcc-4.9
       - g++-4.9
+      - iodbc
+      - libiodbc2
       - libiodbc2-dev
 
 before_install: |
