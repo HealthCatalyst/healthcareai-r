@@ -82,7 +82,7 @@ p$impute <- TRUE
 p$grainCol <- "GrainID"  # Think of this as PatientEnounterID
 p$personCol <- "Subject"  # Think of this as PatientID
 p$predictedCol <- "Reaction"
-p$debug <- TRUE
+p$debug <- FALSE
 p$cores <- 1
 
 # Create Mixed Model
@@ -119,6 +119,7 @@ p$cores <- 1
 lmm <- LinearMixedModelDevelopment$new(p)
 lmm$run()
 
+set.seed(42) 
 # Run Lasso
 # Lasso <- LassoDevelopment$new(p)
 # Lasso$run()
@@ -182,6 +183,7 @@ df$personCol <- NULL
 p$df <- df
 p$personCol <- NULL
 
+set.seed(42) 
 # Run Random Forest
 rf <- RandomForestDevelopment$new(p)
 rf$run()

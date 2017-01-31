@@ -57,6 +57,7 @@ source('R/supervised-model-development.R')
 #' lasso <- LassoDevelopment$new(p)
 #' lasso$run()
 #'
+#' set.seed(42) 
 #' # Run Random Forest
 #' rf <- RandomForestDevelopment$new(p)
 #' rf$run()
@@ -93,6 +94,7 @@ source('R/supervised-model-development.R')
 #' lasso <- LassoDevelopment$new(p)
 #' lasso$run()
 #'
+#' set.seed(42) 
 #' # Run Random Forest
 #' rf <- RandomForestDevelopment$new(p)
 #' rf$run()
@@ -150,6 +152,7 @@ source('R/supervised-model-development.R')
 #' lasso <- LassoDevelopment$new(p)
 #' lasso$run()
 #'
+#' set.seed(42) 
 #' # Run Random Forest
 #' rf <- RandomForestDevelopment$new(p)
 #' rf$run()

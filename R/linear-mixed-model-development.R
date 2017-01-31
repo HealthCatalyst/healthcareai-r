@@ -80,7 +80,7 @@ source('R/supervised-model-development.R')
 #' p$grainCol <- "GrainID"  # Think of this as PatientEnounterID
 #' p$personCol <- "Subject"  # Think of this as PatientID
 #' p$predictedCol <- "Reaction"
-#' p$debug <- TRUE
+#' p$debug <- FALSE
 #' p$cores <- 1
 #'
 #' # Create Mixed Model
@@ -117,6 +117,7 @@ source('R/supervised-model-development.R')
 #' lmm <- LinearMixedModelDevelopment$new(p)
 #' lmm$run()
 #'
+#' set.seed(42) 
 #' # Run Lasso
 #' # Lasso <- LassoDevelopment$new(p)
 #' # Lasso$run()
@@ -180,6 +181,7 @@ source('R/supervised-model-development.R')
 #' p$df <- df
 #' p$personCol <- NULL
 #' 
+#' set.seed(42) 
 #' # Run Random Forest
 #' rf <- RandomForestDevelopment$new(p)
 #' rf$run()

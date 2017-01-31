@@ -56,6 +56,7 @@ p$cores <- 1
 lasso <- LassoDevelopment$new(p)
 lasso$run()
 
+set.seed(42) 
 # Run Random Forest
 rf <- RandomForestDevelopment$new(p)
 rf$run()
@@ -92,6 +93,7 @@ p$cores <- 1
 lasso <- LassoDevelopment$new(p)
 lasso$run()
 
+set.seed(42) 
 # Run Random Forest
 rf <- RandomForestDevelopment$new(p)
 rf$run()
@@ -149,6 +151,7 @@ p$cores <- 1
 lasso <- LassoDevelopment$new(p)
 lasso$run()
 
+set.seed(42) 
 # Run Random Forest
 rf <- RandomForestDevelopment$new(p)
 rf$run()
