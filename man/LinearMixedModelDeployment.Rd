@@ -52,7 +52,7 @@ This step allows one to
 # Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 # )
 
-\dontrun{
+\donttest{
 # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 ptm <- proc.time()
 library(healthcareai)

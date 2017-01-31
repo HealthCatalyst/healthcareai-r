@@ -56,6 +56,7 @@ p$cores <- 1
 lasso <- LassoDevelopment$new(p)
 lasso$run()
 
+set.seed(42)
 # Run RandomForest
 rf <- RandomForestDevelopment$new(p)
 rf$run()
@@ -98,7 +99,7 @@ rf$run()
 
 print(proc.time() - ptm)
 
-\dontrun{
+\donttest{
 #### Example using SQL Server data #### This example requires: 1) That you alter
 #### your connection string / query
 

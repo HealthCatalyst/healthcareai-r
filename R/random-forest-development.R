@@ -57,6 +57,7 @@ source('R/supervised-model-development.R')
 #' lasso <- LassoDevelopment$new(p)
 #' lasso$run()
 #'
+#' set.seed(42)
 #' # Run RandomForest
 #' rf <- RandomForestDevelopment$new(p)
 #' rf$run()
@@ -243,6 +244,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     # p: new SuperviseModelParameters class object,
     # i.e. p = SuperviseModelParameters$new()
     initialize = function(p) {
+      set.seed(43)
       super$initialize(p)
 
       if (!is.null(p$tune)) {
