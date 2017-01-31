@@ -77,6 +77,9 @@ This is for Windows; for macOS see [here](https://developer.apple.com/xcode/); f
   - evaluate
 - Set up SQL Server, if you haven't already
   - If on Windows, [install](http://stackoverflow.com/a/11278818/5636012) both SQL Server Express and SSMS Express
+    - Naviagate to [here](https://www.microsoft.com/en-us/download/details.aspx?id=29062)
+    - Look for and download ENU\x64\SQLEXPRWT_x64_ENU.exe
+    - When installing, be sure to check the box to install SSMS
   - Create tables (on localhost) to receive predictive output using the code below (use SSMS if on Windows):
   - Run these statements in the SAM database (which you may have to create)
   - Modify the command to include your path to the local healthcare.ai repo where it says "YOUR_PATH_HERE"
