@@ -1,40 +1,31 @@
-language: r
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+
+language: R
+cache: packages
+
 warnings_are_errors: false
 
 matrix:
   include:
-    - os: osx 
-      compiler: clang
-      osx_image: xcode8.2
-      sudo: required
-      r: release
-      before_install:
-        - brew update
-      install:
-        - sudo chown -R $(whoami) /usr/local/share/man/man7
-        - brew install unixodbc
-      packages:
-        - Rscript -e 'install.packages("devtools", repos = "http://cran.rstudio.com")'
-        - Rscript -e 'install.packages(c("caret","data.table","doParallel","e1071"), repos = "http://cran.rstudio.com")'
-        - Rscript -e 'install.packages(c("grpreg","lme4","lubridate","pROC"), repos = "http://cran.rstudio.com")'
-        - Rscript -e 'install.packages(c("ranger","ROCR","testthat","RODBC"), repos = "http://cran.rstudio.com")'
-    
     - os: linux
       dist: precise
       sudo: false
       r: release
-      cache: packages
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages: 
-            - gcc-4.9
-            - g++-4.9
-            - unixodbc-dev
-      before_install: |
-        mkdir ~/.R
-        cat <<EOF > ~/.R/Makevars
-        CXX1X=g++-4.9
-        CXX1XSTD=-std=c++11
-      
+    - os: osx
+      r: release
+      sudo: required
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-4.9
+      - g++-4.9
+      - unixodbc-dev
+
+before_install: |
+  mkdir ~/.R
+  cat <<EOF > ~/.R/Makevars
+  CXX1X=g++-4.9
+  CXX1XSTD=-std=c++11
