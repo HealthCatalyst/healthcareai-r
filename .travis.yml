@@ -22,8 +22,7 @@ addons:
     packages:
       - gcc-4.9
       - g++-4.9
-      - unixodbc
-      - unixodbc-dev
+      - libiodbc2-dev
 
 before_install: |
   mkdir ~/.R
