@@ -44,6 +44,21 @@ library(healthcareai)
 
 - If you like Jupyter notebooks, check out [step 1](inst/notebooks/Example1.ipynb) and [step 2](inst/notebooks/Example2.ipynb) in model building with healthcareai.
 
+## For issues
+
+- Double check that the code follows the examples in the built-in docs
+```R
+library(healthcareai)
+?healthcareai
+```
+  
+- Make sure you've thoroughly read the descriptions found [here](http://healthcare.ai/r/)
+
+- If you're still seeing an error, file an issue in our [Google Group](https://groups.google.com/forum/#!forum/healthcareai-users)
+  - Details on your environment (OS, database type, R vs Py)
+  - Goals (ie, what are you trying to accomplish)
+  - Crystal clear steps for reproducing the error
+
 ## Contributing
 
 You want to help? Wohoo! We welcome that and are willing to help newbies get started.
@@ -91,20 +106,3 @@ After that's done, *here's the contribution workflow:*
       - This is the only warning/error/note that's allowed when merging to master
       
    6. Now that your changes are working, communicate that to Levi in the pull request, such that he knows to do the code review associated with the PR. Please *don't* do tons of work and *then* start a PR. Early is good.
-
-## For issues
-
-- Double check that the code follows the examples in the built-in docs
-```R
-library(healthcareai)
-?healthcareai
-```
-  
-- Make sure you've thoroughly read the descriptions found [here](http://healthcare.ai/r/)
-
-- If you're still seeing an error, [file an issue](https://github.com/HealthCatalystSLC/healthcareai-r/issues) that contains
-  - Details on your environment (OS, database type)
-  - Goals (ie, what are you trying to accomplish)
-  - Crystal clear steps for reproducing the error
-  
-- If you're unsure, feel free to email [Levi Thatcher](mailto:levi.thatcher@healthcatalyst.com)
