@@ -26,7 +26,10 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
       before_install:
-       - mkdir ~/.R\ncat <<EOF > ~/.R/Makevars\nCXX1X=g++-4.9\nCXX1XSTD=-std=c++11\n
+        - mkdir ~/.R
+        - cat <<EOF > ~/.R/Makevars
+        - CXX1X=g++-4.9
+        - CXX1XSTD=-std=c++11
       packages: 
        - then gcc-4.9
        - g++-4.9
