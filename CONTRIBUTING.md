@@ -26,15 +26,15 @@ This is for Windows; for macOS see [here](https://developer.apple.com/xcode/); f
 ## Clone healthcareai-r repo
 
 - Create a data science folder on your hard drive (if you don't have one)
-- Fork the repo [here](https://github.com/HealthCatalystSLC/healthcareai-r) (look for the link in the top right corner).
+- Fork this repo (look for the link in the top right corner of the current page).
 - Click the green 'Clone or download' button and copy git link. You'll want to use the HTML address unless you have an SSH key for git already.
 - Open RStudio
   - Look for Project dropdown (top right corner)
   - Click New Project
-  -	Click Version Control
+  - Click Version Control
   - Click Git
-  -	Copy git link into 'Repository URL' and create project as subdirectory of your data science folder
--	Note that a git tab now appears in RStudio
+  - Paste git link into 'Repository URL' and create project as subdirectory of your data science folder
+- Note that a git tab now appears in RStudio
 
 ## Create a topic branch that you can work in
 1) In RStudio -> Tools (at top) -> Shell
