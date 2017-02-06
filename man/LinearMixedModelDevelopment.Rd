@@ -129,6 +129,7 @@ set.seed(42)
 print(proc.time() - ptm)
 
 \donttest{
+#### This example is specific to Windows and is not tested. 
 #### Example using SQL Server data ####
 # This example requires that you alter your connection string / query
 # to read in your own data

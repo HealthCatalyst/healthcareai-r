@@ -47,6 +47,7 @@ source('R/supervised-model-deployment.R')
 #' # )
 #'
 #' \donttest{
+#' #### This example is specific to Windows and is not tested. 
 #' # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 #' ptm <- proc.time()
 #' library(healthcareai)

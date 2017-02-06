@@ -1,7 +1,7 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
 language: R
-warnings_are_errors: false
+warnings_are_errors: true
 
 matrix:
   include:
@@ -9,7 +9,9 @@ matrix:
       cache: packages
       dist: precise
       sudo: false
-      r: release
+      r: 
+        - release
+        - devel
       addons:
         apt:
           sources:
@@ -29,7 +31,9 @@ matrix:
     - os: osx
       osx_image: xcode8.2
       sudo: required
-      r: release
+      r: 
+        - release
+        - devel
       before_install:
         - brew update
       install:

@@ -24,6 +24,7 @@ a data frame.
 \examples{
 
 \donttest{
+#### This example is specific to Windows and is not tested. 
 connectionString <- '
   driver={SQL Server};
   server=localhost;

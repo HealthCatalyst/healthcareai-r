@@ -23,7 +23,9 @@ Nothing
 Write data frame to database via ODBC connection
 }
 \examples{
+
 \donttest{
+#### This example is specific to Windows and is not tested. 
 df <- data.frame(a=c(1,2,3),
                  b=c(2,4,6),
                  c=c('one','two','three'))

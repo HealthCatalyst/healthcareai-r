@@ -36,7 +36,7 @@ source('R/supervised-model-deployment.R')
 #' @examples
 #' 
 #' \donttest{
-#' # Is it going into this example?
+#' #### This example is specific to Windows and is not tested.
 #' #### Regression example using diabetes data ####
 #' # This example requires you to first create a table in SQL Server
 #' # If you prefer to not use SAMD, execute this in SSMS to create output table:

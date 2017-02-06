@@ -103,6 +103,7 @@ print(proc.time() - ptm)
 \donttest{
 #### Example using SQL Server data #### This example requires: 1) That you alter
 #### your connection string / query
+#### This example is specific to Windows and is not tested. 
 
 ptm <- proc.time()
 library(healthcareai)
