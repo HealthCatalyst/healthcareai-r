@@ -33,6 +33,8 @@ matrix:
       before_install:
         - brew update
       install:
+        - curl -Lo /tmp/R.pkg https://r.research.att.com/mavericks/R-devel/R-devel-mavericks.pkg
+        - sudo installer -pkg "/tmp/R.pkg" -target /
         - sudo chown -R $(whoami) /usr/local/share/man/man7
         - brew install unixodbc
         - Rscript -e 'install.packages("devtools", repos = "http://cran.rstudio.com")'
