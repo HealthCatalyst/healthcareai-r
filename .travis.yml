@@ -9,9 +9,7 @@ matrix:
       cache: packages
       dist: precise
       sudo: false
-      r: 
-        - release
-        - devel
+      r: devel
       addons:
         apt:
           sources:
@@ -31,9 +29,7 @@ matrix:
     - os: osx
       osx_image: xcode8.2
       sudo: required
-      r: 
-        - release
-        - devel
+      r: devel
       before_install:
         - brew update
       install:
