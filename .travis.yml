@@ -20,6 +20,7 @@ matrix:
             - iodbc
             - libiodbc2
             - libiodbc2-dev
+            - stringi
       before_install: |
         mkdir ~/.R
         cat <<EOF > ~/.R/Makevars
