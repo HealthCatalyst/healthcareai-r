@@ -9,13 +9,11 @@ matrix:
       cache: packages
       dist: precise
       sudo: false
-      r: devel
+      r: release
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-          r_github_packages:
-            - stringi
           packages:
             - gcc-4.9
             - g++-4.9
@@ -31,12 +29,10 @@ matrix:
     - os: osx
       osx_image: xcode8.2
       sudo: required
-      r: devel
+      r: release
       before_install:
         - brew update
       install:
-        - curl -Lo /tmp/R.pkg https://r.research.att.com/mavericks/R-devel/R-devel-mavericks.pkg
-        - sudo installer -pkg "/tmp/R.pkg" -target /
         - sudo chown -R $(whoami) /usr/local/share/man/man7
         - brew install unixodbc
         - Rscript -e 'install.packages("devtools", repos = "http://cran.rstudio.com")'
