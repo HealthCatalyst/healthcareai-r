@@ -20,6 +20,7 @@ matrix:
             - iodbc
             - libiodbc2
             - libiodbc2-dev
+          r_github_packages:
             - stringi
       before_install: |
         mkdir ~/.R
