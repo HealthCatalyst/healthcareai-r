@@ -57,6 +57,7 @@ source('R/supervised-model-development.R')
 #' lasso <- LassoDevelopment$new(p)
 #' lasso$run()
 #'
+#' set.seed(42)
 #' # Run RandomForest
 #' rf <- RandomForestDevelopment$new(p)
 #' rf$run()
@@ -93,14 +94,17 @@ source('R/supervised-model-development.R')
 #' lasso <- LassoDevelopment$new(p)
 #' lasso$run()
 #'
+#' set.seed(42) 
 #' # Run Random Forest
 #' rf <- RandomForestDevelopment$new(p)
 #' rf$run()
 #'
 #' print(proc.time() - ptm)
 #'
+#' \donttest{
 #' #### Example using SQL Server data #### This example requires: 1) That you alter
 #' #### your connection string / query
+#' #### This example is specific to Windows and is not tested. 
 #'
 #' ptm <- proc.time()
 #' library(healthcareai)
@@ -146,6 +150,7 @@ source('R/supervised-model-development.R')
 #' lasso <- LassoDevelopment$new(p)
 #' lasso$run()
 #'
+#' set.seed(42) 
 #' # Run Random Forest
 #' rf <- RandomForestDevelopment$new(p)
 #' rf$run()
@@ -166,6 +171,7 @@ source('R/supervised-model-development.R')
 #' lasso$getCutOffs(tpr = 0.8)
 #'
 #' print(proc.time() - ptm)
+#' }
 #'
 #' @export
 
@@ -241,6 +247,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     # p: new SuperviseModelParameters class object,
     # i.e. p = SuperviseModelParameters$new()
     initialize = function(p) {
+      set.seed(43)
       super$initialize(p)
 
       if (!is.null(p$tune)) {

@@ -1,7 +1,7 @@
 Package: healthcareai
 Type: Package
 Title: Tools for healthcare machine learning
-Version: 0.1.10
+Version: 0.1.11
 Date: 2015-12-20
 Author: Levi Thatcher
 Maintainer: Levi Thatcher <levi.thatcher@healthcatalyst.com>
@@ -21,5 +21,5 @@ Imports:
   ranger,
   ROCR,
   RODBC
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.0
 Suggests: testthat

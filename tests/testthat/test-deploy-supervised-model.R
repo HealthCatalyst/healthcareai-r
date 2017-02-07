@@ -16,7 +16,8 @@ connection.string <- 'driver={SQL Server};
 df$PatientID <- NULL
 
 test_that("rf predicted val (with spec mtry) is the same each time", {
-
+  skip_on_travis()
+  skip_on_cran()
   p <- SupervisedModelDeploymentParams$new()
   p$type = 'classification'
   p$df = df
@@ -40,7 +41,8 @@ test_that("rf predicted val (with spec mtry) is the same each time", {
 })
 
 test_that("lasso predicted val (with spec mtry) is the same each time", {
-
+  skip_on_travis()
+  skip_on_cran()
   p <- SupervisedModelDeploymentParams$new()
   p$type = 'classification'
   p$df = df
@@ -64,7 +66,8 @@ test_that("lasso predicted val (with spec mtry) is the same each time", {
 })
 
 test_that("rf predicted val (w/out spec mtry) is the same each time", {
-
+  skip_on_travis()
+  skip_on_cran()
   p <- SupervisedModelDeploymentParams$new()
   p$type = 'classification'
   p$df = df
@@ -87,7 +90,8 @@ test_that("rf predicted val (w/out spec mtry) is the same each time", {
 })
 
 test_that("lasso predicted val (w/out spec mtry) is the same each time", {
-
+  skip_on_travis()
+  skip_on_cran()
   p <- SupervisedModelDeploymentParams$new()
   p$type = 'classification'
   p$df = df

@@ -82,7 +82,7 @@ p$impute <- TRUE
 p$grainCol <- "GrainID"  # Think of this as PatientEnounterID
 p$personCol <- "Subject"  # Think of this as PatientID
 p$predictedCol <- "Reaction"
-p$debug <- TRUE
+p$debug <- FALSE
 p$cores <- 1
 
 # Create Mixed Model
@@ -119,14 +119,17 @@ p$cores <- 1
 lmm <- LinearMixedModelDevelopment$new(p)
 lmm$run()
 
+set.seed(42) 
 # Run Lasso
-Lasso <- LassoDevelopment$new(p)
-Lasso$run()
+# Lasso <- LassoDevelopment$new(p)
+# Lasso$run()
 
 # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-Lasso$getCutOffs(tpr = 0.8)
+# Lasso$getCutOffs(tpr = 0.8)
 print(proc.time() - ptm)
 
+\donttest{
+#### This example is specific to Windows and is not tested. 
 #### Example using SQL Server data ####
 # This example requires that you alter your connection string / query
 # to read in your own data
@@ -181,6 +184,7 @@ df$personCol <- NULL
 p$df <- df
 p$personCol <- NULL
 
+set.seed(42) 
 # Run Random Forest
 rf <- RandomForestDevelopment$new(p)
 rf$run()
@@ -202,6 +206,8 @@ lmm$getCutOffs(tpr = 0.8)
 
 print(proc.time() - ptm)
 }
+
+}
 \references{
 \url{http://healthcare.ai/}
 }
@@ -209,4 +215,3 @@ print(proc.time() - ptm)
 \code{\link{healthcareai}}
 }
 \keyword{datasets}
-

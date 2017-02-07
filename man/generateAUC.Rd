@@ -46,4 +46,3 @@ auc = generateAUC(pred,labels,'SS','TRUE')
 \seealso{
 \code{\link{healthcareai}}
 }
-

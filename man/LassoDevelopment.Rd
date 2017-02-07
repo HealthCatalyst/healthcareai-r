@@ -56,6 +56,7 @@ p$cores <- 1
 lasso <- LassoDevelopment$new(p)
 lasso$run()
 
+set.seed(42) 
 # Run Random Forest
 rf <- RandomForestDevelopment$new(p)
 rf$run()
@@ -92,6 +93,7 @@ p$cores <- 1
 lasso <- LassoDevelopment$new(p)
 lasso$run()
 
+set.seed(42) 
 # Run Random Forest
 rf <- RandomForestDevelopment$new(p)
 rf$run()
@@ -100,6 +102,8 @@ rf$run()
 lasso$getCutOffs(tpr = 0.8)
 print(proc.time() - ptm)
 
+\donttest{
+#### This example is specific to Windows and is not tested. 
 #### Example using SQL Server data #### This example requires: 1) That you alter
 #### your connection string / query
 
@@ -148,6 +152,7 @@ p$cores <- 1
 lasso <- LassoDevelopment$new(p)
 lasso$run()
 
+set.seed(42) 
 # Run Random Forest
 rf <- RandomForestDevelopment$new(p)
 rf$run()
@@ -168,6 +173,7 @@ plotPRCurve(rocs, names, legendLoc)
 lasso$getCutOffs(tpr = 0.8)
 
 print(proc.time() - ptm)
+}
 
 }
 \references{
@@ -181,4 +187,3 @@ print(proc.time() - ptm)
 \code{\link{healthcareai}}
 }
 \keyword{datasets}
-

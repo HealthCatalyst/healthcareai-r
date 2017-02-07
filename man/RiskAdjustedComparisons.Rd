@@ -26,7 +26,9 @@ terms of a particular measure.
 }
 \examples{
 
-#### Example using csv data ####
+#### Example using SQL data ####
+
+\donttest{
 library(healthcareai)
 
 connection.string <- "
@@ -61,6 +63,7 @@ p$cores <- 1
 
 riskAdjComp <- RiskAdjustedComparisons$new(p)
 riskAdjComp$run()
+}
 
 }
 \references{
@@ -70,4 +73,3 @@ riskAdjComp$run()
 \code{\link{healthcareai}}
 }
 \keyword{datasets}
-

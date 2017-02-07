@@ -46,6 +46,8 @@ source('R/supervised-model-deployment.R')
 #' # Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 #' # )
 #'
+#' \donttest{
+#' #### This example is specific to Windows and is not tested. 
 #' # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 #' ptm <- proc.time()
 #' library(healthcareai)
@@ -151,6 +153,7 @@ source('R/supervised-model-deployment.R')
 #' lMM$deploy()
 #'
 #' print(proc.time() - ptm)
+#' }
 #'
 #' @export
 

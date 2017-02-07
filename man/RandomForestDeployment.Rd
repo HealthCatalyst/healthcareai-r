@@ -40,6 +40,9 @@ This step allows one to
 }
 }
 \examples{
+
+\donttest{
+#### This example is specific to Windows and is not tested. 
 #### Classification example using diabetes data ####
 # This example requires you to first create a table in SQL Server
 # If you prefer to not use SAMD, execute this in SSMS to create output table:
@@ -99,8 +102,8 @@ dL$deploy()
 
 print(proc.time() - ptm)
 }
+}
 \seealso{
 \code{\link{healthcareai}}
 }
 \keyword{datasets}
-

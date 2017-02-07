@@ -215,6 +215,9 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
+#' 
+#' \donttest{
+#' #### This example is specific to Windows and is not tested. 
 #' connectionString <- '
 #'   driver={SQL Server};
 #'   server=localhost;
@@ -230,6 +233,7 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #'
 #' df <- selectData(connectionString, query)
 #' head(df)
+#' }
 
 selectData <- function(connectionString, query, randomize = FALSE) {
   if (isTRUE(randomize)) {
@@ -282,11 +286,15 @@ selectData <- function(connectionString, query, randomize = FALSE) {
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
+#' 
+#' \donttest{
+#' #### This example is specific to Windows and is not tested. 
 #' df <- data.frame(a=c(1,2,3),
 #'                  b=c(2,4,6),
 #'                  c=c('one','two','three'))
 #'
 #' writeData(df,'localhost','SAM','dbo.HCRWriteData')
+#' }
 
 writeData <- function(df, server, database, schemaDotTable) {
   # TODO: use sub function to remove brackets from schemaDotTable TODO: add
@@ -1172,4 +1180,28 @@ calculatePerformance <- function(predictions, ytest, type) {
   }
   
   return(list(ROCPlot,PRCurvePlot,AUROC,AUPR,RMSE,MAE))
+}
+
+#' @title
+#' Function to initialize and populate the SupervisedModelDevelopmentParams each time a unit test is run.
+#'
+#' @description Initialize and populate SupervisedModelDevelopmentParams
+#' @param df A data frame to use with the new supervised model.
+#' @return Supervised Model Development Params class
+#' 
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
+
+initializeParamsForTesting <- function(df) {
+  set.seed(43)
+  p <- SupervisedModelDevelopmentParams$new()
+  p$df = df
+  p$grainCol = 'PatientEncounterID'
+  p$impute = TRUE
+  p$debug = FALSE
+  p$cores = 1
+  p$tune = FALSE
+  p$numberOfTrees = 201
+  return(p)
 }
