@@ -9,7 +9,7 @@ Authors@R: c(
     person("Taylor", "Miller", email = "taylor.miller@healthcatalyst.com", role = "aut"),
     person("Taylor", "Larsen", email = "taylor.larsen@healthcatalyst.com", role = "aut"))
 Description: A machine learning toolbox tailored to healthcare data. 
-    Aids in data cleaning, model development, hyperparatmeter tuning, and model 
+    Aids in data cleaning, model development, hyperparameter tuning, and model 
     deployment in a production SQL environment. Algorithms currently supported 
     are Lasso, Random Forest, and Linear Mixed Model.
 License: MIT + file LICENSE
