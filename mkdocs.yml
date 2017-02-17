@@ -4,7 +4,7 @@ repo_url: https://github.com/HealthCatalystSLC/healthcareai-r
 repo_name: healthcareai-r
 theme: readthedocs
 site_favicon: favicon.ico
-docs_dir: docs
+docs_dir: inst/docs
 
 pages:
 - Home: index.md
