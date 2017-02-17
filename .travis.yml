@@ -1,41 +1,44 @@
-# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
-
 language: R
 warnings_are_errors: true
-
+notifications:
+  slack:
+    secure: BLLbjl7iiwgFbEsnxPB5Q4934EwA/tGJIQPUQxbkTQ8cl30HtUC/SVBj2l1/zMgEizvKX7Jp2Gfbr+ckCRPBk03nitQ99otEx/gLUFiOYxRFopYfPRU2YMOb/75MmCnE8/mMtG9mwE7YRIsogFCzLdDs4CnEZ5MXI4WbZy7CTUS5bR6odLvEavqD17nxTh21u+AEGAO/Z3FQwY/M8K0CqftjU0d5pVTxZEbn2AbVNg+eDlywKSPCeecOPKFWwDR6pcy/VfBYtsiU2/R7/sfNU03OaKNyhm9Yo2JAWICCJ9ZWdHBU8ahHSupBCXNQuFWQm63Khfp3QeTkQTt8iabsbUS9eYeDaQHmP95yZps5ZBA3keKvkoa0uSOUr56esJGtvRVvkWJ149DhQTlejn4H0UanmoHw4QKE8PTOzgNeXYlzLTWo5caEAtwCBC9E01ag3quIc/2QHlADF0jkUtbu1cSy85emPH7CNqY9PU6HKqb3R+U57FapqiiY8EY8MIGzUkqI5i3I93gxuLqVMWAxc/QbzZAEqahzEDqtNglU+miZrDynf9a+Unh2JKplgkOBO6Evj/v4rwnJllJnbYCYL24hWpNt6VJheUsoMnqb69XES0BVgzSunnVdMBDZSgrbUDJtGNnVzdH8AxN2OhaaNmOdpUqI2dElDBk/ATg2RAE=
+    on_failure: always
 matrix:
   include:
-    - os: linux
-      cache: packages
-      dist: precise
-      sudo: false
-      r: release
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - gcc-4.9
-            - g++-4.9
-            - iodbc
-            - libiodbc2
-            - libiodbc2-dev
-      before_install: |
-        mkdir ~/.R
-        cat <<EOF > ~/.R/Makevars
-        CXX1X=g++-4.9
-        CXX1XSTD=-std=c++11
-
-    - os: osx
-      osx_image: xcode8.2
-      sudo: required
-      r: release
-      before_install:
-        - brew update
-      install:
-        - sudo chown -R $(whoami) /usr/local/share/man/man7
-        - brew install unixodbc
-        - Rscript -e 'install.packages("devtools", repos = "http://cran.rstudio.com")'
-        - Rscript -e 'install.packages(c("caret","data.table","doParallel","e1071"), repos = "http://cran.rstudio.com")'
-        - Rscript -e 'install.packages(c("grpreg","lme4","lubridate","pROC"), repos = "http://cran.rstudio.com")'
-        - Rscript -e 'install.packages(c("ranger","ROCR","testthat","RODBC"), repos = "http://cran.rstudio.com")'
+  - os: linux
+    cache: packages
+    dist: precise
+    sudo: false
+    r: release
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - gcc-4.9
+        - g++-4.9
+        - iodbc
+        - libiodbc2
+        - libiodbc2-dev
+    before_install: |
+      mkdir ~/.R
+      cat <<EOF > ~/.R/Makevars
+      CXX1X=g++-4.9
+      CXX1XSTD=-std=c++11
+  - os: osx
+    osx_image: xcode8.2
+    sudo: required
+    r: release
+    before_install:
+    - brew update
+    install:
+    - sudo chown -R $(whoami) /usr/local/share/man/man7
+    - brew install unixodbc
+    - Rscript -e 'install.packages("devtools", repos = "http://cran.rstudio.com")'
+    - Rscript -e 'install.packages(c("caret","data.table","doParallel","e1071"), repos
+      = "http://cran.rstudio.com")'
+    - Rscript -e 'install.packages(c("grpreg","lme4","lubridate","pROC"), repos =
+      "http://cran.rstudio.com")'
+    - Rscript -e 'install.packages(c("ranger","ROCR","testthat","RODBC"), repos =
+      "http://cran.rstudio.com")'
