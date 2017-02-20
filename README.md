@@ -19,21 +19,16 @@ Installation:
 
 - Find the console of RGui (which comes with R) or RStudio (which is recommended and downloaded separately).
 
-- Install prerequisites:
-```R
-install.packages(c('caret','data.table','devtools','doParallel','e1071','grpreg','lme4','lubridate','pROC','R6','ranger','ROCR','RODBC'),repos = "https://cran.cnr.berkeley.edu/")
-```
-
 - Install the latest release of healthcareai
 
 ```{r}
-library(devtools)
-devtools::install_url('https://github.com/HealthCatalystSLC/healthcareai-r/archive/v0.1.10.zip')
+install.packages('healthcareai')
 ```
 
 - Note: if you want the bleeding edge version, use this:
+```R
+install.packages(c('caret','data.table','devtools','doParallel','e1071','grpreg','lme4','lubridate','pROC','R6','ranger','ROCR','RODBC'),repos = "https://cran.cnr.berkeley.edu/")
 
-```{r}
 library(devtools)
 devtools::install_github(repo='HealthCatalystSLC/healthcareai-r')
 ```
