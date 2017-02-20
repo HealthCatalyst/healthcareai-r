@@ -63,7 +63,7 @@ library(healthcareai)
 
 ## Contributing
 
-You want to help? Wohoo! We welcome that and are willing to help newbies get started.
+You want to help? Woohoo! We welcome that and are willing to help newbies get started.
 
 First, see [here](CONTRIBUTING.md) for instructions on setting up your development environment
 
