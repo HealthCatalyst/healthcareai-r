@@ -2,6 +2,8 @@
 
 This package will get you started with healthcare machine learning in R.
 
+Find our code at our [Github Repo ![Our Github repo](img/GitHub-Mark-120px-plus.png)](https://github.com/HealthCatalystSLC/healthcareai-r)
+
 ## What can you do with it?
 
 * Create and compare models based on your data.
