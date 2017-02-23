@@ -2,6 +2,7 @@ site_name: healthcare.ai
 site_url: http://healthcare.ai
 repo_url: https://github.com/HealthCatalystSLC/healthcareai-r
 repo_name: healthcareai-r
+repo: https://github.com/HealthCatalystSLC/healthcareai-r
 theme: readthedocs
 site_favicon: favicon.ico
 docs_dir: inst/docs
