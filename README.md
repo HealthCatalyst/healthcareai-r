@@ -51,7 +51,7 @@ library(healthcareai)
   
 - Make sure you've thoroughly read the descriptions found [here](http://healthcareai-r.readthedocs.io)
 
-- If you're still seeing an error, file an issue in our [Google Group](https://groups.google.com/forum/#!forum/healthcareai-users)
+- If you're still seeing an error, file an issue on [Stack Overflow](http://stackoverflow.com/) using the healthcare-ai tag. Please provide
   - Details on your environment (OS, database type, R vs Py)
   - Goals (ie, what are you trying to accomplish)
   - Crystal clear steps for reproducing the error
