@@ -49,7 +49,7 @@ library(healthcareai)
 ?healthcareai
 ```
   
-- Make sure you've thoroughly read the descriptions found [here](http://healthcare.ai/r/)
+- Make sure you've thoroughly read the descriptions found [here](http://healthcareai-r.readthedocs.io)
 
 - If you're still seeing an error, file an issue in our [Google Group](https://groups.google.com/forum/#!forum/healthcareai-users)
   - Details on your environment (OS, database type, R vs Py)
