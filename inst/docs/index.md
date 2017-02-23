@@ -67,7 +67,7 @@ devtools::install_github(repo='HealthCatalystSLC/healthcareai-r')
 library(healthcareai)
 ?healthcareai
 ```
-* If you need assistance, check out our [Google Group](https://groups.google.com/forum/#!forum/healthcareai-users)!
+* If you need assistance, check out our file an issue on [Stack Overflow](http://stackoverflow.com) using the healthcare-ai tag.
 
 ## How to help
 
