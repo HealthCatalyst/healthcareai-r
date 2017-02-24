@@ -52,7 +52,7 @@ install.packages(c('caret','data.table','doParallel','e1071','grpreg','lme4','lu
 install.packages('healthcareai')
 ```
 
-## Install the bleeding edge version (only if necessary)
+## Install the bleeding edge version (for folks providing contributions)
 
 * Grab prerequisites via the console of RGui or (preferably) RStudio  
 ```
@@ -64,12 +64,27 @@ devtools::install_github(repo='HealthCatalystSLC/healthcareai-r')
 
 ## Misc tips
 
-* Load the package you just installed and read the built-in docs
+- Load the package you just installed and read the built-in docs
 ```
 library(healthcareai)
 ?healthcareai
 ```
-* If you need assistance, check out our file an issue on [Stack Overflow](http://stackoverflow.com) using the healthcare-ai tag.
+- If you like Jupyter notebooks, check out [step 1](https://github.com/HealthCatalystSLC/documentation/blob/master/notebooks/Example1.ipynb) and [step 2](https://github.com/HealthCatalystSLC/documentation/blob/master/notebooks/Example2.ipynb) in model building with healthcareai.
+
+## For issues
+
+- Double check that the code follows the examples in the built-in docs
+```R
+library(healthcareai)
+?healthcareai
+```
+  
+- Make sure you've thoroughly read the descriptions found [here](http://healthcareai-r.readthedocs.io)
+
+- If you're still seeing an error, file an issue on [Stack Overflow](http://stackoverflow.com/) using the healthcare-ai tag. Please provide
+  - Details on your environment (OS, database type, R vs Py)
+  - Goals (ie, what are you trying to accomplish)
+  - Crystal clear steps for reproducing the error
 
 ## How to help
 
