@@ -1165,7 +1165,9 @@ calculatePerformance <- function(predictions, ytest, type) {
     myOutput <- generateAUC(predictions, ytest, 'SS')
     AUROC = myOutput[[1]]
     ROCPlot = myOutput[[3]]
-    cat(sprintf('95% CI AU_ROC: (%0.2f , %0.2f) \n', ci(AUROC)[1], ci(AUROC)[3]))
+    ROCConf <- pROC::roc(ytest~predictions) # need pROC for 95% confidence
+    conf <- pROC::auc(ROCConf) 
+    cat(sprintf('95% CI AU_ROC: (%0.2f , %0.2f) \n', ci(conf)[1], ci(conf)[3]))
     print("\n")
     
     # Performance AUC calcs (AUPR is ROCR-based)
