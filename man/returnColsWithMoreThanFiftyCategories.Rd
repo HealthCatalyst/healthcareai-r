@@ -32,3 +32,4 @@ colList <- returnColsWithMoreThanFiftyCategories(df)
 \seealso{
 \code{\link{healthcareai}}
 }
+

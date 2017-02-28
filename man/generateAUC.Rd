@@ -4,7 +4,8 @@
 \alias{generateAUC}
 \title{Generate ROC curve for a dataset.}
 \usage{
-generateAUC(predictions, labels, aucType = "SS", plotFlg = FALSE)
+generateAUC(predictions, labels, aucType = "SS", plotFlg = FALSE,
+  allCutoffsFlg = FALSE)
 }
 \arguments{
 \item{predictions}{A vector of predictions from a machine learning model.}
@@ -46,3 +47,4 @@ auc = generateAUC(pred,labels,'SS','TRUE')
 \seealso{
 \code{\link{healthcareai}}
 }
+

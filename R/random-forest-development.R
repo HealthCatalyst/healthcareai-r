@@ -416,20 +416,6 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
 
     getMAE = function() {
       return(private$MAE)
-    },
-
-    # TODO: move to common, to reduce duplication
-    getCutOffs = function(tpr) {
-      # Get index of when true-positive rate is > tpr
-      indy <- which(as.numeric(unlist(private$ROCPlot@y.values)) > tpr)
-
-      # Correpsonding probability cutoff value (ie when category falls to 1)
-      print('Corresponding cutoff for 0/1 fallover:')
-      print(private$ROCPlot@alpha.values[[1]][indy[1]])
-
-      # Corresponding false-positive rate
-      print('Corresponding false-positive rate:')
-      print(private$ROCPlot@x.values[[1]][indy[1]][[1]])
     }
   )
 )
