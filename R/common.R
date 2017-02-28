@@ -1132,9 +1132,9 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE, allCut
          ylab = ytitle)
   }
   
+  # get ideal cutoff values.
   IdealCuts <- getCutOffs(perf = perf, aucType = aucType, allCutoffsFlg = allCutoffsFlg)
   
-  # return AUC
   return(list('AUC' = area, 'IdealCutoffs' = IdealCuts, 'Performance' = perf))
 }
 
@@ -1224,17 +1224,21 @@ initializeParamsForTesting <- function(df) {
 
 
 #' @title
-#' Function to return FPR given TPR or recall given precision when an ROC or PR 
-#' curve is created.
+#' Function to return ideal cutoff and TPR/FPR or precision/recall.
 #'
-#' @description Initialize and populate SupervisedModelDevelopmentParams
-#' @param df A data frame to use with the new supervised model.
-#' @return Supervised Model Development Params class
+#' @description Calculates ideal cutoff by proximity to corner of the ROC curve.
+#' @param perf An ROCR performance class. (Usually made by generateAUC)
+#' @param aucType A string. Indicates AUC_ROC or AU_PR and can be "SS" or "PR". 
+#' Defaults to SS.
+#' @param allCutoffsFlg Binary value controlling list of all thresholds. 
+#' @return Array of ideal cutoff and associated TPR/FPR or pre/rec.
 #' 
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
+#' 
 getCutOffs = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
+  ## TODO: Give user the ability to give higher weight to recall or FPR
   x <- unlist(perf@x.values)
   y <- unlist(perf@y.values)
   p <- unlist(perf@alpha.values)
