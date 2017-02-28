@@ -1030,7 +1030,7 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
 }
 
 #' @title
-#' Generate ROC curve for a dataset.
+#' Generate ROC or PR curve for a dataset.
 #' @description Generates ROC curve and AUC for Sensitivity/Specificity or 
 #' Precision/Recall.
 #' @param predictions A vector of predictions from a machine learning model.
@@ -1038,8 +1038,12 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
 #' predictions.
 #' @param aucType A string. Indicates AUC_ROC or AU_PR and can be "SS" or "PR". 
 #' Defaults to SS.
-#' @param plotFlg Binary value controlling plots Defaults to FALSE (no).
-#' @return auc A number between 0 and 1. Integral AUC of chosen plot type.
+#' @param plotFlg Binary value controlling plots. Defaults to FALSE (no).
+#' @param allCutoffsFlg Binary value controlling list of all thresholds. 
+#' Defaults to FALSE (no).
+#' @return AUC: A number between 0 and 1. Integral AUC of chosen plot type.
+#' @return IdealCutoffs: Array of cutoff and associated TPR/FPR or pre/rec.
+#' @return Performance: ROCR performance class containing all ROC information.
 #'
 #' @import ROCR
 #' @export
@@ -1058,7 +1062,11 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
 #' labels <- df[,'b']
 #' 
 #' # generate the AUC
-#' auc = generateAUC(pred,labels,'SS','TRUE')
+#' auc = generateAUC(predictions = pred, 
+#'                   labels = labels,
+#'                   aucType = 'SS',
+#'                   plotFlg = TRUE,
+#'                   allCutoffsFlg = TRUE)
 #' 
 generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE, allCutoffsFlg=FALSE) {
   # Error check for uneven length predictions and labels
@@ -1167,8 +1175,8 @@ calculatePerformance <- function(predictions, ytest, type) {
     ROCPlot = myOutput[[3]]
     ROCConf <- pROC::roc(ytest~predictions) # need pROC for 95% confidence
     conf <- pROC::auc(ROCConf) 
-    cat(sprintf('95% CI AU_ROC: (%0.2f , %0.2f) \n', ci(conf)[1], ci(conf)[3]))
-    print("\n")
+    cat(sprintf('95%% CI AU_ROC: (%0.2f , %0.2f) \n', ci(conf)[1], ci(conf)[3]))
+    cat(sprintf('\n'))
     
     # Performance AUC calcs (AUPR is ROCR-based)
     myOutput <- generateAUC(predictions, ytest, 'PR')
@@ -1176,7 +1184,8 @@ calculatePerformance <- function(predictions, ytest, type) {
     PRCurvePlot = myOutput[[3]]
     ROCConf <- pROC::roc(ytest~predictions) # need pROC for 95% confidence
     AUROC <- pROC::auc(ROCConf)   
-
+    cat(sprintf('\n')) 
+    
   } else if (type == 'regression') {
     
     RMSE <- sqrt(mean((ytest - predictions) ^ 2))
