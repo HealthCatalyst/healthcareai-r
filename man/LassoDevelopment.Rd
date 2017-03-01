@@ -98,8 +98,6 @@ set.seed(42)
 rf <- RandomForestDevelopment$new(p)
 rf$run()
 
-# For a given true-positive rate, get false-pos rate and 0/1 cutoff
-lasso$getCutOffs(tpr = 0.8)
 print(proc.time() - ptm)
 
 \donttest{
@@ -168,9 +166,6 @@ rocs <- list(rf$getPRCurve(), lasso$getPRCurve())
 names <- c("Random Forest", "Lasso")
 legendLoc <- "bottomleft"
 plotPRCurve(rocs, names, legendLoc)
-
-# For a given true-positive rate, get false-pos rate and 0/1 cutoff
-lasso$getCutOffs(tpr = 0.8)
 
 print(proc.time() - ptm)
 }

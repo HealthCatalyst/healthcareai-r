@@ -2,19 +2,23 @@
 % Please edit documentation in R/common.R
 \name{getCutOffs}
 \alias{getCutOffs}
-\title{Function to return FPR given TPR or recall given precision when an ROC or PR 
-curve is created.}
+\title{Function to return ideal cutoff and TPR/FPR or precision/recall.}
 \usage{
 getCutOffs(perf, aucType = "SS", allCutoffsFlg = FALSE)
 }
 \arguments{
-\item{df}{A data frame to use with the new supervised model.}
+\item{perf}{An ROCR performance class. (Usually made by generateAUC)}
+
+\item{aucType}{A string. Indicates AUC_ROC or AU_PR and can be "SS" or "PR". 
+Defaults to SS.}
+
+\item{allCutoffsFlg}{Binary value controlling list of all thresholds.}
 }
 \value{
-Supervised Model Development Params class
+Array of ideal cutoff and associated TPR/FPR or pre/rec.
 }
 \description{
-Initialize and populate SupervisedModelDevelopmentParams
+Calculates ideal cutoff by proximity to corner of the ROC curve.
 }
 \references{
 \url{http://healthcare.ai}
