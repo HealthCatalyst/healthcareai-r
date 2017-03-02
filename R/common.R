@@ -1101,7 +1101,7 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE, allCut
     cat(sprintf("Area under the PR curve is: %0.2f \n", area))
   }
   # SS
-  else {
+  else if (aucType == 'SS') {
     perf <- ROCR::performance(pred, "tpr","fpr")
     perf.auc <- ROCR::performance(pred, measure = "auc")
     area <- perf.auc@y.values[[1]]
@@ -1121,7 +1121,7 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE, allCut
   }
   
   # plot AUC 
-  if (plotFlg == TRUE) {
+  if (isTRUE(plotFlg)) {
     plot(x = perf@x.values[[1]],
          y = perf@y.values[[1]],
          type = 'l',
@@ -1251,14 +1251,14 @@ getCutOffs = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
     cutoff = p[[ind]]
     cat(sprintf("Ideal cutoff is %0.2f, yielding TPR of %0.2f and FPR of %0.2f \n", 
                 cutoff, tpr, fpr))  
-    if (allCutoffsFlg == TRUE) {
+    if (isTRUE(allCutoffsFlg)) {
       cat(sprintf("%-7s %-6s %-5s \n", 'Thresh', 'TPR', 'FPR'))
       cat(sprintf("%-7.2f %-6.2f %-6.2f \n", 
                   unlist(perf@alpha.values), unlist(perf@y.values), unlist(perf@x.values)))  
     }
     return(c(cutoff, tpr, fpr)) # list of integers
     # for PR curves
-  } else { 
+  } else if (aucType == 'PR') { 
     d = (x - 1) ^ 2 + (y - 1) ^ 2
     # Convert NaNs to one
     d[ is.nan(d) ] <- 1
@@ -1268,7 +1268,7 @@ getCutOffs = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
     cutoff = p[[ind]]
     cat(sprintf("Ideal cutoff is %0.2f, yielding Precision of %0.2f and Recall of %0.2f \n", 
                 cutoff, pre, rec))  
-    if (allCutoffsFlg == TRUE) {
+    if (isTRUE(allCutoffsFlg)) {
       cat(sprintf("%-7s %-10s %-10s \n", 'Thresh', 'Precision', 'Recall'))
       cat(sprintf("%-7.2f %-10.2f %-10.2f \n", 
                   unlist(perf@alpha.values), unlist(perf@y.values), unlist(perf@x.values)))
