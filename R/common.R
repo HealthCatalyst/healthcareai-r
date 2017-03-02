@@ -1030,7 +1030,7 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
 }
 
 #' @title
-#' Generate ROC curve for a dataset.
+#' Generate ROC or PR curve for a dataset.
 #' @description Generates ROC curve and AUC for Sensitivity/Specificity or 
 #' Precision/Recall.
 #' @param predictions A vector of predictions from a machine learning model.
@@ -1038,8 +1038,12 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
 #' predictions.
 #' @param aucType A string. Indicates AUC_ROC or AU_PR and can be "SS" or "PR". 
 #' Defaults to SS.
-#' @param plotFlg Binary value controlling plots Defaults to FALSE (no).
-#' @return auc A number between 0 and 1. Integral AUC of chosen plot type.
+#' @param plotFlg Binary value controlling plots. Defaults to FALSE (no).
+#' @param allCutoffsFlg Binary value controlling list of all thresholds. 
+#' Defaults to FALSE (no).
+#' @return AUC: A number between 0 and 1. Integral AUC of chosen plot type.
+#' @return IdealCutoffs: Array of cutoff and associated TPR/FPR or pre/rec.
+#' @return Performance: ROCR performance class containing all ROC information.
 #'
 #' @import ROCR
 #' @export
@@ -1058,9 +1062,13 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
 #' labels <- df[,'b']
 #' 
 #' # generate the AUC
-#' auc = generateAUC(pred,labels,'SS','TRUE')
+#' auc = generateAUC(predictions = pred, 
+#'                   labels = labels,
+#'                   aucType = 'SS',
+#'                   plotFlg = TRUE,
+#'                   allCutoffsFlg = TRUE)
 #' 
-generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE) {
+generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE, allCutoffsFlg=FALSE) {
   # Error check for uneven length predictions and labels
   if (length(predictions) != length(labels)) {
     stop('Data vectors are not equal length!')
@@ -1075,13 +1083,12 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE) {
   }
   
   # generate ROC data
-  # TODO: standardize on :: vs ImportFrom (in header)
-  roc1 <- ROCR::prediction(predictions, labels)
+  pred = ROCR::prediction(predictions, labels)
   
   # get performance and AUC from either curve type
   # PR
   if (aucType == 'PR') {
-    perf <- ROCR::performance(roc1, "prec", "rec")
+    perf <- ROCR::performance(pred, "prec", "rec")
     x <- as.numeric(unlist(perf@x.values))
     y <- as.numeric(unlist(perf@y.values))
     
@@ -1089,28 +1096,35 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE) {
     y[ is.nan(y) ] <- 0
     # From: http://stackoverflow.com/a/30280873/5636012
     area <- sum(diff(x) * (head(y,-1) + tail(y,-1)))/2
+    
+    # print threshholds and AUC
+    cat(sprintf("Area under the PR curve is: %0.2f \n", area))
   }
   # SS
   else if (aucType == 'SS') {
-    perf <- ROCR::performance(roc1, "tpr","fpr")
-    perf.auc <- ROCR::performance(roc1, measure = "auc")
+    perf <- ROCR::performance(pred, "tpr","fpr")
+    perf.auc <- ROCR::performance(pred, measure = "auc")
     area <- perf.auc@y.values[[1]]
+    
+    # print AUC
+    cat(sprintf("Area under the ROC curve is: %0.2f \n", area)) 
   }
   
   if (aucType == 'SS') {
     titleTemp <- 'ROC'
     xtitle <- 'False Positive Rate'
     ytitle <- 'True Positive Rate'
-  } else if (aucType == 'PR') {
+  } else {
     titleTemp <- 'PR Curve'
     xtitle <- 'Recall'
     ytitle <- 'Precision'
   }
   
   # plot AUC 
-  if (plotFlg == TRUE){
+  if (isTRUE(plotFlg)) {
     plot(x = perf@x.values[[1]],
          y = perf@y.values[[1]],
+         type = 'l',
          col = "blue", 
          lwd = 2, 
          main = titleTemp,
@@ -1118,8 +1132,10 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE) {
          ylab = ytitle)
   }
   
-  # return AUC
-  area
+  # get ideal cutoff values.
+  IdealCuts <- getCutOffs(perf = perf, aucType = aucType, allCutoffsFlg = allCutoffsFlg)
+  
+  return(list('AUC' = area, 'IdealCutoffs' = IdealCuts, 'Performance' = perf))
 }
 
 #' @title
@@ -1154,22 +1170,22 @@ calculatePerformance <- function(predictions, ytest, type) {
   if (type == 'classification') {
 
     # Performance curves for return and plotting
-    predROCR <- ROCR::prediction(predictions, ytest)
-    ROCPlot <- ROCR::performance(predROCR, "tpr", "fpr")
-    PRCurvePlot <- ROCR::performance(predROCR, "prec", "rec")
+    myOutput <- generateAUC(predictions, ytest, 'SS')
+    AUROC = myOutput[[1]]
+    ROCPlot = myOutput[[3]]
+    ROCConf <- pROC::roc(ytest~predictions) # need pROC for 95% confidence
+    conf <- pROC::auc(ROCConf) 
+    cat(sprintf('95%% CI AU_ROC: (%0.2f , %0.2f) \n', ci(conf)[1], ci(conf)[3]))
+    cat(sprintf('\n'))
     
     # Performance AUC calcs (AUPR is ROCR-based)
-    AUPR <- generateAUC(predictions, ytest, 'PR', 'FALSE')
+    myOutput <- generateAUC(predictions, ytest, 'PR')
+    AUPR = myOutput[[1]]
+    PRCurvePlot = myOutput[[3]]
     ROCConf <- pROC::roc(ytest~predictions) # need pROC for 95% confidence
-    AUROC <- pROC::auc(ROCConf)                  
+    AUROC <- pROC::auc(ROCConf)   
+    cat(sprintf('\n')) 
     
-    # Show results
-    print(paste0('AU_ROC: ', round(AUROC, 2)))
-    print(paste0('95% CI AU_ROC: (', round(ci(AUROC)[1],2),
-                 ',',
-                 round(ci(AUROC)[3],2), ')'))
-    print(paste0('AU_PR: ', round(AUPR, 2)))
-
   } else if (type == 'regression') {
     
     RMSE <- sqrt(mean((ytest - predictions) ^ 2))
@@ -1204,4 +1220,59 @@ initializeParamsForTesting <- function(df) {
   p$tune = FALSE
   p$numberOfTrees = 201
   return(p)
+}
+
+
+#' @title
+#' Function to return ideal cutoff and TPR/FPR or precision/recall.
+#'
+#' @description Calculates ideal cutoff by proximity to corner of the ROC curve.
+#' @param perf An ROCR performance class. (Usually made by generateAUC)
+#' @param aucType A string. Indicates AUC_ROC or AU_PR and can be "SS" or "PR". 
+#' Defaults to SS.
+#' @param allCutoffsFlg Binary value controlling list of all thresholds. 
+#' @return Array of ideal cutoff and associated TPR/FPR or pre/rec.
+#' 
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
+#' 
+getCutOffs = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
+  ## TODO: Give user the ability to give higher weight to recall or FPR
+  x <- unlist(perf@x.values)
+  y <- unlist(perf@y.values)
+  p <- unlist(perf@alpha.values)
+  # for ROC curves
+  if (aucType == 'SS') {
+    d = (x - 0) ^ 2 + (y - 1) ^ 2
+    ind = which(d == min(d))
+    tpr = y[[ind]]
+    fpr = x[[ind]]
+    cutoff = p[[ind]]
+    cat(sprintf("Ideal cutoff is %0.2f, yielding TPR of %0.2f and FPR of %0.2f \n", 
+                cutoff, tpr, fpr))  
+    if (isTRUE(allCutoffsFlg)) {
+      cat(sprintf("%-7s %-6s %-5s \n", 'Thresh', 'TPR', 'FPR'))
+      cat(sprintf("%-7.2f %-6.2f %-6.2f \n", 
+                  unlist(perf@alpha.values), unlist(perf@y.values), unlist(perf@x.values)))  
+    }
+    return(c(cutoff, tpr, fpr)) # list of integers
+    # for PR curves
+  } else if (aucType == 'PR') { 
+    d = (x - 1) ^ 2 + (y - 1) ^ 2
+    # Convert NaNs to one
+    d[ is.nan(d) ] <- 1
+    ind = which(d == min(d))
+    pre = y[[ind]]
+    rec = x[[ind]]
+    cutoff = p[[ind]]
+    cat(sprintf("Ideal cutoff is %0.2f, yielding Precision of %0.2f and Recall of %0.2f \n", 
+                cutoff, pre, rec))  
+    if (isTRUE(allCutoffsFlg)) {
+      cat(sprintf("%-7s %-10s %-10s \n", 'Thresh', 'Precision', 'Recall'))
+      cat(sprintf("%-7.2f %-10.2f %-10.2f \n", 
+                  unlist(perf@alpha.values), unlist(perf@y.values), unlist(perf@x.values)))
+    }
+    return(c(cutoff, pre, rec)) # list of integers
+  }
 }

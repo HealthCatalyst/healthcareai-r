@@ -29,3 +29,4 @@ colList
 \seealso{
 \code{\link{healthcareai}}
 }
+

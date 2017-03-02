@@ -62,3 +62,4 @@ push predicted values into SQL Server.
 
 \code{\link{calculateAllCorrelations}}
 }
+
