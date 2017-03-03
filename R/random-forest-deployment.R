@@ -36,7 +36,7 @@ source('R/supervised-model-deployment.R')
 #' @examples
 #' 
 #' \donttest{
-#' #### This example is specific to Windows and is not tested. 
+#' #### This example is specific to Windows and is not tested in CRAN. 
 #' #### Classification example using diabetes data ####
 #' # This example requires you to first create a table in SQL Server
 #' # If you prefer to not use SAMD, execute this in SSMS to create output table:
@@ -106,10 +106,11 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
   private = list(
 
     # variables
-    coefficients = NULL,
-    multiplyRes = NULL,
-    orderedFactors = NULL,
-    predictedValsForUnitTest = NULL,
+    coefficients = NA,
+    multiplyRes = NA,
+    orderedFactors = NA,
+    predictedValsForUnitTest = NA,
+    outDf = NA,
 
     # functions
     connectDataSource = function() {
@@ -253,7 +254,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       dtStamp <- as.POSIXlt(Sys.time(), "GMT")
 
       # Combine grain.col, prediction, and time to be put back into SAM table
-      outDf <- data.frame(
+      private$outDf <- data.frame(
         0,                                 # BindingID
         'R',                               # BindingNM
         dtStamp,                           # LastLoadDTS
@@ -267,7 +268,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       } else if (self$params$type == 'regression') {
         predictedResultsName = "PredictedValueNBR"
       }
-      colnames(outDf) <- c(
+      colnames(private$outDf) <- c(
         "BindingID",
         "BindingNM",
         "LastLoadDTS",
@@ -280,13 +281,13 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
       if (isTRUE(self$params$debug)) {
         print('Dataframe going to SQL Server:')
-        print(str(outDf))
+        print(str(private$outDf))
       }
 
       # Save df to table in SAM database
       out <- sqlSave(
         channel = self$params$sqlConn,
-        dat = outDf,
+        dat = private$outDf,
         tablename = self$params$destSchemaTable,
         append = T,
         rownames = F,
@@ -431,6 +432,11 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     #Get predicted values
     getPredictedValsForUnitTest = function() {
       return(private$predictedValsForUnitTest)
+    },
+    
+    # Surface outDf as attribute for export to Oracle, MySQL, etc
+    getOutDf = function() {
+      return(private$outDf)
     }
   )
 )

@@ -76,6 +76,7 @@ df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 
 head(df)
 
+df$PatientID <- NULL
 df$InTestWindowFLG <- NULL
 
 set.seed(42)
@@ -84,7 +85,7 @@ p <- SupervisedModelDevelopmentParams$new()
 p$df <- df
 p$type <- "regression"
 p$impute <- TRUE
-p$grainCol <- "PatientID"
+p$grainCol <- "PatientEncounterID"
 p$predictedCol <- "A1CNBR"
 p$debug <- FALSE
 p$cores <- 1
@@ -118,7 +119,6 @@ trusted_connection=true
 query <- "
 SELECT
 [PatientEncounterID]
-,[PatientID]
 ,[SystolicBPNBR]
 ,[LDLNBR]
 ,[A1CNBR]
@@ -140,7 +140,7 @@ p <- SupervisedModelDevelopmentParams$new()
 p$df <- df
 p$type <- "classification"
 p$impute <- TRUE
-p$grainCol <- "PatientID"
+p$grainCol <- "PatientEncounterID"
 p$predictedCol <- "ThirtyDayReadmitFLG"
 p$debug <- FALSE
 p$cores <- 1

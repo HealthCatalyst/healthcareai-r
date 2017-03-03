@@ -9,17 +9,18 @@ Description: Healthcare model creation, comparison, and deployment.
 License: MIT + file LICENSE
 LazyData: TRUE
 Imports:
-  caret,
-  data.table,
-  doParallel,
-  e1071,
-  grpreg,
-  lme4,
-  lubridate,
-  pROC,
-  R6,
-  ranger,
-  ROCR,
-  RODBC
-RoxygenNote: 6.0.0
-Suggests: testthat
+    caret,
+    data.table,
+    doParallel,
+    e1071,
+    grpreg,
+    lme4,
+    lubridate,
+    pROC,
+    R6,
+    ranger,
+    ROCR,
+    RODBC
+RoxygenNote: 6.0.1
+Suggests:
+    testthat

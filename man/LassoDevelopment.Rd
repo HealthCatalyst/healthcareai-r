@@ -79,7 +79,6 @@ df$PatientID <- NULL
 df$InTestWindowFLG <- NULL
 
 set.seed(42)
-
 p <- SupervisedModelDevelopmentParams$new()
 p$df <- df
 p$type <- "classification"
@@ -120,22 +119,17 @@ trusted_connection=true
 query <- "
 SELECT
 [PatientEncounterID]
-,[PatientID]
 ,[SystolicBPNBR]
 ,[LDLNBR]
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
 WHERE InTestWindowFLG = 'N'
 "
 
 df <- selectData(connection.string, query)
 head(df)
-
-df$PatientID <- NULL
-df$InTestWindowFLG <- NULL
 
 set.seed(42)
 

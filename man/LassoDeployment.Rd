@@ -40,7 +40,7 @@ This step allows one to
 \examples{
 
 \donttest{
-#### This example is specific to Windows and is not tested.
+#### This example is specific to Windows and is not tested in CRAN.
 #### Regression example using diabetes data ####
 # This example requires you to first create a table in SQL Server
 # If you prefer to not use SAMD, execute this in SSMS to create output table:
@@ -54,6 +54,7 @@ This step allows one to
 # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 ptm <- proc.time()
 library(healthcareai)
+library(RODBC)
 
 connection.string <- "
 driver={SQL Server};
