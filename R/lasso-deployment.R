@@ -265,27 +265,28 @@ LassoDeployment <- R6Class(
       )
 
       if (isTRUE(self$params$debug)) {
-        print('Dataframe going to SQL Server:')
+        print('Dataframe with predictions:')
         print(str(private$outDf))
       }
 
-
-      # Save df to table in SAM database
-      out <- sqlSave(
-        channel = self$params$sqlConn,
-        dat = private$outDf,
-        tablename = self$params$destSchemaTable,
-        append = T,
-        rownames = F,
-        colnames = F,
-        safer = T,
-        nastring = NULL,
-        verbose = self$params$debug
-      )
-
-      # Print success if insert was successful
-      if (out == 1) {
-        print('SQL Server insert was successful')
+      if (isTRUE(self$params$writeToDB)) {
+        # Save df to table in SAM database
+        out <- sqlSave(
+          channel = self$params$sqlConn,
+          dat = private$outDf,
+          tablename = self$params$destSchemaTable,
+          append = T,
+          rownames = F,
+          colnames = F,
+          safer = T,
+          nastring = NULL,
+          verbose = self$params$debug
+        )
+  
+        # Print success if insert was successful
+        if (out == 1) {
+          print('SQL Server insert was successful')
+        }
       }
     }
   ),
