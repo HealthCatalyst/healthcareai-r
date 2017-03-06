@@ -1,0 +1,27 @@
+site_name: healthcare.ai
+site_url: http://healthcare.ai
+repo_url: https://github.com/HealthCatalystSLC/healthcareai-r
+
+theme: readthedocs
+site_favicon: favicon.ico
+docs_dir: inst/docs
+
+pages:
+- Home: index.md
+- Getting started:
+  - Where do I begin?: getting-started/where-do-i-begin.md
+  - FAQ and Contact: getting-started/FAQ-and-contact.md
+- Model Pre-processing:
+  - Feature engineering overview: model-pre-processing/feature-eng-overview.md
+  - Longitudinal Imputation: model-pre-processing/longitudinal-imputation.md
+  - Seasonality Handling: model-pre-processing/seasonality-handling.md
+- Comparing and Deploying Models:
+  - Develop and Compare: comparing-and-deploying/compare.md
+  - Deploying a Best Model: comparing-and-deploying/deploy.md
+- Healthcare Statistics:
+  - Risk-adjusted Comparisons: healthcare-statistics/risk-adjusted-comparisons.md
+  - Trend Analysis: healthcare-statistics/trend-analysis.md
+  - Find Targeted Correlations: healthcare-statistics/find-targeted-correlations.md
+  - Find All Correlations: healthcare-statistics/find-all-correlations.md
+
+google_analytics: ['UA-85609357-1', 'auto']

@@ -123,9 +123,6 @@ set.seed(42)
 # Run Lasso
 # Lasso <- LassoDevelopment$new(p)
 # Lasso$run()
-
-# For a given true-positive rate, get false-pos rate and 0/1 cutoff
-# Lasso$getCutOffs(tpr = 0.8)
 print(proc.time() - ptm)
 
 \donttest{
@@ -201,9 +198,6 @@ names <- c("Linear Mixed Model", "Random Forest")
 legendLoc <- "bottomleft"
 plotPRCurve(rocs, names, legendLoc)
 
-# For a given true-positive rate, get false-pos rate and 0/1 cutoff
-lmm$getCutOffs(tpr = 0.8)
-
 print(proc.time() - ptm)
 }
 
@@ -215,3 +209,4 @@ print(proc.time() - ptm)
 \code{\link{healthcareai}}
 }
 \keyword{datasets}
+

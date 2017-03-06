@@ -2,9 +2,10 @@
 % Please edit documentation in R/common.R
 \name{generateAUC}
 \alias{generateAUC}
-\title{Generate ROC curve for a dataset.}
+\title{Generate ROC or PR curve for a dataset.}
 \usage{
-generateAUC(predictions, labels, aucType = "SS", plotFlg = FALSE)
+generateAUC(predictions, labels, aucType = "SS", plotFlg = FALSE,
+  allCutoffsFlg = FALSE)
 }
 \arguments{
 \item{predictions}{A vector of predictions from a machine learning model.}
@@ -15,10 +16,17 @@ predictions.}
 \item{aucType}{A string. Indicates AUC_ROC or AU_PR and can be "SS" or "PR". 
 Defaults to SS.}
 
-\item{plotFlg}{Binary value controlling plots Defaults to FALSE (no).}
+\item{plotFlg}{Binary value controlling plots. Defaults to FALSE (no).}
+
+\item{allCutoffsFlg}{Binary value controlling list of all thresholds. 
+Defaults to FALSE (no).}
 }
 \value{
-auc A number between 0 and 1. Integral AUC of chosen plot type.
+AUC: A number between 0 and 1. Integral AUC of chosen plot type.
+
+IdealCutoffs: Array of cutoff and associated TPR/FPR or pre/rec.
+
+Performance: ROCR performance class containing all ROC information.
 }
 \description{
 Generates ROC curve and AUC for Sensitivity/Specificity or 
@@ -37,7 +45,11 @@ pred <- df[,'a']
 labels <- df[,'b']
 
 # generate the AUC
-auc = generateAUC(pred,labels,'SS','TRUE')
+auc = generateAUC(predictions = pred, 
+                  labels = labels,
+                  aucType = 'SS',
+                  plotFlg = TRUE,
+                  allCutoffsFlg = TRUE)
 
 }
 \references{
@@ -46,3 +58,4 @@ auc = generateAUC(pred,labels,'SS','TRUE')
 \seealso{
 \code{\link{healthcareai}}
 }
+

@@ -26,7 +26,7 @@ This is for Windows; for macOS see [here](https://developer.apple.com/xcode/); f
 ## Clone healthcareai-r repo
 
 - Create a data science folder on your hard drive (if you don't have one)
-- Fork this repo (look for the link in the top right corner of the current page).
+- Fork this repo (look for the link in the top right corner [here](https://github.com/HealthCatalystSLC/healthcareai-r)).
 - Click the green 'Clone or download' button and copy git link. You'll want to use the HTML address unless you have an SSH key for git already.
 - Open RStudio
   - Look for Project dropdown (top right corner)
@@ -134,7 +134,7 @@ CREATE TABLE [dbo].[HCRWriteData](
 )
 ```
 
-**Note, if you have issues connecting to localhost in SSMS or RStudio, see [here](https://github.com/HealthCatalystSLC/healthcareai-py/blob/master/localhost_config.rst) to create an alias.**
+**Note, if you have issues connecting to localhost in SSMS or RStudio, see [here](https://github.com/HealthCatalystSLC/healthcareai-py/blob/master/localhost_config.md) to create an alias.**
   
 ## Verify you can build the healthcareai package
 

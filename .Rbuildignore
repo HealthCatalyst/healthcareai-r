@@ -12,3 +12,5 @@
 ^inst/CIDatabase$
 ^CONTRIBUTING.md
 ^Rplot.png
+^mkdocs\.yml$
+^CHANGELOG\.md$
