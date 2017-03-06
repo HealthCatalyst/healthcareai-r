@@ -118,8 +118,11 @@ LassoDeployment <- R6Class(
     # functions
     connectDataSource = function() {
       odbcCloseAll()
-      # Convert the connection string into a real connection object.
-      self$params$sqlConn <- odbcDriverConnect(self$params$sqlConn)
+      
+      if (isTRUE(self$params$writeToDB)) {
+        # Convert the connection string into a real connection object.
+        self$params$sqlConn <- odbcDriverConnect(self$params$sqlConn)
+      }
     },
 
     closeDataSource = function() {

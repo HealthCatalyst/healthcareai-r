@@ -15,18 +15,18 @@ Description: A machine learning toolbox tailored to healthcare data.
 License: MIT + file LICENSE
 LazyData: TRUE
 Imports:
-  caret,
-  data.table,
-  doParallel,
-  e1071,
-  grpreg,
-  lme4,
-  lubridate,
-  pROC,
-  R6,
-  ranger,
-  ROCR,
-  RODBC
+    caret,
+    data.table,
+    doParallel,
+    e1071,
+    grpreg,
+    lme4,
+    lubridate,
+    pROC,
+    R6,
+    ranger,
+    ROCR,
+    RODBC
 RoxygenNote: 6.0.1
-Suggests: 
-  testthat
+Suggests:
+    testthat
