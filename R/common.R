@@ -1068,7 +1068,12 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
 #'                   plotFlg = TRUE,
 #'                   allCutoffsFlg = TRUE)
 #' 
-generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE, allCutoffsFlg=FALSE) {
+generateAUC <- function(predictions, 
+                        labels, 
+                        aucType='SS', 
+                        plotFlg=FALSE, 
+                        allCutoffsFlg=FALSE) {
+  
   # Error check for uneven length predictions and labels
   if (length(predictions) != length(labels)) {
     stop('Data vectors are not equal length!')
@@ -1086,7 +1091,6 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE, allCut
   pred = ROCR::prediction(predictions, labels)
   
   # get performance and AUC from either curve type
-  # PR
   if (aucType == 'PR') {
     perf <- ROCR::performance(pred, "prec", "rec")
     x <- as.numeric(unlist(perf@x.values))
@@ -1099,9 +1103,8 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE, allCut
     
     # print threshholds and AUC
     cat(sprintf("Area under the PR curve is: %0.2f \n", area))
-  }
-  # SS
-  else if (aucType == 'SS') {
+
+  } else if (aucType == 'SS') {
     perf <- ROCR::performance(pred, "tpr","fpr")
     perf.auc <- ROCR::performance(pred, measure = "auc")
     area <- perf.auc@y.values[[1]]
@@ -1133,7 +1136,9 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE, allCut
   }
   
   # get ideal cutoff values.
-  IdealCuts <- getCutOffs(perf = perf, aucType = aucType, allCutoffsFlg = allCutoffsFlg)
+  IdealCuts <- getCutOffs(perf = perf, 
+                          aucType = aucType, 
+                          allCutoffsFlg = allCutoffsFlg)
   
   return(list('AUC' = area, 'IdealCutoffs' = IdealCuts, 'Performance' = perf))
 }
