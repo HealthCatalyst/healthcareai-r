@@ -144,7 +144,7 @@ p$personCol = 'PatientID' # Change to your PatientID col
 lMM <- LinearMixedModelDeployment$new(p)
 lMM$deploy()
 ```
-## Full example code
+## Full example code for SQL Server
 
 ```r
 ptm <- proc.time()
@@ -199,7 +199,50 @@ dL$deploy()
 print(proc.time() - ptm)
 ```
 
-Relevant example code:
+## Full example code for reading from (and pushing predictions to) a CSV
+
+Start with the arguments. You'll want to add
+
+```r
+library(healthcareai)
+
+csvfile <- system.file("extdata",
+                       "HCRDiabetesClinical.csv",
+                       package = "healthcareai")
+
+df <- read.csv(file = csvfile,
+               header = TRUE,
+               na.strings =  c('NULL', 'NA', ""))
+
+head(df)
+
+df$PersonID <- NULL
+
+p <- SupervisedModelDeploymentParams$new()
+p$type <- "classification"
+p$df <- df
+p$grainCol <- "PatientEncounterID"
+p$testWindowCol <- "InTestWindowFLG"
+p$predictedCol <- "ThirtyDayReadmitFLG"
+p$impute <- FALSE
+p$debug <- FALSE
+p$useSavedModel <- FALSE
+p$cores <- 1
+p$writeToDB <- FALSE    # This differs from above examples
+
+
+dL <- RandomForestDeployment$new(p)
+dL$deploy()
+
+df <- dL$getOutDf()
+head(df)
+
+# Write to csv 
+# Note that you could also write to json, MySQL, etc
+write.csv(df, 'location/filename.csv')
+```
+
+## Linear Mixed Model (small datasets with a longitudinal flavor)
 
 ```
 p <- SupervisedModelParameters$new()
@@ -211,12 +254,14 @@ p$personCol = 'PatientID'         # This represents the person (required)
 p$predictedCol = 'HighA1C'
 p$debug = FALSE
 p$cores = 1
+p$sqlConn = connection.string
+p$destSchemaTable = 'dbo.HCRDeployClassificationBASE'
 
 lMM <- LinearMixedModelDeployment$new(p)
 lMM$deploy()
 ```
 
-Note: if you want a CSV example (ie, an example that you can run as-is), see the built-in docs:
+Note: if you need to see the built-in docs (which are always up-to-date):
 ```r
 library(healthcareai)
 ?healthcareai
