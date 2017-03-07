@@ -199,7 +199,7 @@ dL$deploy()
 print(proc.time() - ptm)
 ```
 
-## Full example code for reading from (and pushing predictions to) a CSV
+## Full example code for reading (and pushing predictions to) a CSV
 
 Start with the arguments. You'll want to add
 
@@ -239,7 +239,7 @@ head(df)
 
 # Write to csv 
 # Note that you could also write to json, MySQL, etc
-write.csv(df, 'location/filename.csv')
+write.csv(df, 'location/predictions.csv')
 ```
 
 ## Linear Mixed Model (small datasets with a longitudinal flavor)

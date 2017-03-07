@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Added
+- Added getOutDf to each algorithm deploy file so predictions can go to CSV
 
 ### Changed
+- TimeStamp column predictive output is now local time (not GMT)
 
 ### Fixed
 

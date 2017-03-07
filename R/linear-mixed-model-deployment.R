@@ -47,7 +47,6 @@ source('R/supervised-model-deployment.R')
 #' # )
 #'
 #' \donttest{
-#' #### This example is specific to Windows and is not tested. 
 #' # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 #' ptm <- proc.time()
 #' library(healthcareai)
@@ -328,7 +327,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     },
 
     saveDataIntoDb = function() {
-      dtStamp <- as.POSIXlt(Sys.time(), "GMT")
+      dtStamp <- as.POSIXlt(Sys.time())
 
       # Combine grain.col, prediction, and time to be put back into SAM table
       private$outDf <- data.frame(

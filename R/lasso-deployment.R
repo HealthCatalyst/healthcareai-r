@@ -17,7 +17,6 @@ source('R/supervised-model-deployment.R')
 #' @import doParallel
 #' @importFrom R6 R6Class
 #' @import ranger
-#' @import RODBC
 #' @param type The type of model (either 'regression' or 'classification')
 #' @param df Dataframe whose columns are used for calc.
 #' @param grainCol The dataframe's column that has IDs pertaining to the grain
@@ -35,8 +34,6 @@ source('R/supervised-model-deployment.R')
 #'     
 #' @examples
 #' 
-#' \donttest{
-#' #### This example is specific to Windows and is not tested in CRAN.
 #' #### Regression example using diabetes data ####
 #' # This example requires you to first create a table in SQL Server
 #' # If you prefer to not use SAMD, execute this in SSMS to create output table:
@@ -47,10 +44,52 @@ source('R/supervised-model-deployment.R')
 #' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 #' # )
 #'
-#' # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
+#' #### Example using csv data ####
 #' ptm <- proc.time()
 #' library(healthcareai)
-#' library(RODBC)
+#'
+#' # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
+#' 
+#' # Can delete this line in your work
+#' csvfile <- system.file("extdata", 
+#'                        "HCRDiabetesClinical.csv", 
+#'                        package = "healthcareai")
+#'
+#' # Replace csvfile with 'path/file'
+#' df <- read.csv(file = csvfile, 
+#'                header = TRUE, 
+#'                na.strings = c("NULL", "NA", ""))
+#'
+#' head(df)
+#'
+#' # Remove unnecessary columns
+#' df$PatientID <- NULL
+#'
+#' p <- SupervisedModelDeploymentParams$new()
+#' p$type <- "regression"
+#' p$df <- df
+#' p$grainCol <- "PatientEncounterID"
+#' p$testWindowCol <- "InTestWindowFLG"
+#' p$predictedCol <- "A1CNBR"
+#' p$impute <- TRUE
+#' p$debug <- FALSE
+#' p$useSavedModel <- FALSE
+#' p$cores <- 1
+#' p$writeToDB <- FALSE
+#'
+#' dL <- LassoDeployment$new(p)
+#' dL$deploy()
+#' 
+#' df <- dL$getOutDf()
+#' # Write to CSV (or JSON, MySQL, etc) using plain R syntax
+#' # write.csv(df,'path/predictionsfile.csv')
+#' 
+#' print(proc.time() - ptm)
+#' 
+#' \donttest{
+#' #### Example using SQL Server data ####
+#' ptm <- proc.time()
+#' library(healthcareai)
 #'
 #' connection.string <- "
 #' driver={SQL Server};
@@ -61,7 +100,7 @@ source('R/supervised-model-deployment.R')
 #'
 #' query <- "
 #' SELECT
-#'  [PatientEncounterID] --Only need one ID column for lasso
+#'  [PatientEncounterID] --Only need one ID column for random forest
 #' ,[SystolicBPNBR]
 #' ,[LDLNBR]
 #' ,[A1CNBR]
@@ -77,7 +116,7 @@ source('R/supervised-model-deployment.R')
 #' head(df)
 #'
 #' # Remove unnecessary columns
-#' df$SomeColumn <- NULL
+#' df$PatientID <- NULL
 #'
 #' p <- SupervisedModelDeploymentParams$new()
 #' p$type <- "regression"
@@ -97,7 +136,6 @@ source('R/supervised-model-deployment.R')
 #'
 #' print(proc.time() - ptm)
 #' }
-#'
 #' @export
 
 LassoDeployment <- R6Class(
@@ -117,16 +155,15 @@ LassoDeployment <- R6Class(
   
     # functions
     connectDataSource = function() {
-      odbcCloseAll()
-      
+      RODBC::odbcCloseAll()
       if (isTRUE(self$params$writeToDB)) {
         # Convert the connection string into a real connection object.
-        self$params$sqlConn <- odbcDriverConnect(self$params$sqlConn)
+        self$params$sqlConn <- RODBC::odbcDriverConnect(self$params$sqlConn)
       }
     },
 
     closeDataSource = function() {
-      odbcCloseAll()
+      RODBC::odbcCloseAll()
     },
 
     fitGeneralizedLinearModel = function() {
@@ -233,7 +270,7 @@ LassoDeployment <- R6Class(
     },
 
     saveDataIntoDb = function() {
-      dtStamp <- as.POSIXlt(Sys.time(), "GMT")
+      dtStamp <- as.POSIXlt(Sys.time())
 
       # Combine grain.col, prediction, and time to be put back into SAM table
       private$outDf <- data.frame(
@@ -274,7 +311,7 @@ LassoDeployment <- R6Class(
 
       if (isTRUE(self$params$writeToDB)) {
         # Save df to table in SAM database
-        out <- sqlSave(
+        out <- RODBC::sqlSave(
           channel = self$params$sqlConn,
           dat = private$outDf,
           tablename = self$params$destSchemaTable,
