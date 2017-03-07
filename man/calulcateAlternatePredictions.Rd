@@ -53,4 +53,3 @@ outList
 \seealso{
 \code{\link{healthcareai}}
 }
-

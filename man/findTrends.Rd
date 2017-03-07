@@ -44,4 +44,3 @@ dfResult
 \seealso{
 \code{\link{healthcareai}}
 }
-

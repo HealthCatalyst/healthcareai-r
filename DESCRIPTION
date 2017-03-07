@@ -2,7 +2,7 @@ Package: healthcareai
 Type: Package
 Title: Tools for Healthcare Machine Learning
 Version: 0.1.11
-Date: 2017-02-09
+Date: 2017-03-06
 Authors@R: c(
     person("Levi", "Thatcher", email = "levi.thatcher@healthcatalyst.com", role = c("aut", "cre")),
     person("Mike", "Mastanduno", email = "mike.mastanduno@healthcatalyst.com", role = "aut"),
@@ -27,6 +27,6 @@ Imports:
     ranger,
     ROCR,
     RODBC
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 Suggests:
     testthat

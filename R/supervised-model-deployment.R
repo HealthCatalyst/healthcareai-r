@@ -97,6 +97,9 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
      if (!is.null(p$cores))
        self$params$cores <- p$cores
 
+     if (!is.null(p$writeToDB))
+       self$params$writeToDB <- p$writeToDB
+     
      if (!is.null(p$sqlConn))
        self$params$sqlConn <- p$sqlConn
 

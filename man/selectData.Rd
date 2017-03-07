@@ -24,7 +24,7 @@ a data frame.
 \examples{
 
 \donttest{
-#### This example is specific to Windows and is not tested. 
+#### This example is specific to Windows and is not tested on CRAN 
 connectionString <- '
   driver={SQL Server};
   server=localhost;
@@ -48,4 +48,3 @@ head(df)
 \seealso{
 \code{\link{healthcareai}}
 }
-

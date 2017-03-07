@@ -39,8 +39,6 @@ This step allows one to
 }
 \examples{
 
-\donttest{
-#### This example is specific to Windows and is not tested.
 #### Regression example using diabetes data ####
 # This example requires you to first create a table in SQL Server
 # If you prefer to not use SAMD, execute this in SSMS to create output table:
@@ -51,7 +49,50 @@ This step allows one to
 #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 # )
 
+#### Example using csv data ####
+ptm <- proc.time()
+library(healthcareai)
+
 # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
+
+# Can delete this line in your work
+csvfile <- system.file("extdata", 
+                       "HCRDiabetesClinical.csv", 
+                       package = "healthcareai")
+
+# Replace csvfile with 'path/file'
+df <- read.csv(file = csvfile, 
+               header = TRUE, 
+               na.strings = c("NULL", "NA", ""))
+
+head(df)
+
+# Remove unnecessary columns
+df$PatientID <- NULL
+
+p <- SupervisedModelDeploymentParams$new()
+p$type <- "regression"
+p$df <- df
+p$grainCol <- "PatientEncounterID"
+p$testWindowCol <- "InTestWindowFLG"
+p$predictedCol <- "A1CNBR"
+p$impute <- TRUE
+p$debug <- FALSE
+p$useSavedModel <- FALSE
+p$cores <- 1
+p$writeToDB <- FALSE
+
+dL <- LassoDeployment$new(p)
+dL$deploy()
+
+df <- dL$getOutDf()
+# Write to CSV (or JSON, MySQL, etc) using plain R syntax
+# write.csv(df,'path/predictionsfile.csv')
+
+print(proc.time() - ptm)
+
+\donttest{
+#### Example using SQL Server data ####
 ptm <- proc.time()
 library(healthcareai)
 
@@ -64,7 +105,7 @@ trusted_connection=true
 
 query <- "
 SELECT
- [PatientEncounterID] --Only need one ID column for lasso
+ [PatientEncounterID] --Only need one ID column for random forest
 ,[SystolicBPNBR]
 ,[LDLNBR]
 ,[A1CNBR]
@@ -80,7 +121,7 @@ df <- selectData(connection.string, query)
 head(df)
 
 # Remove unnecessary columns
-df$SomeColumn <- NULL
+df$PatientID <- NULL
 
 p <- SupervisedModelDeploymentParams$new()
 p$type <- "regression"
@@ -100,10 +141,8 @@ dL$deploy()
 
 print(proc.time() - ptm)
 }
-
 }
 \seealso{
 \code{\link{healthcareai}}
 }
 \keyword{datasets}
-

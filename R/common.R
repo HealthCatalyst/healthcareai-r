@@ -210,14 +210,13 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' @param randomize Boolean that dictates whether returned rows are randomized
 #' @return df A data frame containing the selected rows
 #'
-#' @import RODBC
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' 
 #' \donttest{
-#' #### This example is specific to Windows and is not tested. 
+#' #### This example is specific to Windows and is not tested on CRAN 
 #' connectionString <- '
 #'   driver={SQL Server};
 #'   server=localhost;
@@ -247,13 +246,15 @@ selectData <- function(connectionString, query, randomize = FALSE) {
   }
 
   # TODO: if debug: cat(connectionString)
-  cnxn <- odbcDriverConnect(connectionString)
+  cnxn <- RODBC::odbcDriverConnect(connectionString)
 
-  # TODO: if debug: cat(query) TODO: if debug: time this operation and print the
-  # time spent to pull data.
-  df <- sqlQuery(channel = cnxn, na.strings = c("NULL", "NA", ""), query = query)
+  # TODO: if debug: cat(query) 
+  # TODO: if debug: time this operation and print time spent to pull data.
+  df <- RODBC::sqlQuery(channel = cnxn, 
+                        na.strings = c("NULL", "NA", ""), 
+                        query = query)
 
-  odbcCloseAll()
+  RODBC::odbcCloseAll()
 
   # Make sure there are enough rows to actually do something useful.
   if (is.null(nrow(df))) {
@@ -281,7 +282,6 @@ selectData <- function(connectionString, query, randomize = FALSE) {
 #' table. Note that brackets aren't expected.
 #' @return Nothing
 #'
-#' @import RODBC
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
@@ -305,14 +305,14 @@ writeData <- function(df, server, database, schemaDotTable) {
                              database=", database, ";
                              trustedConnection=true")
 
-  sqlCnxn <- odbcDriverConnect(connectionString)
+  sqlCnxn <- RODBC::odbcDriverConnect(connectionString)
 
   # Save df to table in specified database
-  out <- sqlSave(channel = sqlCnxn, dat = df, tablename = schemaDotTable, append = T,
+  out <- RODBC::sqlSave(channel = sqlCnxn, dat = df, tablename = schemaDotTable, append = T,
                  rownames = F, colnames = F, safer = T, nastring = NULL)
 
   # Clean up.
-  odbcCloseAll()
+  RODBC::odbcCloseAll()
 
   if (out == 1) {
     print("SQL Server insert was successful")
@@ -1068,7 +1068,12 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
 #'                   plotFlg = TRUE,
 #'                   allCutoffsFlg = TRUE)
 #' 
-generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE, allCutoffsFlg=FALSE) {
+generateAUC <- function(predictions, 
+                        labels, 
+                        aucType='SS', 
+                        plotFlg=FALSE, 
+                        allCutoffsFlg=FALSE) {
+  
   # Error check for uneven length predictions and labels
   if (length(predictions) != length(labels)) {
     stop('Data vectors are not equal length!')
@@ -1086,7 +1091,6 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE, allCut
   pred = ROCR::prediction(predictions, labels)
   
   # get performance and AUC from either curve type
-  # PR
   if (aucType == 'PR') {
     perf <- ROCR::performance(pred, "prec", "rec")
     x <- as.numeric(unlist(perf@x.values))
@@ -1099,9 +1103,8 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE, allCut
     
     # print threshholds and AUC
     cat(sprintf("Area under the PR curve is: %0.2f \n", area))
-  }
-  # SS
-  else if (aucType == 'SS') {
+
+  } else if (aucType == 'SS') {
     perf <- ROCR::performance(pred, "tpr","fpr")
     perf.auc <- ROCR::performance(pred, measure = "auc")
     area <- perf.auc@y.values[[1]]
@@ -1133,7 +1136,9 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE, allCut
   }
   
   # get ideal cutoff values.
-  IdealCuts <- getCutOffs(perf = perf, aucType = aucType, allCutoffsFlg = allCutoffsFlg)
+  IdealCuts <- getCutOffs(perf = perf, 
+                          aucType = aucType, 
+                          allCutoffsFlg = allCutoffsFlg)
   
   return(list('AUC' = area, 'IdealCutoffs' = IdealCuts, 'Performance' = perf))
 }
