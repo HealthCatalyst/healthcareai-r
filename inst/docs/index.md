@@ -78,6 +78,13 @@ library(healthcareai)
 ```
 - If you like Jupyter notebooks, check out [step 1](https://github.com/HealthCatalystSLC/documentation/blob/master/notebooks/Example1.ipynb) and [step 2](https://github.com/HealthCatalystSLC/documentation/blob/master/notebooks/Example2.ipynb) in model building with healthcareai.
 
+## What's new?
+
+Since the CRAN 0.1.11 release, the following has been added to the bleeding edge version
+
+- Output nightly predictions to a dataframe for use with MySQL, Oracle, etc. See the csv example at ?RandomForestDeployment
+- Evaluate in-the-wild performance via AU_ROC and AU_PR scores. See more at ?generateAUC
+
 ## For issues
 
 - Double check that the code follows the examples in the built-in docs
