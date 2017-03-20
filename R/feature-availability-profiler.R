@@ -1,7 +1,3 @@
-df = data.frame(age=c(123,3,5,2,3,5,6,3,2,NA), thing=c(3,5,5,2, NA, NA, 123, 5,2,3), other=c(NA,NA,NA,NA,NA,NA,1,2,2))
-
-percentNullsInDateRange(df)
-
 featureAvailabilityProfiler = function(
   df,
   admitColumnName='AdmitDTS',
@@ -10,12 +6,12 @@ featureAvailabilityProfiler = function(
   showList=FALSE){
   
   # Error handling
-  if (df[[admitColumnName]].dtype != 'datetime64[ns]'){
-    stop('Admit Date column is not a date type')
-  }
-  if (df[[lastLoadColumnName]].dtype != 'datetime64[ns]'){
-    stop('Last Load Date column is not a date type')
-  }
+  # if (df[[admitColumnName]].dtype != 'datetime64[ns]'){
+  #   stop('Admit Date column is not a date type')
+  # }
+  # if (df[[lastLoadColumnName]].dtype != 'datetime64[ns]'){
+  #   stop('Last Load Date column is not a date type')
+  # }
   if (dim(df)[2] < 3){
     stop('Dataframe must be at least 3 columns')
   }
@@ -60,11 +56,11 @@ featureAvailabilityProfiler = function(
   # result.set_index('Age', inplace=True)
   cat('Age is the number of days since patient admission.')
   
-  if (showList is True){
+  if (showList){
     cat(result)
   }
   
-  if (showPlot is True){
+  if (showPlot){
     showPlot(plt, result, keyList)
   }
   
@@ -73,6 +69,17 @@ featureAvailabilityProfiler = function(
 
 percentNullsInDateRange = function(df, admitColumnName, featureColumnName, start=NULL, end=NULL, debug=FALSE){
   # Counts nulls in a given feature column within a date range of a given date column.
+  
+  # Error handling
+  if (missing(df)){
+    stop('Please specify a dataframe')
+  }
+  if (missing(admitColumnName)){
+    stop('Please specify an admit column name')
+  }
+  if (missing(featureColumnName)){
+    stop('Please specify a feature column name')
+  }
   
   if (!is.null(start) && !is.null(end)){
     # start and end dates exist, subset the dataframe
@@ -92,7 +99,9 @@ percentNullsInDateRange = function(df, admitColumnName, featureColumnName, start
   }
   
   percentNull = 100 * (missing/totalRows)
-  cat(featureColumnName, 'has', missing, 'nulls. (', percentNull, '%)\n')
+  if (debug){
+    cat(featureColumnName, 'has', missing, 'nulls. (', percentNull, '%)\n')
+  }
   return(percentNull)
 }
 
@@ -111,7 +120,7 @@ calculateDateRange = function(lastLoad, oldestAdmit){
 }
 
 showPlot = function(plt, result, keyList){
-  # plot nulls vs time.
+  # plot nulls for a list of columns over time.
   plt.plot(result)
   plt.plot(lw=2, linestyle='--')
   plt.xlabel('Days since Admission')
@@ -120,6 +129,3 @@ showPlot = function(plt, result, keyList){
   plt.legend(labels=keyList, loc="lower right")
   plt.show()
 }
-
-
-df = data.frame(age=c(123,3,5,2,3,5,6,3,2,NA), thing=c(3,5,5,2, NA, NA, 123, 5,2,3), other=c(NA,NA,NA,NA,NA,NA,1,2,2))
