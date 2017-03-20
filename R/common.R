@@ -1281,3 +1281,17 @@ getCutOffs = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
     return(c(cutoff, pre, rec)) # list of integers
   }
 }
+
+df = data.frame(list('a', 'b', 'c'), list(123, 123, 123))
+
+lastLoad = 100
+oldestAdmit = 44
+# get date range to count over
+dateSpread = lastLoad - oldestAdmit
+if dateSpread < 90:
+  endDate = dateSpread.days
+else:
+  endDate = 91
+dateRange = append(list(1/24, 2/24, 4/24, 8/24 ,12/24), list(range(1, endDate)))
+
+print(dateRange)

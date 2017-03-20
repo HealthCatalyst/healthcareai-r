@@ -71,16 +71,21 @@ featureAvailabilityProfiler = function(
   return(result)
 }
 
-percentNullsInDateRange = function(df, admitColumnName, featureColumnName, start=NULL, end=NULL){
-  # Counts nulls within a date range.
+percentNullsInDateRange = function(df, admitColumnName, featureColumnName, start=NULL, end=NULL, debug=FALSE){
+  # Counts nulls in a given feature column within a date range of a given date column.
   
   if (!is.null(start) && !is.null(end)){
     # start and end dates exist, subset the dataframe
     # TODO find out better way to do this subsetting in one step
-    subset = df[df[[admitColumnName]] <= end,]
-    subset = df[df[[admitColumnName]] >= start,]
+    subset = dplyr::filter(df, df[[admitColumnName]] >= end & df[[admitColumnName]] <= end)
     missing = sum(is.na(subset[,featureColumnName]))
     totalRows = dim(subset)[1]
+    
+    if (debug){
+      print('subset after filtering dates')
+      print(subset)
+      cat('totalRows:', totalRows, '\n')
+    }
   } else {
     missing = sum(is.na(df[,featureColumnName]))
     totalRows = dim(df)[1]
