@@ -17,9 +17,17 @@ sample_dataframe_with_dates = function(){
   df[9, 'AdmitDTS']     = ('2017-02-10 00:00:00')
   df[10, 'AdmitDTS']    = ('2017-02-10 00:00:00')
 
-  # TODO this might be backwards bad data for the test
-  df['LastLoadDTS']     = ('2017-01-19 00:00:00')
-  df[1, 'LastLoadDTS']  = ('2017-02-19 00:00:00')
+  df['LastLoadDTS']        = ('2017-02-10 00:00:00')
+  df[1, 'LastLoadDTS']     = ('2017-02-10 00:00:00')
+  df[2, 'LastLoadDTS']     = ('2017-02-10 00:00:00')
+  df[3, 'LastLoadDTS']     = ('2017-02-10 00:00:00')
+  df[4, 'LastLoadDTS']     = ('2017-02-10 00:00:00')
+  df[5, 'LastLoadDTS']     = ('2017-02-10 00:00:00')
+  df[6, 'LastLoadDTS']     = ('2017-02-10 00:00:00')
+  df[7, 'LastLoadDTS']     = ('2017-02-10 00:00:00')
+  df[8, 'LastLoadDTS']     = ('2017-02-10 00:00:00')
+  df[9, 'LastLoadDTS']     = ('2017-02-10 00:00:00')
+  df[10, 'LastLoadDTS']    = ('2017-02-10 00:00:00')
 
   return(df)
 }
