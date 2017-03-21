@@ -3,65 +3,74 @@ featureAvailabilityProfiler = function(
   admitColumnName='AdmitDTS',
   lastLoadColumnName='LastLoadDTS',
   showPlot=TRUE,
-  showList=FALSE){
+  debug=TRUE){
   
   # Error handling
-  # if (df[[admitColumnName]].dtype != 'datetime64[ns]'){
-  #   stop('Admit Date column is not a date type')
-  # }
-  # if (df[[lastLoadColumnName]].dtype != 'datetime64[ns]'){
-  #   stop('Last Load Date column is not a date type')
-  # }
+  if (missing(df)){
+    stop('Please specify a dataframe')
+  }
   if (dim(df)[2] < 3){
     stop('Dataframe must be at least 3 columns')
   }
+  if (class(df[[admitColumnName]]) != 'Date'){
+    stop('Admit Date column is not a date type')
+  }
+  if (class(df[[lastLoadColumnName]]) != 'Date'){
+    stop('Last Load Date column is not a date type')
+  }
   
-  # Look at data that's been pulled in
-  cat(head(df))
-  cat('Loaded ', dim(df)[1], ' rows and ', dim(df)[2], ' columns')
-  
-  # Get most recent date
   lastLoad = max(df[,lastLoadColumnName])
-  
-  cat('Data was last loaded on ', str(lastLoad), ' (from', admitColumnName, ')')
   oldestAdmit = min(df[[admitColumnName]])
-  cat('Oldest data is from ', str(oldestAdmit), ' (from', admitColumnName, ')')
   
-  # get key list to count
+  if (debug){
+    print('Here is a sample of your dataframe:')
+    print(head(df))
+    cat('Loaded ', dim(df)[1], ' rows and ', dim(df)[2], ' columns\n')
+    cat('Data was last loaded on: ', lastLoad, ' (from', lastLoadColumnName, ')\n')
+    cat('Oldest data is from ', oldestAdmit, ' (from', admitColumnName, ')\n')
+  }
+  
+
   result = list(Age=list())
   
-  cat('Column names to count:')
-  keyList = list()
+  # get key list to count
+  targetColumns = vector()
   for(column in names(df)){
+    # exclude the two date columns 
     if(!column %in% c(lastLoadColumnName, admitColumnName)){
-      append(keyList, column)
+      # 
+      targetColumns = append(targetColumns, column)
       # create a container for final null counts
       result[[column]] = list()
     }
   }
   
+  if (debug){
+    print('Columns that will be assessed for nulls')
+    print(targetColumns)
+  }
+
   # For each time period
+  counter = 0
   for(i in calculateDateRange(lastLoad, oldestAdmit)){
-    start = lastLoad - timedelta(days=i)
+    # subtract the fraction of the date range
+    start = lastLoad - ddays(i)
     
-    append(result[['Age']], i)
+    result[['Age']] = append(result[['Age']], i)
     
-    # Count the nulls in each column
-    for(key in keyList){
-      append(result[[key]], percentNullsInDateRange(df, start, lastLoad, admitColumnName))}
+    # Calculate the null percentage in each column
+    for(key in targetColumns){
+      tempNullPercentage = percentNullsInDateRange(df, admitColumnName=admitColumnName, featureColumnName=key, start=start, end=lastLoad)
+      result[[key]] = append(result[[key]], tempNullPercentage)
+    }
+    counter = counter + 1
+    print(counter)
   }
   
   result[['Age']] = lapply(result[['Age']], round, 1)
   
-  # result.set_index('Age', inplace=True)
-  cat('Age is the number of days since patient admission.')
-  
-  if (showList){
-    cat(result)
-  }
-  
   if (showPlot){
-    showPlot(plt, result, keyList)
+    showPlot(result, targetColumns)
   }
   
   return(result)
@@ -85,7 +94,7 @@ percentNullsInDateRange = function(df, admitColumnName, featureColumnName, start
     # start and end dates exist, subset the dataframe
     # TODO find out better way to do this subsetting in one step
     subset = dplyr::filter(df, df[[admitColumnName]] >= end & df[[admitColumnName]] <= end)
-    missing = sum(is.na(subset[,featureColumnName]))
+    missingThings = sum(is.na(subset[,featureColumnName]))
     totalRows = dim(subset)[1]
     
     if (debug){
@@ -94,23 +103,27 @@ percentNullsInDateRange = function(df, admitColumnName, featureColumnName, start
       cat('totalRows:', totalRows, '\n')
     }
   } else {
-    missing = sum(is.na(df[,featureColumnName]))
+    if (debug){
+      print('No date range specified. Counting nulls in entire range.')
+    }
+    missingThings = sum(is.na(df[,featureColumnName]))
     totalRows = dim(df)[1]
   }
   
-  percentNull = 100 * (missing/totalRows)
+  percentNull = 100 * (missingThings/totalRows)
   if (debug){
     cat(featureColumnName, 'has', missing, 'nulls. (', percentNull, '%)\n')
   }
+
   return(percentNull)
 }
 
 calculateDateRange = function(lastLoad, oldestAdmit){
   # get date range to count over
-  dateSpread = lastLoad - oldestAdmit
+  dateSpread = as.double(difftime(lastLoad, oldestAdmit, units='days'))
   
-  if (dateSpread.days < 90){
-    endDate = dateSpread.days
+  if (dateSpread < 90){
+    endDate = dateSpread
   } else {
     endDate = 91
   }
@@ -119,13 +132,22 @@ calculateDateRange = function(lastLoad, oldestAdmit){
   return(dateRange)
 }
 
-showPlot = function(plt, result, keyList){
+showPlot = function(result, keyList){
   # plot nulls for a list of columns over time.
-  plt.plot(result)
-  plt.plot(lw=2, linestyle='--')
-  plt.xlabel('Days since Admission')
-  plt.ylabel('Populated Values (%)')
-  plt.title('Feature Availability Over Time')
-  plt.legend(labels=keyList, loc="lower right")
-  plt.show()
+
+  # TODO Needs to be ported to R
+  x = result[1]
+  y = result[2]
+  print('x: ')
+  print(x)
+  print('y: ')
+  print(y)
+  plot(x, y, main='Feature Availability Over Time')
+  # plt.plot(result)
+  # plt.plot(lw=2, linestyle='--')
+  # plt.xlabel('Days since Admission')
+  # plt.ylabel('Populated Values (%)')
+  # plt.title()
+  # plt.legend(labels=keyList, loc="lower right")
+  # plt.show()
 }
