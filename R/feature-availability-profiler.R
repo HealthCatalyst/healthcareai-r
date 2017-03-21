@@ -4,23 +4,14 @@ featureAvailabilityProfiler = function(
   lastLoadColumnName='LastLoadDTS',
   showPlot=TRUE,
   debug=TRUE){
-  
+
   # Error handling
-  if (missing(df)){
-    stop('Please specify a dataframe')
-  }
-  if (dim(df)[2] < 3){
-    stop('Dataframe must be at least 3 columns')
-  }
-  if (class(df[[admitColumnName]]) != 'Date'){
-    stop('Admit Date column is not a date type')
-  }
-  if (class(df[[lastLoadColumnName]]) != 'Date'){
-    stop('Last Load Date column is not a date type')
-  }
-  
+  profilerErrorHandling(df, admitColumnName, lastLoadColumnName)
+
+  # Calculate some dates  
   lastLoad = max(df[,lastLoadColumnName])
   oldestAdmit = min(df[[admitColumnName]])
+  df$hoursSinceAdmit = hoursSinceAdmit(df[[lastLoadColumnName]], df[[admitColumnName]])
   
   if (debug){
     print('Here is a sample of your dataframe:')
@@ -50,9 +41,24 @@ featureAvailabilityProfiler = function(
     print(targetColumns)
   }
 
-  # For each time period
+  # For each time bin
   counter = 0
   for(i in calculateDateRange(lastLoad, oldestAdmit)){
+    # [x] 1. subtract "now" from admit date
+    # [x] 2. change this to hours and
+    # [ ] 3. round it (to fake binning)
+    # [ ] 4. for each bin
+      # [ ] 5. for each column
+    # [ ] relate this integer to i relative
+
+    tempSubset = dplyr::filter(df, df[[admitColumnName]] >= i)
+    print('i:')
+    print(i)
+    tempSubset = df[df[[admitColumnName]] == i,]
+    print('tempSubset')
+    print(tempSubset)
+
+
     # subtract the fraction of the date range
     start = lastLoad - ddays(i)
     
@@ -60,7 +66,7 @@ featureAvailabilityProfiler = function(
     
     # Calculate the null percentage in each column
     for(key in targetColumns){
-      tempNullPercentage = percentNullsInDateRange(df, admitColumnName=admitColumnName, featureColumnName=key, start=start, end=lastLoad)
+      tempNullPercentage = percentNullsInDateRange(tempSubset, admitColumnName=admitColumnName, featureColumnName=key, start=start, end=lastLoad)
       result[[key]] = append(result[[key]], tempNullPercentage)
     }
     counter = counter + 1
@@ -74,6 +80,20 @@ featureAvailabilityProfiler = function(
   }
   
   return(result)
+}
+
+hoursSinceAdmit = function(admitTimestamp, currentTime){
+  # Given two dates in either YMD HMS string format or POSIXct, returns the difference in hours as a decimal number
+  if (class(admitTimestamp) != 'POSIXct'){
+    admitTimestamp = ymd_hms(admitTimestamp)
+  }
+  if (class(currentTime) != 'POSIXct'){
+    currentTime = ymd_hms(currentTime)
+  }
+  
+  delta = difftime(currentTime, admitTimestamp, units='hours')
+
+  return(as.numeric(delta))
 }
 
 percentNullsInDateRange = function(df, admitColumnName, featureColumnName, start=NULL, end=NULL, debug=FALSE){
@@ -150,4 +170,33 @@ showPlot = function(result, keyList){
   # plt.title()
   # plt.legend(labels=keyList, loc="lower right")
   # plt.show()
+}
+
+profilerErrorHandling = function(df, admitColumnName, lastLoadColumnName){
+  # Make sure that it's a dataframe
+  if (missing(df) || class(df) != 'data.frame' ){
+    stop('Please specify a dataframe')
+  }
+  # With at least 3 columns
+  if (dim(df)[2] < 3){
+    stop('Dataframe must be at least 3 columns')
+  }
+
+  # If not already dates, try to parse them as such
+  if (class(df[[admitColumnName]]) != 'POSIXct'){
+    tryCatch({
+      df[[admitColumnName]] = ymd_hms(df[[admitColumnName]])
+      }, warning = function(w){
+        stop('Admit Date column is not a date type, or could not be parsed into one')
+      }
+    )
+  }
+  if (class(df[[lastLoadColumnName]]) != 'POSIXct'){
+    tryCatch({
+      df[[lastLoadColumnName]] = ymd_hms(df[[lastLoadColumnName]])
+      }, warning = function(w){
+        stop('Last Load Date column is not a date type, or could not be parsed into one')
+      }      
+    )
+  }
 }
