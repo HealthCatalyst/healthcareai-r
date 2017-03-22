@@ -1,3 +1,5 @@
+require(lubridate)
+
 featureAvailabilityProfiler = function(
   df,
   admitColumnName='AdmitDTS',
@@ -8,75 +10,63 @@ featureAvailabilityProfiler = function(
   # Error handling
   profilerErrorHandling(df, admitColumnName, lastLoadColumnName)
 
-  # Calculate some dates  
-  lastLoad = max(df[,lastLoadColumnName])
-  oldestAdmit = min(df[[admitColumnName]])
+
+  # Create a few derived columns based on the hours since admit
   df$hoursSinceAdmit = hoursSinceAdmit(df[[lastLoadColumnName]], df[[admitColumnName]])
+  df$hoursSinceAdmitRounded = round(df$hoursSinceAdmit)
+  
+  # Calculate dates and times
+  lastLoad = max(df[,lastLoadColumnName])
+  oldestAdmitHours = max(df[[hoursSinceAdmitRounded]])
+  
+  # Get the list of feature columns
+  excludedColumnNames = c(lastLoadColumnName, admitColumnName, 'hoursSinceAdmit', 'hoursSinceAdmitRounded')
+  featureColumns = findfeatureColumns(df, excludedColumnNames)
   
   if (debug){
     print('Here is a sample of your dataframe:')
     print(head(df))
     cat('Loaded ', dim(df)[1], ' rows and ', dim(df)[2], ' columns\n')
     cat('Data was last loaded on: ', lastLoad, ' (from', lastLoadColumnName, ')\n')
-    cat('Oldest data is from ', oldestAdmit, ' (from', admitColumnName, ')\n')
-  }
-  
-
-  result = list(Age=list())
-  
-  # get key list to count
-  targetColumns = vector()
-  for(column in names(df)){
-    # exclude the two date columns 
-    if(!column %in% c(lastLoadColumnName, admitColumnName)){
-      # 
-      targetColumns = append(targetColumns, column)
-      # create a container for final null counts
-      result[[column]] = list()
-    }
-  }
-  
-  if (debug){
+    cat('Oldest data is from ', oldestAdmitHours, ' (from', admitColumnName, ')\n')
     print('Columns that will be assessed for nulls')
-    print(targetColumns)
+    print(featureColumns)
+  }
+
+  # Initialize the result list with each target column
+  result = list(hoursSinceAdmitRounded=c())
+  for(columnName in featureColumns){
+      result[[columnName]] = list()
   }
 
   # For each time bin
-  counter = 0
-  for(i in calculateDateRange(lastLoad, oldestAdmit)){
+  for(i in calculateHourBins(oldestAdmitHours)){
+    # TODO
     # [x] 1. subtract "now" from admit date
     # [x] 2. change this to hours and
-    # [ ] 3. round it (to fake binning)
-    # [ ] 4. for each bin
-      # [ ] 5. for each column
-    # [ ] relate this integer to i relative
+    # [x] 3. round it (to fake binning)
+    # [x] 4. for each bin
+      # [x] 5. for each column
+    # [x] relate this integer to i relative
+    # [ ] rework the start/end range in since there can be fractional
 
-    tempSubset = dplyr::filter(df, df[[admitColumnName]] >= i)
-    print('i:')
-    print(i)
-    tempSubset = df[df[[admitColumnName]] == i,]
-    print('tempSubset')
-    print(tempSubset)
+    # filter the resultset so you don't need to use the start/end feature of percentNullsInDateRange
+    tempSubset = dplyr::filter(df, df$hoursSinceAdmitRounded == i)
 
-
-    # subtract the fraction of the date range
-    start = lastLoad - ddays(i)
-    
-    result[['Age']] = append(result[['Age']], i)
+    result$hoursSinceAdmitRounded = append(result$hoursSinceAdmitRounded, i)
     
     # Calculate the null percentage in each column
-    for(key in targetColumns){
-      tempNullPercentage = percentNullsInDateRange(tempSubset, admitColumnName=admitColumnName, featureColumnName=key, start=start, end=lastLoad)
-      result[[key]] = append(result[[key]], tempNullPercentage)
+    for(columnName in featureColumns){
+      tempNullPercentage = percentNullsInDateRange(tempSubset, admitColumnName='hoursSinceAdmitRounded', featureColumnName=columnName)
+      result[[columnName]] = append(result[[columnName]], tempNullPercentage)
     }
-    counter = counter + 1
-    print(counter)
   }
   
-  result[['Age']] = lapply(result[['Age']], round, 1)
+  # TODO probably not needed
+  # result[['hoursSinceAdmitRounded']] = lapply(result[['hoursSinceAdmitRounded']], round, 1)
   
   if (showPlot){
-    showPlot(result, targetColumns)
+    showPlot(result, featureColumns)
   }
   
   return(result)
@@ -96,8 +86,15 @@ hoursSinceAdmit = function(admitTimestamp, currentTime){
   return(as.numeric(delta))
 }
 
-percentNullsInDateRange = function(df, admitColumnName, featureColumnName, start=NULL, end=NULL, debug=FALSE){
+percentDataAvailableInDateRange = function(df, admitColumnName, featureColumnName, startInclusive=NULL, endExclusive=NULL, debug=FALSE){
+  # Counts non-nulls (features actually populated) in a given feature column within a date range of a given date column.
+  nullPercentage = percentNullsInDateRange(df, admitColumnName, featureColumnName, startInclusive=NULL, endExclusive=NULL, debug=FALSE)
+  return(100 - nullPercentage)
+}
+
+percentNullsInDateRange = function(df, admitColumnName, featureColumnName, startInclusive=NULL, endExclusive=NULL, debug=FALSE){
   # Counts nulls in a given feature column within a date range of a given date column.
+  # Inclusive on start and Excusive on end
   
   # Error handling
   if (missing(df)){
@@ -110,12 +107,9 @@ percentNullsInDateRange = function(df, admitColumnName, featureColumnName, start
     stop('Please specify a feature column name')
   }
   
-  if (!is.null(start) && !is.null(end)){
-    # start and end dates exist, subset the dataframe
-    # TODO find out better way to do this subsetting in one step
-    subset = dplyr::filter(df, df[[admitColumnName]] >= end & df[[admitColumnName]] <= end)
-    missingThings = sum(is.na(subset[,featureColumnName]))
-    totalRows = dim(subset)[1]
+  if (!is.null(startInclusive) && !is.null(endExclusive)){
+    # start and end dates exist, filter the dataframe
+    subset = dplyr::filter(df, df[[admitColumnName]] >= startInclusive & df[[admitColumnName]] < endExclusive)
     
     if (debug){
       print('subset after filtering dates')
@@ -126,11 +120,15 @@ percentNullsInDateRange = function(df, admitColumnName, featureColumnName, start
     if (debug){
       print('No date range specified. Counting nulls in entire range.')
     }
-    missingThings = sum(is.na(df[,featureColumnName]))
-    totalRows = dim(df)[1]
+    subset = df
   }
+
+  # Count the nulls in the filtered dataframe
+  missingThings = sum(is.na(subset[,featureColumnName]))
+  totalRows = dim(subset)[1]
   
   percentNull = 100 * (missingThings/totalRows)
+  
   if (debug){
     cat(featureColumnName, 'has', missing, 'nulls. (', percentNull, '%)\n')
   }
@@ -138,18 +136,25 @@ percentNullsInDateRange = function(df, admitColumnName, featureColumnName, start
   return(percentNull)
 }
 
-calculateDateRange = function(lastLoad, oldestAdmit){
-  # get date range to count over
-  dateSpread = as.double(difftime(lastLoad, oldestAdmit, units='days'))
-  
-  if (dateSpread < 90){
-    endDate = dateSpread
+calculateHourBins = function(oldestAdmitHours){
+  # Given a number of hours, returns a vector of time bins in hours that the first day is divided into a few bins
+  # and subsequent days are divided into 24 hour bins up to 90 days worth
+  ninetyDaysWorthOfHours = 90 * 24
+
+  if (oldestAdmitHours > ninetyDaysWorthOfHours){
+    endHours = ninetyDaysWorthOfHours
   } else {
-    endDate = 91
+    endHours = oldestAdmitHours
   }
   
-  dateRange = append(list(1/24, 2/24, 4/24, 8/24 ,12/24), list(range(1, endDate)))
-  return(dateRange)
+  # For the first day we are interested in hours 1, 2, 3, 4, 6, 8, 12
+  firstDay = c(1/24, 2/24, 3/24, 4/24, 6/24, 8/24, 12/24)
+
+  # After the first full day we only want daily bins (every 24 hours)
+  wholeDays = seq(24, endHours, 24)
+  
+  timeBins = append(firstDay, wholeDays)
+  return(timeBins)
 }
 
 showPlot = function(result, keyList){
@@ -199,4 +204,12 @@ profilerErrorHandling = function(df, admitColumnName, lastLoadColumnName){
       }      
     )
   }
+}
+
+findfeatureColumns = function(df, exclusions){
+  allColumnNames = names(df)
+  # exclude the two date columns and the derived hours columns
+  targetColumns = allColumnNames[-which(allColumnNames %in% exclusions)]
+
+  return(targetColumns)
 }

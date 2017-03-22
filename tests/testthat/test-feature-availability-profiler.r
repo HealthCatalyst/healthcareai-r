@@ -17,17 +17,17 @@ sample_dataframe_with_dates = function(){
   df[9, 'AdmitDTS']     = ('2017-02-10 00:00:00')
   df[10, 'AdmitDTS']    = ('2017-02-10 00:00:00')
 
-  df['LastLoadDTS']        = ('2017-02-10 00:00:00')
-  df[1, 'LastLoadDTS']     = ('2017-02-10 00:00:00')
-  df[2, 'LastLoadDTS']     = ('2017-02-10 00:00:00')
-  df[3, 'LastLoadDTS']     = ('2017-02-10 00:00:00')
-  df[4, 'LastLoadDTS']     = ('2017-02-10 00:00:00')
-  df[5, 'LastLoadDTS']     = ('2017-02-10 00:00:00')
-  df[6, 'LastLoadDTS']     = ('2017-02-10 00:00:00')
-  df[7, 'LastLoadDTS']     = ('2017-02-10 00:00:00')
-  df[8, 'LastLoadDTS']     = ('2017-02-10 00:00:00')
-  df[9, 'LastLoadDTS']     = ('2017-02-10 00:00:00')
-  df[10, 'LastLoadDTS']    = ('2017-02-10 00:00:00')
+  df['LastLoadDTS']     = ('2017-02-10 00:00:00')
+  df[1, 'LastLoadDTS']  = ('2017-02-10 00:00:00')
+  df[2, 'LastLoadDTS']  = ('2017-02-10 00:00:00')
+  df[3, 'LastLoadDTS']  = ('2017-02-10 00:00:00')
+  df[4, 'LastLoadDTS']  = ('2017-02-10 00:00:00')
+  df[5, 'LastLoadDTS']  = ('2017-02-10 00:00:00')
+  df[6, 'LastLoadDTS']  = ('2017-02-10 00:00:00')
+  df[7, 'LastLoadDTS']  = ('2017-02-10 00:00:00')
+  df[8, 'LastLoadDTS']  = ('2017-02-10 00:00:00')
+  df[9, 'LastLoadDTS']  = ('2017-02-10 00:00:00')
+  df[10, 'LastLoadDTS'] = ('2017-02-10 00:00:00')
 
   return(df)
 }
@@ -54,25 +54,16 @@ test_that("percentNullsInDateRange works with a range", {
 
   result = percentNullsInDateRange(df, 'something', 'thing', 3, 5)
   expect_that(result, is_a('numeric'))
-  expect_equal(result, 50)
+  expect_equal(round(result), 33)
 })
 
 test_that("percentNullsInDateRange works with a range that includes 0 records after filtering", {
   # Sample dataframe
   df = sample_dataframe_without_dates()
 
-  result = percentNullsInDateRange(df, 'something', 'thing', 2, 2)
-  expect_that(result, is_a('numeric'))
-  expect_equal(result, 0)
-})
-
-test_that("percentNullsInDateRange works with a range that includes some records after filtering", {
-  # Sample dataframe
-  df = sample_dataframe_without_dates()
-
   result = percentNullsInDateRange(df, 'something', 'thing', 2, 3)
   expect_that(result, is_a('numeric'))
-  expect_equal(result, 33.333333333)
+  expect_equal(result, 0)
 })
 
 test_that("percentNullsInDateRange throws errors on missing required arguments", {
@@ -135,6 +126,41 @@ test_that('hoursSinceAdmit works on lubradate parsed dates', {
   expect_equal(result24, 24)
 })
 
+# ****************************************** findfeatureColumns ******************************************
+
+test_that('findfeatureColumns returns a list of feature columns with exclusions', {
+  df = sample_dataframe_with_dates()
+
+  result = findfeatureColumns(df, exclusions)
+
+  expect_equal(result, c('something', 'thing', 'other'))
+})
+
+# ****************************************** calculateHourBins ******************************************
+
+test_that('calculateHourBins returns a list of time bins at 24 hours', {
+  result = calculateHourBins(24)
+  expected =  c(1/24, 2/24, 3/24, 4/24, 6/24, 8/24, 12/24, 24)
+  expect_that(result, is_a('numeric'))
+  expect_equal(result, expected)
+})
+
+test_that('calculateHourBins returns a list of time bins less than 90 days', {
+  result = calculateHourBins(48)
+  expected =  c(1/24, 2/24, 3/24, 4/24, 6/24, 8/24, 12/24, 24, 48)
+  expect_that(result, is_a('numeric'))
+  expect_equal(result, expected)
+})
+
+test_that('calculateHourBins returns a list of time bins more than 90 days', {
+  result = calculateHourBins(100*24)
+  firstDay =  c(1/24, 2/24, 3/24, 4/24, 6/24, 8/24, 12/24)
+  ninetyDays = seq(24, 90*24, 24)
+  expected = append(firstDay, ninetyDays)
+  expect_that(result, is_a('numeric'))
+  expect_equal(result, expected)
+})
+
 # ****************************************** featureAvailabilityProfiler ******************************************
 
 test_that('featureAvailabilityProfiler throws errors on missing dataframe', {
@@ -146,7 +172,7 @@ test_that('featureAvailabilityProfiler throws errors on non dataframe', {
 })
 
 test_that('featureAvailabilityProfiler throws error on a dataframe with too few columns', {
-  df = data.frame(age=c(123,3,5,2,3,5,6,3,2,NA), other=c(NA,NA,NA,NA,NA,NA,1,2,3,4))
+  df = data.frame(age=c(123, 3, 5, 2, 3, 5, 6, 3, 2, NA), other=c(NA, NA, NA, NA, NA, NA, 1, 2, 3, 4))
   
   expect_that(featureAvailabilityProfiler(df), throws_error('Dataframe must be at least 3 columns'))
 })
