@@ -57,7 +57,7 @@ install.packages('healthcareai')
 * Follow steps 1 and 2 [here](https://www.digitalocean.com/community/tutorials/how-to-set-up-r-on-ubuntu-14-04) to install R
 * Run `sudo apt-get install libiodbc2-dev`
 * Run `sudo apt-get install r-cran-rodbc`
-* Run `install.packages('healthcareai')`
+* After typing `R` run `install.packages('healthcareai')`
 
 ## Install the bleeding edge version (for folks providing contributions)
 
