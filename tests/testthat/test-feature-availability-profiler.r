@@ -4,8 +4,12 @@ context("Testing Feature Availability Profiler\n")
 # ****************************************** Helpers ******************************************
 
 sample_dataframe_with_dates = function(){
-  df = data.frame(something=c(100,3,5,2,3,5,6,3,2,NA), thing=c(3,5,5,2, NA, NA, 123, 5,2,3), other=c(NA,NA,NA,NA,NA,NA,1,2,3,4))
-  df['AdmitDTS']        = ('2017-03-20 00:00:00')
+  df = data.frame(
+    something=c(100, 3, 5, 2, 3, 5, 6, 3, 2, NA),
+    thing=c(3, 5, 5, 2, NA, NA, 123, 5, 2, 3),
+    other=c(NA, NA, NA, NA, NA, NA, 1, 2, 3, 4)
+  )
+
   df[1, 'AdmitDTS']     = ('2017-02-01 00:00:00')
   df[2, 'AdmitDTS']     = ('2017-02-02 00:00:00')
   df[3, 'AdmitDTS']     = ('2017-02-02 00:00:00')
@@ -15,19 +19,18 @@ sample_dataframe_with_dates = function(){
   df[7, 'AdmitDTS']     = ('2017-02-06 00:00:00')
   df[8, 'AdmitDTS']     = ('2017-02-10 00:00:00')
   df[9, 'AdmitDTS']     = ('2017-02-10 00:00:00')
-  df[10, 'AdmitDTS']    = ('2017-02-10 00:00:00')
+  df[10, 'AdmitDTS']    = ('2017-02-10 00:30:00')
 
-  df['LastLoadDTS']     = ('2017-02-10 00:00:00')
-  df[1, 'LastLoadDTS']  = ('2017-02-10 00:00:00')
-  df[2, 'LastLoadDTS']  = ('2017-02-10 00:00:00')
-  df[3, 'LastLoadDTS']  = ('2017-02-10 00:00:00')
-  df[4, 'LastLoadDTS']  = ('2017-02-10 00:00:00')
-  df[5, 'LastLoadDTS']  = ('2017-02-10 00:00:00')
-  df[6, 'LastLoadDTS']  = ('2017-02-10 00:00:00')
-  df[7, 'LastLoadDTS']  = ('2017-02-10 00:00:00')
-  df[8, 'LastLoadDTS']  = ('2017-02-10 00:00:00')
-  df[9, 'LastLoadDTS']  = ('2017-02-10 00:00:00')
-  df[10, 'LastLoadDTS'] = ('2017-02-10 00:00:00')
+  df[1, 'LastLoadDTS']  = ('2017-02-10 01:00:00')
+  df[2, 'LastLoadDTS']  = ('2017-02-10 01:00:00')
+  df[3, 'LastLoadDTS']  = ('2017-02-10 01:00:00')
+  df[4, 'LastLoadDTS']  = ('2017-02-10 01:00:00')
+  df[5, 'LastLoadDTS']  = ('2017-02-10 01:00:00')
+  df[6, 'LastLoadDTS']  = ('2017-02-10 01:00:00')
+  df[7, 'LastLoadDTS']  = ('2017-02-10 01:00:00')
+  df[8, 'LastLoadDTS']  = ('2017-02-10 01:00:00')
+  df[9, 'LastLoadDTS']  = ('2017-02-10 01:00:00')
+  df[10, 'LastLoadDTS'] = ('2017-02-10 01:00:00')
 
   return(df)
 }
@@ -130,7 +133,7 @@ test_that('hoursSinceAdmit works on lubradate parsed dates', {
 
 test_that('findfeatureColumns returns a list of feature columns with exclusions', {
   df = sample_dataframe_with_dates()
-
+  exclusions = c('AdmitDTS', 'LastLoadDTS')
   result = findfeatureColumns(df, exclusions)
 
   expect_equal(result, c('something', 'thing', 'other'))
@@ -140,21 +143,21 @@ test_that('findfeatureColumns returns a list of feature columns with exclusions'
 
 test_that('calculateHourBins returns a list of time bins at 24 hours', {
   result = calculateHourBins(24)
-  expected =  c(1/24, 2/24, 3/24, 4/24, 6/24, 8/24, 12/24, 24)
+  expected =  c(0, 1/24, 2/24, 3/24, 4/24, 6/24, 8/24, 12/24, 24)
   expect_that(result, is_a('numeric'))
   expect_equal(result, expected)
 })
 
 test_that('calculateHourBins returns a list of time bins less than 90 days', {
   result = calculateHourBins(48)
-  expected =  c(1/24, 2/24, 3/24, 4/24, 6/24, 8/24, 12/24, 24, 48)
+  expected =  c(0, 1/24, 2/24, 3/24, 4/24, 6/24, 8/24, 12/24, 24, 48)
   expect_that(result, is_a('numeric'))
   expect_equal(result, expected)
 })
 
 test_that('calculateHourBins returns a list of time bins more than 90 days', {
   result = calculateHourBins(100*24)
-  firstDay =  c(1/24, 2/24, 3/24, 4/24, 6/24, 8/24, 12/24)
+  firstDay =  c(0, 1/24, 2/24, 3/24, 4/24, 6/24, 8/24, 12/24)
   ninetyDays = seq(24, 90*24, 24)
   expected = append(firstDay, ninetyDays)
   expect_that(result, is_a('numeric'))

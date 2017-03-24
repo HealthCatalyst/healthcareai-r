@@ -1,4 +1,4 @@
-require(lubridate)
+library(lubridate)
 
 featureAvailabilityProfiler = function(
   df,
@@ -12,17 +12,17 @@ featureAvailabilityProfiler = function(
 
 
   # Create a few derived columns based on the hours since admit
-  df$hoursSinceAdmit = hoursSinceAdmit(df[[lastLoadColumnName]], df[[admitColumnName]])
+  df$hoursSinceAdmit = hoursSinceAdmit(df[[admitColumnName]], df[[lastLoadColumnName]])
   df$hoursSinceAdmitRounded = round(df$hoursSinceAdmit)
   
   # Calculate dates and times
   lastLoad = max(df[,lastLoadColumnName])
-  oldestAdmitHours = max(df[[hoursSinceAdmitRounded]])
+  oldestAdmitHours = max(df$hoursSinceAdmitRounded)
   
-  # Get the list of feature columns
+  # Get the list of feature columns excluding the two date columns and the derived hours columns
   excludedColumnNames = c(lastLoadColumnName, admitColumnName, 'hoursSinceAdmit', 'hoursSinceAdmitRounded')
   featureColumns = findfeatureColumns(df, excludedColumnNames)
-  
+
   if (debug){
     print('Here is a sample of your dataframe:')
     print(head(df))
@@ -33,14 +33,13 @@ featureAvailabilityProfiler = function(
     print(featureColumns)
   }
 
-  # Initialize the result list with each target column
-  result = list(hoursSinceAdmitRounded=c())
-  for(columnName in featureColumns){
-      result[[columnName]] = list()
-  }
+  # Initialize the result list
+  result = list()
 
   # For each time bin
-  for(i in calculateHourBins(oldestAdmitHours)){
+  hourBins = calculateHourBins(oldestAdmitHours)
+
+  for(i in seq(1, length(hourBins))){
     # TODO
     # [x] 1. subtract "now" from admit date
     # [x] 2. change this to hours and
@@ -48,22 +47,38 @@ featureAvailabilityProfiler = function(
     # [x] 4. for each bin
       # [x] 5. for each column
     # [x] relate this integer to i relative
-    # [ ] rework the start/end range in since there can be fractional
+    # [x] rework the start/end range in since there can be fractional
 
     # filter the resultset so you don't need to use the start/end feature of percentNullsInDateRange
-    tempSubset = dplyr::filter(df, df$hoursSinceAdmitRounded == i)
+    startInclusive = hourBins[i]
+    if (is.na(hourBins[i + 1])){
+      # If we are at the end of the hour bins, make a max beyond the largest bin
+      endExclusive = max(hourBins) + 1
+    } else {
+      endExclusive = hourBins[i+1]
+    }
 
-    result$hoursSinceAdmitRounded = append(result$hoursSinceAdmitRounded, i)
+    if(debug){
+      cat('Calculating nulls for features from: ', startInclusive, ' to:', endExclusive, '\n')
+    }
+
+    tempSubset = dplyr::filter(df, df$hoursSinceAdmit >= startInclusive & df$hoursSinceAdmit < endExclusive)
+
+    result$hoursSinceAdmit = append(result$hoursSinceAdmit, startInclusive)
     
-    # Calculate the null percentage in each column
     for(columnName in featureColumns){
-      tempNullPercentage = percentNullsInDateRange(tempSubset, admitColumnName='hoursSinceAdmitRounded', featureColumnName=columnName)
-      result[[columnName]] = append(result[[columnName]], tempNullPercentage)
+      # Calculate the null percentage for the column
+      tempNullPercentage = percentNullsInDateRange(tempSubset, admitColumnName='hoursSinceAdmit', featureColumnName=columnName)
+      
+      if (is.null(result[[columnName]])){
+        # on the first run through the loop, initialize a new vector with the column name as the key
+        result[[columnName]] = c(tempNullPercentage)
+      } else {
+        # on subsequen loops, append the value
+        result[[columnName]] = append(result[[columnName]], tempNullPercentage)
+      }
     }
   }
-  
-  # TODO probably not needed
-  # result[['hoursSinceAdmitRounded']] = lapply(result[['hoursSinceAdmitRounded']], round, 1)
   
   if (showPlot){
     showPlot(result, featureColumns)
@@ -148,10 +163,10 @@ calculateHourBins = function(oldestAdmitHours){
   }
   
   # For the first day we are interested in hours 1, 2, 3, 4, 6, 8, 12
-  firstDay = c(1/24, 2/24, 3/24, 4/24, 6/24, 8/24, 12/24)
+  firstDay = c(0, 1/24, 2/24, 3/24, 4/24, 6/24, 8/24, 12/24)
 
   # After the first full day we only want daily bins (every 24 hours)
-  wholeDays = seq(24, endHours, 24)
+  wholeDays = seq(24, endHours, by=24)
   
   timeBins = append(firstDay, wholeDays)
   return(timeBins)
@@ -208,7 +223,6 @@ profilerErrorHandling = function(df, admitColumnName, lastLoadColumnName){
 
 findfeatureColumns = function(df, exclusions){
   allColumnNames = names(df)
-  # exclude the two date columns and the derived hours columns
   targetColumns = allColumnNames[-which(allColumnNames %in% exclusions)]
 
   return(targetColumns)
