@@ -165,31 +165,52 @@ calculateHourBins = function(oldestAdmitHours){
   # For the first day we are interested in hours 1, 2, 3, 4, 6, 8, 12
   firstDay = c(0, 1/24, 2/24, 3/24, 4/24, 6/24, 8/24, 12/24)
 
-  # After the first full day we only want daily bins (every 24 hours)
-  wholeDays = seq(24, endHours, by=24)
+  # If there aren't any admits older than 24 hours, stop at 24 hours
+  if (endHours < 24){
+    timeBins = append(firstDay, 24)
+  } else {
+    # After the first full day we only want daily bins (every 24 hours)
+    wholeDays = seq(24, endHours, by=24)
+    timeBins = append(firstDay, wholeDays)
+  }
+
   
-  timeBins = append(firstDay, wholeDays)
   return(timeBins)
 }
 
 showPlot = function(result, keyList){
   # plot nulls for a list of columns over time.
+  x = result$hoursSinceAdmit
+  y = result[[keyList[1]]]
 
-  # TODO Needs to be ported to R
-  x = result[1]
-  y = result[2]
-  print('x: ')
-  print(x)
-  print('y: ')
-  print(y)
-  plot(x, y, main='Feature Availability Over Time')
-  # plt.plot(result)
-  # plt.plot(lw=2, linestyle='--')
-  # plt.xlabel('Days since Admission')
-  # plt.ylabel('Populated Values (%)')
-  # plt.title()
-  # plt.legend(labels=keyList, loc="lower right")
-  # plt.show()
+  plot(
+    x,
+    y,
+    ylim=c(0,100),
+    xlim=c(min(result$hoursSinceAdmit), max(result$hoursSinceAdmit)),
+    main='Feature Availability Over Time',
+    type='p'
+    )
+
+  colors = vector()
+  for (key in keyList){
+  }
+  
+  for (key in keyList){
+    cat('Plotting ', key, '\n')
+    tempColor = randomColorGenerator()
+    colors = append(colors, tempColor)
+    points(result[[key]], col=tempColor)
+  }
+
+  legend(1, 1, keyList, col=colors)
+}
+
+randomColorGenerator = function(){
+  r = runif(1, 0, 1)
+  g = runif(1, 0, 1)
+  b = runif(1, 0, 1)
+  return(rgb(r, g, b))
 }
 
 profilerErrorHandling = function(df, admitColumnName, lastLoadColumnName){
