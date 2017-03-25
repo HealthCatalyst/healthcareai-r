@@ -13,14 +13,13 @@ featureAvailabilityProfiler = function(
 
   # Create a few derived columns based on the hours since admit
   df$hoursSinceAdmit = hoursSinceAdmit(df[[admitColumnName]], df[[lastLoadColumnName]])
-  df$hoursSinceAdmitRounded = round(df$hoursSinceAdmit)
   
   # Calculate dates and times
   lastLoad = max(df[,lastLoadColumnName])
-  oldestAdmitHours = max(df$hoursSinceAdmitRounded)
+  oldestAdmitHours = max(df$hoursSinceAdmit)
   
   # Get the list of feature columns excluding the two date columns and the derived hours columns
-  excludedColumnNames = c(lastLoadColumnName, admitColumnName, 'hoursSinceAdmit', 'hoursSinceAdmitRounded')
+  excludedColumnNames = c(lastLoadColumnName, admitColumnName, 'hoursSinceAdmit')
   featureColumns = findfeatureColumns(df, excludedColumnNames)
 
   if (debug){
@@ -163,18 +162,17 @@ calculateHourBins = function(oldestAdmitHours){
   }
   
   # For the first day we are interested in hours 1, 2, 3, 4, 6, 8, 12
-  firstDay = c(0, 1/24, 2/24, 3/24, 4/24, 6/24, 8/24, 12/24)
+  firstDayHourBins = c(0, 1, 2, 3, 4, 6, 8, 12)
 
   # If there aren't any admits older than 24 hours, stop at 24 hours
-  if (endHours < 24){
-    timeBins = append(firstDay, 24)
+  if (endHours <= 24){
+    timeBins = append(firstDayHourBins, 24)
   } else {
     # After the first full day we only want daily bins (every 24 hours)
-    wholeDays = seq(24, endHours, by=24)
-    timeBins = append(firstDay, wholeDays)
+    beyondFirstDayHourBins = seq(24, endHours + 24, by=24)
+    timeBins = append(firstDayHourBins, beyondFirstDayHourBins)
   }
 
-  
   return(timeBins)
 }
 
@@ -203,7 +201,7 @@ showPlot = function(result, keyList){
     points(result[[key]], col=tempColor)
   }
 
-  legend(1, 1, keyList, col=colors)
+  legend(20, 100, keyList, col=colors,  pch=21:22, lty=1:2)
 }
 
 randomColorGenerator = function(){
