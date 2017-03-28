@@ -162,6 +162,13 @@ test_that('calculateHourBins returns a list of time bins more than 90 days', {
   expected = append(firstDay, ninetyDays)
   expect_that(result, is_a('numeric'))
   expect_equal(result, expected)
+}
+
+test_that('calculateHourBins makes sense for less than 24 hours', {
+  result = calculateHourBins(12)
+  firstDay =  c(0, 1/24, 2/24, 3/24, 4/24, 6/24, 8/24, 12/24, 24)
+  expect_that(result, is_a('numeric'))
+  expect_equal(result, firstDay)
 })
 
 # ****************************************** featureAvailabilityProfiler ******************************************
