@@ -139,34 +139,44 @@ test_that('findfeatureColumns returns a list of feature columns with exclusions'
   expect_equal(result, c('something', 'thing', 'other'))
 })
 
+# ****************************************** randomColorGenerator ******************************************
+
+test_that('randomColorGenerator returns an rgb string', {
+  result = randomColorGenerator()
+
+  expect_that(result, is_a('character'))
+  expect_equal(substr(result, 1, 1), '#')
+  expect_equal(nchar(result), 7)
+})
+
 # ****************************************** calculateHourBins ******************************************
 
 test_that('calculateHourBins returns a list of time bins at 24 hours', {
   result = calculateHourBins(24)
-  expected =  c(0, 1/24, 2/24, 3/24, 4/24, 6/24, 8/24, 12/24, 24)
+  expected =  c(0, 1, 2, 3, 4, 6, 8, 12, 24)
   expect_that(result, is_a('numeric'))
   expect_equal(result, expected)
 })
 
 test_that('calculateHourBins returns a list of time bins less than 90 days', {
   result = calculateHourBins(48)
-  expected =  c(0, 1/24, 2/24, 3/24, 4/24, 6/24, 8/24, 12/24, 24, 48)
+  expected =  c(0, 1, 2, 3, 4, 6, 8, 12, 24, 48, 72)
   expect_that(result, is_a('numeric'))
   expect_equal(result, expected)
 })
 
 test_that('calculateHourBins returns a list of time bins more than 90 days', {
   result = calculateHourBins(100*24)
-  firstDay =  c(0, 1/24, 2/24, 3/24, 4/24, 6/24, 8/24, 12/24)
-  ninetyDays = seq(24, 90*24, 24)
+  firstDay =  c(0, 1, 2, 3, 4, 6, 8, 12)
+  ninetyDays = seq(24, 91*24, 24)
   expected = append(firstDay, ninetyDays)
   expect_that(result, is_a('numeric'))
   expect_equal(result, expected)
-}
+})
 
 test_that('calculateHourBins makes sense for less than 24 hours', {
   result = calculateHourBins(12)
-  firstDay =  c(0, 1/24, 2/24, 3/24, 4/24, 6/24, 8/24, 12/24, 24)
+  firstDay =  c(0, 1, 2, 3, 4, 6, 8, 12, 24)
   expect_that(result, is_a('numeric'))
   expect_equal(result, firstDay)
 })
@@ -209,14 +219,3 @@ test_that('featureAvailabilityProfiler throws error on a non-date columns', {
 #   expect_that(result, is_a('list'))
 #   expect_equal(result, expected_result)
 # })
-
-
-# ****************************************** randomColorGenerator ******************************************
-
-test_that('randomColorGenerator returns an rgb string', {
-  result = randomColorGenerator()
-
-  expect_that(reslt, is_a('character'))
-  expect_equal(substr(reslt, 1, 1), '#')
-  expect_equal(nchar(reslt), 7)
-})

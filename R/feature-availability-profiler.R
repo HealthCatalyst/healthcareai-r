@@ -39,15 +39,6 @@ featureAvailabilityProfiler = function(
   hourBins = calculateHourBins(oldestAdmitHours)
 
   for(i in seq(1, length(hourBins))){
-    # TODO
-    # [x] 1. subtract "now" from admit date
-    # [x] 2. change this to hours and
-    # [x] 3. round it (to fake binning)
-    # [x] 4. for each bin
-      # [x] 5. for each column
-    # [x] relate this integer to i relative
-    # [x] rework the start/end range in since there can be fractional
-
     # filter the resultset so you don't need to use the start/end feature of percentNullsInDateRange
     startInclusive = hourBins[i]
     if (is.na(hourBins[i + 1])){
@@ -220,7 +211,8 @@ showPlot = function(result, keyList){
 
 randomColorGenerator = function(){
   # Return a random string representing an rgb value
-  r = runif(1, 0, 1) g = runif(1, 0, 1)
+  r = runif(1, 0, 1)
+  g = runif(1, 0, 1)
   b = runif(1, 0, 1)
   return(rgb(r, g, b))
 }
