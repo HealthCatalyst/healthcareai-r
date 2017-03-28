@@ -179,34 +179,48 @@ calculateHourBins = function(oldestAdmitHours){
 showPlot = function(result, keyList){
   # plot nulls for a list of columns over time.
   x = result$hoursSinceAdmit
+  # Plot the first feature column
   y = result[[keyList[1]]]
+
+  tempColor = randomColorGenerator()
+  colors = c(tempColor)
 
   plot(
     x,
     y,
-    ylim=c(0,100),
+    xlab='Hours Since Admit',
+    ylab='Percent Nulls',
+    ylim=c(0, 100),
     xlim=c(min(result$hoursSinceAdmit), max(result$hoursSinceAdmit)),
     main='Feature Availability Over Time',
-    type='p'
-    )
+    type='l',
+    col=tempColor
+  )
+  cat('plotting key ', keyList[1], 'with color: ', tempColor, '\n')
 
-  colors = vector()
-  for (key in keyList){
-  }
-  
-  for (key in keyList){
-    cat('Plotting ', key, '\n')
+  # plot the remaining feature columns (skipping the first one)
+  for (key in keyList[-1]){
     tempColor = randomColorGenerator()
     colors = append(colors, tempColor)
-    points(result[[key]], col=tempColor)
+    lines(x=x, y=result[[key]], col=tempColor)
+    # points(x=x, y=result[[key]], col=tempColor)
+    cat('plotting key ', key, 'with color: ', tempColor, '\n')
   }
 
-  legend(20, 100, keyList, col=colors,  pch=21:22, lty=1:2)
+  legend(
+    20,
+    100,
+    keyList,
+    cex=0.5,
+    bty='n',
+    col=colors,
+    lty=1:1,
+  )
 }
 
 randomColorGenerator = function(){
-  r = runif(1, 0, 1)
-  g = runif(1, 0, 1)
+  # Return a random string representing an rgb value
+  r = runif(1, 0, 1) g = runif(1, 0, 1)
   b = runif(1, 0, 1)
   return(rgb(r, g, b))
 }

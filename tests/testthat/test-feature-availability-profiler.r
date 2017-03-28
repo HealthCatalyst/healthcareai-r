@@ -202,3 +202,14 @@ test_that('featureAvailabilityProfiler throws error on a non-date columns', {
 #   expect_that(result, is_a('list'))
 #   expect_equal(result, expected_result)
 # })
+
+
+# ****************************************** randomColorGenerator ******************************************
+
+test_that('randomColorGenerator returns an rgb string', {
+  result = randomColorGenerator()
+
+  expect_that(reslt, is_a('character'))
+  expect_equal(substr(reslt, 1, 1), '#')
+  expect_equal(nchar(reslt), 7)
+})
