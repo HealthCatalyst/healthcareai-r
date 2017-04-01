@@ -7,6 +7,8 @@ source('R/supervised-model-development.R')
 #' @description This step allows you to create a Lasso model, based on
 #' your data.
 #' @docType class
+#' @usage LassoDevelopment(object, type, df, grainCol, predictedCol, impute, 
+#' debug)
 #' @import caret
 #' @import doParallel
 #' @import e1071
@@ -55,6 +57,7 @@ source('R/supervised-model-development.R')
 #' lasso <- LassoDevelopment$new(p)
 #' lasso$run()
 #'
+#' set.seed(42) 
 #' # Run Random Forest
 #' rf <- RandomForestDevelopment$new(p)
 #' rf$run()
@@ -77,7 +80,6 @@ source('R/supervised-model-development.R')
 #' df$InTestWindowFLG <- NULL
 #'
 #' set.seed(42)
-#'
 #' p <- SupervisedModelDevelopmentParams$new()
 #' p$df <- df
 #' p$type <- "classification"
@@ -91,14 +93,15 @@ source('R/supervised-model-development.R')
 #' lasso <- LassoDevelopment$new(p)
 #' lasso$run()
 #'
+#' set.seed(42) 
 #' # Run Random Forest
 #' rf <- RandomForestDevelopment$new(p)
 #' rf$run()
-#'
-#' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-#' lasso$getCutOffs(tpr = 0.8)
+#' 
 #' print(proc.time() - ptm)
 #'
+#' \donttest{
+#' #### This example is specific to Windows and is not tested. 
 #' #### Example using SQL Server data #### This example requires: 1) That you alter
 #' #### your connection string / query
 #'
@@ -115,22 +118,17 @@ source('R/supervised-model-development.R')
 #' query <- "
 #' SELECT
 #' [PatientEncounterID]
-#' ,[PatientID]
 #' ,[SystolicBPNBR]
 #' ,[LDLNBR]
 #' ,[A1CNBR]
 #' ,[GenderFLG]
 #' ,[ThirtyDayReadmitFLG]
-#' ,[InTestWindowFLG]
 #' FROM [SAM].[dbo].[HCRDiabetesClinical]
 #' WHERE InTestWindowFLG = 'N'
 #' "
 #'
 #' df <- selectData(connection.string, query)
 #' head(df)
-#'
-#' df$PatientID <- NULL
-#' df$InTestWindowFLG <- NULL
 #'
 #' set.seed(42)
 #'
@@ -147,6 +145,7 @@ source('R/supervised-model-development.R')
 #' lasso <- LassoDevelopment$new(p)
 #' lasso$run()
 #'
+#' set.seed(42) 
 #' # Run Random Forest
 #' rf <- RandomForestDevelopment$new(p)
 #' rf$run()
@@ -163,10 +162,8 @@ source('R/supervised-model-development.R')
 #' legendLoc <- "bottomleft"
 #' plotPRCurve(rocs, names, legendLoc)
 #'
-#' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-#' lasso$getCutOffs(tpr = 0.8)
-#'
 #' print(proc.time() - ptm)
+#' }
 #'
 #' @export
 
@@ -368,19 +365,6 @@ LassoDevelopment <- R6Class("LassoDevelopment",
 
     getMAE = function() {
       return(private$MAE)
-    },
-
-    getCutOffs = function(tpr) {
-      # Get index of when true-positive rate is > tpr
-      indy <- which(as.numeric(unlist(private$ROCPlot@y.values)) > tpr)
-
-      # Correpsonding probability cutoff value (ie when category falls to 1)
-      print('Corresponding cutoff for 0/1 fallover:')
-      print(private$ROCPlot@alpha.values[[1]][indy[1]])
-
-      # Corresponding false-positive rate
-      print('Corresponding false-positive rate:')
-      print(private$ROCPlot@x.values[[1]][indy[1]][[1]])
     }
   )
 )

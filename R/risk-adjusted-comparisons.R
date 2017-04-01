@@ -10,6 +10,7 @@ source('R/common.R')
 #' of the groups this way provides a sense of which group's doing best in
 #' terms of a particular measure.
 #' @docType class
+#' @usage RiskAdjustedComparisons(df, predictedCol, groupCol, impute)
 #' @import caret
 #' @import ranger
 #' @importFrom R6 R6Class
@@ -22,7 +23,9 @@ source('R/common.R')
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #'
-#' #### Example using csv data ####
+#' #### Example using SQL data ####
+#' 
+#' \donttest{
 #' library(healthcareai)
 #'
 #' connection.string <- "
@@ -57,6 +60,7 @@ source('R/common.R')
 #'
 #' riskAdjComp <- RiskAdjustedComparisons$new(p)
 #' riskAdjComp$run()
+#' }
 #'
 #' @export
 

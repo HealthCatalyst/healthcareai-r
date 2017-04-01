@@ -6,7 +6,8 @@
 \title{Deploy a production-ready predictive RandomForest model}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-RandomForestDeployment
+RandomForestDeployment(type, df, grainCol, testWindowCol, 
+predictedCol, impute, debug)
 }
 \arguments{
 \item{type}{The type of model (either 'regression' or 'classification')}
@@ -39,8 +40,9 @@ This step allows one to
 }
 }
 \examples{
-#### Classification example using diabetes data ####
-# This example requires you to first create a table in SQL Server
+
+#### Classification examples using diabetes data ####
+# If pushing predictions to SQL Server, first create a table
 # If you prefer to not use SAMD, execute this in SSMS to create output table:
 # CREATE TABLE dbo.HCRDeployRegressionBASE(
 #   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
@@ -49,7 +51,50 @@ This step allows one to
 #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 # )
 
-#setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
+#### Example using csv data ####
+ptm <- proc.time()
+library(healthcareai)
+
+# setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
+
+# Can delete this line in your work
+csvfile <- system.file("extdata", 
+                       "HCRDiabetesClinical.csv", 
+                       package = "healthcareai")
+
+# Replace csvfile with 'path/file'
+df <- read.csv(file = csvfile, 
+               header = TRUE, 
+               na.strings = c("NULL", "NA", ""))
+
+head(df)
+
+# Remove unnecessary columns
+df$PatientID <- NULL
+
+p <- SupervisedModelDeploymentParams$new()
+p$type <- "classification"
+p$df <- df
+p$grainCol <- "PatientEncounterID"
+p$testWindowCol <- "InTestWindowFLG"
+p$predictedCol <- "ThirtyDayReadmitFLG"
+p$impute <- TRUE
+p$debug <- FALSE
+p$useSavedModel <- FALSE
+p$cores <- 1
+p$writeToDB <- FALSE
+
+dL <- RandomForestDeployment$new(p)
+dL$deploy()
+
+df <- dL$getOutDf()
+# Write to CSV (or JSON, MySQL, etc) using R syntax
+# write.csv(df,'path/predictionsfile.csv')
+
+print(proc.time() - ptm)
+
+\donttest{
+#### Example using SQL Server data ####
 ptm <- proc.time()
 library(healthcareai)
 
@@ -78,7 +123,7 @@ df <- selectData(connection.string, query)
 head(df)
 
 # Remove unnecessary columns
-df$SomeColumn <- NULL
+df$PatientID <- NULL
 
 p <- SupervisedModelDeploymentParams$new()
 p$type <- "classification"
@@ -98,8 +143,8 @@ dL$deploy()
 
 print(proc.time() - ptm)
 }
+}
 \seealso{
 \code{\link{healthcareai}}
 }
 \keyword{datasets}
-

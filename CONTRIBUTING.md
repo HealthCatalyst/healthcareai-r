@@ -25,15 +25,16 @@ This is for Windows; for macOS see [here](https://developer.apple.com/xcode/); f
 
 ## Clone healthcareai-r repo
 
--	Create a data science folder (if you don't have one)
--	In github repo (online in browser), click green 'Clone or download' and copy git link. You'll want to use the HTML address unless you have an SSH key for git already.
--	Open RStudio
+- Create a data science folder on your hard drive (if you don't have one)
+- Fork this repo (look for the link in the top right corner [here](https://github.com/HealthCatalystSLC/healthcareai-r)).
+- Click the green 'Clone or download' button and copy git link. You'll want to use the HTML address unless you have an SSH key for git already.
+- Open RStudio
   - Look for Project dropdown (top right corner)
   - Click New Project
-  -	Click Version Control
+  - Click Version Control
   - Click Git
-  -	Copy git link into 'Repository URL' and create project as subdirectory of your data science folder
--	Note that a git tab now appears in RStudio
+  - Paste git link into 'Repository URL' and create project as subdirectory of your data science folder
+- Note that a git tab now appears in RStudio
 
 ## Create a topic branch that you can work in
 1) In RStudio -> Tools (at top) -> Shell
@@ -76,8 +77,11 @@ This is for Windows; for macOS see [here](https://developer.apple.com/xcode/); f
   - evaluate
 - Set up SQL Server, if you haven't already
   - If on Windows, [install](http://stackoverflow.com/a/11278818/5636012) both SQL Server Express and SSMS Express
+    - Naviagate to [here](https://www.microsoft.com/en-us/download/details.aspx?id=29062)
+    - Look for and download ENU\x64\SQLEXPRWT_x64_ENU.exe
+    - When installing, be sure to check the box to install SSMS
   - Create tables (on localhost) to receive predictive output using the code below (use SSMS if on Windows):
-  - Note that these will go in the SAM database, if using the Health Catalyst analytics environment
+  - Run these statements in the SAM database (which you may have to create)
   - Modify the command to include your path to the local healthcare.ai repo where it says "YOUR_PATH_HERE"
   
 ```SQL
@@ -129,6 +133,8 @@ CREATE TABLE [dbo].[HCRWriteData](
 	[c] [varchar](255) NULL
 )
 ```
+
+**Note, if you have issues connecting to localhost in SSMS or RStudio, see [here](https://github.com/HealthCatalystSLC/healthcareai-py/blob/master/localhost_config.md) to create an alias.**
   
 ## Verify you can build the healthcareai package
 
@@ -140,7 +146,7 @@ CREATE TABLE [dbo].[HCRWriteData](
 3) Click Build and verify that you can build successfully (without errors)
    - Note that you may see warnings about versioning, which is fine
    
-4) Run tests via `devtools::tests()` or CTRL+SHIFT+D or Build dropdown -> Test Package
+4) Run tests via `devtools::test()` or CTRL+SHIFT+D or Build dropdown -> Test Package
    - Verify that these pass without seeing errors
    
 5) Run the roxygen2 examples via `devtools::run_examples()`. Verify that these finish without errors
@@ -170,3 +176,7 @@ CREATE TABLE [dbo].[HCRWriteData](
 
 7) Set up SSH so you can push without typing password (optional, but nice)
    - See [here](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/), [here](https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/), and then [here](https://help.github.com/enterprise/11.10.340/user/articles/changing-a-remote-s-url/)
+   
+## Getting started with contributions
+
+- When your dev environment is set up, see [here](README.md#contributing) for the contribution workflow.

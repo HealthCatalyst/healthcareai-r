@@ -6,7 +6,8 @@
 \title{Compare predictive models, created on your data}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-RandomForestDevelopment
+RandomForestDevelopment(object, type, df, grainCol, predictedCol, 
+impute, debug)
 }
 \arguments{
 \item{object}{of SuperviseModelParameters class for $new() constructor}
@@ -55,6 +56,7 @@ p$cores <- 1
 lasso <- LassoDevelopment$new(p)
 lasso$run()
 
+set.seed(42)
 # Run RandomForest
 rf <- RandomForestDevelopment$new(p)
 rf$run()
@@ -74,6 +76,7 @@ df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 
 head(df)
 
+df$PatientID <- NULL
 df$InTestWindowFLG <- NULL
 
 set.seed(42)
@@ -82,7 +85,7 @@ p <- SupervisedModelDevelopmentParams$new()
 p$df <- df
 p$type <- "regression"
 p$impute <- TRUE
-p$grainCol <- "PatientID"
+p$grainCol <- "PatientEncounterID"
 p$predictedCol <- "A1CNBR"
 p$debug <- FALSE
 p$cores <- 1
@@ -91,14 +94,15 @@ p$cores <- 1
 lasso <- LassoDevelopment$new(p)
 lasso$run()
 
+set.seed(42) 
 # Run Random Forest
 rf <- RandomForestDevelopment$new(p)
 rf$run()
 
 print(proc.time() - ptm)
 
-#### Example using SQL Server data #### This example requires: 1) That you alter
-#### your connection string / query
+\donttest{
+#### Example using SQL Server data ####
 
 ptm <- proc.time()
 library(healthcareai)
@@ -113,7 +117,6 @@ trusted_connection=true
 query <- "
 SELECT
 [PatientEncounterID]
-,[PatientID]
 ,[SystolicBPNBR]
 ,[LDLNBR]
 ,[A1CNBR]
@@ -135,7 +138,7 @@ p <- SupervisedModelDevelopmentParams$new()
 p$df <- df
 p$type <- "classification"
 p$impute <- TRUE
-p$grainCol <- "PatientID"
+p$grainCol <- "PatientEncounterID"
 p$predictedCol <- "ThirtyDayReadmitFLG"
 p$debug <- FALSE
 p$cores <- 1
@@ -144,6 +147,7 @@ p$cores <- 1
 lasso <- LassoDevelopment$new(p)
 lasso$run()
 
+set.seed(42) 
 # Run Random Forest
 rf <- RandomForestDevelopment$new(p)
 rf$run()
@@ -160,10 +164,8 @@ names <- c("Random Forest", "Lasso")
 legendLoc <- "bottomleft"
 plotPRCurve(rocs, names, legendLoc)
 
-# For a given true-positive rate, get false-pos rate and 0/1 cutoff
-lasso$getCutOffs(tpr = 0.8)
-
 print(proc.time() - ptm)
+}
 
 }
 \references{
@@ -177,4 +179,3 @@ print(proc.time() - ptm)
 \code{\link{healthcareai}}
 }
 \keyword{datasets}
-

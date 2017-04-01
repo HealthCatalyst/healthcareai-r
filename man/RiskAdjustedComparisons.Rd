@@ -6,7 +6,7 @@
 \title{Make risk adjusted comparisons between groups/units or years/months}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-RiskAdjustedComparisons
+RiskAdjustedComparisons(df, predictedCol, groupCol, impute)
 }
 \arguments{
 \item{df}{Dataframe whose columns are used for calc.}
@@ -26,7 +26,9 @@ terms of a particular measure.
 }
 \examples{
 
-#### Example using csv data ####
+#### Example using SQL data ####
+
+\donttest{
 library(healthcareai)
 
 connection.string <- "
@@ -61,6 +63,7 @@ p$cores <- 1
 
 riskAdjComp <- RiskAdjustedComparisons$new(p)
 riskAdjComp$run()
+}
 
 }
 \references{
@@ -70,4 +73,3 @@ riskAdjComp$run()
 \code{\link{healthcareai}}
 }
 \keyword{datasets}
-

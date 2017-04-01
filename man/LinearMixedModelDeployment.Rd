@@ -6,7 +6,8 @@
 \title{Deploy a production-ready predictive Random Forest model}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-LinearMixedModelDeployment
+LinearMixedModelDeployment(type, df, 
+grainCol, personCol, testWindowCol, predictedCol, impute, debug)
 }
 \arguments{
 \item{type}{The type of model (either 'regression' or 'classification')}
@@ -51,6 +52,7 @@ This step allows one to
 # Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 # )
 
+\donttest{
 # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 ptm <- proc.time()
 library(healthcareai)
@@ -156,10 +158,10 @@ lMM <- LinearMixedModelDeployment$new(p)
 lMM$deploy()
 
 print(proc.time() - ptm)
+}
 
 }
 \seealso{
 \code{\link{healthcareai}}
 }
 \keyword{datasets}
-

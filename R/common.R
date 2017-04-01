@@ -210,11 +210,13 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' @param randomize Boolean that dictates whether returned rows are randomized
 #' @return df A data frame containing the selected rows
 #'
-#' @import RODBC
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
+#' 
+#' \donttest{
+#' #### This example is specific to Windows and is not tested on CRAN 
 #' connectionString <- '
 #'   driver={SQL Server};
 #'   server=localhost;
@@ -230,6 +232,7 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #'
 #' df <- selectData(connectionString, query)
 #' head(df)
+#' }
 
 selectData <- function(connectionString, query, randomize = FALSE) {
   if (isTRUE(randomize)) {
@@ -243,13 +246,15 @@ selectData <- function(connectionString, query, randomize = FALSE) {
   }
 
   # TODO: if debug: cat(connectionString)
-  cnxn <- odbcDriverConnect(connectionString)
+  cnxn <- RODBC::odbcDriverConnect(connectionString)
 
-  # TODO: if debug: cat(query) TODO: if debug: time this operation and print the
-  # time spent to pull data.
-  df <- sqlQuery(channel = cnxn, na.strings = c("NULL", "NA", ""), query = query)
+  # TODO: if debug: cat(query) 
+  # TODO: if debug: time this operation and print time spent to pull data.
+  df <- RODBC::sqlQuery(channel = cnxn, 
+                        na.strings = c("NULL", "NA", ""), 
+                        query = query)
 
-  odbcCloseAll()
+  RODBC::odbcCloseAll()
 
   # Make sure there are enough rows to actually do something useful.
   if (is.null(nrow(df))) {
@@ -277,16 +282,19 @@ selectData <- function(connectionString, query, randomize = FALSE) {
 #' table. Note that brackets aren't expected.
 #' @return Nothing
 #'
-#' @import RODBC
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
+#' 
+#' \donttest{
+#' #### This example is specific to Windows and is not tested. 
 #' df <- data.frame(a=c(1,2,3),
 #'                  b=c(2,4,6),
 #'                  c=c('one','two','three'))
 #'
 #' writeData(df,'localhost','SAM','dbo.HCRWriteData')
+#' }
 
 writeData <- function(df, server, database, schemaDotTable) {
   # TODO: use sub function to remove brackets from schemaDotTable TODO: add
@@ -297,14 +305,14 @@ writeData <- function(df, server, database, schemaDotTable) {
                              database=", database, ";
                              trustedConnection=true")
 
-  sqlCnxn <- odbcDriverConnect(connectionString)
+  sqlCnxn <- RODBC::odbcDriverConnect(connectionString)
 
   # Save df to table in specified database
-  out <- sqlSave(channel = sqlCnxn, dat = df, tablename = schemaDotTable, append = T,
+  out <- RODBC::sqlSave(channel = sqlCnxn, dat = df, tablename = schemaDotTable, append = T,
                  rownames = F, colnames = F, safer = T, nastring = NULL)
 
   # Clean up.
-  odbcCloseAll()
+  RODBC::odbcCloseAll()
 
   if (out == 1) {
     print("SQL Server insert was successful")
@@ -339,38 +347,6 @@ removeColsWithAllSameValue <- function(df) {
     message("All columns were removed.")
   }
   dfResult
-}
-
-#' @title
-#' Return vector of columns in a data frame with greater than 50 categories
-#'
-#' @description Returns a vector of the names of the columns that have more than
-#' 50 categories
-#' @param df A data frame
-#' @return A vector that contains the names of the columns with greater
-#' than 50 categories
-#'
-#' @export
-#' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{healthcareai}}
-#' @examples
-#' df <- data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-#'                     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1),
-#'                 b=c('a','b','c','d','e','f','g','h','i','j','k','l','m','n',
-#'                     'o','p','q','r','s','t','u','v','w','x','y','z','aa','bb',
-#'                     'cc','dd','ee','ff','gg','hh','ii','jj','kk','ll','mm','nn',
-#'                     'oo','pp','qq','rr','ss','tt','uu','vv','ww','xx','yy'))
-#' colList <- returnColsWithMoreThanFiftyCategories(df)
-#' colList
-
-returnColsWithMoreThanFiftyCategories <- function(df) {
-  colList <- vector("character")
-  for (columnName in names(df)) {
-    if (nlevels(df[[columnName]]) > 50) {
-      colList <- c(colList, columnName)
-    }
-  }
-  colList
 }
 
 #' @title
@@ -622,8 +598,7 @@ returnColsWithMoreThanFiftyCategories <- function(df) {
 #' @description Returns a vector with percentage of each column that is NULL
 #' in the original data frame
 #' @param df A data frame
-#' @return A vector that contains the names of the columns with greater
-#' than 50 categories
+#' @return A vector that contains the percentage of NULL in each column
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
@@ -888,6 +863,8 @@ calculateSDChanges <- function(dfOriginal,
 #' @param type String representing which type of model is used
 #' @param outVectorAppend Optional list of values that we'll append predictions
 #' to. If not used, then a new vector is created.
+#' @param removeCols Optional list of column names to remove before calculating
+#' alternate predictions.
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
@@ -1053,7 +1030,7 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
 }
 
 #' @title
-#' Generate ROC curve for a dataset.
+#' Generate ROC or PR curve for a dataset.
 #' @description Generates ROC curve and AUC for Sensitivity/Specificity or 
 #' Precision/Recall.
 #' @param predictions A vector of predictions from a machine learning model.
@@ -1061,8 +1038,12 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
 #' predictions.
 #' @param aucType A string. Indicates AUC_ROC or AU_PR and can be "SS" or "PR". 
 #' Defaults to SS.
-#' @param plotFlg Binary value controlling plots Defaults to FALSE (no).
-#' @return auc A number between 0 and 1. Integral AUC of chosen plot type.
+#' @param plotFlg Binary value controlling plots. Defaults to FALSE (no).
+#' @param allCutoffsFlg Binary value controlling list of all thresholds. 
+#' Defaults to FALSE (no).
+#' @return AUC: A number between 0 and 1. Integral AUC of chosen plot type.
+#' @return IdealCutoffs: Array of cutoff and associated TPR/FPR or pre/rec.
+#' @return Performance: ROCR performance class containing all ROC information.
 #'
 #' @import ROCR
 #' @export
@@ -1081,9 +1062,18 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
 #' labels <- df[,'b']
 #' 
 #' # generate the AUC
-#' auc = generateAUC(pred,labels,'SS','TRUE')
+#' auc = generateAUC(predictions = pred, 
+#'                   labels = labels,
+#'                   aucType = 'SS',
+#'                   plotFlg = TRUE,
+#'                   allCutoffsFlg = TRUE)
 #' 
-generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE) {
+generateAUC <- function(predictions, 
+                        labels, 
+                        aucType='SS', 
+                        plotFlg=FALSE, 
+                        allCutoffsFlg=FALSE) {
+  
   # Error check for uneven length predictions and labels
   if (length(predictions) != length(labels)) {
     stop('Data vectors are not equal length!')
@@ -1098,13 +1088,11 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE) {
   }
   
   # generate ROC data
-  # TODO: standardize on :: vs ImportFrom (in header)
-  roc1 <- ROCR::prediction(predictions, labels)
+  pred = ROCR::prediction(predictions, labels)
   
   # get performance and AUC from either curve type
-  # PR
   if (aucType == 'PR') {
-    perf <- ROCR::performance(roc1, "prec", "rec")
+    perf <- ROCR::performance(pred, "prec", "rec")
     x <- as.numeric(unlist(perf@x.values))
     y <- as.numeric(unlist(perf@y.values))
     
@@ -1112,28 +1100,34 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE) {
     y[ is.nan(y) ] <- 0
     # From: http://stackoverflow.com/a/30280873/5636012
     area <- sum(diff(x) * (head(y,-1) + tail(y,-1)))/2
-  }
-  # SS
-  else if (aucType == 'SS') {
-    perf <- ROCR::performance(roc1, "tpr","fpr")
-    perf.auc <- ROCR::performance(roc1, measure = "auc")
+    
+    # print threshholds and AUC
+    cat(sprintf("Area under the PR curve is: %0.2f \n", area))
+
+  } else if (aucType == 'SS') {
+    perf <- ROCR::performance(pred, "tpr","fpr")
+    perf.auc <- ROCR::performance(pred, measure = "auc")
     area <- perf.auc@y.values[[1]]
+    
+    # print AUC
+    cat(sprintf("Area under the ROC curve is: %0.2f \n", area)) 
   }
   
   if (aucType == 'SS') {
     titleTemp <- 'ROC'
     xtitle <- 'False Positive Rate'
     ytitle <- 'True Positive Rate'
-  } else if (aucType == 'PR') {
+  } else {
     titleTemp <- 'PR Curve'
     xtitle <- 'Recall'
     ytitle <- 'Precision'
   }
   
   # plot AUC 
-  if (plotFlg == TRUE){
+  if (isTRUE(plotFlg)) {
     plot(x = perf@x.values[[1]],
          y = perf@y.values[[1]],
+         type = 'l',
          col = "blue", 
          lwd = 2, 
          main = titleTemp,
@@ -1141,8 +1135,12 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE) {
          ylab = ytitle)
   }
   
-  # return AUC
-  area
+  # get ideal cutoff values.
+  IdealCuts <- getCutOffs(perf = perf, 
+                          aucType = aucType, 
+                          allCutoffsFlg = allCutoffsFlg)
+  
+  return(list('AUC' = area, 'IdealCutoffs' = IdealCuts, 'Performance' = perf))
 }
 
 #' @title
@@ -1151,6 +1149,9 @@ generateAUC <- function(predictions, labels, aucType='SS', plotFlg=FALSE) {
 #' @param predictions A vector of predictions from a machine learning model.
 #' @param ytest A vector of the true labels. Must be the same length as 
 #' predictions.
+#' @param type A string. Indicates model type and can be "regression" or 
+#' "classification". 
+#' Defaults to SS.
 #' @return Curves (if classification); otherwise nothing. Prints results.
 #'
 #' @import ROCR
@@ -1174,22 +1175,22 @@ calculatePerformance <- function(predictions, ytest, type) {
   if (type == 'classification') {
 
     # Performance curves for return and plotting
-    predROCR <- ROCR::prediction(predictions, ytest)
-    ROCPlot <- ROCR::performance(predROCR, "tpr", "fpr")
-    PRCurvePlot <- ROCR::performance(predROCR, "prec", "rec")
+    myOutput <- generateAUC(predictions, ytest, 'SS')
+    AUROC = myOutput[[1]]
+    ROCPlot = myOutput[[3]]
+    ROCConf <- pROC::roc(ytest~predictions) # need pROC for 95% confidence
+    conf <- pROC::auc(ROCConf) 
+    cat(sprintf('95%% CI AU_ROC: (%0.2f , %0.2f) \n', ci(conf)[1], ci(conf)[3]))
+    cat(sprintf('\n'))
     
     # Performance AUC calcs (AUPR is ROCR-based)
-    AUPR <- generateAUC(predictions, ytest, 'PR', 'FALSE')
+    myOutput <- generateAUC(predictions, ytest, 'PR')
+    AUPR = myOutput[[1]]
+    PRCurvePlot = myOutput[[3]]
     ROCConf <- pROC::roc(ytest~predictions) # need pROC for 95% confidence
-    AUROC <- pROC::auc(ROCConf)                  
+    AUROC <- pROC::auc(ROCConf)   
+    cat(sprintf('\n')) 
     
-    # Show results
-    print(paste0('AU_ROC: ', round(AUROC, 2)))
-    print(paste0('95% CI AU_ROC: (', round(ci(AUROC)[1],2),
-                 ',',
-                 round(ci(AUROC)[3],2), ')'))
-    print(paste0('AU_PR: ', round(AUPR, 2)))
-
   } else if (type == 'regression') {
     
     RMSE <- sqrt(mean((ytest - predictions) ^ 2))
@@ -1200,4 +1201,83 @@ calculatePerformance <- function(predictions, ytest, type) {
   }
   
   return(list(ROCPlot,PRCurvePlot,AUROC,AUPR,RMSE,MAE))
+}
+
+#' @title
+#' Function to initialize and populate the SupervisedModelDevelopmentParams each time a unit test is run.
+#'
+#' @description Initialize and populate SupervisedModelDevelopmentParams
+#' @param df A data frame to use with the new supervised model.
+#' @return Supervised Model Development Params class
+#' 
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
+
+initializeParamsForTesting <- function(df) {
+  set.seed(43)
+  p <- SupervisedModelDevelopmentParams$new()
+  p$df = df
+  p$grainCol = 'PatientEncounterID'
+  p$impute = TRUE
+  p$debug = FALSE
+  p$cores = 1
+  p$tune = FALSE
+  p$numberOfTrees = 201
+  return(p)
+}
+
+
+#' @title
+#' Function to return ideal cutoff and TPR/FPR or precision/recall.
+#'
+#' @description Calculates ideal cutoff by proximity to corner of the ROC curve.
+#' @param perf An ROCR performance class. (Usually made by generateAUC)
+#' @param aucType A string. Indicates AUC_ROC or AU_PR and can be "SS" or "PR". 
+#' Defaults to SS.
+#' @param allCutoffsFlg Binary value controlling list of all thresholds. 
+#' @return Array of ideal cutoff and associated TPR/FPR or pre/rec.
+#' 
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
+#' 
+getCutOffs = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
+  ## TODO: Give user the ability to give higher weight to recall or FPR
+  x <- unlist(perf@x.values)
+  y <- unlist(perf@y.values)
+  p <- unlist(perf@alpha.values)
+  # for ROC curves
+  if (aucType == 'SS') {
+    d = (x - 0) ^ 2 + (y - 1) ^ 2
+    ind = which(d == min(d))
+    tpr = y[[ind]]
+    fpr = x[[ind]]
+    cutoff = p[[ind]]
+    cat(sprintf("Ideal cutoff is %0.2f, yielding TPR of %0.2f and FPR of %0.2f \n", 
+                cutoff, tpr, fpr))  
+    if (isTRUE(allCutoffsFlg)) {
+      cat(sprintf("%-7s %-6s %-5s \n", 'Thresh', 'TPR', 'FPR'))
+      cat(sprintf("%-7.2f %-6.2f %-6.2f \n", 
+                  unlist(perf@alpha.values), unlist(perf@y.values), unlist(perf@x.values)))  
+    }
+    return(c(cutoff, tpr, fpr)) # list of integers
+    # for PR curves
+  } else if (aucType == 'PR') { 
+    d = (x - 1) ^ 2 + (y - 1) ^ 2
+    # Convert NaNs to one
+    d[ is.nan(d) ] <- 1
+    ind = which(d == min(d))
+    pre = y[[ind]]
+    rec = x[[ind]]
+    cutoff = p[[ind]]
+    cat(sprintf("Ideal cutoff is %0.2f, yielding Precision of %0.2f and Recall of %0.2f \n", 
+                cutoff, pre, rec))  
+    if (isTRUE(allCutoffsFlg)) {
+      cat(sprintf("%-7s %-10s %-10s \n", 'Thresh', 'Precision', 'Recall'))
+      cat(sprintf("%-7.2f %-10.2f %-10.2f \n", 
+                  unlist(perf@alpha.values), unlist(perf@y.values), unlist(perf@x.values)))
+    }
+    return(c(cutoff, pre, rec)) # list of integers
+  }
 }

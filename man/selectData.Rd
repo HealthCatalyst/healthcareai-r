@@ -22,6 +22,9 @@ Select data from an ODBC database and return the results as
 a data frame.
 }
 \examples{
+
+\donttest{
+#### This example is specific to Windows and is not tested on CRAN 
 connectionString <- '
   driver={SQL Server};
   server=localhost;
@@ -38,10 +41,10 @@ query <- '
 df <- selectData(connectionString, query)
 head(df)
 }
+}
 \references{
 \url{http://healthcare.ai}
 }
 \seealso{
 \code{\link{healthcareai}}
 }
-

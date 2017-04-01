@@ -272,11 +272,6 @@ RunTests() {
         fi
     fi
 
-    # Levi edits -- necessary because we're copying mdf
-    net stop 'SQL Server (SQL2012SP1)'
-    R CMD build ${R_BUILD_ARGS} .
-    net start 'SQL Server (SQL2012SP1)'
-
     # We want to grab the version we just built.
     FILE=$(ls -1t *.tar.gz | head -n 1)
 
@@ -292,6 +287,9 @@ RunTests() {
     fi
     _R_CHECK_CRAN_INCOMING_=${_R_CHECK_CRAN_INCOMING_} R_QPDF=true R CMD check "${FILE}" ${R_CHECK_ARGS} ${R_CHECK_INSTALL_ARGS}
 
+    # Check examples flagged with \donttest
+    devtools::run_examples()
+    
     # Check reverse dependencies
     if [[ -n "$R_CHECK_REVDEP" ]]; then
         echo "Checking reverse dependencies"

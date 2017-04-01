@@ -11,6 +11,10 @@ calculatePerformance(predictions, ytest, type)
 
 \item{ytest}{A vector of the true labels. Must be the same length as 
 predictions.}
+
+\item{type}{A string. Indicates model type and can be "regression" or 
+"classification". 
+Defaults to SS.}
 }
 \value{
 Curves (if classification); otherwise nothing. Prints results.
@@ -24,4 +28,3 @@ Generates AU_ROC and AU_PR (including 95% confidence)
 \seealso{
 \code{\link{healthcareai}}
 }
-
