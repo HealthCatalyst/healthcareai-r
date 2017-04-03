@@ -20,7 +20,7 @@ Open RStudio and work in the console
 
 ```
 install.packages('healthcareai')
-install.packages("assertthat")
+install.packages('assertthat')
 ```
 
 ## How to install the latest version on macOS
@@ -41,7 +41,7 @@ install.packages(c('caret','data.table','doParallel','e1071','grpreg','lme4','lu
 * Install healthcare.ai
 ```
 install.packages('healthcareai')
-install.packages("assertthat")
+install.packages('assertthat')
 ```
 
 ## How to install latest version on Ubuntu (Linux)
@@ -49,7 +49,7 @@ install.packages("assertthat")
 * Follow steps 1 and 2 [here](https://www.digitalocean.com/community/tutorials/how-to-set-up-r-on-ubuntu-14-04) to install R
 * Run `sudo apt-get install libiodbc2-dev`
 * Run `sudo apt-get install r-cran-rodbc`
-* After typing `R` run `install.packages('healthcareai')` and `install.packages("assertthat")`
+* After typing `R` run `install.packages('healthcareai')` and `install.packages('assertthat')`
 
 ## Install the bleeding edge version (for folks providing contributions)
 
