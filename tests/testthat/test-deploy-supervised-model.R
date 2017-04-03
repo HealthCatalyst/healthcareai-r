@@ -86,7 +86,7 @@ test_that("rf predicted val (w/out spec mtry) is the same each time", {
   capture.output(dRF <- RandomForestDeployment$new(p))
   capture.output(dRF$deploy())
 
-  expect_equal(as.numeric(dRF$getPredictedValsForUnitTest()), 0.03352681)
+  expect_equal(as.numeric(dRF$getPredictedValsForUnitTest()), 0.03470742)
 })
 
 test_that("lasso predicted val (w/out spec mtry) is the same each time", {
