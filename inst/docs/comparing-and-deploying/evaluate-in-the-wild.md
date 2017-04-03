@@ -17,7 +17,7 @@ Two columns:
 
 - __Arguments__:
     - __predictions__: A vector or column of predictions from a machine learning model.
-    - __labels__: A vector or column of the true labels (can be T/F, 0/1, Y/N, etc). Must be the same length as predictions.
+    - __labels__: A vector or column of the true labels (can be T/F, 1/0, Y/N, etc). Must be the same length as predictions.
     - __aucType__: A string. Indicates AUC_ROC or AU_PR and can be "SS" or "PR". Defaults to SS.
     - __plotFlg__: Binary value controlling plots. Defaults to FALSE (no).
     - __allCutoffsFlg__: Binary value controlling list of all thresholds. Defaults to FALSE (no).
