@@ -1,4 +1,4 @@
-# Evaluate your model via `generateAUC`
+# Evaluate production performance via `generateAUC`
 
 ## What is this?
 
