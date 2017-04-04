@@ -40,5 +40,5 @@ matrix:
       = "http://cran.rstudio.com")'
     - Rscript -e 'install.packages(c("grpreg","lme4","lubridate","pROC"), repos =
       "http://cran.rstudio.com")'
-    - Rscript -e 'install.packages(c("ranger","ROCR","testthat","RODBC"), repos =
+    - Rscript -e 'install.packages(c("ranger","ROCR","testthat","RODBC","assertthat"), repos =
       "http://cran.rstudio.com")'
