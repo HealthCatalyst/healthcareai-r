@@ -133,6 +133,7 @@ test_that("mae_lasso is the same each time the test is run non-factor column", {
 
 test_that("AUC_rf is the same each time the test is run", {
   
+  set.seed(43)
   p <- initializeParamsForTesting(df)
   p$type = 'classification'
   p$predictedCol = 'ThirtyDayReadmitFLG'
