@@ -45,7 +45,6 @@ test_that("Error is thrown when predicted column is binary and type is regressio
 
 test_that("AUC_lmm is the same each time the test is run", {
 
-  skip_on_cran()
   p <- initializeParamsForTesting(df)
   p$type = 'classification'
   p$personCol = 'PatientID'
@@ -60,7 +59,6 @@ test_that("AUC_lmm is the same each time the test is run", {
 
 test_that("rmse_lmm is the same each time the test is run", {
 
-  skip_on_cran()
   p <- initializeParamsForTesting(df)
   p$type = 'regression'
   p$personCol = 'PatientID'
@@ -75,7 +73,6 @@ test_that("rmse_lmm is the same each time the test is run", {
 
 test_that("mae_lmm is the same each time the test is run", {
 
-  skip_on_cran()
   p <- initializeParamsForTesting(df)
   p$type = 'regression'
   p$personCol = 'PatientID'
@@ -94,7 +91,6 @@ test_that("mae_lmm is the same each time the test is run", {
 test_that("AUC_lasso is the same each time the test is run", {
   df$PatientID <- NULL #<- Note this happens affects all following tests
 
-  skip_on_cran()
   p <- initializeParamsForTesting(df)
   p$df = df
   p$type = 'classification'
@@ -108,7 +104,6 @@ test_that("AUC_lasso is the same each time the test is run", {
 
 test_that("rmse_lasso is the same each time the test is run non-factor column", {
 
-  skip_on_cran()
   p <- initializeParamsForTesting(df)
   p$type = 'regression'
   p$predictedCol = 'A1CNBR'
@@ -122,7 +117,6 @@ test_that("rmse_lasso is the same each time the test is run non-factor column", 
 
 test_that("mae_lasso is the same each time the test is run non-factor column", {
 
-  skip_on_cran()
   p <- initializeParamsForTesting(df)
   p$type = 'regression'
   p$predictedCol = 'A1CNBR'
@@ -139,21 +133,20 @@ test_that("mae_lasso is the same each time the test is run non-factor column", {
 
 test_that("AUC_rf is the same each time the test is run", {
   
-  skip_on_cran()
+  set.seed(43)
   p <- initializeParamsForTesting(df)
   p$type = 'classification'
   p$predictedCol = 'ThirtyDayReadmitFLG'
 
   capture.output(rf <- RandomForestDevelopment$new(p))
   capture.output(rf$run())
-
-  expect_true(as.numeric(rf$getAUROC()) - 0.9393 < 1.0e-3)
+  print(as.numeric(rf$getAUROC())) # for debugging.
+  expect_true(abs(as.numeric(rf$getAUROC()) - 0.9393) < 1.0e-3)
 
 })
 
 test_that("rmse_rf is the same each time the test is run non-factor column", {
 
-  skip_on_cran()
   p <- initializeParamsForTesting(df)
   p$type = 'regression'
   p$predictedCol = 'A1CNBR'
@@ -167,7 +160,6 @@ test_that("rmse_rf is the same each time the test is run non-factor column", {
 
 test_that("mae_rf is the same each time the test is run non-factor column", {
 
-  skip_on_cran()
   p <- initializeParamsForTesting(df)
   p$type = 'regression'
   p$predictedCol = 'A1CNBR'
