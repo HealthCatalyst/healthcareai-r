@@ -19,4 +19,3 @@ and helps determine which performs best.
 \code{\link{healthcareai}}
 }
 \keyword{datasets}
-

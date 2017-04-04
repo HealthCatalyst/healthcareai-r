@@ -47,7 +47,6 @@ source('R/supervised-model-deployment.R')
 #' # )
 #'
 #' \donttest{
-#' #### This example is specific to Windows and is not tested. 
 #' # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 #' ptm <- proc.time()
 #' library(healthcareai)
@@ -166,16 +165,20 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
   private = list(
 
     # variables
-    coefficients = NULL,
-    multiplyRes = NULL,
-    orderedFactors = NULL,
-    predictedValsForUnitTest = NULL,
+    coefficients = NA,
+    multiplyRes = NA,
+    orderedFactors = NA,
+    predictedValsForUnitTest = NA,
+    outDf = NA,
 
     # functions
     connectDataSource = function() {
       odbcCloseAll()
-      # Convert the connection string into a real connection object.
-      self$params$sqlConn <- odbcDriverConnect(self$params$sqlConn)
+      
+      if (isTRUE(self$params$writeToDB)) {
+        # Convert the connection string into a real connection object.
+        self$params$sqlConn <- odbcDriverConnect(self$params$sqlConn)
+      }
     },
 
     closeDataSource = function() {
@@ -324,10 +327,10 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     },
 
     saveDataIntoDb = function() {
-      dtStamp <- as.POSIXlt(Sys.time(), "GMT")
+      dtStamp <- as.POSIXlt(Sys.time())
 
       # Combine grain.col, prediction, and time to be put back into SAM table
-      outdf <- data.frame(
+      private$outDf <- data.frame(
         0,                                 # BindingID
         'R',                               # BindingNM
         dtStamp,                           # LastLoadDTS
@@ -341,7 +344,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       } else if (self$params$type == 'regression') {
         predictedResultsName <- "PredictedValueNBR"
       }
-      colnames(outdf) <- c(
+      colnames(private$outDf) <- c(
         "BindingID",
         "BindingNM",
         "LastLoadDTS",
@@ -353,26 +356,28 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       )
 
       if (isTRUE(self$params$debug)) {
-        print('Dataframe going to SQL Server:')
-        print(str(outdf))
+        print('Dataframe with predictions:')
+        print(str(private$outDf))
       }
-
-      # Save df to table in SAM database
-      out <- sqlSave(
-        channel = self$params$sqlConn,
-        dat = outdf,
-        tablename = self$params$destSchemaTable,
-        append = T,
-        rownames = F,
-        colnames = F,
-        safer = T,
-        nastring = NULL,
-        verbose = self$params$debug
-      )
-
-      # Print success if insert was successful
-      if (out == 1) {
-        print('SQL Server insert was successful')
+      
+      if (isTRUE(self$params$writeToDB)) {
+        # Save df to table in SAM database
+        out <- sqlSave(
+          channel = self$params$sqlConn,
+          dat = private$outDf,
+          tablename = self$params$destSchemaTable,
+          append = T,
+          rownames = F,
+          colnames = F,
+          safer = T,
+          nastring = NULL,
+          verbose = self$params$debug
+        )
+  
+        # Print success if insert was successful
+        if (out == 1) {
+          print('SQL Server insert was successful')
+        }
       }
     }
   ),
@@ -504,6 +509,11 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     #Get predicted values
     getPredictedValsForUnitTest = function() {
       return(private$predictedValsForUnitTest)
+    },
+    
+    # Surface outDf as attribute for export to Oracle, MySQL, etc
+    getOutDf = function() {
+      return(private$outDf)
     }
   )
 )

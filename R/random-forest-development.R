@@ -77,6 +77,7 @@ source('R/supervised-model-development.R')
 #'
 #' head(df)
 #'
+#' df$PatientID <- NULL
 #' df$InTestWindowFLG <- NULL
 #'
 #' set.seed(42)
@@ -85,7 +86,7 @@ source('R/supervised-model-development.R')
 #' p$df <- df
 #' p$type <- "regression"
 #' p$impute <- TRUE
-#' p$grainCol <- "PatientID"
+#' p$grainCol <- "PatientEncounterID"
 #' p$predictedCol <- "A1CNBR"
 #' p$debug <- FALSE
 #' p$cores <- 1
@@ -102,9 +103,7 @@ source('R/supervised-model-development.R')
 #' print(proc.time() - ptm)
 #'
 #' \donttest{
-#' #### Example using SQL Server data #### This example requires: 1) That you alter
-#' #### your connection string / query
-#' #### This example is specific to Windows and is not tested. 
+#' #### Example using SQL Server data ####
 #'
 #' ptm <- proc.time()
 #' library(healthcareai)
@@ -119,7 +118,6 @@ source('R/supervised-model-development.R')
 #' query <- "
 #' SELECT
 #' [PatientEncounterID]
-#' ,[PatientID]
 #' ,[SystolicBPNBR]
 #' ,[LDLNBR]
 #' ,[A1CNBR]
@@ -141,7 +139,7 @@ source('R/supervised-model-development.R')
 #' p$df <- df
 #' p$type <- "classification"
 #' p$impute <- TRUE
-#' p$grainCol <- "PatientID"
+#' p$grainCol <- "PatientEncounterID"
 #' p$predictedCol <- "ThirtyDayReadmitFLG"
 #' p$debug <- FALSE
 #' p$cores <- 1
