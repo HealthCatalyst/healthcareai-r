@@ -25,3 +25,4 @@ isBinary(c(1,2,3))
 \seealso{
 \code{\link{healthcareai}}
 }
+

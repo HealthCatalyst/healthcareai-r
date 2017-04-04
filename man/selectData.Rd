@@ -48,3 +48,4 @@ head(df)
 \seealso{
 \code{\link{healthcareai}}
 }
+

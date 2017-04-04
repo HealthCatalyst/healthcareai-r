@@ -26,3 +26,4 @@ Calculates ideal cutoff by proximity to corner of the ROC curve.
 \seealso{
 \code{\link{healthcareai}}
 }
+

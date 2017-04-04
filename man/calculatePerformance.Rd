@@ -28,3 +28,4 @@ Generates AU_ROC and AU_PR (including 95% confidence)
 \seealso{
 \code{\link{healthcareai}}
 }
+
