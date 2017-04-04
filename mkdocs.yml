@@ -18,6 +18,7 @@ pages:
 - Comparing and Deploying Models:
   - Develop and Compare: comparing-and-deploying/compare.md
   - Deploying a Best Model: comparing-and-deploying/deploy.md
+  - Evaluating Production Performance: comparing-and-deploying/evaluate-in-the-wild.md
 - Healthcare Statistics:
   - Risk-adjusted Comparisons: healthcare-statistics/risk-adjusted-comparisons.md
   - Trend Analysis: healthcare-statistics/trend-analysis.md
