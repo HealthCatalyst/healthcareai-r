@@ -58,3 +58,4 @@ auc = generateAUC(predictions = pred,
 \seealso{
 \code{\link{healthcareai}}
 }
+
