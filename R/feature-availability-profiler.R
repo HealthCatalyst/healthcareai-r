@@ -10,14 +10,13 @@ featureAvailabilityProfiler = function(
   # Error handling
   profilerErrorHandling(df, admitColumnName, lastLoadColumnName)
 
-
   # Create a few derived columns based on the hours since admit
   df$hoursSinceAdmit = hoursSinceAdmit(df[[admitColumnName]], df[[lastLoadColumnName]])
   
   # Calculate dates and times
-  lastLoad = max(df[,lastLoadColumnName])
-  oldestAdmitHours = max(df$hoursSinceAdmit)
-  
+  lastLoad = max(df[,lastLoadColumnName], na.rm=TRUE)
+  oldestAdmitHours = max(df$hoursSinceAdmit, na.rm=TRUE)
+
   # Get the list of feature columns excluding the two date columns and the derived hours columns
   excludedColumnNames = c(lastLoadColumnName, admitColumnName, 'hoursSinceAdmit')
   featureColumns = findfeatureColumns(df, excludedColumnNames)
