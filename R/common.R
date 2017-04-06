@@ -466,11 +466,11 @@ findTrends <- function(df, dateCol, groupbyCol) {
 
 orderByDate <- function(df, dateCol, descending = FALSE) {
   df[[dateCol]] <- lubridate::ymd_hms(df[[dateCol]], truncated = 5)
-
+  #drop equals false so that one column data frames are not converted to arrays
   if (descending == FALSE) {
-    dfResult <- df[order(df[[dateCol]]), ]
+    dfResult <- df[order(df[[dateCol]]), , drop = FALSE]
   } else {
-    dfResult <- df[rev(order(df[[dateCol]])), ]
+    dfResult <- df[rev(order(df[[dateCol]])), , drop = FALSE]
   }
   dfResult
 }
