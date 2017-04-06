@@ -57,14 +57,15 @@ featureAvailabilityProfiler = function(
     
     for(columnName in featureColumns){
       # Calculate the null percentage for the column
-      tempNullPercentage = percentNullsInDateRange(tempSubset, admitColumnName='hoursSinceAdmit', featureColumnName=columnName)
+      # tempNullPercentage = percentNullsInDateRange(tempSubset, admitColumnName='hoursSinceAdmit', featureColumnName=columnName)
+      tempPercentAvailable = percentDataAvailableInDateRange(tempSubset, admitColumnName='hoursSinceAdmit', featureColumnName=columnName)
       
       if (is.null(result[[columnName]])){
         # on the first run through the loop, initialize a new vector with the column name as the key
-        result[[columnName]] = c(tempNullPercentage)
+        result[[columnName]] = c(tempPercentAvailable)
       } else {
         # on subsequen loops, append the value
-        result[[columnName]] = append(result[[columnName]], tempNullPercentage)
+        result[[columnName]] = append(result[[columnName]], tempPercentAvailable)
       }
     }
   }
@@ -79,10 +80,16 @@ featureAvailabilityProfiler = function(
 hoursSinceAdmit = function(admitTimestamp, currentTime){
   # Given two dates in either YMD HMS string format or POSIXct, returns the difference in hours as a decimal number
   if (class(admitTimestamp) != 'POSIXct'){
-    admitTimestamp = ymd_hms(admitTimestamp)
+    admitTimestamp = ymd_hms(admitTimestamp, truncate=5)
+    print('Converted admitTimestamp')
+  } else {
+    print('no conversion needed for admitTimestamp')
   }
   if (class(currentTime) != 'POSIXct'){
-    currentTime = ymd_hms(currentTime)
+    currentTime = ymd_hms(currentTime, truncate=5)
+    print('Converted currentTime')
+  } else {
+    print('no conversion needed for currentTime')
   }
   
   delta = difftime(currentTime, admitTimestamp, units='hours')
@@ -179,7 +186,7 @@ showPlot = function(result, keyList){
     x,
     y,
     xlab='Hours Since Admit',
-    ylab='Percent Nulls',
+    ylab='Percent Feature Availability',
     ylim=c(0, 100),
     xlim=c(min(result$hoursSinceAdmit), max(result$hoursSinceAdmit)),
     main='Feature Availability Over Time',
@@ -228,21 +235,58 @@ profilerErrorHandling = function(df, admitColumnName, lastLoadColumnName){
 
   # If not already dates, try to parse them as such
   if (class(df[[admitColumnName]]) != 'POSIXct'){
+    df = individualDateParser(df, admitColumnName)
     tryCatch({
-      df[[admitColumnName]] = ymd_hms(df[[admitColumnName]])
+      df[[admitColumnName]] = ymd_hms(df[[admitColumnName]], truncate=3)
       }, warning = function(w){
-        stop('Admit Date column is not a date type, or could not be parsed into one')
+        print('Admit Date column is not a date type, or could not be parsed into one')
       }
     )
   }
   if (class(df[[lastLoadColumnName]]) != 'POSIXct'){
+    #since the column approach dies if there is one failure, take a loopin approach
+    df = individualDateParser(df, lastLoadColumnName)
+
     tryCatch({
-      df[[lastLoadColumnName]] = ymd_hms(df[[lastLoadColumnName]])
+      df[[lastLoadColumnName]] = ymd_hms(df[[lastLoadColumnName]], truncate=3)
       }, warning = function(w){
-        stop('Last Load Date column is not a date type, or could not be parsed into one')
+        print('Last Load Date column is not a date type, or could not be parsed into one')
       }      
     )
   }
+}
+
+individualDateParser = function(df, dateColumn){
+  dates = list()
+
+  for (date in df[[dateColumn]]){
+    tryCatch({
+      dates = append(dates, ymd_hms(date))
+      }, warning = function(w){
+        print('failed to parse this date:')
+        print(date)
+        # dates = append(dates, NA)
+        # TODO deal with NA/s down the road
+        # consider raising an error to have the analyst clean the data
+      }
+    )
+  }
+
+  print('dates length:')
+  print(length(dates))
+  print('***** dates')
+  print(dates)
+
+  print('before insertion')
+  print(head(df))
+
+  print(length(df[[dateColumn]]))
+  df[[dateColumn]] = NA
+  df[[dateColumn]] = dates
+
+  print('after insertion')
+  print(head(df))
+  return(df)
 }
 
 findfeatureColumns = function(df, exclusions){
