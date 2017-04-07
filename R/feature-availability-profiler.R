@@ -11,7 +11,7 @@ featureAvailabilityProfiler = function(
   profilerErrorHandling(df, admitColumnName, lastLoadColumnName)
 
   # Create a few derived columns based on the hours since admit
-  df$hoursSinceAdmit = hoursSinceAdmit(df[[admitColumnName]], df[[lastLoadColumnName]])
+  df$hoursSinceAdmit = calculateHoursSinceAdmit(df[[admitColumnName]], df[[lastLoadColumnName]])
   
   # Calculate dates and times
   lastLoad = max(df[,lastLoadColumnName], na.rm=TRUE)
@@ -77,7 +77,7 @@ featureAvailabilityProfiler = function(
   return(result)
 }
 
-hoursSinceAdmit = function(admitTimestamp, currentTime){
+calculateHoursSinceAdmit = function(admitTimestamp, currentTime){
   # Given two dates in either YMD HMS string format or POSIXct, returns the difference in hours as a decimal number
   if (class(admitTimestamp) != 'POSIXct'){
     admitTimestamp = ymd_hms(admitTimestamp, truncate=5)
@@ -235,57 +235,67 @@ profilerErrorHandling = function(df, admitColumnName, lastLoadColumnName){
 
   # If not already dates, try to parse them as such
   if (class(df[[admitColumnName]]) != 'POSIXct'){
+    print('original df length')
+    print(length(df[[admitColumnName]]))
     df = individualDateParser(df, admitColumnName)
-    tryCatch({
-      df[[admitColumnName]] = ymd_hms(df[[admitColumnName]], truncate=3)
-      }, warning = function(w){
-        print('Admit Date column is not a date type, or could not be parsed into one')
-      }
-    )
+    # tryCatch({
+    #   df[[admitColumnName]] = ymd_hms(df[[admitColumnName]], truncate=3)
+    #   }, warning = function(w){
+    #     print('Admit Date column is not a date type, or could not be parsed into one')
+    #   }
+    # )
   }
   if (class(df[[lastLoadColumnName]]) != 'POSIXct'){
     #since the column approach dies if there is one failure, take a loopin approach
+    print('original df length')
+    print(length(df[[lastLoadColumnName]]))
     df = individualDateParser(df, lastLoadColumnName)
 
-    tryCatch({
-      df[[lastLoadColumnName]] = ymd_hms(df[[lastLoadColumnName]], truncate=3)
-      }, warning = function(w){
-        print('Last Load Date column is not a date type, or could not be parsed into one')
-      }      
-    )
+    # tryCatch({
+    #   df[[lastLoadColumnName]] = ymd_hms(df[[lastLoadColumnName]], truncate=3)
+    #   }, warning = function(w){
+    #     print('Last Load Date column is not a date type, or could not be parsed into one')
+    #   }      
+    # )
   }
 }
 
 individualDateParser = function(df, dateColumn){
-  dates = list()
+  dates <- c()
+
+  print('dataframe length')
+  print(length(df[[dateColumn]]))
 
   for (date in df[[dateColumn]]){
-    tryCatch({
-      dates = append(dates, ymd_hms(date))
-      }, warning = function(w){
-        print('failed to parse this date:')
-        print(date)
-        # dates = append(dates, NA)
-        # TODO deal with NA/s down the road
-        # consider raising an error to have the analyst clean the data
-      }
-    )
+    # tryCatch({
+      # dates = append(dates, ymd_hms(date))
+      converted <- ymd_hms(date)
+      dates <- c(dates, converted)
+      print(converted)
+      
+      print(length(dates))
+      print(typeof(dates))
+      cat(dates, '\n')
+    #   }, warning = function(w){
+    #     print('failed to parse this date:')
+    #     print(date)
+    #     # dates = append(dates, NA)
+    #     # TODO deal with NA/s down the road
+    #     # consider raising an error to have the analyst clean the data
+    #   }
+    # )
   }
 
   print('dates length:')
   print(length(dates))
+  
   print('***** dates')
   print(dates)
 
-  print('before insertion')
-  print(head(df))
+  
+  # df[[dateColumn]] <- dates
+  df$newCOlumn <- dates
 
-  print(length(df[[dateColumn]]))
-  df[[dateColumn]] = NA
-  df[[dateColumn]] = dates
-
-  print('after insertion')
-  print(head(df))
   return(df)
 }
 
