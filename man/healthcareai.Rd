@@ -13,8 +13,8 @@ also includes functions for data exploration, data cleaning, and model evaluatio
 \details{
 This is done in a four-step process:
 
-\itemize{
-\item{Step 1:}{Load and profile data. Use \code{\link{selectData}} to pull data directly 
+\enumerate{
+\item{\strong{Load and profile data.}}{\cr Use \code{\link{selectData}} to pull data directly 
 from the SQL database. Then, \code{\link{featureAvailabilityProfiler}} can help
 determine how many null values are in a column and how they are populated over time.}
 
