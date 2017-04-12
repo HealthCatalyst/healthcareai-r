@@ -18,7 +18,7 @@ This is done in a four-step process:
 from the SQL database. Then, \code{\link{featureAvailabilityProfiler}} can help
 determine how many null values are in a column and how they are populated over time.}
 
-\item{Step 2:}{Build a machine learning model using \code{\link{LassoDevelopment}} or
+\item{\strong{Develop a machine learning model}}{\cr Use \code{\link{LassoDevelopment}} or
 \code{\link{RandomForestDevelopment}} and test different combinations of 
 features. Determine the best model using: 
 \itemize{
@@ -27,10 +27,16 @@ curve for classification problems (yes or no response).
 \item Mean squared error for regression problems (continuous response).
 }}
 
-\item{Step 3:}{Once you've determined which model is best, use
+\item{\strong{Deploy the machine learning model}}{\cr
 \code{\link{LassoDeployment}} or \code{\link{RandomForestDeployment}} to
 create a final model, automatically save it, predict against test data, and
-push predicted values into SQL Server.}
+push predicted values into a SQL environment. This can be tested locally,
+but eventually lives on the production server.}
+
+\item{\strong{Monitor performance in production environment}}{\cr After 
+generating predictions and getting ground truth values, use 
+\code{\link{generateAUC}} to monitor performance over time. Generally this 
+should happen after greater than 1000 predictions or 30 days.}
 }
 }
 \references{
@@ -72,5 +78,9 @@ push predicted values into SQL Server.}
 \code{\link{calculateTargetedCorrelations}}
 
 \code{\link{calculateAllCorrelations}}
+
+\code{\link{featureAvailabilityProfiler}}
+
+\code{\link{generateAUC}}
 }
 

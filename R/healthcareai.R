@@ -20,10 +20,16 @@
 #' \item Mean squared error for regression problems (continuous response).
 #' }}
 #'
-#' \item{\strong{Deploy the machine learning model}}{\cr Once you've determined which model is best, use
+#' \item{\strong{Deploy the machine learning model}}{\cr
 #' \code{\link{LassoDeployment}} or \code{\link{RandomForestDeployment}} to
 #' create a final model, automatically save it, predict against test data, and
-#' push predicted values into SQL Server.}
+#' push predicted values into a SQL environment. This can be tested locally,
+#' but eventually lives on the production server.}
+#' 
+#' \item{\strong{Monitor performance in production environment}}{\cr After 
+#' generating predictions and getting ground truth values, use 
+#' \code{\link{generateAUC}} to monitor performance over time. Generally this 
+#' should happen after greater than 1000 predictions or 30 days.}
 #' }
 #' 
 #' @references \url{http://healthcare.ai}
@@ -45,6 +51,8 @@
 #' @seealso \code{\link{countDaysSinceFirstDate}}
 #' @seealso \code{\link{calculateTargetedCorrelations}}
 #' @seealso \code{\link{calculateAllCorrelations}}
+#' @seealso \code{\link{featureAvailabilityProfiler}}
+#' @seealso \code{\link{generateAUC}}
 #' @docType package
 #' @name healthcareai
 NULL
