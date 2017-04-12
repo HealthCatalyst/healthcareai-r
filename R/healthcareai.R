@@ -7,7 +7,7 @@
 #' This is done in a four-step process:
 #'
 #' \enumerate{
-#' \item{\strong{Load and profile data.}}{\cr Use \code{\link{selectData}} to pull data directly 
+#' \item{\strong{Load and profile data}}{\cr Use \code{\link{selectData}} to pull data directly 
 #' from the SQL database. Then, \code{\link{featureAvailabilityProfiler}} can help
 #' determine how many null values are in a column and how they are populated over time.}
 #' 
@@ -28,8 +28,9 @@
 #' 
 #' \item{\strong{Monitor performance in production environment}}{\cr After 
 #' generating predictions and getting ground truth values, use 
-#' \code{\link{generateAUC}} to monitor performance over time. Generally this 
-#' should happen after greater than 1000 predictions or 30 days.}
+#' \code{\link{generateAUC}} to monitor performance over time. This 
+#' should happen after greater than 1000 predictions have been made or 30 days
+#' have passed.}
 #' }
 #' 
 #' @references \url{http://healthcare.ai}
