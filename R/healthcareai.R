@@ -11,7 +11,7 @@
 #' from the SQL database. Then, \code{\link{featureAvailabilityProfiler}} can help
 #' determine how many null values are in a column and how they are populated over time.}
 #' 
-#' \item{Step 2:}{Build a machine learning model using \code{\link{LassoDevelopment}} or
+#' \item{\strong{Develop a machine learning model}}{\cr Use \code{\link{LassoDevelopment}} or
 #' \code{\link{RandomForestDevelopment}} and test different combinations of 
 #' features. Determine the best model using: 
 #' \itemize{
@@ -20,11 +20,12 @@
 #' \item Mean squared error for regression problems (continuous response).
 #' }}
 #'
-#' \item{Step 3:}{Once you've determined which model is best, use
+#' \item{\strong{Deploy the machine learning model}}{\cr Once you've determined which model is best, use
 #' \code{\link{LassoDeployment}} or \code{\link{RandomForestDeployment}} to
 #' create a final model, automatically save it, predict against test data, and
 #' push predicted values into SQL Server.}
 #' }
+#' 
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{LinearMixedModelDevelopment}}
 #' @seealso \code{\link{LinearMixedModelDeployment}}
