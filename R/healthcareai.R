@@ -1,14 +1,25 @@
 #' healthcareai: a streamlined way to develop and deploy models
 #'
 #' healthcareai provides a clean interface that lets one create and compare multiple
-#' models on your data, and then deploy the model that is most accurate.
+#' models on your data, and then deploy the model that is most accurate. healthcareai
+#' also includes functions for data exploration, data cleaning, and model evaluation.
 #'
-#' This is done in a two-step process:
+#' This is done in a four-step process:
 #'
 #' \itemize{
-#' \item Use \code{\link{LassoDevelopment}} or
-#' \code{\link{RandomForestDevelopment}} to test and
-#' compare models based on your data.
+#' \item Load and profile data. Use \code{\link{selectData}} to pull data directly 
+#' from the SQL database. Then, \code{\link{featureAvailabilityProfiler}} can help
+#' determine how many null values are in a column and how they are populated over time.
+#' 
+#' \item Build a machine learning model using \code{\link{LassoDevelopment}} or
+#' \code{\link{RandomForestDevelopment}} and test different combinations of 
+#' features. Determine the best model using: 
+#' \itemize{
+#' \item Area under the ROC curve or area under the performance-recall 
+#' curve for classification problems (yes or no response). 
+#' \item Mean squared error for regression problems (continuous response).
+#' }
+#'
 #' \item Once you've determined which model is best, use
 #' \code{\link{LassoDeployment}} or \code{\link{RandomForestDeployment}} to
 #' create a final model, automatically save it, predict against test data, and
