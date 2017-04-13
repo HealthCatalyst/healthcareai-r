@@ -15,8 +15,11 @@ This is done in a four-step process:
 
 \enumerate{
 \item{\strong{Load and profile data}}{\cr Use \code{\link{selectData}} to pull data directly 
-from the SQL database. Then, \code{\link{featureAvailabilityProfiler}} can help
-determine how many null values are in a column and how they are populated over time.}
+from the SQL database. Then, \code{\link{featureAvailabilityProfiler}} and 
+\code{\link{countPercentEmpty}} can help determine how many null values are in a 
+column and how they are populated over time. \code{\link{calculateTargetedCorrelations}} 
+and \code{\link{findTrends}} can help explore data. Manipulate dates using 
+\code{\link{orderByDate}} and \code{\link{countDaysSinceFirstDate}}. }
 
 \item{\strong{Develop a machine learning model}}{\cr Use \code{\link{LassoDevelopment}} or
 \code{\link{RandomForestDevelopment}} and test different combinations of 
