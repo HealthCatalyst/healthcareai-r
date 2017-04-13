@@ -2,7 +2,7 @@
 % Please edit documentation in R/feature-availability-profiler.R
 \name{plotProfiler}
 \alias{plotProfiler}
-\title{Display feature profile over time}
+\title{Display availability feature profile over time}
 \usage{
 plotProfiler(result, keyList)
 }

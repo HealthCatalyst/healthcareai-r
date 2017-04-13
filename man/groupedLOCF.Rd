@@ -39,4 +39,3 @@ head(dfResult, n = 7)
 \seealso{
 \code{\link{healthcareai}}
 }
-

@@ -854,6 +854,66 @@ calculateSDChanges <- function(dfOriginal,
 }
 
 #' @title
+#' Find the percent of a column that's filled
+#'
+#' @description
+#' Shows what percentage of data is avilable (potentially within a specified 
+#' date range)
+#'
+#' @param df A dataframe
+#' filled by hour are the columns 
+#' @param keyList A vector of strings, representing the features.
+#' @return Nothing
+#'
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
+
+percentDataAvailableInDateRange = function(df, 
+                                           dateColumn=NULL,
+                                           startInclusive=NULL, 
+                                           endExclusive=NULL) {
+  
+  # Counts nulls in a given feature col within a date range of a given date col
+  # Inclusive on start and Excusive on end
+  
+  # Error handling
+  if (missing(df)) {
+    stop('Please specify a dataframe')
+  }
+  
+  if ((missing(dateColumn)) && 
+      (!missing(startInclusive)) && 
+      (!missing(endExclusive))) {
+    stop('Please specify a dateColumn')
+  }
+  
+  if ((!missing(dateColumn)) && 
+      (missing(startInclusive)) && 
+      (!missing(endExclusive))) {
+    stop('Please specify a startInclusive date')
+  }
+  
+  if ((!missing(dateColumn)) && 
+      (!missing(startInclusive)) && 
+      (missing(endExclusive))) {
+    stop('Please specify a endExclusive date')
+  }
+  
+  # If one gets past error checking, and specified a dateColumn, subset data
+  if (!missing(dateColumn)) {
+    reduced <- dff[ which(as.Date(df[[dateColumn]]) >= as.Date(startInclusive) &
+                          as.Date(df[[dateColumn]]) < as.Date(endExclusive)),]
+  } else {
+    reduced = df
+  }
+  
+  percentFilled <- colMeans(!is.na(reduced)) * 100
+  
+  return(percentFilled)
+}
+
+#' @title
 #' Recalculate predicted value based on alternate scenarios
 #'
 #' @description After getting alternate features via calculateSDChanges

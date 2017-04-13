@@ -1,5 +1,5 @@
 #' @title
-#' Display feature profile over time
+#' Display availability feature profile over time
 #'
 #' @description
 #' Shows what percentage of data is avilable after a particular starting
@@ -58,41 +58,6 @@ plotProfiler = function(result, keyList){
 
 #' @export
 
-percentDataAvailableInDateRange = function(df, 
-                                           admitColumnName,
-                                           startInclusive=NULL, 
-                                           endExclusive=NULL) {
-  
-  # Counts nulls in a given feature col within a date range of a given date col
-  # Inclusive on start and Excusive on end
-  
-  # Handle empty dataframes!!!!!!!!!!
-  
-  # Error handling
-  if (missing(df)) {
-    stop('Please specify a dataframe')
-  }
-  if (missing(admitColumnName)) {
-    stop('Please specify an admit column name')
-  }
-  
-  if (!is.null(startInclusive) && !is.null(endExclusive)) {
-    # start and end dates exist, filter the dataframe
-    subset = dplyr::filter(df, 
-                           df[[admitColumnName]] >= startInclusive & df[[admitColumnName]] < endExclusive)
-    
-  } else {
-    
-    subset = df
-  }
-  
-  percentFilled <- countPercentNotEmpty(subset) * 100
-  
-  return(percentFilled)
-}
-
-#' @export
-
 calculateHourBins = function(oldestAdmitHours){
   # Given a number of hours, returns a vector of bins in hours;
   # that the first day is divided into multiple days are divided into 24 h bins 
@@ -120,13 +85,6 @@ calculateHourBins = function(oldestAdmitHours){
   return(timeBins)
 }
 
-#### df is not df going into this function!
-# Move function to healthcare.ai
-countPercentNotEmpty <- function(df) {
-  colList <- colMeans(!is.na(df))
-  colList
-}
-
 randomColorGenerator = function(){
   # Return a random string representing an rgb value
   r = runif(1, 0, 1)
@@ -135,7 +93,7 @@ randomColorGenerator = function(){
   return(rgb(r, g, b))
 }
 
-profilerErrorHandling = function(df, admitColumnName, lastLoadColumnName){
+profilerErrorHandling = function(df, dateColumn, lastLoadColumnName){
   # Make sure that it's a dataframe
   if (missing(df) || class(df) != 'data.frame' ){
     stop('Please specify a dataframe')
@@ -146,12 +104,12 @@ profilerErrorHandling = function(df, admitColumnName, lastLoadColumnName){
   }
   
   # If not already dates, try to parse them as such
-  if (grepl(class(df[[admitColumnName]]),'POSIXct')) {
+  if (grepl(class(df[[dateColumn]]),'POSIXct')) {
     print('original df length')
-    print(length(df[[admitColumnName]]))
-    df = individualDateParser(df, admitColumnName)
+    print(length(df[[dateColumn]]))
+    df = individualDateParser(df, dateColumn)
     # tryCatch({
-    #   df[[admitColumnName]] = ymd_hms(df[[admitColumnName]], truncate=3)
+    #   df[[dateColumn]] = ymd_hms(df[[dateColumn]], truncate=3)
     #   }, warning = function(w){
     #     print('Admit Date column is not a date type, or could not be parsed into one')
     #   }
@@ -209,20 +167,20 @@ individualDateParser = function(df, dateColumn){
 
 featureAvailabilityProfiler = function(
   df,
-  admitColumnName='AdmitDTS',
+  startDateColumn='AdmitDTS',
   lastLoadColumnName='LastLoadDTS',
   plotProfiler=TRUE,
   debug=TRUE){
   
   # Error handling
-  profilerErrorHandling(df, admitColumnName, lastLoadColumnName)
+  profilerErrorHandling(df, startDateColumn, lastLoadColumnName)
   
-  df[[admitColumnName]] <- as.POSIXct(df[[admitColumnName]])
+  df[[startDateColumn]] <- as.POSIXct(df[[startDateColumn]])
   df[[lastLoadColumnName]] <- as.POSIXct(df[[lastLoadColumnName]])
   
   # Create a few derived columns based on the hours since admit
   df$hoursSinceAdmit = as.numeric(difftime(df[[lastLoadColumnName]], 
-                                           df[[admitColumnName]], 
+                                           df[[startDateColumn]], 
                                            units = 'hours'))
   
   # Calculate dates and times
@@ -231,7 +189,7 @@ featureAvailabilityProfiler = function(
   
   # Get the list of feature cols (excluding two date cols and date diff)
   excludedColumnNames = c(lastLoadColumnName, 
-                          admitColumnName, 
+                          startDateColumn, 
                           'hoursSinceAdmit')
   allColumnNames = names(df)
   featureColumns = allColumnNames[-which(allColumnNames 
@@ -246,7 +204,7 @@ featureAvailabilityProfiler = function(
           ' (from', lastLoadColumnName, ')\n')
   message('Oldest data is from ', 
           oldestAdmitHours, 
-          ' (from', admitColumnName, ')\n')
+          ' (from', startDateColumn, ')\n')
   print('Columns that will be assessed for nulls')
   print(featureColumns)
   
@@ -284,12 +242,14 @@ featureAvailabilityProfiler = function(
     
     result$hoursSinceAdmit = append(result$hoursSinceAdmit, startInclusive)
     
-    
+    # df, 
+    # dateColumn=NULL,
+    # startInclusive=NULL, 
+    # endExclusive=NULL
     for (columnName in featureColumns) {
       
       # Calculate the null percentage for the column
-      tempPercentAvailable = percentDataAvailableInDateRange(tempSubset, 
-                                                             admitColumnName = 'hoursSinceAdmit')
+      tempPercentAvailable = percentDataAvailableInDateRange(df = tempSubset)
       
       if (is.null(result[[columnName]])){
         # on the first run through the loop, initialize a new vector with the column name as the key
