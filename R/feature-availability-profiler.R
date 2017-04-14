@@ -4,7 +4,6 @@
 #' @description
 #' Shows what percentage of data is avilable after a particular starting
 #' time period.
-#'
 #' @param result A 2-d list, where features go down the rows and percent
 #' filled by hour are the columns 
 #' @param keyList A vector of strings, representing the features.
@@ -22,7 +21,7 @@ plotProfiler = function(result, keyList){
   # Plot the first feature column
   y = result[[keyList[1]]]
   
-  tempColor = randomColorGenerator()
+  tempColor = rgb(runif(1, 0, 1),runif(1, 0, 1),runif(1, 0, 1))
   colors = c(tempColor)
   
   plot(
@@ -39,10 +38,10 @@ plotProfiler = function(result, keyList){
   cat('plotting key ', keyList[1], 'with color: ', tempColor, '\n')
   
   # plot the remaining feature columns (skipping the first one)
-  for (key in keyList[-1]){
-    tempColor = randomColorGenerator()
+  for (key in keyList[-1]) {
+    tempColor = rgb(runif(1, 0, 1),runif(1, 0, 1),runif(1, 0, 1))
     colors = append(colors, tempColor)
-    lines(x=x, y=result[[key]], col=tempColor)
+    lines(x=x, y=result[[key]], col = tempColor)
     cat('plotting key ', key, 'with color: ', tempColor, '\n')
   }
   
@@ -52,22 +51,33 @@ plotProfiler = function(result, keyList){
     cex = 0.5,
     bty = 'n',
     col = colors,
-    lty = 1:1,
+    lty = 1:1
   )
 }
 
+#' @title
+#' Calculate a vector of reasonable time bins
+#' 
+#' @description
+#' Given a number of hours, generate a reasonable vector of bins in hours such 
+#' that the first day is divided into multiple days are divided into 24 h bins 
+#' up to 90 days worth
+#'
+#' @param lastHourOfInterest Number representing the last hour of interest
+#' @return numeric vector of hours, reasonably spaced
+#'
 #' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
 
-calculateHourBins = function(oldestAdmitHours){
-  # Given a number of hours, returns a vector of bins in hours;
-  # that the first day is divided into multiple days are divided into 24 h bins 
-  # up to 90 days worth
+calculateHourBins = function(lastHourOfInterest){
+  # Given a number of hours, 
   ninetyDaysWorthOfHours = 90 * 24
   
-  if (oldestAdmitHours > ninetyDaysWorthOfHours){
+  if (lastHourOfInterest > ninetyDaysWorthOfHours) {
     endHours = ninetyDaysWorthOfHours
   } else {
-    endHours = oldestAdmitHours
+    endHours = lastHourOfInterest
   }
   
   # For the first day we are interested in hours 1, 2, 3, 4, 6, 8, 12
@@ -85,13 +95,13 @@ calculateHourBins = function(oldestAdmitHours){
   return(timeBins)
 }
 
-randomColorGenerator = function(){
-  # Return a random string representing an rgb value
-  r = runif(1, 0, 1)
-  g = runif(1, 0, 1)
-  b = runif(1, 0, 1)
-  return(rgb(r, g, b))
-}
+# randomColorGenerator = function(){
+#   # Return a random string representing an rgb value
+#   r = runif(1, 0, 1)
+#   g = runif(1, 0, 1)
+#   b = runif(1, 0, 1)
+#   return(rgb(r, g, b))
+# }
 
 profilerErrorHandling = function(df, dateColumn, lastLoadColumnName){
   # Make sure that it's a dataframe
@@ -184,7 +194,7 @@ featureAvailabilityProfiler = function(
                                            units = 'hours'))
   
   # Calculate dates and times
-  oldestAdmitHours = max(df$hoursSinceAdmit, na.rm = TRUE)
+  lastHourOfInterest = max(df$hoursSinceAdmit, na.rm = TRUE)
   lastLoad = max(df[[lastLoadColumnName]], na.rm = TRUE)
   
   # Get the list of feature cols (excluding two date cols and date diff)
@@ -203,7 +213,7 @@ featureAvailabilityProfiler = function(
           lastLoad, 
           ' (from', lastLoadColumnName, ')\n')
   message('Oldest data is from ', 
-          oldestAdmitHours, 
+          lastHourOfInterest, 
           ' (from', startDateColumn, ')\n')
   print('Columns that will be assessed for nulls')
   print(featureColumns)
@@ -212,7 +222,7 @@ featureAvailabilityProfiler = function(
   result = list()
   
   # For each time bin
-  hourBins = calculateHourBins(oldestAdmitHours)
+  hourBins = calculateHourBins(lastHourOfInterest)
   
   for (i in 1:length(hourBins)) {
     # filter the resultset so you don't need to use the start/end feature of percentNullsInDateRange
@@ -239,6 +249,9 @@ featureAvailabilityProfiler = function(
     print(summary(df))
     
     tempSubset = dplyr::filter(df, df$hoursSinceAdmit >= startInclusive & df$hoursSinceAdmit < endExclusive)
+    
+    #reduced <- df[ which(as.Date(df[[dateColumn]]) >= as.Date(startInclusive) &
+    #                       as.Date(df[[dateColumn]]) < as.Date(endExclusive)),]
     
     result$hoursSinceAdmit = append(result$hoursSinceAdmit, startInclusive)
     

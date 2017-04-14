@@ -861,48 +861,61 @@ calculateSDChanges <- function(dfOriginal,
 #' date range)
 #'
 #' @param df A dataframe
-#' filled by hour are the columns 
-#' @param keyList A vector of strings, representing the features.
-#' @return Nothing
+#' @param dateColumn Optional string representing a date column of interest
+#' @param startInclusive Optional string in the in this date style: '2012-01-01'
+#' @param endExclusive Optional string in the in this date style: '2012-01-05'
+#' @return A labeled numeric vector, representing each column in input df
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
+#' @examples 
+#' #' df <- data.frame(a = c(1,2,3,4),
+#'                    b=c('m','f','m','f'),
+#'                    c=c(0.7,NA,2.4,-4),
+#'                    d=c(100,300,200,NA),
+#'                    e=c(400,500,NA,504),
+#'                    datecol=c('2012-01-01','2012-01-02',
+#'                              '2012-01-03','2012-01-07'))
+#' 
+#' out <- percentDataAvailableInDateRange(df = df, # <- Only required argument
+#'                                        dateColumn = 'datecol',
+#'                                        startInclusive = '2012-01-01',
+#'                                        endExclusive = '2012-01-08')
+#' out
 
-percentDataAvailableInDateRange = function(df, 
+percentDataAvailableInDateRange = function(df,
                                            dateColumn=NULL,
-                                           startInclusive=NULL, 
+                                           startInclusive=NULL,
                                            endExclusive=NULL) {
-  
-  # Counts nulls in a given feature col within a date range of a given date col
-  # Inclusive on start and Excusive on end
-  
+
   # Error handling
   if (missing(df)) {
     stop('Please specify a dataframe')
   }
   
-  if ((missing(dateColumn)) && 
-      (!missing(startInclusive)) && 
-      (!missing(endExclusive))) {
-    stop('Please specify a dateColumn')
+  # TODO: Simplify this error logic ground the three date cols
+  if ((missing(dateColumn)) &
+      ((!missing(startInclusive)) |
+       (!missing(endExclusive)))) {
+    stop('If any, specify dateColumn, startInclusive, AND endExclusive')
   }
   
-  if ((!missing(dateColumn)) && 
-      (missing(startInclusive)) && 
-      (!missing(endExclusive))) {
-    stop('Please specify a startInclusive date')
+  if ((missing(startInclusive)) &
+      ((!missing(endExclusive)) |
+       (!missing(dateColumn)))) {
+    stop('If any, specify dateColumn, startInclusive, AND endExclusive')
   }
   
-  if ((!missing(dateColumn)) && 
-      (!missing(startInclusive)) && 
-      (missing(endExclusive))) {
-    stop('Please specify a endExclusive date')
+  if ((missing(endExclusive)) &
+      ((!missing(startInclusive)) |
+       (!missing(dateColumn)))) {
+    stop('If any, specify dateColumn, startInclusive, AND endExclusive')
   }
   
   # If one gets past error checking, and specified a dateColumn, subset data
   if (!missing(dateColumn)) {
-    reduced <- dff[ which(as.Date(df[[dateColumn]]) >= as.Date(startInclusive) &
+    reduced <- df[ which(as.Date(df[[dateColumn]]) >= as.Date(startInclusive) &
                           as.Date(df[[dateColumn]]) < as.Date(endExclusive)),]
   } else {
     reduced = df

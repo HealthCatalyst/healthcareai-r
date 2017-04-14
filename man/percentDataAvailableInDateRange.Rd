@@ -8,17 +8,35 @@ percentDataAvailableInDateRange(df, dateColumn = NULL,
   startInclusive = NULL, endExclusive = NULL)
 }
 \arguments{
-\item{df}{A dataframe
-filled by hour are the columns}
+\item{df}{A dataframe}
 
-\item{keyList}{A vector of strings, representing the features.}
+\item{dateColumn}{Optional string representing a date column of interest}
+
+\item{startInclusive}{Optional string in the in this date style: '2012-01-01'}
+
+\item{endExclusive}{Optional string in the in this date style: '2012-01-05'}
 }
 \value{
-Nothing
+A labeled numeric vector, representing each column in input df
 }
 \description{
 Shows what percentage of data is avilable (potentially within a specified 
 date range)
+}
+\examples{
+#' df <- data.frame(a = c(1,2,3,4),
+                   b=c('m','f','m','f'),
+                   c=c(0.7,NA,2.4,-4),
+                   d=c(100,300,200,NA),
+                   e=c(400,500,NA,504),
+                   datecol=c('2012-01-01','2012-01-02',
+                             '2012-01-03','2012-01-07'))
+
+out <- percentDataAvailableInDateRange(df = df, # <- Only required argument
+                                       dateColumn = 'datecol',
+                                       startInclusive = '2012-01-01',
+                                       endExclusive = '2012-01-08')
+out
 }
 \references{
 \url{http://healthcare.ai}
