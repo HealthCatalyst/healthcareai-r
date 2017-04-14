@@ -35,20 +35,19 @@ plotProfiler = function(result, keyList){
     type = 'l',
     col = tempColor
   )
-  cat('plotting key ', keyList[1], 'with color: ', tempColor, '\n')
   
   # plot the remaining feature columns (skipping the first one)
   for (key in keyList[-1]) {
     tempColor = rgb(runif(1, 0, 1),runif(1, 0, 1),runif(1, 0, 1))
     colors = append(colors, tempColor)
     lines(x=x, y=result[[key]], col = tempColor)
-    cat('plotting key ', key, 'with color: ', tempColor, '\n')
   }
   
   legend(
     legend = keyList,
     x = "bottomright",
-    cex = 0.5,
+    pt.cex = 1,
+    cex = 1.7,
     bty = 'n',
     col = colors,
     lty = 1:1
@@ -95,134 +94,84 @@ calculateHourBins = function(lastHourOfInterest){
   return(timeBins)
 }
 
-# randomColorGenerator = function(){
-#   # Return a random string representing an rgb value
-#   r = runif(1, 0, 1)
-#   g = runif(1, 0, 1)
-#   b = runif(1, 0, 1)
-#   return(rgb(r, g, b))
-# }
-
-profilerErrorHandling = function(df, dateColumn, lastLoadColumnName){
-  # Make sure that it's a dataframe
-  if (missing(df) || class(df) != 'data.frame' ){
-    stop('Please specify a dataframe')
-  }
-  # With at least 3 columns
-  if (dim(df)[2] < 3){
-    stop('Dataframe must be at least 3 columns')
-  }
-  
-  # If not already dates, try to parse them as such
-  if (grepl(class(df[[dateColumn]]),'POSIXct')) {
-    print('original df length')
-    print(length(df[[dateColumn]]))
-    df = individualDateParser(df, dateColumn)
-    # tryCatch({
-    #   df[[dateColumn]] = ymd_hms(df[[dateColumn]], truncate=3)
-    #   }, warning = function(w){
-    #     print('Admit Date column is not a date type, or could not be parsed into one')
-    #   }
-    # )
-  }
-  if (class(df[[lastLoadColumnName]]) != 'POSIXct'){
-    #since the column approach dies if there is one failure, take a loopin approach
-    print('original df length')
-    print(length(df[[lastLoadColumnName]]))
-    df = individualDateParser(df, lastLoadColumnName)
-    
-    # tryCatch({
-    #   df[[lastLoadColumnName]] = ymd_hms(df[[lastLoadColumnName]], truncate=3)
-    #   }, warning = function(w){
-    #     print('Last Load Date column is not a date type, or could not be parsed into one')
-    #   }      
-    # )
-  }
-}
-
-#' @export
-
-individualDateParser = function(df, dateColumn){
-  dates <- c()
-  
-  print('dataframe length')
-  print(length(df[[dateColumn]]))
-  
-  for (date in df[[dateColumn]]){
-    # tryCatch({
-    # dates = append(dates, ymd_hms(date))
-    converted <- ymd_hms(date)
-    dates <- c(dates, converted)
-    print(converted)
-    
-    print(length(dates))
-    print(typeof(dates))
-    cat(dates, '\n')
-    #   }, warning = function(w){
-    #     print('failed to parse this date:')
-    #     print(date)
-    #     # dates = append(dates, NA)
-    #     # TODO deal with NA/s down the road
-    #     # consider raising an error to have the analyst clean the data
-    #   }
-    # )
-  }
-  
-  df$newCOlumn <- dates
-  
-  return(df)
-}
-
 #' @export
 
 featureAvailabilityProfiler = function(
   df,
   startDateColumn='AdmitDTS',
-  lastLoadColumnName='LastLoadDTS',
-  plotProfiler=TRUE,
-  debug=TRUE){
+  lastLoadDateColumnName='LastLoadDTS',
+  plotProfiler=TRUE) {
   
   # Error handling
-  profilerErrorHandling(df, startDateColumn, lastLoadColumnName)
+  # Make sure that it's a dataframe
+  if (missing(df) || class(df) != 'data.frame' ) {
+    stop('Please specify a dataframe')
+  }
   
-  df[[startDateColumn]] <- as.POSIXct(df[[startDateColumn]])
-  df[[lastLoadColumnName]] <- as.POSIXct(df[[lastLoadColumnName]])
+  # With at least 3 columns
+  if (dim(df)[2] < 3) {
+    stop('Dataframe must be at least 3 columns')
+  }
+  
+  # TODO: Make sure specified date cols are in data frame
+  
+  # Convert specified date columns to dates, if necessary
+  if (class(df[[startDateColumn]])[1] != 'POSIXct') {
+    tryCatch(
+      df[[startDateColumn]] <- as.POSIXct(df[[startDateColumn]]),
+      error = function(e) {
+      e$message <- paste0(startDateColumn, " may not be a date column. \n", e)
+      stop(e)
+    })
+  }
+
+  if (class(df[[lastLoadDateColumnName]])[1] != 'POSIXct') {
+    tryCatch(
+      df[[lastLoadDateColumnName]] <- as.POSIXct(df[[lastLoadDateColumnName]]),
+      error = function(e) {
+      e$message <- paste0(lastLoadDateColumnName,
+                          " may not be a date column. \n", e)
+      stop(e)
+    })
+  }
   
   # Create a few derived columns based on the hours since admit
-  df$hoursSinceAdmit = as.numeric(difftime(df[[lastLoadColumnName]], 
+  df$hoursSinceAdmit = as.numeric(difftime(df[[lastLoadDateColumnName]], 
                                            df[[startDateColumn]], 
                                            units = 'hours'))
   
   # Calculate dates and times
-  lastHourOfInterest = max(df$hoursSinceAdmit, na.rm = TRUE)
-  lastLoad = max(df[[lastLoadColumnName]], na.rm = TRUE)
+  firstAdmit = max(df[[startDateColumn]], na.rm = TRUE)
+  lastLoad = max(df[[lastLoadDateColumnName]], na.rm = TRUE)
+  largestAdmitLoadDiff = max(df$hoursSinceAdmit, na.rm = TRUE)
   
   # Get the list of feature cols (excluding two date cols and date diff)
-  excludedColumnNames = c(lastLoadColumnName, 
+  excludedColumnNames = c(lastLoadDateColumnName, 
                           startDateColumn, 
                           'hoursSinceAdmit')
   allColumnNames = names(df)
   featureColumns = allColumnNames[-which(allColumnNames 
                                          %in% 
-                                           excludedColumnNames)]
+                                         excludedColumnNames)]
   
-  print('Here is a sample of your dataframe:')
-  print(head(df))
   message('Loaded ', dim(df)[1], ' rows and ', dim(df)[2], ' columns\n')
+  message('Earliest admit (or equivalent) is from: ', 
+          firstAdmit,
+          ' (from ', startDateColumn, ')\n')
   message('Data was last loaded on: ', 
           lastLoad, 
-          ' (from', lastLoadColumnName, ')\n')
-  message('Oldest data is from ', 
-          lastHourOfInterest, 
-          ' (from', startDateColumn, ')\n')
-  print('Columns that will be assessed for nulls')
-  print(featureColumns)
+          ' (from ', lastLoadDateColumnName, ')\n')
+  
+  message('Columns that will be assessed for nulls:')
+  for (i in 1:length(featureColumns)) {
+    message(featureColumns[i])
+  }
   
   # Initialize the result list
   result = list()
   
   # For each time bin
-  hourBins = calculateHourBins(lastHourOfInterest)
+  hourBins = calculateHourBins(largestAdmitLoadDiff)
   
   for (i in 1:length(hourBins)) {
     # filter the resultset so you don't need to use the start/end feature of percentNullsInDateRange
@@ -234,31 +183,15 @@ featureAvailabilityProfiler = function(
       endExclusive = hourBins[i + 1]
     }
     
-    if (debug) {
-      cat('Calculating nulls for features from: ', startInclusive, ' to:', endExclusive, '\n')
-    }
+    message('\nCalculating nulls for features from hrs: ', 
+            startInclusive, ' to:',
+            endExclusive, '\n')
     
-    print('i')
-    print(i)
-    
-    print('hourBin')
-    print(hourBins[i])
-    
-    print('checking df before subsetting')
-    print(df)
-    print(summary(df))
-    
-    tempSubset = dplyr::filter(df, df$hoursSinceAdmit >= startInclusive & df$hoursSinceAdmit < endExclusive)
-    
-    #reduced <- df[ which(as.Date(df[[dateColumn]]) >= as.Date(startInclusive) &
-    #                       as.Date(df[[dateColumn]]) < as.Date(endExclusive)),]
+    tempSubset <- df[ which(df$hoursSinceAdmit >= startInclusive &
+                            df$hoursSinceAdmit < endExclusive), ]
     
     result$hoursSinceAdmit = append(result$hoursSinceAdmit, startInclusive)
     
-    # df, 
-    # dateColumn=NULL,
-    # startInclusive=NULL, 
-    # endExclusive=NULL
     for (columnName in featureColumns) {
       
       # Calculate the null percentage for the column
@@ -273,9 +206,6 @@ featureAvailabilityProfiler = function(
       }
     }
   }
-  
-  print('Result after filling')
-  print(result)
   
   if (plotProfiler) {
     plotProfiler(result, featureColumns)

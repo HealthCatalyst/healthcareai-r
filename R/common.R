@@ -916,7 +916,7 @@ percentDataAvailableInDateRange = function(df,
   # If one gets past error checking, and specified a dateColumn, subset data
   if (!missing(dateColumn)) {
     reduced <- df[ which(as.Date(df[[dateColumn]]) >= as.Date(startInclusive) &
-                          as.Date(df[[dateColumn]]) < as.Date(endExclusive)),]
+                         as.Date(df[[dateColumn]]) < as.Date(endExclusive)), ]
   } else {
     reduced = df
   }
