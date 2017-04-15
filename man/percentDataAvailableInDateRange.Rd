@@ -24,13 +24,13 @@ Shows what percentage of data is avilable (potentially within a specified
 date range)
 }
 \examples{
-df <- data.frame(a = c(1,2,3,4),
-                 b=c('m','f','m','f'),
-                 c=c(0.7,NA,2.4,-4),
-                 d=c(100,300,200,NA),
-                 e=c(400,500,NA,504),
-                 datecol=c('2012-01-01','2012-01-02',
-                           '2012-01-03','2012-01-07'))
+df <- data.frame(a = c(1,2,NA,NA),
+                 b = c('m','f','m','f'),
+                 c = c(0.7,NA,2.4,-4),
+                 d = c(100,300,200,NA),
+                 e = c(400,500,NA,504),
+                 datecol = c('2012-01-01','2012-01-02',
+                             '2012-01-03','2012-01-07'))
 
 out <- percentDataAvailableInDateRange(df = df, # <- Only required argument
                                        dateColumn = 'datecol',

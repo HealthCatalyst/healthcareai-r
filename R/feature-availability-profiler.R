@@ -130,10 +130,9 @@ calculateHourBins = function(lastHourOfInterest){
 #' @seealso \code{\link{healthcareai}}
 #' @examples 
 #' df <- data.frame(a = c(2,1,3,5,4,NA,7,NA),
-#'                  b = c('m','f','f','f','m',NA,NA,'f'),
-#'                  c = c(0.7,-2,NA,-4,-5,-6,NA,NA),
-#'                  d = c(100,300,200,NA,NA,NA,NA,500),
-#'                  e = c(407,500,506,504,NA,NA,NA,405),
+#'                  b = c(0.7,-2,NA,-4,-5,-6,NA,NA),
+#'                  c = c(100,300,200,NA,NA,NA,NA,500),
+#'                  d = c(407,500,506,504,NA,NA,NA,405),
 #'                  admit = c('2012-01-01 00:00:00','2012-01-01 00:00:00',
 #'                            '2012-01-01 12:00:00','2012-01-01 12:00:00',
 #'                            '2012-01-02 00:00:00','2012-01-02 00:00:00',
