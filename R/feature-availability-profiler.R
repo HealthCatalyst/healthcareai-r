@@ -68,6 +68,7 @@ plotProfiler = function(result, keyList){
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
+# Need an example!!
 
 calculateHourBins = function(lastHourOfInterest){
   # Given a number of hours, 
@@ -94,12 +95,48 @@ calculateHourBins = function(lastHourOfInterest){
   return(timeBins)
 }
 
+#' @title
+#' Calculate and plot data availability over time
+#' 
+#' @description
+#' 
+#' @param df A dataframe
+#' @param startDateColumn Optional string of the column name, representing the 
+#' date of the starting event of interest (e.g., patient admit)
+#' @param lastLoadDateColumn Optional string of the column name, representing
+#' the date the row was loaded into the final dataset (i.e., via daily ETL)
+#' @return a list, that has as many vectors as columns in the original 
+#' dataframe, with each vector holding the percentage full for each hour
+#'
 #' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
+#' @examples 
+#' df <- data.frame(a = c(2,1,3,5,4,NA,7,NA),
+#'                  b = c('m','f','f','f','m',NA,NA,'f'),
+#'                  c = c(0.7,-2,NA,-4,-5,-6,NA,NA),
+#'                  d = c(100,300,200,NA,NA,NA,NA,500),
+#'                  e = c(407,500,506,504,NA,NA,NA,405),
+#'                  admit = c('2012-01-01 00:00:00','2012-01-01 00:00:00',
+#'                            '2012-01-01 12:00:00','2012-01-01 12:00:00',
+#'                            '2012-01-02 00:00:00','2012-01-02 00:00:00',
+#'                            '2012-01-02 12:00:00','2012-01-02 12:00:00'),
+#'                  loaded = c('2012-01-03 00:00:00','2012-01-03 00:00:00',
+#'                             '2012-01-03 00:00:00','2012-01-03 00:00:00',
+#'                             '2012-01-03 00:00:00','2012-01-03 00:00:00',
+#'                             '2012-01-03 00:00:00','2012-01-03 00:00:00'))
+#' str(df)
+#' head(df)
+#' 
+#' d <- featureAvailabilityProfiler(df = df,
+#'                                  startDateColumn = 'admit',
+#'                                  lastLoadDateColumn = 'loaded')
+#' d # Look at the data in the console                                
 
 featureAvailabilityProfiler = function(
   df,
   startDateColumn='AdmitDTS',
-  lastLoadDateColumnName='LastLoadDTS',
+  lastLoadDateColumn='LastLoadDTS',
   plotProfiler=TRUE) {
   
   # Error handling
@@ -125,28 +162,28 @@ featureAvailabilityProfiler = function(
     })
   }
 
-  if (class(df[[lastLoadDateColumnName]])[1] != 'POSIXct') {
+  if (class(df[[lastLoadDateColumn]])[1] != 'POSIXct') {
     tryCatch(
-      df[[lastLoadDateColumnName]] <- as.POSIXct(df[[lastLoadDateColumnName]]),
+      df[[lastLoadDateColumn]] <- as.POSIXct(df[[lastLoadDateColumn]]),
       error = function(e) {
-      e$message <- paste0(lastLoadDateColumnName,
+      e$message <- paste0(lastLoadDateColumn,
                           " may not be a date column. \n", e)
       stop(e)
     })
   }
   
   # Create a few derived columns based on the hours since admit
-  df$hoursSinceAdmit = as.numeric(difftime(df[[lastLoadDateColumnName]], 
+  df$hoursSinceAdmit = as.numeric(difftime(df[[lastLoadDateColumn]], 
                                            df[[startDateColumn]], 
                                            units = 'hours'))
   
   # Calculate dates and times
   firstAdmit = max(df[[startDateColumn]], na.rm = TRUE)
-  lastLoad = max(df[[lastLoadDateColumnName]], na.rm = TRUE)
+  lastLoad = max(df[[lastLoadDateColumn]], na.rm = TRUE)
   largestAdmitLoadDiff = max(df$hoursSinceAdmit, na.rm = TRUE)
   
   # Get the list of feature cols (excluding two date cols and date diff)
-  excludedColumnNames = c(lastLoadDateColumnName, 
+  excludedColumnNames = c(lastLoadDateColumn, 
                           startDateColumn, 
                           'hoursSinceAdmit')
   allColumnNames = names(df)
@@ -160,7 +197,7 @@ featureAvailabilityProfiler = function(
           ' (from ', startDateColumn, ')\n')
   message('Data was last loaded on: ', 
           lastLoad, 
-          ' (from ', lastLoadDateColumnName, ')\n')
+          ' (from ', lastLoadDateColumn, ')\n')
   
   message('Columns that will be assessed for nulls:')
   for (i in 1:length(featureColumns)) {
@@ -190,6 +227,7 @@ featureAvailabilityProfiler = function(
     tempSubset <- df[ which(df$hoursSinceAdmit >= startInclusive &
                             df$hoursSinceAdmit < endExclusive), ]
     
+    d#### Add 0 instead of NA!!
     result$hoursSinceAdmit = append(result$hoursSinceAdmit, startInclusive)
     
     for (columnName in featureColumns) {
