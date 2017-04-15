@@ -454,7 +454,6 @@ findTrends <- function(df, dateCol, groupbyCol) {
 #' @param descending Boolean for whether the output should be in descending order
 #' @return A data frame ordered by date column
 #'
-#' @importFrom lubridate ymd_hms
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
@@ -465,8 +464,8 @@ findTrends <- function(df, dateCol, groupbyCol) {
 #' head(dfResult)
 
 orderByDate <- function(df, dateCol, descending = FALSE) {
-  df[[dateCol]] <- lubridate::ymd_hms(df[[dateCol]], truncated = 5)
-  #drop equals false so that one column data frames are not converted to arrays
+  df[[dateCol]] <- as.POSIXct(df[[dateCol]], truncated = 5)
+  # Drop equals FALSE so that one column data frames are not converted to arrays
   if (descending == FALSE) {
     dfResult <- df[order(df[[dateCol]]), , drop = FALSE]
   } else {
@@ -872,13 +871,13 @@ calculateSDChanges <- function(dfOriginal,
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
 #' @examples 
-#' df <- data.frame(a = c(1,2,3,4),
-#'                  b=c('m','f','m','f'),
-#'                  c=c(0.7,NA,2.4,-4),
-#'                  d=c(100,300,200,NA),
-#'                  e=c(400,500,NA,504),
-#'                  datecol=c('2012-01-01','2012-01-02',
-#'                            '2012-01-03','2012-01-07'))
+#' df <- data.frame(a = c(1,2,NA,NA),
+#'                  b = c('m','f','m','f'),
+#'                  c = c(0.7,NA,2.4,-4),
+#'                  d = c(100,300,200,NA),
+#'                  e = c(400,500,NA,504),
+#'                  datecol = c('2012-01-01','2012-01-02',
+#'                              '2012-01-03','2012-01-07'))
 #' 
 #' out <- percentDataAvailableInDateRange(df = df, # <- Only required argument
 #'                                        dateColumn = 'datecol',
@@ -922,6 +921,8 @@ percentDataAvailableInDateRange = function(df,
   } else {
     reduced = df
   }
+  
+  reduced <- reduced[ , !(names(reduced) %in% dateColumn)]
   
   percentFilled <- colMeans(!is.na(reduced)) * 100
   

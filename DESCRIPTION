@@ -15,14 +15,13 @@ Description: A machine learning toolbox tailored to healthcare data.
 License: MIT + file LICENSE
 LazyData: TRUE
 Imports:
-    assertthat,
+    assertthat, 
     caret,
     data.table,
     doParallel,
     e1071,
     grpreg,
     lme4,
-    lubridate,
     pROC,
     R6,
     ranger,

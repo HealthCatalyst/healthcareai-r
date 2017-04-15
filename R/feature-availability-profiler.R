@@ -1,10 +1,9 @@
 #' @title
 #' Display availability feature profile over time
 #'
-#' @description
-#' Shows what percentage of data is avilable after a particular starting
-#' time period.
-#' @param result A list of vectors, where first vector has the hours and
+#' @description Shows what percentage of data is avilable after a particular 
+#' starting time period.
+#' @param listOfVectors A list of vectors, where first vector has the hours and
 #' subsequent vectors represent the features and how much they're filled
 #' for each of the hours
 #' @return Nothing
@@ -29,7 +28,9 @@ plotProfiler = function(listOfVectors){
   # Plot the first feature column (i.e., first count vector in listOfVectors)
   y = unlist(listOfVectors[2])
   
-  tempColor = rgb(runif(1, 0, 1),runif(1, 0, 1),runif(1, 0, 1))
+  tempColor = grDevices::rgb(stats::runif(1, 0, 1),
+                             stats::runif(1, 0, 1),
+                             stats::runif(1, 0, 1))
   colors = c(tempColor)
   
   plot(
@@ -47,9 +48,11 @@ plotProfiler = function(listOfVectors){
   
   # plot the remaining feature columns (skipping the first one)
   for (i in 3:length(listOfVectors)) {
-    tempColor = rgb(runif(1, 0, 1),runif(1, 0, 1),runif(1, 0, 1))
+    tempColor = grDevices::rgb(stats::runif(1, 0, 1),
+                               stats::runif(1, 0, 1),
+                               stats::runif(1, 0, 1))
     colors = append(colors, tempColor)
-    lines(x = x, y = unlist(listOfVectors[i]), col = tempColor)
+    graphics::lines(x = x, y = unlist(listOfVectors[i]), col = tempColor)
   }
   
   # Get vector of vector labels for legnd; start at 2 to avoid hoursSinceAdmit
@@ -69,8 +72,7 @@ plotProfiler = function(listOfVectors){
 #' @title
 #' Calculate a vector of reasonable time bins
 #' 
-#' @description
-#' Given a number of hours, generate a reasonable vector of bins in hours such 
+#' @description Given a number of hours, generate a reasonable vector of bins in hours such 
 #' that the first day is divided into multiple days are divided into 24 h bins 
 #' up to 90 days worth
 #'
@@ -93,8 +95,8 @@ calculateHourBins = function(lastHourOfInterest){
     endHours = lastHourOfInterest
   }
   
-  # For the first day we are interested in hours 1, 2, 3, 4, 6, 8, 12
-  firstDayHourBins = c(0, 1, 2, 3, 4, 6, 8, 12)
+  # For the first day we are interested in hours 1, 2, 3, 4, 6, 8, 12, 18
+  firstDayHourBins = c(0, 1, 2, 3, 4, 6, 8, 12, 18)
   
   # If there aren't any admits older than 24 hours, stop at 24 hours
   if (endHours <= 24) {
@@ -111,13 +113,15 @@ calculateHourBins = function(lastHourOfInterest){
 #' @title
 #' Calculate and plot data availability over time
 #' 
-#' @description
+#' @description Helps you determine how much data is present in each feature, 
+#' by hour, after a particular event (like patient admit)
 #' 
 #' @param df A dataframe
 #' @param startDateColumn Optional string of the column name, representing the 
 #' date of the starting event of interest (e.g., patient admit)
 #' @param lastLoadDateColumn Optional string of the column name, representing
 #' the date the row was loaded into the final dataset (i.e., via daily ETL)
+#' @param plotProfiler Default is TRUE. Whether to plot profiler results 
 #' @return a list, that has as many vectors as columns in the original 
 #' dataframe, with each vector holding the percentage full for each hour
 #'

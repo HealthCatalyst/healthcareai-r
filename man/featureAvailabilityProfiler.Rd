@@ -15,13 +15,16 @@ date of the starting event of interest (e.g., patient admit)}
 
 \item{lastLoadDateColumn}{Optional string of the column name, representing
 the date the row was loaded into the final dataset (i.e., via daily ETL)}
+
+\item{plotProfiler}{Default is TRUE. Whether to plot profiler results}
 }
 \value{
 a list, that has as many vectors as columns in the original 
 dataframe, with each vector holding the percentage full for each hour
 }
 \description{
-
+Helps you determine how much data is present in each feature, 
+by hour, after a particular event (like patient admit)
 }
 \examples{
 df <- data.frame(a = c(2,1,3,5,4,NA,7,NA),

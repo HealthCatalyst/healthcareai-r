@@ -7,7 +7,7 @@
 plotProfiler(listOfVectors)
 }
 \arguments{
-\item{result}{A list of vectors, where first vector has the hours and
+\item{listOfVectors}{A list of vectors, where first vector has the hours and
 subsequent vectors represent the features and how much they're filled
 for each of the hours}
 }
@@ -15,8 +15,8 @@ for each of the hours}
 Nothing
 }
 \description{
-Shows what percentage of data is avilable after a particular starting
-time period.
+Shows what percentage of data is avilable after a particular 
+starting time period.
 }
 \examples{
 lis <- list()
