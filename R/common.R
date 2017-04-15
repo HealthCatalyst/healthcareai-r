@@ -610,7 +610,8 @@ returnColsWithMoreThanFiftyCategories <- function(df) {
 #' colList
 
 countPercentEmpty <- function(df) {
-  message(paste0('This function has been deprecated, and will be removed. \n',
+  message(paste0('This function has been deprecated and will be removed',
+                 ' after v0.1.13.\n',
                  'Please instead see ?percentDataAvailableInDateRange.'))
   colList <- colMeans(is.na(df))
   colList
