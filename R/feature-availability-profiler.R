@@ -4,22 +4,30 @@
 #' @description
 #' Shows what percentage of data is avilable after a particular starting
 #' time period.
-#' @param result A 2-d list, where features go down the rows and percent
-#' filled by hour are the columns 
-#' @param keyList A vector of strings, representing the features.
+#' @param result A list of vectors, where first vector has the hours and
+#' subsequent vectors represent the features and how much they're filled
+#' for each of the hours
 #' @return Nothing
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
+#' @examples 
+#' lis <- list()
+#' # Establish hour range/sequence
+#' lis$hoursSinceAdmit <- c(0,1,3,6,12,24)
+#' 
+#' # Add features and their percent full for each hour
+#' lis$BP <- c(40, 45, 65, 78, 80, 90)
+#' lis$LDL <- c(10, 30, 40, 70, 100, 120)
+#' 
+#' plotProfiler(lis)
 
-plotProfiler = function(result, keyList){
-  # TODO: Just pull the keyList for the name of each row in result list
-  
-  # plot nulls for a list of columns over time.
-  x = result$hoursSinceAdmit
-  # Plot the first feature column
-  y = result[[keyList[1]]]
+plotProfiler = function(listOfVectors){
+  # Establish hour range/sequence
+  x = listOfVectors$hoursSinceAdmit
+  # Plot the first feature column (i.e., first count vector in listOfVectors)
+  y = unlist(listOfVectors[2])
   
   tempColor = rgb(runif(1, 0, 1),runif(1, 0, 1),runif(1, 0, 1))
   colors = c(tempColor)
@@ -30,21 +38,25 @@ plotProfiler = function(result, keyList){
     xlab = 'Hours Since Admit',
     ylab = 'Percent Feature Availability',
     ylim = c(0, 100),
-    xlim = c(min(result$hoursSinceAdmit), max(result$hoursSinceAdmit)),
+    xlim = c(min(listOfVectors$hoursSinceAdmit), 
+             max(listOfVectors$hoursSinceAdmit)),
     main = 'Feature Availability Over Time',
     type = 'l',
     col = tempColor
   )
   
   # plot the remaining feature columns (skipping the first one)
-  for (key in keyList[-1]) {
+  for (i in 3:length(listOfVectors)) {
     tempColor = rgb(runif(1, 0, 1),runif(1, 0, 1),runif(1, 0, 1))
     colors = append(colors, tempColor)
-    lines(x = x, y = result[[key]], col = tempColor)
+    lines(x = x, y = unlist(listOfVectors[i]), col = tempColor)
   }
   
+  # Get vector of vector labels for legnd; start at 2 to avoid hoursSinceAdmit
+  featureVector <- names(listOfVectors)[2:length(listOfVectors)]
+  
   legend(
-    legend = keyList,
+    legend = featureVector,
     x = "bottomright",
     pt.cex = 1,
     cex = 1.7,
@@ -257,7 +269,7 @@ featureAvailabilityProfiler = function(
   }
   
   if (plotProfiler) {
-    plotProfiler(result, featureColumns)
+    plotProfiler(result)
   }
   
   return(result)

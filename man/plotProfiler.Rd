@@ -4,13 +4,12 @@
 \alias{plotProfiler}
 \title{Display availability feature profile over time}
 \usage{
-plotProfiler(result, keyList)
+plotProfiler(listOfVectors)
 }
 \arguments{
-\item{result}{A 2-d list, where features go down the rows and percent
-filled by hour are the columns}
-
-\item{keyList}{A vector of strings, representing the features.}
+\item{result}{A list of vectors, where first vector has the hours and
+subsequent vectors represent the features and how much they're filled
+for each of the hours}
 }
 \value{
 Nothing
@@ -18,6 +17,17 @@ Nothing
 \description{
 Shows what percentage of data is avilable after a particular starting
 time period.
+}
+\examples{
+lis <- list()
+# Establish hour range/sequence
+lis$hoursSinceAdmit <- c(0,1,3,6,12,24)
+
+# Add features and their percent full for each hour
+lis$BP <- c(40, 45, 65, 78, 80, 90)
+lis$LDL <- c(10, 30, 40, 70, 100, 120)
+
+plotProfiler(lis)
 }
 \references{
 \url{http://healthcare.ai}
