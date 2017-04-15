@@ -43,6 +43,7 @@ head(df)
 d <- featureAvailabilityProfiler(df = df,
                                  startDateColumn = 'admit',
                                  lastLoadDateColumn = 'loaded')
+d # Look at the data in the console                                
 }
 \references{
 \url{http://healthcare.ai}

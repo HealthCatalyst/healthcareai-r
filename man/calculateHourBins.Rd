@@ -22,4 +22,6 @@ up to 90 days worth
 }
 \seealso{
 \code{\link{healthcareai}}
+result <- calculateHourBins(90)
+result
 }

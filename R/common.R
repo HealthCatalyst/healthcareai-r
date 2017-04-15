@@ -593,7 +593,7 @@ returnColsWithMoreThanFiftyCategories <- function(df) {
 }
 
 #' @title
-#' Calculates percentage of each column in df that is NULL (NA)
+#' DEPRECATED. Calculates percentage of each column in df that is NULL (NA)
 #'
 #' @description Returns a vector with percentage of each column that is NULL
 #' in the original data frame
@@ -611,6 +611,8 @@ returnColsWithMoreThanFiftyCategories <- function(df) {
 #' colList
 
 countPercentEmpty <- function(df) {
+  message(paste0('This function has been deprecated, and will be removed. \n',
+                 'Please instead see ?percentDataAvailableInDateRange.'))
   colList <- colMeans(is.na(df))
   colList
 }

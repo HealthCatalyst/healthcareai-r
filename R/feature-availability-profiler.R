@@ -14,7 +14,7 @@
 #' @seealso \code{\link{healthcareai}}
 
 plotProfiler = function(result, keyList){
-  # TODO: Just pull the keyList for the name of each row in result 2-d List
+  # TODO: Just pull the keyList for the name of each row in result list
   
   # plot nulls for a list of columns over time.
   x = result$hoursSinceAdmit
@@ -40,7 +40,7 @@ plotProfiler = function(result, keyList){
   for (key in keyList[-1]) {
     tempColor = rgb(runif(1, 0, 1),runif(1, 0, 1),runif(1, 0, 1))
     colors = append(colors, tempColor)
-    lines(x=x, y=result[[key]], col = tempColor)
+    lines(x = x, y = result[[key]], col = tempColor)
   }
   
   legend(
@@ -68,7 +68,8 @@ plotProfiler = function(result, keyList){
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
-# Need an example!!
+#' result <- calculateHourBins(90)
+#' result
 
 calculateHourBins = function(lastHourOfInterest){
   # Given a number of hours, 
@@ -150,7 +151,16 @@ featureAvailabilityProfiler = function(
     stop('Dataframe must be at least 3 columns')
   }
   
-  # TODO: Make sure specified date cols are in data frame
+  # Check that date columns are in dataframe
+  if (!(startDateColumn %in% colnames(df))) {
+    stop(paste0(startDateColumn,' is not in your dataframe.',
+         ' Please carefully specify the startDateColumn'))
+  }
+  
+  if (!(lastLoadDateColumn %in% colnames(df))) {
+    stop(paste0(lastLoadDateColumn,' is not in your dataframe.',
+         ' Please carefully specify the lastLoadDateColumn'))
+  }
   
   # Convert specified date columns to dates, if necessary
   if (class(df[[startDateColumn]])[1] != 'POSIXct') {
@@ -211,8 +221,9 @@ featureAvailabilityProfiler = function(
   hourBins = calculateHourBins(largestAdmitLoadDiff)
   
   for (i in 1:length(hourBins)) {
-    # filter the resultset so you don't need to use the start/end feature of percentNullsInDateRange
+    # Set particular time slice to focus on
     startInclusive = hourBins[i]
+    
     if (is.na(hourBins[i + 1])) {
       # If we are at the end of the hour bins, make a max beyond the largest bin
       endExclusive = max(hourBins) + 1
@@ -221,13 +232,12 @@ featureAvailabilityProfiler = function(
     }
     
     message('\nCalculating nulls for features from hrs: ', 
-            startInclusive, ' to:',
+            startInclusive, ' to ',
             endExclusive, '\n')
     
     tempSubset <- df[ which(df$hoursSinceAdmit >= startInclusive &
                             df$hoursSinceAdmit < endExclusive), ]
     
-    d#### Add 0 instead of NA!!
     result$hoursSinceAdmit = append(result$hoursSinceAdmit, startInclusive)
     
     for (columnName in featureColumns) {
@@ -235,12 +245,13 @@ featureAvailabilityProfiler = function(
       # Calculate the null percentage for the column
       tempPercentAvailable = percentDataAvailableInDateRange(df = tempSubset)
       
-      if (is.null(result[[columnName]])){
-        # on the first run through the loop, initialize a new vector with the column name as the key
-        result[[columnName]] = c(tempPercentAvailable[[columnName]])
+      if (is.null(result[[columnName]])) {
+        # On 1st run through loop, initialize new vector with column name as key
+        result[[columnName]] = tempPercentAvailable[[columnName]]
       } else {
-        # on subsequent loops, append the value
-        result[[columnName]] = append(result[[columnName]], tempPercentAvailable[[columnName]])
+        # On subsequent loops, append the value
+        result[[columnName]] = append(result[[columnName]], 
+                                      tempPercentAvailable[[columnName]])
       }
     }
   }
