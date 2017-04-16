@@ -1,6 +1,3 @@
-source('R/common.R')
-source('R/supervised-model-development.R')
-
 #' Compare predictive models, created on your data
 #'
 #' @description This step allows one to create test models on your data

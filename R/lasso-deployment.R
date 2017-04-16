@@ -1,7 +1,3 @@
-# Import the common functions.
-source('R/common.R')
-source('R/supervised-model-deployment.R')
-
 #' Deploy a production-ready predictive Lasso model
 #'
 #' @description This step allows one to

@@ -1,7 +1,3 @@
-# Import the common functions.
-source('R/common.R')
-
-
 #' Make risk adjusted comparisons between groups/units or years/months
 #'
 #' @description This class allows you to create a model based on the

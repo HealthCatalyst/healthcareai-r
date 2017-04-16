@@ -1,7 +1,3 @@
-# Import the common functions.
-source('R/common.R')
-source('R/supervised-model-development.R')
-
 #' Compare predictive models, created on your data
 #'
 #' @description This step allows you to create a Lasso model, based on
