@@ -28,5 +28,6 @@ Imports:
     ROCR,
     RODBC
 RoxygenNote: 6.0.1
-Suggests:
-    testthat
+Suggests: testthat
+URL: http://healthcareai-r.readthedocs.io
+BugReports: https://github.com/HealthCatalystSLC/healthcareai-r/issues
