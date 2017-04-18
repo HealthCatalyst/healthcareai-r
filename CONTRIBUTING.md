@@ -1,16 +1,14 @@
-# Setting up your dev environment (to enable contributions)
+# Setting up your development environment (to enable contributions)
 
-## Set up R, IDE, and healthcare.ai
+## Set up R, RStudio, and healthcare.ai
 
-1) [Download](http://cran.us.r-project.org/) latest R and install
-
-2) [Download](https://www.rstudio.com/products/rstudio/download3/) RStudio and install
-
-3) Follow the healthcare.ai [install instructions](https://github.com/HealthCatalystSLC/HCRTools/blob/master/README.md)
+1. [Download](http://cran.us.r-project.org/) latest R and install
+2. [Download](https://www.rstudio.com/products/rstudio/download3/) RStudio and install
+3. Follow the healthcare.ai [install instructions](https://github.com/HealthCatalystSLC/HCRTools/blob/master/README.md)
 
 ## Set up Git 
 
-This is for Windows; for macOS see [here](https://developer.apple.com/xcode/); for linux see [here](https://git-scm.com/download/linux)
+### Windows
 
 - Download and install [Git for Windows](https://git-scm.com/download/win)
   - Choose "64-bit Git for Windows Setup"
@@ -22,6 +20,14 @@ This is for Windows; for macOS see [here](https://developer.apple.com/xcode/); f
 - Open RStudio
   - Open Tools --> Global Options
   - Look for git.exe in the bin folder in C:\Program Files\Git\bin
+
+### macOS
+
+- [Installing Xcode](https://developer.apple.com/xcode/) is one way to get git on macOS
+
+### Linux
+
+- [Git Install](https://git-scm.com/download/linux)
 
 ## Clone healthcareai-r repo
 
@@ -37,13 +43,12 @@ This is for Windows; for macOS see [here](https://developer.apple.com/xcode/); f
 - Note that a git tab now appears in RStudio
 
 ## Create a topic branch that you can work in
-1) In RStudio -> Tools (at top) -> Shell
 
-2) Type `git checkout -b nameofbranch`
+1. In RStudio -> Tools (at top) -> Shell
+2. Type `git checkout -b nameofbranch`
    - This creates the your local branch for work
    - Note this branch should have your name in it
-   
-3) Type `git push origin nameofbranch`
+3. Type `git push origin nameofbranch`
    - This pushes the branch to github (and now it's backed-up)
 
 ## RStudio Configuration
@@ -62,19 +67,32 @@ This is for Windows; for macOS see [here](https://developer.apple.com/xcode/); f
   - Under Code -> Display, check check 'Show margin' and set to 80 characters
   - Under Code -> Diagnostics, check all boxes
 
-## Set up environment for R dev
+## Set up environment for R develeopment
 
-- If using Windows, [Download](https://cran.r-project.org/bin/windows/Rtools/) and install RTools
+### Windows
+
+- [Download](https://cran.r-project.org/bin/windows/Rtools/) and install RTools
   - Note: this installs a C++ compiler (called [g++](https://gcc.gnu.org/onlinedocs/gcc-3.3.6/gcc/G_002b_002b-and-GCC.html))
   - Can accept defaults on `Select Destination Location` and `Select Components` screens
   - On `Select Additional Tasks` step, check the PATH box
   - If you ever see issues related to Rtools, see [here](https://github.com/stan-dev/rstan/wiki/Install-Rtools-for-Windows)
-- If using macOS, install [Xcode](https://developer.apple.com/xcode/) if you haven't already
+
+### macOS
+
+- install [Xcode](https://developer.apple.com/xcode/) if you haven't already
+
+### RStudio Packages
+
 - In RStudio, install these packages via Tools -> Install Packages
   - devtools
   - roxygen2
   - testthat
   - evaluate
+
+### MSSQL Server
+
+Why MSSQL? Some of our integration tests read and write data to the database. MSSQL is currently the only supported database, though this will change.
+
 - Set up SQL Server, if you haven't already
   - If on Windows, [install](http://stackoverflow.com/a/11278818/5636012) both SQL Server Express and SSMS Express
     - Naviagate to [here](https://www.microsoft.com/en-us/download/details.aspx?id=29062)
@@ -138,45 +156,60 @@ CREATE TABLE [dbo].[HCRWriteData](
   
 ## Verify you can build the healthcareai package
 
-1) In RStudio, if you don't see healthcareai-r in the top right corner
+1. In RStudio, if you don't see healthcareai-r in the top right corner
    - Click the project tab in the top right -> Open Project
-   
-2) Click on the build tab in the top right corner
-   
-3) Click Build and verify that you can build successfully (without errors)
+2. Click on the build tab in the top right corner
+3. Click Build and verify that you can build successfully (without errors)
    - Note that you may see warnings about versioning, which is fine
-   
-4) Run tests via `devtools::test()` or CTRL+SHIFT+D or Build dropdown -> Test Package
+4. Run tests via `devtools::test()` or CTRL+SHIFT+D or Build dropdown -> Test Package
    - Verify that these pass without seeing errors
-   
-5) Run the roxygen2 examples via `devtools::run_examples()`. Verify that these finish without errors
+5. Run the roxygen2 examples via `devtools::run_examples()`. Verify that these finish without errors
    - Verify that these pass without seeing errors
-   
-6) Under the build tab, run 'Check'
+6. Under the build tab, run 'Check'
    - Verify that only one warning arises
      - This warning is due to the [limitations](https://github.com/wch/R6/issues/3) of roxygen and R6 method documentation
      - This is the only warning/error/note that's allowed when merging to master
 
-## Configure git
+## RStudio :: Configure git
 
-1) Open RStudio -> Tools (at top) -> Shell
-
-2) Set up your email and user name (for [proper attribution](https://help.github.com/articles/setting-your-username-in-git/))
+1. Open RStudio -> Tools (at top) -> Shell
+2. Set up your email and user name (for [proper attribution](https://help.github.com/articles/setting-your-username-in-git/))
    - `git config user.name "Billy Everyteen`
    - `git config --global user.email "your_email@example.com"`
-
-3) Configure line endings via `git config core.autocrlf true`
-
-4) Make git case-sensitive via `git config core.ignorecase false`
-
-5) Improve merge conflict resolution via `git config --global merge.conflictstyle diff3`
-
-6) If you use a personal email for github, and would rather have notifications go to your Health Cataylst email
+3. Configure line endings via `git config core.autocrlf true`
+4. Make git case-sensitive via `git config core.ignorecase false`
+5. Improve merge conflict resolution via `git config --global merge.conflictstyle diff3`
+6. If you use a personal email for github, and would rather have notifications go to your Health Cataylst email
    - See [here](https://github.com/settings/notifications) -> Notification email -> Custom routing
-
-7) Set up SSH so you can push without typing password (optional, but nice)
+7. Set up SSH so you can push without typing password (optional, but nice)
    - See [here](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/), [here](https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/), and then [here](https://help.github.com/enterprise/11.10.340/user/articles/changing-a-remote-s-url/)
    
 ## Getting started with contributions
 
 - When your dev environment is set up, see [here](README.md#contributing) for the contribution workflow.
+- We try to adhere to [Hadley's R styleguide](http://adv-r.had.co.nz/Style.html)] when writing code together.
+- We try not introduce new package dependencies if we can avoid them.
+- Use :: when calling a function to show what namespace it comes from. For example: `healthcareai::findTrends()`. This makes debugging easier and prevents overloading.
+- Please try to use `message()` rather than `cat()` or `print()`
+
+## RStudio Tips
+
+- How to load a project
+    + The menu on the upper right of the screen contains the projects.
+- How to load (instead of build) to use your new function
+    + **CTRL-SHIFT-L**
+- How to document functions via roxygen
+    + **CTRL-SHIFT-D**
+- How to build
+    + **CTRL-SHIFT-B**
+- How to run unit tests
+    - **CTRL-SHIFT-T**
+    - `devtools::test(filename)` runs a single test file
+- How to run examples
+    `devtools::run_examples()`
+- How (and why) to Check
+    + **CTRL-SHIFT-E**
+    + runs unit test
+    + runs examples
+    + runs build and reload
+- The [RStudio Cheatsheets](https://www.rstudio.com/resources/cheatsheets/) are chock full of helpful hints.
