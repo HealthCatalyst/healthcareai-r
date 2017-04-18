@@ -46,8 +46,6 @@ push predicted values into SQL Server.
 
 \code{\link{removeRowsWithNAInSpecCol}}
 
-\code{\link{countPercentEmpty}}
-
 \code{\link{removeColsWithAllSameValue}}
 
 \code{\link{returnColsWithMoreThanFiftyCategories}}
