@@ -64,18 +64,20 @@ devtools::install_github(repo='HealthCatalystSLC/healthcareai-r')
 ## Tips on getting started
 
 #### Built-in examples
-- Load the package you just installed and read the built-in docs
+Load the package you just installed and read the built-in docs
 ```
 library(healthcareai)
 ?healthcareai
 ```
 
 #### Website examples
-
-- See our [docs website](http://healthcareai-r.readthedocs.io)
+See our [docs website](http://healthcareai-r.readthedocs.io)
 
 #### Jupyter notebook examples
-- If you like Jupyter notebooks, check out [step 1](https://github.com/HealthCatalystSLC/documentation/blob/master/notebooks/Example1.ipynb) and [step 2](https://github.com/HealthCatalystSLC/documentation/blob/master/notebooks/Example2.ipynb) in model building with healthcareai.
+If you like Jupyter notebooks, check out [step 1](https://github.com/HealthCatalystSLC/documentation/blob/master/notebooks/Example1.ipynb) and [step 2](https://github.com/HealthCatalystSLC/documentation/blob/master/notebooks/Example2.ipynb) in model building with healthcareai.
+
+## Join the community
+Read the blog and join the slack channel at [healthcare.ai](https://healthcare.ai)
 
 ## For issues
 
