@@ -47,7 +47,6 @@
 #' @seealso \code{\link{orderByDate}}
 #' @seealso \code{\link{isBinary}}
 #' @seealso \code{\link{removeRowsWithNAInSpecCol}}
-#' @seealso \code{\link{countPercentEmpty}}
 #' @seealso \code{\link{removeColsWithAllSameValue}}
 #' @seealso \code{\link{returnColsWithMoreThanFiftyCategories}}
 #' @seealso \code{\link{findTrends}}

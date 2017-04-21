@@ -39,4 +39,3 @@ writeData(df,'localhost','SAM','dbo.HCRWriteData')
 \seealso{
 \code{\link{healthcareai}}
 }
-

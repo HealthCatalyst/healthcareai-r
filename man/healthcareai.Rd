@@ -67,8 +67,6 @@ have passed.}
 
 \code{\link{removeRowsWithNAInSpecCol}}
 
-\code{\link{countPercentEmpty}}
-
 \code{\link{removeColsWithAllSameValue}}
 
 \code{\link{returnColsWithMoreThanFiftyCategories}}
@@ -87,4 +85,3 @@ have passed.}
 
 \code{\link{generateAUC}}
 }
-

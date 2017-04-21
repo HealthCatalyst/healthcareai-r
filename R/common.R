@@ -454,7 +454,6 @@ findTrends <- function(df, dateCol, groupbyCol) {
 #' @param descending Boolean for whether the output should be in descending order
 #' @return A data frame ordered by date column
 #'
-#' @importFrom lubridate ymd_hms
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
@@ -465,8 +464,8 @@ findTrends <- function(df, dateCol, groupbyCol) {
 #' head(dfResult)
 
 orderByDate <- function(df, dateCol, descending = FALSE) {
-  df[[dateCol]] <- lubridate::ymd_hms(df[[dateCol]], truncated = 5)
-  #drop equals false so that one column data frames are not converted to arrays
+  df[[dateCol]] <- as.POSIXct(df[[dateCol]], truncated = 5)
+  # Drop equals FALSE so that one column data frames are not converted to arrays
   if (descending == FALSE) {
     dfResult <- df[order(df[[dateCol]]), , drop = FALSE]
   } else {
@@ -593,7 +592,7 @@ returnColsWithMoreThanFiftyCategories <- function(df) {
 }
 
 #' @title
-#' Calculates percentage of each column in df that is NULL (NA)
+#' DEPRECATED. Calculates percentage of each column in df that is NULL (NA)
 #'
 #' @description Returns a vector with percentage of each column that is NULL
 #' in the original data frame
@@ -611,6 +610,9 @@ returnColsWithMoreThanFiftyCategories <- function(df) {
 #' colList
 
 countPercentEmpty <- function(df) {
+  message(paste0('This function has been deprecated and will be removed',
+                 ' after v0.1.13.\n',
+                 'Please instead see ?percentDataAvailableInDateRange.'))
   colList <- colMeans(is.na(df))
   colList
 }
@@ -851,6 +853,92 @@ calculateSDChanges <- function(dfOriginal,
   }
 
   dfAlternative
+}
+
+#' @title
+#' Find the percent of a column that's filled
+#'
+#' @description
+#' Shows what percentage of data is avilable (potentially within a specified 
+#' date range)
+#'
+#' @param df A dataframe
+#' @param dateColumn Optional string representing a date column of interest
+#' @param startInclusive Optional string in the in this date style: 'YYYY-MM-DD'
+#' @param endExclusive Optional string in the in this date style: 'YYYY-MM-DD'
+#' @return A labeled numeric vector, representing each column in input df
+#'
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
+#' @examples 
+#' df <- data.frame(a = c(1,2,NA,NA),
+#'                  b = c('m','f','m','f'),
+#'                  c = c(0.7,NA,2.4,-4),
+#'                  d = c(100,300,200,NA),
+#'                  e = c(400,500,NA,504),
+#'                  datecol = c('2012-01-01','2012-01-02',
+#'                              '2012-01-03','2012-01-07'))
+#' 
+#' out <- percentDataAvailableInDateRange(df = df, # <- Only required argument
+#'                                        dateColumn = 'datecol',
+#'                                        startInclusive = '2012-01-01',
+#'                                        endExclusive = '2012-01-08')
+#' out
+
+percentDataAvailableInDateRange = function(df,
+                                           dateColumn=NULL,
+                                           startInclusive=NULL,
+                                           endExclusive=NULL) {
+
+  # Error handling
+  if (missing(df)) {
+    stop('Please specify a dataframe')
+  }
+  
+  # TODO: Simplify this error logic ground the three date cols
+  if ((missing(dateColumn)) &
+      ((!missing(startInclusive)) |
+       (!missing(endExclusive)))) {
+    stop('If any, specify dateColumn, startInclusive, AND endExclusive')
+  }
+  
+  if ((missing(startInclusive)) &
+      ((!missing(endExclusive)) |
+       (!missing(dateColumn)))) {
+    stop('If any, specify dateColumn, startInclusive, AND endExclusive')
+  }
+  
+  if ((missing(endExclusive)) &
+      ((!missing(startInclusive)) |
+       (!missing(dateColumn)))) {
+    stop('If any, specify dateColumn, startInclusive, AND endExclusive')
+  }
+
+  # If specified, check if date col exists in dataframe
+  if ((!missing(dateColumn)) && (!dateColumn %in% names(df))) {
+    stop(dateColumn, ' is not a column in your dataframe')
+  }
+  
+  # If one gets past error checking, and specified a dateColumn, subset data
+  if (!missing(dateColumn)) {
+    tryCatch( # Test this try catch and create unit test!!
+      reduced <- df[(as.Date(df[[dateColumn]]) >= as.Date(startInclusive) &
+                     as.Date(df[[dateColumn]]) < as.Date(endExclusive)),],
+      error = function(e) {
+      e$message <- paste0("The dateColumn, startInclusive, and endExclusive ",
+                          "columns need dates to be in YYYY-MM-DD format\n", e)
+      stop(e)
+    })
+  } else {
+    reduced = df
+  }
+  
+  reduced <- reduced[, !(names(reduced) %in% dateColumn)]
+  
+  percentFilled <- colMeans(!is.na(reduced)) * 100
+  
+  return(percentFilled)
 }
 
 #' @title
