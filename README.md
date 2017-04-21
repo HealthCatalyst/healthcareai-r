@@ -79,6 +79,12 @@ If you like Jupyter notebooks, check out [step 1](https://github.com/HealthCatal
 ## Join the community
 Read the blog and join the slack channel at [healthcare.ai](https://healthcare.ai)
 
+## What's new?
+Since the CRAN 0.1.11 release, the following has been added to the bleeding edge version
+
+- Output nightly predictions to a dataframe for use with MySQL, Oracle, etc. See the csv example at ?RandomForestDeployment
+- Evaluate in-the-wild performance via AU_ROC and AU_PR scores and plots. See more at ?generateAUC
+
 ## For issues
 
 - Double check that the code follows the examples in the built-in docs
