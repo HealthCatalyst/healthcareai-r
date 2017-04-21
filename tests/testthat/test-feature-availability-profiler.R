@@ -1,6 +1,6 @@
 context('Checking featureAvailabilityProfiler')
 
-test_that("For intra-day dataframe and NO dates specified", {
+test_that("For intra-day dataframe and NO dates specified return correctly", {
 
 df1 <- data.frame(a = c(2,1,3,5,4,NA,7,NA),
                   b = c(0.7,-2,NA,-4,-5,-6,NA,NA),
@@ -32,7 +32,7 @@ expect_equal(actualOut1$c, expected1$c)
 expect_equal(actualOut1$d, expected1$d)
 })
 
-test_that("For multi-day dataframe and dates specified", {
+test_that("For multi-day dataframe and dates specified return correctly", {
   df2 <- data.frame(a = c(2,1,3,5,4,NA,7,NA),
                     b = c(0.7,-2,NA,-4,-5,-6,NA,NA),
                     c = c(100,300,200,NA,NA,NA,NA,500),
@@ -63,4 +63,72 @@ test_that("For multi-day dataframe and dates specified", {
   expect_equal(actualOut2$b, expected2$b)
   expect_equal(actualOut2$c, expected2$c)
   expect_equal(actualOut2$d, expected2$d)
+})
+
+test_that("Check that not in dataframe error arises", {
+  df3 <- data.frame(a = c(2,1,3,5,4,NA,7,NA),
+                    b = c(0.7,-2,NA,-4,-5,-6,NA,NA),
+                    c = c(100,300,200,NA,NA,NA,NA,500),
+                    d = c(407,500,506,504,NA,NA,NA,405),
+                    admit = c('2012-01-01 00:00:00','2012-01-01 00:00:00',
+                              '2012-01-01 12:00:00','2012-01-01 12:00:00',
+                              '2012-01-02 00:00:00','2012-01-02 00:00:00',
+                              '2012-01-02 12:00:00','2012-01-02 12:00:00'),
+                    loaded = c('2012-01-03 00:00:00','2012-01-03 00:00:00',
+                               '2012-01-03 00:00:00','2012-01-03 00:00:00',
+                               '2012-01-03 00:00:00','2012-01-03 00:00:00',
+                               '2012-01-03 00:00:00','2012-01-03 00:00:00'))
+  
+  
+  expect_error(featureAvailabilityProfiler(df = df3,
+                                           startDateColumn = 'admit',
+                                           lastLoadDateColumn = 'loade',
+                                           plotProfiler = FALSE)
+               ,paste0('loade is not in your dataframe. Please carefully',
+                       ' specify the lastLoadDateColumn'))
+  
+})
+
+test_that("Specific POSIX conversion error arises for startDateColumn", {
+  df4 <- data.frame(a = c(2,1,3,5,4,NA,7,NA),
+                    b = c(0.7,-2,NA,-4,-5,-6,NA,NA),
+                    c = c(100,300,200,NA,NA,NA,NA,500),
+                    d = c(407,500,506,504,NA,NA,NA,405),
+                    admit = c('2012-01-01 00:00:00','2012-01-01 00:00:00',
+                              '2012-01-01 12:00:00','2012-01-01 12:00:00',
+                              '2012-01-02 00:00:00','2012-01-02 00:00:00',
+                              '2012-01-02 12:00:00','2012-01-02 12:00:00'),
+                    loaded = c('2012-01-03 00:00:00','2012-01-03 00:00:00',
+                               '2012-01-03 00:00:00','2012-01-03 00:00:00',
+                               '2012-01-03 00:00:00','2012-01-03 00:00:00',
+                               '2012-01-03 00:00:00','2012-01-03 00:00:00'))
+  
+  
+  expect_error(grepl(featureAvailabilityProfiler(df = df4,
+                                                 startDateColumn = 'd',
+                                                 lastLoadDateColumn = 'loaded',
+                                                 plotProfiler = FALSE),     
+               "d may not be a datetime column"))
+})
+
+test_that("Specific POSIX conversion error arises for lastLoadDateColumn", {
+  df5 <- data.frame(a = c(2,1,3,5,4,NA,7,NA),
+                    b = c(0.7,-2,NA,-4,-5,-6,NA,NA),
+                    c = c(100,300,200,NA,NA,NA,NA,500),
+                    d = c(407,500,506,504,NA,NA,NA,405),
+                    admit = c('2012-01-01 00:00:00','2012-01-01 00:00:00',
+                              '2012-01-01 12:00:00','2012-01-01 12:00:00',
+                              '2012-01-02 00:00:00','2012-01-02 00:00:00',
+                              '2012-01-02 12:00:00','2012-01-02 12:00:00'),
+                    loaded = c('2012-01-03 00:00:00','2012-01-03 00:00:00',
+                               '2012-01-03 00:00:00','2012-01-03 00:00:00',
+                               '2012-01-03 00:00:00','2012-01-03 00:00:00',
+                               '2012-01-03 00:00:00','2012-01-03 00:00:00'))
+  
+  
+  expect_error(grepl(featureAvailabilityProfiler(df = df5,
+                                                 startDateColumn = 'admit',
+                                                 lastLoadDateColumn = 'b',
+                                                 plotProfiler = FALSE),     
+               "b may not be a datetime column"))
 })

@@ -9,7 +9,7 @@ plotProfiler(listOfVectors)
 \arguments{
 \item{listOfVectors}{A list of vectors, where first vector has the hours and
 subsequent vectors represent the features and how much they're filled
-for each of the hours}
+for each of the hours. Usually populated by featureAvailabilityProfiler()}
 }
 \value{
 Nothing

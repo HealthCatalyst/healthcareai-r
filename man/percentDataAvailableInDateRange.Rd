@@ -12,9 +12,9 @@ percentDataAvailableInDateRange(df, dateColumn = NULL,
 
 \item{dateColumn}{Optional string representing a date column of interest}
 
-\item{startInclusive}{Optional string in the in this date style: '2012-01-01'}
+\item{startInclusive}{Optional string in the in this date style: 'YYYY-MM-DD'}
 
-\item{endExclusive}{Optional string in the in this date style: '2012-01-05'}
+\item{endExclusive}{Optional string in the in this date style: 'YYYY-MM-DD'}
 }
 \value{
 A labeled numeric vector, representing each column in input df

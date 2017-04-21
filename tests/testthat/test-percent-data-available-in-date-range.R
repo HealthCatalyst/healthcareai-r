@@ -17,7 +17,7 @@ test_that("Calculation is correct for simple dataframe w/o date col", {
   expect_equal(percentDataAvailableInDateRange(df1)[5],expected1[5])
 })
 
-test_that("Calculation is correct for simple dataframe w date col", {
+test_that("Calculation is correct for simple dataframe w/ date col", {
   
   df2 <- data.frame(a = c(1,2,NA,NA),
                     b = c('m','f','m','f'),
@@ -40,4 +40,71 @@ test_that("Calculation is correct for simple dataframe w date col", {
   expect_equal(actualOut[3],expected2[3])
   expect_equal(actualOut[4],expected2[4])
   expect_equal(actualOut[5],expected2[5])
+})
+
+test_that("Error arises for missing dateColumn", {
+  
+  df3 <- data.frame(a = c(1,2,NA,NA),
+                    b = c('m','f','m','f'),
+                    datecol = c('2012-01-01','2012-01-02',
+                                '2012-01-03','2012-01-07'))
+  
+  expect_error(percentDataAvailableInDateRange(df3,
+                                               startInclusive = '2012-01-03',
+                                               endExclusive = '2012-01-08'),
+               "If any, specify dateColumn, startInclusive, AND endExclusive")
+})
+
+test_that("Specific error arises for missing startInclusive", {
+  
+  df4 <- data.frame(a = c(1,2,NA,NA),
+                    b = c('m','f','m','f'),
+                    datecol = c('2012-01-01','2012-01-02',
+                                '2012-01-03','2012-01-07'))
+  
+  expect_error(percentDataAvailableInDateRange(df4,
+                                               dateColumn = 'datecol',
+                                               endExclusive = '2012-01-08'),
+               "If any, specify dateColumn, startInclusive, AND endExclusive")
+})
+
+test_that("Specific error arises for missing endExclusive", {
+  
+  df5 <- data.frame(a = c(1,2,NA,NA),
+                    b = c('m','f','m','f'),
+                    datecol = c('2012-01-01','2012-01-02',
+                                '2012-01-03','2012-01-07'))
+  
+  expect_error(percentDataAvailableInDateRange(df5,
+                                               dateColumn = 'datecol',
+                                               startInclusive = '2012-01-03'),
+               "If any, specify dateColumn, startInclusive, AND endExclusive")
+})
+
+test_that("Specific error arises for bad startInclusive format", {
+  
+  df5 <- data.frame(a = c(1,2,NA,NA),
+                    b = c('m','f','m','f'),
+                    datecol = c('2012-01-01','2012-01-02',
+                                '2012-01-03','2012-01-07'))
+  
+  expect_error(grepl(percentDataAvailableInDateRange(df5,
+                                               dateColumn = 'datecol',
+                                               startInclusive = '2012-01',
+                                               endExclusive = '2012-01-08'),
+               "columns need dates to be in YYYY-MM-DD format"))
+})
+
+test_that("Specific error arises for bad endExclusive date format", {
+  
+  df5 <- data.frame(a = c(1,2,NA,NA),
+                    b = c('m','f','m','f'),
+                    datecol = c('2012-01-01','2012-01-02',
+                                '2012-01-03','2012-01-07'))
+  
+  expect_error(grepl(percentDataAvailableInDateRange(df5,
+                                               dateColumn = 'datecol',
+                                               startInclusive = '2012-01-03',
+                                               endExclusive = '2012-01'),
+               "columns need dates to be in YYYY-MM-DD format"))
 })

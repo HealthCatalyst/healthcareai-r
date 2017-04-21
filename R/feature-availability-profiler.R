@@ -5,7 +5,7 @@
 #' starting time period.
 #' @param listOfVectors A list of vectors, where first vector has the hours and
 #' subsequent vectors represent the features and how much they're filled
-#' for each of the hours
+#' for each of the hours. Usually populated by featureAvailabilityProfiler()
 #' @return Nothing
 #'
 #' @export
@@ -43,6 +43,7 @@ plotProfiler = function(listOfVectors){
              max(listOfVectors$hoursSinceAdmit)),
     main = 'Feature Availability Over Time',
     type = 'l',
+    lwd = 3.,
     col = tempColor
   )
   
@@ -72,11 +73,13 @@ plotProfiler = function(listOfVectors){
 #' @title
 #' Calculate a vector of reasonable time bins
 #' 
-#' @description Given a number of hours, generate a reasonable vector of bins in hours such 
-#' that the first day is divided into multiple days are divided into 24 h bins 
-#' up to 90 days worth
+#' @description Given a number of hours, generate a reasonable vector of bins 
+#' in hours such that the first day is divided into multiple days are divided 
+#' into 24 h bins up to 90 days worth. Typically used with 
+#' featureAvailabilityProfiler
 #'
-#' @param lastHourOfInterest Number representing the last hour of interest
+#' @param lastHourOfInterest Number (hour) scalar representing the last hour of 
+#' interest
 #' @return numeric vector of hours, reasonably spaced
 #'
 #' @export
@@ -88,6 +91,10 @@ plotProfiler = function(listOfVectors){
 calculateHourBins = function(lastHourOfInterest){
   # Given a number of hours, 
   ninetyDaysWorthOfHours = 90 * 24
+  
+  if (!class(lastHourOfInterest) %in% c('numeric','integer')) {
+    stop('You must input a number.')
+  } 
   
   if (lastHourOfInterest > ninetyDaysWorthOfHours) {
     endHours = ninetyDaysWorthOfHours
@@ -167,12 +174,12 @@ featureAvailabilityProfiler = function(
   }
   
   # Check that date columns are in dataframe
-  if (!(startDateColumn %in% colnames(df))) {
+  if (!(startDateColumn %in% names(df))) {
     stop(paste0(startDateColumn,' is not in your dataframe.',
          ' Please carefully specify the startDateColumn'))
   }
   
-  if (!(lastLoadDateColumn %in% colnames(df))) {
+  if (!(lastLoadDateColumn %in% names(df))) {
     stop(paste0(lastLoadDateColumn,' is not in your dataframe.',
          ' Please carefully specify the lastLoadDateColumn'))
   }
@@ -182,7 +189,8 @@ featureAvailabilityProfiler = function(
     tryCatch(
       df[[startDateColumn]] <- as.POSIXct(df[[startDateColumn]]),
       error = function(e) {
-      e$message <- paste0(startDateColumn, " may not be a date column. \n", e)
+      e$message <- paste0(startDateColumn, " may not be a datetime column,",
+                          " or the column may not be in format YYYY-MM-DD\n", e)
       stop(e)
     })
   }
@@ -192,7 +200,8 @@ featureAvailabilityProfiler = function(
       df[[lastLoadDateColumn]] <- as.POSIXct(df[[lastLoadDateColumn]]),
       error = function(e) {
       e$message <- paste0(lastLoadDateColumn,
-                          " may not be a date column. \n", e)
+                          " may not be a datetime column,",
+                          " or the column may not be in format YYYY-MM-DD\n", e)
       stop(e)
     })
   }

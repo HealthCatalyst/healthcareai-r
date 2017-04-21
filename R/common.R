@@ -864,8 +864,8 @@ calculateSDChanges <- function(dfOriginal,
 #'
 #' @param df A dataframe
 #' @param dateColumn Optional string representing a date column of interest
-#' @param startInclusive Optional string in the in this date style: '2012-01-01'
-#' @param endExclusive Optional string in the in this date style: '2012-01-05'
+#' @param startInclusive Optional string in the in this date style: 'YYYY-MM-DD'
+#' @param endExclusive Optional string in the in this date style: 'YYYY-MM-DD'
 #' @return A labeled numeric vector, representing each column in input df
 #'
 #' @export
@@ -914,16 +914,27 @@ percentDataAvailableInDateRange = function(df,
        (!missing(dateColumn)))) {
     stop('If any, specify dateColumn, startInclusive, AND endExclusive')
   }
+
+  # If specified, check if date col exists in dataframe
+  if ((!missing(dateColumn)) && (!dateColumn %in% names(df))) {
+    stop(dateColumn, ' is not a column in your dataframe')
+  }
   
   # If one gets past error checking, and specified a dateColumn, subset data
   if (!missing(dateColumn)) {
-    reduced <- df[ which(as.Date(df[[dateColumn]]) >= as.Date(startInclusive) &
-                         as.Date(df[[dateColumn]]) < as.Date(endExclusive)), ]
+    tryCatch( # Test this try catch and create unit test!!
+      reduced <- df[(as.Date(df[[dateColumn]]) >= as.Date(startInclusive) &
+                     as.Date(df[[dateColumn]]) < as.Date(endExclusive)),],
+      error = function(e) {
+      e$message <- paste0("The dateColumn, startInclusive, and endExclusive ",
+                          "columns need dates to be in YYYY-MM-DD format\n", e)
+      stop(e)
+    })
   } else {
     reduced = df
   }
   
-  reduced <- reduced[ , !(names(reduced) %in% dateColumn)]
+  reduced <- reduced[, !(names(reduced) %in% dateColumn)]
   
   percentFilled <- colMeans(!is.na(reduced)) * 100
   

@@ -7,15 +7,17 @@
 calculateHourBins(lastHourOfInterest)
 }
 \arguments{
-\item{lastHourOfInterest}{Number representing the last hour of interest}
+\item{lastHourOfInterest}{Number (hour) scalar representing the last hour of 
+interest}
 }
 \value{
 numeric vector of hours, reasonably spaced
 }
 \description{
-Given a number of hours, generate a reasonable vector of bins in hours such 
-that the first day is divided into multiple days are divided into 24 h bins 
-up to 90 days worth
+Given a number of hours, generate a reasonable vector of bins 
+in hours such that the first day is divided into multiple days are divided 
+into 24 h bins up to 90 days worth. Typically used with 
+featureAvailabilityProfiler
 }
 \references{
 \url{http://healthcare.ai}
