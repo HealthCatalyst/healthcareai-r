@@ -42,6 +42,49 @@ This step allows one to
 }
 }
 \examples{
+
+ptm <- proc.time()
+library(healthcareai)
+
+# setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
+
+# Can delete this line in your work
+csvfile <- system.file("extdata", 
+                       "HCRDiabetesClinical.csv", 
+                       package = "healthcareai")
+
+# Replace csvfile with 'path/file'
+df <- read.csv(file = csvfile, 
+               header = TRUE, 
+               na.strings = c("NULL", "NA", ""))
+
+head(df)
+str(df)
+
+p <- SupervisedModelDeploymentParams$new()
+p$type <- "classification"
+p$df <- df
+p$grainCol <- "PatientEncounterID"
+p$personCol <- "PatientID"
+p$testWindowCol <- "InTestWindowFLG"
+p$predictedCol <- "ThirtyDayReadmitFLG"
+p$impute <- TRUE
+p$debug <- FALSE
+p$useSavedModel <- FALSE
+p$cores <- 1
+p$writeToDB <- FALSE
+
+dLMM <- LinearMixedModelDeployment$new(p)
+dLMM$deploy()
+
+df <- dLMM$getOutDf()
+# Write to CSV (or JSON, MySQL, etc) using R syntax
+# write.csv(df,'path/predictionsfile.csv')
+
+print(proc.time() - ptm)
+
+\donttest{
+  
 #### Classification example using diabetes data ####
 # This example requires you to first create a table in SQL Server
 # If you prefer to not use SAMD, execute this in SSMS to create output table:
@@ -52,7 +95,6 @@ This step allows one to
 # Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 # )
 
-\donttest{
 # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 ptm <- proc.time()
 library(healthcareai)
@@ -81,14 +123,15 @@ FROM [SAM].[dbo].[HCRDiabetesClinical]
 df <- selectData(connection.string, query)
 
 head(df)
+str(df)
 
 p <- SupervisedModelDeploymentParams$new()
 p$type <- "classification"
 p$df <- df
 p$grainCol <- "PatientEncounterID"
+p$personCol <- "PatientID"
 p$testWindowCol <- "InTestWindowFLG"
 p$predictedCol <- "ThirtyDayReadmitFLG"
-p$personCol <- "PatientID"
 p$impute <- FALSE
 p$debug <- FALSE
 p$useSavedModel <- FALSE
@@ -100,6 +143,9 @@ lMM <- LinearMixedModelDeployment$new(p)
 lMM$deploy()
 
 print(proc.time() - ptm)
+}
+
+\donttest{
 
 #### Regression example using diabetes data ####
 # This example requires you to first create a table in SQL Server
@@ -139,14 +185,15 @@ FROM [SAM].[dbo].[HCRDiabetesClinical]
 df <- selectData(connection.string, query)
 
 head(df)
+str(df)
 
 p <- SupervisedModelDeploymentParams$new()
 p$type <- "regression"
 p$df <- df
 p$grainCol <- "PatientEncounterID"
+p$personCol <- "PatientID"
 p$testWindowCol <- "InTestWindowFLG"
 p$predictedCol <- "A1CNBR"
-p$personCol <- "PatientID"
 p$impute <- TRUE
 p$debug <- FALSE
 p$useSavedModel <- FALSE
@@ -159,7 +206,6 @@ lMM$deploy()
 
 print(proc.time() - ptm)
 }
-
 }
 \seealso{
 \code{\link{healthcareai}}
