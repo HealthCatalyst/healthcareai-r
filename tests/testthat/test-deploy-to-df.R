@@ -1,4 +1,4 @@
-context("Checking deploy predictions to df")
+context("Checking deploy predictions from csv to df")
 
 csvfile <- system.file("extdata",
                        "HCRDiabetesClinical.csv",

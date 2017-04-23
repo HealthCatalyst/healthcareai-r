@@ -12,7 +12,8 @@ source('R/supervised-model-deployment.R')
 #' \item Push these predictions to SQL Server
 #' }
 #' @docType class
-#' @usage LassoDeployment(type, df, grainCol, testWindowCol, predictedCol, impute)
+#' @usage LassoDeployment(type, df, grainCol, testWindowCol, predictedCol, 
+#' impute, debug)
 #' @import caret
 #' @import doParallel
 #' @importFrom R6 R6Class
@@ -28,23 +29,13 @@ source('R/supervised-model-deployment.R')
 #' This uses mean replacement for numeric columns
 #' and most frequent for factorized columns.
 #' F leads to removal of rows containing NULLs.
-#' #' @param debug Provides the user extended output to the console, in order
+#' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
+#' @export
 #' @seealso \code{\link{healthcareai}}
-#'     
 #' @examples
 #' 
-#' #### Regression example using diabetes data ####
-#' # This example requires you to first create a table in SQL Server
-#' # If you prefer to not use SAMD, execute this in SSMS to create output table:
-#' # CREATE TABLE dbo.HCRDeployRegressionBASE(
-#' #   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
-#' #   PatientEncounterID int, <--change to match inputID
-#' #   PredictedValueNBR decimal(38, 2),
-#' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
-#' # )
-#'
-#' #### Example using csv data ####
+#' #### Regression Example using csv data ####
 #' ptm <- proc.time()
 #' library(healthcareai)
 #'
@@ -61,6 +52,7 @@ source('R/supervised-model-deployment.R')
 #'                na.strings = c("NULL", "NA", ""))
 #'
 #' head(df)
+#' str(df)
 #'
 #' # Remove unnecessary columns
 #' df$PatientID <- NULL
@@ -87,7 +79,16 @@ source('R/supervised-model-deployment.R')
 #' print(proc.time() - ptm)
 #' 
 #' \donttest{
-#' #### Example using SQL Server data ####
+#' #### Classification example using SQL Server data ####
+#' # This example requires you to first create a table in SQL Server
+#' # If you prefer to not use SAMD, execute this in SSMS to create output table:
+#' # CREATE TABLE dbo.HCRDeployClassificationBASE(
+#' #   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
+#' #   PatientEncounterID int, <--change to match inputID
+#' #   PredictedProbNBR decimal(38, 2),
+#' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
+#' # )
+#'
 #' ptm <- proc.time()
 #' library(healthcareai)
 #'
@@ -114,9 +115,65 @@ source('R/supervised-model-deployment.R')
 #' df <- selectData(connection.string, query)
 #'
 #' head(df)
+#' str(df)
 #'
-#' # Remove unnecessary columns
-#' df$PatientID <- NULL
+#' p <- SupervisedModelDeploymentParams$new()
+#' p$type <- "classification"
+#' p$df <- df
+#' p$grainCol <- "PatientEncounterID"
+#' p$testWindowCol <- "InTestWindowFLG"
+#' p$predictedCol <- "ThirtyDayReadmitFLG"
+#' p$impute <- TRUE
+#' p$debug <- FALSE
+#' p$useSavedModel <- FALSE
+#' p$cores <- 1
+#' p$sqlConn <- connection.string
+#' p$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
+#'
+#' dL <- LassoDeployment$new(p)
+#' dL$deploy()
+#'
+#' print(proc.time() - ptm)
+#' }
+#' 
+#' \donttest{
+#' #### Regression Example using SQL Server data ####
+#' # This example requires you to first create a table in SQL Server
+#' # If you prefer to not use SAMD, execute this in SSMS to create output table:
+#' # CREATE TABLE dbo.HCRDeployRegressionBASE(
+#' #   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
+#' #   PatientEncounterID int, <--change to match inputID
+#' #   PredictedValueNBR decimal(38, 2),
+#' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
+#' # )
+#'
+#' ptm <- proc.time()
+#' library(healthcareai)
+#'
+#' connection.string <- "
+#' driver={SQL Server};
+#' server=localhost;
+#' database=SAM;
+#' trusted_connection=true
+#' "
+#'
+#' query <- "
+#' SELECT
+#'  [PatientEncounterID] --Only need one ID column for random forest
+#' ,[SystolicBPNBR]
+#' ,[LDLNBR]
+#' ,[A1CNBR]
+#' ,[GenderFLG]
+#' ,[ThirtyDayReadmitFLG]
+#' ,[InTestWindowFLG]
+#' FROM [SAM].[dbo].[HCRDiabetesClinical]
+#' --no WHERE clause, because we want train AND test
+#' "
+#'
+#' df <- selectData(connection.string, query)
+#'
+#' head(df)
+#' str(df)
 #'
 #' p <- SupervisedModelDeploymentParams$new()
 #' p$type <- "regression"
@@ -136,7 +193,6 @@ source('R/supervised-model-deployment.R')
 #'
 #' print(proc.time() - ptm)
 #' }
-#' @export
 
 LassoDeployment <- R6Class(
   "LassoDeployment",

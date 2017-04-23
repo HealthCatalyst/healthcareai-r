@@ -32,19 +32,10 @@ source('R/supervised-model-deployment.R')
 #' F leads to removal of rows containing NULLs.
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
+#' @export
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' 
-#' #### Classification examples using diabetes data ####
-#' # If pushing predictions to SQL Server, first create a table
-#' # If you prefer to not use SAMD, execute this in SSMS to create output table:
-#' # CREATE TABLE dbo.HCRDeployRegressionBASE(
-#' #   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
-#' #   PatientEncounterID int, <--change to match inputID
-#' #   PredictedProbNBR decimal(38, 2),
-#' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
-#' # )
-#'
 #' #### Example using csv data ####
 #' ptm <- proc.time()
 #' library(healthcareai)
@@ -88,7 +79,16 @@ source('R/supervised-model-deployment.R')
 #' print(proc.time() - ptm)
 #' 
 #' \donttest{
-#' #### Example using SQL Server data ####
+#' 
+#' #### Classification example using SQL Server data ####
+#' # If pushing predictions to SQL Server, first create a table
+#' # If you prefer to not use SAMD, execute this in SSMS to create output table:
+#' # CREATE TABLE dbo.HCRDeployClassificationBASE(
+#' #   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
+#' #   PatientEncounterID int, <--change to match inputID
+#' #   PredictedProbNBR decimal(38, 2),
+#' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
+#' # )
 #' ptm <- proc.time()
 #' library(healthcareai)
 #'
@@ -115,9 +115,7 @@ source('R/supervised-model-deployment.R')
 #' df <- selectData(connection.string, query)
 #'
 #' head(df)
-#'
-#' # Remove unnecessary columns
-#' df$PatientID <- NULL
+#' str(df)
 #'
 #' p <- SupervisedModelDeploymentParams$new()
 #' p$type <- "classification"
@@ -137,7 +135,64 @@ source('R/supervised-model-deployment.R')
 #'
 #' print(proc.time() - ptm)
 #' }
-#' @export
+#' 
+#' \donttest{
+#' 
+#' #### Regression example using SQL Server data ####
+#' # If pushing predictions to SQL Server, first create a table
+#' # If you prefer to not use SAMD, execute this in SSMS to create output table:
+#' # CREATE TABLE dbo.HCRDeployRegressionBASE(
+#' #   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
+#' #   PatientEncounterID int, <--change to match inputID
+#' #   PredictedValueNBR decimal(38, 2),
+#' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
+#' # )
+#' ptm <- proc.time()
+#' library(healthcareai)
+#'
+#' connection.string <- "
+#' driver={SQL Server};
+#' server=localhost;
+#' database=SAM;
+#' trusted_connection=true
+#' "
+#'
+#' query <- "
+#' SELECT
+#'  [PatientEncounterID] --Only need one ID column for random forest
+#' ,[SystolicBPNBR]
+#' ,[LDLNBR]
+#' ,[A1CNBR]
+#' ,[GenderFLG]
+#' ,[ThirtyDayReadmitFLG]
+#' ,[InTestWindowFLG]
+#' FROM [SAM].[dbo].[HCRDiabetesClinical]
+#' --no WHERE clause, because we want train AND test
+#' "
+#'
+#' df <- selectData(connection.string, query)
+#'
+#' head(df)
+#' str(df)
+#'
+#' p <- SupervisedModelDeploymentParams$new()
+#' p$type <- "regression"
+#' p$df <- df
+#' p$grainCol <- "PatientEncounterID"
+#' p$testWindowCol <- "InTestWindowFLG"
+#' p$predictedCol <- "A1CNBR"
+#' p$impute <- TRUE
+#' p$debug <- FALSE
+#' p$useSavedModel <- FALSE
+#' p$cores <- 1
+#' p$sqlConn <- connection.string
+#' p$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
+#'
+#' dL <- RandomForestDeployment$new(p)
+#' dL$deploy()
+#'
+#' print(proc.time() - ptm)
+#' }
 
 RandomForestDeployment <- R6Class("RandomForestDeployment",
   #Inheritance
@@ -234,7 +289,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
       } else if (self$params$type == 'regression') {
         # this is in-kind prediction
-        predictedValsTemp <- predict(private$fit, data = self$dfTest)
+        predictedValsTemp <- predict(private$fit, data = private$dfTest)
         private$predictedVals <- predictedValsTemp$predictions
 
         if (isTRUE(self$params$debug)) {
