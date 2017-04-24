@@ -15,7 +15,10 @@ connection.string <- "
   trusted_connection=true
 "
 
-test_that("lasso classification doesn't return any errors when pushing predictions to SQL", {
+test_that("lasso classification doesn't return any errors when pushing 
+          predictions to SQL", {
+  skip_on_travis()
+  skip_on_cran()
   
   df$PatientID <- NULL
   p <- SupervisedModelDeploymentParams$new()
@@ -40,6 +43,8 @@ test_that("lasso classification doesn't return any errors when pushing predictio
 
 test_that("lasso regression doesn't return any errors when pushing predictions 
           to SQL", {
+  skip_on_travis()
+  skip_on_cran()
   
   df$PatientID <- NULL
   p <- SupervisedModelDeploymentParams$new()
@@ -62,7 +67,10 @@ test_that("lasso regression doesn't return any errors when pushing predictions
                 "SQL Server insert was successful")
 })
 
-test_that("rf classification doesn't return any errors when pushing predictions to SQL", {
+test_that("rf classification doesn't return any errors when pushing predictions 
+          to SQL", {
+  skip_on_travis()
+  skip_on_cran()
   
   df$PatientID <- NULL
   p <- SupervisedModelDeploymentParams$new()
@@ -87,6 +95,8 @@ test_that("rf classification doesn't return any errors when pushing predictions 
 
 test_that("rf regression doesn't return any errors when pushing predictions to 
           SQL", {
+  skip_on_travis()
+  skip_on_cran()
   
   df$PatientID <- NULL
   p <- SupervisedModelDeploymentParams$new()
@@ -111,6 +121,8 @@ test_that("rf regression doesn't return any errors when pushing predictions to
 
 test_that("LMM classification doesn't return any errors when pushing predictions 
           to SQL", {
+  skip_on_travis()
+  skip_on_cran()
   
   p <- SupervisedModelDeploymentParams$new()
   p$type = 'classification'
@@ -135,6 +147,8 @@ test_that("LMM classification doesn't return any errors when pushing predictions
 
 test_that("LMM regression doesn't return any errors when pushing predictions 
           to SQL", {
+  skip_on_travis()
+  skip_on_cran()
             
   p <- SupervisedModelDeploymentParams$new()
   p$type = 'regression'
