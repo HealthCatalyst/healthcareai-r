@@ -56,4 +56,4 @@ featureAvailabilityProfiler(dataframe, startDateColumn='AdmitDTS', lastLoadColum
 
 You will then see a graph like the one below that shows you each feature (i.e., column) and its percentage of availability as time goes on.
 
-![Sample output from Feature Availabilty Profiler](inst/docs/img/featureAvailabilityProfiler_Plot_20170413.png)
+![Sample output from Feature Availabilty Profiler](img/featureAvailabilityProfiler_Plot_20170413.png)
