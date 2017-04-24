@@ -51,11 +51,9 @@ The availability profiler assumes that your data has two date/time columns. One 
 1. Load your data into a datarame.
 2. Pass your dataframe into the profiler as such:
   ```
-featureAvailabilityProfiler(dataframe, admitColumnName='AdmitDTS', lastLoadColumnName='LastLoadDTS')
+featureAvailabilityProfiler(dataframe, startDateColumn='AdmitDTS', lastLoadColumnName='LastLoadDTS')
 ```
 
-You will then see a graph like the one below that shows you each feature (aka database field) and it's percentage of availability as time goes on.
+You will then see a graph like the one below that shows you each feature (i.e., column) and its percentage of availability as time goes on.
 
-# TODO: add graph
-
-![Sample output from Feature Availabilty Profiler](foo.png)
+![Sample output from Feature Availabilty Profiler](img/featureAvailabilityProfiler_Plot_20170413.png)
