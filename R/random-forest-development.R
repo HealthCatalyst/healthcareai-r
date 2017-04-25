@@ -195,6 +195,24 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     MAE = NA,
 
     # Start of functions
+    saveModel = function() {
+      if (isTRUE(self$params$debug)) {
+        print('Saving model...')
+      }
+      
+        # fitLogitObj <- private$fitLogit
+        # fitObj <- private$fit
+        
+        # save(fitLogitObj, file = "rmodel_var_import.rda")
+        # save(fitObj, file = "rmodel_probability.rda")
+      
+      fitLogitObj <- private$fitLogit
+      fitObj <- private$fit
+
+      save(fitLogitObj, file = "rmodel_var_import.rda")
+      save(fitObj, file = "rmodel_probability.rda")
+    },
+    
     buildGrid = function() {
       if (isTRUE(self$params$tune)) {
         optimal <- NA
