@@ -238,7 +238,9 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
     initialize = function(p) {
       super$initialize(p)
     },
-
+    getPredictions = function(){
+      return(private$predictions)
+    },
     # Start of functions
     buildDataset = function(){
       # TODO Soon: Prepare data according to InTestWindow column, in case
