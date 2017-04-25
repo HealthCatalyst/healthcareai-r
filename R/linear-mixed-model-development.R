@@ -23,7 +23,8 @@ source('R/supervised-model-development.R')
 #' @param df Dataframe whose columns are used for calc.
 #' @param grainCol The data frame's ID column pertaining to the grain
 #' @param personCol The data frame's ID column pertaining to the person/patient
-#' @param predictedCol Column that you want to predict.
+#' @param predictedCol Column that you want to predict. If you're doing
+#' classification then this should be Y/N.
 #' @param impute Set all-column imputation to F or T.
 #' This uses mean replacement for numeric columns
 #' and most frequent for factorized columns.

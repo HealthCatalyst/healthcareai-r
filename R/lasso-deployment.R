@@ -21,10 +21,11 @@ source('R/supervised-model-deployment.R')
 #' @param type The type of model (either 'regression' or 'classification')
 #' @param df Dataframe whose columns are used for calc.
 #' @param grainCol The dataframe's column that has IDs pertaining to the grain
-#' @param testWindowCol This column dictates the split between model training and
-#' test sets. Those rows with zeros in this column indicate the training set
-#' while those that have ones indicate the test set
-#' @param predictedCol Column that you want to predict.
+#' @param testWindowCol Y or N. This column dictates the split between model 
+#' training and test sets. Those rows with N in this column indicate the 
+#' training set while those that have Y indicate the test set
+#' @param predictedCol Column that you want to predict. If you're doing
+#' classification then this should be Y/N.
 #' @param impute For training df, set all-column imputation to F or T.
 #' This uses mean replacement for numeric columns
 #' and most frequent for factorized columns.

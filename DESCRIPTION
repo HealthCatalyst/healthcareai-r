@@ -14,6 +14,8 @@ Description: A machine learning toolbox tailored to healthcare data.
     are Lasso, Random Forest, and Linear Mixed Model.
 License: MIT + file LICENSE
 LazyData: TRUE
+Depends:
+    R (>= 3.2.3)
 Imports:
     assertthat, 
     caret,
