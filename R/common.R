@@ -234,7 +234,11 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' head(df)
 #' }
 
-selectData <- function(connectionString, query, randomize = FALSE) {
+selectData <- function(connectionString, 
+                       query, 
+                       randomize = FALSE,
+                       dbType = 'SQLServer') {
+  
   if (isTRUE(randomize)) {
     orderPres <- grep("order", tolower(query))
 
@@ -246,15 +250,19 @@ selectData <- function(connectionString, query, randomize = FALSE) {
   }
 
   # TODO: if debug: cat(connectionString)
-  cnxn <- RODBC::odbcDriverConnect(connectionString)
-
   # TODO: if debug: cat(query) 
   # TODO: if debug: time this operation and print time spent to pull data.
-  df <- RODBC::sqlQuery(channel = cnxn, 
-                        na.strings = c("NULL", "NA", ""), 
-                        query = query)
+  if (dbType == 'SQLServer') {
+    con <- DBI::dbConnect(odbc::odbc(),
+                          .connection_string = connectionString)
+  } else if (dbType == 'SQLite') {
+    con <- DBI::dbConnect(RSQLite::SQLite(),
+                          .connection_string = connectionString)
+  }
+  df <- DBI::dbGetQuery(con, query)
 
-  RODBC::odbcCloseAll()
+  # Close connection
+  DBI::dbDisconnect(con)
 
   # Make sure there are enough rows to actually do something useful.
   if (is.null(nrow(df))) {
@@ -262,12 +270,11 @@ selectData <- function(connectionString, query, randomize = FALSE) {
     stop("Your SQL contains an error.")
   }
   if (nrow(df) == 0) {
-    cat("Too few rows returned from SQL: ")
-    cat(nrow(df))
-    cat(" rows returned.")
+    cat("Zero rows returned from SQL.")
     cat("Adjust your query to return more data!")
+  } else if (nrow(df) > 0) {
+    cat(nrow(df), " rows returned from SQL.")
   }
-  # TODO: if debug: print the number of rows selected.
   df  # Return the selected data.
 }
 
