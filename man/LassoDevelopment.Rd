@@ -14,19 +14,19 @@ debug)
 
 \item{type}{The type of model (either 'regression' or 'classification')}
 
-\item{df}{Dataframe whose columns are used for calc.}
+\item{df}{Dataframe whose columns are used for calculation.}
 
 \item{grainCol}{The dataframe's column that has IDs pertaining to the grain}
 
 \item{predictedCol}{Column that you want to predict.}
 
-\item{impute}{Set all-column imputation to F or T.
+\item{impute}{Set all-column imputation to FALSE or TRUE.
 This uses mean replacement for numeric columns
 and most frequent for factorized columns.
-F leads to removal of rows containing NULLs.}
+FALSE leads to removal of rows containing NULLs.}
 
 \item{debug}{Provides the user extended output to the console, in order
-to monitor the calculations throughout. Use T or F.}
+to monitor the calculations throughout. Use TRUE or FALSE.}
 }
 \description{
 This step allows you to create a Lasso model, based on

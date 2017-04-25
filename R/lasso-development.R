@@ -283,7 +283,8 @@ LassoDevelopment <- R6Class("LassoDevelopment",
 
     # Predict results
     performPrediction = function() {
-
+      print('in performPrediction2')
+      print(str(private$fitGrLasso))
       # Index of largest lambda within one cvse of the lambda with lowest cve:
       # These are sorted from largest to smallest lambda, hence pulling the
       # minimum index.
