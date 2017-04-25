@@ -198,18 +198,18 @@ LassoDevelopment <- R6Class("LassoDevelopment",
   	AUROC = NA,
   	AUPR = NA,
   	RMSE = NA,
-  	MAE = NA,
+  	MAE = NA),
 
     # functions
-    saveModel = function() {
-      if (isTRUE(self$params$debug)) {
-        print("Saving model...")
-      }
-      
-      fitObj <- private$fitGrLasso
-      save(fitObj, file = "SAVEJUNKMODEL.rda")
-    }
-  ),
+  #   saveModel = function() {
+  #     if (isTRUE(self$params$debug)) {
+  #       print("Saving model...")
+  #     }
+  #     
+  #     fitObj <- private$fitGrLasso
+  #     save(fitObj, file = "SAVEJUNKMODEL.rda")
+  #   }
+  # ),
   
   # Public members
   public = list(
@@ -301,7 +301,7 @@ LassoDevelopment <- R6Class("LassoDevelopment",
                                     type = "response")
       
       if (isTRUE(self$params$debug)) {
-        print(paste0("Rows in prob prediction: ", nrow(private$predictedVals)))
+        print(paste0("Rows in prob prediction: ", nrow(private$predictions)))
         print("First 10 raw classification probability predictions")
         print(round(private$predictions[1:10], 2))
       }
