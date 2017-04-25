@@ -206,19 +206,8 @@ LassoDevelopment <- R6Class("LassoDevelopment",
         print("Saving model...")
       }
       
-      # NOTE: save(private$fit, ...) does not work!
-      if (isTRUE(!self$params$useSavedModel)) {
-        fitObj <- private$fit
-        save(fitObj, file = "rmodel_combined.rda")
-      }
-      
-      # This isn't needed if formula interface is used in randomForest
-      private$dfTest[[self$params$predictedCol]] = NULL
-      
-      if (isTRUE(self$params$debug)) {
-        print("Test set before being used in predict(), after removing y")
-        print(str(private$dfTest))
-      }
+      fitObj <- private$fitGrLasso
+      save(fitObj, file = "SAVEJUNKMODEL.rda")
     }
   ),
   
@@ -298,7 +287,7 @@ LassoDevelopment <- R6Class("LassoDevelopment",
       # Index of largest lambda within one cvse of the lambda with lowest cve:
       # These are sorted from largest to smallest lambda, hence pulling the
       # minimum index.
-      private$indLambda1se <- min(which(private$fitGrLasso$cve <= (private$fitGrLasso$cve + private$fitGrLasso$cvse)[private$fitGrLasso$min]))
+      private$indLambda1se <- min(which(private$fitGrLasso$cve <= (private$fitGrLasso$cve + private$wGrLasso$cvse)[private$fitGrLasso$min]))
 
       # Largest lambda within one cvse of the lambda with lowest cve (ie. lambda
       # to use in final fit):
@@ -343,7 +332,7 @@ LassoDevelopment <- R6Class("LassoDevelopment",
         imp = names(private$dfTrainTemp[ ,!(colnames(private$dfTrainTemp) == self$params$predictedCol)])[predict(private$fitGrLasso, private$modMat,type = "groups", lambda = private$lambda1se)]
         print(paste0("Variables with non-zero coefficients: ",paste0(imp, collapse = ", ")))
       }
-
+      
       return(invisible(private$fitGrLasso))
     },
 
@@ -352,6 +341,10 @@ LassoDevelopment <- R6Class("LassoDevelopment",
 
       # Build Model
 	    self$buildModel()
+      
+      
+      # save the model
+      # private$saveModel()
 
       # Perform prediction
       self$performPrediction()
