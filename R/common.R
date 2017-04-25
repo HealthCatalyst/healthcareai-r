@@ -216,7 +216,15 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' @examples
 #' 
 #' \donttest{
-#' #### This example is specific to Windows and is not tested on CRAN 
+#' # This example is specific to Windows
+#' 
+#' # To instead pull data from Oracle see here 
+#' # https://cran.r-project.org/web/packages/ROracle/ROracle.pdf
+#' # To pull data from MySQL see here 
+#' # https://cran.r-project.org/web/packages/RMySQL/RMySQL.pdf
+#' # To pull data from Postgres see here 
+#' # https://cran.r-project.org/web/packages/RPostgreSQL/RPostgreSQL.pdf
+#' 
 #' connectionString <- '
 #'   driver={SQL Server};
 #'   server=localhost;
@@ -234,10 +242,15 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' head(df)
 #' }
 
-selectData <- function(connectionString, 
+selectData <- function(connectionString=NULL, 
                        query, 
                        randomize = FALSE,
                        dbType = 'SQLServer') {
+  
+  if ((dbType == 'SQLServer') && (is.null(connectionString))) {
+    # Fix this ERROR!!!
+    stop('You must specify a connectionString for SQL Server')
+  }
   
   if (isTRUE(randomize)) {
     orderPres <- grep("order", tolower(query))
@@ -257,9 +270,11 @@ selectData <- function(connectionString,
                           .connection_string = connectionString)
   } else if (dbType == 'SQLite') {
     con <- DBI::dbConnect(RSQLite::SQLite(),
-                          .connection_string = connectionString)
+                          dbname = "unit-test.sqlite")
   }
-  df <- DBI::dbGetQuery(con, query)
+  
+  # Put this in try catch!!!!
+    df <- DBI::dbGetQuery(con, query)
 
   # Close connection
   DBI::dbDisconnect(con)
@@ -270,10 +285,8 @@ selectData <- function(connectionString,
     stop("Your SQL contains an error.")
   }
   if (nrow(df) == 0) {
-    cat("Zero rows returned from SQL.")
+    cat("Zero rows returned from SQL. ")
     cat("Adjust your query to return more data!")
-  } else if (nrow(df) > 0) {
-    cat(nrow(df), " rows returned from SQL.")
   }
   df  # Return the selected data.
 }
@@ -1248,7 +1261,7 @@ initializeParamsForTesting <- function(df) {
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
-#' 
+
 getCutOffs = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
   ## TODO: Give user the ability to give higher weight to recall or FPR
   x <- unlist(perf@x.values)
