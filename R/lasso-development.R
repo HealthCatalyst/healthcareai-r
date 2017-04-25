@@ -198,9 +198,30 @@ LassoDevelopment <- R6Class("LassoDevelopment",
   	AUROC = NA,
   	AUPR = NA,
   	RMSE = NA,
-  	MAE = NA
-  ),
+  	MAE = NA,
 
+    # functions
+    saveModel = function() {
+      if (isTRUE(self$params$debug)) {
+        print("Saving model...")
+      }
+      
+      # NOTE: save(private$fit, ...) does not work!
+      if (isTRUE(!self$params$useSavedModel)) {
+        fitObj <- private$fit
+        save(fitObj, file = "rmodel_combined.rda")
+      }
+      
+      # This isn't needed if formula interface is used in randomForest
+      private$dfTest[[self$params$predictedCol]] = NULL
+      
+      if (isTRUE(self$params$debug)) {
+        print("Test set before being used in predict(), after removing y")
+        print(str(private$dfTest))
+      }
+    }
+  ),
+  
   # Public members
   public = list(
 
