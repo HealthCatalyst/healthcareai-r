@@ -242,15 +242,18 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' head(df)
 #' }
 
-selectData <- function(connectionString=NULL, 
+selectData <- function(connectionString = NULL, 
                        query, 
-                       randomize = FALSE,
-                       dbType = 'SQLServer') {
+                       dbType = 'SQLServer',
+                       dbFile = NULL,
+                       randomize = FALSE) {
   
   if ((dbType == 'SQLServer') && (is.null(connectionString))) {
     # Fix this ERROR!!!
     stop('You must specify a connectionString for SQL Server')
   }
+  
+  # TODO: Add stop if SQLite is chosen and no file is specified
   
   if (isTRUE(randomize)) {
     orderPres <- grep("order", tolower(query))
@@ -258,23 +261,22 @@ selectData <- function(connectionString=NULL,
     if (length(orderPres == 0)) {
       stop("You cannot randomize while using the SQL order keyword.")
     }
-
     query <- paste0(query, " ORDER BY NEWID()")
   }
 
-  # TODO: if debug: cat(connectionString)
-  # TODO: if debug: cat(query) 
   # TODO: if debug: time this operation and print time spent to pull data.
   if (dbType == 'SQLServer') {
     con <- DBI::dbConnect(odbc::odbc(),
                           .connection_string = connectionString)
   } else if (dbType == 'SQLite') {
-    con <- DBI::dbConnect(RSQLite::SQLite(),
-                          dbname = "unit-test.sqlite")
+    con <- DBI::dbConnect(RSQLite::SQLite(), dbname = dbFile)
   }
   
-  # Put this in try catch!!!!
-    df <- DBI::dbGetQuery(con, query)
+  tryCatch(df <- DBI::dbGetQuery(con, query),
+    error = function(e) {
+    e$message <- "Your SQL likely contains an error."
+    stop(e)
+  })
 
   # Close connection
   DBI::dbDisconnect(con)
@@ -285,8 +287,8 @@ selectData <- function(connectionString=NULL,
     stop("Your SQL contains an error.")
   }
   if (nrow(df) == 0) {
-    cat("Zero rows returned from SQL. ")
-    cat("Adjust your query to return more data!")
+    warning("Zero rows returned from SQL. ",
+            "Adjust your query to return more data!")
   }
   df  # Return the selected data.
 }
