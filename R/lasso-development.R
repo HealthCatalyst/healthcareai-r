@@ -221,7 +221,11 @@ LassoDevelopment <- R6Class(
     initialize = function(p) {
       super$initialize(p)
     },
-    
+
+    getPredictions = function(){
+      return(private$predictions)
+    },
+
     # Override: build Grouped Lasso model
     buildModel = function() {
       private$dfTrainTemp <- private$dfTrain

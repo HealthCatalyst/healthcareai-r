@@ -252,7 +252,9 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         self$params$numberOfTrees = p$numberOfTrees
       }
     },
-
+    getPredictions = function(){
+      return(private$predictions)
+    },
     # Override: build RandomForest model
     buildModel = function() {
       trainControlParams.method <- ""
