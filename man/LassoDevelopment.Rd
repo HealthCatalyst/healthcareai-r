@@ -6,7 +6,7 @@
 \title{Compare predictive models, created on your data}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-LassoDevelopment(object, type, df, grainCol, predictedCol, impute, 
+LassoDevelopment(object, type, df, grainCol, predictedCol, impute,
 debug)
 }
 \arguments{
@@ -14,19 +14,19 @@ debug)
 
 \item{type}{The type of model (either 'regression' or 'classification')}
 
-\item{df}{Dataframe whose columns are used for calculation.}
+\item{df}{Dataframe whose columns are used for calc.}
 
 \item{grainCol}{The dataframe's column that has IDs pertaining to the grain}
 
 \item{predictedCol}{Column that you want to predict.}
 
-\item{impute}{Set all-column imputation to FALSE or TRUE.
+\item{impute}{Set all-column imputation to F or T.
 This uses mean replacement for numeric columns
 and most frequent for factorized columns.
-FALSE leads to removal of rows containing NULLs.}
+F leads to removal of rows containing NULLs.}
 
 \item{debug}{Provides the user extended output to the console, in order
-to monitor the calculations throughout. Use TRUE or FALSE.}
+to monitor the calculations throughout. Use T or F.}
 }
 \description{
 This step allows you to create a Lasso model, based on
@@ -56,7 +56,7 @@ p$cores <- 1
 lasso <- LassoDevelopment$new(p)
 lasso$run()
 
-set.seed(42) 
+set.seed(42)
 # Run Random Forest
 rf <- RandomForestDevelopment$new(p)
 rf$run()
@@ -92,7 +92,7 @@ p$cores <- 1
 lasso <- LassoDevelopment$new(p)
 lasso$run()
 
-set.seed(42) 
+set.seed(42)
 # Run Random Forest
 rf <- RandomForestDevelopment$new(p)
 rf$run()
@@ -100,7 +100,7 @@ rf$run()
 print(proc.time() - ptm)
 
 \donttest{
-#### This example is specific to Windows and is not tested. 
+#### This example is specific to Windows and is not tested.
 #### Example using SQL Server data #### This example requires: 1) That you alter
 #### your connection string / query
 
@@ -144,7 +144,7 @@ p$cores <- 1
 lasso <- LassoDevelopment$new(p)
 lasso$run()
 
-set.seed(42) 
+set.seed(42)
 # Run Random Forest
 rf <- RandomForestDevelopment$new(p)
 rf$run()

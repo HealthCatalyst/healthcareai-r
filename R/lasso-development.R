@@ -199,7 +199,18 @@ LassoDevelopment <- R6Class(
     AUROC = NA,
     AUPR = NA,
     RMSE = NA,
-    MAE = NA
+    MAE = NA,
+    
+    # function
+    saveModel = function() {
+      if (isTRUE(self$params$debug)) {
+        print("Saving model...")
+      }
+      
+      print('saving...')
+      fitObj <- private$fitGrLasso
+      save(fitObj, file = "Junksave.rda")
+    }
   ),
   
   # Public members
@@ -356,6 +367,8 @@ LassoDevelopment <- R6Class(
     run = function() {
       # Build Model
       self$buildModel()
+      
+      private$saveModel()
       
       # Perform prediction
       self$performPrediction()
