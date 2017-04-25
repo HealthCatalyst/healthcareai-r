@@ -20,15 +20,15 @@ source('R/supervised-model-development.R')
 #' @import RODBC
 #' @param object of SuperviseModelParameters class for $new() constructor
 #' @param type The type of model (either 'regression' or 'classification')
-#' @param df Dataframe whose columns are used for calculation.
+#' @param df Dataframe whose columns are used for calc.
 #' @param grainCol The dataframe's column that has IDs pertaining to the grain
 #' @param predictedCol Column that you want to predict.
-#' @param impute Set all-column imputation to FALSE or TRUE.
+#' @param impute Set all-column imputation to F or T.
 #' This uses mean replacement for numeric columns
 #' and most frequent for factorized columns.
-#' FALSE leads to removal of rows containing NULLs.
+#' F leads to removal of rows containing NULLs.
 #' @param debug Provides the user extended output to the console, in order
-#' to monitor the calculations throughout. Use TRUE or FALSE.
+#' to monitor the calculations throughout. Use T or F.
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{RandomForestDevelopment}}
 #' @seealso \code{\link{LinearMixedModelDevelopment}}
