@@ -210,6 +210,9 @@ LassoDevelopment <- R6Class("LassoDevelopment",
     initialize = function(p) {
       super$initialize(p)
     },
+    getPredictions = function(){
+      return(private$predictions)
+    },
 
     # Override: build Grouped Lasso model
     buildModel = function() {
