@@ -248,12 +248,16 @@ selectData <- function(connectionString = NULL,
                        dbFile = NULL,
                        randomize = FALSE) {
   
+  # Make it such that SQL Server or SQLServer work
+  dbType <- gsub(" ","",dbType)
+  
   if ((dbType == 'SQLServer') && (is.null(connectionString))) {
-    # Fix this ERROR!!!
     stop('You must specify a connectionString for SQL Server')
   }
   
-  # TODO: Add stop if SQLite is chosen and no file is specified
+  if ((dbType == 'SQLite') && (is.null(dbFile))) {
+    stop('If selecting from SQLite, you must specify a file via dbFile')
+  }
   
   if (isTRUE(randomize)) {
     orderPres <- grep("order", tolower(query))

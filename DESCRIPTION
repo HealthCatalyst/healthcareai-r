@@ -17,18 +17,21 @@ LazyData: TRUE
 Depends:
     R (>= 3.2.3)
 Imports:
-    assertthat, 
+    assertthat,
     caret,
     data.table,
+    DBI,
     doParallel,
     e1071,
     grpreg,
     lme4,
+    odbc,
     pROC,
     R6,
     ranger,
     ROCR,
-    RODBC
+    RODBC,
+    RSQLite
 RoxygenNote: 6.0.1
 Suggests: testthat
 URL: http://healthcareai-r.readthedocs.io
