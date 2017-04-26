@@ -13,6 +13,12 @@ and whether Windows Authentication will be used.}
 
 \item{query}{The SQL query (in ticks or quotes)}
 
+\item{dbType}{Defaults to 'SQLServer'. The type of connection. Can also be
+'SQLite'}
+
+\item{dbFile}{Optional string. If dbtype is SQLite, here one specifies the database 
+file to query from}
+
 \item{randomize}{Boolean that dictates whether returned rows are randomized}
 }
 \value{
@@ -25,7 +31,7 @@ a data frame.
 \examples{
 
 \donttest{
-# This example is specific to Windows
+# This example is specific to SQL Server
 
 # To instead pull data from Oracle see here 
 # https://cran.r-project.org/web/packages/ROracle/ROracle.pdf

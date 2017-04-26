@@ -207,6 +207,10 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' @param connectionString A string specifying the driver, server, database,
 #' and whether Windows Authentication will be used.
 #' @param query The SQL query (in ticks or quotes)
+#' @param dbType Defaults to 'SQLServer'. The type of connection. Can also be
+#' 'SQLite'
+#' @param dbFile Optional string. If dbtype is SQLite, here one specifies the database 
+#' file to query from
 #' @param randomize Boolean that dictates whether returned rows are randomized
 #' @return df A data frame containing the selected rows
 #'
@@ -216,7 +220,7 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' @examples
 #' 
 #' \donttest{
-#' # This example is specific to Windows
+#' # This example is specific to SQL Server
 #' 
 #' # To instead pull data from Oracle see here 
 #' # https://cran.r-project.org/web/packages/ROracle/ROracle.pdf
@@ -300,12 +304,17 @@ selectData <- function(connectionString = NULL,
 
 #' @title
 #' Write data to database
-#' @description Write data frame to database via ODBC connection
-#' @param df A data frame being written to a database
-#' @param server A string.
-#' @param database A string.
-#' @param schemaDotTable A string representing the destination schema and
-#' table. Note that brackets aren't expected.
+#' @description Write data frame to database table via ODBC connection
+#' #' @param connectionString A string specifying the driver, server, database,
+#' and whether Windows Authentication will be used.
+#' @param connectionString A string specifying the driver, server, database,
+#' and whether Windows Authentication will be used.
+#' @param df Dataframe that hold the tabular data
+#' @param dbType Defaults to 'SQLServer'. The type of connection. Can also be
+#' 'SQLite'
+#' @param dbFile Optional string. If dbtype is SQLite, here one specifies the database 
+#' file to query from
+#' @param tableName String. Name of the table that receives the new rows
 #' @return Nothing
 #'
 #' @export
@@ -314,37 +323,62 @@ selectData <- function(connectionString = NULL,
 #' @examples
 #' 
 #' \donttest{
-#' #### This example is specific to Windows and is not tested. 
+#' # This example is specific to SQL Server.
+#' 
+#' # To instead pull data from Oracle see here 
+#' # https://cran.r-project.org/web/packages/ROracle/ROracle.pdf
+#' # To pull data from MySQL see here 
+#' # https://cran.r-project.org/web/packages/RMySQL/RMySQL.pdf
+#' # To pull data from Postgres see here 
+#' # https://cran.r-project.org/web/packages/RPostgreSQL/RPostgreSQL.pdf 
+#'
+#' # Before running this example, create the table in SQL Server via
+#' # CREATE TABLE [dbo].[HCRWriteData](
+#' # [a] [float] NULL,
+#' # [b] [float] NULL,
+#' # [c] [varchar](255) NULL)
+#' 
+#' connectionString <- '
+#'   driver={SQL Server};
+#'   server=localhost;
+#'   database=SAM;
+#'   trustedConnection=true
+#'   '
+#'
 #' df <- data.frame(a=c(1,2,3),
 #'                  b=c(2,4,6),
 #'                  c=c('one','two','three'))
 #'
-#' writeData(df,'localhost','SAM','dbo.HCRWriteData')
+#' writeData(connectionString = connectionString, 
+#'           df = df, 
+#'           tableName = 'HCRWriteData')
 #' }
 
-writeData <- function(df, server, database, schemaDotTable) {
-  # TODO: use sub function to remove brackets from schemaDotTable TODO: add
-  # try/catch around sqlSave
-  connectionString <- paste0("driver={SQL Server};
-                             server=",
-                             server, ";
-                             database=", database, ";
-                             trustedConnection=true")
-
-  sqlCnxn <- RODBC::odbcDriverConnect(connectionString)
-
-  # Save df to table in specified database
-  out <- RODBC::sqlSave(channel = sqlCnxn, dat = df, tablename = schemaDotTable, append = T,
-                 rownames = F, colnames = F, safer = T, nastring = NULL)
-
-  # Clean up.
-  RODBC::odbcCloseAll()
-
-  if (out == 1) {
-    print("SQL Server insert was successful")
-  } else {
-    print("SQL Server insert failed")
+writeData <- function(connectionString = NULL, 
+                      df, 
+                      dbType = 'SQLServer',
+                      dbFile = NULL,
+                      tableName) {
+  
+  # TODO: add try/catch around sqlSave
+  
+  # Make both SQL Server and SQLServer work
+  dbType <- gsub(" ","",dbType)
+  
+  # TODO: if debug: time this operation and print time spent to pull data.
+  if (dbType == 'SQLServer') {
+    con <- DBI::dbConnect(odbc::odbc(),
+                          .connection_string = connectionString)
+  } else if (dbType == 'SQLite') {
+    con <- DBI::dbConnect(RSQLite::SQLite(), dbname = dbFile)
   }
+
+  DBI::dbWriteTable(con, tableName, df, append = TRUE)
+  
+  # Close connection
+  DBI::dbDisconnect(con)
+
+  cat(nrow(df), "rows were inserted into the SQL Server", tableName, "table." )
 }
 
 #' @title
