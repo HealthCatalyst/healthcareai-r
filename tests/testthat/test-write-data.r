@@ -12,8 +12,7 @@ test_that("SQLite - inserts df successfully into table", {
                    c = c('one','two','three'))
   
   expect_output(writeData(df = df,
-                          dbType = 'SQLite',
-                          dbFile = sqliteFile,  
+                          SQLiteFileName = sqliteFile,  
                           tableName = 'HCRWriteData'),
                "3 rows were inserted into the SQL Server HCRWriteData table.")
 })
@@ -25,8 +24,7 @@ test_that("SQLite - fails to insert if df has extra d column", {
                    d = c(1,2,3))
   
   expect_error(writeData(df = df,
-                         dbType = 'SQLite',
-                         dbFile = sqliteFile,  
+                         SQLiteFileName = sqliteFile,  
                          tableName = 'HCRWriteData'),
                 "Columns d not found")
 })
@@ -43,8 +41,7 @@ test_that("SQLite - insert df into table that didn't exist", {
   
   expect_false('HCRWriteDataa' %in% DBI::dbListTables(con))
   expect_output(writeData(df = df,
-                          dbType = 'SQLite',
-                          dbFile = sqliteFile,  
+                          SQLiteFileName = sqliteFile,  
                           tableName = 'HCRWriteDataa'),
                 "3 rows were inserted into the SQL Server HCRWriteDataa table.")
 
@@ -63,8 +60,7 @@ test_that("SQLite - check that table exists after inserting", {
   expect_false(('HCRWriteDatat' %in% DBI::dbListTables(con)))
   
   capture.output(writeData(df = df,
-                           dbType = 'SQLite',
-                           dbFile = sqliteFile,
+                           SQLiteFileName = sqliteFile,
                            tableName = 'HCRWriteDatat'))
   
   expect_true(('HCRWriteDatat' %in% DBI::dbListTables(con)))
