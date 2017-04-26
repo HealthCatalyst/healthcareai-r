@@ -1,7 +1,3 @@
-# Import the common functions.
-source('R/common.R')
-source('R/supervised-model-deployment-params.R')
-
 #' Deploy predictive models, created on your data
 #'
 #' @description This step allows one to create deploy models on your data

@@ -1,10 +1,3 @@
-# Import the common functions.
-library(R6)
-library(caret)
-
-source('R/common.R')
-source('R/unsupervised-model-params.R')
-
 UnsupervisedModel <- R6Class("UnsupervisedModel",
 
   #Private members
