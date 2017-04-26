@@ -1,7 +1,3 @@
-# Import the common functions.
-source('R/common.R')
-source('R/supervised-model-development-params.R')
-
 #' Compare predictive models, created on your data
 #'
 #' @description This step allows one to create test models on your data
@@ -117,18 +113,21 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
     loadData = function() {
 
       # init dataset variables
-      private$memsizeOfDataset <- format(object.size(self$params$df), units = "Mb")
+      private$memsizeOfDataset <- format(object.size(self$params$df), 
+                                         units = "Mb")
       private$initialDatasetRows <- nrow(self$params$df)
       private$initialDatasetCols <- ncol(self$params$df)
 
       # For use in confusion matrices
       private$prevalence <- table(self$params$df[[self$params$predictedCol]])[2]
 
-      if (length(returnColsWithMoreThanFiftyCategories(self$params$df))>0){
-        message('The following columns in the data frame have more than fifty factors:')
-        message(paste(shQuote(returnColsWithMoreThanFiftyCategories(self$params$df)), collapse=", "))
-        message(paste('This drastically reduces performance.',
-                      'Consider combining these factors into a new column with fewer factors.'))
+      if (length(returnColsWithMoreThanFiftyCategories(self$params$df)) > 0) {
+        warning('These columns in the df have more than fifty categories: \n',
+                paste(
+                 shQuote(returnColsWithMoreThanFiftyCategories(self$params$df)), 
+                 collapse = ", "),
+                 '\n This drastically reduces performance. \n',
+                 'Consider combining into new col with fewer categories.')
       }
 
       if (isTRUE(self$params$debug)) {

@@ -1,7 +1,3 @@
-# Import the common functions.
-source('R/common.R')
-source('R/supervised-model-deployment-params.R')
-
 #' Deploy predictive models, created on your data
 #'
 #' @description This step allows one to create deploy models on your data
@@ -143,19 +139,13 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
        print('Now going to check for cols with fifty+ categories...')
      }
 
-     if (length(returnColsWithMoreThanFiftyCategories(self$params$df)) >
-         0) {
-       message('These columns in the df have more than fifty categories:')
-       message(paste(
-         shQuote(returnColsWithMoreThanFiftyCategories(self$params$df)),
-         collapse = ", "
-       ))
-       message(
-         paste(
-           'This drastically reduces performance.',
-           'Consider combining into new col with fewer categories.'
-         )
-       )
+     if (length(returnColsWithMoreThanFiftyCategories(self$params$df)) > 0) {
+       warning('These columns in the df have more than fifty categories: \n',
+               paste(
+                 shQuote(returnColsWithMoreThanFiftyCategories(self$params$df)), 
+                 collapse = ", "),
+               '\n This drastically reduces performance. \n',
+               'Consider combining into new col with fewer categories.')
      }
 
      # Remove columns with zero variance

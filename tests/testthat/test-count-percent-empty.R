@@ -3,7 +3,7 @@ context('Checking that countPercentEmpty is working')
 test_that("For simple dataframe, each column is calculated correctly", {
   df <- data.frame(a = c(NA,1,1), b = c(NA,NA,1), c = c(NA,NA,NA))
     
-  actualOut <- countPercentEmpty(df)
+  actualOut <- suppressWarnings(countPercentEmpty(df))
   
   expected1 <- c(0.3333333, 0.6666667, 1.0000000)
   names(expected1) <- c('a','b','c')
