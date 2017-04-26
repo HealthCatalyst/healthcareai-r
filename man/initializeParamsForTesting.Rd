@@ -21,4 +21,3 @@ Initialize and populate SupervisedModelDevelopmentParams
 \seealso{
 \code{\link{healthcareai}}
 }
-

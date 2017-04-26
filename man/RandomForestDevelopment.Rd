@@ -16,9 +16,11 @@ impute, debug)
 
 \item{df}{Dataframe whose columns are used for calc.}
 
-\item{grainCol}{The dataframe's column that has IDs pertaining to the grain}
+\item{grainCol}{Optional. The dataframe's column that has IDs pertaining to 
+the grain. No ID columns are truly needed for this step.}
 
-\item{predictedCol}{Column that you want to predict.}
+\item{predictedCol}{Column that you want to predict. If you're doing
+classification then this should be Y/N.}
 
 \item{impute}{Set all-column imputation to F or T.
 This uses mean replacement for numeric columns
@@ -69,10 +71,14 @@ library(healthcareai)
 ptm <- proc.time()
 
 # Can delete this line in your work
-csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "healthcareai")
+csvfile <- system.file("extdata", 
+                       "HCRDiabetesClinical.csv", 
+                       package = "healthcareai")
 
 # Replace csvfile with 'your/path'
-df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
+df <- read.csv(file = csvfile, 
+               header = TRUE, 
+               na.strings = c("NULL", "NA", ""))
 
 head(df)
 
@@ -179,4 +185,3 @@ print(proc.time() - ptm)
 \code{\link{healthcareai}}
 }
 \keyword{datasets}
-

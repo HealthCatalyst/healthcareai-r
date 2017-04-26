@@ -14,20 +14,22 @@ Description: A machine learning toolbox tailored to healthcare data.
     are Lasso, Random Forest, and Linear Mixed Model.
 License: MIT + file LICENSE
 LazyData: TRUE
+Depends:
+    R (>= 3.2.3)
 Imports:
-    assertthat,
+    assertthat, 
     caret,
     data.table,
     doParallel,
     e1071,
     grpreg,
     lme4,
-    lubridate,
     pROC,
     R6,
     ranger,
     ROCR,
     RODBC
 RoxygenNote: 6.0.1
-Suggests:
-    testthat
+Suggests: testthat
+URL: http://healthcareai-r.readthedocs.io
+BugReports: https://github.com/HealthCatalystSLC/healthcareai-r/issues

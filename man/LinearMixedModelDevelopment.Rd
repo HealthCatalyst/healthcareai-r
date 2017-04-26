@@ -20,7 +20,8 @@ grainCol, personCol, predictedCol, impute, debug)
 
 \item{personCol}{The data frame's ID column pertaining to the person/patient}
 
-\item{predictedCol}{Column that you want to predict.}
+\item{predictedCol}{Column that you want to predict. If you're doing
+classification then this should be Y/N.}
 
 \item{impute}{Set all-column imputation to F or T.
 This uses mean replacement for numeric columns
@@ -209,4 +210,3 @@ print(proc.time() - ptm)
 \code{\link{healthcareai}}
 }
 \keyword{datasets}
-

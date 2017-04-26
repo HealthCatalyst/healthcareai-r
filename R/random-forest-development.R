@@ -17,8 +17,10 @@
 #' @param object of SuperviseModelParameters class for $new() constructor
 #' @param type The type of model (either 'regression' or 'classification')
 #' @param df Dataframe whose columns are used for calc.
-#' @param grainCol The dataframe's column that has IDs pertaining to the grain
-#' @param predictedCol Column that you want to predict.
+#' @param grainCol Optional. The dataframe's column that has IDs pertaining to 
+#' the grain. No ID columns are truly needed for this step.
+#' @param predictedCol Column that you want to predict. If you're doing
+#' classification then this should be Y/N.
 #' @param impute Set all-column imputation to F or T.
 #' This uses mean replacement for numeric columns
 #' and most frequent for factorized columns.
@@ -66,10 +68,14 @@
 #' ptm <- proc.time()
 #'
 #' # Can delete this line in your work
-#' csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "healthcareai")
+#' csvfile <- system.file("extdata", 
+#'                        "HCRDiabetesClinical.csv", 
+#'                        package = "healthcareai")
 #'
 #' # Replace csvfile with 'your/path'
-#' df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
+#' df <- read.csv(file = csvfile, 
+#'                header = TRUE, 
+#'                na.strings = c("NULL", "NA", ""))
 #'
 #' head(df)
 #'
@@ -248,7 +254,9 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         self$params$numberOfTrees = p$numberOfTrees
       }
     },
-
+    getPredictions = function(){
+      return(private$predictions)
+    },
     # Override: build RandomForest model
     buildModel = function() {
       trainControlParams.method <- ""
