@@ -11,6 +11,7 @@ pages:
 - Getting started:
   - Where do I begin?: getting-started/where-do-i-begin.md
   - FAQ and Contact: getting-started/FAQ-and-contact.md
+  - Profiling Your Data: getting-started/profiling-your-data.md
 - Model Pre-processing:
   - Feature engineering overview: model-pre-processing/feature-eng-overview.md
   - Longitudinal Imputation: model-pre-processing/longitudinal-imputation.md
@@ -18,7 +19,6 @@ pages:
 - Comparing and Deploying Models:
   - Develop and Compare: comparing-and-deploying/compare.md
   - Deploying a Best Model: comparing-and-deploying/deploy.md
-  - Evaluating Production Performance: comparing-and-deploying/evaluate-in-the-wild.md
 - Healthcare Statistics:
   - Risk-adjusted Comparisons: healthcare-statistics/risk-adjusted-comparisons.md
   - Trend Analysis: healthcare-statistics/trend-analysis.md

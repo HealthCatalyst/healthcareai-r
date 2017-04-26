@@ -4,8 +4,8 @@
 \alias{selectData}
 \title{Pull data into R via an ODBC connection}
 \usage{
-selectData(connectionString = NULL, query, randomize = FALSE,
-  dbType = "SQLServer")
+selectData(connectionString = NULL, query, dbType = "SQLServer",
+  dbFile = NULL, randomize = FALSE)
 }
 \arguments{
 \item{connectionString}{A string specifying the driver, server, database,

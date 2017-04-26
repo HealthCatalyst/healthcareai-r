@@ -2,7 +2,7 @@
 % Please edit documentation in R/common.R
 \name{countPercentEmpty}
 \alias{countPercentEmpty}
-\title{Calculates percentage of each column in df that is NULL (NA)}
+\title{DEPRECATED. Calculates percentage of each column in df that is NULL (NA)}
 \usage{
 countPercentEmpty(df)
 }
