@@ -181,8 +181,9 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     # Grid object for grid search
     grid = NA,
 
-    # Git random forest model
+    # Get random forest model
     fitRF = NA,
+    fitLogit = NA,
 
     predictions = NA,
 
@@ -200,17 +201,38 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         print('Saving model...')
       }
       
-        # fitLogitObj <- private$fitLogit
-        # fitObj <- private$fit
+        fitLogitObj <- private$fitLogit
+        fitObj <- private$fitRF
         
-        # save(fitLogitObj, file = "rmodel_var_import.rda")
-        # save(fitObj, file = "rmodel_probability.rda")
+        save(fitLogitObj, file = "rmodel_var_import.rda")
+        save(fitObj, file = "rmodel_probability.rda")
+      },
+    
+    # this function must be in here for the row-wise predictions.
+    # can be replaced when LIME-like functionality is complete.
+    fitGeneralizedLinearModel = function() {
+      if (isTRUE(self$params$debug)) {
+        print('generating fitLogit for row-wise guidance...')
+      }
       
-      fitLogitObj <- private$fitLogit
-      fitObj <- private$fit
-
-      save(fitLogitObj, file = "rmodel_var_import.rda")
-      save(fitObj, file = "rmodel_probability.rda")
+      if (self$params$type == 'classification') {
+        private$fitLogit <- glm(
+          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
+          data = private$dfTrain,
+          family = binomial(link = "logit"),
+          metric = "ROC",
+          control = list(maxit = 10000),
+          trControl = trainControl(classProbs = TRUE, summaryFunction = twoClassSummary)
+        )
+        
+      } else if (self$params$type == 'regression') {
+        private$fitLogit <- glm(
+          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
+          data = private$dfTrain,
+          metric = "RMSE",
+          control = list(maxit = 10000)
+        )
+      }
     },
     
     buildGrid = function() {
@@ -390,6 +412,13 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
 
     # Override: run RandomForest algorithm
     run = function() {
+      
+      # Start default logit (for row-wise var importance)
+      # can be replaced with LIME-like functionality
+      private$fitGeneralizedLinearModel()
+      
+      # save model
+      private$saveModel()
 
       # Build Model
       self$buildModel()

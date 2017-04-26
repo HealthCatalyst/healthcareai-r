@@ -371,6 +371,7 @@ LassoDevelopment <- R6Class(
       # Build Model
       self$buildModel()
       
+      # save model
       private$saveModel()
       
       # Perform prediction
