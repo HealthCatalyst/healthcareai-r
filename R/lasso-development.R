@@ -206,7 +206,7 @@ LassoDevelopment <- R6Class(
       }
       
       fitObj <- private$fitGrLasso
-      save(fitObj, file = "rmodel_combined.rda")
+      save(fitObj, file = "rmodel_combined_lasso.rda")
     }
   ),
   

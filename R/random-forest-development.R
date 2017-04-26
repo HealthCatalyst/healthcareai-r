@@ -206,8 +206,8 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         fitLogitObj <- private$fitLogit
         fitObj <- private$fitRF
         
-        save(fitLogitObj, file = "rmodel_var_import.rda")
-        save(fitObj, file = "rmodel_probability.rda")
+        save(fitLogitObj, file = "rmodel_var_import_RF.rda")
+        save(fitObj, file = "rmodel_probability_RF.rda")
       },
     
     # this function must be in here for the row-wise predictions.

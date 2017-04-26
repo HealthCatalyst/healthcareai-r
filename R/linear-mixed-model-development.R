@@ -213,8 +213,9 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
     lmmTrain = NA,
     lmmTest = NA,
 
-    # Git random forest model
+    # Fit LMM
     fitLmm = NA,
+    fitLogit = NA,
 
     predictions = NA,
 
@@ -224,9 +225,51 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
     AUROC = NA,
     AUPR = NA,
     RMSE = NA,
-    MAE = NA
+    MAE = NA,
+    
+    # functions
+    saveModel = function() {
+      if (isTRUE(self$params$debug)) {
+        print('Saving model...')
+      }
+      
+      print('in the save method')
+      # Save model
+      #NOTE: save(private$fitLogit, ...) directly, did not work!
+      fitLogitObj <- private$fitLogit
+      fitObj <- private$fit
+      save(fitLogitObj, file = "rmodel_var_import_LMM.rda")
+      save(fitObj, file = "rmodel_probability_LMM.rda")
+    },
+    
+    
+    fitGeneralizedLinearModel = function() {
+      if (isTRUE(self$params$debug)) {
+        print('generating fitLogit...')
+      }
+      
+      if (self$params$type == 'classification') {
+        print('fitting GLM')
+        private$fitLogit <- glm(
+          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
+          data = private$dfTrain,
+          family = binomial(link = "logit"),
+          metric = "ROC",
+          control = list(maxit = 10000),
+          trControl = trainControl(classProbs = TRUE, summaryFunction = twoClassSummary)
+        )
+        
+      } else if (self$params$type == 'regression') {
+        private$fitLogit <- glm(
+          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
+          data = private$dfTrain,
+          metric = "RMSE",
+          control = list(maxit = 10000)
+        )
+      }
+    }
   ),
-
+  
   # Public members
   public = list(
 
@@ -358,13 +401,19 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
       return(invisible(private$fitLmm))
     },
 
-    # Override: run RandomForest algorithm
+    # Override: run Linear Mixed algorithm
     run = function() {
 
       self$buildDataset()
 
       # Build Model
       self$buildModel()
+      
+      # fit GLM for row-wise variable importance
+      private$fitGeneralizedLinearModel()
+      
+      # save model
+      private$saveModel()
 
       # Perform prediction
       self$performPrediction()
