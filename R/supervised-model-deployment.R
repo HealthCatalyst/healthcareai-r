@@ -52,10 +52,17 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
    },
 
    setConfigs = function(p) {
+     print('now inside setConfig')
      self$params <- SupervisedModelDeploymentParams$new()
+     
+     print('in setConfigs')
+     print(self$params)
 
      if (!is.null(p$df))
        self$params$df <- p$df
+     
+     if (!is.null(p$useSavedModel))
+       self$params$useSavedModel <- p$useSavedModel
 
      if (!is.null(p$grainCol))
        self$params$grainCol <- p$grainCol
@@ -345,6 +352,8 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     #p: new SupervisedModelDeploymentParams class object,
     #   i.e. p = SupervisedModelDeploymentParams$new()
     initialize = function(p) {
+      
+      print('initialize called...')
       #Set config parameters
       private$setConfigs(p)
 
@@ -353,8 +362,8 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     },
 
     #Override: Build Deploy Model
-    buildDeployModel = function() {
-    },
+    # buildDeployModel = function() {
+    #  },
 
     #Deploy the Model
     deploy = function() {
