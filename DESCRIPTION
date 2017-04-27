@@ -2,7 +2,7 @@ Package: healthcareai
 Type: Package
 Title: Tools for Healthcare Machine Learning
 Version: 0.1.12
-Date: 2017-04-04
+Date: 2017-04-25
 Authors@R: c(
     person("Levi", "Thatcher", email = "levi.thatcher@healthcatalyst.com", role = c("aut", "cre")),
     person("Mike", "Mastanduno", email = "mike.mastanduno@healthcatalyst.com", role = "aut"),
@@ -20,15 +20,18 @@ Imports:
     assertthat,
     caret,
     data.table,
+    DBI,
     doParallel,
     e1071,
     grpreg,
     lme4,
+    odbc,
     pROC,
     R6,
     ranger,
     ROCR,
-    RODBC
+    RODBC,
+    RSQLite
 RoxygenNote: 6.0.1
 Suggests:
     testthat

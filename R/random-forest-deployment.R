@@ -527,7 +527,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       private$closeDataSource()
     },
 
-    #Get predicted values
+    # Get predicted values
     getPredictedValsForUnitTest = function() {
       return(private$predictedValsForUnitTest)
     },

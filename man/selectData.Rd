@@ -4,13 +4,17 @@
 \alias{selectData}
 \title{Pull data into R via an ODBC connection}
 \usage{
-selectData(connectionString, query, randomize = FALSE)
+selectData(MSSQLConnectionString = NULL, query, SQLiteFileName = NULL,
+  randomize = FALSE)
 }
 \arguments{
-\item{connectionString}{A string specifying the driver, server, database,
-and whether Windows Authentication will be used.}
+\item{MSSQLConnectionString}{A string specifying the driver, server, 
+database, and whether Windows Authentication will be used.}
 
 \item{query}{The SQL query (in ticks or quotes)}
+
+\item{SQLiteFileName}{A string. If dbtype is SQLite, here one specifies the 
+database file to query from}
 
 \item{randomize}{Boolean that dictates whether returned rows are randomized}
 }
@@ -24,7 +28,15 @@ a data frame.
 \examples{
 
 \donttest{
-#### This example is specific to Windows and is not tested on CRAN 
+# This example is specific to SQL Server
+
+# To instead pull data from Oracle see here 
+# https://cran.r-project.org/web/packages/ROracle/ROracle.pdf
+# To pull data from MySQL see here 
+# https://cran.r-project.org/web/packages/RMySQL/RMySQL.pdf
+# To pull data from Postgres see here 
+# https://cran.r-project.org/web/packages/RPostgreSQL/RPostgreSQL.pdf
+
 connectionString <- '
   driver={SQL Server};
   server=localhost;
