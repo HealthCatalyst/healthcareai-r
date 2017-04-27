@@ -22,23 +22,20 @@ SELECT [A1CNBR] FROM [SAM].[dbo].[DiabetesClinicall]'
 
 test_that("SQLite - Returns correct selected data in data frame", {
   expect_equal(selectData(query = query1, 
-                          dbType = 'SQLite',
-                          dbFile = sqliteFile),
+                          SQLiteFileName = sqliteFile),
                data.frame(SystolicBPNBR = c(167,153,170,187,188,
                                             185,189,149,155,160)))
 })
 
 test_that("SQLite - Returns zero rows msg when zero rows selected", {
   expect_warning(grepl(selectData(query = query2, 
-                                  dbType = 'SQLite',
-                                  dbFile = sqliteFile),
+                                  SQLiteFileName = sqliteFile),
                  'Zero rows returned from SQL.'))
 })
 
 test_that("SQLite - Returns SQL error message when SQL error", {
   expect_error(grepl(selectData(query = query3, 
-                                dbType = 'SQLite',
-                                dbFile = sqliteFile),
+                                SQLiteFileName = sqliteFile),
                'Your SQL likely contains an error.'))
 })
 
@@ -66,7 +63,7 @@ SELECT [A1CNBR] FROM [SAM].[dbo].[DiabetesClinicall]'
 test_that("SQL Server - Returns correct selected data in data frame", {
   skip_on_travis()
   skip_on_cran()
-  expect_equal(selectData(connection.string, query4),
+  expect_equal(selectData(MSSQLConnectionString=connection.string, query4),
                data.frame(SystolicBPNBR = c(167,153,170,187,188,
                                             185,189,149,155,160)))
 })
@@ -74,13 +71,13 @@ test_that("SQL Server - Returns correct selected data in data frame", {
 test_that("SQL Server - Returns zero rows msg when zero rows selected", {
   skip_on_travis()
   skip_on_cran()
-  expect_warning(grepl(selectData(connection.string, query5),
+  expect_warning(grepl(selectData(MSSQLConnectionString=connection.string, query5),
                  'Zero rows returned from SQL.'))
 })
 
 test_that("SQL Server - Returns SQL error message when SQL error", {
   skip_on_travis()
   skip_on_cran()
-  expect_error(selectData(connection.string, query6),
+  expect_error(selectData(MSSQLConnectionString=connection.string, query6),
                'Your SQL likely contains an error.')
 })

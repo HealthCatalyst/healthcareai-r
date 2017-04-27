@@ -246,21 +246,13 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' head(df)
 #' }
 
-selectData <- function(connectionString = NULL, 
+selectData <- function(MSSQLConnectionString = NULL, 
                        query, 
-                       dbType = 'SQLServer',
-                       dbFile = NULL,
+                       SQLiteFileName = NULL,
                        randomize = FALSE) {
   
-  # Make it such that SQL Server or SQLServer work
-  dbType <- gsub(" ","",dbType)
-  
-  if ((dbType == 'SQLServer') && (is.null(connectionString))) {
-    stop('You must specify a connectionString for SQL Server')
-  }
-  
-  if ((dbType == 'SQLite') && (is.null(dbFile))) {
-    stop('If selecting from SQLite, you must specify a file via dbFile')
+  if ((is.null(MSSQLConnectionString)) && (is.null(SQLiteFileName))) {
+    stop('You must specify a either a MSSQLConnectionString for SQL Server or a SQLiteFileName for SQLite')
   }
   
   if (isTRUE(randomize)) {
@@ -273,11 +265,11 @@ selectData <- function(connectionString = NULL,
   }
 
   # TODO: if debug: time this operation and print time spent to pull data.
-  if (dbType == 'SQLServer') {
+  if (!is.null(MSSQLConnectionString)) {
     con <- DBI::dbConnect(odbc::odbc(),
-                          .connection_string = connectionString)
-  } else if (dbType == 'SQLite') {
-    con <- DBI::dbConnect(RSQLite::SQLite(), dbname = dbFile)
+                          .connection_string = MSSQLConnectionString)
+  } else if (!is.null(SQLiteFileName)) {
+    con <- DBI::dbConnect(RSQLite::SQLite(), dbname = SQLiteFileName)
   }
   
   tryCatch(df <- DBI::dbGetQuery(con, query),
@@ -354,23 +346,23 @@ selectData <- function(connectionString = NULL,
 #'           tableName = 'HCRWriteData')
 #' }
 
-writeData <- function(connectionString = NULL, 
+writeData <- function(MSSQLConnectionString = NULL, 
                       df, 
-                      dbType = 'SQLServer',
-                      dbFile = NULL,
+                      SQLiteFileName = NULL,
                       tableName) {
   
   # TODO: add try/catch around sqlSave
   
-  # Make both SQL Server and SQLServer work
-  dbType <- gsub(" ","",dbType)
-  
   # TODO: if debug: time this operation and print time spent to pull data.
-  if (dbType == 'SQLServer') {
+  if ((is.null(MSSQLConnectionString)) && (is.null(SQLiteFileName))) {
+    stop('You must specify a either a MSSQLConnectionString for SQL Server or a SQLiteFileName for SQLite')
+  }
+
+  if (!is.null(MSSQLConnectionString)) {
     con <- DBI::dbConnect(odbc::odbc(),
-                          .connection_string = connectionString)
-  } else if (dbType == 'SQLite') {
-    con <- DBI::dbConnect(RSQLite::SQLite(), dbname = dbFile)
+                          .connection_string = MSSQLConnectionString)
+  } else if (!is.null(SQLiteFileName)) {
+    con <- DBI::dbConnect(RSQLite::SQLite(), dbname = SQLiteFileName)
   }
 
   DBI::dbWriteTable(con, tableName, df, append = TRUE)
