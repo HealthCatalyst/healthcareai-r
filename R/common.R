@@ -204,9 +204,11 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' Pull data into R via an ODBC connection
 #' @description Select data from an ODBC database and return the results as
 #' a data frame.
-#' @param connectionString A string specifying the driver, server, database,
-#' and whether Windows Authentication will be used.
+#' @param MSSQLConnectionString A string specifying the driver, server, 
+#' database, and whether Windows Authentication will be used.
 #' @param query The SQL query (in ticks or quotes)
+#' @param SQLiteFileName A string. If dbtype is SQLite, here one specifies the 
+#' database file to query from
 #' @param randomize Boolean that dictates whether returned rows are randomized
 #' @return df A data frame containing the selected rows
 #'
@@ -216,7 +218,15 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' @examples
 #' 
 #' \donttest{
-#' #### This example is specific to Windows and is not tested on CRAN 
+#' # This example is specific to SQL Server
+#' 
+#' # To instead pull data from Oracle see here 
+#' # https://cran.r-project.org/web/packages/ROracle/ROracle.pdf
+#' # To pull data from MySQL see here 
+#' # https://cran.r-project.org/web/packages/RMySQL/RMySQL.pdf
+#' # To pull data from Postgres see here 
+#' # https://cran.r-project.org/web/packages/RPostgreSQL/RPostgreSQL.pdf
+#' 
 #' connectionString <- '
 #'   driver={SQL Server};
 #'   server=localhost;
@@ -234,27 +244,40 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' head(df)
 #' }
 
-selectData <- function(connectionString, query, randomize = FALSE) {
+selectData <- function(MSSQLConnectionString = NULL, 
+                       query, 
+                       SQLiteFileName = NULL,
+                       randomize = FALSE) {
+  
+  if ((is.null(MSSQLConnectionString)) && (is.null(SQLiteFileName))) {
+    stop('You must specify a either a MSSQLConnectionString for SQL Server or a SQLiteFileName for SQLite')
+  }
+  
   if (isTRUE(randomize)) {
     orderPres <- grep("order", tolower(query))
 
     if (length(orderPres == 0)) {
       stop("You cannot randomize while using the SQL order keyword.")
     }
-
     query <- paste0(query, " ORDER BY NEWID()")
   }
 
-  # TODO: if debug: cat(connectionString)
-  cnxn <- RODBC::odbcDriverConnect(connectionString)
-
-  # TODO: if debug: cat(query) 
   # TODO: if debug: time this operation and print time spent to pull data.
-  df <- RODBC::sqlQuery(channel = cnxn, 
-                        na.strings = c("NULL", "NA", ""), 
-                        query = query)
+  if (!is.null(MSSQLConnectionString)) {
+    con <- DBI::dbConnect(odbc::odbc(),
+                          .connection_string = MSSQLConnectionString)
+  } else if (!is.null(SQLiteFileName)) {
+    con <- DBI::dbConnect(RSQLite::SQLite(), dbname = SQLiteFileName)
+  }
+  
+  tryCatch(df <- DBI::dbGetQuery(con, query),
+    error = function(e) {
+    e$message <- "Your SQL likely contains an error."
+    stop(e)
+  })
 
-  RODBC::odbcCloseAll()
+  # Close connection
+  DBI::dbDisconnect(con)
 
   # Make sure there are enough rows to actually do something useful.
   if (is.null(nrow(df))) {
@@ -262,24 +285,24 @@ selectData <- function(connectionString, query, randomize = FALSE) {
     stop("Your SQL contains an error.")
   }
   if (nrow(df) == 0) {
-    cat("Too few rows returned from SQL: ")
-    cat(nrow(df))
-    cat(" rows returned.")
-    cat("Adjust your query to return more data!")
+    warning("Zero rows returned from SQL. ",
+            "Adjust your query to return more data!")
   }
-  # TODO: if debug: print the number of rows selected.
   df  # Return the selected data.
 }
 
 
 #' @title
 #' Write data to database
-#' @description Write data frame to database via ODBC connection
-#' @param df A data frame being written to a database
-#' @param server A string.
-#' @param database A string.
-#' @param schemaDotTable A string representing the destination schema and
-#' table. Note that brackets aren't expected.
+#' @description Write data frame to database table via ODBC connection
+#' #' @param connectionString A string specifying the driver, server, database,
+#' and whether Windows Authentication will be used.
+#' @param MSSQLConnectionString A string specifying the driver, server, 
+#' database, and whether Windows Authentication will be used.
+#' @param df Dataframe that hold the tabular data
+#' @param SQLiteFileName A string. If dbtype is SQLite, here one specifies the 
+#' database file to query from
+#' @param tableName String. Name of the table that receives the new rows
 #' @return Nothing
 #'
 #' @export
@@ -288,37 +311,62 @@ selectData <- function(connectionString, query, randomize = FALSE) {
 #' @examples
 #' 
 #' \donttest{
-#' #### This example is specific to Windows and is not tested. 
+#' # This example is specific to SQL Server.
+#' 
+#' # To instead pull data from Oracle see here 
+#' # https://cran.r-project.org/web/packages/ROracle/ROracle.pdf
+#' # To pull data from MySQL see here 
+#' # https://cran.r-project.org/web/packages/RMySQL/RMySQL.pdf
+#' # To pull data from Postgres see here 
+#' # https://cran.r-project.org/web/packages/RPostgreSQL/RPostgreSQL.pdf 
+#'
+#' # Before running this example, create the table in SQL Server via
+#' # CREATE TABLE [dbo].[HCRWriteData](
+#' # [a] [float] NULL,
+#' # [b] [float] NULL,
+#' # [c] [varchar](255) NULL)
+#' 
+#' connectionString <- '
+#'   driver={SQL Server};
+#'   server=localhost;
+#'   database=SAM;
+#'   trustedConnection=true
+#'   '
+#'
 #' df <- data.frame(a=c(1,2,3),
 #'                  b=c(2,4,6),
 #'                  c=c('one','two','three'))
 #'
-#' writeData(df,'localhost','SAM','dbo.HCRWriteData')
+#' writeData(connectionString = connectionString, 
+#'           df = df, 
+#'           tableName = 'HCRWriteData')
 #' }
 
-writeData <- function(df, server, database, schemaDotTable) {
-  # TODO: use sub function to remove brackets from schemaDotTable TODO: add
-  # try/catch around sqlSave
-  connectionString <- paste0("driver={SQL Server};
-                             server=",
-                             server, ";
-                             database=", database, ";
-                             trustedConnection=true")
-
-  sqlCnxn <- RODBC::odbcDriverConnect(connectionString)
-
-  # Save df to table in specified database
-  out <- RODBC::sqlSave(channel = sqlCnxn, dat = df, tablename = schemaDotTable, append = T,
-                 rownames = F, colnames = F, safer = T, nastring = NULL)
-
-  # Clean up.
-  RODBC::odbcCloseAll()
-
-  if (out == 1) {
-    print("SQL Server insert was successful")
-  } else {
-    print("SQL Server insert failed")
+writeData <- function(MSSQLConnectionString = NULL, 
+                      df, 
+                      SQLiteFileName = NULL,
+                      tableName) {
+  
+  # TODO: add try/catch around sqlSave
+  
+  # TODO: if debug: time this operation and print time spent to pull data.
+  if ((is.null(MSSQLConnectionString)) && (is.null(SQLiteFileName))) {
+    stop('You must specify a either a MSSQLConnectionString for SQL Server or a SQLiteFileName for SQLite')
   }
+
+  if (!is.null(MSSQLConnectionString)) {
+    con <- DBI::dbConnect(odbc::odbc(),
+                          .connection_string = MSSQLConnectionString)
+  } else if (!is.null(SQLiteFileName)) {
+    con <- DBI::dbConnect(RSQLite::SQLite(), dbname = SQLiteFileName)
+  }
+
+  DBI::dbWriteTable(con, tableName, df, append = TRUE)
+  
+  # Close connection
+  DBI::dbDisconnect(con)
+
+  cat(nrow(df), "rows were inserted into the SQL Server", tableName, "table." )
 }
 
 #' @title
@@ -1331,7 +1379,7 @@ initializeParamsForTesting <- function(df) {
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
-#' 
+
 getCutOffs = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
   ## TODO: Give user the ability to give higher weight to recall or FPR
   x <- unlist(perf@x.values)

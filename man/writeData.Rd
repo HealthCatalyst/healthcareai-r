@@ -4,33 +4,60 @@
 \alias{writeData}
 \title{Write data to database}
 \usage{
-writeData(df, server, database, schemaDotTable)
+writeData(MSSQLConnectionString = NULL, df, SQLiteFileName = NULL,
+  tableName)
 }
 \arguments{
-\item{df}{A data frame being written to a database}
+\item{MSSQLConnectionString}{A string specifying the driver, server, 
+database, and whether Windows Authentication will be used.}
 
-\item{server}{A string.}
+\item{df}{Dataframe that hold the tabular data}
 
-\item{database}{A string.}
+\item{SQLiteFileName}{A string. If dbtype is SQLite, here one specifies the 
+database file to query from}
 
-\item{schemaDotTable}{A string representing the destination schema and
-table. Note that brackets aren't expected.}
+\item{tableName}{String. Name of the table that receives the new rows}
 }
 \value{
 Nothing
 }
 \description{
-Write data frame to database via ODBC connection
+Write data frame to database table via ODBC connection
+#' @param connectionString A string specifying the driver, server, database,
+and whether Windows Authentication will be used.
 }
 \examples{
 
 \donttest{
-#### This example is specific to Windows and is not tested. 
+# This example is specific to SQL Server.
+
+# To instead pull data from Oracle see here 
+# https://cran.r-project.org/web/packages/ROracle/ROracle.pdf
+# To pull data from MySQL see here 
+# https://cran.r-project.org/web/packages/RMySQL/RMySQL.pdf
+# To pull data from Postgres see here 
+# https://cran.r-project.org/web/packages/RPostgreSQL/RPostgreSQL.pdf 
+
+# Before running this example, create the table in SQL Server via
+# CREATE TABLE [dbo].[HCRWriteData](
+# [a] [float] NULL,
+# [b] [float] NULL,
+# [c] [varchar](255) NULL)
+
+connectionString <- '
+  driver={SQL Server};
+  server=localhost;
+  database=SAM;
+  trustedConnection=true
+  '
+
 df <- data.frame(a=c(1,2,3),
                  b=c(2,4,6),
                  c=c('one','two','three'))
 
-writeData(df,'localhost','SAM','dbo.HCRWriteData')
+writeData(connectionString = connectionString, 
+          df = df, 
+          tableName = 'HCRWriteData')
 }
 }
 \references{
