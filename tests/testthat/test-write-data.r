@@ -39,13 +39,13 @@ test_that("SQLite - insert df into table that didn't exist", {
   con <- DBI::dbConnect(RSQLite::SQLite(), 
                         dbname = sqliteFile)
   
-  expect_false('HCRWriteDataa' %in% DBI::dbListTables(con))
+  expect_false('HCRWriteData1' %in% DBI::dbListTables(con))
   expect_output(writeData(df = df,
                           SQLiteFileName = sqliteFile,  
-                          tableName = 'HCRWriteDataa'),
-                "3 rows were inserted into the SQL Server HCRWriteDataa table.")
+                          tableName = 'HCRWriteData1'),
+                "3 rows were inserted into the SQL Server HCRWriteData1 table.")
 
-  DBI::dbRemoveTable(con, 'HCRWriteDataa')
+  DBI::dbRemoveTable(con, 'HCRWriteData1')
 })
 
 test_that("SQLite - check that table exists after inserting", {
@@ -57,13 +57,13 @@ test_that("SQLite - check that table exists after inserting", {
   con <- DBI::dbConnect(RSQLite::SQLite(), 
                         dbname = sqliteFile)
   
-  expect_false(('HCRWriteDatat' %in% DBI::dbListTables(con)))
+  expect_false(('HCRWriteData2' %in% DBI::dbListTables(con)))
   
   capture.output(writeData(df = df,
                            SQLiteFileName = sqliteFile,
-                           tableName = 'HCRWriteDatat'))
+                           tableName = 'HCRWriteData2'))
   
-  expect_true(('HCRWriteDatat' %in% DBI::dbListTables(con)))
+  expect_true(('HCRWriteData2' %in% DBI::dbListTables(con)))
   
-  DBI::dbRemoveTable(con, 'HCRWriteDatat')
+  DBI::dbRemoveTable(con, 'HCRWriteData2')
 })
