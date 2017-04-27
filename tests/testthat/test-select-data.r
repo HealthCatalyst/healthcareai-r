@@ -29,8 +29,6 @@ test_that("SQLite - Returns correct selected data in data frame", {
 })
 
 test_that("SQLite - Returns zero rows msg when zero rows selected", {
-  skip_on_travis()
-  skip_on_cran()
   expect_warning(grepl(selectData(query = query2, 
                                   dbType = 'SQLite',
                                   dbFile = sqliteFile),
@@ -38,8 +36,6 @@ test_that("SQLite - Returns zero rows msg when zero rows selected", {
 })
 
 test_that("SQLite - Returns SQL error message when SQL error", {
-  skip_on_travis()
-  skip_on_cran()
   expect_error(grepl(selectData(query = query3, 
                                 dbType = 'SQLite',
                                 dbFile = sqliteFile),
@@ -48,7 +44,6 @@ test_that("SQLite - Returns SQL error message when SQL error", {
 
 
 # Start SQL Server tests
-
 connection.string = '
 driver={SQL Server};
 server=localhost;
