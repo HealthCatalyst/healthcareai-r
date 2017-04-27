@@ -56,6 +56,9 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
      if (!is.null(p$df))
        self$params$df <- p$df
+     
+     if (!is.null(p$useSavedModel))
+       self$params$useSavedModel <- p$useSavedModel
 
      if (!is.null(p$grainCol))
        self$params$grainCol <- p$grainCol
