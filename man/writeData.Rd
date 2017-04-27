@@ -4,20 +4,17 @@
 \alias{writeData}
 \title{Write data to database}
 \usage{
-writeData(connectionString = NULL, df, dbType = "SQLServer",
-  dbFile = NULL, tableName)
+writeData(MSSQLConnectionString = NULL, df, SQLiteFileName = NULL,
+  tableName)
 }
 \arguments{
-\item{connectionString}{A string specifying the driver, server, database,
-and whether Windows Authentication will be used.}
+\item{MSSQLConnectionString}{A string specifying the driver, server, 
+database, and whether Windows Authentication will be used.}
 
 \item{df}{Dataframe that hold the tabular data}
 
-\item{dbType}{Defaults to 'SQLServer'. The type of connection. Can also be
-'SQLite'}
-
-\item{dbFile}{Optional string. If dbtype is SQLite, here one specifies the database 
-file to query from}
+\item{SQLiteFileName}{A string. If dbtype is SQLite, here one specifies the 
+database file to query from}
 
 \item{tableName}{String. Name of the table that receives the new rows}
 }

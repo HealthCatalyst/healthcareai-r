@@ -204,13 +204,11 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' Pull data into R via an ODBC connection
 #' @description Select data from an ODBC database and return the results as
 #' a data frame.
-#' @param connectionString A string specifying the driver, server, database,
-#' and whether Windows Authentication will be used.
+#' @param MSSQLConnectionString A string specifying the driver, server, 
+#' database, and whether Windows Authentication will be used.
 #' @param query The SQL query (in ticks or quotes)
-#' @param dbType Defaults to 'SQLServer'. The type of connection. Can also be
-#' 'SQLite'
-#' @param dbFile Optional string. If dbtype is SQLite, here one specifies the database 
-#' file to query from
+#' @param SQLiteFileName A string. If dbtype is SQLite, here one specifies the 
+#' database file to query from
 #' @param randomize Boolean that dictates whether returned rows are randomized
 #' @return df A data frame containing the selected rows
 #'
@@ -299,13 +297,11 @@ selectData <- function(MSSQLConnectionString = NULL,
 #' @description Write data frame to database table via ODBC connection
 #' #' @param connectionString A string specifying the driver, server, database,
 #' and whether Windows Authentication will be used.
-#' @param connectionString A string specifying the driver, server, database,
-#' and whether Windows Authentication will be used.
+#' @param MSSQLConnectionString A string specifying the driver, server, 
+#' database, and whether Windows Authentication will be used.
 #' @param df Dataframe that hold the tabular data
-#' @param dbType Defaults to 'SQLServer'. The type of connection. Can also be
-#' 'SQLite'
-#' @param dbFile Optional string. If dbtype is SQLite, here one specifies the database 
-#' file to query from
+#' @param SQLiteFileName A string. If dbtype is SQLite, here one specifies the 
+#' database file to query from
 #' @param tableName String. Name of the table that receives the new rows
 #' @return Nothing
 #'

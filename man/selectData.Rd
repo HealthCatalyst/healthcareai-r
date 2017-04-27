@@ -4,20 +4,17 @@
 \alias{selectData}
 \title{Pull data into R via an ODBC connection}
 \usage{
-selectData(connectionString = NULL, query, dbType = "SQLServer",
-  dbFile = NULL, randomize = FALSE)
+selectData(MSSQLConnectionString = NULL, query, SQLiteFileName = NULL,
+  randomize = FALSE)
 }
 \arguments{
-\item{connectionString}{A string specifying the driver, server, database,
-and whether Windows Authentication will be used.}
+\item{MSSQLConnectionString}{A string specifying the driver, server, 
+database, and whether Windows Authentication will be used.}
 
 \item{query}{The SQL query (in ticks or quotes)}
 
-\item{dbType}{Defaults to 'SQLServer'. The type of connection. Can also be
-'SQLite'}
-
-\item{dbFile}{Optional string. If dbtype is SQLite, here one specifies the database 
-file to query from}
+\item{SQLiteFileName}{A string. If dbtype is SQLite, here one specifies the 
+database file to query from}
 
 \item{randomize}{Boolean that dictates whether returned rows are randomized}
 }
