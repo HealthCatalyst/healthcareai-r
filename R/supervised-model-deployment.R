@@ -52,12 +52,9 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
    },
 
    setConfigs = function(p) {
-     print('now inside setConfig')
+     
      self$params <- SupervisedModelDeploymentParams$new()
      
-     print('in setConfigs')
-     print(self$params)
-
      if (!is.null(p$df))
        self$params$df <- p$df
      
@@ -353,7 +350,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     #   i.e. p = SupervisedModelDeploymentParams$new()
     initialize = function(p) {
       
-      print('initialize called...')
       #Set config parameters
       private$setConfigs(p)
 

@@ -259,6 +259,9 @@ LassoDeployment <- R6Class(
     performPrediction = function() {
       if (self$params$type == "classification") {
         # linear , these are probabilities
+        
+        print('printing the test data to get predictions from.')
+        print(str(private$dfTest))
         private$predictedVals <- predict(private$fit, newdata = private$dfTest, type = "response")
         private$predictedValsForUnitTest <- private$predictedVals[5]  # for unit test
 
@@ -396,12 +399,7 @@ LassoDeployment <- R6Class(
     # p: new SupervisedModelDeploymentParams class object,
     # i.e. p = SupervisedModelDeploymentParams$new()
     initialize = function(p) {
-      print('initializing in lasso dep')
-      print(str(p))
       super$initialize(p)
-      print('just after init.')
-      print(str(self))
-      print(str(self$params))
     },
 
     # buildFitObject = function() {
@@ -432,13 +430,10 @@ LassoDeployment <- R6Class(
       # Connect to sql via odbc driver
       private$connectDataSource()
       
-      print('use saved model is...')
-      print(self$params$useSavedModel)
-
       if (isTRUE(self$params$useSavedModel)) {
         load("rmodel_combined_lasso.rda") # Produces fit object (for probability)
-        print(str(fitObj))
         private$fit <- fitObj$fit
+        
       } else {
         # private$registerClustersOnCores()
 
