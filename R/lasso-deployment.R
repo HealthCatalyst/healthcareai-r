@@ -210,6 +210,7 @@ LassoDeployment <- R6Class(
     indLambda1se = NA,
     lambda1se = NA,
     fitGrLasso = NA,
+    modFmla = NA,
   
     # functions
     connectDataSource = function() {
@@ -271,10 +272,14 @@ LassoDeployment <- R6Class(
       # to use in final fit):
       private$lambda1se <- private$fitGrLasso$lambda[private$indLambda1se]
       
+      
+      load('modFmla_TEST.rda')
+      private$modFmla <- modFmla
+      
       # Predictions (in terms of probability)
       browser()
       private$predictedVals <- predict(object = private$fitGrLasso,
-                                     X = model.matrix(private$modFmla, data = private$dfTest)[,-1],
+                                     X = model.matrix(private$modFmla, data = private$dfTestTemp)[,-1],
                                      lambda = private$lambda1se,
                                      type = "response")
       

@@ -227,8 +227,8 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
      self$params$df <-
        rbind(private$dfTrainTemp, private$dfTestTemp)
 
-     private$dfTrainTemp <- NULL # Were only used for imputation
-     private$dfTestTemp <- NULL
+     # private$dfTrainTemp <- NULL # Were only used for imputation
+     # private$dfTestTemp <- NULL
 
      if (isTRUE(self$params$debug)) {
        print('Entire data set after imputation')

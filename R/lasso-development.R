@@ -236,7 +236,8 @@ LassoDevelopment <- R6Class(
           collapse = "+"
         )))
       
-      modFmla <- private$ModFmla
+      print('saving test file...')
+      modFmla <- private$modFmla
       save(modFmla, file = "modFmla_TEST.rda")
       
       # Create the model matrix, without the intercept column, to be used in the
@@ -312,6 +313,7 @@ LassoDevelopment <- R6Class(
       private$lambda1se <-
         private$fitGrLasso$lambda[private$indLambda1se]
       
+      browser()
       # Predictions (in terms of probability)
       private$predictions <-
         predict(
