@@ -236,6 +236,9 @@ LassoDevelopment <- R6Class(
           collapse = "+"
         )))
       
+      modFmla <- private$ModFmla
+      save(modFmla, file = "modFmla_TEST.rda")
+      
       # Create the model matrix, without the intercept column, to be used in the
       # grouped Lasso function.
       private$modMat <-

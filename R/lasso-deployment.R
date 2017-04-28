@@ -205,6 +205,11 @@ LassoDeployment <- R6Class(
     orderedFactors = NA,
     predictedValsForUnitTest = NA,
     outDf = NA,
+    
+    # predictedVals = NA,  this comes supervised-model-deployment
+    indLambda1se = NA,
+    lambda1se = NA,
+    fitGrLasso = NA,
   
     # functions
     connectDataSource = function() {
@@ -267,8 +272,9 @@ LassoDeployment <- R6Class(
       private$lambda1se <- private$fitGrLasso$lambda[private$indLambda1se]
       
       # Predictions (in terms of probability)
-      private$predictions <- predict(object = private$fitGrLasso,
-                                     X = model.matrix(private$modFmla, data = private$dfTestTemp)[,-1],
+      browser()
+      private$predictedVals <- predict(object = private$fitGrLasso,
+                                     X = model.matrix(private$modFmla, data = private$dfTest)[,-1],
                                      lambda = private$lambda1se,
                                      type = "response")
       
@@ -454,7 +460,7 @@ LassoDeployment <- R6Class(
       
       if (isTRUE(self$params$useSavedModel)) {
         load("rmodel_combined_lasso.rda") # Produces fit object (for probability)
-        private$fit <- fitObj$fit
+          private$fitGrLasso <- fitObj
         
       } else {
         # private$registerClustersOnCores()
