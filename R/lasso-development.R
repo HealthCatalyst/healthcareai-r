@@ -236,9 +236,9 @@ LassoDevelopment <- R6Class(
           collapse = "+"
         )))
       
-      print('saving test file...')
-      modFmla <- private$modFmla
-      save(modFmla, file = "modFmla_TEST.rda")
+      # print('saving test file...')
+      # modFmla <- private$modFmla
+      # save(modFmla, file = "modFmla_TEST.rda")
       
       # Create the model matrix, without the intercept column, to be used in the
       # grouped Lasso function.
@@ -296,6 +296,9 @@ LassoDevelopment <- R6Class(
           penalty = "grLasso",
           nfolds = 5
         )
+      
+      # add column names to the model object for deploy's performPredictions
+      private$fitGrLasso$modFmla <- private$modFmla
     },
     
     # Predict results

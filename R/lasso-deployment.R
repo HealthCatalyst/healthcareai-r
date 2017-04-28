@@ -273,13 +273,12 @@ LassoDeployment <- R6Class(
       private$lambda1se <- private$fitGrLasso$lambda[private$indLambda1se]
       
       
-      load('modFmla_TEST.rda')
-      private$modFmla <- modFmla
+      # load('modFmla_TEST.rda')
+      # private$modFmla <- modFmla
       
       # Predictions (in terms of probability)
-      browser()
       private$predictedVals <- predict(object = private$fitGrLasso,
-                                     X = model.matrix(private$modFmla, data = private$dfTestTemp)[,-1],
+                                     X = model.matrix(private$fitGrLasso$modFmla, data = private$dfTestTemp)[,-1],
                                      lambda = private$lambda1se,
                                      type = "response")
       
@@ -290,7 +289,7 @@ LassoDeployment <- R6Class(
         } else if (self$params$type == 'regression') {
           print("First 10 raw regression value predictions")
         }
-        print(round(private$predictions[1:10], 2))
+        print(round(private$predictedVals[1:10], 2))
       }
       # 
       # if (self$params$type == "classification") {
@@ -318,6 +317,8 @@ LassoDeployment <- R6Class(
     },
 
     calculateCoeffcients = function() {
+      
+      # browser()
       # Do semi-manual calc to rank cols by order of importance
       coeffTemp <- private$fitLogit$coefficients
 
