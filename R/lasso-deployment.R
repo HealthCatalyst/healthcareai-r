@@ -259,10 +259,6 @@ LassoDeployment <- R6Class(
     performPrediction = function() {
       if (self$params$type == "classification") {
         # linear , these are probabilities
-        print('this is the fit object')
-        print(str(private$fit))
-        print('printing the test data to get predictions from.')
-        print(str(private$dfTest))
         private$predictedVals <- predict(private$fit, private$dfTest, type = "response")
         private$predictedValsForUnitTest <- private$predictedVals[5]  # for unit test
 
