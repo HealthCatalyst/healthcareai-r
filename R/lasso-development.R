@@ -313,7 +313,6 @@ LassoDevelopment <- R6Class(
       private$lambda1se <-
         private$fitGrLasso$lambda[private$indLambda1se]
       
-      browser()
       # Predictions (in terms of probability)
       private$predictions <-
         predict(
@@ -324,7 +323,7 @@ LassoDevelopment <- R6Class(
         )
       
       if (isTRUE(self$params$debug)) {
-        print(paste0("Rows in prediction: ", nrow(private$predictedVals)))
+        print(paste0("Rows in prediction: ", nrow(private$predictions)))
         if (self$params$type == 'classification') {
           print("First 10 raw classification probability predictions")
         } else if (self$params$type == 'regression') {
