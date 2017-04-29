@@ -1,0 +1,191 @@
+#' @title 
+#' Add SAM utility columns to table
+#' @description When working in a Health Catalyst Source Area Mart (SAM), 
+#' utility columns are added automatically when running a non-R binding
+#' @param df A dataframe
+#' @return A dataframe with three additional columns
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
+#' @examples
+#' df <- data.frame(a = c(1,2,NA,NA),
+#'                  b = c(100,300,200,150))
+#' head(df)
+#' df <- addSAMUtilityCols(df)
+#' head(df)
+
+addSAMUtilityCols <- function(df) {
+  df <- cbind(BindingID = 0,
+              BindingNM = 'R',
+              LastLoadDTS = as.POSIXlt(Sys.time()),
+              df)
+  df
+}
+
+#' @title
+#' Pull data into R via an ODBC connection
+#' @description Select data from an ODBC database and return the results as
+#' a data frame.
+#' @param MSSQLConnectionString A string specifying the driver, server, 
+#' database, and whether Windows Authentication will be used.
+#' @param query The SQL query (in ticks or quotes)
+#' @param SQLiteFileName A string. If dbtype is SQLite, here one specifies the 
+#' database file to query from
+#' @param randomize Boolean that dictates whether returned rows are randomized
+#' @return df A data frame containing the selected rows
+#'
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
+#' @examples
+#' 
+#' \donttest{
+#' # This example is specific to SQL Server
+#' 
+#' # To instead pull data from Oracle see here 
+#' # https://cran.r-project.org/web/packages/ROracle/ROracle.pdf
+#' # To pull data from MySQL see here 
+#' # https://cran.r-project.org/web/packages/RMySQL/RMySQL.pdf
+#' # To pull data from Postgres see here 
+#' # https://cran.r-project.org/web/packages/RPostgreSQL/RPostgreSQL.pdf
+#' 
+#' connectionString <- '
+#'   driver={SQL Server};
+#'   server=localhost;
+#'   database=SAM;
+#'   trustedConnection=true
+#'   '
+#'
+#' query <- '
+#'   SELECT
+#'     A1CNBR
+#'   FROM SAM.dbo.HCRDiabetesClinical
+#'   '
+#'
+#' df <- selectData(connectionString, query)
+#' head(df)
+#' }
+
+selectData <- function(MSSQLConnectionString = NULL, 
+                       query, 
+                       SQLiteFileName = NULL,
+                       randomize = FALSE) {
+  
+  if ((is.null(MSSQLConnectionString)) && (is.null(SQLiteFileName))) {
+    stop('You must specify a either a MSSQLConnectionString for SQL Server or a SQLiteFileName for SQLite')
+  }
+  
+  if (isTRUE(randomize)) {
+    orderPres <- grep("order", tolower(query))
+    
+    if (length(orderPres == 0)) {
+      stop("You cannot randomize while using the SQL order keyword.")
+    }
+    query <- paste0(query, " ORDER BY NEWID()")
+  }
+  
+  # TODO: if debug: time this operation and print time spent to pull data.
+  if (!is.null(MSSQLConnectionString)) {
+    con <- DBI::dbConnect(odbc::odbc(),
+                          .connection_string = MSSQLConnectionString)
+  } else if (!is.null(SQLiteFileName)) {
+    con <- DBI::dbConnect(RSQLite::SQLite(), dbname = SQLiteFileName)
+  }
+  
+  tryCatch(df <- DBI::dbGetQuery(con, query),
+           error = function(e) {
+             e$message <- "Your SQL likely contains an error."
+             stop(e)
+           })
+  
+  # Close connection
+  DBI::dbDisconnect(con)
+  
+  # Make sure there are enough rows to actually do something useful.
+  if (is.null(nrow(df))) {
+    cat(df)  # Print the SQL error, which is contained in df.
+    stop("Your SQL contains an error.")
+  }
+  if (nrow(df) == 0) {
+    warning("Zero rows returned from SQL. ",
+            "Adjust your query to return more data!")
+  }
+  df  # Return the selected data.
+}
+
+#' @title
+#' Write data to database
+#' @description Write data frame to database table via ODBC connection
+#' #' @param connectionString A string specifying the driver, server, database,
+#' and whether Windows Authentication will be used.
+#' @param MSSQLConnectionString A string specifying the driver, server, 
+#' database, and whether Windows Authentication will be used.
+#' @param df Dataframe that hold the tabular data
+#' @param SQLiteFileName A string. If dbtype is SQLite, here one specifies the 
+#' database file to query from
+#' @param tableName String. Name of the table that receives the new rows
+#' @return Nothing
+#'
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
+#' @examples
+#' 
+#' \donttest{
+#' # This example is specific to SQL Server.
+#' 
+#' # To instead pull data from Oracle see here 
+#' # https://cran.r-project.org/web/packages/ROracle/ROracle.pdf
+#' # To pull data from MySQL see here 
+#' # https://cran.r-project.org/web/packages/RMySQL/RMySQL.pdf
+#' # To pull data from Postgres see here 
+#' # https://cran.r-project.org/web/packages/RPostgreSQL/RPostgreSQL.pdf 
+#'
+#' # Before running this example, create the table in SQL Server via
+#' # CREATE TABLE [dbo].[HCRWriteData](
+#' # [a] [float] NULL,
+#' # [b] [float] NULL,
+#' # [c] [varchar](255) NULL)
+#' 
+#' connectionString <- '
+#'   driver={SQL Server};
+#'   server=localhost;
+#'   database=SAM;
+#'   trustedConnection=true
+#'   '
+#'
+#' df <- data.frame(a=c(1,2,3),
+#'                  b=c(2,4,6),
+#'                  c=c('one','two','three'))
+#'
+#' writeData(MSSQLConnectionString = connectionString, 
+#'           df = df, 
+#'           tableName = 'HCRWriteData')
+#' }
+
+writeData <- function(MSSQLConnectionString = NULL, 
+                      df, 
+                      SQLiteFileName = NULL,
+                      tableName) {
+  
+  # TODO: add try/catch around sqlSave
+  
+  # TODO: if debug: time this operation and print time spent to pull data.
+  if ((is.null(MSSQLConnectionString)) && (is.null(SQLiteFileName))) {
+    stop('You must specify a either a MSSQLConnectionString for SQL Server or a SQLiteFileName for SQLite')
+  }
+  
+  if (!is.null(MSSQLConnectionString)) {
+    con <- DBI::dbConnect(odbc::odbc(),
+                          .connection_string = MSSQLConnectionString)
+  } else if (!is.null(SQLiteFileName)) {
+    con <- DBI::dbConnect(RSQLite::SQLite(), dbname = SQLiteFileName)
+  }
+  
+  DBI::dbWriteTable(con, tableName, df, append = TRUE)
+  
+  # Close connection
+  DBI::dbDisconnect(con)
+  
+  cat(nrow(df), "rows were inserted into the SQL Server", tableName, "table." )
+}
