@@ -128,8 +128,7 @@ findVariation <- function(df,
                           measureCol,
                           dateCol = NULL,
                           threshold = NULL) {
-  # Notes: 
-  # Can measureCol be a 0/1 col? Does that make sense?
+  # TODO: Can measureCol be a 0/1 col? Does that make sense?
   
   if (!all(c(categoricalCols,measureCol,dateCol) %in% names(df))) {
     stop('The measure column or one of the categorical cols is not in the df')
@@ -167,25 +166,21 @@ findVariation <- function(df,
   # Collapse cat cols into one string, separated by +
   combineIndyVarsPlus <- paste0(categoricalCols, collapse = " + ")
   finalFormula <- paste0(measureCol, " ~ ", combineIndyVarsPlus)
-  print('form')
-  print(finalFormula)
   
-  dfRes <- stats::aggregate(stats::as.formula(finalFormula),
-                         data = df,
-                         FUN = healthcareai::calculateCOV)
+  dfAg <- stats::aggregate(stats::as.formula(finalFormula),
+                           data = df,
+                           FUN = healthcareai::calculateCOV)
   
-  print('hello')
-  print(dfRes)
-  df <- healthcareai::removeRowsWithNAInSpecCol(dfRes, measureCol)
+  dfAg <- healthcareai::removeRowsWithNAInSpecCol(dfAg, measureCol)
   
   # Select only variation above threshold
   if (!is.null(threshold)) {
-    dfRes <- dfRes[dfRes[[measureCol]] > threshold,]
+    dfAg <- dfAg[dfAg[[measureCol]] > threshold,]
   }
   
-  dfRes <- healthcareai::createVarianceTallTable(dfRes, 
-                                                 categoricalCols,
-                                                 measureCol)
-  dfRes
+  dfAg <- healthcareai::createVarianceTallTable(dfAg, 
+                                                categoricalCols,
+                                                measureCol)
+  dfAg
   
 }
