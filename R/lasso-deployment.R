@@ -318,7 +318,7 @@ LassoDeployment <- R6Class(
 
     calculateCoeffcients = function() {
       
-      # browser()
+      browser()
       # Do semi-manual calc to rank cols by order of importance
       coeffTemp <- private$fitLogit$coefficients
 

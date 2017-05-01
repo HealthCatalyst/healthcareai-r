@@ -176,18 +176,18 @@ LassoDevelopment <- R6Class(
     # Data related
     dfTrainTemp = NA,
     dfTestTemp = NA,
-    
-    # Models for formula and matrix
-    modFmla = NA,
-    modMat = NA,
+
     
     # Groups for the grouped Lasso model
     group = NA,
     
     # Fit model and lamda values
     fitGrLasso = NA,
+    fitLogit = NA,
     indLambda1se = NA,
     lambda1se = NA,
+    modFmla = NA,
+    modMat = NA,
     
     predictions = NA,
     
@@ -205,8 +205,38 @@ LassoDevelopment <- R6Class(
         print("Saving model...")
       }
       
+      fitLogitObj <- private$fitLogit
       fitObj <- private$fitGrLasso
+      
       save(fitObj, file = "rmodel_combined_lasso.rda")
+      save(fitLogitObj, file = "rmodel_var_import_lasso.rda")
+    },
+    
+    # this function must be in here for the row-wise predictions.
+    # can be replaced when LIME-like functionality is complete.
+    fitGeneralizedLinearModel = function() {
+      if (isTRUE(self$params$debug)) {
+        print('generating fitLogit for row-wise guidance...')
+      }
+      
+      if (self$params$type == 'classification') {
+        private$fitLogit <- glm(
+          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
+          data = private$dfTrain,
+          family = binomial(link = "logit"),
+          metric = "ROC",
+          control = list(maxit = 10000),
+          trControl = trainControl(classProbs = TRUE, summaryFunction = twoClassSummary)
+        )
+        
+      } else if (self$params$type == 'regression') {
+        private$fitLogit <- glm(
+          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
+          data = private$dfTrain,
+          metric = "RMSE",
+          control = list(maxit = 10000)
+        )
+      }
     }
   ),
   
@@ -296,9 +326,9 @@ LassoDevelopment <- R6Class(
           penalty = "grLasso",
           nfolds = 5
         )
-      
-      # add column names to the model object for deploy's performPredictions
-      private$fitGrLasso$modFmla <- private$modFmla
+      # 
+      # # add column names to the model object for deploy's performPredictions
+      # private$fitGrLasso$modFmla <- private$modFmla
     },
     
     # Predict results
@@ -377,6 +407,10 @@ LassoDevelopment <- R6Class(
     
     # Override: run prediction
     run = function() {
+      # Start default logit (for row-wise var importance)
+      # can be replaced with LIME-like functionality
+      private$fitGeneralizedLinearModel()
+      
       # Build Model
       self$buildModel()
       
