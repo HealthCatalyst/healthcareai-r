@@ -14,10 +14,10 @@
 #' df <- addSAMUtilityCols(df)
 #' head(df)
 
-addSAMUtilityCols <- function(df) {
+addSAMUtilityCols <- function(d) {
   df <- cbind(BindingID = 0,
               BindingNM = 'R',
-              LastLoadDTS = as.POSIXlt(Sys.time()),
+              LastLoadDTS = Sys.time(),
               df)
   df
 }
@@ -101,6 +101,12 @@ selectData <- function(MSSQLConnectionString = NULL,
   # Close connection
   DBI::dbDisconnect(con)
   
+  # For SQLite, convert DTS cols from char to POSIX - SQLite as no date type
+  if (!is.null(SQLiteFileName)) {
+    colNumsDTS <- grep("DTS", names(df))
+    df[colNumsDTS] <- lapply(df[colNumsDTS], as.POSIXct)
+  }
+  
   # Make sure there are enough rows to actually do something useful.
   if (is.null(nrow(df))) {
     cat(df)  # Print the SQL error, which is contained in df.
@@ -166,9 +172,8 @@ selectData <- function(MSSQLConnectionString = NULL,
 writeData <- function(MSSQLConnectionString = NULL, 
                       df, 
                       SQLiteFileName = NULL,
-                      tableName) {
-  
-  # TODO: add try/catch around sqlSave
+                      tableName,
+                      addSAMUtilityColumns = FALSE) {
   
   # TODO: if debug: time this operation and print time spent to pull data.
   if ((is.null(MSSQLConnectionString)) && (is.null(SQLiteFileName))) {
@@ -180,6 +185,16 @@ writeData <- function(MSSQLConnectionString = NULL,
                           .connection_string = MSSQLConnectionString)
   } else if (!is.null(SQLiteFileName)) {
     con <- DBI::dbConnect(RSQLite::SQLite(), dbname = SQLiteFileName)
+  }
+
+  if (isTRUE(addSAMUtilityColumns)) {
+    df <- healthcareai::addSAMUtilityCols(df)
+  }
+  
+  # For SQLite, convert DTS cols from POSIX to char - SQLite as no date type
+  if (!is.null(SQLiteFileName)) {
+    colNumsDTS <- grep("DTS", names(df))
+    df[colNumsDTS] <- lapply(df[colNumsDTS], as.character)
   }
   
   DBI::dbWriteTable(con, tableName, df, append = TRUE)

@@ -5,7 +5,7 @@
 \title{Write data to database}
 \usage{
 writeData(MSSQLConnectionString = NULL, df, SQLiteFileName = NULL,
-  tableName)
+  tableName, addSAMUtilityColumns = FALSE)
 }
 \arguments{
 \item{MSSQLConnectionString}{A string specifying the driver, server, 

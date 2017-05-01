@@ -64,13 +64,16 @@ createVarianceTallTable <- function(df, categoricalCols, measureCol) {
     stop('Your measureCol cannot also be listed in categoricalCols')
   }
   
-  # Categories can't be factor cols, as paste0 uses labels instead of values
-  df[categoricalCols] <- lapply(df[categoricalCols], as.character)
-  
   if (class(df[[measureCol]]) != "numeric" &&  
       class(df[[measureCol]]) != "integer") {
     stop("Your ", measureCol, " column needs to be of class numeric or integer")
   }
+  
+  # Categories can't be factor cols, as paste0 uses labels instead of values
+  df[categoricalCols] <- lapply(df[categoricalCols], as.character)
+  
+  # Order dataframe, based on measureCol (highest at top)
+  df <- df[order(-df[[measureCol]]),]
   
   # Combine cat column names via pipe delimiters
   combineCatColNamesPipe <- paste0(categoricalCols, collapse = "|")
@@ -139,7 +142,6 @@ findVariation <- function(df,
     stop("Your ", measureCol, " column needs to be of class numeric or integer")
   }
   
-  # TODO: Check that categorical columns aren't classified as numbers
   for (i in 1:length(categoricalCols)) {
     if (class(df[[i]]) == "numeric" ||  
         class(df[[i]]) == "integer") {
@@ -163,24 +165,76 @@ findVariation <- function(df,
     categoricalCols <- c(categoricalCols, dateCol)
   }
   
-  # Collapse cat cols into one string, separated by +
-  combineIndyVarsPlus <- paste0(categoricalCols, collapse = " + ")
-  finalFormula <- paste0(measureCol, " ~ ", combineIndyVarsPlus)
+  listOfPossibleCombos <- createCombinations(categoricalCols)
+  dfTotal <- data.frame()
   
-  dfAg <- stats::aggregate(stats::as.formula(finalFormula),
-                           data = df,
-                           FUN = healthcareai::calculateCOV)
-  
-  dfAg <- healthcareai::removeRowsWithNAInSpecCol(dfAg, measureCol)
-  
-  # Select only variation above threshold
-  if (!is.null(threshold)) {
-    dfAg <- dfAg[dfAg[[measureCol]] > threshold,]
+  for (i in 1:length(listOfPossibleCombos)) {
+    
+    currentCatColumnComboVect <- unlist(listOfPossibleCombos[i])
+    
+    # Collapse cat cols into one string, separated by +
+    combineIndyVarsPlus <- paste0(currentCatColumnComboVect, collapse = " + ")
+    finalFormula <- paste0(measureCol, " ~ ", combineIndyVarsPlus)
+    
+    dfSub <- stats::aggregate(stats::as.formula(finalFormula),
+                              data = df,
+                              FUN = healthcareai::calculateCOV)
+    
+    dfSub <- healthcareai::removeRowsWithNAInSpecCol(dfSub, measureCol)
+    
+    # Select only variation above threshold
+    if (!is.null(threshold)) {
+      
+      dfSub <- dfSub[dfSub[[measureCol]] > threshold,]
+      
+      # If no rows in subgroup above threshold, send to next loop
+      if (isTRUE(all(is.na(dfSub)))) {
+        next
+      }
+    }
+    
+    # Add variation for one particular categorical col combination to total df
+    dfTotal <- rbind(dfTotal,
+                     healthcareai::createVarianceTallTable(dfSub, 
+                                                           currentCatColumnComboVect,
+                                                           measureCol))
   }
+  if (nrow(dfTotal) == 0) {
+    stop("No subgroups found above threshold.",
+         " Try removing or lower your threshold")
+  } else {
+    return(dfTotal)
+  }
+}
+
+#' @title
+#' Find all possible combinations
+#' @description For a given vector of strings, find all possible combinations 
+#' of those strings. 
+#' @param categoricalCols A vector of strings
+#' @return A list of sub-lists. Each sub-list represents one possible 
+#' combination.
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}} \code{\link{findVariation}} 
+#' \code{\link{createVarianceTallTable}}
+#' @examples
+#' categoricalCols <- c("LactateOrderHospital",
+#'                      "LactateOrderProvSpecialtyDSC",
+#'                      "LactateOrderProvNM")
+#' y <- createCombinations(categoricalCols)
+#' 
+#' # Let's look at one possible combination
+#' print(unlist(y[3]))
+
+
+createCombinations <- function(categoricalCols) {
+  listOfCatColumnCombinations = list()
+  df <- expand.grid(replicate(length(categoricalCols), 0:1, simplify = FALSE))
   
-  dfAg <- healthcareai::createVarianceTallTable(dfAg, 
-                                                categoricalCols,
-                                                measureCol)
-  dfAg
-  
+  for (i in 2:nrow(df)) { # Don't use 1st (all false row) from expand.grid
+    listOfCatColumnCombinations <- c(listOfCatColumnCombinations,
+                                     list(categoricalCols[as.logical(df[i,])]))
+  }
+  listOfCatColumnCombinations
 }
