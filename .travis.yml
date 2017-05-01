@@ -21,7 +21,6 @@ matrix:
         - iodbc
         - unixodbc 
         - unixodbc-dev
-        - tdsodbc
         r_packages:
         - covr
     before_install: |
