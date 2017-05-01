@@ -202,8 +202,12 @@ CREATE TABLE [dbo].[HCRWriteData](
     + **CTRL-SHIFT-D**
 - How to build
     + **CTRL-SHIFT-B**
+- All Keyboard Shortcuts
+    + **ALT-SHIFT-K**
 - How to run unit tests
     - **CTRL-SHIFT-T**
+- Navigate to file/function
+    + **CTRL-.**
     - `devtools::test(filename)` runs a single test file
 - How to run examples
     `devtools::run_examples()`
