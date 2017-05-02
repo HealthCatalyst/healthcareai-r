@@ -206,11 +206,9 @@ LassoDeployment <- R6Class(
     predictedValsForUnitTest = NA,
     outDf = NA,
     
-    # predictedVals = NA,  this comes supervised-model-deployment
-    indLambda1se = NA,
-    lambda1se = NA,
-    fitGrLasso = NA,
-    modFmla = NA,
+    
+    fit = NA,
+    fitLogit = NA,
   
     # functions
     connectDataSource = function() {
@@ -263,62 +261,32 @@ LassoDeployment <- R6Class(
     # },
 
     performPrediction = function() {
-      # Index of largest lambda within one cvse of the lambda with lowest cve:
-      # These are sorted from largest to smallest lambda, hence pulling the
-      # minimum index.
-      private$indLambda1se <- min(which(private$fitGrLasso$cve <= (private$fitGrLasso$cve + private$fitGrLasso$cvse)[private$fitGrLasso$min]))
-      
-      # Largest lambda within one cvse of the lambda with lowest cve (ie. lambda
-      # to use in final fit):
-      private$lambda1se <- private$fitGrLasso$lambda[private$indLambda1se]
-      
-      
-      # load('modFmla_TEST.rda')
-      # private$modFmla <- modFmla
-      
-      # Predictions (in terms of probability)
-      private$predictedVals <- predict(object = private$fitGrLasso,
-                                     X = model.matrix(private$fitGrLasso$modFmla, data = private$dfTestTemp)[,-1],
-                                     lambda = private$lambda1se,
-                                     type = "response")
-      
-      if (isTRUE(self$params$debug)) {
-        print(paste0("Rows in prob prediction: ", nrow(private$predictedVals)))
-        if (self$params$type == 'classification') {
-          print("First 10 raw classification probability predictions")
-        } else if (self$params$type == 'regression') {
-          print("First 10 raw regression value predictions")
-        }
-        print(round(private$predictedVals[1:10], 2))
-      }
-      # 
-      # if (self$params$type == "classification") {
-      #   # linear , these are probabilities
-      #   private$predictedVals <- predict(private$fit, private$dfTest, type = "response")
-      #   private$predictedValsForUnitTest <- private$predictedVals[5]  # for unit test
-      # 
-      #   print("Probability predictions are based on logistic")
-      # 
-      #   if (isTRUE(self$params$debug)) {
-      #     print(paste0("Rows in prob prediction: ", nrow(private$predictedVals)))
-      #     print("First 10 raw classification probability predictions")
-      #     print(round(private$predictedVals[1:10], 2))
-      #   }
-      # } else if (self$params$type == "regression") {
-      #   # this is in-kind prediction
-      #   private$predictedVals <- predict(private$fit, newdata = private$dfTest)
-      # 
-      #   if (isTRUE(self$params$debug)) {
-      #     print(paste0("Rows in regression prediction: ", length(private$predictedVals)))
-      #     print("First 10 raw regression predictions (with row # first)")
-      #     print(round(private$predictedVals[1:10], 2))
-      #   }
-      # }
-    },
-
-    calculateCoeffcients = function() {
-      
       browser()
+      if (self$params$type == "classification") {
+        # linear , these are probabilities
+        private$predictedVals <- predict(private$fit, X = private$dfTest, which = 1, type = "response")
+        private$predictedValsForUnitTest <- private$predictedVals[5]  # for unit test
+        
+        print("Probability predictions are based on logistic")
+        
+        if (isTRUE(self$params$debug)) {
+          print(paste0("Rows in prob prediction: ", nrow(private$predictedVals)))
+          print("First 10 raw classification probability predictions")
+          print(round(private$predictedVals[1:10], 2))
+        }
+      } else if (self$params$type == "regression") {
+        # this is in-kind prediction
+        private$predictedVals <- predict(private$fit, X = private$dfTest)
+        
+        if (isTRUE(self$params$debug)) {
+          print(paste0("Rows in regression prediction: ", length(private$predictedVals)))
+          print("First 10 raw regression predictions (with row # first)")
+          print(round(private$predictedVals[1:10], 2))
+        }
+      }
+    },
+    
+    calculateCoeffcients = function() {
       # Do semi-manual calc to rank cols by order of importance
       coeffTemp <- private$fitLogit$coefficients
 
@@ -465,9 +433,13 @@ LassoDeployment <- R6Class(
       private$connectDataSource()
       
       if (isTRUE(self$params$useSavedModel)) {
-        load("rmodel_combined_lasso.rda") # Produces fit object (for probability)
-          private$fitGrLasso <- fitObj
+        load("rmodel_var_import_lasso.rda")  # Produces fitLogit object
+        private$fitLogit <- fitLogit
         
+        load("rmodel_combined_lasso.rda") # Produces fit object (for probability)
+          private$fit <- fitObj
+        
+          
       } else {
         # private$registerClustersOnCores()
 
