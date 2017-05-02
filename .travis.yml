@@ -8,7 +8,7 @@ matrix:
   include:
   - os: linux
     cache: packages
-    dist: precise
+    dist: trusty
     sudo: false
     r: release
     addons:
@@ -18,10 +18,7 @@ matrix:
         packages:
         - gcc-4.9
         - g++-4.9
-        - unixodbc
         - unixodbc-dev
-        - tdsodbc
-        - libsqliteodbc
         r_packages:
         - covr
     before_install: |
