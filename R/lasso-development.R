@@ -327,35 +327,33 @@ LassoDevelopment <- R6Class(
           nfolds = 5
         )
       # 
-      # # add column names to the model object for deploy's performPredictions
-      # private$fitGrLasso$modFmla <- private$modFmla
+      # add column names to the model object for deploy's performPredictions
+      private$fitGrLasso$modFmla <- private$modFmla
+      private$fitGrLasso$modMat <- private$modMat
     },
     
     # Predict results
     performPrediction = function() {
-      browser()
-      if (self$params$type == "classification") {
-        newData <- data.matrix(private$dfTest) # cv.grpreg requires a matrix, not a df.
-        # linear , these are probabilities
-        private$predictedVals <- predict(private$fitGrLasso, X = newData, type = "response")
-        private$predictedValsForUnitTest <- private$predictedVals[5]  # for unit test
-        
-        print("Probability predictions are based on logistic")
-        
-        if (isTRUE(self$params$debug)) {
-          print(paste0("Rows in prob prediction: ", nrow(private$predictedVals)))
-          print("First 10 raw classification probability predictions")
-          print(round(private$predictedVals[1:10], 2))
-        }
-      } else if (self$params$type == "regression") {
-        # this is in-kind prediction
-        private$predictedVals <- predict(private$fit, newdata = private$dfTest)
-        
-        if (isTRUE(self$params$debug)) {
-          print(paste0("Rows in regression prediction: ", length(private$predictedVals)))
-          print("First 10 raw regression predictions (with row # first)")
-          print(round(private$predictedVals[1:10], 2))
-        }
+      
+      # Index of largest lambda within one cvse of the lambda with lowest cve:
+      # These are sorted from largest to smallest lambda, hence pulling the
+      # minimum index.
+      private$indLambda1se <- min(which(private$fitGrLasso$cve <= (private$fitGrLasso$cve + private$fitGrLasso$cvse)[private$fitGrLasso$min]))
+      
+      # Largest lambda within one cvse of the lambda with lowest cve (ie. lambda
+      # to use in final fit):
+      private$lambda1se <- private$fitGrLasso$lambda[private$indLambda1se]
+      
+      # Predictions (in terms of probability)
+      private$predictions <- predict(object = private$fitGrLasso,
+                                     X = model.matrix(private$modFmla, data = private$dfTestTemp)[,-1],
+                                     lambda = private$lambda1se,
+                                     type = "response")
+      
+      if (isTRUE(self$params$debug)) {
+        print(paste0("Rows in prob prediction: ", nrow(private$predictedVals)))
+        print("First 10 raw classification probability predictions")
+        print(round(private$predictions[1:10], 2))
       }
     },
     

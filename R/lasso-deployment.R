@@ -209,6 +209,13 @@ LassoDeployment <- R6Class(
     
     fit = NA,
     fitLogit = NA,
+    indLambda1se = NA,
+    lambda1se = NA,
+    modFmla = NA,
+    modMat = NA,
+    
+    predictions = NA,
+    
   
     # functions
     connectDataSource = function() {
@@ -260,29 +267,28 @@ LassoDeployment <- R6Class(
     #   }
     # },
 
+    # Predict results
     performPrediction = function() {
-      browser()
-      if (self$params$type == "classification") {
-        # linear , these are probabilities
-        private$predictedVals <- predict(private$fit, X = private$dfTest, which = 1, type = "response")
-        private$predictedValsForUnitTest <- private$predictedVals[5]  # for unit test
-        
-        print("Probability predictions are based on logistic")
-        
-        if (isTRUE(self$params$debug)) {
-          print(paste0("Rows in prob prediction: ", nrow(private$predictedVals)))
-          print("First 10 raw classification probability predictions")
-          print(round(private$predictedVals[1:10], 2))
-        }
-      } else if (self$params$type == "regression") {
-        # this is in-kind prediction
-        private$predictedVals <- predict(private$fit, X = private$dfTest)
-        
-        if (isTRUE(self$params$debug)) {
-          print(paste0("Rows in regression prediction: ", length(private$predictedVals)))
-          print("First 10 raw regression predictions (with row # first)")
-          print(round(private$predictedVals[1:10], 2))
-        }
+      browser
+      # Index of largest lambda within one cvse of the lambda with lowest cve:
+      # These are sorted from largest to smallest lambda, hence pulling the
+      # minimum index.
+      private$indLambda1se <- min(which(private$fitGrLasso$cve <= (private$fitGrLasso$cve + private$fitGrLasso$cvse)[private$fitGrLasso$min]))
+      
+      # Largest lambda within one cvse of the lambda with lowest cve (ie. lambda
+      # to use in final fit):
+      private$lambda1se <- private$fitGrLasso$lambda[private$indLambda1se]
+      
+      # Predictions (in terms of probability)
+      private$predictions <- predict(object = private$fitGrLasso,
+                                     X = model.matrix(private$modFmla, data = private$dfTestTemp)[,-1],
+                                     lambda = private$lambda1se,
+                                     type = "response")
+      
+      if (isTRUE(self$params$debug)) {
+        print(paste0("Rows in prob prediction: ", nrow(private$predictedVals)))
+        print("First 10 raw classification probability predictions")
+        print(round(private$predictions[1:10], 2))
       }
     },
     
@@ -438,7 +444,10 @@ LassoDeployment <- R6Class(
         
         load("rmodel_combined_lasso.rda") # Produces fit object (for probability)
           private$fit <- fitObj
-        
+          private$modMat <- fitObj$modMat
+          private$modFmla <- fitObj$modFmla
+          fitObj$modMat <- NULL
+          fitObj$modFmla <- NULL
           
       } else {
         # private$registerClustersOnCores()
