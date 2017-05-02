@@ -18,12 +18,11 @@ matrix:
         packages:
         - gcc-4.9
         - g++-4.9
+        - unixodbc-dev
         - iodbc
         - odbcinst1debian2
         - libiodbc2
         - libiodbc2-dev
-        - unixodbc 
-        - unixodbc-dev
         r_packages:
         - covr
     before_install: |
