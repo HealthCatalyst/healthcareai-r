@@ -333,9 +333,11 @@ LassoDevelopment <- R6Class(
     
     # Predict results
     performPrediction = function() {
+      browser()
       if (self$params$type == "classification") {
+        newData <- data.matrix(private$dfTest) # cv.grpreg requires a matrix, not a df.
         # linear , these are probabilities
-        private$predictedVals <- predict(private$fit, newdata = private$dfTest, type = "response")
+        private$predictedVals <- predict(private$fitGrLasso, X = newData, type = "response")
         private$predictedValsForUnitTest <- private$predictedVals[5]  # for unit test
         
         print("Probability predictions are based on logistic")
