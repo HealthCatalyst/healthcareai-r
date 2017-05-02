@@ -20,8 +20,6 @@ matrix:
         - g++-4.9
         - unixodbc 
         - unixodbc-dev
-        - libiodbc2
-        - libiodbc2-dev
         r_packages:
         - covr
     before_install: |
