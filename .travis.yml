@@ -20,6 +20,8 @@ matrix:
         - g++-4.9
         - unixodbc
         - unixodbc-dev
+        - tdsodbc
+        - libsqliteodbc
         r_packages:
         - covr
     before_install: |
