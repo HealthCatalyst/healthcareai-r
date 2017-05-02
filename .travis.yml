@@ -18,7 +18,6 @@ matrix:
         packages:
         - gcc-4.9
         - g++-4.9
-        - unixodbc 
         - unixodbc-dev
         r_packages:
         - covr
