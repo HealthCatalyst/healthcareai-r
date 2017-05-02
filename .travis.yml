@@ -18,7 +18,6 @@ matrix:
         packages:
         - gcc-4.9
         - g++-4.9
-        - iodbc
         - unixodbc 
         - unixodbc-dev
         - libiodbc2
