@@ -1274,7 +1274,7 @@ generateAUC <- function(predictions,
   }
   
   # get ideal cutoff values.
-  IdealCuts <- getCutOffs(perf = perf, 
+  IdealCuts <- getCutOffList(perf = perf, 
                           aucType = aucType, 
                           allCutoffsFlg = allCutoffsFlg)
   
@@ -1367,7 +1367,8 @@ initializeParamsForTesting <- function(df) {
 
 
 #' @title
-#' Function to return ideal cutoff and TPR/FPR or precision/recall.
+#' Function to return ideal cutoff and TPR/FPR or precision/recall. Usually called
+#' from \code{\link{generateAUC}}
 #'
 #' @description Calculates ideal cutoff by proximity to corner of the ROC curve.
 #' @param perf An ROCR performance class. (Usually made by generateAUC)
@@ -1380,7 +1381,7 @@ initializeParamsForTesting <- function(df) {
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
 
-getCutOffs = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
+getCutOffList = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
   ## TODO: Give user the ability to give higher weight to recall or FPR
   x <- unlist(perf@x.values)
   y <- unlist(perf@y.values)

@@ -403,6 +403,11 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
 
     getPerf = function() {
       return(private$perf)
+    }, 
+    
+    getCutOffs = function() {
+      warning("`getCutOffs` is deprecated. Please use `generateAUC` instead. See 
+              ?generateAUC", call. = FALSE)
     }
   )
 )
