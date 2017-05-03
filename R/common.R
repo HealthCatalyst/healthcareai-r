@@ -337,7 +337,7 @@ selectData <- function(MSSQLConnectionString = NULL,
 #'                  b=c(2,4,6),
 #'                  c=c('one','two','three'))
 #'
-#' writeData(connectionString = connectionString, 
+#' writeData(MSSQLConnectionString = connectionString, 
 #'           df = df, 
 #'           tableName = 'HCRWriteData')
 #' }
