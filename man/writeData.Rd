@@ -55,7 +55,7 @@ df <- data.frame(a=c(1,2,3),
                  b=c(2,4,6),
                  c=c('one','two','three'))
 
-writeData(ConnectionString = connectionString, 
+writeData(MSSQLConnectionString = connectionString, 
           df = df, 
           tableName = 'HCRWriteData')
 }
