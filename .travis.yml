@@ -35,6 +35,10 @@ matrix:
     osx_image: xcode8.2
     sudo: required
     r: release
+    addons:
+      apt:
+        r_packages:
+        - devtools
     before_install:
     - brew update
     install:
