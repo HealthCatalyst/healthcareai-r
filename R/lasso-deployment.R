@@ -286,8 +286,13 @@ LassoDeployment <- R6Class(
       
       if (isTRUE(self$params$debug)) {
         print(paste0("Rows in prob prediction: ", nrow(private$predictedVals)))
-        print("First 10 raw classification probability predictions")
-        print(round(private$predictions[1:10], 2))
+        if (self$params$type == 'classification') {
+          print("First 10 raw classification probability predictions")
+          print(round(private$predictions[1:10], 2))
+        } else if (self$params$type == 'regression') {
+          print("First 10 raw regression value predictions")
+          print(round(private$predictions[1:10], 2))
+        }
       }
     },
     
