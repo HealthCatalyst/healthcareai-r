@@ -230,43 +230,6 @@ LassoDeployment <- R6Class(
       RODBC::odbcCloseAll()
     },
 
-    # fitGeneralizedLinearModel = function() {
-    #   if (isTRUE(self$params$debug)) {
-    #     print("generating fitLogit...")
-    #   }
-    # 
-    #   if (self$params$type == "classification") {
-    #     private$fitLogit <- glm(as.formula(paste(self$params$predictedCol, ".", sep = " ~ ")),
-    #                             data = private$dfTrain, family = binomial(link = "logit"), metric = "ROC",
-    #                             control = list(maxit = 10000), trControl = trainControl(classProbs = TRUE,
-    #                                                                                     summaryFunction = twoClassSummary))
-    # 
-    #   } else if (self$params$type == "regression") {
-    #     private$fitLogit <- glm(as.formula(paste(self$params$predictedCol, ".", sep = " ~ ")),
-    #                             data = private$dfTrain, metric = "RMSE", control = list(maxit = 10000))
-    #   }
-    # },
-
-    # saveModel = function() {
-    #   if (isTRUE(self$params$debug)) {
-    #     print("Saving model...")
-    #   }
-    # 
-    #   # NOTE: save(private$fit, ...) does not work!
-    #   if (isTRUE(!self$params$useSavedModel)) {
-    #     fitObj <- private$fit
-    #     save(fitObj, file = "rmodel_combined.rda")
-    #   }
-    # 
-    #   # This isn't needed if formula interface is used in randomForest
-    #   private$dfTest[[self$params$predictedCol]] = NULL
-    # 
-    #   if (isTRUE(self$params$debug)) {
-    #     print("Test set before being used in predict(), after removing y")
-    #     print(str(private$dfTest))
-    #   }
-    # },
-
     # Predict results
     performPrediction = function() {
       # Index of largest lambda within one cvse of the lambda with lowest cve:
@@ -414,29 +377,6 @@ LassoDeployment <- R6Class(
       super$initialize(p)
     },
 
-    # buildFitObject = function() {
-    #   # Get fit object by linear model
-    #   # if linear, set to logit for logistic
-    #   private$fit = private$fitLogit
-    # },
-    # 
-    # #Override: Build Deploy Model
-    # buildDeployModel = function() {
-    #   if (isTRUE(self$params$debug)) {
-    #     print('Training data set immediately before training')
-    #     print(str(private$dfTrain))
-    #   }
-    # 
-    #   # Start default logit (for var importance)
-    #   private$fitGeneralizedLinearModel()
-    # 
-    #   # Build fit object
-    #   self$buildFitObject()
-    # 
-    #   print('Details for proability model:')
-    #   print(private$fit)
-    # },
-
     #Override: deploy the model
     deploy = function() {
       # Connect to sql via odbc driver
@@ -454,14 +394,11 @@ LassoDeployment <- R6Class(
           fitObj$modFmla <- NULL
           
       } else {
-        # private$registerClustersOnCores()
-
-        # build deploy model
-        # self$buildDeployModel()
+        # temporary fix until all models are working.
+        stop('You must use a saved model. Run lasso development to train and save
+              the model, then lasso deployment to make predictions.')
+        
       }
-
-      # Save model
-      # private$saveModel()
 
       # Predict
       private$performPrediction()
