@@ -21,6 +21,7 @@ Imports:
     data.table,
     DBI,
     doParallel,
+    e1071,
     grpreg,
     lme4,
     odbc,
