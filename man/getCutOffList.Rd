@@ -2,8 +2,7 @@
 % Please edit documentation in R/common.R
 \name{getCutOffList}
 \alias{getCutOffList}
-\title{Function to return ideal cutoff and TPR/FPR or precision/recall. Usually called
-from \code{\link{generateAUC}}}
+\title{Function to return ideal cutoff and TPR/FPR or precision/recall.}
 \usage{
 getCutOffList(perf, aucType = "SS", allCutoffsFlg = FALSE)
 }
@@ -20,6 +19,7 @@ Array of ideal cutoff and associated TPR/FPR or pre/rec.
 }
 \description{
 Calculates ideal cutoff by proximity to corner of the ROC curve.
+Usually called from \code{\link{generateAUC}}
 }
 \references{
 \url{http://healthcare.ai}

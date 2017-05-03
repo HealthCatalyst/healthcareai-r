@@ -1367,10 +1367,10 @@ initializeParamsForTesting <- function(df) {
 
 
 #' @title
-#' Function to return ideal cutoff and TPR/FPR or precision/recall. Usually called
-#' from \code{\link{generateAUC}}
+#' Function to return ideal cutoff and TPR/FPR or precision/recall.
 #'
 #' @description Calculates ideal cutoff by proximity to corner of the ROC curve.
+#' Usually called from \code{\link{generateAUC}}
 #' @param perf An ROCR performance class. (Usually made by generateAUC)
 #' @param aucType A string. Indicates AUC_ROC or AU_PR and can be "SS" or "PR". 
 #' Defaults to SS.
