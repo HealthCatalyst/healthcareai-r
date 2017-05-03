@@ -36,10 +36,14 @@ environment:
     
     - R_VERSION: devel
 
+#---------------------------------#
+#  notifications configuration    #
+#---------------------------------#
+
 notifications:
  - provider: Email
    to:
      - healthcatalystslc+appveyor@mailbox.org
    subject: 'r-appveyor build {{status}}'
-   on_success: false
-   on_failure: true
+   on_build_success: false
+   on_build_failure: true

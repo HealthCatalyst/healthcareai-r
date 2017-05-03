@@ -7,7 +7,6 @@
 #' debug)
 #' @import caret
 #' @import doParallel
-#' @import e1071
 #' @import grpreg
 #' @import pROC
 #' @importFrom R6 R6Class
