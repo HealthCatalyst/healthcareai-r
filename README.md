@@ -1,7 +1,7 @@
 # healthcareai
 
 [![Build status](https://ci.appveyor.com/api/projects/status/0xrpe233o9a16l4l/branch/master?svg=true)](https://ci.appveyor.com/project/CatalystAdmin/healthcareai-r/) 
-[![Travis-CI Build Status](https://travis-ci.org/HealthCatalystSLC/healthcareai-r.svg?branch=master)](https://travis-ci.org/HealthCatalystSLC/healthcareai-r)
+[![Travis-CI Build Status](https://travis-ci.org/HealthCatalyst/healthcareai-r.svg?branch=master)](https://travis-ci.org/HealthCatalyst/healthcareai-r)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/HealthCatalystSLC/healthcareai-r/blob/master/LICENSE)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version-last-release/healthcareai)](https://cran.r-project.org/package=healthcareai)
 
