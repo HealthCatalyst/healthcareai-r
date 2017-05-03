@@ -207,7 +207,7 @@ LassoDeployment <- R6Class(
     outDf = NA,
     
     
-    fit = NA,
+    fitGrLasso = NA,
     fitLogit = NA,
     indLambda1se = NA,
     lambda1se = NA,
@@ -269,7 +269,6 @@ LassoDeployment <- R6Class(
 
     # Predict results
     performPrediction = function() {
-      browser
       # Index of largest lambda within one cvse of the lambda with lowest cve:
       # These are sorted from largest to smallest lambda, hence pulling the
       # minimum index.
@@ -346,7 +345,7 @@ LassoDeployment <- R6Class(
         # LastLoadDTS
         private$grainTest,
         # GrainID
-        private$predictedVals,
+        private$predictions,
         # PredictedProbab
         private$orderedFactors[, 1:3]
       )    # Top 3 Factors
@@ -443,7 +442,7 @@ LassoDeployment <- R6Class(
         private$fitLogit <- fitLogit
         
         load("rmodel_combined_lasso.rda") # Produces fit object (for probability)
-          private$fit <- fitObj
+          private$fitGrLasso <- fitObj
           private$modMat <- fitObj$modMat
           private$modFmla <- fitObj$modFmla
           fitObj$modMat <- NULL
