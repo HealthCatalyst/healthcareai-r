@@ -4,15 +4,11 @@
 init:
   ps: |
         $ErrorActionPreference = "Stop"
-        Invoke-WebRequest https://raw.githubusercontent.com/HealthCatalystSLC/healthcareai-r/master/inst/CIDatabase/appveyor-tool.ps1 -OutFile "..\appveyor-tool.ps1"
+        Invoke-WebRequest http://raw.github.com/krlmlr/r-appveyor/master/scripts/appveyor-tool.ps1 -OutFile "..\appveyor-tool.ps1"
         Import-Module '..\appveyor-tool.ps1'
-
 install:
   ps: Bootstrap
 
-#---------------------------------#
-#       build configuration       #
-#---------------------------------#
 
 # Adapt as necessary starting from here
 services:
@@ -20,7 +16,6 @@ services:
 
 build_script:
   - ps: iex .\inst\CIDatabase\CIBuild_DBCreate.ps1
-  - Rscript -e "source('http://bioconductor.org/biocLite.R')" -e "chooseCRANmirror(ind=81)"
   - travis-tool.sh install_deps
 
 test_script:
@@ -32,9 +27,9 @@ on_failure:
 
 environment:
   global:
-    _R_CHECK_FORCE_SUGGESTS_: 1
-    R_ARCH: x64
-    WARNINGS_ARE_ERRORS: 1
+    - R_CHECK_ARGS: "--no-manual --as-cran --run-donttest"
+    - R_ARCH: x64
+    - WARNINGS_ARE_ERRORS: 1
 
   matrix:
     - R_VERSION: release
