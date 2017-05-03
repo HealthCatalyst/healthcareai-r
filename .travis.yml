@@ -31,7 +31,6 @@ matrix:
     after_success:
       - Rscript -e 'covr::codecov()'
       
-      
   - os: osx
     osx_image: xcode8.2
     sudo: required
