@@ -211,6 +211,7 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' @param SQLiteFileName A string. If your database type is SQLite, here one 
 #' specifies the database file to query from.
 #' @param randomize Boolean that dictates whether returned rows are randomized
+#' @param connectionString DEPRECATED. Use MSSQLConnectionString
 #' @return df A data frame containing the selected rows
 #'
 #' @export
@@ -1296,7 +1297,7 @@ generateAUC <- function(predictions,
   }
   
   # get ideal cutoff values.
-  IdealCuts <- getCutOffs(perf = perf, 
+  IdealCuts <- getCutOffList(perf = perf, 
                           aucType = aucType, 
                           allCutoffsFlg = allCutoffsFlg)
   
@@ -1392,6 +1393,7 @@ initializeParamsForTesting <- function(df) {
 #' Function to return ideal cutoff and TPR/FPR or precision/recall.
 #'
 #' @description Calculates ideal cutoff by proximity to corner of the ROC curve.
+#' Usually called from \code{\link{generateAUC}}
 #' @param perf An ROCR performance class. (Usually made by generateAUC)
 #' @param aucType A string. Indicates AUC_ROC or AU_PR and can be "SS" or "PR". 
 #' Defaults to SS.
@@ -1402,7 +1404,7 @@ initializeParamsForTesting <- function(df) {
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
 
-getCutOffs = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
+getCutOffList = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
   ## TODO: Give user the ability to give higher weight to recall or FPR
   x <- unlist(perf@x.values)
   y <- unlist(perf@y.values)

@@ -366,6 +366,11 @@ LassoDevelopment <- R6Class("LassoDevelopment",
 
     getMAE = function() {
       return(private$MAE)
+    }, 
+    
+    getCutOffs = function() {
+      warning("`getCutOffs` is deprecated. Please use `generateAUC` instead. See 
+              ?generateAUC", call. = FALSE)
     }
   )
 )
