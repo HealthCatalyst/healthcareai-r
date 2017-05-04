@@ -5,16 +5,17 @@
 \title{Pull data into R via an ODBC connection}
 \usage{
 selectData(MSSQLConnectionString = NULL, query, SQLiteFileName = NULL,
-  randomize = FALSE)
+  randomize = FALSE, connectionString = NULL)
 }
 \arguments{
 \item{MSSQLConnectionString}{A string specifying the driver, server, 
-database, and whether Windows Authentication will be used.}
+database, and whether Windows Authentication will be used. Omit if using 
+SQLite.}
 
-\item{query}{The SQL query (in ticks or quotes)}
+\item{query}{The SQL query (in ticks or quotes).}
 
-\item{SQLiteFileName}{A string. If dbtype is SQLite, here one specifies the 
-database file to query from}
+\item{SQLiteFileName}{A string. If your database type is SQLite, here one 
+specifies the database file to query from.}
 
 \item{randomize}{Boolean that dictates whether returned rows are randomized}
 }
@@ -53,6 +54,20 @@ query <- '
 df <- selectData(connectionString, query)
 head(df)
 }
+
+# SQLite example
+query <- '
+  SELECT *
+  FROM HCRDiabetesClinical
+  '
+# Loads sample database; replace with your own SQLite db file
+sqliteFile <- system.file("extdata",
+                          "unit-test.sqlite",
+                          package = "healthcareai")
+
+df <- selectData(query = query, 
+                 SQLiteFileName = sqliteFile)
+head(df)      
 }
 \references{
 \url{http://healthcare.ai}
