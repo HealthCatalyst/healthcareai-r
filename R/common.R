@@ -205,10 +205,11 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' @description Select data from an ODBC database and return the results as
 #' a data frame.
 #' @param MSSQLConnectionString A string specifying the driver, server, 
-#' database, and whether Windows Authentication will be used.
-#' @param query The SQL query (in ticks or quotes)
-#' @param SQLiteFileName A string. If dbtype is SQLite, here one specifies the 
-#' database file to query from
+#' database, and whether Windows Authentication will be used. Omit if using 
+#' SQLite.
+#' @param query The SQL query (in ticks or quotes).
+#' @param SQLiteFileName A string. If your database type is SQLite, here one 
+#' specifies the database file to query from.
 #' @param randomize Boolean that dictates whether returned rows are randomized
 #' @return df A data frame containing the selected rows
 #'
@@ -243,6 +244,20 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' df <- selectData(connectionString, query)
 #' head(df)
 #' }
+#' 
+#' # SQLite example
+#' query <- '
+#'   SELECT *
+#'   FROM HCRDiabetesClinical
+#'   '
+#' # Loads sample database; replace with your own SQLite db file
+#' sqliteFile <- system.file("extdata",
+#'                           "unit-test.sqlite",
+#'                           package = "healthcareai")
+#' 
+#' df <- selectData(query = query, 
+#'                  SQLiteFileName = sqliteFile)
+#' head(df)      
 
 selectData <- function(MSSQLConnectionString = NULL, 
                        query, 
