@@ -247,10 +247,17 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 selectData <- function(MSSQLConnectionString = NULL, 
                        query, 
                        SQLiteFileName = NULL,
-                       randomize = FALSE) {
+                       randomize = FALSE,
+                       connectionString = NULL) {
+  
+  if (!is.null(connectionString)) {
+    stop('The connectionString argument has been deprecated. ',
+            'Please use MSSQLConnectionString instead.')
+  }
   
   if ((is.null(MSSQLConnectionString)) && (is.null(SQLiteFileName))) {
-    stop('You must specify a either a MSSQLConnectionString for SQL Server or a SQLiteFileName for SQLite')
+    stop('You must specify a either a MSSQLConnectionString for ',
+         'SQL Server or a SQLiteFileName for SQLite')
   }
   
   if (isTRUE(randomize)) {
