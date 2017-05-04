@@ -211,6 +211,7 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' @param SQLiteFileName A string. If your database type is SQLite, here one 
 #' specifies the database file to query from.
 #' @param randomize Boolean that dictates whether returned rows are randomized
+#' @param connectionString DEPRECATED. Use MSSQLConnectionString
 #' @return df A data frame containing the selected rows
 #'
 #' @export

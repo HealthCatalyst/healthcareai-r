@@ -18,6 +18,8 @@ SQLite.}
 specifies the database file to query from.}
 
 \item{randomize}{Boolean that dictates whether returned rows are randomized}
+
+\item{connectionString}{DEPRECATED. Use MSSQLConnectionString}
 }
 \value{
 df A data frame containing the selected rows
