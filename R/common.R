@@ -205,10 +205,11 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' @description Select data from an ODBC database and return the results as
 #' a data frame.
 #' @param MSSQLConnectionString A string specifying the driver, server, 
-#' database, and whether Windows Authentication will be used.
-#' @param query The SQL query (in ticks or quotes)
-#' @param SQLiteFileName A string. If dbtype is SQLite, here one specifies the 
-#' database file to query from
+#' database, and whether Windows Authentication will be used. Omit if using 
+#' SQLite.
+#' @param query The SQL query (in ticks or quotes).
+#' @param SQLiteFileName A string. If your database type is SQLite, here one 
+#' specifies the database file to query from.
 #' @param randomize Boolean that dictates whether returned rows are randomized
 #' @return df A data frame containing the selected rows
 #'
@@ -243,14 +244,35 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' df <- selectData(connectionString, query)
 #' head(df)
 #' }
+#' 
+#' # SQLite example
+#' query <- '
+#'   SELECT *
+#'   FROM HCRDiabetesClinical
+#'   '
+#' # Loads sample database; replace with your own SQLite db file
+#' sqliteFile <- system.file("extdata",
+#'                           "unit-test.sqlite",
+#'                           package = "healthcareai")
+#' 
+#' df <- selectData(query = query, 
+#'                  SQLiteFileName = sqliteFile)
+#' head(df)      
 
 selectData <- function(MSSQLConnectionString = NULL, 
                        query, 
                        SQLiteFileName = NULL,
-                       randomize = FALSE) {
+                       randomize = FALSE,
+                       connectionString = NULL) {
+  
+  if (!is.null(connectionString)) {
+    stop('The connectionString argument has been deprecated. ',
+            'Please use MSSQLConnectionString instead.')
+  }
   
   if ((is.null(MSSQLConnectionString)) && (is.null(SQLiteFileName))) {
-    stop('You must specify a either a MSSQLConnectionString for SQL Server or a SQLiteFileName for SQLite')
+    stop('You must specify a either a MSSQLConnectionString for ',
+         'SQL Server or a SQLiteFileName for SQLite')
   }
   
   if (isTRUE(randomize)) {
@@ -337,7 +359,7 @@ selectData <- function(MSSQLConnectionString = NULL,
 #'                  b=c(2,4,6),
 #'                  c=c('one','two','three'))
 #'
-#' writeData(connectionString = connectionString, 
+#' writeData(MSSQLConnectionString = connectionString, 
 #'           df = df, 
 #'           tableName = 'HCRWriteData')
 #' }

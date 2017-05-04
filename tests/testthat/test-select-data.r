@@ -39,6 +39,11 @@ test_that("SQLite - Returns SQL error message when SQL error", {
                'Your SQL likely contains an error.'))
 })
 
+test_that("Deprecated argument gives error", {
+  expect_error(grepl(selectData(connectionString = '', query = ''),
+                     'connectionString argument has been deprecated'))
+})
+
 
 # Start SQL Server tests
 connection.string = '
