@@ -81,7 +81,7 @@
 #' p2$grainCol <- "PatientEncounterID"
 #' p2$predictedCol <- "ThirtyDayReadmitFLG"
 #' p2$impute <- TRUE
-#' p2$debug <- TRUE
+#' p2$debug <- FALSE
 #' # TODO: remove saved model flag. 
 #' p2$useSavedModel <- TRUE #this is always true now.
 #' p2$cores <- 1
@@ -280,7 +280,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       
       if (isTRUE(self$params$writeToDB)) {
         # Convert the connection string into a real connection object.
-        self$params$sqlConn <- odbcDriverConnect(self$params$sqlConn)
+        self$params$sqlConn <- RODBC::odbcDriverConnect(self$params$sqlConn)
       }
     },
 
@@ -397,7 +397,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       
       if (isTRUE(self$params$writeToDB)) {
         # Save df to table in SAM database
-        out <- sqlSave(
+        out <- RODBC::sqlSave(
           channel = self$params$sqlConn,
           dat = private$outDf,
           tablename = self$params$destSchemaTable,
@@ -445,19 +445,10 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         load("rmodel_probability_RF.rda") # Produces fit object (for probability)
         private$fitRF <- fitObj
       } else {
-        private$registerClustersOnCores()
-
-        # build deploy model
-        self$buildDeployModel()
+        # temporary fix until all models are working.
+        stop('You must use a saved model. Run random forest development to train 
+              and save the model, then random forest deployment to make predictions.')
       }
-      
-      # Save model
-      # private$saveModel()
-      
-      print('#### fit ####')
-      print(private$fitRF)
-      print('#### fitlogit ####')
-      print(private$fitLogit)
       
       # Predict
       private$performPrediction()
