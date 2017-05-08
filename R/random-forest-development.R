@@ -364,7 +364,6 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
 
     # Perform prediction
     performPrediction = function() {
-      browser()
       if (self$params$type == 'classification') {
         private$predictions <- caret::predict.train(object = private$fitRF,
                                       newdata = private$dfTest,
