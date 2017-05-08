@@ -223,56 +223,6 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       RODBC::odbcCloseAll()
     },
 
-    # fitGeneralizedLinearModel = function() {
-    #   if (isTRUE(self$params$debug)) {
-    #     print('generating fitLogit...')
-    #   }
-    # 
-    #   if (self$params$type == 'classification') {
-    #     private$fitLogit <- glm(
-    #       as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-    #       data = private$dfTrain,
-    #       family = binomial(link = "logit"),
-    #       metric = "ROC",
-    #       control = list(maxit = 10000),
-    #       trControl = trainControl(classProbs = TRUE, summaryFunction = twoClassSummary)
-    #     )
-    # 
-    #   } else if (self$params$type == 'regression') {
-    #     private$fitLogit <- glm(
-    #       as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-    #       data = private$dfTrain,
-    #       metric = "RMSE",
-    #       control = list(maxit = 10000)
-    #     )
-    #   }
-    # },
-    # 
-    # saveModel = function() {
-    #   if (isTRUE(self$params$debug)) {
-    #     print('Saving model...')
-    #   }
-    # 
-    #   # Save models if specified
-    #   if (isTRUE(!self$params$useSavedModel)) {
-    # 
-    #     #NOTE: save(private$fitLogit, ...) does not work!
-    #     fitLogitObj <- private$fitLogit
-    #     fitObj <- private$fit
-    # 
-    #     save(fitLogitObj, file = "rmodel_var_import.rda")
-    #     save(fitObj, file = "rmodel_probability.rda")
-    #   }
-    # 
-    #   # This isn't needed if formula interface is used in randomForest
-    #   private$dfTest[[self$params$predictedCol]] <- NULL
-    # 
-    #   if (isTRUE(self$params$debug)) {
-    #     print('Test set before being used in predict(), after removing y')
-    #     print(str(private$dfTest))
-    #   }
-    # },
-
     # Perform prediction
     performPrediction = function() {
       if (self$params$type == 'classification') {
@@ -288,7 +238,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         }
         
       } else if (self$params$type == 'regression') {
-        private$predictions <- caret::predict.train(private$fitRF, newdata = private$dfTest)
+        private$predictions <- caret::predict.train(private$fitRF, newdata = private$dfTestTemp)
         
         if (isTRUE(self$params$debug)) {
           print(paste0('Rows in regression prediction: ',
@@ -355,7 +305,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         'R',                               # BindingNM
         dtStamp,                           # LastLoadDTS
         private$grainTest,                 # GrainID
-        private$predictedVals,             # PredictedProbab
+        private$predictions,               # PredictedProbab
         private$orderedFactors[, 1:3])     # Top 3 Factors
 
       predictedResultsName = ""
@@ -418,76 +368,8 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         self$params$trees <- p$trees
     },
 
-    #This would be a user-defined method
-    # which gets called by buildFitObject function
-    # fitRandomForest = function() {
-    # 
-    #   # Set proper mtry (either based on recc default or specified)
-    #   if (nchar(self$params$rfmtry) == 0 &&
-    #       self$params$type == 'classification') {
-    #     rfMtryTemp <- floor(sqrt(ncol(private$dfTrain)))
-    #   } else if (nchar(self$params$rfmtry) == 0 &&
-    #              self$params$type == 'regression') {
-    #     rfMtryTemp <- max(floor(ncol(private$dfTrain) / 3), 1)
-    #   } else {
-    #     rfMtryTemp <- self$params$rfmtry
-    #   }
-    # 
-    #   if (isTRUE(self$params$debug)) {
-    #     print('generating fit for random forest...')
-    #   }
-    # 
-    #   if (self$params$type == 'classification') {
-    #     private$fit <- ranger(
-    #       as.formula(paste(
-    #         self$params$predictedCol, '.', sep = " ~ "
-    #       )),
-    #       data = private$dfTrain,
-    #       probability = TRUE,
-    #       num.trees = self$params$trees,
-    #       write.forest = TRUE,
-    #       mtry = rfMtryTemp
-    #     )
-    #   } else if (self$params$type == 'regression') {
-    #     private$fit <- ranger(
-    #       as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-    #       data = private$dfTrain,
-    #       num.trees = self$params$trees,
-    #       write.forest = TRUE,
-    #       mtry = rfMtryTemp
-    #     )
-    #   }
-    # },
-    # 
-    # buildFitObject = function() {
-    # 
-    #   # Get fit object by random forest
-    #   self$fitRandomForest()
-    # },
-    # 
-    # #Override: Build Deploy Model
-    # buildDeployModel = function() {
-    # 
-    #   if (isTRUE(self$params$debug)) {
-    #     print('Training data set immediately before training')
-    #     print(str(private$dfTrain))
-    #   }
-    # 
-    #   # Start default logit (for var importance)
-    #   private$fitGeneralizedLinearModel()
-    # 
-    #   # Build fit object
-    #   self$buildFitObject()
-    # 
-    #   print('Details for proability model:')
-    #   print(private$fit)
-    # },
-
     #Override: deploy the model
     deploy = function() {
-      
-      print('ENTERED DEPLOY METHOD')
-      
      # Connect to sql via odbc driver
       private$connectDataSource()
 
