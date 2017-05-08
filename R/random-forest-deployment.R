@@ -210,7 +210,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
     # functions
     connectDataSource = function() {
-      odbcCloseAll()
+      RODBC::odbcCloseAll()
       
       if (isTRUE(self$params$writeToDB)) {
         # Convert the connection string into a real connection object.
@@ -219,7 +219,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     },
 
     closeDataSource = function() {
-      odbcCloseAll()
+      RODBC::odbcCloseAll()
     },
 
     # fitGeneralizedLinearModel = function() {
@@ -272,35 +272,33 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     #   }
     # },
 
+    # Perform prediction
     performPrediction = function() {
+      print('in deploy, before precdict')
+      browser()
       if (self$params$type == 'classification') {
-        #  these are probabilities
-        predictedValsTemp <- predict(private$fitRF, data = private$dfTest)
-        private$predictedVals <- predictedValsTemp$predictions[, 2]
-        private$predictedValsForUnitTest <- private$predictedVals[5] # for unit test
-
-        print('Probability predictions are based on random forest')
-
+        private$predictions <- caret::predict.train(object = private$fitRF,
+                                                    newdata = private$dfTest,
+                                                    type = 'prob')
+        private$predictions <- private$predictions[,2]
+        
         if (isTRUE(self$params$debug)) {
-          print(paste0('Rows in prob prediction: ', nrow(private$predictedVals)))
+          print(paste0('Number of predictions: ', nrow(private$predictions)))
           print('First 10 raw classification probability predictions')
-          print(round(private$predictedVals[1:10], 2))
+          print(round(private$predictions[1:10],2))
         }
-
+        
       } else if (self$params$type == 'regression') {
-        # this is in-kind prediction
-        predictedValsTemp <- predict(private$fitRF, data = private$dfTest)
-        private$predictedVals <- predictedValsTemp$predictions
-
+        private$predictions <- caret::predict.train(private$fitRF, newdata = private$dfTest)
+        
         if (isTRUE(self$params$debug)) {
-          print(paste0(
-            'Rows in regression prediction: ',
-            length(private$predictedVals)
-          ))
+          print(paste0('Rows in regression prediction: ',
+                       length(private$predictions)))
           print('First 10 raw regression predictions (with row # first)')
-          print(round(private$predictedVals[1:10], 2))
+          print(round(private$predictions[1:10],2))
         }
       }
+      
     },
 
     calculateCoeffcients = function() {
@@ -491,13 +489,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       
       print('ENTERED DEPLOY METHOD')
       
-      print('#### fit ####')
-      print(private$fit)
-      print('#### fitlogit ####')
-      print(private$fitLogit)
-      
-
-      # Connect to sql via odbc driver
+     # Connect to sql via odbc driver
       private$connectDataSource()
 
       if (isTRUE(self$params$useSavedModel)) {
@@ -505,7 +497,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         private$fitLogit <- fitLogit
 
         load("rmodel_probability_RF.rda") # Produces fit object (for probability)
-        private$fitRF <- fitRF
+        private$fitRF <- fitObj
       } else {
         private$registerClustersOnCores()
 
@@ -515,7 +507,12 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       
       # Save model
       # private$saveModel()
-
+      
+      print('#### fit ####')
+      print(private$fitRF)
+      print('#### fitlogit ####')
+      print(private$fitLogit)
+      
       # Predict
       private$performPrediction()
 

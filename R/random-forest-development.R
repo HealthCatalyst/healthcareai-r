@@ -224,7 +224,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
           family = binomial(link = "logit"),
           metric = "ROC",
           control = list(maxit = 10000),
-          trControl = trainControl(classProbs = TRUE, summaryFunction = twoClassSummary)
+          trControl = caret::trainControl(classProbs = TRUE, summaryFunction = twoClassSummary)
         )
         
       } else if (self$params$type == 'regression') {
@@ -365,7 +365,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     # Perform prediction
     performPrediction = function() {
       if (self$params$type == 'classification') {
-        private$predictions <- predict(object = private$fitRF,
+        private$predictions <- caret::predict.train(object = private$fitRF,
                                       newdata = private$dfTest,
                                       type = 'prob')
         private$predictions <- private$predictions[,2]
@@ -377,7 +377,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         }
         
       } else if (self$params$type == 'regression') {
-        private$predictions <- predict(private$fitRF, newdata = private$dfTest)
+        private$predictions <- caret::predict.train(private$fitRF, newdata = private$dfTest)
         
         if (isTRUE(self$params$debug)) {
           print(paste0('Rows in regression prediction: ',
@@ -386,7 +386,6 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
           print(round(private$predictions[1:10],2))
         }
       }
-      
 
     },
 
