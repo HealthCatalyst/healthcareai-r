@@ -1,4 +1,4 @@
-#' Deploy a production-ready predictive Random Forest model
+#' Deploy a production-ready predictive Linear Mixed Model model
 #'
 #' @description This step allows one to
 #' \itemize{
@@ -71,7 +71,7 @@
 #' p$debug <- FALSE
 #' p$cores <- 1
 #'
-#' # Run LinearMixedModel
+#' # Run Linear Mixed Model
 #' LinearMixedModel <- LinearMixedModelDevelopment$new(p)
 #' LinearMixedModel$run()
 #'
@@ -155,7 +155,7 @@
 #' p$debug <- FALSE
 #' p$cores <- 1
 #' 
-#' # Run LinearMixedModel
+#' # Run Linear Mixed Model
 #' LinearMixedModel <- LinearMixedModelDevelopment$new(p)
 #' LinearMixedModel$run()
 #' 
@@ -238,7 +238,7 @@
 #' p$debug <- FALSE
 #' p$cores <- 1
 #' 
-#' # Run Random Forest
+#' # Run Linear Mixed Model
 #' LinearMixedModel <- LinearMixedModelDevelopment$new(p)
 #' LinearMixedModel$run()
 #' 
@@ -469,8 +469,8 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
         private$fitLmm <- fitObj
       } else {
         # temporary fix until all models are working.
-        stop('You must use a saved model. Run random forest development to train 
-              and save the model, then random forest deployment to make predictions.')
+        stop('You must use a saved model. Run Linear Mixed Model development to train 
+              and save the model, then Linear Mixed Model deployment to make predictions.')
       }
 
       # Predict
