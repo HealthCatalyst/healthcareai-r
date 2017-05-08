@@ -215,97 +215,98 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     orderedFactors = NA,
     predictedValsForUnitTest = NA,
     outDf = NA,
+    
+    fitLmm = NA,
+    fitLogit = NA,
+    predictions = NA,
 
     # functions
     connectDataSource = function() {
-      odbcCloseAll()
+      RODBC::odbcCloseAll()
       
       if (isTRUE(self$params$writeToDB)) {
         # Convert the connection string into a real connection object.
-        self$params$sqlConn <- odbcDriverConnect(self$params$sqlConn)
+        self$params$sqlConn <- RODBC::odbcDriverConnect(self$params$sqlConn)
       }
     },
 
     closeDataSource = function() {
-      odbcCloseAll()
+      RODBC::odbcCloseAll()
     },
 
-    fitGeneralizedLinearModel = function() {
-      if (isTRUE(self$params$debug)) {
-        print('generating fitLogit...')
-      }
+    # fitGeneralizedLinearModel = function() {
+    #   if (isTRUE(self$params$debug)) {
+    #     print('generating fitLogit...')
+    #   }
+    # 
+    #   if (self$params$type == 'classification') {
+    #     private$fitLogit <- glm(
+    #       as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
+    #       data = private$dfTrain,
+    #       family = binomial(link = "logit"),
+    #       metric = "ROC",
+    #       control = list(maxit = 10000),
+    #       trControl = trainControl(classProbs = TRUE, summaryFunction = twoClassSummary)
+    #     )
+    # 
+    #   } else if (self$params$type == 'regression') {
+    #     private$fitLogit <- glm(
+    #       as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
+    #       data = private$dfTrain,
+    #       metric = "RMSE",
+    #       control = list(maxit = 10000)
+    #     )
+    #   }
+    # },
+    # 
+    # saveModel = function() {
+    #   if (isTRUE(self$params$debug)) {
+    #     print('Saving model...')
+    #   }
+    # 
+    #   # Save models if specified
+    #   if (isTRUE(!self$params$useSavedModel)) {
+    #     #NOTE: save(private$fitLogit, ...) directly, did not work!
+    #     fitLogitObj <- private$fitLogit
+    #     fitObj <- private$fit
+    #     save(fitLogitObj, file = "rmodel_var_import_LMM.rda")
+    #     save(fitObj, file = "rmodel_probability_LMM.rda")
+    #   }
+    # 
+    #   # This isn't needed since formula interface is used
+    #   private$dfTest[[self$params$predictedCol]] <- NULL
+    # 
+    #   if (isTRUE(self$params$debug)) {
+    #     print('Test set before being used in predict(), after removing y')
+    #     print(str(private$dfTest))
+    #   }
+    # },
 
-      if (self$params$type == 'classification') {
-        private$fitLogit <- glm(
-          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrain,
-          family = binomial(link = "logit"),
-          metric = "ROC",
-          control = list(maxit = 10000),
-          trControl = trainControl(classProbs = TRUE, summaryFunction = twoClassSummary)
-        )
-
-      } else if (self$params$type == 'regression') {
-        private$fitLogit <- glm(
-          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrain,
-          metric = "RMSE",
-          control = list(maxit = 10000)
-        )
-      }
-    },
-
-    saveModel = function() {
-      if (isTRUE(self$params$debug)) {
-        print('Saving model...')
-      }
-
-      # Save models if specified
-      if (isTRUE(!self$params$useSavedModel)) {
-        #NOTE: save(private$fitLogit, ...) directly, did not work!
-        fitLogitObj <- private$fitLogit
-        fitObj <- private$fit
-        save(fitLogitObj, file = "rmodel_var_import.rda")
-        save(fitObj, file = "rmodel_probability.rda")
-      }
-
-      # This isn't needed since formula interface is used
-      private$dfTest[[self$params$predictedCol]] <- NULL
-
-      if (isTRUE(self$params$debug)) {
-        print('Test set before being used in predict(), after removing y')
-        print(str(private$dfTest))
-      }
-    },
-
+    # Perform prediction
     performPrediction = function() {
       if (self$params$type == 'classification') {
-        # These are probabilities
-        private$predictedVals <- predict(private$fit,
-                                        newdata = private$dfTest,
-                                        allow.new.levels = TRUE,
-                                        type = "response")
-        # For unit test
-        private$predictedValsForUnitTest <- private$predictedVals[5]
-
-        print('Probability predictions are based on Linear Mixed Model')
-
+        # predict is from lme4::predict.merMod. missing in the lme4 namespace, exists in docs. 
+        private$predictions <- predict(object = private$fitLmm,
+                                       newdata = private$dfTestTemp,
+                                       allow.new.levels = TRUE,
+                                       type = "response")
+        
         if (isTRUE(self$params$debug)) {
-          print(paste0('Rows in prob prediction: ', nrow(private$predictedVals)))
+          print(paste0('Predictions generated: ', nrow(private$predictions)))
           print('First 10 raw classification probability predictions')
-          print(round(private$predictedVals[1:10], 2))
+          print(round(private$predictions[1:10],2))
         }
-      } else if (self$params$type == 'regression') {
-        # this is in-kind prediction
-        private$predictedVals <- predict(private$fit,
-                                        newdata = private$dfTest)
+      }
+      else if (self$params$type == 'regression') {
+        private$predictions <- predict(object = private$fitLmm,
+                                       newdata = private$dfTestTemp,
+                                       allow.new.levels = TRUE)
+        
         if (isTRUE(self$params$debug)) {
-          print(paste0(
-            'Rows in regression prediction: ',
-            length(private$predictedVals)
-          ))
+          print(paste0('Predictions generated: ',
+                       length(private$predictions)))
           print('First 10 raw regression predictions (with row # first)')
-          print(round(private$predictedVals[1:10], 2))
+          print(round(private$predictions[1:10],2))
         }
       }
     },
@@ -380,7 +381,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
         'R',                               # BindingNM
         dtStamp,                           # LastLoadDTS
         private$grainTest,                 # GrainID
-        private$predictedVals,             # PredictedProbab or PredictedValues
+        private$predictions,             # PredictedProbab or PredictedValues
         private$orderedFactors[, 1:3])     # Top 3 Factors
 
       predictedResultsName <- ""
@@ -407,7 +408,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       
       if (isTRUE(self$params$writeToDB)) {
         # Save df to table in SAM database
-        out <- sqlSave(
+        out <- RODBC::sqlSave(
           channel = self$params$sqlConn,
           dat = private$outDf,
           tablename = self$params$destSchemaTable,
@@ -514,11 +515,11 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       private$connectDataSource()
 
       if (isTRUE(self$params$useSavedModel)) {
-        load("rmodel_var_import.rda")  # Produces fitLogit object
+        load("rmodel_var_import_LMM.rda")  # Produces fitLogit object
         private$fitLogit <- fitLogit
 
-        load("rmodel_probability.rda") # Produces fit object (for probability)
-        private$fit <- fit
+        load("rmodel_probability_LMM.rda") # Produces fit object (for probability)
+        private$fitLmm <- fitObj
       } else {
         private$registerClustersOnCores()
 
@@ -527,7 +528,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       }
 
       # Save model
-      private$saveModel()
+      # private$saveModel()
 
       # Predict
       private$performPrediction()

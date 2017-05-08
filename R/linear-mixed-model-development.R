@@ -233,12 +233,11 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
         print('Saving model...')
       }
       
-      print('in the save method')
       # Save model
       #NOTE: save(private$fitLogit, ...) directly, did not work!
-      fitLogitObj <- private$fitLogit
-      fitObj <- private$fit
-      save(fitLogitObj, file = "rmodel_var_import_LMM.rda")
+      fitLogit <- private$fitLogit
+      fitObj <- private$fitLmm
+      save(fitLogit, file = "rmodel_var_import_LMM.rda")
       save(fitObj, file = "rmodel_probability_LMM.rda")
     },
     
