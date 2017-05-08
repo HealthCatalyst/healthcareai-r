@@ -119,7 +119,7 @@
 #' # Run Lasso
 #' # Lasso <- LassoDevelopment$new(p)
 #' # Lasso$run()
-#' print(proc.time() - ptm)
+#' cat(proc.time() - ptm, '\n')
 #' 
 #' \donttest{
 #' #### This example is specific to Windows and is not tested. 
@@ -194,7 +194,7 @@
 #' legendLoc <- "bottomleft"
 #' plotPRCurve(rocs, names, legendLoc)
 #'
-#' print(proc.time() - ptm)
+#' cat(proc.time() - ptm, '\n')
 #' }
 #' 
 #' @export
@@ -230,7 +230,7 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
     # functions
     saveModel = function() {
       if (isTRUE(self$params$debug)) {
-        print('Saving model...')
+       cat('Saving model...', '\n')
       }
       
       # Save model
@@ -244,11 +244,11 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
     
     fitGeneralizedLinearModel = function() {
       if (isTRUE(self$params$debug)) {
-        print('generating fitLogit...')
+       cat('generating fitLogit...', '\n')
       }
       
       if (self$params$type == 'classification') {
-        print('fitting GLM')
+       cat('fitting GLM', '\n')
         private$fitLogit <- glm(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
           data = private$dfTrain,
@@ -290,8 +290,8 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
       private$trainTest <- rbind(private$dfTrain,private$dfTest)
 
       if (isTRUE(self$params$debug)) {
-        print('Re-combined train/test for MM specific use')
-        print(str(private$trainTest))
+       cat('Re-combined train/test for MM specific use', '\n')
+       cat(str(private$trainTest), '\n')
       }
 
       # TODO Later: figure out why ordering in sql query is better auc than internal
@@ -304,10 +304,10 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
       private$lmmTest <- data.table::setDT(private$trainTest)[, .SD[.N], by = eval(self$params$personCol)]
 
       if (isTRUE(self$params$debug)) {
-        print('Mixed model-specific training set after creation')
-        print(str(private$lmmTrain))
-        print('Mixed model-specific test set after creation')
-        print(str(private$lmmTest))
+       cat('Mixed model-specific training set after creation', '\n')
+       cat(str(private$lmmTrain), '\n')
+       cat('Mixed model-specific test set after creation', '\n')
+       cat(str(private$lmmTest), '\n')
       }
     },
 
@@ -335,10 +335,10 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
                         "(1|", self$params$personCol, ")")
 
       if (isTRUE(self$params$debug)) {
-        print('Formula to be used:')
-        print(formula)
-        print('Training the general linear mixed-model...')
-        print('Using random intercept with fixed mean...')
+        cat('Formula to be used:', '\n')
+        cat(formula, '\n')
+        cat('Training the general linear mixed-model...', '\n')
+        cat('Using random intercept with fixed mean...', '\n')
       }
 
       if (self$params$type == 'classification') {
@@ -361,9 +361,9 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
                                        type = "response")
         
         if (isTRUE(self$params$debug)) {
-          print(paste0('Predictions generated: ', nrow(private$predictions)))
-          print('First 10 raw classification probability predictions')
-          print(round(private$predictions[1:10],2))
+          cat(paste0('Predictions generated: ', nrow(private$predictions)), '\n')
+          cat('First 10 raw classification probability predictions', '\n')
+          cat(round(private$predictions[1:10],2), '\n')
         }
       }
       else if (self$params$type == 'regression') {
@@ -372,10 +372,10 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
                                        allow.new.levels = TRUE)
         
         if (isTRUE(self$params$debug)) {
-          print(paste0('Predictions generated: ',
+          cat(paste0('Predictions generated: ', '\n',
                        length(private$predictions)))
-          print('First 10 raw regression predictions (with row # first)')
-          print(round(private$predictions[1:10],2))
+          cat('First 10 raw regression predictions (with row # first)', '\n')
+          cat(round(private$predictions[1:10],2), '\n')
         }
       }
     },
@@ -423,7 +423,7 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
 
     getROC = function() {
       if (!isBinary(self$params$df[[self$params$predictedCol]])) {
-        print("ROC is not created because the column you're predicting is not binary")
+        cat("ROC is not created because the column you're predicting is not binary", '\n')
         return(NULL)
       }
       return(private$ROCPlot)
@@ -431,7 +431,7 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
     
     getPRCurve = function() {
       if (!isBinary(self$params$df[[self$params$predictedCol]])) {
-        print("PR Curve is not created because the column you're predicting is not binary")
+        cat("PR Curve is not created because the column you're predicting is not binary", '\n')
         return(NULL)
       }
       return(private$PRCurvePlot)

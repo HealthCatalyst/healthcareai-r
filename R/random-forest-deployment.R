@@ -93,7 +93,7 @@
 #' # Write to CSV (or JSON, MySQL, etc) using plain R syntax
 #' # write.csv(df,'path/predictionsfile.csv')
 #' 
-#' print(proc.time() - ptm)
+#' cat(proc.time() - ptm, '\n')
 #' 
 #' \donttest{
 #' #### Classification example using SQL Server data ####
@@ -172,7 +172,7 @@
 #' dL <- RandomForestDeployment$new(p2)
 #' dL$deploy()
 #' 
-#' print(proc.time() - ptm)
+#' cat(proc.time() - ptm, '\n')
 #' }
 #' 
 #' \donttest{
@@ -252,7 +252,7 @@
 #' dL <- RandomForestDeployment$new(p2)
 #' dL$deploy()
 #' 
-#' print(proc.time() - ptm)
+#' cat(proc.time() - ptm, '\n')
 #' }
 
 RandomForestDeployment <- R6Class("RandomForestDeployment",
@@ -293,19 +293,19 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         private$predictions <- private$predictions[,2]
         
         if (isTRUE(self$params$debug)) {
-          print(paste0('Number of predictions: ', nrow(private$predictions)))
-          print('First 10 raw classification probability predictions')
-          print(round(private$predictions[1:10],2))
+          cat(paste0('Number of predictions: ', nrow(private$predictions)), '\n')
+          cat('First 10 raw classification probability predictions', '\n')
+          cat(round(private$predictions[1:10],2), '\n')
         }
         
       } else if (self$params$type == 'regression') {
         private$predictions <- caret::predict.train(private$fitRF, newdata = private$dfTestTemp)
         
         if (isTRUE(self$params$debug)) {
-          print(paste0('Rows in regression prediction: ',
+          cat(paste0('Rows in regression prediction: ', '\n',
                        length(private$predictions)))
-          print('First 10 raw regression predictions (with row # first)')
-          print(round(private$predictions[1:10],2))
+          cat('First 10 raw regression predictions (with row # first)', '\n')
+          cat(round(private$predictions[1:10],2), '\n')
         }
       }
       
@@ -316,8 +316,8 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       coeffTemp <- private$fitLogit$coefficients
 
       if (isTRUE(self$params$debug)) {
-        print('Coefficients for the default logit (for ranking var import)')
-        print(coeffTemp)
+        cat('Coefficients for the default logit (for ranking var import)', '\n')
+        cat(coeffTemp, '\n')
       }
 
       private$coefficients <-
@@ -330,16 +330,16 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       private$dfTest[[self$params$predictedCol]] <- NULL
 
       if (isTRUE(self$params$debug)) {
-        print('Test set after removing predicted column')
-        print(str(private$dfTest))
+        cat('Test set after removing predicted column', '\n')
+        cat(str(private$dfTest), '\n')
       }
 
       private$multiplyRes <-
         sweep(private$dfTestRaw, 2, private$coefficients, `*`)
 
       if (isTRUE(self$params$debug)) {
-        print('Data frame after multiplying raw vals by coeffs')
-        print(private$multiplyRes[1:10, ])
+        cat('Data frame after multiplying raw vals by coeffs', '\n')
+        cat(private$multiplyRes[1:10, ], '\n')
       }
     },
 
@@ -352,8 +352,8 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
                                                                         decreasing = TRUE)])))
 
       if (isTRUE(self$params$debug)) {
-        print('Data frame after getting column importance ordered')
-        print(private$orderedFactors[1:10, ])
+        cat('Data frame after getting column importance ordered', '\n')
+        cat(private$orderedFactors[1:10, ], '\n')
       }
     },
 
@@ -387,8 +387,8 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       )
 
       if (isTRUE(self$params$debug)) {
-        print('Dataframe with predictions:')
-        print(str(private$outDf))
+        cat('Dataframe with predictions:', '\n')
+        cat(str(private$outDf), '\n')
       }
       
       if (isTRUE(self$params$writeToDB)) {
@@ -407,7 +407,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
   
         # Print success if insert was successful
         if (out == 1) {
-          print('SQL Server insert was successful')
+          cat('SQL Server insert was successful', '\n')
         }
       }
     }

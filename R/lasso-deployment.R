@@ -92,7 +92,7 @@
 #' # Write to CSV (or JSON, MySQL, etc) using plain R syntax
 #' # write.csv(df,'path/predictionsfile.csv')
 #' 
-#' print(proc.time() - ptm)
+#' cat(proc.time() - ptm, '\n')
 #' 
 #' \donttest{
 #' #### Classification example using SQL Server data ####
@@ -171,7 +171,7 @@
 #' dL <- LassoDeployment$new(p2)
 #' dL$deploy()
 #' 
-#' print(proc.time() - ptm)
+#' cat(proc.time() - ptm, '\n')
 #' }
 #' 
 #' \donttest{
@@ -251,7 +251,7 @@
 #' dL <- LassoDeployment$new(p2)
 #' dL$deploy()
 #' 
-#' print(proc.time() - ptm)
+#' cat(proc.time() - ptm, '\n')
 #' }
 
 LassoDeployment <- R6Class(
@@ -310,13 +310,13 @@ LassoDeployment <- R6Class(
                                      type = "response")
       
       if (isTRUE(self$params$debug)) {
-        print(paste0("Rows in prob prediction: ", nrow(private$predictedVals)))
+        cat(paste0("Rows in prob prediction: ", nrow(private$predictedVals)), '\n')
         if (self$params$type == 'classification') {
-          print("First 10 raw classification probability predictions")
-          print(round(private$predictions[1:10], 2))
+          cat("First 10 raw classification probability predictions", '\n')
+          cat(round(private$predictions[1:10], 2), '\n')
         } else if (self$params$type == 'regression') {
-          print("First 10 raw regression value predictions")
-          print(round(private$predictions[1:10], 2))
+          cat("First 10 raw regression value predictions", '\n')
+          cat(round(private$predictions[1:10], 2), '\n')
         }
       }
     },
@@ -326,8 +326,8 @@ LassoDeployment <- R6Class(
       coeffTemp <- private$fitLogit$coefficients
 
       if (isTRUE(self$params$debug)) {
-        print("Coefficients for the default logit (for ranking var import)")
-        print(coeffTemp)
+        cat("Coefficients for the default logit (for ranking var import)", '\n')
+        cat(coeffTemp, '\n')
       }
 
       private$coefficients <- coeffTemp[2:length(coeffTemp)]  # drop intercept
@@ -339,15 +339,15 @@ LassoDeployment <- R6Class(
       private$dfTest[[self$params$predictedCol]] <- NULL
 
       if (isTRUE(self$params$debug)) {
-        print("Test set after removing predicted column")
-        print(str(private$dfTest))
+        cat("Test set after removing predicted column", '\n')
+        cat(str(private$dfTest), '\n')
       }
 
       private$multiplyRes <- sweep(private$dfTestRaw, 2, private$coefficients, `*`)
 
       if (isTRUE(self$params$debug)) {
-        print("Data frame after multiplying raw vals by coeffs")
-        print(private$multiplyRes[1:10, ])
+        cat("Data frame after multiplying raw vals by coeffs", '\n')
+        cat(private$multiplyRes[1:10, ], '\n')
       }
     },
 
@@ -357,8 +357,8 @@ LassoDeployment <- R6Class(
                                                                                                                                          ], decreasing = TRUE)])))
 
       if (isTRUE(self$params$debug)) {
-        print("Data frame after getting column importance ordered")
-        print(private$orderedFactors[1:10, ])
+        cat("Data frame after getting column importance ordered", '\n')
+        cat(private$orderedFactors[1:10, ], '\n')
       }
     },
 
@@ -398,8 +398,8 @@ LassoDeployment <- R6Class(
       )
 
       if (isTRUE(self$params$debug)) {
-        print('Dataframe with predictions:')
-        print(str(private$outDf))
+        cat('Dataframe with predictions:', '\n')
+        cat(str(private$outDf), '\n')
       }
 
       if (isTRUE(self$params$writeToDB)) {
@@ -418,7 +418,7 @@ LassoDeployment <- R6Class(
   
         # Print success if insert was successful
         if (out == 1) {
-          print('SQL Server insert was successful')
+          cat('SQL Server insert was successful', '\n')
         }
       }
     }
