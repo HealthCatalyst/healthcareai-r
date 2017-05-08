@@ -106,7 +106,7 @@ df <- dL$getOutDf()
 # Write to CSV (or JSON, MySQL, etc) using plain R syntax
 # write.csv(df,'path/predictionsfile.csv')
 
-print(proc.time() - ptm)
+cat(proc.time() - ptm, '\\n')
 
 \donttest{
 #### Classification example using SQL Server data ####
@@ -188,7 +188,7 @@ p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
 dL <- LinearMixedModelDeployment$new(p2)
 dL$deploy()
 
-print(proc.time() - ptm)
+cat(proc.time() - ptm, '\\n')
 }
 
 \donttest{
@@ -271,7 +271,7 @@ p2$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
 dL <- LinearMixedModelDeployment$new(p2)
 dL$deploy()
 
-print(proc.time() - ptm)
+cat(proc.time() - ptm, '\\n')
 }
 }
 \seealso{

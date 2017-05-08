@@ -124,7 +124,7 @@ set.seed(42)
 # Run Lasso
 # Lasso <- LassoDevelopment$new(p)
 # Lasso$run()
-print(proc.time() - ptm)
+cat(proc.time() - ptm, '\\n')
 
 \donttest{
 #### This example is specific to Windows and is not tested. 
@@ -199,7 +199,7 @@ names <- c("Linear Mixed Model", "Random Forest")
 legendLoc <- "bottomleft"
 plotPRCurve(rocs, names, legendLoc)
 
-print(proc.time() - ptm)
+cat(proc.time() - ptm, '\\n')
 }
 
 }

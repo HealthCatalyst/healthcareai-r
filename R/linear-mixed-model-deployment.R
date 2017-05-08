@@ -289,7 +289,6 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       RODBC::odbcCloseAll()
       # Convert the connection string into a real connection object.
       self$params$sqlConn <- RODBC::odbcDriverConnect(self$params$sqlConn)
-      
     },
 
     closeDataSource = function() {

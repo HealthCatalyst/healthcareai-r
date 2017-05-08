@@ -308,7 +308,6 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
           cat(round(private$predictions[1:10],2), '\n')
         }
       }
-      
     },
 
     calculateCoeffcients = function() {

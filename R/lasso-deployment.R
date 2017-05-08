@@ -304,7 +304,7 @@ LassoDeployment <- R6Class(
       private$lambda1se <- private$fitGrLasso$lambda[private$indLambda1se]
       
       # Predictions (in terms of probability)
-      private$predictions <- predict(object = private$fitGrLasso,
+      private$predictions <- grpreg::predict.cv.grpreg(object = private$fitGrLasso,
                                      X = model.matrix(private$modFmla, data = private$dfTestTemp)[,-1],
                                      lambda = private$lambda1se,
                                      type = "response")
