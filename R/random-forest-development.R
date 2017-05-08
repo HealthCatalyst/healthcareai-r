@@ -462,6 +462,11 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
 
     getMAE = function() {
       return(private$MAE)
+    }, 
+    
+    getCutOffs = function() {
+      warning("`getCutOffs` is deprecated. Please use `generateAUC` instead. See 
+              ?generateAUC", call. = FALSE)
     }
   )
 )

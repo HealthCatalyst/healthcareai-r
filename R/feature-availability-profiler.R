@@ -225,17 +225,17 @@ featureAvailabilityProfiler = function(
                                          %in% 
                                          excludedColumnNames)]
   
-  message('Loaded ', dim(df)[1], ' rows and ', dim(df)[2], ' columns\n')
-  message('Earliest admit (or equivalent) is from: ', 
+  cat('Loaded ', dim(df)[1], ' rows and ', dim(df)[2], ' columns\n')
+  cat('Earliest admit (or equivalent) is from: ', 
           firstAdmit,
           ' (from ', startDateColumn, ')\n')
-  message('Data was last loaded on: ', 
+  cat('Data was last loaded on: ', 
           lastLoad, 
           ' (from ', lastLoadDateColumn, ')\n')
   
-  message('Columns that will be assessed for nulls:')
+  cat('Columns that will be assessed for nulls:')
   for (i in 1:length(featureColumns)) {
-    message(featureColumns[i])
+    cat(featureColumns[i])
   }
   
   # Initialize the result list
@@ -255,7 +255,7 @@ featureAvailabilityProfiler = function(
       endExclusive = hourBins[i + 1]
     }
     
-    message('\nCalculating nulls for features from hrs: ', 
+    cat('\nCalculating nulls for features from hrs: ', 
             startInclusive, ' to ',
             endExclusive, '\n')
     
