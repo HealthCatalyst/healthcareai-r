@@ -219,55 +219,55 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       odbcCloseAll()
     },
 
-    fitGeneralizedLinearModel = function() {
-      if (isTRUE(self$params$debug)) {
-        print('generating fitLogit...')
-      }
-
-      if (self$params$type == 'classification') {
-        private$fitLogit <- glm(
-          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrain,
-          family = binomial(link = "logit"),
-          metric = "ROC",
-          control = list(maxit = 10000),
-          trControl = trainControl(classProbs = TRUE, summaryFunction = twoClassSummary)
-        )
-
-      } else if (self$params$type == 'regression') {
-        private$fitLogit <- glm(
-          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrain,
-          metric = "RMSE",
-          control = list(maxit = 10000)
-        )
-      }
-    },
-
-    saveModel = function() {
-      if (isTRUE(self$params$debug)) {
-        print('Saving model...')
-      }
-
-      # Save models if specified
-      if (isTRUE(!self$params$useSavedModel)) {
-
-        #NOTE: save(private$fitLogit, ...) does not work!
-        fitLogitObj <- private$fitLogit
-        fitObj <- private$fit
-
-        save(fitLogitObj, file = "rmodel_var_import.rda")
-        save(fitObj, file = "rmodel_probability.rda")
-      }
-
-      # This isn't needed if formula interface is used in randomForest
-      private$dfTest[[self$params$predictedCol]] <- NULL
-
-      if (isTRUE(self$params$debug)) {
-        print('Test set before being used in predict(), after removing y')
-        print(str(private$dfTest))
-      }
-    },
+    # fitGeneralizedLinearModel = function() {
+    #   if (isTRUE(self$params$debug)) {
+    #     print('generating fitLogit...')
+    #   }
+    # 
+    #   if (self$params$type == 'classification') {
+    #     private$fitLogit <- glm(
+    #       as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
+    #       data = private$dfTrain,
+    #       family = binomial(link = "logit"),
+    #       metric = "ROC",
+    #       control = list(maxit = 10000),
+    #       trControl = trainControl(classProbs = TRUE, summaryFunction = twoClassSummary)
+    #     )
+    # 
+    #   } else if (self$params$type == 'regression') {
+    #     private$fitLogit <- glm(
+    #       as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
+    #       data = private$dfTrain,
+    #       metric = "RMSE",
+    #       control = list(maxit = 10000)
+    #     )
+    #   }
+    # },
+    # 
+    # saveModel = function() {
+    #   if (isTRUE(self$params$debug)) {
+    #     print('Saving model...')
+    #   }
+    # 
+    #   # Save models if specified
+    #   if (isTRUE(!self$params$useSavedModel)) {
+    # 
+    #     #NOTE: save(private$fitLogit, ...) does not work!
+    #     fitLogitObj <- private$fitLogit
+    #     fitObj <- private$fit
+    # 
+    #     save(fitLogitObj, file = "rmodel_var_import.rda")
+    #     save(fitObj, file = "rmodel_probability.rda")
+    #   }
+    # 
+    #   # This isn't needed if formula interface is used in randomForest
+    #   private$dfTest[[self$params$predictedCol]] <- NULL
+    # 
+    #   if (isTRUE(self$params$debug)) {
+    #     print('Test set before being used in predict(), after removing y')
+    #     print(str(private$dfTest))
+    #   }
+    # },
 
     performPrediction = function() {
       if (self$params$type == 'classification') {
@@ -503,7 +503,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       }
 
       # Save model
-      private$saveModel()
+      # private$saveModel()
 
       # Predict
       private$performPrediction()

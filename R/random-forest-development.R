@@ -418,12 +418,12 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       # Start default logit (for row-wise var importance)
       # can be replaced with LIME-like functionality
       private$fitGeneralizedLinearModel()
-      
-      # save model
-      private$saveModel()
 
       # Build Model
       self$buildModel()
+      
+      # save model
+      private$saveModel()
 
       # Perform prediction
       self$performPrediction()
