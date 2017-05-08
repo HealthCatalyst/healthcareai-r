@@ -36,7 +36,8 @@
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' 
-# #### Example using csv data ####
+#' #### Classification Example using csv data ####
+#' ## 1. Loading data and packages.
 #' ptm <- proc.time()
 #' library(healthcareai)
 #'
@@ -54,56 +55,77 @@
 #'
 #' head(df)
 #' str(df)
+#' 
+#' ## 2. Train and save the model using DEVELOP
+#' inTest <- df$InTestWindowFLG # save this for later.
+#' df$InTestWindowFLG <- NULL
 #'
-#' p <- SupervisedModelDeploymentParams$new()
-#' p$type <- "classification"
+#' set.seed(42)
+#' p <- SupervisedModelDevelopmentParams$new()
 #' p$df <- df
+#' p$type <- "classification"
+#' p$impute <- TRUE
 #' p$grainCol <- "PatientEncounterID"
 #' p$personCol <- "PatientID"
-#' p$testWindowCol <- "InTestWindowFLG"
 #' p$predictedCol <- "ThirtyDayReadmitFLG"
-#' p$impute <- TRUE
 #' p$debug <- FALSE
-#' p$useSavedModel <- FALSE
 #' p$cores <- 1
-#' p$writeToDB <- FALSE
 #'
-#' dLMM <- LinearMixedModelDeployment$new(p)
-#' dLMM$deploy()
+#' # Run LinearMixedModel
+#' LinearMixedModel <- LinearMixedModelDevelopment$new(p)
+#' LinearMixedModel$run()
+#'
+#' ## 3. Load saved model and use DEPLOY to generate predictions. 
+#' df$InTestWindowFLG <- inTest
+#' p2 <- SupervisedModelDeploymentParams$new()
+#' p2$type <- "classification"
+#' p2$df <- df
+#' p2$testWindowCol <- "InTestWindowFLG"
+#' p2$grainCol <- "PatientEncounterID"
+#' p$personCol <- "PatientID"
+#' p2$predictedCol <- "ThirtyDayReadmitFLG"
+#' p2$impute <- TRUE
+#' p2$debug <- FALSE
+#' # TODO: remove saved model flag. 
+#' p2$useSavedModel <- TRUE #this is always true now.
+#' p2$cores <- 1
+#' p2$writeToDB <- FALSE
+#'
+#' dL <- LinearMixedModelDeployment$new(p2)
+#' dL$deploy()
 #' 
-#' df <- dLMM$getOutDf()
-#' # Write to CSV (or JSON, MySQL, etc) using R syntax
+#' df <- dL$getOutDf()
+#' # Write to CSV (or JSON, MySQL, etc) using plain R syntax
 #' # write.csv(df,'path/predictionsfile.csv')
 #' 
 #' print(proc.time() - ptm)
-#'
+#' 
 #' \donttest{
-#'   
-#' #### Classification example using diabetes data ####
+#' #### Classification example using SQL Server data ####
 #' # This example requires you to first create a table in SQL Server
 #' # If you prefer to not use SAMD, execute this in SSMS to create output table:
-#' # CREATE TABLE dbo.HCRDeployRegressionBASE(
-#' # BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
-#' # PatientEncounterID int, <--change to match inputID
-#' # PredictedValueNBR decimal(38, 2),
-#' # Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
+#' # CREATE TABLE dbo.HCRDeployClassificationBASE(
+#' #   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
+#' #   PatientEncounterID int, <--change to match inputID
+#' #   PredictedProbNBR decimal(38, 2),
+#' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 #' # )
-#'
-#' # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
+#' 
+#' ## 1. Loading data and packages.
 #' ptm <- proc.time()
 #' library(healthcareai)
-#'
+#' 
 #' connection.string <- "
 #' driver={SQL Server};
 #' server=localhost;
 #' database=SAM;
 #' trusted_connection=true
 #' "
-#'
+#' 
 #' query <- "
 #' SELECT
-#'  [PatientEncounterID]
-#' ,[PatientID]           --Mixed model needs two ID columns
+#' [PatientEncounterID]
+#' ,[PatientID]
 #' ,[SystolicBPNBR]
 #' ,[LDLNBR]
 #' ,[A1CNBR]
@@ -111,37 +133,58 @@
 #' ,[ThirtyDayReadmitFLG]
 #' ,[InTestWindowFLG]
 #' FROM [SAM].[dbo].[HCRDiabetesClinical]
-#' --no WHERE clause, because we want train AND test
 #' "
-#'
+#' 
 #' df <- selectData(connection.string, query)
-#'
+#' 
 #' head(df)
 #' str(df)
-#'
-#' p <- SupervisedModelDeploymentParams$new()
-#' p$type <- "classification"
+#' 
+#' ## 2. Train and save the model using DEVELOP
+#' #' set.seed(42)
+#' inTest <- df$InTestWindowFLG # save this for deploy
+#' df$InTestWindowFLG <- NULL
+#' 
+#' p <- SupervisedModelDevelopmentParams$new()
 #' p$df <- df
+#' p$type <- "classification"
+#' p$impute <- TRUE
 #' p$grainCol <- "PatientEncounterID"
 #' p$personCol <- "PatientID"
-#' p$testWindowCol <- "InTestWindowFLG"
 #' p$predictedCol <- "ThirtyDayReadmitFLG"
-#' p$impute <- FALSE
 #' p$debug <- FALSE
-#' p$useSavedModel <- FALSE
 #' p$cores <- 1
-#' p$sqlConn <- connection.string
-#' p$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
-#'
-#' lMM <- LinearMixedModelDeployment$new(p)
-#' lMM$deploy()
-#'
+#' 
+#' # Run LinearMixedModel
+#' LinearMixedModel <- LinearMixedModelDevelopment$new(p)
+#' LinearMixedModel$run()
+#' 
+#' ## 3. Load saved model and use DEPLOY to generate predictions. 
+#' df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+#' 
+#' p2 <- SupervisedModelDeploymentParams$new()
+#' p2$type <- "classification"
+#' p2$df <- df
+#' p2$grainCol <- "PatientEncounterID"
+#' p$personCol <- "PatientID"
+#' p2$testWindowCol <- "InTestWindowFLG"
+#' p2$predictedCol <- "ThirtyDayReadmitFLG"
+#' p2$impute <- TRUE
+#' p2$debug <- FALSE
+#' # TODO: remove saved model flag. 
+#' p2$useSavedModel <- TRUE # this is always TRUE now.
+#' p2$cores <- 1
+#' p2$sqlConn <- connection.string
+#' p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
+#' 
+#' dL <- LinearMixedModelDeployment$new(p2)
+#' dL$deploy()
+#' 
 #' print(proc.time() - ptm)
 #' }
 #' 
 #' \donttest{
-#'
-#' #### Regression example using diabetes data ####
+#' #### Regression Example using SQL Server data ####
 #' # This example requires you to first create a table in SQL Server
 #' # If you prefer to not use SAMD, execute this in SSMS to create output table:
 #' # CREATE TABLE dbo.HCRDeployRegressionBASE(
@@ -150,22 +193,22 @@
 #' #   PredictedValueNBR decimal(38, 2),
 #' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 #' # )
-#'
-#' # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
+#' 
+#' ## 1. Loading data and packages.
 #' ptm <- proc.time()
 #' library(healthcareai)
-#'
+#' 
 #' connection.string <- "
 #' driver={SQL Server};
 #' server=localhost;
 #' database=SAM;
 #' trusted_connection=true
 #' "
-#'
+#' 
 #' query <- "
 #' SELECT
-#'  [PatientEncounterID]
-#' ,[PatientID]           --Mixed model needs two ID columns
+#' [PatientEncounterID]
+#' ,[PatientID]
 #' ,[SystolicBPNBR]
 #' ,[LDLNBR]
 #' ,[A1CNBR]
@@ -173,31 +216,53 @@
 #' ,[ThirtyDayReadmitFLG]
 #' ,[InTestWindowFLG]
 #' FROM [SAM].[dbo].[HCRDiabetesClinical]
-#' --no WHERE clause, because we want train AND test
 #' "
-#'
+#' 
 #' df <- selectData(connection.string, query)
-#'
+#' 
 #' head(df)
 #' str(df)
-#'
-#' p <- SupervisedModelDeploymentParams$new()
-#' p$type <- "regression"
+#' 
+#' ## 2. Train and save the model using DEVELOP
+#' #' set.seed(42)
+#' inTest <- df$InTestWindowFLG # save this for deploy
+#' df$InTestWindowFLG <- NULL
+#' 
+#' p <- SupervisedModelDevelopmentParams$new()
 #' p$df <- df
+#' p$type <- "regression"
+#' p$impute <- TRUE
 #' p$grainCol <- "PatientEncounterID"
 #' p$personCol <- "PatientID"
-#' p$testWindowCol <- "InTestWindowFLG"
 #' p$predictedCol <- "A1CNBR"
-#' p$impute <- TRUE
 #' p$debug <- FALSE
-#' p$useSavedModel <- FALSE
 #' p$cores <- 1
-#' p$sqlConn <- connection.string
-#' p$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
-#'
-#' lMM <- LinearMixedModelDeployment$new(p)
-#' lMM$deploy()
-#'
+#' 
+#' # Run Random Forest
+#' LinearMixedModel <- LinearMixedModelDevelopment$new(p)
+#' LinearMixedModel$run()
+#' 
+#' ## 3. Load saved model and use DEPLOY to generate predictions. 
+#' df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+#' 
+#' p2 <- SupervisedModelDeploymentParams$new()
+#' p2$type <- "regression"
+#' p2$df <- df
+#' p2$grainCol <- "PatientEncounterID"
+#' p$personCol <- "PatientID"
+#' p2$testWindowCol <- "InTestWindowFLG"
+#' p2$predictedCol <- "A1CNBR"
+#' p2$impute <- TRUE
+#' p2$debug <- FALSE
+#' # TODO: remove saved model flag. 
+#' p2$useSavedModel <- TRUE # this is always TRUE now.
+#' p2$cores <- 1
+#' p2$sqlConn <- connection.string
+#' p2$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
+#' 
+#' dL <- LinearMixedModelDeployment$new(p2)
+#' dL$deploy()
+#' 
 #' print(proc.time() - ptm)
 #' }
 
@@ -224,63 +289,14 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     connectDataSource = function() {
       RODBC::odbcCloseAll()
       
-      if (isTRUE(self$params$writeToDB)) {
-        # Convert the connection string into a real connection object.
-        self$params$sqlConn <- RODBC::odbcDriverConnect(self$params$sqlConn)
-      }
+      # Convert the connection string into a real connection object.
+      self$params$sqlConn <- RODBC::odbcDriverConnect(self$params$sqlConn)
+      
     },
 
     closeDataSource = function() {
       RODBC::odbcCloseAll()
     },
-
-    # fitGeneralizedLinearModel = function() {
-    #   if (isTRUE(self$params$debug)) {
-    #     print('generating fitLogit...')
-    #   }
-    # 
-    #   if (self$params$type == 'classification') {
-    #     private$fitLogit <- glm(
-    #       as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-    #       data = private$dfTrain,
-    #       family = binomial(link = "logit"),
-    #       metric = "ROC",
-    #       control = list(maxit = 10000),
-    #       trControl = trainControl(classProbs = TRUE, summaryFunction = twoClassSummary)
-    #     )
-    # 
-    #   } else if (self$params$type == 'regression') {
-    #     private$fitLogit <- glm(
-    #       as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-    #       data = private$dfTrain,
-    #       metric = "RMSE",
-    #       control = list(maxit = 10000)
-    #     )
-    #   }
-    # },
-    # 
-    # saveModel = function() {
-    #   if (isTRUE(self$params$debug)) {
-    #     print('Saving model...')
-    #   }
-    # 
-    #   # Save models if specified
-    #   if (isTRUE(!self$params$useSavedModel)) {
-    #     #NOTE: save(private$fitLogit, ...) directly, did not work!
-    #     fitLogitObj <- private$fitLogit
-    #     fitObj <- private$fit
-    #     save(fitLogitObj, file = "rmodel_var_import_LMM.rda")
-    #     save(fitObj, file = "rmodel_probability_LMM.rda")
-    #   }
-    # 
-    #   # This isn't needed since formula interface is used
-    #   private$dfTest[[self$params$predictedCol]] <- NULL
-    # 
-    #   if (isTRUE(self$params$debug)) {
-    #     print('Test set before being used in predict(), after removing y')
-    #     print(str(private$dfTest))
-    #   }
-    # },
 
     # Perform prediction
     performPrediction = function() {
@@ -435,84 +451,15 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     #   i.e. p = DeploySupervisedModelParameters$new()
     initialize = function(p) {
       super$initialize(p)
-
-      if (!is.null(p$rfMtry))
-        self$params$rfMtry <- p$rfMtry
-
-      if (!is.null(p$trees))
-        self$params$trees <- p$trees
-    },
-
-    #This would be a user-defined method
-    # which gets called by buildFitObject function
-    fitLinearMixedModel = function() {
-
-      # Create formula for lmm
-      # Start building formula by grabbing column names
-      colList <- colnames(private$dfTrain)
-
-      # Remove target col from list
-      colList <- colList[colList != self$params$predictedCol]
-
-      # Remove grain col from list
-      colList <- colList[colList != self$params$grainCol]
-
-      # Remove random-effects col from list
-      fixedColsTemp <- colList[colList != self$params$personCol]
-
-      # Collapse columns in list into a large string of cols
-      fixedCols <- paste(fixedColsTemp, "+ ", collapse = "")
-
-      formula <- paste0(self$params$predictedCol, " ~ ",
-                        fixedCols,
-                        "(1|", self$params$personCol, ")")
-
-      if (isTRUE(self$params$debug)) {
-        print('Formula to be used:')
-        print(formula)
-        print('Training the general linear mixed-model...')
-        print('Using random intercept with fixed mean...')
-      }
-
-      if (self$params$type == 'classification') {
-        private$fit = glmer(formula = formula,
-                            data = private$dfTrain,
-                            family = binomial(link = 'logit'))
-      }
-      else if (self$params$type == 'regression') {
-        private$fit = lmer(formula = formula,
-                            data = private$dfTrain)
-      }
-    },
-
-    buildFitObject = function() {
-
-      # Get fit object by random forest
-      self$fitLinearMixedModel()
-    },
-
-    #Override: Build Deploy Model
-    buildDeployModel = function() {
-      if (isTRUE(self$params$debug)) {
-        print('Training data set immediately before training')
-        print(str(private$dfTrain))
-      }
-
-      # Start default logit (for var importance)
-      private$fitGeneralizedLinearModel()
-
-      # Build fit object
-      self$buildFitObject()
-
-      print('Details for proability model:')
-      print(private$fit)
     },
 
     #Override: deploy the model
     deploy = function() {
-
-      # Connect to sql via odbc driver
-      private$connectDataSource()
+  
+      if (isTRUE(self$params$writeToDB)) {
+        # Connect to sql via odbc driver
+        private$connectDataSource()
+      }
 
       if (isTRUE(self$params$useSavedModel)) {
         load("rmodel_var_import_LMM.rda")  # Produces fitLogit object
@@ -521,14 +468,10 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
         load("rmodel_probability_LMM.rda") # Produces fit object (for probability)
         private$fitLmm <- fitObj
       } else {
-        private$registerClustersOnCores()
-
-        # build deploy model
-        self$buildDeployModel()
+        # temporary fix until all models are working.
+        stop('You must use a saved model. Run random forest development to train 
+              and save the model, then random forest deployment to make predictions.')
       }
-
-      # Save model
-      # private$saveModel()
 
       # Predict
       private$performPrediction()
@@ -542,14 +485,19 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       # Calculate Ordered Factors
       private$calculateOrderedFactors()
 
-      # Save data into db
-      private$saveDataIntoDb()
+      if (isTRUE(self$params$writeToDB)) {
+        # Save data into db
+        private$saveDataIntoDb()
+      }
 
       # Clean up.
       if (isTRUE(!self$params$useSavedModel)) {
         private$stopClustersOnCores()
       }
-      private$closeDataSource()
+      
+      if (isTRUE(self$params$writeToDB)) {
+        private$closeDataSource()
+      }
     },
 
     #Get predicted values
@@ -561,5 +509,6 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     getOutDf = function() {
       return(private$outDf)
     }
+    
   )
 )
