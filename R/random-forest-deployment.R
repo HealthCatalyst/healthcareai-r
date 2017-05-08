@@ -204,6 +204,9 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     orderedFactors = NA,
     predictedValsForUnitTest = NA,
     outDf = NA,
+    
+    fitRF = NA,
+    fitLogit = NA,
 
     # functions
     connectDataSource = function() {
@@ -272,7 +275,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     performPrediction = function() {
       if (self$params$type == 'classification') {
         #  these are probabilities
-        predictedValsTemp <- predict(private$fit, data = private$dfTest)
+        predictedValsTemp <- predict(private$fitRF, data = private$dfTest)
         private$predictedVals <- predictedValsTemp$predictions[, 2]
         private$predictedValsForUnitTest <- private$predictedVals[5] # for unit test
 
@@ -286,7 +289,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
       } else if (self$params$type == 'regression') {
         # this is in-kind prediction
-        predictedValsTemp <- predict(private$fit, data = private$dfTest)
+        predictedValsTemp <- predict(private$fitRF, data = private$dfTest)
         private$predictedVals <- predictedValsTemp$predictions
 
         if (isTRUE(self$params$debug)) {
@@ -420,88 +423,96 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
     #This would be a user-defined method
     # which gets called by buildFitObject function
-    fitRandomForest = function() {
-
-      # Set proper mtry (either based on recc default or specified)
-      if (nchar(self$params$rfmtry) == 0 &&
-          self$params$type == 'classification') {
-        rfMtryTemp <- floor(sqrt(ncol(private$dfTrain)))
-      } else if (nchar(self$params$rfmtry) == 0 &&
-                 self$params$type == 'regression') {
-        rfMtryTemp <- max(floor(ncol(private$dfTrain) / 3), 1)
-      } else {
-        rfMtryTemp <- self$params$rfmtry
-      }
-
-      if (isTRUE(self$params$debug)) {
-        print('generating fit for random forest...')
-      }
-
-      if (self$params$type == 'classification') {
-        private$fit <- ranger(
-          as.formula(paste(
-            self$params$predictedCol, '.', sep = " ~ "
-          )),
-          data = private$dfTrain,
-          probability = TRUE,
-          num.trees = self$params$trees,
-          write.forest = TRUE,
-          mtry = rfMtryTemp
-        )
-      } else if (self$params$type == 'regression') {
-        private$fit <- ranger(
-          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrain,
-          num.trees = self$params$trees,
-          write.forest = TRUE,
-          mtry = rfMtryTemp
-        )
-      }
-    },
-
-    buildFitObject = function() {
-
-      # Get fit object by random forest
-      self$fitRandomForest()
-    },
-
-    #Override: Build Deploy Model
-    buildDeployModel = function() {
-
-      if (isTRUE(self$params$debug)) {
-        print('Training data set immediately before training')
-        print(str(private$dfTrain))
-      }
-
-      # Start default logit (for var importance)
-      private$fitGeneralizedLinearModel()
-
-      # Build fit object
-      self$buildFitObject()
-
-      print('Details for proability model:')
-      print(private$fit)
-    },
+    # fitRandomForest = function() {
+    # 
+    #   # Set proper mtry (either based on recc default or specified)
+    #   if (nchar(self$params$rfmtry) == 0 &&
+    #       self$params$type == 'classification') {
+    #     rfMtryTemp <- floor(sqrt(ncol(private$dfTrain)))
+    #   } else if (nchar(self$params$rfmtry) == 0 &&
+    #              self$params$type == 'regression') {
+    #     rfMtryTemp <- max(floor(ncol(private$dfTrain) / 3), 1)
+    #   } else {
+    #     rfMtryTemp <- self$params$rfmtry
+    #   }
+    # 
+    #   if (isTRUE(self$params$debug)) {
+    #     print('generating fit for random forest...')
+    #   }
+    # 
+    #   if (self$params$type == 'classification') {
+    #     private$fit <- ranger(
+    #       as.formula(paste(
+    #         self$params$predictedCol, '.', sep = " ~ "
+    #       )),
+    #       data = private$dfTrain,
+    #       probability = TRUE,
+    #       num.trees = self$params$trees,
+    #       write.forest = TRUE,
+    #       mtry = rfMtryTemp
+    #     )
+    #   } else if (self$params$type == 'regression') {
+    #     private$fit <- ranger(
+    #       as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
+    #       data = private$dfTrain,
+    #       num.trees = self$params$trees,
+    #       write.forest = TRUE,
+    #       mtry = rfMtryTemp
+    #     )
+    #   }
+    # },
+    # 
+    # buildFitObject = function() {
+    # 
+    #   # Get fit object by random forest
+    #   self$fitRandomForest()
+    # },
+    # 
+    # #Override: Build Deploy Model
+    # buildDeployModel = function() {
+    # 
+    #   if (isTRUE(self$params$debug)) {
+    #     print('Training data set immediately before training')
+    #     print(str(private$dfTrain))
+    #   }
+    # 
+    #   # Start default logit (for var importance)
+    #   private$fitGeneralizedLinearModel()
+    # 
+    #   # Build fit object
+    #   self$buildFitObject()
+    # 
+    #   print('Details for proability model:')
+    #   print(private$fit)
+    # },
 
     #Override: deploy the model
     deploy = function() {
+      
+      print('ENTERED DEPLOY METHOD')
+      
+      print('#### fit ####')
+      print(private$fit)
+      print('#### fitlogit ####')
+      print(private$fitLogit)
+      
 
       # Connect to sql via odbc driver
       private$connectDataSource()
 
       if (isTRUE(self$params$useSavedModel)) {
-        load("rmodel_var_import.rda")  # Produces fitLogit object
+        load("rmodel_var_import_RF.rda")  # Produces fitLogit object
         private$fitLogit <- fitLogit
 
-        load("rmodel_probability.rda") # Produces fit object (for probability)
-        private$fit <- fit
+        load("rmodel_probability_RF.rda") # Produces fit object (for probability)
+        private$fitRF <- fitRF
       } else {
         private$registerClustersOnCores()
 
         # build deploy model
         self$buildDeployModel()
       }
-
+      
       # Save model
       # private$saveModel()
 

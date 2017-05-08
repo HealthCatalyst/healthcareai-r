@@ -203,10 +203,10 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         print('Saving model...')
       }
       
-        fitLogitObj <- private$fitLogit
+        fitLogit <- private$fitLogit
         fitObj <- private$fitRF
         
-        save(fitLogitObj, file = "rmodel_var_import_RF.rda")
+        save(fitLogit, file = "rmodel_var_import_RF.rda")
         save(fitObj, file = "rmodel_probability_RF.rda")
       },
     
