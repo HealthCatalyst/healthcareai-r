@@ -2,8 +2,7 @@
 #'
 #' @description This step allows one to
 #' \itemize{
-#' \item Create a final model on all of your training data
-#' \item Automatically save the model
+#' \item Load a saved model from \code{\link{RandomForestDevelopment}}
 #' \item Run the model against test data to generate predictions
 #' \item Push these predictions to SQL Server
 #' }

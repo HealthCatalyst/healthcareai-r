@@ -34,7 +34,7 @@ to monitor the calculations throughout. Use T or F.}
 \description{
 This step allows one to
 \itemize{
-\item Load a saved model from \code{\link{lassoDevelopment}}
+\item Load a saved model from \code{\link{LassoDevelopment}}
 \item Run the model against test data to generate predictions
 \item Push these predictions to SQL Server
 }
