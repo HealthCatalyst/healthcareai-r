@@ -276,11 +276,8 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     # functions
     connectDataSource = function() {
       RODBC::odbcCloseAll()
-      
-      if (isTRUE(self$params$writeToDB)) {
-        # Convert the connection string into a real connection object.
-        self$params$sqlConn <- RODBC::odbcDriverConnect(self$params$sqlConn)
-      }
+      # Convert the connection string into a real connection object.
+      self$params$sqlConn <- RODBC::odbcDriverConnect(self$params$sqlConn)
     },
 
     closeDataSource = function() {
@@ -434,8 +431,12 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
     #Override: deploy the model
     deploy = function() {
-     # Connect to sql via odbc driver
-      private$connectDataSource()
+      
+      
+      if (isTRUE(self$params$writeToDB)) {
+        # Connect to sql via odbc driver
+        private$connectDataSource()
+      }
 
       if (isTRUE(self$params$useSavedModel)) {
         load("rmodel_var_import_RF.rda")  # Produces fitLogit object
@@ -461,14 +462,15 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       # Calculate Ordered Factors
       private$calculateOrderedFactors()
 
-      # Save data into db
-      private$saveDataIntoDb()
-
-      # Clean up.
-      if (isTRUE(!self$params$useSavedModel)) {
-        private$stopClustersOnCores()
+      
+      if (isTRUE(self$params$writeToDB)) {
+        # Save data into db
+        private$saveDataIntoDb()
       }
-      private$closeDataSource()
+      
+      if (isTRUE(self$params$writeToDB)) {
+        private$closeDataSource()
+      }
     },
 
     # Get predicted values

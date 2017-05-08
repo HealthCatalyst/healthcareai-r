@@ -283,10 +283,9 @@ LassoDeployment <- R6Class(
     # functions
     connectDataSource = function() {
       RODBC::odbcCloseAll()
-      if (isTRUE(self$params$writeToDB)) {
-        # Convert the connection string into a real connection object.
-        self$params$sqlConn <- RODBC::odbcDriverConnect(self$params$sqlConn)
-      }
+      # Convert the connection string into a real connection object.
+      self$params$sqlConn <- RODBC::odbcDriverConnect(self$params$sqlConn)
+      
     },
 
     closeDataSource = function() {
@@ -442,8 +441,10 @@ LassoDeployment <- R6Class(
 
     #Override: deploy the model
     deploy = function() {
-      # Connect to sql via odbc driver
-      private$connectDataSource()
+      if (isTRUE(self$params$writeToDB)) {
+        # Connect to sql via odbc driver
+        private$connectDataSource()
+      }
       
       if (isTRUE(self$params$useSavedModel)) {
         load("rmodel_var_import_lasso.rda")  # Produces fitLogit object
@@ -475,14 +476,15 @@ LassoDeployment <- R6Class(
       # Calculate Ordered Factors
       private$calculateOrderedFactors()
 
-      # Save data into db
-      private$saveDataIntoDb()
+      
+      if (isTRUE(self$params$writeToDB)) {
+        # Save data into db
+        private$saveDataIntoDb()
+      }
 
-      # Clean up.
-      # if (isTRUE(!self$params$useSavedModel)) {
-      #   private$stopClustersOnCores()
-      # }
-      private$closeDataSource()
+      if (isTRUE(self$params$writeToDB)) {
+        private$closeDataSource()
+      }
     },
 
     #Get predicted values

@@ -287,7 +287,6 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     # functions
     connectDataSource = function() {
       RODBC::odbcCloseAll()
-      
       # Convert the connection string into a real connection object.
       self$params$sqlConn <- RODBC::odbcDriverConnect(self$params$sqlConn)
       
@@ -487,11 +486,6 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       if (isTRUE(self$params$writeToDB)) {
         # Save data into db
         private$saveDataIntoDb()
-      }
-
-      # Clean up.
-      if (isTRUE(!self$params$useSavedModel)) {
-        private$stopClustersOnCores()
       }
       
       if (isTRUE(self$params$writeToDB)) {
