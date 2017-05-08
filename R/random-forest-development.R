@@ -319,7 +319,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       train.control <- NA
       if (self$params$type == 'classification') {
 
-        train.control <- trainControl(
+        train.control <- caret::trainControl(
           method = trainControlParams.method,
           number = trainControlParams.number,
           verboseIter = isTRUE(self$params$debug),
@@ -332,7 +332,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       # Regression
       else if (self$params$type == 'regression') {
 
-        train.control <- trainControl(
+        train.control <- caret::trainControl(
           method = trainControlParams.method,
           number = trainControlParams.number,
           verboseIter = isTRUE(self$params$debug)
