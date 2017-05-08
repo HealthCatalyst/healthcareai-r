@@ -207,6 +207,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     
     fitRF = NA,
     fitLogit = NA,
+    predictions = NA,
 
     # functions
     connectDataSource = function() {
@@ -278,7 +279,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       browser()
       if (self$params$type == 'classification') {
         private$predictions <- caret::predict.train(object = private$fitRF,
-                                                    newdata = private$dfTest,
+                                                    newdata = private$dfTestTemp,
                                                     type = 'prob')
         private$predictions <- private$predictions[,2]
         
