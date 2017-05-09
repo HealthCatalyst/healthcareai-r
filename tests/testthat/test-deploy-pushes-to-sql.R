@@ -1,29 +1,29 @@
 context("Checking deploy predictions from sql to sql")
 
-connection.string <- "
+test_that("Lasso deploy classification pushes values to SQL", {
+  skip_on_travis()
+  skip_on_cran()
+  
+  connection.string <- "
   driver={SQL Server};
   server=localhost;
   database=SAM;
   trusted_connection=true
-"
-
-query <- "
-SELECT
-[PatientID]
-,[PatientEncounterID] --Only need one ID column for random forest/lasso
-,[SystolicBPNBR]
-,[LDLNBR]
-,[A1CNBR]
-,[GenderFLG]
-,[ThirtyDayReadmitFLG]
-,[InTestWindowFLG]
-FROM [SAM].[dbo].[HCRDiabetesClinical]
-"
-df <- selectData(connection.string, query)
-
-test_that("Lasso deploy classification pushes values to SQL", {
-  skip_on_travis()
-  skip_on_cran()
+  "
+  
+  query <- "
+  SELECT
+  [PatientID]
+  ,[PatientEncounterID] --Only need one ID column for random forest/lasso
+  ,[SystolicBPNBR]
+  ,[LDLNBR]
+  ,[A1CNBR]
+  ,[GenderFLG]
+  ,[ThirtyDayReadmitFLG]
+  ,[InTestWindowFLG]
+  FROM [SAM].[dbo].[HCRDiabetesClinical]
+  "
+  df <- selectData(connection.string, query)
   
   df$PatientID <- NULL
   inTest <- df$InTestWindowFLG # save this for deploy
@@ -63,6 +63,27 @@ test_that("Lasso deploy regression pushes values to SQL", {
   skip_on_travis()
   skip_on_cran()
   
+  connection.string <- "
+  driver={SQL Server};
+  server=localhost;
+  database=SAM;
+  trusted_connection=true
+  "
+  
+  query <- "
+  SELECT
+  [PatientID]
+  ,[PatientEncounterID] --Only need one ID column for random forest/lasso
+  ,[SystolicBPNBR]
+  ,[LDLNBR]
+  ,[A1CNBR]
+  ,[GenderFLG]
+  ,[ThirtyDayReadmitFLG]
+  ,[InTestWindowFLG]
+  FROM [SAM].[dbo].[HCRDiabetesClinical]
+  "
+  df <- selectData(connection.string, query)
+  
   df$PatientID <- NULL
   inTest <- df$InTestWindowFLG # save this for deploy
   df$InTestWindowFLG <- NULL
@@ -100,6 +121,27 @@ test_that("Lasso deploy regression pushes values to SQL", {
 test_that("rf deploy classification pushes values to SQL", {
   skip_on_travis()
   skip_on_cran()
+  
+  connection.string <- "
+  driver={SQL Server};
+  server=localhost;
+  database=SAM;
+  trusted_connection=true
+  "
+  
+  query <- "
+  SELECT
+  [PatientID]
+  ,[PatientEncounterID] --Only need one ID column for random forest/lasso
+  ,[SystolicBPNBR]
+  ,[LDLNBR]
+  ,[A1CNBR]
+  ,[GenderFLG]
+  ,[ThirtyDayReadmitFLG]
+  ,[InTestWindowFLG]
+  FROM [SAM].[dbo].[HCRDiabetesClinical]
+  "
+  df <- selectData(connection.string, query)
   
   df$PatientID <- NULL
   inTest <- df$InTestWindowFLG # save this for deploy
@@ -139,6 +181,27 @@ test_that("rf deploy regression pushes values to SQL", {
   skip_on_travis()
   skip_on_cran()
   
+  connection.string <- "
+  driver={SQL Server};
+  server=localhost;
+  database=SAM;
+  trusted_connection=true
+  "
+  
+  query <- "
+  SELECT
+  [PatientID]
+  ,[PatientEncounterID] --Only need one ID column for random forest/lasso
+  ,[SystolicBPNBR]
+  ,[LDLNBR]
+  ,[A1CNBR]
+  ,[GenderFLG]
+  ,[ThirtyDayReadmitFLG]
+  ,[InTestWindowFLG]
+  FROM [SAM].[dbo].[HCRDiabetesClinical]
+  "
+  df <- selectData(connection.string, query)
+  
   df$PatientID <- NULL
   inTest <- df$InTestWindowFLG # save this for deploy
   df$InTestWindowFLG <- NULL
@@ -176,6 +239,27 @@ test_that("rf deploy regression pushes values to SQL", {
 test_that("LMM deploy classification pushes values to SQL", {
   skip_on_travis()
   skip_on_cran()
+  
+  connection.string <- "
+  driver={SQL Server};
+  server=localhost;
+  database=SAM;
+  trusted_connection=true
+  "
+  
+  query <- "
+  SELECT
+  [PatientID]
+  ,[PatientEncounterID] --Only need one ID column for random forest/lasso
+  ,[SystolicBPNBR]
+  ,[LDLNBR]
+  ,[A1CNBR]
+  ,[GenderFLG]
+  ,[ThirtyDayReadmitFLG]
+  ,[InTestWindowFLG]
+  FROM [SAM].[dbo].[HCRDiabetesClinical]
+  "
+  df <- selectData(connection.string, query)
   
   inTest <- df$InTestWindowFLG # save this for deploy
   df$InTestWindowFLG <- NULL
@@ -219,6 +303,27 @@ test_that("LMM deploy classification pushes values to SQL", {
 test_that("LMM deploy regression pushes values to SQL", {
   skip_on_travis()
   skip_on_cran()
+  
+  connection.string <- "
+  driver={SQL Server};
+  server=localhost;
+  database=SAM;
+  trusted_connection=true
+  "
+  
+  query <- "
+  SELECT
+  [PatientID]
+  ,[PatientEncounterID] --Only need one ID column for random forest/lasso
+  ,[SystolicBPNBR]
+  ,[LDLNBR]
+  ,[A1CNBR]
+  ,[GenderFLG]
+  ,[ThirtyDayReadmitFLG]
+  ,[InTestWindowFLG]
+  FROM [SAM].[dbo].[HCRDiabetesClinical]
+  "
+  df <- selectData(connection.string, query)
   
   inTest <- df$InTestWindowFLG # save this for deploy
   df$InTestWindowFLG <- NULL
