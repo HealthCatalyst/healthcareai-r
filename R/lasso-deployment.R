@@ -444,24 +444,22 @@ LassoDeployment <- R6Class(
         private$connectDataSource()
       }
       
-      if (isTRUE(self$params$useSavedModel)) {
+      # Try to load the model
+      tryCatch({
         load("rmodel_var_import_lasso.rda")  # Produces fitLogit object
         private$fitLogit <- fitLogit
-        
         load("rmodel_combined_lasso.rda") # Produces fit object (for probability)
           private$fitGrLasso <- fitObj
           private$modMat <- fitObj$modMat
           private$modFmla <- fitObj$modFmla
           fitObj$modMat <- NULL
           fitObj$modFmla <- NULL
-          
-      } else {
+       }, error = function(e) {
         # temporary fix until all models are working.
         stop('You must use a saved model. Run lasso development to train and save
               the model, then lasso deployment to make predictions. See ?LassoDeployment')
-        
-      }
-
+      })
+      
       # Predict
       private$performPrediction()
 

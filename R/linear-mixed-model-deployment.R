@@ -85,8 +85,6 @@
 #' p2$predictedCol <- "ThirtyDayReadmitFLG"
 #' p2$impute <- TRUE
 #' p2$debug <- FALSE
-#' # TODO: remove saved model flag. 
-#' p2$useSavedModel <- TRUE #this is always true now.
 #' p2$cores <- 1
 #' p2$writeToDB <- FALSE
 #'
@@ -170,8 +168,6 @@
 #' p2$predictedCol <- "ThirtyDayReadmitFLG"
 #' p2$impute <- TRUE
 #' p2$debug <- FALSE
-#' # TODO: remove saved model flag. 
-#' p2$useSavedModel <- TRUE # this is always TRUE now.
 #' p2$cores <- 1
 #' p2$sqlConn <- connection.string
 #' p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
@@ -253,8 +249,6 @@
 #' p2$predictedCol <- "A1CNBR"
 #' p2$impute <- TRUE
 #' p2$debug <- FALSE
-#' # TODO: remove saved model flag. 
-#' p2$useSavedModel <- TRUE # this is always TRUE now.
 #' p2$cores <- 1
 #' p2$sqlConn <- connection.string
 #' p2$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
@@ -460,18 +454,17 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
         private$connectDataSource()
       }
 
-      if (isTRUE(self$params$useSavedModel)) {
+      # Try to load the model
+      tryCatch({
         load("rmodel_var_import_LMM.rda")  # Produces fitLogit object
         private$fitLogit <- fitLogit
-
         load("rmodel_probability_LMM.rda") # Produces fit object (for probability)
         private$fitLmm <- fitObj
-      } else {
-        # temporary fix until all models are working.
+      }, error = function(e) {
         stop('You must use a saved model. Run Linear Mixed Model development to train 
               and save the model, then Linear Mixed Model deployment to make predictions
               See ?LinearMixedModelDevelopment.')
-      }
+      })
 
       # Predict
       private$performPrediction()

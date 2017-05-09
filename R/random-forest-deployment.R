@@ -438,18 +438,18 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         private$connectDataSource()
       }
 
-      if (isTRUE(self$params$useSavedModel)) {
+      # Try to load the model
+      tryCatch({
         load("rmodel_var_import_RF.rda")  # Produces fitLogit object
         private$fitLogit <- fitLogit
-
         load("rmodel_probability_RF.rda") # Produces fit object (for probability)
         private$fitRF <- fitObj
-      } else {
+       }, error = function(e) {
         # temporary fix until all models are working.
         stop('You must use a saved model. Run random forest development to train 
               and save the model, then random forest deployment to make predictions.
               See ?RandomForestDevelopment')
-      }
+      })
       
       # Predict
       private$performPrediction()
