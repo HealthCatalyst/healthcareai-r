@@ -155,6 +155,8 @@ test_that("rf deploy regression pushes values to SQL", {
   dRF <- RandomForestDevelopment$new(p)
   capture.output(dRF$run())
   
+  df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+  
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type = 'regression'
   p2$df = df
@@ -190,7 +192,7 @@ test_that("LMM deploy classification pushes values to SQL", {
   p$cores <- 1
   
   LinearMixedModel <- LinearMixedModelDevelopment$new(p)
-  capture.output(LinearMixedModel$run())
+  capture.output(suppressWarnings(LinearMixedModel$run()))
   
   df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
   
@@ -231,7 +233,7 @@ test_that("LMM deploy regression pushes values to SQL", {
   p$predictedCol <- "A1CNBR"
   
   LinearMixedModel <- LinearMixedModelDevelopment$new(p)
-  capture.output(LinearMixedModel$run())
+  capture.output(suppressWarnings(LinearMixedModel$run()))
   
   df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
             
