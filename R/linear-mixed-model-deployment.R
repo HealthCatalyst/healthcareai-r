@@ -97,7 +97,7 @@
 #' # Write to CSV (or JSON, MySQL, etc) using plain R syntax
 #' # write.csv(df,'path/predictionsfile.csv')
 #' 
-#' cat(proc.time() - ptm, '\n')
+#' print(proc.time() - ptm)
 #' 
 #' \donttest{
 #' #### Classification example using SQL Server data ####
@@ -179,7 +179,7 @@
 #' dL <- LinearMixedModelDeployment$new(p2)
 #' dL$deploy()
 #' 
-#' cat(proc.time() - ptm, '\n')
+#' print(proc.time() - ptm)
 #' }
 #' 
 #' \donttest{
@@ -262,7 +262,7 @@
 #' dL <- LinearMixedModelDeployment$new(p2)
 #' dL$deploy()
 #' 
-#' cat(proc.time() - ptm, '\n')
+#' print(proc.time() - ptm)
 #' }
 
 LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
@@ -307,7 +307,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
         if (isTRUE(self$params$debug)) {
           cat('Predictions generated: ', nrow(private$predictions), '\n')
           cat('First 10 raw classification probability predictions', '\n')
-          cat(round(private$predictions[1:10],2), '\n')
+          print(round(private$predictions[1:10],2))
         }
       }
       else if (self$params$type == 'regression') {
@@ -319,7 +319,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
           cat('Predictions generated: ', '\n',
                        length(private$predictions))
           cat('First 10 raw regression predictions (with row # first)', '\n')
-          cat(round(private$predictions[1:10],2), '\n')
+          print(round(private$predictions[1:10],2))
         }
       }
     },
@@ -330,7 +330,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
       if (isTRUE(self$params$debug)) {
         cat('Coefficients for the default logit (for ranking var import)', '\n')
-        cat(coeffTemp, '\n')
+        print(coeffTemp)
       }
 
       private$coefficients <-
@@ -338,7 +338,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
       if (isTRUE(self$params$debug)) {
         cat('Coefficients after dropping intercept:', '\n')
-        cat(private$coefficients, '\n')
+        print(private$coefficients)
       }
     },
 
@@ -359,7 +359,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
       if (isTRUE(self$params$debug)) {
         cat('Coeffs after removing GrainID coeff...', '\n')
-        cat(private$coefficients, '\n')
+        print(private$coefficients)
       }
 
       private$multiplyRes <-
@@ -367,7 +367,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
       if (isTRUE(self$params$debug)) {
         cat('Data frame after multiplying raw vals by coeffs', '\n')
-        cat(private$multiplyRes[1:10, ], '\n')
+        print(private$multiplyRes[1:10, ])
       }
     },
 
@@ -381,7 +381,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
       if (isTRUE(self$params$debug)) {
         cat('Data frame after getting column importance ordered', '\n')
-        cat(private$orderedFactors[1:10, ], '\n')
+        print(private$orderedFactors[1:10, ])
       }
     },
 

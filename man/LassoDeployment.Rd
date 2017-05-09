@@ -89,7 +89,7 @@ p2$testWindowCol <- "InTestWindowFLG"
 p2$grainCol <- "PatientEncounterID"
 p2$predictedCol <- "ThirtyDayReadmitFLG"
 p2$impute <- TRUE
-p2$debug <- TRUE
+p2$debug <- FALSE
 # TODO: remove saved model flag. 
 p2$useSavedModel <- TRUE #this is always true now.
 p2$cores <- 1
@@ -102,7 +102,7 @@ df <- dL$getOutDf()
 # Write to CSV (or JSON, MySQL, etc) using plain R syntax
 # write.csv(df,'path/predictionsfile.csv')
 
-cat(proc.time() - ptm, '\\n')
+print(proc.time() - ptm)
 
 \donttest{
 #### Classification example using SQL Server data ####
@@ -179,7 +179,7 @@ p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
 dL <- LassoDeployment$new(p2)
 dL$deploy()
 
-cat(proc.time() - ptm, '\\n')
+print(proc.time() - ptm)
 }
 
 \donttest{
@@ -257,7 +257,7 @@ p2$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
 dL <- LassoDeployment$new(p2)
 dL$deploy()
 
-cat(proc.time() - ptm, '\\n')
+print(proc.time() - ptm)
 }
 }
 \seealso{

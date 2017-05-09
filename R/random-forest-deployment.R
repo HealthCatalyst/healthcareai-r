@@ -93,7 +93,7 @@
 #' # Write to CSV (or JSON, MySQL, etc) using plain R syntax
 #' # write.csv(df,'path/predictionsfile.csv')
 #' 
-#' cat(proc.time() - ptm, '\n')
+#' print(proc.time() - ptm)
 #' 
 #' \donttest{
 #' #### Classification example using SQL Server data ####
@@ -172,7 +172,7 @@
 #' dL <- RandomForestDeployment$new(p2)
 #' dL$deploy()
 #' 
-#' cat(proc.time() - ptm, '\n')
+#' print(proc.time() - ptm)
 #' }
 #' 
 #' \donttest{
@@ -252,7 +252,7 @@
 #' dL <- RandomForestDeployment$new(p2)
 #' dL$deploy()
 #' 
-#' cat(proc.time() - ptm, '\n')
+#' print(proc.time() - ptm)
 #' }
 
 RandomForestDeployment <- R6Class("RandomForestDeployment",
@@ -295,17 +295,16 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         if (isTRUE(self$params$debug)) {
           cat('Number of predictions: ', nrow(private$predictions), '\n')
           cat('First 10 raw classification probability predictions', '\n')
-          cat(round(private$predictions[1:10],2), '\n')
+          print(round(private$predictions[1:10],2))
         }
         
       } else if (self$params$type == 'regression') {
         private$predictions <- caret::predict.train(private$fitRF, newdata = private$dfTestTemp)
         
         if (isTRUE(self$params$debug)) {
-          cat('Rows in regression prediction: ', '\n',
-                       length(private$predictions))
+          cat('Rows in regression prediction: ', length(private$predictions), '\n')
           cat('First 10 raw regression predictions (with row # first)', '\n')
-          cat(round(private$predictions[1:10],2), '\n')
+          print(round(private$predictions[1:10],2))
         }
       }
     },
@@ -316,7 +315,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
       if (isTRUE(self$params$debug)) {
         cat('Coefficients for the default logit (for ranking var import)', '\n')
-        cat(coeffTemp, '\n')
+        print(coeffTemp)
       }
 
       private$coefficients <-
@@ -338,7 +337,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
       if (isTRUE(self$params$debug)) {
         cat('Data frame after multiplying raw vals by coeffs', '\n')
-        cat(private$multiplyRes[1:10, ], '\n')
+        print(private$multiplyRes[1:10, ])
       }
     },
 
@@ -352,7 +351,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
       if (isTRUE(self$params$debug)) {
         cat('Data frame after getting column importance ordered', '\n')
-        cat(private$orderedFactors[1:10, ], '\n')
+        print(private$orderedFactors[1:10, ])
       }
     },
 

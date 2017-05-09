@@ -79,7 +79,7 @@
 #' p2$grainCol <- "PatientEncounterID"
 #' p2$predictedCol <- "ThirtyDayReadmitFLG"
 #' p2$impute <- TRUE
-#' p2$debug <- TRUE
+#' p2$debug <- FALSE
 #' # TODO: remove saved model flag. 
 #' p2$useSavedModel <- TRUE #this is always true now.
 #' p2$cores <- 1
@@ -92,7 +92,7 @@
 #' # Write to CSV (or JSON, MySQL, etc) using plain R syntax
 #' # write.csv(df,'path/predictionsfile.csv')
 #' 
-#' cat(proc.time() - ptm, '\n')
+#' print(proc.time() - ptm)
 #' 
 #' \donttest{
 #' #### Classification example using SQL Server data ####
@@ -169,7 +169,7 @@
 #' dL <- LassoDeployment$new(p2)
 #' dL$deploy()
 #' 
-#' cat(proc.time() - ptm, '\n')
+#' print(proc.time() - ptm)
 #' }
 #' 
 #' \donttest{
@@ -247,7 +247,7 @@
 #' dL <- LassoDeployment$new(p2)
 #' dL$deploy()
 #' 
-#' cat(proc.time() - ptm, '\n')
+#' print(proc.time() - ptm)
 #' }
 
 LassoDeployment <- R6Class(
@@ -309,10 +309,10 @@ LassoDeployment <- R6Class(
         cat("Rows in prob prediction: ", nrow(private$predictedVals), '\n')
         if (self$params$type == 'classification') {
           cat("First 10 raw classification probability predictions", '\n')
-          cat(round(private$predictions[1:10], 2), '\n')
+          print(round(private$predictions[1:10], 2))
         } else if (self$params$type == 'regression') {
           cat("First 10 raw regression value predictions", '\n')
-          cat(round(private$predictions[1:10], 2), '\n')
+          print(round(private$predictions[1:10], 2))
         }
       }
     },
@@ -323,7 +323,7 @@ LassoDeployment <- R6Class(
 
       if (isTRUE(self$params$debug)) {
         cat("Coefficients for the default logit (for ranking var import)", '\n')
-        cat(coeffTemp, '\n')
+        print(coeffTemp)
       }
 
       private$coefficients <- coeffTemp[2:length(coeffTemp)]  # drop intercept
@@ -343,7 +343,7 @@ LassoDeployment <- R6Class(
 
       if (isTRUE(self$params$debug)) {
         cat("Data frame after multiplying raw vals by coeffs", '\n')
-        cat(private$multiplyRes[1:10, ], '\n')
+        print(private$multiplyRes[1:10, ])
       }
     },
 
@@ -354,7 +354,7 @@ LassoDeployment <- R6Class(
 
       if (isTRUE(self$params$debug)) {
         cat("Data frame after getting column importance ordered", '\n')
-        cat(private$orderedFactors[1:10, ], '\n')
+        print(private$orderedFactors[1:10, ])
       }
     },
 
