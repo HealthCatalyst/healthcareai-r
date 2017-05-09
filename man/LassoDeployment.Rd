@@ -90,8 +90,6 @@ p2$grainCol <- "PatientEncounterID"
 p2$predictedCol <- "ThirtyDayReadmitFLG"
 p2$impute <- TRUE
 p2$debug <- FALSE
-# TODO: remove saved model flag. 
-p2$useSavedModel <- TRUE #this is always true now.
 p2$cores <- 1
 p2$writeToDB <- FALSE
 
@@ -170,8 +168,6 @@ p2$testWindowCol <- "InTestWindowFLG"
 p2$predictedCol <- "ThirtyDayReadmitFLG"
 p2$impute <- TRUE
 p2$debug <- FALSE
-# TODO: remove saved model flag. 
-p2$useSavedModel <- TRUE # this is always TRUE now.
 p2$cores <- 1
 p2$sqlConn <- connection.string
 p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
@@ -248,8 +244,6 @@ p2$testWindowCol <- "InTestWindowFLG"
 p2$predictedCol <- "A1CNBR"
 p2$impute <- TRUE
 p2$debug <- FALSE
-# TODO: remove saved model flag. 
-p2$useSavedModel <- TRUE # this is always TRUE now.
 p2$cores <- 1
 p2$sqlConn <- connection.string
 p2$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
