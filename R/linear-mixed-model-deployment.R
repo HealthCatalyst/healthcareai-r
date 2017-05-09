@@ -497,11 +497,6 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
         private$closeDataSource()
       }
     },
-
-    #Get predicted values
-    getPredictedValsForUnitTest = function() {
-      return(private$predictedValsForUnitTest)
-    },
     
     # Surface outDf as attribute for export to Oracle, MySQL, etc
     getOutDf = function() {

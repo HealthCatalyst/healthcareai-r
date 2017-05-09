@@ -466,7 +466,6 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       # create dataframe for output
       private$createDf()
 
-      
       if (isTRUE(self$params$writeToDB)) {
         # Save data into db
         private$saveDataIntoDb()
@@ -475,11 +474,6 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       if (isTRUE(self$params$writeToDB)) {
         private$closeDataSource()
       }
-    },
-
-    # Get predicted values
-    getPredictedValsForUnitTest = function() {
-      return(private$predictedValsForUnitTest)
     },
     
     # Surface outDf as attribute for export to Oracle, MySQL, etc

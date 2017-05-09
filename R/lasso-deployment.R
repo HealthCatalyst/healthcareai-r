@@ -486,11 +486,6 @@ LassoDeployment <- R6Class(
         private$closeDataSource()
       }
     },
-
-    #Get predicted values
-    getPredictedValsForUnitTest = function() {
-      return(private$predictedValsForUnitTest)
-    },
     
     # Surface outDf as attribute for export to Oracle, MySQL, etc
     getOutDf = function() {
