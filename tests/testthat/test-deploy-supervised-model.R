@@ -147,5 +147,5 @@ test_that("lasso predicted val is the same each time", {
   capture.output(dL$deploy())
   capture.output(dfRes <- dL$getOutDf())
   
-  expect_true(dfRes$PredictedProbNBR[1] - 0.1052794 < 1.0e-4)
+  expect_true(dfRes$PredictedProbNBR[1] - 0.1052794 < 1.0e-2)
 })
