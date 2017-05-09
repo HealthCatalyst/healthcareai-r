@@ -385,7 +385,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       }
     },
 
-    saveDataIntoDb = function() {
+    createDf = function() {
       dtStamp <- as.POSIXlt(Sys.time())
 
       # Combine grain.col, prediction, and time to be put back into SAM table
@@ -418,7 +418,9 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
         cat('Dataframe with predictions:', '\n')
         cat(str(private$outDf), '\n')
       }
+    },
       
+    saveDataIntoDb = function() {
       if (isTRUE(self$params$writeToDB)) {
         # Save df to table in SAM database
         out <- RODBC::sqlSave(
@@ -482,6 +484,9 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
       # Calculate Ordered Factors
       private$calculateOrderedFactors()
+
+      # create dataframe for output
+      private$createDf()
 
       if (isTRUE(self$params$writeToDB)) {
         # Save data into db

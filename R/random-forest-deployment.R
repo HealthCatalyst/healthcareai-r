@@ -356,7 +356,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       }
     },
 
-    saveDataIntoDb = function() {
+    createDf = function() {
       dtStamp <- as.POSIXlt(Sys.time())
 
       # Combine grain.col, prediction, and time to be put back into SAM table
@@ -389,7 +389,9 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         cat('Dataframe with predictions:', '\n')
         cat(str(private$outDf), '\n')
       }
+    },
       
+    saveDataIntoDb = function() {
       if (isTRUE(self$params$writeToDB)) {
         # Save df to table in SAM database
         out <- RODBC::sqlSave(
@@ -461,6 +463,9 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
       # Calculate Ordered Factors
       private$calculateOrderedFactors()
+
+      # create dataframe for output
+      private$createDf()
 
       
       if (isTRUE(self$params$writeToDB)) {
