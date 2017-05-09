@@ -9,9 +9,7 @@
 The aim of `healthcareai` is to make it easy to do machine learning with healthcare 
 data. The package has two main goals:
 
--  Allow one to easily develop and compare models based on tabular data, and deploy a best model that pushes predictions to either a
-   - database
-   - CSV file
+-  Allow one to easily develop and compare models based on tabular data, and deploy a best model that pushes predictions to either databases or flat files.
 
 -  Provide tools related to data cleaning, manipulation, and imputation.
 
