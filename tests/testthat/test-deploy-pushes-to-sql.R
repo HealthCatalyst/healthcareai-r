@@ -50,7 +50,6 @@ test_that("Lasso deploy classification pushes values to SQL", {
   p2$testWindowCol = 'InTestWindowFLG'
   p2$predictedCol = 'ThirtyDayReadmitFLG'
   p2$impute = TRUE
-  p2$useSavedModel = TRUE
   p2$sqlConn <- connection.string
   p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
   
@@ -109,7 +108,6 @@ test_that("Lasso deploy regression pushes values to SQL", {
   p2$testWindowCol = 'InTestWindowFLG'
   p2$predictedCol = 'A1CNBR'
   p2$impute = TRUE
-  p2$useSavedModel = TRUE
   p2$sqlConn <- connection.string
   p2$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
   
@@ -168,7 +166,6 @@ test_that("rf deploy classification pushes values to SQL", {
   p2$testWindowCol = 'InTestWindowFLG'
   p2$predictedCol = 'ThirtyDayReadmitFLG'
   p2$impute = TRUE
-  p2$useSavedModel = TRUE
   p2$sqlConn <- connection.string
   p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
   
@@ -227,7 +224,6 @@ test_that("rf deploy regression pushes values to SQL", {
   p2$testWindowCol = 'InTestWindowFLG'
   p2$predictedCol = 'A1CNBR'
   p2$impute = TRUE
-  p2$useSavedModel = TRUE
   p2$sqlConn <- connection.string
   p2$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
   
@@ -289,8 +285,6 @@ test_that("LMM deploy classification pushes values to SQL", {
   p2$predictedCol <- "ThirtyDayReadmitFLG"
   p2$impute <- TRUE
   p2$debug <- FALSE
-  # TODO: remove saved model flag. 
-  p2$useSavedModel <- TRUE # this is always TRUE now.
   p2$cores <- 1
   p2$sqlConn <- connection.string
   p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
@@ -350,7 +344,6 @@ test_that("LMM deploy regression pushes values to SQL", {
   p2$testWindowCol = 'InTestWindowFLG'
   p2$predictedCol = 'A1CNBR'
   p2$impute = TRUE
-  p2$useSavedModel = TRUE
   p2$sqlConn <- connection.string
   p2$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
   

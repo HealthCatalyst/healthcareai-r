@@ -35,8 +35,6 @@ test_that("rf predicted val (w/out mtry tuning) is the same each time", {
   p2$predictedCol <- "ThirtyDayReadmitFLG"
   p2$impute <- TRUE
   p2$debug <- FALSE
-  # TODO: remove saved model flag. 
-  p2$useSavedModel <- TRUE #this is always true now.
   p2$cores <- 1
   p2$writeToDB <- FALSE
   
@@ -83,8 +81,6 @@ test_that("rf predicted val (w/ mtry tuning) is the same each time", {
   p2$predictedCol <- "ThirtyDayReadmitFLG"
   p2$impute <- TRUE
   p2$debug <- FALSE
-  # TODO: remove saved model flag. 
-  p2$useSavedModel <- TRUE #this is always true now.
   p2$cores <- 1
   p2$writeToDB <- FALSE
   
@@ -129,8 +125,6 @@ test_that("lasso predicted val is the same each time", {
   p2$predictedCol <- "ThirtyDayReadmitFLG"
   p2$impute <- TRUE
   p2$debug <- FALSE
-  # TODO: remove saved model flag. 
-  p2$useSavedModel <- TRUE #this is always true now.
   p2$cores <- 1
   p2$writeToDB <- FALSE
   
@@ -177,8 +171,6 @@ test_that("mixed model predicted val is the same each time", {
   p2$predictedCol <- "ThirtyDayReadmitFLG"
   p2$impute <- TRUE
   p2$debug <- FALSE
-  # TODO: remove saved model flag. 
-  p2$useSavedModel <- TRUE #this is always true now.
   p2$cores <- 1
   p2$writeToDB <- FALSE
   

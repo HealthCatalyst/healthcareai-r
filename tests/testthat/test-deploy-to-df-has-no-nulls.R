@@ -36,8 +36,6 @@ test_that("Lasso predicted df doesn't have NAs", {
   p2$predictedCol <- "ThirtyDayReadmitFLG"
   p2$impute <- TRUE
   p2$debug <- FALSE
-  # toDO: remove saved model flag. 
-  p2$useSavedModel <- TRUE #this is always true now.
   p2$cores <- 1
   p2$writeToDB <- FALSE
   
@@ -84,8 +82,6 @@ test_that("rf predicted df doesn't have NAs", {
   p2$predictedCol <- "ThirtyDayReadmitFLG"
   p2$impute <- TRUE
   p2$debug <- FALSE
-  # TODO: remove saved model flag. 
-  p2$useSavedModel <- TRUE #this is always true now.
   p2$cores <- 1
   p2$writeToDB <- FALSE
   
@@ -133,8 +129,6 @@ test_that("LMM predicted df doesn't have NAs", {
   p2$predictedCol <- "ThirtyDayReadmitFLG"
   p2$impute <- TRUE
   p2$debug <- FALSE
-  # TODO: remove saved model flag. 
-  p2$useSavedModel <- TRUE #this is always true now.
   p2$cores <- 1
   p2$writeToDB <- FALSE
   
