@@ -60,7 +60,7 @@
 #' rf <- RandomForestDevelopment$new(p)
 #' rf$run()
 #'
-#' print(proc.time() - ptm)
+#' cat(proc.time() - ptm,"\n")
 #'
 #' #### Example using csv data ####
 #' library(healthcareai)
@@ -96,10 +96,9 @@
 #' rf <- RandomForestDevelopment$new(p)
 #' rf$run()
 #'
-#' print(proc.time() - ptm)
+#' cat(proc.time() - ptm,"\n")
 #'
 #' \donttest{
-#' #### This example is specific to Windows and is not tested.
 #' #### Example using SQL Server data #### This example requires: 1) That you alter
 #' #### your connection string / query
 #'
@@ -124,7 +123,6 @@
 #' FROM [SAM].[dbo].[HCRDiabetesClinical]
 #' WHERE InTestWindowFLG = 'N'
 #' "
-#'
 #' df <- selectData(connection.string, query)
 #' head(df)
 #'
@@ -160,13 +158,12 @@
 #' legendLoc <- "bottomleft"
 #' plotPRCurve(rocs, names, legendLoc)
 #'
-#' print(proc.time() - ptm)
+#' cat(proc.time() - ptm,"\n")
 #' }
 #'
 #' @export
 
-LassoDevelopment <- R6Class(
-  "LassoDevelopment",
+LassoDevelopment <- R6Class("LassoDevelopment",
   
   # Inheritance
   inherit = SupervisedModelDevelopment,
@@ -177,7 +174,6 @@ LassoDevelopment <- R6Class(
     dfTrainTemp = NA,
     dfTestTemp = NA,
 
-    
     # Groups for the grouped Lasso model
     group = NA,
     
@@ -188,7 +184,6 @@ LassoDevelopment <- R6Class(
     lambda1se = NA,
     modFmla = NA,
     modMat = NA,
-    
     predictions = NA,
     
     # Performance metrics
@@ -202,7 +197,7 @@ LassoDevelopment <- R6Class(
     # function
     saveModel = function() {
       if (isTRUE(self$params$debug)) {
-        print("Saving model...")
+        cat("Saving model...","\n")
       }
       
       fitLogit <- private$fitLogit
@@ -212,11 +207,11 @@ LassoDevelopment <- R6Class(
       save(fitLogit, file = "rmodel_var_import_lasso.rda")
     },
     
-    # this function must be in here for the row-wise predictions.
+    # This function must be in here for the row-wise predictions and
     # can be replaced when LIME-like functionality is complete.
     fitGeneralizedLinearModel = function() {
       if (isTRUE(self$params$debug)) {
-        print('generating fitLogit for row-wise guidance...')
+        cat('generating fitLogit for row-wise guidance...',"\n")
       }
       
       if (self$params$type == 'classification') {
@@ -261,14 +256,10 @@ LassoDevelopment <- R6Class(
       # Create a model formula, without the predicted variable, for use in
       # creating the model matrix.
       private$modFmla <-
-        as.formula(paste("~", paste(
-          names(private$dfTrainTemp[, !(colnames(private$dfTrainTemp) == self$params$predictedCol)]),
+        as.formula(paste("~", 
+                   paste(names(private$dfTrainTemp[, !(colnames(private$dfTrainTemp) == self$params$predictedCol)]),
           collapse = "+"
         )))
-      
-      # print('saving test file...')
-      # modFmla <- private$modFmla
-      # save(modFmla, file = "modFmla_TEST.rda")
       
       # Create the model matrix, without the intercept column, to be used in the
       # grouped Lasso function.
@@ -287,22 +278,23 @@ LassoDevelopment <- R6Class(
       
       if (is.factor(private$dfTestTemp[[self$params$predictedCol]])) {
         private$dfTestTemp[[self$params$predictedCol]] <-
-          ifelse(private$dfTestTemp[[self$params$predictedCol]] == levels(private$dfTestTemp[[self$params$predictedCol]])[1], 0, 1)
+          ifelse(private$dfTestTemp[[self$params$predictedCol]] == levels(private$dfTestTemp[[self$params$predictedCol]])[1], 
+                0, 
+                1)
       }
       
       # Creating the groups for the grouped Lasso model.
       # Factor variables have a group that is one less than the number of levels.
       # Everything else has length one.
       # The length of this vector should be the same as the number of columns in modMat.
-      private$group <-
-        rep(1:(ncol(private$dfTrainTemp) - 1),
-            times <-
-              sapply(private$dfTrainTemp[, !(colnames(private$dfTrainTemp) == self$params$predictedCol)],
-                     function(x)
-                       ifelse(is.factor(x), length(levels(x)) - 1, 1)))
+      private$group <- rep(1:(ncol(private$dfTrainTemp) - 1),
+        times <- sapply(private$dfTrainTemp[, !(names(private$dfTrainTemp) == self$params$predictedCol)],
+                 function(x)
+                 ifelse(is.factor(x), length(levels(x)) - 1, 1)))
       
       if (length(private$group) != ncol(private$modMat)) {
-        stop('There is a mismatch in group definition and model matrix definition')
+        stop('There is a mismatch in group definition and model matrix definition. Check the way the groups are defined versus 
+          the size of the original data using debug <- TRUE')
         # This message should likely be refined, perhaps something different for
         # greater than or less than ...
       }
@@ -326,7 +318,7 @@ LassoDevelopment <- R6Class(
           penalty = "grLasso",
           nfolds = 5
         )
-      # 
+      
       # add column names to the model object for deploy's performPredictions
       private$fitGrLasso$modFmla <- private$modFmla
       private$fitGrLasso$modMat <- private$modMat
@@ -334,7 +326,6 @@ LassoDevelopment <- R6Class(
     
     # Predict results
     performPrediction = function() {
-      
       # Index of largest lambda within one cvse of the lambda with lowest cve:
       # These are sorted from largest to smallest lambda, hence pulling the
       # minimum index.
@@ -351,13 +342,13 @@ LassoDevelopment <- R6Class(
                                      type = "response")
       
       if (isTRUE(self$params$debug)) {
-        print(paste0("Rows in prob prediction: ", nrow(private$predictedVals)))
+        cat("Rows in prob prediction: ", nrow(private$predictedVals),"\n")
         if (self$params$type == 'classification') {
-          print("First 10 raw classification probability predictions")
-          print(round(private$predictions[1:10], 2))
+          cat("First 10 raw classification probability predictions","\n")
+          cat(round(private$predictions[1:10], 2),"\n")
         } else if (self$params$type == 'regression') {
-          print("First 10 raw regression value predictions")
-          print(round(private$predictions[1:10], 2))
+          cat("First 10 raw regression value predictions","\n")
+          cat(round(private$predictions[1:10], 2),"\n")
         }
       }
     },
@@ -367,22 +358,19 @@ LassoDevelopment <- R6Class(
       ytest <- as.numeric(private$dfTest[[self$params$predictedCol]])
       
       calcObjList <-
-        calculatePerformance(private$predictions,
-                             ytest,
-                             self$params$type)
+        calculatePerformance(private$predictions, ytest, self$params$type)
       
       # Make these objects available for plotting and unit tests
       private$ROCPlot <- calcObjList[[1]]
-      private$PRCurvePlot <-
-        calcObjList[[2]]
+      private$PRCurvePlot <- calcObjList[[2]]
       private$AUROC <- calcObjList[[3]]
       private$AUPR <- calcObjList[[4]]
       private$RMSE <- calcObjList[[5]]
       private$MAE <- calcObjList[[6]]
       
       if (isTRUE(self$params$printResults)) {
-        print("Grouped Lasso coefficients:")
-        print(private$fitGrLasso$fit$beta[, private$indLambda1se])
+        cat("Grouped Lasso coefficients:","\n")
+        cat(private$fitGrLasso$fit$beta[, private$indLambda1se],"\n")
       }
       
       if (isTRUE(self$params$varImp)) {
@@ -392,10 +380,8 @@ LassoDevelopment <- R6Class(
           type = "groups",
           lambda = private$lambda1se
         )]
-        print(paste0(
-          "Variables with non-zero coefficients: ",
-          paste0(imp, collapse = ", ")
-        ))
+        cat("Variables with non-zero coefficients: ", imp,"\n")
+        
       }
       
       return(invisible(private$fitGrLasso))
@@ -422,7 +408,7 @@ LassoDevelopment <- R6Class(
     
     getROC = function() {
       if (!isBinary(self$params$df[[self$params$predictedCol]])) {
-        print("ROC is not created because the column you're predicting is not binary")
+        cat("ROC is not created because the column you're predicting is not binary","\n")
         return(NULL)
       }
       return(private$ROCPlot)
@@ -430,7 +416,7 @@ LassoDevelopment <- R6Class(
     
     getPRCurve = function() {
       if (!isBinary(self$params$df[[self$params$predictedCol]])) {
-        print("PR Curve is not created because the column you're predicting is not binary")
+        cat("PR Curve is not created because the column you're predicting is not binary","\n")
         return(NULL)
       }
       return(private$PRCurvePlot)

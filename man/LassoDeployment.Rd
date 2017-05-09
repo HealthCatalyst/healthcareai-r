@@ -125,7 +125,6 @@ server=localhost;
 database=SAM;
 trusted_connection=true
 "
-
 query <- "
 SELECT
 [PatientEncounterID] --Only need one ID column for random forest
@@ -137,7 +136,6 @@ SELECT
 ,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
 "
-
 df <- selectData(connection.string, query)
 
 head(df)
@@ -205,7 +203,6 @@ server=localhost;
 database=SAM;
 trusted_connection=true
 "
-
 query <- "
 SELECT
 [PatientEncounterID] --Only need one ID column for random forest
@@ -217,7 +214,6 @@ SELECT
 ,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
 "
-
 df <- selectData(connection.string, query)
 
 head(df)

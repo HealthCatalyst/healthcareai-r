@@ -115,7 +115,6 @@
 #' database=SAM;
 #' trusted_connection=true
 #' "
-#' 
 #' query <- "
 #' SELECT
 #' [PatientEncounterID] --Only need one ID column for random forest
@@ -127,7 +126,6 @@
 #' ,[InTestWindowFLG]
 #' FROM [SAM].[dbo].[HCRDiabetesClinical]
 #' "
-#' 
 #' df <- selectData(connection.string, query)
 #' 
 #' head(df)
@@ -195,7 +193,6 @@
 #' database=SAM;
 #' trusted_connection=true
 #' "
-#' 
 #' query <- "
 #' SELECT
 #' [PatientEncounterID] --Only need one ID column for random forest
@@ -207,7 +204,6 @@
 #' ,[InTestWindowFLG]
 #' FROM [SAM].[dbo].[HCRDiabetesClinical]
 #' "
-#' 
 #' df <- selectData(connection.string, query)
 #' 
 #' head(df)
@@ -269,7 +265,6 @@ LassoDeployment <- R6Class(
     predictedValsForUnitTest = NA,
     outDf = NA,
     
-    
     fitGrLasso = NA,
     fitLogit = NA,
     indLambda1se = NA,
@@ -279,7 +274,6 @@ LassoDeployment <- R6Class(
     
     predictions = NA,
     
-  
     # functions
     connectDataSource = function() {
       RODBC::odbcCloseAll()
@@ -297,7 +291,9 @@ LassoDeployment <- R6Class(
       # Index of largest lambda within one cvse of the lambda with lowest cve:
       # These are sorted from largest to smallest lambda, hence pulling the
       # minimum index.
-      private$indLambda1se <- min(which(private$fitGrLasso$cve <= (private$fitGrLasso$cve + private$fitGrLasso$cvse)[private$fitGrLasso$min]))
+      private$indLambda1se <- min(which(private$fitGrLasso$cve <= 
+                                       (private$fitGrLasso$cve + 
+                                        private$fitGrLasso$cvse)[private$fitGrLasso$min]))
       
       # Largest lambda within one cvse of the lambda with lowest cve (ie. lambda
       # to use in final fit):
@@ -310,7 +306,7 @@ LassoDeployment <- R6Class(
                                      type = "response")
       
       if (isTRUE(self$params$debug)) {
-        cat(paste0("Rows in prob prediction: ", nrow(private$predictedVals)), '\n')
+        cat("Rows in prob prediction: ", nrow(private$predictedVals), '\n')
         if (self$params$type == 'classification') {
           cat("First 10 raw classification probability predictions", '\n')
           cat(round(private$predictions[1:10], 2), '\n')
@@ -460,7 +456,7 @@ LassoDeployment <- R6Class(
       } else {
         # temporary fix until all models are working.
         stop('You must use a saved model. Run lasso development to train and save
-              the model, then lasso deployment to make predictions.')
+              the model, then lasso deployment to make predictions. See ?LassoDeployment')
         
       }
 

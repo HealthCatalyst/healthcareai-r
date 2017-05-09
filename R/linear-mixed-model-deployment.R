@@ -305,7 +305,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
                                        type = "response")
         
         if (isTRUE(self$params$debug)) {
-          cat(paste0('Predictions generated: ', nrow(private$predictions)), '\n')
+          cat('Predictions generated: ', nrow(private$predictions), '\n')
           cat('First 10 raw classification probability predictions', '\n')
           cat(round(private$predictions[1:10],2), '\n')
         }
@@ -316,8 +316,8 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
                                        allow.new.levels = TRUE)
         
         if (isTRUE(self$params$debug)) {
-          cat(paste0('Predictions generated: ', '\n',
-                       length(private$predictions)))
+          cat('Predictions generated: ', '\n',
+                       length(private$predictions))
           cat('First 10 raw regression predictions (with row # first)', '\n')
           cat(round(private$predictions[1:10],2), '\n')
         }
@@ -467,7 +467,8 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       } else {
         # temporary fix until all models are working.
         stop('You must use a saved model. Run Linear Mixed Model development to train 
-              and save the model, then Linear Mixed Model deployment to make predictions.')
+              and save the model, then Linear Mixed Model deployment to make predictions
+              See ?LinearMixedModelDevelopment.')
       }
 
       # Predict

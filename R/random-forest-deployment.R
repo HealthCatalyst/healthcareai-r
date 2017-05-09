@@ -293,7 +293,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         private$predictions <- private$predictions[,2]
         
         if (isTRUE(self$params$debug)) {
-          cat(paste0('Number of predictions: ', nrow(private$predictions)), '\n')
+          cat('Number of predictions: ', nrow(private$predictions), '\n')
           cat('First 10 raw classification probability predictions', '\n')
           cat(round(private$predictions[1:10],2), '\n')
         }
@@ -302,8 +302,8 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         private$predictions <- caret::predict.train(private$fitRF, newdata = private$dfTestTemp)
         
         if (isTRUE(self$params$debug)) {
-          cat(paste0('Rows in regression prediction: ', '\n',
-                       length(private$predictions)))
+          cat('Rows in regression prediction: ', '\n',
+                       length(private$predictions))
           cat('First 10 raw regression predictions (with row # first)', '\n')
           cat(round(private$predictions[1:10],2), '\n')
         }
@@ -446,7 +446,8 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       } else {
         # temporary fix until all models are working.
         stop('You must use a saved model. Run random forest development to train 
-              and save the model, then random forest deployment to make predictions.')
+              and save the model, then random forest deployment to make predictions.
+              See ?RandomForestDevelopment')
       }
       
       # Predict

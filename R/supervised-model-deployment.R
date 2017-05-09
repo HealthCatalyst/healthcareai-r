@@ -52,7 +52,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
    },
 
    setConfigs = function(p) {
-     
      self$params <- SupervisedModelDeploymentParams$new()
      
      if (!is.null(p$df))
@@ -227,9 +226,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
      self$params$df <-
        rbind(private$dfTrainTemp, private$dfTestTemp)
 
-     # private$dfTrainTemp <- NULL # Were only used for imputation
-     # private$dfTestTemp <- NULL
-
      if (isTRUE(self$params$debug)) {
        print('Entire data set after imputation')
        print(str(self$params$df))
@@ -349,17 +345,12 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     #p: new SupervisedModelDeploymentParams class object,
     #   i.e. p = SupervisedModelDeploymentParams$new()
     initialize = function(p) {
-      
       #Set config parameters
       private$setConfigs(p)
 
       #Load data
       private$loadData()
     },
-
-    #Override: Build Deploy Model
-    # buildDeployModel = function() {
-    #  },
 
     #Deploy the Model
     deploy = function() {
