@@ -482,7 +482,7 @@ findTrends <- function(df, dateCol, groupbyCol) {
     dfTemp <- df[df[[groupbyCol]] == j, ]
 
     cat("df after grouping and focusing on one category in group col:", '\n')
-    cat(tail(dfTemp, n = 6), '\n')
+    print(tail(dfTemp, n = 6))
 
     # Iterate over all columns except for cols that we aggregated by
     for (i in colIterList) {
@@ -512,7 +512,7 @@ findTrends <- function(df, dateCol, groupbyCol) {
     dfResult <- data.frame(groupbyCol, aggregatedColList, metricTrendList, finalYrMonth)
     colnames(dfResult) <- c("DimAttribute", "GroupBy", "MeasuresTrending", "FinalDate")
     cat("Trends were found:", '\n')
-    cat(dfResult, '\n')
+    print(dfResult)
   }
 }
 
