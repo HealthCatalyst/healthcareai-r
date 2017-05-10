@@ -44,6 +44,7 @@ test_that("Lasso predicted df doesn't have NAs", {
   capture.output(dfRes <- dL$getOutDf())
   
   expect_equal(as.numeric(sum(is.na(dfRes))), 0)
+  closeAllConnections()
 })
 
 test_that("rf predicted df doesn't have NAs", {
@@ -90,6 +91,7 @@ test_that("rf predicted df doesn't have NAs", {
   capture.output(dfRes <- dRF$getOutDf())
   
   expect_equal(as.numeric(sum(is.na(dfRes))), 0)
+  closeAllConnections()
 })
 
 test_that("LMM predicted df doesn't have NAs", {
@@ -137,4 +139,5 @@ test_that("LMM predicted df doesn't have NAs", {
   capture.output(dfRes <- dLMM$getOutDf())
   
   expect_equal(as.numeric(sum(is.na(dfRes))), 0)
+  closeAllConnections()
 })

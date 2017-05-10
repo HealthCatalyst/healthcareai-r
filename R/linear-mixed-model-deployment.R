@@ -431,7 +431,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
   
         # Print success if insert was successful
         if (out == 1) {
-          cat('SQL Server insert was successful', '\n')
+          cat('SQL Server insert was successful') # removed '\n' for the unit test
         }
       }
     }

@@ -43,6 +43,7 @@ test_that("rf predicted val (w/out mtry tuning) is the same each time", {
   capture.output(dfRes <- dRF$getOutDf())
   
   expect_true(as.numeric(dfRes$PredictedProbNBR[1]) - 0.03285276 < 1.0e-2)
+  closeAllConnections()
 })
 
 test_that("rf predicted val (w/ mtry tuning) is the same each time", {
@@ -88,6 +89,7 @@ test_that("rf predicted val (w/ mtry tuning) is the same each time", {
   capture.output(dRF$deploy())
   capture.output(dfRes <- dRF$getOutDf())
   expect_true(as.numeric(dfRes$PredictedProbNBR[1]) - 0.04258364 < 1.0e-2)
+  closeAllConnections()
 })
 
 test_that("lasso predicted val is the same each time", {
@@ -133,6 +135,7 @@ test_that("lasso predicted val is the same each time", {
   capture.output(dfRes <- dL$getOutDf())
   
   expect_true(dfRes$PredictedProbNBR[1] - 0.1052794 < 1.0e-2)
+  closeAllConnections()
 })
 
 test_that("mixed model predicted val is the same each time", {
@@ -179,4 +182,5 @@ test_that("mixed model predicted val is the same each time", {
   capture.output(dfRes <- dLMM$getOutDf())
   
   expect_true(dfRes$PredictedProbNBR[1] - 6.975151e-05 < 1.0e-2)
+  closeAllConnections()
 })

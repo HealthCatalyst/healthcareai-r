@@ -56,6 +56,7 @@ test_that("Lasso deploy classification pushes values to SQL", {
   capture.output(dL <- LassoDeployment$new(p2))
   expect_output(dL$deploy(),
                 "SQL Server insert was successful")
+  closeAllConnections()
 })
 
 test_that("Lasso deploy regression pushes values to SQL", {
@@ -114,6 +115,7 @@ test_that("Lasso deploy regression pushes values to SQL", {
   capture.output(dL <- LassoDeployment$new(p2))
   expect_output(dL$deploy(),
                 "SQL Server insert was successful")
+  closeAllConnections()
 })
 
 test_that("rf deploy classification pushes values to SQL", {
@@ -172,6 +174,7 @@ test_that("rf deploy classification pushes values to SQL", {
   capture.output(dRF <- RandomForestDeployment$new(p2))
   expect_output(dRF$deploy(),
                 "SQL Server insert was successful")
+  closeAllConnections()
 })
 
 test_that("rf deploy regression pushes values to SQL", {
@@ -230,6 +233,7 @@ test_that("rf deploy regression pushes values to SQL", {
   capture.output(dRF <- RandomForestDeployment$new(p2))
   expect_output(dRF$deploy(),
                 "SQL Server insert was successful")
+  closeAllConnections()
 })
 
 test_that("LMM deploy classification pushes values to SQL", {
@@ -292,6 +296,7 @@ test_that("LMM deploy classification pushes values to SQL", {
   capture.output(dLMM <- LinearMixedModelDeployment$new(p2))
   expect_output(suppressWarnings(dLMM$deploy()),
                 "SQL Server insert was successful")
+  closeAllConnections()
 })
 
 test_that("LMM deploy regression pushes values to SQL", {
@@ -350,4 +355,5 @@ test_that("LMM deploy regression pushes values to SQL", {
   capture.output(dLMM <- LinearMixedModelDeployment$new(p2))
   expect_output(suppressWarnings(dLMM$deploy()),
                 "SQL Server insert was successful")
+  closeAllConnections()
 })
