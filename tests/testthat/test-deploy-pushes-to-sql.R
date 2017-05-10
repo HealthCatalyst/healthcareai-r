@@ -1,9 +1,5 @@
 context("Checking deploy predictions from sql to sql")
 
-test_that("Lasso deploy classification pushes values to SQL", {
-  skip_on_travis()
-  skip_on_cran()
-  
   connection.string <- "
   driver={SQL Server};
   server=localhost;
@@ -31,12 +27,22 @@ test_that("Lasso deploy classification pushes values to SQL", {
   
   set.seed(43)
   p <- SupervisedModelDevelopmentParams$new()
-  p$df <- df
-  p$type <- "classification"
-  p$impute <- TRUE
-  p$grainCol <- "PatientEncounterID"
-  p$predictedCol <- "ThirtyDayReadmitFLG"
+  p$df = df
+  p$grainCol = 'PatientEncounterID'
+  p$impute = TRUE
+  p$debug = FALSE
+  p$cores = 1
+  p$tune = FALSE
+  p$numberOfTrees = 201
+
+test_that("Lasso deploy classification pushes values to SQL", {
+
+  skip_on_travis()
+  skip_on_cran()
   
+  p <- initializeParamsForTesting(df)
+  p$type = 'classification'
+  p$predictedCol = 'ThirtyDayReadmitFLG'
   # Run Lasso
   lasso <- LassoDevelopment$new(p)
   capture.output(lasso$run())
@@ -54,12 +60,13 @@ test_that("Lasso deploy classification pushes values to SQL", {
   p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
   
   capture.output(dL <- LassoDeployment$new(p2))
-  expect_output(dL$deploy(),
-                "SQL Server insert was successful")
+  out <- capture.output(dL$deploy())
+  expect_equal(out, "SQL Server insert was successful")
   closeAllConnections()
 })
 
 test_that("Lasso deploy regression pushes values to SQL", {
+
   skip_on_travis()
   skip_on_cran()
   
@@ -119,6 +126,7 @@ test_that("Lasso deploy regression pushes values to SQL", {
 })
 
 test_that("rf deploy classification pushes values to SQL", {
+
   skip_on_travis()
   skip_on_cran()
   
@@ -178,6 +186,7 @@ test_that("rf deploy classification pushes values to SQL", {
 })
 
 test_that("rf deploy regression pushes values to SQL", {
+
   skip_on_travis()
   skip_on_cran()
   
@@ -237,6 +246,7 @@ test_that("rf deploy regression pushes values to SQL", {
 })
 
 test_that("LMM deploy classification pushes values to SQL", {
+
   skip_on_travis()
   skip_on_cran()
   
@@ -300,6 +310,7 @@ test_that("LMM deploy classification pushes values to SQL", {
 })
 
 test_that("LMM deploy regression pushes values to SQL", {
+
   skip_on_travis()
   skip_on_cran()
   

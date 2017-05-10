@@ -1,6 +1,8 @@
 context("Checking deploy supervised model")
 
 test_that("rf predicted val (w/out mtry tuning) is the same each time", {
+  
+  closeAllConnections()
   csvfile <- system.file("extdata",
                          "HCRDiabetesClinical.csv",
                          package = "healthcareai")
@@ -22,7 +24,7 @@ test_that("rf predicted val (w/out mtry tuning) is the same each time", {
   p$grainCol <- "PatientEncounterID"
   p$predictedCol <- "ThirtyDayReadmitFLG"
   
-  RandomForest <- RandomForestDevelopment$new(p)
+  capture.output(RandomForest <- RandomForestDevelopment$new(p))
   capture.output(RandomForest$run())
   
   # Depoy rf model
@@ -47,6 +49,8 @@ test_that("rf predicted val (w/out mtry tuning) is the same each time", {
 })
 
 test_that("rf predicted val (w/ mtry tuning) is the same each time", {
+
+  closeAllConnections()
   csvfile <- system.file("extdata",
                          "HCRDiabetesClinical.csv",
                          package = "healthcareai")
