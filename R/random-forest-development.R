@@ -183,8 +183,9 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     # Grid object for grid search
     grid = NA,
 
-    # Git random forest model
+    # Get random forest model
     fitRF = NA,
+    fitLogit = NA,
 
     predictions = NA,
 
@@ -197,6 +198,45 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     MAE = NA,
 
     # Start of functions
+    saveModel = function() {
+      if (isTRUE(self$params$debug)) {
+        print('Saving model...')
+      }
+      
+        fitLogit <- private$fitLogit
+        fitObj <- private$fitRF
+        
+        save(fitLogit, file = "rmodel_var_import_RF.rda")
+        save(fitObj, file = "rmodel_probability_RF.rda")
+      },
+    
+    # this function must be in here for the row-wise predictions.
+    # can be replaced when LIME-like functionality is complete.
+    fitGeneralizedLinearModel = function() {
+      if (isTRUE(self$params$debug)) {
+        print('generating fitLogit for row-wise guidance...')
+      }
+      
+      if (self$params$type == 'classification') {
+        private$fitLogit <- glm(
+          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
+          data = private$dfTrain,
+          family = binomial(link = "logit"),
+          metric = "ROC",
+          control = list(maxit = 10000),
+          trControl = caret::trainControl(classProbs = TRUE, summaryFunction = twoClassSummary)
+        )
+        
+      } else if (self$params$type == 'regression') {
+        private$fitLogit <- glm(
+          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
+          data = private$dfTrain,
+          metric = "RMSE",
+          control = list(maxit = 10000)
+        )
+      }
+    },
+    
     buildGrid = function() {
       if (isTRUE(self$params$tune)) {
         optimal <- NA
@@ -279,7 +319,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       train.control <- NA
       if (self$params$type == 'classification') {
 
-        train.control <- trainControl(
+        train.control <- caret::trainControl(
           method = trainControlParams.method,
           number = trainControlParams.number,
           verboseIter = isTRUE(self$params$debug),
@@ -292,7 +332,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       # Regression
       else if (self$params$type == 'regression') {
 
-        train.control <- trainControl(
+        train.control <- caret::trainControl(
           method = trainControlParams.method,
           number = trainControlParams.number,
           verboseIter = isTRUE(self$params$debug)
@@ -325,7 +365,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     # Perform prediction
     performPrediction = function() {
       if (self$params$type == 'classification') {
-        private$predictions <- predict(object = private$fitRF,
+        private$predictions <- caret::predict.train(object = private$fitRF,
                                       newdata = private$dfTest,
                                       type = 'prob')
         private$predictions <- private$predictions[,2]
@@ -337,7 +377,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         }
         
       } else if (self$params$type == 'regression') {
-        private$predictions <- predict(private$fitRF, newdata = private$dfTest)
+        private$predictions <- caret::predict.train(private$fitRF, newdata = private$dfTest)
         
         if (isTRUE(self$params$debug)) {
           print(paste0('Rows in regression prediction: ',
@@ -346,7 +386,6 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
           print(round(private$predictions[1:10],2))
         }
       }
-      
 
     },
 
@@ -374,9 +413,16 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
 
     # Override: run RandomForest algorithm
     run = function() {
+      
+      # Start default logit (for row-wise var importance)
+      # can be replaced with LIME-like functionality
+      private$fitGeneralizedLinearModel()
 
       # Build Model
       self$buildModel()
+      
+      # save model
+      private$saveModel()
 
       # Perform prediction
       self$performPrediction()

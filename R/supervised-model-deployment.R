@@ -53,12 +53,9 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
    setConfigs = function(p) {
      self$params <- SupervisedModelDeploymentParams$new()
-
+     
      if (!is.null(p$df))
        self$params$df <- p$df
-     
-     if (!is.null(p$useSavedModel))
-       self$params$useSavedModel <- p$useSavedModel
 
      if (!is.null(p$grainCol))
        self$params$grainCol <- p$grainCol
@@ -119,16 +116,11 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
      self$params$df <- as.data.frame(unclass(self$params$df))
 
      # Remove columns that are only NA
-     if (isTRUE(self$params$useSavedModel)) {
-       # Put predicted.col back (since it's NULL when sql only pulls in test)
-       temp <- self$params$df[[self$params$predictedCol]]
-       self$params$df <-
-         self$params$df[, colSums(is.na(self$params$df)) < nrow(self$params$df)]
-       self$params$df[[self$params$predictedCol]] <- temp
-     } else {
-       self$params$df <-
-         self$params$df[, colSums(is.na(self$params$df)) < nrow(self$params$df)]
-     }
+     # Put predicted.col back (since it's NULL when sql only pulls in test)
+     temp <- self$params$df[[self$params$predictedCol]]
+     self$params$df <-
+       self$params$df[, colSums(is.na(self$params$df)) < nrow(self$params$df)]
+     self$params$df[[self$params$predictedCol]] <- temp
 
      # Remove date columns
      dateList <- grep("DTS$", colnames(self$params$df))
@@ -189,45 +181,12 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
        print('Now starting imputation, or removing rows with NULLs')
      }
 
-     # Use imputation on train set (if we're creating new model)
-     if (isTRUE(self$params$impute) &&
-         isTRUE(!self$params$useSavedModel)) {
-       # Remove rows where predicted.col is null in train
-       private$dfTrainTemp = removeRowsWithNAInSpecCol(private$dfTrainTemp,
-                                                       self$params$predictedCol)
-       if (isTRUE(self$params$debug)) {
-         print('Training data set after removing rows where pred col is null')
-         print(str(private$dfTrainTemp))
-         print('Doing imputation on training set...')
-       }
-       private$dfTrainTemp[] <-
-         lapply(private$dfTrainTemp, imputeColumn)
-
-       if (isTRUE(self$params$debug)) {
-         print('Training set after doing imputation')
-         print(str(private$dfTrainTemp))
-       }
-
-       # If user doesn't ask for imputation, remove rows with any NA's
-     } else if (isTRUE(!self$params$impute) &&
-                isTRUE(!self$params$useSavedModel)) {
-       private$dfTrainTemp <- na.omit(private$dfTrainTemp)
-
-       if (isTRUE(self$params$debug)) {
-         print('Training set after removing rows with NULLs')
-         print(str(private$dfTrainTemp))
-       }
-     }
-
      # Always do imputation on all of test set (since each row needs pred)
      private$dfTestTemp[] <- lapply(private$dfTestTemp, imputeColumn)
 
      # Join temp train and test back together, so dummy creation is consistent
      self$params$df <-
        rbind(private$dfTrainTemp, private$dfTestTemp)
-
-     private$dfTrainTemp <- NULL # Were only used for imputation
-     private$dfTestTemp <- NULL
 
      if (isTRUE(self$params$debug)) {
        print('Entire data set after imputation')
@@ -258,24 +217,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
      if (isTRUE(self$params$debug)) {
        print('Entire data set after creating dummy vars')
        print(str(self$params$df))
-     }
-
-     # If creating new model, split train set from df
-     if (isTRUE(!self$params$useSavedModel)) {
-       # Note that the paste0 is needed here bc test.window.col is now dummy var
-       # For now it's assumed that dummyVars always sets Y to 1
-       private$dfTrain = self$params$df[self$params$df[[paste0(self$params$testWindowCol, '.Y')]] == 0, ]
-       # Drop window col from train set, as it's no longer needed
-       private$dfTrain <-
-         private$dfTrain[, !(names(private$dfTrain) %in% c(
-           self$params$testWindowCol,
-           paste0(self$params$testWindowCol, '.Y')
-         ))]
-
-       if (isTRUE(self$params$debug)) {
-         print('Training data set after splitting from main df')
-         print(str(private$dfTrain))
-       }
      }
 
      # Always create test set from df, and drop test.window.cols from test set
@@ -325,11 +266,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       print('Test set after undergoing imputation')
       print(str(private$dfTest))
     }
-
-    # If creating a new model, pass training set to object
-    if (isTRUE(!self$params$useSavedModel)) {
-      private$dfTrain <- private$dfTrain
-    }
   }
   ),
 
@@ -353,10 +289,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
       #Load data
       private$loadData()
-    },
-
-    #Override: Build Deploy Model
-    buildDeployModel = function() {
     },
 
     #Deploy the Model

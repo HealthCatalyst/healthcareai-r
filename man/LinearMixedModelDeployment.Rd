@@ -3,7 +3,7 @@
 \docType{class}
 \name{LinearMixedModelDeployment}
 \alias{LinearMixedModelDeployment}
-\title{Deploy a production-ready predictive Random Forest model}
+\title{Deploy a production-ready predictive Linear Mixed Model model}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
 LinearMixedModelDeployment(type, df, 
@@ -37,14 +37,15 @@ to monitor the calculations throughout. Use T or F.}
 \description{
 This step allows one to
 \itemize{
-\item Create a final model on all of your training data
-\item Automatically save the model
+\item Load a saved model from \code{\link{LinearMixedModelDevelopment}}
 \item Run the model against test data to generate predictions
 \item Push these predictions to SQL Server
 }
 }
 \examples{
 
+#### Classification Example using csv data ####
+## 1. Loading data and packages.
 ptm <- proc.time()
 library(healthcareai)
 
@@ -63,41 +64,60 @@ df <- read.csv(file = csvfile,
 head(df)
 str(df)
 
-p <- SupervisedModelDeploymentParams$new()
-p$type <- "classification"
+## 2. Train and save the model using DEVELOP
+inTest <- df$InTestWindowFLG # save this for later.
+df$InTestWindowFLG <- NULL
+
+set.seed(42)
+p <- SupervisedModelDevelopmentParams$new()
 p$df <- df
+p$type <- "classification"
+p$impute <- TRUE
 p$grainCol <- "PatientEncounterID"
 p$personCol <- "PatientID"
-p$testWindowCol <- "InTestWindowFLG"
 p$predictedCol <- "ThirtyDayReadmitFLG"
-p$impute <- TRUE
 p$debug <- FALSE
-p$useSavedModel <- FALSE
 p$cores <- 1
-p$writeToDB <- FALSE
 
-dLMM <- LinearMixedModelDeployment$new(p)
-dLMM$deploy()
+# Run Linear Mixed Model
+LinearMixedModel <- LinearMixedModelDevelopment$new(p)
+LinearMixedModel$run()
 
-df <- dLMM$getOutDf()
-# Write to CSV (or JSON, MySQL, etc) using R syntax
+## 3. Load saved model and use DEPLOY to generate predictions. 
+df$InTestWindowFLG <- inTest
+p2 <- SupervisedModelDeploymentParams$new()
+p2$type <- "classification"
+p2$df <- df
+p2$testWindowCol <- "InTestWindowFLG"
+p2$grainCol <- "PatientEncounterID"
+p$personCol <- "PatientID"
+p2$predictedCol <- "ThirtyDayReadmitFLG"
+p2$impute <- TRUE
+p2$debug <- FALSE
+p2$cores <- 1
+p2$writeToDB <- FALSE
+
+dL <- LinearMixedModelDeployment$new(p2)
+dL$deploy()
+
+df <- dL$getOutDf()
+# Write to CSV (or JSON, MySQL, etc) using plain R syntax
 # write.csv(df,'path/predictionsfile.csv')
 
 print(proc.time() - ptm)
 
 \donttest{
-  
-#### Classification example using diabetes data ####
+#### Classification example using SQL Server data ####
 # This example requires you to first create a table in SQL Server
 # If you prefer to not use SAMD, execute this in SSMS to create output table:
-# CREATE TABLE dbo.HCRDeployRegressionBASE(
-# BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
-# PatientEncounterID int, <--change to match inputID
-# PredictedValueNBR decimal(38, 2),
-# Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
+# CREATE TABLE dbo.HCRDeployClassificationBASE(
+#   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
+#   PatientEncounterID int, <--change to match inputID
+#   PredictedProbNBR decimal(38, 2),
+#   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 # )
 
-# setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
+## 1. Loading data and packages.
 ptm <- proc.time()
 library(healthcareai)
 
@@ -110,8 +130,8 @@ trusted_connection=true
 
 query <- "
 SELECT
- [PatientEncounterID]
-,[PatientID]           --Mixed model needs two ID columns
+[PatientEncounterID]
+,[PatientID]
 ,[SystolicBPNBR]
 ,[LDLNBR]
 ,[A1CNBR]
@@ -119,7 +139,6 @@ SELECT
 ,[ThirtyDayReadmitFLG]
 ,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
---no WHERE clause, because we want train AND test
 "
 
 df <- selectData(connection.string, query)
@@ -127,29 +146,49 @@ df <- selectData(connection.string, query)
 head(df)
 str(df)
 
-p <- SupervisedModelDeploymentParams$new()
-p$type <- "classification"
+## 2. Train and save the model using DEVELOP
+#' set.seed(42)
+inTest <- df$InTestWindowFLG # save this for deploy
+df$InTestWindowFLG <- NULL
+
+p <- SupervisedModelDevelopmentParams$new()
 p$df <- df
+p$type <- "classification"
+p$impute <- TRUE
 p$grainCol <- "PatientEncounterID"
 p$personCol <- "PatientID"
-p$testWindowCol <- "InTestWindowFLG"
 p$predictedCol <- "ThirtyDayReadmitFLG"
-p$impute <- FALSE
 p$debug <- FALSE
-p$useSavedModel <- FALSE
 p$cores <- 1
-p$sqlConn <- connection.string
-p$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
 
-lMM <- LinearMixedModelDeployment$new(p)
-lMM$deploy()
+# Run Linear Mixed Model
+LinearMixedModel <- LinearMixedModelDevelopment$new(p)
+LinearMixedModel$run()
+
+## 3. Load saved model and use DEPLOY to generate predictions. 
+df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+
+p2 <- SupervisedModelDeploymentParams$new()
+p2$type <- "classification"
+p2$df <- df
+p2$grainCol <- "PatientEncounterID"
+p$personCol <- "PatientID"
+p2$testWindowCol <- "InTestWindowFLG"
+p2$predictedCol <- "ThirtyDayReadmitFLG"
+p2$impute <- TRUE
+p2$debug <- FALSE
+p2$cores <- 1
+p2$sqlConn <- connection.string
+p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
+
+dL <- LinearMixedModelDeployment$new(p2)
+dL$deploy()
 
 print(proc.time() - ptm)
 }
 
 \donttest{
-
-#### Regression example using diabetes data ####
+#### Regression Example using SQL Server data ####
 # This example requires you to first create a table in SQL Server
 # If you prefer to not use SAMD, execute this in SSMS to create output table:
 # CREATE TABLE dbo.HCRDeployRegressionBASE(
@@ -159,7 +198,7 @@ print(proc.time() - ptm)
 #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 # )
 
-# setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
+## 1. Loading data and packages.
 ptm <- proc.time()
 library(healthcareai)
 
@@ -172,8 +211,8 @@ trusted_connection=true
 
 query <- "
 SELECT
- [PatientEncounterID]
-,[PatientID]           --Mixed model needs two ID columns
+[PatientEncounterID]
+,[PatientID]
 ,[SystolicBPNBR]
 ,[LDLNBR]
 ,[A1CNBR]
@@ -181,7 +220,6 @@ SELECT
 ,[ThirtyDayReadmitFLG]
 ,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
---no WHERE clause, because we want train AND test
 "
 
 df <- selectData(connection.string, query)
@@ -189,22 +227,43 @@ df <- selectData(connection.string, query)
 head(df)
 str(df)
 
-p <- SupervisedModelDeploymentParams$new()
-p$type <- "regression"
+## 2. Train and save the model using DEVELOP
+#' set.seed(42)
+inTest <- df$InTestWindowFLG # save this for deploy
+df$InTestWindowFLG <- NULL
+
+p <- SupervisedModelDevelopmentParams$new()
 p$df <- df
+p$type <- "regression"
+p$impute <- TRUE
 p$grainCol <- "PatientEncounterID"
 p$personCol <- "PatientID"
-p$testWindowCol <- "InTestWindowFLG"
 p$predictedCol <- "A1CNBR"
-p$impute <- TRUE
 p$debug <- FALSE
-p$useSavedModel <- FALSE
 p$cores <- 1
-p$sqlConn <- connection.string
-p$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
 
-lMM <- LinearMixedModelDeployment$new(p)
-lMM$deploy()
+# Run Linear Mixed Model
+LinearMixedModel <- LinearMixedModelDevelopment$new(p)
+LinearMixedModel$run()
+
+## 3. Load saved model and use DEPLOY to generate predictions. 
+df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+
+p2 <- SupervisedModelDeploymentParams$new()
+p2$type <- "regression"
+p2$df <- df
+p2$grainCol <- "PatientEncounterID"
+p$personCol <- "PatientID"
+p2$testWindowCol <- "InTestWindowFLG"
+p2$predictedCol <- "A1CNBR"
+p2$impute <- TRUE
+p2$debug <- FALSE
+p2$cores <- 1
+p2$sqlConn <- connection.string
+p2$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
+
+dL <- LinearMixedModelDeployment$new(p2)
+dL$deploy()
 
 print(proc.time() - ptm)
 }

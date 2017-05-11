@@ -2,8 +2,7 @@
 #'
 #' @description This step allows one to
 #' \itemize{
-#' \item Create a final model on all of your training data
-#' \item Automatically save the model
+#' \item Load a saved model from \code{\link{LassoDevelopment}}
 #' \item Run the model against test data to generate predictions
 #' \item Push these predictions to SQL Server
 #' }
@@ -32,7 +31,8 @@
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' 
-#' #### Regression Example using csv data ####
+#' #### Classification Example using csv data ####
+#' ## 1. Loading data and packages.
 #' ptm <- proc.time()
 #' library(healthcareai)
 #'
@@ -50,23 +50,40 @@
 #'
 #' head(df)
 #' str(df)
-#'
-#' # Remove unnecessary columns
+#' 
+#' ## 2. Train and save the model using DEVELOP
 #' df$PatientID <- NULL
+#' inTest <- df$InTestWindowFLG # save this for later.
+#' df$InTestWindowFLG <- NULL
 #'
-#' p <- SupervisedModelDeploymentParams$new()
-#' p$type <- "regression"
+#' set.seed(42)
+#' p <- SupervisedModelDevelopmentParams$new()
 #' p$df <- df
-#' p$grainCol <- "PatientEncounterID"
-#' p$testWindowCol <- "InTestWindowFLG"
-#' p$predictedCol <- "A1CNBR"
+#' p$type <- "classification"
 #' p$impute <- TRUE
+#' p$grainCol <- "PatientEncounterID"
+#' p$predictedCol <- "ThirtyDayReadmitFLG"
 #' p$debug <- FALSE
-#' p$useSavedModel <- FALSE
 #' p$cores <- 1
-#' p$writeToDB <- FALSE
 #'
-#' dL <- LassoDeployment$new(p)
+#' # Run Lasso
+#' lasso <- LassoDevelopment$new(p)
+#' lasso$run()
+#'
+#' ## 3. Load saved model and use DEPLOY to generate predictions. 
+#' df$InTestWindowFLG <- inTest
+#' p2 <- SupervisedModelDeploymentParams$new()
+#' p2$type <- "classification"
+#' p2$df <- df
+#' p2$testWindowCol <- "InTestWindowFLG"
+#' p2$grainCol <- "PatientEncounterID"
+#' p2$predictedCol <- "ThirtyDayReadmitFLG"
+#' p2$impute <- TRUE
+#' p2$debug <- FALSE
+#' p2$cores <- 1
+#' p2$writeToDB <- FALSE
+#'
+#' dL <- LassoDeployment$new(p2)
 #' dL$deploy()
 #' 
 #' df <- dL$getOutDf()
@@ -85,20 +102,20 @@
 #' #   PredictedProbNBR decimal(38, 2),
 #' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 #' # )
-#'
+#' 
+#' ## 1. Loading data and packages.
 #' ptm <- proc.time()
 #' library(healthcareai)
-#'
+#' 
 #' connection.string <- "
 #' driver={SQL Server};
 #' server=localhost;
 #' database=SAM;
 #' trusted_connection=true
 #' "
-#'
 #' query <- "
 #' SELECT
-#'  [PatientEncounterID] --Only need one ID column for random forest
+#' [PatientEncounterID] --Only need one ID column for random forest
 #' ,[SystolicBPNBR]
 #' ,[LDLNBR]
 #' ,[A1CNBR]
@@ -106,30 +123,48 @@
 #' ,[ThirtyDayReadmitFLG]
 #' ,[InTestWindowFLG]
 #' FROM [SAM].[dbo].[HCRDiabetesClinical]
-#' --no WHERE clause, because we want train AND test
 #' "
-#'
 #' df <- selectData(connection.string, query)
-#'
+#' 
 #' head(df)
 #' str(df)
-#'
-#' p <- SupervisedModelDeploymentParams$new()
-#' p$type <- "classification"
+#' 
+#' ## 2. Train and save the model using DEVELOP
+#' #' set.seed(42)
+#' inTest <- df$InTestWindowFLG # save this for deploy
+#' df$InTestWindowFLG <- NULL
+#' 
+#' p <- SupervisedModelDevelopmentParams$new()
 #' p$df <- df
-#' p$grainCol <- "PatientEncounterID"
-#' p$testWindowCol <- "InTestWindowFLG"
-#' p$predictedCol <- "ThirtyDayReadmitFLG"
+#' p$type <- "classification"
 #' p$impute <- TRUE
+#' p$grainCol <- "PatientEncounterID"
+#' p$predictedCol <- "ThirtyDayReadmitFLG"
 #' p$debug <- FALSE
-#' p$useSavedModel <- FALSE
 #' p$cores <- 1
-#' p$sqlConn <- connection.string
-#' p$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
-#'
-#' dL <- LassoDeployment$new(p)
+#' 
+#' # Run Lasso
+#' lasso <- LassoDevelopment$new(p)
+#' lasso$run()
+#' 
+#' ## 3. Load saved model and use DEPLOY to generate predictions. 
+#' df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+#' 
+#' p2 <- SupervisedModelDeploymentParams$new()
+#' p2$type <- "classification"
+#' p2$df <- df
+#' p2$grainCol <- "PatientEncounterID"
+#' p2$testWindowCol <- "InTestWindowFLG"
+#' p2$predictedCol <- "ThirtyDayReadmitFLG"
+#' p2$impute <- TRUE
+#' p2$debug <- FALSE
+#' p2$cores <- 1
+#' p2$sqlConn <- connection.string
+#' p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
+#' 
+#' dL <- LassoDeployment$new(p2)
 #' dL$deploy()
-#'
+#' 
 #' print(proc.time() - ptm)
 #' }
 #' 
@@ -143,20 +178,20 @@
 #' #   PredictedValueNBR decimal(38, 2),
 #' #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 #' # )
-#'
+#' 
+#' ## 1. Loading data and packages.
 #' ptm <- proc.time()
 #' library(healthcareai)
-#'
+#' 
 #' connection.string <- "
 #' driver={SQL Server};
 #' server=localhost;
 #' database=SAM;
 #' trusted_connection=true
 #' "
-#'
 #' query <- "
 #' SELECT
-#'  [PatientEncounterID] --Only need one ID column for random forest
+#' [PatientEncounterID] --Only need one ID column for random forest
 #' ,[SystolicBPNBR]
 #' ,[LDLNBR]
 #' ,[A1CNBR]
@@ -164,30 +199,48 @@
 #' ,[ThirtyDayReadmitFLG]
 #' ,[InTestWindowFLG]
 #' FROM [SAM].[dbo].[HCRDiabetesClinical]
-#' --no WHERE clause, because we want train AND test
 #' "
-#'
 #' df <- selectData(connection.string, query)
-#'
+#' 
 #' head(df)
 #' str(df)
-#'
-#' p <- SupervisedModelDeploymentParams$new()
-#' p$type <- "regression"
+#' 
+#' ## 2. Train and save the model using DEVELOP
+#' #' set.seed(42)
+#' inTest <- df$InTestWindowFLG # save this for deploy
+#' df$InTestWindowFLG <- NULL
+#' 
+#' p <- SupervisedModelDevelopmentParams$new()
 #' p$df <- df
-#' p$grainCol <- "PatientEncounterID"
-#' p$testWindowCol <- "InTestWindowFLG"
-#' p$predictedCol <- "A1CNBR"
+#' p$type <- "regression"
 #' p$impute <- TRUE
+#' p$grainCol <- "PatientEncounterID"
+#' p$predictedCol <- "A1CNBR"
 #' p$debug <- FALSE
-#' p$useSavedModel <- FALSE
 #' p$cores <- 1
-#' p$sqlConn <- connection.string
-#' p$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
-#'
-#' dL <- LassoDeployment$new(p)
+#' 
+#' # Run Lasso
+#' lasso <- LassoDevelopment$new(p)
+#' lasso$run()
+#' 
+#' ## 3. Load saved model and use DEPLOY to generate predictions. 
+#' df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+#' 
+#' p2 <- SupervisedModelDeploymentParams$new()
+#' p2$type <- "regression"
+#' p2$df <- df
+#' p2$grainCol <- "PatientEncounterID"
+#' p2$testWindowCol <- "InTestWindowFLG"
+#' p2$predictedCol <- "A1CNBR"
+#' p2$impute <- TRUE
+#' p2$debug <- FALSE
+#' p2$cores <- 1
+#' p2$sqlConn <- connection.string
+#' p2$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
+#' 
+#' dL <- LassoDeployment$new(p2)
 #' dL$deploy()
-#'
+#' 
 #' print(proc.time() - ptm)
 #' }
 
@@ -205,88 +258,65 @@ LassoDeployment <- R6Class(
     orderedFactors = NA,
     predictedValsForUnitTest = NA,
     outDf = NA,
-  
+    
+    fitGrLasso = NA,
+    fitLogit = NA,
+    indLambda1se = NA,
+    lambda1se = NA,
+    modFmla = NA,
+    modMat = NA,
+    
+    predictions = NA,
+    
     # functions
     connectDataSource = function() {
       RODBC::odbcCloseAll()
-      if (isTRUE(self$params$writeToDB)) {
-        # Convert the connection string into a real connection object.
-        self$params$sqlConn <- RODBC::odbcDriverConnect(self$params$sqlConn)
-      }
+      # Convert the connection string into a real connection object.
+      self$params$sqlConn <- RODBC::odbcDriverConnect(self$params$sqlConn)
+      
     },
 
     closeDataSource = function() {
       RODBC::odbcCloseAll()
     },
 
-    fitGeneralizedLinearModel = function() {
-      if (isTRUE(self$params$debug)) {
-        print("generating fitLogit...")
-      }
-
-      if (self$params$type == "classification") {
-        private$fitLogit <- glm(as.formula(paste(self$params$predictedCol, ".", sep = " ~ ")),
-                                data = private$dfTrain, family = binomial(link = "logit"), metric = "ROC",
-                                control = list(maxit = 10000), trControl = trainControl(classProbs = TRUE,
-                                                                                        summaryFunction = twoClassSummary))
-
-      } else if (self$params$type == "regression") {
-        private$fitLogit <- glm(as.formula(paste(self$params$predictedCol, ".", sep = " ~ ")),
-                                data = private$dfTrain, metric = "RMSE", control = list(maxit = 10000))
-      }
-    },
-
-    saveModel = function() {
-      if (isTRUE(self$params$debug)) {
-        print("Saving model...")
-      }
-
-      # NOTE: save(private$fit, ...) does not work!
-      if (isTRUE(!self$params$useSavedModel)) {
-        fitObj <- private$fit
-        save(fitObj, file = "rmodel_combined.rda")
-      }
-
-      # This isn't needed if formula interface is used in randomForest
-      private$dfTest[[self$params$predictedCol]] = NULL
-
-      if (isTRUE(self$params$debug)) {
-        print("Test set before being used in predict(), after removing y")
-        print(str(private$dfTest))
-      }
-    },
-
+    # Predict results
     performPrediction = function() {
-      if (self$params$type == "classification") {
-        # linear , these are probabilities
-        private$predictedVals <- predict(private$fit, newdata = private$dfTest, type = "response")
-        private$predictedValsForUnitTest <- private$predictedVals[5]  # for unit test
-
-        print("Probability predictions are based on logistic")
-
-        if (isTRUE(self$params$debug)) {
-          print(paste0("Rows in prob prediction: ", nrow(private$predictedVals)))
-          print("First 10 raw classification probability predictions")
-          print(round(private$predictedVals[1:10], 2))
-        }
-      } else if (self$params$type == "regression") {
-        # this is in-kind prediction
-        private$predictedVals <- predict(private$fit, newdata = private$dfTest)
-
-        if (isTRUE(self$params$debug)) {
-          print(paste0("Rows in regression prediction: ", length(private$predictedVals)))
-          print("First 10 raw regression predictions (with row # first)")
-          print(round(private$predictedVals[1:10], 2))
+      # Index of largest lambda within one cvse of the lambda with lowest cve:
+      # These are sorted from largest to smallest lambda, hence pulling the
+      # minimum index.
+      private$indLambda1se <- min(which(private$fitGrLasso$cve <= 
+                                       (private$fitGrLasso$cve + 
+                                        private$fitGrLasso$cvse)[private$fitGrLasso$min]))
+      
+      # Largest lambda within one cvse of the lambda with lowest cve (ie. lambda
+      # to use in final fit):
+      private$lambda1se <- private$fitGrLasso$lambda[private$indLambda1se]
+      
+      # Predictions (in terms of probability)
+      private$predictions <- stats::predict(object = private$fitGrLasso,
+                                     X = model.matrix(private$modFmla, data = private$dfTestTemp)[,-1],
+                                     lambda = private$lambda1se,
+                                     type = "response")
+      
+      if (isTRUE(self$params$debug)) {
+        cat("Rows in prob prediction: ", nrow(private$predictedVals), '\n')
+        if (self$params$type == 'classification') {
+          cat("First 10 raw classification probability predictions", '\n')
+          print(round(private$predictions[1:10], 2))
+        } else if (self$params$type == 'regression') {
+          cat("First 10 raw regression value predictions", '\n')
+          print(round(private$predictions[1:10], 2))
         }
       }
     },
-
+    
     calculateCoeffcients = function() {
       # Do semi-manual calc to rank cols by order of importance
       coeffTemp <- private$fitLogit$coefficients
 
       if (isTRUE(self$params$debug)) {
-        print("Coefficients for the default logit (for ranking var import)")
+        cat("Coefficients for the default logit (for ranking var import)", '\n')
         print(coeffTemp)
       }
 
@@ -299,14 +329,14 @@ LassoDeployment <- R6Class(
       private$dfTest[[self$params$predictedCol]] <- NULL
 
       if (isTRUE(self$params$debug)) {
-        print("Test set after removing predicted column")
-        print(str(private$dfTest))
+        cat("Test set after removing predicted column", '\n')
+        cat(str(private$dfTest), '\n')
       }
 
       private$multiplyRes <- sweep(private$dfTestRaw, 2, private$coefficients, `*`)
 
       if (isTRUE(self$params$debug)) {
-        print("Data frame after multiplying raw vals by coeffs")
+        cat("Data frame after multiplying raw vals by coeffs", '\n')
         print(private$multiplyRes[1:10, ])
       }
     },
@@ -317,12 +347,12 @@ LassoDeployment <- R6Class(
                                                                                                                                          ], decreasing = TRUE)])))
 
       if (isTRUE(self$params$debug)) {
-        print("Data frame after getting column importance ordered")
+        cat("Data frame after getting column importance ordered", '\n')
         print(private$orderedFactors[1:10, ])
       }
     },
 
-    saveDataIntoDb = function() {
+    createDf = function() {
       dtStamp <- as.POSIXlt(Sys.time())
 
       # Combine grain.col, prediction, and time to be put back into SAM table
@@ -335,7 +365,7 @@ LassoDeployment <- R6Class(
         # LastLoadDTS
         private$grainTest,
         # GrainID
-        private$predictedVals,
+        private$predictions,
         # PredictedProbab
         private$orderedFactors[, 1:3]
       )    # Top 3 Factors
@@ -358,10 +388,12 @@ LassoDeployment <- R6Class(
       )
 
       if (isTRUE(self$params$debug)) {
-        print('Dataframe with predictions:')
-        print(str(private$outDf))
+        cat('Dataframe with predictions:', '\n')
+        cat(str(private$outDf), '\n')
       }
+    },
 
+      saveDataIntoDb = function() {
       if (isTRUE(self$params$writeToDB)) {
         # Save df to table in SAM database
         out <- RODBC::sqlSave(
@@ -378,7 +410,7 @@ LassoDeployment <- R6Class(
   
         # Print success if insert was successful
         if (out == 1) {
-          print('SQL Server insert was successful')
+          cat('SQL Server insert was successful') # removed '\n' for the unit test
         }
       }
     }
@@ -399,47 +431,29 @@ LassoDeployment <- R6Class(
       super$initialize(p)
     },
 
-    buildFitObject = function() {
-      # Get fit object by linear model
-      # if linear, set to logit for logistic
-      private$fit = private$fitLogit
-    },
-
-    #Override: Build Deploy Model
-    buildDeployModel = function() {
-      if (isTRUE(self$params$debug)) {
-        print('Training data set immediately before training')
-        print(str(private$dfTrain))
-      }
-
-      # Start default logit (for var importance)
-      private$fitGeneralizedLinearModel()
-
-      # Build fit object
-      self$buildFitObject()
-
-      print('Details for proability model:')
-      print(private$fit)
-    },
-
     #Override: deploy the model
     deploy = function() {
-      # Connect to sql via odbc driver
-      private$connectDataSource()
-
-      if (isTRUE(self$params$useSavedModel)) {
-        load("rmodel_combined.rda") # Produces fit object (for probability)
-        private$fit <- fit
-      } else {
-        private$registerClustersOnCores()
-
-        # build deploy model
-        self$buildDeployModel()
+      if (isTRUE(self$params$writeToDB)) {
+        # Connect to sql via odbc driver
+        private$connectDataSource()
       }
-
-      # Save model
-      private$saveModel()
-
+      
+      # Try to load the model
+      tryCatch({
+        load("rmodel_var_import_lasso.rda")  # Produces fitLogit object
+        private$fitLogit <- fitLogit
+        load("rmodel_probability_lasso.rda") # Produces fit object (for probability)
+          private$fitGrLasso <- fitObj
+          private$modMat <- fitObj$modMat
+          private$modFmla <- fitObj$modFmla
+          fitObj$modMat <- NULL
+          fitObj$modFmla <- NULL
+       }, error = function(e) {
+        # temporary fix until all models are working.
+        stop('You must use a saved model. Run lasso development to train and save
+              the model, then lasso deployment to make predictions. See ?LassoDeployment')
+      })
+      
       # Predict
       private$performPrediction()
 
@@ -452,19 +466,17 @@ LassoDeployment <- R6Class(
       # Calculate Ordered Factors
       private$calculateOrderedFactors()
 
-      # Save data into db
-      private$saveDataIntoDb()
-
-      # Clean up.
-      if (isTRUE(!self$params$useSavedModel)) {
-        private$stopClustersOnCores()
+      # create dataframe for output
+      private$createDf()
+      
+      if (isTRUE(self$params$writeToDB)) {
+        # Save data into db
+        private$saveDataIntoDb()
       }
-      private$closeDataSource()
-    },
 
-    #Get predicted values
-    getPredictedValsForUnitTest = function() {
-      return(private$predictedValsForUnitTest)
+      if (isTRUE(self$params$writeToDB)) {
+        private$closeDataSource()
+      }
     },
     
     # Surface outDf as attribute for export to Oracle, MySQL, etc

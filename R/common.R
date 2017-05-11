@@ -481,7 +481,7 @@ findTrends <- function(df, dateCol, groupbyCol) {
     # Just grab rows corresponding to a particular category in the factor col
     dfTemp <- df[df[[groupbyCol]] == j, ]
 
-    print("df after grouping and focusing on one category in group col:")
+    cat("df after grouping and focusing on one category in group col:", '\n')
     print(tail(dfTemp, n = 6))
 
     # Iterate over all columns except for cols that we aggregated by
@@ -511,7 +511,7 @@ findTrends <- function(df, dateCol, groupbyCol) {
   } else {
     dfResult <- data.frame(groupbyCol, aggregatedColList, metricTrendList, finalYrMonth)
     colnames(dfResult) <- c("DimAttribute", "GroupBy", "MeasuresTrending", "FinalDate")
-    print("Trends were found:")
+    cat("Trends were found:", '\n')
     print(dfResult)
   }
 }
@@ -1170,18 +1170,18 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
 
   # Order by greatest drop in predicted probability
   orderedProbDrop <- predDiff[orderedPredDiffIndex]
-  print('orderedProbDrop')
-  print(orderedProbDrop)
+  cat('orderedProbDrop', '\n')
+  cat(orderedProbDrop, '\n')
 
   # Find associated features that were changed
   orderedColChanged <- colChanged[orderedPredDiffIndex]
-  print('orderedColChanged')
-  print(orderedColChanged)
+  cat('orderedColChanged', '\n')
+  cat(orderedColChanged, '\n')
 
   # Find associated alternate values
   orderedAlternateValue <- alternateValue[orderedPredDiffIndex]
-  print('orderedAlternateValue')
-  print(orderedAlternateValue)
+  cat('orderedAlternateValue', '\n')
+  cat(orderedAlternateValue, '\n')
 
   dfOptResult <- data.frame(orderedProbDrop,
                             orderedColChanged,
@@ -1244,7 +1244,7 @@ generateAUC <- function(predictions,
   
   # default to SS if something else is entered
   if (aucType != 'SS' && aucType != 'PR') {
-    print('Drawing ROC curve with Sensitivity/Specificity')
+    cat('Drawing ROC curve with Sensitivity/Specificity', '\n')
     aucType <- 'SS'
   }
   
@@ -1357,8 +1357,8 @@ calculatePerformance <- function(predictions, ytest, type) {
     RMSE <- sqrt(mean((ytest - predictions) ^ 2))
     MAE <- mean(abs(ytest - predictions))
     
-    print(paste0('RMSE: ', round(RMSE, 8)))
-    print(paste0('MAE: ', round(MAE, 8)))
+    cat(paste0('RMSE: ', round(RMSE, 8)), '\n')
+    cat(paste0('MAE: ', round(MAE, 8)), '\n')
   }
   
   return(list(ROCPlot,PRCurvePlot,AUROC,AUPR,RMSE,MAE))
