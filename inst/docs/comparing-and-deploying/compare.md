@@ -1,8 +1,8 @@
-# Create and compare models via `LassoDevelopment`, `RandomForestDevelopment`, and `LinearMixedModelDevelopment`
+# Create, compare, and save models via `LassoDevelopment`, `RandomForestDevelopment`, and `LinearMixedModelDevelopment`
 
 # What is this?
 
-These classes let one create and compare custom models on varied datasets.
+These classes let one create, compare, and save custom models on varied datasets.
 
 One can do both classification (ie, predict Y or N) as well as regression (ie, predict a numeric field, like cost).
 
@@ -11,7 +11,7 @@ One can do both classification (ie, predict Y or N) as well as regression (ie, p
 Nope. It'll help if you can follow these guidelines:
 
 * Don't use 0 or 1 for the independent variable when doing classification. Use Y/N instead. The IIF function in T-SQL may help here.
-* Don't pull in test data in this step. In other words, to compare models, we don't need to worry about those rows that need a prediction quite yet.
+* Don't pull in test data in this step. In other words, to compare models, we only want rows that have a known outcome attached to them.
 
 ## How can I improve my model performance?
 
@@ -110,56 +110,61 @@ This version of random forest is based on the wonderful [ranger package](https:/
 ```r
 ptm <- proc.time()
 library(healthcareai)
-library(RODBC)
 
-connection.string = "
+connection.string <- "
 driver={SQL Server};
 server=localhost;
 database=SAM;
 trusted_connection=true
 "
 
-query = "
+query <- "
 SELECT
- [PatientEncounterID]
-,[PatientID]
+[PatientEncounterID]
 ,[SystolicBPNBR]
 ,[LDLNBR]
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-FROM [SAM].[dbo].[DiabetesClinical]
+FROM [SAM].[dbo].[HCRDiabetesClinical]
 WHERE InTestWindowFLG = 'N'
 "
-
 df <- selectData(connection.string, query)
 head(df)
-
-df$PatientID <- NULL
 
 set.seed(42)
 
 p <- SupervisedModelDevelopmentParams$new()
-p$df = df
-p$type = 'classification'
-p$impute = TRUE
-p$grainCol = 'PatientEncounterID'
-p$predictedCol = 'ThirtyDayReadmitFLG'
-p$debug = FALSE
-p$cores = 1
+p$df <- df
+p$type <- "classification"
+p$impute <- TRUE
+p$grainCol <- "PatientEncounterID"
+p$predictedCol <- "ThirtyDayReadmitFLG"
+p$debug <- FALSE
+p$cores <- 1
 
 # Run Lasso
-Lasso <- LassoDevelopment$new(p)
-Lasso$run()
+lasso <- LassoDevelopment$new(p)
+lasso$run()
 
+set.seed(42)
 # Run Random Forest
 rf <- RandomForestDevelopment$new(p)
 rf$run()
 
-# For a given true-positive rate, get false-pos rate and 0/1 cutoff
-Lasso$getCutOffs(tpr=.8)
+# Plot ROC
+rocs <- list(rf$getROC(), lasso$getROC())
+names <- c("Random Forest", "Lasso")
+legendLoc <- "bottomright"
+plotROCs(rocs, names, legendLoc)
 
-print(proc.time() - ptm)
+# Plot PR Curve
+rocs <- list(rf$getPRCurve(), lasso$getPRCurve())
+names <- c("Random Forest", "Lasso")
+legendLoc <- "bottomleft"
+plotPRCurve(rocs, names, legendLoc)
+
+cat(proc.time() - ptm,"\n")
 ```
 
 ## `LinearMixedModelDevelopment` Details
@@ -169,18 +174,17 @@ This mixed model is designed for longitudinal datasets (ie, those that typically
 ## Full example code for mixed-model longitudinal work
 
 ```r
-# Example using SQL Server
 ptm <- proc.time()
 library(healthcareai)
 
-connection.string = "
+connection.string <- "
 driver={SQL Server};
 server=localhost;
 database=SAM;
 trusted_connection=true
 "
 
-query = "
+query <- "
 SELECT
  [PatientEncounterID]
 ,[PatientID]
@@ -189,33 +193,55 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-FROM [SAM].[dbo].[DiabetesClinical]
+,[InTestWindowFLG]
+FROM [SAM].[dbo].[HCRDiabetesClinical]
+--no WHERE clause, because we want train AND test
 "
 
 df <- selectData(connection.string, query)
 head(df)
 
+df$InTestWindowFLG <- NULL
 
 set.seed(42)
 
 p <- SupervisedModelDevelopmentParams$new()
-p$df = df
-p$type = 'classification'
-p$impute = TRUE
-p$grainCol = 'PatientEncounterID'
-p$personCol = 'PatientID'          # <- Specific to Mixed Models
-p$predictedCol = 'ThirtyDayReadmitFLG'
-p$debug = FALSE
-p$cores = 1
+p$df <- df
+p$type <- "classification"
+p$impute <- TRUE
+p$grainCol <- "PatientEncounterID"
+p$personCol <- "PatientID"
+p$predictedCol <- "ThirtyDayReadmitFLG"
+p$debug <- FALSE
+p$cores <- 1
 
 # Create Mixed Model
 lmm <- LinearMixedModelDevelopment$new(p)
 lmm$run()
 
-# For a given true-positive rate, get false-pos rate and 0/1 cutoff
-Lasso$getCutOffs(tpr=.8)
+# Remove person col, since RF can't use it
+df$personCol <- NULL
+p$df <- df
+p$personCol <- NULL
 
-print(proc.time() - ptm)
+set.seed(42) 
+# Run Random Forest
+rf <- RandomForestDevelopment$new(p)
+rf$run()
+
+# Plot ROC
+rocs <- list(lmm$getROC(), rf$getROC())
+names <- c("Linear Mixed Model", "Random Forest")
+legendLoc <- "bottomright"
+plotROCs(rocs, names, legendLoc)
+
+# Plot PR Curve
+rocs <- list(lmm$getPRCurve(), rf$getPRCurve())
+names <- c("Linear Mixed Model", "Random Forest")
+legendLoc <- "bottomleft"
+plotPRCurve(rocs, names, legendLoc)
+
+cat(proc.time() - ptm, '\n')
 ``` 
 
 Note: if you want a CSV example (ie, an example that you can run as-is), see the built-in docs:
