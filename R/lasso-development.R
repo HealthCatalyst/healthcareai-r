@@ -203,7 +203,7 @@ LassoDevelopment <- R6Class("LassoDevelopment",
       fitLogit <- private$fitLogit
       fitObj <- private$fitGrLasso
       
-      save(fitObj, file = "rmodel_combined_lasso.rda")
+      save(fitObj, file = "rmodel_probability_lasso.rda")
       save(fitLogit, file = "rmodel_var_import_lasso.rda")
     },
     
