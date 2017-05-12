@@ -5,7 +5,7 @@
 These classes let one deploy custom models on varied datasets via the following workflow: 
 
 1. Using the model [development](compare.md) functions, you found a model that performs well and saved it automatically. 
-2. Now, run the deploy methods however often you need to load the model and generate predictions for new people/encounters. \ 
+2. Now, run the deploy methods however often you need to load the model and generate predictions for new people/encounters. 
 3. Retrain the model whenever significant changes occur with the data (perhaps quarterly) using model development.
 
 One can do both classification (ie, predict Y or N) as well as regression (ie, predict a numeric field).
