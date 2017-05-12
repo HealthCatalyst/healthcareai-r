@@ -4,7 +4,7 @@
 \alias{findVariation}
 \title{Find high variation}
 \usage{
-findVariation(df, categoricalCols, measureCol, dateCol = NULL,
+findVariation(df, categoricalCols, measureColumn, dateCol = NULL,
   threshold = NULL)
 }
 \arguments{
@@ -12,33 +12,33 @@ findVariation(df, categoricalCols, measureCol, dateCol = NULL,
 
 \item{categoricalCols}{Vector of categorical columns}
 
-\item{measureCol}{A string of the measure column of interest}
+\item{measureColumn}{A string of the measure column of interest}
 
 \item{dateCol}{Optional. A date(time) column to group by (done by month)}
 
-\item{threshold}{A number, representing the minimum coefficient of variance
-(COV) to flag and surface}
+\item{threshold}{A number, representing the minimum impact (which is 
+coefficient of variation multiplied by the volume for that subgroup)}
 }
 \value{
 A dataframe of three columns
 }
 \description{
-Search across subgroups and surface those that have variation
-above a particular threshold
+Search across subgroups and surface those that have coefficient
+of variation * volume above a particular threshold
 }
 \examples{
-df <- data.frame(Dept = c('A','A','A','B','B','B','B'),
-                 Gender = c('F','M','M','M','M','F','F'),
-                 LOS = c(3.2,NA,5,1.3,2.4,4,9))
+df <- data.frame(Dept = c('A','A','A','B','B','B','B','B'),
+                 Gender = c('F','M','M','M','M','F','F','F'),
+                 LOS = c(3.2,NA,5,1.3,2.4,4,9,10))
 
 categoricalCols <- c("Dept","Gender")
 
-df <- findVariation(df = df, 
-                    categoricalCols = categoricalCols,
-                    measureCol = "LOS")
+dfRes <- findVariation(df = df, 
+                       categoricalCols = categoricalCols,
+                       measureColumn = "LOS",
+                       threshold = 50)
 
-# Only subcategories w/ more than one row (with non-NA measure) are eligible
-df
+dfRes
 }
 \references{
 \url{http://healthcare.ai}

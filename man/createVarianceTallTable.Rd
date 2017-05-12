@@ -4,36 +4,40 @@
 \alias{createVarianceTallTable}
 \title{Transform a dataframe to be three columns and tall instead of wide}
 \usage{
-createVarianceTallTable(df, categoricalCols, measureCol)
+createVarianceTallTable(df, categoricalCols, measure)
 }
 \arguments{
 \item{df}{A dataframe}
 
-\item{categoricalCols}{Vector of categorical columns}
+\item{categoricalCols}{Vector of categorical column(s)}
 
-\item{measureCol}{A string of the measure column of interest}
+\item{measureColumn}{A string. The measure of interest.}
 }
 \value{
-A dataframe of three columns
+A dataframe of four columns
 }
 \description{
 When dealing with a table that could be unexpectedly wide,
-it helps to instead fix it at three columns and let it get tall. Since this 
-provides fixed columns, it's easy to put in a database table.
+it helps to instead fix its width and let it get tall (which makes it easy
+to insert into a pre-existing table). First use findVariation function.
 }
 \examples{
 df <- data.frame(LactateOrderProvSpecialtyDSC = c("Pulmonary Disease",
                                                   "Family Medicine"),
                  LactateOrderProvNM = c("Hector Salamanca",
                                         "Gus Fring"),
-                 LactateResultNBR = c(43.4,35.1))
+                 LOSCOV = c(43.4,35.1),
+                 LOSVolume = c(2,3),
+                 LOSImpact = c(86.8,105.3))
 
 head(df)
 
 categoricalCols <- c("LactateOrderProvSpecialtyDSC","LactateOrderProvNM")
-measureCol <- "LactateResultNBR"
-dfResult <- createVarianceTallTable(df, categoricalCols, measureCol)
-head(dfResult)
+
+dfRes <- createVarianceTallTable(df = df, 
+                                 categoricalCols = categoricalCols, 
+                                 measure = "LOS")
+head(dfRes)
 }
 \references{
 \url{http://healthcare.ai}
