@@ -1,14 +1,12 @@
-# Save and deploy models via `DeployLasso`, `DeployRandomForest`, or `DeployLinearMixedModel`
+# Deploy models and make new predictions via `DeployLasso`, `DeployRandomForest`, or `DeployLinearMixedModel`
 
 # What is this?
 
-These classes let one save and deploy custom models on varied datasets via the following workflow: 
+These classes let one deploy custom models on varied datasets via the following workflow: 
 
-1. Using the model [development](compare.md) functions, you found a model that performs well. 
-2. Now, you train and save model on your entire dataset (with the `useSavedModel` argument set to FALSE). 
-3. Next, flip the `useSavedModel` argument to TRUE and rerun the script however often you need to generate new predictions. 
-    - Now that you're using a saved model, you're just running new people/encounters against the saved model to generate predictions.  
-4. Retrain the model whenever significant changes occur with the data (perhaps quarterly) by flipping the `useSavedModel` to FALSE and go to step 3. 
+1. Using the model [development](compare.md) functions, you found a model that performs well and saved it automatically. 
+2. Now, run the deploy methods however often you need to load the model and generate predictions for new people/encounters. \ 
+3. Retrain the model whenever significant changes occur with the data (perhaps quarterly) using model development.
 
 One can do both classification (ie, predict Y or N) as well as regression (ie, predict a numeric field).
 
@@ -17,9 +15,9 @@ One can do both classification (ie, predict Y or N) as well as regression (ie, p
 Nope. It'll help if you can follow these guidelines:
 
 * Don't use 0 or 1 for the independent variable when doing classification. Use Y/N instead. The IIF function in T-SQL may help here.
-* Create a column thath as `Y` for those rows in the training set and `N` for those rows in the test set. Think of the test set as those people or enounters that need a prediction. This column can be called InTestWindow. 
-* Unlike the [development step](compare.md) (which you should have already completed), you should now pull in both training and test rows in your query. 
-* One has to create a table to receive the predicted values. You can work in SSMS (or SAMD, for those using Health Catalyst products):
+* Create a column called InTestWindow that has `Y` for those people or encounters that you want a prediction generated for and 'N' for rows to ignore.
+* Unlike the [development step](compare.md) (which you should have already completed), you now only need to select test rows in your query.
+* Predictions on test rows can be output to a dataframe or directly to an MSSQL table. If using a table, one has to create the table to receive the predicted values. You can work in SSMS (or SAMD, for those using Health Catalyst products):
     - Create these tables when doing classification or regression, respectively:
         
 ```SQL
@@ -53,7 +51,7 @@ Note these preprocessing steps should first be tested and found useful in the [d
 * If you have lots of NULL values, you may want to turn on imputation via the `impute` argument (see below).
 * If you have lots of NULL cells and your data is longitudinal, you may want to try [GroupedLOCF](/model-pre-processing/longitudinal-imputation).
 * If you think the phenomenon you're trying to predict has a seasonal or diurnal component, you may need some [feature engineering](/model-pre-processing/seasonality-handling).
-* If your data is longitudinal, you may want to try the `LinearMixedModelDeployment`` (detailed below).
+* If your data is longitudinal, you may want to try the `LinearMixedModelDeployment` (detailed below).
 
 ## Step 1: Pull in the data via ``selectData``
 
@@ -106,8 +104,8 @@ library(healthcareai)
     - __grainCol__: a string, defaults to None. Name of possible GrainID column in your dataset. If specified, this column will be removed, as it won't help the algorithm.
     - __testWindowCol__: a string. Name of utility column used to indicate whether rows are in train or test set. Recall that test set receives predictions.
     - __predictedCol__: a string. Name of variable (or column) that you want to predict. 
+    - __writeToDB__: a boolean, defaults to TRUE. If TRUE, predictions will be written to the destination table. 
     - __debug__: a boolean, defaults to FALSE. If TRUE, console output when comparing models is verbose for easier debugging.
-    - __useSavedModel__: a boolean, defaults to FALSE. If TRUE, use the model that has been saved to disk in the current working directory (WD). If FALSE, save a new model to disk in the current WD. Use `getwd()` in the console to check WD.
     - __cores__: an int, defaults to 4. Number of cores on machine to use for model training.
     - __sqlConn__: a string. Specifies the driver, server, database, and whether you're using a trusted connection (which is preferred).
     - __destSchemaTable__ : a string. Denotes the output schema and table (separated by a period) where the predictions should be pushed.
@@ -121,7 +119,6 @@ p$grainCol = 'GrainID'
 p$testWindowCol = 'InTestWindow'
 p$predictedCol = 'SalariedFlag'
 p$debug = FALSE
-p$useSavedModel = FALSE
 p$cores = 1
 p$sqlConn = connection.string
 p$destSchemaTable = 'dbo.HCRDeployClassificationBASE'
@@ -147,54 +144,80 @@ lMM$deploy()
 ## Full example code for SQL Server
 
 ```r
+#### Classification example using SQL Server data ####
+# This example requires you to first create a table in SQL Server
+# If you prefer to not use SAMD, execute this in SSMS to create output table:
+# CREATE TABLE dbo.HCRDeployClassificationBASE(
+#   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
+#   PatientEncounterID int, <--change to match inputID
+#   PredictedProbNBR decimal(38, 2),
+#   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
+# )
+
+## 1. Loading data and packages.
 ptm <- proc.time()
 library(healthcareai)
 
-connection.string = "
+connection.string <- "
 driver={SQL Server};
 server=localhost;
-database=AdventureWorks2012;
+database=SAM;
 trusted_connection=true
 "
 
-query = "
+query <- "
 SELECT
- [PatientEncounterID]
-,[PatientID]
+[PatientEncounterID] --Only need one ID column for random forest
 ,[SystolicBPNBR]
 ,[LDLNBR]
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-FROM [SAM].[dbo].[DiabetesClinical]
+,[InTestWindowFLG]
+FROM [SAM].[dbo].[HCRDiabetesClinical]
 "
 
 df <- selectData(connection.string, query)
+
 head(df)
+str(df)
 
-# Remove unnecessary columns
-df$PatientID <- NULL
+## 2. Train and save the model using DEVELOP
+#' set.seed(42)
+inTest <- df$InTestWindowFLG # save this for deploy
+df$InTestWindowFLG <- NULL
 
-p <- SupervisedModelDeploymentParams$new()
-p$type = 'classification'
-p$df = df
-p$grainCol = 'PatientEncounterID'
-p$testWindowCol = 'InTestWindowFLG'
-p$predictedCol = 'ThirtyDayReadmitFLG'
-p$impute = TRUE
-p$debug = FALSE
-p$useSavedModel = FALSE
-p$cores = 1
-p$sqlConn = connection.string
-p$destSchemaTable = 'dbo.HCRDeployClassificationBASE'
+p <- SupervisedModelDevelopmentParams$new()
+p$df <- df
+p$type <- "classification"
+p$impute <- TRUE
+p$grainCol <- "PatientEncounterID"
+p$predictedCol <- "ThirtyDayReadmitFLG"
+p$debug <- FALSE
+p$cores <- 1
 
-# If Lasso was more accurate in the dev step
-dL <- LassoDeployment$new(p)
+# Run RandomForest
+RandomForest <- RandomForestDevelopment$new(p)
+RandomForest$run()
+
+## 3. Load saved model and use DEPLOY to generate predictions. 
+df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+
+p2 <- SupervisedModelDeploymentParams$new()
+p2$type <- "classification"
+p2$df <- df
+p2$grainCol <- "PatientEncounterID"
+p2$testWindowCol <- "InTestWindowFLG"
+p2$predictedCol <- "ThirtyDayReadmitFLG"
+p2$impute <- TRUE
+p2$debug <- FALSE
+p2$cores <- 1
+p2$sqlConn <- connection.string
+p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
+
+# Assuming Random Forest was more accurate in the development step.
+dL <- RandomForestDeployment$new(p2)
 dL$deploy()
-
-# If Random Forest was more accurate in the dev step
-#dL <- RandomForestDeployment$new(p)
-#dL$deploy()
 
 print(proc.time() - ptm)
 ```
@@ -204,61 +227,87 @@ print(proc.time() - ptm)
 Start with the arguments. You'll want to add
 
 ```r
+#### Classification Example using csv data ####
+## 1. Loading data and packages.
+ptm <- proc.time()
 library(healthcareai)
 
-csvfile <- system.file("extdata",
-                       "HCRDiabetesClinical.csv",
-                       package = "healthcareai")
+# setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 
-df <- read.csv(file = csvfile,
-               header = TRUE,
-               na.strings =  c('NULL', 'NA', ""))
+# Can delete this line in your work
+csvfile <- system.file("extdata", 
+                    "HCRDiabetesClinical.csv", 
+                    package = "healthcareai")
+
+# Replace csvfile with 'path/file'
+df <- read.csv(file = csvfile, 
+            header = TRUE, 
+            na.strings = c("NULL", "NA", ""))
 
 head(df)
+str(df)
 
-df$PersonID <- NULL
+## 2. Train and save the model using DEVELOP
+df$PatientID <- NULL
+inTest <- df$InTestWindowFLG # save this for later.
+df$InTestWindowFLG <- NULL
 
-p <- SupervisedModelDeploymentParams$new()
-p$type <- "classification"
+set.seed(42)
+p <- SupervisedModelDevelopmentParams$new()
 p$df <- df
+p$type <- "classification"
+p$impute <- TRUE
 p$grainCol <- "PatientEncounterID"
-p$testWindowCol <- "InTestWindowFLG"
 p$predictedCol <- "ThirtyDayReadmitFLG"
-p$impute <- FALSE
 p$debug <- FALSE
-p$useSavedModel <- FALSE
 p$cores <- 1
-p$writeToDB <- FALSE    # This differs from above examples
 
+# Run RandomForest
+RandomForest <- RandomForestDevelopment$new(p)
+RandomForest$run()
 
-dL <- RandomForestDeployment$new(p)
+## 3. Load saved model and use DEPLOY to generate predictions. 
+df$InTestWindowFLG <- inTest
+p2 <- SupervisedModelDeploymentParams$new()
+p2$type <- "classification"
+p2$df <- df
+p2$testWindowCol <- "InTestWindowFLG"
+p2$grainCol <- "PatientEncounterID"
+p2$predictedCol <- "ThirtyDayReadmitFLG"
+p2$impute <- TRUE
+p2$debug <- FALSE
+p2$cores <- 1
+p2$writeToDB <- FALSE
+
+# Assuming Random Forest was more accurate in the development step.
+dL <- RandomForestDeployment$new(p2)
 dL$deploy()
 
 df <- dL$getOutDf()
-head(df)
+# Write to CSV (or JSON, MySQL, etc) using plain R syntax
+# write.csv(df,'path/predictionsfile.csv')
 
-# Write to csv 
-# Note that you could also write to json, MySQL, etc
-write.csv(df, 'location/predictions.csv')
+print(proc.time() - ptm)
 ```
 
 ## Linear Mixed Model (small datasets with a longitudinal flavor)
 
 ```
-p <- SupervisedModelParameters$new()
-p$df = df
-p$type = 'classification'
-p$impute = TRUE
-p$grainCol = 'PatientEncounterID' # This grain of the dataset (required)
-p$personCol = 'PatientID'         # This represents the person (required)
-p$predictedCol = 'HighA1C'
-p$debug = FALSE
-p$cores = 1
-p$sqlConn = connection.string
-p$destSchemaTable = 'dbo.HCRDeployClassificationBASE'
+p2 <- SupervisedModelDeploymentParams$new()
+p2$type <- "classification"
+p2$df <- df
+p2$grainCol <- "PatientEncounterID" # Unique ID for each appointment
+p$personCol <- "PatientID" # Could be multiple visits per patient
+p2$testWindowCol <- "InTestWindowFLG"
+p2$predictedCol <- "ThirtyDayReadmitFLG"
+p2$impute <- TRUE
+p2$debug <- FALSE
+p2$cores <- 1
+p2$sqlConn <- connection.string
+p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
 
-lMM <- LinearMixedModelDeployment$new(p)
-lMM$deploy()
+dL <- LinearMixedModelDeployment$new(p2)
+dL$deploy()
 ```
 
 Note: if you need to see the built-in docs (which are always up-to-date):
