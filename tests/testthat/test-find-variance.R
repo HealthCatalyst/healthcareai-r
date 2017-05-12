@@ -10,7 +10,9 @@ test_that("One cat column and no date columns give correct COV", {
   
   expected <- data.frame(DimensionalAttributes = c('Gender','Gender'),
                          CategoriesGrouped = c('M','F'),
-                         MeasureCOV = c('LOSCOV|65.52','LOSCOV|58.21'))
+                         MeasureCOV = c('LOS|65.52','LOS|58.21'),
+                         MeasureVol = c('LOS|3','LOS|3'),
+                         MeasureImpact = c('LOS|196.56','LOS|174.63'))
   
   testthat::expect_equal(dfRes,expected)
 })
@@ -31,8 +33,11 @@ test_that("Two cat columns and no date columns give correct COV", {
     DimensionalAttributes = c('Dept','Dept','Gender','Gender',
                               'Dept|Gender','Dept|Gender'),
     CategoriesGrouped = c('B','A','M','F','B|F','B|M'),
-    MeasureCOV = c('LOSCOV|81.49','LOSCOV|31.04','LOSCOV|65.52',
-                   'LOSCOV|58.21','LOSCOV|54.39','LOSCOV|42.04'))
+    MeasureCOV = c('LOS|81.49','LOS|31.04','LOS|65.52',
+                   'LOS|58.21','LOS|54.39','LOS|42.04'),
+    MeasureVol = c('LOS|4','LOS|2','LOS|3','LOS|3','LOS|2','LOS|2'),
+    MeasureImpact = c('LOS|325.96','LOS|62.08','LOS|196.56','LOS|174.63',
+                      'LOS|108.78','LOS|84.08'))
   
   # Reset factor levels of both dataframes (as we don't care if they're equal)
   testthat::expect_equal(levels(droplevels(dfRes)),
