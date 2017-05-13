@@ -189,12 +189,13 @@ findVariation <- function(df,
   }
   
   for (i in 1:length(categoricalCols)) {
-    if (class(df[[i]]) == "numeric" ||  
-        class(df[[i]]) == "integer") {
+    if (class(df[[categoricalCols[i]]]) == "numeric" ||  
+        class(df[[categoricalCols[i]]]) == "integer") {
       stop("categoricalCols cannot be of class numeric or integer. ", 
            categoricalCols[i], " appears to be of type ", class(df[[i]]))
     }
   }
+  browser()
   
   if (!is.null(dateCol)) {
     tryCatch(
@@ -233,12 +234,21 @@ findVariation <- function(df,
     newVolName <- paste0(measureColumn, 'Volume')
     newImpactName <- paste0(measureColumn, 'Impact')
     
+    print('start dfSub')
+    print(dfSub)
+    
     # Pull matrix that came out of aggregate and make them two regular columns
-    dfSub[[newCOVName]] <- dfSub$LOS[,'COV']
-    dfSub[[newVolName]] <- dfSub$LOS[,'Volume']
+    dfSub[[newCOVName]] <- dfSub[[measureColumn]][,'COV']
+    dfSub[[newVolName]] <- dfSub[[measureColumn]][,'Volume']
+    
+    print('mid dfSub')
+    print(dfSub)
     
     # Delete matrix column that came out of aggregate
     dfSub[[measureColumn]] <- NULL
+    
+    print('later dfSub')
+    print(dfSub)
     
     # Remove rows where there aren't more 
     dfSub <- healthcareai::removeRowsWithNAInSpecCol(dfSub, 
