@@ -68,11 +68,13 @@ createVarianceTallTable <- function(df,
   
   # Create measure-realted col names--these cols are not the same in each row
   incomingMeasureColCOV <- paste0(measure,'COV')
-  incomingMeasureColVolume <- paste0(measure,'Volume')
+  incomingMeasureColVolumeRaw <- paste0(measure,'VolumeRaw')
+  incomingMeasureColVolumePercent <- paste0(measure,'VolumePercent')
   incomingMeasureColImpact <- paste0(measure,'Impact')
   
   measureColumnVect <- c(incomingMeasureColCOV,
-                         incomingMeasureColVolume,
+                         incomingMeasureColVolumeRaw,
+                         incomingMeasureColVolumePercent,
                          incomingMeasureColImpact)
   
   if (!all(c(categoricalCols,measureColumnVect) %in% names(df))) {
@@ -85,10 +87,10 @@ createVarianceTallTable <- function(df,
          " or integer")
   }
 
-  if (class(df[[incomingMeasureColVolume]]) != "numeric" &&  
-      class(df[[incomingMeasureColVolume]]) != "integer") {
-    stop("Your ", incomingMeasureColVolume, " column needs to be of class",
-         " numeric or integer")
+  if (class(df[[incomingMeasureColVolumePercent]]) != "numeric" &&  
+      class(df[[incomingMeasureColVolumePercent]]) != "integer") {
+    stop("Your ", incomingMeasureColVolumePercent, " column needs to be of ",
+         "class numeric or integer")
   }
   
   if (class(df[[incomingMeasureColImpact]]) != "numeric" &&  
@@ -113,7 +115,8 @@ createVarianceTallTable <- function(df,
   # Initialize final col names for last three cols
   CategoriesGrouped <- vector()
   MeasureCOV <- vector()
-  MeasureVol <- vector()
+  MeasureVolRaw <- vector()
+  MeasureVolPercent <- vector()
   MeasureImpact <- vector()
   
   # Going row by row through input df, populate final df
@@ -124,21 +127,29 @@ createVarianceTallTable <- function(df,
                            paste0(df[i,!(names(df) %in% measureColumnVect)],
                                   collapse = "|"))
     
-    MeasureCOV <- c(MeasureCOV, paste0(measure, 
-                                       "|",
-                                       df[i,incomingMeasureColCOV]))
-    MeasureVol <- c(MeasureVol, paste0(measure,
-                                       "|",
-                                       df[i,incomingMeasureColVolume]))
-    MeasureImpact <- c(MeasureImpact, paste0(measure,
-                                             "|",
-                                             df[i,incomingMeasureColImpact]))
+    MeasureCOV <- c(MeasureCOV, 
+                    paste0(measure, 
+                           "|",
+                           df[i,incomingMeasureColCOV]))
+    MeasureVolRaw <- c(MeasureVolRaw, 
+                       paste0(measure,
+                              "|",
+                              df[i,incomingMeasureColVolumeRaw]))
+    MeasureVolPercent <- c(MeasureVolPercent, 
+                           paste0(measure,
+                                  "|",
+                                  df[i,incomingMeasureColVolumePercent]))
+    MeasureImpact <- c(MeasureImpact, 
+                       paste0(measure,
+                              "|",
+                              df[i,incomingMeasureColImpact]))
   }
   
   dfResult <- data.frame(DimensionalAttributes, 
                          CategoriesGrouped, 
                          MeasureCOV,
-                         MeasureVol,
+                         MeasureVolRaw,
+                         MeasureVolPercent,
                          MeasureImpact)
   dfResult
 }
@@ -192,7 +203,8 @@ findVariation <- function(df,
     if (class(df[[categoricalCols[i]]]) == "numeric" ||  
         class(df[[categoricalCols[i]]]) == "integer") {
       stop("categoricalCols cannot be of class numeric or integer. ", 
-           categoricalCols[i], " appears to be of type ", class(df[[i]]))
+           categoricalCols[i], " appears to be of type ", 
+           class(df[[categoricalCols[i]]]))
     }
   }
   browser()
@@ -227,11 +239,12 @@ findVariation <- function(df,
                               data = df,
                               FUN = function(x) 
                                 c(COV = healthcareai::calculateCOV(x), 
-                                  Volume = NROW(x)))
+                                  VolumeRaw = NROW(x)))
     
     # Create new column names, based on measure col
     newCOVName <- paste0(measureColumn, 'COV')
-    newVolName <- paste0(measureColumn, 'Volume')
+    newVolRawName <- paste0(measureColumn, 'VolumeRaw')
+    newVolPercentName <- paste0(measureColumn, 'VolumePercent')
     newImpactName <- paste0(measureColumn, 'Impact')
     
     print('start dfSub')
@@ -239,7 +252,7 @@ findVariation <- function(df,
     
     # Pull matrix that came out of aggregate and make them two regular columns
     dfSub[[newCOVName]] <- dfSub[[measureColumn]][,'COV']
-    dfSub[[newVolName]] <- dfSub[[measureColumn]][,'Volume']
+    dfSub[[newVolRawName]] <- dfSub[[measureColumn]][,'VolumeRaw']
     
     print('mid dfSub')
     print(dfSub)
@@ -255,7 +268,14 @@ findVariation <- function(df,
                                                      newCOVName)
     
     # Create total impact column
-    dfSub[[newImpactName]] <- dfSub[[newCOVName]] * dfSub[[newVolName]]
+    dfSub[[newImpactName]] <- dfSub[[newCOVName]] * dfSub[[newVolRawName]]
+    
+    # Create percentile for Volume
+    dfSub[[newVolPercentName]] <- 
+      round(dfSub[[newVolRawName]] / sum(dfSub[[newVolRawName]]),2)
+    
+    print('df new col')
+    print(dfSub)
     
     # Select only impact above threshold
     if (!is.null(threshold)) {
