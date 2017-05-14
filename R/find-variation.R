@@ -66,6 +66,9 @@ createVarianceTallTable <- function(df,
     stop('Your measure cannot also be listed in categoricalCols')
   }
   
+  print('InTallTable')
+  print(head(df))
+  
   # Create measure-realted col names--these cols are not the same in each row
   incomingMeasureColCOV <- paste0(measure,'COV')
   incomingMeasureColVolumeRaw <- paste0(measure,'VolumeRaw')
@@ -75,7 +78,9 @@ createVarianceTallTable <- function(df,
   measureColumnVect <- c(incomingMeasureColCOV,
                          incomingMeasureColVolumeRaw,
                          incomingMeasureColVolumePercent,
-                         incomingMeasureColImpact)
+                         incomingMeasureColImpact,
+                         "AboveMeanCOVFLG",
+                         "AboveMeanVolumeFLG")
   
   if (!all(c(categoricalCols,measureColumnVect) %in% names(df))) {
     stop('The measure column or one of the categorical cols is not in the df')
@@ -118,6 +123,8 @@ createVarianceTallTable <- function(df,
   MeasureVolRaw <- vector()
   MeasureVolPercent <- vector()
   MeasureImpact <- vector()
+  AboveMeanCOVFLG <- vector()
+  AboveMeanVolumeFLG <- vector()
   
   # Going row by row through input df, populate final df
   for (i in 1:nrow(df)) {
@@ -143,6 +150,16 @@ createVarianceTallTable <- function(df,
                        paste0(measure,
                               "|",
                               df[i,incomingMeasureColImpact]))
+    AboveMeanCOVFLG <- c(AboveMeanCOVFLG, 
+                         paste0(measure,
+                                "|",
+                                df[i,"AboveMeanCOVFLG"]))
+    
+    AboveMeanVolumeFLG <- c(AboveMeanVolumeFLG, 
+                            paste0(measure,
+                                   "|",
+                                   df[i,"AboveMeanVolumeFLG"]))
+    
   }
   
   dfResult <- data.frame(DimensionalAttributes, 
@@ -150,7 +167,9 @@ createVarianceTallTable <- function(df,
                          MeasureCOV,
                          MeasureVolRaw,
                          MeasureVolPercent,
-                         MeasureImpact)
+                         MeasureImpact,
+                         AboveMeanCOVFLG,
+                         AboveMeanVolumeFLG)
   dfResult
 }
 
@@ -207,7 +226,6 @@ findVariation <- function(df,
            class(df[[categoricalCols[i]]]))
     }
   }
-  browser()
   
   if (!is.null(dateCol)) {
     tryCatch(
@@ -231,7 +249,7 @@ findVariation <- function(df,
     
     currentCatColumnComboVect <- unlist(listOfPossibleCombos[i])
     
-    # Collapse cat cols into one string, separated by +
+    # Prepare for aggregate - Collapse cat cols into one string, separated by +
     combineIndyVarsPlus <- paste0(currentCatColumnComboVect, collapse = " + ")
     finalFormula <- paste0(measureColumn, " ~ ", combineIndyVarsPlus)
     
@@ -260,6 +278,19 @@ findVariation <- function(df,
     # Delete matrix column that came out of aggregate
     dfSub[[measureColumn]] <- NULL
     
+    # Add on FLAGS for above-mean COV and VolumeRaw (at this level)
+    dfSub$AboveMeanCOVFLG <- ifelse(dfSub[[newCOVName]] > 
+                                      mean(dfSub[[newCOVName]], 
+                                           na.rm = TRUE), 
+                                    'Y', 
+                                    'N')
+    
+    dfSub$AboveMeanVolumeFLG <- ifelse(dfSub[[newVolRawName]] > 
+                                         mean(dfSub[[newVolRawName]], 
+                                              na.rm = TRUE), 
+                                      'Y', 
+                                      'N')
+    
     print('later dfSub')
     print(dfSub)
     
@@ -268,7 +299,7 @@ findVariation <- function(df,
                                                      newCOVName)
     
     # Create total impact column
-    dfSub[[newImpactName]] <- dfSub[[newCOVName]] * dfSub[[newVolRawName]]
+    dfSub[[newImpactName]] <- dfSub[[newCOVName]] + dfSub[[newVolRawName]]
     
     # Create percentile for Volume
     dfSub[[newVolPercentName]] <- 
@@ -276,6 +307,7 @@ findVariation <- function(df,
     
     print('df new col')
     print(dfSub)
+    
     
     # Select only impact above threshold
     if (!is.null(threshold)) {
@@ -294,7 +326,7 @@ findVariation <- function(df,
             healthcareai::createVarianceTallTable(
                             df = dfSub, 
                             categoricalCols = currentCatColumnComboVect,
-                            measure = measureColumn ))
+                            measure = measureColumn))
   }
   
   if (nrow(dfTotal) == 0) {
