@@ -68,7 +68,7 @@ install.packages('assertthat')
 install.packages(c('caret','data.table','devtools','doParallel','e1071','grpreg','lme4','lubridate','pROC','R6','ranger','ROCR','RODBC'),repos = "https://cran.cnr.berkeley.edu/")
 
 library(devtools)
-devtools::install_github(repo='HealthCatalystSLC/healthcareai-r')
+devtools::install_github(repo='HealthCatalyst/healthcareai-r')
 ```
 ## Tips on getting started
 
@@ -83,7 +83,7 @@ library(healthcareai)
 See our [docs website](http://healthcareai-r.readthedocs.io)
 
 #### Jupyter notebook examples
-If you like Jupyter notebooks, check out [step 1](https://github.com/HealthCatalystSLC/documentation/blob/master/notebooks/Example1.ipynb) and [step 2](https://github.com/HealthCatalystSLC/documentation/blob/master/notebooks/Example2.ipynb) in model building with healthcareai.
+If you like Jupyter notebooks, check out [step 1](https://github.com/HealthCatalyst/documentation/blob/master/notebooks/Example1.ipynb) and [step 2](https://github.com/HealthCatalyst/documentation/blob/master/notebooks/Example2.ipynb) in model building with healthcareai.
 
 ## Join the community
 Read the blog and join the slack channel at [healthcare.ai](https://healthcare.ai)
@@ -112,4 +112,4 @@ library(healthcareai)
 
 ## How to help
 
-Check out our github [repo](https://github.com/HealthCatalystSLC/healthcareai-r/blob/master/README.md#contributing).
+Check out our github [repo](https://github.com/HealthCatalyst/healthcareai-r/blob/master/README.md#contributing).
