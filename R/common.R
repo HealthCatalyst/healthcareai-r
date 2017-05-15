@@ -1420,9 +1420,7 @@ getCutOffList = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
                 cutoff, tpr, fpr))  
     if (isTRUE(allCutoffsFlg)) {
       cat(sprintf("%-7s %-6s %-5s \n", 'Thresh', 'TPR', 'FPR'))
-      cat(sprintf("%-7.2f %-6.2f %-6.2f \n", 
-                  unlist(perf@alpha.values), unlist(perf@y.values), unlist(perf@x.values)))  
-    }
+      cat(sprintf("%-7.2f %-6.2f %-6.2f \n", p, y, x)) }
     return(c(cutoff, tpr, fpr)) # list of integers
     # for PR curves
   } else if (aucType == 'PR') { 
@@ -1437,9 +1435,7 @@ getCutOffList = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
                 cutoff, pre, rec))  
     if (isTRUE(allCutoffsFlg)) {
       cat(sprintf("%-7s %-10s %-10s \n", 'Thresh', 'Precision', 'Recall'))
-      cat(sprintf("%-7.2f %-10.2f %-10.2f \n", 
-                  unlist(perf@alpha.values), unlist(perf@y.values), unlist(perf@x.values)))
-    }
+      cat(sprintf("%-7.2f %-10.2f %-10.2f \n", p, y, x)) }
     return(c(cutoff, pre, rec)) # list of integers
   }
 }
