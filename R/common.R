@@ -1411,18 +1411,9 @@ getCutOffList = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
   p <- unlist(perf@alpha.values)
   # for ROC curves
   if (aucType == 'SS') {
-    print('x')
-    print(x)
-    print(y)
     d = (x - 0) ^ 2 + (y - 1) ^ 2
-    print(min(d))
-    print(d)
-    
-    ind = which(d == min(d))
-    print(y)
-    print(ind)
+    ind = which.min(d)
     tpr = y[[ind]]
-    
     fpr = x[[ind]]
     cutoff = p[[ind]]
     cat(sprintf("Ideal cutoff is %0.2f, yielding TPR of %0.2f and FPR of %0.2f \n", 
