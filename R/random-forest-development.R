@@ -168,8 +168,6 @@
 #' plotPRCurve(rocs, names, legendLoc)
 #'
 #' print(proc.time() - ptm)
-#' 
-#'  print('we are testing this functionality')
 #' }
 #'
 #' @export
