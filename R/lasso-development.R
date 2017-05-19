@@ -370,7 +370,7 @@ LassoDevelopment <- R6Class("LassoDevelopment",
       
       if (isTRUE(self$params$printResults)) {
         cat("Grouped Lasso coefficients:","\n")
-        cat(private$fitGrLasso$fit$beta[, private$indLambda1se],"\n")
+        print(private$fitGrLasso$fit$beta[, private$indLambda1se])
       }
       
       if (isTRUE(self$params$varImp)) {
