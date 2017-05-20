@@ -7,9 +7,10 @@ library(dplyr)
 
 
 # load data and clean
-df <- read.csv(file = '~/RFiles/xgboost demo/derm_data.csv', header = TRUE)
+# df <- read.csv(file = '~/RFiles/xgboost demo/derm_data.csv', header = TRUE)
+df <- read.csv(file = '~/Repos/healthcareai-r/derm_data.csv', header = TRUE)
 
-### old way
+### old way  
 # set.seed(42)
 # PatientID <- sample(1:dim(df)[1],dim(df[1]))
 # 
@@ -32,12 +33,12 @@ row.names(df) <- PatientID
 
 df$target <- df$x35
 df$x35 <- NULL
-df$target[df$target==1] <- 'f'
-df$target[df$target==2] <- 'e'
-df$target[df$target==3] <- 'd'
-df$target[df$target==4] <- 'c'
-df$target[df$target==5] <- 'b'
-df$target[df$target==6] <- 'a'
+df$target[df$target==1] <- 'one'
+df$target[df$target==2] <- 'two'
+df$target[df$target==3] <- 'three'
+df$target[df$target==4] <- 'four'
+df$target[df$target==5] <- 'five'
+df$target[df$target==6] <- 'six'
 head(df)
 dfTargets <- df
 
@@ -109,7 +110,17 @@ test_prediction <- test_pred %>%
   mutate(predicted_label = max.col(.),
          true_label = test_label + 1) # R factors are 1 indexed, XGB is 0 indexed.
 
+# get target names in order for column naming
+targetNamesInOrder <- sort(unique(dfTargets[,35]))
+colnames(test_prediction)[1:numberOfClasses] <- targetNamesInOrder
 
+# set up a mapping for the values themselves
+from <- 1:numberOfClasses
+to <- targetNamesInOrder
+map = setNames(to,from)
+test_prediction$predicted_label <- map[test_prediction$predicted_label] # note square brackets
+test_prediction$true_label <- map[test_prediction$true_label] 
+head(test_prediction)
 
 # confusion matrix of test set
 caret::confusionMatrix(test_prediction$true_label,
@@ -119,8 +130,16 @@ caret::confusionMatrix(test_prediction$true_label,
 all_data <- cbind(row.names(test_data), test_prediction)
 colnames(all_data)[1] <- 'PatientID'
 # colnames(all_data)[2:(numberOfClasses + 1)] <- class_names
-head(all_data)
-print(dfTargets[1:15,])
+
+inds <- which(PatientID %in% c(343,302,188,252,91,356))
+#print('input data with original labels:')
+#print(dfTargets[inds,c(1,2,3,35)])
+
+#print('xgboost output with predictions:')
+#head(all_data)
+
+print('xgboost output with predictions and original labels:')
+print(cbind(all_data[1:6,], 'target' = dfTargets[inds,35]))
 
 # next order of business: get smart column names into the all_data output.
 # then. develop!
