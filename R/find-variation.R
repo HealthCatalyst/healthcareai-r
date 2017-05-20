@@ -170,6 +170,7 @@ createVarianceTallTable <- function(df,
                          MeasureImpact,
                          AboveMeanCOVFLG,
                          AboveMeanVolumeFLG)
+
   dfResult
 }
 
@@ -213,17 +214,41 @@ findVariation <- function(df,
     stop('The measure column or one of the categorical cols is not in the df')
   }
   
-  if (class(df[[measureColumn]]) != "numeric" &&  
-      class(df[[measureColumn]]) != "integer") {
-    stop("Your ", measureColumn, " column needs to be of class numeric or integer")
+  # Check that measure columns exist and are of proper type
+  if (length(measureColumn) > 1) {
+    for (i in 1:length(measureColumn)) {
+      if (class(df[[measureColumn[i]]]) != "numeric" &&  
+          class(df[[measureColumn[i]]]) != "integer") {
+      stop("measureColumn needs to be of class numeric or integer. ",
+           measureColumn[i], " appears to be of type ", 
+           class(df[[measureColumn[i]]]))
+      }
+    }
+  } else if (length(measureColumn) == 1) {
+    if (class(df[[measureColumn]]) != "numeric" &&  
+        class(df[[measureColumn]]) != "integer") {
+      stop("measureColumn needs to be of class numeric or integer. ",
+           measureColumn, " appears to be of type ", 
+           class(df[[measureColumn]]))
+    }
   }
-  
-  for (i in 1:length(categoricalCols)) {
-    if (class(df[[categoricalCols[i]]]) == "numeric" ||  
-        class(df[[categoricalCols[i]]]) == "integer") {
+
+  # Check that categorical columns exist and are of proper type
+  if (length(categoricalCols) > 1) {
+    for (i in 1:length(categoricalCols)) {
+      if (class(df[[categoricalCols[i]]]) == "numeric" ||  
+          class(df[[categoricalCols[i]]]) == "integer") {
+        stop("categoricalCols cannot be of class numeric or integer. ", 
+             categoricalCols[i], " appears to be of type ", 
+             class(df[[categoricalCols[i]]]))
+      }
+    }
+  } else if (length(categoricalCols) == 1) {
+    if (class(df[[categoricalCols]]) == "numeric" ||  
+        class(df[[categoricalCols]]) == "integer") {
       stop("categoricalCols cannot be of class numeric or integer. ", 
-           categoricalCols[i], " appears to be of type ", 
-           class(df[[categoricalCols[i]]]))
+           categoricalCols, " appears to be of type ", 
+           class(df[[categoricalCols]]))
     }
   }
   
@@ -247,92 +272,107 @@ findVariation <- function(df,
   
   for (i in 1:length(listOfPossibleCombos)) {
     
-    currentCatColumnComboVect <- unlist(listOfPossibleCombos[i])
+    for (j in 1:length(measureColumn)) {
     
-    # Prepare for aggregate - Collapse cat cols into one string, separated by +
-    combineIndyVarsPlus <- paste0(currentCatColumnComboVect, collapse = " + ")
-    finalFormula <- paste0(measureColumn, " ~ ", combineIndyVarsPlus)
-    
-    dfSub <- stats::aggregate(stats::as.formula(finalFormula),
-                              data = df,
-                              FUN = function(x) 
-                                c(COV = healthcareai::calculateCOV(x), 
-                                  VolumeRaw = NROW(x)))
-    
-    # Create new column names, based on measure col
-    newCOVName <- paste0(measureColumn, 'COV')
-    newVolRawName <- paste0(measureColumn, 'VolumeRaw')
-    newVolPercentName <- paste0(measureColumn, 'VolumePercent')
-    newImpactName <- paste0(measureColumn, 'Impact')
-    
-    print('start dfSub')
-    print(dfSub)
-    
-    # Pull matrix that came out of aggregate and make them two regular columns
-    dfSub[[newCOVName]] <- dfSub[[measureColumn]][,'COV']
-    dfSub[[newVolRawName]] <- dfSub[[measureColumn]][,'VolumeRaw']
-    
-    print('mid dfSub')
-    print(dfSub)
-    
-    # Delete matrix column that came out of aggregate
-    dfSub[[measureColumn]] <- NULL
-    
-    # Add on FLAGS for above-mean COV and VolumeRaw (at this level)
-    dfSub$AboveMeanCOVFLG <- ifelse(dfSub[[newCOVName]] > 
-                                      mean(dfSub[[newCOVName]], 
-                                           na.rm = TRUE), 
-                                    'Y', 
-                                    'N')
-    
-    dfSub$AboveMeanVolumeFLG <- ifelse(dfSub[[newVolRawName]] > 
-                                         mean(dfSub[[newVolRawName]], 
-                                              na.rm = TRUE), 
+      currentCatColumnComboVect <- unlist(listOfPossibleCombos[i])
+      
+      # Prepare for aggregate - Collapse cat cols into one string, separated by +
+      combineIndyVarsPlus <- paste0(currentCatColumnComboVect, collapse = " + ")
+      finalFormula <- paste0(measureColumn[j], " ~ ", combineIndyVarsPlus)
+      
+      dfSub <- stats::aggregate(stats::as.formula(finalFormula),
+                                data = df,
+                                FUN = function(x) 
+                                  c(COV = healthcareai::calculateCOV(x), 
+                                    VolumeRaw = NROW(x)))
+      
+      # Create new column names, based on measure col
+      newCOVName <- paste0(measureColumn[j], 'COV')
+      newVolRawName <- paste0(measureColumn[j], 'VolumeRaw')
+      newVolPercentName <- paste0(measureColumn[j], 'VolumePercent')
+      newImpactName <- paste0(measureColumn[j], 'Impact')
+      
+      # Pull matrix that came out of aggregate and make them two regular columns
+      dfSub[[newCOVName]] <- dfSub[[measureColumn[j]]][,'COV']
+      dfSub[[newVolRawName]] <- dfSub[[measureColumn[j]]][,'VolumeRaw']
+      
+      # Delete matrix column that came out of aggregate
+      dfSub[[measureColumn[j]]] <- NULL
+      
+      print('dfSub after deleting matrix')
+      print(measureColumn[j])
+      print(dfSub)
+      
+      # Add on FLAGS for above-mean COV and VolumeRaw (at this level)
+      dfSub$AboveMeanCOVFLG <- ifelse(dfSub[[newCOVName]] > 
+                                        mean(dfSub[[newCOVName]], 
+                                             na.rm = TRUE), 
                                       'Y', 
                                       'N')
-    
-    print('later dfSub')
-    print(dfSub)
-    
-    # Remove rows where there aren't more 
-    dfSub <- healthcareai::removeRowsWithNAInSpecCol(dfSub, 
-                                                     newCOVName)
-    
-    # Create total impact column
-    dfSub[[newImpactName]] <- dfSub[[newCOVName]] + dfSub[[newVolRawName]]
-    
-    # Create percentile for Volume
-    dfSub[[newVolPercentName]] <- 
-      round(dfSub[[newVolRawName]] / sum(dfSub[[newVolRawName]]),2)
-    
-    print('df new col')
-    print(dfSub)
-    
-    
-    # Select only impact above threshold
-    if (!is.null(threshold)) {
       
-      dfSub <- dfSub[dfSub[[newImpactName]] > threshold,]
+      dfSub$AboveMeanVolumeFLG <- ifelse(dfSub[[newVolRawName]] > 
+                                           mean(dfSub[[newVolRawName]], 
+                                                na.rm = TRUE), 
+                                        'Y', 
+                                        'N')
       
+      # Remove rows where MeasureCOV is NA
+      dfSub <- healthcareai::removeRowsWithNAInSpecCol(dfSub, 
+                                                       newCOVName)
+      
+      # Create percentages for Volume
+      dfSub[[newVolPercentName]] <- 
+        round(dfSub[[newVolRawName]] / sum(dfSub[[newVolRawName]]),2)
+      
+      # Create total impact column
+      dfSub[[newImpactName]] <- dfSub[[newCOVName]] * dfSub[[newVolPercentName]]
+      
+      # Select only impact above threshold
+      if (!is.null(threshold)) {
+        dfSub <- dfSub[dfSub[[newImpactName]] > threshold,]
+      }
+  
       # If no rows in subgroup above threshold, send to next loop
-      if (isTRUE(all(is.na(dfSub)))) {
+      if (isTRUE(all(is.na(dfSub))) || nrow(dfSub) == 0) {
         next
       }
+      
+      print('dfSub before calling tall table ')
+      print(dfSub)
+      
+      # Add variation/volumne for one categorical col combination to total df
+      dfTotal <- 
+        rbind(dfTotal,
+              healthcareai::createVarianceTallTable(
+                              df = dfSub, 
+                              categoricalCols = currentCatColumnComboVect,
+                              measure = measureColumn[j]))
     }
-
-    # Add variation/volumne for one categorical col combination to total df
-    dfTotal <- 
-      rbind(dfTotal,
-            healthcareai::createVarianceTallTable(
-                            df = dfSub, 
-                            categoricalCols = currentCatColumnComboVect,
-                            measure = measureColumn))
   }
-  
+
   if (nrow(dfTotal) == 0) {
     stop("No subgroups found above threshold.",
-         " Try removing or lower your threshold")
+         " Try removing or lower your threshold, or select more rows")
   } else {
+    
+    # Convert from factor to char for ordering
+    dfTotal$DimensionalAttributes <- as.character(dfTotal$DimensionalAttributes)
+    
+    # Prepare for ordering by parsing piped strings
+    # Unlist is necessary to create dataframe column
+    dfTotal$TempDimDepth <- unlist(lapply(dfTotal$DimensionalAttributes, 
+                                          FUN = getPipedColCount))
+    dfTotal$TempImpact <- unlist(lapply(dfTotal$MeasureImpact,
+                                        FUN = getPipedValue))
+    
+    # Order dataframe, based on MeasureImpact column (w/ highest at top)
+    dfTotal <- dfTotal[order(dfTotal$TempDimDepth,
+                             dfTotal$DimensionalAttributes,
+                             -dfTotal$TempImpact),]
+    
+    dfTotal$TempDimDepth <- NULL
+    dfTotal$TempImpact <- NULL
+    
     return(dfTotal)
   }
 }
@@ -367,4 +407,18 @@ createCombinations <- function(categoricalCols) {
                                      list(categoricalCols[as.logical(df[i,])]))
   }
   listOfCatColumnCombinations
+}
+
+getPipedColCount <- function(string) {
+  result <- length(unlist(strsplit(as.character(string), 
+                                   split = "|", 
+                                   fixed = TRUE)))
+  result
+}
+
+getPipedValue <- function(string) {
+  result <- as.numeric(unlist(strsplit(as.character(string), 
+                                       split = "|", 
+                                       fixed = TRUE))[2])
+  result
 }
