@@ -130,6 +130,8 @@ selectData <- function(MSSQLConnectionString = NULL,
 #' @param SQLiteFileName A string. If dbtype is SQLite, here one specifies the 
 #' database file to query from
 #' @param tableName String. Name of the table that receives the new rows
+#' @param addSAMUtilityColumns Boolean. Whether to add Health Catalyst-related
+#' date-time stamp, BindingID, and BindingNM to df before saving to db.
 #' @return Nothing
 #'
 #' @export
