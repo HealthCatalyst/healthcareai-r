@@ -50,7 +50,6 @@ auc = generateAUC(predictions = pred,
                   aucType = 'SS',
                   plotFlg = TRUE,
                   allCutoffsFlg = TRUE)
-
 }
 \references{
 \url{http://healthcare.ai}

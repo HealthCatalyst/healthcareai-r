@@ -34,15 +34,15 @@ to monitor the calculations throughout. Use T or F.}
 \description{
 This step allows one to
 \itemize{
-\item Create a final model on all of your training data
-\item Automatically save the model
+\item Load a saved model from \code{\link{LassoDevelopment}}
 \item Run the model against test data to generate predictions
 \item Push these predictions to SQL Server
 }
 }
 \examples{
 
-#### Regression Example using csv data ####
+#### Classification Example using csv data ####
+## 1. Loading data and packages.
 ptm <- proc.time()
 library(healthcareai)
 
@@ -61,22 +61,39 @@ df <- read.csv(file = csvfile,
 head(df)
 str(df)
 
-# Remove unnecessary columns
+## 2. Train and save the model using DEVELOP
 df$PatientID <- NULL
+inTest <- df$InTestWindowFLG # save this for later.
+df$InTestWindowFLG <- NULL
 
-p <- SupervisedModelDeploymentParams$new()
-p$type <- "regression"
+set.seed(42)
+p <- SupervisedModelDevelopmentParams$new()
 p$df <- df
-p$grainCol <- "PatientEncounterID"
-p$testWindowCol <- "InTestWindowFLG"
-p$predictedCol <- "A1CNBR"
+p$type <- "classification"
 p$impute <- TRUE
+p$grainCol <- "PatientEncounterID"
+p$predictedCol <- "ThirtyDayReadmitFLG"
 p$debug <- FALSE
-p$useSavedModel <- FALSE
 p$cores <- 1
-p$writeToDB <- FALSE
 
-dL <- LassoDeployment$new(p)
+# Run Lasso
+lasso <- LassoDevelopment$new(p)
+lasso$run()
+
+## 3. Load saved model and use DEPLOY to generate predictions. 
+df$InTestWindowFLG <- inTest
+p2 <- SupervisedModelDeploymentParams$new()
+p2$type <- "classification"
+p2$df <- df
+p2$testWindowCol <- "InTestWindowFLG"
+p2$grainCol <- "PatientEncounterID"
+p2$predictedCol <- "ThirtyDayReadmitFLG"
+p2$impute <- TRUE
+p2$debug <- FALSE
+p2$cores <- 1
+p2$writeToDB <- FALSE
+
+dL <- LassoDeployment$new(p2)
 dL$deploy()
 
 df <- dL$getOutDf()
@@ -96,6 +113,7 @@ print(proc.time() - ptm)
 #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 # )
 
+## 1. Loading data and packages.
 ptm <- proc.time()
 library(healthcareai)
 
@@ -105,10 +123,9 @@ server=localhost;
 database=SAM;
 trusted_connection=true
 "
-
 query <- "
 SELECT
- [PatientEncounterID] --Only need one ID column for random forest
+[PatientEncounterID] --Only need one ID column for random forest
 ,[SystolicBPNBR]
 ,[LDLNBR]
 ,[A1CNBR]
@@ -116,28 +133,46 @@ SELECT
 ,[ThirtyDayReadmitFLG]
 ,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
---no WHERE clause, because we want train AND test
 "
-
 df <- selectData(connection.string, query)
 
 head(df)
 str(df)
 
-p <- SupervisedModelDeploymentParams$new()
-p$type <- "classification"
-p$df <- df
-p$grainCol <- "PatientEncounterID"
-p$testWindowCol <- "InTestWindowFLG"
-p$predictedCol <- "ThirtyDayReadmitFLG"
-p$impute <- TRUE
-p$debug <- FALSE
-p$useSavedModel <- FALSE
-p$cores <- 1
-p$sqlConn <- connection.string
-p$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
+## 2. Train and save the model using DEVELOP
+#' set.seed(42)
+inTest <- df$InTestWindowFLG # save this for deploy
+df$InTestWindowFLG <- NULL
 
-dL <- LassoDeployment$new(p)
+p <- SupervisedModelDevelopmentParams$new()
+p$df <- df
+p$type <- "classification"
+p$impute <- TRUE
+p$grainCol <- "PatientEncounterID"
+p$predictedCol <- "ThirtyDayReadmitFLG"
+p$debug <- FALSE
+p$cores <- 1
+
+# Run Lasso
+lasso <- LassoDevelopment$new(p)
+lasso$run()
+
+## 3. Load saved model and use DEPLOY to generate predictions. 
+df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+
+p2 <- SupervisedModelDeploymentParams$new()
+p2$type <- "classification"
+p2$df <- df
+p2$grainCol <- "PatientEncounterID"
+p2$testWindowCol <- "InTestWindowFLG"
+p2$predictedCol <- "ThirtyDayReadmitFLG"
+p2$impute <- TRUE
+p2$debug <- FALSE
+p2$cores <- 1
+p2$sqlConn <- connection.string
+p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
+
+dL <- LassoDeployment$new(p2)
 dL$deploy()
 
 print(proc.time() - ptm)
@@ -154,6 +189,7 @@ print(proc.time() - ptm)
 #   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
 # )
 
+## 1. Loading data and packages.
 ptm <- proc.time()
 library(healthcareai)
 
@@ -163,10 +199,9 @@ server=localhost;
 database=SAM;
 trusted_connection=true
 "
-
 query <- "
 SELECT
- [PatientEncounterID] --Only need one ID column for random forest
+[PatientEncounterID] --Only need one ID column for random forest
 ,[SystolicBPNBR]
 ,[LDLNBR]
 ,[A1CNBR]
@@ -174,28 +209,46 @@ SELECT
 ,[ThirtyDayReadmitFLG]
 ,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
---no WHERE clause, because we want train AND test
 "
-
 df <- selectData(connection.string, query)
 
 head(df)
 str(df)
 
-p <- SupervisedModelDeploymentParams$new()
-p$type <- "regression"
-p$df <- df
-p$grainCol <- "PatientEncounterID"
-p$testWindowCol <- "InTestWindowFLG"
-p$predictedCol <- "A1CNBR"
-p$impute <- TRUE
-p$debug <- FALSE
-p$useSavedModel <- FALSE
-p$cores <- 1
-p$sqlConn <- connection.string
-p$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
+## 2. Train and save the model using DEVELOP
+#' set.seed(42)
+inTest <- df$InTestWindowFLG # save this for deploy
+df$InTestWindowFLG <- NULL
 
-dL <- LassoDeployment$new(p)
+p <- SupervisedModelDevelopmentParams$new()
+p$df <- df
+p$type <- "regression"
+p$impute <- TRUE
+p$grainCol <- "PatientEncounterID"
+p$predictedCol <- "A1CNBR"
+p$debug <- FALSE
+p$cores <- 1
+
+# Run Lasso
+lasso <- LassoDevelopment$new(p)
+lasso$run()
+
+## 3. Load saved model and use DEPLOY to generate predictions. 
+df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+
+p2 <- SupervisedModelDeploymentParams$new()
+p2$type <- "regression"
+p2$df <- df
+p2$grainCol <- "PatientEncounterID"
+p2$testWindowCol <- "InTestWindowFLG"
+p2$predictedCol <- "A1CNBR"
+p2$impute <- TRUE
+p2$debug <- FALSE
+p2$cores <- 1
+p2$sqlConn <- connection.string
+p2$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
+
+dL <- LassoDeployment$new(p2)
 dL$deploy()
 
 print(proc.time() - ptm)

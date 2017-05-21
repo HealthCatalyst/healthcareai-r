@@ -15,8 +15,8 @@ df1 <- data.frame(a = c(2,1,3,5,4,NA,7,NA),
                                   '2012-01-01 06:00:00','2012-01-01 06:00:00',
                                   '2012-01-01 06:00:00','2012-01-01 06:00:00'))
 
-actualOut1 <- featureAvailabilityProfiler(df = df1,
-                                          plotProfiler = FALSE)
+capture.output(actualOut1 <- featureAvailabilityProfiler(df = df1,
+                                                         plotProfiler = FALSE))
 
 expected1 <- list()
 expected1$hoursSinceAdmit <- c(0, 1, 2, 3, 4, 6, 8, 12, 18, 24)
@@ -46,10 +46,10 @@ test_that("For multi-day dataframe and dates specified return correctly", {
                                '2012-01-03 00:00:00','2012-01-03 00:00:00',
                                '2012-01-03 00:00:00','2012-01-03 00:00:00'))
   
-  actualOut2 <- featureAvailabilityProfiler(df = df2,
+  capture.output(actualOut2 <- featureAvailabilityProfiler(df = df2,
                                             startDateColumn = 'admit',
                                             lastLoadDateColumn = 'loaded',
-                                            plotProfiler = FALSE)
+                                            plotProfiler = FALSE))
   
   expected2 <- list()
   expected2$hoursSinceAdmit <- c(0, 1, 2, 3, 4, 6, 8, 12, 18, 24, 48, 72)
@@ -80,10 +80,10 @@ test_that("Check that not in dataframe error arises", {
                                '2012-01-03 00:00:00','2012-01-03 00:00:00'))
   
   
-  expect_error(featureAvailabilityProfiler(df = df3,
+  expect_error(capture.output(featureAvailabilityProfiler(df = df3,
                                            startDateColumn = 'admit',
                                            lastLoadDateColumn = 'loade',
-                                           plotProfiler = FALSE)
+                                           plotProfiler = FALSE))
                ,paste0('loade is not in your dataframe. Please carefully',
                        ' specify the lastLoadDateColumn'))
   

@@ -2,7 +2,7 @@ Package: healthcareai
 Type: Package
 Title: Tools for Healthcare Machine Learning
 Version: 0.1.12
-Date: 2017-04-25
+Date: 2017-05-03
 Authors@R: c(
     person("Levi", "Thatcher", email = "levi.thatcher@healthcatalyst.com", role = c("aut", "cre")),
     person("Mike", "Mastanduno", email = "mike.mastanduno@healthcatalyst.com", role = "aut"),
@@ -17,7 +17,6 @@ LazyData: TRUE
 Depends:
     R (>= 3.2.3)
 Imports:
-    assertthat,
     caret,
     data.table,
     DBI,
@@ -33,6 +32,7 @@ Imports:
     RODBC,
     RSQLite
 RoxygenNote: 6.0.1
-Suggests: testthat
+Suggests:
+    testthat
 URL: http://healthcareai-r.readthedocs.io
 BugReports: https://github.com/HealthCatalystSLC/healthcareai-r/issues

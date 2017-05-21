@@ -6,7 +6,7 @@
 \title{Compare predictive models, created on your data}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-LassoDevelopment(object, type, df, grainCol, predictedCol, impute, 
+LassoDevelopment(object, type, df, grainCol, predictedCol, impute,
 debug)
 }
 \arguments{
@@ -58,12 +58,12 @@ p$cores <- 1
 lasso <- LassoDevelopment$new(p)
 lasso$run()
 
-set.seed(42) 
+set.seed(42)
 # Run Random Forest
 rf <- RandomForestDevelopment$new(p)
 rf$run()
 
-print(proc.time() - ptm)
+cat(proc.time() - ptm,"\\n")
 
 #### Example using csv data ####
 library(healthcareai)
@@ -94,15 +94,14 @@ p$cores <- 1
 lasso <- LassoDevelopment$new(p)
 lasso$run()
 
-set.seed(42) 
+set.seed(42)
 # Run Random Forest
 rf <- RandomForestDevelopment$new(p)
 rf$run()
 
-print(proc.time() - ptm)
+cat(proc.time() - ptm,"\\n")
 
 \donttest{
-#### This example is specific to Windows and is not tested. 
 #### Example using SQL Server data #### This example requires: 1) That you alter
 #### your connection string / query
 
@@ -127,7 +126,6 @@ SELECT
 FROM [SAM].[dbo].[HCRDiabetesClinical]
 WHERE InTestWindowFLG = 'N'
 "
-
 df <- selectData(connection.string, query)
 head(df)
 
@@ -146,7 +144,7 @@ p$cores <- 1
 lasso <- LassoDevelopment$new(p)
 lasso$run()
 
-set.seed(42) 
+set.seed(42)
 # Run Random Forest
 rf <- RandomForestDevelopment$new(p)
 rf$run()
@@ -163,7 +161,7 @@ names <- c("Random Forest", "Lasso")
 legendLoc <- "bottomleft"
 plotPRCurve(rocs, names, legendLoc)
 
-print(proc.time() - ptm)
+cat(proc.time() - ptm,"\\n")
 }
 
 }

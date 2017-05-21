@@ -200,7 +200,6 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
   dfResult
 }
 
-#' @title
 #' Remove columns from a data frame when those columns have the same values in
 #' each row
 #'
@@ -289,7 +288,7 @@ findTrends <- function(df, dateCol, groupbyCol) {
     # Just grab rows corresponding to a particular category in the factor col
     dfTemp <- df[df[[groupbyCol]] == j, ]
 
-    print("df after grouping and focusing on one category in group col:")
+    cat("df after grouping and focusing on one category in group col:", '\n')
     print(tail(dfTemp, n = 6))
 
     # Iterate over all columns except for cols that we aggregated by
@@ -319,7 +318,7 @@ findTrends <- function(df, dateCol, groupbyCol) {
   } else {
     dfResult <- data.frame(groupbyCol, aggregatedColList, metricTrendList, finalYrMonth)
     colnames(dfResult) <- c("DimAttribute", "GroupBy", "MeasuresTrending", "FinalDate")
-    print("Trends were found:")
+    cat("Trends were found:", '\n')
     print(dfResult)
   }
 }
@@ -978,18 +977,18 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
 
   # Order by greatest drop in predicted probability
   orderedProbDrop <- predDiff[orderedPredDiffIndex]
-  print('orderedProbDrop')
-  print(orderedProbDrop)
+  cat('orderedProbDrop', '\n')
+  cat(orderedProbDrop, '\n')
 
   # Find associated features that were changed
   orderedColChanged <- colChanged[orderedPredDiffIndex]
-  print('orderedColChanged')
-  print(orderedColChanged)
+  cat('orderedColChanged', '\n')
+  cat(orderedColChanged, '\n')
 
   # Find associated alternate values
   orderedAlternateValue <- alternateValue[orderedPredDiffIndex]
-  print('orderedAlternateValue')
-  print(orderedAlternateValue)
+  cat('orderedAlternateValue', '\n')
+  cat(orderedAlternateValue, '\n')
 
   dfOptResult <- data.frame(orderedProbDrop,
                             orderedColChanged,
@@ -1036,7 +1035,7 @@ findBestAlternateScenarios <- function(dfAlternateFeat,
 #'                   aucType = 'SS',
 #'                   plotFlg = TRUE,
 #'                   allCutoffsFlg = TRUE)
-#' 
+ 
 generateAUC <- function(predictions, 
                         labels, 
                         aucType='SS', 
@@ -1052,7 +1051,7 @@ generateAUC <- function(predictions,
   
   # default to SS if something else is entered
   if (aucType != 'SS' && aucType != 'PR') {
-    print('Drawing ROC curve with Sensitivity/Specificity')
+    cat('Drawing ROC curve with Sensitivity/Specificity', '\n')
     aucType <- 'SS'
   }
   
@@ -1105,7 +1104,7 @@ generateAUC <- function(predictions,
   }
   
   # get ideal cutoff values.
-  IdealCuts <- getCutOffs(perf = perf, 
+  IdealCuts <- getCutOffList(perf = perf, 
                           aucType = aucType, 
                           allCutoffsFlg = allCutoffsFlg)
   
@@ -1165,8 +1164,8 @@ calculatePerformance <- function(predictions, ytest, type) {
     RMSE <- sqrt(mean((ytest - predictions) ^ 2))
     MAE <- mean(abs(ytest - predictions))
     
-    print(paste0('RMSE: ', round(RMSE, 8)))
-    print(paste0('MAE: ', round(MAE, 8)))
+    cat(paste0('RMSE: ', round(RMSE, 8)), '\n')
+    cat(paste0('MAE: ', round(MAE, 8)), '\n')
   }
   
   return(list(ROCPlot,PRCurvePlot,AUROC,AUPR,RMSE,MAE))
@@ -1201,6 +1200,7 @@ initializeParamsForTesting <- function(df) {
 #' Function to return ideal cutoff and TPR/FPR or precision/recall.
 #'
 #' @description Calculates ideal cutoff by proximity to corner of the ROC curve.
+#' Usually called from \code{\link{generateAUC}}
 #' @param perf An ROCR performance class. (Usually made by generateAUC)
 #' @param aucType A string. Indicates AUC_ROC or AU_PR and can be "SS" or "PR". 
 #' Defaults to SS.
@@ -1211,7 +1211,7 @@ initializeParamsForTesting <- function(df) {
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
 
-getCutOffs = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
+getCutOffList = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
   ## TODO: Give user the ability to give higher weight to recall or FPR
   x <- unlist(perf@x.values)
   y <- unlist(perf@y.values)
@@ -1219,7 +1219,7 @@ getCutOffs = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
   # for ROC curves
   if (aucType == 'SS') {
     d = (x - 0) ^ 2 + (y - 1) ^ 2
-    ind = which(d == min(d))
+    ind = which.min(d)
     tpr = y[[ind]]
     fpr = x[[ind]]
     cutoff = p[[ind]]
@@ -1227,9 +1227,7 @@ getCutOffs = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
                 cutoff, tpr, fpr))  
     if (isTRUE(allCutoffsFlg)) {
       cat(sprintf("%-7s %-6s %-5s \n", 'Thresh', 'TPR', 'FPR'))
-      cat(sprintf("%-7.2f %-6.2f %-6.2f \n", 
-                  unlist(perf@alpha.values), unlist(perf@y.values), unlist(perf@x.values)))  
-    }
+      cat(sprintf("%-7.2f %-6.2f %-6.2f \n", p, y, x)) }
     return(c(cutoff, tpr, fpr)) # list of integers
     # for PR curves
   } else if (aucType == 'PR') { 
@@ -1244,9 +1242,7 @@ getCutOffs = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
                 cutoff, pre, rec))  
     if (isTRUE(allCutoffsFlg)) {
       cat(sprintf("%-7s %-10s %-10s \n", 'Thresh', 'Precision', 'Recall'))
-      cat(sprintf("%-7.2f %-10.2f %-10.2f \n", 
-                  unlist(perf@alpha.values), unlist(perf@y.values), unlist(perf@x.values)))
-    }
+      cat(sprintf("%-7.2f %-10.2f %-10.2f \n", p, y, x)) }
     return(c(cutoff, pre, rec)) # list of integers
   }
 }

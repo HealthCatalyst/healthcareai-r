@@ -20,7 +20,7 @@ Find our code at our [Github Repo ![Our Github repo](img/GitHub-Mark-120px-plus.
 
 ## For those starting out
 
-- If you haven't, install [R](https://cran.cnr.berkeley.edu) and [RStudio](https://www.rstudio.com/products/rstudio/download)
+- If you haven't, install [R](https://cran.cnr.berkeley.edu) version >= 3.2.3 and [RStudio](https://www.rstudio.com/products/rstudio/download)
 
 Note: if you're setting up R on an ETL server, don't download RStudio--simply open up RGui
 
@@ -30,7 +30,6 @@ Open RStudio and work in the console
 
 ```
 install.packages('healthcareai')
-install.packages('assertthat')
 ```
 
 ## How to install the latest version on macOS
@@ -51,7 +50,6 @@ install.packages(c('caret','data.table','doParallel','e1071','grpreg','lme4','lu
 * Install healthcare.ai
 ```
 install.packages('healthcareai')
-install.packages('assertthat')
 ```
 
 ## How to install latest version on Ubuntu (Linux)
@@ -59,7 +57,7 @@ install.packages('assertthat')
 * Follow steps 1 and 2 [here](https://www.digitalocean.com/community/tutorials/how-to-set-up-r-on-ubuntu-14-04) to install R
 * Run `sudo apt-get install libiodbc2-dev`
 * Run `sudo apt-get install r-cran-rodbc`
-* After typing `R` run `install.packages('healthcareai')` and `install.packages('assertthat')`
+* After typing `R` run `install.packages('healthcareai')`
 
 ## Install the bleeding edge version (for folks providing contributions)
 
@@ -68,7 +66,7 @@ install.packages('assertthat')
 install.packages(c('caret','data.table','devtools','doParallel','e1071','grpreg','lme4','lubridate','pROC','R6','ranger','ROCR','RODBC'),repos = "https://cran.cnr.berkeley.edu/")
 
 library(devtools)
-devtools::install_github(repo='HealthCatalystSLC/healthcareai-r')
+devtools::install_github(repo='HealthCatalyst/healthcareai-r')
 ```
 ## Tips on getting started
 
@@ -83,17 +81,16 @@ library(healthcareai)
 See our [docs website](http://healthcareai-r.readthedocs.io)
 
 #### Jupyter notebook examples
-If you like Jupyter notebooks, check out [step 1](https://github.com/HealthCatalystSLC/documentation/blob/master/notebooks/Example1.ipynb) and [step 2](https://github.com/HealthCatalystSLC/documentation/blob/master/notebooks/Example2.ipynb) in model building with healthcareai.
+If you like Jupyter notebooks, check out [step 1](https://github.com/HealthCatalyst/documentation/blob/master/notebooks/Example1.ipynb) and [step 2](https://github.com/HealthCatalyst/documentation/blob/master/notebooks/Example2.ipynb) in model building with healthcareai.
 
 ## Join the community
 Read the blog and join the slack channel at [healthcare.ai](https://healthcare.ai)
 
 ## What's new?
+The CRAN 0.1.12 release features
 
-Since the CRAN 0.1.11 release, the following has been added to the bleeding edge version
-
-- Output nightly predictions to a dataframe for use with MySQL, Oracle, etc. See the csv example at ?RandomForestDeployment
-- Evaluate in-the-wild performance via AU_ROC and AU_PR scores and plots. See more at ?generateAUC
+- Check the availability of columns after patient admit (and avoid target leak) via featureAvailabilityProfiler!
+- One can now deploy predictions to flat files via getOutDf. See ?getOutDf for more.
 
 ## For issues
 
@@ -112,4 +109,4 @@ library(healthcareai)
 
 ## How to help
 
-Check out our github [repo](https://github.com/HealthCatalystSLC/healthcareai-r/blob/master/README.md#contributing).
+Check out our github [repo](https://github.com/HealthCatalyst/healthcareai-r/blob/master/README.md#contributing).
