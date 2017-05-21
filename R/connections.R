@@ -14,7 +14,7 @@
 #' df <- addSAMUtilityCols(df)
 #' head(df)
 
-addSAMUtilityCols <- function(d) {
+addSAMUtilityCols <- function(df) {
   df <- cbind(BindingID = 0,
               BindingNM = 'R',
               LastLoadDTS = Sys.time(),

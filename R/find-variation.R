@@ -1,12 +1,13 @@
 #' @title 
 #' Calculate coefficient of variation
 #' @description Find coefficient of variation by dividing vector standard 
-#' deviation by the mean and muliplying by 100.
+#' deviation by the mean.
 #' @param vector A vector of numbers
 #' @return A scalar
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{healthcareai}}
+#' \url{https://en.wikipedia.org/wiki/Coefficient_of_variation}
+#' @seealso \code{\link{healthcareai}}, \code{\link{findVariation}}
 #' @examples
 #' df <- data.frame(a = c(1,2,NA,NA),
 #'                  b = c(100,300,200,150))
@@ -21,37 +22,44 @@ calculateCOV <- function(vector) {
     stop('Your vector must be of class numeric or integer')
   }
   
-  meanVar <- base::mean(vector, na.rm = TRUE)
-  sdVar <- stats::sd(vector, na.rm = TRUE)
-  COV <- (sdVar / meanVar) * 100
-  base::round(COV, 2)
+  meanVariable <- base::mean(vector, na.rm = TRUE)
+  sdVariable <- stats::sd(vector, na.rm = TRUE)
+  COV <- base::round((sdVariable / meanVariable), 2)
+  COV
 }
 
 #' @title 
 #' Transform a dataframe to be three columns and tall instead of wide
 #' @description When dealing with a table that could be unexpectedly wide,
 #' it helps to instead fix its width and let it get tall (which makes it easy
-#' to insert into a pre-existing table). First use findVariation function.
+#' to insert into a pre-existing table). This assists the findVariation 
+#' function.
 #' @param df A dataframe
-#' @param categoricalCols Vector of categorical column(s)
-#' @param measureColumn A string. The measure of interest.
-#' @return A dataframe of four columns
+#' @param categoricalCols Vector of strings, representing categorical column(s)
+#' @param measure String, representing measure column
+#' @return A dataframe of eight columns. MeasureVolumeRaw denotes number of rows 
+#' in the particular subgroup; MeasureVolumePercent denotes percent of rows in 
+#' that subgroup as a percentage of the above subgroup (i.e., F within Gender);
+#' MeasureImpact is the subgroup COV * VolRaw (i.e., num of rows).
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}} 
 #' \code{\link{findVariation}}
 #' @examples
-#' df <- data.frame(LactateOrderProvSpecialtyDSC = c("Pulmonary Disease",
-#'                                                   "Family Medicine"),
+#' df <- data.frame(LactateOrderProvSpecDSC = c("Pulmonary Disease",
+#'                                              "Family Medicine"),
 #'                  LactateOrderProvNM = c("Hector Salamanca",
 #'                                         "Gus Fring"),
-#'                  LOSCOV = c(43.4,35.1),
-#'                  LOSVolume = c(2,3),
-#'                  LOSImpact = c(86.8,105.3))
+#'                  COV = c(0.43,0.35),
+#'                  VolumeRaw = c(2,3),
+#'                  VolumePercent = c(0.32,0.78),
+#'                  Impact = c(0.46,1.05),
+#'                  AboveMeanCOVFLG = c('Y','N'),
+#'                  AboveMeanVolumeFLG = c('N','Y'))
 #' 
 #' head(df)
 #' 
-#' categoricalCols <- c("LactateOrderProvSpecialtyDSC","LactateOrderProvNM")
+#' categoricalCols <- c("LactateOrderProvSpecDSC","LactateOrderProvNM")
 #' 
 #' dfRes <- createVarianceTallTable(df = df, 
 #'                                  categoricalCols = categoricalCols, 
@@ -73,8 +81,14 @@ createVarianceTallTable <- function(df,
                          "AboveMeanCOVFLG",
                          "AboveMeanVolumeFLG")
   
-  if (!all(c(categoricalCols,measureColumnVect) %in% names(df))) {
-    stop('The measure column or one of the categorical cols is not in the df')
+  if (!all(categoricalCols %in% names(df))) {
+    stop('One of the categoricalCols is not in the df. See the example ',
+          'at ?createVarianceTallTable')
+  }
+  
+  if (!all(measureColumnVect %in% names(df))) {
+    stop('One of the required columns is not in the df. See the example ',
+         'at ?createVarianceTallTable')
   }
   
   if (class(df$COV) != "numeric" &&  
@@ -108,8 +122,8 @@ createVarianceTallTable <- function(df,
   # Initialize final col names for last three cols
   CategoriesGrouped <- vector()
   MeasureCOV <- vector()
-  MeasureVolRaw <- vector()
-  MeasureVolPercent <- vector()
+  MeasureVolumeRaw <- vector()
+  MeasureVolumePercent <- vector()
   MeasureImpact <- vector()
   AboveMeanCOVFLG <- vector()
   AboveMeanVolumeFLG <- vector()
@@ -124,10 +138,10 @@ createVarianceTallTable <- function(df,
     MeasureCOV <- c(MeasureCOV, 
                     paste0(measure, "|", df[i,"COV"]))
     
-    MeasureVolRaw <- c(MeasureVolRaw, 
+    MeasureVolumeRaw <- c(MeasureVolumeRaw, 
                        paste0(measure, "|", df[i,"VolumeRaw"]))
   
-    MeasureVolPercent <- c(MeasureVolPercent, 
+    MeasureVolumePercent <- c(MeasureVolumePercent, 
                            paste0(measure, "|", df[i,"VolumePercent"]))
   
     MeasureImpact <- c(MeasureImpact, 
@@ -144,11 +158,12 @@ createVarianceTallTable <- function(df,
   dfResult <- data.frame(DimensionalAttributes, 
                          CategoriesGrouped, 
                          MeasureCOV,
-                         MeasureVolRaw,
-                         MeasureVolPercent,
+                         MeasureVolumeRaw,
+                         MeasureVolumePercent,
                          MeasureImpact,
                          AboveMeanCOVFLG,
-                         AboveMeanVolumeFLG)
+                         AboveMeanVolumeFLG,
+                         stringsAsFactors = FALSE)
 
   dfResult
 }
@@ -158,12 +173,15 @@ createVarianceTallTable <- function(df,
 #' @description Search across subgroups and surface those that have coefficient
 #' of variation * volume above a particular threshold
 #' @param df A dataframe
-#' @param categoricalCols Vector of categorical columns
-#' @param measureColumn A string of the measure column of interest
+#' @param categoricalCols Vector of strings representing categorical column(s)
+#' @param measureColumn Vector of strings representing measure column(s)
 #' @param dateCol Optional. A date(time) column to group by (done by month) 
-#' @param threshold A number, representing the minimum impact (which is 
-#' coefficient of variation multiplied by the volume for that subgroup)
-#' @return A dataframe of three columns
+#' @param threshold A scalar number, representing the minimum impact values
+#' that are returned
+#' @return A dataframe of eight columns. MeasureVolumeRaw denotes number of rows 
+#' in the particular subgroup; MeasureVolumePercent denotes percent of rows in 
+#' that subgroup as a percentage of the above subgroup (i.e., F within Gender);
+#' MeasureImpact is the subgroup COV * VolRaw (i.e., num of rows).
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}} \code{\link{calculateCOV}} 
@@ -177,8 +195,7 @@ createVarianceTallTable <- function(df,
 #' 
 #' dfRes <- findVariation(df = df, 
 #'                        categoricalCols = categoricalCols,
-#'                        measureColumn = "LOS",
-#'                        threshold = 50)
+#'                        measureColumn = "LOS")
 #'
 #' dfRes
 
@@ -239,14 +256,15 @@ findVariation <- function(df,
       stop(e)
     })
 
+    # Convert date into YYYY-MM
     df[[dateCol]] <- base::format(df[[dateCol]],"%Y-%m")
     
     # Add dateCol to categoricalList (now that it's just YYYY-MM)
     categoricalCols <- c(categoricalCols, dateCol)
   }
   
-  listOfPossibleCombos <- createCombinations(categoricalCols)
   dfTotal <- data.frame()
+  listOfPossibleCombos <- createAllCombinations(categoricalCols)
   
   for (i in 1:length(listOfPossibleCombos)) {
     
@@ -254,7 +272,7 @@ findVariation <- function(df,
     
       currentCatColumnComboVect <- unlist(listOfPossibleCombos[i])
       
-      # Prepare for aggregate - Collapse cat cols into one string, separated by +
+      # Prepare for aggregate - Collapse cat cols into one str, separated by +
       combineIndyVarsPlus <- paste0(currentCatColumnComboVect, collapse = " + ")
       finalFormula <- paste0(measureColumn[j], " ~ ", combineIndyVarsPlus)
       
@@ -264,45 +282,29 @@ findVariation <- function(df,
                                   c(COV = healthcareai::calculateCOV(x), 
                                     VolumeRaw = NROW(x)))
       
-      # Create new column names, based on measure col
-      #newCOVName <- paste0(measureColumn[j], 'COV')
-      #newVolRawName <- paste0(measureColumn[j], 'VolumeRaw')
-      #newVolPercentName <- paste0(measureColumn[j], 'VolumePercent')
-      #newImpactName <- paste0(measureColumn[j], 'Impact')
-      
       # Pull matrix that came out of aggregate and make them two regular columns
       dfSub$COV <- dfSub[[measureColumn[j]]][,'COV']
       dfSub$VolumeRaw <- dfSub[[measureColumn[j]]][,'VolumeRaw']
-      
-      # Delete matrix column that came out of aggregate
       dfSub[[measureColumn[j]]] <- NULL
       
-      print('dfSub after deleting matrix')
-      print(measureColumn[j])
-      print(dfSub)
-      
       # Add on FLAGS for above-mean COV and VolumeRaw (at this level)
-      dfSub$AboveMeanCOVFLG <- ifelse(dfSub$COV > 
-                                        mean(dfSub$COV, 
-                                             na.rm = TRUE), 
+      dfSub$AboveMeanCOVFLG <- ifelse(dfSub$COV > mean(dfSub$COV, na.rm = TRUE), 
                                       'Y', 
                                       'N')
       
-      dfSub$AboveMeanVolumeFLG <- ifelse(dfSub$VolumeRaw > 
-                                           mean(dfSub$VolumeRaw, 
-                                                na.rm = TRUE), 
+      dfSub$AboveMeanVolumeFLG <- ifelse(dfSub$VolumeRaw > mean(dfSub$VolumeRaw, 
+                                                                na.rm = TRUE), 
                                         'Y', 
                                         'N')
       
-      # Remove rows where MeasureCOV is NA
-      dfSub <- healthcareai::removeRowsWithNAInSpecCol(dfSub, 
-                                                       "COV")
+      # Remove rows where COV is NA (which are due to only one row in subset)
+      dfSub <- healthcareai::removeRowsWithNAInSpecCol(dfSub, "COV")
       
       # Create percentages for Volume
       dfSub$VolumePercent <- round(dfSub$VolumeRaw / sum(dfSub$VolumeRaw), 2)
       
       # Create total impact column
-      dfSub$Impact <- dfSub$COV * dfSub$VolumePercent
+      dfSub$Impact <- dfSub$COV * dfSub$VolumeRaw
       
       # Select only impact above threshold
       if (!is.null(threshold)) {
@@ -314,10 +316,7 @@ findVariation <- function(df,
         next
       }
       
-      print('dfSub before calling tall table ')
-      print(dfSub)
-      
-      # Add variation/volumne for one categorical col combination to total df
+      # Create pipe-delimited, fixed number of columns and add to overall df
       dfTotal <- 
         rbind(dfTotal,
               healthcareai::createVarianceTallTable(
@@ -332,13 +331,13 @@ findVariation <- function(df,
          " Try removing or lower your threshold, or select more rows")
   } else {
     
-    # Convert from factor to char for ordering
-    dfTotal$DimensionalAttributes <- as.character(dfTotal$DimensionalAttributes)
+    # Convert from factor to char for OVERALL ordering
+    #dfTotal$DimensionalAttributes <- as.character(dfTotal$DimensionalAttributes)
     
     # Prepare for OVERALL ordering by parsing piped strings
     # Unlist is necessary to create dataframe column
     dfTotal$TempDimDepth <- unlist(lapply(dfTotal$DimensionalAttributes, 
-                                          FUN = getPipedColCount))
+                                          FUN = getPipedWordCount))
     dfTotal$TempImpact <- unlist(lapply(dfTotal$MeasureImpact,
                                         FUN = getPipedValue))
     
@@ -355,10 +354,11 @@ findVariation <- function(df,
 }
 
 #' @title
-#' Find all possible combinations
-#' @description For a given vector of strings, find all possible combinations 
-#' of those strings. 
-#' @param categoricalCols A vector of strings
+#' Find all possible unique combinations
+#' @description For a given vector of, find all possible combinations of the
+#' values. When calculating, if two groups contain the same values, they are
+#' counted as the same if they only differ in terms of ordering.
+#' @param vector A vector of strings or numbers.
 #' @return A list of sub-lists. Each sub-list represents one possible 
 #' combination.
 #' @export
@@ -366,36 +366,69 @@ findVariation <- function(df,
 #' @seealso \code{\link{healthcareai}} \code{\link{findVariation}} 
 #' \code{\link{createVarianceTallTable}}
 #' @examples
-#' categoricalCols <- c("LactateOrderHospital",
-#'                      "LactateOrderProvSpecialtyDSC",
-#'                      "LactateOrderProvNM")
-#' y <- createCombinations(categoricalCols)
+#' vector <- c("LactateOrderHospital",
+#'                   "LactateOrderProvSpecialtyDSC",
+#'                   "LactateOrderProvNM")
+#' res <- createAllCombinations(vector)
 #' 
 #' # Let's look at one possible combination
-#' print(unlist(y[3]))
+#' unlist(res[3])
+#' 
+#' # Look at all possible combinations
+#' res
 
-
-createCombinations <- function(categoricalCols) {
+createAllCombinations <- function(vector) {
   listOfCatColumnCombinations = list()
-  df <- expand.grid(replicate(length(categoricalCols), 0:1, simplify = FALSE))
+  df <- expand.grid(replicate(length(vector), 0:1, simplify = FALSE))
   
   for (i in 2:nrow(df)) { # Don't use 1st (all false row) from expand.grid
     listOfCatColumnCombinations <- c(listOfCatColumnCombinations,
-                                     list(categoricalCols[as.logical(df[i,])]))
+                                     list(vector[as.logical(df[i,])]))
   }
   listOfCatColumnCombinations
 }
 
-getPipedColCount <- function(string) {
+#' @title
+#' Count number of words in pipe-delimited string
+#' @description 
+#' For a given string with pipe(s), count the number of word-like sections
+#' that are separated by pipes.
+#' @param string A string with pipes
+#' @return A count of number of words in input string.
+#' @export
+#' @seealso \code{\link{healthcareai}} \code{\link{findVariation}} 
+#' \code{\link{createVarianceTallTable}}
+#' @examples
+#' res <- getPipedWordCount('hello|sir')
+#' res
+
+getPipedWordCount <- function(string) {
   result <- length(unlist(strsplit(as.character(string), 
                                    split = "|", 
                                    fixed = TRUE)))
   result
 }
 
+#' @title
+#' Grab number after single pipe in pipe-delimited string
+#' @description
+#' For a given string with a pipe, return the number that comes after the pipe
+#' @param string A string with a pipe
+#' @return A number from the original string
+#' @export
+#' @seealso \code{\link{healthcareai}} \code{\link{findVariation}} 
+#' \code{\link{createVarianceTallTable}}
+#' @examples
+#' res <- getPipedValue('hello|23')
+#' res
+
 getPipedValue <- function(string) {
   result <- as.numeric(unlist(strsplit(as.character(string), 
                                        split = "|", 
                                        fixed = TRUE))[2])
-  result
+  if (is.na(result)) {
+    stop("Your input string doesn't contain either a |, a number, or both")
+  } else {
+    result
+  }
 }

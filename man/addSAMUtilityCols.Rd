@@ -4,7 +4,7 @@
 \alias{addSAMUtilityCols}
 \title{Add SAM utility columns to table}
 \usage{
-addSAMUtilityCols(d)
+addSAMUtilityCols(df)
 }
 \arguments{
 \item{df}{A dataframe}

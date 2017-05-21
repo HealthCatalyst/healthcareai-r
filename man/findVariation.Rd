@@ -10,17 +10,20 @@ findVariation(df, categoricalCols, measureColumn, dateCol = NULL,
 \arguments{
 \item{df}{A dataframe}
 
-\item{categoricalCols}{Vector of categorical columns}
+\item{categoricalCols}{Vector of strings representing categorical column(s)}
 
-\item{measureColumn}{A string of the measure column of interest}
+\item{measureColumn}{Vector of strings representing measure column(s)}
 
 \item{dateCol}{Optional. A date(time) column to group by (done by month)}
 
-\item{threshold}{A number, representing the minimum impact (which is 
-coefficient of variation multiplied by the volume for that subgroup)}
+\item{threshold}{A scalar number, representing the minimum impact values
+that are returned}
 }
 \value{
-A dataframe of three columns
+A dataframe of eight columns. MeasureVolumeRaw denotes number of rows 
+in the particular subgroup; MeasureVolumePercent denotes percent of rows in 
+that subgroup as a percentage of the above subgroup (i.e., F within Gender);
+MeasureImpact is the subgroup COV * VolRaw (i.e., num of rows).
 }
 \description{
 Search across subgroups and surface those that have coefficient
@@ -35,8 +38,7 @@ categoricalCols <- c("Dept","Gender")
 
 dfRes <- findVariation(df = df, 
                        categoricalCols = categoricalCols,
-                       measureColumn = "LOS",
-                       threshold = 50)
+                       measureColumn = "LOS")
 
 dfRes
 }

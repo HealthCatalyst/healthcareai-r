@@ -14,7 +14,7 @@ A scalar
 }
 \description{
 Find coefficient of variation by dividing vector standard 
-deviation by the mean and muliplying by 100.
+deviation by the mean.
 }
 \examples{
 df <- data.frame(a = c(1,2,NA,NA),
@@ -27,7 +27,8 @@ res2
 }
 \references{
 \url{http://healthcare.ai}
+\url{https://en.wikipedia.org/wiki/Coefficient_of_variation}
 }
 \seealso{
-\code{\link{healthcareai}}
+\code{\link{healthcareai}}, \code{\link{findVariation}}
 }

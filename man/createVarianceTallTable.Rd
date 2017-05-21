@@ -9,30 +9,37 @@ createVarianceTallTable(df, categoricalCols, measure)
 \arguments{
 \item{df}{A dataframe}
 
-\item{categoricalCols}{Vector of categorical column(s)}
+\item{categoricalCols}{Vector of strings, representing categorical column(s)}
 
-\item{measureColumn}{A string. The measure of interest.}
+\item{measure}{String, representing measure column}
 }
 \value{
-A dataframe of four columns
+A dataframe of eight columns. MeasureVolumeRaw denotes number of rows 
+in the particular subgroup; MeasureVolumePercent denotes percent of rows in 
+that subgroup as a percentage of the above subgroup (i.e., F within Gender);
+MeasureImpact is the subgroup COV * VolRaw (i.e., num of rows).
 }
 \description{
 When dealing with a table that could be unexpectedly wide,
 it helps to instead fix its width and let it get tall (which makes it easy
-to insert into a pre-existing table). First use findVariation function.
+to insert into a pre-existing table). This assists the findVariation 
+function.
 }
 \examples{
-df <- data.frame(LactateOrderProvSpecialtyDSC = c("Pulmonary Disease",
-                                                  "Family Medicine"),
+df <- data.frame(LactateOrderProvSpecDSC = c("Pulmonary Disease",
+                                             "Family Medicine"),
                  LactateOrderProvNM = c("Hector Salamanca",
                                         "Gus Fring"),
-                 LOSCOV = c(43.4,35.1),
-                 LOSVolume = c(2,3),
-                 LOSImpact = c(86.8,105.3))
+                 COV = c(0.43,0.35),
+                 VolumeRaw = c(2,3),
+                 VolumePercent = c(0.32,0.78),
+                 Impact = c(0.46,1.05),
+                 AboveMeanCOVFLG = c('Y','N'),
+                 AboveMeanVolumeFLG = c('N','Y'))
 
 head(df)
 
-categoricalCols <- c("LactateOrderProvSpecialtyDSC","LactateOrderProvNM")
+categoricalCols <- c("LactateOrderProvSpecDSC","LactateOrderProvNM")
 
 dfRes <- createVarianceTallTable(df = df, 
                                  categoricalCols = categoricalCols, 
