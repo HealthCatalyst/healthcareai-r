@@ -122,8 +122,6 @@ selectData <- function(MSSQLConnectionString = NULL,
 #' @title
 #' Write data to database
 #' @description Write data frame to database table via ODBC connection
-#' #' @param connectionString A string specifying the driver, server, database,
-#' and whether Windows Authentication will be used.
 #' @param MSSQLConnectionString A string specifying the driver, server, 
 #' database, and whether Windows Authentication will be used.
 #' @param df Dataframe that hold the tabular data
@@ -132,6 +130,9 @@ selectData <- function(MSSQLConnectionString = NULL,
 #' @param tableName String. Name of the table that receives the new rows
 #' @param addSAMUtilityColumns Boolean. Whether to add Health Catalyst-related
 #' date-time stamp, BindingID, and BindingNM to df before saving to db.
+#' @param connectionString Deprecated. A string specifying the driver, server, 
+#' database, and whether Windows Authentication will be used. See 
+#' ?MSSQLConnectionString instead.
 #' @return Nothing
 #'
 #' @export
@@ -175,11 +176,18 @@ writeData <- function(MSSQLConnectionString = NULL,
                       df, 
                       SQLiteFileName = NULL,
                       tableName,
-                      addSAMUtilityColumns = FALSE) {
+                      addSAMUtilityColumns = FALSE,
+                      connectionString = NULL) {
+  
+  if (!is.null(connectionString)) {
+    stop(paste0('The connectionString parameter has been deprecated. ',
+                'Use MSSQLConnectionString instead'))
+  }
   
   # TODO: if debug: time this operation and print time spent to pull data.
   if ((is.null(MSSQLConnectionString)) && (is.null(SQLiteFileName))) {
-    stop('You must specify a either a MSSQLConnectionString for SQL Server or a SQLiteFileName for SQLite')
+    stop(paste0('You must specify a either a MSSQLConnectionString for ',
+                'SQL Server or a SQLiteFileName for SQLite'))
   }
   
   if (!is.null(MSSQLConnectionString)) {

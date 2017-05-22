@@ -5,7 +5,7 @@
 \title{Write data to database}
 \usage{
 writeData(MSSQLConnectionString = NULL, df, SQLiteFileName = NULL,
-  tableName, addSAMUtilityColumns = FALSE)
+  tableName, addSAMUtilityColumns = FALSE, connectionString = NULL)
 }
 \arguments{
 \item{MSSQLConnectionString}{A string specifying the driver, server, 
@@ -17,14 +17,19 @@ database, and whether Windows Authentication will be used.}
 database file to query from}
 
 \item{tableName}{String. Name of the table that receives the new rows}
+
+\item{addSAMUtilityColumns}{Boolean. Whether to add Health Catalyst-related
+date-time stamp, BindingID, and BindingNM to df before saving to db.}
+
+\item{connectionString}{Deprecated. A string specifying the driver, server, 
+database, and whether Windows Authentication will be used. See 
+?MSSQLConnectionString instead.}
 }
 \value{
 Nothing
 }
 \description{
 Write data frame to database table via ODBC connection
-#' @param connectionString A string specifying the driver, server, database,
-and whether Windows Authentication will be used.
 }
 \examples{
 
