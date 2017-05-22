@@ -1,9 +1,9 @@
 #' Compare predictive models, created on your data
 #'
-#' @description This step allows you to create a random forest model, based on
+#' @description This step allows you to create an XGBoost model, based on
 #' your data.
 #' @docType class
-#' @usage RandomForestDevelopment(object, type, df, grainCol, predictedCol, 
+#' @usage XGBoost Development(object, type, df, grainCol, predictedCol, 
 #' impute, debug)
 #' @import caret
 #' @import doParallel
