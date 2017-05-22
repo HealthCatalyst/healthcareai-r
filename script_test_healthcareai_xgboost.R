@@ -26,16 +26,23 @@ df$target[df$target==5] <- 'five'
 df$target[df$target==6] <- 'six'
 head(df)
 dfTargets <- df
-
+cols <- names(df)
+df[,cols] <- lapply(df[,cols],as.factor)
+df$x34 <- as.numeric(df$x34)
+df$target <- as.numeric(df$target)
 
 # set up data frame
 set.seed(42)
 
 p <- SupervisedModelDevelopmentParams$new()
-p$df <- iris
+p$df <- df
 p$type <- "multiclass"
 p$impute <- TRUE
 p$grainCol <- ""
-p$predictedCol <- "Sepal.Width"
+p$predictedCol <- "target"
 p$debug <- FALSE
-p$cores <- 1
+p$cores <- 4
+
+boost <- XGBoostDevelopment$new(p)
+boost$run()
+

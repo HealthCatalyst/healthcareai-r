@@ -7,8 +7,8 @@ library(dplyr)
 
 
 # load data and clean
-# df <- read.csv(file = '~/RFiles/xgboost demo/derm_data.csv', header = TRUE)
-df <- read.csv(file = '~/Repos/healthcareai-r/derm_data.csv', header = TRUE)
+df <- read.csv(file = '~/RFiles/xgboost demo/derm_data.csv', header = TRUE)
+#df <- read.csv(file = '~/Repos/healthcareai-r/derm_data.csv', header = TRUE)
 
 ### old way  
 # set.seed(42)
@@ -139,7 +139,7 @@ inds <- which(PatientID %in% c(343,302,188,252,91,356))
 #head(all_data)
 
 print('xgboost output with predictions and original labels:')
-print(cbind(all_data[1:6,], 'target' = dfTargets[inds,35]))
+print(cbind(all_data[1:6,], 'target' = dfTargets[inds,35]))
 
 # next order of business: get smart column names into the all_data output.
 # then. develop!

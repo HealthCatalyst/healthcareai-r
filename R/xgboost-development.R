@@ -172,7 +172,7 @@
 #'
 #' @export
 
-RandomForestDevelopment <- R6Class("RandomForestDevelopment",
+XGBoostDevelopment <- R6Class("RandomForestDevelopment",
 
   # Inheritance
   inherit = SupervisedModelDevelopment,
@@ -182,11 +182,13 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
 
     # Grid object for grid search
     grid = NA,
+    xgb_params = NA,
+
+
 
     # Get random forest model
-    fitRF = NA,
-    fitLogit = NA,
-
+    fitXGB = NA,
+    # fitLogit = NA,
     predictions = NA,
 
     # Performance metrics
@@ -195,86 +197,86 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     AUROC = NA,
     AUPR = NA,
     RMSE = NA,
-    MAE = NA,
+    MAE = NA
 
-    # Start of functions
-    saveModel = function() {
-      if (isTRUE(self$params$debug)) {
-        print('Saving model...')
-      }
+  #   # Start of functions
+  #   saveModel = function() {
+  #     if (isTRUE(self$params$debug)) {
+  #       print('Saving model...')
+  #     }
       
-        fitLogit <- private$fitLogit
-        fitObj <- private$fitRF
+  #       fitLogit <- private$fitLogit
+  #       fitObj <- private$fitRF
         
-        save(fitLogit, file = "rmodel_var_import_RF.rda")
-        save(fitObj, file = "rmodel_probability_RF.rda")
-      },
+  #       save(fitLogit, file = "rmodel_var_import_RF.rda")
+  #       save(fitObj, file = "rmodel_probability_RF.rda")
+  #     },
     
-    # this function must be in here for the row-wise predictions.
-    # can be replaced when LIME-like functionality is complete.
-    fitGeneralizedLinearModel = function() {
-      if (isTRUE(self$params$debug)) {
-        print('generating fitLogit for row-wise guidance...')
-      }
+  #   # this function must be in here for the row-wise predictions.
+  #   # can be replaced when LIME-like functionality is complete.
+  #   fitGeneralizedLinearModel = function() {
+  #     if (isTRUE(self$params$debug)) {
+  #       print('generating fitLogit for row-wise guidance...')
+  #     }
       
-      if (self$params$type == 'classification') {
-        private$fitLogit <- glm(
-          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrain,
-          family = binomial(link = "logit"),
-          metric = "ROC",
-          control = list(maxit = 10000),
-          trControl = caret::trainControl(classProbs = TRUE, summaryFunction = twoClassSummary)
-        )
+  #     if (self$params$type == 'classification') {
+  #       private$fitLogit <- glm(
+  #         as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
+  #         data = private$dfTrain,
+  #         family = binomial(link = "logit"),
+  #         metric = "ROC",
+  #         control = list(maxit = 10000),
+  #         trControl = caret::trainControl(classProbs = TRUE, summaryFunction = twoClassSummary)
+  #       )
         
-      } else if (self$params$type == 'regression') {
-        private$fitLogit <- glm(
-          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrain,
-          metric = "RMSE",
-          control = list(maxit = 10000)
-        )
-      }
-    },
+  #     } else if (self$params$type == 'regression') {
+  #       private$fitLogit <- glm(
+  #         as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
+  #         data = private$dfTrain,
+  #         metric = "RMSE",
+  #         control = list(maxit = 10000)
+  #       )
+  #     }
+  #   },
     
-    buildGrid = function() {
-      if (isTRUE(self$params$tune)) {
-        optimal <- NA
+  #   buildGrid = function() {
+  #     if (isTRUE(self$params$tune)) {
+  #       optimal <- NA
 
-        # Create reasonable gridsearch for mtry
-        # This optimal value comes from randomForest documentation
-        # TODO: make mtry calc a function (incl both tune and not)
-        if (self$params$type == 'classification') {
-          optimal <- floor(sqrt(ncol(private$dfTrain)))
-        }
-        else if (self$params$type == 'regression') {
-          optimal <- max(floor(ncol(private$dfTrain)/3), 1)
-        }
+  #       # Create reasonable gridsearch for mtry
+  #       # This optimal value comes from randomForest documentation
+  #       # TODO: make mtry calc a function (incl both tune and not)
+  #       if (self$params$type == 'classification') {
+  #         optimal <- floor(sqrt(ncol(private$dfTrain)))
+  #       }
+  #       else if (self$params$type == 'regression') {
+  #         optimal <- max(floor(ncol(private$dfTrain)/3), 1)
+  #       }
 
-        mtryList <- c(optimal - 1, optimal, optimal + 1)
-        # Make it such that lowest mtry is 2
-        if (length(which(mtryList < 0)) > 0) {
-          mtryList <- mtryList + 3
-        } else if (length(which(mtryList == 0)) > 0) {
-          mtryList <- mtryList + 2
-        } else if (length(which(mtryList == 1)) > 0) {
-          mtryList <- mtryList + 1
-        }
+  #       mtryList <- c(optimal - 1, optimal, optimal + 1)
+  #       # Make it such that lowest mtry is 2
+  #       if (length(which(mtryList < 0)) > 0) {
+  #         mtryList <- mtryList + 3
+  #       } else if (length(which(mtryList == 0)) > 0) {
+  #         mtryList <- mtryList + 2
+  #       } else if (length(which(mtryList == 1)) > 0) {
+  #         mtryList <- mtryList + 1
+  #       }
 
-        print(paste(c('Performing grid search across these mtry values: ',
-                      mtryList), collapse = " "))
+  #       print(paste(c('Performing grid search across these mtry values: ',
+  #                     mtryList), collapse = " "))
 
-        private$grid <-  data.frame(mtry = mtryList) # Number of features/tree
-      }
-      else {
-        if (self$params$type == 'classification') {
-          private$grid <- data.frame(.mtry = floor(sqrt(ncol(private$dfTrain))))
-        }
-        else if (self$params$type == 'regression') {
-          private$grid <- data.frame(.mtry = max(floor(ncol(private$dfTrain)/3), 1))
-        }
-      }
-    }
+  #       private$grid <-  data.frame(mtry = mtryList) # Number of features/tree
+  #     }
+  #     else {
+  #       if (self$params$type == 'classification') {
+  #         private$grid <- data.frame(.mtry = floor(sqrt(ncol(private$dfTrain))))
+  #       }
+  #       else if (self$params$type == 'regression') {
+  #         private$grid <- data.frame(.mtry = max(floor(ncol(private$dfTrain)/3), 1))
+  #       }
+  #     }
+  #   }
   ),
 
   # Public members
@@ -284,6 +286,24 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     # p: new SuperviseModelParameters class object,
     # i.e. p = SuperviseModelParameters$new()
     initialize = function(p) {
+      cat('starting to initialize')
+      # check that it's a multiclass type
+      if (p$type != 'multiclass') {
+        cat('XGBoost currently only supports "multiclass" type.')
+      }
+
+      self$params$numberOfClasses <- length(unique(data_label))
+      
+      self$params$xgb_params <- list("objective" = "multi:softprob",
+        "eval_metric" = "mlogloss",
+        "num_class" = numberOfClasses,
+        "max_depth" = 6, 
+        "eta" = 0.1, 
+        "silent" = 0, 
+        "nthread" = 4)
+      
+      self$params$nround <- 50
+
       set.seed(43)
       super$initialize(p)
 
@@ -294,178 +314,179 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         self$params$numberOfTrees = p$numberOfTrees
       }
     },
-    getPredictions = function(){
-      return(private$predictions)
-    },
-    # Override: build RandomForest model
-    buildModel = function() {
-      trainControlParams.method <- ""
-      trainControlParams.number <- 1
+  #   getPredictions = function(){
+  #     return(private$predictions)
+  #   },
+  #   # Override: build RandomForest model
+  #   buildModel = function() {
+  #     trainControlParams.method <- ""
+  #     trainControlParams.number <- 1
 
-      rfTrainParams.metric <- ""
+  #     rfTrainParams.metric <- ""
 
-      # Build grid for grid search
-      private$buildGrid()
+  #     # Build grid for grid search
+  #     private$buildGrid()
 
-      if (isTRUE(self$params$tune)) {
-        trainControlParams.method <- "CV"
-        trainControlParams.number <- 5
-      } else {
-        trainControlParams.method <- "none"
-        trainControlParams.number <- 1
-      }
+  #     if (isTRUE(self$params$tune)) {
+  #       trainControlParams.method <- "CV"
+  #       trainControlParams.number <- 5
+  #     } else {
+  #       trainControlParams.method <- "none"
+  #       trainControlParams.number <- 1
+  #     }
 
-      # Create train control object
-      train.control <- NA
-      if (self$params$type == 'classification') {
+  #     # Create train control object
+  #     train.control <- NA
+  #     if (self$params$type == 'classification') {
 
-        train.control <- caret::trainControl(
-          method = trainControlParams.method,
-          number = trainControlParams.number,
-          verboseIter = isTRUE(self$params$debug),
-          classProbs = TRUE,
-          summaryFunction = twoClassSummary
-        )
+  #       train.control <- caret::trainControl(
+  #         method = trainControlParams.method,
+  #         number = trainControlParams.number,
+  #         verboseIter = isTRUE(self$params$debug),
+  #         classProbs = TRUE,
+  #         summaryFunction = twoClassSummary
+  #       )
 
-        rfTrainParams.metric <- "ROC"
-      }
-      # Regression
-      else if (self$params$type == 'regression') {
+  #       rfTrainParams.metric <- "ROC"
+  #     }
+  #     # Regression
+  #     else if (self$params$type == 'regression') {
 
-        train.control <- caret::trainControl(
-          method = trainControlParams.method,
-          number = trainControlParams.number,
-          verboseIter = isTRUE(self$params$debug)
-        )
+  #       train.control <- caret::trainControl(
+  #         method = trainControlParams.method,
+  #         number = trainControlParams.number,
+  #         verboseIter = isTRUE(self$params$debug)
+  #       )
 
-        rfTrainParams.metric <- "RMSE"
-      }
+  #       rfTrainParams.metric <- "RMSE"
+  #     }
 
-      # Train RandomForest
-      adjustedY <- NA
-      if (self$params$type == 'classification') {
-        adjustedY <- factor(private$dfTrain[[self$params$predictedCol]])
-      }
-      else if (self$params$type == 'regression') {
-        adjustedY <- private$dfTrain[[self$params$predictedCol]]
-      }
-      private$fitRF <- train(
-        x = private$dfTrain[ ,!(colnames(private$dfTrain) ==
-                                  self$params$predictedCol)],
-        y = adjustedY,
-        method = "ranger",
-        importance = "impurity",
-        metric = rfTrainParams.metric,
-        num.trees = self$params$numberOfTrees,
-        tuneGrid = private$grid,
-        trControl = train.control
-      )
-    },
+  #     # Train RandomForest
+  #     adjustedY <- NA
+  #     if (self$params$type == 'classification') {
+  #       adjustedY <- factor(private$dfTrain[[self$params$predictedCol]])
+  #     }
+  #     else if (self$params$type == 'regression') {
+  #       adjustedY <- private$dfTrain[[self$params$predictedCol]]
+  #     }
+  #     private$fitRF <- train(
+  #       x = private$dfTrain[ ,!(colnames(private$dfTrain) ==
+  #                                 self$params$predictedCol)],
+  #       y = adjustedY,
+  #       method = "ranger",
+  #       importance = "impurity",
+  #       metric = rfTrainParams.metric,
+  #       num.trees = self$params$numberOfTrees,
+  #       tuneGrid = private$grid,
+  #       trControl = train.control
+  #     )
+  #   },
 
-    # Perform prediction
-    performPrediction = function() {
-      if (self$params$type == 'classification') {
-        private$predictions <- caret::predict.train(object = private$fitRF,
-                                      newdata = private$dfTest,
-                                      type = 'prob')
-        private$predictions <- private$predictions[,2]
+  #   # Perform prediction
+  #   performPrediction = function() {
+  #     if (self$params$type == 'classification') {
+  #       private$predictions <- caret::predict.train(object = private$fitRF,
+  #                                     newdata = private$dfTest,
+  #                                     type = 'prob')
+  #       private$predictions <- private$predictions[,2]
         
-        if (isTRUE(self$params$debug)) {
-          print(paste0('Number of predictions: ', nrow(private$predictions)))
-          print('First 10 raw classification probability predictions')
-          print(round(private$predictions[1:10],2))
-        }
+  #       if (isTRUE(self$params$debug)) {
+  #         print(paste0('Number of predictions: ', nrow(private$predictions)))
+  #         print('First 10 raw classification probability predictions')
+  #         print(round(private$predictions[1:10],2))
+  #       }
         
-      } else if (self$params$type == 'regression') {
-        private$predictions <- caret::predict.train(private$fitRF, newdata = private$dfTest)
+  #     } else if (self$params$type == 'regression') {
+  #       private$predictions <- caret::predict.train(private$fitRF, newdata = private$dfTest)
         
-        if (isTRUE(self$params$debug)) {
-          print(paste0('Rows in regression prediction: ',
-                       length(private$predictions)))
-          print('First 10 raw regression predictions (with row # first)')
-          print(round(private$predictions[1:10],2))
-        }
-      }
+  #       if (isTRUE(self$params$debug)) {
+  #         print(paste0('Rows in regression prediction: ',
+  #                      length(private$predictions)))
+  #         print('First 10 raw regression predictions (with row # first)')
+  #         print(round(private$predictions[1:10],2))
+  #       }
+  #     }
 
-    },
+  #   },
 
-    # Generate performance metrics
-    generatePerformanceMetrics = function() {
+  #   # Generate performance metrics
+  #   generatePerformanceMetrics = function() {
       
-      ytest <- as.numeric(private$dfTest[[self$params$predictedCol]])
+  #     ytest <- as.numeric(private$dfTest[[self$params$predictedCol]])
 
-      calcObjList <- calculatePerformance(private$predictions, 
-                                           ytest, 
-                                           self$params$type)
+  #     calcObjList <- calculatePerformance(private$predictions, 
+  #                                          ytest, 
+  #                                          self$params$type)
       
-      # Make these objects available for plotting and unit tests
-      private$ROCPlot <- calcObjList[[1]]
-      private$PRCurvePlot <- calcObjList[[2]]
-      private$AUROC <- calcObjList[[3]]
-      private$AUPR <- calcObjList[[4]]
-      private$RMSE <- calcObjList[[5]]
-      private$MAE <- calcObjList[[6]]
+  #     # Make these objects available for plotting and unit tests
+  #     private$ROCPlot <- calcObjList[[1]]
+  #     private$PRCurvePlot <- calcObjList[[2]]
+  #     private$AUROC <- calcObjList[[3]]
+  #     private$AUPR <- calcObjList[[4]]
+  #     private$RMSE <- calcObjList[[5]]
+  #     private$MAE <- calcObjList[[6]]
       
-      print(caret::varImp(private$fitRF, top = 20))
+  #     print(caret::varImp(private$fitRF, top = 20))
       
-      return(invisible(private$fitRF))
-    },
+  #     return(invisible(private$fitRF))
+  #   },
 
     # Override: run RandomForest algorithm
-    run = function() {
+   run = function() {
+      cat('in the run function')
       
-      # Start default logit (for row-wise var importance)
-      # can be replaced with LIME-like functionality
-      private$fitGeneralizedLinearModel()
+  #     # Start default logit (for row-wise var importance)
+  #     # can be replaced with LIME-like functionality
+  #     private$fitGeneralizedLinearModel()
 
-      # Build Model
-      self$buildModel()
+  #     # Build Model
+  #     self$buildModel()
       
-      # save model
-      private$saveModel()
+  #     # save model
+  #     private$saveModel()
 
-      # Perform prediction
-      self$performPrediction()
+  #     # Perform prediction
+  #     self$performPrediction()
 
-      # Generate performance metrics
-      self$generatePerformanceMetrics()
-    },
+  #     # Generate performance metrics
+  #     self$generatePerformanceMetrics()
+  #   },
 
-    getROC = function() {
-      if (!isBinary(self$params$df[[self$params$predictedCol]])) {
-        print("ROC is not created because the column you're predicting is not binary")
-        return(NULL)
-      }
-      return(private$ROCPlot)
-    },
+  #   getROC = function() {
+  #     if (!isBinary(self$params$df[[self$params$predictedCol]])) {
+  #       print("ROC is not created because the column you're predicting is not binary")
+  #       return(NULL)
+  #     }
+  #     return(private$ROCPlot)
+  #   },
     
-    getPRCurve = function() {
-      if (!isBinary(self$params$df[[self$params$predictedCol]])) {
-        print("PR Curve is not created because the column you're predicting is not binary")
-        return(NULL)
-      }
-      return(private$PRCurvePlot)
-    },
+  #   getPRCurve = function() {
+  #     if (!isBinary(self$params$df[[self$params$predictedCol]])) {
+  #       print("PR Curve is not created because the column you're predicting is not binary")
+  #       return(NULL)
+  #     }
+  #     return(private$PRCurvePlot)
+  #   },
 
-    getAUROC = function() {
-      return(private$AUROC)
-    },
+  #   getAUROC = function() {
+  #     return(private$AUROC)
+  #   },
 
-    getAUPR = function() {
-      return(private$AUPR)
-    },
+  #   getAUPR = function() {
+  #     return(private$AUPR)
+  #   },
     
-    getRMSE = function() {
-      return(private$RMSE)
-    },
+  #   getRMSE = function() {
+  #     return(private$RMSE)
+  #   },
 
-    getMAE = function() {
-      return(private$MAE)
-    }, 
+  #   getMAE = function() {
+  #     return(private$MAE)
+  #   }, 
     
-    getCutOffs = function() {
-      warning("`getCutOffs` is deprecated. Please use `generateAUC` instead. See 
-              ?generateAUC", call. = FALSE)
+  #   getCutOffs = function() {
+  #     warning("`getCutOffs` is deprecated. Please use `generateAUC` instead. See 
+  #             ?generateAUC", call. = FALSE)
     }
   )
 )
