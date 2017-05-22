@@ -1,16 +1,20 @@
-# Search across subgroups and find high-variation via `findVariation`
+# Search across subgroups and find high variation via `findVariation`
 
 ## What is this?
 In healthcare, outcomes improvement often comes from reducing variation. First, however,
-one must find the group that has 1) oddly high variation (within some measure) 
-and 2) a large number of folks in the cohort, such that an improvement effort is
-worthwhile. This tool solves that problem.
+one must find the group that has 
+  
+  1. Oddly high variation (within some measure).
+  2. A large number of folks in the cohort, such that an improvement effort is worthwhile. 
+  
+This tool solves that problem.
 
 ## Why is it helpful?
 
 One can now quickly search across hundreds of subgroups and various 
 measures (like length of stay, readmissions, missed-payment, etc.) to find
-groups that need improvement.
+groups that need improvement. With most healthcare datasets of <100k rows, 
+this search only takes a few seconds.
 
 ## So, how do we do it?
 
