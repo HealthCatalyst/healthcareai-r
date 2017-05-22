@@ -20,9 +20,10 @@ pages:
   - Develop and Compare: comparing-and-deploying/compare.md
   - Deploying a Best Model: comparing-and-deploying/deploy.md
 - Healthcare Statistics:
+  - Find High Variation healthcare-statistics/find-variation.md
+  - Find Trends: healthcare-statistics/trend-analysis.md
+  - Calculate Targeted Correlations: healthcare-statistics/find-targeted-correlations.md
+  - Calculate All Correlations: healthcare-statistics/find-all-correlations.md
   - Risk-adjusted Comparisons: healthcare-statistics/risk-adjusted-comparisons.md
-  - Trend Analysis: healthcare-statistics/trend-analysis.md
-  - Find Targeted Correlations: healthcare-statistics/find-targeted-correlations.md
-  - Find All Correlations: healthcare-statistics/find-all-correlations.md
-
+  
 google_analytics: ['UA-85609357-1', 'auto']
