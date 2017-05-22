@@ -13,7 +13,6 @@
 #' head(df)
 #' df <- addSAMUtilityCols(df)
 #' head(df)
-
 addSAMUtilityCols <- function(df) {
   df <- cbind(BindingID = 0,
               BindingNM = 'R',
@@ -65,7 +64,6 @@ addSAMUtilityCols <- function(df) {
 #' df <- selectData(connectionString, query)
 #' head(df)
 #' }
-
 selectData <- function(MSSQLConnectionString = NULL, 
                        query, 
                        SQLiteFileName = NULL,
@@ -171,7 +169,6 @@ selectData <- function(MSSQLConnectionString = NULL,
 #'           df = df, 
 #'           tableName = 'HCRWriteData')
 #' }
-
 writeData <- function(MSSQLConnectionString = NULL, 
                       df, 
                       SQLiteFileName = NULL,

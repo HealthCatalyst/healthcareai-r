@@ -16,7 +16,6 @@
 #' 
 #' res2 <- calculateCOV(df$b)
 #' res2
-
 calculateCOV <- function(vector) {
   if (class(vector) != 'numeric' && class(vector) != 'integer') {
     stop('Your vector must be of class numeric or integer')
@@ -26,6 +25,40 @@ calculateCOV <- function(vector) {
   sdVariable <- stats::sd(vector, na.rm = TRUE)
   COV <- base::round((sdVariable / meanVariable), 2)
   COV
+}
+
+#' @title
+#' Find all possible unique combinations
+#' @description For a given vector of, find all possible combinations of the
+#' values. When calculating, if two groups contain the same values, they are
+#' counted as the same if they only differ in terms of ordering.
+#' @param vector A vector of strings or numbers.
+#' @return A list of sub-lists. Each sub-list represents one possible 
+#' combination.
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}} \code{\link{findVariation}} 
+#' \code{\link{createVarianceTallTable}}
+#' @examples
+#' vector <- c("LactateOrderHospital",
+#'                   "LactateOrderProvSpecialtyDSC",
+#'                   "LactateOrderProvNM")
+#' res <- createAllCombinations(vector)
+#' 
+#' # Let's look at one possible combination
+#' unlist(res[3])
+#' 
+#' # Look at all possible combinations
+#' res
+createAllCombinations <- function(vector) {
+  listOfCatColumnCombinations = list()
+  df <- expand.grid(replicate(length(vector), 0:1, simplify = FALSE))
+  
+  for (i in 2:nrow(df)) { # Don't use 1st (all false row) from expand.grid
+    listOfCatColumnCombinations <- c(listOfCatColumnCombinations,
+                                     list(vector[as.logical(df[i,])]))
+  }
+  listOfCatColumnCombinations
 }
 
 #' @title 
@@ -65,7 +98,6 @@ calculateCOV <- function(vector) {
 #'                                  categoricalCols = categoricalCols, 
 #'                                  measure = "LOS")
 #' head(dfRes)
-
 createVarianceTallTable <- function(df, 
                                     categoricalCols,
                                     measure) {
@@ -198,7 +230,6 @@ createVarianceTallTable <- function(df,
 #'                        measureColumn = "LOS")
 #'
 #' dfRes
-
 findVariation <- function(df, 
                           categoricalCols,
                           measureColumn,
@@ -354,41 +385,6 @@ findVariation <- function(df,
 }
 
 #' @title
-#' Find all possible unique combinations
-#' @description For a given vector of, find all possible combinations of the
-#' values. When calculating, if two groups contain the same values, they are
-#' counted as the same if they only differ in terms of ordering.
-#' @param vector A vector of strings or numbers.
-#' @return A list of sub-lists. Each sub-list represents one possible 
-#' combination.
-#' @export
-#' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{healthcareai}} \code{\link{findVariation}} 
-#' \code{\link{createVarianceTallTable}}
-#' @examples
-#' vector <- c("LactateOrderHospital",
-#'                   "LactateOrderProvSpecialtyDSC",
-#'                   "LactateOrderProvNM")
-#' res <- createAllCombinations(vector)
-#' 
-#' # Let's look at one possible combination
-#' unlist(res[3])
-#' 
-#' # Look at all possible combinations
-#' res
-
-createAllCombinations <- function(vector) {
-  listOfCatColumnCombinations = list()
-  df <- expand.grid(replicate(length(vector), 0:1, simplify = FALSE))
-  
-  for (i in 2:nrow(df)) { # Don't use 1st (all false row) from expand.grid
-    listOfCatColumnCombinations <- c(listOfCatColumnCombinations,
-                                     list(vector[as.logical(df[i,])]))
-  }
-  listOfCatColumnCombinations
-}
-
-#' @title
 #' Count number of words in pipe-delimited string
 #' @description 
 #' For a given string with pipe(s), count the number of word-like sections
@@ -401,7 +397,6 @@ createAllCombinations <- function(vector) {
 #' @examples
 #' res <- getPipedWordCount('hello|sir')
 #' res
-
 getPipedWordCount <- function(string) {
   result <- length(unlist(strsplit(as.character(string), 
                                    split = "|", 
@@ -421,7 +416,6 @@ getPipedWordCount <- function(string) {
 #' @examples
 #' res <- getPipedValue('hello|23')
 #' res
-
 getPipedValue <- function(string) {
   result <- as.numeric(unlist(strsplit(as.character(string), 
                                        split = "|", 
