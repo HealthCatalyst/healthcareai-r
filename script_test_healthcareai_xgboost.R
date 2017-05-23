@@ -1,6 +1,8 @@
 library(xgboost)
 library(healthcareai)
 library(dplyr)
+library(R6)
+source('~/healthcareai-r/R/xgboost-development.R')
 
 # https://rpubs.com/mharris/multiclass_xgboost
 # https://github.com/dmlc/xgboost/blob/master/demo/multiclass_classification/train.py
@@ -15,7 +17,7 @@ set.seed(42)
 PatientID <- sample(1:dim(df)[1],dim(df[1]))
 
 row.names(df) <- PatientID
-
+df$PatientID <- PatientID
 df$target <- df$x35
 df$x35 <- NULL
 df$target[df$target==1] <- 'one'
@@ -38,7 +40,7 @@ p <- SupervisedModelDevelopmentParams$new()
 p$df <- df
 p$type <- "multiclass"
 p$impute <- TRUE
-p$grainCol <- ""
+p$grainCol <- "PatientID"
 p$predictedCol <- "target"
 p$debug <- FALSE
 p$cores <- 1

@@ -278,6 +278,9 @@ XGBoostDevelopment <- R6Class("RandomForestDevelopment",
 
   # Public members
   public = list(
+    # xgboost specific placeholders
+    xgb_trainMatrix = NA,
+    xgb_testMatrix = NA,
 
     # Constructor
     # p: new SuperviseModelParameters class object,
@@ -309,8 +312,13 @@ XGBoostDevelopment <- R6Class("RandomForestDevelopment",
 
     # Prepare data for XGBoost
     xgbPrepareData = function() {
-      cat('preparing data now.', '\n')
-
+      cat('preparing data now' '\n')
+      self$xgb_trainMatrix <- 
+        xgb.DMatrix(data = data.matrix(private$dfTrain[ ,!(colnames(private$dfTrain) == self$params$predictedCol)]), 
+                    label = data.matrix(private$dfTrain[[self$params$predictedCol]]))
+      self$xgb_testMatrix <- 
+        xgb.DMatrix(data = data.matrix(private$dfTest[ ,!(colnames(private$dfTest) == self$params$predictedCol)]),
+                    label = data.matrix(private$dfTest[[self$params$predictedCol]]))
     },
 
   #   getPredictions = function(){

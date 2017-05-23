@@ -23,15 +23,8 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
     dfTest = NA,
     prevalence = NA,
 
-    # xgboost specific placeholders
-    xgb_trainData = NA,
-    xgb_trainLabel = NA,
-    xgb_trainMatrix = NA,
-    xgb_testData = NA,
-    xgb_testLabel = NA,
-    xgb_testMatrix = NA,
-
     clustersOnCores = NA,
+    grainColValues = NA,
 
     # Creating attributes for performance report
     memsizeOfDataset = NA,
@@ -209,6 +202,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       # For rf/lasso, remove grain col (if specified)
       # For LMM, don't remove grain col even if specified--note personCol
       if ((nchar(self$params$grainCol) != 0) & (nchar(self$params$personCol) == 0)) {
+        private$grainColValues <- df[[self$params$grainCol]]
         self$params$df[[self$params$grainCol]] <- NULL
       }
 
