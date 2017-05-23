@@ -204,72 +204,8 @@ XGBoostDevelopment <- R6Class("RandomForestDevelopment",
         fitObj <- private$fitXBG
         save(fitObj, file = "rmodel_probability_XGB.rda")
       }
-    
-  #   # this function must be in here for the row-wise predictions.
-  #   # can be replaced when LIME-like functionality is complete.
-  #   fitGeneralizedLinearModel = function() {
-  #     if (isTRUE(self$params$debug)) {
-  #       print('generating fitLogit for row-wise guidance...')
-  #     }
-      
-  #     if (self$params$type == 'classification') {
-  #       private$fitLogit <- glm(
-  #         as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-  #         data = private$dfTrain,
-  #         family = binomial(link = "logit"),
-  #         metric = "ROC",
-  #         control = list(maxit = 10000),
-  #         trControl = caret::trainControl(classProbs = TRUE, summaryFunction = twoClassSummary)
-  #       )
-        
-  #     } else if (self$params$type == 'regression') {
-  #       private$fitLogit <- glm(
-  #         as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-  #         data = private$dfTrain,
-  #         metric = "RMSE",
-  #         control = list(maxit = 10000)
-  #       )
-  #     }
-  #   },
-    
-  #   buildGrid = function() {
-  #     if (isTRUE(self$params$tune)) {
-  #       optimal <- NA
 
-  #       # Create reasonable gridsearch for mtry
-  #       # This optimal value comes from randomForest documentation
-  #       # TODO: make mtry calc a function (incl both tune and not)
-  #       if (self$params$type == 'classification') {
-  #         optimal <- floor(sqrt(ncol(private$dfTrain)))
-  #       }
-  #       else if (self$params$type == 'regression') {
-  #         optimal <- max(floor(ncol(private$dfTrain)/3), 1)
-  #       }
-
-  #       mtryList <- c(optimal - 1, optimal, optimal + 1)
-  #       # Make it such that lowest mtry is 2
-  #       if (length(which(mtryList < 0)) > 0) {
-  #         mtryList <- mtryList + 3
-  #       } else if (length(which(mtryList == 0)) > 0) {
-  #         mtryList <- mtryList + 2
-  #       } else if (length(which(mtryList == 1)) > 0) {
-  #         mtryList <- mtryList + 1
-  #       }
-
-  #       print(paste(c('Performing grid search across these mtry values: ',
-  #                     mtryList), collapse = " "))
-
-  #       private$grid <-  data.frame(mtry = mtryList) # Number of features/tree
-  #     }
-  #     else {
-  #       if (self$params$type == 'classification') {
-  #         private$grid <- data.frame(.mtry = floor(sqrt(ncol(private$dfTrain))))
-  #       }
-  #       else if (self$params$type == 'regression') {
-  #         private$grid <- data.frame(.mtry = max(floor(ncol(private$dfTrain)/3), 1))
-  #       }
-  #     }
-  #   }
+      # TODO: Cross validation and random search
   ),
 
   # Public members
@@ -361,29 +297,15 @@ XGBoostDevelopment <- R6Class("RandomForestDevelopment",
       colnames(private$predictions)[1] <- self$params$grainCol
     },
 
-  #   # Generate performance metrics
-  #   generatePerformanceMetrics = function() {
-      
-  #     ytest <- as.numeric(private$dfTest[[self$params$predictedCol]])
+    # Generate performance metrics
+    generateConfusionMatrix = function() {
+      cat('Generating confusion matrix...', '\n')
+      caret::confusionMatrix(private$predictions$true_label,
+                private$predictions$predicted_label,
+                mode = "everything")
+    },
 
-  #     calcObjList <- calculatePerformance(private$predictions, 
-  #                                          ytest, 
-  #                                          self$params$type)
-      
-  #     # Make these objects available for plotting and unit tests
-  #     private$ROCPlot <- calcObjList[[1]]
-  #     private$PRCurvePlot <- calcObjList[[2]]
-  #     private$AUROC <- calcObjList[[3]]
-  #     private$AUPR <- calcObjList[[4]]
-  #     private$RMSE <- calcObjList[[5]]
-  #     private$MAE <- calcObjList[[6]]
-      
-  #     print(caret::varImp(private$fitRF, top = 20))
-      
-  #     return(invisible(private$fitRF))
-  #   },
-
-    # Override: run RandomForest algorithm
+   # Run XGBoost Multiclass
    run = function() {
       # Prepare data for xgboost
       self$xgbPrepareData()
@@ -397,45 +319,8 @@ XGBoostDevelopment <- R6Class("RandomForestDevelopment",
       # Perform prediction
       self$performPrediction()
 
-  #     # Generate performance metrics
-  #     self$generatePerformanceMetrics()
-  #   },
-
-  #   getROC = function() {
-  #     if (!isBinary(self$params$df[[self$params$predictedCol]])) {
-  #       print("ROC is not created because the column you're predicting is not binary")
-  #       return(NULL)
-  #     }
-  #     return(private$ROCPlot)
-  #   },
-    
-  #   getPRCurve = function() {
-  #     if (!isBinary(self$params$df[[self$params$predictedCol]])) {
-  #       print("PR Curve is not created because the column you're predicting is not binary")
-  #       return(NULL)
-  #     }
-  #     return(private$PRCurvePlot)
-  #   },
-
-  #   getAUROC = function() {
-  #     return(private$AUROC)
-  #   },
-
-  #   getAUPR = function() {
-  #     return(private$AUPR)
-  #   },
-    
-  #   getRMSE = function() {
-  #     return(private$RMSE)
-  #   },
-
-  #   getMAE = function() {
-  #     return(private$MAE)
-  #   }, 
-    
-  #   getCutOffs = function() {
-  #     warning("`getCutOffs` is deprecated. Please use `generateAUC` instead. See 
-  #             ?generateAUC", call. = FALSE)
+      # Generate confusion matrix
+      self$generateConfusionMatrix()
     }
   )
 )
