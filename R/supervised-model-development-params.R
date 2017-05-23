@@ -40,6 +40,7 @@ SupervisedModelDevelopmentParams <- R6Class("SupervisedModelDevelopmentParams",
                   "silent" = 0, 
                   "nthread" = 1),
     xgb_nrounds = 50,
+    xgb_targetNames = NA,
 
     #Constructor
     initialize = function() {

@@ -8,7 +8,7 @@ library(dplyr)
 
 # load data and clean
 df <- read.csv(file = '~/RFiles/xgboost demo/derm_data.csv', header = TRUE)
-#df <- read.csv(file = '~/Repos/healthcareai-r/derm_data.csv', header = TRUE)
+# df <- read.csv(file = '~/Repos/healthcareai-r/derm_data.csv', header = TRUE)
 
 ### old way  
 # set.seed(42)
@@ -79,7 +79,7 @@ xgb_params <- list("objective" = "multi:softprob",
                    "max_depth" = 6, 
                    "eta" = 0.1, 
                    "silent" = 0, 
-                   "nthread" = 4,)
+                   "nthread" = 4)
 nround    <- 50 # number of XGBoost rounds
 # cv.nfold  <- 5
 # Fit cv.nfold * cv.nround XGB models and save OOF predictions

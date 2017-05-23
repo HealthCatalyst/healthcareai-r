@@ -2,7 +2,10 @@ library(xgboost)
 library(healthcareai)
 library(dplyr)
 library(R6)
+library(caret)
 source('~/healthcareai-r/R/xgboost-development.R')
+source('~/healthcareai-r/R/supervised-model-development.R')
+
 
 # https://rpubs.com/mharris/multiclass_xgboost
 # https://github.com/dmlc/xgboost/blob/master/demo/multiclass_classification/train.py
@@ -26,13 +29,13 @@ df$target[df$target==3] <- 'three'
 df$target[df$target==4] <- 'four'
 df$target[df$target==5] <- 'five'
 df$target[df$target==6] <- 'six'
-head(df)
+
 dfTargets <- df
 cols <- names(df)
 df[,cols] <- lapply(df[,cols],as.factor)
 df$x34 <- as.numeric(df$x34)
-df$target <- as.numeric(df$target)
-
+df$target <- dfTargets['target']
+head(df)
 # set up data frame
 set.seed(42)
 

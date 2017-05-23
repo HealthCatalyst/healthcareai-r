@@ -183,10 +183,9 @@ XGBoostDevelopment <- R6Class("RandomForestDevelopment",
     # Grid object for grid search
     grid = NA,
 
-    # Get random forest model
-    fitXGB = NA,
     # fitLogit = NA,
     predictions = NA,
+    test_label = NA,
 
     # Performance metrics
     ROCPlot = NA,
@@ -194,20 +193,17 @@ XGBoostDevelopment <- R6Class("RandomForestDevelopment",
     AUROC = NA,
     AUPR = NA,
     RMSE = NA,
-    MAE = NA
+    MAE = NA,
 
-  #   # Start of functions
-  #   saveModel = function() {
-  #     if (isTRUE(self$params$debug)) {
-  #       print('Saving model...')
-  #     }
+    # Start of functions
+    saveModel = function() {
+      if (isTRUE(self$params$debug)) {
+        print('Saving model...')
+      }
       
-  #       fitLogit <- private$fitLogit
-  #       fitObj <- private$fitRF
-        
-  #       save(fitLogit, file = "rmodel_var_import_RF.rda")
-  #       save(fitObj, file = "rmodel_probability_RF.rda")
-  #     },
+        fitObj <- private$fitXBG
+        save(fitObj, file = "rmodel_probability_XGB.rda")
+      }
     
   #   # this function must be in here for the row-wise predictions.
   #   # can be replaced when LIME-like functionality is complete.
@@ -281,6 +277,9 @@ XGBoostDevelopment <- R6Class("RandomForestDevelopment",
     # xgboost specific placeholders
     xgb_trainMatrix = NA,
     xgb_testMatrix = NA,
+    
+    # Get xgb model
+    fitXGB = NA,
 
     # Constructor
     # p: new SuperviseModelParameters class object,
@@ -299,11 +298,6 @@ XGBoostDevelopment <- R6Class("RandomForestDevelopment",
         self$params$tune = p$tune
       }
 
-      # set number of classes
-      self$params$xgb_numberOfClasses <- length(unique(p$df[[self$params$predictedCol]]))
-      self$params$xgb_params$num_class <- self$params$xgb_numberOfClasses
-      cat('Number of classes is: ', self$params$xgb_numberOfClasses, '\n')
-
       # print xgb params (for sanity)
       cat('xgb_params are:', '\n')
       cat(str(self$params$xgb_params), '\n')
@@ -312,50 +306,60 @@ XGBoostDevelopment <- R6Class("RandomForestDevelopment",
 
     # Prepare data for XGBoost
     xgbPrepareData = function() {
-      cat('preparing data now' '\n')
-      self$xgb_trainMatrix <- 
-        xgb.DMatrix(data = data.matrix(private$dfTrain[ ,!(colnames(private$dfTrain) == self$params$predictedCol)]), 
-                    label = data.matrix(private$dfTrain[[self$params$predictedCol]]))
-      self$xgb_testMatrix <- 
-        xgb.DMatrix(data = data.matrix(private$dfTest[ ,!(colnames(private$dfTest) == self$params$predictedCol)]),
-                    label = data.matrix(private$dfTest[[self$params$predictedCol]]))
+      cat('Preparing data...', '\n')
+      # XGB requires data.matrix format, not data.frame.
+      # R factors are 1 indexed, XGB is 0 indexed, so we must subtract 1 from the labels. They must be numeric.
+      temp_train_data <- data.matrix(private$dfTrain[ ,!(colnames(private$dfTrain) == self$params$predictedCol)])
+      temp_train_label <- data.matrix(as.numeric(private$dfTrain[[self$params$predictedCol]])) - 1 
+      self$xgb_trainMatrix <- xgb.DMatrix(data = temp_train_data, label = temp_train_label)
+      rm(temp_train_data, temp_train_label) # clean temp variables
+
+      temp_test_data <- data.matrix(private$dfTest[ ,!(colnames(private$dfTest) == self$params$predictedCol)])
+      temp_test_label <- data.matrix(as.numeric(private$dfTest[[self$params$predictedCol]])) - 1 
+      self$xgb_testMatrix <- xgb.DMatrix(data = temp_test_data, label = temp_test_label) 
+      private$test_label <- temp_test_label # save for confusion matrix and output
+      rm(temp_test_data, temp_test_label) # clean temp variables
+
     },
 
-  #   getPredictions = function(){
-  #     return(private$predictions)
-  #   },
+    getPredictions = function(){
+      cat('Retrieving raw predictions...', '\n')
+      return(private$predictions)
+    },
 
     buildModel = function() {
-      cat('building model now', '\n')
-
+      cat('Building model...', '\n')
+      self$fitXGB <- xgb.train(params = self$params$xgb_params,
+                             data = self$xgb_trainMatrix,
+                             nrounds = self$params$xgb_nrounds)
     },
 
-  #   # Perform prediction
-  #   performPrediction = function() {
-  #     if (self$params$type == 'classification') {
-  #       private$predictions <- caret::predict.train(object = private$fitRF,
-  #                                     newdata = private$dfTest,
-  #                                     type = 'prob')
-  #       private$predictions <- private$predictions[,2]
-        
-  #       if (isTRUE(self$params$debug)) {
-  #         print(paste0('Number of predictions: ', nrow(private$predictions)))
-  #         print('First 10 raw classification probability predictions')
-  #         print(round(private$predictions[1:10],2))
-  #       }
-        
-  #     } else if (self$params$type == 'regression') {
-  #       private$predictions <- caret::predict.train(private$fitRF, newdata = private$dfTest)
-        
-  #       if (isTRUE(self$params$debug)) {
-  #         print(paste0('Rows in regression prediction: ',
-  #                      length(private$predictions)))
-  #         print('First 10 raw regression predictions (with row # first)')
-  #         print(round(private$predictions[1:10],2))
-  #       }
-  #     }
+    # Perform prediction
+    performPrediction = function() {
+      cat('Generating predictions...', '\n')
+      temp_predictions <- predict(self$fitXGB, newdata = self$xgb_testMatrix, reshape = TRUE)
 
-  #   },
+      # Build prediction output
+      private$predictions <- temp_predictions %>% 
+        data.frame() %>%
+        mutate(predicted_label = max.col(.),
+               true_label = private$test_label + 1)
+
+
+      # Set column names to match input targets
+      colnames(private$predictions)[1:self$params$xgb_numberOfClasses] <- self$params$xgb_targetNames
+
+      # Set up a mapping for the values themselves
+      from <- 1:self$params$xgb_numberOfClasses
+      to <- self$params$xgb_targetNames
+      map = setNames(to,from)
+      private$predictions$predicted_label <- map[private$predictions$predicted_label] # note square brackets
+      private$predictions$true_label <- map[private$predictions$true_label] 
+
+      # Prepare output 
+      private$predictions <- cbind(private$grainTest, private$predictions)
+      colnames(private$predictions)[1] <- self$params$grainCol
+    },
 
   #   # Generate performance metrics
   #   generatePerformanceMetrics = function() {
@@ -381,19 +385,17 @@ XGBoostDevelopment <- R6Class("RandomForestDevelopment",
 
     # Override: run RandomForest algorithm
    run = function() {
-      cat('in the run function','\n')
- 
       # Prepare data for xgboost
       self$xgbPrepareData()
 
       # Build Model
       self$buildModel()
       
-  #     # save model
-  #     private$saveModel()
+      # save model
+      private$saveModel()
 
-  #     # Perform prediction
-  #     self$performPrediction()
+      # Perform prediction
+      self$performPrediction()
 
   #     # Generate performance metrics
   #     self$generatePerformanceMetrics()

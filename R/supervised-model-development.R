@@ -21,6 +21,8 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
     # Variables
     dfTrain = NA,
     dfTest = NA,
+    dfGrain = NA,
+    grainTest = NA,
     prevalence = NA,
 
     clustersOnCores = NA,
@@ -152,6 +154,31 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         print(str(self$params$df))
       }
 
+      # For multiclass xgboost initialization:
+      # 1. Save the class names before they are converted.
+      # 2. Get the number of classes.
+      # 3. Save the grain column for output.
+      if (self$params$type == 'multiclass' ) {
+        # Names
+        ind <- grep(self$params$predictedCol, colnames(self$params$df))
+        tempCol <- self$params$df[,ind]
+        self$params$xgb_targetNames <- sort(unique(tempCol[,]))
+        # Number
+        self$params$xgb_numberOfClasses <- length(self$params$xgb_targetNames)
+        self$params$xgb_params$num_class <- self$params$xgb_numberOfClasses
+        # Grain
+        private$dfGrain <- self$params$df[[self$params$grainCol]]
+        rm(ind, tempCol)
+        # prints
+        if (isTRUE(self$params$debug)) {
+          print('Unique classes found:')
+          print(self$params$xgb_targetNames)
+          print('Number of classes:')
+          print(self$params$xgb_numberOfClasses)
+        }
+      }
+
+
       # Convert to data.frame (in case of data.table)
       # This also converts chr cols to (needed) factors
       self$params$df <- as.data.frame(unclass(self$params$df))
@@ -223,6 +250,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
 
       private$dfTrain <- self$params$df[ trainIndex,]
       private$dfTest  <- self$params$df[-trainIndex,]
+      private$grainTest  <- private$dfGrain[-trainIndex] # Save grain for xgboost output
 
       if (isTRUE(self$params$debug)) {
         print('Training data set after splitting from main df')
