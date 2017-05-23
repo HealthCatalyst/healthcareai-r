@@ -79,7 +79,7 @@ xgb_params <- list("objective" = "multi:softprob",
                    "max_depth" = 6, 
                    "eta" = 0.1, 
                    "silent" = 0, 
-                   "nthread" = 4)
+                   "nthread" = 4,)
 nround    <- 50 # number of XGBoost rounds
 # cv.nfold  <- 5
 # Fit cv.nfold * cv.nround XGB models and save OOF predictions

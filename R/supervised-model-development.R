@@ -19,10 +19,17 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
 
     ###########
     # Variables
-
     dfTrain = NA,
     dfTest = NA,
     prevalence = NA,
+
+    # xgboost specific placeholders
+    xgb_trainData = NA,
+    xgb_trainLabel = NA,
+    xgb_trainMatrix = NA,
+    xgb_testData = NA,
+    xgb_testLabel = NA,
+    xgb_testMatrix = NA,
 
     clustersOnCores = NA,
 
@@ -98,6 +105,9 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
 
       if (!is.null(p$cores))
         self$params$cores <- p$cores
+
+      if (!is.null(p$xgb_params))
+        self$params$xgb_params <- p$xgb_params
 
       #Set additional settings
       if (isTRUE(self$params$debug)) {

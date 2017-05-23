@@ -182,9 +182,6 @@ XGBoostDevelopment <- R6Class("RandomForestDevelopment",
 
     # Grid object for grid search
     grid = NA,
-    xgb_params = NA,
-
-
 
     # Get random forest model
     fitXGB = NA,
@@ -286,101 +283,44 @@ XGBoostDevelopment <- R6Class("RandomForestDevelopment",
     # p: new SuperviseModelParameters class object,
     # i.e. p = SuperviseModelParameters$new()
     initialize = function(p) {
-      cat('starting to initialize')
       # check that it's a multiclass type
       if (p$type != 'multiclass') {
-        cat('XGBoost currently only supports "multiclass" type.')
+        cat('XGBoost currently only supports "multiclass" type.', '\n')
       }
-
-      self$params$numberOfClasses <- length(unique(data_label))
-      
-      self$params$xgb_params <- list("objective" = "multi:softprob",
-        "eval_metric" = "mlogloss",
-        "num_class" = numberOfClasses,
-        "max_depth" = 6, 
-        "eta" = 0.1, 
-        "silent" = 0, 
-        "nthread" = 4)
-      
-      self$params$nround <- 50
 
       set.seed(43)
       super$initialize(p)
 
+      # TODO set up tuning to actually work.
       if (!is.null(p$tune)) {
         self$params$tune = p$tune
       }
-      if (!is.null(p$numberOfTrees)) {
-        self$params$numberOfTrees = p$numberOfTrees
-      }
+
+      # set number of classes
+      self$params$xgb_numberOfClasses <- length(unique(p$df[[self$params$predictedCol]]))
+      self$params$xgb_params$num_class <- self$params$xgb_numberOfClasses
+      cat('Number of classes is: ', self$params$xgb_numberOfClasses, '\n')
+
+      # print xgb params (for sanity)
+      cat('xgb_params are:', '\n')
+      cat(str(self$params$xgb_params), '\n')
+    
     },
+
+    # Prepare data for XGBoost
+    xgbPrepareData = function() {
+      cat('preparing data now.', '\n')
+
+    },
+
   #   getPredictions = function(){
   #     return(private$predictions)
   #   },
-  #   # Override: build RandomForest model
-  #   buildModel = function() {
-  #     trainControlParams.method <- ""
-  #     trainControlParams.number <- 1
 
-  #     rfTrainParams.metric <- ""
+    buildModel = function() {
+      cat('building model now', '\n')
 
-  #     # Build grid for grid search
-  #     private$buildGrid()
-
-  #     if (isTRUE(self$params$tune)) {
-  #       trainControlParams.method <- "CV"
-  #       trainControlParams.number <- 5
-  #     } else {
-  #       trainControlParams.method <- "none"
-  #       trainControlParams.number <- 1
-  #     }
-
-  #     # Create train control object
-  #     train.control <- NA
-  #     if (self$params$type == 'classification') {
-
-  #       train.control <- caret::trainControl(
-  #         method = trainControlParams.method,
-  #         number = trainControlParams.number,
-  #         verboseIter = isTRUE(self$params$debug),
-  #         classProbs = TRUE,
-  #         summaryFunction = twoClassSummary
-  #       )
-
-  #       rfTrainParams.metric <- "ROC"
-  #     }
-  #     # Regression
-  #     else if (self$params$type == 'regression') {
-
-  #       train.control <- caret::trainControl(
-  #         method = trainControlParams.method,
-  #         number = trainControlParams.number,
-  #         verboseIter = isTRUE(self$params$debug)
-  #       )
-
-  #       rfTrainParams.metric <- "RMSE"
-  #     }
-
-  #     # Train RandomForest
-  #     adjustedY <- NA
-  #     if (self$params$type == 'classification') {
-  #       adjustedY <- factor(private$dfTrain[[self$params$predictedCol]])
-  #     }
-  #     else if (self$params$type == 'regression') {
-  #       adjustedY <- private$dfTrain[[self$params$predictedCol]]
-  #     }
-  #     private$fitRF <- train(
-  #       x = private$dfTrain[ ,!(colnames(private$dfTrain) ==
-  #                                 self$params$predictedCol)],
-  #       y = adjustedY,
-  #       method = "ranger",
-  #       importance = "impurity",
-  #       metric = rfTrainParams.metric,
-  #       num.trees = self$params$numberOfTrees,
-  #       tuneGrid = private$grid,
-  #       trControl = train.control
-  #     )
-  #   },
+    },
 
   #   # Perform prediction
   #   performPrediction = function() {
@@ -433,14 +373,13 @@ XGBoostDevelopment <- R6Class("RandomForestDevelopment",
 
     # Override: run RandomForest algorithm
    run = function() {
-      cat('in the run function')
-      
-  #     # Start default logit (for row-wise var importance)
-  #     # can be replaced with LIME-like functionality
-  #     private$fitGeneralizedLinearModel()
+      cat('in the run function','\n')
+ 
+      # Prepare data for xgboost
+      self$xgbPrepareData()
 
-  #     # Build Model
-  #     self$buildModel()
+      # Build Model
+      self$buildModel()
       
   #     # save model
   #     private$saveModel()

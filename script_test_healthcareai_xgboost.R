@@ -41,7 +41,14 @@ p$impute <- TRUE
 p$grainCol <- ""
 p$predictedCol <- "target"
 p$debug <- FALSE
-p$cores <- 4
+p$cores <- 1
+p$xgb_params <- list("objective" = "multi:softprob",
+                  "eval_metric" = "mlogloss",
+                  "num_class" = NA,
+                  "max_depth" = 7, 
+                  "eta" = 0.2, 
+                  "silent" = 0, 
+                  "nthread" = 2)
 
 boost <- XGBoostDevelopment$new(p)
 boost$run()
