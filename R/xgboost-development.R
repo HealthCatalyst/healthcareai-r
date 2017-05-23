@@ -281,7 +281,6 @@ XGBoostDevelopment <- R6Class("RandomForestDevelopment",
         mutate(predicted_label = max.col(.),
                true_label = private$test_label + 1)
 
-
       # Set column names to match input targets
       colnames(private$predictions)[1:self$params$xgb_numberOfClasses] <- self$params$xgb_targetNames
 

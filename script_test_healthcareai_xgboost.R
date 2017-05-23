@@ -35,7 +35,10 @@ cols <- names(df)
 df[,cols] <- lapply(df[,cols],as.factor)
 df$x34 <- as.numeric(df$x34)
 df$target <- dfTargets['target']
-head(df)
+
+
+str(df)
+
 # set up data frame
 set.seed(42)
 
@@ -57,4 +60,6 @@ p$xgb_params <- list("objective" = "multi:softprob",
 
 boost <- XGBoostDevelopment$new(p)
 boost$run()
+
+outputDF <- boost$getPredictions()
 

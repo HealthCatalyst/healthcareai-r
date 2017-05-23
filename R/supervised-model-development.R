@@ -162,7 +162,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         # Names
         ind <- grep(self$params$predictedCol, colnames(self$params$df))
         tempCol <- self$params$df[,ind]
-        self$params$xgb_targetNames <- sort(unique(tempCol[,]))
+        self$params$xgb_targetNames <- sort(unique(tempCol))
         # Number
         self$params$xgb_numberOfClasses <- length(self$params$xgb_targetNames)
         self$params$xgb_params$num_class <- self$params$xgb_numberOfClasses
@@ -251,6 +251,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       private$dfTrain <- self$params$df[ trainIndex,]
       private$dfTest  <- self$params$df[-trainIndex,]
       private$grainTest  <- private$dfGrain[-trainIndex] # Save grain for xgboost output
+      self$trainIndex <- trainIndex
 
       if (isTRUE(self$params$debug)) {
         print('Training data set after splitting from main df')
@@ -281,6 +282,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
 
     #parameters
     params = NA,
+    trainIndex = NA,
 
     ###########
     # Functions
