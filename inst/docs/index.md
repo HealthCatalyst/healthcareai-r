@@ -20,7 +20,7 @@ Find our code at our [Github Repo ![Our Github repo](img/GitHub-Mark-120px-plus.
 
 ## For those starting out
 
-- If you haven't, install [R](https://cran.cnr.berkeley.edu) and [RStudio](https://www.rstudio.com/products/rstudio/download)
+- If you haven't, install [R](https://cran.cnr.berkeley.edu) version >= 3.2.3 and [RStudio](https://www.rstudio.com/products/rstudio/download)
 
 Note: if you're setting up R on an ETL server, don't download RStudio--simply open up RGui
 
@@ -87,11 +87,10 @@ If you like Jupyter notebooks, check out [step 1](https://github.com/HealthCatal
 Read the blog and join the slack channel at [healthcare.ai](https://healthcare.ai)
 
 ## What's new?
+The CRAN 0.1.12 release features
 
-Since the CRAN 0.1.11 release, the following has been added to the bleeding edge version
-
-- Output nightly predictions to a dataframe for use with MySQL, Oracle, etc. See the csv example at ?RandomForestDeployment
-- Evaluate in-the-wild performance via AU_ROC and AU_PR scores and plots. See more at ?generateAUC
+- Check the availability of columns after patient admit (and avoid target leak) via featureAvailabilityProfiler!
+- One can now deploy predictions to flat files via getOutDf. See ?getOutDf for more.
 
 ## For issues
 

@@ -7,12 +7,15 @@
 #' This is done in a four-step process:
 #'
 #' \enumerate{
-#' \item{\strong{Load and profile data}}{\cr Use \code{\link{selectData}} to pull data directly 
-#' from the SQL database. Then, \code{\link{featureAvailabilityProfiler}} and 
-#' \code{\link{countPercentEmpty}} can help determine how many null values are in a 
-#' column and how they are populated over time. \code{\link{calculateTargetedCorrelations}} 
-#' and \code{\link{findTrends}} can help explore data. Manipulate dates using 
-#' \code{\link{orderByDate}} and \code{\link{countDaysSinceFirstDate}}. }
+#' \item{\strong{Load and profile data}}{\cr Use \code{\link{selectData}} to 
+#' pull data directly from the SQL database. Then, 
+#' \code{\link{featureAvailabilityProfiler}} and \code{\link{countPercentEmpty}} 
+#' can help determine how many null values are in a column and how they are 
+#' populated over time. \code{\link{findVariation}}, \code{\link{findTrends}}, 
+#' and \code{\link{calculateTargetedCorrelations}} help surface insights from
+#' data. Manipulate dates using \code{\link{orderByDate}} and 
+#' \code{\link{countDaysSinceFirstDate}}. One can get quite far in healthcare
+#' data analysis without even going beyond this step. }
 #' 
 #' \item{\strong{Develop a machine learning model}}{\cr Use \code{\link{LassoDevelopment}} or
 #' \code{\link{RandomForestDevelopment}} and test different combinations of 

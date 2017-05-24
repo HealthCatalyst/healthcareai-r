@@ -169,7 +169,8 @@ cat(proc.time() - ptm,"\n")
 
 ## `LinearMixedModelDevelopment` Details
 
-This mixed model is designed for longitudinal datasets (ie, those that typically have more than one row per-person). The method is based on the lme4 package. It's not as computationally efficient as the random forest algorithm, so it's best to compare against the other algorithms on smaller datasets, and then scale up from there.
+This mixed model is designed for longitudinal datasets (ie, those that typically have more than one row per-person). The method is based on the lme4 package. It's not as computationally efficient as the random forest algorithm, so it's best to compare against the other algorithms on smaller datasets, and then scale up from there.  In 
+particular, this method works best on data sets having fewer than 10,000 rows.
 
 ## Full example code for mixed-model longitudinal work
 

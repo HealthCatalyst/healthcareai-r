@@ -41,6 +41,8 @@ This step allows one to
 \item Run the model against test data to generate predictions
 \item Push these predictions to SQL Server
 }
+The linear mixed model functionality works best with data sets having fewer
+than 10,000 rows.
 }
 \examples{
 
