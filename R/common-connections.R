@@ -204,10 +204,19 @@ writeData <- function(MSSQLConnectionString = NULL,
     df[colNumsDTS] <- lapply(df[colNumsDTS], as.character)
   }
   
-  DBI::dbWriteTable(con, tableName, df, append = TRUE)
-  
+  DBI::dbWriteTable(conn = con, 
+                    name = tableName, 
+                    value = df,
+                    append = TRUE)
+
   # Close connection
   DBI::dbDisconnect(con)
-  
-  cat(nrow(df), "rows were inserted into the SQL Server", tableName, "table." )
+
+  # TODO: get success and # of inserted rows from dbWriteTable function  
+  if (is.null(MSSQLConnectionString)) {
+    cat(nrow(df), "rows were inserted into the SQLite", tableName, "table." )    
+  } else {
+    cat(nrow(df), "rows were inserted into the SQL Server", tableName, "table.")
+    
+  }
 }

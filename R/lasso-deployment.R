@@ -81,7 +81,6 @@
 #' p2$impute <- TRUE
 #' p2$debug <- FALSE
 #' p2$cores <- 1
-#' p2$writeToDB <- FALSE
 #'
 #' dL <- LassoDeployment$new(p2)
 #' dL$deploy()
@@ -130,7 +129,7 @@
 #' str(df)
 #' 
 #' ## 2. Train and save the model using DEVELOP
-#' #' set.seed(42)
+#' set.seed(42)
 #' inTest <- df$InTestWindowFLG # save this for deploy
 #' df$InTestWindowFLG <- NULL
 #' 
@@ -159,12 +158,15 @@
 #' p2$impute <- TRUE
 #' p2$debug <- FALSE
 #' p2$cores <- 1
-#' p2$sqlConn <- connection.string
-#' p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
 #' 
 #' dL <- LassoDeployment$new(p2)
 #' dL$deploy()
+#' dfOut <- dL$getOutDf()
 #' 
+#' writeData(MSSQLConnectionString = connection.string,
+#'           df = dfOut,
+#'           tableName = 'HCRDeployClassificationBASE')
+#'
 #' print(proc.time() - ptm)
 #' }
 #' 
@@ -235,14 +237,147 @@
 #' p2$impute <- TRUE
 #' p2$debug <- FALSE
 #' p2$cores <- 1
-#' p2$sqlConn <- connection.string
-#' p2$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
 #' 
 #' dL <- LassoDeployment$new(p2)
 #' dL$deploy()
+#' dfOut <- dL$getOutDf()
+#' 
+#' writeData(MSSQLConnectionString = connection.string,
+#'           df = dfOut,
+#'           tableName = 'HCRDeployRegressionBASE')
 #' 
 #' print(proc.time() - ptm)
 #' }
+#'
+#' #### Classification example pulling from CSV and writing to SQLite ####
+#' 
+#' ## 1. Loading data and packages.
+#' ptm <- proc.time()
+#' library(healthcareai)
+#' 
+#' # Can delete these system.file lines in your work
+#' csvfile <- system.file("extdata", 
+#'                        "HCRDiabetesClinical.csv", 
+#'                        package = "healthcareai")
+#'                        
+#' sqliteFile <- system.file("extdata",
+#'                           "unit-test.sqlite",
+#'                           package = "healthcareai")
+#'
+#' # Read in CSV; replace csvfile with 'path/file'
+#' df <- read.csv(file = csvfile, 
+#'                header = TRUE, 
+#'                na.strings = c("NULL", "NA", ""))
+#'
+#' head(df)
+#' str(df)
+#' 
+#' ## 2. Train and save the model using DEVELOP
+#' set.seed(42)
+#' df$PatientID <- NULL # We'll instead use PatientEncounterID
+#' inTest <- df$InTestWindowFLG # save this for deploy
+#' df$InTestWindowFLG <- NULL
+#' 
+#' p <- SupervisedModelDevelopmentParams$new()
+#' p$df <- df
+#' p$type <- "classification"
+#' p$impute <- TRUE
+#' p$grainCol <- "PatientEncounterID"
+#' p$predictedCol <- "ThirtyDayReadmitFLG"
+#' p$debug <- FALSE
+#' p$cores <- 1
+#' 
+#' # Run Lasso
+#' lasso <- LassoDevelopment$new(p)
+#' lasso$run()
+#' 
+#' ## 3. Load saved model and use DEPLOY to generate predictions. 
+#' df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+#' 
+#' p2 <- SupervisedModelDeploymentParams$new()
+#' p2$type <- "classification"
+#' p2$df <- df
+#' p2$grainCol <- "PatientEncounterID"
+#' p2$testWindowCol <- "InTestWindowFLG"
+#' p2$predictedCol <- "ThirtyDayReadmitFLG"
+#' p2$impute <- TRUE
+#' p2$debug <- FALSE
+#' p2$cores <- 1
+#' 
+#' dL <- LassoDeployment$new(p2)
+#' dL$deploy()
+#' dfOut <- dL$getOutDf()
+#' 
+#' writeData(SQLiteFileName = sqliteFile,
+#'           df = dfOut,
+#'           tableName = 'HCRDeployClassificationBASE')
+#'
+#' print(proc.time() - ptm)
+#'
+#' #### Regression example pulling from CSV and writing to SQLite ####
+#' 
+#' ## 1. Loading data and packages.
+#' ptm <- proc.time()
+#' library(healthcareai)
+#' 
+#' # Can delete these system.file lines in your work
+#' csvfile <- system.file("extdata", 
+#'                        "HCRDiabetesClinical.csv", 
+#'                        package = "healthcareai")
+#'
+#' sqliteFile <- system.file("extdata",
+#'                           "unit-test.sqlite",
+#'                           package = "healthcareai")
+#'
+#' # Read in CSV; replace csvfile with 'path/file'
+#' df <- read.csv(file = csvfile, 
+#'                header = TRUE, 
+#'                na.strings = c("NULL", "NA", ""))
+#'
+#' head(df)
+#' str(df)
+#' 
+#' ## 2. Train and save the model using DEVELOP
+#' set.seed(42)
+#' df$PatientID <- NULL # We'll instead use PatientEncounterID
+#' inTest <- df$InTestWindowFLG # save this for deploy
+#' df$InTestWindowFLG <- NULL
+#' 
+#' p <- SupervisedModelDevelopmentParams$new()
+#' p$df <- df
+#' p$type <- "regression"
+#' p$impute <- TRUE
+#' p$grainCol <- "PatientEncounterID"
+#' p$predictedCol <- "A1CNBR"
+#' p$debug <- FALSE
+#' p$cores <- 1
+#' 
+#' # Run Lasso
+#' lasso <- LassoDevelopment$new(p)
+#' lasso$run()
+#' 
+#' ## 3. Load saved model and use DEPLOY to generate predictions. 
+#' df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+#' 
+#' p2 <- SupervisedModelDeploymentParams$new()
+#' p2$type <- "regression"
+#' p2$df <- df
+#' p2$grainCol <- "PatientEncounterID"
+#' p2$testWindowCol <- "InTestWindowFLG"
+#' p2$predictedCol <- "A1CNBR"
+#' p2$impute <- TRUE
+#' p2$debug <- FALSE
+#' p2$cores <- 1
+#' 
+#' dL <- LassoDeployment$new(p2)
+#' dL$deploy()
+#' dfOut <- dL$getOutDf()
+#' 
+#' writeData(SQLiteFileName = sqliteFile,
+#'           df = dfOut,
+#'           tableName = 'HCRDeployRegressionBASE')
+#' 
+#' print(proc.time() - ptm)
 
 LassoDeployment <- R6Class(
   "LassoDeployment",
@@ -268,18 +403,7 @@ LassoDeployment <- R6Class(
     
     predictions = NA,
     
-    # functions
-    connectDataSource = function() {
-      RODBC::odbcCloseAll()
-      # Convert the connection string into a real connection object.
-      self$params$sqlConn <- RODBC::odbcDriverConnect(self$params$sqlConn)
-      
-    },
-
-    closeDataSource = function() {
-      RODBC::odbcCloseAll()
-    },
-
+    # Functions
     # Predict results
     performPrediction = function() {
       # Index of largest lambda within one cvse of the lambda with lowest cve:
@@ -345,7 +469,7 @@ LassoDeployment <- R6Class(
       # Calculate ordered factors of importance for each row's prediction
       private$orderedFactors <- t(sapply(1:nrow(private$multiplyRes), function(i) colnames(private$multiplyRes[order(private$multiplyRes[i,
                                                                                                                                          ], decreasing = TRUE)])))
-
+      
       if (isTRUE(self$params$debug)) {
         cat("Data frame after getting column importance ordered", '\n')
         print(private$orderedFactors[1:10, ])
@@ -356,19 +480,15 @@ LassoDeployment <- R6Class(
       dtStamp <- as.POSIXlt(Sys.time())
 
       # Combine grain.col, prediction, and time to be put back into SAM table
+      # TODO: use a common function to reduce lasso-specific code here
       private$outDf <- data.frame(
-        0,
-        # BindingID
-        'R',
-        # BindingNM
-        dtStamp,
-        # LastLoadDTS
-        private$grainTest,
-        # GrainID
-        private$predictions,
-        # PredictedProbab
-        private$orderedFactors[, 1:3]
-      )    # Top 3 Factors
+        0,    # BindingID
+        'R',  # BindingNM
+        dtStamp,                      # LastLoadDTS
+        private$grainTest,            # GrainID
+        private$predictions,          # PredictedProbab
+        private$orderedFactors[, 1:3] # Top 3 Factors
+      )    
 
       predictedResultsName <- ""
       if (self$params$type == "classification") {
@@ -386,33 +506,10 @@ LassoDeployment <- R6Class(
         "Factor2TXT",
         "Factor3TXT"
       )
-
-      if (isTRUE(self$params$debug)) {
-        cat('Dataframe with predictions:', '\n')
-        cat(str(private$outDf), '\n')
-      }
-    },
-
-      saveDataIntoDb = function() {
-      if (isTRUE(self$params$writeToDB)) {
-        # Save df to table in SAM database
-        out <- RODBC::sqlSave(
-          channel = self$params$sqlConn,
-          dat = private$outDf,
-          tablename = self$params$destSchemaTable,
-          append = T,
-          rownames = F,
-          colnames = F,
-          safer = T,
-          nastring = NULL,
-          verbose = self$params$debug
-        )
-  
-        # Print success if insert was successful
-        if (out == 1) {
-          cat('SQL Server insert was successful') # removed '\n' for the unit test
-        }
-      }
+      
+      # Remove row names so df can be written to DB
+      # TODO: in writeData function, find how to ignore row names
+      rownames(private$outDf) <- NULL
     }
   ),
 
@@ -433,11 +530,7 @@ LassoDeployment <- R6Class(
 
     #Override: deploy the model
     deploy = function() {
-      if (isTRUE(self$params$writeToDB)) {
-        # Connect to sql via odbc driver
-        private$connectDataSource()
-      }
-      
+
       # Try to load the model
       tryCatch({
         load("rmodel_var_import_lasso.rda")  # Produces fitLogit object
@@ -468,15 +561,6 @@ LassoDeployment <- R6Class(
 
       # create dataframe for output
       private$createDf()
-      
-      if (isTRUE(self$params$writeToDB)) {
-        # Save data into db
-        private$saveDataIntoDb()
-      }
-
-      if (isTRUE(self$params$writeToDB)) {
-        private$closeDataSource()
-      }
     },
     
     # Surface outDf as attribute for export to Oracle, MySQL, etc

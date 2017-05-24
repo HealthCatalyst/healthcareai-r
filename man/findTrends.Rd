@@ -19,8 +19,7 @@ subset the data was grouped by (ie M/F), the measures that had trends
 (ie, mortality or readmission), and the ending month.
 }
 \description{
-Find numeric columns in data frame that have an absolute slope greater than
-that specified via threshold argument.
+Search within subgroups and find trends that are six months of longer.
 }
 \examples{
 dates <- c(as.Date('2012-01-01'),as.Date('2012-01-02'),as.Date('2012-02-01'),
@@ -36,7 +35,6 @@ df <- data.frame(dates,y1,y2,y3,y4,gender)
 dfResult <- findTrends(df = df,
                       dateCol = 'dates',
                       groupbyCol = 'gender')
-dfResult
 }
 \references{
 \url{http://healthcare.ai}

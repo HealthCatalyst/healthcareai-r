@@ -1,4 +1,4 @@
-context("Checking deploy predictions from sql to sql")
+context("Checking deploy predictions from sql server to sql server")
 
   connection.string <- "
   driver={SQL Server};
@@ -105,7 +105,7 @@ test_that("LMM deploy regression pushes values to SQL", {
   closeAllConnections()
 }) 
 
-test_that("Lasso deploy classification pushes values to SQL", {
+test_that("Lasso deploy classification pushes values to SQL Server", {
 
   skip_on_travis()
   skip_on_cran()
@@ -133,12 +133,15 @@ test_that("Lasso deploy classification pushes values to SQL", {
   p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
   
   capture.output(dL <- LassoDeployment$new(p2))
-  out <- capture.output(dL$deploy())
-  expect_equal(out, "SQL Server insert was successful")
-  closeAllConnections()
+  capture.output(dL$deploy())
+  capture.output(dfOut <- dL$getOutDf())
+  expect_output(writeData(MSSQLConnectionString = connectionString,
+                          df = dfOut,
+                          tableName = 'HCRDeployClassificationBASE'),
+                "13 rows were inserted into the SQL Server")
 })
 
-test_that("Lasso deploy regression pushes values to SQL", {
+test_that("Lasso deploy regression pushes values to SQL Server", {
 
   skip_on_travis()
   skip_on_cran()
@@ -167,11 +170,14 @@ test_that("Lasso deploy regression pushes values to SQL", {
   
   capture.output(dL <- LassoDeployment$new(p2))
   out <- capture.output(dL$deploy())
-  expect_equal(out, "SQL Server insert was successful")
-  closeAllConnections()
+  capture.output(dfOut <- dL$getOutDf())
+  expect_output(writeData(MSSQLConnectionString = connectionString,
+                          df = dfOut,
+                          tableName = 'HCRDeployRegressionBASE'),
+                "13 rows were inserted into the SQL Server")
 })
 
-test_that("rf deploy classification pushes values to SQL", {
+test_that("rf deploy classification pushes values to SQL Server", {
 
   skip_on_travis()
   skip_on_cran()
@@ -204,7 +210,7 @@ test_that("rf deploy classification pushes values to SQL", {
   closeAllConnections()
 })
 
-test_that("rf deploy regression pushes values to SQL", {
+test_that("rf deploy regression pushes values to SQL Server", {
 
   skip_on_travis()
   skip_on_cran()
