@@ -219,6 +219,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
 
       private$dfTrain <- self$params$df[ trainIndex,]
       private$dfTest  <- self$params$df[-trainIndex,]
+      self$trainIndex <- trainIndex
 
       if (isTRUE(self$params$debug)) {
         print('Training data set after splitting from main df')
@@ -249,6 +250,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
 
     #parameters
     params = NA,
+    trainIndex = NA,
 
     ###########
     # Functions

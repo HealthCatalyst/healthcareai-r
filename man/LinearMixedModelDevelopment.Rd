@@ -34,6 +34,9 @@ to monitor the calculations throughout. Use T or F.}
 \description{
 This step allows one to create test models on your data
 and helps determine which performs best.
+
+The linear mixed model functionality works best with data sets having fewer
+than 10,000 rows.
 }
 \examples{
 
