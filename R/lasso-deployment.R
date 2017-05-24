@@ -403,18 +403,7 @@ LassoDeployment <- R6Class(
     
     predictions = NA,
     
-    # functions
-    connectDataSource = function() {
-      RODBC::odbcCloseAll()
-      # Convert the connection string into a real connection object.
-      self$params$sqlConn <- RODBC::odbcDriverConnect(self$params$sqlConn)
-      
-    },
-
-    closeDataSource = function() {
-      RODBC::odbcCloseAll()
-    },
-
+    # Functions
     # Predict results
     performPrediction = function() {
       # Index of largest lambda within one cvse of the lambda with lowest cve:
