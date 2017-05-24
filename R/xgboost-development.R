@@ -33,142 +33,54 @@
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #'
-#' #### Example using iris dataset ####
+#' #### Example using csv dataset ####
+#' This dataset comes from \url{http://archive.ics.uci.edu/ml/datasets/dermatology}
 #' ptm <- proc.time()
 #' library(healthcareai)
-#'
-#' data(iris)
-#' head(iris)
-#'
-#' set.seed(42)
-#'
-#' p <- SupervisedModelDevelopmentParams$new()
-#' p$df <- iris
-#' p$type <- "regression"
-#' p$impute <- TRUE
-#' p$grainCol <- ""
-#' p$predictedCol <- "Sepal.Width"
-#' p$debug <- FALSE
-#' p$cores <- 1
-#'
-#' # Run Lasso
-#' lasso <- LassoDevelopment$new(p)
-#' lasso$run()
-#'
-#' set.seed(42)
-#' # Run RandomForest
-#' rf <- RandomForestDevelopment$new(p)
-#' rf$run()
-#'
-#' print(proc.time() - ptm)
-#'
-#' #### Example using csv data ####
-#' library(healthcareai)
-#' # setwd('C:/Your/script/location') # Needed if using YOUR CSV file
-#' ptm <- proc.time()
-#'
-#' # Can delete this line in your work
-#' csvfile <- system.file("extdata", 
-#'                        "HCRDiabetesClinical.csv", 
-#'                        package = "healthcareai")
-#'
-#' # Replace csvfile with 'your/path'
-#' df <- read.csv(file = csvfile, 
-#'                header = TRUE, 
-#'                na.strings = c("NULL", "NA", ""))
-#'
-#' head(df)
-#'
-#' df$PatientID <- NULL
-#' df$InTestWindowFLG <- NULL
-#'
-#' set.seed(42)
-#'
-#' p <- SupervisedModelDevelopmentParams$new()
-#' p$df <- df
-#' p$type <- "regression"
-#' p$impute <- TRUE
-#' p$grainCol <- "PatientEncounterID"
-#' p$predictedCol <- "A1CNBR"
-#' p$debug <- FALSE
-#' p$cores <- 1
-#'
-#' # Run Lasso
-#' lasso <- LassoDevelopment$new(p)
-#' lasso$run()
-#'
-#' set.seed(42) 
-#' # Run Random Forest
-#' rf <- RandomForestDevelopment$new(p)
-#' rf$run()
-#'
-#' print(proc.time() - ptm)
-#'
-#' \donttest{
-#' #### Example using SQL Server data ####
-#'
-#' ptm <- proc.time()
-#' library(healthcareai)
-#'
-#' connection.string <- "
-#' driver={SQL Server};
-#' server=localhost;
-#' database=SAM;
-#' trusted_connection=true
-#' "
-#'
-#' query <- "
-#' SELECT
-#' [PatientEncounterID]
-#' ,[SystolicBPNBR]
-#' ,[LDLNBR]
-#' ,[A1CNBR]
-#' ,[GenderFLG]
-#' ,[ThirtyDayReadmitFLG]
-#' ,[InTestWindowFLG]
-#' FROM [SAM].[dbo].[HCRDiabetesClinical]
-#' WHERE InTestWindowFLG = 'N'
-#' "
-#'
-#' df <- selectData(connection.string, query)
-#' head(df)
-#'
-#' df$InTestWindowFLG <- NULL
-#'
-#' set.seed(42)
-#'
-#' p <- SupervisedModelDevelopmentParams$new()
-#' p$df <- df
-#' p$type <- "classification"
-#' p$impute <- TRUE
-#' p$grainCol <- "PatientEncounterID"
-#' p$predictedCol <- "ThirtyDayReadmitFLG"
-#' p$debug <- FALSE
-#' p$cores <- 1
-#'
-#' # Run Lasso
-#' lasso <- LassoDevelopment$new(p)
-#' lasso$run()
-#'
-#' set.seed(42) 
-#' # Run Random Forest
-#' rf <- RandomForestDevelopment$new(p)
-#' rf$run()
-#'
-#' # Plot ROC
-#' rocs <- list(rf$getROC(), lasso$getROC())
-#' names <- c("Random Forest", "Lasso")
-#' legendLoc <- "bottomright"
-#' plotROCs(rocs, names, legendLoc)
 #' 
-#' # Plot PR Curve
-#' rocs <- list(rf$getPRCurve(), lasso$getPRCurve())
-#' names <- c("Random Forest", "Lasso")
-#' legendLoc <- "bottomleft"
-#' plotPRCurve(rocs, names, legendLoc)
+#' # 1. Load data. Categorical columns should be characters.
+#' csvfile <- system.file("extdata", 
+#'                       "dermatology_multiclass_data.csv", 
+#'                       package = "healthcareai")
+#' 
+#'  # Replace csvfile with 'path/file'
+#' df <- read.csv(file = csvfile, 
+#'               header = TRUE, 
+#'               stringsAsFactors = FALSE,
+#'               na.strings = c("NULL", "NA", "", "?"))
+#' 
+#' str(df)
+#' 
+#' # 2. Develop and save model
+#' set.seed(42)
+#' p <- SupervisedModelDevelopmentParams$new()
+#' p$df <- df
+#' p$type <- "multiclass"
+#' p$impute <- TRUE
+#' p$grainCol <- "PatientID"
+#' p$predictedCol <- "target"
+#' p$debug <- FALSE
+#' p$cores <- 1
+#' # xgb_params must be a list with all of these things in it. 
+#' # if you would like to tweak parameters, go for it! 
+#' # Leave objective and eval_metric as they are.
+#' # See more info at \url{https://github.com/dmlc/xgboost/blob/master/doc/parameter.md}
+#' p$xgb_params <- list("objective" = "multi:softprob",
+#'                   "eval_metric" = "mlogloss",
+#'                   "max_depth" = 6, # max depth of each learner
+#'                   "eta" = 0.1, # learning rate
+#'                   "silent" = 0, # verbose output when set to 1
+#'                   "nthread" = 2) # number of processors to use
+#' 
+#' # Run model
+#' boost <- XGBoostDevelopment$new(p)
+#' boost$run()
+#' 
+#' # Get output data 
+#' outputDF <- boost$getPredictions()
+#' head(outputDF)
 #'
 #' print(proc.time() - ptm)
-#' }
 #'
 #' @export
 
