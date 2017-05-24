@@ -1,8 +1,7 @@
 #' @title
 #' Find any columns that have a trend above a particular threshold
 #' @description
-#' Find numeric columns in data frame that have an absolute slope greater than
-#' that specified via threshold argument.
+#' Search within subgroups and find trends that are six months of longer.
 #' @param df A data frame
 #' @param dateCol A string denoting the date column
 #' @param groupbyCol A string denoting the column by which to group
@@ -29,7 +28,6 @@
 #'dfResult <- findTrends(df = df,
 #'                       dateCol = 'dates',
 #'                       groupbyCol = 'gender')
-#'dfResult
 findTrends <- function(df, dateCol, groupbyCol) {
   df$year <- as.POSIXlt(df[[dateCol]])$year + 1900
   df$month <- as.POSIXlt(df[[dateCol]])$mo + 1
