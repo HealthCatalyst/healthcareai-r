@@ -81,7 +81,6 @@
 #' p2$impute <- TRUE
 #' p2$debug <- FALSE
 #' p2$cores <- 1
-#' p2$writeToDB <- FALSE
 #'
 #' dL <- LassoDeployment$new(p2)
 #' dL$deploy()
@@ -159,14 +158,12 @@
 #' p2$impute <- TRUE
 #' p2$debug <- FALSE
 #' p2$cores <- 1
-#' p2$sqlConn <- connection.string
-#' p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
 #' 
 #' dL <- LassoDeployment$new(p2)
 #' dL$deploy()
 #' dfOut <- dL$getOutDf()
 #' 
-#' writeData(MSSQLConnectionString = connectionString,
+#' writeData(MSSQLConnectionString = connection.string,
 #'           df = dfOut,
 #'           tableName = 'HCRDeployClassificationBASE')
 #'
@@ -245,7 +242,7 @@
 #' dL$deploy()
 #' dfOut <- dL$getOutDf()
 #' 
-#' writeData(MSSQLConnectionString = connectionString,
+#' writeData(MSSQLConnectionString = connection.string,
 #'           df = dfOut,
 #'           tableName = 'HCRDeployRegressionBASE')
 #' 
@@ -306,8 +303,6 @@
 #' p2$impute <- TRUE
 #' p2$debug <- FALSE
 #' p2$cores <- 1
-#' p2$sqlConn <- connection.string
-#' p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
 #' 
 #' dL <- LassoDeployment$new(p2)
 #' dL$deploy()
