@@ -37,7 +37,6 @@ your data.
 \examples{
 
 #### Example using csv dataset ####
-This dataset comes from \\url{http://archive.ics.uci.edu/ml/datasets/dermatology}
 ptm <- proc.time()
 library(healthcareai)
 
@@ -52,7 +51,7 @@ df <- read.csv(file = csvfile,
               stringsAsFactors = FALSE,
               na.strings = c("NULL", "NA", "", "?"))
 
-str(df)
+str(df) # check the types of columns
 
 # 2. Develop and save model
 set.seed(42)
@@ -67,7 +66,6 @@ p$cores <- 1
 # xgb_params must be a list with all of these things in it. 
 # if you would like to tweak parameters, go for it! 
 # Leave objective and eval_metric as they are.
-# See more info at \\url{https://github.com/dmlc/xgboost/blob/master/doc/parameter.md}
 p$xgb_params <- list("objective" = "multi:softprob",
                   "eval_metric" = "mlogloss",
                   "max_depth" = 6, # max depth of each learner
@@ -90,10 +88,10 @@ print(proc.time() - ptm)
 \url{http://hctools.org/}
 }
 \seealso{
-\code{\link{LassoDevelopment}}
+Information on the example dataset can be found at: 
+\url{http://archive.ics.uci.edu/ml/datasets/dermatology/}
 
-\code{\link{LinearMixedModelDevelopment}}
-
-\code{\link{healthcareai}}
+Information on the xgboost parameters can be found at:
+\url{https://github.com/dmlc/xgboost/blob/master/doc/parameter.md}
 }
 \keyword{datasets}

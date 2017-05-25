@@ -8,12 +8,10 @@
 #' @import caret
 #' @import doParallel
 #' @import e1071
-#' @import grpreg
-#' @import pROC
+#' @import xgboost
+#' @importFrom dplyr mutate
+#' @import magrittr
 #' @importFrom R6 R6Class
-#' @import ranger
-#' @import ROCR
-#' @import RODBC
 #' @param object of SuperviseModelParameters class for $new() constructor
 #' @param type The type of model (either 'regression' or 'classification')
 #' @param df Dataframe whose columns are used for calc.
@@ -28,13 +26,14 @@
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
 #' @references \url{http://hctools.org/}
-#' @seealso \code{\link{LassoDevelopment}}
-#' @seealso \code{\link{LinearMixedModelDevelopment}}
-#' @seealso \code{\link{healthcareai}}
+#' @seealso Information on the example dataset can be found at: 
+#' \url{http://archive.ics.uci.edu/ml/datasets/dermatology/}
+#' @seealso Information on the xgboost parameters can be found at:
+#' \url{https://github.com/dmlc/xgboost/blob/master/doc/parameter.md}
+#' 
 #' @examples
 #'
 #' #### Example using csv dataset ####
-#' This dataset comes from \url{http://archive.ics.uci.edu/ml/datasets/dermatology}
 #' ptm <- proc.time()
 #' library(healthcareai)
 #' 
@@ -49,7 +48,7 @@
 #'               stringsAsFactors = FALSE,
 #'               na.strings = c("NULL", "NA", "", "?"))
 #' 
-#' str(df)
+#' str(df) # check the types of columns
 #' 
 #' # 2. Develop and save model
 #' set.seed(42)
@@ -64,7 +63,6 @@
 #' # xgb_params must be a list with all of these things in it. 
 #' # if you would like to tweak parameters, go for it! 
 #' # Leave objective and eval_metric as they are.
-#' # See more info at \url{https://github.com/dmlc/xgboost/blob/master/doc/parameter.md}
 #' p$xgb_params <- list("objective" = "multi:softprob",
 #'                   "eval_metric" = "mlogloss",
 #'                   "max_depth" = 6, # max depth of each learner
@@ -84,7 +82,7 @@
 #'
 #' @export
 
-XGBoostDevelopment <- R6Class("RandomForestDevelopment",
+XGBoostDevelopment <- R6Class("XGBoostDevelopment",
 
   # Inheritance
   inherit = SupervisedModelDevelopment,
@@ -92,10 +90,8 @@ XGBoostDevelopment <- R6Class("RandomForestDevelopment",
   # Private members
   private = list(
 
-    # Grid object for grid search
+    # Grid object for grid search (TODO: add random parameter search)
     grid = NA,
-
-    # fitLogit = NA,
     predictions = NA,
     test_label = NA,
 
@@ -147,7 +143,7 @@ XGBoostDevelopment <- R6Class("RandomForestDevelopment",
       }
 
       # print xgb params (for sanity)
-      cat('xgb_params are:', '\n')
+      cat('xgb_params are for model training are:', '\n')
       cat(str(self$params$xgb_params), '\n')
     
     },
