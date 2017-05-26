@@ -173,12 +173,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
      # Split df into temp train and test (then rejoin for dummy creation)
      # Sadly, this even has to be done nightly (with a saved model)
-
-     print(self$params$testWindowCol)
-     print('shoudl be data here!')
-     print(self$params$df[[self$params$testWindowCol]])
-
-
      private$dfTrainTemp <-
        self$params$df[self$params$df[[self$params$testWindowCol]] == 'N', ]
      private$dfTestTemp <-

@@ -47,15 +47,27 @@ XGBoostDeployment <- R6Class("XGBoostDeployment",
     
     fitXGB = NA,
     predictions = NA,
-    params = list(),
 
     # functions
+    # Prepare data for XGBoost
+    xgbPrepareData = function() {
+      cat('Preparing data...', '\n')
+      # XGB requires data.matrix format, not data.frame.
+      # R factors are 1 indexed, XGB is 0 indexed, so we must subtract 1 from the labels. They must be numeric.
+      str(private$dfTestTemp)
+      temp_test_data <- data.matrix(private$dfTestTemp[ ,!(colnames(private$dfTest) == self$params$predictedCol)])
+      temp_test_label <- data.matrix(as.numeric(private$dfTest[[self$params$predictedCol]])) - 1 
+      self$xgb_testMatrix <- xgb.DMatrix(data = temp_test_data, label = temp_test_label) 
+      private$test_label <- temp_test_label # save for confusion matrix and output
+      rm(temp_test_data, temp_test_label) # clean temp variables
+    },
+
     # Perform prediction
     performPrediction = function() {
       cat('Generating Predictions...','\n')
-      private$predictions <- caret::predict.train(object = private$fitXGB,
-                                                  newdata = private$dfTestTemp,
-                                                  type = 'prob')
+      private$predictions <- caret::predict(object = private$fitXGB,
+                                            newdata = private$dfTestTemp,
+                                            reshape = TRUE)
       private$predictions <- private$predictions[,2]
       
       if (isTRUE(self$params$debug)) {
@@ -117,13 +129,15 @@ pcolnames(private$multiplyRes[order(private$multiplyRes[i, ],
 
   #Public members
   public = list(
+    xgb_testMatrix = NA,
     #Constructor
     #p: new SupervisedModelDeploymentParams class object,
     #   i.e. p = SupervisedModelDeploymentParams$new()
     initialize = function(p) {
       cat('Initializing XGBoost Deploy...','\n')
       super$initialize(p)
-      print(head(self$dfTestTemp))
+      print('printing df test temp')
+      print(head(private$dfTest))
     },
 
     #Override: deploy the model
@@ -141,6 +155,9 @@ pcolnames(private$multiplyRes[order(private$multiplyRes[i, ],
               See ?XGBoostDevelopment')
       })
       
+      # Prepare data for xgboost
+      private$xgbPrepareData()
+
       # Predict
       private$performPrediction()
 
