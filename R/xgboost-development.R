@@ -159,7 +159,7 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
         print('Saving model...')
       }
       
-        fitObj <- private$fitXGB
+        fitObj <- self$fitXGB
         save(fitObj, file = "rmodel_probability_XGB.rda")
       }
 

@@ -44,6 +44,7 @@ XGBoostDeployment <- R6Class("XGBoostDeployment",
 
     # variables
     outDf = NA,
+    test_label = NA,
     
     fitXGB = NA,
     predictions = NA,
@@ -55,8 +56,8 @@ XGBoostDeployment <- R6Class("XGBoostDeployment",
       # XGB requires data.matrix format, not data.frame.
       # R factors are 1 indexed, XGB is 0 indexed, so we must subtract 1 from the labels. They must be numeric.
       str(private$dfTestTemp)
-      temp_test_data <- data.matrix(private$dfTestTemp[ ,!(colnames(private$dfTest) == self$params$predictedCol)])
-      temp_test_label <- data.matrix(as.numeric(private$dfTest[[self$params$predictedCol]])) - 1 
+      temp_test_data <- data.matrix(private$dfTestTemp[ ,!(colnames(private$dfTestTemp) == self$params$predictedCol)])
+      temp_test_label <- data.matrix(as.numeric(private$dfTestTemp[[self$params$predictedCol]])) - 1 
       self$xgb_testMatrix <- xgb.DMatrix(data = temp_test_data, label = temp_test_label) 
       private$test_label <- temp_test_label # save for confusion matrix and output
       rm(temp_test_data, temp_test_label) # clean temp variables
@@ -65,15 +66,15 @@ XGBoostDeployment <- R6Class("XGBoostDeployment",
     # Perform prediction
     performPrediction = function() {
       cat('Generating Predictions...','\n')
-      private$predictions <- caret::predict(object = private$fitXGB,
-                                            newdata = private$dfTestTemp,
-                                            reshape = TRUE)
-      private$predictions <- private$predictions[,2]
+      private$predictions <- predict(object = private$fitXGB,
+                                     newdata = self$xgb_testMatrix,
+                                     reshape = TRUE)
+      print(head(private$predictions))
       
       if (isTRUE(self$params$debug)) {
-        cat('Rows in regression prediction: ', length(private$predictions), '\n')
-        cat('First 10 raw regression predictions (with row # first)', '\n')
-        print(round(private$predictions[1:10],2))
+        cat('Rows in multiclass prediction: ', length(private$predictions), '\n')
+        cat('First 10 raw probability predictions (with row # first)', '\n')
+        print(round(private$predictions[1:10,],2))
       }
     },
 
@@ -136,8 +137,6 @@ pcolnames(private$multiplyRes[order(private$multiplyRes[i, ],
     initialize = function(p) {
       cat('Initializing XGBoost Deploy...','\n')
       super$initialize(p)
-      print('printing df test temp')
-      print(head(private$dfTest))
     },
 
     #Override: deploy the model

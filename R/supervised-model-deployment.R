@@ -207,6 +207,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
      # If all Y, remove test window col before imputation. Add back in after.
      if (isTRUE(all(tempTestWindow == 'Y'))) {
        self$params$df[[self$params$testWindowCol]] <- NULL
+       private$dfTestTemp[[self$params$testWindowCol]] <- NULL
      }
 
      # Split factor columns into dummy columns (for use in deploypred method)
