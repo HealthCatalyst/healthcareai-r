@@ -27,6 +27,8 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
    dfTestTemp = NULL,
 
    grainTest = NULL,
+   dfGrain = NULL,
+
    fit = NA,
    fitLogit = NA,
    predictedVals = NA,
@@ -156,6 +158,30 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
        print('Entire df after removing feature cols w/zero var')
        print(str(self$params$df))
      }
+
+     # For multiclass xgboost initialization:
+      # 1. Save the class names before they are converted.
+      # 2. Get the number of classes.
+      # 3. Save the grain column for output.
+      if (self$params$type == 'multiclass' ) {
+        # Names
+        ind <- grep(self$params$predictedCol, colnames(self$params$df))
+        tempCol <- self$params$df[,ind]
+        self$params$xgb_targetNames <- sort(unique(tempCol))
+        # Number
+        self$params$xgb_numberOfClasses <- length(self$params$xgb_targetNames)
+        # Grain
+        private$dfGrain <- self$params$df[[self$params$grainCol]]
+        rm(ind, tempCol)
+        # prints
+        if (isTRUE(self$params$debug)) {
+          print('Unique classes found:')
+          print(self$params$xgb_targetNames)
+          print('Number of classes:')
+          print(self$params$xgb_numberOfClasses)
+        }
+      }
+
 
      # Remove grain.col from df; below we split it into graintest
      if (nchar(self$params$grainCol) != 0) {

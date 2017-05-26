@@ -66,9 +66,30 @@ XGBoostDeployment <- R6Class("XGBoostDeployment",
     # Perform prediction
     performPrediction = function() {
       cat('Generating Predictions...','\n')
-      private$predictions <- predict(object = private$fitXGB,
-                                     newdata = self$xgb_testMatrix,
-                                     reshape = TRUE)
+      temp_predictions <- predict(object = private$fitXGB,
+                                  newdata = self$xgb_testMatrix,
+                                  reshape = TRUE)
+      
+      # Build prediction output
+      private$predictions <- temp_predictions %>% 
+        data.frame() %>%
+        mutate(predicted_label = max.col(.),
+               true_label = private$test_label + 1)
+
+      # Set column names to match input targets
+      colnames(private$predictions)[1:self$params$xgb_numberOfClasses] <- self$params$xgb_targetNames
+      
+      # Set up a mapping for the values themselves
+      from <- 1:self$params$xgb_numberOfClasses
+      to <- self$params$xgb_targetNames
+      map = setNames(to,from)
+      print(map)
+      private$predictions$predicted_label <- map[private$predictions$predicted_label] # note square brackets
+      private$predictions$true_label <- map[private$predictions$true_label] 
+
+      # Prepare output 
+      private$predictions <- cbind(private$grainTest, private$predictions)
+      colnames(private$predictions)[1] <- self$params$grainCol
       print(head(private$predictions))
       
       if (isTRUE(self$params$debug)) {
