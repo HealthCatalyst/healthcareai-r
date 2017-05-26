@@ -77,8 +77,9 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
        # validation on type string values
        if (self$params$type != 'regression' &&
-           self$params$type != 'classification') {
-         stop('Your type must be regression or classification')
+           self$params$type != 'classification' &&
+           self$params$type != 'multiclass') {
+         stop('Your type must be regression, classification, or multiclass')
        }
      }
 
@@ -110,6 +111,9 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
        print(str(self$params$df))
        print('Now going to convert chr cols to factor cols...')
      }
+
+     # Save this to put in later.
+     tempTestWindow <- self$params$df[[self$params$testWindowCol]]
 
      # Convert to data.frame (in case of data.table)
      # This also converts chr cols to (needed) factors
@@ -145,6 +149,8 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
      # Remove columns with zero variance
      self$params$df <- removeColsWithAllSameValue(self$params$df)
+     self$params$df[[self$params$testWindowCol]] <- tempTestWindow
+     # Prevents removing the test window column when they are all the same.
 
      if (isTRUE(self$params$debug)) {
        print('Entire df after removing feature cols w/zero var')
@@ -167,6 +173,12 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
      # Split df into temp train and test (then rejoin for dummy creation)
      # Sadly, this even has to be done nightly (with a saved model)
+
+     print(self$params$testWindowCol)
+     print('shoudl be data here!')
+     print(self$params$df[[self$params$testWindowCol]])
+
+
      private$dfTrainTemp <-
        self$params$df[self$params$df[[self$params$testWindowCol]] == 'N', ]
      private$dfTestTemp <-
@@ -198,10 +210,20 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
      self$params$df[[self$params$predictedCol]] =
        as.numeric(self$params$df[[self$params$predictedCol]])
 
+     # If all Y, remove test window col before imputation. Add back in after.
+     if (isTRUE(all(tempTestWindow == 'Y'))) {
+       self$params$df[[self$params$testWindowCol]] <- NULL
+     }
+
      # Split factor columns into dummy columns (for use in deploypred method)
      data <- dummyVars(~., data = self$params$df, fullRank = T)
      self$params$df <-
        data.frame(predict(data, newdata = self$params$df, na.action = na.pass))
+
+     # Add test window column back in with correct name and as ones.
+     if (isTRUE(all(tempTestWindow == 'Y'))) {
+       self$params$df[[paste0(self$params$testWindowCol, '.Y')]] <- 1
+     }  
 
      # Now that we have dummy vars, switch label to factor so this is classif.
      if (self$params$type == 'classification') {
