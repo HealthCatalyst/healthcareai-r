@@ -104,6 +104,56 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
     MAE = NA,
 
     # Start of functions
+    # Prepare data for XGBoost
+    xgbPrepareData = function() {
+      cat('Preparing data...', '\n')
+      # XGB requires data.matrix format, not data.frame.
+      # R factors are 1 indexed, XGB is 0 indexed, so we must subtract 1 from the labels. They must be numeric.
+      temp_train_data <- data.matrix(private$dfTrain[ ,!(colnames(private$dfTrain) == self$params$predictedCol)])
+      temp_train_label <- data.matrix(as.numeric(private$dfTrain[[self$params$predictedCol]])) - 1 
+      self$xgb_trainMatrix <- xgb.DMatrix(data = temp_train_data, label = temp_train_label)
+      rm(temp_train_data, temp_train_label) # clean temp variables
+
+      temp_test_data <- data.matrix(private$dfTest[ ,!(colnames(private$dfTest) == self$params$predictedCol)])
+      temp_test_label <- data.matrix(as.numeric(private$dfTest[[self$params$predictedCol]])) - 1 
+      self$xgb_testMatrix <- xgb.DMatrix(data = temp_test_data, label = temp_test_label) 
+      private$test_label <- temp_test_label # save for confusion matrix and output
+      rm(temp_test_data, temp_test_label) # clean temp variables
+    },
+
+    buildModel = function() {
+      cat('Building model...', '\n')
+      self$fitXGB <- xgb.train(params = self$params$xgb_params,
+                             data = self$xgb_trainMatrix,
+                             nrounds = self$params$xgb_nrounds)
+    },
+
+    # Perform prediction
+    performPrediction = function() {
+      cat('Generating predictions...', '\n')
+      temp_predictions <- predict(self$fitXGB, newdata = self$xgb_testMatrix, reshape = TRUE)
+
+      # Build prediction output
+      private$predictions <- temp_predictions %>% 
+        data.frame() %>%
+        mutate(predicted_label = max.col(.),
+               true_label = private$test_label + 1)
+
+      # Set column names to match input targets
+      colnames(private$predictions)[1:self$params$xgb_numberOfClasses] <- self$params$xgb_targetNames
+
+      # Set up a mapping for the values themselves
+      from <- 1:self$params$xgb_numberOfClasses
+      to <- self$params$xgb_targetNames
+      map = setNames(to,from)
+      private$predictions$predicted_label <- map[private$predictions$predicted_label] # note square brackets
+      private$predictions$true_label <- map[private$predictions$true_label] 
+
+      # Prepare output 
+      private$predictions <- cbind(private$grainTest, private$predictions)
+      colnames(private$predictions)[1] <- self$params$grainCol
+    },
+
     saveModel = function() {
       if (isTRUE(self$params$debug)) {
         print('Saving model...')
@@ -148,60 +198,9 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
     
     },
 
-    # Prepare data for XGBoost
-    xgbPrepareData = function() {
-      cat('Preparing data...', '\n')
-      # XGB requires data.matrix format, not data.frame.
-      # R factors are 1 indexed, XGB is 0 indexed, so we must subtract 1 from the labels. They must be numeric.
-      temp_train_data <- data.matrix(private$dfTrain[ ,!(colnames(private$dfTrain) == self$params$predictedCol)])
-      temp_train_label <- data.matrix(as.numeric(private$dfTrain[[self$params$predictedCol]])) - 1 
-      self$xgb_trainMatrix <- xgb.DMatrix(data = temp_train_data, label = temp_train_label)
-      rm(temp_train_data, temp_train_label) # clean temp variables
-
-      temp_test_data <- data.matrix(private$dfTest[ ,!(colnames(private$dfTest) == self$params$predictedCol)])
-      temp_test_label <- data.matrix(as.numeric(private$dfTest[[self$params$predictedCol]])) - 1 
-      self$xgb_testMatrix <- xgb.DMatrix(data = temp_test_data, label = temp_test_label) 
-      private$test_label <- temp_test_label # save for confusion matrix and output
-      rm(temp_test_data, temp_test_label) # clean temp variables
-
-    },
-
     getPredictions = function(){
       cat('Retrieving raw predictions...', '\n')
       return(private$predictions)
-    },
-
-    buildModel = function() {
-      cat('Building model...', '\n')
-      self$fitXGB <- xgb.train(params = self$params$xgb_params,
-                             data = self$xgb_trainMatrix,
-                             nrounds = self$params$xgb_nrounds)
-    },
-
-    # Perform prediction
-    performPrediction = function() {
-      cat('Generating predictions...', '\n')
-      temp_predictions <- predict(self$fitXGB, newdata = self$xgb_testMatrix, reshape = TRUE)
-
-      # Build prediction output
-      private$predictions <- temp_predictions %>% 
-        data.frame() %>%
-        mutate(predicted_label = max.col(.),
-               true_label = private$test_label + 1)
-
-      # Set column names to match input targets
-      colnames(private$predictions)[1:self$params$xgb_numberOfClasses] <- self$params$xgb_targetNames
-
-      # Set up a mapping for the values themselves
-      from <- 1:self$params$xgb_numberOfClasses
-      to <- self$params$xgb_targetNames
-      map = setNames(to,from)
-      private$predictions$predicted_label <- map[private$predictions$predicted_label] # note square brackets
-      private$predictions$true_label <- map[private$predictions$true_label] 
-
-      # Prepare output 
-      private$predictions <- cbind(private$grainTest, private$predictions)
-      colnames(private$predictions)[1] <- self$params$grainCol
     },
 
     # Generate performance metrics
@@ -215,16 +214,16 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
    # Run XGBoost Multiclass
    run = function() {
       # Prepare data for xgboost
-      self$xgbPrepareData()
+      private$xgbPrepareData()
 
       # Build Model
-      self$buildModel()
+      private$buildModel()
       
       # save model
       private$saveModel()
 
       # Perform prediction
-      self$performPrediction()
+      private$performPrediction()
 
       # Generate confusion matrix
       self$generateConfusionMatrix()

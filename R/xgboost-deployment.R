@@ -52,7 +52,7 @@ XGBoostDeployment <- R6Class("XGBoostDeployment",
     # functions
     # Perform prediction
     performPrediction = function() {
-      cat('Initializing XGBoost Deploy...','\n')
+      cat('Generating Predictions...','\n')
       private$predictions <- caret::predict.train(object = private$fitXGB,
                                                   newdata = private$dfTestTemp,
                                                   type = 'prob')
