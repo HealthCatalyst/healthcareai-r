@@ -1,3 +1,4 @@
+
 #' Deploy predictive models, created on your data
 #'
 #' @description This step allows one to create deploy models on your data
@@ -167,7 +168,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
         # Names
         ind <- grep(self$params$predictedCol, colnames(self$params$df))
         tempCol <- self$params$df[,ind]
-        self$params$xgb_targetNames <- sort(unique(tempCol))
+        self$params$xgb_targetNames <- as.character(sort(unique(tempCol)))
         # Number
         self$params$xgb_numberOfClasses <- length(self$params$xgb_targetNames)
         # Grain

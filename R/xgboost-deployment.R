@@ -48,6 +48,8 @@ XGBoostDeployment <- R6Class("XGBoostDeployment",
     
     fitXGB = NA,
     predictions = NA,
+    temp_predictions = NA,
+    orderedProbs = NA,
 
     # functions
     # Prepare data for XGBoost
@@ -66,50 +68,69 @@ XGBoostDeployment <- R6Class("XGBoostDeployment",
     # Perform prediction
     performPrediction = function() {
       cat('Generating Predictions...','\n')
-      temp_predictions <- predict(object = private$fitXGB,
+      private$temp_predictions <- predict(object = private$fitXGB,
                                   newdata = self$xgb_testMatrix,
                                   reshape = TRUE)
       
       # Build prediction output
-      private$predictions <- temp_predictions %>% 
+      private$predictions <- private$temp_predictions %>% 
         data.frame() %>%
         mutate(predicted_label = max.col(.),
                true_label = private$test_label + 1)
 
       # Set column names to match input targets
       colnames(private$predictions)[1:self$params$xgb_numberOfClasses] <- self$params$xgb_targetNames
-      
+      colnames(private$temp_predictions)[1:self$params$xgb_numberOfClasses] <- self$params$xgb_targetNames
+
       # Set up a mapping for the values themselves
       from <- 1:self$params$xgb_numberOfClasses
       to <- self$params$xgb_targetNames
       map = setNames(to,from)
-      print(map)
       private$predictions$predicted_label <- map[private$predictions$predicted_label] # note square brackets
       private$predictions$true_label <- map[private$predictions$true_label] 
 
       # Prepare output 
       private$predictions <- cbind(private$grainTest, private$predictions)
       colnames(private$predictions)[1] <- self$params$grainCol
-      print(head(private$predictions))
       
       if (isTRUE(self$params$debug)) {
         cat('Rows in multiclass prediction: ', length(private$predictions), '\n')
         cat('First 10 raw probability predictions (with row # first)', '\n')
-        print(round(private$predictions[1:10,],2))
+        print(private$predictions[1:10,])
       }
     },
 
     calculateOrderedFactors = function() {
       # Calculate ordered factors of importance for each row's prediction
-      private$orderedFactors <- t(sapply
-                                  (1:nrow(private$multiplyRes),
-                                  function(i)
-pcolnames(private$multiplyRes[order(private$multiplyRes[i, ],
-                                                                        decreasing = TRUE)])))
+      # Get column indices of max values in each row
+      nRows = dim(private$temp_predictions)[1]
+      maxColInds <- t(sapply(1:nRows, function(i) 
+        order(private$temp_predictions[i,], decreasing=TRUE)))
+      
+      # sort column values in each row
+      maxColVals <- t(sapply(1:nRows, function(i) 
+        private$temp_predictions[i,maxColInds[i,]]))
+
+      # get names of maximum values for each row
+      maxColNames <- t(sapply(1:nRows, 
+        function(i) colnames(private$temp_predictions)[maxColInds[i,]]))
+
+      # combine top 3 maxColVals and maxColNames to make maxProbDF
+      private$orderedProbs <- cbind(maxColVals[,1], maxColNames[,1],
+         maxColVals[,2], maxColNames[,2],
+         maxColVals[,3], maxColNames[,3])
+
+      # update column names
+      colnames(private$orderedProbs) <- c('PredictedProb1','PredictedClass1',
+        'PredictedProb2','PredictedClass2',
+        'PredictedProb3','PredictedClass3')
+
+      # update row names
+      row.names(private$orderedProbs) <- 1:nRows
 
       if (isTRUE(self$params$debug)) {
         cat('Data frame after getting column importance ordered', '\n')
-        print(private$orderedFactors[1:10, ])
+        print(private$orderedProbs[1:10, ])
       }
     },
 
