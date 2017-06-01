@@ -115,6 +115,13 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
        print('Now going to convert chr cols to factor cols...')
      }
 
+     # This section is needed becuase xgboost doesn't use a test window, but other algs do.
+     # When test window is removed, this column can be as well.
+     # If testWindowCol was left out, add it, and set them all equal to 'Y'
+     if (self$params$testWindowCol == '') {
+      self$params$testWindowCol <- 'defaultTestWindow' # give test window a name
+      self$params$df[[self$params$testWindowCol]] <- 'Y' # Set all equal to 'Y'
+     }
      # Save this to put in later.
      tempTestWindow <- self$params$df[[self$params$testWindowCol]]
 
