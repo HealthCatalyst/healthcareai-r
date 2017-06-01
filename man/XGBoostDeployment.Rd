@@ -3,22 +3,20 @@
 \docType{class}
 \name{XGBoostDeployment}
 \alias{XGBoostDeployment}
-\title{Deploy a production-ready predictive RandomForest model}
+\title{Deploy a production-ready predictive XGBoost model}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
 XGBoostDeployment(type, df, grainCol, testWindowCol, 
 predictedCol, impute, debug)
 }
 \arguments{
-\item{type}{The type of model (either 'regression' or 'classification')}
+\item{type}{The type of model (must be multiclass)}
 
-\item{df}{Dataframe whose columns are used for calc.}
+\item{df}{Dataframe whose columns are used for new predictions}
 
 \item{grainCol}{The dataframe's column that has IDs pertaining to the grain}
 
-\item{testWindowCol}{Y or N. This column dictates the split between model 
-training and test sets. Those rows with N in this column indicate the 
-training set while those that have Y indicate the test set}
+\item{testWindowCol}{(Depreciated) Predictions will be made for all rows.}
 
 \item{predictedCol}{Column that you want to predict. If you're doing
 classification then this should be Y/N.}
@@ -34,13 +32,72 @@ to monitor the calculations throughout. Use T or F.}
 \description{
 This step allows one to
 \itemize{
-\item Load a saved model from \code{\link{RandomForestDevelopment}}
+\item Automatically load a saved model from \code{\link{XGBoostDevelopment}}
 \item Run the model against test data to generate predictions
-\item Push these predictions to SQL Server
+\item Push these predictions to SQL Server or CSV
 }
 }
 \examples{
+#### Example using csv dataset ####
+ptm <- proc.time()
+library(healthcareai)
 
+# 1. Load data. Categorical columns should be characters.
+csvfile <- system.file("extdata", 
+                       "dermatology_multiclass_data.csv", 
+                       package = "healthcareai")
+
+# Replace csvfile with 'path/file'
+df <- read.csv(file = csvfile, 
+               header = TRUE, 
+               stringsAsFactors = FALSE,
+               na.strings = c("NULL", "NA", "", "?"))
+
+str(df) # check the types of columns
+dfDevelop <- df[1:346,] # use most of data to train and evalute the model.
+dfDeploy <- df[347:366,] # reserve 20 rows for deploy step.
+
+# 2. Develop and save model (saving is automatic)
+set.seed(42)
+p <- SupervisedModelDevelopmentParams$new()
+p$df <- dfDevelop
+p$type <- "multiclass"
+p$impute <- TRUE
+p$grainCol <- "PatientID"
+p$predictedCol <- "target"
+p$debug <- FALSE
+p$cores <- 1
+# xgb_params must be a list with all of these things in it. 
+# if you would like to tweak parameters, go for it! 
+# Leave objective and eval_metric as they are.
+p$xgb_params <- list("objective" = "multi:softprob",
+                     "eval_metric" = "mlogloss",
+                     "max_depth" = 6, # max depth of each learner
+                     "eta" = 0.1, # learning rate
+                     "silent" = 0, # verbose output when set to 1
+                     "nthread" = 2) # number of processors to use
+# Run model
+boost <- XGBoostDevelopment$new(p)
+boost$run()
+## 3. Load saved model (automatic) and use DEPLOY to generate predictions. 
+p2 <- SupervisedModelDeploymentParams$new()
+p2$type <- "multiclass"
+p2$df <- dfDeploy
+p2$grainCol <- "PatientID"
+p2$predictedCol <- "target"
+p2$impute <- TRUE
+p2$debug <- FALSE
+# Deploy model to make new predictions
+boostD <- XGBoostDeployment$new(p2)
+boostD$deploy()
+# Get output dataframe for csv or SQL
+outDf <- boostD$getOutDf()
+head(outDf)
+# Write to CSV (or JSON, MySQL, etc) using plain R syntax
+# write.csv(df,'path/predictionsfile.csv')
+# Get raw predictions if you want
+# rawPredictions <- boostD$getPredictions()
+print(proc.time() - ptm)
 }
 \seealso{
 \code{\link{healthcareai}}
