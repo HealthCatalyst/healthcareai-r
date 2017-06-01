@@ -121,7 +121,6 @@
       cat('Preparing data...', '\n')
       # XGB requires data.matrix format, not data.frame.
       # R factors are 1 indexed, XGB is 0 indexed, so we must subtract 1 from the labels. They must be numeric.
-      str(private$dfTestTemp)
       temp_test_data <- data.matrix(private$dfTestTemp[ ,!(colnames(private$dfTestTemp) == self$params$predictedCol)])
       temp_test_label <- data.matrix(as.numeric(private$dfTestTemp[[self$params$predictedCol]])) - 1 
       self$xgb_testMatrix <- xgb.DMatrix(data = temp_test_data, label = temp_test_label) 
