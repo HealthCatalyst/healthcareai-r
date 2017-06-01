@@ -124,7 +124,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
      }
      # Save this to put in later.
      tempTestWindow <- self$params$df[[self$params$testWindowCol]]
-
      # Convert to data.frame (in case of data.table)
      # This also converts chr cols to (needed) factors
      self$params$df <- as.data.frame(unclass(self$params$df))
@@ -248,12 +247,19 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
      data <- dummyVars(~., data = self$params$df, fullRank = T)
      self$params$df <-
        data.frame(predict(data, newdata = self$params$df, na.action = na.pass))
-
+     
+     # The test window column is not being dummified with the correct name sometimes. fix it for now.
+     if (paste0(self$params$testWindowCol, 'Y') %in% colnames(self$params$df)) {
+       self$params$df[[paste0(self$params$testWindowCol, '.Y')]] <- self$params$df[[paste0(self$params$testWindowCol, 'Y')]]
+       self$params$df[[paste0(self$params$testWindowCol, 'Y')]] <- NULL
+     }
      # Add test window column back in with correct name and as ones.
      if (isTRUE(all(tempTestWindow == 'Y'))) {
        self$params$df[[paste0(self$params$testWindowCol, '.Y')]] <- 1
      }  
 
+     print('debugger is here')
+     print(as.factor(self$params$df$InTestWindowFLGY))
      # Now that we have dummy vars, switch label to factor so this is classif.
      if (self$params$type == 'classification') {
        # Since caret can't handle 0/1 for classif, need to convert to N/Y
