@@ -68,11 +68,11 @@
 #'                      "eta" = 0.1, # learning rate
 #'                      "silent" = 0, # verbose output when set to 1
 #'                      "nthread" = 2) # number of processors to use
-
+#' 
 #' # Run model
 #' boost <- XGBoostDevelopment$new(p)
 #' boost$run()
-
+#' 
 #' ## 3. Load saved model (automatic) and use DEPLOY to generate predictions. 
 #' p2 <- SupervisedModelDeploymentParams$new()
 #' p2$type <- "multiclass"
@@ -81,23 +81,23 @@
 #' p2$predictedCol <- "target"
 #' p2$impute <- TRUE
 #' p2$debug <- FALSE
-
+#' 
 #' # Deploy model to make new predictions
 #' boostD <- XGBoostDeployment$new(p2)
 #' boostD$deploy()
-
+#' 
 #' # Get output dataframe for csv or SQL
 #' outDf <- boostD$getOutDf()
 #' head(outDf)
-
+#' 
 #' # Write to CSV (or JSON, MySQL, etc) using plain R syntax
 #' # write.csv(df,'path/predictionsfile.csv')
-
+#' 
 #' # Get raw predictions if you want
 #' # rawPredictions <- boostD$getPredictions()
-
+#' 
 #' print(proc.time() - ptm)
-
+#' 
 
  XGBoostDeployment <- R6Class("XGBoostDeployment",
   #Inheritance
