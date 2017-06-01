@@ -408,9 +408,17 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       private$RMSE <- calcObjList[[5]]
       private$MAE <- calcObjList[[6]]
       
-      private$variableImportanceList <- caret::varImp(private$fitRF)$importance
-      
       print(caret::varImp(private$fitRF, top = 20))
+      
+      # Construct variable importance list
+      impList <- caret::varImp(private$fitRF)$importance
+      impList = data.frame(rownames(impList), impList$Overall)
+      colnames(impList) = c("variable", "importance")
+      # list in decreasing order
+      impList = impList[order(impList$importance, decreasing = TRUE), ]
+      row.names(impList) <- NULL
+      private$variableImportanceList <- impList
+      rm(impList)
       
       return(invisible(private$fitRF))
     },
@@ -474,6 +482,21 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     
     getVariableImportanceList = function() {
       return(private$variableImportanceList)
+    },
+    
+    
+    plotVariableImportance = function() {
+      # indent plot so that variable names can be read
+      old_mai = par()$mai # save old margins
+      par(mai = c(1,2,1,1))
+      vIL <- private$variableImportanceList
+      last_row <- nrow(vIL)
+      # have most important variables on top, as in list
+      barplot(vIL$importance[last_row:1],
+              names.arg = vIL$variable[last_row:1],
+              horiz = TRUE, las = 1, cex.names = 1, xlab = "Importance",
+              main = "Random Forest Variable Importance", col = "navy")
+      par(mai = old_mai) # reset margins
     }
   )
 )
