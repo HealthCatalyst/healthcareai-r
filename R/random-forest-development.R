@@ -196,6 +196,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     AUPR = NA,
     RMSE = NA,
     MAE = NA,
+    variableImportanceList = NA,
 
     # Start of functions
     saveModel = function() {
@@ -369,6 +370,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
                                       newdata = private$dfTest,
                                       type = 'prob')
         private$predictions <- private$predictions[,2]
+        names(private$predictions) <- row.names(private$dfTest) # add row nums
         
         if (isTRUE(self$params$debug)) {
           print(paste0('Number of predictions: ', nrow(private$predictions)))
@@ -378,6 +380,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         
       } else if (self$params$type == 'regression') {
         private$predictions <- caret::predict.train(private$fitRF, newdata = private$dfTest)
+        names(private$predictions) <- row.names(private$dfTest) # add row nums
         
         if (isTRUE(self$params$debug)) {
           print(paste0('Rows in regression prediction: ',
@@ -386,7 +389,6 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
           print(round(private$predictions[1:10],2))
         }
       }
-
     },
 
     # Generate performance metrics
@@ -405,6 +407,8 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       private$AUPR <- calcObjList[[4]]
       private$RMSE <- calcObjList[[5]]
       private$MAE <- calcObjList[[6]]
+      
+      private$variableImportanceList <- caret::varImp(private$fitRF)$importance
       
       print(caret::varImp(private$fitRF, top = 20))
       
@@ -466,6 +470,10 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     getCutOffs = function() {
       warning("`getCutOffs` is deprecated. Please use `generateAUC` instead. See 
               ?generateAUC", call. = FALSE)
+    },
+    
+    getVariableImportanceList = function() {
+      return(private$variableImportanceList)
     }
   )
 )
