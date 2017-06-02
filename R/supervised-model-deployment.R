@@ -24,7 +24,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
    dfTest = NULL,
    dfTestRaw = NULL,
    dfTrain = NULL,
-   dfTrainTemp = NULL,
+   dfTemp = NULL,
    dfTestTemp = NULL,
 
    grainTest = NULL,
@@ -109,31 +109,34 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
      },
 
    loadData = function() {
+
+    cat('Loading Data...','\n')
+
      if (isTRUE(self$params$debug)) {
        print('Entire data set at the top of the constructor')
        print(str(self$params$df))
        print('Now going to convert chr cols to factor cols...')
      }
 
-     # This section is needed becuase xgboost doesn't use a test window, but other algs do.
-     # When test window is removed, this column can be as well.
-     # If testWindowCol was left out, add it, and set them all equal to 'Y'
-     if (self$params$testWindowCol == '') {
-      self$params$testWindowCol <- 'defaultTestWindow' # give test window a name
-      self$params$df[[self$params$testWindowCol]] <- 'Y' # Set all equal to 'Y'
-     }
-     # Save this to put in later.
-     tempTestWindow <- self$params$df[[self$params$testWindowCol]]
-     # Convert to data.frame (in case of data.table)
-     # This also converts chr cols to (needed) factors
-     self$params$df <- as.data.frame(unclass(self$params$df))
+     # # This section is needed becuase xgboost doesn't use a test window, but other algs do.
+     # # When test window is removed, this column can be as well.
+     # # If testWindowCol was left out, add it, and set them all equal to 'Y'
+     # if (self$params$testWindowCol == '') {
+     #  self$params$testWindowCol <- 'defaultTestWindow' # give test window a name
+     #  self$params$df[[self$params$testWindowCol]] <- 'Y' # Set all equal to 'Y'
+     # }
+     # # Save this to put in later.
+     # tempTestWindow <- self$params$df[[self$params$testWindowCol]]
+     # # Convert to data.frame (in case of data.table)
+     # # This also converts chr cols to (needed) factors
+     # self$params$df <- as.data.frame(unclass(self$params$df))
 
-     # Remove columns that are only NA
-     # Put predicted.col back (since it's NULL when sql only pulls in test)
-     temp <- self$params$df[[self$params$predictedCol]]
-     self$params$df <-
-       self$params$df[, colSums(is.na(self$params$df)) < nrow(self$params$df)]
-     self$params$df[[self$params$predictedCol]] <- temp
+     # # Remove columns that are only NA
+     # # Put predicted.col back (since it's NULL when sql only pulls in test)
+     # temp <- self$params$df[[self$params$predictedCol]]
+     # self$params$df <-
+     #   self$params$df[, colSums(is.na(self$params$df)) < nrow(self$params$df)]
+     # self$params$df[[self$params$predictedCol]] <- temp
 
      # Remove date columns
      dateList <- grep("DTS$", colnames(self$params$df))
@@ -158,7 +161,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
      # Remove columns with zero variance
      self$params$df <- removeColsWithAllSameValue(self$params$df)
-     self$params$df[[self$params$testWindowCol]] <- tempTestWindow
+     # self$params$df[[self$params$testWindowCol]] <- tempTestWindow
      # Prevents removing the test window column when they are all the same.
 
      if (isTRUE(self$params$debug)) {
@@ -201,31 +204,31 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
      if (isTRUE(self$params$debug)) {
        print('Entire data set after separating out grain col')
        print(str(self$params$df))
-       print('Now splitting into Train and Test')
+       # print('Now splitting into Train and Test')
      }
 
      # Split df into temp train and test (then rejoin for dummy creation)
      # Sadly, this even has to be done nightly (with a saved model)
-     private$dfTrainTemp <-
-       self$params$df[self$params$df[[self$params$testWindowCol]] == 'N', ]
+     # private$dfTrainTemp <-
+     #   self$params$df[self$params$df[[self$params$testWindowCol]] == 'N', ]
      private$dfTestTemp <-
        self$params$df[self$params$df[[self$params$testWindowCol]] == 'Y', ]
 
      if (isTRUE(self$params$debug)) {
-       print('Temp training set after splitting')
-       print(str(private$dfTrainTemp))
-       print('Temp testing set after splitting')
-       print(str(private$dfTestTemp))
+       # print('Temp training set after splitting')
+       # print(str(private$dfTrainTemp))
+       # print('Temp testing set after splitting')
+       # print(str(private$dfTestTemp))
 
        print('Now starting imputation, or removing rows with NULLs')
      }
 
      # Always do imputation on all of test set (since each row needs pred)
-     private$dfTestTemp[] <- lapply(private$dfTestTemp, imputeColumn)
+     private$dfTemp[] <- lapply(self$params$df, imputeColumn)
 
-     # Join temp train and test back together, so dummy creation is consistent
-     self$params$df <-
-       rbind(private$dfTrainTemp, private$dfTestTemp)
+     # # Join temp train and test back together, so dummy creation is consistent
+     # self$params$df <-
+     #   rbind(private$dfTrainTemp, private$dfTestTemp)
 
      if (isTRUE(self$params$debug)) {
        print('Entire data set after imputation')
@@ -234,42 +237,40 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
      }
 
      # Make sure label column is numeric before creating dummy var
-     self$params$df[[self$params$predictedCol]] =
-       as.numeric(self$params$df[[self$params$predictedCol]])
+     # self$params$df[[self$params$predictedCol]] =
+     #   as.numeric(self$params$df[[self$params$predictedCol]])
 
      # If all Y, remove test window col before imputation. Add back in after.
-     if (isTRUE(all(tempTestWindow == 'Y'))) {
-       self$params$df[[self$params$testWindowCol]] <- NULL
-       private$dfTestTemp[[self$params$testWindowCol]] <- NULL
-     }
+     # if (isTRUE(all(tempTestWindow == 'Y'))) {
+     #   self$params$df[[self$params$testWindowCol]] <- NULL
+     #   private$dfTestTemp[[self$params$testWindowCol]] <- NULL
+     # }
 
      # Split factor columns into dummy columns (for use in deploypred method)
      data <- dummyVars(~., data = self$params$df, fullRank = T)
      self$params$df <-
        data.frame(predict(data, newdata = self$params$df, na.action = na.pass))
      
-     # The test window column is not being dummified with the correct name sometimes. fix it for now.
-     if (paste0(self$params$testWindowCol, 'Y') %in% colnames(self$params$df)) {
-       self$params$df[[paste0(self$params$testWindowCol, '.Y')]] <- self$params$df[[paste0(self$params$testWindowCol, 'Y')]]
-       self$params$df[[paste0(self$params$testWindowCol, 'Y')]] <- NULL
-     }
-     # Add test window column back in with correct name and as ones.
-     if (isTRUE(all(tempTestWindow == 'Y'))) {
-       self$params$df[[paste0(self$params$testWindowCol, '.Y')]] <- 1
-     }  
+     # # The test window column is not being dummified with the correct name sometimes. fix it for now.
+     # if (paste0(self$params$testWindowCol, 'Y') %in% colnames(self$params$df)) {
+     #   self$params$df[[paste0(self$params$testWindowCol, '.Y')]] <- self$params$df[[paste0(self$params$testWindowCol, 'Y')]]
+     #   self$params$df[[paste0(self$params$testWindowCol, 'Y')]] <- NULL
+     # }
+     # # Add test window column back in with correct name and as ones.
+     # if (isTRUE(all(tempTestWindow == 'Y'))) {
+     #   self$params$df[[paste0(self$params$testWindowCol, '.Y')]] <- 1
+     # }  
 
-     print('debugger is here')
-     print(as.factor(self$params$df$InTestWindowFLGY))
      # Now that we have dummy vars, switch label to factor so this is classif.
-     if (self$params$type == 'classification') {
-       # Since caret can't handle 0/1 for classif, need to convert to N/Y
-       # http://stackoverflow.com/questions/18402016/error-when
-       # -i-try-to-predict-class-probabilities-in-r-caret
-       self$params$df[[self$params$predictedCol]] <-
-         ifelse(self$params$df[[self$params$predictedCol]] == 1, 'N', 'Y')
-       self$params$df[[self$params$predictedCol]] <-
-         as.factor(self$params$df[[self$params$predictedCol]])
-     }
+     # if (self$params$type == 'classification') {
+     #   # Since caret can't handle 0/1 for classif, need to convert to N/Y
+     #   # http://stackoverflow.com/questions/18402016/error-when
+     #   # -i-try-to-predict-class-probabilities-in-r-caret
+     #   self$params$df[[self$params$predictedCol]] <-
+     #     ifelse(self$params$df[[self$params$predictedCol]] == 1, 'N', 'Y')
+     #   self$params$df[[self$params$predictedCol]] <-
+     #     as.factor(self$params$df[[self$params$predictedCol]])
+     # }
 
      if (isTRUE(self$params$debug)) {
        print('Entire data set after creating dummy vars')
@@ -277,12 +278,12 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
      }
 
      # Always create test set from df, and drop test.window.cols from test set
-     private$dfTest <- self$params$df[self$params$df[[paste0(self$params$testWindowCol, '.Y')]] == 1, ]
-     private$dfTest <-
-       private$dfTest[, !(names(private$dfTest) %in% c(
-         self$params$testWindowCol,
-         paste0(self$params$testWindowCol, '.Y')
-       ))]
+     private$dfTest <- self$params$df
+     # private$dfTest <-
+     #   private$dfTest[, !(names(private$dfTest) %in% c(
+     #     self$params$testWindowCol,
+     #     paste0(self$params$testWindowCol, '.Y')
+     #   ))]
 
      if (isTRUE(self$params$debug)) {
        print('Test set after splitting from df (and then removing windowcol)')
@@ -291,9 +292,9 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
      # Now that we have train/test, split grain col into test (for use at end)
      if (nchar(self$params$grainCol) != 0) {
-        tempMask <-
-          rownames(self$params$df[self$params$df[[paste0(self$params$testWindowCol, '.Y')]] == 1,])
-       private$grainTest <- fullGrain[as.integer(tempMask)]
+     #    tempMask <-
+     #      rownames(self$params$df[self$params$df[[paste0(self$params$testWindowCol, '.Y')]] == 1,])
+       private$grainTest <- fullGrain
 
        if (isTRUE(self$params$debug)) {
          print('Grain col vector with rows of test set (after created)')

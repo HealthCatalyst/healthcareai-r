@@ -282,7 +282,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     performPrediction = function() {
       if (self$params$type == 'classification') {
         private$predictions <- caret::predict.train(object = private$fitRF,
-                                                    newdata = private$dfTestTemp,
+                                                    newdata = private$dfTest,
                                                     type = 'prob')
         private$predictions <- private$predictions[,2]
         
