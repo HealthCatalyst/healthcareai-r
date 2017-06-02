@@ -128,6 +128,9 @@
 #' head(df)
 #' str(df)
 #' 
+#' #Make sure all blanks in ThirtyDayReadmitFLG are converted to NAs
+#' df$ThirtyDayReadmitFLG[df$ThirtyDayReadmitFLG == ""] <- NA
+#' 
 #' ## 2. Train and save the model using DEVELOP
 #' set.seed(42)
 #' inTest <- df$InTestWindowFLG # save this for deploy
@@ -206,6 +209,9 @@
 #' 
 #' head(df)
 #' str(df)
+#' 
+#' #Regression problems need predictedCol to be numeric
+#' df$InTestWindowFLG <- as.numeric(df$InTestWindowFLG)
 #' 
 #' ## 2. Train and save the model using DEVELOP
 #' #' set.seed(42)
