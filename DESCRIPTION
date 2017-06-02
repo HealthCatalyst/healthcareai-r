@@ -30,7 +30,10 @@ Imports:
     ranger,
     ROCR,
     RODBC,
-    RSQLite
+    RSQLite,
+    xgboost,
+    magrittr,
+    dplyr
 RoxygenNote: 6.0.1
 Suggests:
     testthat
