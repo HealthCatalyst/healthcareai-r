@@ -221,7 +221,7 @@ head(df)
 str(df)
 
 #Regression problems need predictedCol to be numeric
-df$InTestWindowFLG <- as.numeric(df$InTestWindowFLG)
+df$A1CNBR <- as.numeric(df$A1CNBR)
 
 ## 2. Train and save the model using DEVELOP
 #' set.seed(42)
