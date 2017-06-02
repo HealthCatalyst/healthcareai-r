@@ -67,5 +67,7 @@ test_that("Probabilities are correctly sorted", {
 })
 
 test_that("Top categories are correctly parsed", {
-  expect_true(round(xPred[1,6],5) == 0.86515)
+  expect_true(outDf$PredictedClass1[2] == 'six')
+  expect_true(outDf$PredictedClass1[5] == 'one')
+  expect_true(outDf$PredictedClass1[9] == 'five')
 })

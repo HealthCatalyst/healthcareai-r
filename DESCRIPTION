@@ -24,6 +24,7 @@ Imports:
     e1071,
     grpreg,
     lme4,
+    odbc,
     pROC,
     R6,
     ranger,
