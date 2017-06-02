@@ -26,6 +26,78 @@ p$numberOfTrees = 201
 
 #### BEGIN TESTS ####
 
+########## Linear Mixed Model ##########
+
+test_that("LMM deploy classification pushes values to SQLite", {
+
+  df$InTestWindowFLG <- NULL
+
+  p <- initializeParamsForTesting(df)
+  p$type = 'classification'
+  p$personCol = 'PatientID'
+  p$predictedCol = 'ThirtyDayReadmitFLG'
+  
+  LinearMixedModel <- LinearMixedModelDevelopment$new(p)
+  capture.output(suppressWarnings(LinearMixedModel$run()))
+  
+  df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+  
+  p2 <- SupervisedModelDeploymentParams$new()
+  p2$type <- "classification"
+  p2$df <- df
+  p2$grainCol <- "PatientEncounterID"
+  p2$personCol <- "PatientID"
+  p2$testWindowCol <- "InTestWindowFLG"
+  p2$predictedCol <- "ThirtyDayReadmitFLG"
+  p2$impute <- TRUE
+  p2$debug <- FALSE
+  p2$cores <- 1
+  
+  capture.output(dL <- LinearMixedModelDeployment$new(p2))
+  capture.output(dL$deploy())
+  capture.output(dfOut <- dL$getOutDf())
+  expect_output(writeData(SQLiteFileName = sqliteFile,
+                          df = dfOut,
+                          tableName = 'HCRDeployClassificationBASE'),
+                "13 rows were inserted into the SQLite")
+})
+
+test_that("LMM deploy regression pushes values to SQLite", {
+
+  df$InTestWindowFLG <- NULL
+  
+  p <- initializeParamsForTesting(df)
+  p$type = 'regression'
+  p$personCol = 'PatientID'
+  p$predictedCol = 'A1CNBR'
+  
+  LinearMixedModel <- LinearMixedModelDevelopment$new(p)
+  capture.output(suppressWarnings(LinearMixedModel$run()))
+  
+  df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+            
+  p2 <- SupervisedModelDeploymentParams$new()
+  p2$type = 'regression'
+  p2$df = df
+  p2$grainCol = 'PatientEncounterID'
+  p2$personCol <- "PatientID"
+  p2$testWindowCol = 'InTestWindowFLG'
+  p2$predictedCol = 'A1CNBR'
+  p2$impute = TRUE
+  p2$sqlConn <- connection.string
+  p2$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
+  
+  capture.output(dL <- LinearMixedModelDeployment$new(p2))
+  capture.output(dL$deploy())
+  capture.output(dfOut <- dL$getOutDf())
+  expect_output(writeData(SQLiteFileName = sqliteFile,
+                          df = dfOut,
+                          tableName = 'HCRDeployRegressionBASE'),
+                "13 rows were inserted into the SQLite")
+}) 
+
+########## Lasso ##########
+
 test_that("Lasso deploy classification pushes values to SQLite", {
   
   df$PatientID <- NULL #<- Note this happens affects all following tests
@@ -47,8 +119,6 @@ test_that("Lasso deploy classification pushes values to SQLite", {
   p2$testWindowCol = 'InTestWindowFLG'
   p2$predictedCol = 'ThirtyDayReadmitFLG'
   p2$impute = TRUE
-  p2$sqlConn <- connection.string
-  p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
   
   capture.output(dL <- LassoDeployment$new(p2))
   capture.output(dL$deploy())
@@ -80,8 +150,6 @@ test_that("Lasso deploy regression pushes values to SQLite", {
   p2$testWindowCol = 'InTestWindowFLG'
   p2$predictedCol = 'A1CNBR'
   p2$impute = TRUE
-  p2$sqlConn <- connection.string
-  p2$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
   
   capture.output(dL <- LassoDeployment$new(p2))
   capture.output(dL$deploy())
@@ -90,6 +158,69 @@ test_that("Lasso deploy regression pushes values to SQLite", {
                           df = dfOut,
                           tableName = 'HCRDeployRegressionBASE'),
                 "13 rows were inserted into the SQLite")
-  
-  closeAllConnections()
 })
+
+########## Random Forest ##########
+
+test_that("rf deploy classification pushes values to SQLite", {
+
+  df$InTestWindowFLG <- NULL
+  
+  p <- initializeParamsForTesting(df)
+  p$type = 'classification'
+  p$predictedCol = 'ThirtyDayReadmitFLG'
+  
+  # Run RF
+  dRF <- RandomForestDevelopment$new(p)
+  capture.output(dRF$run())
+  
+  df$InTestWindowFLG <- inTest # put InTestWindowFLG back in
+  
+  p2 <- SupervisedModelDeploymentParams$new()
+  p2$type = 'classification'
+  p2$df = df
+  p2$grainCol = 'PatientEncounterID'
+  p2$testWindowCol = 'InTestWindowFLG'
+  p2$predictedCol = 'ThirtyDayReadmitFLG'
+  p2$impute = TRUE
+  
+  capture.output(dL <- RandomForestDeployment$new(p2))
+  capture.output(dL$deploy())
+  capture.output(dfOut <- dL$getOutDf())
+  expect_output(writeData(SQLiteFileName = sqliteFile,
+                          df = dfOut,
+                          tableName = 'HCRDeployClassificationBASE'),
+                "13 rows were inserted into the SQLite")
+})
+
+test_that("rf deploy regression pushes values to SQLite", {
+
+  df$InTestWindowFLG <- NULL
+  
+  p <- initializeParamsForTesting(df)
+  p$type = 'regression'
+  p$predictedCol = 'A1CNBR'
+
+  # Run RF
+  dRF <- RandomForestDevelopment$new(p)
+  capture.output(dRF$run())
+  
+  df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+  
+  p2 <- SupervisedModelDeploymentParams$new()
+  p2$type = 'regression'
+  p2$df = df
+  p2$grainCol = 'PatientEncounterID'
+  p2$testWindowCol = 'InTestWindowFLG'
+  p2$predictedCol = 'A1CNBR'
+  p2$impute = TRUE
+  
+  capture.output(dL <- RandomForestDeployment$new(p2))
+  capture.output(dL$deploy())
+  capture.output(dfOut <- dL$getOutDf())
+  expect_output(writeData(SQLiteFileName = sqliteFile,
+                          df = dfOut,
+                          tableName = 'HCRDeployRegressionBASE'),
+                "13 rows were inserted into the SQLite")
+})
+
