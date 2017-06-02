@@ -180,9 +180,9 @@
         function(i) colnames(private$temp_predictions)[maxColInds[i,]]))
 
       # combine top 3 maxColVals and maxColNames to make maxProbDF
-      private$orderedProbs <- data.frame(as.numeric(maxColVals[,1]), maxColNames[,1],
-         as.numeric(maxColVals[,2]), maxColNames[,2],
-         as.numeric(maxColVals[,3]), maxColNames[,3])
+      private$orderedProbs <- data.frame(as.numeric(maxColVals[,1]), as.character(maxColNames[,1]),
+         as.numeric(maxColVals[,2]), as.character(maxColNames[,2]),
+         as.numeric(maxColVals[,3]), as.character(maxColNames[,3]), stringsAsFactors = FALSE)
 
       # update column names
       colnames(private$orderedProbs) <- c('PredictedProb1','PredictedClass1',

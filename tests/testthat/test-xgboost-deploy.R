@@ -55,30 +55,17 @@ xDf <- capture.output(outDf <- boostD$getOutDf())
 ###########
 # Multiclass
 
-test_that("Number of classes are calculated correctly", {
-  expect_true(xNew[9] == " $ num_class  : int 6")
+test_that("Grain is correctly attached", {
+  expect_true(outDf$PatientID[1] == 347)
+  expect_true(outDf$PatientID[4] == 350)
 })
 
-test_that("Accuracy is the same every time", {
-  expect_true(xRun[18] == "               Accuracy : 0.9577          ")
+test_that("Probabilities are correctly sorted", {
+  expect_true(round(outDf$PredictedProb1[1],5) == 0.91198)
+  expect_true(round(outDf$PredictedProb2[4],5) == 0.08339)
+  expect_true(round(outDf$PredictedProb3[7],5) == 0.00312)
 })
 
-test_that("Predictions are the same every time", {
+test_that("Top categories are correctly parsed", {
   expect_true(round(xPred[1,6],5) == 0.86515)
-})
-
-test_that("Grain column is inserted correctly", {
-  expect_true(xPred[2,1] == 13)
-})
-
-test_that("Columns are mapped correctly", {
-  expect_true(xPred[2,9] == "two")
-})
-
-test_that("Max probability is found correctly", {
-  expect_true(xPred[2,8] == "two")
-})
-
-test_that("Confusion matrix accuracy is the same every time", {
-  expect_true(xConf[15] == "               Accuracy : 0.9577          ")
 })
