@@ -13,7 +13,6 @@
 #' @import doParallel
 #' @importFrom R6 R6Class
 #' @import ranger
-#' @import RODBC
 #' @param type The type of model (either 'regression' or 'classification')
 #' @param df Dataframe whose columns are used for calc.
 #' @param grainCol The dataframe's column that has IDs pertaining to the grain
@@ -268,15 +267,15 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     predictions = NA,
 
     # functions
-    connectDataSource = function() {
-      RODBC::odbcCloseAll()
-      # Convert the connection string into a real connection object.
-      self$params$sqlConn <- RODBC::odbcDriverConnect(self$params$sqlConn)
-    },
+    # connectDataSource = function() {
+    #   RODBC::odbcCloseAll()
+    #   # Convert the connection string into a real connection object.
+    #   self$params$sqlConn <- RODBC::odbcDriverConnect(self$params$sqlConn)
+    # },
 
-    closeDataSource = function() {
-      RODBC::odbcCloseAll()
-    },
+    # closeDataSource = function() {
+    #   RODBC::odbcCloseAll()
+    # },
 
     # Perform prediction
     performPrediction = function() {
@@ -377,6 +376,10 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         "Factor2TXT",
         "Factor3TXT"
       )
+      
+      # Remove row names so df can be written to DB
+      # TODO: in writeData function, find how to ignore row names
+      rownames(private$outDf) <- NULL
 
       if (isTRUE(self$params$debug)) {
         cat('Dataframe with predictions:', '\n')
@@ -384,27 +387,27 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       }
     },
       
-    saveDataIntoDb = function() {
-      if (isTRUE(self$params$writeToDB)) {
-        # Save df to table in SAM database
-        out <- RODBC::sqlSave(
-          channel = self$params$sqlConn,
-          dat = private$outDf,
-          tablename = self$params$destSchemaTable,
-          append = T,
-          rownames = F,
-          colnames = F,
-          safer = T,
-          nastring = NULL,
-          verbose = self$params$debug
-        )
+    # saveDataIntoDb = function() {
+    #   if (isTRUE(self$params$writeToDB)) {
+    #     # Save df to table in SAM database
+    #     out <- RODBC::sqlSave(
+    #       channel = self$params$sqlConn,
+    #       dat = private$outDf,
+    #       tablename = self$params$destSchemaTable,
+    #       append = T,
+    #       rownames = F,
+    #       colnames = F,
+    #       safer = T,
+    #       nastring = NULL,
+    #       verbose = self$params$debug
+    #     )
   
-        # Print success if insert was successful
-        if (out == 1) {
-          cat('SQL Server insert was successful') # removed '\n' for the unit test
-        }
-      }
-    }
+    #     # Print success if insert was successful
+    #     if (out == 1) {
+    #       cat('SQL Server insert was successful') # removed '\n' for the unit test
+    #     }
+    #   }
+    # }
   ),
 
   #Public members
@@ -427,10 +430,10 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     deploy = function() {
       
       
-      if (isTRUE(self$params$writeToDB)) {
-        # Connect to sql via odbc driver
-        private$connectDataSource()
-      }
+      # if (isTRUE(self$params$writeToDB)) {
+      #   # Connect to sql via odbc driver
+      #   private$connectDataSource()
+      # }
 
       # Try to load the model
       tryCatch({
@@ -460,14 +463,14 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       # create dataframe for output
       private$createDf()
 
-      if (isTRUE(self$params$writeToDB)) {
-        # Save data into db
-        private$saveDataIntoDb()
-      }
+      # if (isTRUE(self$params$writeToDB)) {
+      #   # Save data into db
+      #   private$saveDataIntoDb()
+      # }
       
-      if (isTRUE(self$params$writeToDB)) {
-        private$closeDataSource()
-      }
+      # if (isTRUE(self$params$writeToDB)) {
+      #   private$closeDataSource()
+      # }
     },
     
     # Surface outDf as attribute for export to Oracle, MySQL, etc

@@ -510,6 +510,11 @@ LassoDeployment <- R6Class(
       # Remove row names so df can be written to DB
       # TODO: in writeData function, find how to ignore row names
       rownames(private$outDf) <- NULL
+
+      if (isTRUE(self$params$debug)) {
+        cat('Dataframe with predictions:', '\n')
+        cat(str(private$outDf), '\n')
+      }
     }
   ),
 

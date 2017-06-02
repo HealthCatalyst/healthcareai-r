@@ -17,7 +17,6 @@
 #' @importFrom R6 R6Class
 #' @import ranger
 #' @import ROCR
-#' @import RODBC
 #' @param object of SuperviseModelParameters class for $new() constructor
 #' @param type The type of model (either 'regression' or 'classification')
 #' @param df Dataframe whose columns are used for calc.

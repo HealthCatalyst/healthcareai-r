@@ -16,7 +16,6 @@
 #' @import lme4
 #' @importFrom R6 R6Class
 #' @import ranger
-#' @import RODBC
 #' @param type The type of model (either 'regression' or 'classification')
 #' @param df Dataframe whose columns are used for calc.
 #' @param grainCol Optional. The dataframe's column that has IDs pertaining to 
@@ -281,15 +280,15 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     predictions = NA,
 
     # functions
-    connectDataSource = function() {
-      RODBC::odbcCloseAll()
-      # Convert the connection string into a real connection object.
-      self$params$sqlConn <- RODBC::odbcDriverConnect(self$params$sqlConn)
-    },
+    # connectDataSource = function() {
+    #   RODBC::odbcCloseAll()
+    #   # Convert the connection string into a real connection object.
+    #   self$params$sqlConn <- RODBC::odbcDriverConnect(self$params$sqlConn)
+    # },
 
-    closeDataSource = function() {
-      RODBC::odbcCloseAll()
-    },
+    # closeDataSource = function() {
+    #   RODBC::odbcCloseAll()
+    # },
 
     # Perform prediction
     performPrediction = function() {
@@ -410,33 +409,37 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
         "Factor3TXT"
       )
 
+      # Remove row names so df can be written to DB
+      # TODO: in writeData function, find how to ignore row names
+      rownames(private$outDf) <- NULL
+
       if (isTRUE(self$params$debug)) {
         cat('Dataframe with predictions:', '\n')
         cat(str(private$outDf), '\n')
       }
     },
       
-    saveDataIntoDb = function() {
-      if (isTRUE(self$params$writeToDB)) {
-        # Save df to table in SAM database
-        out <- RODBC::sqlSave(
-          channel = self$params$sqlConn,
-          dat = private$outDf,
-          tablename = self$params$destSchemaTable,
-          append = T,
-          rownames = F,
-          colnames = F,
-          safer = T,
-          nastring = NULL,
-          verbose = self$params$debug
-        )
+    # saveDataIntoDb = function() {
+    #   if (isTRUE(self$params$writeToDB)) {
+    #     # Save df to table in SAM database
+    #     out <- RODBC::sqlSave(
+    #       channel = self$params$sqlConn,
+    #       dat = private$outDf,
+    #       tablename = self$params$destSchemaTable,
+    #       append = T,
+    #       rownames = F,
+    #       colnames = F,
+    #       safer = T,
+    #       nastring = NULL,
+    #       verbose = self$params$debug
+    #     )
   
-        # Print success if insert was successful
-        if (out == 1) {
-          cat('SQL Server insert was successful') # removed '\n' for the unit test
-        }
-      }
-    }
+    #     # Print success if insert was successful
+    #     if (out == 1) {
+    #       cat('SQL Server insert was successful') # removed '\n' for the unit test
+    #     }
+    #   }
+    # }
   ),
 
   #Public members
@@ -451,10 +454,10 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     #Override: deploy the model
     deploy = function() {
   
-      if (isTRUE(self$params$writeToDB)) {
-        # Connect to sql via odbc driver
-        private$connectDataSource()
-      }
+      # if (isTRUE(self$params$writeToDB)) {
+      #   # Connect to sql via odbc driver
+      #   private$connectDataSource()
+      # }
 
       # Try to load the model
       tryCatch({
@@ -483,14 +486,14 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       # create dataframe for output
       private$createDf()
 
-      if (isTRUE(self$params$writeToDB)) {
-        # Save data into db
-        private$saveDataIntoDb()
-      }
+      # if (isTRUE(self$params$writeToDB)) {
+      #   # Save data into db
+      #   private$saveDataIntoDb()
+      # }
       
-      if (isTRUE(self$params$writeToDB)) {
-        private$closeDataSource()
-      }
+      # if (isTRUE(self$params$writeToDB)) {
+      #   private$closeDataSource()
+      # }
     },
     
     # Surface outDf as attribute for export to Oracle, MySQL, etc
