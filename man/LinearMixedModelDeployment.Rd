@@ -307,6 +307,7 @@ p$df <- df
 p$type <- "classification"
 p$impute <- TRUE
 p$grainCol <- "PatientEncounterID"
+p$personCol <- "PatientID"
 p$predictedCol <- "ThirtyDayReadmitFLG"
 p$debug <- FALSE
 p$cores <- 1
@@ -322,6 +323,7 @@ p2 <- SupervisedModelDeploymentParams$new()
 p2$type <- "classification"
 p2$df <- df
 p2$grainCol <- "PatientEncounterID"
+p2$personCol <- "PatientID"
 p2$testWindowCol <- "InTestWindowFLG"
 p2$predictedCol <- "ThirtyDayReadmitFLG"
 p2$impute <- TRUE
@@ -371,6 +373,7 @@ p$df <- df
 p$type <- "regression"
 p$impute <- TRUE
 p$grainCol <- "PatientEncounterID"
+p$personCol <- "PatientID"
 p$predictedCol <- "A1CNBR"
 p$debug <- FALSE
 p$cores <- 1
@@ -386,6 +389,7 @@ p2 <- SupervisedModelDeploymentParams$new()
 p2$type <- "regression"
 p2$df <- df
 p2$grainCol <- "PatientEncounterID"
+p2$personCol <- "PatientID"
 p2$testWindowCol <- "InTestWindowFLG"
 p2$predictedCol <- "A1CNBR"
 p2$impute <- TRUE
