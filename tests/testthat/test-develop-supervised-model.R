@@ -23,9 +23,9 @@ p$numberOfTrees = 201
 ###########
 # Common settings
 
-test_that("Error is thrown when type != regression or classification", {
+test_that("Error is thrown when type != regression or classification or multiclass", {
   p$type = 'a'
-  expect_error(LassoDevelopment$new(p), 'Your type must be regression or classification')
+  expect_error(LassoDevelopment$new(p), 'Your type must be regression, classification, or multiclass')
 })
 
 test_that("Error is thrown when predicted column isn't binary and type is classification", {
