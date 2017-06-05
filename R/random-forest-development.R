@@ -133,6 +133,9 @@
 #' df <- selectData(connection.string, query)
 #' head(df)
 #'
+#' #Make sure all blanks in ThirtyDayReadmitFLG are converted to NAs
+#' df$ThirtyDayReadmitFLG[df$ThirtyDayReadmitFLG == ""] <- NA
+#'
 #' df$InTestWindowFLG <- NULL
 #'
 #' set.seed(42)
