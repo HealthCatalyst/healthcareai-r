@@ -104,50 +104,6 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
     MAE = NA,
 
     # Start of functions
-    saveModel = function() {
-      if (isTRUE(self$params$debug)) {
-        print('Saving model...')
-      }
-      
-        fitObj <- private$fitXBG
-        save(fitObj, file = "rmodel_probability_XGB.rda")
-      }
-
-      # TODO: Cross validation and random search
-  ),
-
-  # Public members
-  public = list(
-    # xgboost specific placeholders
-    xgb_trainMatrix = NA,
-    xgb_testMatrix = NA,
-    
-    # Get xgb model
-    fitXGB = NA,
-
-    # Constructor
-    # p: new SuperviseModelParameters class object,
-    # i.e. p = SuperviseModelParameters$new()
-    initialize = function(p) {
-      # check that it's a multiclass type
-      if (p$type != 'multiclass') {
-        cat('XGBoost currently only supports "multiclass" type.', '\n')
-      }
-
-      set.seed(43)
-      super$initialize(p)
-
-      # TODO set up tuning to actually work.
-      if (!is.null(p$tune)) {
-        self$params$tune = p$tune
-      }
-
-      # print xgb params (for sanity)
-      cat('xgb_params are for model training are:', '\n')
-      cat(str(self$params$xgb_params), '\n')
-    
-    },
-
     # Prepare data for XGBoost
     xgbPrepareData = function() {
       cat('Preparing data...', '\n')
@@ -163,12 +119,6 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
       self$xgb_testMatrix <- xgb.DMatrix(data = temp_test_data, label = temp_test_label) 
       private$test_label <- temp_test_label # save for confusion matrix and output
       rm(temp_test_data, temp_test_label) # clean temp variables
-
-    },
-
-    getPredictions = function(){
-      cat('Retrieving raw predictions...', '\n')
-      return(private$predictions)
     },
 
     buildModel = function() {
@@ -204,6 +154,55 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
       colnames(private$predictions)[1] <- self$params$grainCol
     },
 
+    saveModel = function() {
+      if (isTRUE(self$params$debug)) {
+        print('Saving model...')
+      }
+      
+        fitObj <- self$fitXGB
+        save(fitObj, file = "rmodel_probability_XGB.rda")
+      }
+
+      # TODO: Cross validation and random search
+  ),
+
+  # Public members
+  public = list(
+    # xgboost specific placeholders
+    xgb_trainMatrix = NA,
+    xgb_testMatrix = NA,
+    
+    # Get xgb model
+    fitXGB = NA,
+
+    # Constructor
+    # p: new SuperviseModelParameters class object,
+    # i.e. p = SuperviseModelParameters$new()
+    initialize = function(p) {
+      # check that it's a multiclass type
+      if (p$type != 'multiclass') {
+        cat('XGBoost currently only supports "multiclass" type.', '\n')
+      }
+
+      set.seed(43)
+      super$initialize(p)
+
+      # TODO set up tuning to actually work.
+      if (!is.null(p$tune)) {
+        self$params$tune = p$tune
+      }
+
+      # print xgb params (for sanity)
+      cat('xgb_params for model training are:', '\n')
+      cat(str(self$params$xgb_params), '\n')
+    
+    },
+
+    getPredictions = function(){
+      cat('Retrieving raw predictions...', '\n')
+      return(private$predictions)
+    },
+
     # Generate performance metrics
     generateConfusionMatrix = function() {
       cat('Generating confusion matrix...', '\n')
@@ -215,16 +214,16 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
    # Run XGBoost Multiclass
    run = function() {
       # Prepare data for xgboost
-      self$xgbPrepareData()
+      private$xgbPrepareData()
 
       # Build Model
-      self$buildModel()
+      private$buildModel()
       
       # save model
       private$saveModel()
 
       # Perform prediction
-      self$performPrediction()
+      private$performPrediction()
 
       # Generate confusion matrix
       self$generateConfusionMatrix()
