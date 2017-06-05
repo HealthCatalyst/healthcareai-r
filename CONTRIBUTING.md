@@ -6,7 +6,7 @@
 2. [Download](https://www.rstudio.com/products/rstudio/download3/) RStudio and install
 3. Follow the healthcare.ai [install instructions](https://github.com/HealthCatalystSLC/HCRTools/blob/master/README.md)
 
-## Set up Git 
+## Set up Git really well
 
 ### Windows
 
