@@ -193,7 +193,7 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
       }
 
       # print xgb params (for sanity)
-      cat('xgb_params are for model training are:', '\n')
+      cat('xgb_params for model training are:', '\n')
       cat(str(self$params$xgb_params), '\n')
     
     },

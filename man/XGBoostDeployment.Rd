@@ -29,6 +29,9 @@ F leads to removal of rows containing NULLs.}
 \item{debug}{Provides the user extended output to the console, in order
 to monitor the calculations throughout. Use T or F.}
 }
+\value{
+Returns a dataframe containing the grain column, the top 3 probabilities for each row, and the classes associated with those probabilities.
+}
 \description{
 This step allows one to
 \itemize{
