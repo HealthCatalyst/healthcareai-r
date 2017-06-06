@@ -17,315 +17,218 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
  #Private members
  private = list(
+  
+  ###########
+  # Variables
 
-   ###########
-   # Variables
+  dfTest = NULL,
+  dfTestRaw = NULL,
+  dfTrain = NULL,
+  dfTemp = NULL,
+  dfTestTemp = NULL,
 
-   dfTest = NULL,
-   dfTestRaw = NULL,
-   dfTrain = NULL,
-   dfTemp = NULL,
-   dfTestTemp = NULL,
+  grainTest = NULL,
+  dfGrain = NULL,
 
-   grainTest = NULL,
-   dfGrain = NULL,
+  fit = NA,
+  fitLogit = NA,
+  predictedVals = NA,
 
-   fit = NA,
-   fitLogit = NA,
-   predictedVals = NA,
+  clustersOnCores = NA,
 
-   clustersOnCores = NA,
+  ###########
+  # Functions
+  registerClustersOnCores = function() {
+  if (self$params$cores > 1) {
+    suppressMessages(library(doParallel))
+    private$clustersOnCores <- makeCluster(self$params$cores)
+    registerDoParallel(private$clustersOnCores)
+    }
+  },
 
-   ###########
-   # Functions
+  stopClustersOnCores = function() {
+  if (self$params$cores > 1) {
+    stopCluster(private$clustersOnCores)
+    registerDoSEQ()
+    }
+  },
 
-   registerClustersOnCores = function() {
-     if (self$params$cores > 1) {
-       suppressMessages(library(doParallel))
-       private$clustersOnCores <- makeCluster(self$params$cores)
-       registerDoParallel(private$clustersOnCores)
-     }
-   },
+  setConfigs = function(p) {
+  self$params <- SupervisedModelDeploymentParams$new()
 
-   stopClustersOnCores = function() {
-     if (self$params$cores > 1) {
-       stopCluster(private$clustersOnCores)
-       registerDoSEQ()
-     }
-   },
+  if (!is.null(p$df))
+  self$params$df <- p$df
 
-   setConfigs = function(p) {
-     self$params <- SupervisedModelDeploymentParams$new()
-     
-     if (!is.null(p$df))
-       self$params$df <- p$df
+  if (!is.null(p$grainCol))
+  self$params$grainCol <- p$grainCol
 
-     if (!is.null(p$grainCol))
-       self$params$grainCol <- p$grainCol
+  if (!is.null(p$predictedCol))
+  self$params$predictedCol <- p$predictedCol
 
-     if (!is.null(p$predictedCol))
-       self$params$predictedCol <- p$predictedCol
+  if (!is.null(p$personCol))
+  self$params$personCol <- p$personCol
 
-     if (!is.null(p$personCol))
-       self$params$personCol <- p$personCol
+  if (!is.null(p$groupCol))
+  self$params$groupCol <- p$groupCol
 
-     if (!is.null(p$groupCol))
-       self$params$groupCol <- p$groupCol
+  if (!is.null(p$testWindowCol))
+  self$params$testWindowCol <- p$testWindowCol
 
-     if (!is.null(p$testWindowCol))
-       self$params$testWindowCol <- p$testWindowCol
+  if (!is.null(p$type) && p$type != '') {
+  self$params$type <- p$type
 
-     if (!is.null(p$type) && p$type != '') {
-       self$params$type <- p$type
+    # validation on type string values
+    if (self$params$type != 'regression' &&
+       self$params$type != 'classification' &&
+       self$params$type != 'multiclass') {
+     stop('Your type must be regression, classification, or multiclass')
+    }
+  }
 
-       # validation on type string values
-       if (self$params$type != 'regression' &&
-           self$params$type != 'classification' &&
-           self$params$type != 'multiclass') {
-         stop('Your type must be regression, classification, or multiclass')
-       }
-     }
+  if (!is.null(p$impute))
+  self$params$impute <- p$impute
 
-     if (!is.null(p$impute))
-       self$params$impute <- p$impute
+  if (!is.null(p$debug))
+  self$params$debug <- p$debug
 
-     if (!is.null(p$debug))
-       self$params$debug <- p$debug
+  # for deploy method
+  if (!is.null(p$cores))
+  self$params$cores <- p$cores
 
+  if (!is.null(p$writeToDB))
+  self$params$writeToDB <- p$writeToDB
 
-     # for deploy method
-     if (!is.null(p$cores))
-       self$params$cores <- p$cores
+  if (!is.null(p$sqlConn))
+  self$params$sqlConn <- p$sqlConn
 
-     if (!is.null(p$writeToDB))
-       self$params$writeToDB <- p$writeToDB
-     
-     if (!is.null(p$sqlConn))
-       self$params$sqlConn <- p$sqlConn
+  if (!is.null(p$destSchemaTable))
+  self$params$destSchemaTable <- p$destSchemaTable
 
-     if (!is.null(p$destSchemaTable))
-       self$params$destSchemaTable <- p$destSchemaTable
+  },
 
-     },
-
-   loadData = function() {
-
+  loadData = function() {
     cat('Loading Data...','\n')
 
-     if (isTRUE(self$params$debug)) {
-       print('Entire data set at the top of the constructor')
-       print(str(self$params$df))
-       print('Now going to convert chr cols to factor cols...')
-     }
-
-     # # This section is needed becuase xgboost doesn't use a test window, but other algs do.
-     # # When test window is removed, this column can be as well.
-     # # If testWindowCol was left out, add it, and set them all equal to 'Y'
-     # if (self$params$testWindowCol == '') {
-     #  self$params$testWindowCol <- 'defaultTestWindow' # give test window a name
-     #  self$params$df[[self$params$testWindowCol]] <- 'Y' # Set all equal to 'Y'
-     # }
-     # # Save this to put in later.
-     # tempTestWindow <- self$params$df[[self$params$testWindowCol]]
-     # # Convert to data.frame (in case of data.table)
-     # # This also converts chr cols to (needed) factors
-     # self$params$df <- as.data.frame(unclass(self$params$df))
-
-     # # Remove columns that are only NA
-     # # Put predicted.col back (since it's NULL when sql only pulls in test)
-     # temp <- self$params$df[[self$params$predictedCol]]
-     # self$params$df <-
-     #   self$params$df[, colSums(is.na(self$params$df)) < nrow(self$params$df)]
-     # self$params$df[[self$params$predictedCol]] <- temp
-
-     # Remove date columns
-     dateList <- grep("DTS$", colnames(self$params$df))
-     if (length(dateList) > 0) {
-       self$params$df <- self$params$df[, -dateList]
-     }
-
-     if (isTRUE(self$params$debug)) {
-       print('Entire df after removing cols with DTS')
-       print(str(self$params$df))
-       print('Now going to check for cols with fifty+ categories...')
-     }
-
-     if (length(returnColsWithMoreThanFiftyCategories(self$params$df)) > 0) {
-       warning('These columns in the df have more than fifty categories: \n',
-               paste(
-                 shQuote(returnColsWithMoreThanFiftyCategories(self$params$df)), 
-                 collapse = ", "),
-               '\n This drastically reduces performance. \n',
-               'Consider combining into new col with fewer categories.')
-     }
-
-     # Remove columns with zero variance
-     self$params$df <- removeColsWithAllSameValue(self$params$df)
-     # self$params$df[[self$params$testWindowCol]] <- tempTestWindow
-     # Prevents removing the test window column when they are all the same.
-
-     if (isTRUE(self$params$debug)) {
-       print('Entire df after removing feature cols w/zero var')
-       print(str(self$params$df))
-     }
-
-     # For multiclass xgboost initialization:
-      # 1. Save the class names before they are converted.
-      # 2. Get the number of classes.
-      # 3. Save the grain column for output.
-      if (self$params$type == 'multiclass' ) {
-        # Names
-        ind <- grep(self$params$predictedCol, colnames(self$params$df))
-        tempCol <- self$params$df[,ind]
-        self$params$xgb_targetNames <- as.character(sort(unique(tempCol)))
-        # Number
-        self$params$xgb_numberOfClasses <- length(self$params$xgb_targetNames)
-        # Grain
-        private$dfGrain <- self$params$df[[self$params$grainCol]]
-        rm(ind, tempCol)
-        # prints
-        if (isTRUE(self$params$debug)) {
-          print('Unique classes found:')
-          print(self$params$xgb_targetNames)
-          print('Number of classes:')
-          print(self$params$xgb_numberOfClasses)
-        }
-      }
-
-
-     # Remove grain.col from df; below we split it into graintest
-     if (nchar(self$params$grainCol) != 0) {
-       fullGrain <- self$params$df[[self$params$grainCol]]
-       self$params$df[[self$params$grainCol]] <- NULL
-     } else {
-       stop('You must specify a GrainID column when initializing TuneSupervisedModel')
-     }
-
-     if (isTRUE(self$params$debug)) {
-       print('Entire data set after separating out grain col')
-       print(str(self$params$df))
-       # print('Now splitting into Train and Test')
-     }
-
-     # Split df into temp train and test (then rejoin for dummy creation)
-     # Sadly, this even has to be done nightly (with a saved model)
-     # private$dfTrainTemp <-
-     #   self$params$df[self$params$df[[self$params$testWindowCol]] == 'N', ]
-     private$dfTestTemp <-
-       self$params$df[self$params$df[[self$params$testWindowCol]] == 'Y', ]
-
-     if (isTRUE(self$params$debug)) {
-       # print('Temp training set after splitting')
-       # print(str(private$dfTrainTemp))
-       # print('Temp testing set after splitting')
-       # print(str(private$dfTestTemp))
-
-       print('Now starting imputation, or removing rows with NULLs')
-     }
-
-     # Always do imputation on all of test set (since each row needs pred)
-     private$dfTemp[] <- lapply(self$params$df, imputeColumn)
-
-     # # Join temp train and test back together, so dummy creation is consistent
-     # self$params$df <-
-     #   rbind(private$dfTrainTemp, private$dfTestTemp)
-
-     if (isTRUE(self$params$debug)) {
-       print('Entire data set after imputation')
-       print(str(self$params$df))
-       print('Now creating dummy variables...')
-     }
-
-     # Make sure label column is numeric before creating dummy var
-     # self$params$df[[self$params$predictedCol]] =
-     #   as.numeric(self$params$df[[self$params$predictedCol]])
-
-     # If all Y, remove test window col before imputation. Add back in after.
-     # if (isTRUE(all(tempTestWindow == 'Y'))) {
-     #   self$params$df[[self$params$testWindowCol]] <- NULL
-     #   private$dfTestTemp[[self$params$testWindowCol]] <- NULL
-     # }
-
-     # Split factor columns into dummy columns (for use in deploypred method)
-     data <- dummyVars(~., data = self$params$df, fullRank = T)
-     self$params$df <-
-       data.frame(predict(data, newdata = self$params$df, na.action = na.pass))
-     
-     # # The test window column is not being dummified with the correct name sometimes. fix it for now.
-     # if (paste0(self$params$testWindowCol, 'Y') %in% colnames(self$params$df)) {
-     #   self$params$df[[paste0(self$params$testWindowCol, '.Y')]] <- self$params$df[[paste0(self$params$testWindowCol, 'Y')]]
-     #   self$params$df[[paste0(self$params$testWindowCol, 'Y')]] <- NULL
-     # }
-     # # Add test window column back in with correct name and as ones.
-     # if (isTRUE(all(tempTestWindow == 'Y'))) {
-     #   self$params$df[[paste0(self$params$testWindowCol, '.Y')]] <- 1
-     # }  
-
-     # Now that we have dummy vars, switch label to factor so this is classif.
-     # if (self$params$type == 'classification') {
-     #   # Since caret can't handle 0/1 for classif, need to convert to N/Y
-     #   # http://stackoverflow.com/questions/18402016/error-when
-     #   # -i-try-to-predict-class-probabilities-in-r-caret
-     #   self$params$df[[self$params$predictedCol]] <-
-     #     ifelse(self$params$df[[self$params$predictedCol]] == 1, 'N', 'Y')
-     #   self$params$df[[self$params$predictedCol]] <-
-     #     as.factor(self$params$df[[self$params$predictedCol]])
-     # }
-
-     if (isTRUE(self$params$debug)) {
-       print('Entire data set after creating dummy vars')
-       print(str(self$params$df))
-     }
-
-     # Always create test set from df, and drop test.window.cols from test set
-     private$dfTest <- self$params$df
-     # private$dfTest <-
-     #   private$dfTest[, !(names(private$dfTest) %in% c(
-     #     self$params$testWindowCol,
-     #     paste0(self$params$testWindowCol, '.Y')
-     #   ))]
-
-     if (isTRUE(self$params$debug)) {
-       print('Test set after splitting from df (and then removing windowcol)')
-       print(str(private$dfTest))
-     }
-
-     # Now that we have train/test, split grain col into test (for use at end)
-     if (nchar(self$params$grainCol) != 0) {
-     #    tempMask <-
-     #      rownames(self$params$df[self$params$df[[paste0(self$params$testWindowCol, '.Y')]] == 1,])
-       private$grainTest <- fullGrain
-
-       if (isTRUE(self$params$debug)) {
-         print('Grain col vector with rows of test set (after created)')
-         print(private$grainTest[1:10])
-       }
-
-     } else {
-       stop('You must specify a GrainID column when initializing
-         TuneSupervisedModel')
+    if (isTRUE(self$params$debug)) {
+      print('Entire data set at the top of the constructor')
+      print(str(self$params$df))
+      print('Now going to convert chr cols to factor cols...')
     }
 
-    # Pass raw (un-imputed) dfTest to object, so important factors aren't null
-    private$dfTestRaw <-
-      private$dfTest[, !(names(private$dfTest) %in% c(self$params$predictedCol))]
+    # This also converts chr cols to (needed) factors
+    self$params$df <- as.data.frame(unclass(self$params$df))
 
-    # For LMM, remove ID col so it doesn't interfere with row-based varimp calc
-    if (nchar(self$params$personCol) != 0) {
-       private$dfTestRaw[[self$params$personCol]] <- NULL
+    # Remove columns that are only NA
+    self$params$df <- self$params$df[, colSums(is.na(self$params$df)) < nrow(self$params$df)]
+
+    # self$params$df[[self$params$predictedCol]] <- temp
+
+    # Remove date columns
+    dateList <- grep("DTS$", colnames(self$params$df))
+    if (length(dateList) > 0) {
+      self$params$df <- self$params$df[, -dateList]
     }
 
     if (isTRUE(self$params$debug)) {
-      print('Raw test set (sans imputation) created for mult with coeffs')
+      print('Entire df after removing cols with DTS')
+      print(str(self$params$df))
+      print('Now going to check for cols with fifty+ categories...')
+    }
+
+    if (length(returnColsWithMoreThanFiftyCategories(self$params$df)) > 0) {
+      warning('These columns in the df have more than fifty categories: \n',
+      paste(
+      shQuote(returnColsWithMoreThanFiftyCategories(self$params$df)), 
+      collapse = ", "),
+      '\n This drastically reduces performance. \n',
+      'Consider combining into new col with fewer categories.')
+    }
+
+    # Remove columns with zero variance
+    self$params$df <- removeColsWithAllSameValue(self$params$df)
+
+    if (isTRUE(self$params$debug)) {
+      print('Entire df after removing feature cols with all same value')
+      print(str(self$params$df))
+      print('Now separating grain column')
+    }
+
+    # For multiclass xgboost initialization:
+    # 1. Save the class names before they are converted.
+    # 2. Get the number of classes.
+    # 3. Save the grain column for output.
+    if (self$params$type == 'multiclass' ) {
+      # Names
+      ind <- grep(self$params$predictedCol, colnames(self$params$df))
+      tempCol <- self$params$df[,ind]
+      self$params$xgb_targetNames <- as.character(sort(unique(tempCol)))
+      # Number
+      self$params$xgb_numberOfClasses <- length(self$params$xgb_targetNames)
+      # Grain
+      private$dfGrain <- self$params$df[[self$params$grainCol]]
+      rm(ind, tempCol)
+      # prints
+      if (isTRUE(self$params$debug)) {
+        print('Unique classes found:')
+        print(self$params$xgb_targetNames)
+        print('Number of classes:')
+        print(self$params$xgb_numberOfClasses)
+      }
+    }
+
+
+    # Remove grain.col from df; below we split it into graintest
+    if (nchar(self$params$grainCol) != 0) {
+      fullGrain <- self$params$df[[self$params$grainCol]]
+      self$params$df[[self$params$grainCol]] <- NULL
+      } else {
+      stop('You must specify a GrainID column when using DeploySupervisedModel')
+    }
+
+    if (isTRUE(self$params$debug)) {
+      print('Entire data set after separating out grain col')
+      print(str(self$params$df))
+      print('Now starting imputation, or removing rows with NULLs')
+    }
+
+    # Impute columns
+    self$params$df[] <- lapply(self$params$df, imputeColumn)
+
+    if (isTRUE(self$params$debug)) {
+      print('Entire data set after imputation')
+      print(str(self$params$df))
+    }
+
+    # Now that we have train/test, split grain col into test (for use at end)
+    if (nchar(self$params$grainCol) != 0) {
+      private$grainTest <- fullGrain
+
+      if (isTRUE(self$params$debug)) {
+        print('Final prepared test set with grain column')
+        temp <- cbind(private$grainTest[1:10], self$params$df[1:10,])
+        colnames(temp)[1] <- self$params$grainCol
+        print(temp)
+        rm(temp)
+      }
+    } else {
+      stop('You must specify a GrainID column when using DeploySupervisedModel')
+    }
+
+    # Split factor columns into dummy columns (for use in deploypred method)
+    data <- dummyVars(~., data = self$params$df, fullRank = T)
+    private$dfTestRaw <- data.frame(predict(data, newdata = self$params$df, na.action = na.pass))
+
+    if (isTRUE(self$params$debug)) {
+      print('Raw data set after creating dummy vars (for top 3 factors only)')
       print(str(private$dfTestRaw))
     }
 
-    if (isTRUE(self$params$debug)) {
-      print('Test set after undergoing imputation')
-      print(str(private$dfTest))
+    # For LMM, remove ID col so it doesn't interfere with row-based varimp calc
+    if (nchar(self$params$personCol) != 0) {
+      private$dfTestRaw[[self$params$personCol]] <- NULL
     }
   }
-  ),
+),
 
   #Public members
   public = list(
