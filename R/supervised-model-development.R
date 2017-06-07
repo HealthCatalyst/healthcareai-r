@@ -20,6 +20,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
     ###########
     # Variables
     dfTrain = NA,
+    dfTrainRaw = NA,
     dfTest = NA,
     dfGrain = NA,
     grainTest = NA,
@@ -270,6 +271,26 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       if (isTRUE(self$params$debug)) {
         print('Training data set after removing rows where pred col is null')
         print(str(private$dfTrain))
+      }
+
+      # Get dummy columns to pass to GLM for factor fitting. R removes one factor level (prevents redundancy), but
+      # in our case, we need a coefficient for every level and have to add a junk level.
+      private$dfTrainRaw <- private$dfTrain
+      factorColumns <- sapply(private$dfTrainRaw, is.factor) # cols that are factors
+      # Loop through factor columns, add a dummy factor at the beginning.
+      for (col in colnames(private$dfTrainRaw[,factorColumns])){ 
+        lev = levels(private$dfTrainRaw[ , col])[1]
+        private$dfTrainRaw[,paste0(col, '.', lev)] <- ifelse(private$dfTrainRaw[ , col]==lev, 1, 0)
+      }
+
+      # Get dummies and reorder columns
+      data <- dummyVars(~., data = private$dfTrainRaw, fullRank = T)
+      private$dfTrainRaw <- data.frame(predict(data, newdata = private$dfTrainRaw, na.action = na.pass))
+      private$dfTrainRaw <- private$dfTrainRaw[ , order(names(private$dfTrainRaw))]
+
+      if (isTRUE(self$params$debug)) {
+        print('Training data set after creating dummy variables (only used for top factors)')
+        print(str(private$dfTrainRaw))
       }
     }
   ),
