@@ -297,6 +297,9 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     getPredictions = function(){
       return(private$predictions)
     },
+    getRaw = function() {
+      return(private$dfTrainRaw)
+    },
     # Override: build RandomForest model
     buildModel = function() {
       trainControlParams.method <- ""

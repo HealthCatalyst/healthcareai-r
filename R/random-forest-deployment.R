@@ -282,7 +282,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     performPrediction = function() {
       if (self$params$type == 'classification') {
         private$predictions <- caret::predict.train(object = private$fitRF,
-                                                    newdata = private$dfTest,
+                                                    newdata = self$params$df,
                                                     type = 'prob')
         private$predictions <- private$predictions[,2]
         
@@ -293,7 +293,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         }
         
       } else if (self$params$type == 'regression') {
-        private$predictions <- caret::predict.train(private$fitRF, newdata = private$dfTestTemp)
+        private$predictions <- caret::predict.train(private$fitRF, newdata = self$params$df)
         
         if (isTRUE(self$params$debug)) {
           cat('Rows in regression prediction: ', length(private$predictions), '\n')
@@ -319,7 +319,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     calculateMultiplyRes = function() {
       # Apply multiplication of coeff across each row of test set
       # Remove y (label) so we do multiplication only on X (features)
-      private$dfTest[[self$params$predictedCol]] <- NULL
+     # private$dfTest[[self$params$predictedCol]] <- NULL
 
       if (isTRUE(self$params$debug)) {
         cat('Test set after removing predicted column', '\n')
