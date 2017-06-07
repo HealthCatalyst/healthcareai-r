@@ -419,7 +419,7 @@ LassoDeployment <- R6Class(
       
       # Predictions (in terms of probability)
       private$predictions <- stats::predict(object = private$fitGrLasso,
-                                     X = model.matrix(private$modFmla, data = private$dfTestTemp)[,-1],
+                                     X = model.matrix(private$modFmla, data = self$params$df)[,-1],
                                      lambda = private$lambda1se,
                                      type = "response")
       

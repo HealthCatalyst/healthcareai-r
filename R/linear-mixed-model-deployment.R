@@ -296,7 +296,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       if (self$params$type == 'classification') {
         # predict is from lme4::predict.merMod. missing in the lme4 namespace, exists in docs. 
         private$predictions <- predict(object = private$fitLmm,
-                                       newdata = private$dfTestTemp,
+                                       newdata = self$params$df,
                                        allow.new.levels = TRUE,
                                        type = "response")
         
@@ -308,7 +308,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       }
       else if (self$params$type == 'regression') {
         private$predictions <- predict(object = private$fitLmm,
-                                       newdata = private$dfTestTemp,
+                                       newdata = self$params$df,
                                        allow.new.levels = TRUE)
         
         if (isTRUE(self$params$debug)) {
@@ -340,14 +340,6 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
     calculateMultiplyRes = function() {
       # Apply multiplication of coeff across each row of test set
-      # Remove y (label) so we do multiplication only on X (features)
-      private$dfTest[[self$params$predictedCol]] <- NULL
-
-      if (isTRUE(self$params$debug)) {
-        cat('Test set after removing predicted column', '\n')
-        cat(str(private$dfTest), '\n')
-      }
-
       # For LMM, remove GrainID col so it doesn't interfere with logit calcs
       if (nchar(self$params$personCol) != 0) {
         private$coefficients <- private$coefficients[private$coefficients != self$params$grainCol]
