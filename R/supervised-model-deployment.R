@@ -1,3 +1,4 @@
+
 #' Deploy predictive models, created on your data
 #'
 #' @description This step allows one to create deploy models on your data
@@ -27,6 +28,8 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
    dfTestTemp = NULL,
 
    grainTest = NULL,
+   dfGrain = NULL,
+
    fit = NA,
    fitLogit = NA,
    predictedVals = NA,
@@ -77,8 +80,9 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
        # validation on type string values
        if (self$params$type != 'regression' &&
-           self$params$type != 'classification') {
-         stop('Your type must be regression or classification')
+           self$params$type != 'classification' &&
+           self$params$type != 'multiclass') {
+         stop('Your type must be regression, classification, or multiclass')
        }
      }
 
@@ -111,6 +115,15 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
        print('Now going to convert chr cols to factor cols...')
      }
 
+     # This section is needed becuase xgboost doesn't use a test window, but other algs do.
+     # When test window is removed, this column can be as well.
+     # If testWindowCol was left out, add it, and set them all equal to 'Y'
+     if (self$params$testWindowCol == '') {
+      self$params$testWindowCol <- 'defaultTestWindow' # give test window a name
+      self$params$df[[self$params$testWindowCol]] <- 'Y' # Set all equal to 'Y'
+     }
+     # Save this to put in later.
+     tempTestWindow <- self$params$df[[self$params$testWindowCol]]
      # Convert to data.frame (in case of data.table)
      # This also converts chr cols to (needed) factors
      self$params$df <- as.data.frame(unclass(self$params$df))
@@ -145,11 +158,37 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
      # Remove columns with zero variance
      self$params$df <- removeColsWithAllSameValue(self$params$df)
+     self$params$df[[self$params$testWindowCol]] <- tempTestWindow
+     # Prevents removing the test window column when they are all the same.
 
      if (isTRUE(self$params$debug)) {
        print('Entire df after removing feature cols w/zero var')
        print(str(self$params$df))
      }
+
+     # For multiclass xgboost initialization:
+      # 1. Save the class names before they are converted.
+      # 2. Get the number of classes.
+      # 3. Save the grain column for output.
+      if (self$params$type == 'multiclass' ) {
+        # Names
+        ind <- grep(self$params$predictedCol, colnames(self$params$df))
+        tempCol <- self$params$df[,ind]
+        self$params$xgb_targetNames <- as.character(sort(unique(tempCol)))
+        # Number
+        self$params$xgb_numberOfClasses <- length(self$params$xgb_targetNames)
+        # Grain
+        private$dfGrain <- self$params$df[[self$params$grainCol]]
+        rm(ind, tempCol)
+        # prints
+        if (isTRUE(self$params$debug)) {
+          print('Unique classes found:')
+          print(self$params$xgb_targetNames)
+          print('Number of classes:')
+          print(self$params$xgb_numberOfClasses)
+        }
+      }
+
 
      # Remove grain.col from df; below we split it into graintest
      if (nchar(self$params$grainCol) != 0) {
@@ -198,11 +237,29 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
      self$params$df[[self$params$predictedCol]] =
        as.numeric(self$params$df[[self$params$predictedCol]])
 
+     # If all Y, remove test window col before imputation. Add back in after.
+     if (isTRUE(all(tempTestWindow == 'Y'))) {
+       self$params$df[[self$params$testWindowCol]] <- NULL
+       private$dfTestTemp[[self$params$testWindowCol]] <- NULL
+     }
+
      # Split factor columns into dummy columns (for use in deploypred method)
      data <- dummyVars(~., data = self$params$df, fullRank = T)
      self$params$df <-
        data.frame(predict(data, newdata = self$params$df, na.action = na.pass))
+     
+     # The test window column is not being dummified with the correct name sometimes. fix it for now.
+     if (paste0(self$params$testWindowCol, 'Y') %in% colnames(self$params$df)) {
+       self$params$df[[paste0(self$params$testWindowCol, '.Y')]] <- self$params$df[[paste0(self$params$testWindowCol, 'Y')]]
+       self$params$df[[paste0(self$params$testWindowCol, 'Y')]] <- NULL
+     }
+     # Add test window column back in with correct name and as ones.
+     if (isTRUE(all(tempTestWindow == 'Y'))) {
+       self$params$df[[paste0(self$params$testWindowCol, '.Y')]] <- 1
+     }  
 
+     print('debugger is here')
+     print(as.factor(self$params$df$InTestWindowFLGY))
      # Now that we have dummy vars, switch label to factor so this is classif.
      if (self$params$type == 'classification') {
        # Since caret can't handle 0/1 for classif, need to convert to N/Y

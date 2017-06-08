@@ -33,6 +33,8 @@ SupervisedModelDeploymentParams <- R6Class("SupervisedModelDeploymentParams",
     destSchemaTable = "",
     rfmtry = 0,
     trees = 201,
+    xgb_numberOfClasses = NA,
+    xgb_targetNames = NA,
 
     #Constructor
     initialize = function() {

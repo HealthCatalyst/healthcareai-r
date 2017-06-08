@@ -16,7 +16,7 @@ grainCol, personCol, predictedCol, impute, debug)
 
 \item{df}{Dataframe whose columns are used for calc.}
 
-\item{grainCol}{The data frame's ID column pertaining to the grain}
+\item{grainCol}{Optional. The data frame's ID column pertaining to the grain}
 
 \item{personCol}{The data frame's ID column pertaining to the person/patient}
 
