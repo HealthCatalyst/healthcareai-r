@@ -81,11 +81,12 @@ lasso <- LassoDevelopment$new(p)
 lasso$run()
 
 ## 3. Load saved model and use DEPLOY to generate predictions. 
-df$InTestWindowFLG <- inTest
+df <- df[inTest=='Y' , ]
+df$ThirtyDayReadmitFLG <- NULL
+
 p2 <- SupervisedModelDeploymentParams$new()
 p2$type <- "classification"
 p2$df <- df
-p2$testWindowCol <- "InTestWindowFLG"
 p2$grainCol <- "PatientEncounterID"
 p2$predictedCol <- "ThirtyDayReadmitFLG"
 p2$impute <- TRUE
@@ -157,13 +158,13 @@ lasso <- LassoDevelopment$new(p)
 lasso$run()
 
 ## 3. Load saved model and use DEPLOY to generate predictions. 
-df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+df <- df[inTest=='Y' , ]
+df$ThirtyDayReadmitFLG <- NULL
 
 p2 <- SupervisedModelDeploymentParams$new()
 p2$type <- "classification"
 p2$df <- df
 p2$grainCol <- "PatientEncounterID"
-p2$testWindowCol <- "InTestWindowFLG"
 p2$predictedCol <- "ThirtyDayReadmitFLG"
 p2$impute <- TRUE
 p2$debug <- FALSE
@@ -236,13 +237,13 @@ lasso <- LassoDevelopment$new(p)
 lasso$run()
 
 ## 3. Load saved model and use DEPLOY to generate predictions. 
-df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+df <- df[inTest=='Y' , ]
+df$A1CNBR <- NULL
 
 p2 <- SupervisedModelDeploymentParams$new()
 p2$type <- "regression"
 p2$df <- df
 p2$grainCol <- "PatientEncounterID"
-p2$testWindowCol <- "InTestWindowFLG"
 p2$predictedCol <- "A1CNBR"
 p2$impute <- TRUE
 p2$debug <- FALSE
@@ -301,14 +302,14 @@ p$cores <- 1
 lasso <- LassoDevelopment$new(p)
 lasso$run()
 
-## 3. Load saved model and use DEPLOY to generate predictions. 
-df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+## 3. Load saved model and use DEPLOY to generate predictions.
+df <- df[inTest=='Y' , ]
+df$ThirtyDayReadmitFLG <- NULL
 
 p2 <- SupervisedModelDeploymentParams$new()
 p2$type <- "classification"
 p2$df <- df
 p2$grainCol <- "PatientEncounterID"
-p2$testWindowCol <- "InTestWindowFLG"
 p2$predictedCol <- "ThirtyDayReadmitFLG"
 p2$impute <- TRUE
 p2$debug <- FALSE
@@ -367,13 +368,13 @@ lasso <- LassoDevelopment$new(p)
 lasso$run()
 
 ## 3. Load saved model and use DEPLOY to generate predictions. 
-df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+df <- df[inTest=='Y' , ]
+df$A1CNBR <- NULL
 
 p2 <- SupervisedModelDeploymentParams$new()
 p2$type <- "regression"
 p2$df <- df
 p2$grainCol <- "PatientEncounterID"
-p2$testWindowCol <- "InTestWindowFLG"
 p2$predictedCol <- "A1CNBR"
 p2$impute <- TRUE
 p2$debug <- FALSE

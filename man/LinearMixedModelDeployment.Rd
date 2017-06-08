@@ -86,11 +86,12 @@ LinearMixedModel <- LinearMixedModelDevelopment$new(p)
 LinearMixedModel$run()
 
 ## 3. Load saved model and use DEPLOY to generate predictions. 
-df$InTestWindowFLG <- inTest
+df <- df[inTest=='Y' , ]
+df$ThirtyDayReadmitFLG <- NULL
+
 p2 <- SupervisedModelDeploymentParams$new()
 p2$type <- "classification"
 p2$df <- df
-p2$testWindowCol <- "InTestWindowFLG"
 p2$grainCol <- "PatientEncounterID"
 p$personCol <- "PatientID"
 p2$predictedCol <- "ThirtyDayReadmitFLG"
@@ -168,14 +169,14 @@ LinearMixedModel <- LinearMixedModelDevelopment$new(p)
 LinearMixedModel$run()
 
 ## 3. Load saved model and use DEPLOY to generate predictions. 
-df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+df <- df[inTest=='Y' , ]
+df$ThirtyDayReadmitFLG <- NULL
 
 p2 <- SupervisedModelDeploymentParams$new()
 p2$type <- "classification"
 p2$df <- df
 p2$grainCol <- "PatientEncounterID"
 p$personCol <- "PatientID"
-p2$testWindowCol <- "InTestWindowFLG"
 p2$predictedCol <- "ThirtyDayReadmitFLG"
 p2$impute <- TRUE
 p2$debug <- FALSE
@@ -249,14 +250,14 @@ LinearMixedModel <- LinearMixedModelDevelopment$new(p)
 LinearMixedModel$run()
 
 ## 3. Load saved model and use DEPLOY to generate predictions. 
-df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+df <- df[inTest=='Y' , ]
+df$A1CNBR <- NULL
 
 p2 <- SupervisedModelDeploymentParams$new()
 p2$type <- "regression"
 p2$df <- df
 p2$grainCol <- "PatientEncounterID"
 p$personCol <- "PatientID"
-p2$testWindowCol <- "InTestWindowFLG"
 p2$predictedCol <- "A1CNBR"
 p2$impute <- TRUE
 p2$debug <- FALSE
