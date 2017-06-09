@@ -53,13 +53,13 @@ test_that("LMM deploy classification pushes values to SQLite", {
   p2$debug <- FALSE
   p2$cores <- 1
   
-  capture.output(dL <- LinearMixedModelDeployment$new(p2))
-  capture.output(dL$deploy())
-  capture.output(dfOut <- dL$getOutDf())
+  capture.output(dLMM <- LinearMixedModelDeployment$new(p2))
+  capture.output(dLMM$deploy())
+  capture.output(dfOut <- dLMM$getOutDf())
   expect_output(writeData(SQLiteFileName = sqliteFile,
                           df = dfOut,
                           tableName = 'HCRDeployClassificationBASE'),
-                "13 rows were inserted into the SQLite")
+                "13 rows were inserted into the SQLite table HCRDeployClassificationBASE")
 })
 
 test_that("LMM deploy regression pushes values to SQLite", {
@@ -84,16 +84,14 @@ test_that("LMM deploy regression pushes values to SQLite", {
   p2$testWindowCol = 'InTestWindowFLG'
   p2$predictedCol = 'A1CNBR'
   p2$impute = TRUE
-  p2$sqlConn <- connection.string
-  p2$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
   
-  capture.output(dL <- LinearMixedModelDeployment$new(p2))
-  capture.output(dL$deploy())
-  capture.output(dfOut <- dL$getOutDf())
+  capture.output(dLMM <- LinearMixedModelDeployment$new(p2))
+  capture.output(dLMM$deploy())
+  capture.output(dfOut <- dLMM$getOutDf())
   expect_output(writeData(SQLiteFileName = sqliteFile,
                           df = dfOut,
                           tableName = 'HCRDeployRegressionBASE'),
-                "13 rows were inserted into the SQLite")
+                "13 rows were inserted into the SQLite table HCRDeployRegressionBASE")
 }) 
 
 ########## Lasso ##########
@@ -126,7 +124,7 @@ test_that("Lasso deploy classification pushes values to SQLite", {
   expect_output(writeData(SQLiteFileName = sqliteFile,
                           df = dfOut,
                           tableName = 'HCRDeployClassificationBASE'),
-                "13 rows were inserted into the SQLite")
+                "13 rows were inserted into the SQLite table HCRDeployClassificationBASE")
 })
 
 test_that("Lasso deploy regression pushes values to SQLite", {
@@ -157,7 +155,7 @@ test_that("Lasso deploy regression pushes values to SQLite", {
   expect_output(writeData(SQLiteFileName = sqliteFile,
                           df = dfOut,
                           tableName = 'HCRDeployRegressionBASE'),
-                "13 rows were inserted into the SQLite")
+                "13 rows were inserted into the SQLite table HCRDeployRegressionBASE")
 })
 
 ########## Random Forest ##########
@@ -190,7 +188,7 @@ test_that("rf deploy classification pushes values to SQLite", {
   expect_output(writeData(SQLiteFileName = sqliteFile,
                           df = dfOut,
                           tableName = 'HCRDeployClassificationBASE'),
-                "13 rows were inserted into the SQLite")
+                "13 rows were inserted into the SQLite table HCRDeployClassificationBASE")
 })
 
 test_that("rf deploy regression pushes values to SQLite", {
@@ -221,6 +219,6 @@ test_that("rf deploy regression pushes values to SQLite", {
   expect_output(writeData(SQLiteFileName = sqliteFile,
                           df = dfOut,
                           tableName = 'HCRDeployRegressionBASE'),
-                "13 rows were inserted into the SQLite")
+                "13 rows were inserted into the SQLite table HCRDeployRegressionBASE")
 })
 

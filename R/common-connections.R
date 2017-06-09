@@ -214,9 +214,9 @@ writeData <- function(MSSQLConnectionString = NULL,
 
   # TODO: get success and # of inserted rows from dbWriteTable function  
   if (is.null(MSSQLConnectionString)) {
-    cat(nrow(df), "rows were inserted into the SQLite", tableName, "table." )    
+    cat(nrow(df), "rows were inserted into the SQLite table", tableName)  
   } else {
-    cat(nrow(df), "rows were inserted into the SQL Server", tableName, "table.")
+    cat(nrow(df), "rows were inserted into the SQL Server table", tableName)
     
   }
 }

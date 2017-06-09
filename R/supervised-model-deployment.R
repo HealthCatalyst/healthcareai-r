@@ -258,8 +258,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
        self$params$df[[paste0(self$params$testWindowCol, '.Y')]] <- 1
      }  
 
-     print('debugger is here')
-     print(as.factor(self$params$df$InTestWindowFLGY))
      # Now that we have dummy vars, switch label to factor so this is classif.
      if (self$params$type == 'classification') {
        # Since caret can't handle 0/1 for classif, need to convert to N/Y
