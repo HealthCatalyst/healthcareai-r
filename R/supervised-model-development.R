@@ -229,7 +229,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       # For rf/lasso, remove grain col (if specified)
       # For LMM, don't remove grain col even if specified--note personCol
       if ((nchar(self$params$grainCol) != 0) & (nchar(self$params$personCol) == 0)) {
-        private$grainColValues <- df[[self$params$grainCol]]
+        private$grainColValues <- self$params$df[[self$params$grainCol]]
         self$params$df[[self$params$grainCol]] <- NULL
       }
 

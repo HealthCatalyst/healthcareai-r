@@ -14,7 +14,7 @@ test_that("SQLite - inserts df successfully into table", {
   expect_output(writeData(df = df,
                           SQLiteFileName = sqliteFile,  
                           tableName = 'HCRWriteData'),
-               "3 rows were inserted into the SQL Server HCRWriteData table.")
+                "3 rows were inserted into the SQLite table HCRWriteData")
 })
 
 test_that("SQLite - fails to insert if df has extra d column", {
@@ -43,7 +43,7 @@ test_that("SQLite - insert df into table that didn't exist", {
   expect_output(writeData(df = df,
                           SQLiteFileName = sqliteFile,  
                           tableName = 'HCRWriteData1'),
-                "3 rows were inserted into the SQL Server HCRWriteData1 table.")
+                "3 rows were inserted into the SQLite table HCRWriteData1")
 
   DBI::dbRemoveTable(con, 'HCRWriteData1')
 })
