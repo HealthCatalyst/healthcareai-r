@@ -12,11 +12,16 @@ df <- read.csv(file = csvfile,
                header = TRUE,
                na.strings = c("NULL", "NA", ""))
 
-inTest <- df$InTestWindowFLG # save this for deploy
+dfDevelop <- df[df$InTestWindowFLG=='N',!(colnames(df)=='InTestWindowFLG')]
+dfDeployClassification <- df[df$InTestWindowFLG=='Y',!(colnames(df)=='InTestWindowFLG')]
+
+dfDeployRegression <- dfDeployClassification
+dfDeployClassification$ThirtyDayReadmitFLG <- NULL 
+dfDeployRegression$A1CNBR <- NULL
 
 set.seed(43)
 p <- SupervisedModelDevelopmentParams$new()
-p$df = df
+p$df = dfDevelop
 p$grainCol = 'PatientEncounterID'
 p$impute = TRUE
 p$debug = FALSE
@@ -30,9 +35,7 @@ p$numberOfTrees = 201
 
 test_that("LMM deploy classification pushes values to SQLite", {
 
-  df$InTestWindowFLG <- NULL
-
-  p <- initializeParamsForTesting(df)
+  p <- initializeParamsForTesting(dfDevelop)
   p$type = 'classification'
   p$personCol = 'PatientID'
   p$predictedCol = 'ThirtyDayReadmitFLG'
@@ -40,14 +43,11 @@ test_that("LMM deploy classification pushes values to SQLite", {
   LinearMixedModel <- LinearMixedModelDevelopment$new(p)
   capture.output(suppressWarnings(LinearMixedModel$run()))
   
-  df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
-  
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type <- "classification"
-  p2$df <- df
+  p2$df <- dfDeployClassification
   p2$grainCol <- "PatientEncounterID"
   p2$personCol <- "PatientID"
-  p2$testWindowCol <- "InTestWindowFLG"
   p2$predictedCol <- "ThirtyDayReadmitFLG"
   p2$impute <- TRUE
   p2$debug <- FALSE
@@ -64,24 +64,19 @@ test_that("LMM deploy classification pushes values to SQLite", {
 
 test_that("LMM deploy regression pushes values to SQLite", {
 
-  df$InTestWindowFLG <- NULL
-  
-  p <- initializeParamsForTesting(df)
+  p <- initializeParamsForTesting(dfDevelop)
   p$type = 'regression'
   p$personCol = 'PatientID'
   p$predictedCol = 'A1CNBR'
   
   LinearMixedModel <- LinearMixedModelDevelopment$new(p)
   capture.output(suppressWarnings(LinearMixedModel$run()))
-  
-  df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
             
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type = 'regression'
-  p2$df = df
+  p2$df = dfDeployRegression
   p2$grainCol = 'PatientEncounterID'
   p2$personCol <- "PatientID"
-  p2$testWindowCol = 'InTestWindowFLG'
   p2$predictedCol = 'A1CNBR'
   p2$impute = TRUE
   
@@ -98,23 +93,17 @@ test_that("LMM deploy regression pushes values to SQLite", {
 
 test_that("Lasso deploy classification pushes values to SQLite", {
   
-  df$PatientID <- NULL #<- Note this happens affects all following tests
-  df$InTestWindowFLG <- NULL
-  
-  p <- initializeParamsForTesting(df)
+  p <- initializeParamsForTesting(dfDevelop)
   p$type = 'classification'
   p$predictedCol = 'ThirtyDayReadmitFLG'
   # Run Lasso
   lasso <- LassoDevelopment$new(p)
   capture.output(lasso$run())
   
-  df$InTestWindowFLG <- inTest # put InTestWindowFLG back in
-  
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type = 'classification'
-  p2$df = df
+  p2$df = dfDeployClassification
   p2$grainCol = 'PatientEncounterID'
-  p2$testWindowCol = 'InTestWindowFLG'
   p2$predictedCol = 'ThirtyDayReadmitFLG'
   p2$impute = TRUE
   
@@ -129,9 +118,7 @@ test_that("Lasso deploy classification pushes values to SQLite", {
 
 test_that("Lasso deploy regression pushes values to SQLite", {
 
-  df$InTestWindowFLG <- NULL
-  
-  p <- initializeParamsForTesting(df)
+  p <- initializeParamsForTesting(dfDevelop)
   p$type = 'regression'
   p$predictedCol = 'A1CNBR'
   
@@ -139,13 +126,10 @@ test_that("Lasso deploy regression pushes values to SQLite", {
   lasso <- LassoDevelopment$new(p)
   capture.output(lasso$run())
   
-  df$InTestWindowFLG <- inTest # put InTestWindowFLG back in
-  
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type = 'regression'
-  p2$df = df
+  p2$df = dfDeployRegression
   p2$grainCol = 'PatientEncounterID'
-  p2$testWindowCol = 'InTestWindowFLG'
   p2$predictedCol = 'A1CNBR'
   p2$impute = TRUE
   
@@ -162,9 +146,7 @@ test_that("Lasso deploy regression pushes values to SQLite", {
 
 test_that("rf deploy classification pushes values to SQLite", {
 
-  df$InTestWindowFLG <- NULL
-  
-  p <- initializeParamsForTesting(df)
+  p <- initializeParamsForTesting(dfDevelop)
   p$type = 'classification'
   p$predictedCol = 'ThirtyDayReadmitFLG'
   
@@ -172,13 +154,10 @@ test_that("rf deploy classification pushes values to SQLite", {
   dRF <- RandomForestDevelopment$new(p)
   capture.output(dRF$run())
   
-  df$InTestWindowFLG <- inTest # put InTestWindowFLG back in
-  
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type = 'classification'
-  p2$df = df
+  p2$df = dfDeployClassification
   p2$grainCol = 'PatientEncounterID'
-  p2$testWindowCol = 'InTestWindowFLG'
   p2$predictedCol = 'ThirtyDayReadmitFLG'
   p2$impute = TRUE
   
@@ -193,9 +172,7 @@ test_that("rf deploy classification pushes values to SQLite", {
 
 test_that("rf deploy regression pushes values to SQLite", {
 
-  df$InTestWindowFLG <- NULL
-  
-  p <- initializeParamsForTesting(df)
+  p <- initializeParamsForTesting(dfDevelop)
   p$type = 'regression'
   p$predictedCol = 'A1CNBR'
 
@@ -203,13 +180,10 @@ test_that("rf deploy regression pushes values to SQLite", {
   dRF <- RandomForestDevelopment$new(p)
   capture.output(dRF$run())
   
-  df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
-  
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type = 'regression'
-  p2$df = df
+  p2$df = dfDeployRegression
   p2$grainCol = 'PatientEncounterID'
-  p2$testWindowCol = 'InTestWindowFLG'
   p2$predictedCol = 'A1CNBR'
   p2$impute = TRUE
   
