@@ -278,6 +278,11 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       # TODO replace this part with LIME.
       private$dfTrainRaw <- private$dfTrain
       private$dfTrainRaw[[self$params$predictedCol]] <- NULL
+      # remove personcol if it exists for variable importance.
+      if (nchar(self$params$personCol) != 0) {
+        private$dfTrainRaw[[self$params$personCol]] <- NULL
+      }
+
       # Get dummies
       data <- dummyVars(~., data = private$dfTrainRaw, fullRank = T)
       private$dfTrainRaw <- data.frame(predict(data, newdata = private$dfTrainRaw, na.action = na.pass))
