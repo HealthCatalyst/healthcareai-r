@@ -114,7 +114,7 @@
 #' "
 #' query <- "
 #' SELECT
-#' [PatientEncounterID] --Only need one ID column for random forest
+#' [PatientEncounterID] --Only need one ID column for lasso
 #' ,[SystolicBPNBR]
 #' ,[LDLNBR]
 #' ,[A1CNBR]
@@ -193,7 +193,7 @@
 #' "
 #' query <- "
 #' SELECT
-#' [PatientEncounterID] --Only need one ID column for random forest
+#' [PatientEncounterID] --Only need one ID column for lasso 
 #' ,[SystolicBPNBR]
 #' ,[LDLNBR]
 #' ,[A1CNBR]
@@ -510,6 +510,11 @@ LassoDeployment <- R6Class(
       # Remove row names so df can be written to DB
       # TODO: in writeData function, find how to ignore row names
       rownames(private$outDf) <- NULL
+
+      if (isTRUE(self$params$debug)) {
+        cat('Dataframe with predictions:', '\n')
+        cat(str(private$outDf), '\n')
+      }
     }
   ),
 
