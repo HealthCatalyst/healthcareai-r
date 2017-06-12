@@ -12,8 +12,6 @@
 #' @import caret
 #' @import doParallel
 #' @import xgboost
-#' @importFrom dplyr mutate
-#' @import magrittr
 #' @importFrom R6 R6Class
 #' @param type The type of model (must be multiclass)
 #' @param df Dataframe whose columns are used for new predictions
@@ -137,10 +135,9 @@
                                   reshape = TRUE)
       
       # Build prediction output
-      private$predictions <- private$temp_predictions %>% 
-        data.frame() %>%
-        mutate(predicted_label = max.col(.),
-               true_label = private$test_label + 1)
+      private$predictions <- as.data.frame(private$temp_predictions)
+      private$predictions$predicted_label = max.col(private$predictions)
+      private$predictions$true_label = private$test_label + 1
 
       # Set column names to match input targets
       colnames(private$predictions)[1:self$params$xgb_numberOfClasses] <- self$params$xgb_targetNames
