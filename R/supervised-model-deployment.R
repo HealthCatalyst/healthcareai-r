@@ -71,9 +71,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   if (!is.null(p$groupCol))
   self$params$groupCol <- p$groupCol
 
-  if (!is.null(p$testWindowCol))
-  self$params$testWindowCol <- p$testWindowCol
-
   if (!is.null(p$type) && p$type != '') {
   self$params$type <- p$type
 
@@ -94,16 +91,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   # for deploy method
   if (!is.null(p$cores))
   self$params$cores <- p$cores
-
-  if (!is.null(p$writeToDB))
-  self$params$writeToDB <- p$writeToDB
-
-  if (!is.null(p$sqlConn))
-  self$params$sqlConn <- p$sqlConn
-
-  if (!is.null(p$destSchemaTable))
-  self$params$destSchemaTable <- p$destSchemaTable
-
   },
 
   loadData = function() {

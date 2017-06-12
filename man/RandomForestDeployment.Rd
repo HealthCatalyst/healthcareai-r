@@ -242,7 +242,7 @@ RandomForest$run()
 
 ## 3. Load saved model and use DEPLOY to generate predictions. 
 df <- df[inTest=='Y' , ]
-df$ThirtyDayReadmitFLG <- NULL
+df$A1CNBR <- NULL
 p2 <- SupervisedModelDeploymentParams$new()
 p2$type <- "regression"
 p2$df <- df
