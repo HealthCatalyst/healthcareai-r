@@ -369,7 +369,7 @@ p$debug <- FALSE
 p$cores <- 1
 
 # Run Random Forest
-RandomForest<- LassoDevelopment$new(p)
+RandomForest<- RandomForestDevelopment$new(p)
 RandomForest$run()
 
 ## 3. Load saved model and use DEPLOY to generate predictions. 

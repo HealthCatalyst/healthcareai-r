@@ -32,7 +32,6 @@ addSAMUtilityCols <- function(df) {
 #' database file to query from
 #' @param randomize Boolean that dictates whether returned rows are randomized
 #' @return df A data frame containing the selected rows
-#' 
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
@@ -132,7 +131,6 @@ selectData <- function(MSSQLConnectionString = NULL,
 #' database, and whether Windows Authentication will be used. See 
 #' ?MSSQLConnectionString instead.
 #' @return Nothing
-#' 
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}

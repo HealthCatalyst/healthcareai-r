@@ -114,7 +114,7 @@
 #' "
 #' query <- "
 #' SELECT
-#' [PatientEncounterID] --Only need one ID column for random forest
+#' [PatientEncounterID] --Only need one ID column for lasso
 #' ,[SystolicBPNBR]
 #' ,[LDLNBR]
 #' ,[A1CNBR]
@@ -193,7 +193,7 @@
 #' "
 #' query <- "
 #' SELECT
-#' [PatientEncounterID] --Only need one ID column for random forest
+#' [PatientEncounterID] --Only need one ID column for lasso 
 #' ,[SystolicBPNBR]
 #' ,[LDLNBR]
 #' ,[A1CNBR]

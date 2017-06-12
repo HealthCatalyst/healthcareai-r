@@ -15,7 +15,6 @@
 #' @import lme4
 #' @import pROC
 #' @importFrom R6 R6Class
-#' @import ranger
 #' @import ROCR
 #' @param object of SuperviseModelParameters class for $new() constructor
 #' @param type The type of model (either 'regression' or 'classification')
