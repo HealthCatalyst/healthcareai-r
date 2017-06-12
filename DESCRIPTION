@@ -30,8 +30,6 @@ Imports:
     ROCR,
     RSQLite,
     xgboost,
-    magrittr,
-    dplyr,
     odbc
 RoxygenNote: 6.0.1
 Suggests:
