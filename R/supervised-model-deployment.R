@@ -176,7 +176,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       }
     }
 
-
     # Remove grain.col from df; below we split it into graintest
     if (nchar(self$params$grainCol) != 0) {
       fullGrain <- self$params$df[[self$params$grainCol]]

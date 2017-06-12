@@ -6,7 +6,7 @@
 \title{Compare predictive models, created on your data}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-XGBoost Development(object, type, df, grainCol, predictedCol, 
+XGBoostDevelopment(object, type, df, grainCol, predictedCol, 
 impute, debug)
 }
 \arguments{

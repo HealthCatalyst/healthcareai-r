@@ -13,7 +13,6 @@
 #' @import doParallel
 #' @importFrom R6 R6Class
 #' @import ranger
-#' @import RODBC
 #' @param type The type of model (either 'regression' or 'classification')
 #' @param df Dataframe whose columns are used for calc.
 #' @param grainCol The dataframe's column that has IDs pertaining to the grain
@@ -83,7 +82,6 @@
 #' p2$impute <- TRUE
 #' p2$debug <- FALSE
 #' p2$cores <- 1
-#' p2$writeToDB <- FALSE
 #'
 #' dL <- RandomForestDeployment$new(p2)
 #' dL$deploy()
@@ -163,11 +161,14 @@
 #' p2$impute <- TRUE
 #' p2$debug <- FALSE
 #' p2$cores <- 1
-#' p2$sqlConn <- connection.string
-#' p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
 #' 
 #' dL <- RandomForestDeployment$new(p2)
 #' dL$deploy()
+#' dfOut <- dL$getOutDf()
+#' 
+#' writeData(MSSQLConnectionString = connection.string,
+#'           df = dfOut,
+#'           tableName = 'HCRDeployClassificationBASE')
 #' 
 #' print(proc.time() - ptm)
 #' }
@@ -246,9 +247,145 @@
 #' 
 #' dL <- RandomForestDeployment$new(p2)
 #' dL$deploy()
+#' dfOut <- dL$getOutDf()
+#' 
+#' writeData(MSSQLConnectionString = connection.string,
+#'           df = dfOut,
+#'           tableName = 'HCRDeployRegressionBASE')
 #' 
 #' print(proc.time() - ptm)
 #' }
+#' 
+#' #' #### Classification example pulling from CSV and writing to SQLite ####
+#' 
+#' ## 1. Loading data and packages.
+#' ptm <- proc.time()
+#' library(healthcareai)
+#' 
+#' # Can delete these system.file lines in your work
+#' csvfile <- system.file("extdata", 
+#'                        "HCRDiabetesClinical.csv", 
+#'                        package = "healthcareai")
+#'                        
+#' sqliteFile <- system.file("extdata",
+#'                           "unit-test.sqlite",
+#'                           package = "healthcareai")
+#'
+#' # Read in CSV; replace csvfile with 'path/file'
+#' df <- read.csv(file = csvfile, 
+#'                header = TRUE, 
+#'                na.strings = c("NULL", "NA", ""))
+#'
+#' head(df)
+#' str(df)
+#' 
+#' ## 2. Train and save the model using DEVELOP
+#' set.seed(42)
+#' df$PatientID <- NULL # We'll instead use PatientEncounterID
+#' inTest <- df$InTestWindowFLG # save this for deploy
+#' df$InTestWindowFLG <- NULL
+#' 
+#' p <- SupervisedModelDevelopmentParams$new()
+#' p$df <- df
+#' p$type <- "classification"
+#' p$impute <- TRUE
+#' p$grainCol <- "PatientEncounterID"
+#' p$predictedCol <- "ThirtyDayReadmitFLG"
+#' p$debug <- FALSE
+#' p$cores <- 1
+#' 
+#' # Run Random Forest
+#' RandomForest <- RandomForestDevelopment$new(p)
+#' RandomForest$run()
+#' 
+#' ## 3. Load saved model and use DEPLOY to generate predictions. 
+#' df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+#' 
+#' p2 <- SupervisedModelDeploymentParams$new()
+#' p2$type <- "classification"
+#' p2$df <- df
+#' p2$grainCol <- "PatientEncounterID"
+#' p2$testWindowCol <- "InTestWindowFLG"
+#' p2$predictedCol <- "ThirtyDayReadmitFLG"
+#' p2$impute <- TRUE
+#' p2$debug <- FALSE
+#' p2$cores <- 1
+#' 
+#' dL <- RandomForestDeployment$new(p2)
+#' dL$deploy()
+#' dfOut <- dL$getOutDf()
+#' 
+#' writeData(SQLiteFileName = sqliteFile,
+#'           df = dfOut,
+#'           tableName = 'HCRDeployClassificationBASE')
+#'
+#' print(proc.time() - ptm)
+#'
+#' #### Regression example pulling from CSV and writing to SQLite ####
+#' 
+#' ## 1. Loading data and packages.
+#' ptm <- proc.time()
+#' library(healthcareai)
+#' 
+#' # Can delete these system.file lines in your work
+#' csvfile <- system.file("extdata", 
+#'                        "HCRDiabetesClinical.csv", 
+#'                        package = "healthcareai")
+#'
+#' sqliteFile <- system.file("extdata",
+#'                           "unit-test.sqlite",
+#'                           package = "healthcareai")
+#'
+#' # Read in CSV; replace csvfile with 'path/file'
+#' df <- read.csv(file = csvfile, 
+#'                header = TRUE, 
+#'                na.strings = c("NULL", "NA", ""))
+#'
+#' head(df)
+#' str(df)
+#' 
+#' ## 2. Train and save the model using DEVELOP
+#' set.seed(42)
+#' df$PatientID <- NULL # We'll instead use PatientEncounterID
+#' inTest <- df$InTestWindowFLG # save this for deploy
+#' df$InTestWindowFLG <- NULL
+#' 
+#' p <- SupervisedModelDevelopmentParams$new()
+#' p$df <- df
+#' p$type <- "regression"
+#' p$impute <- TRUE
+#' p$grainCol <- "PatientEncounterID"
+#' p$predictedCol <- "A1CNBR"
+#' p$debug <- FALSE
+#' p$cores <- 1
+#' 
+#' # Run Random Forest
+#' RandomForest<- RandomForestDevelopment$new(p)
+#' RandomForest$run()
+#' 
+#' ## 3. Load saved model and use DEPLOY to generate predictions. 
+#' df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+#' 
+#' p2 <- SupervisedModelDeploymentParams$new()
+#' p2$type <- "regression"
+#' p2$df <- df
+#' p2$grainCol <- "PatientEncounterID"
+#' p2$testWindowCol <- "InTestWindowFLG"
+#' p2$predictedCol <- "A1CNBR"
+#' p2$impute <- TRUE
+#' p2$debug <- FALSE
+#' p2$cores <- 1
+#' 
+#' dL <- RandomForestDeployment$new(p2)
+#' dL$deploy()
+#' dfOut <- dL$getOutDf()
+#' 
+#' writeData(SQLiteFileName = sqliteFile,
+#'           df = dfOut,
+#'           tableName = 'HCRDeployRegressionBASE')
+#' 
+#' print(proc.time() - ptm)
+
 
 RandomForestDeployment <- R6Class("RandomForestDeployment",
   #Inheritance
@@ -269,16 +406,6 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     predictions = NA,
 
     # functions
-    connectDataSource = function() {
-      RODBC::odbcCloseAll()
-      # Convert the connection string into a real connection object.
-      self$params$sqlConn <- RODBC::odbcDriverConnect(self$params$sqlConn)
-    },
-
-    closeDataSource = function() {
-      RODBC::odbcCloseAll()
-    },
-
     # Perform prediction
     performPrediction = function() {
       if (self$params$type == 'classification') {
@@ -370,32 +497,14 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         "Factor2TXT",
         "Factor3TXT"
       )
+      
+      # Remove row names so df can be written to DB
+      # TODO: in writeData function, find how to ignore row names
+      rownames(private$outDf) <- NULL
 
       if (isTRUE(self$params$debug)) {
         cat('Dataframe with predictions:', '\n')
         cat(str(private$outDf), '\n')
-      }
-    },
-      
-    saveDataIntoDb = function() {
-      if (isTRUE(self$params$writeToDB)) {
-        # Save df to table in SAM database
-        out <- RODBC::sqlSave(
-          channel = self$params$sqlConn,
-          dat = private$outDf,
-          tablename = self$params$destSchemaTable,
-          append = T,
-          rownames = F,
-          colnames = F,
-          safer = T,
-          nastring = NULL,
-          verbose = self$params$debug
-        )
-  
-        # Print success if insert was successful
-        if (out == 1) {
-          cat('SQL Server insert was successful') # removed '\n' for the unit test
-        }
       }
     }
   ),
@@ -418,12 +527,6 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
     #Override: deploy the model
     deploy = function() {
-      
-      
-      if (isTRUE(self$params$writeToDB)) {
-        # Connect to sql via odbc driver
-        private$connectDataSource()
-      }
 
       # Try to load the model
       tryCatch({
@@ -452,15 +555,6 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
       # create dataframe for output
       private$createDf()
-
-      if (isTRUE(self$params$writeToDB)) {
-        # Save data into db
-        private$saveDataIntoDb()
-      }
-      
-      if (isTRUE(self$params$writeToDB)) {
-        private$closeDataSource()
-      }
     },
     
     # Surface outDf as attribute for export to Oracle, MySQL, etc

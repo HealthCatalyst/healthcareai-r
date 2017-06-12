@@ -1,6 +1,6 @@
 context("Checking deploy predictions from sql server to sql server")
 
-  connection.string <- "
+  connectionString <- "
   driver={SQL Server};
   server=localhost;
   database=SAM;
@@ -19,7 +19,7 @@ context("Checking deploy predictions from sql server to sql server")
   ,[InTestWindowFLG]
   FROM [SAM].[dbo].[HCRDiabetesClinical]
   "
-  df <- selectData(connection.string, query)
+  df <- selectData(connectionString, query)
   
   inTest <- df$InTestWindowFLG # save this for deploy
   
@@ -62,12 +62,14 @@ context("Checking deploy predictions from sql server to sql server")
   p2$impute <- TRUE
   p2$debug <- FALSE
   p2$cores <- 1
-  p2$sqlConn <- connection.string
-  p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
   
   capture.output(dLMM <- LinearMixedModelDeployment$new(p2))
   out <- capture.output(suppressWarnings(dLMM$deploy()))
-  expect_equal(out, "SQL Server insert was successful")
+  capture.output(dfOut <- dLMM$getOutDf())
+  expect_output(writeData(MSSQLConnectionString = connectionString,
+                          df = dfOut,
+                          tableName = 'HCRDeployClassificationBASE'),
+                "13 rows were inserted into the SQL Server table HCRDeployClassificationBASE")
   closeAllConnections()
 })
 
@@ -96,12 +98,14 @@ test_that("LMM deploy regression pushes values to SQL", {
   p2$testWindowCol = 'InTestWindowFLG'
   p2$predictedCol = 'A1CNBR'
   p2$impute = TRUE
-  p2$sqlConn <- connection.string
-  p2$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
   
   capture.output(dLMM <- LinearMixedModelDeployment$new(p2))
   out <- capture.output(suppressWarnings(dLMM$deploy()))
-  expect_equal(out, "SQL Server insert was successful")
+  capture.output(dfOut <- dLMM$getOutDf())
+  expect_output(writeData(MSSQLConnectionString = connectionString,
+                          df = dfOut,
+                          tableName = 'HCRDeployRegressionBASE'),
+                "13 rows were inserted into the SQL Server table HCRDeployRegressionBASE")
   closeAllConnections()
 }) 
 
@@ -129,8 +133,6 @@ test_that("Lasso deploy classification pushes values to SQL Server", {
   p2$testWindowCol = 'InTestWindowFLG'
   p2$predictedCol = 'ThirtyDayReadmitFLG'
   p2$impute = TRUE
-  p2$sqlConn <- connection.string
-  p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
   
   capture.output(dL <- LassoDeployment$new(p2))
   capture.output(dL$deploy())
@@ -138,7 +140,7 @@ test_that("Lasso deploy classification pushes values to SQL Server", {
   expect_output(writeData(MSSQLConnectionString = connectionString,
                           df = dfOut,
                           tableName = 'HCRDeployClassificationBASE'),
-                "13 rows were inserted into the SQL Server")
+                "13 rows were inserted into the SQL Server table HCRDeployClassificationBASE")
 })
 
 test_that("Lasso deploy regression pushes values to SQL Server", {
@@ -165,8 +167,6 @@ test_that("Lasso deploy regression pushes values to SQL Server", {
   p2$testWindowCol = 'InTestWindowFLG'
   p2$predictedCol = 'A1CNBR'
   p2$impute = TRUE
-  p2$sqlConn <- connection.string
-  p2$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
   
   capture.output(dL <- LassoDeployment$new(p2))
   out <- capture.output(dL$deploy())
@@ -174,7 +174,7 @@ test_that("Lasso deploy regression pushes values to SQL Server", {
   expect_output(writeData(MSSQLConnectionString = connectionString,
                           df = dfOut,
                           tableName = 'HCRDeployRegressionBASE'),
-                "13 rows were inserted into the SQL Server")
+                "13 rows were inserted into the SQL Server table HCRDeployRegressionBASE")
 })
 
 test_that("rf deploy classification pushes values to SQL Server", {
@@ -201,12 +201,14 @@ test_that("rf deploy classification pushes values to SQL Server", {
   p2$testWindowCol = 'InTestWindowFLG'
   p2$predictedCol = 'ThirtyDayReadmitFLG'
   p2$impute = TRUE
-  p2$sqlConn <- connection.string
-  p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
   
   capture.output(dRF <- RandomForestDeployment$new(p2))
   out <- capture.output(dRF$deploy())
-  expect_equal(out, "SQL Server insert was successful")
+  capture.output(dfOut <- dRF$getOutDf())
+  expect_output(writeData(MSSQLConnectionString = connectionString,
+                          df = dfOut,
+                          tableName = 'HCRDeployClassificationBASE'),
+                "13 rows were inserted into the SQL Server table HCRDeployClassificationBASE")
   closeAllConnections()
 })
 
@@ -234,11 +236,13 @@ test_that("rf deploy regression pushes values to SQL Server", {
   p2$testWindowCol = 'InTestWindowFLG'
   p2$predictedCol = 'A1CNBR'
   p2$impute = TRUE
-  p2$sqlConn <- connection.string
-  p2$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
   
   capture.output(dRF <- RandomForestDeployment$new(p2))
   out <- capture.output(dRF$deploy())
-  expect_equal(out, "SQL Server insert was successful")
+  capture.output(dfOut <- dRF$getOutDf())
+  expect_output(writeData(MSSQLConnectionString = connectionString,
+                          df = dfOut,
+                          tableName = 'HCRDeployRegressionBASE'),
+                "13 rows were inserted into the SQL Server table HCRDeployRegressionBASE")
   closeAllConnections()
 })

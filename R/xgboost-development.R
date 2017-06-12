@@ -3,7 +3,7 @@
 #' @description This step allows you to create an XGBoost model, based on
 #' your data.
 #' @docType class
-#' @usage XGBoost Development(object, type, df, grainCol, predictedCol, 
+#' @usage XGBoostDevelopment(object, type, df, grainCol, predictedCol, 
 #' impute, debug)
 #' @import caret
 #' @import doParallel
