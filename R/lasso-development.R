@@ -74,7 +74,6 @@
 #' head(df)
 #'
 #' df$PatientID <- NULL
-#' df$InTestWindowFLG <- NULL
 #'
 #' set.seed(42)
 #' p <- SupervisedModelDevelopmentParams$new()
@@ -120,7 +119,6 @@
 #' ,[GenderFLG]
 #' ,[ThirtyDayReadmitFLG]
 #' FROM [SAM].[dbo].[HCRDiabetesClinical]
-#' WHERE InTestWindowFLG = 'N'
 #' "
 #' df <- selectData(connection.string, query)
 #' head(df)

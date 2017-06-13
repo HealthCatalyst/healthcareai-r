@@ -16,21 +16,15 @@ context("Checking deploy predictions from sql server to sql server")
   ,[A1CNBR]
   ,[GenderFLG]
   ,[ThirtyDayReadmitFLG]
-  ,[InTestWindowFLG]
   FROM [SAM].[dbo].[HCRDiabetesClinical]
   "
   df <- selectData(connectionString, query)
   
-  dfDevelop <- df[df$InTestWindowFLG=='N',!(colnames(df)=='InTestWindowFLG')]
-  dfDeployClassification <- df[df$InTestWindowFLG=='Y',!(colnames(df)=='InTestWindowFLG')]
-
-  dfDeployRegression <- dfDeployClassification
-  dfDeployClassification$ThirtyDayReadmitFLG <- NULL 
-  dfDeployRegression$A1CNBR <- NULL
+  dfDeploy <- df[951:1000,]
   
   set.seed(43)
   p <- SupervisedModelDevelopmentParams$new()
-  p$df = dfDevelop
+  p$df = df
   p$grainCol = 'PatientEncounterID'
   p$impute = TRUE
   p$debug = FALSE
@@ -45,7 +39,7 @@ context("Checking deploy predictions from sql server to sql server")
   skip_on_travis()
   skip_on_cran()
 
-  p <- initializeParamsForTesting(dfDevelop)
+  p <- initializeParamsForTesting(df)
   p$type = 'classification'
   p$personCol = 'PatientID'
   p$predictedCol = 'ThirtyDayReadmitFLG'
@@ -55,7 +49,7 @@ context("Checking deploy predictions from sql server to sql server")
   
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type <- "classification"
-  p2$df <- dfDeployClassification
+  p2$df <- dfDeploy
   p2$grainCol <- "PatientEncounterID"
   p2$personCol <- "PatientID"
   p2$predictedCol <- "ThirtyDayReadmitFLG"
@@ -78,7 +72,7 @@ test_that("LMM deploy regression pushes values to SQL", {
   skip_on_travis()
   skip_on_cran()
   
-  p <- initializeParamsForTesting(dfDevelop)
+  p <- initializeParamsForTesting(df)
   p$type = 'regression'
   p$personCol = 'PatientID'
   p$predictedCol = 'A1CNBR'
@@ -88,7 +82,7 @@ test_that("LMM deploy regression pushes values to SQL", {
             
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type = 'regression'
-  p2$df = dfDeployRegression
+  p2$df = dfDeploy
   p2$grainCol = 'PatientEncounterID'
   p2$personCol <- "PatientID"
   p2$predictedCol = 'A1CNBR'
@@ -111,7 +105,7 @@ test_that("Lasso deploy classification pushes values to SQL Server", {
 
   df$PatientID <- NULL #<- Note this happens affects all following tests
   
-  p <- initializeParamsForTesting(dfDevelop)
+  p <- initializeParamsForTesting(df)
   p$type = 'classification'
   p$predictedCol = 'ThirtyDayReadmitFLG'
   # Run Lasso
@@ -120,7 +114,7 @@ test_that("Lasso deploy classification pushes values to SQL Server", {
   
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type = 'classification'
-  p2$df = dfDeployClassification
+  p2$df = dfDeploy
   p2$grainCol = 'PatientEncounterID'
   p2$predictedCol = 'ThirtyDayReadmitFLG'
   p2$impute = TRUE
@@ -139,7 +133,7 @@ test_that("Lasso deploy regression pushes values to SQL Server", {
   skip_on_travis()
   skip_on_cran()
   
-  p <- initializeParamsForTesting(dfDevelop)
+  p <- initializeParamsForTesting(df)
   p$type = 'regression'
   p$predictedCol = 'A1CNBR'
 
@@ -149,7 +143,7 @@ test_that("Lasso deploy regression pushes values to SQL Server", {
   
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type = 'regression'
-  p2$df = dfDeployRegression
+  p2$df = dfDeploy
   p2$grainCol = 'PatientEncounterID'
   p2$predictedCol = 'A1CNBR'
   p2$impute = TRUE
@@ -168,7 +162,7 @@ test_that("rf deploy classification pushes values to SQL Server", {
   skip_on_travis()
   skip_on_cran()
   
-  p <- initializeParamsForTesting(dfDevelop)
+  p <- initializeParamsForTesting(df)
   p$type = 'classification'
   p$predictedCol = 'ThirtyDayReadmitFLG'
   
@@ -178,7 +172,7 @@ test_that("rf deploy classification pushes values to SQL Server", {
   
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type = 'classification'
-  p2$df = dfDeployClassification
+  p2$df = dfDeploy
   p2$grainCol = 'PatientEncounterID'
   p2$predictedCol = 'ThirtyDayReadmitFLG'
   p2$impute = TRUE
@@ -198,7 +192,7 @@ test_that("rf deploy regression pushes values to SQL Server", {
   skip_on_travis()
   skip_on_cran()
   
-  p <- initializeParamsForTesting(dfDevelop)
+  p <- initializeParamsForTesting(df)
   p$type = 'regression'
   p$predictedCol = 'A1CNBR'
 
@@ -208,7 +202,7 @@ test_that("rf deploy regression pushes values to SQL Server", {
   
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type = 'regression'
-  p2$df = dfDeployRegression
+  p2$df = dfDeploy
   p2$grainCol = 'PatientEncounterID'
   p2$predictedCol = 'A1CNBR'
   p2$impute = TRUE

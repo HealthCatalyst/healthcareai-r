@@ -8,12 +8,7 @@ context("Checking deploy supervised model prediction values to DF")
                  header = TRUE,
                  na.strings =  c('NULL', 'NA', ""))
 
-  dfDevelop <- df[df$InTestWindowFLG=='N',!(colnames(df)=='InTestWindowFLG')]
-  dfDeployClassification <- df[df$InTestWindowFLG=='Y',!(colnames(df)=='InTestWindowFLG')]
-
-  dfDeployRegression <- dfDeployClassification
-  dfDeployClassification$ThirtyDayReadmitFLG <- NULL 
-  dfDeployRegression$A1CNBR <- NULL
+  dfDeploy <- df[951:1000,]
 
   #### BEGIN TESTS ####
 
@@ -21,7 +16,7 @@ test_that("mixed model predicted val is the same each time", {
   
   # Create LMM model
   set.seed(43)
-  p <- initializeParamsForTesting(dfDevelop)
+  p <- initializeParamsForTesting(df)
   p$type = 'classification'
   p$personCol = 'PatientID'
   p$predictedCol = 'ThirtyDayReadmitFLG'
@@ -33,7 +28,7 @@ test_that("mixed model predicted val is the same each time", {
 
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type <- "classification"
-  p2$df <- dfDeployClassification
+  p2$df <- dfDeploy
   p2$grainCol <- "PatientEncounterID"
   p2$personCol <- "PatientID"
   p2$predictedCol <- "ThirtyDayReadmitFLG"
@@ -56,7 +51,7 @@ test_that("rf predicted val (w/out mtry tuning) is the same each time", {
   
   # Create rf model
   set.seed(43)
-  p <- initializeParamsForTesting(dfDevelop)
+  p <- initializeParamsForTesting(df)
   p$type = 'classification'
   p$predictedCol = 'ThirtyDayReadmitFLG'
   
@@ -67,7 +62,7 @@ test_that("rf predicted val (w/out mtry tuning) is the same each time", {
 
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type <- "classification"
-  p2$df <- dfDeployClassification
+  p2$df <- dfDeploy
   p2$grainCol <- "PatientEncounterID"
   p2$predictedCol <- "ThirtyDayReadmitFLG"
   p2$impute <- TRUE
@@ -87,7 +82,7 @@ test_that("rf predicted val (w/ mtry tuning) is the same each time", {
   
   # Create rf model
   set.seed(43)
-  p <- initializeParamsForTesting(dfDevelop)
+  p <- initializeParamsForTesting(df)
   p$type = 'classification'
   p$predictedCol = 'ThirtyDayReadmitFLG'
   p$tune <- TRUE
@@ -99,7 +94,7 @@ test_that("rf predicted val (w/ mtry tuning) is the same each time", {
   
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type <- "classification"
-  p2$df <- dfDeployClassification
+  p2$df <- dfDeploy
   p2$grainCol <- "PatientEncounterID"
   p2$predictedCol <- "ThirtyDayReadmitFLG"
   p2$impute <- TRUE
@@ -119,7 +114,7 @@ test_that("lasso predicted val is the same each time", {
   
   # Create lasso model
   set.seed(43)
-  p <- initializeParamsForTesting(dfDevelop)
+  p <- initializeParamsForTesting(df)
   p$type = 'classification'
   p$predictedCol = 'ThirtyDayReadmitFLG'
   
@@ -130,7 +125,7 @@ test_that("lasso predicted val is the same each time", {
   
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type <- "classification"
-  p2$df <- dfDeployClassification
+  p2$df <- dfDeploy
   p2$grainCol <- "PatientEncounterID"
   p2$predictedCol <- "ThirtyDayReadmitFLG"
   p2$impute <- TRUE

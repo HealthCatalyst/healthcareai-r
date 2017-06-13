@@ -98,7 +98,6 @@
 #'
 #' head(df)
 #'
-#' df$InTestWindowFLG <- NULL
 #'
 #' set.seed(42)
 #'
@@ -147,7 +146,6 @@
 #' ,[A1CNBR]
 #' ,[GenderFLG]
 #' ,[ThirtyDayReadmitFLG]
-#' ,[InTestWindowFLG]
 #' FROM [SAM].[dbo].[HCRDiabetesClinical]
 #' --no WHERE clause, because we want train AND test
 #' "
@@ -155,7 +153,6 @@
 #' df <- selectData(connection.string, query)
 #' head(df)
 #'
-#' df$InTestWindowFLG <- NULL
 #'
 #' set.seed(42)
 #'

@@ -9,12 +9,7 @@ context("Checking deploy predictions from csv to df")
                  header = TRUE,
                  na.strings =  c('NULL', 'NA', ""))
 
-  dfDevelop <- df[df$InTestWindowFLG=='N',!(colnames(df)=='InTestWindowFLG')]
-  dfDeployClassification <- df[df$InTestWindowFLG=='Y',!(colnames(df)=='InTestWindowFLG')]
-
-  dfDeployRegression <- dfDeployClassification
-  dfDeployClassification$ThirtyDayReadmitFLG <- NULL 
-  dfDeployRegression$A1CNBR <- NULL
+  dfDeploy <- df[951:1000,]
 
   #### BEGIN TESTS ####
 
@@ -22,7 +17,7 @@ test_that("LMM predicted df doesn't have NAs", {
   
   # Create LMM model
   set.seed(43)
-  p <- initializeParamsForTesting(dfDevelop)
+  p <- initializeParamsForTesting(df)
   p$type = 'classification'
   p$personCol = 'PatientID'
   p$predictedCol = 'ThirtyDayReadmitFLG'
@@ -33,7 +28,7 @@ test_that("LMM predicted df doesn't have NAs", {
   # Deploy lmm model
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type <- "classification"
-  p2$df <- dfDeployClassification
+  p2$df <- dfDeploy
   p2$grainCol <- "PatientEncounterID"
   p2$personCol <- "PatientID"
   p2$predictedCol <- "ThirtyDayReadmitFLG"
@@ -54,7 +49,7 @@ test_that("Lasso predicted df doesn't have NAs", {
   
   # Create lasso model
   set.seed(43)
-  p <- initializeParamsForTesting(dfDevelop)
+  p <- initializeParamsForTesting(df)
   p$type = 'classification'
   p$predictedCol = 'ThirtyDayReadmitFLG'
   
@@ -64,7 +59,7 @@ test_that("Lasso predicted df doesn't have NAs", {
   # Deploy lasso model
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type <- "classification"
-  p2$df <- dfDeployClassification
+  p2$df <- dfDeploy
   p2$grainCol <- "PatientEncounterID"
   p2$predictedCol <- "ThirtyDayReadmitFLG"
   p2$impute <- TRUE
@@ -83,7 +78,7 @@ test_that("rf predicted df doesn't have NAs", {
   
   # Create rf model
   set.seed(43)
-  p <- initializeParamsForTesting(dfDevelop)
+  p <- initializeParamsForTesting(df)
   p$type = 'classification'
   p$predictedCol = 'ThirtyDayReadmitFLG'
   
@@ -93,7 +88,7 @@ test_that("rf predicted df doesn't have NAs", {
   # Deploy rf model
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type <- "classification"
-  p2$df <- dfDeployClassification
+  p2$df <- dfDeploy
   p2$grainCol <- "PatientEncounterID"
   p2$predictedCol <- "ThirtyDayReadmitFLG"
   p2$impute <- TRUE
