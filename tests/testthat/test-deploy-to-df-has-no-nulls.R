@@ -46,6 +46,7 @@ test_that("LMM predicted df doesn't have NAs", {
 test_that("Lasso predicted df doesn't have NAs", {
 
   df$PatientID <- NULL
+  dfDeploy <- df[951:1000,]
   
   # Create lasso model
   set.seed(43)

@@ -83,7 +83,6 @@ df <- read.csv(file = csvfile,
 head(df)
 
 df$PatientID <- NULL
-df$InTestWindowFLG <- NULL
 
 set.seed(42)
 
@@ -128,15 +127,11 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
-WHERE InTestWindowFLG = 'N'
 "
 
 df <- selectData(connection.string, query)
 head(df)
-
-df$InTestWindowFLG <- NULL
 
 set.seed(42)
 

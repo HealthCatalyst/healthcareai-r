@@ -58,17 +58,16 @@ df <- read.csv(file = csvfile,
 
 df$PatientID <- NULL # remove this column
 
-# Partition develop and deploy data
-dfDevelop <- df[df$InTestWindowFLG=='N',!(colnames(df)=='InTestWindowFLG')]
-dfDeploy <- df[df$InTestWindowFLG=='Y',!(colnames(df)=='InTestWindowFLG')]
+
+dfDeploy <- df[951:1000,]
 
 ## 2. Train and save the model using DEVELOP
 print('Historical, development data:')
-str(dfDevelop)
+str(df)
 
 set.seed(42)
 p <- SupervisedModelDevelopmentParams$new()
-p$df <- dfDevelop
+p$df <- df
 p$type <- "classification"
 p$impute <- TRUE
 p$grainCol <- "PatientEncounterID"
@@ -77,9 +76,10 @@ p$debug <- FALSE
 p$cores <- 1
 
 # Run Lasso
+Lasso<- LassoDevelopment$new(p)
+Lasso$run()
 
 ## 3. Load saved model and use DEPLOY to generate predictions. 
-dfDeploy$ThirtyDayReadmitFLG <- NULL # You won't know the response in production
 print('Fake production data:')
 str(dfDeploy)
 
@@ -132,23 +132,21 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
 "
 
 df <- selectData(connection.string, query)
 
-# Partition develop and deploy data
-dfDevelop <- df[df$InTestWindowFLG=='N',!(colnames(df)=='InTestWindowFLG')]
-dfDeploy <- df[df$InTestWindowFLG=='Y',!(colnames(df)=='InTestWindowFLG')]
+
+dfDeploy <- df[951:1000,]
 
 ## 2. Train and save the model using DEVELOP
 print('Historical, development data:')
-str(dfDevelop)
+str(df)
 
 set.seed(42)
 p <- SupervisedModelDevelopmentParams$new()
-p$df <- dfDevelop
+p$df <- df
 p$type <- "classification"
 p$impute <- TRUE
 p$grainCol <- "PatientEncounterID"
@@ -157,9 +155,10 @@ p$debug <- FALSE
 p$cores <- 1
 
 # Run Lasso
+Lasso<- LassoDevelopment$new(p)
+Lasso$run()
 
 ## 3. Load saved model and use DEPLOY to generate predictions. 
-dfDeploy$ThirtyDayReadmitFLG <- NULL # You won't know the response in production
 print('Fake production data:')
 str(dfDeploy)
 
@@ -213,23 +212,20 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
 "
 
 df <- selectData(connection.string, query)
 
-# Partition develop and deploy data
-dfDevelop <- df[df$InTestWindowFLG=='N',!(colnames(df)=='InTestWindowFLG')]
-dfDeploy <- df[df$InTestWindowFLG=='Y',!(colnames(df)=='InTestWindowFLG')]
+dfDeploy <- df[951:1000,]
 
 ## 2. Train and save the model using DEVELOP
 print('Historical, development data:')
-str(dfDevelop)
+str(df)
 
 set.seed(42)
 p <- SupervisedModelDevelopmentParams$new()
-p$df <- dfDevelop
+p$df <- df
 p$type <- "regression"
 p$impute <- TRUE
 p$grainCol <- "PatientEncounterID"
@@ -238,9 +234,10 @@ p$debug <- FALSE
 p$cores <- 1
 
 # Run lasso
+Lasso<- LassoDevelopment$new(p)
+Lasso$run()
 
 ## 3. Load saved model and use DEPLOY to generate predictions. 
-dfDeploy$A1CNBR <- NULL # You won't know the response in production
 print('Fake production data:')
 str(dfDeploy)
 
@@ -286,17 +283,16 @@ df <- read.csv(file = csvfile,
 
 df$PatientID <- NULL # remove this column
 
-# Partition develop and deploy data
-dfDevelop <- df[df$InTestWindowFLG=='N',!(colnames(df)=='InTestWindowFLG')]
-dfDeploy <- df[df$InTestWindowFLG=='Y',!(colnames(df)=='InTestWindowFLG')]
+
+dfDeploy <- df[951:1000,]
 
 ## 2. Train and save the model using DEVELOP
 print('Historical, development data:')
-str(dfDevelop)
+str(df)
 
 set.seed(42)
 p <- SupervisedModelDevelopmentParams$new()
-p$df <- dfDevelop
+p$df <- df
 p$type <- "classification"
 p$impute <- TRUE
 p$grainCol <- "PatientEncounterID"
@@ -305,9 +301,10 @@ p$debug <- FALSE
 p$cores <- 1
 
 # Run lasso
+Lasso <- LassoDevelopment$new(p)
+Lasso$run()
 
 ## 3. Load saved model and use DEPLOY to generate predictions. 
-dfDeploy$ThirtyDayReadmitFLG <- NULL # You won't know the response in production
 print('Fake production data:')
 str(dfDeploy)
 
@@ -352,17 +349,16 @@ df <- read.csv(file = csvfile,
 
 df$PatientID <- NULL # remove this column
 
-# Partition develop and deploy data
-dfDevelop <- df[df$InTestWindowFLG=='N',!(colnames(df)=='InTestWindowFLG')]
-dfDeploy <- df[df$InTestWindowFLG=='Y',!(colnames(df)=='InTestWindowFLG')]
+
+dfDeploy <- df[951:1000,]
 
 ## 2. Train and save the model using DEVELOP
 print('Historical, development data:')
-str(dfDevelop)
+str(df)
 
 set.seed(42)
 p <- SupervisedModelDevelopmentParams$new()
-p$df <- dfDevelop
+p$df <- df
 p$type <- "regression"
 p$impute <- TRUE
 p$grainCol <- "PatientEncounterID"
@@ -371,9 +367,10 @@ p$debug <- FALSE
 p$cores <- 1
 
 # Run lasso
+Lasso<- LassoDevelopment$new(p)
+Lasso$run()
 
 ## 3. Load saved model and use DEPLOY to generate predictions. 
-dfDeploy$A1CNBR <- NULL # You won't know the response in production
 print('Fake production data:')
 str(dfDeploy)
 

@@ -14,6 +14,7 @@ initializeParamsForTesting <- function(df) {
   p <- SupervisedModelDevelopmentParams$new()
   p$df = df
   p$grainCol = 'PatientEncounterID'
+  p$personCol = NULL
   p$impute = TRUE
   p$debug = FALSE
   p$cores = 1

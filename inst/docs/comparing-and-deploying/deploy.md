@@ -74,7 +74,6 @@ trusted_connection=true
 query = "
 SELECT
 [OrganizationLevel]
-,[InTestWindowFLG]
 ,[MaritalStatus]
 ,[Gender]
 ,IIF([SalariedFlag]=0,'N','Y') AS SalariedFlag
@@ -173,7 +172,6 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
 "
 

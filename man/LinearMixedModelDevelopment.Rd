@@ -105,7 +105,6 @@ df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 
 head(df)
 
-df$InTestWindowFLG <- NULL
 
 set.seed(42)
 
@@ -154,7 +153,6 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
 --no WHERE clause, because we want train AND test
 "
@@ -162,7 +160,6 @@ FROM [SAM].[dbo].[HCRDiabetesClinical]
 df <- selectData(connection.string, query)
 head(df)
 
-df$InTestWindowFLG <- NULL
 
 set.seed(42)
 

@@ -131,7 +131,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       'Consider combining into new col with fewer categories.')
     }
 
-    # Remove columns with zero variance
+    # Remove columns with zero variance.
     self$params$df <- removeColsWithAllSameValue(self$params$df)
 
     if (isTRUE(self$params$debug)) {
@@ -178,10 +178,8 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     }
 
     # Remove predicted column if it exists
-    if (nchar(self$params$predictedCol) != 0) {
+    if ((nchar(self$params$predictedCol) != 0) & (self$params$type != 'multiclass')) {
       self$params$df[[self$params$predictedCol]] <- NULL
-      } else {
-      stop('You must specify the predicted column when using DeploySupervisedModel')
     }
 
     if (isTRUE(self$params$debug)) {
@@ -203,7 +201,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       private$grainTest <- fullGrain
 
       if (isTRUE(self$params$debug)) {
-        print('Final prepared test set with grain column')
+        print('Final prepared test set. Grain column shown for debugging.')
         temp <- cbind(private$grainTest[1:10], self$params$df[1:10,])
         colnames(temp)[1] <- self$params$grainCol
         print(temp)

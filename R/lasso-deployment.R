@@ -66,8 +66,8 @@
 #' p$cores <- 1
 #' 
 #' # Run Lasso
-#- Lasso <- LassoDevelopment$new(p)
-#- Lasso$run()
+#' Lasso<- LassoDevelopment$new(p)
+#' Lasso$run()
 #' 
 #' ## 3. Load saved model and use DEPLOY to generate predictions. 
 #' print('Fake production data:')
@@ -145,8 +145,8 @@
 #' p$cores <- 1
 #' 
 #' # Run Lasso
-#- Lasso <- LassoDevelopment$new(p)
-#- Lasso$run()
+#' Lasso<- LassoDevelopment$new(p)
+#' Lasso$run()
 #' 
 #' ## 3. Load saved model and use DEPLOY to generate predictions. 
 #' print('Fake production data:')
@@ -207,7 +207,6 @@
 #' 
 #' df <- selectData(connection.string, query)
 #' 
-#' 
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -225,11 +224,10 @@
 #' p$cores <- 1
 #' 
 #' # Run lasso
-#- Lasso <- LassoDevelopment$new(p)
-#- Lasso$run()
+#' Lasso<- LassoDevelopment$new(p)
+#' Lasso$run()
 #' 
 #' ## 3. Load saved model and use DEPLOY to generate predictions. 
-#' dfDeploy$A1CNBR <- NULL # You won't know the response in production
 #' print('Fake production data:')
 #' str(dfDeploy)
 #' 
@@ -293,8 +291,8 @@
 #' p$cores <- 1
 #' 
 #' # Run lasso
-#- Lasso <- LassoDevelopment$new(p)
-#- Lasso$run()
+#' Lasso <- LassoDevelopment$new(p)
+#' Lasso$run()
 #' 
 #' ## 3. Load saved model and use DEPLOY to generate predictions. 
 #' print('Fake production data:')
@@ -359,11 +357,10 @@
 #' p$cores <- 1
 #' 
 #' # Run lasso
-#- Lasso<- LassoDevelopment$new(p)
-#- Lasso$run()
+#' Lasso<- LassoDevelopment$new(p)
+#' Lasso$run()
 #' 
 #' ## 3. Load saved model and use DEPLOY to generate predictions. 
-#' dfDeploy$A1CNBR <- NULL # You won't know the response in production
 #' print('Fake production data:')
 #' str(dfDeploy)
 #' 

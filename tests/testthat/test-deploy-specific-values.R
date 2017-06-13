@@ -40,14 +40,15 @@ test_that("mixed model predicted val is the same each time", {
   capture.output(suppressWarnings(dLMM$deploy()))
   capture.output(dfRes <- dLMM$getOutDf())
   
-  expect_true(abs(dfRes$PredictedProbNBR[8] - 0.9325223) < 1.0e-6)
-  expect_true(abs(dfRes$PredictedProbNBR[10] - 0.0004983283) < 1.0e-6)
+  expect_true(abs(dfRes$PredictedProbNBR[1] - 0.3353753) < 1.0e-6)
+  expect_true(abs(dfRes$PredictedProbNBR[10] - 0.9881623) < 1.0e-6)
   closeAllConnections()
 })
 
 test_that("rf predicted val (w/out mtry tuning) is the same each time", {
 
   df$PatientID <- NULL # affects all future tests
+  dfDeploy <- df[951:1000,]
   
   # Create rf model
   set.seed(43)
@@ -73,8 +74,8 @@ test_that("rf predicted val (w/out mtry tuning) is the same each time", {
   capture.output(dRF$deploy())
   capture.output(dfRes <- dRF$getOutDf())
   
-  expect_true(abs(dfRes$PredictedProbNBR[8] - 0.2971669) < 1.0e-6)
-  expect_true(abs(dfRes$PredictedProbNBR[10] - 0.05145305) < 1.0e-6)
+  expect_true(abs(dfRes$PredictedProbNBR[1] - 0.07578181) < 1.0e-6)
+  expect_true(abs(dfRes$PredictedProbNBR[10] - 0.9397174) < 1.0e-6)
   closeAllConnections()
 })
 
@@ -105,8 +106,8 @@ test_that("rf predicted val (w/ mtry tuning) is the same each time", {
   capture.output(dRF$deploy())
   capture.output(dfRes <- dRF$getOutDf())
   
-  expect_true(abs(dfRes$PredictedProbNBR[8] - 0.4012181) < 1.0e-6)
-  expect_true(abs(dfRes$PredictedProbNBR[10] - 0.02812525) < 1.0e-6)
+  expect_true(abs(dfRes$PredictedProbNBR[1] - 0.1725776) < 1.0e-6)
+  expect_true(abs(dfRes$PredictedProbNBR[10] - 0.9993781) < 1.0e-6)
   closeAllConnections()
 })
 
@@ -136,7 +137,7 @@ test_that("lasso predicted val is the same each time", {
   capture.output(dL$deploy())
   capture.output(dfRes <- dL$getOutDf())
   
-  expect_true(abs(dfRes$PredictedProbNBR[8] - 0.1535638) < 1.0e-6)
-  expect_true(abs(dfRes$PredictedProbNBR[10] - 0.1281593) < 1.0e-6)
+  expect_true(abs(dfRes$PredictedProbNBR[1] - 0.1566765) < 1.0e-6)
+  expect_true(abs(dfRes$PredictedProbNBR[10] - 0.2221281) < 1.0e-6)
   closeAllConnections()
 })

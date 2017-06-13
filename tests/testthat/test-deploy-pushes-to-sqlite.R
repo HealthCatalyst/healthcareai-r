@@ -12,16 +12,12 @@ df <- read.csv(file = csvfile,
                header = TRUE,
                na.strings = c("NULL", "NA", ""))
 
-dfDevelop <- df[df$InTestWindowFLG=='N',!(colnames(df)=='InTestWindowFLG')]
-dfDeployClassification <- df[df$InTestWindowFLG=='Y',!(colnames(df)=='InTestWindowFLG')]
 
-dfDeployRegression <- dfDeployClassification
-dfDeployClassification$ThirtyDayReadmitFLG <- NULL 
-dfDeployRegression$A1CNBR <- NULL
+dfDeploy <- df[951:1000,]
 
 set.seed(43)
 p <- SupervisedModelDevelopmentParams$new()
-p$df = dfDevelop
+p$df = df
 p$grainCol = 'PatientEncounterID'
 p$impute = TRUE
 p$debug = FALSE
@@ -35,7 +31,7 @@ p$numberOfTrees = 201
 
 test_that("LMM deploy classification pushes values to SQLite", {
 
-  p <- initializeParamsForTesting(dfDevelop)
+  p <- initializeParamsForTesting(df)
   p$type = 'classification'
   p$personCol = 'PatientID'
   p$predictedCol = 'ThirtyDayReadmitFLG'
@@ -45,7 +41,7 @@ test_that("LMM deploy classification pushes values to SQLite", {
   
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type <- "classification"
-  p2$df <- dfDeployClassification
+  p2$df <- dfDeploy
   p2$grainCol <- "PatientEncounterID"
   p2$personCol <- "PatientID"
   p2$predictedCol <- "ThirtyDayReadmitFLG"
@@ -59,12 +55,12 @@ test_that("LMM deploy classification pushes values to SQLite", {
   expect_output(writeData(SQLiteFileName = sqliteFile,
                           df = dfOut,
                           tableName = 'HCRDeployClassificationBASE'),
-                "13 rows were inserted into the SQLite table HCRDeployClassificationBASE")
+                "50 rows were inserted into the SQLite table HCRDeployClassificationBASE")
 })
 
 test_that("LMM deploy regression pushes values to SQLite", {
 
-  p <- initializeParamsForTesting(dfDevelop)
+  p <- initializeParamsForTesting(df)
   p$type = 'regression'
   p$personCol = 'PatientID'
   p$predictedCol = 'A1CNBR'
@@ -74,7 +70,7 @@ test_that("LMM deploy regression pushes values to SQLite", {
             
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type = 'regression'
-  p2$df = dfDeployRegression
+  p2$df = dfDeploy
   p2$grainCol = 'PatientEncounterID'
   p2$personCol <- "PatientID"
   p2$predictedCol = 'A1CNBR'
@@ -86,14 +82,17 @@ test_that("LMM deploy regression pushes values to SQLite", {
   expect_output(writeData(SQLiteFileName = sqliteFile,
                           df = dfOut,
                           tableName = 'HCRDeployRegressionBASE'),
-                "13 rows were inserted into the SQLite table HCRDeployRegressionBASE")
+                "50 rows were inserted into the SQLite table HCRDeployRegressionBASE")
 }) 
 
 ########## Lasso ##########
 
 test_that("Lasso deploy classification pushes values to SQLite", {
-  
-  p <- initializeParamsForTesting(dfDevelop)
+
+  df$PatientID <- NULL # affects all future tests
+  dfDeploy <- df[951:1000,]
+
+  p <- initializeParamsForTesting(df)
   p$type = 'classification'
   p$predictedCol = 'ThirtyDayReadmitFLG'
   # Run Lasso
@@ -102,7 +101,7 @@ test_that("Lasso deploy classification pushes values to SQLite", {
   
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type = 'classification'
-  p2$df = dfDeployClassification
+  p2$df = dfDeploy
   p2$grainCol = 'PatientEncounterID'
   p2$predictedCol = 'ThirtyDayReadmitFLG'
   p2$impute = TRUE
@@ -113,12 +112,12 @@ test_that("Lasso deploy classification pushes values to SQLite", {
   expect_output(writeData(SQLiteFileName = sqliteFile,
                           df = dfOut,
                           tableName = 'HCRDeployClassificationBASE'),
-                "13 rows were inserted into the SQLite table HCRDeployClassificationBASE")
+                "50 rows were inserted into the SQLite table HCRDeployClassificationBASE")
 })
 
 test_that("Lasso deploy regression pushes values to SQLite", {
 
-  p <- initializeParamsForTesting(dfDevelop)
+  p <- initializeParamsForTesting(df)
   p$type = 'regression'
   p$predictedCol = 'A1CNBR'
   
@@ -128,7 +127,7 @@ test_that("Lasso deploy regression pushes values to SQLite", {
   
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type = 'regression'
-  p2$df = dfDeployRegression
+  p2$df = dfDeploy
   p2$grainCol = 'PatientEncounterID'
   p2$predictedCol = 'A1CNBR'
   p2$impute = TRUE
@@ -139,14 +138,14 @@ test_that("Lasso deploy regression pushes values to SQLite", {
   expect_output(writeData(SQLiteFileName = sqliteFile,
                           df = dfOut,
                           tableName = 'HCRDeployRegressionBASE'),
-                "13 rows were inserted into the SQLite table HCRDeployRegressionBASE")
+                "50 rows were inserted into the SQLite table HCRDeployRegressionBASE")
 })
 
 ########## Random Forest ##########
 
 test_that("rf deploy classification pushes values to SQLite", {
 
-  p <- initializeParamsForTesting(dfDevelop)
+  p <- initializeParamsForTesting(df)
   p$type = 'classification'
   p$predictedCol = 'ThirtyDayReadmitFLG'
   
@@ -156,7 +155,7 @@ test_that("rf deploy classification pushes values to SQLite", {
   
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type = 'classification'
-  p2$df = dfDeployClassification
+  p2$df = dfDeploy
   p2$grainCol = 'PatientEncounterID'
   p2$predictedCol = 'ThirtyDayReadmitFLG'
   p2$impute = TRUE
@@ -167,12 +166,12 @@ test_that("rf deploy classification pushes values to SQLite", {
   expect_output(writeData(SQLiteFileName = sqliteFile,
                           df = dfOut,
                           tableName = 'HCRDeployClassificationBASE'),
-                "13 rows were inserted into the SQLite table HCRDeployClassificationBASE")
+                "50 rows were inserted into the SQLite table HCRDeployClassificationBASE")
 })
 
 test_that("rf deploy regression pushes values to SQLite", {
 
-  p <- initializeParamsForTesting(dfDevelop)
+  p <- initializeParamsForTesting(df)
   p$type = 'regression'
   p$predictedCol = 'A1CNBR'
 
@@ -182,7 +181,7 @@ test_that("rf deploy regression pushes values to SQLite", {
   
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type = 'regression'
-  p2$df = dfDeployRegression
+  p2$df = dfDeploy
   p2$grainCol = 'PatientEncounterID'
   p2$predictedCol = 'A1CNBR'
   p2$impute = TRUE
@@ -193,6 +192,6 @@ test_that("rf deploy regression pushes values to SQLite", {
   expect_output(writeData(SQLiteFileName = sqliteFile,
                           df = dfOut,
                           tableName = 'HCRDeployRegressionBASE'),
-                "13 rows were inserted into the SQLite table HCRDeployRegressionBASE")
+                "50 rows were inserted into the SQLite table HCRDeployRegressionBASE")
 })
 

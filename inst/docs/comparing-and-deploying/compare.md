@@ -47,7 +47,6 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-,[InTestWindowFLG]
 FROM [SAM].[dbo].[DiabetesClinical]
 WHERE InTestWindowFLG = 'N'
 "
@@ -194,7 +193,6 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
 --no WHERE clause, because we want train AND test
 "

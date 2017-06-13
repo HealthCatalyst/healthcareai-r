@@ -63,7 +63,7 @@ context("Checking deploy predictions from sql server to sql server")
   expect_output(writeData(MSSQLConnectionString = connectionString,
                           df = dfOut,
                           tableName = 'HCRDeployClassificationBASE'),
-                "13 rows were inserted into the SQL Server table HCRDeployClassificationBASE")
+                "50 rows were inserted into the SQL Server table HCRDeployClassificationBASE")
   closeAllConnections()
 })
 
@@ -94,7 +94,7 @@ test_that("LMM deploy regression pushes values to SQL", {
   expect_output(writeData(MSSQLConnectionString = connectionString,
                           df = dfOut,
                           tableName = 'HCRDeployRegressionBASE'),
-                "13 rows were inserted into the SQL Server table HCRDeployRegressionBASE")
+                "50 rows were inserted into the SQL Server table HCRDeployRegressionBASE")
   closeAllConnections()
 }) 
 
@@ -103,7 +103,8 @@ test_that("Lasso deploy classification pushes values to SQL Server", {
   skip_on_travis()
   skip_on_cran()
 
-  df$PatientID <- NULL #<- Note this happens affects all following tests
+  df$PatientID <- NULL # affects all future tests
+  dfDeploy <- df[951:1000,]
   
   p <- initializeParamsForTesting(df)
   p$type = 'classification'
@@ -125,7 +126,7 @@ test_that("Lasso deploy classification pushes values to SQL Server", {
   expect_output(writeData(MSSQLConnectionString = connectionString,
                           df = dfOut,
                           tableName = 'HCRDeployClassificationBASE'),
-                "13 rows were inserted into the SQL Server table HCRDeployClassificationBASE")
+                "50 rows were inserted into the SQL Server table HCRDeployClassificationBASE")
 })
 
 test_that("Lasso deploy regression pushes values to SQL Server", {
@@ -154,7 +155,7 @@ test_that("Lasso deploy regression pushes values to SQL Server", {
   expect_output(writeData(MSSQLConnectionString = connectionString,
                           df = dfOut,
                           tableName = 'HCRDeployRegressionBASE'),
-                "13 rows were inserted into the SQL Server table HCRDeployRegressionBASE")
+                "50 rows were inserted into the SQL Server table HCRDeployRegressionBASE")
 })
 
 test_that("rf deploy classification pushes values to SQL Server", {
@@ -183,7 +184,7 @@ test_that("rf deploy classification pushes values to SQL Server", {
   expect_output(writeData(MSSQLConnectionString = connectionString,
                           df = dfOut,
                           tableName = 'HCRDeployClassificationBASE'),
-                "13 rows were inserted into the SQL Server table HCRDeployClassificationBASE")
+                "50 rows were inserted into the SQL Server table HCRDeployClassificationBASE")
   closeAllConnections()
 })
 
@@ -213,6 +214,6 @@ test_that("rf deploy regression pushes values to SQL Server", {
   expect_output(writeData(MSSQLConnectionString = connectionString,
                           df = dfOut,
                           tableName = 'HCRDeployRegressionBASE'),
-                "13 rows were inserted into the SQL Server table HCRDeployRegressionBASE")
+                "50 rows were inserted into the SQL Server table HCRDeployRegressionBASE")
   closeAllConnections()
 })
