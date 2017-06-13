@@ -9,38 +9,37 @@ context("Checking deploy predictions from csv to df")
                  header = TRUE,
                  na.strings =  c('NULL', 'NA', ""))
 
-  inTest <- df$InTestWindowFLG # save this for later.
+  dfDevelop <- df[df$InTestWindowFLG=='N',!(colnames(df)=='InTestWindowFLG')]
+  dfDeployClassification <- df[df$InTestWindowFLG=='Y',!(colnames(df)=='InTestWindowFLG')]
+
+  dfDeployRegression <- dfDeployClassification
+  dfDeployClassification$ThirtyDayReadmitFLG <- NULL 
+  dfDeployRegression$A1CNBR <- NULL
 
   #### BEGIN TESTS ####
 
 test_that("LMM predicted df doesn't have NAs", {
-
-  df$InTestWindowFLG <- NULL
   
   # Create LMM model
   set.seed(43)
-  p <- initializeParamsForTesting(df)
+  p <- initializeParamsForTesting(dfDevelop)
   p$type = 'classification'
   p$personCol = 'PatientID'
   p$predictedCol = 'ThirtyDayReadmitFLG'
   
   LinearMixedModel <- LinearMixedModelDevelopment$new(p)
   capture.output(suppressWarnings(LinearMixedModel$run()))
-  
-  # Depoy LMM model
-  df$InTestWindowFLG <- inTest
 
+  # Deploy lmm model
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type <- "classification"
-  p2$df <- df
-  p2$testWindowCol <- "InTestWindowFLG"
+  p2$df <- dfDeployClassification
   p2$grainCol <- "PatientEncounterID"
   p2$personCol <- "PatientID"
   p2$predictedCol <- "ThirtyDayReadmitFLG"
   p2$impute <- TRUE
   p2$debug <- FALSE
   p2$cores <- 1
-  p2$writeToDB <- FALSE
   
   capture.output(dLMM <- LinearMixedModelDeployment$new(p2))
   capture.output(suppressWarnings(dLMM$deploy()))
@@ -52,30 +51,25 @@ test_that("LMM predicted df doesn't have NAs", {
 test_that("Lasso predicted df doesn't have NAs", {
 
   df$PatientID <- NULL
-  df$InTestWindowFLG <- NULL
   
   # Create lasso model
   set.seed(43)
-  p <- initializeParamsForTesting(df)
+  p <- initializeParamsForTesting(dfDevelop)
   p$type = 'classification'
   p$predictedCol = 'ThirtyDayReadmitFLG'
   
   lasso <- LassoDevelopment$new(p)
   capture.output(lasso$run())
   
-  # Depoy lasso model
-  df$InTestWindowFLG <- inTest
-
+  # Deploy lasso model
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type <- "classification"
-  p2$df <- df
-  p2$testWindowCol <- "InTestWindowFLG"
+  p2$df <- dfDeployClassification
   p2$grainCol <- "PatientEncounterID"
   p2$predictedCol <- "ThirtyDayReadmitFLG"
   p2$impute <- TRUE
   p2$debug <- FALSE
   p2$cores <- 1
-  p2$writeToDB <- FALSE
   
   capture.output(dL <- LassoDeployment$new(p2))
   capture.output(dL$deploy())
@@ -86,31 +80,25 @@ test_that("Lasso predicted df doesn't have NAs", {
 })
 
 test_that("rf predicted df doesn't have NAs", {
-
-  df$InTestWindowFLG <- NULL
   
   # Create rf model
   set.seed(43)
-  p <- initializeParamsForTesting(df)
+  p <- initializeParamsForTesting(dfDevelop)
   p$type = 'classification'
   p$predictedCol = 'ThirtyDayReadmitFLG'
   
   RandomForest <- RandomForestDevelopment$new(p)
   capture.output(RandomForest$run())
   
-  # Depoy rf model
-  df$InTestWindowFLG <- inTest
-  
+  # Deploy rf model
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type <- "classification"
-  p2$df <- df
-  p2$testWindowCol <- "InTestWindowFLG"
+  p2$df <- dfDeployClassification
   p2$grainCol <- "PatientEncounterID"
   p2$predictedCol <- "ThirtyDayReadmitFLG"
   p2$impute <- TRUE
   p2$debug <- FALSE
   p2$cores <- 1
-  p2$writeToDB <- FALSE
   
   capture.output(dRF <- RandomForestDeployment$new(p2))
   capture.output(dRF$deploy())

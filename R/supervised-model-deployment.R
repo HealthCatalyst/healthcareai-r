@@ -177,6 +177,19 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       print('Now starting imputation, or removing rows with NULLs')
     }
 
+    # Remove predicted column if it exists
+    if (nchar(self$params$predictedCol) != 0) {
+      self$params$df[[self$params$predictedCol]] <- NULL
+      } else {
+      stop('You must specify the predicted column when using DeploySupervisedModel')
+    }
+
+    if (isTRUE(self$params$debug)) {
+      print('Entire data set after separating removing predicted column')
+      print(str(self$params$df))
+      print('Now starting imputation, or removing rows with NULLs')
+    }
+
     # Impute columns
     self$params$df[] <- lapply(self$params$df, imputeColumn)
 

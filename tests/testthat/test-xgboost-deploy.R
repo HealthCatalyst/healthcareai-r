@@ -13,7 +13,6 @@ df <- read.csv(file = csvfile,
                stringsAsFactors = FALSE,
                na.strings = c("NULL", "NA", "", "?"))
 
-str(df) # check the types of columns
 dfDevelop <- df[1:346,] # use most of data to train and evalute the model.
 dfDeploy <- df[347:366,] # reserve 20 rows for deploy step.
 

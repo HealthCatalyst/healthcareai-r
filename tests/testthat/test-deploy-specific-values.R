@@ -45,7 +45,8 @@ test_that("mixed model predicted val is the same each time", {
   capture.output(suppressWarnings(dLMM$deploy()))
   capture.output(dfRes <- dLMM$getOutDf())
   
-  expect_true(abs(dfRes$PredictedProbNBR[1] - 6.975151e-05) < 1.0e-2)
+  expect_true(abs(dfRes$PredictedProbNBR[8] - 0.9325223) < 1.0e-6)
+  expect_true(abs(dfRes$PredictedProbNBR[10] - 0.0004983283) < 1.0e-6)
   closeAllConnections()
 })
 
@@ -77,7 +78,8 @@ test_that("rf predicted val (w/out mtry tuning) is the same each time", {
   capture.output(dRF$deploy())
   capture.output(dfRes <- dRF$getOutDf())
   
-  expect_true(abs(dfRes$PredictedProbNBR[1] - 0.03285276) < 1.0e-2)
+  expect_true(abs(dfRes$PredictedProbNBR[8] - 0.2971669) < 1.0e-6)
+  expect_true(abs(dfRes$PredictedProbNBR[10] - 0.05145305) < 1.0e-6)
   closeAllConnections()
 })
 
@@ -107,8 +109,9 @@ test_that("rf predicted val (w/ mtry tuning) is the same each time", {
   capture.output(dRF <- RandomForestDeployment$new(p2))
   capture.output(dRF$deploy())
   capture.output(dfRes <- dRF$getOutDf())
-
-  expect_true(abs(dfRes$PredictedProbNBR[1] - 0.04258364) < 1.0e-2)
+  
+  expect_true(abs(dfRes$PredictedProbNBR[8] - 0.4012181) < 1.0e-6)
+  expect_true(abs(dfRes$PredictedProbNBR[10] - 0.02812525) < 1.0e-6)
   closeAllConnections()
 })
 
@@ -138,6 +141,7 @@ test_that("lasso predicted val is the same each time", {
   capture.output(dL$deploy())
   capture.output(dfRes <- dL$getOutDf())
   
-  expect_true(abs(dfRes$PredictedProbNBR[1] - 0.1052794) < 1.0e-2)
+  expect_true(abs(dfRes$PredictedProbNBR[8] - 0.1535638) < 1.0e-6)
+  expect_true(abs(dfRes$PredictedProbNBR[10] - 0.1281593) < 1.0e-6)
   closeAllConnections()
 })
