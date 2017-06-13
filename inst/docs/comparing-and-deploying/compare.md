@@ -48,7 +48,6 @@ SELECT
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
 FROM [SAM].[dbo].[DiabetesClinical]
-WHERE InTestWindowFLG = 'N'
 "
 
 df <- selectData(connection.string, query)
@@ -126,7 +125,6 @@ SELECT
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
-WHERE InTestWindowFLG = 'N'
 "
 df <- selectData(connection.string, query)
 head(df)
@@ -194,13 +192,10 @@ SELECT
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
---no WHERE clause, because we want train AND test
 "
 
 df <- selectData(connection.string, query)
 head(df)
-
-df$InTestWindowFLG <- NULL
 
 set.seed(42)
 
