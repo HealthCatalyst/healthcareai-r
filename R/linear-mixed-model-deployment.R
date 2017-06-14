@@ -569,6 +569,12 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       # Predict
       private$performPrediction()
 
+      # Get dummy data based on factors from develop
+      if (nchar(self$params$personCol) != 0) {
+        private$dfTestRaw[[self$params$personCol]] <- NULL
+      }
+      super$prepareDataForVarImp()
+
       # Calculate Coeffcients
       private$calculateCoeffcients()
 

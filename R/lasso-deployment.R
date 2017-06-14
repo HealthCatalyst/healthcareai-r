@@ -603,6 +603,9 @@ LassoDeployment <- R6Class(
       # Get dummiy data based on factors from develop
       private$prepareDataForVarImp()
 
+      # Get dummy data based on factors from develop
+      super$prepareDataForVarImp()
+
       # Calculate Coeffcients
       private$calculateCoeffcients()
 

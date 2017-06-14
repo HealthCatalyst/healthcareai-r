@@ -288,7 +288,8 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       for (col in names(private$dfTrainRaw)) {
         # only keep factor variables other than response variable
         if ((is.factor(private$dfTrainRaw[, col])) 
-            & (col != self$params$predictedCol)) {
+            & (col != self$params$predictedCol)
+            & (col != self$params$personCol)) {
           # add levels to list
           private$factorLevels[col] <- list(levels(private$dfTrainRaw[, col]))
         }
