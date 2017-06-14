@@ -46,9 +46,9 @@
 #'                header = TRUE, 
 #'                na.strings = c("NULL", "NA", ""))
 #' 
-#' df$PatientID <- NULL # remove this column
+#' df$PatientID <- NULL # Only one ID column (ie, PatientEncounterID) is needed remove this column
 #' 
-#' # Partition develop and deploy data
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -127,7 +127,7 @@
 #' 
 #' df <- selectData(connection.string, query)
 #' 
-#' # Partition develop and deploy data
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -207,8 +207,7 @@
 #' 
 #' df <- selectData(connection.string, query)
 #' 
-#' # Partition develop and deploy data
-#' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -274,10 +273,9 @@
 #'                header = TRUE, 
 #'                na.strings = c("NULL", "NA", ""))
 #' 
-#' df$PatientID <- NULL # remove this column
+#' df$PatientID <- NULL # Only one ID column (ie, PatientEncounterID) is needed remove this column
 #' 
-#' # Partition develop and deploy data
-#' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -341,10 +339,9 @@
 #'                header = TRUE, 
 #'                na.strings = c("NULL", "NA", ""))
 #' 
-#' df$PatientID <- NULL # remove this column
+#' df$PatientID <- NULL # Only one ID column (ie, PatientEncounterID) is needed remove this column
 #' 
-#' # Partition develop and deploy data
-#' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -388,7 +385,6 @@
 #'           tableName = 'HCRDeployRegressionBASE')
 #' 
 #' print(proc.time() - ptm)
-#' 
 
 RandomForestDeployment <- R6Class("RandomForestDeployment",
   #Inheritance

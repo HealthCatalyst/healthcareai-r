@@ -98,7 +98,6 @@
 #'
 #' head(df)
 #'
-#'
 #' set.seed(42)
 #'
 #' p <- SupervisedModelDevelopmentParams$new()
@@ -137,6 +136,7 @@
 #' trusted_connection=true
 #' "
 #'
+#' # This query should pull only rows for training. They must have a label.
 #' query <- "
 #' SELECT
 #'  [PatientEncounterID]
@@ -152,7 +152,6 @@
 #'
 #' df <- selectData(connection.string, query)
 #' head(df)
-#'
 #'
 #' set.seed(42)
 #'

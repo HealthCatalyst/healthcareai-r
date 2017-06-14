@@ -50,6 +50,7 @@
 #'                header = TRUE, 
 #'                na.strings = c("NULL", "NA", ""))
 #' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -131,6 +132,7 @@
 #' 
 #' df <- selectData(connection.string, query)
 #' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -213,7 +215,7 @@
 #' 
 #' df <- selectData(connection.string, query)
 #' 
-#' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -261,7 +263,7 @@
 #' print(proc.time() - ptm)
 #' }
 #' 
-#' #' #### Classification example pulling from CSV and writing to SQLite ####
+#' #### Classification example pulling from CSV and writing to SQLite ####
 #' 
 #' ## 1. Loading data and packages.
 #' ptm <- proc.time()
@@ -281,7 +283,7 @@
 #'                header = TRUE, 
 #'                na.strings = c("NULL", "NA", ""))
 #' 
-#' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -347,7 +349,7 @@
 #'                header = TRUE, 
 #'                na.strings = c("NULL", "NA", ""))
 #' 
-#' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -393,7 +395,6 @@
 #'           tableName = 'HCRDeployRegressionBASE')
 #' 
 #' print(proc.time() - ptm)
-#' 
 
 LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 

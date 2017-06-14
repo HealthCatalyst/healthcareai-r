@@ -225,7 +225,7 @@ csvfile <- system.file("extdata",
 df <- read.csv(file = csvfile, 
                header = TRUE, 
                na.strings = c("NULL", "NA", ""))
-df$PatientID <- NULL # remove this column
+df$PatientID <- NULL # Only one ID column (ie, PatientEncounterID) is needed remove this column
 # Partition develop and deploy data
 dfDeploy <- df[951:1000,]
 

@@ -95,7 +95,6 @@
 #' # rawPredictions <- boostD$getPredictions()
 #' 
 #' print(proc.time() - ptm)
-#' 
 
  XGBoostDeployment <- R6Class("XGBoostDeployment",
   #Inheritance

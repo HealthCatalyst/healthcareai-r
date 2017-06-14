@@ -32,8 +32,7 @@
 #' #### Classification Example using csv data ####
 #' ## 1. Loading data and packages.
 #' ptm <- proc.time()
-#' library(healthcareai)
-#' 
+#' library(healthcareai
 #' # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 #' 
 #' # Can delete this line in your work
@@ -46,9 +45,9 @@
 #'                header = TRUE, 
 #'                na.strings = c("NULL", "NA", ""))
 #' 
-#' df$PatientID <- NULL # remove this column
+#' df$PatientID <- NULL # Only one ID column (ie, PatientEncounterID) is needed remove this column
 #' 
-#' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -127,7 +126,7 @@
 #' 
 #' df <- selectData(connection.string, query)
 #' 
-#' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -207,6 +206,7 @@
 #' 
 #' df <- selectData(connection.string, query)
 #' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -251,7 +251,7 @@
 #' print(proc.time() - ptm)
 #' }
 #' 
-#' #' #### Classification example pulling from CSV and writing to SQLite ####
+#' #### Classification example pulling from CSV and writing to SQLite ####
 #' 
 #' ## 1. Loading data and packages.
 #' ptm <- proc.time()
@@ -271,9 +271,9 @@
 #'                header = TRUE, 
 #'                na.strings = c("NULL", "NA", ""))
 #' 
-#' df$PatientID <- NULL # remove this column
+#' df$PatientID <- NULL # Only one ID column (ie, PatientEncounterID) is needed
 #' 
-#' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -337,9 +337,9 @@
 #'                header = TRUE, 
 #'                na.strings = c("NULL", "NA", ""))
 #' 
-#' df$PatientID <- NULL # remove this column
+#' df$PatientID <- NULL # Only one ID column (ie, PatientEncounterID) is needed remove this column
 #' 
-#' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -382,7 +382,6 @@
 #'           tableName = 'HCRDeployRegressionBASE')
 #' 
 #' print(proc.time() - ptm)
-#' 
 
 LassoDeployment <- R6Class(
   "LassoDeployment",
