@@ -211,9 +211,13 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       stop('You must specify a GrainID column when using DeploySupervisedModel')
     }
 
+    # Manually Assign factor levels based on which ones were present in training.
+    private$dfTestRaw <- self$params$df
+    factorLevels <- private$fitLogit$factorLevels
+
     # Split factor columns into dummy columns (for use in deploypred method)
-    data <- dummyVars(~., data = self$params$df, fullRank = T)
-    private$dfTestRaw <- data.frame(predict(data, newdata = self$params$df, na.action = na.pass))
+    data <- dummyVars(~., data = private$dfTestRaw, fullRank = T)
+    private$dfTestRaw <- data.frame(predict(data, newdata = private$dfTestRaw, na.action = na.pass))
 
     if (isTRUE(self$params$debug)) {
       print('Raw data set after creating dummy vars (for top 3 factors only)')

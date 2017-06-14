@@ -455,11 +455,10 @@ LassoDeployment <- R6Class(
     calculateMultiplyRes = function() {
       # Apply multiplication of coeff across each row of test set Remove y (label) so
       # we do multiplication only on X (features)
-      private$dfTest[[self$params$predictedCol]] <- NULL
 
       if (isTRUE(self$params$debug)) {
-        cat("Test set after removing predicted column", '\n')
-        cat(str(private$dfTest), '\n')
+        cat("Test set to be multiplied with coefficients", '\n')
+        cat(str(private$dfTestRaw), '\n')
       }
 
       private$multiplyRes <- sweep(private$dfTestRaw, 2, private$coefficients, `*`)

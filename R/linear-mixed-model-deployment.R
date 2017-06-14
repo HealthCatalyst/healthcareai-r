@@ -474,8 +474,12 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
         print(private$coefficients)
       }
 
-      private$multiplyRes <-
-        sweep(private$dfTestRaw, 2, private$coefficients, `*`)
+      if (isTRUE(self$params$debug)) {
+        cat("Test set to be multiplied with coefficients", '\n')
+        cat(str(private$dfTestRaw), '\n')
+      }
+
+      private$multiplyRes <- sweep(private$dfTestRaw, 2, private$coefficients, `*`)
 
       if (isTRUE(self$params$debug)) {
         cat('Data frame after multiplying raw vals by coeffs', '\n')

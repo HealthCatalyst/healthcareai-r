@@ -448,9 +448,13 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     },
 
     calculateMultiplyRes = function() {
+      if (isTRUE(self$params$debug)) {
+        cat("Test set to be multiplied with coefficients", '\n')
+        cat(str(private$dfTestRaw), '\n')
+      }
+
       # Apply multiplication of coeff across each row of test set
-      private$multiplyRes <-
-        sweep(private$dfTestRaw, 2, private$coefficients, `*`)
+      private$multiplyRes <- sweep(private$dfTestRaw, 2, private$coefficients, `*`)
 
       if (isTRUE(self$params$debug)) {
         cat('Data frame after multiplying raw vals by coeffs', '\n')
