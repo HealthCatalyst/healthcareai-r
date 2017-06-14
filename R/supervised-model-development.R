@@ -284,7 +284,15 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       }
 
       # Get factor levels as a private attribute
-      private$factorLevels <- 'placeholder'
+      private$factorLevels <- list()
+      for (col in names(private$dfTrainRaw)) {
+        # only keep factor variables other than response variable
+        if ((is.factor(private$dfTrainRaw[, col])) 
+            & (col != self$params$predictedCol)) {
+          # add levels to list
+          private$factorLevels[col] <- list(levels(private$dfTrainRaw[, col]))
+        }
+      }
 
       if (isTRUE(self$params$debug)) {
         print('Factor levels for top factor calculation')
