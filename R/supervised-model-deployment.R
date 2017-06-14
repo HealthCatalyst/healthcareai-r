@@ -131,9 +131,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       'Consider combining into new col with fewer categories.')
     }
 
-    # Remove columns with zero variance.
-    self$params$df <- removeColsWithAllSameValue(self$params$df)
-
     if (isTRUE(self$params$debug)) {
       print('Entire df after removing feature cols with all same value')
       print(str(self$params$df))
