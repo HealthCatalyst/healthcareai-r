@@ -510,7 +510,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
       if (isTRUE(self$params$debug)) {
         cat('Data frame after getting column importance ordered', '\n')
-        print(private$orderedFactors[1:10, ])
+        print(head(private$orderedFactors, n=10))
       }
     },
 
