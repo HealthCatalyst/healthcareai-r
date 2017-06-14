@@ -249,7 +249,7 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
        cat('fitting GLM', '\n')
         private$fitLogit <- glm(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrainRaw,
+          data = private$dfTrain,
           family = binomial(link = "logit"),
           metric = "ROC",
           control = list(maxit = 10000),
@@ -259,11 +259,14 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
       } else if (self$params$type == 'regression') {
         private$fitLogit <- glm(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrainRaw,
+          data = private$dfTrain,
           metric = "RMSE",
           control = list(maxit = 10000)
         )
       }
+
+      # Add factor levels (calculated in SMD) to fitLogit object
+      private$fitLogit$factorLevels <- private$factorLevels 
     }
   ),
   

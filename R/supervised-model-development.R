@@ -25,6 +25,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
     dfGrain = NA,
     grainTest = NA,
     prevalence = NA,
+    factorLevels = NA,
 
     clustersOnCores = NA,
     grainColValues = NA,
@@ -273,8 +274,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         print(str(private$dfTrain))
       }
 
-      # Get dummy columns to pass to GLM for factor fitting. R removes one factor level (prevents redundancy), but
-      # in our case, we need a coefficient for every level to get a factor for every level.
+      # Get factor levels for dummy creation in deploy. 
       # TODO replace this part with LIME.
       private$dfTrainRaw <- private$dfTrain
       private$dfTrainRaw[[self$params$predictedCol]] <- NULL
@@ -283,15 +283,12 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         private$dfTrainRaw[[self$params$personCol]] <- NULL
       }
 
-      # Get dummies
-      data <- dummyVars(~., data = private$dfTrainRaw, fullRank = T)
-      private$dfTrainRaw <- data.frame(predict(data, newdata = private$dfTrainRaw, na.action = na.pass))
-      # Add predictive column back in
-      private$dfTrainRaw[[self$params$predictedCol]] <- private$dfTrain[[self$params$predictedCol]]
+      # Get factor levels as a private attribute
+      private$factorLevels <- 'placeholder'
 
       if (isTRUE(self$params$debug)) {
-        print('Training data set after creating dummy variables (only used for top factors)')
-        print(str(private$dfTrainRaw))
+        print('Factor levels for top factor calculation')
+        print(str(private$factorLevels))
       }
     }
   ),
