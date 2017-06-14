@@ -119,6 +119,7 @@ database=SAM;
 trusted_connection=true
 "
 
+# This query should pull only rows for training. They must have a label.
 query <- "
 SELECT
 [PatientEncounterID]

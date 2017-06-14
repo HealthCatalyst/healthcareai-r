@@ -60,6 +60,7 @@ df <- read.csv(file = csvfile,
                header = TRUE, 
                na.strings = c("NULL", "NA", ""))
 
+# Save a dataframe for validation later on
 dfDeploy <- df[951:1000,]
 
 ## 2. Train and save the model using DEVELOP
@@ -141,6 +142,7 @@ FROM [SAM].[dbo].[HCRDiabetesClinical]
 
 df <- selectData(connection.string, query)
 
+# Save a dataframe for validation later on
 dfDeploy <- df[951:1000,]
 
 ## 2. Train and save the model using DEVELOP
@@ -223,7 +225,7 @@ FROM [SAM].[dbo].[HCRDiabetesClinical]
 
 df <- selectData(connection.string, query)
 
-
+# Save a dataframe for validation later on
 dfDeploy <- df[951:1000,]
 
 ## 2. Train and save the model using DEVELOP
@@ -271,7 +273,7 @@ writeData(MSSQLConnectionString = connection.string,
 print(proc.time() - ptm)
 }
 
-#' #### Classification example pulling from CSV and writing to SQLite ####
+#### Classification example pulling from CSV and writing to SQLite ####
 
 ## 1. Loading data and packages.
 ptm <- proc.time()
@@ -291,7 +293,7 @@ df <- read.csv(file = csvfile,
                header = TRUE, 
                na.strings = c("NULL", "NA", ""))
 
-
+# Save a dataframe for validation later on
 dfDeploy <- df[951:1000,]
 
 ## 2. Train and save the model using DEVELOP
@@ -357,7 +359,7 @@ df <- read.csv(file = csvfile,
                header = TRUE, 
                na.strings = c("NULL", "NA", ""))
 
-
+# Save a dataframe for validation later on
 dfDeploy <- df[951:1000,]
 
 ## 2. Train and save the model using DEVELOP
@@ -403,7 +405,6 @@ writeData(SQLiteFileName = sqliteFile,
           tableName = 'HCRDeployRegressionBASE')
 
 print(proc.time() - ptm)
-
 }
 \seealso{
 \code{\link{healthcareai}}

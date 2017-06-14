@@ -105,7 +105,6 @@ df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 
 head(df)
 
-
 set.seed(42)
 
 p <- SupervisedModelDevelopmentParams$new()
@@ -144,6 +143,7 @@ database=SAM;
 trusted_connection=true
 "
 
+# This query should pull only rows for training. They must have a label.
 query <- "
 SELECT
  [PatientEncounterID]
@@ -159,7 +159,6 @@ FROM [SAM].[dbo].[HCRDiabetesClinical]
 
 df <- selectData(connection.string, query)
 head(df)
-
 
 set.seed(42)
 

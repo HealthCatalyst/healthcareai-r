@@ -107,7 +107,6 @@ head(outDf)
 # rawPredictions <- boostD$getPredictions()
 
 print(proc.time() - ptm)
-
 }
 \seealso{
 \code{\link{healthcareai}}
