@@ -441,6 +441,10 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         # find new levels not seen in training data
         testLevels <- levels(private$dfTestRaw[[col]])
         newLevels[col] <- testLevels[!testLevels %in% factorLevels[[col]]]
+        # Assign new factors, setting new levels in test to NA
+        private$dfTestRaw[[col]] <- factor(private$dfTestRaw[[col]],
+                                           levels = factorLevels[[col]],
+                                           ordered = FALSE)
         # Set new levels to NA
         private$dfTestRaw[[col]][!(private$dfTestRaw[[col]] %in% factorLevels[[col]])] <- NA
         # Set factor levels to training data levels
@@ -454,10 +458,8 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       }
       
       if (isTRUE(self$params$debug)) {
-        print('Factor levels for categorical variables in raw data set:')
-        for (col in names(private$fitLogit$factorLevels)) {
-          print(str(levels(private$dfTestRaw[[col]]))) 
-        }
+        print('Raw data set after setting factors:')
+        print(str(private$dfTestRaw))
       }
 
       # Split factor columns into dummy columns (for use in deploypred method)
