@@ -42,7 +42,7 @@ This step allows one to
 #### Classification Example using csv data ####
 ## 1. Loading data and packages.
 ptm <- proc.time()
-library(healthcareai
+library(healthcareai)
 # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 
 # Can delete this line in your work
