@@ -532,7 +532,10 @@ LassoDeployment <- R6Class(
         dtStamp,                      # LastLoadDTS
         private$grainTest,            # GrainID
         private$predictions,          # PredictedProbab
-        private$orderedFactors[, 1:3] # Top 3 Factors
+        # need three lines for case of single prediction
+        private$orderedFactors[, 1],  # Top 1 Factor
+        private$orderedFactors[, 2],  # Top 2 Factor
+        private$orderedFactors[, 3]   # Top 3 Factor
       )    
 
       predictedResultsName <- ""
