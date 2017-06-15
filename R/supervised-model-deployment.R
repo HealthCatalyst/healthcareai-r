@@ -237,7 +237,10 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     for (col in names(private$fitLogit$factorLevels)) {
       # find new levels not seen in training data
       testLevels <- levels(private$dfTestRaw[[col]])
-      newLevels[col] <- testLevels[!testLevels %in% factorLevels[[col]]]
+      newLevelValues <- testLevels[!testLevels %in% factorLevels[[col]]]
+      if (length(newLevelValues) > 0) {
+        newLevels[[col]] <- newLevelValues
+      }
       # Assign new factors, setting new levels in test to NA
       private$dfTestRaw[[col]] <- factor(private$dfTestRaw[[col]],
                                          levels = factorLevels[[col]],
@@ -247,10 +250,12 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       # Set factor levels to training data levels
       levels(private$dfTestRaw[[col]]) <- factorLevels[[col]]
     }
-  
+    
+    # Display warning if new categorical variable levels are found
     if (length(newLevels) > 0) {
-      warning('The following new categorical values were found: \n',
-              newLevels,
+      warning('New categorical variable levels were found:',
+              '\n Variables: ', names(newLevels),
+              '\n Levels: ', newLevels,
               '\n These values have been set to NA.')
     }
     
