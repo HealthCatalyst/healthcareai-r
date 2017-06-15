@@ -1,4 +1,4 @@
-context("Checking XGBoost deploy predictions from sql server to sql server")
+context("Checking XGBoost deploy predictions to SQL")
 
 connection.string <- "
 driver={SQL Server};
