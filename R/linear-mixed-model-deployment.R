@@ -576,7 +576,8 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       if (nchar(self$params$personCol) != 0) {
         private$dfTestRaw[[self$params$personCol]] <- NULL
       }
-      super$prepareDataForVarImp()
+      super$formatFactorColumns()
+      super$makeFactorDummies()
 
       # Calculate Coeffcients
       private$calculateCoeffcients()

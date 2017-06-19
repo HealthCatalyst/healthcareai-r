@@ -552,7 +552,8 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       private$performPrediction()
 
       # Get dummy data based on factors from develop
-      super$prepareDataForVarImp()
+      super$formatFactorColumns()
+      super$makeFactorDummies()
 
       # Calculate Coeffcients
       private$calculateCoeffcients()
