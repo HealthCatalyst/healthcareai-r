@@ -423,7 +423,7 @@ LassoDeployment <- R6Class(
       
       # Predictions (in terms of probability)
       private$predictions <- stats::predict(object = private$fitGrLasso,
-                                     X = model.matrix(private$modFmla, data = self$params$df)[,-1],
+                                     X = model.matrix(private$modFmla, data = private$dfTestRaw)[,-1],
                                      lambda = private$lambda1se,
                                      type = "response")
       
@@ -600,11 +600,14 @@ LassoDeployment <- R6Class(
               the model, then lasso deployment to make predictions. See ?LassoDeployment')
       })
       
+      # Make sure factor columns have the correct factor levels
+      super$formatFactorColumns()
+      
       # Predict
       private$performPrediction()
 
       # Get dummy data based on factors from develop
-      super$prepareDataForVarImp()
+      super$makeFactorDummies()
 
       # Calculate Coeffcients
       private$calculateCoeffcients()
