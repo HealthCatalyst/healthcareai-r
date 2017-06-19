@@ -132,8 +132,7 @@ CREATE TABLE [dbo].[HCRDiabetesClinical](
 	[LDLNBR] [float] NULL,
 	[A1CNBR] [float] NULL,
 	[GenderFLG] [nvarchar](255) NULL,
-	[ThirtyDayReadmitFLG] [nvarchar](255) NULL,
-	[InTestWindowFLG] [nvarchar](255) NULL
+	[ThirtyDayReadmitFLG] [nvarchar](255) NULL
 )
 BULK INSERT dbo.HCRDiabetesClinical
 FROM 'YOUR_PATH_HERE\healthcareai-r\inst\extdata\HCRDiabetesClinical.csv'

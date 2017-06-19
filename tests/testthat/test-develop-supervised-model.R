@@ -8,8 +8,6 @@ df <- read.csv(file = csvfile,
                     header = TRUE,
                     na.strings =  c('NULL', 'NA', ""))
 
-df$InTestWindowFLG <- NULL # Since this is dev step
-
 set.seed(43)
 p <- SupervisedModelDevelopmentParams$new()
 p$df = df

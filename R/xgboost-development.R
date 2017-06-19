@@ -9,8 +9,6 @@
 #' @import doParallel
 #' @import e1071
 #' @import xgboost
-#' @importFrom dplyr mutate
-#' @import magrittr
 #' @importFrom R6 R6Class
 #' @param object of SuperviseModelParameters class for $new() constructor
 #' @param type The type of model (either 'regression' or 'classification')
@@ -134,10 +132,11 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
       temp_predictions <- predict(self$fitXGB, newdata = self$xgb_testMatrix, reshape = TRUE)
 
       # Build prediction output
-      private$predictions <- temp_predictions %>% 
-        data.frame() %>%
-        mutate(predicted_label = max.col(.),
-               true_label = private$test_label + 1)
+      private$predictions <- as.data.frame(temp_predictions)
+      # Pull the maximum probability for a given row.
+      private$predictions$predicted_label = max.col(private$predictions)
+      # XGBoost internally uses 0-indexed factors. Add 1 to match R's 1-indexed factors.
+      private$predictions$true_label = private$test_label + 1
 
       # Set column names to match input targets
       colnames(private$predictions)[1:self$params$xgb_numberOfClasses] <- self$params$xgb_targetNames

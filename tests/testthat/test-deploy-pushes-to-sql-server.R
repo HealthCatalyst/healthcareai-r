@@ -16,12 +16,11 @@ context("Checking deploy predictions from sql server to sql server")
   ,[A1CNBR]
   ,[GenderFLG]
   ,[ThirtyDayReadmitFLG]
-  ,[InTestWindowFLG]
   FROM [SAM].[dbo].[HCRDiabetesClinical]
   "
   df <- selectData(connectionString, query)
   
-  inTest <- df$InTestWindowFLG # save this for deploy
+  dfDeploy <- df[951:1000,]
   
   set.seed(43)
   p <- SupervisedModelDevelopmentParams$new()
@@ -40,8 +39,6 @@ context("Checking deploy predictions from sql server to sql server")
   skip_on_travis()
   skip_on_cran()
 
-  df$InTestWindowFLG <- NULL
-
   p <- initializeParamsForTesting(df)
   p$type = 'classification'
   p$personCol = 'PatientID'
@@ -50,14 +47,11 @@ context("Checking deploy predictions from sql server to sql server")
   LinearMixedModel <- LinearMixedModelDevelopment$new(p)
   capture.output(suppressWarnings(LinearMixedModel$run()))
   
-  df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
-  
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type <- "classification"
-  p2$df <- df
+  p2$df <- dfDeploy
   p2$grainCol <- "PatientEncounterID"
   p2$personCol <- "PatientID"
-  p2$testWindowCol <- "InTestWindowFLG"
   p2$predictedCol <- "ThirtyDayReadmitFLG"
   p2$impute <- TRUE
   p2$debug <- FALSE
@@ -69,7 +63,7 @@ context("Checking deploy predictions from sql server to sql server")
   expect_output(writeData(MSSQLConnectionString = connectionString,
                           df = dfOut,
                           tableName = 'HCRDeployClassificationBASE'),
-                "13 rows were inserted into the SQL Server table HCRDeployClassificationBASE")
+                "50 rows were inserted into the SQL Server table HCRDeployClassificationBASE")
   closeAllConnections()
 })
 
@@ -77,8 +71,6 @@ test_that("LMM deploy regression pushes values to SQL", {
 
   skip_on_travis()
   skip_on_cran()
-
-  df$InTestWindowFLG <- NULL
   
   p <- initializeParamsForTesting(df)
   p$type = 'regression'
@@ -87,15 +79,12 @@ test_that("LMM deploy regression pushes values to SQL", {
   
   LinearMixedModel <- LinearMixedModelDevelopment$new(p)
   capture.output(suppressWarnings(LinearMixedModel$run()))
-  
-  df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
             
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type = 'regression'
-  p2$df = df
+  p2$df = dfDeploy
   p2$grainCol = 'PatientEncounterID'
   p2$personCol <- "PatientID"
-  p2$testWindowCol = 'InTestWindowFLG'
   p2$predictedCol = 'A1CNBR'
   p2$impute = TRUE
   
@@ -105,7 +94,7 @@ test_that("LMM deploy regression pushes values to SQL", {
   expect_output(writeData(MSSQLConnectionString = connectionString,
                           df = dfOut,
                           tableName = 'HCRDeployRegressionBASE'),
-                "13 rows were inserted into the SQL Server table HCRDeployRegressionBASE")
+                "50 rows were inserted into the SQL Server table HCRDeployRegressionBASE")
   closeAllConnections()
 }) 
 
@@ -114,8 +103,8 @@ test_that("Lasso deploy classification pushes values to SQL Server", {
   skip_on_travis()
   skip_on_cran()
 
-  df$PatientID <- NULL #<- Note this happens affects all following tests
-  df$InTestWindowFLG <- NULL
+  df$PatientID <- NULL # affects all future tests
+  dfDeploy <- df[951:1000,]
   
   p <- initializeParamsForTesting(df)
   p$type = 'classification'
@@ -124,13 +113,10 @@ test_that("Lasso deploy classification pushes values to SQL Server", {
   lasso <- LassoDevelopment$new(p)
   capture.output(lasso$run())
   
-  df$InTestWindowFLG <- inTest # put InTestWindowFLG back in
-  
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type = 'classification'
-  p2$df = df
+  p2$df = dfDeploy
   p2$grainCol = 'PatientEncounterID'
-  p2$testWindowCol = 'InTestWindowFLG'
   p2$predictedCol = 'ThirtyDayReadmitFLG'
   p2$impute = TRUE
   
@@ -140,15 +126,13 @@ test_that("Lasso deploy classification pushes values to SQL Server", {
   expect_output(writeData(MSSQLConnectionString = connectionString,
                           df = dfOut,
                           tableName = 'HCRDeployClassificationBASE'),
-                "13 rows were inserted into the SQL Server table HCRDeployClassificationBASE")
+                "50 rows were inserted into the SQL Server table HCRDeployClassificationBASE")
 })
 
 test_that("Lasso deploy regression pushes values to SQL Server", {
 
   skip_on_travis()
   skip_on_cran()
-
-  df$InTestWindowFLG <- NULL
   
   p <- initializeParamsForTesting(df)
   p$type = 'regression'
@@ -158,13 +142,10 @@ test_that("Lasso deploy regression pushes values to SQL Server", {
   lasso <- LassoDevelopment$new(p)
   capture.output(lasso$run())
   
-  df$InTestWindowFLG <- inTest # put InTestWindowFLG back in
-  
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type = 'regression'
-  p2$df = df
+  p2$df = dfDeploy
   p2$grainCol = 'PatientEncounterID'
-  p2$testWindowCol = 'InTestWindowFLG'
   p2$predictedCol = 'A1CNBR'
   p2$impute = TRUE
   
@@ -174,15 +155,13 @@ test_that("Lasso deploy regression pushes values to SQL Server", {
   expect_output(writeData(MSSQLConnectionString = connectionString,
                           df = dfOut,
                           tableName = 'HCRDeployRegressionBASE'),
-                "13 rows were inserted into the SQL Server table HCRDeployRegressionBASE")
+                "50 rows were inserted into the SQL Server table HCRDeployRegressionBASE")
 })
 
 test_that("rf deploy classification pushes values to SQL Server", {
 
   skip_on_travis()
   skip_on_cran()
-
-  df$InTestWindowFLG <- NULL
   
   p <- initializeParamsForTesting(df)
   p$type = 'classification'
@@ -192,13 +171,10 @@ test_that("rf deploy classification pushes values to SQL Server", {
   dRF <- RandomForestDevelopment$new(p)
   capture.output(dRF$run())
   
-  df$InTestWindowFLG <- inTest # put InTestWindowFLG back in
-  
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type = 'classification'
-  p2$df = df
+  p2$df = dfDeploy
   p2$grainCol = 'PatientEncounterID'
-  p2$testWindowCol = 'InTestWindowFLG'
   p2$predictedCol = 'ThirtyDayReadmitFLG'
   p2$impute = TRUE
   
@@ -208,7 +184,7 @@ test_that("rf deploy classification pushes values to SQL Server", {
   expect_output(writeData(MSSQLConnectionString = connectionString,
                           df = dfOut,
                           tableName = 'HCRDeployClassificationBASE'),
-                "13 rows were inserted into the SQL Server table HCRDeployClassificationBASE")
+                "50 rows were inserted into the SQL Server table HCRDeployClassificationBASE")
   closeAllConnections()
 })
 
@@ -216,8 +192,6 @@ test_that("rf deploy regression pushes values to SQL Server", {
 
   skip_on_travis()
   skip_on_cran()
-
-  df$InTestWindowFLG <- NULL
   
   p <- initializeParamsForTesting(df)
   p$type = 'regression'
@@ -227,13 +201,10 @@ test_that("rf deploy regression pushes values to SQL Server", {
   dRF <- RandomForestDevelopment$new(p)
   capture.output(dRF$run())
   
-  df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
-  
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type = 'regression'
-  p2$df = df
+  p2$df = dfDeploy
   p2$grainCol = 'PatientEncounterID'
-  p2$testWindowCol = 'InTestWindowFLG'
   p2$predictedCol = 'A1CNBR'
   p2$impute = TRUE
   
@@ -243,6 +214,6 @@ test_that("rf deploy regression pushes values to SQL Server", {
   expect_output(writeData(MSSQLConnectionString = connectionString,
                           df = dfOut,
                           tableName = 'HCRDeployRegressionBASE'),
-                "13 rows were inserted into the SQL Server table HCRDeployRegressionBASE")
+                "50 rows were inserted into the SQL Server table HCRDeployRegressionBASE")
   closeAllConnections()
 })

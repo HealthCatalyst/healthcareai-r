@@ -12,8 +12,6 @@
 #' @import caret
 #' @import doParallel
 #' @import xgboost
-#' @importFrom dplyr mutate
-#' @import magrittr
 #' @importFrom R6 R6Class
 #' @param type The type of model (must be multiclass)
 #' @param df Dataframe whose columns are used for new predictions
@@ -47,13 +45,12 @@
 #'                na.strings = c("NULL", "NA", "", "?"))
 #' 
 #' str(df) # check the types of columns
-#' dfDevelop <- df[1:346,] # use most of data to train and evalute the model.
 #' dfDeploy <- df[347:366,] # reserve 20 rows for deploy step.
 #' 
 #' # 2. Develop and save model (saving is automatic)
 #' set.seed(42)
 #' p <- SupervisedModelDevelopmentParams$new()
-#' p$df <- dfDevelop
+#' p$df <- df
 #' p$type <- "multiclass"
 #' p$impute <- TRUE
 #' p$grainCol <- "PatientID"
@@ -98,7 +95,6 @@
 #' # rawPredictions <- boostD$getPredictions()
 #' 
 #' print(proc.time() - ptm)
-#' 
 
  XGBoostDeployment <- R6Class("XGBoostDeployment",
   #Inheritance
@@ -122,11 +118,9 @@
       cat('Preparing data...', '\n')
       # XGB requires data.matrix format, not data.frame.
       # R factors are 1 indexed, XGB is 0 indexed, so we must subtract 1 from the labels. They must be numeric.
-      temp_test_data <- data.matrix(private$dfTestTemp[ ,!(colnames(private$dfTestTemp) == self$params$predictedCol)])
-      temp_test_label <- data.matrix(as.numeric(private$dfTestTemp[[self$params$predictedCol]])) - 1 
-      self$xgb_testMatrix <- xgb.DMatrix(data = temp_test_data, label = temp_test_label) 
-      private$test_label <- temp_test_label # save for confusion matrix and output
-      rm(temp_test_data, temp_test_label) # clean temp variables
+      temp_test_data <- data.matrix(self$params$df[ ,!(colnames(self$params$df) == self$params$predictedCol)])
+      self$xgb_testMatrix <- xgb.DMatrix(data = temp_test_data) 
+      rm(temp_test_data) # clean temp variables
     },
 
     # Perform prediction
@@ -137,10 +131,9 @@
                                   reshape = TRUE)
       
       # Build prediction output
-      private$predictions <- private$temp_predictions %>% 
-        data.frame() %>%
-        mutate(predicted_label = max.col(.),
-               true_label = private$test_label + 1)
+      private$predictions <- as.data.frame(private$temp_predictions)
+      private$predictions$predicted_label = max.col(private$predictions)
+      private$predictions$true_label = private$test_label + 1
 
       # Set column names to match input targets
       colnames(private$predictions)[1:self$params$xgb_numberOfClasses] <- self$params$xgb_targetNames
@@ -151,7 +144,6 @@
       to <- self$params$xgb_targetNames
       map = setNames(to,from)
       private$predictions$predicted_label <- map[private$predictions$predicted_label] # note square brackets
-      private$predictions$true_label <- map[private$predictions$true_label] 
 
       # Prepare output 
       private$predictions <- cbind(private$grainTest, private$predictions)

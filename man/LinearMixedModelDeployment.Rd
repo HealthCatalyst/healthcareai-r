@@ -19,9 +19,7 @@ the grain. No ID columns are truly needed for this step.}
 
 \item{personCol}{The data frame's columns that represents the patient/person}
 
-\item{testWindowCol}{Y or N. This column dictates the split between model 
-training and test sets. Those rows with N in this column indicate the 
-training set while those that have Y indicate the test set}
+\item{testWindowCol}{(depreciated) All data now receives a prediction}
 
 \item{predictedCol}{Column that you want to predict. If you're doing
 classification then this should be Y/N.}
@@ -45,7 +43,6 @@ The linear mixed model functionality works best with data sets having fewer
 than 10,000 rows.
 }
 \examples{
-
 #### Classification Example using csv data ####
 ## 1. Loading data and packages.
 ptm <- proc.time()
@@ -63,12 +60,12 @@ df <- read.csv(file = csvfile,
                header = TRUE, 
                na.strings = c("NULL", "NA", ""))
 
-head(df)
-str(df)
+# Save a dataframe for validation later on
+dfDeploy <- df[951:1000,]
 
 ## 2. Train and save the model using DEVELOP
-inTest <- df$InTestWindowFLG # save this for later.
-df$InTestWindowFLG <- NULL
+print('Historical, development data:')
+str(df)
 
 set.seed(42)
 p <- SupervisedModelDevelopmentParams$new()
@@ -82,17 +79,18 @@ p$debug <- FALSE
 p$cores <- 1
 
 # Run Linear Mixed Model
-LinearMixedModel <- LinearMixedModelDevelopment$new(p)
-LinearMixedModel$run()
+lmm <- LinearMixedModelDevelopment$new(p)
+lmm$run()
 
 ## 3. Load saved model and use DEPLOY to generate predictions. 
-df$InTestWindowFLG <- inTest
+print('Fake production data:')
+str(dfDeploy)
+
 p2 <- SupervisedModelDeploymentParams$new()
 p2$type <- "classification"
-p2$df <- df
-p2$testWindowCol <- "InTestWindowFLG"
+p2$df <- dfDeploy
 p2$grainCol <- "PatientEncounterID"
-p$personCol <- "PatientID"
+p2$personCol <- "PatientID"
 p2$predictedCol <- "ThirtyDayReadmitFLG"
 p2$impute <- TRUE
 p2$debug <- FALSE
@@ -101,9 +99,10 @@ p2$cores <- 1
 dL <- LinearMixedModelDeployment$new(p2)
 dL$deploy()
 
-df <- dL$getOutDf()
+dfOut <- dL$getOutDf()
+head(dfOut)
 # Write to CSV (or JSON, MySQL, etc) using plain R syntax
-# write.csv(df,'path/predictionsfile.csv')
+# write.csv(dfOut,'path/predictionsfile.csv')
 
 print(proc.time() - ptm)
 
@@ -138,20 +137,19 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
 "
 
 df <- selectData(connection.string, query)
 
-head(df)
-str(df)
+# Save a dataframe for validation later on
+dfDeploy <- df[951:1000,]
 
 ## 2. Train and save the model using DEVELOP
-#' set.seed(42)
-inTest <- df$InTestWindowFLG # save this for deploy
-df$InTestWindowFLG <- NULL
+print('Historical, development data:')
+str(df)
 
+set.seed(42)
 p <- SupervisedModelDevelopmentParams$new()
 p$df <- df
 p$type <- "classification"
@@ -163,18 +161,18 @@ p$debug <- FALSE
 p$cores <- 1
 
 # Run Linear Mixed Model
-LinearMixedModel <- LinearMixedModelDevelopment$new(p)
-LinearMixedModel$run()
+lmm <- LinearMixedModelDevelopment$new(p)
+lmm$run()
 
 ## 3. Load saved model and use DEPLOY to generate predictions. 
-df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+print('Fake production data:')
+str(dfDeploy)
 
 p2 <- SupervisedModelDeploymentParams$new()
 p2$type <- "classification"
-p2$df <- df
+p2$df <- dfDeploy
 p2$grainCol <- "PatientEncounterID"
-p$personCol <- "PatientID"
-p2$testWindowCol <- "InTestWindowFLG"
+p2$personCol <- "PatientID"
 p2$predictedCol <- "ThirtyDayReadmitFLG"
 p2$impute <- TRUE
 p2$debug <- FALSE
@@ -222,20 +220,19 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
 "
 
 df <- selectData(connection.string, query)
 
-head(df)
-str(df)
+# Save a dataframe for validation later on
+dfDeploy <- df[951:1000,]
 
 ## 2. Train and save the model using DEVELOP
-#' set.seed(42)
-inTest <- df$InTestWindowFLG # save this for deploy
-df$InTestWindowFLG <- NULL
+print('Historical, development data:')
+str(df)
 
+set.seed(42)
 p <- SupervisedModelDevelopmentParams$new()
 p$df <- df
 p$type <- "regression"
@@ -247,18 +244,19 @@ p$debug <- FALSE
 p$cores <- 1
 
 # Run Linear Mixed Model
-LinearMixedModel <- LinearMixedModelDevelopment$new(p)
-LinearMixedModel$run()
+lmm <- LinearMixedModelDevelopment$new(p)
+lmm$run()
 
 ## 3. Load saved model and use DEPLOY to generate predictions. 
-df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+dfDeploy$A1CNBR <- NULL # You won't know the response in production
+print('Fake production data:')
+str(dfDeploy)
 
 p2 <- SupervisedModelDeploymentParams$new()
 p2$type <- "regression"
-p2$df <- df
+p2$df <- dfDeploy
 p2$grainCol <- "PatientEncounterID"
-p$personCol <- "PatientID"
-p2$testWindowCol <- "InTestWindowFLG"
+p2$personCol <- "PatientID"
 p2$predictedCol <- "A1CNBR"
 p2$impute <- TRUE
 p2$debug <- FALSE
@@ -266,10 +264,11 @@ p2$cores <- 1
 
 dL <- LinearMixedModelDeployment$new(p2)
 dL$deploy()
+dfOut <- dL$getOutDf()
 
 writeData(MSSQLConnectionString = connection.string,
           df = dfOut,
-          tableName = 'HCRDeployClassificationBASE')
+          tableName = 'HCRDeployRegressionBASE')
 
 print(proc.time() - ptm)
 }
@@ -294,14 +293,14 @@ df <- read.csv(file = csvfile,
                header = TRUE, 
                na.strings = c("NULL", "NA", ""))
 
-head(df)
-str(df)
+# Save a dataframe for validation later on
+dfDeploy <- df[951:1000,]
 
 ## 2. Train and save the model using DEVELOP
-set.seed(42)
-inTest <- df$InTestWindowFLG # save this for deploy
-df$InTestWindowFLG <- NULL
+print('Historical, development data:')
+str(df)
 
+set.seed(42)
 p <- SupervisedModelDevelopmentParams$new()
 p$df <- df
 p$type <- "classification"
@@ -313,18 +312,18 @@ p$debug <- FALSE
 p$cores <- 1
 
 # Run Linear Mixed Model
-LinearMixedModel <- LinearMixedModelDevelopment$new(p)
-LinearMixedModel$run()
+lmm <- LinearMixedModelDevelopment$new(p)
+lmm$run()
 
 ## 3. Load saved model and use DEPLOY to generate predictions. 
-df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+print('Fake production data:')
+str(dfDeploy)
 
 p2 <- SupervisedModelDeploymentParams$new()
 p2$type <- "classification"
-p2$df <- df
+p2$df <- dfDeploy
 p2$grainCol <- "PatientEncounterID"
 p2$personCol <- "PatientID"
-p2$testWindowCol <- "InTestWindowFLG"
 p2$predictedCol <- "ThirtyDayReadmitFLG"
 p2$impute <- TRUE
 p2$debug <- FALSE
@@ -360,14 +359,14 @@ df <- read.csv(file = csvfile,
                header = TRUE, 
                na.strings = c("NULL", "NA", ""))
 
-head(df)
-str(df)
+# Save a dataframe for validation later on
+dfDeploy <- df[951:1000,]
 
 ## 2. Train and save the model using DEVELOP
-set.seed(42)
-inTest <- df$InTestWindowFLG # save this for deploy
-df$InTestWindowFLG <- NULL
+print('Historical, development data:')
+str(df)
 
+set.seed(42)
 p <- SupervisedModelDevelopmentParams$new()
 p$df <- df
 p$type <- "regression"
@@ -379,18 +378,19 @@ p$debug <- FALSE
 p$cores <- 1
 
 # Run Linear Mixed Model
-LinearMixedModel <- LinearMixedModelDevelopment$new(p)
-LinearMixedModel$run()
+lmm <- LinearMixedModelDevelopment$new(p)
+lmm$run()
 
 ## 3. Load saved model and use DEPLOY to generate predictions. 
-df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+dfDeploy$A1CNBR <- NULL # You won't know the response in production
+print('Fake production data:')
+str(dfDeploy)
 
 p2 <- SupervisedModelDeploymentParams$new()
 p2$type <- "regression"
-p2$df <- df
+p2$df <- dfDeploy
 p2$grainCol <- "PatientEncounterID"
 p2$personCol <- "PatientID"
-p2$testWindowCol <- "InTestWindowFLG"
 p2$predictedCol <- "A1CNBR"
 p2$impute <- TRUE
 p2$debug <- FALSE

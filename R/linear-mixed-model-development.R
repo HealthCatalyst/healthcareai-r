@@ -98,8 +98,6 @@
 #'
 #' head(df)
 #'
-#' df$InTestWindowFLG <- NULL
-#'
 #' set.seed(42)
 #'
 #' p <- SupervisedModelDevelopmentParams$new()
@@ -138,6 +136,7 @@
 #' trusted_connection=true
 #' "
 #'
+#' # This query should pull only rows for training. They must have a label.
 #' query <- "
 #' SELECT
 #'  [PatientEncounterID]
@@ -147,15 +146,12 @@
 #' ,[A1CNBR]
 #' ,[GenderFLG]
 #' ,[ThirtyDayReadmitFLG]
-#' ,[InTestWindowFLG]
 #' FROM [SAM].[dbo].[HCRDiabetesClinical]
 #' --no WHERE clause, because we want train AND test
 #' "
 #'
 #' df <- selectData(connection.string, query)
 #' head(df)
-#'
-#' df$InTestWindowFLG <- NULL
 #'
 #' set.seed(42)
 #'
@@ -267,6 +263,9 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
           control = list(maxit = 10000)
         )
       }
+
+      # Add factor levels (calculated in SMD) to fitLogit object
+      private$fitLogit$factorLevels <- private$factorLevels 
     }
   ),
   

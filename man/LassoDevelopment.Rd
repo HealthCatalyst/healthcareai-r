@@ -78,7 +78,6 @@ df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 head(df)
 
 df$PatientID <- NULL
-df$InTestWindowFLG <- NULL
 
 set.seed(42)
 p <- SupervisedModelDevelopmentParams$new()
@@ -114,7 +113,7 @@ server=localhost;
 database=SAM;
 trusted_connection=true
 "
-
+# This query should pull only rows for training. They must have a label.
 query <- "
 SELECT
 [PatientEncounterID]
@@ -124,7 +123,6 @@ SELECT
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
-WHERE InTestWindowFLG = 'N'
 "
 df <- selectData(connection.string, query)
 head(df)

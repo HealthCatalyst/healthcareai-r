@@ -24,15 +24,13 @@ Imports:
     e1071,
     grpreg,
     lme4,
+    odbc,
     pROC,
     R6,
     ranger,
     ROCR,
     RSQLite,
-    xgboost,
-    magrittr,
-    dplyr,
-    odbc
+    xgboost
 RoxygenNote: 6.0.1
 Suggests:
     testthat

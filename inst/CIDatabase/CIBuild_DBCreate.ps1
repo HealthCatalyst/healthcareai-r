@@ -42,8 +42,7 @@ CREATE TABLE [dbo].[HCRDiabetesClinical](
     [LDLNBR] [float] NULL,
     [A1CNBR] [float] NULL,
     [GenderFLG] [nvarchar](255) NULL,
-    [ThirtyDayReadmitFLG] [nvarchar](255) NULL,
-    [InTestWindowFLG] [nvarchar](255) NULL
+    [ThirtyDayReadmitFLG] [nvarchar](255) NULL
 )
 
 CREATE TABLE [dbo].[HCRWriteData](

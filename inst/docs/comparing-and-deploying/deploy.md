@@ -15,7 +15,6 @@ One can do both classification (ie, predict Y or N) as well as regression (ie, p
 Nope. It'll help if you can follow these guidelines:
 
 * Don't use 0 or 1 for the independent variable when doing classification. Use Y/N instead. The IIF function in T-SQL may help here.
-* Create a column called InTestWindow that has `Y` for those people or encounters that you want a prediction generated for and 'N' for rows to ignore.
 * Unlike the [development step](compare.md) (which you should have already completed), you now only need to select test rows in your query.
 * Predictions on test rows can be output to a dataframe or directly to an MSSQL table. If using a table, one has to create the table to receive the predicted values. You can work in SSMS (or SAMD, for those using Health Catalyst products):
     - Create these tables when doing classification or regression, respectively:
@@ -74,7 +73,6 @@ trusted_connection=true
 query = "
 SELECT
 [OrganizationLevel]
-,[InTestWindowFLG]
 ,[MaritalStatus]
 ,[Gender]
 ,IIF([SalariedFlag]=0,'N','Y') AS SalariedFlag
@@ -102,13 +100,9 @@ library(healthcareai)
     - __type__: a string. This will either be 'classification' or 'regression'.
     - __impute__: a boolean, defaults to FALSE. Whether to impute by replacing NULLs with column mean (for numeric columns) or column mode (for categorical columns).
     - __grainCol__: a string, defaults to None. Name of possible GrainID column in your dataset. If specified, this column will be removed, as it won't help the algorithm.
-    - __testWindowCol__: a string. Name of utility column used to indicate whether rows are in train or test set. Recall that test set receives predictions.
     - __predictedCol__: a string. Name of variable (or column) that you want to predict. 
-    - __writeToDB__: a boolean, defaults to TRUE. If TRUE, predictions will be written to the destination table. 
     - __debug__: a boolean, defaults to FALSE. If TRUE, console output when comparing models is verbose for easier debugging.
     - __cores__: an int, defaults to 4. Number of cores on machine to use for model training.
-    - __sqlConn__: a string. Specifies the driver, server, database, and whether you're using a trusted connection (which is preferred).
-    - __destSchemaTable__ : a string. Denotes the output schema and table (separated by a period) where the predictions should be pushed.
 
 ```r
 p <- DeploySupervisedModelParameters$new()
@@ -116,7 +110,6 @@ p$df = df
 p$type = 'classification'
 p$impute = TRUE
 p$grainCol = 'GrainID'
-p$testWindowCol = 'InTestWindow'
 p$predictedCol = 'SalariedFlag'
 p$debug = FALSE
 p$cores = 1
@@ -157,14 +150,12 @@ lMM$deploy()
 ## 1. Loading data and packages.
 ptm <- proc.time()
 library(healthcareai)
-
 connection.string <- "
 driver={SQL Server};
 server=localhost;
 database=SAM;
 trusted_connection=true
 "
-
 query <- "
 SELECT
 [PatientEncounterID] --Only need one ID column for random forest
@@ -173,85 +164,15 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
 "
-
 df <- selectData(connection.string, query)
-
-head(df)
-str(df)
-
-## 2. Train and save the model using DEVELOP
-#' set.seed(42)
-inTest <- df$InTestWindowFLG # save this for deploy
-df$InTestWindowFLG <- NULL
-
-p <- SupervisedModelDevelopmentParams$new()
-p$df <- df
-p$type <- "classification"
-p$impute <- TRUE
-p$grainCol <- "PatientEncounterID"
-p$predictedCol <- "ThirtyDayReadmitFLG"
-p$debug <- FALSE
-p$cores <- 1
-
-# Run RandomForest
-RandomForest <- RandomForestDevelopment$new(p)
-RandomForest$run()
-
-## 3. Load saved model and use DEPLOY to generate predictions. 
-df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
-
-p2 <- SupervisedModelDeploymentParams$new()
-p2$type <- "classification"
-p2$df <- df
-p2$grainCol <- "PatientEncounterID"
-p2$testWindowCol <- "InTestWindowFLG"
-p2$predictedCol <- "ThirtyDayReadmitFLG"
-p2$impute <- TRUE
-p2$debug <- FALSE
-p2$cores <- 1
-p2$sqlConn <- connection.string
-p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
-
-# Assuming Random Forest was more accurate in the development step.
-dL <- RandomForestDeployment$new(p2)
-dL$deploy()
-
-print(proc.time() - ptm)
-```
-
-## Full example code for reading (and pushing predictions to) a CSV
-
-Start with the arguments. You'll want to add
-
-```r
-#### Classification Example using csv data ####
-## 1. Loading data and packages.
-ptm <- proc.time()
-library(healthcareai)
-
-# setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
-
-# Can delete this line in your work
-csvfile <- system.file("extdata", 
-                    "HCRDiabetesClinical.csv", 
-                    package = "healthcareai")
-
-# Replace csvfile with 'path/file'
-df <- read.csv(file = csvfile, 
-            header = TRUE, 
-            na.strings = c("NULL", "NA", ""))
-
-head(df)
-str(df)
+# Partition develop and deploy data
+dfDeploy <- df[951:1000,]
 
 ## 2. Train and save the model using DEVELOP
-df$PatientID <- NULL
-inTest <- df$InTestWindowFLG # save this for later.
-df$InTestWindowFLG <- NULL
-
+print('Historical, development data:')
+str(df)
 set.seed(42)
 p <- SupervisedModelDevelopmentParams$new()
 p$df <- df
@@ -261,32 +182,86 @@ p$grainCol <- "PatientEncounterID"
 p$predictedCol <- "ThirtyDayReadmitFLG"
 p$debug <- FALSE
 p$cores <- 1
-
 # Run RandomForest
 RandomForest <- RandomForestDevelopment$new(p)
 RandomForest$run()
 
 ## 3. Load saved model and use DEPLOY to generate predictions. 
-df$InTestWindowFLG <- inTest
+print('Fake production data:')
+str(dfDeploy)
 p2 <- SupervisedModelDeploymentParams$new()
 p2$type <- "classification"
-p2$df <- df
-p2$testWindowCol <- "InTestWindowFLG"
+p2$df <- dfDeploy
 p2$grainCol <- "PatientEncounterID"
 p2$predictedCol <- "ThirtyDayReadmitFLG"
 p2$impute <- TRUE
 p2$debug <- FALSE
 p2$cores <- 1
-p2$writeToDB <- FALSE
-
-# Assuming Random Forest was more accurate in the development step.
 dL <- RandomForestDeployment$new(p2)
 dL$deploy()
+dfOut <- dL$getOutDf()
+writeData(MSSQLConnectionString = connection.string,
+          df = dfOut,
+          tableName = 'HCRDeployClassificationBASE')
+print(proc.time() - ptm)
+```
 
-df <- dL$getOutDf()
+## Full example code for reading (and pushing predictions to) a CSV
+
+Start with the arguments. You'll want to add
+
+```r
+#### Classification Example using csv data ####
+
+## 1. Loading data and packages.
+ptm <- proc.time()
+library(healthcareai)
+# setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
+# Can delete this line in your work
+csvfile <- system.file("extdata", 
+                       "HCRDiabetesClinical.csv", 
+                       package = "healthcareai")
+# Replace csvfile with 'path/file'
+df <- read.csv(file = csvfile, 
+               header = TRUE, 
+               na.strings = c("NULL", "NA", ""))
+df$PatientID <- NULL # Only one ID column (ie, PatientEncounterID) is needed remove this column
+# Partition develop and deploy data
+dfDeploy <- df[951:1000,]
+
+## 2. Train and save the model using DEVELOP
+print('Historical, development data:')
+str(df)
+set.seed(42)
+p <- SupervisedModelDevelopmentParams$new()
+p$df <- df
+p$type <- "classification"
+p$impute <- TRUE
+p$grainCol <- "PatientEncounterID"
+p$predictedCol <- "ThirtyDayReadmitFLG"
+p$debug <- FALSE
+p$cores <- 1
+# Run RandomForest
+RandomForest <- RandomForestDevelopment$new(p)
+RandomForest$run()
+
+## 3. Load saved model and use DEPLOY to generate predictions. 
+print('Fake production data:')
+str(dfDeploy)
+p2 <- SupervisedModelDeploymentParams$new()
+p2$type <- "classification"
+p2$df <- dfDeploy
+p2$grainCol <- "PatientEncounterID"
+p2$predictedCol <- "ThirtyDayReadmitFLG"
+p2$impute <- TRUE
+p2$debug <- FALSE
+p2$cores <- 1
+dL <- RandomForestDeployment$new(p2)
+dL$deploy()
+dfOut <- dL$getOutDf()
+head(dfOut)
 # Write to CSV (or JSON, MySQL, etc) using plain R syntax
-# write.csv(df,'path/predictionsfile.csv')
-
+# write.csv(dfOut,'path/predictionsfile.csv')
 print(proc.time() - ptm)
 ```
 
@@ -298,13 +273,10 @@ p2$type <- "classification"
 p2$df <- df
 p2$grainCol <- "PatientEncounterID" # Unique ID for each appointment
 p$personCol <- "PatientID" # Could be multiple visits per patient
-p2$testWindowCol <- "InTestWindowFLG"
 p2$predictedCol <- "ThirtyDayReadmitFLG"
 p2$impute <- TRUE
 p2$debug <- FALSE
 p2$cores <- 1
-p2$sqlConn <- connection.string
-p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
 
 dL <- LinearMixedModelDeployment$new(p2)
 dL$deploy()
