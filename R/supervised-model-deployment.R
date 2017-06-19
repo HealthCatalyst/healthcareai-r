@@ -226,12 +226,12 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       private$dfTestRaw[[self$params$personCol]] <- NULL
     }
   },
-
-  prepareDataForVarImp = function(){
+  
+  formatFactorColumns = function(){
     # Manually Assign factor levels based on which ones were present in training.
     private$dfTestRaw <- self$params$df
     factorLevels <- private$fitLogit$factorLevels
-
+    
     # Checking to see if there are new levels in test data vs. training data.
     newLevels <- list()
     for (col in names(private$fitLogit$factorLevels)) {
@@ -264,6 +264,11 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       print(str(private$dfTestRaw))
     }
 
+    # Impute missing values introduced through new factor levels
+    private$dfTestRaw[, names(newLevels)] <- sapply(private$dfTestRaw[, names(newLevels)], imputeColumn)
+  },
+
+  makeFactorDummies = function(){
     # Split factor columns into dummy columns (for use in deploypred method)
     data <- dummyVars(~., data = private$dfTestRaw, fullRank = T)
     private$dfTestRaw <- data.frame(predict(data, newdata = private$dfTestRaw, na.action = na.pass))
