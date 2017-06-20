@@ -394,3 +394,26 @@ plotProfiler = function(listOfVectors){
     lty = 1:1
   )
 }
+
+#' @title 
+#' Boolean. Finds any 0 or 1 in predicted col. Works on factor, character,
+#' numeric, and integer variables
+#' 
+#' @description Returns a logical, TRUE or FALSE, depending on what is
+#' contained in the df or vector
+#' @param x A data frame vector, or matrix
+#' @return TRUE or FALSE depending on test
+#'
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
+#' @examples
+#' dat <- data.frame(a = c(0,1,1,0,0,0,1,1,1,0,1,0,1,0,1,0,1,1,1,0))
+#' dat2 <- data.frame(a = c(3, 4, 5, 6, 7, 8, 9))
+#' isZeroOne(dat[, 1])
+#' isZeroOne(dat2[, 1])               
+#'                 
+isZeroOne <- function(x){
+  boolResult <- any(x %in% c(0, 1, '0', '1'))
+  boolResult
+}
