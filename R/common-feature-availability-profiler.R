@@ -401,7 +401,7 @@ plotProfiler = function(listOfVectors){
 #' 
 #' @description Returns a logical, TRUE or FALSE, depending on what is
 #' contained in the df or vector
-#' @param x A data frame vector, or matrix
+#' @param x A data frame column, vector, or matrix column
 #' @return TRUE or FALSE depending on test
 #'
 #' @export
