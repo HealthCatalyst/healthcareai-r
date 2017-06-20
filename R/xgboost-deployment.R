@@ -103,6 +103,11 @@
 #' # Get raw predictions if you want
 #' # rawPredictions <- boostD$getPredictions()
 #' 
+#' # If you have known labels, check your prediction accuracy like this:
+#' # caret::confusionMatrix(true_label,
+#' #              predicted_label,
+#' #              mode = "everything")
+#' 
 #' print(proc.time() - ptm)
 #' 
 #' \donttest{
@@ -216,9 +221,28 @@
       cat('Preparing data...', '\n')
       # XGB requires data.matrix format, not data.frame.
       # R factors are 1 indexed, XGB is 0 indexed, so we must subtract 1 from the labels. They must be numeric.
-      temp_test_data <- data.matrix(self$params$df[ ,!(colnames(self$params$df) == self$params$predictedCol)])
-      self$xgb_testMatrix <- xgb.DMatrix(data = temp_test_data) 
+      temp_test_data <- self$params$df[ ,!(colnames(self$params$df) == self$params$predictedCol)]
+      temp_test_data[] <- lapply(temp_test_data, as.numeric)
+      self$xgb_testMatrix <- xgb.DMatrix(data = data.matrix(temp_test_data)) 
       rm(temp_test_data) # clean temp variables
+
+      # For multiclass xgboost initialization:
+      # 1. Load the class names from development.
+      # 2. Get the number of classes.
+      # 3. Save the grain column for output.
+      # Names
+      self$params$xgb_targetNames <- private$fitXGB$xgb_targetNames
+      # Number
+      self$params$xgb_numberOfClasses <- length(self$params$xgb_targetNames)
+      # Grain
+      private$dfGrain <- self$params$df[[self$params$grainCol]]
+      # prints
+      if (isTRUE(self$params$debug)) {
+        cat('Unique classes found:', '\n')
+        print(self$params$xgb_targetNames)
+        cat('Number of classes:', '\n')
+        print(self$params$xgb_numberOfClasses)
+      }
     },
 
     # Perform prediction
@@ -231,8 +255,7 @@
       # Build prediction output
       private$predictions <- as.data.frame(private$temp_predictions)
       private$predictions$predicted_label = max.col(private$predictions)
-      private$predictions$true_label = private$test_label + 1
-
+      
       # Set column names to match input targets
       colnames(private$predictions)[1:self$params$xgb_numberOfClasses] <- self$params$xgb_targetNames
       colnames(private$temp_predictions)[1:self$params$xgb_numberOfClasses] <- self$params$xgb_targetNames

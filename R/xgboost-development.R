@@ -107,14 +107,18 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
       cat('Preparing data...', '\n')
       # XGB requires data.matrix format, not data.frame.
       # R factors are 1 indexed, XGB is 0 indexed, so we must subtract 1 from the labels. They must be numeric.
-      temp_train_data <- data.matrix(private$dfTrain[ ,!(colnames(private$dfTrain) == self$params$predictedCol)])
-      temp_train_label <- data.matrix(as.numeric(private$dfTrain[[self$params$predictedCol]])) - 1 
-      self$xgb_trainMatrix <- xgb.DMatrix(data = temp_train_data, label = temp_train_label)
+      temp_train_data <- private$dfTrain[ ,!(colnames(private$dfTrain) == self$params$predictedCol)]
+      temp_train_data[] <- lapply(temp_train_data, as.numeric)
+      temp_train_label <- as.numeric(private$dfTrain[[self$params$predictedCol]]) - 1 
+      self$xgb_trainMatrix <- xgb.DMatrix(data = data.matrix(temp_train_data), 
+                                          label = data.matrix(temp_train_label))
       rm(temp_train_data, temp_train_label) # clean temp variables
 
-      temp_test_data <- data.matrix(private$dfTest[ ,!(colnames(private$dfTest) == self$params$predictedCol)])
-      temp_test_label <- data.matrix(as.numeric(private$dfTest[[self$params$predictedCol]])) - 1 
-      self$xgb_testMatrix <- xgb.DMatrix(data = temp_test_data, label = temp_test_label) 
+      temp_test_data <- private$dfTest[ ,!(colnames(private$dfTest) == self$params$predictedCol)]
+      temp_test_data[] <- lapply(temp_test_data, as.numeric)
+      temp_test_label <- as.numeric(private$dfTest[[self$params$predictedCol]]) - 1 
+      self$xgb_testMatrix <- xgb.DMatrix(data = data.matrix(temp_test_data), 
+                                         label = data.matrix(temp_test_label)) 
       private$test_label <- temp_test_label # save for confusion matrix and output
       rm(temp_test_data, temp_test_label) # clean temp variables
     },
@@ -124,6 +128,8 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
       self$fitXGB <- xgb.train(params = self$params$xgb_params,
                              data = self$xgb_trainMatrix,
                              nrounds = self$params$xgb_nrounds)
+      # Save target list into the fit object for use in deploy
+      self$fitXGB$xgb_targetNames <- self$params$xgb_targetNames
     },
 
     # Perform prediction
