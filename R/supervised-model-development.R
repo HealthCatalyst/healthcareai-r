@@ -86,6 +86,11 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         if (self$params$type == 'regression' && isBinary(self$params$df[[self$params$predictedCol]]) == TRUE) {
           stop('Dependent variable cannot be binary for regression')
         }
+        if (self$params$type == 'classification' && isBinary(self$params$df[[self$params$predictedCol]]) == TRUE && 
+          isZeroOne(self$params$df[[self$params$predictedCol]]) == TRUE) {
+            stop("predictedCol must be Y/N. IIF function in sql may help")
+          }
+        
       }
 
       if (!is.null(p$impute))
