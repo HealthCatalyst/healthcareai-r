@@ -149,6 +149,19 @@ CREATE TABLE [dbo].[HCRWriteData](
 	[b] [float] NULL,
 	[c] [varchar](255) NULL
 )
+
+CREATE TABLE [dbo].[dermatologyDeployClassificationBASE](
+	[BindingID] [int] NULL,
+	[BindingNM] [varchar](255) NULL,
+	[LastLoadDTS] [datetime2](7) NULL,
+	[PatientID] [decimal](38, 0) NULL,
+	[PredictedProb1] [decimal](38, 2) NULL,
+	[PredictedClass1] [varchar](255) NULL,
+	[PredictedProb2] [decimal](38, 2) NULL,
+	[PredictedClass2] [varchar](255) NULL,
+	[PredictedProb3] [decimal](38, 2) NULL,
+	[PredictedClass3] [varchar](255) NULL
+)
 ```
 
 **Note, if you have issues connecting to localhost in SSMS or RStudio, see [here](https://github.com/HealthCatalystSLC/healthcareai-py/blob/master/localhost_config.md) to create an alias.**
