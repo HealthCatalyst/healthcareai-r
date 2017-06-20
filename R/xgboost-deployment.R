@@ -94,6 +94,11 @@
 #' # Get raw predictions if you want
 #' # rawPredictions <- boostD$getPredictions()
 #' 
+#' # If you have known labels, check your prediction accuracy like this:
+#' # caret::confusionMatrix(true_label,
+#' #              predicted_label,
+#' #              mode = "everything")
+#' 
 #' print(proc.time() - ptm)
 
  XGBoostDeployment <- R6Class("XGBoostDeployment",
@@ -122,6 +127,24 @@
       temp_test_data[] <- lapply(temp_test_data, as.numeric)
       self$xgb_testMatrix <- xgb.DMatrix(data = data.matrix(temp_test_data)) 
       rm(temp_test_data) # clean temp variables
+
+      # For multiclass xgboost initialization:
+      # 1. Load the class names from development.
+      # 2. Get the number of classes.
+      # 3. Save the grain column for output.
+      # Names
+      self$params$xgb_targetNames <- private$fitXGB$xgb_targetNames
+      # Number
+      self$params$xgb_numberOfClasses <- length(self$params$xgb_targetNames)
+      # Grain
+      private$dfGrain <- self$params$df[[self$params$grainCol]]
+      # prints
+      if (isTRUE(self$params$debug)) {
+        cat('Unique classes found:', '\n')
+        print(self$params$xgb_targetNames)
+        cat('Number of classes:', '\n')
+        print(self$params$xgb_numberOfClasses)
+      }
     },
 
     # Perform prediction

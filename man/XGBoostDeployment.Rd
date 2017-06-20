@@ -106,6 +106,11 @@ head(outDf)
 # Get raw predictions if you want
 # rawPredictions <- boostD$getPredictions()
 
+# If you have known labels, check your prediction accuracy like this:
+# caret::confusionMatrix(true_label,
+#              predicted_label,
+#              mode = "everything")
+
 print(proc.time() - ptm)
 }
 \seealso{
