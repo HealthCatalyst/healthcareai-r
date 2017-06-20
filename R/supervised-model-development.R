@@ -80,10 +80,10 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         if (self$params$type != 'regression' && self$params$type != 'classification' && self$params$type != 'multiclass') {
           stop('Your type must be regression, classification, or multiclass')
         }
-        if (self$params$type =='classification' && isBinary(self$params$df[[self$params$predictedCol]]) == FALSE){
+        if (self$params$type == 'classification' && isBinary(self$params$df[[self$params$predictedCol]]) == FALSE) {
           stop('Dependent variable must be binary for classification')
         }
-        if (self$params$type =='regression' && isBinary(self$params$df[[self$params$predictedCol]]) == TRUE){
+        if (self$params$type == 'regression' && isBinary(self$params$df[[self$params$predictedCol]]) == TRUE) {
           stop('Dependent variable cannot be binary for regression')
         }
       }
