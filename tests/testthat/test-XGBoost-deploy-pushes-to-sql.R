@@ -36,13 +36,16 @@ p$xgb_params <- list("objective" = "multi:softprob",
                      "max_depth" = 6, 
                      "eta" = 0.1, 
                      "silent" = 0, 
-                     "nthread" = 2) 
+                     "nthread" = 2)   
 
 #### BEGIN TESTS ####
 
 test_that("XGBoost deploy pushes values to SQL Server", {
 
-  boost <- XGBoostDevelopment$new(p)
+  skip_on_travis()
+  skip_on_cran()
+
+  capture.output(boost <- XGBoostDevelopment$new(p))
   capture.output(boost$run())
   
   p2 <- SupervisedModelDeploymentParams$new()
@@ -65,7 +68,7 @@ test_that("XGBoost deploy pushes values to SQL Server", {
 
 test_that("XGBoost deploy pushes values to SQLite", {
   
-  boost <- XGBoostDevelopment$new(p)
+  capture.output(boost <- XGBoostDevelopment$new(p))
   capture.output(suppressWarnings(boost$run()))
   
   p2 <- SupervisedModelDeploymentParams$new()

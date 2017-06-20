@@ -38,13 +38,7 @@
 #' csvfile <- system.file("extdata", 
 #'                       "dermatology_multiclass_data.csv", 
 #'                       package = "healthcareai")
-#'
-#'#for writing to sqlite later on
-#'sqliteFile <- system.file("extdata",
-#'                          "unit-test.sqlite",
-#'                         package = "healthcareai")
-#'
-#'
+
 #'# Read in CSV; replace csvfile with 'path/file'
 #'df <- read.csv(file = csvfile, 
 #'               header = TRUE, 
@@ -95,10 +89,13 @@
 #' outDf <- boostD$getOutDf()
 #' head(outDf)
 #' 
-#' #Write to sqlite server
-#' writeData(SQLiteFileName = sqliteFile,
-#'         df = outDf,
-#'         tableName = "dermatologyDeployMulticlassBASE")
+#' # If you want to write to sqlite:
+#' # sqliteFile <- system.file("extdata",
+#' #                          "unit-test.sqlite",
+#' #                         package = "healthcareai")
+#' # writeData(SQLiteFileName = sqliteFile,
+#' #         df = outDf,
+#' #         tableName = "dermatologyDeployMulticlassBASE")
 #' 
 #' # Write to CSV (or JSON, MySQL, etc) using plain R syntax
 #' # write.csv(df,'path/predictionsfile.csv')
@@ -108,7 +105,7 @@
 #' 
 #' print(proc.time() - ptm)
 #' 
-#' 
+#' \donttest{
 #' #### Example pulling from CSV and writing to SQL server ####
 #' # This example requires you to first create a table in SQL Server
 #' # If you prefer to not use SAMD, execute this in SSMS to create output table:
@@ -195,8 +192,7 @@
 #' # Get raw predictions if you want
 #' # rawPredictions <- boostD$getPredictions()
 #' print(proc.time() - ptm)
-#' 
-#' 
+#' }
 
  XGBoostDeployment <- R6Class("XGBoostDeployment",
   #Inheritance
