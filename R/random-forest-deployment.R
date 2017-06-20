@@ -46,9 +46,9 @@
 #'                header = TRUE, 
 #'                na.strings = c("NULL", "NA", ""))
 #' 
-#' df$PatientID <- NULL # remove this column
+#' df$PatientID <- NULL # Only one ID column (ie, PatientEncounterID) is needed remove this column
 #' 
-#' # Partition develop and deploy data
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -127,7 +127,7 @@
 #' 
 #' df <- selectData(connection.string, query)
 #' 
-#' # Partition develop and deploy data
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -207,8 +207,7 @@
 #' 
 #' df <- selectData(connection.string, query)
 #' 
-#' # Partition develop and deploy data
-#' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -274,10 +273,9 @@
 #'                header = TRUE, 
 #'                na.strings = c("NULL", "NA", ""))
 #' 
-#' df$PatientID <- NULL # remove this column
+#' df$PatientID <- NULL # Only one ID column (ie, PatientEncounterID) is needed remove this column
 #' 
-#' # Partition develop and deploy data
-#' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -341,10 +339,9 @@
 #'                header = TRUE, 
 #'                na.strings = c("NULL", "NA", ""))
 #' 
-#' df$PatientID <- NULL # remove this column
+#' df$PatientID <- NULL # Only one ID column (ie, PatientEncounterID) is needed remove this column
 #' 
-#' # Partition develop and deploy data
-#' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -388,7 +385,6 @@
 #'           tableName = 'HCRDeployRegressionBASE')
 #' 
 #' print(proc.time() - ptm)
-#' 
 
 RandomForestDeployment <- R6Class("RandomForestDeployment",
   #Inheritance
@@ -448,9 +444,13 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     },
 
     calculateMultiplyRes = function() {
+      if (isTRUE(self$params$debug)) {
+        cat("Test set to be multiplied with coefficients", '\n')
+        cat(str(private$dfTestRaw), '\n')
+      }
+
       # Apply multiplication of coeff across each row of test set
-      private$multiplyRes <-
-        sweep(private$dfTestRaw, 2, private$coefficients, `*`)
+      private$multiplyRes <- sweep(private$dfTestRaw, 2, private$coefficients, `*`)
 
       if (isTRUE(self$params$debug)) {
         cat('Data frame after multiplying raw vals by coeffs', '\n')
@@ -468,7 +468,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
       if (isTRUE(self$params$debug)) {
         cat('Data frame after getting column importance ordered', '\n')
-        print(private$orderedFactors[1:10, ])
+        print(head(private$orderedFactors, n=10))
       }
     },
 
@@ -482,7 +482,10 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
         dtStamp,                           # LastLoadDTS
         private$grainTest,                 # GrainID
         private$predictions,               # PredictedProbab
-        private$orderedFactors[, 1:3])     # Top 3 Factors
+        # need three lines for case of single prediction
+        private$orderedFactors[, 1],     # Top 1 Factor
+        private$orderedFactors[, 2],     # Top 2 Factor
+        private$orderedFactors[, 3])     # Top 3 Factor
 
       predictedResultsName = ""
       if (self$params$type == 'classification') {
@@ -490,6 +493,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
       } else if (self$params$type == 'regression') {
         predictedResultsName = "PredictedValueNBR"
       }
+
       colnames(private$outDf) <- c(
         "BindingID",
         "BindingNM",
@@ -543,9 +547,13 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
               and save the model, then random forest deployment to make predictions.
               See ?RandomForestDevelopment')
       })
-      
+
       # Predict
       private$performPrediction()
+
+      # Get dummy data based on factors from develop
+      super$formatFactorColumns()
+      super$makeFactorDummies()
 
       # Calculate Coeffcients
       private$calculateCoeffcients()

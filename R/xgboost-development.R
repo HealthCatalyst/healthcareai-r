@@ -133,7 +133,9 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
 
       # Build prediction output
       private$predictions <- as.data.frame(temp_predictions)
+      # Pull the maximum probability for a given row.
       private$predictions$predicted_label = max.col(private$predictions)
+      # XGBoost internally uses 0-indexed factors. Add 1 to match R's 1-indexed factors.
       private$predictions$true_label = private$test_label + 1
 
       # Set column names to match input targets

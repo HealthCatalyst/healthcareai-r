@@ -33,7 +33,6 @@
 #' ## 1. Loading data and packages.
 #' ptm <- proc.time()
 #' library(healthcareai)
-#' 
 #' # setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 #' 
 #' # Can delete this line in your work
@@ -46,9 +45,9 @@
 #'                header = TRUE, 
 #'                na.strings = c("NULL", "NA", ""))
 #' 
-#' df$PatientID <- NULL # remove this column
+#' df$PatientID <- NULL # Only one ID column (ie, PatientEncounterID) is needed remove this column
 #' 
-#' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -127,7 +126,7 @@
 #' 
 #' df <- selectData(connection.string, query)
 #' 
-#' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -207,6 +206,7 @@
 #' 
 #' df <- selectData(connection.string, query)
 #' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -251,7 +251,7 @@
 #' print(proc.time() - ptm)
 #' }
 #' 
-#' #' #### Classification example pulling from CSV and writing to SQLite ####
+#' #### Classification example pulling from CSV and writing to SQLite ####
 #' 
 #' ## 1. Loading data and packages.
 #' ptm <- proc.time()
@@ -271,9 +271,9 @@
 #'                header = TRUE, 
 #'                na.strings = c("NULL", "NA", ""))
 #' 
-#' df$PatientID <- NULL # remove this column
+#' df$PatientID <- NULL # Only one ID column (ie, PatientEncounterID) is needed
 #' 
-#' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -337,9 +337,9 @@
 #'                header = TRUE, 
 #'                na.strings = c("NULL", "NA", ""))
 #' 
-#' df$PatientID <- NULL # remove this column
+#' df$PatientID <- NULL # Only one ID column (ie, PatientEncounterID) is needed remove this column
 #' 
-#' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -382,7 +382,6 @@
 #'           tableName = 'HCRDeployRegressionBASE')
 #' 
 #' print(proc.time() - ptm)
-#' 
 
 LassoDeployment <- R6Class(
   "LassoDeployment",
@@ -440,6 +439,48 @@ LassoDeployment <- R6Class(
       }
     },
     
+    prepareDataForVarImp = function(){
+      # Manually Assign factor levels based on which ones were present in training.
+      private$dfTestRaw <- self$params$df
+      factorLevels <- private$fitLogit$factorLevels
+      
+      # Checking to see if there are new levels in test data vs. training data.
+      newLevels <- list()
+      for (col in names(private$fitLogit$factorLevels)) {
+        # find new levels not seen in training data
+        testLevels <- levels(private$dfTestRaw[[col]])
+        newLevels[col] <- testLevels[!testLevels %in% factorLevels[[col]]]
+        # Assign new factors, setting new levels in test to NA
+        private$dfTestRaw[[col]] <- factor(private$dfTestRaw[[col]],
+                                           levels = factorLevels[[col]],
+                                           ordered = FALSE)
+        # Set new levels to NA
+        private$dfTestRaw[[col]][!(private$dfTestRaw[[col]] %in% factorLevels[[col]])] <- NA
+        # Set factor levels to training data levels
+        levels(private$dfTestRaw[[col]]) <- factorLevels[[col]]
+      }
+      
+      if (length(newLevels) > 0) {
+        warning('The following new categorical values were found: \n',
+                newLevels,
+                '\n These values have been set to NA.')
+      }
+      
+      if (isTRUE(self$params$debug)) {
+        print('Raw data set after setting factors:')
+        print(str(private$dfTestRaw))
+      }
+      
+      # Split factor columns into dummy columns (for use in deploypred method)
+      data <- dummyVars(~., data = private$dfTestRaw, fullRank = T)
+      private$dfTestRaw <- data.frame(predict(data, newdata = private$dfTestRaw, na.action = na.pass))
+      
+      if (isTRUE(self$params$debug)) {
+        print('Raw data set after creating dummy vars (for top 3 factors only)')
+        print(str(private$dfTestRaw))
+      }
+    },
+    
     calculateCoeffcients = function() {
       # Do semi-manual calc to rank cols by order of importance
       coeffTemp <- private$fitLogit$coefficients
@@ -455,11 +496,10 @@ LassoDeployment <- R6Class(
     calculateMultiplyRes = function() {
       # Apply multiplication of coeff across each row of test set Remove y (label) so
       # we do multiplication only on X (features)
-      private$dfTest[[self$params$predictedCol]] <- NULL
 
       if (isTRUE(self$params$debug)) {
-        cat("Test set after removing predicted column", '\n')
-        cat(str(private$dfTest), '\n')
+        cat("Test set to be multiplied with coefficients", '\n')
+        cat(str(private$dfTestRaw), '\n')
       }
 
       private$multiplyRes <- sweep(private$dfTestRaw, 2, private$coefficients, `*`)
@@ -477,7 +517,7 @@ LassoDeployment <- R6Class(
       
       if (isTRUE(self$params$debug)) {
         cat("Data frame after getting column importance ordered", '\n')
-        print(private$orderedFactors[1:10, ])
+        print(head(private$orderedFactors, n=10))
       }
     },
 
@@ -492,7 +532,10 @@ LassoDeployment <- R6Class(
         dtStamp,                      # LastLoadDTS
         private$grainTest,            # GrainID
         private$predictions,          # PredictedProbab
-        private$orderedFactors[, 1:3] # Top 3 Factors
+        # need three lines for case of single prediction
+        private$orderedFactors[, 1],  # Top 1 Factor
+        private$orderedFactors[, 2],  # Top 2 Factor
+        private$orderedFactors[, 3]   # Top 3 Factor
       )    
 
       predictedResultsName <- ""
@@ -557,8 +600,18 @@ LassoDeployment <- R6Class(
               the model, then lasso deployment to make predictions. See ?LassoDeployment')
       })
       
+      # Make sure factor columns have the training data factor levels
+      # Lasso predict has problems if there are missing or extra factor levels
+      # so this needs to happen before performPrediction
+      super$formatFactorColumns()
+      # Update self$params$df to reflect the training data factor levels
+      self$params$df <- private$dfTestRaw
+      
       # Predict
       private$performPrediction()
+
+      # Get dummy data based on factors from develop
+      super$makeFactorDummies()
 
       # Calculate Coeffcients
       private$calculateCoeffcients()

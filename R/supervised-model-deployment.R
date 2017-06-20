@@ -131,9 +131,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       'Consider combining into new col with fewer categories.')
     }
 
-    # Remove columns with zero variance.
-    self$params$df <- removeColsWithAllSameValue(self$params$df)
-
     if (isTRUE(self$params$debug)) {
       print('Entire df after removing feature cols with all same value')
       print(str(self$params$df))
@@ -211,18 +208,61 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       stop('You must specify a GrainID column when using DeploySupervisedModel')
     }
 
-    # Split factor columns into dummy columns (for use in deploypred method)
-    data <- dummyVars(~., data = self$params$df, fullRank = T)
-    private$dfTestRaw <- data.frame(predict(data, newdata = self$params$df, na.action = na.pass))
+    # For LMM, remove ID col so it doesn't interfere with row-based varimp calc
+    if (nchar(self$params$personCol) != 0) {
+      private$dfTestRaw[[self$params$personCol]] <- NULL
+    }
+  },
+  
+  formatFactorColumns = function(){
+    # Manually Assign factor levels based on which ones were present in training.
+    private$dfTestRaw <- self$params$df
+    factorLevels <- private$fitLogit$factorLevels
+    
+    # Checking to see if there are new levels in test data vs. training data.
+    newLevels <- list()
+    for (col in names(private$fitLogit$factorLevels)) {
+      # find new levels not seen in training data
+      testLevels <- levels(private$dfTestRaw[[col]])
+      newLevelValues <- testLevels[!testLevels %in% factorLevels[[col]]]
+      if (length(newLevelValues) > 0) {
+        newLevels[[col]] <- newLevelValues
+      }
+      # Assign new factors, setting new levels in test to NA
+      private$dfTestRaw[[col]] <- factor(private$dfTestRaw[[col]],
+                                         levels = factorLevels[[col]],
+                                         ordered = FALSE)
+      # Set new levels to NA
+      private$dfTestRaw[[col]][!(private$dfTestRaw[[col]] %in% factorLevels[[col]])] <- NA
+      # Set factor levels to training data levels
+      levels(private$dfTestRaw[[col]]) <- factorLevels[[col]]
+    }
+    
+    # Display warning if new categorical variable levels are found
+    if (length(newLevels) > 0) {
+      warning('New categorical variable levels were found:',
+              '\n Variables: ', names(newLevels),
+              '\n Levels: ', newLevels,
+              '\n These values have been set to NA.')
+    }
+    
+    if (isTRUE(self$params$debug)) {
+      print('Raw data set after setting factors:')
+      print(str(private$dfTestRaw))
+    }
+
+    # Impute missing values introduced through new factor levels
+    private$dfTestRaw[, names(newLevels)] <- sapply(private$dfTestRaw[, names(newLevels)], imputeColumn)
+  },
+
+  makeFactorDummies = function(){
+    # Split factor columns into dummy columns (for use in deploy top factors method)
+    data <- dummyVars(~., data = private$dfTestRaw, fullRank = T)
+    private$dfTestRaw <- data.frame(predict(data, newdata = private$dfTestRaw, na.action = na.pass))
 
     if (isTRUE(self$params$debug)) {
       print('Raw data set after creating dummy vars (for top 3 factors only)')
       print(str(private$dfTestRaw))
-    }
-
-    # For LMM, remove ID col so it doesn't interfere with row-based varimp calc
-    if (nchar(self$params$personCol) != 0) {
-      private$dfTestRaw[[self$params$personCol]] <- NULL
     }
   }
 ),

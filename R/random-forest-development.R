@@ -115,6 +115,7 @@
 #' trusted_connection=true
 #' "
 #'
+#' # This query should pull only rows for training. They must have a label.
 #' query <- "
 #' SELECT
 #' [PatientEncounterID]
@@ -214,7 +215,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       if (self$params$type == 'classification') {
         private$fitLogit <- glm(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrainRaw,
+          data = private$dfTrain,
           family = binomial(link = "logit"),
           metric = "ROC",
           control = list(maxit = 10000),
@@ -224,11 +225,14 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       } else if (self$params$type == 'regression') {
         private$fitLogit <- glm(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrainRaw,
+          data = private$dfTrain,
           metric = "RMSE",
           control = list(maxit = 10000)
         )
       }
+
+      # Add factor levels (calculated in SMD) to fitLogit object
+      private$fitLogit$factorLevels <- private$factorLevels 
     },
     
     buildGrid = function() {

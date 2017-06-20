@@ -50,6 +50,7 @@
 #'                header = TRUE, 
 #'                na.strings = c("NULL", "NA", ""))
 #' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -131,6 +132,7 @@
 #' 
 #' df <- selectData(connection.string, query)
 #' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -213,7 +215,7 @@
 #' 
 #' df <- selectData(connection.string, query)
 #' 
-#' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -261,7 +263,7 @@
 #' print(proc.time() - ptm)
 #' }
 #' 
-#' #' #### Classification example pulling from CSV and writing to SQLite ####
+#' #### Classification example pulling from CSV and writing to SQLite ####
 #' 
 #' ## 1. Loading data and packages.
 #' ptm <- proc.time()
@@ -281,7 +283,7 @@
 #'                header = TRUE, 
 #'                na.strings = c("NULL", "NA", ""))
 #' 
-#' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -347,7 +349,7 @@
 #'                header = TRUE, 
 #'                na.strings = c("NULL", "NA", ""))
 #' 
-#' 
+#' # Save a dataframe for validation later on
 #' dfDeploy <- df[951:1000,]
 #' 
 #' ## 2. Train and save the model using DEVELOP
@@ -393,7 +395,6 @@
 #'           tableName = 'HCRDeployRegressionBASE')
 #' 
 #' print(proc.time() - ptm)
-#' 
 
 LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
@@ -474,8 +475,12 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
         print(private$coefficients)
       }
 
-      private$multiplyRes <-
-        sweep(private$dfTestRaw, 2, private$coefficients, `*`)
+      if (isTRUE(self$params$debug)) {
+        cat("Test set to be multiplied with coefficients", '\n')
+        cat(str(private$dfTestRaw), '\n')
+      }
+
+      private$multiplyRes <- sweep(private$dfTestRaw, 2, private$coefficients, `*`)
 
       if (isTRUE(self$params$debug)) {
         cat('Data frame after multiplying raw vals by coeffs', '\n')
@@ -507,7 +512,10 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
         dtStamp,                           # LastLoadDTS
         private$grainTest,                 # GrainID
         private$predictions,             # PredictedProbab or PredictedValues
-        private$orderedFactors[, 1:3])     # Top 3 Factors
+        # need three lines for case of single prediction
+        private$orderedFactors[, 1],     # Top 1 Factor
+        private$orderedFactors[, 2],     # Top 2 Factor
+        private$orderedFactors[, 3])     # Top 3 Factor
 
       predictedResultsName <- ""
       if (self$params$type == 'classification') {
@@ -563,6 +571,13 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
       # Predict
       private$performPrediction()
+
+      # Get dummy data based on factors from develop
+      if (nchar(self$params$personCol) != 0) {
+        private$dfTestRaw[[self$params$personCol]] <- NULL
+      }
+      super$formatFactorColumns()
+      super$makeFactorDummies()
 
       # Calculate Coeffcients
       private$calculateCoeffcients()
