@@ -138,7 +138,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     }
 
     # For multiclass xgboost initialization:
-    # 1. Save the class names before they are converted.
+    # 1. Load the class names from development.
     # 2. Get the number of classes.
     # 3. Save the grain column for output.
     if (self$params$type == 'multiclass' ) {

@@ -118,8 +118,9 @@
       cat('Preparing data...', '\n')
       # XGB requires data.matrix format, not data.frame.
       # R factors are 1 indexed, XGB is 0 indexed, so we must subtract 1 from the labels. They must be numeric.
-      temp_test_data <- data.matrix(self$params$df[ ,!(colnames(self$params$df) == self$params$predictedCol)])
-      self$xgb_testMatrix <- xgb.DMatrix(data = temp_test_data) 
+      temp_test_data <- self$params$df[ ,!(colnames(self$params$df) == self$params$predictedCol)]
+      temp_test_data[] <- lapply(temp_test_data, as.numeric)
+      self$xgb_testMatrix <- xgb.DMatrix(data = data.matrix(temp_test_data)) 
       rm(temp_test_data) # clean temp variables
     },
 
@@ -133,8 +134,7 @@
       # Build prediction output
       private$predictions <- as.data.frame(private$temp_predictions)
       private$predictions$predicted_label = max.col(private$predictions)
-      private$predictions$true_label = private$test_label + 1
-
+      
       # Set column names to match input targets
       colnames(private$predictions)[1:self$params$xgb_numberOfClasses] <- self$params$xgb_targetNames
       colnames(private$temp_predictions)[1:self$params$xgb_numberOfClasses] <- self$params$xgb_targetNames
