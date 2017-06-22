@@ -439,48 +439,6 @@ LassoDeployment <- R6Class(
       }
     },
     
-    prepareDataForVarImp = function(){
-      # Manually Assign factor levels based on which ones were present in training.
-      private$dfTestRaw <- self$params$df
-      factorLevels <- private$fitLogit$factorLevels
-      
-      # Checking to see if there are new levels in test data vs. training data.
-      newLevels <- list()
-      for (col in names(private$fitLogit$factorLevels)) {
-        # find new levels not seen in training data
-        testLevels <- levels(private$dfTestRaw[[col]])
-        newLevels[col] <- testLevels[!testLevels %in% factorLevels[[col]]]
-        # Assign new factors, setting new levels in test to NA
-        private$dfTestRaw[[col]] <- factor(private$dfTestRaw[[col]],
-                                           levels = factorLevels[[col]],
-                                           ordered = FALSE)
-        # Set new levels to NA
-        private$dfTestRaw[[col]][!(private$dfTestRaw[[col]] %in% factorLevels[[col]])] <- NA
-        # Set factor levels to training data levels
-        levels(private$dfTestRaw[[col]]) <- factorLevels[[col]]
-      }
-      
-      if (length(newLevels) > 0) {
-        warning('The following new categorical values were found: \n',
-                newLevels,
-                '\n These values have been set to NA.')
-      }
-      
-      if (isTRUE(self$params$debug)) {
-        print('Raw data set after setting factors:')
-        print(str(private$dfTestRaw))
-      }
-      
-      # Split factor columns into dummy columns (for use in deploypred method)
-      data <- dummyVars(~., data = private$dfTestRaw, fullRank = T)
-      private$dfTestRaw <- data.frame(predict(data, newdata = private$dfTestRaw, na.action = na.pass))
-      
-      if (isTRUE(self$params$debug)) {
-        print('Raw data set after creating dummy vars (for top 3 factors only)')
-        print(str(private$dfTestRaw))
-      }
-    },
-    
     calculateCoeffcients = function() {
       # Do semi-manual calc to rank cols by order of importance
       coeffTemp <- private$fitLogit$coefficients
