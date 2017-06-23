@@ -213,8 +213,8 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     # Display warning if new categorical variable levels are found
     if (length(newLevels) > 0) {
       warning('New categorical variable levels were found:',
-              '\n Variables: ', names(newLevels),
-              '\n Levels: ', newLevels,
+              '\n Variables: ', paste(names(newLevels), collapse = ", "),
+              '\n Levels: ', paste(newLevels, collapse = ', '),
               '\n These values have been set to NA.')
     }
     
