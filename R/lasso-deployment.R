@@ -475,7 +475,7 @@ LassoDeployment <- R6Class(
       
       if (isTRUE(self$params$debug)) {
         cat("Data frame after getting column importance ordered", '\n')
-        print(head(private$orderedFactors, n=10))
+        print(head(private$orderedFactors, n = 10))
       }
     },
 
