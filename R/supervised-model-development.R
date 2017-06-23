@@ -187,13 +187,8 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       
       # Remove factors levels which don't actually occur in the training data
       factors <- sapply(self$params$df, is.factor)
-      if (is.data.frame(self$params$df[, factors])){
-        self$params$df[, factors] <- lapply(self$params$df[, factors], as.character)
-        self$params$df[, factors] <- lapply(self$params$df[, factors], as.factor)
-      } else {
-        self$params$df[, factors] <- sapply(self$params$df[, factors], as.character)
-        self$params$df[, factors] <- sapply(self$params$df[, factors], as.factor)
-      }
+      self$params$df[, factors] <- sapply(self$params$df[, factors], as.character)
+      self$params$df[, factors] <- sapply(self$params$df[, factors], as.factor)
 
       if (isTRUE(self$params$debug)) {
         print('Entire data set after converting to df and chr to factor')
