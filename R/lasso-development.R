@@ -214,7 +214,7 @@ LassoDevelopment <- R6Class("LassoDevelopment",
       if (self$params$type == 'classification') {
         private$fitLogit <- glm(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrain,
+          data = self$params$df,
           family = binomial(link = "logit"),
           metric = "ROC",
           control = list(maxit = 10000),
@@ -224,7 +224,7 @@ LassoDevelopment <- R6Class("LassoDevelopment",
       } else if (self$params$type == 'regression') {
         private$fitLogit <- glm(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrain,
+          data = self$params$df,
           metric = "RMSE",
           control = list(maxit = 10000)
         )
