@@ -304,6 +304,36 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         print('Factor levels for top factor calculation')
         print(str(private$factorLevels))
       }
+    }, 
+    
+    # This function must be in here for the row-wise predictions and
+    # can be replaced when LIME-like functionality is complete.
+    fitGeneralizedLinearModel = function() {
+      if (isTRUE(self$params$debug)) {
+        cat('generating fitLogit for row-wise guidance...',"\n")
+      }
+      
+      if (self$params$type == 'classification') {
+        private$fitLogit <- glm(
+          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
+          data = self$params$df,
+          family = binomial(link = "logit"),
+          metric = "ROC",
+          control = list(maxit = 10000),
+          trControl = trainControl(classProbs = TRUE, summaryFunction = twoClassSummary)
+        )
+        
+      } else if (self$params$type == 'regression') {
+        private$fitLogit <- glm(
+          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
+          data = self$params$df,
+          metric = "RMSE",
+          control = list(maxit = 10000)
+        )
+      }
+      
+      # Add factor levels (calculated in SMD) to fitLogit object
+      private$fitLogit$factorLevels <- private$factorLevels 
     }
   ),
 
