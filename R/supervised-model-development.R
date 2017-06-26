@@ -195,6 +195,27 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         self$params$df[, factors] <- sapply(self$params$df[, factors], as.character)
         self$params$df[, factors] <- sapply(self$params$df[, factors], as.factor)
       }
+      
+      # Check for factor levels which occur infrequently
+      lowLevels = list()
+      tempDf = self$params$df
+      for (col in names(tempDf)) {
+        if (is.factor(tempDf[, col])) {
+          tab <- table(tempDf[, col])
+          if (any(tab <= 3)) {
+            lowLevels[[col]] <- names(tab)[tab <= 3]  
+          }
+        }
+      }
+      
+      # Print warning about factors with levels that occur infrequently
+      if (length(lowLevels) > 0) {
+        warning('The following categorical variable levels each occur 3 times ',
+                'or fewer:\n',
+                paste('- ', names(lowLevels), ":", lowLevels, collapse = "\n"),
+                '\nThere is a chance that the model will not train on all of ',
+                'them. Consider grouping these together with other levels.')
+      }
 
       if (isTRUE(self$params$debug)) {
         print('Entire data set after converting to df and chr to factor')
@@ -294,16 +315,33 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         private$dfTrainRaw[[self$params$personCol]] <- NULL
       }
 
-      # Get factor levels as a private attribute
+      # Get factor levels as a private attribute and find levels which don't
+      # make it into the training data
       private$factorLevels <- list()
+      missingLevels <- list()
       for (col in names(private$dfTrainRaw)) {
         # only keep factor variables other than response variable
         if ((is.factor(private$dfTrainRaw[, col])) 
             & (col != self$params$predictedCol)
             & (col != self$params$personCol)) {
           # add levels to list
-          private$factorLevels[col] <- list(levels(private$dfTrainRaw[, col]))
+          devLevels <- levels(private$dfTrainRaw[, col])
+          private$factorLevels[col] <- list(devLevels)
+          # check for levels that are not in the train set
+          trainLevels <- levels(as.factor(as.character(private$dfTrainRaw[, col])))
+          if (length(devLevels[!devLevels %in% trainLevels]) > 0) {
+            missingLevels[[col]] <- devLevels[!devLevels %in% trainLevels]
+          }
         }
+      }
+      
+      # Print warning about factors with levels that occur infrequently
+      if (length(missingLevels) > 0) {
+        warning('The following categorical variable levels were not used in ',
+                'training the model:\n',
+                paste('- ', names(missingLevels), ":", missingLevels, 
+                      collapse = "\n")
+                )
       }
 
       if (isTRUE(self$params$debug)) {
