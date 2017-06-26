@@ -196,6 +196,27 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         self$params$df[, factors] <- sapply(self$params$df[, factors], as.factor)
       }
 
+      # Check for factor levels which occur infrequently
+      lowLevels = list()
+      tempDf = self$params$df
+      for (col in names(tempDf)) {
+        if (is.factor(tempDf[, col])) {
+          tab <- table(tempDf[, col])
+          if (any(tab <= 3)) {
+            lowLevels[[col]] <- names(tab)[tab <= 3]  
+          }
+        }
+      }
+      
+      # Print warning about factors with levels that occur infrequently
+      if (length(lowLevels) > 0) {
+        warning('Each of the following categorical variable levels occurs 3 ', 
+                'times or fewer:\n',
+                paste('- ', names(lowLevels), ":", lowLevels, collapse = "\n"),
+                '\nThere is a chance that the model will not train on all of ',
+                'them. Consider grouping these together with other levels.')
+      }
+      
       if (isTRUE(self$params$debug)) {
         print('Entire data set after converting to df and chr to factor')
         print(str(self$params$df))
