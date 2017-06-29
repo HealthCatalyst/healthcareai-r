@@ -307,10 +307,9 @@
       }
 
       # update column names, also dealing with case of only 2 classes
-      number_of_columns = min(6, ncol(private$orderedProbs))
       colnames(private$orderedProbs) <- c('PredictedProb1','PredictedClass1',
         'PredictedProb2','PredictedClass2',
-        'PredictedProb3','PredictedClass3')[1:number_of_columns]
+        'PredictedProb3','PredictedClass3')[1:ncol(private$orderedProbs)]
 
       # update row names
       row.names(private$orderedProbs) <- 1:nRows
