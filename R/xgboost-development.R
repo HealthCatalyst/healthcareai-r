@@ -129,7 +129,8 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
                              data = self$xgb_trainMatrix,
                              nrounds = self$params$xgb_nrounds)
       # Save target list into the fit object for use in deploy
-      self$fitXGB$xgb_targetNames <- self$params$xgb_targetNames
+      # coerce the target names to characters to avoid factor subsetting issues
+      self$fitXGB$xgb_targetNames <- as.character(self$params$xgb_targetNames)
     },
 
     # Perform prediction
