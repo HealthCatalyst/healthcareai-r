@@ -40,7 +40,7 @@ Note: If using macOS with healthcare.ai, you'll have to use csv files. We're wor
 * In the console, install RODBC from source with `install.packages('RODBC',type = "source")`
 * In the console, install other R healthcare.ai prerequisites via
 ```
-install.packages(c('caret','data.table','doParallel','e1071','grpreg','lme4','lubridate','pROC','R6','ranger','ROCR'),repos = "https://cran.cnr.berkeley.edu/")
+install.packages(c('caret','data.table','DBI','doParallel','e1071','grpreg','lme4','odbc','pROC','R6','ranger','ROCR','RSQLite','xgboost'),repos = "https://cran.cnr.berkeley.edu/")
 ```
 * Install healthcare.ai
 ```
@@ -59,7 +59,7 @@ install.packages('healthcareai')
 
 * Grab prerequisites via the console of RGui or (preferably) RStudio  
 ```
-install.packages(c('caret','data.table','devtools','doParallel','e1071','grpreg','lme4','lubridate','pROC','R6','ranger','ROCR','RODBC'),repos = "https://cran.cnr.berkeley.edu/")
+install.packages(c('caret','data.table','DBI','doParallel','e1071','grpreg','lme4','odbc','pROC','R6','ranger','ROCR','RSQLite','xgboost'),repos = "https://cran.cnr.berkeley.edu/")
 
 library(devtools)
 devtools::install_github(repo='HealthCatalystSLC/healthcareai-r')
