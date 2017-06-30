@@ -32,7 +32,7 @@ install.packages('healthcareai')
 Note: If using macOS with healthcare.ai, you'll have to use csv files. We're working on adding MySQL connections. We'd [love to hear](http://healthcare.ai/contact) which other databases your connecting to, so we can provide native support!
 
 * Open the Mac Terminal
-* Install [Xcode](https://en.wikipedia.org/wiki/Xcode) compilers via `xcode-select –install`
+* Install [Xcode](https://en.wikipedia.org/wiki/Xcode) compilers via `xcode-select –-install`
 * Accept the Xcode license via `sudo xcodebuild -license`
 * Install [Homebrew](https://brew.sh/) (the macOS package manager)
 * Install ODBC driver via `brew update && brew install unixODBC`
