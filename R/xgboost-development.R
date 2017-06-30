@@ -215,7 +215,7 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
                 private$predictions$predicted_label)
       true_labels <- factor(private$predictions$true_label, u)
       predicted_labels <- factor(private$predictions$predicted_label, u)
-      print(confusionMatrix(predicted_labels, true_labels, 
+      print(caret::confusionMatrix(predicted_labels, true_labels, 
                             dnn = c("Predicted","True")))
     },
 
