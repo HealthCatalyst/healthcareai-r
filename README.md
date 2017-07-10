@@ -34,7 +34,7 @@ Note: If using macOS with healthcare.ai, you'll have to use csv files. We're wor
 * Open the Mac Terminal
 * Install [Xcode](https://en.wikipedia.org/wiki/Xcode) compilers via `xcode-select --install`
 * Accept the Xcode license via `sudo xcodebuild -license`
-* Install [Homebrew](https://brew.sh/) (the macOS package manager) with
+* Install [Homebrew](https://brew.sh/) (the macOS package manager)
 * Install ODBC driver via `brew update && brew install unixODBC`
 * Open R Studio
 * In the console, install RODBC from source with `install.packages('RODBC',type = "source")`
