@@ -1,36 +1,36 @@
-context("Checking deploy predictions from sql server to sql server")
-
-  connectionString <- "
-  driver={SQL Server};
-  server=localhost;
-  database=SAM;
-  trusted_connection=true
-  "
-  
-  query <- "
-  SELECT
-  [PatientID]
-  ,[PatientEncounterID] --Only need one ID column for random forest/lasso
-  ,[SystolicBPNBR]
-  ,[LDLNBR]
-  ,[A1CNBR]
-  ,[GenderFLG]
-  ,[ThirtyDayReadmitFLG]
-  FROM [SAM].[dbo].[HCRDiabetesClinical]
-  "
-  df <- selectData(connectionString, query)
-  
-  dfDeploy <- df[951:1000,]
-  
-  set.seed(43)
-  p <- SupervisedModelDevelopmentParams$new()
-  p$df = df
-  p$grainCol = 'PatientEncounterID'
-  p$impute = TRUE
-  p$debug = FALSE
-  p$cores = 1
-  p$tune = FALSE
-  p$numberOfTrees = 201
+# context("Checking deploy predictions from sql server to sql server")
+# 
+#   connectionString <- "
+#   driver={SQL Server};
+#   server=localhost;
+#   database=SAM;
+#   trusted_connection=true
+#   "
+#   
+#   query <- "
+#   SELECT
+#   [PatientID]
+#   ,[PatientEncounterID] --Only need one ID column for random forest/lasso
+#   ,[SystolicBPNBR]
+#   ,[LDLNBR]
+#   ,[A1CNBR]
+#   ,[GenderFLG]
+#   ,[ThirtyDayReadmitFLG]
+#   FROM [SAM].[dbo].[HCRDiabetesClinical]
+#   "
+#   df <- selectData(connectionString, query)
+#   
+#   dfDeploy <- df[951:1000,]
+#   
+#   set.seed(43)
+#   p <- SupervisedModelDevelopmentParams$new()
+#   p$df = df
+#   p$grainCol = 'PatientEncounterID'
+#   p$impute = TRUE
+#   p$debug = FALSE
+#   p$cores = 1
+#   p$tune = FALSE
+#   p$numberOfTrees = 201
 
  #### BEGIN TESTS ####
 
