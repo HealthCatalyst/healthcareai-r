@@ -183,8 +183,11 @@ test_that("Extra factors are imputed correctly for rf (1 column)", {
   capture.output(rfD3 <- RandomForestDeployment$new(p3))
   
   # Check that a warning reporting new factor levels is triggered
-  # TODO: specify warning text
-  expect_warning(rfD3$deploy())
+  expect_warning(rfD3$deploy(), 
+                 paste("New categorical variable levels were found:\n",
+                       " -  heat : Frozen\n",
+                       "These values have been set to NA.",
+                       sep = ""))
   
   rfOutDf3 <- rfD3$getOutDf()
   
@@ -195,10 +198,13 @@ test_that("Extra factors are imputed correctly for rf (1 column)", {
 test_that("Extra factors are imputed correctly for lasso  (1 column)", {
   # Deploy on 3 rows, which should yield the same predictions
   capture.output(lassoD3 <- LassoDeployment$new(p3))
-  expect_warning(lassoD3$deploy())
-  
   # Check that a warning reporting new factor levels is triggered
-  # TODO: specify warning text
+  expect_warning(lassoD3$deploy(), 
+                 paste("New categorical variable levels were found:\n",
+                       " -  heat : Frozen\n",
+                       "These values have been set to NA.",
+                       sep = ""))
+  
   lassoOutDf3 <- lassoD3$getOutDf()
   
   # Check that new value is treated as NA
@@ -210,11 +216,13 @@ test_that("Extra factors are imputed correctly for rf (2 columns)", {
   capture.output(rfD4 <- RandomForestDeployment$new(p4))
   
   # Check that a warning reporting new factor levels is triggered
-  # TODO: specify warning text
-  expect_warning(rfD4$deploy())
-  
-  rfD4 <- RandomForestDeployment$new(p4)
-  rfD4$deploy()
+  # Use regular expression to deal with weird quote issues
+  expect_warning(rfD4$deploy(), 
+                 regex = paste("New categorical variable levels were found:\n",
+                               " -  heat : .{3}Caliente.{4}Lukewarm.{2}\n",
+                               " -  condiment : .{3}Chili.{4}Fudge.{2}\n", 
+                               "These values have been set to NA.",
+                               sep = ""))
   
   rfOutDf4 <- rfD4$getOutDf()
   
