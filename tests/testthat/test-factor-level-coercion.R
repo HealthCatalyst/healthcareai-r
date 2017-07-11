@@ -42,24 +42,22 @@ p$cores <- 1
 
 # Run RandomForest
 RandomForest <- RandomForestDevelopment$new(p)
-RandomForest$run()
+capture.output(RandomForest$run())
 # Run Lasso
 Lasso <- LassoDevelopment$new(p)
-Lasso$run()
+capture.output(Lasso$run())
 
 # reset seed
 set.seed(NULL)
 
 
-test_that("Single row predictions work", {
+test_that("Single row predictions work for RF", {
   #
   dfDeploy1 <- data.frame(id = 9001,
                           length = 6,
                           diameter = 3,
                           heat = "Cold",
                           condiment = "Syrup")
-  dfDeploy1
-  str(dfDeploy1)
   
   p1 <- SupervisedModelDeploymentParams$new()
   p1$type <- "classification"
@@ -67,7 +65,7 @@ test_that("Single row predictions work", {
   p1$grainCol <- "id"
   p1$predictedCol <- "isHotDog"
   p1$impute <- TRUE
-  p1$debug <- T
+  p1$debug <- F
   p1$cores <- 1
   
   rfD1 <- RandomForestDeployment$new(p1)
@@ -81,15 +79,28 @@ test_that("Single row predictions work", {
   expect_equal(dim(rfOutDf1)[2], 8)
 })
 
-test_that("Predictions are independent of each other", {
+
+test_that("Single row predictions work for lasso", {
+  #
+  lassoD1 <- LassoDeployment$new(p1)
+  lassoD1$deploy()
+  
+  lassoOutDf1 <- lassoD1$getOutDf()
+  lassoOutDf1
+  
+  # Check that dimensions of prediction dataframe are correct
+  expect_equal(dim(lassoOutDf1)[1], 1)
+  expect_equal(dim(lassoOutDf1)[2], 8)
+})
+
+
+test_that("RF predictions are independent of each other", {
   #
   dfDeploy2 <- data.frame(id = c(9001, 9002),
                           length = c(6, 2),
                           diameter = c(3, 2), 
                           heat = c("Cold", "Hot"),
                           condiment = c("Syrup", "Mustard"))
-  dfDeploy2
-  str(dfDeploy2)
   
   p2 <- SupervisedModelDeploymentParams$new()
   p2$type <- "classification"
@@ -117,13 +128,22 @@ test_that("Predictions are independent of each other", {
   expect_equal(rfOutDf1[1, ]$PredictedProbNBR, rfOutDf2[1, ]$PredictedProbNBR)
 })
 
+
+test_that("Lasso predictions are independent of each other", {
+  #
+  
+  lassoD2 <- LassoDeployment$new(p2)
+  lassoD2$deploy()
+  
+  lassoOutDf2 <- lassoD2$getOutDf()
+  lassoOutDf2
+  
+  # Check that the prediction is unchanged when the row is embedded in a 
+  # larger data frame
+  expect_equal(lassoOutDf1[1, ]$PredictedProbNBR, lassoOutDf2[1, ]$PredictedProbNBR)
+})
+
+
 test_that("Extra factors", {
   
 })
-
-dfDeploy1 <- data.frame(PatientEncounterID = 2001,
-                        SystolicBPNBR = round(rnorm(n, mean = 150, sd = 15)),
-                        LDLNBR = round(rnorm(n, mean = 180, sd = 30)), 
-                        A1CNBR = round(rnorm(n, mean = 5, sd = 2.5), digits = 1),
-                        GenderFLG = c('F'))
-dfDeploy1
