@@ -99,7 +99,7 @@ p3$impute <- TRUE
 p3$debug <- F
 p3$cores <- 1
 
-# Data set with new factor level in one column
+# Data set with new factor levels in two columns
 # Need last row for imputation
 dfDeploy4 <- data.frame(id = c(9006, 9007, 9008, 9009),
                         length = c(5, 5, 5, 5),
@@ -229,4 +229,24 @@ test_that("Extra factors are imputed correctly for rf (2 columns)", {
   # Check that new value is treated as NA
   expect_equal(rfOutDf4[1, ]$PredictedProbNBR, rfOutDf4[3, ]$PredictedProbNBR)
   expect_equal(rfOutDf4[2, ]$PredictedProbNBR, rfOutDf4[3, ]$PredictedProbNBR)
+})
+
+test_that("Extra factors are imputed correctly for lasso (2 columns)", {
+  # Deploy on 3 rows, which should yield the same predictions
+  capture.output(lassoD4 <- LassoDeployment$new(p4))
+  
+  # Check that a warning reporting new factor levels is triggered
+  # Use regular expression to deal with weird quote issues
+  expect_warning(lassoD4$deploy(), 
+                 regex = paste("New categorical variable levels were found:\n",
+                               " -  heat : .{3}Caliente.{4}Lukewarm.{2}\n",
+                               " -  condiment : .{3}Chili.{4}Fudge.{2}\n", 
+                               "These values have been set to NA.",
+                               sep = ""))
+  
+  lassoOutDf4 <- lassoD4$getOutDf()
+  
+  # Check that new value is treated as NA
+  expect_equal(lassoOutDf4[1, ]$PredictedProbNBR, lassoOutDf4[3, ]$PredictedProbNBR)
+  expect_equal(lassoOutDf4[2, ]$PredictedProbNBR, lassoOutDf4[3, ]$PredictedProbNBR)
 })
