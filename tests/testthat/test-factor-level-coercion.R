@@ -50,100 +50,175 @@ capture.output(Lasso$run())
 # reset seed
 set.seed(NULL)
 
+# Single row prediction data set
+dfDeploy1 <- data.frame(id = 9001,
+                        length = 6,
+                        diameter = 3,
+                        heat = "Cold",
+                        condiment = "Syrup")
+
+p1 <- SupervisedModelDeploymentParams$new()
+p1$type <- "classification"
+p1$df <- dfDeploy1
+p1$grainCol <- "id"
+p1$predictedCol <- "isHotDog"
+p1$impute <- TRUE
+p1$debug <- F
+p1$cores <- 1
+
+# Two row prediction data set, with first row same as dfDeploy2
+dfDeploy2 <- data.frame(id = c(9001, 9002),
+                        length = c(6, 2),
+                        diameter = c(3, 2), 
+                        heat = c("Cold", "Hot"),
+                        condiment = c("Syrup", "Mustard"))
+
+p2 <- SupervisedModelDeploymentParams$new()
+p2$type <- "classification"
+p2$df <- dfDeploy2
+p2$grainCol <- "id"
+p2$predictedCol <- "isHotDog"
+p2$impute <- TRUE
+p2$debug <- F
+p2$cores <- 1
+
+# Data set with new factor level in one column
+# Need last row for imputation
+dfDeploy3 <- data.frame(id = c(9003, 9004, 9005),
+                        length = c(6, 6, 6),
+                        diameter = c(3, 3, 3), 
+                        heat = c("Frozen", NA, "Cold"),
+                        condiment = c("Ketchup", "Ketchup", "Ketchup"))
+
+p3 <- SupervisedModelDeploymentParams$new()
+p3$type <- "classification"
+p3$df <- dfDeploy3
+p3$grainCol <- "id"
+p3$predictedCol <- "isHotDog"
+p3$impute <- TRUE
+p3$debug <- F
+p3$cores <- 1
+
+# Data set with new factor level in one column
+# Need last row for imputation
+dfDeploy4 <- data.frame(id = c(9006, 9007, 9008, 9009),
+                        length = c(5, 5, 5, 5),
+                        diameter = c(2, 2, 2, 2), 
+                        heat = c("Lukewarm", "Caliente", NA, "Hot"),
+                        condiment = c("Chili", "Fudge", NA, "Wasabi"))
+
+p4 <- SupervisedModelDeploymentParams$new()
+p4$type <- "classification"
+p4$df <- dfDeploy4
+p4$grainCol <- "id"
+p4$predictedCol <- "isHotDog"
+p4$impute <- TRUE
+p4$debug <- F
+p4$cores <- 1
+
+#### BEGIN TESTS ####
 
 test_that("Single row predictions work for RF", {
-  #
-  dfDeploy1 <- data.frame(id = 9001,
-                          length = 6,
-                          diameter = 3,
-                          heat = "Cold",
-                          condiment = "Syrup")
-  
-  p1 <- SupervisedModelDeploymentParams$new()
-  p1$type <- "classification"
-  p1$df <- dfDeploy1
-  p1$grainCol <- "id"
-  p1$predictedCol <- "isHotDog"
-  p1$impute <- TRUE
-  p1$debug <- F
-  p1$cores <- 1
-  
-  rfD1 <- RandomForestDeployment$new(p1)
+  # Deploy rf on single row
+  capture.output(rfD1 <- RandomForestDeployment$new(p1))
   rfD1$deploy()
   
+  # Get prediction
   rfOutDf1 <- rfD1$getOutDf()
-  rfOutDf1
   
   # Check that dimensions of prediction dataframe are correct
   expect_equal(dim(rfOutDf1)[1], 1)
   expect_equal(dim(rfOutDf1)[2], 8)
 })
 
-
 test_that("Single row predictions work for lasso", {
-  #
-  lassoD1 <- LassoDeployment$new(p1)
+  # Deploy lasso on single row
+  capture.output(lassoD1 <- LassoDeployment$new(p1))
   lassoD1$deploy()
   
+  # Get prediction
   lassoOutDf1 <- lassoD1$getOutDf()
-  lassoOutDf1
   
   # Check that dimensions of prediction dataframe are correct
   expect_equal(dim(lassoOutDf1)[1], 1)
   expect_equal(dim(lassoOutDf1)[2], 8)
 })
 
-
 test_that("RF predictions are independent of each other", {
-  #
-  dfDeploy2 <- data.frame(id = c(9001, 9002),
-                          length = c(6, 2),
-                          diameter = c(3, 2), 
-                          heat = c("Cold", "Hot"),
-                          condiment = c("Syrup", "Mustard"))
+  # Deploy rf on single row
+  capture.output(rfD1 <- RandomForestDeployment$new(p1))
+  rfD1$deploy()
   
-  p2 <- SupervisedModelDeploymentParams$new()
-  p2$type <- "classification"
-  p2$df <- dfDeploy2
-  p2$grainCol <- "id"
-  p2$predictedCol <- "isHotDog"
-  p2$impute <- TRUE
-  p2$debug <- F
-  p2$cores <- 1
+  rfOutDf1 <- rfD1$getOutDf()
   
-  rfD2 <- RandomForestDeployment$new(p2)
+  # Deploy rf on 2 rows, one of which is identical to the one above
+  capture.output(rfD2 <- RandomForestDeployment$new(p2))
   rfD2$deploy()
   
   rfOutDf2 <- rfD2$getOutDf()
-  rfOutDf2
   
-  lassoD2 <- LassoDeployment$new(p2)
-  lassoD2$deploy()
-  
-  lassoOutDf2 <- lassoD2$getOutDf()
-  lassoOutDf2
-  
-  # Check that the prediction is unchanged when the row is embedded in a 
-  # larger data frame
+  # Check that the predictions are the same
   expect_equal(rfOutDf1[1, ]$PredictedProbNBR, rfOutDf2[1, ]$PredictedProbNBR)
 })
 
-
 test_that("Lasso predictions are independent of each other", {
-  #
+  # Deploy lasso on single row
+  capture.output(lassoD1 <- LassoDeployment$new(p1))
+  lassoD1$deploy()
   
-  lassoD2 <- LassoDeployment$new(p2)
+  lassoOutDf1 <- lassoD1$getOutDf()
+  
+  # Deploy lasso on 2 rows, one of which is identical to the one above
+  capture.output(lassoD2 <- LassoDeployment$new(p2))
   lassoD2$deploy()
   
   lassoOutDf2 <- lassoD2$getOutDf()
-  lassoOutDf2
   
-  # Check that the prediction is unchanged when the row is embedded in a 
-  # larger data frame
+  # Check that the predictions are the same
   expect_equal(lassoOutDf1[1, ]$PredictedProbNBR, lassoOutDf2[1, ]$PredictedProbNBR)
 })
 
-
-test_that("Extra factors", {
+test_that("Extra factors are imputed correctly for rf (1 column)", {
+  # Deploy on 3 rows, which should yield the same predictions
+  capture.output(rfD3 <- RandomForestDeployment$new(p3))
   
+  # Check that a warning reporting new factor levels is triggered
+  # TODO: specify warning text
+  expect_warning(rfD3$deploy())
+  
+  rfOutDf3 <- rfD3$getOutDf()
+  
+  # Check that new value is treated as NA
+  expect_equal(rfOutDf3[1, ]$PredictedProbNBR, rfOutDf3[2, ]$PredictedProbNBR)
+})
+
+test_that("Extra factors are imputed correctly for lasso  (1 column)", {
+  # Deploy on 3 rows, which should yield the same predictions
+  capture.output(lassoD3 <- LassoDeployment$new(p3))
+  expect_warning(lassoD3$deploy())
+  
+  # Check that a warning reporting new factor levels is triggered
+  # TODO: specify warning text
+  lassoOutDf3 <- lassoD3$getOutDf()
+  
+  # Check that new value is treated as NA
+  expect_equal(lassoOutDf3[1, ]$PredictedProbNBR, lassoOutDf3[2, ]$PredictedProbNBR)
+})
+
+test_that("Extra factors are imputed correctly for rf (2 columns)", {
+  # Deploy on 3 rows, which should yield the same predictions
+  capture.output(rfD4 <- RandomForestDeployment$new(p4))
+  
+  # Check that a warning reporting new factor levels is triggered
+  # TODO: specify warning text
+  expect_warning(rfD4$deploy())
+  
+  rfD4 <- RandomForestDeployment$new(p4)
+  rfD4$deploy()
+  
+  rfOutDf4 <- rfD4$getOutDf()
+  
+  # Check that new value is treated as NA
+  expect_equal(rfOutDf4[1, ]$PredictedProbNBR, rfOutDf4[3, ]$PredictedProbNBR)
+  expect_equal(rfOutDf4[2, ]$PredictedProbNBR, rfOutDf4[3, ]$PredictedProbNBR)
 })
