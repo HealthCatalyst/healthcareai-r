@@ -116,6 +116,22 @@ p4$impute <- TRUE
 p4$debug <- F
 p4$cores <- 1
 
+# Single row data set with NAs
+dfDeploy5 <- data.frame(id = 9010,
+                        length = 8,
+                        diameter = NA, 
+                        heat = "Hot",
+                        condiment = "NA")
+
+p5 <- SupervisedModelDeploymentParams$new()
+p5$type <- "classification"
+p5$df <- dfDeploy5
+p5$grainCol <- "id"
+p5$predictedCol <- "isHotDog"
+p5$impute <- TRUE
+p5$debug <- F
+p5$cores <- 1
+
 #### BEGIN TESTS ####
 
 test_that("Single row predictions work for RF", {
@@ -250,3 +266,8 @@ test_that("Extra factors are imputed correctly for lasso (2 columns)", {
   expect_equal(lassoOutDf4[1, ]$PredictedProbNBR, lassoOutDf4[3, ]$PredictedProbNBR)
   expect_equal(lassoOutDf4[2, ]$PredictedProbNBR, lassoOutDf4[3, ]$PredictedProbNBR)
 })
+
+# TODO: make test for single row predictions when data contains NAs
+# Currently, imputation is done using the deployset so will fail if there is 
+# only one row
+
