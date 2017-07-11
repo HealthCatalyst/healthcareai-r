@@ -426,3 +426,126 @@ getPipedValue <- function(string) {
     result
   }
 }
+
+
+#' @title
+#' Find variation across groups
+#' @description 
+#' @import ggplot2
+#' @param df A dataframe
+#' @param categoricalCols Vector of strings representing categorical column(s)
+#' @param measureColumn Vector of strings representing measure column(s)
+#' @param dateCol Optional. A date(time) column to group by (done by month) 
+#' @return A boxplot to compare variation across groups.
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}} \code{\link{calculateCOV}} 
+#' \code{\link{createVarianceTallTable}}
+#' @examples
+#' df <- data.frame(Dept = c('A','A','A','B','B','B','B','B'),
+#'                  Gender = c('F','M','M','M','M','F','F','F'),
+#'                  LOS = c(3.2,NA,5,1.3,2.4,4,9,10))
+#'
+#' categoricalCols <- c("Dept","Gender")
+#' 
+#' variationAcrossGroups(df = df, 
+#'                        categoricalCols = categoricalCols,
+#'                        measureColumn = "LOS")
+#'
+
+
+variationAcrossGroups <- function(df, 
+                                  categoricalCols,
+                                  measureColumn,
+                                  dateCol = NULL) {
+  
+  if (!all(c(categoricalCols,measureColumn,dateCol) %in% names(df))) {
+    stop('The measure column or one of the categorical cols is not in the df')
+  }
+  
+  # Check that measure columns exist and are of proper type
+  if (length(measureColumn) > 1) {
+    for (i in 1:length(measureColumn)) {
+      if (class(df[[measureColumn[i]]]) != "numeric" &&  
+          class(df[[measureColumn[i]]]) != "integer") {
+        stop("measureColumn needs to be of class numeric or integer. ",
+             measureColumn[i], " appears to be of type ", 
+             class(df[[measureColumn[i]]]))
+      }
+    }
+  } else if (length(measureColumn) == 1) {
+    if (class(df[[measureColumn]]) != "numeric" &&  
+        class(df[[measureColumn]]) != "integer") {
+      stop("measureColumn needs to be of class numeric or integer. ",
+           measureColumn, " appears to be of type ", 
+           class(df[[measureColumn]]))
+    }
+  }
+  
+  # Check that categorical columns exist and are of proper type
+  if (length(categoricalCols) > 1) {
+    for (i in 1:length(categoricalCols)) {
+      if (class(df[[categoricalCols[i]]]) == "numeric" ||  
+          class(df[[categoricalCols[i]]]) == "integer") {
+        stop("categoricalCols cannot be of class numeric or integer. ", 
+             categoricalCols[i], " appears to be of type ", 
+             class(df[[categoricalCols[i]]]))
+      }
+    }
+  } else if (length(categoricalCols) == 1) {
+    if (class(df[[categoricalCols]]) == "numeric" ||  
+        class(df[[categoricalCols]]) == "integer") {
+      stop("categoricalCols cannot be of class numeric or integer. ", 
+           categoricalCols, " appears to be of type ", 
+           class(df[[categoricalCols]]))
+    }
+  }
+  
+  if (!is.null(dateCol)) {
+    tryCatch(
+      df[[dateCol]] <- as.Date(df[[dateCol]]),
+      error = function(e) {
+        e$message <- paste0(dateCol, " may not be a datetime column,",
+                            " or the column may not be in format YYYY-MM-DD\n", e)
+        stop(e)
+      })
+    
+    # Convert date into YYYY-MM
+    df[[dateCol]] <- base::format(df[[dateCol]],"%Y-%m")
+    
+    # Add dateCol to categoricalList (now that it's just YYYY-MM)
+    categoricalCols <- c(categoricalCols, dateCol)
+  }
+  
+  plot_list <- list()
+  if (length(categoricalCols) == 1) {
+    for (i in 1:length(measureColumn)) {
+      p <- ggplot(aes(y = df[[measureColumn[i]]], x = df[[categoricalCols[1]]]), 
+                  data = df) + geom_boxplot()
+      p <- p + labs(x = categoricalCols[1], y = measureColumn[i])
+      plot_list[[i]] <- p
+    }
+  } else if (length(categoricalCols) == 2) {
+    for (i in 1:length(measureColumn)) {
+      p <- ggplot(aes(y = df[[measureColumn[i]]], x = df[[categoricalCols[1]]],
+                      fill = df[[categoricalCols[2]]]), data = df) + geom_boxplot()
+      p <- p + scale_fill_discrete(categoricalCols[2]) + labs(x = categoricalCols[1], y = measureColumn[i])
+      plot_list[[i]] <- p
+    }
+  } else if (length(categoricalCols) >= 3) {
+    l <- list()
+    for (i in 1:length(categoricalCols)) {
+      l[[i]] <- df[[categoricalCols[i]]]
+    }
+    for (i in 1:length(measureColumn)) {
+      p <- ggplot(aes(y = df[[measureColumn[i]]], x = interaction(l)), data = df) + geom_boxplot()
+      p <- p + labs(y = measureColumn[i])
+      plot_list[[i]] <- p
+    }
+  }
+  
+  for (i in 1:length(measureColumn)) {
+    print(plot_list[[i]])
+  }
+  
+}
