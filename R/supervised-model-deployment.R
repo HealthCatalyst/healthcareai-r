@@ -196,7 +196,8 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     private$dfTestRaw <- self$params$df
     factorLevels <- private$fitLogit$factorLevels
     
-    # Checking to see if there are new levels in test data vs. training data.
+    # Check to see if there are new levels in test data vs. training data.
+    # Save new levels and set values to NA.
     newLevels <- list()
     for (col in names(private$fitLogit$factorLevels)) {
       # find new levels not seen in training data
@@ -205,31 +206,31 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       if (length(newLevelValues) > 0) {
         newLevels[[col]] <- newLevelValues
       }
-      # Assign new factors, setting new levels in test to NA
-      private$dfTestRaw[[col]] <- factor(private$dfTestRaw[[col]],
-                                         levels = factorLevels[[col]],
-                                         ordered = FALSE)
       # Set new levels to NA
       private$dfTestRaw[[col]][!(private$dfTestRaw[[col]] %in% factorLevels[[col]])] <- NA
-      # Set factor levels to training data levels
-      levels(private$dfTestRaw[[col]]) <- factorLevels[[col]]
     }
     
     # Display warning if new categorical variable levels are found
     if (length(newLevels) > 0) {
-      warning('New categorical variable levels were found:',
-              '\n Variables: ', names(newLevels),
-              '\n Levels: ', newLevels,
+      warning('New categorical variable levels were found:\n',
+              paste('- ', names(newLevels), ":", newLevels, collapse = "\n"),
               '\n These values have been set to NA.')
+    }
+    
+    # Impute missing values introduced through new factor levels
+    private$dfTestRaw[, names(newLevels)] <- sapply(private$dfTestRaw[, names(newLevels)], imputeColumn)
+    
+    # Assign new factor levels using training data factor levels
+    for (col in names(private$fitLogit$factorLevels)) {
+      private$dfTestRaw[[col]] <- factor(private$dfTestRaw[[col]],
+                                         levels = factorLevels[[col]],
+                                         ordered = FALSE)
     }
     
     if (isTRUE(self$params$debug)) {
       print('Raw data set after setting factors:')
       print(str(private$dfTestRaw))
     }
-
-    # Impute missing values introduced through new factor levels
-    private$dfTestRaw[, names(newLevels)] <- sapply(private$dfTestRaw[, names(newLevels)], imputeColumn)
   },
 
   makeFactorDummies = function(){
