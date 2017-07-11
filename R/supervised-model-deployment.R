@@ -213,8 +213,8 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     # Display warning if new categorical variable levels are found
     if (length(newLevels) > 0) {
       warning('New categorical variable levels were found:\n',
-              paste('- ', names(newLevels), ":", newLevels, collapse = "\n"),
-              '\n These values have been set to NA.')
+              paste(' - ', names(newLevels), ":", newLevels, collapse = "\n"),
+              '\nThese values have been set to NA.', sep = "")
     }
     
     # Impute missing values introduced through new factor levels
