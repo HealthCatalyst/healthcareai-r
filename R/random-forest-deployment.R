@@ -547,12 +547,16 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
               and save the model, then random forest deployment to make predictions.
               See ?RandomForestDevelopment')
       })
+      
+      # Make sure factor columns have the training data factor levels
+      super$formatFactorColumns()
+      # Update self$params$df to reflect the training data factor levels
+      self$params$df <- private$dfTestRaw
 
       # Predict
       private$performPrediction()
 
       # Get dummy data based on factors from develop
-      super$formatFactorColumns()
       super$makeFactorDummies()
 
       # Calculate Coeffcients
