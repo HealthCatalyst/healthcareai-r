@@ -508,7 +508,7 @@ test_that("Single row predictions work for RF regression", {
   
   p1 <- SupervisedModelDeploymentParams$new()
   p1$type <- "regression"
-  p1$df <- dfDeploy1R
+  p1$df <- dfDeploy1
   p1$grainCol <- "id"
   p1$predictedCol <- "hotDogScore"
   p1$impute <- TRUE
