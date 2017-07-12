@@ -227,6 +227,20 @@ test_that("RF classification predictions are independent of each other", {
   p2$debug <- F
   p2$cores <- 1
   
+  # Full develop data set with 1 new row
+  dfC2 <- dfC
+  dfC2$isHotDog <- NULL
+  dfFull <- rbind(dfDeploy1, dfC2)
+  
+  pF <- SupervisedModelDeploymentParams$new()
+  pF$type <- "classification"
+  pF$df <- dfFull
+  pF$grainCol <- "id"
+  pF$predictedCol <- "isHotDog"
+  pF$impute <- TRUE
+  pF$debug <- F
+  pF$cores <- 1
+  
   # Deploy rf on single row
   capture.output(rfD1 <- RandomForestDeployment$new(p1))
   rfD1$deploy()
@@ -239,8 +253,15 @@ test_that("RF classification predictions are independent of each other", {
   
   rfOutDf2 <- rfD2$getOutDf()
   
+  # Deploy rf on full develop set plus single new row
+  capture.output(rfDFull <- RandomForestDeployment$new(pF))
+  rfDFull$deploy()
+  
+  rfOutDfFull <- rfDFull$getOutDf()
+  
   # Check that the predictions are the same
   expect_equal(rfOutDf1[1, ]$PredictedProbNBR, rfOutDf2[1, ]$PredictedProbNBR)
+  expect_equal(rfOutDf1[1, ]$PredictedProbNBR, rfOutDfFull[1, ]$PredictedProbNBR)
 })
 
 test_that("Lasso classification predictions are independent of each other", {
@@ -276,6 +297,20 @@ test_that("Lasso classification predictions are independent of each other", {
   p2$debug <- F
   p2$cores <- 1
   
+  # Full develop data set with 1 new row
+  dfC2 <- dfC
+  dfC2$isHotDog <- NULL
+  dfFull <- rbind(dfDeploy1, dfC2)
+  
+  pF <- SupervisedModelDeploymentParams$new()
+  pF$type <- "classification"
+  pF$df <- dfFull
+  pF$grainCol <- "id"
+  pF$predictedCol <- "isHotDog"
+  pF$impute <- TRUE
+  pF$debug <- F
+  pF$cores <- 1
+  
   # Deploy lasso on single row
   capture.output(lassoD1 <- LassoDeployment$new(p1))
   lassoD1$deploy()
@@ -288,8 +323,15 @@ test_that("Lasso classification predictions are independent of each other", {
   
   lassoOutDf2 <- lassoD2$getOutDf()
   
+  # Deploy lasso on full develop set plus single new row
+  capture.output(lassoDFull <- LassoDeployment$new(pF))
+  lassoDFull$deploy()
+  
+  lassoOutDfFull <- lassoDFull$getOutDf()
+  
   # Check that the predictions are the same
   expect_equal(lassoOutDf1[1, ]$PredictedProbNBR, lassoOutDf2[1, ]$PredictedProbNBR)
+  expect_equal(lassoOutDf1[1, ]$PredictedProbNBR, lassoOutDfFull[1, ]$PredictedProbNBR)
 })
 
 test_that("Extra factors are imputed correctly for rf classification (1 column)", {
@@ -547,6 +589,20 @@ test_that("RF regression predictions are independent of each other", {
   p2$debug <- F
   p2$cores <- 1
   
+  # Full develop data set with 1 new row
+  dfR2 <- dfR
+  dfR2$hotDogScore <- NULL
+  dfFull <- rbind(dfDeploy1, dfR2)
+  
+  pF <- SupervisedModelDeploymentParams$new()
+  pF$type <- "regression"
+  pF$df <- dfFull
+  pF$grainCol <- "id"
+  pF$predictedCol <- "hotDogScore"
+  pF$impute <- TRUE
+  pF$debug <- F
+  pF$cores <- 1
+  
   # Deploy rf on single row
   capture.output(rfD1 <- RandomForestDeployment$new(p1))
   rfD1$deploy()
@@ -559,8 +615,15 @@ test_that("RF regression predictions are independent of each other", {
   
   rfOutDf2 <- rfD2$getOutDf()
   
+  # Deploy rf on full develop set plus single new row
+  capture.output(rfDFull <- RandomForestDeployment$new(pF))
+  rfDFull$deploy()
+  
+  rfOutDfFull <- rfDFull$getOutDf()
+  
   # Check that the predictions are the same
   expect_equal(rfOutDf1[1, ]$PredictedValueNBR, rfOutDf2[1, ]$PredictedValueNBR)
+  expect_equal(rfOutDf1[1, ]$PredictedValueNBR, rfOutDfFull[1, ]$PredictedValueNBR)
 })
 
 test_that("Lasso regression predictions are independent of each other", {
@@ -596,6 +659,20 @@ test_that("Lasso regression predictions are independent of each other", {
   p2$debug <- F
   p2$cores <- 1
   
+  # Full develop data set with 1 new row
+  dfR2 <- dfR
+  dfR2$hotDogScore <- NULL
+  dfFull <- rbind(dfDeploy1, dfR2)
+  
+  pF <- SupervisedModelDeploymentParams$new()
+  pF$type <- "regression"
+  pF$df <- dfFull
+  pF$grainCol <- "id"
+  pF$predictedCol <- "hotDogScore"
+  pF$impute <- TRUE
+  pF$debug <- F
+  pF$cores <- 1
+  
   # Deploy lasso on single row
   capture.output(lassoD1 <- LassoDeployment$new(p1))
   lassoD1$deploy()
@@ -608,8 +685,15 @@ test_that("Lasso regression predictions are independent of each other", {
   
   lassoOutDf2 <- lassoD2$getOutDf()
   
+  # Deploy lasso on full develop set plus single new row
+  capture.output(lassoDFull <- LassoDeployment$new(pF))
+  lassoDFull$deploy()
+  
+  lassoOutDfFull <- lassoDFull$getOutDf()
+  
   # Check that the predictions are the same
   expect_equal(lassoOutDf1[1, ]$PredictedValueNBR, lassoOutDf2[1, ]$PredictedValueNBR)
+  expect_equal(lassoOutDf1[1, ]$PredictedValueNBR, lassoOutDfFull[1, ]$PredictedValueNBR)
 })
 
 test_that("Extra factors are imputed correctly for rf regression (1 column)", {
@@ -843,6 +927,21 @@ test_that("LMM classification predictions are independent of each other", {
   p2$debug <- F
   p2$cores <- 1
   
+  # Full develop data set with 1 new row
+  dfLMM2 <- dfLMM
+  dfLMM2$isHotDog <- NULL
+  dfFull <- rbind(dfDeploy1, dfLMM2)
+  
+  pF <- SupervisedModelDeploymentParams$new()
+  pF$type <- "classification"
+  pF$df <- dfFull
+  pF$grainCol <- "id"
+  pF$personCol <- "vendorID"
+  pF$predictedCol <- "isHotDog"
+  pF$impute <- TRUE
+  pF$debug <- F
+  pF$cores <- 1
+  
   # Deploy LMM on single row
   capture.output(LMMD1 <- LinearMixedModelDeployment$new(p1))
   LMMD1$deploy()
@@ -855,8 +954,15 @@ test_that("LMM classification predictions are independent of each other", {
   
   LMMOutDf2 <- LMMD2$getOutDf()
   
+  # Deploy lasso on full develop set plus single new row
+  capture.output(LMMDFull <- LinearMixedModelDeployment$new(pF))
+  LMMDFull$deploy()
+  
+  LMMOutDfFull <- LMMDFull$getOutDf()
+  
   # Check that the predictions are the same
   expect_equal(LMMOutDf1[1, ]$PredictedProbNBR, LMMOutDf2[1, ]$PredictedProbNBR)
+  expect_equal(LMMOutDf1[1, ]$PredictedProbNBR, LMMOutDfFull[1, ]$PredictedProbNBR)
 })
 
 test_that("Extra factors are imputed correctly for LMM classification (1 column)", {
