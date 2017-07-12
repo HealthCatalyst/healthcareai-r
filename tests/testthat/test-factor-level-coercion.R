@@ -1,3 +1,30 @@
+# The purpose of these unit tests it to check that factor levels from develop 
+# are being correctly applied to the deploy data, allowing for single row (and
+# other small deploy data set) predictions.
+#
+# Several tests are performed for each of lasso and random forest (both 
+# classification and regression) and LMM (just classification).  These are
+#
+# 1. Check that single row predictions work
+#    - build single row deploy data frame and check that deploy outputs a
+#      prediction
+#
+# 2. Check that predictions are independent
+#    - build a single row deploy data set, a 2 row data set, and a data set
+#      containing all of the training data, all of which share the same first
+#      row
+#    - check that the predictions are the same on all three data sets for the
+#      shared row (i.e. the values taken in other rows of the data have no 
+#      effect on the prediction)
+#
+# 3. Check new factor levels are dealt with correctly
+#    - build data sets with new factor levels not seen in develop
+#    - check that the correct warning is raised
+#    - check that these new levels are treated as NA by comparing the
+#      prediction to a prediction made on data with NAs instead of the new 
+#      factor levels
+#    - tests are preformed with new factor levels in 1 column and in 2 columns
+
 context("Checking factor level coercion is working")
 
 # set seed for reproducibility
