@@ -30,7 +30,8 @@ Imports:
     ranger,
     ROCR,
     RSQLite,
-    xgboost
+    xgboost,
+    ggplot2
 RoxygenNote: 6.0.1
 Suggests:
     testthat
