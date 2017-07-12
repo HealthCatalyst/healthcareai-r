@@ -430,7 +430,7 @@ getPipedValue <- function(string) {
 
 #' @title
 #' Find variation across groups
-#' @description 
+#' @description Plot a boxplot to compare the variation across the groups. 
 #' @import ggplot2
 #' @param df A dataframe
 #' @param categoricalCols Vector of strings representing categorical column(s)

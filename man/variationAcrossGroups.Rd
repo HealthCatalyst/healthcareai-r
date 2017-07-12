@@ -16,7 +16,10 @@ variationAcrossGroups(df, categoricalCols, measureColumn, dateCol = NULL)
 \item{dateCol}{Optional. A date(time) column to group by (done by month)}
 }
 \value{
-A boxplot...
+A boxplot to compare variation across groups.
+}
+\description{
+Plot a boxplot to compare the variation across the groups.
 }
 \examples{
 df <- data.frame(Dept = c('A','A','A','B','B','B','B','B'),
