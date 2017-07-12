@@ -155,9 +155,9 @@ test_that("Single row predictions work for RF classification", {
   # Get prediction
   rfOutDf1 <- rfD1$getOutDf()
   
-  # Check that dimensions of prediction dataframe are correct
-  expect_equal(dim(rfOutDf1)[1], 1)
-  expect_equal(dim(rfOutDf1)[2], 8)
+  # Check that a prediction is made
+  expect_equal(rfOutDf1$id[1], 9001)
+  expect_is(rfOutDf1$PredictedProbNBR[1], numeric)
 })
 
 test_that("Single row predictions work for lasso classification", {
@@ -184,9 +184,9 @@ test_that("Single row predictions work for lasso classification", {
   # Get prediction
   lassoOutDf1 <- lassoD1$getOutDf()
   
-  # Check that dimensions of prediction dataframe are correct
-  expect_equal(dim(lassoOutDf1)[1], 1)
-  expect_equal(dim(lassoOutDf1)[2], 8)
+  # Check that a prediction is made
+  expect_equal(lassoOutDf1$id[1], 9001)
+  expect_is(lassoOutDf1$PredictedProbNBR[1], numeric)
 })
 
 test_that("RF classification predictions are independent of each other", {
@@ -475,9 +475,9 @@ test_that("Single row predictions work for RF regression", {
   # Get prediction
   rfOutDf1 <- rfD1$getOutDf()
   
-  # Check that dimensions of prediction dataframe are correct
-  expect_equal(dim(rfOutDf1)[1], 1)
-  expect_equal(dim(rfOutDf1)[2], 8)
+  # Check that a prediction is made
+  expect_equal(rfD1$id[1], 9001)
+  expect_is(rfD1$PredictedValueNBR[1], numeric)
 })
 
 test_that("Single row predictions work for lasso regression", {
@@ -504,9 +504,9 @@ test_that("Single row predictions work for lasso regression", {
   # Get prediction
   lassoOutDf1 <- lassoD1$getOutDf()
   
-  # Check that dimensions of prediction dataframe are correct
-  expect_equal(dim(lassoOutDf1)[1], 1)
-  expect_equal(dim(lassoOutDf1)[2], 8)
+  # Check that a prediction is made
+  expect_equal(lassoOutDf1$id[1], 9001)
+  expect_is(lassoOutDf1$PredictedValueNBR[1], numeric)
 })
 
 test_that("RF regression predictions are independent of each other", {
@@ -796,9 +796,9 @@ test_that("Single row predictions work for LMM classification", {
   # Get prediction
   LMMOutDf1 <- LMMD1$getOutDf()
   
-  # Check that dimensions of prediction dataframe are correct
-  expect_equal(dim(LMMOutDf1)[1], 1)
-  expect_equal(dim(LMMOutDf1)[2], 8)
+  # Check that a prediction is made
+  expect_equal(LMMOutDf1$id[1], 9001)
+  expect_is(LMMOutDf1$PredictedProbNBR[1], numeric)
 })
 
 test_that("LMM classification predictions are independent of each other", {
