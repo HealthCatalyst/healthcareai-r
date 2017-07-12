@@ -163,6 +163,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     }
 
     # Impute columns
+    # TODO: impute using training data (currently uses deploy data)
     self$params$df[] <- lapply(self$params$df, imputeColumn)
 
     if (isTRUE(self$params$debug)) {
@@ -218,6 +219,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     }
     
     # Impute missing values introduced through new factor levels
+    # TODO: impute using training data (currently uses deploy data)
     private$dfTestRaw[, names(newLevels)] <- sapply(private$dfTestRaw[, names(newLevels)], imputeColumn)
     
     # Assign new factor levels using training data factor levels
