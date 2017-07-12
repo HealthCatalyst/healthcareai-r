@@ -194,7 +194,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   formatFactorColumns = function(){
     # Manually Assign factor levels based on which ones were present in training.
     private$dfTestRaw <- self$params$df
-    
     factorLevels <- private$fitLogit$factorLevels
     
     # Check to see if there are new levels in test data vs. training data.
