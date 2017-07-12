@@ -96,3 +96,54 @@ returnColsWithMoreThanFiftyCategories <- function(df) {
   }
   colList
 }
+
+#' @title
+#' Check if a data frame only has numeric columns.
+#'
+#' @description Check if a dataframe only has numeric columns
+#' @param df A dataframe
+#' @return A boolean
+#'
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
+#' @examples
+#' 
+isNumeric <- function(df) {
+  a <- sapply(df, is.numeric)
+  at <- table(a)
+  if (at["TRUE"] == ncol(df)) {
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
+}
+
+#' @title
+#' Check if a data frame only has categorical columns.
+#'
+#' @description Check if a dataframe only has categorical columns
+#' @param df A dataframe
+#' @return A boolean
+#'
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
+#' @examples
+#' 
+isCategorical <- function(df, maxLevels) {
+  vec <- c()
+  for (i in 1:ncol(df)) {
+    x <- unique(df[,i])
+    numOfLevels <- length(x) - sum(is.na(x))
+    if (numOfLevels <= maxLevels) {
+      vec[i] <- "TRUE"
+    }
+  }
+  vect <- table(vec)
+  if (vect["TRUE"] == ncol(df)) {
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
+}
