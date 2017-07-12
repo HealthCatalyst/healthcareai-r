@@ -162,7 +162,7 @@ test_that("Single row predictions work for RF classification", {
   
   # Check that a prediction is made
   expect_equal(rfOutDf1$id[1], 9001)
-  expect_is(rfOutDf1$PredictedProbNBR[1], numeric)
+  expect_is(rfOutDf1$PredictedProbNBR[1], "numeric")
 })
 
 test_that("Single row predictions work for lasso classification", {
@@ -191,7 +191,7 @@ test_that("Single row predictions work for lasso classification", {
   
   # Check that a prediction is made
   expect_equal(lassoOutDf1$id[1], 9001)
-  expect_is(lassoOutDf1$PredictedProbNBR[1], numeric)
+  expect_is(lassoOutDf1$PredictedProbNBR[1], "numeric")
 })
 
 test_that("RF classification predictions are independent of each other", {
@@ -508,7 +508,7 @@ test_that("Single row predictions work for RF regression", {
   
   p1 <- SupervisedModelDeploymentParams$new()
   p1$type <- "regression"
-  p1$df <- dfDeploy1
+  p1$df <- dfDeploy1R
   p1$grainCol <- "id"
   p1$predictedCol <- "hotDogScore"
   p1$impute <- TRUE
@@ -523,8 +523,8 @@ test_that("Single row predictions work for RF regression", {
   rfOutDf1 <- rfD1$getOutDf()
   
   # Check that a prediction is made
-  expect_equal(rfD1$id[1], 9001)
-  expect_is(rfD1$PredictedValueNBR[1], numeric)
+  expect_equal(rfOutDf1$id[1], 9001)
+  expect_is(rfOutDf1$PredictedValueNBR[1], "numeric")
 })
 
 test_that("Single row predictions work for lasso regression", {
@@ -553,7 +553,7 @@ test_that("Single row predictions work for lasso regression", {
   
   # Check that a prediction is made
   expect_equal(lassoOutDf1$id[1], 9001)
-  expect_is(lassoOutDf1$PredictedValueNBR[1], numeric)
+  expect_is(lassoOutDf1$PredictedValueNBR[1], "numeric")
 })
 
 test_that("RF regression predictions are independent of each other", {
@@ -887,7 +887,7 @@ test_that("Single row predictions work for LMM classification", {
   
   # Check that a prediction is made
   expect_equal(LMMOutDf1$id[1], 9001)
-  expect_is(LMMOutDf1$PredictedProbNBR[1], numeric)
+  expect_is(LMMOutDf1$PredictedProbNBR[1], "numeric")
 })
 
 test_that("LMM classification predictions are independent of each other", {
