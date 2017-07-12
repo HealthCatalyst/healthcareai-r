@@ -8,6 +8,9 @@
 # 1. Check that single row predictions work
 #    - build single row deploy data frame and check that deploy outputs a
 #      prediction
+#    - note that this implicitly tests that predictions can be made when there
+#      are missing factors in one or more columns (for a single row, all but 
+#      one level of each factor will be missing)
 #
 # 2. Check that predictions are independent
 #    - build a single row deploy data set, a 2 row data set, and a data set
@@ -23,7 +26,9 @@
 #    - check that these new levels are treated as NA by comparing the
 #      prediction to a prediction made on data with NAs instead of the new 
 #      factor levels
-#    - tests are preformed with new factor levels in 1 column and in 2 columns
+#    - in one test, a single new factor level is introduced in a single column
+#    - in a separate test, multiple new factor levels are introduced in two 
+#      separate columns
 
 context("Checking factor level coercion is working")
 
