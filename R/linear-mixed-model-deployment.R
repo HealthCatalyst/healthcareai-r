@@ -570,12 +570,10 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       })
       
       # Make sure factor columns have the training data factor levels
-      if (nchar(self$params$personCol) != 0) {
-        private$dfTestRaw[[self$params$personCol]] <- NULL
-      }
       super$formatFactorColumns()
-      # Update self$params$df to reflect the training data factor levels
-      self$params$df <- private$dfTestRaw
+      # Update self$params$df to reflect the training data factor levels, 
+      # adding back the person col
+      self$params$df[ ,-which(names(self$params$df) %in% self$params$personCol)] <- private$dfTestRaw
       
       # Predict
       private$performPrediction()
