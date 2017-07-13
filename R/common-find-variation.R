@@ -431,7 +431,6 @@ getPipedValue <- function(string) {
 #' @title
 #' Find variation across groups
 #' @description Plot a boxplot to compare the variation across the groups. 
-#' @import ggplot2
 #' @param df A dataframe
 #' @param categoricalCols Vector of strings representing categorical column(s)
 #' @param measureColumn Vector of strings representing measure column(s)
@@ -517,35 +516,12 @@ variationAcrossGroups <- function(df,
     categoricalCols <- c(categoricalCols, dateCol)
   }
   
-  plot_list <- list()
-  if (length(categoricalCols) == 1) {
-    for (i in 1:length(measureColumn)) {
-      p <- ggplot(aes(y = df[[measureColumn[i]]], x = df[[categoricalCols[1]]]), 
-                  data = df) + geom_boxplot()
-      p <- p + labs(x = categoricalCols[1], y = measureColumn[i])
-      plot_list[[i]] <- p
-    }
-  } else if (length(categoricalCols) == 2) {
-    for (i in 1:length(measureColumn)) {
-      p <- ggplot(aes(y = df[[measureColumn[i]]], x = df[[categoricalCols[1]]],
-                      fill = df[[categoricalCols[2]]]), data = df) + geom_boxplot()
-      p <- p + scale_fill_discrete(categoricalCols[2]) + labs(x = categoricalCols[1], y = measureColumn[i])
-      plot_list[[i]] <- p
-    }
-  } else if (length(categoricalCols) >= 3) {
-    l <- list()
-    for (i in 1:length(categoricalCols)) {
-      l[[i]] <- df[[categoricalCols[i]]]
-    }
-    for (i in 1:length(measureColumn)) {
-      p <- ggplot(aes(y = df[[measureColumn[i]]], x = interaction(l)), data = df) + geom_boxplot()
-      p <- p + labs(y = measureColumn[i])
-      plot_list[[i]] <- p
-    }
+  l <- list()
+  for (i in 1:length(categoricalCols)) {
+    l[[i]] <- df[[categoricalCols[i]]]
   }
-  
   for (i in 1:length(measureColumn)) {
-    print(plot_list[[i]])
+    boxplot(df[[measureColumn[i]]]~interaction(l), data = df, col = (c("darkseagreen","gray62")), ylab = measureColumn[i])
   }
-  
+
 }
