@@ -37,7 +37,7 @@ install.packages('healthcareai')
 Note: If using macOS with healthcare.ai, you'll have to use csv files. We're working on adding MySQL connections. We'd [love to hear](http://healthcare.ai/contact) which other databases your connecting to, so we can provide native support!
 
 * Open the Mac Terminal
-* Install [Xcode](https://en.wikipedia.org/wiki/Xcode) compilers via `xcode-select –install`
+* Install [Xcode](https://en.wikipedia.org/wiki/Xcode) compilers via `xcode-select --install`
 * Accept the Xcode license via `sudo xcodebuild -license`
 * Install [Homebrew](https://brew.sh/) (the macOS package manager) with
 * Install ODBC driver via `brew update && brew install unixODBC`
@@ -45,7 +45,7 @@ Note: If using macOS with healthcare.ai, you'll have to use csv files. We're wor
 * In the console, install RODBC from source with `install.packages('RODBC',type = "source")`
 * In the console, install other R healthcare.ai prerequisites via
 ```
-install.packages(c('caret','data.table','doParallel','e1071','grpreg','lme4','lubridate','pROC','R6','ranger','ROCR'),repos = "https://cran.cnr.berkeley.edu/")
+install.packages(c('caret','data.table','DBI','doParallel','e1071','grpreg','lme4','odbc','pROC','R6','ranger','ROCR','RSQLite','xgboost'),repos = "https://cran.cnr.berkeley.edu/")
 ```
 * Install healthcare.ai
 ```
@@ -54,16 +54,17 @@ install.packages('healthcareai')
 
 ## How to install latest version on Ubuntu (Linux)
 
+* An Ubuntu 14.04 Droplet with at least 1 GB of RAM is required for the installation.
 * Follow steps 1 and 2 [here](https://www.digitalocean.com/community/tutorials/how-to-set-up-r-on-ubuntu-14-04) to install R
 * Run `sudo apt-get install libiodbc2-dev`
-* Run `sudo apt-get install r-cran-rodbc`
+* Run `sudo apt-get install unixodbc unixodbc-dev`
 * After typing `R` run `install.packages('healthcareai')`
 
 ## Install the bleeding edge version (for folks providing contributions)
 
 * Grab prerequisites via the console of RGui or (preferably) RStudio  
 ```
-install.packages(c('caret','data.table','devtools','doParallel','e1071','grpreg','lme4','lubridate','pROC','R6','ranger','ROCR','RODBC'),repos = "https://cran.cnr.berkeley.edu/")
+install.packages(c('caret','data.table','DBI','doParallel','e1071','grpreg','lme4','odbc','pROC','R6','ranger','ROCR','RSQLite','xgboost'),repos = "https://cran.cnr.berkeley.edu/")
 
 library(devtools)
 devtools::install_github(repo='HealthCatalyst/healthcareai-r')

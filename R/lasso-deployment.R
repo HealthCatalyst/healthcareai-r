@@ -559,8 +559,6 @@ LassoDeployment <- R6Class(
       })
       
       # Make sure factor columns have the training data factor levels
-      # Lasso predict has problems if there are missing or extra factor levels
-      # so this needs to happen before performPrediction
       super$formatFactorColumns()
       # Update self$params$df to reflect the training data factor levels
       self$params$df <- private$dfTestRaw
