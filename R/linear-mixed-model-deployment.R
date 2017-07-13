@@ -568,15 +568,16 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
               and save the model, then Linear Mixed Model deployment to make predictions
               See ?LinearMixedModelDevelopment.')
       })
-
+      
+      # Make sure factor columns have the training data factor levels
+      super$formatFactorColumns()
+      # Update self$params$df to reflect the training data factor levels
+      self$params$df <- private$dfTestRaw
+      
       # Predict
       private$performPrediction()
 
       # Get dummy data based on factors from develop
-      if (nchar(self$params$personCol) != 0) {
-        private$dfTestRaw[[self$params$personCol]] <- NULL
-      }
-      super$formatFactorColumns()
       super$makeFactorDummies()
 
       # Calculate Coeffcients
