@@ -229,16 +229,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
                                          ordered = FALSE)
     }
     
-    # Impute missing values introduced through new factor levels
-    private$dfTestRaw[, names(newLevels)] <- sapply(private$dfTestRaw[, names(newLevels)], imputeColumn)
-    
-    # Assign new factor levels using training data factor levels
-    for (col in names(private$fitLogit$factorLevels)) {
-      private$dfTestRaw[[col]] <- factor(private$dfTestRaw[[col]],
-                                         levels = factorLevels[[col]],
-                                         ordered = FALSE)
-    }
-    
     if (isTRUE(self$params$debug)) {
       print('Raw data set after setting factors:')
       print(str(private$dfTestRaw))
