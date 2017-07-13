@@ -73,12 +73,6 @@ pR$predictedCol <- "hotDogScore"
 pR$debug <- FALSE
 pR$cores <- 1
 
-# Run regression models
-RandomForestR <- RandomForestDevelopment$new(pR)
-capture.output(RandomForestR$run())
-LassoR <- LassoDevelopment$new(pR)
-capture.output(LassoR$run())
-
 # Classification data set
 dfC <- df
 # assign response variable
@@ -96,12 +90,6 @@ pC$grainCol <- "id"
 pC$predictedCol <- "isHotDog"
 pC$debug <- FALSE
 pC$cores <- 1
-
-# Run classification models
-RandomForestC <- RandomForestDevelopment$new(pC)
-capture.output(RandomForestC$run())
-LassoC <- LassoDevelopment$new(pC)
-capture.output(LassoC$run())
 
 # LMM data set
 dfLMM <- df
@@ -125,14 +113,17 @@ pL$predictedCol <- "isHotDog"
 pL$debug <- FALSE
 pL$cores <- 1
 
-# Run LMM models
-LMM <- LinearMixedModelDevelopment$new(pL)
-capture.output(LMM$run())
-
 # reset seed
 set.seed(NULL)
 
-#### BEGIN TESTS ####
+#### DEVELOP CLASSIFICATION MODELS ####
+
+set.seed(7)
+RandomForestC <- RandomForestDevelopment$new(pC)
+capture.output(RandomForestC$run())
+LassoC <- LassoDevelopment$new(pC)
+capture.output(LassoC$run())
+set.seed(NULL)
 
 #### CLASSIFICATION TESTS ####
 
@@ -496,6 +487,17 @@ test_that("Extra factors are imputed correctly for lasso classification (2 colum
 # p5$cores <- 1
 
 
+#### DEVELOP REGRESSION MODELS ####
+# Need to develop regression models after classification tests.  Otherwise
+# the model will be overwritten (only saves one rf model and one lasso model at 
+# a time)
+set.seed(7)
+RandomForestR <- RandomForestDevelopment$new(pR)
+capture.output(RandomForestR$run())
+LassoR <- LassoDevelopment$new(pR)
+capture.output(LassoR$run())
+set.seed(NULL)
+
 #### REGRESSION TESTS ####
 
 test_that("Single row predictions work for RF regression", {
@@ -856,6 +858,12 @@ test_that("Extra factors are imputed correctly for lasso regression (2 columns)"
 # p5$impute <- TRUE
 # p5$debug <- F
 # p5$cores <- 1
+
+#### DEVELOP LMM CLASSIFICATION MODEL ####
+set.seed(7)
+LMM <- LinearMixedModelDevelopment$new(pL)
+capture.output(LMM$run())
+set.seed(NULL)
 
 #### LMM TESTS ####
 
