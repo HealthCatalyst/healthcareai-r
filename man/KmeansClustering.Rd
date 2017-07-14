@@ -3,7 +3,7 @@
 \docType{class}
 \name{KmeansClustering}
 \alias{KmeansClustering}
-\title{Compare predictive models, created on your data}
+\title{Build clusters using kmeans()}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
 ...
@@ -11,15 +11,18 @@
 \arguments{
 \item{object}{of UnsuperviseModelParameters class for $new() constructor}
 
-\item{type}{The type of model (either 'regression' or 'classification')}
+\item{dataType}{The type of your data set('numeric' for all numeric data set,
+'categorical' for all categorical data set, and "mixed" for data set that has both
+numeric and categorical variables)}
 
 \item{df}{Dataframe whose columns are used for calc.}
 
 \item{grainCol}{Optional. The dataframe's column that has IDs pertaining to 
 the grain. No ID columns are truly needed for this step.}
 
-\item{predictedCol}{Column that you want to predict. If you're doing
-classification then this should be Y/N.}
+\item{labelCol}{Optional.}
+
+\item{numOfCluster}{Number of clusters you want to build.}
 
 \item{impute}{Set all-column imputation to F or T.
 This uses mean replacement for numeric columns
@@ -30,7 +33,7 @@ F leads to removal of rows containing NULLs.}
 to monitor the calculations throughout. Use T or F.}
 }
 \description{
-This step allows you to create a random forest model, based on
+This step allows you to use kmeans() to build clusters, based on
 your data.
 }
 \examples{

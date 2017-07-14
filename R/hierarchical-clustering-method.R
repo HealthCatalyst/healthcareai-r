@@ -1,6 +1,6 @@
-#' Build clusters using kmeans()
+#' Build clusters using hclust()
 #'
-#' @description This step allows you to use kmeans() to build clusters, based on
+#' @description This step allows you to use hclust() to build clusters, based on
 #' your data.
 #' @docType class
 #' @usage ...
@@ -12,7 +12,6 @@
 #' 'categorical' for all categorical data set, and "mixed" for data set that has both
 #' numeric and categorical variables)
 #' @param df Dataframe whose columns are used for calc.
-#' @param newdf Optional. Assign clusters to a new data set. (Currenty only available for kmeans)
 #' @param grainCol Optional. The dataframe's column that has IDs pertaining to 
 #' the grain. No ID columns are truly needed for this step.
 #' @param labelCol Optional. 
@@ -24,14 +23,12 @@
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
 #' @references \url{http://hctools.org/}
-#' @seealso \code{\link{LassoDevelopment}}
-#' @seealso \code{\link{LinearMixedModelDevelopment}}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #'
 #' @export
 
-KmeansClustering <- R6Class("KmeansClustering",
+hierarchicalClustering <- R6Class("hierarchicalClustering",
                             
   # Inheritance
   inherit = UnsupervisedModel,
@@ -39,8 +36,9 @@ KmeansClustering <- R6Class("KmeansClustering",
   # Private members
   private = list(
     # Get kmeans model
-    kmeans.fit = NA,
+    hclust.fit = NA,
     confusionMatrix = NA,
+    groups = NA,
     
     #check if the data type is numeric
     checkDataType = function() {
@@ -53,7 +51,7 @@ KmeansClustering <- R6Class("KmeansClustering",
   
   # Public members
   public = list(
- 
+    
     # Constructor
     # p: new SuperviseModelParameters class object,
     # i.e. p = SuperviseModelParameters$new()
@@ -62,48 +60,31 @@ KmeansClustering <- R6Class("KmeansClustering",
       super$initialize(p)
     },
     
-    # Remove label col
-    # removeLabelCol = function() {
-    #   if (nchar(self$params$labelCol) != 0) {
-    #     private$labelColValues <- self$params$df[[self$params$labelCol]]
-    #     self$params$df[[self$params$labelCol]] <- NULL
-    #   }
-    # },
     
-    
-    # Generate the plot to choose the best k    
-    elbow_plot = function(){
-      df.stand <- scale(self$params$df)
-      wss <- (nrow(df.stand) - 1)*sum(apply(df.stand,2,var))
-      for (i in 2:15) wss[i] <- sum(kmeans(scale(df.stand),
-                                           centers = i)$withinss)
-      plot(1:15, wss, type = "b", xlab = "Number of Clusters",
-           ylab = "Within groups sum of squares")
-    },    
-    
-    # Override: run k-means algorithm
+    # Override: run hierarchical clustering algorithm
     buildClusters = function() {
       #self$removeLabelCol()
       # Standarize the variables
       df.stand <- scale(self$params$df)
-      # K-Means
-      private$kmeans.fit <- kmeans(df.stand, self$params$numOfClusters)
+      d <- dist(df.stand, method = "euclidean")
+      # hclust
+      private$hclust.fit <- hclust(d, method = self$params$method.hclust)
+      private$groups <- cutree(private$hclust.fit, k = self$params$numOfClusters)
       #print(kmeans.fit)
-      return(invisible(private$kmeans.fit))
-    },
-
-    getKmeansfit = function() {
-      return(private$kmeans.fit)
+      return(invisible(private$hclust.fit))
     },
     
-    
-    plotClusters = function() {
-      df.stand <- scale(self$params$df)
-      k.means.fit <- self$getKmeansfit()
-      clusplot(df.stand, k.means.fit$cluster, main = '2D representation of the Cluster solution',
-             color = TRUE, shade = TRUE, lines = 0)
+    gethclustfit = function() {
+      return(private$hclust.fit)
     },
+    
+    cutTrees = function() {
+      H.fit <- self$gethclustfit()
+      rect.hclust(H.fit, k = self$params$numOfClusters, border = "red")
+    }
 
+
+    
     # Generate confusion matrix
     calculateConfusion = function() {
       # generate a confusion matrix of clusters and labels
@@ -154,8 +135,8 @@ KmeansClustering <- R6Class("KmeansClustering",
       k.means.fit <- self$getKmeansfit()
       plot(silhouette(k.means.fit$cluster,dis))
     },
-
-
+    
+    
     # Override: run k-means algorithm
     run = function() {
       
@@ -175,7 +156,7 @@ KmeansClustering <- R6Class("KmeansClustering",
       
       # save model
       #private$saveModel()
-    
+      
     }
     
   )

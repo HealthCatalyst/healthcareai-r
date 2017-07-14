@@ -1,10 +1,7 @@
-#' Compare predictive models, created on your data
-#'
-#' @description This step allows one to create test models on your data
-#' and helps determine which performs best.
+#' Build clusters based on your data.
+#' @description This step allows one to build clusters on your data
 #' @docType class
 #' @usage UnsupervisedModel(object)
-#' @import caret
 #' @importFrom R6 R6Class
 #' @param object of UnsupervisedModelParams class for $new() constructor
 #' @references \url{http://healthcare.ai}
@@ -54,28 +51,34 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
       if (!is.null(p$df))
         self$params$df <- p$df
       
-      if (!is.null(p$type)) {
-        self$params$type <- p$type
+      if (!is.null(p$newdf))
+        self$params$newdf <- p$newdf
+      
+      if (!is.null(p$dataType)) #{
+        self$params$dataType <- p$dataType
         
-        #validation on type string value
-        if (self$params$type != 'numeric' && self$params$type != 'categorical' && self$params$type != 'mixed') {
-          stop('Your type must be numeric, categorical, or mixed')
-        }
-        
-        # If the type is numeric, then all the variables should be numeric.
-        if (self$params$type == 'numeric' && isNumeric(self$params$df) == FALSE) {
-          stop("Variables must be numeric")
-        }
-        
-        # If the type is Kmodes, then all the variables should be categorical.
-        if (self$params$type == 'categorical' && isCategorical(self$params$df,15) == FALSE) {
-          stop("Variables must be categorical")
-        }
-        
-      }
+      #   #validation on dataType string value
+      #   if (self$params$dataType != 'numeric' && self$params$dataType != 'categorical' && self$params$dataType != 'mixed') {
+      #     stop('Your data type must be numeric, categorical, or mixed')
+      #   }
+      #   
+      #   # If the type is numeric, then all the variables should be numeric.
+      #   if (self$params$dataType == 'numeric' && isNumeric(self$params$df) == FALSE) {
+      #     stop("Variables must be numeric")
+      #   }
+      #   
+      #   # If the type is categorical, then all the variables should be categorical.
+      #   if (self$params$dataType == 'categorical' && isCategorical(self$params$df,15) == FALSE) {
+      #     stop("Variables must be categorical")
+      #   }
+      #   
+      # }
       
       if (!is.null(p$labelCol)) 
         self$params$labelCol <- p$labelCol
+      
+      if (nchar(self$params$method.hclust) != 0) 
+        self$params$method.hclust <- p$method.hclust
       
       if (!is.null(p$numOfClusters))
         self$params$numOfClusters <- p$numOfClusters
@@ -189,6 +192,7 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
         print('Now going to remove grainCol...')
       }
       
+      
       # Remove grain col
       if (nchar(self$params$grainCol) != 0) {
         private$grainColValues <- self$params$df[[self$params$grainCol]]
@@ -219,6 +223,7 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
     #parameters
     params = NA,
     
+    
     ###########
     # Functions
     
@@ -239,6 +244,10 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
     
     #Run the Model
     run = function() {
+    },
+    
+    getLabelColVal = function() {
+      return(private$labelColValues)
     }
   )
 )

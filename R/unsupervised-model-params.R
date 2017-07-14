@@ -19,13 +19,15 @@ UnsupervisedModelParams <- R6Class("UnsupervisedModelParams",
     
     #parameters
     df = NA,
-    type = NA,
+    newdf = NA,
+    dataType = NA,
     debug = FALSE,
     printResults = TRUE,
     featureReduction = FALSE,
     numOfClusters = NULL,
-    labelCol = NULL,
+    labelCol = "",
     grainCol = "",
+    method.hclust = "",
     cores = 4,
     
     #Constructor

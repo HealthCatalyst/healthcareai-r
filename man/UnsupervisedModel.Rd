@@ -3,7 +3,7 @@
 \docType{class}
 \name{UnsupervisedModel}
 \alias{UnsupervisedModel}
-\title{Compare predictive models, created on your data}
+\title{Build clusters based on your data.}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
 UnsupervisedModel(object)
@@ -12,8 +12,7 @@ UnsupervisedModel(object)
 \item{object}{of UnsupervisedModelParams class for $new() constructor}
 }
 \description{
-This step allows one to create test models on your data
-and helps determine which performs best.
+This step allows one to build clusters on your data
 }
 \references{
 \url{http://healthcare.ai}
