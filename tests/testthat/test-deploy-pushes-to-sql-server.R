@@ -6,7 +6,7 @@ context("Checking deploy predictions from sql server to sql server")
   database=SAM;
   trusted_connection=true
   "
-  
+
   query <- "
   SELECT
   [PatientID]
@@ -18,6 +18,14 @@ context("Checking deploy predictions from sql server to sql server")
   ,[ThirtyDayReadmitFLG]
   FROM [SAM].[dbo].[HCRDiabetesClinical]
   "
+
+#### BEGIN TESTS ####
+
+ test_that("LMM deploy classification pushes values to SQL", {
+
+  skip_on_travis()
+  skip_on_cran()
+
   df <- selectData(connectionString, query)
   
   dfDeploy <- df[951:1000,]
@@ -29,15 +37,6 @@ context("Checking deploy predictions from sql server to sql server")
   p$impute = TRUE
   p$debug = FALSE
   p$cores = 1
-  p$tune = FALSE
-  p$numberOfTrees = 201
-
- #### BEGIN TESTS ####
-
- test_that("LMM deploy classification pushes values to SQL", {
-
-  skip_on_travis()
-  skip_on_cran()
 
   p <- initializeParamsForTesting(df)
   p$type = 'classification'
@@ -72,6 +71,18 @@ test_that("LMM deploy regression pushes values to SQL", {
   skip_on_travis()
   skip_on_cran()
   
+  df <- selectData(connectionString, query)
+  
+  dfDeploy <- df[951:1000,]
+  
+  set.seed(43)
+  p <- SupervisedModelDevelopmentParams$new()
+  p$df = df
+  p$grainCol = 'PatientEncounterID'
+  p$impute = TRUE
+  p$debug = FALSE
+  p$cores = 1
+  
   p <- initializeParamsForTesting(df)
   p$type = 'regression'
   p$personCol = 'PatientID'
@@ -103,6 +114,16 @@ test_that("Lasso deploy classification pushes values to SQL Server", {
   skip_on_travis()
   skip_on_cran()
 
+  df <- selectData(connectionString, query)
+  
+  set.seed(43)
+  p <- SupervisedModelDevelopmentParams$new()
+  p$df = df
+  p$grainCol = 'PatientEncounterID'
+  p$impute = TRUE
+  p$debug = FALSE
+  p$cores = 1
+  
   df$PatientID <- NULL # affects all future tests
   dfDeploy <- df[951:1000,]
   
@@ -134,6 +155,19 @@ test_that("Lasso deploy regression pushes values to SQL Server", {
   skip_on_travis()
   skip_on_cran()
   
+  df <- selectData(connectionString, query)
+  
+  set.seed(43)
+  p <- SupervisedModelDevelopmentParams$new()
+  p$df = df
+  p$grainCol = 'PatientEncounterID'
+  p$impute = TRUE
+  p$debug = FALSE
+  p$cores = 1
+  
+  df$PatientID <- NULL # affects all future tests
+  dfDeploy <- df[951:1000,]
+  
   p <- initializeParamsForTesting(df)
   p$type = 'regression'
   p$predictedCol = 'A1CNBR'
@@ -162,6 +196,21 @@ test_that("rf deploy classification pushes values to SQL Server", {
 
   skip_on_travis()
   skip_on_cran()
+  
+  df <- selectData(connectionString, query)
+  
+  set.seed(43)
+  p <- SupervisedModelDevelopmentParams$new()
+  p$df = df
+  p$grainCol = 'PatientEncounterID'
+  p$impute = TRUE
+  p$debug = FALSE
+  p$cores = 1
+  p$tune = FALSE
+  p$numberOfTrees = 201
+  
+  df$PatientID <- NULL # affects all future tests
+  dfDeploy <- df[951:1000,]
   
   p <- initializeParamsForTesting(df)
   p$type = 'classification'
@@ -192,6 +241,21 @@ test_that("rf deploy regression pushes values to SQL Server", {
 
   skip_on_travis()
   skip_on_cran()
+  
+  df <- selectData(connectionString, query)
+  
+  set.seed(43)
+  p <- SupervisedModelDevelopmentParams$new()
+  p$df = df
+  p$grainCol = 'PatientEncounterID'
+  p$impute = TRUE
+  p$debug = FALSE
+  p$cores = 1
+  p$tune = FALSE
+  p$numberOfTrees = 201
+  
+  df$PatientID <- NULL # affects all future tests
+  dfDeploy <- df[951:1000,]
   
   p <- initializeParamsForTesting(df)
   p$type = 'regression'
