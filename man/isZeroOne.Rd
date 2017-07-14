@@ -8,7 +8,7 @@ numeric, and integer variables}
 isZeroOne(x)
 }
 \arguments{
-\item{x}{A data frame vector, or matrix}
+\item{x}{A data frame column, vector, or matrix column}
 }
 \value{
 TRUE or FALSE depending on test
