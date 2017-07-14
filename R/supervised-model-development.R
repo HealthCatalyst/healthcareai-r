@@ -209,8 +209,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       }
       
       # Print warning about factors with levels that occur infrequently
-      # Skip on XGBoost since XGBoost forces this data into the training set
-      if (length(lowLevels) > 0 & self$params$type != "multiclass") {
+      if (length(lowLevels) > 0) {
         warning('Each of the following categorical variable levels occurs 3 ', 
                 'times or fewer:\n',
                 paste('- ', names(lowLevels), ":", lowLevels, collapse = "\n"),
