@@ -17,7 +17,7 @@
 #' isnotYN(dat2[, 1]) 
 #' isnotYN(dat3[, 1])              
 #'                 
-isnotYNOrNA <- function(x){
+isnotYNOrNA <- function(x) {
   '%nin%' = Negate('%in%')
   boolResult <- any(x %nin% c('Y', 'N', NA))
   boolResult
