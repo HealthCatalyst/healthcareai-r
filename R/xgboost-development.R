@@ -211,9 +211,12 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
     # Generate performance metrics
     generateConfusionMatrix = function() {
       cat('Generating confusion matrix...', '\n')
-      caret::confusionMatrix(private$predictions$true_label,
-                private$predictions$predicted_label,
-                mode = "everything")
+      u = union(private$predictions$true_label, 
+                private$predictions$predicted_label)
+      true_labels <- factor(private$predictions$true_label, u)
+      predicted_labels <- factor(private$predictions$predicted_label, u)
+      print(caret::confusionMatrix(predicted_labels, true_labels, 
+                            dnn = c("Predicted","True")))
     },
 
    # Run XGBoost Multiclass

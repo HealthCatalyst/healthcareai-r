@@ -294,14 +294,22 @@
         function(i) colnames(private$temp_predictions)[maxColInds[i,]]))
 
       # combine top 3 maxColVals and maxColNames to make maxProbDF
-      private$orderedProbs <- data.frame(as.numeric(maxColVals[,1]), as.character(maxColNames[,1]),
-         as.numeric(maxColVals[,2]), as.character(maxColNames[,2]),
-         as.numeric(maxColVals[,3]), as.character(maxColNames[,3]), stringsAsFactors = FALSE)
+      # if there are only 2 response classes, only use 2
+      if (ncol(maxColVals) >= 3) {# 3 or more classes -> get top 3
+        private$orderedProbs <- data.frame(as.numeric(maxColVals[,1]), as.character(maxColNames[,1]), 
+                                           as.numeric(maxColVals[,2]), as.character(maxColNames[,2]),
+                                           as.numeric(maxColVals[,3]), as.character(maxColNames[,3]), 
+                                           stringsAsFactors = FALSE)
+      } else {# only 2 classes -> only use 2
+        private$orderedProbs <- data.frame(as.numeric(maxColVals[,1]), as.character(maxColNames[,1]),
+                                           as.numeric(maxColVals[,2]), as.character(maxColNames[,2]),
+                                           stringsAsFactors = FALSE)
+      }
 
-      # update column names
+      # update column names, also dealing with case of only 2 classes
       colnames(private$orderedProbs) <- c('PredictedProb1','PredictedClass1',
         'PredictedProb2','PredictedClass2',
-        'PredictedProb3','PredictedClass3')
+        'PredictedProb3','PredictedClass3')[1:ncol(private$orderedProbs)]
 
       # update row names
       row.names(private$orderedProbs) <- 1:nRows
