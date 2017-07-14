@@ -20,9 +20,9 @@ contained in the df or vector
 dat <- data.frame(a = c(0,1,1,0,0,0,1,1,1,0,1,0,1,0,1,0,1,1,1,0))
 dat2 <- data.frame(a = c(3, 4, 5, 6, 7, 8, 9))
 dat3 <- data.frame(a = c('Y', 'N', 'Y', 'N'))
-isnotYN(dat[, 1])
-isnotYN(dat2[, 1]) 
-isnotYN(dat3[, 1])              
+isnotYNOrNA(dat[, 1])
+isnotYNOrNA(dat2[, 1]) 
+isnotYNOrNA(dat3[, 1])              
                 
 }
 \references{
