@@ -441,15 +441,27 @@ getPipedValue <- function(string) {
 #' @seealso \code{\link{healthcareai}} \code{\link{calculateCOV}} 
 #' \code{\link{createVarianceTallTable}}
 #' @examples
-#' df <- data.frame(Dept = c('A','A','A','B','B','B','B','B'),
-#'                  Gender = c('F','M','M','M','M','F','F','F'),
-#'                  LOS = c(3.2,NA,5,1.3,2.4,4,9,10))
+#' df <- data.frame(Gender = factor(rbinom(100, 1, 0.45), labels = c("Male","Female")), 
+#'                  Age = factor(rbinom(100, 1, 0.45), labels = c("Young","Old")),
+#'                  Ans = factor(rbinom(100, 1, 0.45), labels = c("Y","N")),
+#'                  Dept = sample(c("A","B","C"), 50, replace = TRUE, prob = c(0.2,0.3,0.5)),
+#'                  LOS1 = c(rnorm(30),rnorm(70,10,5)),
+#'                  LOS2 = c(rnorm(20,8,3),rnorm(80,-15,5)))
 #'
 #' categoricalCols <- c("Dept","Gender")
+#' measureColumn <- c("LOS1","LOS2")
 #' 
 #' variationAcrossGroups(df = df, 
 #'                        categoricalCols = categoricalCols,
-#'                        measureColumn = "LOS")
+#'                        measureColumn = measureColumn)
+#'                        
+#' treatment = c(rep("A", 20) , rep("B", 20) , rep("C", 20), rep("D", 20) ,  rep("E", 20))
+#' value = c( sample(2:5, 20 , replace = TRUE) , sample(6:10, 20 , replace = TRUE), 
+#'         sample(1:7, 20 , replace = TRUE), sample(3:10, 20 , replace = TRUE) , 
+#'         sample(10:20, 20 , replace = TRUE) )
+#' df1 = data.frame(treatment,value)
+#' 
+#' variationAcrossGroups(df1, categoricalCols = "treatment", measureColumn = "value")
 #'
 
 
@@ -500,6 +512,11 @@ variationAcrossGroups <- function(df,
     }
   }
   
+  # Check if there are two many interactions
+  if (length(categoricalCols) > 10) {
+    stop("There are two many interactions. Length of categoricalCols cannot larger than 10.")
+  }
+  
   if (!is.null(dateCol)) {
     tryCatch(
       df[[dateCol]] <- as.Date(df[[dateCol]]),
@@ -516,12 +533,284 @@ variationAcrossGroups <- function(df,
     categoricalCols <- c(categoricalCols, dateCol)
   }
   
+  # Function from package "multcompView": Convert a vector of hyphenated names into 
+  # a character matrix with 2 columns containing the names split in each row
+  vec2mat2 <- function(x, sep = "-") {
+      splits <- strsplit(x, sep)
+      n.spl <- sapply(splits, length)
+      if (any(n.spl != 2)) 
+        stop("Names must contain exactly one '", sep, "' each;  instead got ", 
+             paste(x, collapse = ", "))
+      x2 <- t(as.matrix(as.data.frame(splits)))
+      dimnames(x2) <- list(x, NULL)
+      x2
+  }
+  
+  # Group the levels that are not different each other together
+  generate_label_df <- function(TUKEY, variable){
+    
+    # Function from package "multcompView": Convert a vector of p-values
+    # into a character based display in which common characters identify levels 
+    # or groups that are not significantly different.
+    multcompLetters <- function(x, compare = "<",
+                                threshold = 0.05, Letters = c(letters, LETTERS, "."),
+                                reversed = FALSE){
+      ##
+      ## 1.  Covert to logical
+      ##
+      x.is <- deparse(substitute(x))
+      if (class(x) == "dist") x <- as.matrix(x)  
+      if (!is.logical(x))
+        x <- do.call(compare, list(x, threshold))
+      ##
+      ## 2.  Create array of distinct pairs
+      
+      dimx <- dim(x)
+      {
+        if ((length(dimx) == 2) && (dimx[1] == dimx[2])) {
+          Lvls <- dimnames(x)[[1]]
+          if (length(Lvls) != dimx[1])
+            stop("Names requred for ", x.is)
+          else{
+            #       Create a matrix with 2 columns
+            #       with the names of all pairs         
+            x2. <- t(outer(Lvls, Lvls, paste,
+                           sep = ""))
+            x2.n <- outer(Lvls, Lvls,
+                          function(x1, x2)nchar(x2))
+            x2.2 <- x2.[lower.tri(x2.)]
+            x2.2n <- x2.n[lower.tri(x2.n)]
+            x2a <- substring(x2.2, 1, x2.2n)
+            x2b <- substring(x2.2, x2.2n + 1)
+            x2 <- cbind(x2a, x2b)
+            x <- x[lower.tri(x)]        
+          }
+        }
+        else{  
+          namx <- names(x)
+          if (length(namx) != length(x))
+            stop("Names required for ", x.is)
+          x2 <- vec2mat2(namx)
+          Lvls <- unique(as.vector(x2))
+        }
+      }
+      ##
+      ## 3.  Find the names of the levels 
+      ##  
+      n <- length(Lvls)
+      #   Generate an initial column
+      LetMat <- array(TRUE, dim = c(n, 1),
+                      dimnames = list(Lvls, NULL))
+      ##
+      ## 4.  How many distinct pairs?  
+      ##  
+      k2 <- sum(x)
+      if (k2 == 0) {
+        Ltrs <- rep(Letters[1], n)
+        names(Ltrs) <- Lvls
+        dimnames(LetMat)[[2]] <- Letters[1]
+        return(list(Letters = Ltrs,
+                    LetterMatrix = LetMat))  
+      }
+      ##
+      ## 4.  At last 2 levels are different: 
+      ##     insert & absorb
+      ##  
+      distinct.pairs <- x2[x,,drop = FALSE]
+      absorb <- function(A.){
+        #    Do the work in a recursive function:      
+        #    Delete any column for which the TRUE 
+        #    connections are a subset of another column
+        k. <- dim(A.)[2]
+        if (k. > 1) { #i. <- 1; j. <- 2
+          for (i. in 1:(k. - 1)) for (j. in (i. + 1):k.) {
+            if (all(A.[A.[, j.], i.])) {
+              #### drop a redundant column and recurse ###
+              A. <- A.[, -j., drop = FALSE]
+              return(absorb(A.))
+            }
+            else {
+              if (all(A.[A.[, i.], j.])) {
+                #### drop a redundant column and recurse ###
+                A. <- A.[, -i., drop = FALSE]
+                return(absorb(A.))
+              }
+            }          
+          }
+        }
+        #### end internal function absorb #######      
+        A.
+      }
+      # Now apply this function 
+      for (i in 1:k2) { # i <- 1+i
+        #     Process the distinct differences one at a time       
+        #     Insert    i <- 1+i
+        #     Are (distinct) levels Td2[i, 1] and Td2[i,2]
+        #        connected in any columns of A?
+        dpi <- distinct.pairs[i,]
+        ijCols <- (LetMat[dpi[1],] & LetMat[dpi[2], ])
+        if (any(ijCols)) {
+          #     "Insert":  Break this connection 
+          A1 <- LetMat[, ijCols, drop = FALSE]
+          A1[dpi[1],] <- FALSE
+          LetMat[dpi[2], ijCols] <- FALSE
+          LetMat <- cbind(LetMat, A1)
+          #     Absorb   A. <- A
+          LetMat <- absorb(LetMat)
+        }
+      }
+      ##
+      ## 5.  Sort the columns for visual appeal 
+      ##  
+      sortCols <- function(B){
+        firstRow <- apply(B, 2, function(x)which(x)[1])
+        B <- B[, order(firstRow)]
+        #     If ties, sort submatrices
+        firstRow <- apply(B, 2, function(x)which(x)[1])
+        reps <- (diff(firstRow) == 0)
+        if (any(reps)) {
+          #     Break ties
+          nrep <- table(which(reps))
+          irep <- as.numeric(names(nrep))
+          k <- dim(B)[1]
+          for (i in irep) {
+            i. <- i:(i + nrep[as.character(i)])
+            j. <- (firstRow[i] + 1):k
+            B[j., i.] <- sortCols(B[j., i., drop = FALSE])
+          }
+        }
+        #### end internal function sortCols #######      
+        B
+      }
+      LetMat. <- sortCols(LetMat)
+      ### Should the letters go in the reversed order?
+      if (reversed) LetMat. <- LetMat.[ ,rev(1:ncol(LetMat.))]
+      # DON'T Sweep
+      #...
+      ##
+      ## 6.  Create "Letters" for column names
+      ##
+      k.ltrs <- dim(LetMat.)[2]
+      makeLtrs <- function(kl, ltrs=Letters){
+        kL <- length(ltrs)
+        if (kl < kL) return(ltrs[1:kl])
+        ltrecurse <- c(paste(ltrs[kL], ltrs[-kL],
+                             sep = ""), ltrs[kL])
+        c(ltrs[-kL], makeLtrs(kl - kL + 1,
+                              ltrecurse))
+      }
+      Ltrs <- makeLtrs(k.ltrs, Letters)
+      dimnames(LetMat.)[[2]] <- Ltrs
+      ##
+      ## 7.  Create simple summaries
+      ##
+      LetVec <- rep(NA, n)
+      names(LetVec) <- Lvls
+      for (i in 1:n)
+        LetVec[i] <- paste(Ltrs[LetMat.[i, ]],
+                           collapse = "")
+      nch.L <- nchar(Ltrs)
+      # To allow for multicharacter "Letters", create
+      # a vector of blanks with the right number
+      # of characters for each.  
+      blk.L <- rep(NA, k.ltrs)
+      for (i in 1:k.ltrs)
+        blk.L[i] <- paste(rep(" ", nch.L[i]), collapse = "")
+      # Now create monospacedLetters:    
+      monoVec <- rep(NA, n)
+      names(monoVec) <- Lvls
+      for (j in 1:n) {
+        ch2 <- blk.L
+        if (any(LetMat.[j,]))
+          ch2[LetMat.[j,]] <- Ltrs[LetMat.[j,]]
+        monoVec[j] <- paste(ch2, collapse = "")
+      }
+      ##
+      ## 8.  done
+      ##
+      InsertAbsorb <- list(Letters = LetVec,
+                           monospacedLetters = monoVec, 
+                           LetterMatrix = LetMat.)
+      class(InsertAbsorb) <- "multcompLetters"
+      InsertAbsorb  
+    }
+    
+    # Extract labels and factor levels from Tukey post-hoc 
+    Tukey.levels <- TUKEY[[variable]][,4]
+    Tukey.labels <- data.frame(multcompLetters(Tukey.levels)['Letters'])
+    
+    #I need to put the labels in the same order as in the boxplot :
+    Tukey.labels$treatment = rownames(Tukey.labels)
+    Tukey.labels = Tukey.labels[order(Tukey.labels$treatment) , ]
+    return(Tukey.labels)
+  }
+  
   l <- list()
   for (i in 1:length(categoricalCols)) {
     l[[i]] <- df[[categoricalCols[i]]]
   }
-  for (i in 1:length(measureColumn)) {
-    boxplot(df[[measureColumn[i]]]~interaction(l), data = df, col = (c("darkseagreen","gray62")), ylab = measureColumn[i])
-  }
 
+  # A panel of colors to draw each group with the same color :
+    my_colors = c(rgb(143,199,74,maxColorValue = 255),rgb(242,104,34,maxColorValue = 255),
+                   rgb(111,145,202,maxColorValue = 255),rgb(254,188,18,maxColorValue = 255) ,
+                   rgb(74,132,54,maxColorValue = 255),rgb(236,33,39,maxColorValue = 255),
+                   rgb(165,103,40,maxColorValue = 255))
+
+  
+  for (i in 1:length(measureColumn)) {
+    model <- lm(df[[measureColumn[i]]] ~ interaction(l))
+    ANOVA <- aov(model)
+    # Tukey test to study each pair of treatment :
+    TUKEY <- TukeyHSD(x = ANOVA, conf.level = 0.95)
+    labs = generate_label_df(TUKEY , 'interaction(l)')
+
+    par(bg = "transparent", cex.axis = 1)
+    a <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, col = my_colors[as.numeric(labs[,1])],
+            ylab = measureColumn[i], ylim = c(min(df[measureColumn[[i]]]), 1.1*max(df[[measureColumn[i]]])),
+            cex.lab = 1.25)
+    # Now set the plot region to grey
+    rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "grey90")
+    grid(nx = NULL, ny = NULL, lwd = 1, lty = 3, col = "white") #grid over boxplot
+    par(new = TRUE)
+    a <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, col = my_colors[as.numeric(labs[,1])],
+            ylab = measureColumn[i], ylim = c(min(df[measureColumn[[i]]]) , 1.1*max(df[[measureColumn[i]]])),
+            main = paste("Boxplot of", measureColumn[i], "Across", paste(categoricalCols,collapse = " ")),
+            cex.lab = 1.25, outcol = "lightcoral", add = TRUE)
+    over = 0.1*max(a$stats[nrow(a$stats),] )
+    text(c(1:nlevels(interaction(l))) , a$stats[nrow(a$stats),] + over, labs[,1],
+         col = my_colors[as.numeric(labs[,1])])
+  }
+  
+  # Return tables with mean/std and quartiles
+  resTable <- list()
+  for (j in 1:length(measureColumn)) {
+    df$newcol <- interaction(l)
+    levels <- unique(df$newcol)
+    means <- c()
+    std <- c()
+    minVal <- c()
+    firstQuartile <- c()
+    m <- c()
+    thirdQuartile <- c()
+    maxVal <- c()
+    for (i in 1:length(levels)) {
+      means[i] <- mean(df[df$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
+      std[i] <- sd(df[df$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
+      minVal[i] <- min(df[df$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
+      firstQuartile[i] <- quantile(df[df$newcol == levels[i],][[measureColumn[j]]], 0.25, na.rm = T)
+      m[i] <- median(df[df$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
+      thirdQuartile[i] <- quantile(df[df$newcol == levels[i],][[measureColumn[j]]], 0.75, na.rm = T)
+      maxVal[i] <- max(df[df$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
+    }
+    se <- means/std
+    # Output the table
+    resTable[[j]] <- data.frame(group = levels, Mean = means, Std = std, SE = se, Min = minVal, 
+                      Q1 = firstQuartile, Median = m, Q3 = thirdQuartile, Max = maxVal)
+  }
+  
+  for (i in 1:length(measureColumn)) {
+    cat("Summary Table for", measureColumn[i], "\n")
+    print(resTable[[i]])
+  }
+  
 }

@@ -22,15 +22,27 @@ A boxplot to compare variation across groups.
 Plot a boxplot to compare the variation across the groups.
 }
 \examples{
-df <- data.frame(Dept = c('A','A','A','B','B','B','B','B'),
-                 Gender = c('F','M','M','M','M','F','F','F'),
-                 LOS = c(3.2,NA,5,1.3,2.4,4,9,10))
+df <- data.frame(Gender = factor(rbinom(100, 1, 0.45), labels = c("Male","Female")), 
+                 Age = factor(rbinom(100, 1, 0.45), labels = c("Young","Old")),
+                 Ans = factor(rbinom(100, 1, 0.45), labels = c("Y","N")),
+                 Dept = sample(c("A","B","C"), 50, replace = TRUE, prob = c(0.2,0.3,0.5)),
+                 LOS1 = c(rnorm(30),rnorm(70,10,5)),
+                 LOS2 = c(rnorm(20,8,3),rnorm(80,-15,5)))
 
 categoricalCols <- c("Dept","Gender")
+measureColumn <- c("LOS1","LOS2")
 
 variationAcrossGroups(df = df, 
                        categoricalCols = categoricalCols,
-                       measureColumn = "LOS")
+                       measureColumn = measureColumn)
+                       
+treatment = c(rep("A", 20) , rep("B", 20) , rep("C", 20), rep("D", 20) ,  rep("E", 20))
+value = c( sample(2:5, 20 , replace = TRUE) , sample(6:10, 20 , replace = TRUE), 
+        sample(1:7, 20 , replace = TRUE), sample(3:10, 20 , replace = TRUE) , 
+        sample(10:20, 20 , replace = TRUE) )
+df1 = data.frame(treatment,value)
+
+variationAcrossGroups(df1, categoricalCols = "treatment", measureColumn = "value")
 
 }
 \references{
