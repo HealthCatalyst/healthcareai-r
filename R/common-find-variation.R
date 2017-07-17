@@ -818,5 +818,5 @@ variationAcrossGroups <- function(df,
     tabRes <- rbind(tabRes,resTable[[i]])
   }
   
-  return(tabRes)
+  return(format(tabRes, digits = 3))
 }
