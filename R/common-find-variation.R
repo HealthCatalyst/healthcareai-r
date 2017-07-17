@@ -786,9 +786,16 @@ variationAcrossGroups <- function(df,
   
   # Return tables with mean/std and quartiles
   resTable <- list()
+  completeDf <- df[complete.cases(df),]
+  
+  compl <- list()
+  for (i in 1:length(categoricalCols)) {
+    compl[[i]] <- completeDf[[categoricalCols[i]]]
+  }
+  
   for (j in 1:length(measureColumn)) {
-    df$newcol <- interaction(l)
-    levels <- unique(df$newcol)
+    completeDf$newcol <- interaction(compl)
+    levels <- unique(completeDf$newcol)
     means <- c()
     std <- c()
     minVal <- c()
@@ -797,13 +804,13 @@ variationAcrossGroups <- function(df,
     thirdQuartile <- c()
     maxVal <- c()
     for (i in 1:length(levels)) {
-      means[i] <- mean(df[df$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
-      std[i] <- sd(df[df$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
-      minVal[i] <- min(df[df$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
-      firstQuartile[i] <- quantile(df[df$newcol == levels[i],][[measureColumn[j]]], 0.25, na.rm = T)
-      m[i] <- median(df[df$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
-      thirdQuartile[i] <- quantile(df[df$newcol == levels[i],][[measureColumn[j]]], 0.75, na.rm = T)
-      maxVal[i] <- max(df[df$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
+      means[i] <- mean(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
+      std[i] <- sd(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
+      minVal[i] <- min(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
+      firstQuartile[i] <- quantile(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], 0.25, na.rm = T)
+      m[i] <- median(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
+      thirdQuartile[i] <- quantile(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], 0.75, na.rm = T)
+      maxVal[i] <- max(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
     }
     se <- means/std
     measures <- rep(measureColumn[j], length(levels))
