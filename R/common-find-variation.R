@@ -737,6 +737,8 @@ variationAcrossGroups <- function(df,
     
     # Extract labels and factor levels from Tukey post-hoc 
     Tukey.levels <- TUKEY[[variable]][,4]
+    if ((length(TUKEY[[variable]][,4])) == 1) 
+      names(Tukey.levels) <- "L1-L2"
     Tukey.labels <- data.frame(multcompLetters(Tukey.levels)['Letters'])
     
     #I need to put the labels in the same order as in the boxplot :
@@ -762,11 +764,12 @@ variationAcrossGroups <- function(df,
     ANOVA <- aov(model)
     # Tukey test to study each pair of treatment :
     TUKEY <- TukeyHSD(x = ANOVA, conf.level = 0.95)
-    labs = generate_label_df(TUKEY , 'interaction(l)')
+    labs = generate_label_df(TUKEY, 'interaction(l)')
 
     par(bg = "transparent", cex.axis = 1)
     a <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, col = my_colors[as.numeric(labs[,1])],
-            ylab = measureColumn[i], ylim = c(min(df[measureColumn[[i]]]), 1.1*max(df[[measureColumn[i]]])),
+            ylab = measureColumn[i], ylim = c(min(df[measureColumn[[i]]], na.rm = TRUE), 
+                                              1.1*max(df[[measureColumn[i]]], na.rm = TRUE)),
             cex.lab = 1.25)
     # Now set the plot region to grey
     rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "grey90")
