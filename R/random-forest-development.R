@@ -205,36 +205,6 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         save(fitObj, file = "rmodel_probability_RF.rda")
       },
     
-    # this function must be in here for the row-wise predictions.
-    # can be replaced when LIME-like functionality is complete.
-    fitGeneralizedLinearModel = function() {
-      if (isTRUE(self$params$debug)) {
-        print('generating fitLogit for row-wise guidance...')
-      }
-      
-      if (self$params$type == 'classification') {
-        private$fitLogit <- glm(
-          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrain,
-          family = binomial(link = "logit"),
-          metric = "ROC",
-          control = list(maxit = 10000),
-          trControl = caret::trainControl(classProbs = TRUE, summaryFunction = twoClassSummary)
-        )
-        
-      } else if (self$params$type == 'regression') {
-        private$fitLogit <- glm(
-          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrain,
-          metric = "RMSE",
-          control = list(maxit = 10000)
-        )
-      }
-
-      # Add factor levels (calculated in SMD) to fitLogit object
-      private$fitLogit$factorLevels <- private$factorLevels 
-    },
-    
     buildGrid = function() {
       if (isTRUE(self$params$tune)) {
         optimal <- NA
@@ -415,7 +385,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       
       # Start default logit (for row-wise var importance)
       # can be replaced with LIME-like functionality
-      private$fitGeneralizedLinearModel()
+      super$fitGeneralizedLinearModel()
 
       # Build Model
       self$buildModel()
