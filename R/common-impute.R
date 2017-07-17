@@ -48,33 +48,60 @@ groupedLOCF <- function(df, id) {
 }
 
 #' @title
-#' Perform imputation on a vector
+#' Perform imputation on a dataframe
 #'
 #' @description This class performs imputation on a vector. For numeric vectors
 #' the vector-mean is used; for factor columns, the most frequent value is used.
-#' @param v A vector, or column of values with NAs.
+#' @param d A vector, or column of values with NAs.
 #' @return A vector, or column of values now with no NAs
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
-#' # For a numeric vector
-#' vResult <- imputeColumn(c(1,2,3,NA))
-#'
-#' # For a factor vector
-#' vResult <- imputeColumn(c('Y','N','Y',NA))
-#'
 #' # To use this function on an entire data frame:
-#' df <- data.frame(a=c(1,2,3,NA),
-#'                 b=c('Y','N','Y',NA))
-#' df[] <- lapply(df, imputeColumn)
-#' head(df)
-imputeColumn <- function(v) {
-  if (is.numeric(v)) {
-    v[is.na(v)] <- mean(v, na.rm = TRUE)
-  } else {
-    v[is.na(v)] <- names(which.max(table(v)))
+#' df <- data.frame(a=c(1,2,3,NA), b=c('Y','N','Y',NA))
+#' out <- imputeDF(df)
+#' 
+#' # To impute using your own values (one per column)
+#' myValues <- list(10, 'Y') 
+#' out <- imputeDF(df, myValues)
+#' 
+imputeDF <- function(df, imputeVals = list()) {
+  # Use separate functions to make applying easier in deploy
+  # This function finds the value to impute for a column
+  getValues2 <- function(col) {
+    if (is.numeric(col)) {
+      value <- mean(col, na.rm = TRUE) # this is where the method could change
+    } else {
+      value <- names(which.max(table(col)))
+    }
+    return(value)
   }
-  v
+  
+  # This function applies the value to a column
+  applyValues2 <- function(col, val) {
+    col[is.na(col)] <- val
+    return(col)
+  }
+  
+  # Calculate imputation values if needed
+  if (length(imputeVals) == 0) {
+    imputeVals <- lapply(df, getValues2)
+  } else {
+    cat('Using supplied values for imputation.', '\n')
+  }
+  
+  # Apply imputation values
+  df[] <- lapply(1:ncol(df), function(x,y) applyValues2(df[,x], imputeVals[[x]]))
+  
+  return(list(df, imputeVals))
+}
+
+
+
+  imputationValForDeploy[] <- lapply(d, getValues)
+  print(imputationValForDeploy)
+
+  return(list('imputedData' = d, 'imputationValForDeploy' = imputationValForDeploy))
 }
