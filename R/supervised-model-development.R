@@ -92,7 +92,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         }
         if (self$params$type == 'classification' 
             && isBinary(self$params$df[[self$params$predictedCol]]) 
-            && isnotYNOrNA(self$params$df[[self$params$predictedCol]])) {
+            && !isTargetYN(self$params$df[[self$params$predictedCol]])) {
             stop("predictedCol must be Y/N. IIF function in sql may help")
           }
         
