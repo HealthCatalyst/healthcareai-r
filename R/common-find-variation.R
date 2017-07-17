@@ -806,14 +806,17 @@ variationAcrossGroups <- function(df,
       maxVal[i] <- max(df[df$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
     }
     se <- means/std
+    measures <- rep(measureColumn[j], length(levels))
     # Output the table
-    resTable[[j]] <- data.frame(group = levels, Mean = means, Std = std, SE = se, Min = minVal, 
+    resTable[[j]] <- data.frame(measure = measures, group = levels, Mean = means, 
+                                Std = std, SE = se, Min = minVal, 
                       Q1 = firstQuartile, Median = m, Q3 = thirdQuartile, Max = maxVal)
   }
   
+  tabRes <- data.frame()
   for (i in 1:length(measureColumn)) {
-    cat("Summary Table for", measureColumn[i], "\n")
-    print(resTable[[i]])
+    tabRes <- rbind(tabRes,resTable[[i]])
   }
   
+  return(tabRes)
 }
