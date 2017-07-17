@@ -527,7 +527,7 @@ variationAcrossGroups <- function(df,
       })
     
     # Convert date into YYYY-MM
-    df[[dateCol]] <- base::format(df[[dateCol]],"%Y-%m")
+    df[[dateCol]] <- base::format(df[[dateCol]],"%Y/%m")
     
     # Add dateCol to categoricalList (now that it's just YYYY-MM)
     categoricalCols <- c(categoricalCols, dateCol)
@@ -782,6 +782,22 @@ variationAcrossGroups <- function(df,
     over = 0.1*max(a$stats[nrow(a$stats),] )
     text(c(1:nlevels(interaction(l))) , a$stats[nrow(a$stats),] + over, labs[,1],
          col = my_colors[as.numeric(labs[,1])])
+    
+    
+    # plot 95% family-wise confidence level
+    if (length(TUKEY$'interaction(l)'[,4]) == 1) {
+      psig <- as.numeric(TUKEY$'interaction(l)'[,2]*TUKEY$'interaction(l)'[,3] >= 0 ) + 1
+    } else {
+      psig <- as.numeric(apply(TUKEY$'interaction(l)'[,2:3],1,prod) >= 0 ) + 1
+    }
+    
+    op <- par(mar = c(4.2,9,3.8,2))
+    plot(TUKEY,col = psig, yaxt = "n")
+    for (j in 1:length(psig)) {
+      axis(2,at = j,labels = rownames(TUKEY$'interaction(l)')[length(psig) - j + 1],
+           las = 1,cex.axis = .8,col.axis = psig[length(psig) - j + 1])
+    }
+    par(op)
   }
   
   # Return tables with mean/std and quartiles
