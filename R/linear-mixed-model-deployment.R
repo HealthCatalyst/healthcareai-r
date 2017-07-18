@@ -412,7 +412,6 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     outDf = NA,
     
     fitLmm = NA,
-    fitLogit = NA,
     predictions = NA,
 
     # functions
@@ -447,7 +446,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
     calculateCoeffcients = function() {
       # Do semi-manual calc to rank cols by order of importance
-      coeffTemp <- private$fitLogit$coefficients
+      coeffTemp <- self$modelInfo$fitLogit$coefficients
 
       if (isTRUE(self$params$debug)) {
         cat('Coefficients for the default logit (for ranking var import)', '\n')
@@ -559,8 +558,8 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
       # Try to load the model
       tryCatch({
-        load("rmodel_var_import_LMM.rda")  # Produces fitLogit object
-        private$fitLogit <- fitLogit
+        load("rmodel_info_LMM.rda")  # Produces fitLogit object and other info
+        self$modelInfo <- modelInfo
         load("rmodel_probability_LMM.rda") # Produces fit object (for probability)
         private$fitLmm <- fitObj
       }, error = function(e) {
