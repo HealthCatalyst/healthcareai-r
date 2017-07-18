@@ -369,6 +369,8 @@
 
       # Try to load the model
       tryCatch({
+        load("rmodel_info_XGB.rda")  # Get model info
+        self$modelInfo <- modelInfo
         load("rmodel_probability_XGB.rda") # Produces fit object (for probability)
         private$fitXGB <- fitObj
        }, error = function(e) {
