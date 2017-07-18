@@ -336,6 +336,9 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         }
       }
       
+      # Add factor levels (calculated in SMD) to fitLogit object
+      self$modelInfo$factorLevels <- private$factorLevels 
+      
       # Print warning about factors with levels that occur infrequently
       if (length(missingLevels) > 0) {
         warning('The following categorical variable levels were not used in ',
@@ -376,9 +379,6 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
           control = list(maxit = 10000)
         )
       }
-      
-      # Add factor levels (calculated in SMD) to fitLogit object
-      self$modelInfo$factorLevels <- private$factorLevels 
     },
     
     saveModel = function(fitModel) {
