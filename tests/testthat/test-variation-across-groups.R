@@ -314,3 +314,40 @@ test_that("Date column passed as number gives correct error", {
                          paste0("Age may not be a datetime column, or the",
                                 " column may not be in format YYYY-MM-DD"))
 })
+
+
+test_that("One cat column, one measure col, and no date col, no NA gives correct 
+          boxplot", {
+            set.seed((35))
+            treatment <- c(rep("A", 20) , rep("B", 20) , rep("C", 20), rep("D", 20) ,  rep("E", 20))
+            value <- c( sample(2:5, 20 , replace = TRUE) , 
+                        sample(6:10, 20 , replace = TRUE), 
+                        sample(1:7, 20 , replace = TRUE), 
+                        sample(3:10, 20 , replace = TRUE) , 
+                        sample(10:20, 20 , replace = TRUE))
+            df <- data.frame(treatment,value)
+            
+            dfRes <- variationAcrossGroups(df = data, 
+                                           categoricalCols = "treatment", 
+                                           measureColumn = "value",
+                                           printPlot = FALSE,
+                                           printTable = FALSE)
+            
+            expected <- list()
+            expected$stats <- matrix(c(2,3,3,4,5,6.0,6.5,8.0,9.0,10.0,1,3,4,6,7,3.0,4.5,6.0,7.0,10.0,
+                                       10.0,12.0,14.5,16.0,20.0), nrow = 5, ncol = 5)
+            attributes(expected$stats)$class <- "integer"
+            names(attributes(expected$stats)$class) <- "A"
+            
+            expected$n <- c(20,20,20,20,20)
+            expected$conf <- matrix(c(2.646701,3.353299,7.116753,8.883247,2.940104,5.059896,5.116753,
+                                      6.883247,13.08681,15.91319), nrow = 2, ncol = 5)
+            
+            
+            expected$out <- numeric(0)
+            expected$group <- numeric(0)
+            expected$names <- c("A","B","C","D","E")
+            
+            testthat::expect_equal(dfRes,expected,tolerance = 1e-6)
+          })
+

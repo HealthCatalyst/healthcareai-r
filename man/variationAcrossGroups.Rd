@@ -4,7 +4,8 @@
 \alias{variationAcrossGroups}
 \title{Find variation across groups}
 \usage{
-variationAcrossGroups(df, categoricalCols, measureColumn, dateCol = NULL)
+variationAcrossGroups(df, categoricalCols, measureColumn, printPlot = TRUE,
+  printTable = TRUE, dateCol = NULL)
 }
 \arguments{
 \item{df}{A dataframe}
@@ -12,6 +13,12 @@ variationAcrossGroups(df, categoricalCols, measureColumn, dateCol = NULL)
 \item{categoricalCols}{Vector of strings representing categorical column(s)}
 
 \item{measureColumn}{Vector of strings representing measure column(s)}
+
+\item{printPlot}{Optional, default is TRUE. FALSE: only shows the statistics
+used to plot the boxplot.}
+
+\item{printTable}{Optional, default is TRUE. FALSE: not to show the table of
+mean/std and quartiles}
 
 \item{dateCol}{Optional. A date(time) column to group by (done by month)}
 }
