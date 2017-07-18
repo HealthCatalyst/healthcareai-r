@@ -64,7 +64,7 @@ test_that("Grain is correctly attached", {
 
 test_that("Probabilities are correctly sorted", {
   expect_true(round(outDf$PredictedProb1[1],5) == 0.91198)
-  expect_true(round(outDf$PredictedProb2[4],5) == 0.08339)
+  expect_true(round(outDf$PredictedProb2[4],5) == 0.01804)
   expect_true(round(outDf$PredictedProb3[7],5) == 0.00312)
 })
 
