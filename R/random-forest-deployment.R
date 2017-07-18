@@ -401,6 +401,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     outDf = NA,
     
     fitRF = NA,
+    fitLogit = NA,
     predictions = NA,
 
     # functions
@@ -431,7 +432,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
     calculateCoeffcients = function() {
       # Do semi-manual calc to rank cols by order of importance
-      coeffTemp <- self$modelInfo$fitLogit$coefficients
+      coeffTemp <- private$fitLogit$coefficients
 
       if (isTRUE(self$params$debug)) {
         cat('Coefficients for the default logit (for ranking var import)', '\n')
@@ -536,8 +537,8 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
       # Try to load the model
       tryCatch({
-        load("rmodel_info_RF.rda")  # Produces fitLogit object and other info
-        self$modelInfo <- modelInfo
+        load("rmodel_var_import_RF.rda")  # Produces fitLogit object
+        private$fitLogit <- fitLogit
         load("rmodel_probability_RF.rda") # Produces fit object (for probability)
         private$fitRF <- fitObj
        }, error = function(e) {

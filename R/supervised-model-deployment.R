@@ -31,6 +31,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   dfGrain = NULL,
 
   fit = NA,
+  fitLogit = NA,
   predictedVals = NA,
 
   clustersOnCores = NA,
@@ -194,12 +195,12 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   formatFactorColumns = function(){
     # Manually Assign factor levels based on which ones were present in training.
     private$dfTestRaw <- self$params$df
-    factorLevels <- self$modelInfo$factorLevels
+    factorLevels <- private$fitLogit$factorLevels
     
     # Check to see if there are new levels in test data vs. training data.
     # Save new levels and set values to NA.
     newLevels <- list()
-    for (col in names(self$modelInfo$factorLevels)) {
+    for (col in names(private$fitLogit$factorLevels)) {
       # find new levels not seen in training data
       testLevels <- levels(private$dfTestRaw[[col]])
       newLevelValues <- testLevels[!testLevels %in% factorLevels[[col]]]
@@ -222,7 +223,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     private$dfTestRaw[, names(newLevels)] <- sapply(private$dfTestRaw[, names(newLevels)], imputeColumn)
     
     # Assign new factor levels using training data factor levels
-    for (col in names(self$modelInfo$factorLevels)) {
+    for (col in names(private$fitLogit$factorLevels)) {
       private$dfTestRaw[[col]] <- factor(private$dfTestRaw[[col]],
                                          levels = factorLevels[[col]],
                                          ordered = FALSE)
@@ -253,7 +254,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
     #parameters
     params = NA,
-    modelInfo = NA,
 
     ###########
     # Functions
