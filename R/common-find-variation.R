@@ -741,7 +741,7 @@ variationAcrossGroups <- function(df,
       names(Tukey.levels) <- "L1-L2"
     Tukey.labels <- data.frame(multcompLetters(Tukey.levels)['Letters'])
     
-    #I need to put the labels in the same order as in the boxplot :
+    # Put the labels in the same order as in the boxplot :
     Tukey.labels$groups = rownames(Tukey.labels)
     Tukey.labels = Tukey.labels[order(Tukey.labels$groups) , ]
     return(Tukey.labels)

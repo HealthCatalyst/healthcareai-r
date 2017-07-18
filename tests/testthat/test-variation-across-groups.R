@@ -285,7 +285,6 @@ test_that("Categorical col as numbers gives correct error", {
                          "categoricalCols cannot be of class numeric or int")
 })
 
-#################################################################################
 
 test_that("Date column in wrong format gives correct error", {
   df <- data.frame(Gender = c('F','M','M','M','M','F','F','F'),
