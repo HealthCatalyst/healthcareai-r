@@ -34,8 +34,14 @@ p$xgb_params <- list("objective" = "multi:softprob",
                      "eta" = 0.1, # learning rate
                      "silent" = 0, # verbose output when set to 1
                      "nthread" = 2) # number of processors to use
+# Text of warning that we know will trigger and that we want to suppress
+warningText = paste("Each of the following categorical variable levels occurs ",
+                    "3 times or fewer:\n-  x6 : Class1\n-  x27 : Class1\n-  ",
+                    "x33 : Class1\nThere is a chance",
+                    sep = "")
 # Run model
-xNew <- capture.output(boost <- XGBoostDevelopment$new(p))
+xNew <- capture.output(ignoreSpecWarn(code = boost <- XGBoostDevelopment$new(p),
+                                      wRegexps = warningText))
 xRun <- capture.output(boost$run())
 
 ## 3. Load saved model (automatic) and use DEPLOY to generate predictions. 

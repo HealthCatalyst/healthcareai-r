@@ -2,7 +2,7 @@
 % Please edit documentation in R/common-error-checking-utils.R
 \name{isTargetYN}
 \alias{isTargetYN}
-\title{Boolean. Tests whether predictedCol is Y/N. Allows for NAs to be present.}
+\title{Tests whether predictedCol is Y/N. Allows for NAs to be present.}
 \usage{
 isTargetYN(x)
 }
@@ -10,7 +10,7 @@ isTargetYN(x)
 \item{x}{A data frame column, matrix column, or vector}
 }
 \value{
-TRUE or FALSE depending on test
+A boolean
 }
 \description{
 Returns a logical, TRUE or FALSE, depending on what is
