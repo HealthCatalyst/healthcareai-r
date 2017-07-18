@@ -380,6 +380,11 @@
               See ?XGBoostDevelopment')
       })
       
+      # Make sure factor columns have the training data factor levels
+      super$formatFactorColumns()
+      # Update self$params$df to reflect the training data factor levels
+      self$params$df <- private$dfTestRaw
+      
       # Prepare data for xgboost
       private$xgbPrepareData()
 

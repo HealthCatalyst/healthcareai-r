@@ -189,16 +189,13 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       
       # Remove factors levels which don't actually occur in the training data
       # Different case for single column vs. multiple columns
-      # Skip for xgboost until factor issues have been fixed (see #491)
-      if (self$params$type != "multiclass"){
-        factors <- sapply(self$params$df, is.factor)
-        if (is.data.frame(self$params$df[, factors])) { # multiple columns
-          self$params$df[, factors] <- lapply(self$params$df[, factors], as.character)
-          self$params$df[, factors] <- lapply(self$params$df[, factors], as.factor)
-        } else {# single column
-          self$params$df[, factors] <- sapply(self$params$df[, factors], as.character)
-          self$params$df[, factors] <- sapply(self$params$df[, factors], as.factor)
-        }
+      factors <- sapply(self$params$df, is.factor)
+      if (is.data.frame(self$params$df[, factors])) { # multiple columns
+        self$params$df[, factors] <- lapply(self$params$df[, factors], as.character)
+        self$params$df[, factors] <- lapply(self$params$df[, factors], as.factor)
+      } else {# single column
+        self$params$df[, factors] <- sapply(self$params$df[, factors], as.character)
+        self$params$df[, factors] <- sapply(self$params$df[, factors], as.factor)
       }
 
       # Check for factor levels which occur infrequently
