@@ -1,11 +1,11 @@
 #' @title 
-#' Boolean. Tests whether predictedCol is Y/N. Allows for NAs to be present.
+#' Tests whether predictedCol is Y/N. Allows for NAs to be present.
 #' 
 #' @description Returns a logical, TRUE or FALSE, depending on what is
 #' contained in the vector.  If any NAs are present in the vector, they will be
 #' removed later on in development with removeRowsWithNAInSpecCol.
 #' @param x A data frame column, matrix column, or vector
-#' @return TRUE or FALSE depending on test
+#' @return A boolean
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
