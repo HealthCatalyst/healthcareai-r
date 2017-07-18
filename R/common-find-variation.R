@@ -742,8 +742,8 @@ variationAcrossGroups <- function(df,
     Tukey.labels <- data.frame(multcompLetters(Tukey.levels)['Letters'])
     
     #I need to put the labels in the same order as in the boxplot :
-    Tukey.labels$treatment = rownames(Tukey.labels)
-    Tukey.labels = Tukey.labels[order(Tukey.labels$treatment) , ]
+    Tukey.labels$groups = rownames(Tukey.labels)
+    Tukey.labels = Tukey.labels[order(Tukey.labels$groups) , ]
     return(Tukey.labels)
   }
   
@@ -752,11 +752,59 @@ variationAcrossGroups <- function(df,
     l[[i]] <- df[[categoricalCols[i]]]
   }
 
-  # A panel of colors to draw each group with the same color :
-    my_colors = c(rgb(143,199,74,maxColorValue = 255),rgb(242,104,34,maxColorValue = 255),
-                   rgb(111,145,202,maxColorValue = 255),rgb(254,188,18,maxColorValue = 255) ,
-                   rgb(74,132,54,maxColorValue = 255),rgb(236,33,39,maxColorValue = 255),
-                   rgb(165,103,40,maxColorValue = 255))
+  # A panel of colors to draw each group with the same color 
+  # (from http://tools.medialab.sciences-po.fr/iwanthue/)
+    
+    my_colors <- c(rgb(255,172,95,maxColorValue = 255),
+    rgb(79,67,199,maxColorValue = 255),
+    rgb(197,205,22,maxColorValue = 255),
+    rgb(80,122,255,maxColorValue = 255),
+    rgb(226,198,21,maxColorValue = 255),
+    rgb(157,54,189,maxColorValue = 255),
+    rgb(57,221,104,maxColorValue = 255),
+    rgb(139,27,151,maxColorValue = 255),
+    rgb(126,220,93,maxColorValue = 255),
+    rgb(37,74,180,maxColorValue = 255),
+    rgb(135,176,0,maxColorValue = 255),
+    rgb(2,111,224,maxColorValue = 255),
+    rgb(112,156,0,maxColorValue = 255),
+    rgb(82,148,255,maxColorValue = 255),
+    rgb(160,160,0,maxColorValue = 255),
+    rgb(138,39,133,maxColorValue = 255),
+    rgb(0,133,41,maxColorValue = 255),
+    rgb(255,99,181,maxColorValue = 255),
+    rgb(0,165,111,maxColorValue = 255),
+    rgb(182,0,96,maxColorValue = 255),
+    rgb(48,216,245,maxColorValue = 255),
+    rgb(219,48,38,maxColorValue = 255),
+    rgb(8,179,255,maxColorValue = 255),
+    rgb(202,113,0,maxColorValue = 255),
+    rgb(74,167,255,maxColorValue = 255),
+    rgb(179,130,0,maxColorValue = 255),
+    rgb(57,78,150,maxColorValue = 255),
+    rgb(188,207,108,maxColorValue = 255),
+    rgb(107,63,138,maxColorValue = 255),
+    rgb(118,117,0,maxColorValue = 255),
+    rgb(245,159,255,maxColorValue = 255),
+    rgb(81,87,26,maxColorValue = 255),
+    rgb(215,186,252,maxColorValue = 255),
+    rgb(167,66,0,maxColorValue = 255),
+    rgb(82,196,255,maxColorValue = 255),
+    rgb(185,0,43,maxColorValue = 255),
+    rgb(1,164,157,maxColorValue = 255),
+    rgb(255,86,100,maxColorValue = 255),
+    rgb(137,134,187,maxColorValue = 255),
+    rgb(255,127,85,maxColorValue = 255),
+    rgb(245,176,236,maxColorValue = 255),
+    rgb(108,77,23,maxColorValue = 255),
+    rgb(255,170,196,maxColorValue = 255),
+    rgb(210,199,132,maxColorValue = 255),
+    rgb(157,25,89,maxColorValue = 255),
+    rgb(171,105,96,maxColorValue = 255),
+    rgb(122,62,101,maxColorValue = 255),
+    rgb(255,133,152,maxColorValue = 255),
+    rgb(135,60,42,maxColorValue = 255),
+    rgb(137,56,65,maxColorValue = 255))
 
   
   for (i in 1:length(measureColumn)) {
