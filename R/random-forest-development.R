@@ -247,8 +247,8 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       if (!is.null(p$tune)) {
         self$params$tune = p$tune
       }
-      if (!is.null(p$numberOfTrees)) {
-        self$params$numberOfTrees = p$numberOfTrees
+      if (!is.null(p$trees)) {
+        self$params$trees = p$trees
       }
     },
     getPredictions = function(){
@@ -314,7 +314,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         method = "ranger",
         importance = "impurity",
         metric = rfTrainParams.metric,
-        num.trees = self$params$numberOfTrees,
+        num.trees = self$params$trees,
         tuneGrid = private$grid,
         trControl = train.control
       )

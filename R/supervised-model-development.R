@@ -79,15 +79,25 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         self$params$type <- p$type
 
         # validation on type string values
-        if (self$params$type != 'regression' && self$params$type != 'classification' && self$params$type != 'multiclass') {
+        if (self$params$type != 'regression' 
+            && self$params$type != 'classification' 
+            && self$params$type != 'multiclass') {
           stop('Your type must be regression, classification, or multiclass')
         }
-        if (self$params$type =='classification' && isBinary(self$params$df[[self$params$predictedCol]]) == FALSE){
+        if (self$params$type == 'classification' 
+            && !isBinary(self$params$df[[self$params$predictedCol]])) {
           stop('Dependent variable must be binary for classification')
         }
-        if (self$params$type =='regression' && isBinary(self$params$df[[self$params$predictedCol]]) == TRUE){
+        if (self$params$type == 'regression' 
+            && isBinary(self$params$df[[self$params$predictedCol]])) {
           stop('Dependent variable cannot be binary for regression')
         }
+        if (self$params$type == 'classification' 
+            && isBinary(self$params$df[[self$params$predictedCol]]) 
+            && !isTargetYN(self$params$df[[self$params$predictedCol]])) {
+            stop("predictedCol must be Y/N. IIF function in sql may help")
+          }
+        
       }
 
       if (!is.null(p$impute))
