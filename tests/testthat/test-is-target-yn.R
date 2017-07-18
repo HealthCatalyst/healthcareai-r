@@ -1,4 +1,4 @@
-context('Checking that isnotYNOrNA is working')
+context('Checking that isTargetYN is working')
 
 test_that("For a vector of all 0's and 1's, function returns expected output,
           TRUE", {
