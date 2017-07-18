@@ -434,6 +434,10 @@ getPipedValue <- function(string) {
 #' @param df A dataframe
 #' @param categoricalCols Vector of strings representing categorical column(s)
 #' @param measureColumn Vector of strings representing measure column(s)
+#' @param printPlot Optional, default is TRUE. FALSE: only shows the statistics  
+#' used to plot the boxplot. 
+#' @param printTable Optional, default is TRUE. FALSE: not to show the table of  
+#' mean/std and quartiles 
 #' @param dateCol Optional. A date(time) column to group by (done by month) 
 #' @return A boxplot to compare variation across groups.
 #' @export
@@ -468,6 +472,8 @@ getPipedValue <- function(string) {
 variationAcrossGroups <- function(df, 
                                   categoricalCols,
                                   measureColumn,
+                                  printPlot = TRUE,
+                                  printTable = TRUE,
                                   dateCol = NULL) {
   
   if (!all(c(categoricalCols,measureColumn,dateCol) %in% names(df))) {
@@ -755,139 +761,162 @@ variationAcrossGroups <- function(df,
   # A panel of colors to draw each group with the same color 
   # (from http://tools.medialab.sciences-po.fr/iwanthue/)
     
-    my_colors <- c(rgb(255,172,95,maxColorValue = 255),
-    rgb(79,67,199,maxColorValue = 255),
-    rgb(197,205,22,maxColorValue = 255),
-    rgb(80,122,255,maxColorValue = 255),
-    rgb(226,198,21,maxColorValue = 255),
-    rgb(157,54,189,maxColorValue = 255),
-    rgb(57,221,104,maxColorValue = 255),
-    rgb(139,27,151,maxColorValue = 255),
-    rgb(126,220,93,maxColorValue = 255),
-    rgb(37,74,180,maxColorValue = 255),
-    rgb(135,176,0,maxColorValue = 255),
-    rgb(2,111,224,maxColorValue = 255),
-    rgb(112,156,0,maxColorValue = 255),
-    rgb(82,148,255,maxColorValue = 255),
-    rgb(160,160,0,maxColorValue = 255),
-    rgb(138,39,133,maxColorValue = 255),
-    rgb(0,133,41,maxColorValue = 255),
-    rgb(255,99,181,maxColorValue = 255),
-    rgb(0,165,111,maxColorValue = 255),
-    rgb(182,0,96,maxColorValue = 255),
-    rgb(48,216,245,maxColorValue = 255),
-    rgb(219,48,38,maxColorValue = 255),
-    rgb(8,179,255,maxColorValue = 255),
-    rgb(202,113,0,maxColorValue = 255),
-    rgb(74,167,255,maxColorValue = 255),
-    rgb(179,130,0,maxColorValue = 255),
-    rgb(57,78,150,maxColorValue = 255),
-    rgb(188,207,108,maxColorValue = 255),
-    rgb(107,63,138,maxColorValue = 255),
-    rgb(118,117,0,maxColorValue = 255),
-    rgb(245,159,255,maxColorValue = 255),
-    rgb(81,87,26,maxColorValue = 255),
-    rgb(215,186,252,maxColorValue = 255),
-    rgb(167,66,0,maxColorValue = 255),
-    rgb(82,196,255,maxColorValue = 255),
-    rgb(185,0,43,maxColorValue = 255),
-    rgb(1,164,157,maxColorValue = 255),
-    rgb(255,86,100,maxColorValue = 255),
-    rgb(137,134,187,maxColorValue = 255),
-    rgb(255,127,85,maxColorValue = 255),
-    rgb(245,176,236,maxColorValue = 255),
-    rgb(108,77,23,maxColorValue = 255),
-    rgb(255,170,196,maxColorValue = 255),
-    rgb(210,199,132,maxColorValue = 255),
-    rgb(157,25,89,maxColorValue = 255),
-    rgb(171,105,96,maxColorValue = 255),
-    rgb(122,62,101,maxColorValue = 255),
-    rgb(255,133,152,maxColorValue = 255),
-    rgb(135,60,42,maxColorValue = 255),
-    rgb(137,56,65,maxColorValue = 255))
+  my_colors <- c(rgb(255,172,95,maxColorValue = 255),
+                 rgb(79,67,199,maxColorValue = 255),
+                 rgb(197,205,22,maxColorValue = 255),
+                 rgb(80,122,255,maxColorValue = 255),
+                 rgb(226,198,21,maxColorValue = 255),
+                 rgb(157,54,189,maxColorValue = 255),
+                 rgb(57,221,104,maxColorValue = 255),
+                 rgb(139,27,151,maxColorValue = 255),
+                 rgb(126,220,93,maxColorValue = 255),
+                 rgb(37,74,180,maxColorValue = 255),
+                 rgb(135,176,0,maxColorValue = 255),
+                 rgb(2,111,224,maxColorValue = 255),
+                 rgb(112,156,0,maxColorValue = 255),
+                 rgb(82,148,255,maxColorValue = 255),
+                 rgb(160,160,0,maxColorValue = 255),
+                 rgb(138,39,133,maxColorValue = 255),
+                 rgb(0,133,41,maxColorValue = 255),
+                 rgb(255,99,181,maxColorValue = 255),
+                 rgb(0,165,111,maxColorValue = 255),
+                 rgb(182,0,96,maxColorValue = 255),
+                 rgb(48,216,245,maxColorValue = 255),
+                 rgb(219,48,38,maxColorValue = 255),
+                 rgb(8,179,255,maxColorValue = 255),
+                 rgb(202,113,0,maxColorValue = 255),
+                 rgb(74,167,255,maxColorValue = 255),
+                 rgb(179,130,0,maxColorValue = 255),
+                 rgb(57,78,150,maxColorValue = 255),
+                 rgb(188,207,108,maxColorValue = 255),
+                 rgb(107,63,138,maxColorValue = 255),
+                 rgb(118,117,0,maxColorValue = 255),
+                 rgb(245,159,255,maxColorValue = 255),
+                 rgb(81,87,26,maxColorValue = 255),
+                 rgb(215,186,252,maxColorValue = 255),
+                 rgb(167,66,0,maxColorValue = 255),
+                 rgb(82,196,255,maxColorValue = 255),
+                 rgb(185,0,43,maxColorValue = 255),
+                 rgb(1,164,157,maxColorValue = 255),
+                 rgb(255,86,100,maxColorValue = 255),
+                 rgb(137,134,187,maxColorValue = 255),
+                 rgb(255,127,85,maxColorValue = 255),
+                 rgb(245,176,236,maxColorValue = 255),
+                 rgb(108,77,23,maxColorValue = 255),
+                 rgb(255,170,196,maxColorValue = 255),
+                 rgb(210,199,132,maxColorValue = 255),
+                 rgb(157,25,89,maxColorValue = 255),
+                 rgb(171,105,96,maxColorValue = 255),
+                 rgb(122,62,101,maxColorValue = 255),
+                 rgb(255,133,152,maxColorValue = 255),
+                 rgb(135,60,42,maxColorValue = 255),
+                 rgb(137,56,65,maxColorValue = 255))
+    
 
-  
-  for (i in 1:length(measureColumn)) {
-    model <- lm(df[[measureColumn[i]]] ~ interaction(l))
-    ANOVA <- aov(model)
-    # Tukey test to study each pair of treatment :
-    TUKEY <- TukeyHSD(x = ANOVA, conf.level = 0.95)
-    labs = generate_label_df(TUKEY, 'interaction(l)')
-
-    par(bg = "transparent", cex.axis = 1)
-    a <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, col = my_colors[as.numeric(labs[,1])],
-            ylab = measureColumn[i], ylim = c(min(df[measureColumn[[i]]], na.rm = TRUE), 
-                                              1.1*max(df[[measureColumn[i]]], na.rm = TRUE)),
-            cex.lab = 1.25)
-    # Now set the plot region to grey
-    rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "grey90")
-    grid(nx = NULL, ny = NULL, lwd = 1, lty = 3, col = "white") #grid over boxplot
-    par(new = TRUE)
-    a <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, col = my_colors[as.numeric(labs[,1])],
-            ylab = measureColumn[i], ylim = c(min(df[measureColumn[[i]]]) , 1.1*max(df[[measureColumn[i]]])),
-            main = paste("Boxplot of", measureColumn[i], "Across", paste(categoricalCols,collapse = " ")),
-            cex.lab = 1.25, outcol = "lightcoral", add = TRUE)
-    over = 0.1*max(a$stats[nrow(a$stats),] )
-    text(c(1:nlevels(interaction(l))) , a$stats[nrow(a$stats),] + over, labs[,1],
-         col = my_colors[as.numeric(labs[,1])])
-    
-    
-    # plot 95% family-wise confidence level
-    if (length(TUKEY$'interaction(l)'[,4]) == 1) {
-      psig <- as.numeric(TUKEY$'interaction(l)'[,2]*TUKEY$'interaction(l)'[,3] >= 0 ) + 1
-    } else {
-      psig <- as.numeric(apply(TUKEY$'interaction(l)'[,2:3],1,prod) >= 0 ) + 1
-    }
-    
-    op <- par(mar = c(4.2,9,3.8,2))
-    plot(TUKEY,col = psig, yaxt = "n")
-    for (j in 1:length(psig)) {
-      axis(2,at = j,labels = rownames(TUKEY$'interaction(l)')[length(psig) - j + 1],
-           las = 1,cex.axis = .8,col.axis = psig[length(psig) - j + 1])
-    }
-    par(op)
+  if (printPlot == TRUE) {
+    for (i in 1:length(measureColumn)) {
+      model <- lm(df[[measureColumn[i]]] ~ interaction(l))
+      ANOVA <- aov(model)
+      # Tukey test to study each pair of treatment :
+      TUKEY <- TukeyHSD(x = ANOVA, conf.level = 0.95)
+      labs = generate_label_df(TUKEY, 'interaction(l)')
+      
+      par(bg = "transparent", cex.axis = 1)
+      a <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, col = my_colors[as.numeric(labs[,1])],
+                   ylab = measureColumn[i], ylim = c(min(df[measureColumn[[i]]], na.rm = TRUE), 
+                                                     1.1*max(df[[measureColumn[i]]], na.rm = TRUE)),
+                   cex.lab = 1.25)
+      # Now set the plot region to grey
+      rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "grey90")
+      grid(nx = NULL, ny = NULL, lwd = 1, lty = 3, col = "white") #grid over boxplot
+      par(new = TRUE)
+      a <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, col = my_colors[as.numeric(labs[,1])],
+                   ylab = measureColumn[i], ylim = c(min(df[measureColumn[[i]]]) , 1.1*max(df[[measureColumn[i]]])),
+                   main = paste("Boxplot of", measureColumn[i], "Across", paste(categoricalCols,collapse = " ")),
+                   cex.lab = 1.25, outcol = "lightcoral", add = TRUE)
+      over = 0.1*max(a$stats[nrow(a$stats),] )
+      text(c(1:nlevels(interaction(l))) , a$stats[nrow(a$stats),] + over, labs[,1],
+           col = my_colors[as.numeric(labs[,1])])
+      
+      
+      # plot 95% family-wise confidence level
+      if (length(TUKEY$'interaction(l)'[,4]) == 1) {
+        psig <- as.numeric(TUKEY$'interaction(l)'[,2]*TUKEY$'interaction(l)'[,3] >= 0 ) + 1
+      } else {
+        psig <- as.numeric(apply(TUKEY$'interaction(l)'[,2:3],1,prod) >= 0 ) + 1
+      }
+      
+      op <- par(mar = c(4.2,9,3.8,2))
+      plot(TUKEY,col = psig, yaxt = "n")
+      for (j in 1:length(psig)) {
+        axis(2,at = j,labels = rownames(TUKEY$'interaction(l)')[length(psig) - j + 1],
+             las = 1,cex.axis = .8,col.axis = psig[length(psig) - j + 1])
+      }
+      par(op)
+    } 
+  } else {
+    plotRes <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, plot = FALSE)
   }
   
   # Return tables with mean/std and quartiles
-  resTable <- list()
-  completeDf <- df[complete.cases(df),]
-  
-  compl <- list()
-  for (i in 1:length(categoricalCols)) {
-    compl[[i]] <- completeDf[[categoricalCols[i]]]
-  }
-  
-  for (j in 1:length(measureColumn)) {
-    completeDf$newcol <- interaction(compl)
-    levels <- unique(completeDf$newcol)
-    means <- c()
-    std <- c()
-    minVal <- c()
-    firstQuartile <- c()
-    m <- c()
-    thirdQuartile <- c()
-    maxVal <- c()
-    for (i in 1:length(levels)) {
-      means[i] <- mean(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
-      std[i] <- sd(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
-      minVal[i] <- min(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
-      firstQuartile[i] <- quantile(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], 0.25, na.rm = T)
-      m[i] <- median(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
-      thirdQuartile[i] <- quantile(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], 0.75, na.rm = T)
-      maxVal[i] <- max(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
+  if (printTable == TRUE) {
+    resTable <- list()
+    completeDf <- df[complete.cases(df),]
+    
+    compl <- list()
+    for (i in 1:length(categoricalCols)) {
+      compl[[i]] <- completeDf[[categoricalCols[i]]]
     }
-    se <- means/std
-    measures <- rep(measureColumn[j], length(levels))
-    # Output the table
-    resTable[[j]] <- data.frame(measure = measures, group = levels, Mean = means, 
-                                Std = std, SE = se, Min = minVal, 
-                      Q1 = firstQuartile, Median = m, Q3 = thirdQuartile, Max = maxVal)
+    
+    for (j in 1:length(measureColumn)) {
+      completeDf$newcol <- interaction(compl)
+      levels <- unique(completeDf$newcol)
+      means <- c()
+      std <- c()
+      minVal <- c()
+      firstQuartile <- c()
+      m <- c()
+      thirdQuartile <- c()
+      maxVal <- c()
+      for (i in 1:length(levels)) {
+        means[i] <- mean(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
+        std[i] <- sd(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
+        minVal[i] <- min(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
+        firstQuartile[i] <- quantile(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], 0.25, na.rm = T)
+        m[i] <- median(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
+        thirdQuartile[i] <- quantile(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], 0.75, na.rm = T)
+        maxVal[i] <- max(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
+      }
+      se <- means/std
+      measures <- rep(measureColumn[j], length(levels))
+      # Output the table
+      resTable[[j]] <- data.frame(measure = measures, group = levels, Mean = means, 
+                                  Std = std, SE = se, Min = minVal, 
+                                  Q1 = firstQuartile, Median = m, Q3 = thirdQuartile, Max = maxVal)
+    }
+    
+    tabRes <- data.frame()
+    for (i in 1:length(measureColumn)) {
+      tabRes <- rbind(tabRes,resTable[[i]])
+    }
+    
+    tabRes <- format(tabRes, digits = 3)
   }
   
-  tabRes <- data.frame()
-  for (i in 1:length(measureColumn)) {
-    tabRes <- rbind(tabRes,resTable[[i]])
+  if (printPlot == TRUE && printTable == TRUE) {
+    return(tabRes)
   }
   
-  return(format(tabRes, digits = 3))
+  if (printPlot == FALSE && printTable == TRUE) {
+    res <- list(plotRes, tabRes)
+    return(res)
+  }
+  
+  if (printPlot == FALSE && printTable == FALSE) {
+    return(plotRes)
+  }
+  
+  if (printPlot == TRUE && printTable == FALSE) {
+    return(0)
+  }
 }
