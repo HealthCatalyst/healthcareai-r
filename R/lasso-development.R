@@ -176,7 +176,7 @@ LassoDevelopment <- R6Class("LassoDevelopment",
     
     # Fit model and lamda values
     fitGrLasso = NA,
-    fitLogit = NA,
+    modelName = "lasso",
     indLambda1se = NA,
     lambda1se = NA,
     modFmla = NA,
@@ -189,20 +189,9 @@ LassoDevelopment <- R6Class("LassoDevelopment",
     AUROC = NA,
     AUPR = NA,
     RMSE = NA,
-    MAE = NA,
+    MAE = NA
     
-    # function
-    saveModel = function() {
-      if (isTRUE(self$params$debug)) {
-        cat("Saving model...","\n")
-      }
-      
-      fitLogit <- private$fitLogit
-      fitObj <- private$fitGrLasso
-      
-      save(fitObj, file = "rmodel_probability_lasso.rda")
-      save(fitLogit, file = "rmodel_var_import_lasso.rda")
-    }
+    # functions
   ),
   
   # Public members
@@ -367,7 +356,7 @@ LassoDevelopment <- R6Class("LassoDevelopment",
       self$buildModel()
       
       # save model
-      private$saveModel()
+      super$saveModel(fitModel = private$fitGrLasso)
       
       # Perform prediction
       self$performPrediction()

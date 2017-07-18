@@ -26,6 +26,8 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
     grainTest = NA,
     prevalence = NA,
     factorLevels = NA,
+    
+    modelName = NA,
 
     clustersOnCores = NA,
     grainColValues = NA,
@@ -357,7 +359,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       }
       
       if (self$params$type == 'classification') {
-        private$fitLogit <- glm(
+        self$modelInfo$fitLogit <- glm(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
           data = self$params$df,
           family = binomial(link = "logit"),
@@ -367,7 +369,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         )
         
       } else if (self$params$type == 'regression') {
-        private$fitLogit <- glm(
+        self$modelInfo$fitLogit <- glm(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
           data = self$params$df,
           metric = "RMSE",
@@ -376,7 +378,27 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       }
       
       # Add factor levels (calculated in SMD) to fitLogit object
-      private$fitLogit$factorLevels <- private$factorLevels 
+      self$modelInfo$factorLevels <- private$factorLevels 
+    },
+    
+    saveModel = function(fitModel) {
+      if (isTRUE(self$params$debug)) {
+        cat("Saving model...","\n")
+      }
+      
+      # Get model and associated information
+      fitObj <- fitModel
+      modelInfo <- self$modelInfo
+      
+      # Set file names for model and associated information
+      fitObjFile <- paste("rmodel_probability_", private$modelName, ".rda", 
+                          sep = "")
+      modelInfoFile <- paste("rmodel_info_", private$modelName, ".rda", 
+                             sep = "")
+
+      # Save model and associated information
+      save(fitObj, file = fitObjFile)
+      save(modelInfo, file = modelInfoFile)
     }
   ),
 
@@ -389,6 +411,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
     #parameters
     params = NA,
     trainIndex = NA,
+    modelInfo = list(),
 
     ###########
     # Functions

@@ -180,7 +180,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
 
     # Get random forest model
     fitRF = NA,
-    fitLogit = NA,
+    modelName = "RF",
 
     predictions = NA,
 
@@ -193,17 +193,6 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     MAE = NA,
 
     # Start of functions
-    saveModel = function() {
-      if (isTRUE(self$params$debug)) {
-        print('Saving model...')
-      }
-      
-        fitLogit <- private$fitLogit
-        fitObj <- private$fitRF
-        
-        save(fitLogit, file = "rmodel_var_import_RF.rda")
-        save(fitObj, file = "rmodel_probability_RF.rda")
-      },
     
     buildGrid = function() {
       if (isTRUE(self$params$tune)) {
@@ -391,7 +380,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       self$buildModel()
       
       # save model
-      private$saveModel()
+      super$saveModel(fitModel = private$fitRF)
 
       # Perform prediction
       self$performPrediction()

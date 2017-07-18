@@ -212,7 +212,7 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
 
     # Fit LMM
     fitLmm = NA,
-    fitLogit = NA,
+    modelName = "LMM",
 
     predictions = NA,
 
@@ -222,21 +222,9 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
     AUROC = NA,
     AUPR = NA,
     RMSE = NA,
-    MAE = NA,
+    MAE = NA
     
     # functions
-    saveModel = function() {
-      if (isTRUE(self$params$debug)) {
-       cat('Saving model...', '\n')
-      }
-      
-      # Save model
-      #NOTE: save(private$fitLogit, ...) directly, did not work!
-      fitLogit <- private$fitLogit
-      fitObj <- private$fitLmm
-      save(fitLogit, file = "rmodel_var_import_LMM.rda")
-      save(fitObj, file = "rmodel_probability_LMM.rda")
-    }
   ),
   
   # Public members
@@ -382,7 +370,7 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
       super$fitGeneralizedLinearModel()
       
       # save model
-      private$saveModel()
+      super$saveModel(fitModel = private$fitLmm)
 
       # Perform prediction
       self$performPrediction()
