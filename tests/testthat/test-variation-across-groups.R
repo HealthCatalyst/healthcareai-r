@@ -319,7 +319,8 @@ test_that("Date column passed as number gives correct error", {
 test_that("One cat column, one measure col, and no date col, no NA gives correct 
           boxplot", {
             set.seed((35))
-            treatment <- c(rep("A", 20) , rep("B", 20) , rep("C", 20), rep("D", 20) ,  rep("E", 20))
+            treatment <- c(rep("A", 20) , rep("B", 20) , rep("C", 20), rep("D", 20) ,  
+                           rep("E", 20))
             value <- c( sample(2:5, 20 , replace = TRUE) , 
                         sample(6:10, 20 , replace = TRUE), 
                         sample(1:7, 20 , replace = TRUE), 
@@ -334,13 +335,15 @@ test_that("One cat column, one measure col, and no date col, no NA gives correct
                                            printTable = FALSE)
             
             expected <- list()
-            expected$stats <- matrix(c(2,3,3,4,5,6.0,6.5,8.0,9.0,10.0,1,3,4,6,7,3.0,4.5,6.0,7.0,10.0,
+            expected$stats <- matrix(c(2,3,3,4,5,6.0,6.5,8.0,9.0,10.0,1,3,4,6,7,
+                                       3.0,4.5,6.0,7.0,10.0,
                                        10.0,12.0,14.5,16.0,20.0), nrow = 5, ncol = 5)
             attributes(expected$stats)$class <- "integer"
             names(attributes(expected$stats)$class) <- "A"
             
             expected$n <- c(20,20,20,20,20)
-            expected$conf <- matrix(c(2.646701,3.353299,7.116753,8.883247,2.940104,5.059896,5.116753,
+            expected$conf <- matrix(c(2.646701,3.353299,7.116753,8.883247,2.940104,
+                                      5.059896,5.116753,
                                       6.883247,13.08681,15.91319), nrow = 2, ncol = 5)
             
             
