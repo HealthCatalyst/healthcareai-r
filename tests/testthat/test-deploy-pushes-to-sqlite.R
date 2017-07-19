@@ -23,7 +23,7 @@ p$impute = TRUE
 p$debug = FALSE
 p$cores = 1
 p$tune = FALSE
-p$trees = 201
+p$numberOfTrees = 201
 
 #### BEGIN TESTS ####
 
