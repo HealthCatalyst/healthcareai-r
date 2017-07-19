@@ -328,23 +328,23 @@ test_that("One cat column, one measure col, and no date col, no NA gives correct
                         sample(10:20, 20 , replace = TRUE))
             df <- data.frame(treatment,value)
             
-            dfRes <- variationAcrossGroups(df = data, 
+            dfRes <- variationAcrossGroups(df = df, 
                                            categoricalCols = "treatment", 
                                            measureColumn = "value",
                                            printPlot = FALSE,
                                            printTable = FALSE)
             
             expected <- list()
-            expected$stats <- matrix(c(2,3,3,4,5,6.0,6.5,8.0,9.0,10.0,1,3,4,6,7,
-                                       3.0,4.5,6.0,7.0,10.0,
-                                       10.0,12.0,14.5,16.0,20.0), nrow = 5, ncol = 5)
+            expected$stats <- matrix(c(2,3,4,5,5,6.0,7.0,7.5,9.5,10.0,2,4,5,6,7,
+                                       3,5,6,9,10,
+                                       10.0,13.0,15.0,17.5,19.0), nrow = 5, ncol = 5)
             attributes(expected$stats)$class <- "integer"
             names(attributes(expected$stats)$class) <- "A"
             
             expected$n <- c(20,20,20,20,20)
-            expected$conf <- matrix(c(2.646701,3.353299,7.116753,8.883247,2.940104,
-                                      5.059896,5.116753,
-                                      6.883247,13.08681,15.91319), nrow = 2, ncol = 5)
+            expected$conf <- matrix(c(3.293403,4.706597,6.616753,8.383247,4.293403,
+                                      5.706597,4.586805,
+                                      7.413195,13.41016,16.58984), nrow = 2, ncol = 5)
             
             
             expected$out <- numeric(0)
