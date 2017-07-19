@@ -80,8 +80,8 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
       if (nchar(self$params$method.hclust) != 0) 
         self$params$method.hclust <- p$method.hclust
       
-      if (!is.null(p$numOfClusters))
-        self$params$numOfClusters <- p$numOfClusters
+      # if (!is.null(p$numOfClusters))
+      #   self$params$numOfClusters <- p$numOfClusters
       
       
       if (!is.null(p$debug))
