@@ -207,7 +207,7 @@ test_that("rf deploy classification pushes values to SQL Server", {
   p$debug = FALSE
   p$cores = 1
   p$tune = FALSE
-  p$trees = 201
+  p$numberOfTrees = 201
   
   df$PatientID <- NULL # affects all future tests
   dfDeploy <- df[951:1000,]
@@ -252,7 +252,7 @@ test_that("rf deploy regression pushes values to SQL Server", {
   p$debug = FALSE
   p$cores = 1
   p$tune = FALSE
-  p$trees = 201
+  p$numberOfTrees = 201
   
   df$PatientID <- NULL # affects all future tests
   dfDeploy <- df[951:1000,]
