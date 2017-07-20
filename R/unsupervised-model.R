@@ -54,25 +54,8 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
       if (!is.null(p$newdf))
         self$params$newdf <- p$newdf
       
-      if (!is.null(p$dataType)) #{
+      if (!is.null(p$dataType)) 
         self$params$dataType <- p$dataType
-        
-      #   #validation on dataType string value
-      #   if (self$params$dataType != 'numeric' && self$params$dataType != 'categorical' && self$params$dataType != 'mixed') {
-      #     stop('Your data type must be numeric, categorical, or mixed')
-      #   }
-      #   
-      #   # If the type is numeric, then all the variables should be numeric.
-      #   if (self$params$dataType == 'numeric' && isNumeric(self$params$df) == FALSE) {
-      #     stop("Variables must be numeric")
-      #   }
-      #   
-      #   # If the type is categorical, then all the variables should be categorical.
-      #   if (self$params$dataType == 'categorical' && isCategorical(self$params$df,15) == FALSE) {
-      #     stop("Variables must be categorical")
-      #   }
-      #   
-      # }
       
       if (!is.null(p$labelCol)) 
         self$params$labelCol <- p$labelCol
@@ -246,10 +229,6 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
     
     #Run the Model
     run = function() {
-    },
-    
-    getLabelColVal = function() {
-      return(private$labelColValues)
     }
   )
 )

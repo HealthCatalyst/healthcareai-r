@@ -46,6 +46,9 @@ KmeansClustering <- R6Class("KmeansClustering",
     df.prin = NA,
     prop_varex = NA,
     centers = NA,
+    cluster = NA,
+    outDf = NA,
+    #labels = NA, # the label in the raw data set
     
     # Calculate the euclidean distance between two vectors
     euc.dist = function(x1, x2) {
@@ -240,6 +243,7 @@ KmeansClustering <- R6Class("KmeansClustering",
       private$kmeans.fit <- kmeans(df.stand, numOfClusters)
       # Save the centers 
       private$centers <- private$kmeans.fit[["centers"]]
+      private$cluster <- private$kmeans.fit[["cluster"]]
       #print(kmeans.fit)
       #return(invisible(private$kmeans.fit))
     },
@@ -257,7 +261,8 @@ KmeansClustering <- R6Class("KmeansClustering",
       # generate a confusion matrix of clusters and labels
       k.means.fit <- self$getKmeansfit()
       clusters <- k.means.fit$cluster
-      labels <- super$getLabelColVal()
+      #labels <- super$getLabelColVal()
+      labels <- private$labelColValues
       numOfLabels <- length(unique(labels)) - sum(is.na(unique(labels)))
       d <- data.frame(state = labels, cluster = clusters)
       td <- as.data.frame(table(d))
@@ -300,23 +305,78 @@ KmeansClustering <- R6Class("KmeansClustering",
     },
     
     
-    
-    
     # Label the new data points
-    getLabelOfNewdf = function() {
-      # load newdf
-      newdf <- self$params$newdf
-      newdf <- newdf[,names(self$params$df)]
-      # compute euclidean distance from each sample to each cluster center
-      labels <- c()
-      for (i in 1:nrow(newdf)) {
-        distToCenters <- c()
-        for (j in 1:nrow(private$centers)) {
-          distToCenters[j] <- private$euc.dist(newdf[i,],private$centers[j,])
-        }
-        labels[i] <- which.min(distToCenters)
+    # getLabelOfNewdf = function(newdf) {
+    #   # load newdf
+    #   print(nrow(newdf))
+    #   # compute euclidean distance from each sample to each cluster center
+    #   labels <- c()
+    #   for (i in 1:nrow(newdf)) {
+    #     distToCenters <- c()
+    #     for (j in 1:nrow(private$centers)) {
+    #       distToCenters[j] <- private$euc.dist(newdf[i,],private$centers[j,])
+    #     }
+    #     labels[i] <- which.min(distToCenters)
+    #   }
+    #   return(labels)
+    # },
+    
+    ## TODO: load data to make sure the newdf hvae the same format as df
+    getLabelOfNewdf = function(x) {
+      ## load data
+      
+      
+      x <- scale(x)
+      # compute squared euclidean distance from each sample to each cluster center
+      tmp <- sapply(seq_len(nrow(x)),
+                    function(i) apply(private$centers, 1,
+                                      function(v) sum((x[i, ] - v)^2)))
+      max.col(-t(tmp))  # find index of min distance
+    },
+    
+    ## 
+    createDf = function() {
+      dtStamp <- as.POSIXlt(Sys.time())
+      
+      # Combine grain.col, prediction, and time to be put back into SAM table
+      
+      private$outDf <- data.frame(
+        0,                                 # BindingID
+        'R',                               # BindingNM
+        dtStamp,                           # LastLoadDTS
+        private$grainColValues,            # GrainID
+        private$labelColValues,            # labelCol
+        private$cluster)     # Top 3 Factor
+      
+      
+      colnames(private$outDf) <- c(
+        "BindingID",
+        "BindingNM",
+        "LastLoadDTS",
+        self$params$grainCol,
+        self$params$labelCol,
+        "cluster"
+      )
+      
+      # colNameOfoutDf <- names(private$outDf)
+      # for (i in 1:ncol(private$outDf)) {
+      #   if (nchar(colNameOfoutDf)[i] == 0) {
+      #     private$outDf[[colNameOfoutDf[i]]] <- NULL
+      #   }
+      # }
+
+      # Remove row names so df can be written to DB
+      # TODO: in writeData function, find how to ignore row names
+      rownames(private$outDf) <- NULL
+      
+      if (isTRUE(self$params$debug)) {
+        cat('Dataframe with predictions:', '\n')
+        cat(str(private$outDf), '\n')
       }
-      return(labels)
+    },
+    
+    getOutDf = function() {
+      return(private$outDf)
     },
 
 
@@ -347,7 +407,8 @@ KmeansClustering <- R6Class("KmeansClustering",
       # Present confusion matrix
       self$calculateConfusion()
       
-      # self$elbow_plot()
+      # 
+      self$createDf()
       
       # save model
       #private$saveModel()
