@@ -44,6 +44,13 @@ KmeansClustering <- R6Class("KmeansClustering",
     vnum = NA,
     prin.comp = NA,
     df.prin = NA,
+    prop_varex = NA,
+    centers = NA,
+    
+    # Calculate the euclidean distance between two vectors
+    euc.dist = function(x1, x2) {
+      sqrt(sum((x1 - x2) ^ 2))
+    },
     
     #check if the data type is numeric
     checkDataType = function() {
@@ -52,6 +59,8 @@ KmeansClustering <- R6Class("KmeansClustering",
         stop("Your data type must be numeric in order to use kmeans.")
       }
     }
+    
+    
   ),
   
   # Public members
@@ -73,9 +82,12 @@ KmeansClustering <- R6Class("KmeansClustering",
       #compute variance
       pr_var <- std_dev^2
       #proportion of variance explained
-      prop_varex <- pr_var/sum(pr_var)
-      #scree plot
-      plot(prop_varex, xlab = "Principal Component",
+      private$prop_varex <- pr_var/sum(pr_var)
+    },
+    
+    #scree plot
+    getScreePlot = function() {
+      plot(private$prop_varex, xlab = "Principal Component",
            ylab = "Proportion of Variance Explained", type = "b", pch = 19)
     },
     
@@ -149,14 +161,17 @@ KmeansClustering <- R6Class("KmeansClustering",
     
     ## The findElbow function was found at 
     ## https://github.com/bryanhanson/ChemoSpecMarkeR/blob/master/R/findElbow.R
-    findElbow = function(y, plot = FALSE, returnIndex = TRUE) {
-      
+    findElbow = function() {
+      k.max <- 15 # Maximal number of clusters
+      data <- scale(self$params$df)
+      wss <- sapply(1:k.max, 
+                    function(k){kmeans(data, k, nstart = 10 )$tot.withinss})
       # Find the elbow using the method described in
       # stackoverflow.com/a/2022348/633251
       # but translated to R (see above).
       
       # Add an index to argument values for easy plotting
-      DF <- data.frame(x = 1:length(y), y = y)
+      DF <- data.frame(x = 1:length(wss), y = wss)
       fit <- lm(y ~ x, DF[c(1,nrow(DF)),]) # 2 point 'fit'
       m <- coef(fit)[2]
       b <- coef(fit)[1]
@@ -179,25 +194,13 @@ KmeansClustering <- R6Class("KmeansClustering",
       elbowd <- self$distancePointLine(DF$x[use], DF$y[use], coef(fit)[2], coef(fit)[1])
       DF$dist <- c(NA, elbowd, NA) # first & last points don't have a distance
       
-      if (plot) {
-        edm <- which.max(DF$dist)
-        plot(DF[,1:2], type = "b", xlab = "index", ylab = "y values",
-             main = "Looking for the Elbow")
-        segments(DF$x[1], DF$y[1],
-                 DF$x[nrow(DF)], DF$y[nrow(DF)], col = "red")
-        points(DF$x[edm], DF$y[edm], cex = 1.5, col = "red")	
-        points(DF$x[edm], DF$y[edm], pch = 20)
-      }
-      
-      if (returnIndex) return(which.max(DF$dist))
-      if (!returnIndex) return(DF)
-      
+      private$vnum <- which.max(DF$dist)
     }, # end of findElbow
     
 
     
     # generawte elbow plot for k = 2 to k = 15
-    elbow_plot = function(df) {
+    getElbowPlot = function(df) {
       k.max <- 15 # Maximal number of clusters
       data <- scale(self$params$df)
       wss <- sapply(1:k.max, 
@@ -206,22 +209,10 @@ KmeansClustering <- R6Class("KmeansClustering",
            type = "b", pch = 19, frame = FALSE, 
            xlab = "Number of clusters K",
            ylab = "Total within-clusters sum of squares")
-      
-      private$vnum <- self$findElbow(wss)
       abline(v = private$vnum, lty = 2)
     },
-    
-    
-    # Generate the plot to choose the best k    
-    # elbow_plot = function(){
-    #   df.stand <- scale(self$params$df)
-    #   wss <- (nrow(df.stand) - 1)*sum(apply(df.stand,2,var))
-    #   for (i in 2:15) wss[i] <- sum(kmeans(df.stand,
-    #                                        centers = i)$withinss)
-    #   plot(1:15, wss, type = "b", xlab = "Number of Clusters",
-    #        ylab = "Within groups sum of squares")
-    # },    
-    
+  
+  
     # Override: run k-means algorithm
     buildClusters = function() {
       
@@ -242,14 +233,15 @@ KmeansClustering <- R6Class("KmeansClustering",
         numOfClusters <- private$vnum
       }
     
-    
       #self$removeLabelCol()
       # Standarize the variables
       df.stand <- scale(df)
       # K-Means
       private$kmeans.fit <- kmeans(df.stand, numOfClusters)
+      # Save the centers 
+      private$centers <- private$kmeans.fit[["centers"]]
       #print(kmeans.fit)
-      return(invisible(private$kmeans.fit))
+      #return(invisible(private$kmeans.fit))
     },
 
     
@@ -279,8 +271,6 @@ KmeansClustering <- R6Class("KmeansClustering",
       return(invisible(private$confusionMatrix))
     },
     
-
-    
     # Assign labels to the clusters
     assignClusterLabels = function() {
       cm <- self$getConfusionMatrix()
@@ -308,6 +298,26 @@ KmeansClustering <- R6Class("KmeansClustering",
       k.means.fit <- self$getKmeansfit()
       plot(silhouette(k.means.fit$cluster,dis))
     },
+    
+    
+    
+    
+    # Label the new data points
+    getLabelOfNewdf = function() {
+      # load newdf
+      newdf <- self$params$newdf
+      newdf <- newdf[,names(self$params$df)]
+      # compute euclidean distance from each sample to each cluster center
+      labels <- c()
+      for (i in 1:nrow(newdf)) {
+        distToCenters <- c()
+        for (j in 1:nrow(private$centers)) {
+          distToCenters[j] <- private$euc.dist(newdf[i,],private$centers[j,])
+        }
+        labels[i] <- which.min(distToCenters)
+      }
+      return(labels)
+    },
 
 
     # Override: run k-means algorithm
@@ -325,8 +335,8 @@ KmeansClustering <- R6Class("KmeansClustering",
       if (!is.null(self$params$numOfPrinComp))
         self$prinCompDf()
       
-      # elbow plot 
-      self$elbow_plot()
+      # Find elbow  
+      self$findElbow()
       
       # Build Model
       self$buildClusters()
