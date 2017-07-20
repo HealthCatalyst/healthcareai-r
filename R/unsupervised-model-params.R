@@ -27,8 +27,10 @@ UnsupervisedModelParams <- R6Class("UnsupervisedModelParams",
     numOfClusters = NULL,
     labelCol = "",
     grainCol = "",
-    method.hclust = "",
     cores = 4,
+    pca = FALSE,
+    usePrinComp = FALSE,
+    numOfPrinComp = NULL,
     
     #Constructor
     initialize = function() {
