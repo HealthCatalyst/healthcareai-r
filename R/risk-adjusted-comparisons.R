@@ -102,7 +102,7 @@ RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
         method = "ranger",
         importance = 'impurity',
         metric = "ROC",
-        num.trees = self$params$trees,
+        num.trees = self$params$numberOfTrees,
         tuneGrid = private$grid,
         trControl = trainCtrl
       )
