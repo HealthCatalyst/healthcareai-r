@@ -372,7 +372,8 @@
 
       # Try to load the model
       super$loadModelAndInfo(modelFullName = "XGBoost")
-      private$fitXGB <- self$fitObj
+      private$fitXGB <- private$fitObj
+      private$fitObj <- NULL
       
       # Make sure factor columns have the training data factor levels
       super$formatFactorColumns()

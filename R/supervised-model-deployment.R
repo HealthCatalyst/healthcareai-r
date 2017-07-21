@@ -31,6 +31,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   dfGrain = NULL,
 
   fit = NA,
+  fitObj = NA,
   predictedVals = NA,
 
   clustersOnCores = NA,
@@ -260,7 +261,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       load(modelInfoFile)  # Get model info
       self$modelInfo <- modelInfo
       load(fitObjFile) # Produces fit object (for probability)
-      self$fitObj <- fitObj
+      private$fitObj <- fitObj
     }, error = function(e) {
       # temporary fix until all models are working.
       message <- paste('You must use a saved model. Run ',
@@ -281,7 +282,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     ###########
     # Variables
     modelInfo = NA,
-    fitObj = NA,
 
     #parameters
     params = NA,

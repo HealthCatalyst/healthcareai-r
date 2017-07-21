@@ -539,7 +539,8 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
       # Try to load the model
       super$loadModelAndInfo(modelFullName = "RandomForest")
-      private$fitRF <- self$fitObj
+      private$fitRF <- private$fitObj
+      private$fitObj <- NULL
       
       # Make sure factor columns have the training data factor levels
       super$formatFactorColumns()

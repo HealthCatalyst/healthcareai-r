@@ -546,11 +546,10 @@ LassoDeployment <- R6Class(
 
       # Try to load the model
       super$loadModelAndInfo(modelFullName = "Lasso")
-      private$fitGrLasso <- self$fitObj
-      private$modMat <- self$fitObj$modMat
-      private$modFmla <- self$fitObj$modFmla
-      self$fitObj$modMat <- NULL
-      self$fitObj$modFmla <- NULL
+      private$fitGrLasso <- private$fitObj
+      private$modMat <- private$fitObj$modMat
+      private$modFmla <- private$fitObj$modFmla
+      private$fitObj <- NULL
       
       # Make sure factor columns have the training data factor levels
       super$formatFactorColumns()

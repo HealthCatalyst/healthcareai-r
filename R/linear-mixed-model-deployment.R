@@ -561,7 +561,8 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
       # Try to load the model
       super$loadModelAndInfo(modelFullName = "LinearMixedModel")
-      private$fitLmm <- self$fitObj
+      private$fitLmm <- private$fitObj
+      private$fitObj <- NULL
       
       # Make sure factor columns have the training data factor levels
       super$formatFactorColumns()
