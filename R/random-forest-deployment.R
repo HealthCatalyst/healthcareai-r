@@ -523,6 +523,9 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     initialize = function(p) {
 
       super$initialize(p)
+      if (is.null(self$params$modelName)) {
+        self$params$modelName = "RF" 
+      }
 
       if (!is.null(p$rfmtry))
         self$params$rfmtry <- p$rfmtry
@@ -535,17 +538,8 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     deploy = function() {
 
       # Try to load the model
-      tryCatch({
-        load("rmodel_info_RF.rda")  # Get model info
-        self$modelInfo <- modelInfo
-        load("rmodel_probability_RF.rda") # Produces fit object (for probability)
-        private$fitRF <- fitObj
-       }, error = function(e) {
-        # temporary fix until all models are working.
-        stop('You must use a saved model. Run random forest development to train 
-              and save the model, then random forest deployment to make predictions.
-              See ?RandomForestDevelopment')
-      })
+      super$loadModelAndInfo(modelFullName = "RandomForest")
+      private$fitRF <- self$fitObj
       
       # Make sure factor columns have the training data factor levels
       super$formatFactorColumns()

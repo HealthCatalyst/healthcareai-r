@@ -86,6 +86,9 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
   if (!is.null(p$debug))
   self$params$debug <- p$debug
+  
+  if (!is.null(p$modelName))
+    self$params$modelName <- p$modelName
 
   # for deploy method
   if (!is.null(p$cores))
@@ -243,6 +246,33 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       print('Raw data set after creating dummy vars (for top 3 factors only)')
       print(str(private$dfTestRaw))
     }
+  },
+  
+  loadModelAndInfo = function(modelFullName) {
+    # Try to load the model
+    tryCatch({
+      # Set file names for model and associated information
+      fitObjFile <- paste("rmodel_probability_", self$params$modelName, ".rda", 
+                          sep = "")
+      modelInfoFile <- paste("rmodel_info_", self$params$modelName, ".rda", 
+                             sep = "")
+      
+      load(modelInfoFile)  # Get model info
+      self$modelInfo <- modelInfo
+      load(fitObjFile) # Produces fit object (for probability)
+      self$fitObj <- fitObj
+    }, error = function(e) {
+      # temporary fix until all models are working.
+      message <- paste('You must use a saved model. Run ',
+                       modelFullName,
+                       'Development to train and save the model, then ',
+                       modelFullName,
+                       'Deployment to make predictions. See ?',
+                       modelFullName,
+                       'Development',
+                       sep = "")
+      stop(message)
+    })
   }
 ),
 
@@ -251,6 +281,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     ###########
     # Variables
     modelInfo = NA,
+    fitObj = NA,
 
     #parameters
     params = NA,

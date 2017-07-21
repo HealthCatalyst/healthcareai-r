@@ -176,7 +176,6 @@ LassoDevelopment <- R6Class("LassoDevelopment",
     
     # Fit model and lamda values
     fitGrLasso = NA,
-    modelName = "lasso",
     indLambda1se = NA,
     lambda1se = NA,
     modFmla = NA,
@@ -201,6 +200,9 @@ LassoDevelopment <- R6Class("LassoDevelopment",
     # i.e. p = SuperviseModelParameters$new()
     initialize = function(p) {
       super$initialize(p)
+      if (is.null(self$params$modelName)) {
+        self$params$modelName = "lasso"
+      }
     },
 
     getPredictions = function(){

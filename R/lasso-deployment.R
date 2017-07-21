@@ -536,26 +536,21 @@ LassoDeployment <- R6Class(
     # i.e. p = SupervisedModelDeploymentParams$new()
     initialize = function(p) {
       super$initialize(p)
+      if (is.null(self$params$modelName)) {
+        self$params$modelName = "lasso" 
+      }
     },
 
     #Override: deploy the model
     deploy = function() {
 
       # Try to load the model
-      tryCatch({
-        load("rmodel_info_lasso.rda")  # Get model info
-        self$modelInfo <- modelInfo
-        load("rmodel_probability_lasso.rda") # Produces fit object (for probability)
-          private$fitGrLasso <- fitObj
-          private$modMat <- fitObj$modMat
-          private$modFmla <- fitObj$modFmla
-          fitObj$modMat <- NULL
-          fitObj$modFmla <- NULL
-       }, error = function(e) {
-        # temporary fix until all models are working.
-        stop('You must use a saved model. Run lasso development to train and save
-              the model, then lasso deployment to make predictions. See ?LassoDeployment')
-      })
+      super$loadModelAndInfo(modelFullName = "Lasso")
+      private$fitGrLasso <- self$fitObj
+      private$modMat <- self$fitObj$modMat
+      private$modFmla <- self$fitObj$modFmla
+      self$fitObj$modMat <- NULL
+      self$fitObj$modFmla <- NULL
       
       # Make sure factor columns have the training data factor levels
       super$formatFactorColumns()

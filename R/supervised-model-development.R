@@ -26,8 +26,6 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
     grainTest = NA,
     prevalence = NA,
     factorLevels = NA,
-    
-    modelName = NA,
 
     clustersOnCores = NA,
     grainColValues = NA,
@@ -117,6 +115,9 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
 
       if (!is.null(p$xgb_params))
         self$params$xgb_params <- p$xgb_params
+      
+      if (!is.null(p$modelName))
+        self$params$modelName <- p$modelName
 
       #Set additional settings
       if (isTRUE(self$params$debug)) {
@@ -398,9 +399,9 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       modelInfo <- self$modelInfo
       
       # Set file names for model and associated information
-      fitObjFile <- paste("rmodel_probability_", private$modelName, ".rda", 
+      fitObjFile <- paste("rmodel_probability_", self$params$modelName, ".rda", 
                           sep = "")
-      modelInfoFile <- paste("rmodel_info_", private$modelName, ".rda", 
+      modelInfoFile <- paste("rmodel_info_", self$params$modelName, ".rda", 
                              sep = "")
 
       # Save model and associated information

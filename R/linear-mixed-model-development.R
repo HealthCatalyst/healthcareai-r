@@ -212,7 +212,6 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
 
     # Fit LMM
     fitLmm = NA,
-    modelName = "LMM",
 
     predictions = NA,
 
@@ -235,6 +234,9 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
     # i.e. p = SuperviseModelParameters$new()
     initialize = function(p) {
       super$initialize(p)
+      if (is.null(self$params$modelName)) {
+        self$params$modelName = "LMM" 
+      }
     },
     getPredictions = function(){
       return(private$predictions)

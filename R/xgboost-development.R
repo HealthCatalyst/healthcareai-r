@@ -92,8 +92,6 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
     grid = NA,
     predictions = NA,
     test_label = NA,
-    
-    modelName = "XGB",
 
     # Performance metrics
     ROCPlot = NA,
@@ -185,6 +183,9 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
 
       set.seed(43)
       super$initialize(p)
+      if (is.null(self$params$modelName)) {
+        self$params$modelName = "XGB"
+      }
 
       # TODO set up tuning to actually work.
       if (!is.null(p$tune)) {

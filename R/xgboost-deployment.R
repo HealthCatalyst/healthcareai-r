@@ -361,6 +361,9 @@
     initialize = function(p) {
       cat('Initializing XGBoost Deploy...','\n')
       super$initialize(p)
+      if (is.null(self$params$modelName)) {
+        self$params$modelName = "XGB" 
+      }
     },
 
     #Override: deploy the model
@@ -368,17 +371,8 @@
       cat('Loading XGB Model...','\n')
 
       # Try to load the model
-      tryCatch({
-        load("rmodel_info_XGB.rda")  # Get model info
-        self$modelInfo <- modelInfo
-        load("rmodel_probability_XGB.rda") # Produces fit object (for probability)
-        private$fitXGB <- fitObj
-       }, error = function(e) {
-        # temporary fix until all models are working.
-        stop('You must use a saved model. Run XGBoost development to train 
-              and save the model, then XGBoost deployment to make predictions.
-              See ?XGBoostDevelopment')
-      })
+      super$loadModelAndInfo(modelFullName = "XGBoost")
+      private$fitXGB <- self$fitObj
       
       # Make sure factor columns have the training data factor levels
       super$formatFactorColumns()

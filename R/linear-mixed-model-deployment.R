@@ -551,22 +551,17 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     #   i.e. p = DeploySupervisedModelParameters$new()
     initialize = function(p) {
       super$initialize(p)
+      if (is.null(self$params$modelName)) {
+        self$params$modelName = "LMM" 
+      }
     },
 
     #Override: deploy the model
     deploy = function() {
 
       # Try to load the model
-      tryCatch({
-        load("rmodel_info_LMM.rda")  # Get model info
-        self$modelInfo <- modelInfo
-        load("rmodel_probability_LMM.rda") # Produces fit object (for probability)
-        private$fitLmm <- fitObj
-      }, error = function(e) {
-        stop('You must use a saved model. Run Linear Mixed Model development to train 
-              and save the model, then Linear Mixed Model deployment to make predictions
-              See ?LinearMixedModelDevelopment.')
-      })
+      super$loadModelAndInfo(modelFullName = "LinearMixedModel")
+      private$fitLmm <- self$fitObj
       
       # Make sure factor columns have the training data factor levels
       super$formatFactorColumns()
