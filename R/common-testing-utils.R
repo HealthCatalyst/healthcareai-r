@@ -19,7 +19,7 @@ initializeParamsForTesting <- function(df) {
   p$debug = FALSE
   p$cores = 1
   p$tune = FALSE
-  p$numberOfTrees = 201
+  p$trees = 201
   return(p)
 }
 
