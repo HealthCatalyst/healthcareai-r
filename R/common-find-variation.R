@@ -823,11 +823,14 @@ variationAcrossGroups <- function(df,
       labs <- labs[levels(interaction(l)),]
       #print(labs)
 
-      par(bg = "transparent", cex.axis = 1)
+      ## plot boxplot
+      par(bg = "transparent", cex.axis = 1, mar=c(6, 4.1, 4.1, 2.1))
+    
+      labels <- labs[,2]
       a <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, col = my_colors[as.numeric(labs[,1])],
                    ylab = measureColumn[i], ylim = c(min(df[measureColumn[[i]]], na.rm = TRUE), 
                                                      1.1*max(df[[measureColumn[i]]], na.rm = TRUE)),
-                   cex.lab = 1.25)
+                   cex.lab = 1.25, xaxt = "n")
       # Now set the plot region to grey
       rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "grey90")
       grid(nx = NULL, ny = NULL, lwd = 1, lty = 3, col = "white") #grid over boxplot
@@ -836,13 +839,23 @@ variationAcrossGroups <- function(df,
                    col = my_colors[as.numeric(labs[,1])],
                    ylab = measureColumn[i], ylim = c(min(df[measureColumn[[i]]]) , 1.1*max(df[[measureColumn[i]]])),
                    main = paste("Boxplot of", measureColumn[i], "Across", paste(categoricalCols,collapse = " ")),
-                   cex.lab = 1.25, outcol = "lightcoral", add = TRUE)
+                   cex.lab = 1.25, outcol = "lightcoral", xaxt = "n", add = TRUE)
       over = 0.1*max(a$stats[nrow(a$stats),] )
       text(c(1:nlevels(interaction(l))) , a$stats[nrow(a$stats),] + over, labs[,1],
            col = my_colors[as.numeric(labs[,1])])
       
+      # x axis with ticks but without labels
+      axis(1, labels = FALSE)
+      # Plot x labs at default x position
+      text(x = seq_along(labels), y = par("usr")[3] - 1, srt = 45, adj = 1,
+           labels = labels, xpd = TRUE)
       
       # plot 95% family-wise confidence level
+      tab <- TUKEY$`interaction(l)`
+      tab <- tab[order(tab[,4]),]
+      print(tab)
+      TUKEY$`interaction(l)` <- tab
+      
       if (length(TUKEY$'interaction(l)'[,4]) == 1) {
         psig <- as.numeric(TUKEY$'interaction(l)'[,2]*TUKEY$'interaction(l)'[,3] >= 0 ) + 1
       } else {
