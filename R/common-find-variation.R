@@ -442,8 +442,9 @@ getPipedValue <- function(string) {
 #' @return A boxplot to compare variation across groups.
 #' @export
 #' @references \url{http://healthcare.ai}
+#' @reference \url{https://cran.r-project.org/web/packages/multcompView/index.html}
 #' @seealso \code{\link{healthcareai}} \code{\link{calculateCOV}} 
-#' \code{\link{createVarianceTallTable}}
+#' \code{\link{createVarianceTallTable}} \code{\link{findVariance}}
 #' @examples
 #' df <- data.frame(Gender = factor(rbinom(100, 1, 0.45), labels = c("Male","Female")), 
 #'                  Age = factor(rbinom(100, 1, 0.45), labels = c("Young","Old")),
@@ -520,7 +521,7 @@ variationAcrossGroups <- function(df,
   
   # Check if there are two many interactions
   if (length(categoricalCols) > 10) {
-    stop("There are two many interactions. Length of categoricalCols cannot be larger than 10.")
+    stop("Check if there are two many interactions. Length of categoricalCols cannot be larger than 10.")
   }
   
   if (!is.null(dateCol)) {
@@ -538,6 +539,15 @@ variationAcrossGroups <- function(df,
     # Add dateCol to categoricalList (now that it's just YYYY-MM)
     categoricalCols <- c(categoricalCols, dateCol)
   }
+  
+  ## The case that there is only one categorical variable with 2 levels
+  if (length(categoricalCols) == 1 &&
+      length(unique(df[[categoricalCols]])) - sum(is.na(unique(df[[categoricalCols]]))) == 2) {
+    vec <- levels(df[[categoricalCols]])
+    vec <- vec[!is.na(vec)]
+    name_spec <- paste(vec, collapse = "-")
+  }
+  
   
   # Function from package "multcompView": Convert a vector of hyphenated names into 
   # a character matrix with 2 columns containing the names split in each row
@@ -744,7 +754,7 @@ variationAcrossGroups <- function(df,
     # Extract labels and factor levels from Tukey post-hoc 
     Tukey.levels <- TUKEY[[variable]][,4]
     if ((length(TUKEY[[variable]][,4])) == 1) 
-      names(Tukey.levels) <- "L1-L2"
+      names(Tukey.levels) <- name_spec
     Tukey.labels <- data.frame(multcompLetters(Tukey.levels)['Letters'])
     
     # Put the labels in the same order as in the boxplot :
@@ -752,6 +762,8 @@ variationAcrossGroups <- function(df,
     Tukey.labels = Tukey.labels[order(Tukey.labels$groups) , ]
     return(Tukey.labels)
   }
+  
+  
   
   l <- list()
   for (i in 1:length(categoricalCols)) {
@@ -814,17 +826,21 @@ variationAcrossGroups <- function(df,
     
 
   if (printPlot == TRUE) {
+    pvalueDf <- list()
     for (i in 1:length(measureColumn)) {
       model <- lm(df[[measureColumn[i]]] ~ interaction(l))
       ANOVA <- aov(model)
       # Tukey test to study each pair of treatment :
       TUKEY <- TukeyHSD(x = ANOVA, conf.level = 0.95)
       labs <- generate_label_df(TUKEY, 'interaction(l)')
-      labs <- labs[levels(interaction(l)),]
+      if (nrow(labs) > 2) {
+        labs <- labs[levels(interaction(l)),]
+      }
+      
       #print(labs)
-
-      ## plot boxplot
-      par(bg = "transparent", cex.axis = 1, mar=c(6, 4.1, 4.1, 2.1))
+    
+      # plot boxplot
+      par(bg = "transparent", cex.axis = 1, mar = c(6, 4.1, 4.1, 2.1))
     
       labels <- labs[,2]
       a <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, col = my_colors[as.numeric(labs[,1])],
@@ -839,7 +855,7 @@ variationAcrossGroups <- function(df,
                    col = my_colors[as.numeric(labs[,1])],
                    ylab = measureColumn[i], ylim = c(min(df[measureColumn[[i]]]) , 1.1*max(df[[measureColumn[i]]])),
                    main = paste("Boxplot of", measureColumn[i], "Across", paste(categoricalCols,collapse = " ")),
-                   cex.lab = 1.25, outcol = "lightcoral", xaxt = "n", add = TRUE)
+                   cex.lab = 1.25, outcol = "lightcoral", xaxt = "n", boxwex = 0.35, add = TRUE)
       over = 0.1*max(a$stats[nrow(a$stats),] )
       text(c(1:nlevels(interaction(l))) , a$stats[nrow(a$stats),] + over, labs[,1],
            col = my_colors[as.numeric(labs[,1])])
@@ -852,9 +868,20 @@ variationAcrossGroups <- function(df,
       
       # plot 95% family-wise confidence level
       tab <- TUKEY$`interaction(l)`
-      tab <- tab[order(tab[,4]),]
-      print(tab)
+      
+      if (nrow(tab) != 1) {
+        tab <- tab[order(tab[,4]),]
+      }
+      
       TUKEY$`interaction(l)` <- tab
+
+      # Create tables with pvalue for each pair of groups
+      target <- rep(measureColumn[i], nrow(tab))
+      # print(target)
+      pvalueDf[[i]] <- data.frame(Measure = target,
+                                  Groups = rownames(tab),p_value = tab[,4])
+      rownames(pvalueDf[[i]]) <- NULL
+      
       
       if (length(TUKEY$'interaction(l)'[,4]) == 1) {
         psig <- as.numeric(TUKEY$'interaction(l)'[,2]*TUKEY$'interaction(l)'[,3] >= 0 ) + 1
@@ -874,8 +901,14 @@ variationAcrossGroups <- function(df,
     plotRes <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, plot = FALSE)
   }
   
-  # Return tables with mean/std and quartiles
+  pvalRes <- data.frame()
+  for (i in 1:length(measureColumn)) {
+    pvalRes <- rbind(pvalRes,pvalueDf[[i]])
+  }
+  
   if (printTable == TRUE) {
+    
+    # Return tables with mean/std and quartiles
     resTable <- list()
     completeDf <- df[complete.cases(df),]
     
@@ -915,12 +948,13 @@ variationAcrossGroups <- function(df,
     for (i in 1:length(measureColumn)) {
       tabRes <- rbind(tabRes,resTable[[i]])
     }
-    
     tabRes <- format(tabRes, digits = 3)
+    outDf <- list(pvalRes,tabRes)
+    names(outDf) <- c("P value for each pair of groups", "Basic statistics of each group")
   }
   
   if (printPlot == TRUE && printTable == TRUE) {
-    return(tabRes)
+    return(outDf)
   }
   
   if (printPlot == FALSE && printTable == TRUE) {
