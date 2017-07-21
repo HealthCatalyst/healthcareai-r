@@ -434,10 +434,12 @@ getPipedValue <- function(string) {
 #' @param df A dataframe
 #' @param categoricalCols Vector of strings representing categorical column(s)
 #' @param measureColumn Vector of strings representing measure column(s)
-#' @param printPlot Optional, default is TRUE. FALSE: only shows the statistics  
-#' used to plot the boxplot. 
+#' @param printTukeyplot Optinal, default is FALSE. If TRUE, presents the plot 
+#' returned by the Tukey's test.
 #' @param printTable Optional, default is TRUE. FALSE: not to show the table of  
 #' mean/std and quartiles 
+#' @params boxplotStats Optinal, defalut is FALSE. If TRUE, returns the statistics
+#' behindthe boxplot.
 #' @param dateCol Optional. A date(time) column to group by (done by month) 
 #' @return A boxplot to compare variation across groups.
 #' @export
@@ -446,35 +448,82 @@ getPipedValue <- function(string) {
 #' @seealso \code{\link{healthcareai}} \code{\link{calculateCOV}} 
 #' \code{\link{createVarianceTallTable}} \code{\link{findVariance}}
 #' @examples
+#' 
+#' ## Create the toy data set
 #' df <- data.frame(Gender = factor(rbinom(100, 1, 0.45), labels = c("Male","Female")), 
 #'                  Age = factor(rbinom(100, 1, 0.45), labels = c("Young","Old")),
 #'                  Ans = factor(rbinom(100, 1, 0.45), labels = c("Y","N")),
 #'                  Dept = sample(c("A","B","C"), 50, replace = TRUE, prob = c(0.2,0.3,0.5)),
-#'                  LOS1 = c(rnorm(30),rnorm(70,10,5)),
-#'                  LOS2 = c(rnorm(20,8,3),rnorm(80,-15,5)))
+#'                  measure1 = c(rnorm(30),rnorm(70,10,5)),
+#'                  measure2 = c(rnorm(20,8,3),rnorm(80,-15,5)))
 #'
+#' ## Define the parameters 
 #' categoricalCols <- c("Dept","Gender")
-#' measureColumn <- c("LOS1","LOS2")
+#' measureColumn <- c("measure1","Lmeasure2")
 #' 
+#' ## Call the function
 #' variationAcrossGroups(df = df, 
 #'                        categoricalCols = categoricalCols,
-#'                        measureColumn = measureColumn)
+#'                        measureColumn = measureColumn, printTukeyplot = TRUE)
 #'                        
+#' ## Since printTukeyplot = TRUE and default of printTable is TRUE, the function 
+#' ## above will return the boxplot, the 95% family-wise confidence interval plot, 
+#' ## as well as the tables. 
+#' ## In this example, the function returns
+#' ### Two boxplot
+#' ### 1. The boxplot of measure1 across the two factors, Dept and Gender
+#' ###    Dept has 3 levels: A, B, C
+#' ###    Gender has 2 levels: Male and Female
+#' ###    Hence, there are a total of 6 different levels if we consider both factors:
+#' ###    A.Male, B.Male, c.Male, A.Female, B.Female, C.Female
+#' ###    They are shown in the x axis of the boxplot. 
+#' ###    Levels that are not significantly different one each other are
+#' ###    represented with the same letter. The six boxes here all have letter "a",
+#' ###    meaning all the six levels here have the same mean.
+#' ### 2. The box plot of measure2 across the two factors, Dept and Gender
+#' ###    From this boxplot, we can conclude that the six levels have the 
+#' ###    same mean, or there is no significantly difference one each other
+#' ### 
+#' ### Two 95% family-wise confidence level plots
+#' ###    There are the plots that present the results returned by Tukey's test. 
+#' ###    It allows to find means of a level that are significantly different 
+#' ###    from each other, comparing all possible pairs of means with a t-test 
+#' ###    like method. If for example, the means of the level of B.Frmale and B.Male
+#' ###    are significantly different, then the color of the line corresponding to
+#' ###    the pais is red, otherwise it's black. The order of the lines is according 
+#' ###    to the p-value, from the smallest to the largest. The notation in the 
+#' ###    topright of the plot is the measure column used to build the plot.
+#' ###    In this example, for both of the measure colums measure1 and measure, no
+#' ###    significant difference was found for any pair of the levels, which is 
+#' ###    the same as the boxplot.
+#' ### Two tables: one shows the p-values returned by the Tukey's test. And the 
+#' ### other presents the means/sd and quartiles of each level.
+#' 
+#' #########################################################################
+#' set.seed(35)                      
 #' treatment = c(rep("A", 20) , rep("B", 20) , rep("C", 20), rep("D", 20) ,  rep("E", 20))
 #' value = c( sample(2:5, 20 , replace = TRUE) , sample(6:10, 20 , replace = TRUE), 
 #'         sample(1:7, 20 , replace = TRUE), sample(3:10, 20 , replace = TRUE) , 
 #'         sample(10:20, 20 , replace = TRUE) )
-#' df1 = data.frame(treatment,value)
-#' 
+#' df1 = data.frame(treatment,value) ## This data set has two columns, one measure
+#'                                   ## column value and one categorical column treatment.
+#'                                   ## treatment has five levels: A B C D E
+#'                                   
 #' variationAcrossGroups(df1, categoricalCols = "treatment", measureColumn = "value")
+#' ## The boxplot tells us that treatment E has a significant different mean from 
+#' ## all the other treatments. Treatment A and C have no significant difference 
+#' ## in mean and so they share the same letter, and the same for treatment B and D. 
+#' ## But the means of treatment A and C are significant different from B,D.
+#' 
 #'
 
 
 variationAcrossGroups <- function(df, 
                                   categoricalCols,
                                   measureColumn,
-                                  printPlot = TRUE,
+                                  printTukeyplot = FALSE,
                                   printTable = TRUE,
+                                  boxplotStats = FALSE,
                                   dateCol = NULL) {
   
   if (!all(c(categoricalCols,measureColumn,dateCol) %in% names(df))) {
@@ -825,82 +874,88 @@ variationAcrossGroups <- function(df,
                  rgb(137,56,65,maxColorValue = 255))
     
 
-  if (printPlot == TRUE) {
-    pvalueDf <- list()
-    for (i in 1:length(measureColumn)) {
-      model <- lm(df[[measureColumn[i]]] ~ interaction(l))
-      ANOVA <- aov(model)
-      # Tukey test to study each pair of treatment :
-      TUKEY <- TukeyHSD(x = ANOVA, conf.level = 0.95)
-      labs <- generate_label_df(TUKEY, 'interaction(l)')
-      if (nrow(labs) > 2) {
-        labs <- labs[levels(interaction(l)),]
-      }
-      
-      #print(labs)
-    
-      # plot boxplot
-      par(bg = "transparent", cex.axis = 1, mar = c(6, 4.1, 4.1, 2.1))
-    
-      labels <- labs[,2]
-      a <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, col = my_colors[as.numeric(labs[,1])],
-                   ylab = measureColumn[i], ylim = c(min(df[measureColumn[[i]]], na.rm = TRUE), 
-                                                     1.1*max(df[[measureColumn[i]]], na.rm = TRUE)),
-                   cex.lab = 1.25, xaxt = "n")
-      # Now set the plot region to grey
-      rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "grey90")
-      grid(nx = NULL, ny = NULL, lwd = 1, lty = 3, col = "white") #grid over boxplot
-      par(new = TRUE)
-      a <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, 
-                   col = my_colors[as.numeric(labs[,1])],
-                   ylab = measureColumn[i], ylim = c(min(df[measureColumn[[i]]]) , 1.1*max(df[[measureColumn[i]]])),
-                   main = paste("Boxplot of", measureColumn[i], "Across", paste(categoricalCols,collapse = " ")),
-                   cex.lab = 1.25, outcol = "lightcoral", xaxt = "n", boxwex = 0.35, add = TRUE)
-      over = 0.1*max(a$stats[nrow(a$stats),] )
-      text(c(1:nlevels(interaction(l))) , a$stats[nrow(a$stats),] + over, labs[,1],
-           col = my_colors[as.numeric(labs[,1])])
-      
-      # x axis with ticks but without labels
-      axis(1, labels = FALSE)
-      # Plot x labs at default x position
-      text(x = seq_along(labels), y = par("usr")[3] - 1, srt = 45, adj = 1,
-           labels = labels, xpd = TRUE)
-      
-      # plot 95% family-wise confidence level
-      tab <- TUKEY$`interaction(l)`
-      
-      if (nrow(tab) != 1) {
-        tab <- tab[order(tab[,4]),]
-      }
-      
-      TUKEY$`interaction(l)` <- tab
-
-      # Create tables with pvalue for each pair of groups
-      target <- rep(measureColumn[i], nrow(tab))
-      # print(target)
-      pvalueDf[[i]] <- data.frame(Measure = target,
-                                  Groups = rownames(tab),p_value = tab[,4])
-      rownames(pvalueDf[[i]]) <- NULL
-      
-      
-      if (length(TUKEY$'interaction(l)'[,4]) == 1) {
-        psig <- as.numeric(TUKEY$'interaction(l)'[,2]*TUKEY$'interaction(l)'[,3] >= 0 ) + 1
-      } else {
-        psig <- as.numeric(apply(TUKEY$'interaction(l)'[,2:3],1,prod) >= 0 ) + 1
-      }
-      
-      op <- par(mar = c(4.2,9,3.8,2))
-      plot(TUKEY,col = psig, yaxt = "n")
-      for (j in 1:length(psig)) {
-        axis(2,at = j,labels = rownames(TUKEY$'interaction(l)')[length(psig) - j + 1],
-             las = 1,cex.axis = .8,col.axis = psig[length(psig) - j + 1])
-      }
-      par(op)
-    } 
-  } else {
-    plotRes <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, plot = FALSE)
-  }
   
+  pvalueDf <- list()
+  plotRes <- list()
+  for (i in 1:length(measureColumn)) {
+    model <- lm(df[[measureColumn[i]]] ~ interaction(l))
+    ANOVA <- aov(model)
+    # Tukey test to study each pair of treatment :
+    TUKEY <- TukeyHSD(x = ANOVA, conf.level = 0.95)
+    labs <- generate_label_df(TUKEY, 'interaction(l)')
+    if (nrow(labs) > 2) {
+      labs <- labs[levels(interaction(l)),]
+    }
+    
+    #print(labs)
+    
+    # plot boxplot
+    par(bg = "transparent", cex.axis = 1, mar = c(6, 4.1, 4.1, 2.1))
+    
+    labels <- labs[,2]
+    a <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, col = my_colors[as.numeric(labs[,1])],
+                 ylab = measureColumn[i], ylim = c(min(df[measureColumn[[i]]], na.rm = TRUE), 
+                                                   1.1*max(df[[measureColumn[i]]], na.rm = TRUE)),
+                 cex.lab = 1.25, xaxt = "n")
+    # Now set the plot region to grey
+    rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "grey90")
+    grid(nx = NULL, ny = NULL, lwd = 1, lty = 3, col = "white") #grid over boxplot
+    par(new = TRUE)
+    a <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, 
+                 col = my_colors[as.numeric(labs[,1])],
+                 ylab = measureColumn[i], ylim = c(min(df[measureColumn[[i]]]) , 1.1*max(df[[measureColumn[i]]])),
+                 main = paste("Boxplot of", measureColumn[i], "Across", paste(categoricalCols,collapse = " ")),
+                 cex.lab = 1.25, outcol = "lightcoral", xaxt = "n", boxwex = 0.35, add = TRUE)
+    over = 0.1*max(a$stats[nrow(a$stats),] )
+    text(c(1:nlevels(interaction(l))) , a$stats[nrow(a$stats),] + over, labs[,1],
+         col = my_colors[as.numeric(labs[,1])])
+    
+    # x axis with ticks but without labels
+    axis(1, labels = FALSE)
+    # Plot x labs at default x position
+    text(x = seq_along(labels), y = par("usr")[3] - 1, srt = 45, adj = 1,
+         labels = labels, xpd = TRUE)
+    
+    ## Get the statistics behind boxplot
+    plotRes[[i]] <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, plot = FALSE)
+    
+    # plot 95% family-wise confidence level
+    tab <- TUKEY$`interaction(l)`
+    
+    if (nrow(tab) != 1) {
+      tab <- tab[order(tab[,4]),]
+    }
+    
+    TUKEY$`interaction(l)` <- tab
+    
+    # Create tables with pvalue for each pair of groups
+    target <- rep(measureColumn[i], nrow(tab))
+    pvalueDf[[i]] <- data.frame(Measure = target,
+                                Groups = rownames(tab),p_value = tab[,4])
+    rownames(pvalueDf[[i]]) <- NULL
+    
+    if (length(TUKEY$'interaction(l)'[,4]) == 1) {
+      psig <- as.numeric(TUKEY$'interaction(l)'[,2]*TUKEY$'interaction(l)'[,3] >= 0 ) + 1
+    } else {
+      psig <- as.numeric(apply(TUKEY$'interaction(l)'[,2:3],1,prod) >= 0 ) + 1
+    }
+    
+    ## If printTukeyplot == TRUE, plot the tukey's test.
+    if (printTukeyplot == TRUE) {
+      op <- par(mar = c(4.2,9,3.8,2))
+    plot(TUKEY,col = psig, yaxt = "n")
+    legend("topright", legend = measureColumn[i],  cex = 1.25)
+    text(x = 0, labels = measureColumn[i])
+    for (j in 1:length(psig)) {
+      axis(2,at = j,labels = rownames(TUKEY$'interaction(l)')[length(psig) - j + 1],
+           las = 1,cex.axis = .8,col.axis = psig[length(psig) - j + 1])
+    }
+    par(op)
+    }
+  
+  } 
+  
+
   pvalRes <- data.frame()
   for (i in 1:length(measureColumn)) {
     pvalRes <- rbind(pvalRes,pvalueDf[[i]])
@@ -951,22 +1006,25 @@ variationAcrossGroups <- function(df,
     tabRes <- format(tabRes, digits = 3)
     outDf <- list(pvalRes,tabRes)
     names(outDf) <- c("P value for each pair of groups", "Basic statistics of each group")
+    if (boxplotStats == FALSE) {
+      return(outDf)
+    } else {
+      names(plotRes) <- measureColumn
+      out <- list(outDf,plotRes)
+      return(out)
+    }
+    
   }
   
-  if (printPlot == TRUE && printTable == TRUE) {
-    return(outDf)
-  }
-  
-  if (printPlot == FALSE && printTable == TRUE) {
-    res <- list(plotRes, tabRes)
-    return(res)
-  }
-  
-  if (printPlot == FALSE && printTable == FALSE) {
+  if (printTalbe == FALSE && boxplotStats == TRUE) {
+    names(plotRes) <- measureColumn
     return(plotRes)
   }
   
-  if (printPlot == TRUE && printTable == FALSE) {
+  if (printTalbe == FALSE && boxplotStats == FALSE) {
     return(0)
   }
+  
+
+  
 }
