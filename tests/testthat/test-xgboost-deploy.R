@@ -1,3 +1,40 @@
+# The tests in this file all deal with XGBoost deployment, but are separated 
+# into two groups
+#
+# The tests listed under multiclass tests check that the results of XGBoost
+# are consistent: running the same code on the same data should yield the same
+# results every time. Specifically, the tests check that
+#  - the grain column ids are correct
+#  - the predicted classes and their order are correct
+#  - the probabilities of the predicted classes are correct
+#
+# The factor level tests are similar to those found in test-factor-level
+# -coercion and include:
+# 1. Check that single row predictions work
+#    - build single row deploy data frame and check that deploy outputs a
+#      prediction
+#    - note that this implicitly tests that predictions can be made when there
+#      are missing factors in one or more columns (for a single row, all but 
+#      one level of each factor will be missing)
+# 2. Check that predictions are independent
+#    - build a single row deploy data set and a data setcontaining all of the 
+#      training data, all of which share the same first row
+#    - check that the predictions are the same on both data sets for the shared
+#      row (i.e. the values taken in other rows of the data have no effect on
+#      the prediction)
+# 3. Check new factor levels are dealt with correctly
+#    - build data sets with new factor levels not seen in develop
+#    - check that the correct warning is raised
+#    - check that these new levels are treated as NA by comparing the
+#      prediction to a prediction made on data with NAs instead of the new 
+#      factor levels
+# A new test, specific to XGBoost is
+# 4. Check that XGBoost behaves the same regardless of whether strings are
+#    treated as factors or characters
+#    - build a dataset with stringsAsFactors = TRUE
+#    - build the same dataset with stringsAsFactors = FALSE
+#    - check that the outputs are the same for models trained on both sets
+
 context("Checking xgboost deployment")
 
 library(healthcareai)
@@ -60,8 +97,8 @@ xDeploy <- capture.output(boostD$deploy())
 # Get output dataframe for csv or SQL
 xDf <- capture.output(outDf <- boostD$getOutDf())
 
-###########
-# Multiclass
+##################
+# Multiclass Tests
 
 test_that("Grain is correctly attached", {
   expect_true(outDf$PatientID[1] == 347)
@@ -148,14 +185,6 @@ getToyXGBDevelopParams = function(asFactor) {
 
 ####################
 # Factor Level Tests
-#
-# These check that 
-#  - xgboost can deploy on a dataset containg a single row (note that this 
-#    implicitly deals with missing factor levels in the deploy set)
-#  - xgboost predictions don't depend on other rows of the deploy data
-#  - new factor levels in deploy are dealth with correctly for xgboost
-#  - xgboost behaves the same regardless of whether strings are treated as 
-#    factors or characters.
 
 test_that("Single row predictions work for xgboost", {
   p <- getToyXGBDevelopParams(asFactor = T)
