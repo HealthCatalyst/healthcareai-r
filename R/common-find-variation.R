@@ -520,7 +520,7 @@ variationAcrossGroups <- function(df,
   
   # Check if there are two many interactions
   if (length(categoricalCols) > 10) {
-    stop("There are two many interactions. Length of categoricalCols cannot larger than 10.")
+    stop("There are two many interactions. Length of categoricalCols cannot be larger than 10.")
   }
   
   if (!is.null(dateCol)) {
@@ -819,8 +819,10 @@ variationAcrossGroups <- function(df,
       ANOVA <- aov(model)
       # Tukey test to study each pair of treatment :
       TUKEY <- TukeyHSD(x = ANOVA, conf.level = 0.95)
-      labs = generate_label_df(TUKEY, 'interaction(l)')
-      
+      labs <- generate_label_df(TUKEY, 'interaction(l)')
+      labs <- labs[levels(interaction(l)),]
+      #print(labs)
+
       par(bg = "transparent", cex.axis = 1)
       a <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, col = my_colors[as.numeric(labs[,1])],
                    ylab = measureColumn[i], ylim = c(min(df[measureColumn[[i]]], na.rm = TRUE), 
@@ -830,7 +832,8 @@ variationAcrossGroups <- function(df,
       rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "grey90")
       grid(nx = NULL, ny = NULL, lwd = 1, lty = 3, col = "white") #grid over boxplot
       par(new = TRUE)
-      a <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, col = my_colors[as.numeric(labs[,1])],
+      a <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, 
+                   col = my_colors[as.numeric(labs[,1])],
                    ylab = measureColumn[i], ylim = c(min(df[measureColumn[[i]]]) , 1.1*max(df[[measureColumn[i]]])),
                    main = paste("Boxplot of", measureColumn[i], "Across", paste(categoricalCols,collapse = " ")),
                    cex.lab = 1.25, outcol = "lightcoral", add = TRUE)
