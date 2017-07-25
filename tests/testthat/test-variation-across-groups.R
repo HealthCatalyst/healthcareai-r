@@ -12,7 +12,7 @@ test_that("One cat column, one measure col, and no date columns give correct df"
   dfRes[[2]] <- data.frame(lapply(dfRes[[2]], as.character), stringsAsFactors = FALSE)
   
   df1 <- data.frame(Measure = 'LOS',
-                    Groups = 'M-F', 
+                    Groups = 'F-M', 
                     p_value = '0.234984',
                     stringsAsFactors = FALSE)
   
@@ -55,7 +55,7 @@ test_that("One cat column, one measure col, and no date col and NA in cat col
                                      stringsAsFactors = FALSE)
             
             df1 <- data.frame(Measure = 'LOS',
-                              Groups = 'M-F', 
+                              Groups = 'F-M', 
                               p_value = '0.391063',
                               stringsAsFactors = FALSE)
             
@@ -86,7 +86,7 @@ test_that("One cat column, one measure col, and no date col and NA in cat col
 test_that("Two cat columns and no date columns give correct df", {
   set.seed(35)
   df <- data.frame(Gender = factor(rbinom(100, 1, 0.45), labels = c("Male","Female")), 
-                   Dept = sample(c("A","B","C"), 50, replace = T, prob = c(0.2,0.3,0.5)),
+                   Dept = sample(c("A","B","C"), 50, replace = TRUE, prob = c(0.2,0.3,0.5)),
                    LOS = c(rnorm(30),rnorm(70,10,5))
                    )
   
@@ -104,11 +104,11 @@ test_that("Two cat columns and no date columns give correct df", {
   df1 <- data.frame(Measure = c('LOS','LOS','LOS','LOS','LOS','LOS',
                                 'LOS','LOS','LOS','LOS','LOS','LOS',
                                 'LOS','LOS','LOS'),
-                    Groups = c('C.Male-B.Male', 'A.Female-B.Male','C.Female-B.Male',
-                               'B.Female-B.Male','B.Male-A.Male','C.Female-C.Male',
-                               "C.Male-A.Male","B.Female-C.Male","C.Female-A.Female",
-                               "A.Female-A.Male","B.Female-A.Female","A.Female-C.Male",  
-                               "B.Female-A.Male","C.Female-B.Female","C.Female-A.Male" ), 
+                    Groups = c("B.Male-C.Male","B.Male-A.Female","B.Male-C.Female",  
+                               "B.Male-B.Female","B.Male-A.Male","C.Female-C.Male",  
+                               "A.Male-C.Male","B.Female-C.Male","C.Female-A.Female",
+                               "A.Male-A.Female","B.Female-A.Female","A.Female-C.Male",  
+                               "A.Male-B.Female","C.Female-B.Female","A.Male-C.Female"), 
                     p_value = c("0.401138","0.686254","0.787918","0.841090","0.902915",
                                 "0.941093","0.985462","0.988487","0.997409","0.998782",
                                 "0.999447","0.999937","0.999999","1.000000","1.000000"),
@@ -169,11 +169,11 @@ test_that("One cat col, one measure col, and one date col give correct df", {
   df1 <- data.frame(Measure = c('LOS','LOS','LOS','LOS','LOS','LOS',
                                 'LOS','LOS','LOS','LOS','LOS','LOS',
                                 'LOS','LOS','LOS'),
-                    Groups = c('F.2012/03-M.2012/01','F.2012/02-M.2012/01','M.2012/03-M.2012/01',
-                               'M.2012/02-M.2012/01','F.2012/03-F.2012/01','F.2012/02-F.2012/01',
-                               "M.2012/01-F.2012/01","F.2012/03-M.2012/02","M.2012/03-F.2012/03",
-                               "M.2012/03-F.2012/01","M.2012/02-F.2012/01","M.2012/02-F.2012/02",  
-                               "M.2012/03-F.2012/02","F.2012/03-F.2012/02","M.2012/03-M.2012/02" ), 
+                    Groups = c("F.2012/03-M.2012/01","F.2012/02-M.2012/01","M.2012/03-M.2012/01",
+                               "M.2012/02-M.2012/01","F.2012/03-F.2012/01","F.2012/02-F.2012/01",
+                               "F.2012/01-M.2012/01","F.2012/03-M.2012/02","F.2012/03-M.2012/03",
+                               "M.2012/03-F.2012/01","M.2012/02-F.2012/01","F.2012/02-M.2012/02",
+                               "F.2012/02-M.2012/03","F.2012/03-F.2012/02","M.2012/03-M.2012/02"), 
                     p_value = c("0.690788","0.760393","0.923330","0.923330","0.935469",
                                 "0.967513","0.987223","0.994585","0.994585","0.998789",
                                 "0.998789","0.998831","0.998831","0.999984","1.000000"),
@@ -220,7 +220,7 @@ test_that("One cat column, two measure col, and no date columns give
                                      stringsAsFactors = FALSE)
             
             df1 <- data.frame(Measure = c('LOS','BP'),
-                              Groups = c('M-F','M-F'), 
+                                Groups = c('F-M','F-M'), 
                               p_value = c("0.234984","0.804558"),
                               stringsAsFactors = FALSE)
             
@@ -283,16 +283,16 @@ test_that("One cat col, two measure cols, and one date col give correct df", {
                                 'LOS','LOS','LOS','BP','BP','BP',
                                 'BP','BP','BP','BP','BP','BP',
                                 'BP','BP','BP','BP','BP','BP'),
-                    Groups = c('F.2012/03-M.2012/01','F.2012/02-M.2012/01','M.2012/03-M.2012/01',
-                               'M.2012/02-M.2012/01','F.2012/03-F.2012/01','F.2012/02-F.2012/01',
-                               "M.2012/01-F.2012/01","F.2012/03-M.2012/02","M.2012/03-F.2012/03",
-                               "M.2012/03-F.2012/01","M.2012/02-F.2012/01","M.2012/02-F.2012/02",  
-                               "M.2012/03-F.2012/02","F.2012/03-F.2012/02","M.2012/03-M.2012/02",
-                               'F.2012/03-F.2012/01','F.2012/03-M.2012/01','F.2012/03-F.2012/02',
-                               'M.2012/02-F.2012/01','M.2012/03-F.2012/01','M.2012/02-M.2012/01',
-                               "M.2012/03-M.2012/01","M.2012/02-F.2012/02","M.2012/03-F.2012/02",
-                               "M.2012/03-F.2012/03","F.2012/03-M.2012/02","F.2012/02-F.2012/01",  
-                               "F.2012/02-M.2012/01","M.2012/01-F.2012/01","M.2012/03-M.2012/02"), 
+                    Groups = c("F.2012/03-M.2012/01","F.2012/02-M.2012/01","M.2012/03-M.2012/01",
+                               "M.2012/02-M.2012/01","F.2012/03-F.2012/01","F.2012/02-F.2012/01",
+                               "F.2012/01-M.2012/01","F.2012/03-M.2012/02","F.2012/03-M.2012/03",
+                               "M.2012/03-F.2012/01","M.2012/02-F.2012/01","F.2012/02-M.2012/02",
+                               "F.2012/02-M.2012/03","F.2012/03-F.2012/02","M.2012/03-M.2012/02",
+                               "F.2012/01-F.2012/03","M.2012/01-F.2012/03","F.2012/02-F.2012/03",
+                               "F.2012/01-M.2012/02","F.2012/01-M.2012/03","M.2012/01-M.2012/02",
+                               "M.2012/01-M.2012/03","F.2012/02-M.2012/02","F.2012/02-M.2012/03",
+                               "M.2012/03-F.2012/03","M.2012/02-F.2012/03","F.2012/01-F.2012/02",
+                               "M.2012/01-F.2012/02","F.2012/01-M.2012/01","M.2012/03-M.2012/02"), 
                     p_value = c("0.690788","0.760393","0.923330","0.923330","0.935469",
                                 "0.967513","0.987223","0.994585","0.994585","0.998789",
                                 "0.998789","0.998831","0.998831","0.999984","1.000000",

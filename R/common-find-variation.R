@@ -943,7 +943,7 @@ variationAcrossGroups <- function(df,
     if (printTukeyplot == TRUE) {
       op <- par(mar = c(4.2,9,3.8,2))
     plot(TUKEY,col = psig, yaxt = "n")
-    legend("topright", legend = measureColumn[i],  cex = 1.25)
+    legend("bottomright", legend = measureColumn[i],  cex = 1.25)
     text(x = 0, labels = measureColumn[i])
     for (j in 1:length(psig)) {
       axis(2,at = j,labels = rownames(TUKEY$'interaction(l)')[length(psig) - j + 1],
