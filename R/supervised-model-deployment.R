@@ -277,6 +277,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       predictedResultsName
     )
     
+    # Add top factor columns to outDf
     for (i in 1:numFactors) {
       ithTopFactor <- paste("Factor", i, "TXT", sep = "")
       private$outDf[[ithTopFactor]] <- private$orderedFactors[, i]
