@@ -19,7 +19,7 @@ variationAcrossGroups(df, categoricalCols, measureColumn,
 returned by the Tukey's test.}
 
 \item{printTable}{Optional, default is TRUE. FALSE: not to show the table of
-mean/std and quartiles}
+mean/std and quartiles and the table of p values.}
 
 \item{boxplotStats}{Optinal, defalut is FALSE. If TRUE, returns the statistics
 behindthe boxplot.}
