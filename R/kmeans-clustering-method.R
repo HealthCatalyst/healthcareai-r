@@ -17,6 +17,11 @@
 #' the grain. No ID columns are truly needed for this step.
 #' @param labelCol Optional. 
 #' @param numOfCluster Number of clusters you want to build. 
+#' @param pca Optional. TRUE or FALSE. If TRUE, perform PCA on the raw data.
+#' @param usePrinComp Optional. TRUE or FALSE. If TRUE, will use the principle components
+#' to perform K-means clustering. Default is FALSE.
+#' @param numOfPrinComp number of principle components you want to use to perdorm 
+#' K-means clustering. Must be given if usePrinComp is TRUE.
 #' @param impute Set all-column imputation to F or T.
 #' This uses mean replacement for numeric columns
 #' and most frequent for factorized columns.
@@ -27,6 +32,7 @@
 #' @seealso \code{\link{LassoDevelopment}}
 #' @seealso \code{\link{LinearMixedModelDevelopment}}
 #' @seealso \code{\link{healthcareai}}
+#' @references \url{https://github.com/bryanhanson/ChemoSpecMarkeR/blob/master/R/findElbow.R}
 #' @examples
 #'
 #' @export
@@ -48,6 +54,7 @@ KmeansClustering <- R6Class("KmeansClustering",
     centers = NA,
     cluster = NA,
     outDf = NA,
+    cluster.labels = NA,
     #labels = NA, # the label in the raw data set
     
     # Calculate the euclidean distance between two vectors
@@ -61,22 +68,13 @@ KmeansClustering <- R6Class("KmeansClustering",
       if (self$params$dataType != 'numeric' || isNumeric(self$params$df) == FALSE) {
         stop("Your data type must be numeric in order to use kmeans.")
       }
-    }
-    
-    
-  ),
-  
-  # Public members
-  public = list(
- 
-    # Constructor
-    # p: new SuperviseModelParameters class object,
-    # i.e. p = SuperviseModelParameters$new()
-    initialize = function(p) {
-      set.seed(43)
-      super$initialize(p)
     },
-
+    
+    # Scale the data
+    dataScale = function() {
+      
+    },
+    
     # PCA analysis
     pcaAnalysis = function() {
       private$prin.comp <- prcomp(self$params$df, scale. = T)
@@ -88,11 +86,6 @@ KmeansClustering <- R6Class("KmeansClustering",
       private$prop_varex <- pr_var/sum(pr_var)
     },
     
-    #scree plot
-    getScreePlot = function() {
-      plot(private$prop_varex, xlab = "Principal Component",
-           ylab = "Proportion of Variance Explained", type = "b", pch = 19)
-    },
     
     # Extract the principle components 
     prinCompDf = function() {
@@ -123,7 +116,7 @@ KmeansClustering <- R6Class("KmeansClustering",
       
       ans <- NULL
       ix <- iy <- 0   # intersecting point
-      lineMag <- self$lineMagnitude(x1, y1, x2, y2)
+      lineMag <- private$lineMagnitude(x1, y1, x2, y2)
       if (any(lineMag < 0.00000001)) { # modified for vectorization by BAH
         #warning("short segment")
         #return(9999)
@@ -134,15 +127,15 @@ KmeansClustering <- R6Class("KmeansClustering",
       if (any((u < 0.00001) || (u > 1))) { # BAH added any to vectorize
         ## closest point does not fall within the line segment, take the shorter distance
         ## to an endpoint
-        ix <- self$lineMagnitude(px, py, x1, y1)
-        iy <- self$lineMagnitude(px, py, x2, y2)
+        ix <- private$lineMagnitude(px, py, x1, y1)
+        iy <- private$lineMagnitude(px, py, x2, y2)
         if (ix > iy)  ans <- iy
         else ans <- ix
       } else {
         ## Intersecting point is on the line, use the formula
         ix <- x1 + u * (x2 - x1)
         iy <- y1 + u * (y2 - y1)
-        ans <- self$lineMagnitude(px, py, ix, iy)
+        ans <- private$lineMagnitude(px, py, ix, iy)
       }
       ans
     },
@@ -158,7 +151,7 @@ KmeansClustering <- R6Class("KmeansClustering",
       x2 <- x + 10
       y1 <- x1*slope + intercept
       y2 <- x2*slope + intercept
-      self$distancePointSegment(x,y, x1,y1, x2,y2)
+      private$distancePointSegment(x,y, x1,y1, x2,y2)
     },
     
     
@@ -194,28 +187,13 @@ KmeansClustering <- R6Class("KmeansClustering",
       
       # Calculate the orthogonal distances
       use <- 2:(nrow(DF) - 1)
-      elbowd <- self$distancePointLine(DF$x[use], DF$y[use], coef(fit)[2], coef(fit)[1])
+      elbowd <- private$distancePointLine(DF$x[use], DF$y[use], coef(fit)[2], coef(fit)[1])
       DF$dist <- c(NA, elbowd, NA) # first & last points don't have a distance
       
       private$vnum <- which.max(DF$dist)
     }, # end of findElbow
     
-
     
-    # generawte elbow plot for k = 2 to k = 15
-    getElbowPlot = function(df) {
-      k.max <- 15 # Maximal number of clusters
-      data <- scale(self$params$df)
-      wss <- sapply(1:k.max, 
-                    function(k){kmeans(data, k, nstart = 10 )$tot.withinss})
-      plot(1:k.max, wss,
-           type = "b", pch = 19, frame = FALSE, 
-           xlab = "Number of clusters K",
-           ylab = "Total within-clusters sum of squares")
-      abline(v = private$vnum, lty = 2)
-    },
-  
-  
     # Override: run k-means algorithm
     buildClusters = function() {
       
@@ -235,7 +213,7 @@ KmeansClustering <- R6Class("KmeansClustering",
       } else {
         numOfClusters <- private$vnum
       }
-    
+      
       #self$removeLabelCol()
       # Standarize the variables
       df.stand <- scale(df)
@@ -247,15 +225,7 @@ KmeansClustering <- R6Class("KmeansClustering",
       #print(kmeans.fit)
       #return(invisible(private$kmeans.fit))
     },
-
     
-    plotClusters = function() {
-      df.stand <- scale(self$params$df)
-      k.means.fit <- self$getKmeansfit()
-      clusplot(df.stand, k.means.fit$cluster, main = '2D representation of the Cluster solution',
-             color = TRUE, shade = TRUE, lines = 0)
-    },
-
     # Generate confusion matrix
     calculateConfusion = function() {
       # generate a confusion matrix of clusters and labels
@@ -279,31 +249,24 @@ KmeansClustering <- R6Class("KmeansClustering",
     # Assign labels to the clusters
     assignClusterLabels = function() {
       cm <- self$getConfusionMatrix()
-      k <- self$params$numOfClusters
+      k <- nrow(self$getKmeansfit()[["centers"]])
+      print(k)
       # take the cluster label from the highest percentage in that column
-      cluster.labels <- list()
+      private$cluster.labels <- list()
       for (i in 1:k) {
-        cluster.labels <- rbind(cluster.labels, row.names(cm)[match(max(cm[,i]), cm[,i])])
+        private$cluster.labels <- rbind(private$cluster.labels, 
+                                         row.names(cm)[match(max(cm[,i]), cm[,i])])
       }
       
       # this may still miss some labels, so make sure all labels are included
       for (l in rownames(cm)) { 
-        if (!(l %in% cluster.labels)) 
+        if (!(l %in%  private$cluster.labels)) 
         { 
           cluster.number <- match(max(cm[l,]), cm[l,])
-          cluster.labels[[cluster.number]] <- c(cluster.labels[[cluster.number]], l)
+          private$cluster.labels[[cluster.number]] <- c(private$cluster.labels[[cluster.number]], l)
         } 
       }
-      return(cluster.labels)
     },
-    
-    # Plot Silhouette plot
-    silhouettePlot = function() {
-      dis <- dist(scale(self$params$df), method = "euclidean")
-      k.means.fit <- self$getKmeansfit()
-      plot(silhouette(k.means.fit$cluster,dis))
-    },
-    
     
     # Label the new data points
     # getLabelOfNewdf = function(newdf) {
@@ -320,19 +283,6 @@ KmeansClustering <- R6Class("KmeansClustering",
     #   }
     #   return(labels)
     # },
-    
-    ## TODO: load data to make sure the newdf hvae the same format as df
-    getLabelOfNewdf = function(x) {
-      ## load data
-      
-      
-      x <- scale(x)
-      # compute squared euclidean distance from each sample to each cluster center
-      tmp <- sapply(seq_len(nrow(x)),
-                    function(i) apply(private$centers, 1,
-                                      function(v) sum((x[i, ] - v)^2)))
-      max.col(-t(tmp))  # find index of min distance
-    },
     
     ## 
     createDf = function() {
@@ -364,7 +314,7 @@ KmeansClustering <- R6Class("KmeansClustering",
       #     private$outDf[[colNameOfoutDf[i]]] <- NULL
       #   }
       # }
-
+      
       # Remove row names so df can be written to DB
       # TODO: in writeData function, find how to ignore row names
       rownames(private$outDf) <- NULL
@@ -373,6 +323,20 @@ KmeansClustering <- R6Class("KmeansClustering",
         cat('Dataframe with predictions:', '\n')
         cat(str(private$outDf), '\n')
       }
+    }
+    
+    
+  ),
+  
+  # Public members
+  public = list(
+ 
+    # Constructor
+    # p: new SuperviseModelParameters class object,
+    # i.e. p = SuperviseModelParameters$new()
+    initialize = function(p) {
+      set.seed(43)
+      super$initialize(p)
     },
     
     getOutDf = function() {
@@ -388,31 +352,81 @@ KmeansClustering <- R6Class("KmeansClustering",
       
       # Check if pca is required
       if (self$params$pca == TRUE) {
-        self$pcaAnalysis()
+        private$pcaAnalysis()
       }
       
       # check whether to use principle components or not
       if (!is.null(self$params$numOfPrinComp))
-        self$prinCompDf()
+        private$prinCompDf()
       
       # Find elbow  
-      self$findElbow()
+      private$findElbow()
       
       # Build Model
-      self$buildClusters()
+      private$buildClusters()
       
       # Plot the clusters
       # self$plotClusters()
       
       # Present confusion matrix
-      self$calculateConfusion()
+      private$calculateConfusion()
       
-      # 
-      self$createDf()
+      # Assign labels to the clusters
+      private$assignClusterLabels()
+      
+      # generate the df ready for output
+      private$createDf()
       
       # save model
       #private$saveModel()
     
+    },
+    
+    ## TODO: load data to make sure the newdf have the same format as df
+    getLabelOfNewdf = function(x) {
+      ## load data
+      x <- scale(x)
+      print(x)
+      print(private$centers)
+      # compute squared euclidean distance from each sample to each cluster center
+      tmp <- sapply(seq_len(nrow(x)),
+                    function(i) apply(private$centers, 1,
+                                      function(v) sum((x[i, ] - v)^2)))
+      max.col(-t(tmp))  # find index of min distance
+    },
+    
+    
+    #scree plot
+    getScreePlot = function() {
+      plot(private$prop_varex, xlab = "Principal Component",
+           ylab = "Proportion of Variance Explained", type = "b", pch = 19)
+    },
+    
+    # generawte elbow plot for k = 2 to k = 15
+    getElbowPlot = function(df) {
+      k.max <- 15 # Maximal number of clusters
+      data <- scale(self$params$df)
+      wss <- sapply(1:k.max, 
+                    function(k){kmeans(data, k, nstart = 10 )$tot.withinss})
+      plot(1:k.max, wss,
+           type = "b", pch = 19, frame = FALSE, 
+           xlab = "Number of clusters K",
+           ylab = "Total within-clusters sum of squares")
+      abline(v = private$vnum, lty = 2)
+    },
+    
+    plotClusters = function() {
+      df.stand <- scale(self$params$df)
+      k.means.fit <- self$getKmeansfit()
+      clusplot(df.stand, k.means.fit$cluster, main = '2D representation of the Cluster solution',
+               color = TRUE, shade = TRUE, lines = 0)
+    },
+    
+    # Plot Silhouette plot
+    silhouettePlot = function() {
+      dis <- dist(scale(self$params$df), method = "euclidean")
+      k.means.fit <- self$getKmeansfit()
+      plot(silhouette(k.means.fit$cluster,dis))
     },
     
     getKmeansfit = function() {
@@ -421,6 +435,10 @@ KmeansClustering <- R6Class("KmeansClustering",
     
     getConfusionMatrix = function() {
       return(private$confusionMatrix)
+    },
+    
+    getClusterLabels = function() {
+      return(private$cluster.labels)
     }
     
   )

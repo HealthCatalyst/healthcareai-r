@@ -75,8 +75,8 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
       if (!is.null(p$numOfPrinComp))
         self$params$numOfPrinComp <- p$numOfPrinComp
       
-      if (!is.null(p$printResults))
-        self$params$printResults <- p$printResults
+      # if (!is.null(p$printResults))
+      #   self$params$printResults <- p$printResults
       
       if (!is.null(p$cores))
         self$params$cores <- p$cores
