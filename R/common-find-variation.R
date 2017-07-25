@@ -500,9 +500,9 @@ getPipedValue <- function(string) {
 #' 
 #' #########################################################################
 #' set.seed(35)                      
-#' treatment = c(rep("A", 20) , rep("B", 20) , rep("C", 20), rep("D", 20) ,  rep("E", 20))
-#' value = c( sample(2:5, 20 , replace = TRUE) , sample(6:10, 20 , replace = TRUE), 
-#'         sample(1:7, 20 , replace = TRUE), sample(3:10, 20 , replace = TRUE) , 
+#' treatment = c(rep("A", 50) , rep("B", 20) , rep("C", 40), rep("D", 80) ,  rep("E", 20))
+#' value = c( sample(2:5, 50 , replace = TRUE) , sample(6:10, 20 , replace = TRUE), 
+#'         sample(1:7, 40 , replace = TRUE), sample(3:10, 80 , replace = TRUE) , 
 #'         sample(10:20, 20 , replace = TRUE) )
 #' df1 = data.frame(treatment,value) ## This data set has two columns, one measure
 #'                                   ## column value and one categorical column treatment.
@@ -880,7 +880,7 @@ variationAcrossGroups <- function(df,
     model <- lm(df[[measureColumn[i]]] ~ interaction(l))
     ANOVA <- aov(model)
     # Tukey test to study each pair of treatment :
-    TUKEY <- TukeyHSD(x = ANOVA, conf.level = 0.95)
+    TUKEY <- TukeyHSD(x = ANOVA, 'interaction(l)',conf.level = 0.95, ordered = TRUE)
     labs <- generate_label_df(TUKEY, 'interaction(l)')
     if (nrow(labs) > 2) {
       labs <- labs[levels(interaction(l)),]
@@ -922,7 +922,7 @@ variationAcrossGroups <- function(df,
     tab <- TUKEY$`interaction(l)`
     
     if (nrow(tab) != 1) {
-      tab <- tab[order(tab[,4]),]
+      tab <- tab[order(tab[,4],-tab[,2]),]
     }
     
     TUKEY$`interaction(l)` <- tab
