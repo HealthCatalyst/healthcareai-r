@@ -115,6 +115,9 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
 
       if (!is.null(p$xgb_params))
         self$params$xgb_params <- p$xgb_params
+      
+      if (!is.null(p$modelName))
+        self$params$modelName <- p$modelName
 
       #Set additional settings
       if (isTRUE(self$params$debug)) {
@@ -197,16 +200,13 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       
       # Remove factors levels which don't actually occur in the training data
       # Different case for single column vs. multiple columns
-      # Skip for xgboost until factor issues have been fixed (see #491)
-      if (self$params$type != "multiclass"){
-        factors <- sapply(self$params$df, is.factor)
-        if (is.data.frame(self$params$df[, factors])) { # multiple columns
-          self$params$df[, factors] <- lapply(self$params$df[, factors], as.character)
-          self$params$df[, factors] <- lapply(self$params$df[, factors], as.factor)
-        } else {# single column
-          self$params$df[, factors] <- sapply(self$params$df[, factors], as.character)
-          self$params$df[, factors] <- sapply(self$params$df[, factors], as.factor)
-        }
+      factors <- sapply(self$params$df, is.factor)
+      if (is.data.frame(self$params$df[, factors])) { # multiple columns
+        self$params$df[, factors] <- lapply(self$params$df[, factors], as.character)
+        self$params$df[, factors] <- lapply(self$params$df[, factors], as.factor)
+      } else {# single column
+        self$params$df[, factors] <- sapply(self$params$df[, factors], as.character)
+        self$params$df[, factors] <- sapply(self$params$df[, factors], as.factor)
       }
 
       # Check for factor levels which occur infrequently
@@ -344,6 +344,9 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         }
       }
       
+      # Add factor levels (calculated in SMD) to fitLogit object
+      self$modelInfo$factorLevels <- private$factorLevels 
+      
       # Print warning about factors with levels that occur infrequently
       if (length(missingLevels) > 0) {
         warning('The following categorical variable levels were not used in ',
@@ -367,7 +370,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       }
       
       if (self$params$type == 'classification') {
-        private$fitLogit <- glm(
+        self$modelInfo$fitLogit <- glm(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
           data = self$params$df,
           family = binomial(link = "logit"),
@@ -377,16 +380,33 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         )
         
       } else if (self$params$type == 'regression') {
-        private$fitLogit <- glm(
+        self$modelInfo$fitLogit <- glm(
           as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
           data = self$params$df,
           metric = "RMSE",
           control = list(maxit = 10000)
         )
       }
+    },
+    
+    saveModel = function(fitModel) {
+      if (isTRUE(self$params$debug)) {
+        cat("Saving model...","\n")
+      }
       
-      # Add factor levels (calculated in SMD) to fitLogit object
-      private$fitLogit$factorLevels <- private$factorLevels 
+      # Get model and associated information
+      fitObj <- fitModel
+      modelInfo <- self$modelInfo
+      
+      # Set file names for model and associated information
+      fitObjFile <- paste("rmodel_probability_", self$params$modelName, ".rda", 
+                          sep = "")
+      modelInfoFile <- paste("rmodel_info_", self$params$modelName, ".rda", 
+                             sep = "")
+
+      # Save model and associated information
+      save(fitObj, file = fitObjFile)
+      save(modelInfo, file = modelInfoFile)
     }
   ),
 
@@ -399,6 +419,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
     #parameters
     params = NA,
     trainIndex = NA,
+    modelInfo = list(),
 
     ###########
     # Functions

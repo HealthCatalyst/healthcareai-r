@@ -399,7 +399,6 @@ LassoDeployment <- R6Class(
     outDf = NA,
     
     fitGrLasso = NA,
-    fitLogit = NA,
     indLambda1se = NA,
     lambda1se = NA,
     modFmla = NA,
@@ -441,7 +440,7 @@ LassoDeployment <- R6Class(
     
     calculateCoeffcients = function() {
       # Do semi-manual calc to rank cols by order of importance
-      coeffTemp <- private$fitLogit$coefficients
+      coeffTemp <- self$modelInfo$fitLogit$coefficients
 
       if (isTRUE(self$params$debug)) {
         cat("Coefficients for the default logit (for ranking var import)", '\n')
@@ -493,26 +492,20 @@ LassoDeployment <- R6Class(
     # i.e. p = SupervisedModelDeploymentParams$new()
     initialize = function(p) {
       super$initialize(p)
+      if (is.null(self$params$modelName)) {
+        self$params$modelName = "lasso" 
+      }
     },
 
     #Override: deploy the model
     deploy = function() {
 
       # Try to load the model
-      tryCatch({
-        load("rmodel_var_import_lasso.rda")  # Produces fitLogit object
-        private$fitLogit <- fitLogit
-        load("rmodel_probability_lasso.rda") # Produces fit object (for probability)
-          private$fitGrLasso <- fitObj
-          private$modMat <- fitObj$modMat
-          private$modFmla <- fitObj$modFmla
-          fitObj$modMat <- NULL
-          fitObj$modFmla <- NULL
-       }, error = function(e) {
-        # temporary fix until all models are working.
-        stop('You must use a saved model. Run lasso development to train and save
-              the model, then lasso deployment to make predictions. See ?LassoDeployment')
-      })
+      super$loadModelAndInfo(modelFullName = "Lasso")
+      private$fitGrLasso <- private$fitObj
+      private$modMat <- private$fitObj$modMat
+      private$modFmla <- private$fitObj$modFmla
+      private$fitObj <- NULL
       
       # Make sure factor columns have the training data factor levels
       super$formatFactorColumns()
