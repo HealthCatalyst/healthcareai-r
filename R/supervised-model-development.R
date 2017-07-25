@@ -77,15 +77,25 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         self$params$type <- p$type
 
         # validation on type string values
-        if (self$params$type != 'regression' && self$params$type != 'classification' && self$params$type != 'multiclass') {
+        if (self$params$type != 'regression' 
+            && self$params$type != 'classification' 
+            && self$params$type != 'multiclass') {
           stop('Your type must be regression, classification, or multiclass')
         }
-        if (self$params$type =='classification' && isBinary(self$params$df[[self$params$predictedCol]]) == FALSE){
+        if (self$params$type == 'classification' 
+            && !isBinary(self$params$df[[self$params$predictedCol]])) {
           stop('Dependent variable must be binary for classification')
         }
-        if (self$params$type =='regression' && isBinary(self$params$df[[self$params$predictedCol]]) == TRUE){
+        if (self$params$type == 'regression' 
+            && isBinary(self$params$df[[self$params$predictedCol]])) {
           stop('Dependent variable cannot be binary for regression')
         }
+        if (self$params$type == 'classification' 
+            && isBinary(self$params$df[[self$params$predictedCol]])
+            && !isTargetYN(self$params$df[[self$params$predictedCol]])) {
+          stop('predictedCol must be Y/N. IIF function in sql may help')
+        }
+        
       }
 
       if (!is.null(p$impute))
@@ -105,6 +115,9 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
 
       if (!is.null(p$xgb_params))
         self$params$xgb_params <- p$xgb_params
+      
+      if (!is.null(p$modelName))
+        self$params$modelName <- p$modelName
 
       #Set additional settings
       if (isTRUE(self$params$debug)) {
@@ -184,7 +197,39 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       # Convert to data.frame (in case of data.table)
       # This also converts chr cols to (needed) factors
       self$params$df <- as.data.frame(unclass(self$params$df))
+      
+      # Remove factors levels which don't actually occur in the training data
+      # Different case for single column vs. multiple columns
+      factors <- sapply(self$params$df, is.factor)
+      if (is.data.frame(self$params$df[, factors])) { # multiple columns
+        self$params$df[, factors] <- lapply(self$params$df[, factors], as.character)
+        self$params$df[, factors] <- lapply(self$params$df[, factors], as.factor)
+      } else {# single column
+        self$params$df[, factors] <- sapply(self$params$df[, factors], as.character)
+        self$params$df[, factors] <- sapply(self$params$df[, factors], as.factor)
+      }
 
+      # Check for factor levels which occur infrequently
+      lowLevels = list()
+      tempDf = self$params$df
+      for (col in names(tempDf)) {
+        if (is.factor(tempDf[, col])) {
+          tab <- table(tempDf[, col])
+          if (any(tab <= 3)) {
+            lowLevels[[col]] <- names(tab)[tab <= 3]  
+          }
+        }
+      }
+      
+      # Print warning about factors with levels that occur infrequently
+      if (length(lowLevels) > 0) {
+        warning('Each of the following categorical variable levels occurs 3 ', 
+                'times or fewer:\n',
+                paste('- ', names(lowLevels), ":", lowLevels, collapse = "\n"),
+                '\nThere is a chance that the model will not train on all of ',
+                'them. Consider grouping these together with other levels.')
+      }
+      
       if (isTRUE(self$params$debug)) {
         print('Entire data set after converting to df and chr to factor')
         print(str(self$params$df))
@@ -279,22 +324,89 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       private$dfTrainRaw <- private$dfTrain
       private$dfTrainRaw[[self$params$predictedCol]] <- NULL
 
-      # Get factor levels as a private attribute
+      # Get factor levels as a private attribute and find levels which don't
+      # make it into the training data
       private$factorLevels <- list()
+      missingLevels <- list()
       for (col in names(private$dfTrainRaw)) {
         # only keep factor variables other than response variable
         if ((is.factor(private$dfTrainRaw[, col])) 
             & (col != self$params$predictedCol)
             & (col != self$params$personCol)) {
           # add levels to list
-          private$factorLevels[col] <- list(levels(private$dfTrainRaw[, col]))
+          devLevels <- levels(private$dfTrainRaw[, col])
+          private$factorLevels[col] <- list(devLevels)
+          # check for levels that are not in the train set
+          trainLevels <- levels(as.factor(as.character(private$dfTrainRaw[, col])))
+          if (length(devLevels[!devLevels %in% trainLevels]) > 0) {
+            missingLevels[[col]] <- devLevels[!devLevels %in% trainLevels]
+          }
         }
+      }
+      
+      # Add factor levels (calculated in SMD) to fitLogit object
+      self$modelInfo$factorLevels <- private$factorLevels 
+      
+      # Print warning about factors with levels that occur infrequently
+      if (length(missingLevels) > 0) {
+        warning('The following categorical variable levels were not used in ',
+                'training the model:\n',
+                paste('- ', names(missingLevels), ":", missingLevels, 
+                      collapse = "\n")
+                )
       }
 
       if (isTRUE(self$params$debug)) {
         print('Factor levels for top factor calculation')
         print(str(private$factorLevels))
       }
+    }, 
+    
+    # This function must be in here for the row-wise predictions and
+    # can be replaced when LIME-like functionality is complete.
+    fitGeneralizedLinearModel = function() {
+      if (isTRUE(self$params$debug)) {
+        cat('generating fitLogit for row-wise guidance...',"\n")
+      }
+      
+      if (self$params$type == 'classification') {
+        self$modelInfo$fitLogit <- glm(
+          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
+          data = self$params$df,
+          family = binomial(link = "logit"),
+          metric = "ROC",
+          control = list(maxit = 10000),
+          trControl = trainControl(classProbs = TRUE, summaryFunction = twoClassSummary)
+        )
+        
+      } else if (self$params$type == 'regression') {
+        self$modelInfo$fitLogit <- glm(
+          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
+          data = self$params$df,
+          metric = "RMSE",
+          control = list(maxit = 10000)
+        )
+      }
+    },
+    
+    saveModel = function(fitModel) {
+      if (isTRUE(self$params$debug)) {
+        cat("Saving model...","\n")
+      }
+      
+      # Get model and associated information
+      fitObj <- fitModel
+      modelInfo <- self$modelInfo
+      
+      # Set file names for model and associated information
+      fitObjFile <- paste("rmodel_probability_", self$params$modelName, ".rda", 
+                          sep = "")
+      modelInfoFile <- paste("rmodel_info_", self$params$modelName, ".rda", 
+                             sep = "")
+
+      # Save model and associated information
+      save(fitObj, file = fitObjFile)
+      save(modelInfo, file = modelInfoFile)
     }
   ),
 
@@ -307,6 +419,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
     #parameters
     params = NA,
     trainIndex = NA,
+    modelInfo = list(),
 
     ###########
     # Functions

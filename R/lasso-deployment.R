@@ -399,7 +399,6 @@ LassoDeployment <- R6Class(
     outDf = NA,
     
     fitGrLasso = NA,
-    fitLogit = NA,
     indLambda1se = NA,
     lambda1se = NA,
     modFmla = NA,
@@ -439,51 +438,9 @@ LassoDeployment <- R6Class(
       }
     },
     
-    prepareDataForVarImp = function(){
-      # Manually Assign factor levels based on which ones were present in training.
-      private$dfTestRaw <- self$params$df
-      factorLevels <- private$fitLogit$factorLevels
-      
-      # Checking to see if there are new levels in test data vs. training data.
-      newLevels <- list()
-      for (col in names(private$fitLogit$factorLevels)) {
-        # find new levels not seen in training data
-        testLevels <- levels(private$dfTestRaw[[col]])
-        newLevels[col] <- testLevels[!testLevels %in% factorLevels[[col]]]
-        # Assign new factors, setting new levels in test to NA
-        private$dfTestRaw[[col]] <- factor(private$dfTestRaw[[col]],
-                                           levels = factorLevels[[col]],
-                                           ordered = FALSE)
-        # Set new levels to NA
-        private$dfTestRaw[[col]][!(private$dfTestRaw[[col]] %in% factorLevels[[col]])] <- NA
-        # Set factor levels to training data levels
-        levels(private$dfTestRaw[[col]]) <- factorLevels[[col]]
-      }
-      
-      if (length(newLevels) > 0) {
-        warning('The following new categorical values were found: \n',
-                newLevels,
-                '\n These values have been set to NA.')
-      }
-      
-      if (isTRUE(self$params$debug)) {
-        print('Raw data set after setting factors:')
-        print(str(private$dfTestRaw))
-      }
-      
-      # Split factor columns into dummy columns (for use in deploypred method)
-      data <- dummyVars(~., data = private$dfTestRaw, fullRank = T)
-      private$dfTestRaw <- data.frame(predict(data, newdata = private$dfTestRaw, na.action = na.pass))
-      
-      if (isTRUE(self$params$debug)) {
-        print('Raw data set after creating dummy vars (for top 3 factors only)')
-        print(str(private$dfTestRaw))
-      }
-    },
-    
     calculateCoeffcients = function() {
       # Do semi-manual calc to rank cols by order of importance
-      coeffTemp <- private$fitLogit$coefficients
+      coeffTemp <- self$modelInfo$fitLogit$coefficients
 
       if (isTRUE(self$params$debug)) {
         cat("Coefficients for the default logit (for ranking var import)", '\n')
@@ -517,7 +474,7 @@ LassoDeployment <- R6Class(
       
       if (isTRUE(self$params$debug)) {
         cat("Data frame after getting column importance ordered", '\n')
-        print(head(private$orderedFactors, n=10))
+        print(head(private$orderedFactors, n = 10))
       }
     },
 
@@ -579,26 +536,20 @@ LassoDeployment <- R6Class(
     # i.e. p = SupervisedModelDeploymentParams$new()
     initialize = function(p) {
       super$initialize(p)
+      if (is.null(self$params$modelName)) {
+        self$params$modelName = "lasso" 
+      }
     },
 
     #Override: deploy the model
     deploy = function() {
 
       # Try to load the model
-      tryCatch({
-        load("rmodel_var_import_lasso.rda")  # Produces fitLogit object
-        private$fitLogit <- fitLogit
-        load("rmodel_probability_lasso.rda") # Produces fit object (for probability)
-          private$fitGrLasso <- fitObj
-          private$modMat <- fitObj$modMat
-          private$modFmla <- fitObj$modFmla
-          fitObj$modMat <- NULL
-          fitObj$modFmla <- NULL
-       }, error = function(e) {
-        # temporary fix until all models are working.
-        stop('You must use a saved model. Run lasso development to train and save
-              the model, then lasso deployment to make predictions. See ?LassoDeployment')
-      })
+      super$loadModelAndInfo(modelFullName = "Lasso")
+      private$fitGrLasso <- private$fitObj
+      private$modMat <- private$fitObj$modMat
+      private$modFmla <- private$fitObj$modFmla
+      private$fitObj <- NULL
       
       # Make sure factor columns have the training data factor levels
       super$formatFactorColumns()
