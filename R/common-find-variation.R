@@ -437,7 +437,7 @@ getPipedValue <- function(string) {
 #' @param printTukeyplot Optinal, default is FALSE. If TRUE, presents the plot 
 #' returned by the Tukey's test.
 #' @param printTable Optional, default is TRUE. FALSE: not to show the table of  
-#' mean/std and quartiles 
+#' mean/std and quartiles and the table of p values.
 #' @param boxplotStats Optinal, defalut is FALSE. If TRUE, returns the statistics
 #' behindthe boxplot.
 #' @param dateCol Optional. A date(time) column to group by (done by month) 
@@ -1022,7 +1022,7 @@ variationAcrossGroups <- function(df,
   }
   
   if (printTable == FALSE && boxplotStats == FALSE) {
-    return(0)
+    return()
   }
   
 
