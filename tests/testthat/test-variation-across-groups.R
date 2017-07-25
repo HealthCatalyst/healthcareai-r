@@ -8,22 +8,34 @@ test_that("One cat column, one measure col, and no date columns give correct df"
                                  categoricalCols = "Gender",
                                  measureColumn = "LOS")
   
-  dfRes <- data.frame(lapply(dfRes, as.character))
+  dfRes[[1]] <- data.frame(lapply(dfRes[[1]], as.character), stringsAsFactors = FALSE)
+  dfRes[[2]] <- data.frame(lapply(dfRes[[2]], as.character), stringsAsFactors = FALSE)
   
-  expected <- data.frame(measure = c('LOS','LOS'),
-                         group = c('F','M'),
-                         Mean = c('5.3','2.9'),
-                         Std = c('2.57','1.90'),
-                         SE = c('2.06','1.53'),
-                         Min = c('3.2', '1.3'),
-                         Q1 = c('3.80', '1.85'),
-                         Median = c('4.5','2.4'),
-                         Q3 = c('6.0', '3.7'),
-                         Max = c('9','5'))
+  df1 <- data.frame(Measure = 'LOS',
+                    Groups = 'M-F', 
+                    p_value = '0.234984',
+                    stringsAsFactors = FALSE)
+  
+  df2 <- data.frame(measure = c('LOS','LOS'),
+                    group = c('F','M'),
+                    Mean = c('5.3','2.9'),
+                    Std = c('2.57','1.90'),
+                    SE = c('2.06','1.53'),
+                    Min = c('3.2', '1.3'),
+                    Q1 = c('3.80', '1.85'),
+                    Median = c('4.5','2.4'),
+                    Q3 = c('6.0', '3.7'),
+                    Max = c('9','5'),
+                    stringsAsFactors = FALSE)
+  
+  expected <- list(df1,df2)
+  names(expected) <- c("P value for each pair of groups", "Basic statistics of each group")
+    
+    
   
   # Drop row names, so the two dfs can match w/o specifying row names explicitly
-  rownames(dfRes) <- c()
-  rownames(expected) <- c()
+  rownames(dfRes[[1]]) <- c(); rownames(dfRes[[2]]) <- c()
+  rownames(expected[[1]]) <- c(); rownames(expected[[2]]) <- c()
   
   testthat::expect_equal(dfRes,expected)
 })
@@ -37,22 +49,36 @@ test_that("One cat column, one measure col, and no date col and NA in cat col
                                            categoricalCols = "Gender",
                                            measureColumn = "LOS")
             
-            dfRes <- data.frame(lapply(dfRes, as.character), stringsAsFactors = FALSE)
+            dfRes[[1]] <- data.frame(lapply(dfRes[[1]], as.character), 
+                                     stringsAsFactors = FALSE)
+            dfRes[[2]] <- data.frame(lapply(dfRes[[2]], as.character), 
+                                     stringsAsFactors = FALSE)
             
-            expected <- data.frame(measure = c('LOS','LOS'),
-                                   group = c('F','M'),
-                                   Mean = c('4.07','2.90'),
-                                   Std = c('0.902','1.900'),
-                                   SE = c('4.51','1.53'),
-                                   Min = c('3.2', '1.3'),
-                                   Q1 = c('3.60', '1.85'),
-                                   Median = c('4.0','2.4'),
-                                   Q3 = c('4.5', '3.7'),
-                                   Max = c('5','5'),
-                                   stringsAsFactors = FALSE)
+            df1 <- data.frame(Measure = 'LOS',
+                              Groups = 'M-F', 
+                              p_value = '0.391063',
+                              stringsAsFactors = FALSE)
             
-            rownames(dfRes) <- c()
-            rownames(expected) <- c()
+            df2 <- data.frame(measure = c('LOS','LOS'),
+                              group = c('F','M'),
+                              Mean = c('4.07','2.90'),
+                              Std = c('0.902','1.900'),
+                              SE = c('4.51','1.53'),
+                              Min = c('3.2', '1.3'),
+                              Q1 = c('3.60', '1.85'),
+                              Median = c('4.0','2.4'),
+                              Q3 = c('4.5', '3.7'),
+                              Max = c('5','5'),
+                              stringsAsFactors = FALSE)
+            
+            expected <- list(df1,df2)
+            names(expected) <- c("P value for each pair of groups", 
+                                 "Basic statistics of each group")
+          
+            
+            # Drop row names, so the two dfs can match w/o specifying row names explicitly
+            rownames(dfRes[[1]]) <- c(); rownames(dfRes[[2]]) <- c()
+            rownames(expected[[1]]) <- c(); rownames(expected[[2]]) <- c()
             
             testthat::expect_equal(dfRes,expected)
             })
@@ -70,22 +96,46 @@ test_that("Two cat columns and no date columns give correct df", {
                                  categoricalCols = categoricalCols,
                                  measureColumn = "LOS")
   
-  dfRes <- data.frame(lapply(dfRes, as.character), stringsAsFactors = FALSE)
+  dfRes[[1]] <- data.frame(lapply(dfRes[[1]], as.character), 
+                           stringsAsFactors = FALSE)
+  dfRes[[2]] <- data.frame(lapply(dfRes[[2]], as.character), 
+                           stringsAsFactors = FALSE)
   
-  expected <- data.frame(measure = c('LOS','LOS','LOS','LOS','LOS','LOS'),
-                         group = c('B.Female','C.Male','A.Female','C.Female','A.Male','B.Male'),
-                         Mean = c(' 8.27',' 6.80',' 7.31',' 8.44',' 8.53','12.03'),
-                         Std = c('7.27','6.91','7.21','6.86','6.03','7.19'),
-                         SE = c('1.138','0.984','1.014','1.230','1.415','1.673'),
-                         Min = c('-1.568', '-1.844',' 0.221','-0.676',' 0.315','-0.616'),
-                         Q1 = c('1.172', '0.497','0.854','1.227','5.344','9.191'),
-                         Median = c(' 8.66',' 6.28',' 3.27',' 7.47',' 9.81','12.07'),
-                         Q3 = c('14.6', '12.7','14.9','15.4','11.1','15.9'),
-                         Max = c('19.6','20.6','16.6','19.2','19.3','23.1'),
-                         stringsAsFactors = FALSE)
+  df1 <- data.frame(Measure = c('LOS','LOS','LOS','LOS','LOS','LOS',
+                                'LOS','LOS','LOS','LOS','LOS','LOS',
+                                'LOS','LOS','LOS'),
+                    Groups = c('C.Male-B.Male', 'A.Female-B.Male','C.Female-B.Male',
+                               'B.Female-B.Male','B.Male-A.Male','C.Female-C.Male',
+                               "C.Male-A.Male","B.Female-C.Male","C.Female-A.Female",
+                               "A.Female-A.Male","B.Female-A.Female","A.Female-C.Male",  
+                               "B.Female-A.Male","C.Female-B.Female","C.Female-A.Male" ), 
+                    p_value = c("0.401138","0.686254","0.787918","0.841090","0.902915",
+                                "0.941093","0.985462","0.988487","0.997409","0.998782",
+                                "0.999447","0.999937","0.999999","1.000000","1.000000"),
+                    stringsAsFactors = FALSE)
   
-  rownames(dfRes) <- c()
-  rownames(expected) <- c()
+
+  
+  df2 <- data.frame(measure = c('LOS','LOS','LOS','LOS','LOS','LOS'),
+                    group = c('B.Female','C.Male','A.Female','C.Female','A.Male','B.Male'),
+                    Mean = c(' 8.27',' 6.80',' 7.31',' 8.44',' 8.53','12.03'),
+                    Std = c('7.27','6.91','7.21','6.86','6.03','7.19'),
+                    SE = c('1.138','0.984','1.014','1.230','1.415','1.673'),
+                    Min = c('-1.568', '-1.844',' 0.221','-0.676',' 0.315','-0.616'),
+                    Q1 = c('1.172', '0.497','0.854','1.227','5.344','9.191'),
+                    Median = c(' 8.66',' 6.28',' 3.27',' 7.47',' 9.81','12.07'),
+                    Q3 = c('14.6', '12.7','14.9','15.4','11.1','15.9'),
+                    Max = c('19.6','20.6','16.6','19.2','19.3','23.1'),
+                    stringsAsFactors = FALSE)
+  
+  expected <- list(df1,df2)
+  names(expected) <- c("P value for each pair of groups", 
+                       "Basic statistics of each group")
+  
+  
+  # Drop row names, so the two dfs can match w/o specifying row names explicitly
+  rownames(dfRes[[1]]) <- c(); rownames(dfRes[[2]]) <- c()
+  rownames(expected[[1]]) <- c(); rownames(expected[[2]]) <- c()
   
   testthat::expect_equal(dfRes,expected)
   
@@ -111,9 +161,25 @@ test_that("One cat col, one measure col, and one date col give correct df", {
                          measureColumn = "LOS",
                          dateCol = 'StartDTS')
   
-  dfRes <- data.frame(lapply(dfRes, as.character), stringsAsFactors = FALSE)
+  dfRes[[1]] <- data.frame(lapply(dfRes[[1]], as.character), 
+                           stringsAsFactors = FALSE)
+  dfRes[[2]] <- data.frame(lapply(dfRes[[2]], as.character), 
+                           stringsAsFactors = FALSE)
   
-  expected <- data.frame(measure = c('LOS','LOS','LOS','LOS','LOS','LOS'),
+  df1 <- data.frame(Measure = c('LOS','LOS','LOS','LOS','LOS','LOS',
+                                'LOS','LOS','LOS','LOS','LOS','LOS',
+                                'LOS','LOS','LOS'),
+                    Groups = c('F.2012/03-M.2012/01','F.2012/02-M.2012/01','M.2012/03-M.2012/01',
+                               'M.2012/02-M.2012/01','F.2012/03-F.2012/01','F.2012/02-F.2012/01',
+                               "M.2012/01-F.2012/01","F.2012/03-M.2012/02","M.2012/03-F.2012/03",
+                               "M.2012/03-F.2012/01","M.2012/02-F.2012/01","M.2012/02-F.2012/02",  
+                               "M.2012/03-F.2012/02","F.2012/03-F.2012/02","M.2012/03-M.2012/02" ), 
+                    p_value = c("0.690788","0.760393","0.923330","0.923330","0.935469",
+                                "0.967513","0.987223","0.994585","0.994585","0.998789",
+                                "0.998789","0.998831","0.998831","0.999984","1.000000"),
+                    stringsAsFactors = FALSE)
+  
+  df2 <- data.frame(measure = c('LOS','LOS','LOS','LOS','LOS','LOS'),
                          group = c('F.2012/01','M.2012/02','M.2012/01','F.2012/03','M.2012/03','F.2012/02'),
                          Mean = c('3.40','4.10','2.10','5.00','4.10','4.75'),
                          Std = c('1.510','2.476','0.424','2.708','2.265','2.500'),
@@ -126,8 +192,14 @@ test_that("One cat col, one measure col, and one date col give correct df", {
                          stringsAsFactors = FALSE)
   
   
-  rownames(dfRes) <- c()
-  rownames(expected) <- c()
+  expected <- list(df1,df2)
+  names(expected) <- c("P value for each pair of groups", 
+                       "Basic statistics of each group")
+  
+  
+  # Drop row names, so the two dfs can match w/o specifying row names explicitly
+  rownames(dfRes[[1]]) <- c(); rownames(dfRes[[2]]) <- c()
+  rownames(expected[[1]]) <- c(); rownames(expected[[2]]) <- c()
   
   testthat::expect_equal(dfRes,expected)
 })
@@ -142,9 +214,17 @@ test_that("One cat column, two measure col, and no date columns give
                                    categoricalCols = "Gender",
                                    measureColumn = c("LOS","BP"))
             
-            dfRes <- data.frame(lapply(dfRes, as.character), stringsAsFactors = FALSE)
+            dfRes[[1]] <- data.frame(lapply(dfRes[[1]], as.character), 
+                                     stringsAsFactors = FALSE)
+            dfRes[[2]] <- data.frame(lapply(dfRes[[2]], as.character), 
+                                     stringsAsFactors = FALSE)
             
-            expected <- data.frame(measure = c('LOS','LOS','BP','BP'),
+            df1 <- data.frame(Measure = c('LOS','BP'),
+                              Groups = c('M-F','M-F'), 
+                              p_value = c("0.234984","0.804558"),
+                              stringsAsFactors = FALSE)
+            
+            df2 <- data.frame(measure = c('LOS','LOS','BP','BP'),
                                    group = c('F','M','F','M'),
                                    Mean = c('  5.3','  2.9','121.5','109.7'),
                                    Std = c(' 2.57',' 1.90','44.98','34.93'),
@@ -156,9 +236,14 @@ test_that("One cat column, two measure col, and no date columns give
                                    Max = c('  9','  5','160','150'),
                                    stringsAsFactors = FALSE)
             
+            expected <- list(df1,df2)
+            names(expected) <- c("P value for each pair of groups", 
+                                 "Basic statistics of each group")
             
-            rownames(dfRes) <- c()
-            rownames(expected) <- c()
+            
+            # Drop row names, so the two dfs can match w/o specifying row names explicitly
+            rownames(dfRes[[1]]) <- c(); rownames(dfRes[[2]]) <- c()
+            rownames(expected[[1]]) <- c(); rownames(expected[[2]]) <- c()
             
             # Reset factor levels of both dataframes (as we don't care if they're equal)
             testthat::expect_equal(dfRes,expected)
@@ -188,9 +273,35 @@ test_that("One cat col, two measure cols, and one date col give correct df", {
                          measureColumn = c("LOS","BP"),
                          dateCol = 'StartDTS')
   
-  dfRes <- data.frame(lapply(dfRes, as.character), stringsAsFactors = FALSE)
+  dfRes[[1]] <- data.frame(lapply(dfRes[[1]], as.character), 
+                           stringsAsFactors = FALSE)
+  dfRes[[2]] <- data.frame(lapply(dfRes[[2]], as.character), 
+                           stringsAsFactors = FALSE)
   
-  expected <- data.frame(measure = c('LOS','LOS','LOS','LOS','LOS','LOS',
+  df1 <- data.frame(Measure = c('LOS','LOS','LOS','LOS','LOS','LOS',
+                                'LOS','LOS','LOS','LOS','LOS','LOS',
+                                'LOS','LOS','LOS','BP','BP','BP',
+                                'BP','BP','BP','BP','BP','BP',
+                                'BP','BP','BP','BP','BP','BP'),
+                    Groups = c('F.2012/03-M.2012/01','F.2012/02-M.2012/01','M.2012/03-M.2012/01',
+                               'M.2012/02-M.2012/01','F.2012/03-F.2012/01','F.2012/02-F.2012/01',
+                               "M.2012/01-F.2012/01","F.2012/03-M.2012/02","M.2012/03-F.2012/03",
+                               "M.2012/03-F.2012/01","M.2012/02-F.2012/01","M.2012/02-F.2012/02",  
+                               "M.2012/03-F.2012/02","F.2012/03-F.2012/02","M.2012/03-M.2012/02",
+                               'F.2012/03-F.2012/01','F.2012/03-M.2012/01','F.2012/03-F.2012/02',
+                               'M.2012/02-F.2012/01','M.2012/03-F.2012/01','M.2012/02-M.2012/01',
+                               "M.2012/03-M.2012/01","M.2012/02-F.2012/02","M.2012/03-F.2012/02",
+                               "M.2012/03-F.2012/03","F.2012/03-M.2012/02","F.2012/02-F.2012/01",  
+                               "F.2012/02-M.2012/01","M.2012/01-F.2012/01","M.2012/03-M.2012/02"), 
+                    p_value = c("0.690788","0.760393","0.923330","0.923330","0.935469",
+                                "0.967513","0.987223","0.994585","0.994585","0.998789",
+                                "0.998789","0.998831","0.998831","0.999984","1.000000",
+                                '0.963084','0.964873','0.987256','0.995431','0.995798',
+                                '0.995798','0.996142','0.999513','0.999581','0.999730',
+                                '0.999773','0.999909','0.999927','1.000000','1.000000'),
+                    stringsAsFactors = FALSE)
+  
+  df2 <- data.frame(measure = c('LOS','LOS','LOS','LOS','LOS','LOS',
                                      'BP','BP','BP','BP','BP','BP'),
                          group = c('F.2012/01','M.2012/02','M.2012/01','F.2012/03','M.2012/03','F.2012/02',
                                    'F.2012/01','M.2012/02','M.2012/01','F.2012/03','M.2012/03','F.2012/02'),
@@ -212,8 +323,14 @@ test_that("One cat col, two measure cols, and one date col give correct df", {
                                  '145.0','150.0','173.0','160.0','168.0','152.0'),
                          stringsAsFactors = FALSE)
   
-  rownames(dfRes) <- c()
-  rownames(expected) <- c()
+  expected <- list(df1,df2)
+  names(expected) <- c("P value for each pair of groups", 
+                       "Basic statistics of each group")
+  
+  
+  # Drop row names, so the two dfs can match w/o specifying row names explicitly
+  rownames(dfRes[[1]]) <- c(); rownames(dfRes[[2]]) <- c()
+  rownames(expected[[1]]) <- c(); rownames(expected[[2]]) <- c()
   
   testthat::expect_equal(dfRes,expected)
 })
@@ -331,25 +448,93 @@ test_that("One cat column, one measure col, and no date col, no NA gives correct
             dfRes <- variationAcrossGroups(df = df, 
                                            categoricalCols = "treatment", 
                                            measureColumn = "value",
-                                           printPlot = FALSE,
-                                           printTable = FALSE)
+                                           printTable = FALSE,
+                                           boxplotStats = TRUE)
             
-            expected <- list()
-            expected$stats <- matrix(c(2,3,4,5,5,6.0,7.0,7.5,9.5,10.0,2,4,5,6,7,
+            expected1 <- list()
+            expected1$stats <- matrix(c(2,3,4,5,5,6.0,7.0,7.5,9.5,10.0,2,4,5,6,7,
                                        3,5,6,9,10,
                                        10.0,13.0,15.0,17.5,19.0), nrow = 5, ncol = 5)
-            attributes(expected$stats)$class <- "integer"
-            names(attributes(expected$stats)$class) <- "A"
+            attributes(expected1$stats)$class <- "integer"
+            names(attributes(expected1$stats)$class) <- "A"
             
-            expected$n <- c(20,20,20,20,20)
-            expected$conf <- matrix(c(3.293403,4.706597,6.616753,8.383247,4.293403,
+            expected1$n <- c(20,20,20,20,20)
+            expected1$conf <- matrix(c(3.293403,4.706597,6.616753,8.383247,4.293403,
                                       5.706597,4.586805,
                                       7.413195,13.41016,16.58984), nrow = 2, ncol = 5)
             
             
-            expected$out <- numeric(0)
-            expected$group <- numeric(0)
-            expected$names <- c("A","B","C","D","E")
+            expected1$out <- numeric(0)
+            expected1$group <- numeric(0)
+            expected1$names <- c("A","B","C","D","E")
+            
+            expected <- list(expected1)
+            names(expected) <- "value"
+            
+            testthat::expect_equal(dfRes,expected,tolerance = 1e-6)
+          })
+
+
+test_that("One cat column, two measure col, and no date col, no NA gives correct 
+          boxplot", {
+            set.seed((35))
+            treatment <- c(rep("A", 20) , rep("B", 20) , rep("C", 20), rep("D", 20) ,  
+                           rep("E", 20))
+            value1 <- c(sample(2:5, 20 , replace = TRUE) , 
+                        sample(6:10, 20 , replace = TRUE), 
+                        sample(1:7, 20 , replace = TRUE), 
+                        sample(3:10, 20 , replace = TRUE) , 
+                        sample(10:20, 20 , replace = TRUE))
+            value2 <- c(sample(2:10, 20 , replace = TRUE) , 
+                        sample(8:20, 20 , replace = TRUE), 
+                        sample(3:9, 20 , replace = TRUE), 
+                        sample(1:6, 20 , replace = TRUE) , 
+                        sample(20:40, 20 , replace = TRUE))
+            
+            df <- data.frame(treatment,value1,value2)
+            
+            dfRes <- variationAcrossGroups(df = df, 
+                                           categoricalCols = "treatment", 
+                                           measureColumn = c("value1","value2"),
+                                           printTable = FALSE,
+                                           boxplotStats = TRUE)
+            
+            expected1 <- list()
+            expected1$stats <- matrix(c(2,3,4,5,5,6.0,7.0,7.5,9.5,10.0,2,4,5,6,7,
+                                        3,5,6,9,10,
+                                        10.0,13.0,15.0,17.5,19.0), nrow = 5, ncol = 5)
+            attributes(expected1$stats)$class <- "integer"
+            names(attributes(expected1$stats)$class) <- "A"
+            
+            expected1$n <- c(20,20,20,20,20)
+            expected1$conf <- matrix(c(3.293403,4.706597,6.616753,8.383247,4.293403,
+                                       5.706597,4.586805,
+                                       7.413195,13.41016,16.58984), nrow = 2, ncol = 5)
+            
+            
+            expected1$out <- numeric(0)
+            expected1$group <- numeric(0)
+            expected1$names <- c("A","B","C","D","E")
+            
+            expected2 <- list()
+            expected2$stats <- matrix(c(2.0,3.0,4.0,7.5,10.0,9.0,11.5,13.0,17.0,20.0,3.0,4.0,6.0,7.5,9.0,
+                                        1,3,4,5,6,
+                                        20.0,27.0,30.0,36.5,40.0), nrow = 5, ncol = 5)
+            attributes(expected2$stats)$class <- "integer"
+            names(attributes(expected2$stats)$class) <- "A"
+            
+            expected2$n <- c(20,20,20,20,20)
+            expected2$conf <- matrix(c(2.410156,5.589844,11.05686,14.94314,4.763454,
+                                       7.236546,3.293403,
+                                       4.706597,26.64366,33.35634), nrow = 2, ncol = 5)
+            
+            
+            expected2$out <- numeric(0)
+            expected2$group <- numeric(0)
+            expected2$names <- c("A","B","C","D","E")
+            
+            expected <- list(expected1,expected2)
+            names(expected) <- c("value1","value2")
             
             testthat::expect_equal(dfRes,expected,tolerance = 1e-6)
           })

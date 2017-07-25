@@ -438,15 +438,14 @@ getPipedValue <- function(string) {
 #' returned by the Tukey's test.
 #' @param printTable Optional, default is TRUE. FALSE: not to show the table of  
 #' mean/std and quartiles 
-#' @params boxplotStats Optinal, defalut is FALSE. If TRUE, returns the statistics
+#' @param boxplotStats Optinal, defalut is FALSE. If TRUE, returns the statistics
 #' behindthe boxplot.
 #' @param dateCol Optional. A date(time) column to group by (done by month) 
 #' @return A boxplot to compare variation across groups.
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @reference \url{https://cran.r-project.org/web/packages/multcompView/index.html}
-#' @seealso \code{\link{healthcareai}} \code{\link{calculateCOV}} 
-#' \code{\link{createVarianceTallTable}} \code{\link{findVariance}}
+#' @seealso \code{\link{healthcareai}} \code{\link{findVariation}} 
+#' @references \url{https://cran.r-project.org/web/packages/multcompView/index.html}
 #' @examples
 #' 
 #' ## Create the toy data set
@@ -459,7 +458,7 @@ getPipedValue <- function(string) {
 #'
 #' ## Define the parameters 
 #' categoricalCols <- c("Dept","Gender")
-#' measureColumn <- c("measure1","Lmeasure2")
+#' measureColumn <- c("measure1","measure2")
 #' 
 #' ## Call the function
 #' variationAcrossGroups(df = df, 
@@ -960,6 +959,7 @@ variationAcrossGroups <- function(df,
   for (i in 1:length(measureColumn)) {
     pvalRes <- rbind(pvalRes,pvalueDf[[i]])
   }
+  pvalRes <- format(pvalRes, digits = 6)
   
   if (printTable == TRUE) {
     
@@ -1016,12 +1016,12 @@ variationAcrossGroups <- function(df,
     
   }
   
-  if (printTalbe == FALSE && boxplotStats == TRUE) {
+  if (printTable == FALSE && boxplotStats == TRUE) {
     names(plotRes) <- measureColumn
     return(plotRes)
   }
   
-  if (printTalbe == FALSE && boxplotStats == FALSE) {
+  if (printTable == FALSE && boxplotStats == FALSE) {
     return(0)
   }
   
