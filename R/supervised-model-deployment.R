@@ -244,6 +244,52 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       print('Raw data set after creating dummy vars (for top 3 factors only)')
       print(str(private$dfTestRaw))
     }
+  }, 
+  
+  createDf = function() {
+    dtStamp <- as.POSIXlt(Sys.time())
+    
+    # number of top factors to include in outDf
+    # might want to replace 3 with a parameter that can be set
+    numFactors <- min(3, ncol(private$orderedFactors))
+    
+    # Combine grain.col, prediction, and time to be put back into SAM table
+    # TODO: use a common function to reduce lasso-specific code here
+    private$outDf <- data.frame(
+      0,    # BindingID
+      'R',  # BindingNM
+      dtStamp,                    # LastLoadDTS
+      private$grainTest,          # GrainID
+      private$predictions         # Predicted probabilty or predicted values
+    )    
+    
+    predictedResultsName <- ""
+    if (self$params$type == "classification") {
+      predictedResultsName <- "PredictedProbNBR"
+    } else if (self$params$type == "regression") {
+      predictedResultsName <- "PredictedValueNBR"
+    }
+    colnames(private$outDf) <- c(
+      "BindingID",
+      "BindingNM",
+      "LastLoadDTS",
+      self$params$grainCol,
+      predictedResultsName
+    )
+    
+    for (i in 1:numFactors) {
+      ithTopFactor <- paste("Factor", i, "TXT", sep = "")
+      private$outDf[[ithTopFactor]] <- private$orderedFactors[, i]
+    }
+    
+    # Remove row names so df can be written to DB
+    # TODO: in writeData function, find how to ignore row names
+    rownames(private$outDf) <- NULL
+    
+    if (isTRUE(self$params$debug)) {
+      cat('Dataframe with predictions:', '\n')
+      cat(str(private$outDf), '\n')
+    }
   }
 ),
 
