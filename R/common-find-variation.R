@@ -469,7 +469,7 @@ getPipedValue <- function(string) {
 #' ## above will return the boxplot, the 95% family-wise confidence interval plot, 
 #' ## as well as the tables. 
 #' ## In this example, the function returns
-#' ### Two boxplot
+#' ### Two boxplots
 #' ### 1. The boxplot of measure1 across the two factors, Dept and Gender
 #' ###    Dept has 3 levels: A, B, C
 #' ###    Gender has 2 levels: Male and Female
@@ -479,20 +479,20 @@ getPipedValue <- function(string) {
 #' ###    Levels that are not significantly different one each other are
 #' ###    represented with the same letter. The six boxes here all have letter "a",
 #' ###    meaning all the six levels here have the same mean.
-#' ### 2. The box plot of measure2 across the two factors, Dept and Gender
+#' ### 2. The boxplot of measure2 across the two factors, Dept and Gender
 #' ###    From this boxplot, we can conclude that the six levels have the 
-#' ###    same mean, or there is no significantly difference one each other
+#' ###    same mean, or there is no significant difference one each other
 #' ### 
 #' ### Two 95% family-wise confidence level plots
-#' ###    There are the plots that present the results returned by Tukey's test. 
+#' ###    These are the plots that present the results returned by Tukey's test. 
 #' ###    It allows to find means of a level that are significantly different 
 #' ###    from each other, comparing all possible pairs of means with a t-test 
-#' ###    like method. If for example, the means of the level of B.Frmale and B.Male
+#' ###    like method. If for example, the means of the levels of B.Female and B.Male
 #' ###    are significantly different, then the color of the line corresponding to
-#' ###    the pais is red, otherwise it's black. The order of the lines is according 
-#' ###    to the p-value, from the smallest to the largest. The notation in the 
+#' ###    the pair is red, otherwise it's black. The order of the lines is according 
+#' ###    to the p-values, from the smallest to the largest. The notation in the 
 #' ###    topright of the plot is the measure column used to build the plot.
-#' ###    In this example, for both of the measure colums measure1 and measure, no
+#' ###    In this example, for both of the measure columns measure1 and measure2, no
 #' ###    significant difference was found for any pair of the levels, which is 
 #' ###    the same as the boxplot.
 #' ### Two tables: one shows the p-values returned by the Tukey's test. And the 
@@ -512,7 +512,7 @@ getPipedValue <- function(string) {
 #' ## The boxplot tells us that treatment E has a significant different mean from 
 #' ## all the other treatments. Treatment A and C have no significant difference 
 #' ## in mean and so they share the same letter, and the same for treatment B and D. 
-#' ## But the means of treatment A and C are significant different from B,D.
+#' ## But the means of treatment A and C are significantly different from B,D.
 #' 
 #'
 
