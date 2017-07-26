@@ -26,6 +26,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
     grainTest = NA,
     prevalence = NA,
     factorLevels = NA,
+    imputeVals = NA,
 
     clustersOnCores = NA,
     grainColValues = NA,
@@ -250,7 +251,10 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         if (isTRUE(self$params$debug)) {
           print(paste0("Rows in data set before removing rows with NA's: ", nrow(self$params$df)))
         }
-
+        # Calculate impute values for deploy
+        temp <- imputeDF(self$params$df) 
+        private$imputeVals <- temp[2]
+        temp <- NULL
         # Remove rows with any NA's
         self$params$df <- na.omit(self$params$df)
 
@@ -260,6 +264,9 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
           print(str(self$params$df))
         }
       }
+
+      # Save imputation values into modelInfo
+      self$modelInfo <- private$imputeVals
 
       # Remove columns that are only NA
       self$params$df <- self$params$df[,colSums(is.na(self$params$df)) < nrow(self$params$df)]
