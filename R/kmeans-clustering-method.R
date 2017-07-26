@@ -70,16 +70,16 @@
 #' cl$getConfusionMatrix()
 #' 
 #' # Get cluster labels
-#' cl$getClusterLabels() ## cluster 1 is labeled with "versicolor"
-#'                       ## cluster 2 is labeled with "setosa"
-#'                       ## cluster 3 is labeled with "virginica"
+#' cl$getClusterLabels() ## label cluster 1 with "versicolor"
+#'                       ## label cluster 2 with "setosa"
+#'                       ## label cluster 3 with "virginica"
 #' 
 #' # Get the output data frame
 #' dfOut <- cl$getOutDf()
 #' head(dfOut)
 #' 
 #' ## Write to CSV (or JSON, MySQL, etc) using plain R syntax
-#' ## write.csv(dfOut,'path/predictionsfile.csv')
+#' ## write.csv(dfOut,'path/clusteringresult.csv')
 #' 
 #' print(proc.time() - ptm)
 #' 
@@ -115,6 +115,8 @@
 #' 
 #' # Get the fit result
 #' cl$getKmeansfit()
+#' 
+#' print(proc.time() - ptm)
 #'
 #' @export
 
