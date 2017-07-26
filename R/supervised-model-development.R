@@ -236,7 +236,10 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       }
 
       if (isTRUE(self$params$impute)) {
-        self$params$df[] <- lapply(self$params$df, imputeColumn)
+        temp <- imputeDF(self$params$df)
+        self$params$df <- as.data.frame(temp[1])
+        private$imputeVals <- temp[2]
+        temp <- NULL
 
         if (isTRUE(self$params$debug)) {
           print('Entire data set after imputation')

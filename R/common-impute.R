@@ -52,7 +52,7 @@ groupedLOCF <- function(df, id) {
 #'
 #' @description This class performs imputation on a vector. For numeric vectors
 #' the vector-mean is used; for factor columns, the most frequent value is used.
-#' @param d A vector, or column of values with NAs.
+#' @param df A vector, or column of values with NAs.
 #' @return A vector, or column of values now with no NAs
 #'
 #' @export
@@ -96,12 +96,4 @@ imputeDF <- function(df, imputeVals = list()) {
   df[] <- lapply(1:ncol(df), function(x,y) applyValues2(df[,x], imputeVals[[x]]))
   
   return(list(df, imputeVals))
-}
-
-
-
-  imputationValForDeploy[] <- lapply(d, getValues)
-  print(imputationValForDeploy)
-
-  return(list('imputedData' = d, 'imputationValForDeploy' = imputationValForDeploy))
 }
