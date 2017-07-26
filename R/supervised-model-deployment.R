@@ -166,12 +166,33 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     }
 
     # Impute columns
-    # TODO: impute using training data (currently uses deploy data)
-    self$params$df[] <- lapply(self$params$df, imputeColumn)
+    # Impute is TRUE
+    if (isTRUE(self$params$impute)) { 
+      temp <- imputeDF(self$params$df)
+      self$params$df <- as.data.frame(temp[1])
+      private$imputeVals <- temp[2]
+      temp <- NULL
 
-    if (isTRUE(self$params$debug)) {
-      print('Entire data set after imputation')
-      print(str(self$params$df))
+      if (isTRUE(self$params$debug)) {
+        print('Entire data set after imputation')
+        print(str(self$params$df))
+      }
+    # Impute is FALSE
+    } else { 
+      if (isTRUE(self$params$debug)) {
+        print(paste0("Rows in data set before removing rows with NA's: ", nrow(self$params$df)))
+      }
+      temp <- imputeDF(self$params$df) 
+      private$imputeVals <- temp[2]
+      temp <- NULL
+      # Remove rows with any NA's
+      self$params$df <- na.omit(self$params$df)
+
+      if (isTRUE(self$params$debug)) {
+        print(paste0("Rows in data set after removing rows with NA's: ", nrow(self$params$df)))
+        print("Entire data set after removing rows with NA's")
+        print(str(self$params$df))
+      }
     }
 
     # Now that we have train/test, split grain col into test (for use at end)
@@ -222,8 +243,8 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     }
     
     # Impute missing values introduced through new factor levels
-    # TODO: impute using training data (currently uses deploy data)
-    private$dfTestRaw[, names(newLevels)] <- sapply(private$dfTestRaw[, names(newLevels)], imputeColumn)
+    out <- imputeDF(as.data.frame(private$dfTestRaw[, names(newLevels)]), 'truncated list of values from develop')
+    private$dfTestRaw[, names(newLevels)] <- as.data.frame(out[1])
     
     # Assign new factor levels using training data factor levels
     for (col in names(self$modelInfo$factorLevels)) {
