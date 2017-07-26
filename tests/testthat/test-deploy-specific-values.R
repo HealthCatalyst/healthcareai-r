@@ -217,8 +217,7 @@ test_that("rf regression predicted val (w/mtry tuning) is same each time", {
   capture.output(dfRes <- dRF$getOutDf())
   
   # for some reason, this tolerance needs to be very lax...
-  expect_true(abs(dfRes$PredictedValueNBR[15] - 136.2595) < .5)
-  expect_true(abs(dfRes$PredictedValueNBR[23] - 162.4714) < .5)
+  expect_true(abs(mean(dfRes$PredictedValueNBR) - 146.479) < .5)
   closeAllConnections()
 })
 
