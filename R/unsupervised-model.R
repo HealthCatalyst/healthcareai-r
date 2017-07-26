@@ -51,8 +51,8 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
       if (!is.null(p$df))
         self$params$df <- p$df
       
-      if (!is.null(p$newdf))
-        self$params$newdf <- p$newdf
+      # if (!is.null(p$newdf))
+      #   self$params$newdf <- p$newdf
       
       if (!is.null(p$dataType)) 
         self$params$dataType <- p$dataType
@@ -184,6 +184,12 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
         self$params$df[[self$params$grainCol]] <- NULL
       }
       
+      if (isTRUE(self$params$debug) && nchar(self$params$grainCol) != 0) {
+        print('Entire data set after separating out grain col')
+        print(str(self$params$df))
+        print('Now going to remove labelCol...')
+      }
+      
       # Remove label col
       if (nchar(self$params$labelCol) != 0) {
         private$labelColValues <- self$params$df[[self$params$labelCol]]
@@ -191,9 +197,8 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
       }
       
       if (isTRUE(self$params$debug) && nchar(self$params$grainCol) != 0) {
-        print('Entire data set after separating out grain col')
+        print('Entire data set after separating out label col')
         print(str(self$params$df))
-        #print('Now splitting training set from validation set')
       }
       
     }

@@ -19,9 +19,9 @@ UnsupervisedModelParams <- R6Class("UnsupervisedModelParams",
     
     #parameters
     df = NA,
-    newdf = NA,
     dataType = NA,
     debug = FALSE,
+    impute = FALSE,
     #printResults = TRUE,
     numOfClusters = NULL,
     labelCol = "",
