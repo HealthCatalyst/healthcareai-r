@@ -3,7 +3,8 @@
 #' @description This step allows you to use kmeans() to build clusters, based on
 #' your data.
 #' @docType class
-#' @usage ...
+#' @usage KmeansClustering(object, dataType, df, grainCol, labelCol, numOfCluster,
+#' pca, usePrinComp,numOfPrinComp,impute, debug)
 #' @importFrom R6 R6Class
 #' @import ranger
 #' @import cluster
@@ -76,8 +77,9 @@
 #' # Get the output data frame
 #' dfOut <- cl$getOutDf()
 #' head(dfOut)
-#' Write to CSV (or JSON, MySQL, etc) using plain R syntax
-#' write.csv(dfOut,'path/predictionsfile.csv')
+#' 
+#' ## Write to CSV (or JSON, MySQL, etc) using plain R syntax
+#' ## write.csv(dfOut,'path/predictionsfile.csv')
 #' 
 #' print(proc.time() - ptm)
 #' 

@@ -16,7 +16,9 @@ A boolean
 Check if a dataframe only has numeric columns
 }
 \examples{
-
+df <- data.frame(a=c(1,2,3),
+                 b=c(NA,3,2))
+isNumeric(df)
 }
 \references{
 \url{http://healthcare.ai}

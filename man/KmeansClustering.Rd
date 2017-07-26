@@ -6,7 +6,8 @@
 \title{Build clusters using kmeans()}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-...
+KmeansClustering(object, dataType, df, grainCol, labelCol, numOfCluster,
+pca, usePrinComp,numOfPrinComp,impute, debug)
 }
 \arguments{
 \item{object}{of UnsuperviseModelParameters class for $new() constructor}
@@ -90,8 +91,9 @@ cl$getClusterLabels() ## cluster 1 is labeled with "versicolor"
 # Get the output data frame
 dfOut <- cl$getOutDf()
 head(dfOut)
-Write to CSV (or JSON, MySQL, etc) using plain R syntax
-write.csv(dfOut,'path/predictionsfile.csv')
+
+## Write to CSV (or JSON, MySQL, etc) using plain R syntax
+## write.csv(dfOut,'path/predictionsfile.csv')
 
 print(proc.time() - ptm)
 
