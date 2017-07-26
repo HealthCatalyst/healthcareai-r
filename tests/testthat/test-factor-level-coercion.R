@@ -31,8 +31,14 @@
 #      separate columns
 #
 # Additional tests:
-#    - check that Y/N in classification model is consistent with the data
-#      (make sure model isn't treating Y as N and vice versa)
+# 1. check that Y/N in classification model is consistent with the data
+#    - make sure model isn't treating Y as N and vice versa
+#    - note that this test only ensures the correct behavior when the Y/N
+#      column is converted from character to factor: Y and N may still swap 
+#      roles if the predictedCol factor levels are built with the levels listed 
+#      in reverse alphabetical order, e.g.,
+#           df$predictedCol <- factor(df$predictedCol, levels = c("Y", "N"))
+
 
 context("Checking factor level coercion is working")
 
