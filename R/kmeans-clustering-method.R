@@ -28,11 +28,91 @@
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
 #' @references \url{http://hctools.org/}
-#' @seealso \code{\link{LassoDevelopment}}
-#' @seealso \code{\link{LinearMixedModelDevelopment}}
 #' @seealso \code{\link{healthcareai}}
 #' @references \url{https://github.com/bryanhanson/ChemoSpecMarkeR/blob/master/R/findElbow.R}
 #' @examples
+#' 
+#' #### Example using iris dataset ####
+#' ptm <- proc.time()
+#' library(healthcareai)
+#' 
+#' data(iris)
+#' head(iris)
+#' 
+#' set.seed(2017)
+#' 
+#' p <- UnsupervisedModelParams$new()
+#' p$dataType <- "numeric"
+#' p$df <- iris
+#' p$labelCol <- "Species"
+#' p$impute <- TRUE
+#' p$debug <- FALSE
+#' p$cores <- 1
+#' 
+#' # Run k means clustering
+#' cl <- KmeansClustering$new(p)
+#' cl$run()
+#' 
+#' # Get the fit result
+#' cl$getKmeansfit()
+#' 
+#' # Get the elbow plot which also presents the optimal number of clusters
+#' cl$getElbowPlot()
+#' 
+#' # Get the 2D representation of the cluster solution
+#' cl$plotClusters()
+#' 
+#' # Get the sillhouette plot
+#' cl$silhouettePlot()
+#'  
+#' # Get a confusion matrix if labelCol exists
+#' cl$getConfusionMatrix()
+#' 
+#' # Get cluster labels
+#' cl$getClusterLabels() ## cluster 1 is labeled with "versicolor"
+#'                       ## cluster 2 is labeled with "setosa"
+#'                       ## cluster 3 is labeled with "virginica"
+#' 
+#' # Get the output data frame
+#' dfOut <- cl$getOutDf()
+#' head(dfOut)
+#' Write to CSV (or JSON, MySQL, etc) using plain R syntax
+#' write.csv(dfOut,'path/predictionsfile.csv')
+#' 
+#' print(proc.time() - ptm)
+#' 
+#' #### Example using iris data and PCA ####
+#' ptm <- proc.time()
+#' library(healthcareai)
+#' 
+#' set.seed(2017)
+#' 
+#' p <- UnsupervisedModelParams$new()
+#' p$dataType <- "numeric"
+#' p$df <- iris
+#' p$labelCol <- "Species"
+#' p$cores <- 1
+#' p$pca <- TRUE ## set pca = TRUE
+#' 
+#' # Run k means clustering
+#' cl <- KmeansClustering$new(p)
+#' cl$run()
+#' 
+#' # Get the scree plot
+#' ## This plot presents the fraction of total variance in the data as explained
+#' ## or represented by each principle component.
+#' cl$getScreePlot()
+#' 
+#' # According to the scree plot, we decide to use the first 3 PCs to do clustering.
+#' p$usePrinComp <- TRUE
+#' p$numOfPrinComp <- 3
+#' 
+#' # Run k means clustering
+#' cl <- KmeansClustering$new(p)
+#' cl$run()
+#' 
+#' # Get the fit result
+#' cl$getKmeansfit()
 #'
 #' @export
 
@@ -57,12 +137,7 @@ KmeansClustering <- R6Class("KmeansClustering",
     mean.vec = NA,
     sd.vec = NA,
     scaledf = NA,
-    #labels = NA, # the label in the raw data set
-    
-    # Calculate the euclidean distance between two vectors
-    # euc.dist = function(x1, x2) {
-    #   sqrt(sum((x1 - x2) ^ 2))
-    # },
+
     
     #check if the data type is numeric
     checkDataType = function() {
@@ -245,7 +320,6 @@ KmeansClustering <- R6Class("KmeansClustering",
         numOfClusters <- private$vnum
       }
       
-      #self$removeLabelCol()
       # Standarize the variables
       df.stand <- private$scaledf
       # K-Means
@@ -281,7 +355,6 @@ KmeansClustering <- R6Class("KmeansClustering",
     assignClusterLabels = function() {
       cm <- self$getConfusionMatrix()
       k <- nrow(self$getKmeansfit()[["centers"]])
-      print(k)
       # take the cluster label from the highest percentage in that column
       private$cluster.labels <- list()
       for (i in 1:k) {
@@ -298,7 +371,6 @@ KmeansClustering <- R6Class("KmeansClustering",
         } 
       }
     },
-    
     
     ## Generate the data frame that Combine grain.col, cluster labels, 
     ## and time to be put back into SAM table
@@ -327,7 +399,6 @@ KmeansClustering <- R6Class("KmeansClustering",
       private$outDf <- private$outDf[,colSums(is.na(private$outDf)) < nrow(private$outDf)]
 
       # Remove row names so df can be written to DB
-      # TODO: in writeData function, find how to ignore row names
       rownames(private$outDf) <- NULL
       
       if (isTRUE(self$params$debug)) {
@@ -335,7 +406,6 @@ KmeansClustering <- R6Class("KmeansClustering",
         cat(str(private$outDf), '\n')
       }
     }
-    
     
   ),
   
@@ -374,9 +444,6 @@ KmeansClustering <- R6Class("KmeansClustering",
       # Build Model
       private$buildClusters()
       
-      # Plot the clusters
-      # self$plotClusters()
-      
       # Calculate confusion matrix
       if (nchar(self$params$labelCol) != 0) 
         private$calculateConfusion()
@@ -387,21 +454,16 @@ KmeansClustering <- R6Class("KmeansClustering",
       
       # generate the df ready for output
       private$createDf()
-      
-      # save model
-      #private$saveModel()
     
     },
     
-    ## TODO: load data to make sure the newdf have the same format as df
+    ## TODO: missing values?
     getLabelOfNewdf = function(x) {
       ## load data, only use the columns that used in kmeans clustering
-      # print(x)
       x <- x[,names(self$params$df)]
       for (i in 1:nrow(x)) {
         x[i,] <- (x[i,] - private$mean.vec)/private$sd.vec
       }
-      # print(x)
       # compute squared euclidean distance from each sample to each cluster center
       tmp <- sapply(seq_len(nrow(x)),
                     function(i) apply(private$centers, 1,
