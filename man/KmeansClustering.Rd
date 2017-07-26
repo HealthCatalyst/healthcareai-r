@@ -24,6 +24,14 @@ the grain. No ID columns are truly needed for this step.}
 
 \item{numOfCluster}{Number of clusters you want to build.}
 
+\item{pca}{Optional. TRUE or FALSE. If TRUE, perform PCA on the raw data.}
+
+\item{usePrinComp}{Optional. TRUE or FALSE. If TRUE, will use the principle components
+to perform K-means clustering. Default is FALSE.}
+
+\item{numOfPrinComp}{number of principle components you want to use to perdorm 
+K-means clustering. Must be given if usePrinComp is TRUE.}
+
 \item{impute}{Set all-column imputation to F or T.
 This uses mean replacement for numeric columns
 and most frequent for factorized columns.
@@ -38,15 +46,95 @@ your data.
 }
 \examples{
 
+#### Example using iris dataset ####
+ptm <- proc.time()
+library(healthcareai)
+
+data(iris)
+head(iris)
+
+set.seed(2017)
+
+p <- UnsupervisedModelParams$new()
+p$dataType <- "numeric"
+p$df <- iris
+p$labelCol <- "Species"
+p$impute <- TRUE
+p$debug <- FALSE
+p$cores <- 1
+
+# Run k means clustering
+cl <- KmeansClustering$new(p)
+cl$run()
+
+# Get the fit result
+cl$getKmeansfit()
+
+# Get the elbow plot which also presents the optimal number of clusters
+cl$getElbowPlot()
+
+# Get the 2D representation of the cluster solution
+cl$plotClusters()
+
+# Get the sillhouette plot
+cl$silhouettePlot()
+ 
+# Get a confusion matrix if labelCol exists
+cl$getConfusionMatrix()
+
+# Get cluster labels
+cl$getClusterLabels() ## cluster 1 is labeled with "versicolor"
+                      ## cluster 2 is labeled with "setosa"
+                      ## cluster 3 is labeled with "virginica"
+
+# Get the output data frame
+dfOut <- cl$getOutDf()
+head(dfOut)
+Write to CSV (or JSON, MySQL, etc) using plain R syntax
+write.csv(dfOut,'path/predictionsfile.csv')
+
+print(proc.time() - ptm)
+
+#### Example using iris data and PCA ####
+ptm <- proc.time()
+library(healthcareai)
+
+set.seed(2017)
+
+p <- UnsupervisedModelParams$new()
+p$dataType <- "numeric"
+p$df <- iris
+p$labelCol <- "Species"
+p$cores <- 1
+p$pca <- TRUE ## set pca = TRUE
+
+# Run k means clustering
+cl <- KmeansClustering$new(p)
+cl$run()
+
+# Get the scree plot
+## This plot presents the fraction of total variance in the data as explained
+## or represented by each principle component.
+cl$getScreePlot()
+
+# According to the scree plot, we decide to use the first 3 PCs to do clustering.
+p$usePrinComp <- TRUE
+p$numOfPrinComp <- 3
+
+# Run k means clustering
+cl <- KmeansClustering$new(p)
+cl$run()
+
+# Get the fit result
+cl$getKmeansfit()
+
 }
 \references{
 \url{http://hctools.org/}
+
+\url{https://github.com/bryanhanson/ChemoSpecMarkeR/blob/master/R/findElbow.R}
 }
 \seealso{
-\code{\link{LassoDevelopment}}
-
-\code{\link{LinearMixedModelDevelopment}}
-
 \code{\link{healthcareai}}
 }
 \keyword{datasets}
