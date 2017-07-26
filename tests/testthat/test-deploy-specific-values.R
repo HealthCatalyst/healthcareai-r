@@ -180,8 +180,8 @@ test_that("rf regression predicted val (w/out mtry tuning) is same each time", {
   capture.output(dfRes <- dRF$getOutDf())
   
   #here, tolerances need to be high in order for the Travis build to work on mac
-  expect_true(abs(dfRes$PredictedValueNBR[7] - 157.333) < .1)
-  expect_true(abs(dfRes$PredictedValueNBR[19] - 148.4243) < .1)
+  expect_true(abs(dfRes$PredictedValueNBR[7] - 157.333) < .2)
+  expect_true(abs(dfRes$PredictedValueNBR[19] - 148.4243) < .2)
   closeAllConnections()
 })
 
@@ -217,8 +217,8 @@ test_that("rf regression predicted val (w/mtry tuning) is same each time", {
   capture.output(dfRes <- dRF$getOutDf())
   
   # for some reason, this tolerance needs to be very lax...
-  expect_true(abs(dfRes$PredictedValueNBR[15] - 136.2595) < .1)
-  expect_true(abs(dfRes$PredictedValueNBR[23] - 162.4714) < .1)
+  expect_true(abs(dfRes$PredictedValueNBR[15] - 136.2595) < .2)
+  expect_true(abs(dfRes$PredictedValueNBR[23] - 162.4714) < .2)
   closeAllConnections()
 })
 
