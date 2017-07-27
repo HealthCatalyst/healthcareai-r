@@ -29,15 +29,9 @@ install.packages('healthcareai')
 
 ## How to install the latest version on macOS
 
-Note: If using macOS with healthcare.ai, you'll have to use csv files. We're working on adding MySQL connections. We'd [love to hear](http://healthcare.ai/contact) which other databases your connecting to, so we can provide native support!
+Note: If using macOS with healthcare.ai, you'll have to use SQLite or csv files. We're working on adding MySQL connections. We'd [love to hear](http://healthcare.ai/contact) which other databases your connecting to, so we can provide native support!
 
-* Open the Mac Terminal
-* Install [Xcode](https://en.wikipedia.org/wiki/Xcode) compilers via `xcode-select --install`
-* Accept the Xcode license via `sudo xcodebuild -license`
-* Install [Homebrew](https://brew.sh/) (the macOS package manager)
-* Install ODBC driver via `brew update && brew install unixODBC`
 * Open R Studio
-* In the console, install RODBC from source with `install.packages('RODBC',type = "source")`
 * In the console, install other R healthcare.ai prerequisites via
 ```
 install.packages(c('caret','data.table','DBI','doParallel','e1071','grpreg','lme4','odbc','pROC','R6','ranger','ROCR','RSQLite','xgboost'),repos = "https://cran.cnr.berkeley.edu/")
@@ -62,7 +56,7 @@ install.packages('healthcareai')
 install.packages(c('caret','data.table','DBI','doParallel','e1071','grpreg','lme4','odbc','pROC','R6','ranger','ROCR','RSQLite','xgboost'),repos = "https://cran.cnr.berkeley.edu/")
 
 library(devtools)
-devtools::install_github(repo='HealthCatalystSLC/healthcareai-r')
+devtools::install_github(repo='HealthCatalyst/healthcareai-r')
 ```
 
 ## Tips on getting started

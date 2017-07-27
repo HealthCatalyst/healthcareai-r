@@ -129,7 +129,8 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
                              data = self$xgb_trainMatrix,
                              nrounds = self$params$xgb_nrounds)
       # Save target list into the fit object for use in deploy
-      self$fitXGB$xgb_targetNames <- self$params$xgb_targetNames
+      # coerce the target names to characters to avoid factor subsetting issues
+      self$fitXGB$xgb_targetNames <- as.character(self$params$xgb_targetNames)
     },
 
     # Perform prediction
@@ -157,18 +158,9 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
       # Prepare output 
       private$predictions <- cbind(private$grainTest, private$predictions)
       colnames(private$predictions)[1] <- self$params$grainCol
-    },
+    }
 
-    saveModel = function() {
-      if (isTRUE(self$params$debug)) {
-        print('Saving model...')
-      }
-      
-        fitObj <- self$fitXGB
-        save(fitObj, file = "rmodel_probability_XGB.rda")
-      }
-
-      # TODO: Cross validation and random search
+    # TODO: Cross validation and random search
   ),
 
   # Public members
@@ -191,6 +183,9 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
 
       set.seed(43)
       super$initialize(p)
+      if (is.null(self$params$modelName)) {
+        self$params$modelName = "XGB"
+      }
 
       # TODO set up tuning to actually work.
       if (!is.null(p$tune)) {
@@ -211,9 +206,12 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
     # Generate performance metrics
     generateConfusionMatrix = function() {
       cat('Generating confusion matrix...', '\n')
-      caret::confusionMatrix(private$predictions$true_label,
-                private$predictions$predicted_label,
-                mode = "everything")
+      u = union(private$predictions$true_label, 
+                private$predictions$predicted_label)
+      true_labels <- factor(private$predictions$true_label, u)
+      predicted_labels <- factor(private$predictions$predicted_label, u)
+      print(caret::confusionMatrix(predicted_labels, true_labels, 
+                            dnn = c("Predicted","True")))
     },
 
    # Run XGBoost Multiclass
@@ -225,7 +223,7 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
       private$buildModel()
       
       # save model
-      private$saveModel()
+      super$saveModel(fitModel = self$fitXGB)
 
       # Perform prediction
       private$performPrediction()

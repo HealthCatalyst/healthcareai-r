@@ -212,7 +212,6 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
 
     # Fit LMM
     fitLmm = NA,
-    fitLogit = NA,
 
     predictions = NA,
 
@@ -222,51 +221,9 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
     AUROC = NA,
     AUPR = NA,
     RMSE = NA,
-    MAE = NA,
+    MAE = NA
     
     # functions
-    saveModel = function() {
-      if (isTRUE(self$params$debug)) {
-       cat('Saving model...', '\n')
-      }
-      
-      # Save model
-      #NOTE: save(private$fitLogit, ...) directly, did not work!
-      fitLogit <- private$fitLogit
-      fitObj <- private$fitLmm
-      save(fitLogit, file = "rmodel_var_import_LMM.rda")
-      save(fitObj, file = "rmodel_probability_LMM.rda")
-    },
-    
-    
-    fitGeneralizedLinearModel = function() {
-      if (isTRUE(self$params$debug)) {
-       cat('generating fitLogit...', '\n')
-      }
-      
-      if (self$params$type == 'classification') {
-       cat('fitting GLM', '\n')
-        private$fitLogit <- glm(
-          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrain,
-          family = binomial(link = "logit"),
-          metric = "ROC",
-          control = list(maxit = 10000),
-          trControl = trainControl(classProbs = TRUE, summaryFunction = twoClassSummary)
-        )
-        
-      } else if (self$params$type == 'regression') {
-        private$fitLogit <- glm(
-          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrain,
-          metric = "RMSE",
-          control = list(maxit = 10000)
-        )
-      }
-
-      # Add factor levels (calculated in SMD) to fitLogit object
-      private$fitLogit$factorLevels <- private$factorLevels 
-    }
   ),
   
   # Public members
@@ -277,6 +234,9 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
     # i.e. p = SuperviseModelParameters$new()
     initialize = function(p) {
       super$initialize(p)
+      if (is.null(self$params$modelName)) {
+        self$params$modelName = "LMM" 
+      }
     },
     getPredictions = function(){
       return(private$predictions)
@@ -409,10 +369,10 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
       self$buildModel()
       
       # fit GLM for row-wise variable importance
-      private$fitGeneralizedLinearModel()
+      super$fitGeneralizedLinearModel()
       
       # save model
-      private$saveModel()
+      super$saveModel(fitModel = private$fitLmm)
 
       # Perform prediction
       self$performPrediction()

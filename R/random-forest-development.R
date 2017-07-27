@@ -180,7 +180,6 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
 
     # Get random forest model
     fitRF = NA,
-    fitLogit = NA,
 
     predictions = NA,
 
@@ -193,47 +192,6 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     MAE = NA,
 
     # Start of functions
-    saveModel = function() {
-      if (isTRUE(self$params$debug)) {
-        print('Saving model...')
-      }
-      
-        fitLogit <- private$fitLogit
-        fitObj <- private$fitRF
-        
-        save(fitLogit, file = "rmodel_var_import_RF.rda")
-        save(fitObj, file = "rmodel_probability_RF.rda")
-      },
-    
-    # this function must be in here for the row-wise predictions.
-    # can be replaced when LIME-like functionality is complete.
-    fitGeneralizedLinearModel = function() {
-      if (isTRUE(self$params$debug)) {
-        print('generating fitLogit for row-wise guidance...')
-      }
-      
-      if (self$params$type == 'classification') {
-        private$fitLogit <- glm(
-          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrain,
-          family = binomial(link = "logit"),
-          metric = "ROC",
-          control = list(maxit = 10000),
-          trControl = caret::trainControl(classProbs = TRUE, summaryFunction = twoClassSummary)
-        )
-        
-      } else if (self$params$type == 'regression') {
-        private$fitLogit <- glm(
-          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrain,
-          metric = "RMSE",
-          control = list(maxit = 10000)
-        )
-      }
-
-      # Add factor levels (calculated in SMD) to fitLogit object
-      private$fitLogit$factorLevels <- private$factorLevels 
-    },
     
     buildGrid = function() {
       if (isTRUE(self$params$tune)) {
@@ -284,12 +242,14 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     initialize = function(p) {
       set.seed(43)
       super$initialize(p)
-
+      if (is.null(self$params$modelName)) {
+        self$params$modelName = "RF" 
+      }
       if (!is.null(p$tune)) {
         self$params$tune = p$tune
       }
-      if (!is.null(p$numberOfTrees)) {
-        self$params$numberOfTrees = p$numberOfTrees
+      if (!is.null(p$trees)) {
+        self$params$trees = p$trees
       }
     },
     getPredictions = function(){
@@ -355,7 +315,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         method = "ranger",
         importance = "impurity",
         metric = rfTrainParams.metric,
-        num.trees = self$params$numberOfTrees,
+        num.trees = self$params$trees,
         tuneGrid = private$grid,
         trControl = train.control
       )
@@ -415,13 +375,13 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       
       # Start default logit (for row-wise var importance)
       # can be replaced with LIME-like functionality
-      private$fitGeneralizedLinearModel()
+      super$fitGeneralizedLinearModel()
 
       # Build Model
       self$buildModel()
       
       # save model
-      private$saveModel()
+      super$saveModel(fitModel = private$fitRF)
 
       # Perform prediction
       self$performPrediction()
