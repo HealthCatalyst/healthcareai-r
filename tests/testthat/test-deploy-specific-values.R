@@ -81,7 +81,7 @@ test_that("mixed model regression predicted val is the same each time", {
 test_that("rf classification predicted val (w/out mtry tuning) is the same each 
           time", {
 
-  df$PatientID <- NULL # affects all future tests
+  df$PatientID <- NULL
   dfDeploy <- df[951:1000,]
   
   # Create rf model
@@ -116,7 +116,7 @@ test_that("rf classification predicted val (w/out mtry tuning) is the same each
 test_that("rf classification predicted val (w/ mtry tuning) is the same each 
           time", {
 
-  df$PatientID <- NULL # affects all future tests
+  df$PatientID <- NULL
   dfDeploy <- df[951:1000,]
   
   # Create rf model
@@ -223,7 +223,7 @@ test_that("rf regression predicted val (w/mtry tuning) is same each time", {
 
 test_that("lasso classification predicted val is the same each time", {
   
-  df$PatientID <- NULL # affects all future tests
+  df$PatientID <- NULL
   dfDeploy <- df[951:1000,]
   
   # Create lasso model
