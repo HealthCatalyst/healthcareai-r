@@ -352,16 +352,27 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     },
     
     # Get the ordered list of top factors
-    getTopFactors = function(numberOfFactors = NA) {
+    getTopFactors = function(numberOfFactors = NA, includeWeights = FALSE) {
       if (is.na(numberOfFactors)) {
         numberOfFactors <- ncol(private$orderedFactors)
       }
       # Include grain column
       topFactorsDf <- data.frame(id = private$grainTest)
+      if (includeWeights) {
+      # Get factor weights
+        factorWeights <- t(sapply(1:nrow(private$multiplyRes),
+                                  function(i)
+                                        private$multiplyRes[i, ][order(private$multiplyRes[i, ],
+                                                                  decreasing = TRUE)]))
+      }
       # Add each of the top factors
       for (i in 1:numberOfFactors) {
-        ithTopFactor <- paste("Factor", i, "TXT", sep = "")
+        ithTopFactor <- paste0("Factor", i, "TXT")
         topFactorsDf[[ithTopFactor]] <- private$orderedFactors[, i]
+        if (includeWeights) {
+          ithWeight <- paste0("Factor", i, "Weight")
+          topFactorsDf[[ithWeight]] <- factorWeights[, i]
+        }
       }
       return(topFactorsDf)
     }
