@@ -102,16 +102,20 @@ imputeDF <- function(df, imputeVals = list()) {
     col[is.na(col)] <- val
     return(col)
   }
-  
 
-  # First convert to dataframe to ensure single columns work
-  df <- as.data.frame(df)
+  # Check to make sure that df is a dataframe
+  if (!(is.data.frame(df))) {
+    stop('df must be a dataframe.')
+  }
 
   # Calculate imputation values if needed
   if (length(imputeVals) == 0) {
     # Calculate values
     imputeVals <- lapply(df, getImputeValuesColumn)
   } else {
+    if (!(is.list(imputeVals))){
+      stop("imputeValues must be a list.")
+    }
     cat('Using supplied values for imputation.', '\n')
     if (length(imputeVals) != ncol(df)) {
       stop('Your dataframe must have the same number of columns as your provided list!')
@@ -119,7 +123,6 @@ imputeDF <- function(df, imputeVals = list()) {
   }
 
   # Apply imputation values
-  df[] <- lapply(1:ncol(df), function(x,y) applyValues2(df[,x], applyImputeValuesColumn[[x]]))
- 
+  df[] <- lapply(1:ncol(df), function(x,y) applyImputeValuesColumn(df[,x], imputeVals[[x]]))
   return(list(df=df, imputeVals=imputeVals))
 }
