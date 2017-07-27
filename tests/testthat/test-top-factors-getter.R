@@ -27,6 +27,7 @@ p$df <- d
 p$type <- "classification"
 p$predictedCol <- "response"
 p$grainCol <- "id"
+p$cores <- 1
 
 capture.output(rf <- RandomForestDevelopment$new(p))
 capture.output(rf$run())
@@ -44,6 +45,7 @@ p2$df <- dDeploy
 p2$type <- "classification"
 p2$predictedCol <- "response"
 p2$grainCol <- "id"
+p$cores <- 1
 
 capture.output(rfD <- RandomForestDeployment$new(p2))
 capture.output(rfD$deploy())
