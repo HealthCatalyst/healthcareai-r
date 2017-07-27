@@ -49,12 +49,9 @@ export(ignoreSpecWarn)
 export(imputeColumn)
 export(initializeParamsForTesting)
 export(isBinary)
-<<<<<<< HEAD
 export(isNumeric)
 export(lineMagnitude)
-=======
 export(isTargetYN)
->>>>>>> refs/remotes/origin/master
 export(orderByDate)
 export(pcaAnalysis)
 export(percentDataAvailableInDateRange)
