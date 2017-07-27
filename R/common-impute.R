@@ -59,14 +59,32 @@ groupedLOCF <- function(df, id) {
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
-#' # To use this function on an entire data frame:
-#' df <- data.frame(a=c(1,2,3,NA), b=c('Y','N','Y',NA))
+#' 
+#' # Impute a single column
+#' df <- data.frame(a=c(1,2,3,NA), b=c('Y','N','Y',NA),
+#'    c=c(11,21,31,43), d=c('Y','N','N',NA))
+#' df <- df[,1]
 #' out <- imputeDF(df)
+#' dfOut <- out$df # imputed data frame
+#' imputeVals <- out$imputeVals # imputed values
+#' print(dfOut)
+
+#' # Impute an entire data frame
+#' df <- data.frame(a=c(1,2,3,NA), b=c('Y','N','Y',NA),
+#'    c=c(11,21,31,43), d=c('Y','N','N',NA))
+#' out <- imputeDF(df)
+#' dfOut <- out$df # imputed data frame
+#' imputeVals <- out$imputeVals # imputed values
+#' print(dfOut)
 #' 
 #' # To impute using your own values (one per column)
-#' myValues <- list(10, 'Y') 
+#' df <- data.frame(a=c(1,2,3,NA), b=c('Y','N','Y',NA),
+#'    c=c(11,21,31,43), d=c('Y','N','N',NA))
+#' myValues <- list(2, 'Y', 26.5, 'N') 
 #' out <- imputeDF(df, myValues)
-#' 
+#' dfOut <- out$df # imputed data frame
+#' print(dfOut)
+
 imputeDF <- function(df, imputeVals = list()) {
   # Use separate functions to make applying easier in deploy
   # This function finds the value to impute for a column
@@ -104,36 +122,4 @@ imputeDF <- function(df, imputeVals = list()) {
   df[] <- lapply(1:ncol(df), function(x,y) applyValues2(df[,x], applyImputeValuesColumn[[x]]))
  
   return(list(df=df, imputeVals=imputeVals))
-}
-
-#' @title
-#' Perform imputation on a vector
-#'
-#' @description This class performs imputation on a vector. For numeric vectors
-#' the vector-mean is used; for factor columns, the most frequent value is used.
-#' @param v A vector, or column of values with NAs.
-#' @return A vector, or column of values now with no NAs
-#'
-#' @export
-#' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{healthcareai}}
-#' @examples
-#' # For a numeric vector
-#' vResult <- imputeColumn(c(1,2,3,NA))
-#'
-#' # For a factor vector
-#' vResult <- imputeColumn(c('Y','N','Y',NA))
-#'
-#' # To use this function on an entire data frame:
-#' df <- data.frame(a=c(1,2,3,NA),
-#'                 b=c('Y','N','Y',NA))
-#' df[] <- lapply(df, imputeColumn)
-#' head(df)
-imputeColumn <- function(v) {
-  if (is.numeric(v)) {
-    v[is.na(v)] <- mean(v, na.rm = TRUE)
-  } else {
-    v[is.na(v)] <- names(which.max(table(v)))
-  }
-  v
 }
