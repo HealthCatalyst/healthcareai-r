@@ -351,11 +351,15 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     deploy = function() {
     },
     
-    # Get the ordered list of top factors
+    # A function to get the ordered list of top factors with parameters to 
+    # choose how many factors to include and whether or not to include weights
     getTopFactors = function(numberOfFactors = NA, includeWeights = FALSE) {
+      # Include all factors by default
       if (is.na(numberOfFactors)) {
         numberOfFactors <- ncol(private$orderedFactors)
       }
+      # Don't include more factors than exist
+      numberOfFactors <- min(numberOfFactors, ncol(private$orderedFactors))
       # Include grain column
       topFactorsDf <- data.frame(id = private$grainTest)
       if (includeWeights) {
