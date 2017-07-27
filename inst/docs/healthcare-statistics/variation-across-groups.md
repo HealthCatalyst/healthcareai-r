@@ -12,7 +12,7 @@ For example, of all the patients (Female and Male, Old and Young), which group
 
 
 
-## How to use the function.
+## How to use the function?
 
 Let's get started in RStudio!
 
@@ -116,9 +116,23 @@ variationAcrossGroups(df,categoricalCols,measureColumn, printTable = FALSE,
 ```
 
 ## Function output
+### The table that showes the p-values for each pair of the combination of groups
+
 ![Table output from variationAcrossGroups](img/variationAcrossGroupsTableOutput.png)
 
+### The boxplot across the combinations of `Dept` and `Age`
+* There is no significant difference in the mean of measure among groups A.Young, 
+  B.Young and C.Young.
+* There is also no significant difference in the mean of measure among groups 
+  B.Young, C.Young, A.Old, B.Old and C.Old.
+* Group A.Young has a significant higher measure than groups A.Old, B.Old and C.Old.
+
 ![Boxplot output from variationAcrossGroups](img/variationAcrossGroupsBoxplotOutput.png)
+
+### The plot that showes the results of a Tukey's test
+* The confidence intervals in the plot are ordered by p values, the pair with the 
+  smallest p value is in the top.
+* Red lines indicate a p value less than 0.05, hence is significant.
 
 ![Tukey plot output from variationAcrossGroups](img/variationAcrossGroupsTukeyplotOutput.png)
 
