@@ -116,11 +116,12 @@ variationAcrossGroups(df,categoricalCols,measureColumn, printTable = FALSE,
 ```
 
 ## Function output
+![Table output from variationAcrossGroups](img/variationAcrossGroupsTableOutput.png)
 
 ![Boxplot output from variationAcrossGroups](img/variationAcrossGroupsBoxplotOutput.png)
 
-![Table output from variationAcrossGroups](img/variationAcrossGroupsTableOutput.png)
-    
+![Tukey plot output from variationAcrossGroups](img/variationAcrossGroupsTukeyplotOutput.png)
+
 As always, you can see the built-in docs via
 ```r
 library(healthcareai)
