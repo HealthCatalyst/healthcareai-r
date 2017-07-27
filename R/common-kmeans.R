@@ -36,8 +36,8 @@ dataScale <- function(df) {
 #'
 #' @description performs PCA on numeric data frames
 #' @param df A numeric data frame
-#' @return A list that contains the principle components and the proportion of 
-#' variance explained by each PC.
+#' @return A list that contains the data frame of principle components and 
+#' the proportion of variance explained by each PC.
 #'
 #' @export
 #' @references \url{http://healthcare.ai}

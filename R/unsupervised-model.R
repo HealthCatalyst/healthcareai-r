@@ -51,9 +51,6 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
       if (!is.null(p$df))
         self$params$df <- p$df
       
-      # if (!is.null(p$newdf))
-      #   self$params$newdf <- p$newdf
-      
       if (!is.null(p$dataType)) 
         self$params$dataType <- p$dataType
       
@@ -63,9 +60,6 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
       if (!is.null(p$numOfClusters))
         self$params$numOfClusters <- p$numOfClusters
       
-      if (!is.null(p$pca))
-        self$params$pca <- p$pca
-      
       if (!is.null(p$debug))
         self$params$debug <- p$debug
       
@@ -74,9 +68,7 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
       
       if (!is.null(p$numOfPrinComp))
         self$params$numOfPrinComp <- p$numOfPrinComp
-      
-      # if (!is.null(p$printResults))
-      #   self$params$printResults <- p$printResults
+
       
       if (!is.null(p$cores))
         self$params$cores <- p$cores
@@ -128,7 +120,6 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
         print('Entire df after removing feature cols w/zero var')
         print(str(self$params$df))
       }
-      
       
       # Convert to data.frame (in case of data.table)
       # This also converts chr cols to (needed) factors
@@ -229,7 +220,7 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
     },
     
     #Build the Model
-    buildClusters = function() {
+    performClustering = function() {
     },
     
     #Run the Model
