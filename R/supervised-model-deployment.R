@@ -371,7 +371,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
         topFactorsDf[[ithTopFactor]] <- private$orderedFactors[, i]
         if (includeWeights) {
           ithWeight <- paste0("Factor", i, "Weight")
-          topFactorsDf[[ithWeight]] <- factorWeights[, i]
+          topFactorsDf[[ithWeight]] <- as.numeric(factorWeights[, i])
         }
       }
       return(topFactorsDf)
