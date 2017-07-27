@@ -168,9 +168,8 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     # Impute columns
     # Impute is TRUE
     if (isTRUE(self$params$impute)) { 
-      temp <- imputeDF(self$params$df)
-      self$params$df <- as.data.frame(temp[1])
-      private$imputeVals <- temp[2]
+      temp <- imputeDF(self$params$df, self$modelInfo$ImputeVals)
+      self$params$df <- temp$df
       temp <- NULL
 
       if (isTRUE(self$params$debug)) {
@@ -182,9 +181,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       if (isTRUE(self$params$debug)) {
         print(paste0("Rows in data set before removing rows with NA's: ", nrow(self$params$df)))
       }
-      temp <- imputeDF(self$params$df) 
-      private$imputeVals <- temp[2]
-      temp <- NULL
       # Remove rows with any NA's
       self$params$df <- na.omit(self$params$df)
 
@@ -243,7 +239,8 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     }
     
     # Impute missing values introduced through new factor levels
-    out <- imputeDF(as.data.frame(private$dfTestRaw[, names(newLevels)]), 'truncated list of values from develop')
+    imputeVals <- self$modelInfo$imputeVals
+    out <- imputeDF(as.data.frame(private$dfTestRaw[, names(newLevels)]), imputeVals[names(newLevels)])
     private$dfTestRaw[, names(newLevels)] <- as.data.frame(out[1])
     
     # Assign new factor levels using training data factor levels

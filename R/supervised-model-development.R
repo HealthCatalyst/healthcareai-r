@@ -238,8 +238,8 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
 
       if (isTRUE(self$params$impute)) {
         temp <- imputeDF(self$params$df)
-        self$params$df <- as.data.frame(temp[1])
-        private$imputeVals <- temp[2]
+        self$params$df <- temp$df
+        private$imputeVals <- temp$imputeVals
         temp <- NULL
 
         if (isTRUE(self$params$debug)) {
@@ -253,7 +253,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         }
         # Calculate impute values for deploy
         temp <- imputeDF(self$params$df) 
-        private$imputeVals <- temp[2]
+        private$imputeVals <- temp$imputeVals
         temp <- NULL
         # Remove rows with any NA's
         self$params$df <- na.omit(self$params$df)
@@ -266,7 +266,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       }
 
       # Save imputation values into modelInfo
-      self$modelInfo <- private$imputeVals
+      self$modelInfo$imputeVals <- private$imputeVals
 
       # Remove columns that are only NA
       self$params$df <- self$params$df[,colSums(is.na(self$params$df)) < nrow(self$params$df)]
