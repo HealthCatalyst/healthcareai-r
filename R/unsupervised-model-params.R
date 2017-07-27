@@ -19,10 +19,8 @@ UnsupervisedModelParams <- R6Class("UnsupervisedModelParams",
     
     #parameters
     df = NA,
-    dataType = NA,
     debug = FALSE,
     impute = FALSE,
-    #printResults = TRUE,
     numOfClusters = NULL,
     labelCol = "",
     grainCol = "",

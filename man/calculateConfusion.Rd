@@ -11,7 +11,7 @@ calculateConfusion(labels, clusters)
 in a data frame, labeling each observation.}
 
 \item{clusters}{A vector with countable unique items, usually is the clustering 
-results given by kmeans().}
+results returned by kmeans().}
 }
 \value{
 A confusion matrix of percentages.

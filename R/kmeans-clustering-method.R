@@ -3,25 +3,21 @@
 #' @description This step allows you to use kmeans() to build clusters, based on
 #' your data.
 #' @docType class
-#' @usage KmeansClustering(object, dataType, df, grainCol, labelCol, numOfCluster,
-#' pca, usePrinComp,numOfPrinComp,impute, debug)
+#' @usage KmeansClustering(object, df, grainCol, labelCol, numOfCluster,
+#' usePrinComp, numOfPrinComp,impute, debug)
 #' @importFrom R6 R6Class
 #' @import ranger
 #' @import cluster
 #' @param object of UnsuperviseModelParameters class for $new() constructor
-#' @param dataType The type of your data set('numeric' for all numeric data set,
-#' 'categorical' for all categorical data set, and "mixed" for data set that has both
-#' numeric and categorical variables)
 #' @param df Dataframe whose columns are used for calc.
 #' @param grainCol Optional. The dataframe's column that has IDs pertaining to 
 #' the grain. No ID columns are truly needed for this step.
 #' @param labelCol Optional. 
 #' @param numOfCluster Number of clusters you want to build. 
-#' @param pca Optional. TRUE or FALSE. If TRUE, perform PCA on the raw data.
 #' @param usePrinComp Optional. TRUE or FALSE. If TRUE, will use the principle components
 #' to perform K-means clustering. Default is FALSE.
-#' @param numOfPrinComp number of principle components you want to use to perdorm 
-#' K-means clustering. Must be given if usePrinComp is TRUE.
+#' @param numOfPrinComp Optional. Number of principle components you want to use to perform 
+#' K-means clustering. 
 #' @param impute Set all-column imputation to F or T.
 #' This uses mean replacement for numeric columns
 #' and most frequent for factorized columns.
@@ -43,7 +39,6 @@
 #' set.seed(2017)
 #' 
 #' p <- UnsupervisedModelParams$new()
-#' p$dataType <- "numeric"
 #' p$df <- iris
 #' p$labelCol <- "Species"
 #' p$impute <- TRUE
@@ -64,7 +59,7 @@
 #' cl$plotClusters()
 #' 
 #' # Get the sillhouette plot
-#' cl$silhouettePlot()
+#' cl$getSilhouettePlot()
 #'  
 #' # Get a confusion matrix if labelCol exists
 #' cl$getConfusionMatrix()
@@ -90,11 +85,10 @@
 #' set.seed(2017)
 #' 
 #' p <- UnsupervisedModelParams$new()
-#' p$dataType <- "numeric"
 #' p$df <- iris
 #' p$labelCol <- "Species"
 #' p$cores <- 1
-#' p$pca <- TRUE ## set pca = TRUE
+#' usePrinComp <- TRUE
 #' 
 #' # Run k means clustering
 #' cl <- KmeansClustering$new(p)
@@ -105,9 +99,9 @@
 #' ## or represented by each principle component.
 #' cl$getScreePlot()
 #' 
-#' # According to the scree plot, we decide to use the first 3 PCs to do clustering.
+#' # According to the scree plot, we may decide to use the first 3 PCs to do clustering.
 #' p$usePrinComp <- TRUE
-#' p$numOfPrinComp <- 3
+#' p$numOfPrinComp <- 3 ## Otherwise the default of numOfPrinComp is 2 
 #' 
 #' # Run k means clustering
 #' cl <- KmeansClustering$new(p)
@@ -148,7 +142,7 @@ KmeansClustering <- R6Class("KmeansClustering",
     # Check if the data type is numeric
     checkDataType = function() {
       #print(self$params$dataType)
-      if (self$params$dataType != 'numeric' || isNumeric(self$params$df) == FALSE) {
+      if (isNumeric(self$params$df) == FALSE) {
         stop("Your data type must be numeric in order to use kmeans.")
       }
     },

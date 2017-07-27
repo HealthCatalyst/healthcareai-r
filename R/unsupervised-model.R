@@ -51,9 +51,6 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
       if (!is.null(p$df))
         self$params$df <- p$df
       
-      if (!is.null(p$dataType)) 
-        self$params$dataType <- p$dataType
-      
       if (!is.null(p$labelCol)) 
         self$params$labelCol <- p$labelCol
       

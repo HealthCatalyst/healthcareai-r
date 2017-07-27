@@ -10,8 +10,8 @@ pcaAnalysis(df)
 \item{df}{A numeric data frame}
 }
 \value{
-A list that contains the principle components and the proportion of 
-variance explained by each PC.
+A list that contains the data frame of principle components and 
+the proportion of variance explained by each PC.
 }
 \description{
 performs PCA on numeric data frames
