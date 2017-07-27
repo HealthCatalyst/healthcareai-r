@@ -165,7 +165,7 @@ KmeansClustering <- R6Class("KmeansClustering",
       private$optimalNumOfClusters <- findElbow(private$wss)
       
       # PCA
-      pcaRes <- pcaAnalysis(private$scaledf)
+      pcaRes <- pcaAnalysis(self$params$df)
       private$PCs <- pcaRes[[1]]
       private$propVarEx <- pcaRes[[2]]
       
@@ -174,9 +174,9 @@ KmeansClustering <- R6Class("KmeansClustering",
       
       # Use principle components if usePrinComp is TRUE 
       if (self$params$usePrinComp == TRUE && is.null(self$params$numOfPrinComp)) {
-        df <- private$PCs[1:private$optimalNumOfPCs]
+        df <- private$PCs[,1:private$optimalNumOfPCs]
       } else if (self$params$usePrinComp == TRUE && !is.null(self$params$numOfPrinComp)) {
-        df <- private$PCs[1:self$params$numOfPrinComp]
+        df <- private$PCs[,1:self$params$numOfPrinComp]
       } else {
         df <- private$scaledf
       }
