@@ -6,8 +6,8 @@
 \title{Build clusters using kmeans()}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-KmeansClustering(object, dataType, df, grainCol, labelCol, numOfCluster,
-pca, usePrinComp,numOfPrinComp,impute, debug)
+KmeansClustering(object, df, grainCol, labelCol, numOfCluster,
+usePrinComp, numOfPrinComp,impute, debug)
 }
 \arguments{
 \item{object}{of UnsuperviseModelParameters class for $new() constructor}
