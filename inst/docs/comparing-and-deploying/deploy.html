@@ -256,9 +256,9 @@ lMM$deploy()</code></pre>
 <div id="full-example-code-for-sql-server" class="section level2">
 <h2>Full example code for SQL Server</h2>
 <pre class="r"><code>#### Classification example using SQL Server data ####
-# This example requires you to first create a table in SQL Server
+# This example requires you to first create a table in SQL Server.
 # If you want to write output to a non-default schema, please see the section
-# below titled, &quot;Deploying and Writing to non-default schemas in SQL Server&quot;
+# below, titled: &quot;Deploying and Writing to non-default schemas in SQL Server&quot;.
 # If you prefer to not use SAMD, execute this in SSMS to create output table:
 # CREATE TABLE dbo.HCRDeployClassificationBASE(
 #   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
@@ -415,7 +415,7 @@ con &lt;- odbcDriverConnect('driver={SQL Server};
                               database=SAM;
                               trusted_connection=true')
 
-#build a df to work with
+#build a df to write to SQL Server
 df &lt;- data.frame(a = c(10, 20, 30),
                  b = c(20, 40, 60),
                  c = c(&quot;oneT&quot;, &quot;twoT&quot;, &quot;threeT&quot;))
@@ -425,8 +425,8 @@ RODBC::sqlSave(con, df, &quot;Cardiovascular.TestTable&quot;, append = TRUE,
                 rownames = FALSE)
                 
 #verify that the table was written to
-confirm &lt;- sqlQuery(con, 'select * from Cardiovascular.TestTable')
-head(confirm)</code></pre>
+confirmdf &lt;- sqlQuery(con, 'select * from Cardiovascular.TestTable')
+head(confirmdf)</code></pre>
 <p>Note: if you need to see the built-in docs (which are always up-to-date):</p>
 <pre class="r"><code>library(healthcareai)
 ?healthcareai</code></pre>
