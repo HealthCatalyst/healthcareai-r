@@ -56,7 +56,7 @@
 #' cl$getElbowPlot()
 #' 
 #' # Get the 2D representation of the cluster solution
-#' cl$plotClusters()
+#' cl$get2DClustersPlot()
 #' 
 #' # Get the sillhouette plot
 #' cl$getSilhouettePlot()
@@ -99,9 +99,9 @@
 #' ## or represented by each principle component.
 #' cl$getScreePlot()
 #' 
-#' # According to the scree plot, we may decide to use the first 3 PCs to do clustering.
+#' # According to the scree plot, we may decide to use the first 2 PCs to do clustering.
 #' p$usePrinComp <- TRUE
-#' p$numOfPrinComp <- 3 ## Otherwise the default of numOfPrinComp is 2 
+#' p$numOfPrinComp <- 2 ## Not necessary since the default of numOfPrinComp is 2 
 #' 
 #' # Run k means clustering
 #' cl <- KmeansClustering$new(p)
@@ -127,7 +127,6 @@ KmeansClustering <- R6Class("KmeansClustering",
     optimalNumOfClusters = NA,
     optimalNumOfPCs = NA,
     PCs = NA,
-    df.prin = NA,
     propVarEx = NA,
     centers = NA,
     cluster = NA,
@@ -262,19 +261,19 @@ KmeansClustering <- R6Class("KmeansClustering",
       # Clustering
       private$performClustering()
       
-      # generate the df ready for output
+      # Generate the df ready for output
       private$createDf()
       
     },
     
     ## TODO: missing values?
     getLabelOfNewdf = function(x) {
-      ## load data, only use the columns that used in kmeans clustering
+      ## Load data, only use the columns that used in kmeans clustering
       x <- x[,names(self$params$df)]
       for (i in 1:nrow(x)) {
         x[i,] <- (x[i,] - private$mean.vec)/private$sd.vec
       }
-      # compute squared euclidean distance from each sample to each cluster center
+      # Compute squared euclidean distance from each sample to each cluster center
       tmp <- sapply(seq_len(nrow(x)),
                     function(i) apply(private$centers, 1,
                                       function(v) sum((x[i, ] - v)^2)))
@@ -282,14 +281,14 @@ KmeansClustering <- R6Class("KmeansClustering",
     },
     
     
-    #scree plot
+    # Plot scree plot
     getScreePlot = function() {
       plot(private$propVarEx, xlab = "Principal Component",
            ylab = "Proportion of Variance Explained", type = "b", pch = 19)
       abline(v = private$optimalNumOfPCs, lty = 2)
     },
     
-    # generawte elbow plot for k = 2 to k = 15
+    # Generawte elbow plot for k = 2 to k = 15
     getElbowPlot = function(df) {
       plot(1:15, private$wss,
            type = "b", pch = 19, frame = FALSE, 
@@ -298,10 +297,18 @@ KmeansClustering <- R6Class("KmeansClustering",
       abline(v = private$optimalNumOfClusters, lty = 2)
     },
     
-    plotClusters = function() {
-      df.stand <- private$scaledf
-      clusplot(df.stand, private$cluster, main = '2D representation of the Cluster solution',
-               color = TRUE, shade = TRUE, lines = 0)
+    # Plot 2D cluster solution
+    get2DClustersPlot = function() {
+      PC2s <- private$PCs[,1:2]
+      cluster <- private$cluster
+      D <- cbind(PC2s, cluster)
+      plot(D$PC1, D$PC2, col = D$cluster, pch = 16, cex = 1.1,
+           xlab = "Component 1", 
+           ylab = "Component 2",
+           main = "2D representation of the cluster solution",
+           sub = paste("These two components explain",
+                       format(100*sum(private$propVarEx[1:2]),digit = 3),
+                       "% of the point variability"))
     },
     
     # Plot Silhouette plot
