@@ -215,6 +215,8 @@
     temp_predictions = NA,
     orderedProbs = NA,
 
+    modelName = 'XGB',
+
     # functions
     # Prepare data for XGBoost
     xgbPrepareData = function() {
@@ -361,9 +363,6 @@
     initialize = function(p) {
       cat('Initializing XGBoost Deploy...','\n')
       super$initialize(p)
-      if (is.null(self$params$modelName)) {
-        self$params$modelName = "XGB" 
-      }
     },
 
     #Override: deploy the model

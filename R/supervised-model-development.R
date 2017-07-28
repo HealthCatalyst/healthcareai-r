@@ -236,9 +236,12 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         print(str(self$params$df))
       }
 
+      # Impute all columns except grain, person, and predicted.
+      colsToImpute <- !(names(df) %in% c(self$params$grainCol, self$params$personCol, self$params$predictedCol))
+      # Impute is TRUE
       if (isTRUE(self$params$impute)) {
-        temp <- imputeDF(self$params$df)
-        self$params$df <- temp$df
+        temp <- imputeDF(self$params$df[,colsToImpute])
+        self$params$df[,colsToImpute] <- temp$df
         private$imputeVals <- temp$imputeVals
         temp <- NULL
 
@@ -246,13 +249,13 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
           print('Entire data set after imputation')
           print(str(self$params$df))
         }
-
+      # Impute is FALSE
       } else {
         if (isTRUE(self$params$debug)) {
           print(paste0("Rows in data set before removing rows with NA's: ", nrow(self$params$df)))
         }
         # Calculate impute values for deploy
-        temp <- imputeDF(self$params$df) 
+        temp <- imputeDF(self$params$df[,colsToImpute]) 
         private$imputeVals <- temp$imputeVals
         temp <- NULL
         # Remove rows with any NA's
@@ -264,7 +267,6 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
           print(str(self$params$df))
         }
       }
-
       # Save imputation values into modelInfo
       self$modelInfo$imputeVals <- private$imputeVals
 

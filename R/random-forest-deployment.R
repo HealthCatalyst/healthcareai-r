@@ -402,6 +402,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     
     fitRF = NA,
     predictions = NA,
+    modelName = 'RF',
 
     # functions
     # Perform prediction
@@ -523,9 +524,6 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     initialize = function(p) {
 
       super$initialize(p)
-      if (is.null(self$params$modelName)) {
-        self$params$modelName = "RF" 
-      }
 
       if (!is.null(p$rfmtry))
         self$params$rfmtry <- p$rfmtry

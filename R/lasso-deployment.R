@@ -405,6 +405,7 @@ LassoDeployment <- R6Class(
     modMat = NA,
     
     predictions = NA,
+    modelName = 'lasso',
     
     # Functions
     # Predict results
@@ -536,9 +537,6 @@ LassoDeployment <- R6Class(
     # i.e. p = SupervisedModelDeploymentParams$new()
     initialize = function(p) {
       super$initialize(p)
-      if (is.null(self$params$modelName)) {
-        self$params$modelName = "lasso" 
-      }
     },
 
     #Override: deploy the model

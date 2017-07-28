@@ -33,7 +33,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   fit = NA,
   fitObj = NA,
   predictedVals = NA,
-
+  modelName = NA,
   clustersOnCores = NA,
 
   ###########
@@ -89,16 +89,21 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   self$params$debug <- p$debug
   
   if (!is.null(p$modelName))
-    self$params$modelName <- p$modelName
+  self$params$modelName <- p$modelName
 
   # for deploy method
   if (!is.null(p$cores))
   self$params$cores <- p$cores
+  
+  if (is.null(self$params$modelName))
+  self$params$modelName = private$modelName
   },
 
   loadData = function() {
-    cat('Loading Data...','\n')
+    cat('Loading Model Info...','\n')
+    private$loadModelAndInfo(private$modelName)
 
+    cat('Loading Data...','\n')
     if (isTRUE(self$params$debug)) {
       print('Entire data set at the top of the constructor')
       print(str(self$params$df))
@@ -167,8 +172,9 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
     # Impute columns
     # Impute is TRUE
+    browser()
     if (isTRUE(self$params$impute)) { 
-      temp <- imputeDF(self$params$df, self$modelInfo$ImputeVals)
+      temp <- imputeDF(self$params$df, self$modelInfo$imputeVals)
       self$params$df <- temp$df
       temp <- NULL
 

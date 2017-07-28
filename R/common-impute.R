@@ -50,11 +50,14 @@ groupedLOCF <- function(df, id) {
 #' @title
 #' Perform imputation on a dataframe
 #'
-#' @description This class performs imputation on a vector. For numeric vectors
-#' the vector-mean is used; for factor columns, the most frequent value is used.
-#' @param df A vector, or column of values with NAs.
-#' @return A vector, or column of values now with no NAs
-#'
+#' @description This class performs imputation on a data frame. For numeric columns,
+#' the column-mean is used; for factor columns, the most frequent value is used.
+#' @param df A dataframe of values with NAs.
+#' @param imputeVals A list of values to be used for imputation. Must be the same length
+#' as the number of columns in df.
+#' @return A list. The first element, df, is the imputed dataframe. The second element,
+#' imputeVals, is a list of the imputation value used.
+#' #'
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
