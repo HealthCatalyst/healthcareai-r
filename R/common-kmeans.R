@@ -35,7 +35,7 @@ dataScale <- function(df) {
 #' Perform principle component analysis
 #'
 #' @description performs PCA on numeric data frames
-#' @param df A numeric data frame
+#' @param df A numeric data frame w/o NA's
 #' @return A list that contains the data frame of principle components and 
 #' the proportion of variance explained by each PC.
 #'
@@ -50,6 +50,7 @@ dataScale <- function(df) {
 #' head(res[[1]])
 
 pcaAnalysis <- function(df) {
+  if (sum(is.na(df)) > 0) stop("Missing values in data frame")
   prin.comp <- prcomp(df, scale. = T)
   pcs <- prin.comp$x
   #compute standard deviation of each principal component
@@ -167,7 +168,7 @@ distancePointLine <- function(x, y, slope, intercept) {
 #'
 #' @description finds the elbow of a curve that is concave to the line connecting
 #' the first and last points. 
-#' @param y A numeric vector, values of the points in the curve
+#' @param y A numeric vector w/o NA's, values of the points in the curve
 #' @return A number, the index of the elbow point. 
 #'
 #' @export
@@ -217,7 +218,7 @@ findElbow <- function(y) {
 #' @param labels A vector with countable unique items, usually a factor variable 
 #' in a data frame, labeling each observation.
 #' @param clusters A vector with countable unique items, usually is the clustering 
-#' results returned by kmeans().
+#' results returned by kmeans(), No NA's.
 #' @return A confusion matrix of percentages.
 #'
 #' @export
