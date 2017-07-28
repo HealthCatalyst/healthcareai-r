@@ -237,7 +237,8 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       }
 
       # Impute all columns except grain, person, and predicted.
-      colsToImpute <- !(names(df) %in% c(self$params$grainCol, self$params$personCol, self$params$predictedCol))
+      # colsToImpute <- !(names(df) %in% c(self$params$grainCol, self$params$personCol, self$params$predictedCol))
+      colsToImpute <- names(df)
       # Impute is TRUE
       if (isTRUE(self$params$impute)) {
         temp <- imputeDF(self$params$df[,colsToImpute])
