@@ -7,7 +7,7 @@
 pcaAnalysis(df)
 }
 \arguments{
-\item{df}{A numeric data frame}
+\item{df}{A numeric data frame w/o NA's}
 }
 \value{
 A list that contains the data frame of principle components and 

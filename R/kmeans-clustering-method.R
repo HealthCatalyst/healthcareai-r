@@ -7,7 +7,6 @@
 #' usePrinComp, numOfPrinComp,impute, debug)
 #' @importFrom R6 R6Class
 #' @import ranger
-#' @import cluster
 #' @param object of UnsuperviseModelParameters class for $new() constructor
 #' @param df Dataframe whose columns are used for calc.
 #' @param grainCol Optional. The dataframe's column that has IDs pertaining to 
@@ -314,7 +313,12 @@ KmeansClustering <- R6Class("KmeansClustering",
     # Plot Silhouette plot
     getSilhouettePlot = function() {
       dis <- dist(private$scaledf, method = "euclidean")
-      plot(silhouette(private$cluster,dis))
+      plot(getSilhouetteInf(private$cluster,dis), col = c(1:nrow(private$centers)))
+    },
+    
+    # Plot parallel coordinates plot to see how variables contributed in each cluster
+    getParallelCoordinatePlot = function() {
+      MASS::parcoord(private$scaledf, private$cluster)
     },
     
     getOutDf = function() {

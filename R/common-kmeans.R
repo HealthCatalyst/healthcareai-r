@@ -284,3 +284,65 @@ assignClusterLabels <- function(cm, k) {
   }
   return(cluster.labels)
 }
+
+#' @title
+#' Extract Silhouette Information from Clustering 
+#'
+#' @description Compute silhouette information according to a given k means
+#' clustering result
+#' @param x A vector of integers, the clustering result returned by kmeans(), 
+#' such as kmeans.fit$cluser
+#' @param dist A dissimilarity object resurned by dist()
+#' @return An n x 3 matrix with attributes, giving the cluster, neighbor and 
+#' silhouette width
+#'
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @references The original function can be found here 
+#' \url{https://cran.r-project.org/web/packages/cluster/index.html} 
+#' @seealso \code{\link{healthcareai}}
+#' @examples
+#' data(iris)
+#' head(iris)
+#' kmeans.fit <- kmeans(scale(iris[,1:4]),3)
+#' cluster <- kmeans.fit$cluster
+#' dis <- dist(scale(iris[,1:4]))
+#' res <- getSilhouetteInf(cluster, dis)
+#' str(res)
+#' 
+getSilhouetteInf <- function(x, dist) {
+  cll <- match.call()
+  n <- length(x)
+  k <- length(clid <- sort(unique(x)))
+
+  
+  dist <- as.dist(dist) 
+  if (n != attr(dist, "Size"))
+    stop("clustering 'x' and dissimilarity 'dist' are incompatible")
+  dmatrix <- as.matrix(dist)# so we can apply(.) below
+  
+  
+  wds <- matrix(NA, n,3, dimnames =
+                  list(names(x), c("cluster","neighbor","sil_width")))
+  for (j in 1:k) { # j-th cluster:
+    Nj <- sum(iC <- x == clid[j])
+    wds[iC, "cluster"] <- clid[j]
+    ## minimal distances to points in all other clusters:
+    diC <- rbind(apply(dmatrix[!iC, iC, drop = FALSE], 2,
+                       function(r) tapply(r, x[!iC], mean)))# (k-1) x Nj
+
+    minC <- apply(diC, 2, which.min)
+
+    wds[iC,"neighbor"] <- clid[-j][minC]
+    s.i <- if (Nj > 1) {
+      a.i <- colSums(dmatrix[iC, iC])/(Nj - 1) # length(a.i)= Nj
+      b.i <- diC[cbind(minC, seq(along = minC))]
+      ifelse(a.i != b.i, (b.i - a.i) / pmax(b.i, a.i), 0)
+    } else 0
+    wds[iC,"sil_width"] <- s.i
+  }
+  attr(wds, "Ordered") <- FALSE
+  attr(wds, "call") <- cll
+  class(wds) <- "silhouette"
+  return(wds)
+} 
