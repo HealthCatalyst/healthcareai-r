@@ -228,7 +228,7 @@ KmeansClustering <- R6Class("KmeansClustering",
       )
       
       # Remove columns that are only NA
-      private$outDf <- private$outDf[,colSums(is.na(private$outDf)) < nrow(private$outDf)]
+      private$outDf <- removeColsWithOnlyNA(private$outDf)
       
       # Remove row names so df can be written to DB
       rownames(private$outDf) <- NULL

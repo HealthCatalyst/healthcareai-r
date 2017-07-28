@@ -120,3 +120,25 @@ isNumeric <- function(df) {
   }
 }
 
+#' Remove columns from a data frame that are only NA
+#' 
+#' @description Remove columns from a data frame when all of their rows are NA's
+#' @param df A data frame
+#' @return A data frame with columns of only NA's removed
+#'
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
+#' @examples
+#' df <- data.frame(a=c(1,1,1),
+#'                 b=c('a','b','b'),
+#'                 c=c('a','NA','a'),
+#'                 d=c(NA,NA,NA))
+#' dfResult <- removeColsWithOnlyNA(df)
+#' head(dfResult)
+#' 
+removeColsWithOnlyNA <- function(df) {
+  df <- df[,colSums(is.na(df)) < nrow(df)]
+}
+
+
