@@ -68,7 +68,7 @@ cl$getKmeansfit()
 cl$getElbowPlot()
 
 # Get the 2D representation of the cluster solution
-cl$plotClusters()
+cl$get2DClustersPlot()
 
 # Get the sillhouette plot
 cl$getSilhouettePlot()
@@ -111,9 +111,9 @@ cl$run()
 ## or represented by each principle component.
 cl$getScreePlot()
 
-# According to the scree plot, we may decide to use the first 3 PCs to do clustering.
+# According to the scree plot, we may decide to use the first 2 PCs to do clustering.
 p$usePrinComp <- TRUE
-p$numOfPrinComp <- 3 ## Otherwise the default of numOfPrinComp is 2 
+p$numOfPrinComp <- 2 ## Not necessary since the default of numOfPrinComp is 2 
 
 # Run k means clustering
 cl <- KmeansClustering$new(p)
