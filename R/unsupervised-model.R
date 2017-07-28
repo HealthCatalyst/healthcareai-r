@@ -87,9 +87,6 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
       private$initialDatasetRows <- nrow(self$params$df)
       private$initialDatasetCols <- ncol(self$params$df)
       
-      # For use in confusion matrices
-      # private$prevalence <- table(self$params$df[[self$params$predictedCol]])[2]
-      
       if (length(returnColsWithMoreThanFiftyCategories(self$params$df)) > 0) {
         warning('These columns in the df have more than fifty categories: \n',
                 paste(
@@ -192,7 +189,6 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
     }
   ),
   
-  
   #Public members
   public = list(
     ###########
@@ -200,7 +196,6 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
     
     #parameters
     params = NA,
-    
     
     ###########
     # Functions

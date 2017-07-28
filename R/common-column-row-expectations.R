@@ -113,7 +113,8 @@ returnColsWithMoreThanFiftyCategories <- function(df) {
 isNumeric <- function(df) {
   a <- sapply(df, is.numeric)
   at <- table(a)
-  if (at["TRUE"] == ncol(df)) {
+  if (is.na(at["TRUE"])) return(FALSE)
+  else if (at["TRUE"] == ncol(df)) {
     return(TRUE)
   } else {
     return(FALSE)
