@@ -139,7 +139,14 @@ isNumeric <- function(df) {
 #' head(dfResult)
 #' 
 removeColsWithOnlyNA <- function(df) {
-  df <- df[,colSums(is.na(df)) < nrow(df)]
+  name <- names(df)[colSums(is.na(df)) < nrow(df)]
+  dfres <- df[,colSums(is.na(df)) < nrow(df)]
+  dfres <- as.data.frame(dfres)
+  if (ncol(dfres) == 0) {
+    cat("All columns were removed.")
+  }
+  names(dfres) <- name
+  dfres
 }
 
 
