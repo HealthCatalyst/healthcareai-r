@@ -315,12 +315,10 @@ getSilhouetteInf <- function(x, dist) {
   n <- length(x)
   k <- length(clid <- sort(unique(x)))
 
-  
   dist <- as.dist(dist) 
   if (n != attr(dist, "Size"))
     stop("clustering 'x' and dissimilarity 'dist' are incompatible")
   dmatrix <- as.matrix(dist)# so we can apply(.) below
-  
   
   wds <- matrix(NA, n,3, dimnames =
                   list(names(x), c("cluster","neighbor","sil_width")))
