@@ -237,8 +237,8 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       }
 
       # Impute all columns except grain, person, and predicted.
-      # colsToImpute <- !(names(df) %in% c(self$params$grainCol, self$params$personCol, self$params$predictedCol))
-      colsToImpute <- names(df)
+      colsToImpute <- !(names(df) %in% c(self$params$grainCol, self$params$personCol, self$params$predictedCol))
+      
       # Impute is TRUE
       if (isTRUE(self$params$impute)) {
         temp <- imputeDF(self$params$df[,colsToImpute])
@@ -304,6 +304,16 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         self$params$df[[self$params$predictedCol]] = as.factor(self$params$df[[self$params$predictedCol]])
       }
 
+      # Remove rows where predicted.col is null in train.
+      # Also in test, because it breaks performance metric calculation.
+      self$params$df <- removeRowsWithNAInSpecCol(self$params$df,
+                                                  self$params$predictedCol)
+
+      if (isTRUE(self$params$debug)) {
+        print('Training data set after removing rows where pred col is null')
+        print(str(private$dfTrain))
+      }
+
       trainIndex <- createDataPartition(y = self$params$df[[self$params$predictedCol]],
                                        p = 0.8,
                                        list = FALSE, times = 1)
@@ -321,15 +331,6 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       if (isTRUE(self$params$debug)) {
         print('Validation data set after splitting from main df')
         print(str(private$dfTest))
-      }
-
-      # Remove rows where predicted.col is null in train
-      private$dfTrain <- removeRowsWithNAInSpecCol(private$dfTrain,
-                                                  self$params$predictedCol)
-
-      if (isTRUE(self$params$debug)) {
-        print('Training data set after removing rows where pred col is null')
-        print(str(private$dfTrain))
       }
 
       # Get factor levels for dummy creation in deploy. 
