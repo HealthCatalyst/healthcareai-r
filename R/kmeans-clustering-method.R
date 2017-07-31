@@ -137,7 +137,6 @@ KmeansClustering <- R6Class("KmeansClustering",
     dfCls = NA,
     wss = NA,
     
-    
     # Check if the data type is numeric
     checkDataType = function() {
       #print(self$params$dataType)
@@ -201,14 +200,12 @@ KmeansClustering <- R6Class("KmeansClustering",
         private$clusterLabels <- assignClusterLabels(private$confusionMatrix, 
                                                      nrow(private$centers))
       }
-      
     },
     
     ## Generate the data frame that Combine grain.col, cluster labels, 
     ## and time to be put back into SAM table
     createDf = function() {
       dtStamp <- as.POSIXlt(Sys.time())
-      
       private$outDf <- data.frame(
         0,                                 # BindingID
         'R',                               # BindingNM
@@ -216,7 +213,6 @@ KmeansClustering <- R6Class("KmeansClustering",
         private$grainColValues,            # GrainID
         private$labelColValues,            # labelCol
         private$cluster)                   
-      
       
       colnames(private$outDf) <- c(
         "BindingID",
@@ -238,7 +234,6 @@ KmeansClustering <- R6Class("KmeansClustering",
         cat(str(private$outDf), '\n')
       }
     }
-    
   ),
   
   # Public members
@@ -263,7 +258,6 @@ KmeansClustering <- R6Class("KmeansClustering",
       
       # Generate the df ready for output
       private$createDf()
-      
     },
     
     ## TODO: missing values?

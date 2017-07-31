@@ -30,8 +30,6 @@ UnsupervisedModelParams <- R6Class("UnsupervisedModelParams",
     
     #Constructor
     initialize = function() {
-      
     }
-    
   )
 )

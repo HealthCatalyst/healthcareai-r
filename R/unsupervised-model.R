@@ -168,7 +168,6 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
         print('Now going to remove grainCol...')
       }
       
-      
       # Remove grain col
       if (nchar(self$params$grainCol) != 0) {
         private$grainColValues <- self$params$df[[self$params$grainCol]]
@@ -191,7 +190,6 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
         print('Entire data set after separating out label col')
         print(str(self$params$df))
       }
-      
     }
   ),
   
