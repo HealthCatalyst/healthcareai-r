@@ -17,7 +17,8 @@ usePrinComp, numOfPrinComp,impute, debug)
 \item{grainCol}{Optional. The dataframe's column that has IDs pertaining to 
 the grain. No ID columns are truly needed for this step.}
 
-\item{labelCol}{Optional.}
+\item{labelCol}{Optional. In case the data frame contains a column that labels
+each row of the df. Need to be removed befroe clustering.}
 
 \item{numOfCluster}{Number of clusters you want to build.}
 
