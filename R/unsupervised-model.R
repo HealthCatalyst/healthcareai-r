@@ -51,8 +51,14 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
       if (!is.null(p$df))
         self$params$df <- p$df
       
+      if (!is.null(p$grainCol)) 
+        self$params$grainCol <- p$grainCol
+      
       if (!is.null(p$labelCol)) 
         self$params$labelCol <- p$labelCol
+      
+      if (!is.null(p$impute))
+        self$params$impute <- p$impute
       
       if (!is.null(p$numOfClusters))
         self$params$numOfClusters <- p$numOfClusters

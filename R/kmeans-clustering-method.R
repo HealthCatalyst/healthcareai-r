@@ -11,7 +11,8 @@
 #' @param df Dataframe whose columns are used for calc.
 #' @param grainCol Optional. The dataframe's column that has IDs pertaining to 
 #' the grain. No ID columns are truly needed for this step.
-#' @param labelCol Optional. 
+#' @param labelCol Optional. In case the data frame contains a column that labels
+#' each row of the df. Need to be removed befroe clustering.
 #' @param numOfCluster Number of clusters you want to build. 
 #' @param usePrinComp Optional. TRUE or FALSE. If TRUE, will use the principle components
 #' to perform K-means clustering. Default is FALSE.
@@ -133,7 +134,7 @@ KmeansClustering <- R6Class("KmeansClustering",
     clusterLabels = NA,
     mean.vec = NA,
     sd.vec = NA,
-    scaledf = NA,
+    dfCls = NA,
     wss = NA,
     
     
@@ -154,12 +155,12 @@ KmeansClustering <- R6Class("KmeansClustering",
       scaleRes <- dataScale(self$params$df)
       private$mean.vec <- scaleRes[[1]]
       private$sd.vec <- scaleRes[[2]]
-      private$scaledf <- scaleRes[[3]]
+      scaledf <- scaleRes[[3]]
       
       # Find the optimal number of clusters
       k.max <- 15 # Maximal number of clusters
       private$wss <- sapply(1:k.max, 
-                            function(k){kmeans(private$scaledf, k, nstart = 10 )$tot.withinss})
+                            function(k){kmeans(scaledf, k, nstart = 10 )$tot.withinss})
       private$optimalNumOfClusters <- findElbow(private$wss)
       
       # PCA
@@ -172,11 +173,11 @@ KmeansClustering <- R6Class("KmeansClustering",
       
       # Use principle components if usePrinComp is TRUE 
       if (self$params$usePrinComp == TRUE && is.null(self$params$numOfPrinComp)) {
-        df <- private$PCs[,1:private$optimalNumOfPCs]
+        private$dfCls <- private$PCs[,1:private$optimalNumOfPCs]
       } else if (self$params$usePrinComp == TRUE && !is.null(self$params$numOfPrinComp)) {
-        df <- private$PCs[,1:self$params$numOfPrinComp]
+        private$dfCls <- private$PCs[,1:self$params$numOfPrinComp]
       } else {
-        df <- private$scaledf
+        private$dfCls <- scaledf
       }
       
       # Build clusters
@@ -188,7 +189,7 @@ KmeansClustering <- R6Class("KmeansClustering",
         numOfClusters <- private$optimalNumOfClusters
       }
       # Run K-Means and save the result
-      private$kmeans.fit <- kmeans(df, numOfClusters)
+      private$kmeans.fit <- kmeans(private$dfCls, numOfClusters)
       # Save the centers and clusters
       private$centers <- private$kmeans.fit[["centers"]]
       private$cluster <- private$kmeans.fit[["cluster"]]
@@ -233,7 +234,7 @@ KmeansClustering <- R6Class("KmeansClustering",
       rownames(private$outDf) <- NULL
       
       if (isTRUE(self$params$debug)) {
-        cat('Dataframe with predictions:', '\n')
+        cat('Dataframe with clustering result:', '\n')
         cat(str(private$outDf), '\n')
       }
     }
@@ -312,13 +313,13 @@ KmeansClustering <- R6Class("KmeansClustering",
     
     # Plot Silhouette plot
     getSilhouettePlot = function() {
-      dis <- dist(private$scaledf, method = "euclidean")
+      dis <- dist(private$dfCls, method = "euclidean")
       plot(getSilhouetteInf(private$cluster,dis), col = c(1:nrow(private$centers)))
     },
     
     # Plot parallel coordinates plot to see how variables contributed in each cluster
     getParallelCoordinatePlot = function() {
-      MASS::parcoord(private$scaledf, private$cluster)
+      MASS::parcoord(private$dfCls, private$cluster)
     },
     
     getOutDf = function() {
