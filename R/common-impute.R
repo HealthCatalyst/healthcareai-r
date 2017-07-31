@@ -111,6 +111,13 @@ imputeDF <- function(df, imputeVals = list()) {
     stop('df must be a dataframe.')
   }
 
+  # Change factor columns to characters so that missing levels are dealt with correctly.
+  for (col in names(df)) {
+    if (is.factor(df[[col]])) {
+      df[[col]] <- as.character(df[[col]])
+    }
+  }
+
   # Calculate imputation values if needed
   if (length(imputeVals) == 0) {
     # Calculate values
@@ -119,7 +126,7 @@ imputeDF <- function(df, imputeVals = list()) {
     if (!(is.list(imputeVals))){
       stop("imputeValues must be a list.")
     }
-    cat('Using supplied values for imputation.', '\n')
+    # cat('Using supplied values for imputation.', '\n')
     if (length(imputeVals) != ncol(df)) {
       stop('Your dataframe must have the same number of columns as your provided list!')
     }
@@ -127,5 +134,9 @@ imputeDF <- function(df, imputeVals = list()) {
 
   # Apply imputation values
   df[] <- lapply(1:ncol(df), function(x,y) applyImputeValuesColumn(df[,x], imputeVals[[x]]))
+  
+  # Change characters back to factors.
+  df <- data.frame(unclass(df))
+
   return(list(df=df, imputeVals=imputeVals))
 }

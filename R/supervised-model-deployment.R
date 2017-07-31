@@ -100,6 +100,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   },
 
   loadData = function() {
+    # Load model info
     cat('Loading Model Info...','\n')
     private$loadModelAndInfo(private$modelName)
 
@@ -171,11 +172,13 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     }
 
     # Impute columns
+    # Impute all columns except grain, person, and predicted.
+      colsToImpute <- !(names(self$params$df) %in% 
+        c(self$params$grainCol, self$params$personCol, self$params$predictedCol))
     # Impute is TRUE
-    browser()
     if (isTRUE(self$params$impute)) { 
-      temp <- imputeDF(self$params$df, self$modelInfo$imputeVals)
-      self$params$df <- temp$df
+      temp <- imputeDF(self$params$df[,colsToImpute], self$modelInfo$imputeVals)
+      self$params$df[,colsToImpute] <- temp$df
       temp <- NULL
 
       if (isTRUE(self$params$debug)) {
@@ -244,11 +247,13 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
               '\nThese values have been set to NA.', sep = "")
     }
     
-    # Impute missing values introduced through new factor levels
+    # Impute missing values introduced through new factor levels (if any)
     imputeVals <- self$modelInfo$imputeVals
-    out <- imputeDF(as.data.frame(private$dfTestRaw[, names(newLevels)]), imputeVals[names(newLevels)])
-    private$dfTestRaw[, names(newLevels)] <- as.data.frame(out[1])
-    
+    if (length(newLevels) > 0) {
+      out <- imputeDF(as.data.frame(private$dfTestRaw[, names(newLevels)]), imputeVals[names(newLevels)])
+      private$dfTestRaw[, names(newLevels)] <- as.data.frame(out[1])
+    }
+
     # Assign new factor levels using training data factor levels
     for (col in names(self$modelInfo$factorLevels)) {
       private$dfTestRaw[[col]] <- factor(private$dfTestRaw[[col]],
