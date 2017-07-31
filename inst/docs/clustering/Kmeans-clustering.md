@@ -6,8 +6,7 @@ This class let one perform kmeans clustering on numeric datasets.
 
 ## Is any dataset ready for model creation?
 Nope. This method only works for numerical dataset. So it'll help if you can 
-remove the non-numeric columns from the dataset beforehand, and set the grain col and label 
-col if there is any.
+remove the non-numeric columns from the dataset beforehand, and set the grain col and label col if there is any.
 
 ## Step 1: Load data and packages 
 
