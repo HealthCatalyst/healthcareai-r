@@ -177,7 +177,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
         c(self$params$grainCol, self$params$personCol, self$params$predictedCol))
     # Impute is TRUE
     if (isTRUE(self$params$impute)) { 
-      temp <- imputeDF(self$params$df[,colsToImpute], self$modelInfo$imputeVals)
+      temp <- imputeDF(self$params$df[names(self$params$df[colsToImpute])], self$modelInfo$imputeVals)
       self$params$df[,colsToImpute] <- temp$df
       temp <- NULL
 
@@ -250,7 +250,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     # Impute missing values introduced through new factor levels (if any)
     imputeVals <- self$modelInfo$imputeVals
     if (length(newLevels) > 0) {
-      out <- imputeDF(as.data.frame(private$dfTestRaw[, names(newLevels)]), imputeVals[names(newLevels)])
+      out <- imputeDF(as.data.frame(private$dfTestRaw[names(newLevels)]), imputeVals[names(newLevels)])
       private$dfTestRaw[, names(newLevels)] <- as.data.frame(out[1])
     }
 

@@ -241,7 +241,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         c(self$params$grainCol, self$params$personCol, self$params$predictedCol))
       # Impute is TRUE
       if (isTRUE(self$params$impute)) {
-        temp <- imputeDF(self$params$df[,colsToImpute])
+        temp <- imputeDF(self$params$df[names(self$params$df[colsToImpute])], self$modelInfo$imputeVals)
         self$params$df[,colsToImpute] <- temp$df
         private$imputeVals <- temp$imputeVals
         temp <- NULL

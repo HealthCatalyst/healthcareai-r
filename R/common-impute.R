@@ -66,7 +66,7 @@ groupedLOCF <- function(df, id) {
 #' # Impute a single column
 #' df <- data.frame(a=c(1,2,3,NA), b=c('Y','N','Y',NA),
 #'    c=c(11,21,31,43), d=c('Y','N','N',NA))
-#' df <- df[,1]
+#' df <- df['a'] # note df[,1] does not return a df!
 #' out <- imputeDF(df)
 #' dfOut <- out$df # imputed data frame
 #' imputeVals <- out$imputeVals # imputed values
