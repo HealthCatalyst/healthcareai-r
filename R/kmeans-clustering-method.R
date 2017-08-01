@@ -274,7 +274,6 @@ KmeansClustering <- R6Class("KmeansClustering",
       max.col(-t(tmp))  # find index of min distance
     },
     
-    
     # Plot scree plot
     getScreePlot = function() {
       plot(private$propVarEx, xlab = "Principal Component",
