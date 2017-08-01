@@ -308,7 +308,7 @@ KmeansClustering <- R6Class("KmeansClustering",
     # Plot Silhouette plot
     getSilhouettePlot = function() {
       dis <- dist(private$dfCls, method = "euclidean")
-      plot(getSilhouetteInf(private$cluster,dis), col = c(1:nrow(private$centers)))
+      plotSilhouette(getSilhouetteInf(private$cluster,dis), col = c(1:nrow(private$centers)))
     },
     
     # Plot parallel coordinates plot to see how variables contributed in each cluster

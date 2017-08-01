@@ -344,3 +344,100 @@ getSilhouetteInf <- function(x, dist) {
   class(wds) <- "silhouette"
   return(wds)
 } 
+
+#' @title
+#' Plot silhouette width
+#'
+#' @description Plot silhouette width given a matrix that stores the silhouette
+#' information
+#' @param x a 'silhouette' object returned by getSilhouetteInf()
+#' @param col colors for different clusters
+#' @return a silhouette plot
+#'
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @references This function is developed based on the function silhouette() in
+#' package cluster
+#' \url{https://cran.r-project.org/web/packages/cluster/index.html} 
+#' @seealso \code{\link{healthcareai}}
+#' @examples
+#' data(iris)
+#' head(iris)
+#' kmeans.fit <- kmeans(scale(iris[,1:4]),3)
+#' cluster <- kmeans.fit$cluster
+#' dis <- dist(scale(iris[,1:4]))
+#' res <- getSilhouetteInf(cluster, dis)
+#' plotSilhouette(res,col = c(1:3))
+#' 
+plotSilhouette <- function(x, col = "gray") {
+  n <- nrow(x)
+  cl <- x[,"cluster"]
+  si <- x[, "sil_width"]
+  clus.avg.widths = tapply(si, cl, mean)
+  clus.sizes = table(cl)
+  avg.width = mean(si)
+  
+  ## Sort silhouette
+  attr(x, "iOrd") <- 1:n
+  rownames(x) <- as.character(1:n)
+  
+  r <- x[iOrd <- order(cl, -x[,"sil_width"]) , , drop = FALSE]
+  ## r has lost attributes of object; restore them, but do *not*
+  ## change dimnames:
+  nms <- names(at <- attributes(x))
+  for (n in nms[!(nms %in% c("dim","dimnames","iOrd","Ordered"))])
+    attr(r, n) <- at[[n]]
+  attr(r,"iOrd") <- iOrd # the ordering
+  attr(r,"Ordered") <- TRUE
+  
+  ## plot
+  s <- rev(r[, "sil_width"])
+  space <- c(0, rev(diff(cli <- r[, "cluster"])))
+  space[space != 0] <- 0.5 # gap between clusters
+  axisnames <- (n < 40)
+  if (axisnames)
+    names <- substring(rev(rownames(r)), 1, 5)
+  
+  main <- "Silhouette plot"
+  if (!is.null(cll <- attr(r,"call"))) { # drop initial "silhouette":
+    if (!is.na(charmatch("silhouette", deparse(cll[[1]]))))
+      cll[[1]] <- as.name("FF")
+    main <-  paste(main, "of", sub("^FF","", deparse(cll)))
+  }
+  
+  k <- length(clus.sizes) # k clusters
+  
+  sub <- paste("Average silhouette width : ", round(avg.width, digits = 2))
+  if ((length(col) > 1) && (lc <- length(col)) > 1) {
+    if (lc == k)# cluster wise coloring
+      col <- col[cli]
+    else ## unit wise coloring
+      if (lc != n)
+        col <- rep(col, length = n)
+      col <- rev(col) # was rev(col[attr(x, "iOrd")])
+  }
+  y <- barplot(s, space = space, names = names, 
+               xlab = expression("Silhouette width " * s[i]),
+               xlim = c(min(0, min(s)), 1),
+               horiz = TRUE, las = 1, mgp = c(2.5, 1, 0),
+               col = col, border = 0, cex.names = par("cex.axis"),
+               axisnames = axisnames)
+  title(main = main, sub = sub, adj = 0)
+  mtext(paste("n =", n),	adj = 0)
+  mtext(substitute(k ~~ "clusters" ~~ C[j], list(k = k)), adj = 1)
+  
+  
+  mtext(expression(paste(j," :  ", n[j]," | ", ave[i %in% Cj] ~~ s[i])),
+        adj = 1.04, line = -1.2)
+  y <- rev(y)
+  hasCodes <- !is.null(cx <- attr(x,"codes"))
+  for (j in 1:k) {
+    j. <- if (hasCodes) cx[j] else j
+    yj <- mean(y[cli == j.])
+    text(1, yj,
+         paste(j.,":  ", clus.sizes[j]," | ",
+               format(clus.avg.widths[j], digits = 1, nsmall = 2)),
+         xpd = NA, adj = 0.8)
+  }
+  
+}
