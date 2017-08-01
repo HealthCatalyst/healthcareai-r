@@ -991,11 +991,11 @@ variationAcrossGroups <- function(df,
         thirdQuartile[i] <- quantile(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], 0.75, na.rm = T)
         maxVal[i] <- max(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
       }
-      se <- means/std
+      cov <- std/means
       measures <- rep(measureColumn[j], length(levels))
       # Output the table
       resTable[[j]] <- data.frame(measure = measures, group = levels, Mean = means, 
-                                  Std = std, SE = se, Min = minVal, 
+                                  Std = std, COV = cov, Min = minVal, 
                                   Q1 = firstQuartile, Median = m, Q3 = thirdQuartile, Max = maxVal)
     }
     
