@@ -143,9 +143,11 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       
       # Identify factor columns with more than 50 levels, other than grainCol 
       # and predictedCol
+      skipCols <- c(self$params$predictedCol, 
+                    self$params$grainCol, 
+                    self$params$personCol)
       fiftyPlus <- returnColsWithMoreThanFiftyCategories(self$params$df)
-      fiftyPlus <- fiftyPlus[!(fiftyPlus %in% c(self$params$grainCol, 
-                                                self$params$predictedCol))]
+      fiftyPlus <- fiftyPlus[!(fiftyPlus %in% skipCols)]
       if (length(fiftyPlus) > 0) {
         warning('These columns in the df have more than fifty categories: \n',
                 paste(
@@ -207,9 +209,9 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       # Different case for single column vs. multiple columns
       # Identify factor columns
       factors <- sapply(self$params$df, is.factor)
-      # Don't touch predictedCol or grainCol
-      factors[[self$params$predictedCol]] <- FALSE
-      factors[[self$params$grainCol]] <- FALSE
+      # Don't touch predictedCol, grainCol, or personCol
+      for (col in skipCols) factors[[col]] <- FALSE
+
       if (is.data.frame(self$params$df[, factors])) { # multiple columns
         self$params$df[, factors] <- lapply(self$params$df[, factors], as.character)
         self$params$df[, factors] <- lapply(self$params$df[, factors], as.factor)
@@ -222,8 +224,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       lowLevels = list()
       tempDf = self$params$df
       for (col in names(tempDf)) {
-        if (is.factor(tempDf[, col])
-            & !(col %in% c(self$params$predictedCol,self$params$grainCol))) { 
+        if (is.factor(tempDf[, col]) & !(col %in% skipCols)) { 
           tab <- table(tempDf[, col])
           if (any(tab <= 3)) {
             lowLevels[[col]] <- names(tab)[tab <= 3]  
