@@ -304,12 +304,6 @@ KmeansClustering <- R6Class("KmeansClustering",
                        "% of the point variability"))
     },
     
-    # Plot Silhouette plot
-    getSilhouettePlot = function() {
-      dis <- dist(private$dfCls, method = "euclidean")
-      plotSilhouette(getSilhouetteInf(private$cluster,dis), col = c(1:nrow(private$centers)))
-    },
-    
     # Plot parallel coordinates plot to see how variables contributed in each cluster
     getParallelCoordinatePlot = function() {
       MASS::parcoord(private$dfCls, private$cluster)

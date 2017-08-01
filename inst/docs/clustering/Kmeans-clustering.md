@@ -181,12 +181,7 @@ cl2$getClusterLabels()
 ![comparison between clustering result and original labels](img/clusteringResultVsOriginalLabels.png)
 
 ### Step 4: Visualization of the clustering 
-Besides the 2D visualization plot, `KmeansClustering` also contains [silhouette plot](https://en.wikipedia.org/wiki/Silhouette_(clustering)) and [parallel coordinates plot](https://en.wikipedia.org/wiki/Parallel_coordinates). 
-
-```r
-cl2$getSilhouettePlot()
-```
-![silhouette plot](img/clusteringSilhouettePlot.png)
+Besides the 2D visualization plot, `KmeansClustering` also contains [parallel coordinates plot](https://en.wikipedia.org/wiki/Parallel_coordinates). 
 
 ```r
 cl2$getParallelCoordinatePlot()
