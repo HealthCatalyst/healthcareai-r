@@ -516,7 +516,6 @@ getPipedValue <- function(string) {
 #' 
 #'
 
-
 variationAcrossGroups <- function(df, 
                                   categoricalCols,
                                   measureColumn,
@@ -595,7 +594,6 @@ variationAcrossGroups <- function(df,
     vec <- vec[!is.na(vec)]
     name_spec <- paste(vec, collapse = "-")
   }
-  
   
   # Function from package "multcompView": Convert a vector of hyphenated names into 
   # a character matrix with 2 columns containing the names split in each row
@@ -811,8 +809,6 @@ variationAcrossGroups <- function(df,
     return(Tukey.labels)
   }
   
-  
-  
   l <- list()
   for (i in 1:length(categoricalCols)) {
     l[[i]] <- df[[categoricalCols[i]]]
@@ -871,8 +867,6 @@ variationAcrossGroups <- function(df,
                  rgb(255,133,152,maxColorValue = 255),
                  rgb(135,60,42,maxColorValue = 255),
                  rgb(137,56,65,maxColorValue = 255))
-    
-
   
   pvalueDf <- list()
   plotRes <- list()
@@ -954,7 +948,6 @@ variationAcrossGroups <- function(df,
   
   } 
   
-
   pvalRes <- data.frame()
   for (i in 1:length(measureColumn)) {
     pvalRes <- rbind(pvalRes,pvalueDf[[i]])
@@ -1013,7 +1006,6 @@ variationAcrossGroups <- function(df,
       out <- list(outDf,plotRes)
       return(out)
     }
-    
   }
   
   if (printTable == FALSE && boxplotStats == TRUE) {
@@ -1024,7 +1016,4 @@ variationAcrossGroups <- function(df,
   if (printTable == FALSE && boxplotStats == FALSE) {
     return()
   }
-  
-
-  
 }
