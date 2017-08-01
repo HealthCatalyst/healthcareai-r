@@ -138,7 +138,9 @@ lMM$deploy()
 
 ```r
 #### Classification example using SQL Server data ####
-# This example requires you to first create a table in SQL Server
+# This example requires you to first create a table in SQL Server.
+# If you want to write output to a non-default schema, please see the section
+# below, titled: "Deploying and Writing to non-default schemas in SQL Server".
 # If you prefer to not use SAMD, execute this in SSMS to create output table:
 # CREATE TABLE dbo.HCRDeployClassificationBASE(
 #   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
@@ -264,10 +266,9 @@ head(dfOut)
 # write.csv(dfOut,'path/predictionsfile.csv')
 print(proc.time() - ptm)
 ```
-
 ## Linear Mixed Model (small datasets with a longitudinal flavor)
 
-```
+```r
 p2 <- SupervisedModelDeploymentParams$new()
 p2$type <- "classification"
 p2$df <- df
@@ -280,6 +281,55 @@ p2$cores <- 1
 
 dL <- LinearMixedModelDeployment$new(p2)
 dL$deploy()
+```
+
+##Deploying and Writing to non-default schemas in SQL Server
+
+As of the end of July 2017, there are some known issues with the packages `DBI`
+and `odbc`.  These issues get in the way of those writing to non-default schemas
+in SQL-Server. We hope to have the implementation of `DBI` and `odbc` fixed soon
+but we are waiting on the developers of those resepctive packages to fix the 
+issue. Links to the issues on github and stack overflow are  [here](https://stackoverflow.com/questions/45355885/odbc-dbi-in-r-will-not-write-to-a-table-with-a-non-default-schema-in-r?noredirect=1#comment77676303_45355885), [here](https://github.com/rstats-db/odbc/issues/91), and [here](https://github.com/rstats-db/DBI/issues/191). For now, we have created a work-around using the package `RODBC`.
+
+__Note__: `RODBC` is difficult to install on Mac OS.  This work-around is mainly for
+Windows users.  If Mac users can get`RODBC` installed on their machines, then the
+same code will work, but the installation will not be trivial.
+
+You may need to install RODBC using install.packages("RODBC"). Here is an 
+example of the work-around. 
+
+```r
+#First, create a table in SQL Server using a non-default schema. The example 
+#creates this table in the SAM database on localhost. You may also need to 
+#create a new schema(Cardiovascular) in SSMS for this specific example to work.
+#CREATE TABLE [Cardiovascular].[TestTable](
+#[a] [float] NULL,
+#[b] [float] NULL,
+#[c] [varchar](255) NULL)
+
+#install the RODBC pacakge onto your machine. You only need to do this one time.
+install.packages("RODBC")
+#load the package
+library(RODBC)
+
+#create a connection to work with
+con <- RODBC::odbcDriverConnect('driver={SQL Server};
+                              server=localhost;
+                              database=SAM;
+                              trusted_connection=true')
+
+#build a df to write to SQL Server. df columns names must match the SSMS table.
+df <- data.frame(a = c(10, 20, 30),
+                 b = c(20, 40, 60),
+                 c = c("oneT", "twoT", "threeT"))
+
+#write the df to the table                 
+RODBC::sqlSave(con, df, "Cardiovascular.TestTable", append = TRUE, 
+                rownames = FALSE)
+                
+#verify that the table was written to
+confirmDf <- sqlQuery(con, 'select * from Cardiovascular.TestTable')
+head(confirmDf)
 ```
 
 Note: if you need to see the built-in docs (which are always up-to-date):
