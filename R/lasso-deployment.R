@@ -495,50 +495,6 @@ LassoDeployment <- R6Class(
         cat("Data frame after getting column importance ordered", '\n')
         print(head(private$orderedFactors, n = 10))
       }
-    },
-
-    createDf = function() {
-      dtStamp <- as.POSIXlt(Sys.time())
-
-      # Combine grain.col, prediction, and time to be put back into SAM table
-      # TODO: use a common function to reduce lasso-specific code here
-      private$outDf <- data.frame(
-        0,    # BindingID
-        'R',  # BindingNM
-        dtStamp,                      # LastLoadDTS
-        private$grainTest,            # GrainID
-        private$predictions,          # PredictedProbab
-        # need three lines for case of single prediction
-        private$orderedFactors[, 1],  # Top 1 Factor
-        private$orderedFactors[, 2],  # Top 2 Factor
-        private$orderedFactors[, 3]   # Top 3 Factor
-      )    
-
-      predictedResultsName <- ""
-      if (self$params$type == "classification") {
-        predictedResultsName <- "PredictedProbNBR"
-      } else if (self$params$type == "regression") {
-        predictedResultsName <- "PredictedValueNBR"
-      }
-      colnames(private$outDf) <- c(
-        "BindingID",
-        "BindingNM",
-        "LastLoadDTS",
-        self$params$grainCol,
-        predictedResultsName,
-        "Factor1TXT",
-        "Factor2TXT",
-        "Factor3TXT"
-      )
-      
-      # Remove row names so df can be written to DB
-      # TODO: in writeData function, find how to ignore row names
-      rownames(private$outDf) <- NULL
-
-      if (isTRUE(self$params$debug)) {
-        cat('Dataframe with predictions:', '\n')
-        cat(str(private$outDf), '\n')
-      }
     }
   ),
 
@@ -591,7 +547,7 @@ LassoDeployment <- R6Class(
       private$calculateOrderedFactors()
 
       # create dataframe for output
-      private$createDf()
+      super$createDf()
     },
     
     # Surface outDf as attribute for export to Oracle, MySQL, etc
