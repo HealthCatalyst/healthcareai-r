@@ -237,7 +237,7 @@ calculateConfusion <- function(labels, clusters) {
   numOfLabels <- length(unique(labels)) - sum(is.na(unique(labels)))
   d <- data.frame(state = labels, cluster = clusters)
   td <- as.data.frame(table(d))
-  # convert from raw counts to percentage of each label
+  # Convert from counts to percentages
   confusionMatrix <- matrix(ncol = max(clusters), nrow = 0) # k col
   for (i in 1:numOfLabels) {
     total <- sum(td[td$state == td$state[i],3])

@@ -57,9 +57,6 @@
 #' 
 #' # Get the 2D representation of the cluster solution
 #' cl$get2DClustersPlot()
-#' 
-#' # Get the sillhouette plot
-#' cl$getSilhouettePlot()
 #'  
 #' # Get a confusion matrix if labelCol exists
 #' cl$getConfusionMatrix()
