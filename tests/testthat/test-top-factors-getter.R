@@ -1,11 +1,9 @@
 # These tests check that the getTopFactors getter function works correctly
 # 
 # Tests include:
-# 1. Checking that the top factors order in getTopFactors matches that in 
-#    getOutDf
-# 2. Checking that the number of factors to output can be specified
-# 3. Checking that the weights are correctly ordered
-# 4. Checking that the top factors and weights are stable (always have the same
+# 1. Checking that the number of factors to output can be specified
+# 2. Checking that the weights are correctly ordered
+# 3. Checking that the top factors and weights are stable (always have the same
 #    values for a fixed data set and seed)
 
 context("Checking top factors getter works")
@@ -52,17 +50,6 @@ capture.output(rfD <- RandomForestDeployment$new(p2))
 capture.output(rfD$deploy())
 
 ###### BEGIN TESTS ######
-
-test_that("Get top factors agrees with outDf", {
-  outDf <- rfD$getOutDf()
-  factorsDf <- rfD$getTopFactors()
-  # Check ids
-  expect_equal(outDf$id[2], factorsDf$id[2])
-  # Check factors
-  expect_equal(outDf$Factor1TXT[1], factorsDf$Factor1TXT[1])
-  expect_equal(outDf$Factor2TXT[2], factorsDf$Factor2TXT[2])
-  expect_equal(outDf$Factor3TXT[3], factorsDf$Factor3TXT[3])
-})
 
 test_that("The right number of factors are included", {
   factorsDf <- rfD$getTopFactors()

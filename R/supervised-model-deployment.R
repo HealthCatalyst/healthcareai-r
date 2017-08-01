@@ -252,10 +252,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   createDf = function() {
     dtStamp <- as.POSIXlt(Sys.time())
     
-    # number of top factors to include in outDf
-    # might want to replace 3 with a parameter that can be set
-    numFactors <- min(3, ncol(private$orderedFactors))
-    
     # Combine grain.col, prediction, and time to be put back into SAM table
     # TODO: use a common function to reduce lasso-specific code here
     private$outDf <- data.frame(
@@ -280,11 +276,9 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       predictedResultsName
     )
     
-    # Add top factor columns to outDf
-    for (i in 1:numFactors) {
-      ithTopFactor <- paste("Factor", i, "TXT", sep = "")
-      private$outDf[[ithTopFactor]] <- private$orderedFactors[, i]
-    }
+    # Add top factor columns to outDf (without including the grainCol twice)
+    topFactorsDf <- self$getTopFactors(numberOfFactors = 3, includeWeights = F)
+    private$outDf <- cbind(private$outDf, topFactorsDf[, 2:ncol(topFactorsDf)])
     
     # Remove row names so df can be written to DB
     # TODO: in writeData function, find how to ignore row names
