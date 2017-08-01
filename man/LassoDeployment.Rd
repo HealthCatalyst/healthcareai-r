@@ -6,17 +6,14 @@
 \title{Deploy a production-ready predictive Lasso model}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-LassoDeployment(type, df, grainCol, testWindowCol, predictedCol, 
-impute, debug)
+LassoDeployment(type, df, grainCol, predictedCol, impute, debug, cores)
 }
 \arguments{
-\item{type}{The type of model (either 'regression' or 'classification')}
+\item{type}{The type of model (either 'regression', 'classification', or 'multiclass')}
 
 \item{df}{Dataframe whose columns are used for calc.}
 
 \item{grainCol}{The dataframe's column that has IDs pertaining to the grain}
-
-\item{testWindowCol}{(depreciated) All data now receives a prediction}
 
 \item{predictedCol}{Column that you want to predict. If you're doing
 classification then this should be Y/N.}
@@ -28,6 +25,8 @@ F leads to removal of rows containing NULLs.}
 
 \item{debug}{Provides the user extended output to the console, in order
 to monitor the calculations throughout. Use T or F.}
+
+\item{cores}{Number of cores you'd like to use.}
 }
 \description{
 This step allows one to
@@ -37,6 +36,41 @@ This step allows one to
 \item Push these predictions to SQL Server
 }
 }
+\section{Methods}{
+ 
+The above describes params for initializing a new lassoDeployment class with 
+\code{$new()}. Individual methods are documented below.
+}
+
+\section{$new()}{
+
+Initializes a new lasso deployment class using the 
+parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
+generating predictions. \cr
+\emph{Usage:} \code{$new(p)}
+}
+
+\section{$deploy()}{
+
+Generate new predictions, calculate top factors, and prepare the output dataframe. \cr
+Usage: \code{$deploy()}
+}
+
+\section{$getTopFactors()}{
+
+Return the grain, all top factors, and their weights. \cr
+\emph{Usage:} \code{$getTopFactors(numberOfFactors = NA, includeWeights = FALSE)} \cr
+\emph{Params:} \cr
+  - \code{numberOfFactors:} retuns the top \code{n} factors. Defaults to all factors. \cr
+  - \code{includeWeights:} If \code{TRUE}, returns weights associated with each factor.
+}
+
+\section{$getOutDf()}{
+
+Returns the output dataframe. \cr
+\emph{Usage:} \code{$getOutDf()}
+}
+
 \examples{
 
 #### Classification Example using csv data ####

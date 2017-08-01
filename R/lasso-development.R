@@ -206,6 +206,7 @@ LassoDevelopment <- R6Class("LassoDevelopment",
     },
 
     getPredictions = function(){
+      "Returns predictions from test data."
       return(private$predictions)
     },
 
