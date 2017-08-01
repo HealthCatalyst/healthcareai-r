@@ -12,7 +12,7 @@
 #' @import doParallel
 #' @importFrom R6 R6Class
 #' @import ranger
-#' @param type The type of model (either 'regression', 'classification', or 'multiclass')
+#' @param type The type of model (either 'regression' or 'classification')
 #' @param df Dataframe whose columns are used for calc.
 #' @param grainCol The dataframe's column that has IDs pertaining to the grain
 #' @param predictedCol Column that you want to predict. If you're doing
@@ -23,7 +23,7 @@
 #' F leads to removal of rows containing NULLs.
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
-#' @param cores Number of cores you'd like to use.
+#' @param cores Number of cores you'd like to use. Defaults to 2.
 #' @section Methods: 
 #' The above describes params for initializing a new lassoDeployment class with 
 #' \code{$new()}. Individual methods are documented below.

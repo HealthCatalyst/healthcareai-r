@@ -9,8 +9,7 @@
 #' The linear mixed model functionality works best with data sets having fewer
 #' than 10,000 rows.
 #' @docType class
-#' @usage LinearMixedModelDeployment(type, df, 
-#' grainCol, personCol, testWindowCol, predictedCol, impute, debug)
+#' @usage LinearMixedModelDeployment(type, df, grainCol, personCol, predictedCol, impute, debug, cores)
 #' @import caret
 #' @import doParallel
 #' @import lme4
@@ -21,7 +20,6 @@
 #' @param grainCol Optional. The dataframe's column that has IDs pertaining to 
 #' the grain. No ID columns are truly needed for this step.
 #' @param personCol The data frame's columns that represents the patient/person
-#' @param testWindowCol (depreciated) All data now receives a prediction
 #' @param predictedCol Column that you want to predict. If you're doing
 #' classification then this should be Y/N.
 #' @param impute For training df, set all-column imputation to F or T.
@@ -30,9 +28,31 @@
 #' F leads to removal of rows containing NULLs.
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
+#' @param cores Number of cores you'd like to use.  Defaults to 2.
+#' @section Methods: 
+#' The above describes params for initializing a new linearMixedModelDeployment class with 
+#' \code{$new()}. Individual methods are documented below.
+#' @section $new():
+#' Initializes a new linear mixed model deployment class using the 
+#' parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
+#' generating predictions. \cr
+#' \emph{Usage:} \code{$new(p)}
+#' @section $deploy():
+#' Generate new predictions, calculate top factors, and prepare the output dataframe. \cr
+#' Usage: \code{$deploy()} 
+#' @section $getTopFactors():
+#' Return the grain, all top factors, and their weights. \cr
+#' \emph{Usage:} \code{$getTopFactors(numberOfFactors = NA, includeWeights = FALSE)} \cr
+#' Params: \cr
+#'   - \code{numberOfFactors:} retuns the top \code{n} factors. Defaults to all factors. \cr
+#'   - \code{includeWeights:} If \code{TRUE}, returns weights associated with each factor.
+#' @section $getOutDf():
+#' Returns the output dataframe. \cr
+#' \emph{Usage:} \code{$getOutDf()} 
 #' @export
 #' @seealso \code{\link{healthcareai}}
 #' @examples
+#' 
 #' #### Classification Example using csv data ####
 #' ## 1. Loading data and packages.
 #' ptm <- proc.time()

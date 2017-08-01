@@ -7,8 +7,7 @@
 #' \item Push these predictions to SQL Server
 #' }
 #' @docType class
-#' @usage RandomForestDeployment(type, df, grainCol, testWindowCol, 
-#' predictedCol, impute, debug)
+#' @usage RandomForestDeployment(type, df, grainCol, predictedCol, impute, debug, cores)
 #' @import caret
 #' @import doParallel
 #' @importFrom R6 R6Class
@@ -24,7 +23,27 @@
 #' and most frequent for factorized columns.
 #' F leads to removal of rows containing NULLs.
 #' @param debug Provides the user extended output to the console, in order
-#' to monitor the calculations throughout. Use T or F.
+#' @param cores Number of cores you'd like to use.  Defaults to 2.
+#' @section Methods: 
+#' The above describes params for initializing a new randomForestDeployment class with 
+#' \code{$new()}. Individual methods are documented below.
+#' @section $new():
+#' Initializes a new random forest deployment class using the 
+#' parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
+#' generating predictions. \cr
+#' \emph{Usage:} \code{$new(p)}
+#' @section $deploy():
+#' Generate new predictions, calculate top factors, and prepare the output dataframe. \cr
+#' Usage: \code{$deploy()} 
+#' @section $getTopFactors():
+#' Return the grain, all top factors, and their weights. \cr
+#' \emph{Usage:} \code{$getTopFactors(numberOfFactors = NA, includeWeights = FALSE)} \cr
+#' Params: \cr
+#'   - \code{numberOfFactors:} retuns the top \code{n} factors. Defaults to all factors. \cr
+#'   - \code{includeWeights:} If \code{TRUE}, returns weights associated with each factor.
+#' @section $getOutDf():
+#' Returns the output dataframe. \cr
+#' \emph{Usage:} \code{$getOutDf()} 
 #' @export
 #' @seealso \code{\link{healthcareai}}
 #' @examples

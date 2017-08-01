@@ -26,6 +26,37 @@
 #' F leads to removal of rows containing NULLs.
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
+#' @param cores Number of cores you'd like to use. Defaults to 2.
+#' @section Methods: 
+#' The above describes params for initializing a new lassoDevelopment class with 
+#' \code{$new()}. Individual methods are documented below.
+#' @section $new():
+#' Initializes a new lasso development class using the 
+#' parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
+#' model training. \cr
+#' \emph{Usage:} \code{$new(p)}
+#' @section $run():
+#' Trains model, displays feature importance and performance. \cr
+#' Usage: \code{$new()} 
+#' @section $getPredictions():
+#' Returns the predictions from test data. \cr
+#' \emph{Usage:} \code{$getPredictions()} \cr
+#' @section $getROC():
+#' Returns the ROC curve object for \code{\link{plotROCs}}. Classification models only. \cr
+#' \emph{Usage:} \code{$getROC()} \cr
+#' @section $getPRCurve():
+#' Returns the PR curve object for \code{\link{plotPRCurve}}. Classification models only. \cr
+#' \emph{Usage:} \code{$getROC()} \cr
+#' @section $getAUROC():
+#' Returns the area under the ROC curve from testing for classification models. \cr
+#' \emph{Usage:} \code{$getAUROC()} \cr
+#' @section $getRMSE():
+#' Returns the RMSE from test data for regression models. \cr
+#' \emph{Usage:} \code{$getRMSE()} \cr
+#' @section $getMAE():
+#' Returns the RMSE from test data for regression models. \cr
+#' \emph{Usage:} \code{$getMAE()} \cr
+#' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{RandomForestDevelopment}}
 #' @seealso \code{\link{LinearMixedModelDevelopment}}

@@ -16,7 +16,6 @@
 #' @param type The type of model (must be multiclass)
 #' @param df Dataframe whose columns are used for new predictions
 #' @param grainCol The dataframe's column that has IDs pertaining to the grain
-#' @param testWindowCol (Depreciated) Predictions will be made for all rows.
 #' @param predictedCol Column that you want to predict. If you're doing
 #' classification then this should be Y/N.
 #' @param impute For training df, set all-column imputation to F or T.
@@ -25,7 +24,25 @@
 #' F leads to removal of rows containing NULLs.
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
-#' @return Returns a dataframe containing the grain column, the top 3 probabilities for each row, and the classes associated with those probabilities.
+#' @param cores Number of cores you'd like to use.  Defaults to 2.
+#' @section Methods: 
+#' The above describes params for initializing a new XGBoostDeployment class with 
+#' \code{$new()}. Individual methods are documented below.
+#' @section $new():
+#' Initializes a new XGBoost deployment class using the 
+#' parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
+#' generating predictions. \cr
+#' \emph{Usage:} \code{$new(p)}
+#' @section $deploy():
+#' Generate new predictions and prepare the output dataframe. \cr
+#' Usage: \code{$deploy()} 
+#' @section $getPredictions():
+#' Return the grain and predictions for each class. \cr
+#' \emph{Usage:} \code{$getPredictions()} \cr
+#' @section $getOutDf():
+#' Returns a dataframe containing the grain column, the top 3 probabilities for each row, 
+#' and the classes associated with those probabilities. \cr
+#' \emph{Usage:} \code{$getOutDf()} 
 #' @export
 #' @seealso \code{\link{healthcareai}}
 #' @examples
