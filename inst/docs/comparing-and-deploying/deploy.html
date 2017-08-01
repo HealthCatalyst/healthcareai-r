@@ -398,7 +398,7 @@ dL$deploy()</code></pre>
 </div>
 <div id="deploying-and-writing-to-non-default-schemas-in-sql-server" class="section level2">
 <h2>Deploying and Writing to non-default schemas in SQL Server</h2>
-<p>As of the end of July 2017, there are some known issues with the packages <code>DBI</code> and <code>odbc</code>. These issues get in the way of those writing to non-default schemas in SQL-Server. We hope to have the implementation of <code>DBI</code> and <code>odbc</code> fixed soon but we are waiting on the developers of those resepctive packages to fix the issue. For now, we have created a work-around using the package <code>RODBC</code>.</p>
+<p>As of the end of July 2017, there are some known issues with the packages <code>DBI</code> and <code>odbc</code>. These issues get in the way of those writing to non-default schemas in SQL-Server. We hope to have the implementation of <code>DBI</code> and <code>odbc</code> fixed soon but we are waiting on the developers of those resepctive packages to fix the issue. Links to the issues on github and stack overflow are <a href="https://stackoverflow.com/questions/45355885/odbc-dbi-in-r-will-not-write-to-a-table-with-a-non-default-schema-in-r?noredirect=1#comment77676303_45355885">here</a>, <a href="https://github.com/rstats-db/odbc/issues/91">here</a>, and <a href="https://github.com/rstats-db/DBI/issues/191">here</a>. For now, we have created a work-around using the package <code>RODBC</code>.</p>
 <p><strong>Note</strong>: <code>RODBC</code> is difficult to install on Mac OS. This work-around is mainly for Windows users. If Mac users can get<code>RODBC</code> installed on their machines, then the same code will work, but the installation will not be trivial.</p>
 <p>You may need to install RODBC using install.packages(“RODBC”). Here is an example of the work-around.</p>
 <pre class="r"><code>#First, create a table in SQL Server using a non-default schema. The example 
@@ -409,24 +409,29 @@ dL$deploy()</code></pre>
 #[b] [float] NULL,
 #[c] [varchar](255) NULL)
 
+#install the RODBC pacakge onto your machine. You only need to do this one time.
+install.packages(&quot;RODBC&quot;)
+#load the package
+library(RODBC)
+
 #create a connection to work with
-con &lt;- odbcDriverConnect('driver={SQL Server};
+con &lt;- RODBC::odbcDriverConnect('driver={SQL Server};
                               server=localhost;
                               database=SAM;
                               trusted_connection=true')
 
-#build a df to write to SQL Server
+#build a df to write to SQL Server. df columns names must match the SSMS table.
 df &lt;- data.frame(a = c(10, 20, 30),
                  b = c(20, 40, 60),
                  c = c(&quot;oneT&quot;, &quot;twoT&quot;, &quot;threeT&quot;))
 
-#Write the df to the table                 
+#write the df to the table                 
 RODBC::sqlSave(con, df, &quot;Cardiovascular.TestTable&quot;, append = TRUE, 
                 rownames = FALSE)
                 
 #verify that the table was written to
-confirmdf &lt;- sqlQuery(con, 'select * from Cardiovascular.TestTable')
-head(confirmdf)</code></pre>
+confirmDf &lt;- sqlQuery(con, 'select * from Cardiovascular.TestTable')
+head(confirmDf)</code></pre>
 <p>Note: if you need to see the built-in docs (which are always up-to-date):</p>
 <pre class="r"><code>library(healthcareai)
 ?healthcareai</code></pre>
