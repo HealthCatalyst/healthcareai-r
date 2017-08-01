@@ -19,7 +19,8 @@ d <- data.frame(id = 1:n,
                 y = rnorm(n),
                 z = rnorm(n),
                 w = rnorm(n))
-d['response'] <- ifelse(4*d$x - 3*d$y + 2*d$z - d$w + rnorm(n) > 0, "Y", "N")
+d['response'] <- ifelse(4*d$x - 3*d$y + 2*d$z - d$w + rnorm(n, sd = 1.5) > 0, 
+                        "Y", "N")
 
 # Develop and run model
 p <- SupervisedModelDevelopmentParams$new()
@@ -84,6 +85,6 @@ test_that("Factors and weights are stable", {
   
   expect_equal(factorsDf$Factor1TXT[1], "x")
   expect_equal(factorsDf$Factor4TXT[2], "y")
-  expect_equal(round(factorsDf$Factor2Weight[2], 5), 4.37138)
-  expect_equal(round(factorsDf$Factor3Weight[3], 5), 6.13136)
+  expect_equal(round(factorsDf$Factor2Weight[2], 5), 3.6067)
+  expect_equal(round(factorsDf$Factor3Weight[3], 5), 4.59355)
 })
