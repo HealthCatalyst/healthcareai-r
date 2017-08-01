@@ -883,7 +883,7 @@ variationAcrossGroups <- function(df,
     #print(labs)
     
     # plot boxplot
-    par(bg = "transparent", cex.axis = 1, mar = c(6, 4.1, 4.1, 2.1))
+    par(bg = "transparent", cex.axis = 1, mar = c(7, 4.1, 4.1, 2.1))
     
     labels <- labs[,2]
     a <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, col = my_colors[as.numeric(labs[,1])],
