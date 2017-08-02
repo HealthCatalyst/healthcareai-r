@@ -4,7 +4,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [Unreleased] - 2017-08-02
+
+### Added
+- Multiclass functionality with XGBoost is supported using `XGBoostDevelopment` and `XGBoostDeployment`. 
+- K-means clustering is supported using `KmeansClustering`.
+- `findVariaion` will return groups with the highest variation of a chosen target measure within a data set.
+- `variationAcrossGroups` will plot a boxplot of variation between groups for a chosen target measure.
+
+## Changed
+- `SupervisedModelDevelopment` now saves the model after training
+- `SupervisedModelDeployment` no longer trains models. It only loads the model saved in `SupervisedModelDevelopment`. Predictions are made for all data.
+- `imputeColumn` was replaced with `imputeDF`
+- SQL tools now use a `DBI` backend. We support reading and writing to MSSQL and SQLite databases.
+- SQL tools are now common functions used outside the algorithms.
+- Model file documentation files now accurately reflect the available methods.
+
+## Removed
+- `testWindowCol` is no longer a param in `SupervisedModelDeployment` or used in the algorithms.
+- `writeToDB` is no longer a param in `SupervisedModelDeployment` or used in the algorithms.
+- `destSchemaTable` is no longer a param in `SupervisedModelDeployment` or used in the algorithms.
+
+
+## [0.1.12] - 2017-05-08
 
 ### Added
 - Added getters for predictions `getPredictions()` in development (lasso, random forest, linear mixed model)
