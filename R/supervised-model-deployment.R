@@ -276,6 +276,47 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       print('Raw data set after creating dummy vars (for top 3 factors only)')
       print(str(private$dfTestRaw))
     }
+  }, 
+  
+  createDf = function() {
+    dtStamp <- as.POSIXlt(Sys.time())
+    
+    # Combine grain.col, prediction, and time to be put back into SAM table
+    # TODO: use a common function to reduce lasso-specific code here
+    private$outDf <- data.frame(
+      0,    # BindingID
+      'R',  # BindingNM
+      dtStamp,                    # LastLoadDTS
+      private$grainTest,          # GrainID
+      private$predictions         # Predicted probabilty or predicted values
+    )    
+    
+    predictedResultsName <- ""
+    if (self$params$type == "classification") {
+      predictedResultsName <- "PredictedProbNBR"
+    } else if (self$params$type == "regression") {
+      predictedResultsName <- "PredictedValueNBR"
+    }
+    colnames(private$outDf) <- c(
+      "BindingID",
+      "BindingNM",
+      "LastLoadDTS",
+      self$params$grainCol,
+      predictedResultsName
+    )
+    
+    # Add top factor columns to outDf (without including the grainCol twice)
+    topFactorsDf <- self$getTopFactors(numberOfFactors = 3, includeWeights = F)
+    private$outDf <- cbind(private$outDf, topFactorsDf[, 2:ncol(topFactorsDf)])
+    
+    # Remove row names so df can be written to DB
+    # TODO: in writeData function, find how to ignore row names
+    rownames(private$outDf) <- NULL
+    
+    if (isTRUE(self$params$debug)) {
+      cat('Dataframe with predictions:', '\n')
+      cat(str(private$outDf), '\n')
+    }
   },
   
   loadModelAndInfo = function(modelFullName) {
@@ -331,6 +372,36 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
     #Deploy the Model
     deploy = function() {
+    },
+    
+    # A function to get the ordered list of top factors with parameters to 
+    # choose how many factors to include and whether or not to include weights
+    getTopFactors = function(numberOfFactors = NA, includeWeights = FALSE) {
+      # Include all factors by default
+      if (is.na(numberOfFactors)) {
+        numberOfFactors <- ncol(private$orderedFactors)
+      }
+      # Don't include more factors than exist
+      numberOfFactors <- min(numberOfFactors, ncol(private$orderedFactors))
+      # Include grain column
+      topFactorsDf <- data.frame(id = private$grainTest)
+      if (includeWeights) {
+      # Get factor weights
+        factorWeights <- t(sapply(1:nrow(private$multiplyRes),
+                                  function(i)
+                                        private$multiplyRes[i, ][order(private$multiplyRes[i, ],
+                                                                  decreasing = TRUE)]))
+      }
+      # Add each of the top factors
+      for (i in 1:numberOfFactors) {
+        ithTopFactor <- paste0("Factor", i, "TXT")
+        topFactorsDf[[ithTopFactor]] <- private$orderedFactors[, i]
+        if (includeWeights) {
+          ithWeight <- paste0("Factor", i, "Weight")
+          topFactorsDf[[ithWeight]] <- as.numeric(factorWeights[, i])
+        }
+      }
+      return(topFactorsDf)
     }
   )
 )
