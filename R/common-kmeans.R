@@ -407,7 +407,7 @@ plotSilhouette <- function(x, col = "gray") {
                xlab = "Silhouette width",
                xlim = c(min(0, min(bars)), 1),
                horiz = TRUE, las = 1, mgp = c(2.5, 1, 0),
-               col = col, border = 0)
+               col = col)
   title(main = "Silhouette plot", sub = sub)
   mtext(paste("( n =", n,")"))
   mtext(substitute(k ~~ "clusters" ~~ C[j], list(k = k)), adj = 1)

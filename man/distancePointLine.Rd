@@ -28,7 +28,7 @@ distancePointLine(2,3,-0.5,2.5)
 \references{
 \url{http://healthcare.ai}
 
-This funtion is originally found here 
+This helper funtion is originally found here 
 \url{http://paulbourke.net/geometry/pointlineplane/pointline.r}
 
 \url{https://github.com/bryanhanson/ChemoSpecMarkeR/blob/master/R/findElbow.R}

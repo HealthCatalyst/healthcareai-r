@@ -34,7 +34,7 @@ distancePointSegment(2,3,1,2,3,1)
 \references{
 \url{http://healthcare.ai}
 
-The funtion is originally found here 
+The helper funtion is originally found here
 \url{http://paulbourke.net/geometry/pointlineplane/pointline.r}
 
 \url{https://github.com/bryanhanson/ChemoSpecMarkeR/blob/master/R/findElbow.R}

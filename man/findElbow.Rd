@@ -28,8 +28,8 @@ plot(y) # not concave
 \references{
 \url{http://healthcare.ai}
 
-The original funtion is found here and is modified to only return the 
-index of the elbow point.
+This function is developed based on the following function in 
+package ChemoSpecMarkeR
 \url{https://github.com/bryanhanson/ChemoSpecMarkeR/blob/master/R/findElbow.R}
 
 The idea behind the function can be found here
