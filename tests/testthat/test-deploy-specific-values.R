@@ -145,8 +145,8 @@ test_that("rf classification predicted val (w/ mtry tuning) is the same each
   capture.output(dfRes <- dRF$getOutDf())
   
   # for some reason, this tolerance needs to be very lax...
-  expect_true(abs(dfRes$PredictedProbNBR[1] - 0.09225302) < .1)
-  expect_true(abs(dfRes$PredictedProbNBR[10] - 0.9169635) < .1)
+  expect_true(abs(dfRes$PredictedProbNBR[1] - 0.09114744) < .1)
+  expect_true(abs(dfRes$PredictedProbNBR[10] - 0.9993781) < .1)
   closeAllConnections()
 })
 
