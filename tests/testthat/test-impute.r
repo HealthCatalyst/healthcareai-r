@@ -1,3 +1,22 @@
+# Tests:
+# Test imputation using one function call for the following scenarios:
+# 1. Entire dataframe, character and numeric inputs
+# 2. Only a subset of a dataframe
+# 3. Factor inputs
+# 4. Factor inputs with 2 modes (uses alphabetical ranking)
+# Test imputation using 2 function calls (first saves the values, second applies them):
+# 1. Entire dataframe, character and numeric inputs
+# 2. Only a subset of a dataframe
+# 3. Factor inputs
+# 4. Factor inputs with 2 modes (uses alphabetical ranking)
+# 5. Calculate values for 4 columns, apply them correctly to 2 columns.
+# 6. When an impute value would be a new level to be applied.
+# Error Handling:
+# 1. Different length args
+# 2. An all-NA column
+# 3. No effect on full columns of factors, numbers, and characters
+# 4. When inputs are not correct types
+
 context("Checking that columns and dataframes are imputed correctly")
 
 test_that("entire dataframe is imputed correctly", {
@@ -156,6 +175,19 @@ test_that('collect values on a 4 column DF, apply them to 2 columns in two steps
   dfExpected <- data.frame(b=c('Y','N','Y','Y'),
     d=as.factor(c('Y','N','N','N')))
   valsExpected <- list(b='Y', d='N')
+  expect_identical(dfOut, dfExpected)
+})
+
+
+test_that('Apply values that are not present in the dataframe.', {
+  df <- data.frame(a=as.factor(c('bagel','muffin','toast',NA)), 
+                  b=as.factor(c('juice','water','milk',NA)))
+  # Assing different values
+  imputeVals <- list(b='pancake', d='wine')
+  capture.output(out <- imputeDF(df,imputeVals))
+  dfOut <- out$df
+  dfExpected <- data.frame(a=as.factor(c('bagel','muffin','toast','pancake')), 
+                  b=as.factor(c('juice','water','milk','wine')))
   expect_identical(dfOut, dfExpected)
 })
 

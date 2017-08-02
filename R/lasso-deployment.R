@@ -406,6 +406,7 @@ LassoDeployment <- R6Class(
     
     predictions = NA,
     modelName = 'lasso',
+    algorithmName = 'Lasso',
     
     # Functions
     # Predict results
@@ -543,7 +544,6 @@ LassoDeployment <- R6Class(
     deploy = function() {
 
       # Try to load the model
-      super$loadModelAndInfo(modelFullName = "Lasso")
       private$fitGrLasso <- private$fitObj
       private$modMat <- private$fitObj$modMat
       private$modFmla <- private$fitObj$modFmla

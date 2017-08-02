@@ -102,7 +102,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   loadData = function() {
     # Load model info
     cat('Loading Model Info...','\n')
-    private$loadModelAndInfo(private$modelName)
+    private$loadModelAndInfo(private$algorithmName)
 
     cat('Loading Data...','\n')
     if (isTRUE(self$params$debug)) {

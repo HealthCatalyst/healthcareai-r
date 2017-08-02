@@ -403,6 +403,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     fitRF = NA,
     predictions = NA,
     modelName = 'RF',
+    algorithmName = 'RandomForest',
 
     # functions
     # Perform prediction
@@ -536,7 +537,6 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     deploy = function() {
 
       # Try to load the model
-      super$loadModelAndInfo(modelFullName = "RandomForest")
       private$fitRF <- private$fitObj
       private$fitObj <- NULL
       

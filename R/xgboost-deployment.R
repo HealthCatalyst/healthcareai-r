@@ -216,6 +216,7 @@
     orderedProbs = NA,
 
     modelName = 'XGB',
+    algorithmName = 'XGBoost',
 
     # functions
     # Prepare data for XGBoost
@@ -370,7 +371,6 @@
       cat('Loading XGB Model...','\n')
 
       # Try to load the model
-      super$loadModelAndInfo(modelFullName = "XGBoost")
       private$fitXGB <- private$fitObj
       private$fitObj <- NULL
       
