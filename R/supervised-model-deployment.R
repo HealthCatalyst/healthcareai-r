@@ -155,6 +155,18 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     if ((nchar(self$params$predictedCol) != 0) & (self$params$type != 'multiclass')) {
       self$params$df[[self$params$predictedCol]] <- NULL
     }
+    
+    # Drop columns dropped in develop
+    columnsToKeep <- self$modelInfo$columnNames
+    toDrop <- c(self$params$predictedCol, self$params$grainCol)
+    columnsToKeep <- columnsToKeep[!(columnsToKeep %in% toDrop)]
+    if (all(columnsToKeep %in% names(self$params$df))) {
+      self$params$df <- self$params$df[, columnsToKeep]
+    } else {
+      missingCols <- columnsToKeep[!(columnsToKeep %in% names(self$params$df))]
+      stop(paste0("Some columns used to develop the model are missing\n",
+                  "Missing columns: ", paste(missingCols, collapse = " ")))
+    }
 
     if (isTRUE(self$params$debug)) {
       print('Entire data set after separating removing predicted column')
