@@ -33,30 +33,30 @@
 #' @section Methods: 
 #' The above describes params for initializing a new linearMixedModelDevelopment class with 
 #' \code{$new()}. Individual methods are documented below.
-#' @section $new():
+#' @section \code{$new()}:
 #' Initializes a new linear mixed model development class using the 
 #' parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
 #' model training. \cr
 #' \emph{Usage:} \code{$new(p)}
-#' @section $run():
+#' @section \code{$run()}:
 #' Trains model, displays feature importance and performance. \cr
-#' Usage: \code{$new()} 
-#' @section $getPredictions():
+#' \emph{Usage:}\code{$new()} 
+#' @section \code{$getPredictions()}:
 #' Returns the predictions from test data. \cr
 #' \emph{Usage:} \code{$getPredictions()} \cr
-#' @section $getROC():
+#' @section \code{$getROC()}:
 #' Returns the ROC curve object for \code{\link{plotROCs}}. Classification models only. \cr
 #' \emph{Usage:} \code{$getROC()} \cr
-#' @section $getPRCurve():
+#' @section \code{$getPRCurve()}:
 #' Returns the PR curve object for \code{\link{plotPRCurve}}. Classification models only. \cr
 #' \emph{Usage:} \code{$getROC()} \cr
-#' @section $getAUROC():
+#' @section \code{$getAUROC()}:
 #' Returns the area under the ROC curve from testing for classification models. \cr
 #' \emph{Usage:} \code{$getAUROC()} \cr
-#' @section $getRMSE():
+#' @section \code{$getRMSE()}:
 #' Returns the RMSE from test data for regression models. \cr
 #' \emph{Usage:} \code{$getRMSE()} \cr
-#' @section $getMAE():
+#' @section \code{$getMAE()}:
 #' Returns the RMSE from test data for regression models. \cr
 #' \emph{Usage:} \code{$getMAE()} \cr
 #' @export

@@ -9,7 +9,8 @@
 #' The linear mixed model functionality works best with data sets having fewer
 #' than 10,000 rows.
 #' @docType class
-#' @usage LinearMixedModelDeployment(type, df, grainCol, personCol, predictedCol, impute, debug, cores)
+#' @usage LinearMixedModelDeployment(type, df, grainCol, personCol, 
+#' predictedCol, impute, debug, cores, modelName)
 #' @import caret
 #' @import doParallel
 #' @import lme4
@@ -29,24 +30,25 @@
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
 #' @param cores Number of cores you'd like to use.  Defaults to 2.
+#' @param modelName Optional string. Can specify the model name. If used, you must load the same one in the deploy step.
 #' @section Methods: 
 #' The above describes params for initializing a new linearMixedModelDeployment class with 
 #' \code{$new()}. Individual methods are documented below.
-#' @section $new():
+#' @section \code{$new()}:
 #' Initializes a new linear mixed model deployment class using the 
 #' parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
 #' generating predictions. \cr
 #' \emph{Usage:} \code{$new(p)}
-#' @section $deploy():
+#' @section \code{$deploy()}:
 #' Generate new predictions, calculate top factors, and prepare the output dataframe. \cr
-#' Usage: \code{$deploy()} 
-#' @section $getTopFactors():
+#' \emph{Usage:}\code{$deploy()} 
+#' @section \code{$getTopFactors()}:
 #' Return the grain, all top factors, and their weights. \cr
 #' \emph{Usage:} \code{$getTopFactors(numberOfFactors = NA, includeWeights = FALSE)} \cr
 #' Params: \cr
 #'   - \code{numberOfFactors:} retuns the top \code{n} factors. Defaults to all factors. \cr
 #'   - \code{includeWeights:} If \code{TRUE}, returns weights associated with each factor.
-#' @section $getOutDf():
+#' @section \code{$getOutDf()}:
 #' Returns the output dataframe. \cr
 #' \emph{Usage:} \code{$getOutDf()} 
 #' @export

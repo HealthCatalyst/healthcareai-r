@@ -6,10 +6,10 @@
 \title{Deploy a production-ready predictive Lasso model}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-LassoDeployment(type, df, grainCol, predictedCol, impute, debug, cores)
+LassoDeployment(type, df, grainCol, predictedCol, impute, debug, cores, modelName)
 }
 \arguments{
-\item{type}{The type of model (either 'regression', 'classification', or 'multiclass')}
+\item{type}{The type of model (either 'regression' or 'classification')}
 
 \item{df}{Dataframe whose columns are used for calc.}
 
@@ -26,7 +26,9 @@ F leads to removal of rows containing NULLs.}
 \item{debug}{Provides the user extended output to the console, in order
 to monitor the calculations throughout. Use T or F.}
 
-\item{cores}{Number of cores you'd like to use.}
+\item{cores}{Number of cores you'd like to use. Defaults to 2.}
+
+\item{modelName}{Optional string. Can specify the model name. If used, you must load the same one in the deploy step.}
 }
 \description{
 This step allows one to
@@ -42,7 +44,7 @@ The above describes params for initializing a new lassoDeployment class with
 \code{$new()}. Individual methods are documented below.
 }
 
-\section{$new()}{
+\section{\code{$new()}}{
 
 Initializes a new lasso deployment class using the 
 parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
@@ -50,22 +52,22 @@ generating predictions. \cr
 \emph{Usage:} \code{$new(p)}
 }
 
-\section{$deploy()}{
+\section{\code{$deploy()}}{
 
 Generate new predictions, calculate top factors, and prepare the output dataframe. \cr
-Usage: \code{$deploy()}
+\emph{Usage:}\code{$deploy()}
 }
 
-\section{$getTopFactors()}{
+\section{\code{$getTopFactors()}}{
 
 Return the grain, all top factors, and their weights. \cr
 \emph{Usage:} \code{$getTopFactors(numberOfFactors = NA, includeWeights = FALSE)} \cr
-\emph{Params:} \cr
+Params: \cr
   - \code{numberOfFactors:} retuns the top \code{n} factors. Defaults to all factors. \cr
   - \code{includeWeights:} If \code{TRUE}, returns weights associated with each factor.
 }
 
-\section{$getOutDf()}{
+\section{\code{$getOutDf()}}{
 
 Returns the output dataframe. \cr
 \emph{Usage:} \code{$getOutDf()}

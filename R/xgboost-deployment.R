@@ -7,8 +7,8 @@
 #' \item Push these predictions to SQL Server or CSV
 #' }
 #' @docType class
-#' @usage XGBoostDeployment(type, df, grainCol, testWindowCol, 
-#' predictedCol, impute, debug)
+#' @usage XGBoostDeployment(type, df, grainCol,
+#' predictedCol, impute, debug, cores, modelName)
 #' @import caret
 #' @import doParallel
 #' @import xgboost
@@ -25,21 +25,22 @@
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
 #' @param cores Number of cores you'd like to use.  Defaults to 2.
+#' @param modelName Optional string. Can specify the model name. If used, you must load the same one in the deploy step.
 #' @section Methods: 
 #' The above describes params for initializing a new XGBoostDeployment class with 
 #' \code{$new()}. Individual methods are documented below.
-#' @section $new():
+#' @section \code{$new()}:
 #' Initializes a new XGBoost deployment class using the 
 #' parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
 #' generating predictions. \cr
 #' \emph{Usage:} \code{$new(p)}
-#' @section $deploy():
+#' @section \code{$deploy()}:
 #' Generate new predictions and prepare the output dataframe. \cr
-#' Usage: \code{$deploy()} 
-#' @section $getPredictions():
+#' \emph{Usage:} \code{$deploy()} 
+#' @section \code{$getPredictions()}:
 #' Return the grain and predictions for each class. \cr
 #' \emph{Usage:} \code{$getPredictions()} \cr
-#' @section $getOutDf():
+#' @section \code{$getOutDf()}:
 #' Returns a dataframe containing the grain column, the top 3 probabilities for each row, 
 #' and the classes associated with those probabilities. \cr
 #' \emph{Usage:} \code{$getOutDf()} 

@@ -1,17 +1,16 @@
 #' Compare predictive models, created on your data
 #'
-#' @description This step allows you to create an XGBoost model, based on
-#' your data.
+#' @description This step allows you to create an XGBoost classification model, based on
+#' your data. Use model type 'multiclass' with 2 or more classes.
 #' @docType class
-#' @usage XGBoostDevelopment(object, type, df, grainCol, predictedCol, 
-#' impute, debug)
+#' @usage XGBoostDevelopment(type, df, grainCol, predictedCol, 
+#' impute, debug, cores, modelName, xgb_params, xgb_nrounds)
 #' @import caret
 #' @import doParallel
 #' @import e1071
 #' @import xgboost
 #' @importFrom R6 R6Class
-#' @param object of SuperviseModelParameters class for $new() constructor
-#' @param type The type of model (either 'regression' or 'classification')
+#' @param type The type of model. Currently requires 'multiclass'.
 #' @param df Dataframe whose columns are used for calc.
 #' @param grainCol Optional. The dataframe's column that has IDs pertaining to 
 #' the grain. No ID columns are truly needed for this step.
@@ -23,6 +22,29 @@
 #' F leads to removal of rows containing NULLs.
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
+#' @param cores Number of cores you'd like to use. Defaults to 2.
+#' @param modelName Optional string. Can specify the model name. If used, you must load the same one in the deploy step.
+#' @param xgb_params A list, containing optional xgboost parameters. The full list of params can be found at
+#' \url{http://xgboost.readthedocs.io/en/latest/parameter.html}. 
+#' @param xgb_nrounds Number of rounds to use for boosting.
+#' @section Methods: 
+#' The above describes params for initializing a new XGBoostDevelopment class with 
+#' \code{$new()}. Individual methods are documented below.
+#' @section \code{$new()}:
+#' Initializes a new XGBoost development class using the 
+#' parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
+#' model training. \cr
+#' \emph{Usage:} \code{$new(p)}
+#' @section \code{$run()}:
+#' Trains model, displays predictions and class-wise performance. \cr
+#' \emph{Usage:} \code{$new()} 
+#' @section \code{$getPredictions()}:
+#' Returns the predictions from test data. \cr
+#' \emph{Usage:} \code{$getPredictions()} \cr
+#' @section \code{$generateConfusionMatrix()}:
+#' Returns the confusion matrix and statistics generated during model development. \cr
+#' \emph{Usage:} \code{$getConfusionMatrix()} \cr
+#' @export
 #' @references \url{http://hctools.org/}
 #' @seealso Information on the example dataset can be found at: 
 #' \url{http://archive.ics.uci.edu/ml/datasets/dermatology/}
