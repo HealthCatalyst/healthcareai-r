@@ -290,7 +290,11 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       if (self$params$type == 'classification' || self$params$type == 'multiclass' ) {
         self$params$df[[self$params$predictedCol]] = as.factor(self$params$df[[self$params$predictedCol]])
       }
-
+      
+      # Save column names for deploy
+      self$modelInfo$columnNames <- names(self$params$df)
+      
+      # Perform train/test split
       trainIndex <- createDataPartition(y = self$params$df[[self$params$predictedCol]],
                                        p = 0.8,
                                        list = FALSE, times = 1)
