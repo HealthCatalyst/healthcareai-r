@@ -33,7 +33,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   fit = NA,
   fitObj = NA,
   predictedVals = NA,
-
+  modelName = NA,
   clustersOnCores = NA,
 
   ###########
@@ -89,16 +89,22 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   self$params$debug <- p$debug
   
   if (!is.null(p$modelName))
-    self$params$modelName <- p$modelName
+  self$params$modelName <- p$modelName
 
   # for deploy method
   if (!is.null(p$cores))
   self$params$cores <- p$cores
+  
+  if (is.null(self$params$modelName))
+  self$params$modelName = private$modelName
   },
 
   loadData = function() {
-    cat('Loading Data...','\n')
+    # Load model info
+    cat('Loading Model Info...','\n')
+    private$loadModelAndInfo(private$algorithmName)
 
+    cat('Loading Data...','\n')
     if (isTRUE(self$params$debug)) {
       print('Entire data set at the top of the constructor')
       print(str(self$params$df))
@@ -166,12 +172,32 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     }
 
     # Impute columns
-    # TODO: impute using training data (currently uses deploy data)
-    self$params$df[] <- lapply(self$params$df, imputeColumn)
+    # Impute all columns except grain, person, and predicted.
+      colsToImpute <- !(names(self$params$df) %in% 
+        c(self$params$grainCol, self$params$personCol, self$params$predictedCol))
+    # Impute is TRUE
+    if (isTRUE(self$params$impute)) { 
+      temp <- imputeDF(self$params$df[names(self$params$df[colsToImpute])], self$modelInfo$imputeVals)
+      self$params$df[,colsToImpute] <- temp$df
+      temp <- NULL
 
-    if (isTRUE(self$params$debug)) {
-      print('Entire data set after imputation')
-      print(str(self$params$df))
+      if (isTRUE(self$params$debug)) {
+        print('Entire data set after imputation')
+        print(str(self$params$df))
+      }
+    # Impute is FALSE
+    } else { 
+      if (isTRUE(self$params$debug)) {
+        print(paste0("Rows in data set before removing rows with NA's: ", nrow(self$params$df)))
+      }
+      # Remove rows with any NA's
+      self$params$df <- na.omit(self$params$df)
+
+      if (isTRUE(self$params$debug)) {
+        print(paste0("Rows in data set after removing rows with NA's: ", nrow(self$params$df)))
+        print("Entire data set after removing rows with NA's")
+        print(str(self$params$df))
+      }
     }
 
     # Now that we have train/test, split grain col into test (for use at end)
@@ -221,10 +247,13 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
               '\nThese values have been set to NA.', sep = "")
     }
     
-    # Impute missing values introduced through new factor levels
-    # TODO: impute using training data (currently uses deploy data)
-    private$dfTestRaw[, names(newLevels)] <- sapply(private$dfTestRaw[, names(newLevels)], imputeColumn)
-    
+    # Impute missing values introduced through new factor levels (if any)
+    imputeVals <- self$modelInfo$imputeVals
+    if (length(newLevels) > 0) {
+      out <- imputeDF(as.data.frame(private$dfTestRaw[names(newLevels)]), imputeVals[names(newLevels)])
+      private$dfTestRaw[, names(newLevels)] <- as.data.frame(out[1])
+    }
+
     # Assign new factor levels using training data factor levels
     for (col in names(self$modelInfo$factorLevels)) {
       private$dfTestRaw[[col]] <- factor(private$dfTestRaw[[col]],
@@ -246,6 +275,47 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     if (isTRUE(self$params$debug)) {
       print('Raw data set after creating dummy vars (for top 3 factors only)')
       print(str(private$dfTestRaw))
+    }
+  }, 
+  
+  createDf = function() {
+    dtStamp <- as.POSIXlt(Sys.time())
+    
+    # Combine grain.col, prediction, and time to be put back into SAM table
+    # TODO: use a common function to reduce lasso-specific code here
+    private$outDf <- data.frame(
+      0,    # BindingID
+      'R',  # BindingNM
+      dtStamp,                    # LastLoadDTS
+      private$grainTest,          # GrainID
+      private$predictions         # Predicted probabilty or predicted values
+    )    
+    
+    predictedResultsName <- ""
+    if (self$params$type == "classification") {
+      predictedResultsName <- "PredictedProbNBR"
+    } else if (self$params$type == "regression") {
+      predictedResultsName <- "PredictedValueNBR"
+    }
+    colnames(private$outDf) <- c(
+      "BindingID",
+      "BindingNM",
+      "LastLoadDTS",
+      self$params$grainCol,
+      predictedResultsName
+    )
+    
+    # Add top factor columns to outDf (without including the grainCol twice)
+    topFactorsDf <- self$getTopFactors(numberOfFactors = 3, includeWeights = F)
+    private$outDf <- cbind(private$outDf, topFactorsDf[, 2:ncol(topFactorsDf)])
+    
+    # Remove row names so df can be written to DB
+    # TODO: in writeData function, find how to ignore row names
+    rownames(private$outDf) <- NULL
+    
+    if (isTRUE(self$params$debug)) {
+      cat('Dataframe with predictions:', '\n')
+      cat(str(private$outDf), '\n')
     }
   },
   
@@ -302,6 +372,36 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
     #Deploy the Model
     deploy = function() {
+    },
+    
+    # A function to get the ordered list of top factors with parameters to 
+    # choose how many factors to include and whether or not to include weights
+    getTopFactors = function(numberOfFactors = NA, includeWeights = FALSE) {
+      # Include all factors by default
+      if (is.na(numberOfFactors)) {
+        numberOfFactors <- ncol(private$orderedFactors)
+      }
+      # Don't include more factors than exist
+      numberOfFactors <- min(numberOfFactors, ncol(private$orderedFactors))
+      # Include grain column
+      topFactorsDf <- data.frame(id = private$grainTest)
+      if (includeWeights) {
+      # Get factor weights
+        factorWeights <- t(sapply(1:nrow(private$multiplyRes),
+                                  function(i)
+                                        private$multiplyRes[i, ][order(private$multiplyRes[i, ],
+                                                                  decreasing = TRUE)]))
+      }
+      # Add each of the top factors
+      for (i in 1:numberOfFactors) {
+        ithTopFactor <- paste0("Factor", i, "TXT")
+        topFactorsDf[[ithTopFactor]] <- private$orderedFactors[, i]
+        if (includeWeights) {
+          ithWeight <- paste0("Factor", i, "Weight")
+          topFactorsDf[[ithWeight]] <- as.numeric(factorWeights[, i])
+        }
+      }
+      return(topFactorsDf)
     }
   )
 )
