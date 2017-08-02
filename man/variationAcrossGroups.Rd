@@ -35,16 +35,32 @@ Plot a boxplot to compare the variation across the groups.
 \examples{
 
 ## Create the toy data set
-df <- data.frame(Gender = factor(rbinom(100, 1, 0.45), labels = c("Male","Female")), 
-                 Age = factor(rbinom(100, 1, 0.45), labels = c("Young","Old")),
-                 Ans = factor(rbinom(100, 1, 0.45), labels = c("Y","N")),
-                 Dept = sample(c("A","B","C"), 50, replace = TRUE, prob = c(0.2,0.3,0.5)),
-                 measure1 = c(rnorm(30),rnorm(70,10,5)),
-                 measure2 = c(rnorm(20,8,3),rnorm(80,-15,5)))
+set.seed(2017)
+n = 200
+df <- data.frame(Dept = sample(c("A","B","C"), 
+                               size = n, 
+                               replace = TRUE, 
+                               prob =  c(0.5, 0.3, 0.2)),
+                 Age = factor(rbinom(50, 1, 0.45), labels = c("Young","Old")),
+                 Gender = factor(rbinom(50, 1, 0.45), labels = c("Male","Female")),
+                 LOS = floor(abs(rnorm(n,10,5))),
+                 BP = sample(50:180, n, replace = TRUE))
+
+countA <- length(df$LOS[df$Dept == "A"])
+df$LOS[df$Dept == "A"] <- floor(df$LOS[df$Dept == "A"] + abs(rnorm(countA, mean = 2)))
+countB <- length(df$LOS[df$Dept == "B"])
+df$LOS[df$Dept == "B"] <- floor(df$LOS[df$Dept == "B"] + abs(rnorm(countB, mean = 5)))
+countY <- length(df$LOS[df$Age == "Young"])
+df$LOS[df$Age == "Old"] <- floor(df$LOS[df$Age == "Old"] + abs(rnorm(countY, mean = 10)))
+df$BP[df$Dept == "A"] <- floor(df$BP[df$Dept == "A"] + abs(rnorm(countA, mean = 2)))
+df$BP[df$Dept == "B"] <- floor(df$BP[df$Dept == "B"] + abs(rnorm(countB, mean = 15)))
+df$BP[df$Age == "Old"] <- floor(df$BP[df$Age == "Old"] + abs(rnorm(countY, mean = 20)))
+
+head(df)
 
 ## Define the parameters 
-categoricalCols <- c("Dept","Gender")
-measureColumn <- c("measure1","measure2")
+categoricalCols <- c("Dept","Age")
+measureColumn <- c("LOS","BP")
 
 ## Call the function
 variationAcrossGroups(df = df, 
@@ -56,33 +72,29 @@ variationAcrossGroups(df = df,
 ## as well as the tables. 
 ## In this example, the function returns
 ### Two boxplots
-### 1. The boxplot of measure1 across the two factors, Dept and Gender
+### 1. The boxplot of LOS across the two factors, Dept and Age
 ###    Dept has 3 levels: A, B, C
-###    Gender has 2 levels: Male and Female
+###    Age has 2 levels: Young and Old
 ###    Hence, there are a total of 6 different levels if we consider both factors:
-###    A.Male, B.Male, c.Male, A.Female, B.Female, C.Female
+###    A.Young, B.Young, c.Young, A.Old, B.Old, C.Old
 ###    They are shown in the x axis of the boxplot. 
 ###    Levels that are not significantly different one each other are
-###    represented with the same letter. The six boxes here all have letter "a",
-###    meaning all the six levels here have the same mean.
-### 2. The boxplot of measure2 across the two factors, Dept and Gender
-###    From this boxplot, we can conclude that the six levels have the 
-###    same mean, or there is no significant difference one each other
+###    represented with the same letter. For example, groups A.Old and C.Old do
+###    not have a significant difference in mean.
+### 2. The boxplot of BP across the two factors, Dept and Age
+###    From this boxplot, we can conclude that the group B.Old has a
+###    significant higher mean.
 ### 
 ### Two 95\% family-wise confidence level plots
 ###    These are the plots that present the results returned by Tukey's test. 
 ###    It allows to find means of a level that are significantly different 
 ###    from each other, comparing all possible pairs of means with a t-test 
-###    like method. If for example, the means of the levels of B.Female and B.Male
-###    are significantly different, then the color of the line corresponding to
-###    the pair is red, otherwise it's black. The order of the lines is according 
-###    to the p-values, from the smallest to the largest. The notation in the 
-###    topright of the plot is the measure column used to build the plot.
-###    In this example, for both of the measure columns measure1 and measure2, no
-###    significant difference was found for any pair of the levels, which is 
-###    the same as the boxplot.
+###    like method. Red lines indicate a significant difference between the pair
+###    of groups. The order of the lines is according to the p-values, from the 
+###    smallest to the largest. The notation in the bottomright of the plot is
+###    the measure column used to build the plot.
 ### Two tables: one shows the p-values returned by the Tukey's test. And the 
-### other presents the means/sd and quartiles of each level.
+### other presents the means, sd and quartiles of each group.
 
 #########################################################################
 set.seed(35)                      
