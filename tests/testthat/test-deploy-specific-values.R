@@ -73,8 +73,8 @@ test_that("mixed model regression predicted val is the same each time", {
   capture.output(suppressWarnings(dLMM$deploy()))
   capture.output(dfRes <- dLMM$getOutDf())
     
-  expect_true(abs(dfRes$PredictedValueNBR[1] - 128.0015) < 1.0e-2)
-  expect_true(abs(dfRes$PredictedValueNBR[10] - 163.5445) < 1.0e-2)
+  expect_true(abs(dfRes$PredictedValueNBR[1] - 127.7663) < 1.0e-2)
+  expect_true(abs(dfRes$PredictedValueNBR[10] - 162.0465) < 1.0e-2)
   closeAllConnections()
 })
 
@@ -180,8 +180,8 @@ test_that("rf regression predicted val (w/out mtry tuning) is same each time", {
   capture.output(dfRes <- dRF$getOutDf())
   
   #here, tolerances need to be high in order for the Travis build to work on mac
-  expect_true(abs(dfRes$PredictedValueNBR[7] - 157.333) < .2)
-  expect_true(abs(dfRes$PredictedValueNBR[19] - 148.4243) < .2)
+  expect_true(abs(dfRes$PredictedValueNBR[7] - 155.4124) < .2)
+  expect_true(abs(dfRes$PredictedValueNBR[19] - 151.3856) < .2)
   closeAllConnections()
 })
 
@@ -285,7 +285,7 @@ test_that("lasso regression predicted val is the same each time", {
   capture.output(dL$deploy())
   capture.output(dfRes <- dL$getOutDf())
   
-  expect_true(abs(dfRes$PredictedValueNBR[50] - 149.6703) < 1.0e-2)
-  expect_true(abs(dfRes$PredictedValueNBR[27] - 149.6703) < 1.0e-2)
+  expect_true(abs(dfRes$PredictedValueNBR[50] - 149.5992) < 1.0e-2)
+  expect_true(abs(dfRes$PredictedValueNBR[27] - 149.5992) < 1.0e-2)
   closeAllConnections()
 })
