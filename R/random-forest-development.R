@@ -3,8 +3,8 @@
 #' @description This step allows you to create a random forest model, based on
 #' your data.
 #' @docType class
-#' @usage RandomForestDevelopment(object, type, df, grainCol, predictedCol, 
-#' impute, debug)
+#' @usage RandomForestDevelopment(type, df, grainCol, predictedCol, 
+#' impute, debug, cores, trees, tune, modelName)
 #' @import caret
 #' @import doParallel
 #' @import e1071
@@ -13,7 +13,6 @@
 #' @importFrom R6 R6Class
 #' @import ranger
 #' @import ROCR
-#' @param object of SuperviseModelParameters class for $new() constructor
 #' @param type The type of model (either 'regression' or 'classification')
 #' @param df Dataframe whose columns are used for calc.
 #' @param grainCol Optional. The dataframe's column that has IDs pertaining to 
@@ -26,6 +25,41 @@
 #' F leads to removal of rows containing NULLs.
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
+#' @param cores Number of cores you'd like to use. Defaults to 2.
+#' @param trees Number of trees in the forest. Defaults to 201.
+#' @param tune If TRUE, automatically tune model for better performance. Creates grid using mtry param and 5-fold 
+#' cross validation. Note this takes longer.
+#' @param modelName Optional string. Can specify the model name. If used, you must load the same one in the deploy step.
+#' @section Methods: 
+#' The above describes params for initializing a new randomForestDevelopment class with 
+#' \code{$new()}. Individual methods are documented below.
+#' @section $new():
+#' Initializes a new random forest development class using the 
+#' parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
+#' model training. \cr
+#' \emph{Usage:} \code{$new(p)}
+#' @section $run():
+#' Trains model, displays feature importance and performance. \cr
+#' Usage: \code{$new()} 
+#' @section $getPredictions():
+#' Returns the predictions from test data. \cr
+#' \emph{Usage:} \code{$getPredictions()} \cr
+#' @section $getROC():
+#' Returns the ROC curve object for \code{\link{plotROCs}}. Classification models only. \cr
+#' \emph{Usage:} \code{$getROC()} \cr
+#' @section $getPRCurve():
+#' Returns the PR curve object for \code{\link{plotPRCurve}}. Classification models only. \cr
+#' \emph{Usage:} \code{$getROC()} \cr
+#' @section $getAUROC():
+#' Returns the area under the ROC curve from testing for classification models. \cr
+#' \emph{Usage:} \code{$getAUROC()} \cr
+#' @section $getRMSE():
+#' Returns the RMSE from test data for regression models. \cr
+#' \emph{Usage:} \code{$getRMSE()} \cr
+#' @section $getMAE():
+#' Returns the RMSE from test data for regression models. \cr
+#' \emph{Usage:} \code{$getMAE()} \cr
+#' @export
 #' @references \url{http://hctools.org/}
 #' @seealso \code{\link{LassoDevelopment}}
 #' @seealso \code{\link{LinearMixedModelDevelopment}}

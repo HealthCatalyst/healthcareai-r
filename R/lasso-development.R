@@ -3,17 +3,15 @@
 #' @description This step allows you to create a Lasso model, based on
 #' your data.
 #' @docType class
-#' @usage LassoDevelopment(object, type, df, grainCol, predictedCol, impute,
-#' debug)
+#' @usage LassoDevelopment(type, df, grainCol, predictedCol, impute,
+#' debug, cores, modelName)
 #' @import caret
 #' @import doParallel
 #' @import e1071
 #' @import grpreg
 #' @import pROC
 #' @importFrom R6 R6Class
-#' @import ranger
 #' @import ROCR
-#' @param object of SuperviseModelParameters class for $new() constructor
 #' @param type The type of model (either 'regression' or 'classification')
 #' @param df Dataframe whose columns are used for calc.
 #' @param grainCol Optional. The dataframe's column that has IDs pertaining to 
@@ -27,6 +25,7 @@
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
 #' @param cores Number of cores you'd like to use. Defaults to 2.
+#' @param modelName Optional string. Can specify the model name. If used, you must load the same one in the deploy step.
 #' @section Methods: 
 #' The above describes params for initializing a new lassoDevelopment class with 
 #' \code{$new()}. Individual methods are documented below.
