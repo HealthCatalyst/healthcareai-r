@@ -40,7 +40,7 @@ test_that("mixed model classification predicted val is the same each time", {
   capture.output(suppressWarnings(dLMM$deploy()))
   capture.output(dfRes <- dLMM$getOutDf())
   
-  expect_true(abs(dfRes$PredictedProbNBR[1] - 0.3353753) < 1.0e-2)
+  expect_true(abs(dfRes$PredictedProbNBR[1] - 0.2717914) < 1.0e-2)
   expect_true(abs(dfRes$PredictedProbNBR[10] - 0.9881623) < 1.0e-2)
   closeAllConnections()
 })
@@ -73,8 +73,8 @@ test_that("mixed model regression predicted val is the same each time", {
   capture.output(suppressWarnings(dLMM$deploy()))
   capture.output(dfRes <- dLMM$getOutDf())
     
-  expect_true(abs(dfRes$PredictedValueNBR[1] - 128.0015) < 1.0e-2)
-  expect_true(abs(dfRes$PredictedValueNBR[10] - 163.5445) < 1.0e-2)
+  expect_true(abs(dfRes$PredictedValueNBR[1] - 127.7663) < 1.0e-2)
+  expect_true(abs(dfRes$PredictedValueNBR[10] - 162.0465) < 1.0e-2)
   closeAllConnections()
 })
 
@@ -145,8 +145,8 @@ test_that("rf classification predicted val (w/ mtry tuning) is the same each
   capture.output(dfRes <- dRF$getOutDf())
   
   # for some reason, this tolerance needs to be very lax...
-  expect_true(abs(dfRes$PredictedProbNBR[1] - 0.09225302) < .1)
-  expect_true(abs(dfRes$PredictedProbNBR[10] - 0.9169635) < .1)
+  expect_true(abs(dfRes$PredictedProbNBR[1] - 0.09114744) < .1)
+  expect_true(abs(dfRes$PredictedProbNBR[10] - 0.9993781) < .1)
   closeAllConnections()
 })
 
@@ -180,8 +180,8 @@ test_that("rf regression predicted val (w/out mtry tuning) is same each time", {
   capture.output(dfRes <- dRF$getOutDf())
   
   #here, tolerances need to be high in order for the Travis build to work on mac
-  expect_true(abs(dfRes$PredictedValueNBR[7] - 157.333) < .2)
-  expect_true(abs(dfRes$PredictedValueNBR[19] - 148.4243) < .2)
+  expect_true(abs(dfRes$PredictedValueNBR[7] - 155.4124) < 1)
+  expect_true(abs(dfRes$PredictedValueNBR[19] - 151.3856) < 1)
   closeAllConnections()
 })
 
@@ -251,8 +251,8 @@ test_that("lasso classification predicted val is the same each time", {
   capture.output(dL$deploy())
   capture.output(dfRes <- dL$getOutDf())
   
-  expect_true(abs(dfRes$PredictedProbNBR[1] - 0.1566765) < 1.0e-2)
-  expect_true(abs(dfRes$PredictedProbNBR[10] - 0.2221281) < 1.0e-2)
+  expect_true(abs(dfRes$PredictedProbNBR[1] - 0.1582699) < 1.0e-2)
+  expect_true(abs(dfRes$PredictedProbNBR[10] - 0.209256) < 1.0e-2)
   closeAllConnections()
 })
 
@@ -285,7 +285,7 @@ test_that("lasso regression predicted val is the same each time", {
   capture.output(dL$deploy())
   capture.output(dfRes <- dL$getOutDf())
   
-  expect_true(abs(dfRes$PredictedValueNBR[50] - 149.6703) < 1.0e-2)
-  expect_true(abs(dfRes$PredictedValueNBR[27] - 149.6703) < 1.0e-2)
+  expect_true(abs(dfRes$PredictedValueNBR[50] - 149.5992) < 1.0e-2)
+  expect_true(abs(dfRes$PredictedValueNBR[27] - 149.5992) < 1.0e-2)
   closeAllConnections()
 })
