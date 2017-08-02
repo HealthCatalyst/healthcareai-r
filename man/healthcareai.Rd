@@ -56,7 +56,7 @@ have passed.}
 
 \code{\link{RiskAdjustedComparisons}}
 
-\code{\link{imputeColumn}}
+\code{\link{imputeDF}}
 
 \code{\link{groupedLOCF}}
 

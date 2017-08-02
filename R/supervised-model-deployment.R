@@ -33,7 +33,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   fit = NA,
   fitObj = NA,
   predictedVals = NA,
-
+  modelName = NA,
   clustersOnCores = NA,
 
   ###########
@@ -89,16 +89,22 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   self$params$debug <- p$debug
   
   if (!is.null(p$modelName))
-    self$params$modelName <- p$modelName
+  self$params$modelName <- p$modelName
 
   # for deploy method
   if (!is.null(p$cores))
   self$params$cores <- p$cores
+  
+  if (is.null(self$params$modelName))
+  self$params$modelName = private$modelName
   },
 
   loadData = function() {
-    cat('Loading Data...','\n')
+    # Load model info
+    cat('Loading Model Info...','\n')
+    private$loadModelAndInfo(private$algorithmName)
 
+    cat('Loading Data...','\n')
     if (isTRUE(self$params$debug)) {
       print('Entire data set at the top of the constructor')
       print(str(self$params$df))
@@ -166,12 +172,32 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     }
 
     # Impute columns
-    # TODO: impute using training data (currently uses deploy data)
-    self$params$df[] <- lapply(self$params$df, imputeColumn)
+    # Impute all columns except grain, person, and predicted.
+      colsToImpute <- !(names(self$params$df) %in% 
+        c(self$params$grainCol, self$params$personCol, self$params$predictedCol))
+    # Impute is TRUE
+    if (isTRUE(self$params$impute)) { 
+      temp <- imputeDF(self$params$df[names(self$params$df[colsToImpute])], self$modelInfo$imputeVals)
+      self$params$df[,colsToImpute] <- temp$df
+      temp <- NULL
 
-    if (isTRUE(self$params$debug)) {
-      print('Entire data set after imputation')
-      print(str(self$params$df))
+      if (isTRUE(self$params$debug)) {
+        print('Entire data set after imputation')
+        print(str(self$params$df))
+      }
+    # Impute is FALSE
+    } else { 
+      if (isTRUE(self$params$debug)) {
+        print(paste0("Rows in data set before removing rows with NA's: ", nrow(self$params$df)))
+      }
+      # Remove rows with any NA's
+      self$params$df <- na.omit(self$params$df)
+
+      if (isTRUE(self$params$debug)) {
+        print(paste0("Rows in data set after removing rows with NA's: ", nrow(self$params$df)))
+        print("Entire data set after removing rows with NA's")
+        print(str(self$params$df))
+      }
     }
 
     # Now that we have train/test, split grain col into test (for use at end)
@@ -221,10 +247,13 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
               '\nThese values have been set to NA.', sep = "")
     }
     
-    # Impute missing values introduced through new factor levels
-    # TODO: impute using training data (currently uses deploy data)
-    private$dfTestRaw[, names(newLevels)] <- sapply(private$dfTestRaw[, names(newLevels)], imputeColumn)
-    
+    # Impute missing values introduced through new factor levels (if any)
+    imputeVals <- self$modelInfo$imputeVals
+    if (length(newLevels) > 0) {
+      out <- imputeDF(as.data.frame(private$dfTestRaw[names(newLevels)]), imputeVals[names(newLevels)])
+      private$dfTestRaw[, names(newLevels)] <- as.data.frame(out[1])
+    }
+
     # Assign new factor levels using training data factor levels
     for (col in names(self$modelInfo$factorLevels)) {
       private$dfTestRaw[[col]] <- factor(private$dfTestRaw[[col]],

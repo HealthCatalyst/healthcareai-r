@@ -413,6 +413,8 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     
     fitLmm = NA,
     predictions = NA,
+    modelName = 'LMM',
+    algorithmName = 'LinearMixedModel',
 
     # functions
     # Perform prediction
@@ -509,16 +511,12 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     #   i.e. p = DeploySupervisedModelParameters$new()
     initialize = function(p) {
       super$initialize(p)
-      if (is.null(self$params$modelName)) {
-        self$params$modelName = "LMM" 
-      }
     },
 
     #Override: deploy the model
     deploy = function() {
 
       # Try to load the model
-      super$loadModelAndInfo(modelFullName = "LinearMixedModel")
       private$fitLmm <- private$fitObj
       private$fitObj <- NULL
       
