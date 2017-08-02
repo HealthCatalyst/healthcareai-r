@@ -32,7 +32,7 @@ countMissingData <- function(x, userNAs = NULL) {
   }
   
   possibleNAs <- c(NA, "NA", "NAs", "na", NaN, "NaN", "?", "??", "nil", "NULL", 
-                   " ", "", "999") 
+                   " ", "") 
   
   if (!is.null(userNAs) && !is.vector(userNAs)) {
     stop("User provided NAs must be in vector format")

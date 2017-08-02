@@ -43,7 +43,7 @@
 #' @seealso \code{\link{LinearMixedModelDevelopment}}
 #' @seealso \code{\link{LinearMixedModelDeployment}}
 #' @seealso \code{\link{RiskAdjustedComparisons}}
-#' @seealso \code{\link{imputeColumn}}
+#' @seealso \code{\link{imputeDF}}
 #' @seealso \code{\link{groupedLOCF}}
 #' @seealso \code{\link{selectData}}
 #' @seealso \code{\link{writeData}}
