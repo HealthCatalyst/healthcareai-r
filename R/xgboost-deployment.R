@@ -215,6 +215,9 @@
     temp_predictions = NA,
     orderedProbs = NA,
 
+    modelName = 'XGB',
+    algorithmName = 'XGBoost',
+
     # functions
     # Prepare data for XGBoost
     xgbPrepareData = function() {
@@ -361,9 +364,6 @@
     initialize = function(p) {
       cat('Initializing XGBoost Deploy...','\n')
       super$initialize(p)
-      if (is.null(self$params$modelName)) {
-        self$params$modelName = "XGB" 
-      }
     },
 
     #Override: deploy the model
@@ -371,7 +371,6 @@
       cat('Loading XGB Model...','\n')
 
       # Try to load the model
-      super$loadModelAndInfo(modelFullName = "XGBoost")
       private$fitXGB <- private$fitObj
       private$fitObj <- NULL
       
