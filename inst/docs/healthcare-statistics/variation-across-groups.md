@@ -16,34 +16,25 @@ For example, of all the patients (Female and Male, Old and Young), which group
 
 Let's get started in RStudio!
 
-* First, we'll load healthcareai, create a fake dataset on which to work, 
+* First, we'll load healthcareai, upload a fake dataset on which to work, 
 and look at it:
 
 ```r
 library(healthcareai)
 
-set.seed(2017)
-n = 200
-df <- data.frame(Dept = sample(c("A","B","C"), 
-                              size = n, 
-                              replace = T, 
-                              prob =  c(0.5, 0.3, 0.2)),
-                  Age = factor(rbinom(50, 1, 0.45), labels = c("Young","Old")),
-                  Gender = factor(rbinom(50, 1, 0.45), labels = c("Male","Female")),
-                  measure = rnorm(n))
+csvfile <- system.file("extdata", 
+                       "variationAcrossGroupsExData.csv", 
+                       package = "healthcareai")
 
-countA <- length(df$measure[df$Dept == "A"])
-df$measure[df$Dept == "A"] <- df$measure[df$Dept == "A"] + rnorm(countA, mean = 0.25)
-countB <- length(df$measure[df$Dept == "B"])
-df$measure[df$Dept == "B"] <- df$measure[df$Dept == "B"] + rnorm(countB, mean = -0.25)
-countY <- length(df$measure[df$Age == "Young"])
-df$measure[df$Age == "Young"] <- df$measure[df$Age == "Young"] + rnorm(countY, mean = 1)
+# Replace csvfile with 'path/file'
+df <- read.csv(file = csvfile, 
+               header = TRUE, 
+               na.strings = c("NULL", "NA", ""))
 
 head(df)
 ```
 
-* Next, let's define our subgroups by `Dept` and `Age` and use `measure` as our 
-measure of interest. Then we pass these parameters to `variationAcrossGroups`.
+* Next, let's define our subgroups by `Dept` and `Age` and use `LOS` (length of stay) as our measure of interest. Then we pass these parameters to `variationAcrossGroups`.
 
 ```r
 measureColumn <- 'measure'
@@ -87,22 +78,17 @@ variationAcrossGroups(df,categoricalCols,measureColumn, printTable = FALSE,
 ## Full example code
 
 ```r
-set.seed(2017)
-n = 200
-df <- data.frame(Dept = sample(c("A","B","C"), 
-                              size = n, 
-                              replace = T, 
-                              prob =  c(0.5, 0.3, 0.2)),
-                  Age = factor(rbinom(50, 1, 0.45), labels = c("Young","Old")),
-                  Gender = factor(rbinom(50, 1, 0.45), labels = c("Male","Female")),
-                  measure = rnorm(n))
+library(healthcareai)
 
-countA <- length(df$measure[df$Dept == "A"])
-df$measure[df$Dept == "A"] <- df$measure[df$Dept == "A"] + rnorm(countA, mean = 0.25)
-countB <- length(df$measure[df$Dept == "B"])
-df$measure[df$Dept == "B"] <- df$measure[df$Dept == "B"] + rnorm(countB, mean = -0.25)
-countY <- length(df$measure[df$Age == "Young"])
-df$measure[df$Age == "Young"] <- df$measure[df$Age == "Young"] + rnorm(countY, mean = 1)
+csvfile <- system.file("extdata", 
+                       "variationAcrossGroupsExData.csv", 
+                       package = "healthcareai")
+
+# Replace csvfile with 'path/file'
+df <- read.csv(file = csvfile, 
+               header = TRUE, 
+               na.strings = c("NULL", "NA", ""))
+
 
 measureColumn <- 'measure'
 
@@ -121,11 +107,11 @@ variationAcrossGroups(df,categoricalCols,measureColumn, printTable = FALSE,
 ![Table output from variationAcrossGroups](img/variationAcrossGroupsTableOutput.png)
 
 ### The boxplot across the combinations of `Dept` and `Age`
-* There is no significant difference in the mean of measure among groups A.Young, 
-  B.Young and C.Young.
-* There is also no significant difference in the mean of measure among groups 
-  B.Young, C.Young, A.Old, B.Old and C.Old.
-* Group A.Young has a significant higher measure than groups A.Old, B.Old and C.Old.
+* There is no significant difference in the mean of LOS between groups A.Old and C.Old.
+* There is also no significant difference in the mean of LOS between groups 
+  A.Young and B.Young, and between groups A.Young and C.Young.
+* Group B.Old has a significant longer LOS than the other groups.
+* Group C.Young has a significant shorter LOS than the other groups.
 
 ![Boxplot output from variationAcrossGroups](img/variationAcrossGroupsBoxplotOutput.png)
 
