@@ -108,9 +108,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     # This also converts chr cols to (needed) factors
     self$params$df <- as.data.frame(unclass(self$params$df))
 
-    # Remove columns that are only NA
-    self$params$df <- self$params$df[, colSums(is.na(self$params$df)) < nrow(self$params$df)]
-
     # self$params$df[[self$params$predictedCol]] <- temp
 
     # Remove date columns
