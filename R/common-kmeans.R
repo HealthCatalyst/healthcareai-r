@@ -102,7 +102,7 @@ lineMagnitude <- function(x1, y1, x2, y2) {
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @references The funtion is originally found here 
+#' @references The helper funtion is originally found here
 #' \url{http://paulbourke.net/geometry/pointlineplane/pointline.r}
 #' @references \url{https://github.com/bryanhanson/ChemoSpecMarkeR/blob/master/R/findElbow.R}
 #' @seealso \code{\link{healthcareai}}
@@ -148,7 +148,7 @@ distancePointSegment <- function(px, py, x1, y1, x2, y2) {
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @references This funtion is originally found here 
+#' @references This helper funtion is originally found here 
 #' \url{http://paulbourke.net/geometry/pointlineplane/pointline.r}
 #' @references \url{https://github.com/bryanhanson/ChemoSpecMarkeR/blob/master/R/findElbow.R}
 #' @seealso \code{\link{healthcareai}}
@@ -173,8 +173,8 @@ distancePointLine <- function(x, y, slope, intercept) {
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
-#' @references The original funtion is found here and is modified to only return the 
-#' index of the elbow point.
+#' @references This function is developed based on the following function in 
+#' package ChemoSpecMarkeR
 #' \url{https://github.com/bryanhanson/ChemoSpecMarkeR/blob/master/R/findElbow.R}
 #' @references The idea behind the function can be found here
 #' \url{https://stackoverflow.com/questions/2018178/finding-the-best-trade-off-point-on-a-curve/2022348#2022348}
@@ -283,5 +283,144 @@ assignClusterLabels <- function(cm, k) {
     }
   }
   return(cluster.labels)
+}
+
+#' @title
+#' Extract Silhouette Information from Clustering 
+#'
+#' @description Compute silhouette information according to a given k means
+#' clustering result
+#' @param x A vector of integers, the clustering result returned by kmeans(), 
+#' such as kmeans.fit$cluser
+#' @param dist A dissimilarity object resurned by dist()
+#' @return An n x 3 matrix with columns of cluster, neighbor and 
+#' silhouette width
+#'
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @references silhouette() in package cluster
+#' \url{https://cran.r-project.org/web/packages/cluster/index.html} 
+#' @seealso \code{\link{healthcareai}}
+#' @examples
+#' data(iris)
+#' head(iris)
+#' kmeans.fit <- kmeans(scale(iris[,1:4]),3)
+#' cluster <- kmeans.fit$cluster
+#' dis <- dist(scale(iris[,1:4]))
+#' res <- getSilhouetteInf(cluster, dis)
+#' str(res)
+#' 
+getSilhouetteInf <- function(x, dist) {
+  #cll <- match.call()
+  n <- length(x)
+  clusters <- sort(unique(x))
+  k <- length(clusters)
+  
+  distMat <- as.matrix(dist)# so we can apply(.) below
+  
+  # Create the output matrix
+  resMat <- matrix(data = NA, nrow = n, ncol = 3)
+  colnames(resMat) <- c("cluster","neighbor","sil_width")
+  
+  for (j in 1:k) { # j-th cluster:
+    idx <- x == clusters[j]
+    sizeOfCluster <- sum(idx)
+    resMat[idx, "cluster"] <- clusters[j]
+    
+    # Computer the mean distance of each point in cluster j to the other points in
+    # other clsuters, get a matrix of size (k-1)*sizeOfClusterj
+    distanceToOtherPts <- rbind(apply(distMat[!idx, idx, drop = FALSE], 2,
+                                      function(a) tapply(a, x[!idx], mean)))
+    
+    # Get the row index with the minimal mean distance
+    minimalDistIdx <- apply(distanceToOtherPts, 2, which.min)
+    
+    # Assign the cluster with minimal mean distance as the neighbour of cluster j
+    resMat[idx,"neighbor"] <- clusters[-j][minimalDistIdx]
+    
+    # Calculate silhouette width 
+    # https://en.wikipedia.org/wiki/Silhouette_(clustering)
+    if (sizeOfCluster > 1) {
+      ai <- colSums(distMat[idx, idx])/(sizeOfCluster - 1) # length(a.i)= Nj
+      bi <- distanceToOtherPts[cbind(minimalDistIdx, seq(along = minimalDistIdx))]
+      sil_width <- ifelse(ai != bi, (bi - ai) / pmax(bi, ai), 0)
+    } else {
+      sil_width <- 0
+    }
+    resMat[idx,"sil_width"] <- sil_width
+  }
+  return(resMat)
+} 
+
+#' @title
+#' Plot silhouette width
+#'
+#' @description Plot silhouette width given a matrix that stores the silhouette
+#' information
+#' @param x a matrix returned by getSilhouetteInf()
+#' @param col colors for different clusters
+#' @return a silhouette plot
+#'
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @references plot.silhouette() function in package cluster
+#' \url{https://cran.r-project.org/web/packages/cluster/index.html} 
+#' @seealso \code{\link{healthcareai}}
+#' @examples
+#' data(iris)
+#' head(iris)
+#' kmeans.fit <- kmeans(scale(iris[,1:4]),3)
+#' cluster <- kmeans.fit$cluster
+#' dis <- dist(scale(iris[,1:4]))
+#' res <- getSilhouetteInf(cluster, dis)
+#' plotSilhouette(res,col = c(1:3))
+#' 
+plotSilhouette <- function(x, col = "gray") {
+  n <- nrow(x)
+  cluster <- x[,"cluster"]
+  silhouette_width <- x[, "sil_width"]
+  avgSilhouetteWidthofClusters <- tapply(silhouette_width, cluster, mean)
+  sizeOfCluster <- table(cluster)
+  avgSilhouetteWidth <- mean(silhouette_width)
+  
+  orderedx <- x[order(cluster, -x[,"sil_width"]) , , drop = FALSE]
+  
+  ## plot barplot
+  bars <- rev(orderedx[, "sil_width"])
+  cls <- orderedx[,"cluster"]
+  space <- c(0, rev(diff(cls)))
+  space[space != 0] <- 1
+  
+  k <- length(sizeOfCluster) 
+  
+  sub <- paste("Average silhouette width : ", round(avgSilhouetteWidth, digits = 2))
+  # Colors
+  if (length(col) == 1) {
+    col <- col
+  } else if (length(col) == k) {
+    col <- rev(col[cls])
+  } else {
+    stop("The length of the color vector does not match the number of clusters")
+  }
+  
+  y <- barplot(bars, space = space,  
+               xlab = "Silhouette width",
+               xlim = c(min(0, min(bars)), 1),
+               horiz = TRUE, las = 1, mgp = c(2.5, 1, 0),
+               col = col, border = 0)
+  title(main = "Silhouette plot", sub = sub)
+  mtext(paste("( n =", n,")"))
+  mtext(substitute(k ~~ "clusters" ~~ C[j], list(k = k)), adj = 1)
+  mtext(expression(paste(j," :  ", n[j]," | ", avg[i %in% Cj] ~~ s[i])),
+        adj = 1.04, line = -1.2)
+  y <- rev(y)
+  
+  for (j in 1:k) {
+    yj <- mean(y[cls == j])
+    text(1, yj,
+         paste(j,":  ", sizeOfCluster[j]," | ",
+               format(avgSilhouetteWidthofClusters[j], digits = 1, nsmall = 2)),
+         xpd = NA, adj = 0.8)
+  }
 }
 
