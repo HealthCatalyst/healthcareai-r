@@ -294,14 +294,22 @@
         function(i) colnames(private$temp_predictions)[maxColInds[i,]]))
 
       # combine top 3 maxColVals and maxColNames to make maxProbDF
-      private$orderedProbs <- data.frame(as.numeric(maxColVals[,1]), as.character(maxColNames[,1]),
-         as.numeric(maxColVals[,2]), as.character(maxColNames[,2]),
-         as.numeric(maxColVals[,3]), as.character(maxColNames[,3]), stringsAsFactors = FALSE)
+      # if there are only 2 response classes, only use 2
+      if (ncol(maxColVals) >= 3) {# 3 or more classes -> get top 3
+        private$orderedProbs <- data.frame(as.numeric(maxColVals[,1]), as.character(maxColNames[,1]), 
+                                           as.numeric(maxColVals[,2]), as.character(maxColNames[,2]),
+                                           as.numeric(maxColVals[,3]), as.character(maxColNames[,3]), 
+                                           stringsAsFactors = FALSE)
+      } else {# only 2 classes -> only use 2
+        private$orderedProbs <- data.frame(as.numeric(maxColVals[,1]), as.character(maxColNames[,1]),
+                                           as.numeric(maxColVals[,2]), as.character(maxColNames[,2]),
+                                           stringsAsFactors = FALSE)
+      }
 
-      # update column names
+      # update column names, also dealing with case of only 2 classes
       colnames(private$orderedProbs) <- c('PredictedProb1','PredictedClass1',
         'PredictedProb2','PredictedClass2',
-        'PredictedProb3','PredictedClass3')
+        'PredictedProb3','PredictedClass3')[1:ncol(private$orderedProbs)]
 
       # update row names
       row.names(private$orderedProbs) <- 1:nRows
@@ -353,6 +361,9 @@
     initialize = function(p) {
       cat('Initializing XGBoost Deploy...','\n')
       super$initialize(p)
+      if (is.null(self$params$modelName)) {
+        self$params$modelName = "XGB" 
+      }
     },
 
     #Override: deploy the model
@@ -360,15 +371,14 @@
       cat('Loading XGB Model...','\n')
 
       # Try to load the model
-      tryCatch({
-        load("rmodel_probability_XGB.rda") # Produces fit object (for probability)
-        private$fitXGB <- fitObj
-       }, error = function(e) {
-        # temporary fix until all models are working.
-        stop('You must use a saved model. Run XGBoost development to train 
-              and save the model, then XGBoost deployment to make predictions.
-              See ?XGBoostDevelopment')
-      })
+      super$loadModelAndInfo(modelFullName = "XGBoost")
+      private$fitXGB <- private$fitObj
+      private$fitObj <- NULL
+      
+      # Make sure factor columns have the training data factor levels
+      super$formatFactorColumns()
+      # Update self$params$df to reflect the training data factor levels
+      self$params$df <- private$dfTestRaw
       
       # Prepare data for xgboost
       private$xgbPrepareData()

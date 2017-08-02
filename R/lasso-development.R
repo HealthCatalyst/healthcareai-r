@@ -176,7 +176,6 @@ LassoDevelopment <- R6Class("LassoDevelopment",
     
     # Fit model and lamda values
     fitGrLasso = NA,
-    fitLogit = NA,
     indLambda1se = NA,
     lambda1se = NA,
     modFmla = NA,
@@ -189,50 +188,9 @@ LassoDevelopment <- R6Class("LassoDevelopment",
     AUROC = NA,
     AUPR = NA,
     RMSE = NA,
-    MAE = NA,
+    MAE = NA
     
-    # function
-    saveModel = function() {
-      if (isTRUE(self$params$debug)) {
-        cat("Saving model...","\n")
-      }
-      
-      fitLogit <- private$fitLogit
-      fitObj <- private$fitGrLasso
-      
-      save(fitObj, file = "rmodel_probability_lasso.rda")
-      save(fitLogit, file = "rmodel_var_import_lasso.rda")
-    },
-    
-    # This function must be in here for the row-wise predictions and
-    # can be replaced when LIME-like functionality is complete.
-    fitGeneralizedLinearModel = function() {
-      if (isTRUE(self$params$debug)) {
-        cat('generating fitLogit for row-wise guidance...',"\n")
-      }
-      
-      if (self$params$type == 'classification') {
-        private$fitLogit <- glm(
-          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrain,
-          family = binomial(link = "logit"),
-          metric = "ROC",
-          control = list(maxit = 10000),
-          trControl = trainControl(classProbs = TRUE, summaryFunction = twoClassSummary)
-        )
-        
-      } else if (self$params$type == 'regression') {
-        private$fitLogit <- glm(
-          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrain,
-          metric = "RMSE",
-          control = list(maxit = 10000)
-        )
-      }
-
-      # Add factor levels (calculated in SMD) to fitLogit object
-      private$fitLogit$factorLevels <- private$factorLevels 
-    }
+    # functions
   ),
   
   # Public members
@@ -242,6 +200,9 @@ LassoDevelopment <- R6Class("LassoDevelopment",
     # i.e. p = SuperviseModelParameters$new()
     initialize = function(p) {
       super$initialize(p)
+      if (is.null(self$params$modelName)) {
+        self$params$modelName = "lasso"
+      }
     },
 
     getPredictions = function(){
@@ -391,13 +352,13 @@ LassoDevelopment <- R6Class("LassoDevelopment",
     run = function() {
       # Start default logit (for row-wise var importance)
       # can be replaced with LIME-like functionality
-      private$fitGeneralizedLinearModel()
+      super$fitGeneralizedLinearModel()
       
       # Build Model
       self$buildModel()
       
       # save model
-      private$saveModel()
+      super$saveModel(fitModel = private$fitGrLasso)
       
       # Perform prediction
       self$performPrediction()

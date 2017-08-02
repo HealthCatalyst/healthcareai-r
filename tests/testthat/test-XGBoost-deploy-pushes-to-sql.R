@@ -37,6 +37,11 @@ p$xgb_params <- list("objective" = "multi:softprob",
                      "eta" = 0.1, 
                      "silent" = 0, 
                      "nthread" = 2)   
+# Text of warning that we know will trigger and that we want to suppress
+warningText = paste("Each of the following categorical variable levels occurs ",
+                    "3 times or fewer:\n-  x6 : Class1\n-  x27 : Class1\n-  ",
+                    "x33 : Class1\nThere is a chance",
+                    sep = "")
 
 #### BEGIN TESTS ####
 
@@ -45,7 +50,8 @@ test_that("XGBoost deploy pushes values to SQL Server", {
   skip_on_travis()
   skip_on_cran()
 
-  capture.output(boost <- XGBoostDevelopment$new(p))
+  capture.output(ignoreSpecWarn(code = boost <- XGBoostDevelopment$new(p),
+                                wRegexps = warningText))
   capture.output(boost$run())
   
   p2 <- SupervisedModelDeploymentParams$new()
@@ -68,7 +74,8 @@ test_that("XGBoost deploy pushes values to SQL Server", {
 
 test_that("XGBoost deploy pushes values to SQLite", {
   
-  capture.output(boost <- XGBoostDevelopment$new(p))
+  capture.output(ignoreSpecWarn(code = boost <- XGBoostDevelopment$new(p),
+                                wRegexps = warningText))
   capture.output(suppressWarnings(boost$run()))
   
   p2 <- SupervisedModelDeploymentParams$new()

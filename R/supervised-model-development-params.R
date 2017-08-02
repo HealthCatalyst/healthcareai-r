@@ -30,7 +30,7 @@ SupervisedModelDevelopmentParams <- R6Class("SupervisedModelDevelopmentParams",
     printResults = TRUE,
     cores = 4,
     tune = FALSE,
-    numberOfTrees = 201,
+    trees = 201,
     xgb_numberOfClasses = NA,
     xgb_params = list("objective" = "multi:softprob",
                   "eval_metric" = "mlogloss",
@@ -41,6 +41,7 @@ SupervisedModelDevelopmentParams <- R6Class("SupervisedModelDevelopmentParams",
                   "nthread" = 1),
     xgb_nrounds = 50,
     xgb_targetNames = NA,
+    modelName = NULL,
 
     #Constructor
     initialize = function() {

@@ -412,7 +412,6 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     outDf = NA,
     
     fitLmm = NA,
-    fitLogit = NA,
     predictions = NA,
 
     # functions
@@ -447,7 +446,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
     calculateCoeffcients = function() {
       # Do semi-manual calc to rank cols by order of importance
-      coeffTemp <- private$fitLogit$coefficients
+      coeffTemp <- self$modelInfo$fitLogit$coefficients
 
       if (isTRUE(self$params$debug)) {
         cat('Coefficients for the default logit (for ranking var import)', '\n')
@@ -500,48 +499,6 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
         cat('Data frame after getting column importance ordered', '\n')
         print(private$orderedFactors[1:10, ])
       }
-    },
-
-    createDf = function() {
-      dtStamp <- as.POSIXlt(Sys.time())
-
-      # Combine grain.col, prediction, and time to be put back into SAM table
-      private$outDf <- data.frame(
-        0,                                 # BindingID
-        'R',                               # BindingNM
-        dtStamp,                           # LastLoadDTS
-        private$grainTest,                 # GrainID
-        private$predictions,             # PredictedProbab or PredictedValues
-        # need three lines for case of single prediction
-        private$orderedFactors[, 1],     # Top 1 Factor
-        private$orderedFactors[, 2],     # Top 2 Factor
-        private$orderedFactors[, 3])     # Top 3 Factor
-
-      predictedResultsName <- ""
-      if (self$params$type == 'classification') {
-        predictedResultsName <- "PredictedProbNBR"
-      } else if (self$params$type == 'regression') {
-        predictedResultsName <- "PredictedValueNBR"
-      }
-      colnames(private$outDf) <- c(
-        "BindingID",
-        "BindingNM",
-        "LastLoadDTS",
-        self$params$grainCol,
-        predictedResultsName,
-        "Factor1TXT",
-        "Factor2TXT",
-        "Factor3TXT"
-      )
-
-      # Remove row names so df can be written to DB
-      # TODO: in writeData function, find how to ignore row names
-      rownames(private$outDf) <- NULL
-
-      if (isTRUE(self$params$debug)) {
-        cat('Dataframe with predictions:', '\n')
-        cat(str(private$outDf), '\n')
-      }
     }
   ),
 
@@ -552,31 +509,28 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     #   i.e. p = DeploySupervisedModelParameters$new()
     initialize = function(p) {
       super$initialize(p)
+      if (is.null(self$params$modelName)) {
+        self$params$modelName = "LMM" 
+      }
     },
 
     #Override: deploy the model
     deploy = function() {
 
       # Try to load the model
-      tryCatch({
-        load("rmodel_var_import_LMM.rda")  # Produces fitLogit object
-        private$fitLogit <- fitLogit
-        load("rmodel_probability_LMM.rda") # Produces fit object (for probability)
-        private$fitLmm <- fitObj
-      }, error = function(e) {
-        stop('You must use a saved model. Run Linear Mixed Model development to train 
-              and save the model, then Linear Mixed Model deployment to make predictions
-              See ?LinearMixedModelDevelopment.')
-      })
-
+      super$loadModelAndInfo(modelFullName = "LinearMixedModel")
+      private$fitLmm <- private$fitObj
+      private$fitObj <- NULL
+      
+      # Make sure factor columns have the training data factor levels
+      super$formatFactorColumns()
+      # Update self$params$df to reflect the training data factor levels
+      self$params$df <- private$dfTestRaw
+      
       # Predict
       private$performPrediction()
 
       # Get dummy data based on factors from develop
-      if (nchar(self$params$personCol) != 0) {
-        private$dfTestRaw[[self$params$personCol]] <- NULL
-      }
-      super$formatFactorColumns()
       super$makeFactorDummies()
 
       # Calculate Coeffcients
@@ -589,7 +543,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
       private$calculateOrderedFactors()
 
       # create dataframe for output
-      private$createDf()
+      super$createDf()
     },
     
     # Surface outDf as attribute for export to Oracle, MySQL, etc
