@@ -11,6 +11,7 @@
 #    - note that this implicitly tests that predictions can be made when there
 #      are missing factors in one or more columns (for a single row, all but 
 #      one level of each factor will be missing)
+#    - check that single row predictions work even if there are NAs present
 #
 # 2. Check that predictions are independent
 #    - build a single row deploy data set, a 2 row data set, and a data set
@@ -466,25 +467,33 @@ test_that("Extra factors are imputed correctly for lasso classification (2 colum
   expect_equal(lassoOutDf4[2, ]$PredictedProbNBR, lassoOutDf4[3, ]$PredictedProbNBR)
 })
 
-# TODO: make test for single row predictions when data contains NAs
-# Currently, imputation is done using the deployset so will fail if there is 
-# only one row
+test_that("Single row predictions work when NAs are present (RF classifier)", {
+  # Dataframe with single row and missing value
+  dfDeploy5 <- data.frame(id = 9010,
+                          length = 8,
+                          diameter = NA,
+                          heat = "Hot",
+                          condiment = NA)
 
-# Single row data set with NAs
-# dfDeploy5 <- data.frame(id = 9010,
-#                         length = 8,
-#                         diameter = NA, 
-#                         heat = "Hot",
-#                         condiment = "NA")
-# 
-# p5 <- SupervisedModelDeploymentParams$new()
-# p5$type <- "classification"
-# p5$df <- dfDeploy5
-# p5$grainCol <- "id"
-# p5$predictedCol <- "isHotDog"
-# p5$impute <- TRUE
-# p5$debug <- F
-# p5$cores <- 1
+  p5 <- SupervisedModelDeploymentParams$new()
+  p5$type <- "classification"
+  p5$df <- dfDeploy5
+  p5$grainCol <- "id"
+  p5$predictedCol <- "isHotDog"
+  p5$impute <- TRUE
+  p5$debug <- F
+  p5$cores <- 1
+  
+  # Deploy the model
+  capture.output(rfD5 <- RandomForestDeployment$new(p5))
+  capture.output(rfD5$deploy())
+  rfOutDf5 <- rfD5$getOutDf()
+  
+  # Check that a prediction is made
+  expect_equal(rfOutDf5$id[1], 9010)
+  expect_is(rfOutDf5$PredictedProbNBR[1], "numeric")
+})
+
 
 
 #### DEVELOP REGRESSION MODELS ####
@@ -839,25 +848,34 @@ test_that("Extra factors are imputed correctly for lasso regression (2 columns)"
   expect_equal(lassoOutDf4[2, ]$PredictedValueNBR, lassoOutDf4[3, ]$PredictedValueNBR)
 })
 
-# TODO: make test for single row predictions when data contains NAs
-# Currently, imputation is done using the deployset so will fail if there is 
-# only one row
+test_that("Single row predictions work when NAs are present (RF regrssor)", {
+  # Dataframe with single row and missing value
+  dfDeploy5 <- data.frame(id = 9010,
+                          length = 8,
+                          diameter = NA,
+                          heat = "Hot",
+                          condiment = NA)
+  
+  p5 <- SupervisedModelDeploymentParams$new()
+  p5$type <- "regression"
+  p5$df <- dfDeploy5
+  p5$grainCol <- "id"
+  p5$predictedCol <- "hotDogScore"
+  p5$impute <- TRUE
+  p5$debug <- F
+  p5$cores <- 1
+  
+  # Deploy the model
+  capture.output(rfD5 <- RandomForestDeployment$new(p5))
+  capture.output(rfD5$deploy())
+  rfOutDf5 <- rfD5$getOutDf()
+  
+  # Check that a prediction is made
+  expect_equal(rfOutDf5$id[1], 9010)
+  expect_is(rfOutDf5$PredictedValueNBR[1], "numeric")
+})
 
-# Single row data set with NAs
-# dfDeploy5 <- data.frame(id = 9010,
-#                         length = 8,
-#                         diameter = NA, 
-#                         heat = "Hot",
-#                         condiment = "NA")
-# 
-# p5 <- SupervisedModelDeploymentParams$new()
-# p5$type <- "regression"
-# p5$df <- dfDeploy5
-# p5$grainCol <- "id"
-# p5$predictedCol <- "hotDogScore"
-# p5$impute <- TRUE
-# p5$debug <- F
-# p5$cores <- 1
+
 
 #### DEVELOP LMM CLASSIFICATION MODEL ####
 set.seed(7)
@@ -1048,25 +1066,32 @@ test_that("Extra factors are imputed correctly for LMM classification (2 columns
   expect_equal(LMMOutDf4[2, ]$PredictedProbNBR, LMMOutDf4[3, ]$PredictedProbNBR)
 })
 
+test_that("Single row predictions work when NAs are present (LMM)", {
+  # Dataframe with single row and missing value
+  dfDeploy5 <- data.frame(id = 9010, 
+                          vendorID  = 5,
+                          length = 8,
+                          diameter = NA,
+                          heat = "Hot",
+                          condiment = NA)
+  
+  p5 <- SupervisedModelDeploymentParams$new()
+  p5$type <- "classification"
+  p5$df <- dfDeploy5
+  p5$grainCol <- "id"
+  p5$personCol <- "vendorID"
+  p5$predictedCol <- "isHotDog"
+  p5$impute <- TRUE
+  p5$debug <- F
+  p5$cores <- 1
+  
+  # Deploy the model
+  capture.output(LMMD5 <- LinearMixedModelDeployment$new(p5))
+  capture.output(LMMD5$deploy())
+  LMMOutDf5 <- LMMD5$getOutDf()
+  
+  # Check that a prediction is made
+  expect_equal(LMMOutDf5$id[1], 9010)
+  expect_is(LMMOutDf5$PredictedProbNBR[1], "numeric")
+})
 
-# TODO: make test for single row predictions when data contains NAs
-# Currently, imputation is done using the deployset so will fail if there is 
-# only one row
-
-# Single row data set with NAs
-# dfDeploy5 <- data.frame(id = 9010,
-#                         vendorID = 5,
-#                         length = 8,
-#                         diameter = NA, 
-#                         heat = "Hot",
-#                         condiment = "NA")
-# 
-# p5 <- SupervisedModelDeploymentParams$new()
-# p5$type <- "classification"
-# p5$df <- dfDeploy5
-# p5$grainCol <- "id"
-# p5$personCol <- "vendorID"
-# p5$predictedCol <- "isHotDog"
-# p5$impute <- TRUE
-# p5$debug <- F
-# p5$cores <- 1
