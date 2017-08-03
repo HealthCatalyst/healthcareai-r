@@ -17,10 +17,11 @@ usePrinComp, numOfPrinComp,impute, debug)
 \item{grainCol}{Optional. The dataframe's column that has IDs pertaining to 
 the grain. No ID columns are truly needed for this step.}
 
-\item{labelCol}{Optional. In case the data frame contains a column that labels
-each row of the df. Need to be removed befroe clustering.}
+\item{labelCol}{Optional. Labels will not be used for clustering, but if the 
+data labeled this can be used for validation.}
 
-\item{numOfCluster}{Number of clusters you want to build.}
+\item{numOfCluster}{Optional. Number of clusters you want to build. If left
+blank, will be determined automatically from the scree plot.}
 
 \item{usePrinComp}{Optional. TRUE or FALSE. If TRUE, will use the principle components
 to perform K-means clustering. Default is FALSE.}
