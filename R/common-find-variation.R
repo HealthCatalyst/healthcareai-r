@@ -440,12 +440,15 @@ getPipedValue <- function(string) {
 #' mean/std and quartiles and the table of p values.
 #' @param boxplotStats Optinal, defalut is FALSE. If TRUE, returns the statistics
 #' behindthe boxplot.
-#' @param dateCol Optional. A date(time) column to group by (done by month) 
+#' @param dateCol Optional. A date(time) column to group by (done by month as default).
+#' @param levelOfDateGroup Optional. Specify how to group the date(time) column,
+#' can be yearly,quarterly,monthly(default) and weekly. 
 #' @return A boxplot to compare variation across groups.
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}} \code{\link{findVariation}} 
-#' @references \url{https://cran.r-project.org/web/packages/multcompView/index.html}
+#' @references This function uses multcompLetters() in package multcompView
+#' \url{https://cran.r-project.org/web/packages/multcompView/index.html}
 #' @examples
 #' 
 #' ## Create the toy data set
@@ -534,7 +537,8 @@ variationAcrossGroups <- function(df,
                                   printTukeyplot = FALSE,
                                   printTable = TRUE,
                                   boxplotStats = FALSE,
-                                  dateCol = NULL) {
+                                  dateCol = NULL,
+                                  levelOfDateGroup = "monthly") {
   
   if (!all(c(categoricalCols,measureColumn,dateCol) %in% names(df))) {
     stop('The measure column or one of the categorical cols is not in the df')
@@ -592,9 +596,27 @@ variationAcrossGroups <- function(df,
         stop(e)
       })
     
-    # Convert date into YYYY-MM
-    df[[dateCol]] <- base::format(df[[dateCol]],"%Y/%m")
-    
+    # Break date into groups
+    if (levelOfDateGroup == "yearly") {
+      # Yearly: convert date into YYYY
+      df[[dateCol]] <- base::format(df[[dateCol]],"%Y")
+    } else if (levelOfDateGroup == "quarterly") {
+      # Quarterly: convert date into YYYY-MM
+      df[[dateCol]] <- paste(base::format(df[[dateCol]], "%Y/"), 0, 
+                           sub( "Q", "", quarters(df[[dateCol]], abbreviate = TRUE)), 
+                           sep = "")
+    } else if (levelOfDateGroup == "monthly") {
+      # Monthly: convert date into YYYY-MM
+      df[[dateCol]] <- base::format(df[[dateCol]],"%Y/%m")
+    } else if (levelOfDateGroup == "weekly") {
+      # Weekly:
+      df[[dateCol]] <- paste(base::format(df[[dateCol]], "%Y/"), 
+                           strftime(df[[dateCol]], format = "%W"), 
+                           sep = "")
+    } else {
+      stop("levelOfDateGroup must be yearly, quarterly, monthly or weekly")
+    }
+
     # Add dateCol to categoricalList (now that it's just YYYY-MM)
     categoricalCols <- c(categoricalCols, dateCol)
   }

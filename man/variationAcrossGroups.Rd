@@ -6,7 +6,7 @@
 \usage{
 variationAcrossGroups(df, categoricalCols, measureColumn,
   printTukeyplot = FALSE, printTable = TRUE, boxplotStats = FALSE,
-  dateCol = NULL)
+  dateCol = NULL, levelOfDateGroup = "monthly")
 }
 \arguments{
 \item{df}{A dataframe}
@@ -24,7 +24,10 @@ mean/std and quartiles and the table of p values.}
 \item{boxplotStats}{Optinal, defalut is FALSE. If TRUE, returns the statistics
 behindthe boxplot.}
 
-\item{dateCol}{Optional. A date(time) column to group by (done by month)}
+\item{dateCol}{Optional. A date(time) column to group by (done by month as default).}
+
+\item{levelOfDateGroup}{Optional. Specify how to group the date(time) column,
+can be yearly,quarterly,monthly(default) and weekly.}
 }
 \value{
 A boxplot to compare variation across groups.
@@ -117,6 +120,7 @@ variationAcrossGroups(df1, categoricalCols = "treatment", measureColumn = "value
 \references{
 \url{http://healthcare.ai}
 
+This function uses multcompLetters() in package multcompView
 \url{https://cran.r-project.org/web/packages/multcompView/index.html}
 }
 \seealso{
