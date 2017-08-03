@@ -32,7 +32,7 @@ plotSilhouette(res,col = c(1:3))
 \url{http://healthcare.ai}
 
 plot.silhouette() function in package cluster
-\url{https://cran.r-project.org/web/packages/cluster/index.html}
+\url{https://github.com/pimentel/cluster/blob/master/R/silhouette.R}
 }
 \seealso{
 \code{\link{healthcareai}}

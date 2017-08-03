@@ -34,7 +34,7 @@ str(res)
 \url{http://healthcare.ai}
 
 silhouette() in package cluster
-\url{https://cran.r-project.org/web/packages/cluster/index.html}
+\url{https://github.com/pimentel/cluster/blob/master/R/silhouette.R}
 }
 \seealso{
 \code{\link{healthcareai}}

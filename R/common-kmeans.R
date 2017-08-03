@@ -299,7 +299,8 @@ assignClusterLabels <- function(cm, k) {
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @references silhouette() in package cluster
-#' \url{https://cran.r-project.org/web/packages/cluster/index.html} 
+#' \url{https://github.com/pimentel/cluster/blob/master/R/silhouette.R}
+#'  
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' data(iris)
@@ -311,12 +312,11 @@ assignClusterLabels <- function(cm, k) {
 #' str(res)
 #' 
 getSilhouetteInf <- function(x, dist) {
-  #cll <- match.call()
   n <- length(x)
   clusters <- sort(unique(x))
   k <- length(clusters)
   
-  distMat <- as.matrix(dist)# so we can apply(.) below
+  distMat <- as.matrix(dist)
   
   # Create the output matrix
   resMat <- matrix(data = NA, nrow = n, ncol = 3)
@@ -369,7 +369,7 @@ getSilhouetteInf <- function(x, dist) {
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @references plot.silhouette() function in package cluster
-#' \url{https://cran.r-project.org/web/packages/cluster/index.html} 
+#' \url{https://github.com/pimentel/cluster/blob/master/R/silhouette.R} 
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' data(iris)
