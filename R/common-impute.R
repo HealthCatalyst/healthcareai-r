@@ -88,7 +88,7 @@ groupedLOCF <- function(df, id) {
 #' dfOut <- out$df # imputed data frame
 #' print(dfOut)
 
-imputeDF <- function(df, imputeVals = list()) {
+imputeDF <- function(df, imputeVals = NULL) {
   # Use separate functions to make applying easier in deploy
   # This function finds the value to impute for a column
   getImputeValuesColumn <- function(col) {
@@ -100,43 +100,58 @@ imputeDF <- function(df, imputeVals = list()) {
     return(value)
   }
   
-  # This function applies the value to a column
-  applyImputeValuesColumn <- function(col, val) {
-    col[is.na(col)] <- val
-    return(col)
-  }
-
   # Check to make sure that df is a dataframe
   if (!(is.data.frame(df))) {
     stop('df must be a dataframe.')
   }
-
+  
+  # Check to make sure imputeVals is a list or NULL
+  if (!(is.list(imputeVals) || is.null(imputeVals))) {
+    stop("imputeValues must be a list.")
+  }
+  
+  # Remove any named entries in imputeVals that aren't in df, with a warning
+  to_remove <- which(!names(imputeVals) %in% names(df))
+  if (length(to_remove) > 0) {
+    warning(names(imputeVals)[to_remove], " isn't a column in df. Ignoring...")
+    imputeVals <- imputeVals[-to_remove]
+  }
+  
+  # If user provided imputeVals and they're unnamed they have to be length 0 or same as df
+  if (!is.null(imputeVals) && is.null(names(imputeVals))) {
+    # If it's length 0, make it NULL
+    if (length(imputeVals) == 0) {
+      imputeVals <- NULL
+      # If it's same length as df, give it names of df
+    } else if  (length(imputeVals) == ncol(df)) {
+      names(imputeVals) <- names(df)
+    } else {
+      stop("imputeVals must be named, have one entry for each column in df, or be left blank.")
+    }
+  }
+  
   # Change factor columns to characters so that missing levels are dealt with correctly.
-  for (col in names(df)) {
-    if (is.factor(df[[col]])) {
-      df[[col]] <- as.character(df[[col]])
-    }
+  for (col in names(df)[sapply(df, is.factor)]) {
+    df[[col]] <- as.character(df[[col]])
   }
-
-  # Calculate imputation values if needed
-  if (length(imputeVals) == 0) {
-    # Calculate values
-    imputeVals <- lapply(df, getImputeValuesColumn)
-  } else {
-    if (!(is.list(imputeVals))){
-      stop("imputeValues must be a list.")
-    }
-    # cat('Using supplied values for imputation.', '\n')
-    if (length(imputeVals) != ncol(df)) {
-      stop('Your dataframe must have the same number of columns as your provided list!')
-    }
-  }
-
-  # Apply imputation values
-  df[] <- lapply(1:ncol(df), function(x,y) applyImputeValuesColumn(df[,x], imputeVals[[x]]))
+  
+  # Identify columns that don't have imputation value provided by the user
+  toImpute <- names(df)[!names(df) %in% names(imputeVals)]
+  
+  # Get impute values for columns that don't have a value
+  imputeVals <- c(imputeVals, lapply(df[toImpute], getImputeValuesColumn))
+  
+  # Replace missing values with imputeVals
+  for (varname in names(imputeVals))
+    df[[varname]][is.na(df[[varname]])] <- imputeVals[[varname]]
   
   # Change characters back to factors.
-  df <- data.frame(unclass(df))
-
+  for (col in names(df)[sapply(df, is.character)]) {
+    df[[col]] <- as.factor(df[[col]])
+  }
+  
+  # Put imputeVals in order of df, just in case that matters downstream
+  imputeVals <- imputeVals[match(names(imputeVals), names(df))]
+  
   return(list(df=df, imputeVals=imputeVals))
 }
