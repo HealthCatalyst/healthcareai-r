@@ -56,6 +56,8 @@ test_that("All columns are removed when all columns have the same value in every
 
 ############# SETUP FOR DROPPING COLUMNS IN DEPLOY
 
+# This function builds a toy dataframe suitable for regression, binary
+# classification or multiclass classification
 getDf = function(type) {
   set.seed(314)
   n = 200
@@ -79,6 +81,8 @@ getDf = function(type) {
   return(d)
 }
 
+# This function returns a list of development and deployment parameters
+# which can be used with the dataframe built using the function above.
 getClassificationParams = function(dfDevelop, dfDeploy, type) {
   p1 <- SupervisedModelDevelopmentParams$new()
   p1$df <- dfDevelop
