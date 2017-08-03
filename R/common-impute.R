@@ -110,10 +110,15 @@ imputeDF <- function(df, imputeVals = NULL) {
     stop("imputeValues must be a list.")
   }
   
+  # Check to make sure imputeVals are either all named or all unnamed
+  nameLengths <- sapply(names(imputeVals), nchar)  # Unnamed are actually character(0)
+  if (!(all(nameLengths == 0) || all(nameLengths > 0)))
+    stop("Either name all or none of imputeVals")
+  
   # Remove any named entries in imputeVals that aren't in df, with a warning
   to_remove <- which(!names(imputeVals) %in% names(df))
   if (length(to_remove) > 0) {
-    warning(names(imputeVals)[to_remove], " isn't a column in df. Ignoring...")
+    warning("Didn't find ", paste(names(imputeVals)[to_remove], collapse = " or "), " in df. Ignoring...")
     imputeVals <- imputeVals[-to_remove]
   }
   
@@ -151,7 +156,7 @@ imputeDF <- function(df, imputeVals = NULL) {
   }
   
   # Put imputeVals in order of df, just in case that matters downstream
-  imputeVals <- imputeVals[match(names(imputeVals), names(df))]
+  imputeVals <- imputeVals[match(names(df), names(imputeVals))]
   
   return(list(df=df, imputeVals=imputeVals))
 }

@@ -4,20 +4,37 @@
 # 2. Only a subset of a dataframe
 # 3. Factor inputs
 # 4. Factor inputs with 2 modes (uses alphabetical ranking)
+# 5. Irrelevant list of impute values throws warning but doesn't get in the way
+# 6. When a non-default value is provided it is used and doesn't interfere with defaults
+  # a. All columns are provided in unnamed list
+  # b. Named list of imputeVals in different order than df columns is provided
+  # c. Only the non-default column is provided
+# 7. Impute values with names not in df are ignored with warning
 # Test imputation using 2 function calls (first saves the values, second applies them):
 # 1. Entire dataframe, character and numeric inputs
 # 2. Only a subset of a dataframe
 # 3. Factor inputs
 # 4. Factor inputs with 2 modes (uses alphabetical ranking)
 # 5. Calculate values for 4 columns, apply them correctly to 2 columns.
-# 6. When an impute value would be a new level to be applied.
+# 6. When an impute value would be a new level to be applied and another is irrelevant
 # Error Handling:
 # 1. Different length args
 # 2. An all-NA column
 # 3. No effect on full columns of factors, numbers, and characters
 # 4. When inputs are not correct types
+# 5. Unnamed list not of same length as df produces error
+# 6. Partially named list produces error
 
 context("Checking that columns and dataframes are imputed correctly")
+
+# One source and two target data frames to test on
+original <- data.frame(x = c(3, -3, NA, 0), y = c("A", "A", "B", NA))
+default_target <- list(df = data.frame(x = c(3, -3, 0, 0),
+                                       y = c("A", "A", "B", "A")),
+                       imputeVals = list(x = 0, y = "A"))
+custom_target <- list(df = data.frame(x = c(3, -3, 0, 0),
+                                      y = c("A", "A", "B", "C")),
+                      imputeVals = list(x = 0, y = "C"))
 
 test_that("entire dataframe is imputed correctly", {
   df <- data.frame(a=c(1,2,3,NA), b=c('Y','N','Y',NA),
@@ -88,6 +105,25 @@ test_that('impute a single column', {
   expect_identical(imputeVals, valsExpected)
 })
 
+test_that("Irrelevant list of impute values throws warning but doesn't get in the way", {
+  expect_warning(out <- imputeDF(original, list(a = 1, b = "three")))
+  expect_identical(out, default_target)
+})
+
+test_that("When a non-default value is provided it is used and doesn't interfere with defaults", {
+  expect_identical(imputeDF(original, list(0, "C")), custom_target)  
+  expect_identical(imputeDF(original, list(y = "C", x = 0)), custom_target)  
+  expect_identical(imputeDF(original, list(y = "C")), custom_target)  
+})
+
+test_that("Impute values with names not in df are ignored with warning", {
+  expect_warning(expect_identical(
+    imputeDF(original, list("z" = 5, y = "C")), custom_target
+  ))
+  expect_warning(expect_identical(
+    imputeDF(original, list(y = "C", "z" = 5)), custom_target
+  ))
+})
 
 ############### 2 STEPS ###############
 test_that('impute a whole data frame in two steps', {
@@ -179,22 +215,27 @@ test_that('collect values on a 4 column DF, apply them to 2 columns in two steps
 })
 
 
-test_that('Apply values that are not present in the dataframe.', {
+test_that('Apply values that are not present in the dataframe,
+          discard unused impute values with a warning.', {
   df <- data.frame(a=as.factor(c('bagel','muffin','toast',NA)), 
                   b=as.factor(c('juice','water','milk',NA)))
   # Assing different values
   imputeVals <- list(b='pancake', d='wine')
-  capture.output(out <- imputeDF(df,imputeVals))
+  expect_warning(
+    capture.output(out <- imputeDF(df,imputeVals))
+  )
   dfOut <- out$df
-  dfExpected <- data.frame(a=as.factor(c('bagel','muffin','toast','pancake')), 
-                  b=as.factor(c('juice','water','milk','wine')))
+  dfExpected <- data.frame(a=as.factor(c('bagel','muffin','toast','bagel')), 
+                  b=as.factor(c('juice','water','milk','pancake')))
   expect_identical(dfOut, dfExpected)
 })
 
 
 ############### ERROR HANDLING ###############
 # collect values on a 4 column DF, apply them to 2 columns
-test_that('throw an error when fed 4 column DF and only 2 values.', {
+# This should no longer throw an error. Rather, the two named values
+# get used and the others have their values calculated in the second imputeDF call
+test_that('No error when fed 4 column DF and 2 named values.', {
   df <- data.frame(a=c(1,2,3,NA), b=c('Y','N','Y',NA),
     c=c(11,21,31,43), d=as.factor(c('Y','N','N',NA)))
   # Find values for 4 columns
@@ -202,8 +243,8 @@ test_that('throw an error when fed 4 column DF and only 2 values.', {
   imputeVals <- out$imputeVals
   # Insert values for columns 2 and 4 only
   colsToImpute <- c('b','d')
-  expect_error(capture.output(imputeDF(df,imputeVals[colsToImpute])),
-   'Your dataframe must have the same number of columns as your provided list!')
+  expect_identical(imputeDF(df, imputeVals[colsToImpute]),
+                   imputeDF(df))
 })
 
 
@@ -256,4 +297,12 @@ test_that('error when df is not a dataframe.', {
 test_that('error when imputeVals is not a list.', {
    df <- data.frame(a=c(1,2,3,NA), b=c(11,21,31,43))
   expect_error(imputeDF(df, c(2,26.5)), 'imputeValues must be a list.')
+})
+
+test_that("Unnamed list not of same length as df produces error", {
+  expect_error(imputeDF(original, list("C")))
+  expect_error(imputeDF(original, list("C", 1, 3, 4)))
+})
+test_that("Partially named list produces error", {
+  expect_error(imputeDF(original, list("C", name = 4)))
 })

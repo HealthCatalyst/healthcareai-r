@@ -4,7 +4,7 @@
 \alias{imputeDF}
 \title{Perform imputation on a dataframe}
 \usage{
-imputeDF(df, imputeVals = list())
+imputeDF(df, imputeVals = NULL)
 }
 \arguments{
 \item{df}{A dataframe of values with NAs.}
