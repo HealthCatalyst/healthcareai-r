@@ -96,7 +96,15 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
             && !isTargetYN(self$params$df[[self$params$predictedCol]])) {
           stop('predictedCol must be Y/N. IIF function in sql may help')
         }
-        
+
+        # Make sure N/Y are properly ordered (deals with edge case)
+        if (self$params$type == "classification" 
+            && is.factor(self$params$df[[self$params$predictedCol]]) 
+            && levels(self$params$df[[self$params$predictedCol]])[1] == "Y") {
+          self$params$df[[self$params$predictedCol]] <- 
+            factor(self$params$df[[self$params$predictedCol]], 
+                   levels = c("N", "Y"))
+        }
       }
 
       if (!is.null(p$impute))
