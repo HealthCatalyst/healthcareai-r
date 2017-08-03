@@ -341,8 +341,13 @@ getSilhouetteInf <- function(x, dist) {
     # Calculate silhouette width 
     # https://en.wikipedia.org/wiki/Silhouette_(clustering)
     if (sizeOfCluster > 1) {
+      # For each point i, compute the average distance of i to the other points 
+      # in the same cluster: a(i)
       ai <- colSums(distMat[idx, idx])/(sizeOfCluster - 1) # length(a.i)= Nj
+      # For each point i, find the minimal average distance of i to the other points
+      # in the other cluters: b(i)
       bi <- distanceToOtherPts[cbind(minimalDistIdx, seq(along = minimalDistIdx))]
+      # s(i) = (b(i)-a(i))/max{a(i),b(i)}
       sil_width <- ifelse(ai != bi, (bi - ai) / pmax(bi, ai), 0)
     } else {
       sil_width <- 0
@@ -392,8 +397,6 @@ plotSilhouette <- function(x, col = "gray") {
   space[space != 0] <- 1
   
   k <- length(sizeOfCluster) 
-  
-  sub <- paste("Average silhouette width : ", round(avgSilhouetteWidth, digits = 2))
   # Colors
   if (length(col) == 1) {
     col <- col
@@ -407,8 +410,9 @@ plotSilhouette <- function(x, col = "gray") {
                xlab = "Silhouette width",
                xlim = c(min(0, min(bars)), 1),
                horiz = TRUE, las = 1, mgp = c(2.5, 1, 0),
-               col = col)
-  title(main = "Silhouette plot", sub = sub)
+               col = col, border = NA)
+  title(main = "Silhouette plot", 
+        sub = paste("Average silhouette width : ", round(avgSilhouetteWidth, digits = 2)))
   mtext(paste("( n =", n,")"))
   mtext(substitute(k ~~ "clusters" ~~ C[j], list(k = k)), adj = 1)
   mtext(expression(paste(j," :  ", n[j]," | ", avg[i %in% Cj] ~~ s[i])),

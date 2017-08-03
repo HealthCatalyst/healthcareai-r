@@ -20,6 +20,7 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
     clustersOnCores = NA,
     grainColValues = NA,
     labelColValues = NA,
+    imputeVals = NA,
     # Creating attributes for performance report
     memsizeOfDataset = NA,
     initialDatasetRows = NA,
@@ -130,19 +131,29 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
         print(str(self$params$df))
       }
       
+      # Impute all columns except grain, person, and predicted.
+      colsToImpute <- !(names(self$params$df) %in% 
+                          c(self$params$grainCol, self$params$personCol, self$params$predictedCol))
+      # Impute is TRUE
       if (isTRUE(self$params$impute)) {
-        self$params$df[] <- lapply(self$params$df, imputeColumn)
+        temp <- imputeDF(self$params$df[names(self$params$df[colsToImpute])], self$modelInfo$imputeVals)
+        self$params$df[,colsToImpute] <- temp$df
+        private$imputeVals <- temp$imputeVals
+        temp <- NULL
         
         if (isTRUE(self$params$debug)) {
           print('Entire data set after imputation')
           print(str(self$params$df))
         }
-        
+        # Impute is FALSE
       } else {
         if (isTRUE(self$params$debug)) {
           print(paste0("Rows in data set before removing rows with NA's: ", nrow(self$params$df)))
         }
-        
+        # Calculate impute values for deploy
+        temp <- imputeDF(self$params$df[,colsToImpute]) 
+        private$imputeVals <- temp$imputeVals
+        temp <- NULL
         # Remove rows with any NA's
         self$params$df <- na.omit(self$params$df)
         
@@ -152,6 +163,8 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
           print(str(self$params$df))
         }
       }
+      # Save imputation values into modelInfo
+      # self$modelInfo$imputeVals <- private$imputeVals
       
       # Remove columns that are only NA
       self$params$df <- self$params$df[,colSums(is.na(self$params$df)) < nrow(self$params$df)]
