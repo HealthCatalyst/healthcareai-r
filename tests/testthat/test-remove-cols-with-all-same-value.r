@@ -1,3 +1,15 @@
+# The first set of tests check that the function removeColsWithAllSameValue
+# works as desired. The second set of tests check that develop and deploy use
+# the same columns (e.g., columns dropped in develop are also dropped in deploy,
+# columns added in deploy are not used).
+#
+# These tests include:
+# 1. Testing that columns with zero variance, which are dropped in develop are
+#    also dropped in deploy
+# 2. Check that an error is raised if variables which were used in develop are
+#    missing in deploy
+# 3. Check that new columns added in deploy are dropped
+
 context("Checking that columns are removed when every row in the column has the same value")
 
 test_that("Data frame outputted is same as data frame inputted when every column has rows with different values", {
@@ -109,8 +121,8 @@ test_that("Numeric Column with no variance is dropped in RF deploy", {
   
   # Develop and Deploy Model
   rf <- RandomForestDevelopment$new(p1)
-  rf$run()
-  rfD <- RandomForestDeployment$new(p2)
+  capture.output(rf$run())
+  capture.output(rfD <- RandomForestDeployment$new(p2))
   rfD$deploy()
   
   # Check that numeric column has been dropped
@@ -132,8 +144,8 @@ test_that("Factor column with no variance is dropped in RF deploy", {
   
   # Develop and Deploy Model
   rf <- RandomForestDevelopment$new(p1)
-  rf$run()
-  rfD <- RandomForestDeployment$new(p2)
+  capture.output(rf$run())
+  capture.output(rfD <- RandomForestDeployment$new(p2))
   rfD$deploy()
   
   # Check that numeric column has been dropped
@@ -156,12 +168,63 @@ test_that("Columns with no variance are dropped in XGBoost deploy", {
   p2 <- params$pDeploy
   
   # Develop and Deploy Model
-  xgb <- XGBoostDevelopment$new(p1)
-  xgb$run()
-  xgbD <- XGBoostDeployment$new(p2)
-  xgbD$deploy()
+  capture.output(xgb <- XGBoostDevelopment$new(p1))
+  capture.output(xgb$run())
+  capture.output(xgbD <- XGBoostDeployment$new(p2))
+  capture.output(xgbD$deploy())
   
   # Check that numeric column has been dropped
   expect_true(!("z" %in% names(xgbD$params$df)))
+  expect_true(!("b" %in% names(xgbD$params$df)))
+})
+
+test_that("Error is raised when columns are missing", {
+  # Set up development/deployment parameters
+  d <- getDf("classification")
+  devSet <- d[1:190, ]
+  depSet <- d[191:200, ]
+  # Drop column in deploy
+  depSet$x <- NULL
+  params <- getClassificationParams(devSet, depSet, "classification")
+  p1 <- params$pDevelop
+  p2 <- params$pDeploy
+  
+  # Develop and Deploy Model
+  rf <- RandomForestDevelopment$new(p1)
+  capture.output(rf$run())
+  expect_error(capture.output(rfD <- RandomForestDeployment$new(p2)), 
+               paste0("Some columns used to develop the model are missing\n",
+                      "Missing columns: x"))
+  
+  # Drop second column in deploy
+  depSet$a <- NULL
+  p2$df <- depSet
+  
+  # Develop and Deploy Model
+  expect_error(capture.output(rfD <- RandomForestDeployment$new(p2)), 
+               paste0("Some columns used to develop the model are missing\n",
+                      "Missing columns: x a"))
+})
+
+test_that("Extra columns in deploy are dropped", {
+  # Set up development/deployment parameters
+  d <- getDf("classification")
+  devSet <- d[1:190, ]
+  depSet <- d[191:200, ]
+  # Add columns in deploy
+  depSet$z <- rnorm(10)
+  depSet$b <- sample(c("alligator", "banana", "potato"), size = 10, replace = T)
+  params <- getClassificationParams(devSet, depSet, "classification")
+  p1 <- params$pDevelop
+  p2 <- params$pDeploy
+  
+  # Develop and Deploy Model
+  rf <- RandomForestDevelopment$new(p1)
+  capture.output(rf$run())
+  capture.output(rfD <- RandomForestDeployment$new(p2))
+  rfD$deploy()
+  
+  # Check that extra columns have been dropped
+  expect_true(!("z" %in% names(rfD$params$df)))
   expect_true(!("b" %in% names(rfD$params$df)))
 })
