@@ -18,7 +18,7 @@ test_that("For a given dataframe, function returns expected output", {
 
 test_that("For a given matrix, function returns expected output", {
    
-  n <- matrix(c(1, 3, NA, NaN, "NULL", "NAs", "999", "NONE"),
+  n <- matrix(c(1, 3, NA, NaN, "NULL", "NAs", "nil", "NONE"),
                nrow = 4, ncol = 2)
    
    actualOut <- countMissingData(n)

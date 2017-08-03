@@ -26,6 +26,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
     grainTest = NA,
     prevalence = NA,
     factorLevels = NA,
+    imputeVals = NA,
 
     clustersOnCores = NA,
     grainColValues = NA,
@@ -246,19 +247,29 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         print(str(self$params$df))
       }
 
+      # Impute all columns except grain, person, and predicted.
+      colsToImpute <- !(names(self$params$df) %in% 
+        c(self$params$grainCol, self$params$personCol, self$params$predictedCol))
+      # Impute is TRUE
       if (isTRUE(self$params$impute)) {
-        self$params$df[] <- lapply(self$params$df, imputeColumn)
+        temp <- imputeDF(self$params$df[names(self$params$df[colsToImpute])], self$modelInfo$imputeVals)
+        self$params$df[,colsToImpute] <- temp$df
+        private$imputeVals <- temp$imputeVals
+        temp <- NULL
 
         if (isTRUE(self$params$debug)) {
           print('Entire data set after imputation')
           print(str(self$params$df))
         }
-
+      # Impute is FALSE
       } else {
         if (isTRUE(self$params$debug)) {
           print(paste0("Rows in data set before removing rows with NA's: ", nrow(self$params$df)))
         }
-
+        # Calculate impute values for deploy
+        temp <- imputeDF(self$params$df[,colsToImpute]) 
+        private$imputeVals <- temp$imputeVals
+        temp <- NULL
         # Remove rows with any NA's
         self$params$df <- na.omit(self$params$df)
 
@@ -268,6 +279,8 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
           print(str(self$params$df))
         }
       }
+      # Save imputation values into modelInfo
+      self$modelInfo$imputeVals <- private$imputeVals
 
       # Remove columns that are only NA
       self$params$df <- self$params$df[,colSums(is.na(self$params$df)) < nrow(self$params$df)]
@@ -302,6 +315,16 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         self$params$df[[self$params$predictedCol]] = as.factor(self$params$df[[self$params$predictedCol]])
       }
 
+      # Remove rows where predicted.col is null in train.
+      # Also in test, because it breaks performance metric calculation.
+      self$params$df <- removeRowsWithNAInSpecCol(self$params$df,
+                                                  self$params$predictedCol)
+
+      if (isTRUE(self$params$debug)) {
+        print('Training data set after removing rows where pred col is null')
+        print(str(private$dfTrain))
+      }
+
       trainIndex <- createDataPartition(y = self$params$df[[self$params$predictedCol]],
                                        p = 0.8,
                                        list = FALSE, times = 1)
@@ -319,15 +342,6 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       if (isTRUE(self$params$debug)) {
         print('Validation data set after splitting from main df')
         print(str(private$dfTest))
-      }
-
-      # Remove rows where predicted.col is null in train
-      private$dfTrain <- removeRowsWithNAInSpecCol(private$dfTrain,
-                                                  self$params$predictedCol)
-
-      if (isTRUE(self$params$debug)) {
-        print('Training data set after removing rows where pred col is null')
-        print(str(private$dfTrain))
       }
 
       # Get factor levels for dummy creation in deploy. 
