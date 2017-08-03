@@ -13,8 +13,7 @@ such as kmeans.fit$cluser}
 \item{dist}{A dissimilarity object resurned by dist()}
 }
 \value{
-An n x 3 matrix with columns of cluster, neighbor and 
-silhouette width
+An n x 3 matrix with columns of cluster, neighbor and silhouette width
 }
 \description{
 Compute silhouette information according to a given k means

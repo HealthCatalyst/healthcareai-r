@@ -12,7 +12,7 @@ plotSilhouette(x, col = "gray")
 \item{col}{colors for different clusters}
 }
 \value{
-a silhouette plot
+a silhouette barplot
 }
 \description{
 Plot silhouette width given a matrix that stores the silhouette

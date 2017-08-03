@@ -293,8 +293,7 @@ assignClusterLabels <- function(cm, k) {
 #' @param x A vector of integers, the clustering result returned by kmeans(), 
 #' such as kmeans.fit$cluser
 #' @param dist A dissimilarity object resurned by dist()
-#' @return An n x 3 matrix with columns of cluster, neighbor and 
-#' silhouette width
+#' @return An n x 3 matrix with columns of cluster, neighbor and silhouette width
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
@@ -364,7 +363,7 @@ getSilhouetteInf <- function(x, dist) {
 #' information
 #' @param x a matrix returned by getSilhouetteInf()
 #' @param col colors for different clusters
-#' @return a silhouette plot
+#' @return a silhouette barplot
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
@@ -427,4 +426,3 @@ plotSilhouette <- function(x, col = "gray") {
          xpd = NA, adj = 0.8)
   }
 }
-
