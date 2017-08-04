@@ -6,12 +6,10 @@
 \title{Compare predictive models, created on your data}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-RandomForestDevelopment(object, type, df, grainCol, predictedCol, 
-impute, debug)
+RandomForestDevelopment(type, df, grainCol, predictedCol, 
+impute, debug, cores, trees, tune, modelName)
 }
 \arguments{
-\item{object}{of SuperviseModelParameters class for $new() constructor}
-
 \item{type}{The type of model (either 'regression' or 'classification')}
 
 \item{df}{Dataframe whose columns are used for calc.}
@@ -29,11 +27,76 @@ F leads to removal of rows containing NULLs.}
 
 \item{debug}{Provides the user extended output to the console, in order
 to monitor the calculations throughout. Use T or F.}
+
+\item{cores}{Number of cores you'd like to use. Defaults to 2.}
+
+\item{trees}{Number of trees in the forest. Defaults to 201.}
+
+\item{tune}{If TRUE, automatically tune model for better performance. Creates grid using mtry param and 5-fold 
+cross validation. Note this takes longer.}
+
+\item{modelName}{Optional string. Can specify the model name. If used, you must load the same one in the deploy step.}
 }
 \description{
 This step allows you to create a random forest model, based on
 your data.
 }
+\section{Methods}{
+ 
+The above describes params for initializing a new randomForestDevelopment class with 
+\code{$new()}. Individual methods are documented below.
+}
+
+\section{\code{$new()}}{
+
+Initializes a new random forest development class using the 
+parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
+model training. \cr
+\emph{Usage:} \code{$new(p)}
+}
+
+\section{\code{$run()}}{
+
+Trains model, displays feature importance and performance. \cr
+\emph{Usage:}\code{$new()}
+}
+
+\section{$getPredictions()}{
+
+Returns the predictions from test data. \cr
+\emph{Usage:} \code{$getPredictions()} \cr
+}
+
+\section{\code{$getROC()}}{
+
+Returns the ROC curve object for \code{\link{plotROCs}}. Classification models only. \cr
+\emph{Usage:} \code{$getROC()} \cr
+}
+
+\section{\code{$getPRCurve()}}{
+
+Returns the PR curve object for \code{\link{plotPRCurve}}. Classification models only. \cr
+\emph{Usage:} \code{$getROC()} \cr
+}
+
+\section{\code{$getAUROC()}}{
+
+Returns the area under the ROC curve from testing for classification models. \cr
+\emph{Usage:} \code{$getAUROC()} \cr
+}
+
+\section{\code{$getRMSE()}}{
+
+Returns the RMSE from test data for regression models. \cr
+\emph{Usage:} \code{$getRMSE()} \cr
+}
+
+\section{\code{$getMAE()}}{
+
+Returns the RMSE from test data for regression models. \cr
+\emph{Usage:} \code{$getMAE()} \cr
+}
+
 \examples{
 
 #### Example using iris dataset ####
