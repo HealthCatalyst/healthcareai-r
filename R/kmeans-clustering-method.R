@@ -15,7 +15,7 @@
 #' data are labeled, this can be used for validation. Functions getClusterLabels()
 #' and getConfusionMatrix() are only available if labelCol is provided. Also supervised 
 #' models might be a better choice if labelCol is provided and the goal is classification.
-#' @param numOfCluster Number of clusters you want to build. If left blank, will 
+#' @param numOfClusters Number of clusters you want to build. If left blank, will 
 #' be determined automatically from the elbow plot.
 #' @param usePrinComp Optional. TRUE or FALSE. Default is FALSE. If TRUE, the method 
 #' will use the principle components returned by princomp() as the new features to 
