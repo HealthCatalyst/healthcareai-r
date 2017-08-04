@@ -184,6 +184,10 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         self$params$xgb_params$num_class <- self$params$xgb_numberOfClasses
         # Grain
         private$dfGrain <- self$params$df[[self$params$grainCol]]
+        if (is.null((private$dfGrain))) {
+          private$dfGrain <- 1:nrow(self$params$df)
+          self$params$grainCol <- "dfRowNumber"
+        }
         rm(ind, tempCol)
         # prints
         if (isTRUE(self$params$debug)) {
