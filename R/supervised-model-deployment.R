@@ -162,13 +162,17 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       self$params$df[[self$params$predictedCol]] <- NULL
     }
     
-    # Drop columns dropped in develop
+    # Check that all columns used in develop are present (except predictedCol
+    # and grainCOl) and drop extra columns which weren't used in develop (e.g.,
+    # columns with no variation in develop, brand new columns in deploy, etc.)
     columnsToKeep <- self$modelInfo$columnNames
     toDrop <- c(self$params$predictedCol, self$params$grainCol)
     columnsToKeep <- columnsToKeep[!(columnsToKeep %in% toDrop)]
+    # check that all needed columns from develop are present
     if (all(columnsToKeep %in% names(self$params$df))) {
+      # drop extra columns in deploy
       self$params$df <- self$params$df[, columnsToKeep]
-    } else {
+    } else {# missing columns from develop
       missingCols <- columnsToKeep[!(columnsToKeep %in% names(self$params$df))]
       stop(paste0("Some columns used to develop the model are missing\n",
                   "Missing columns: ", paste(missingCols, collapse = " ")))
