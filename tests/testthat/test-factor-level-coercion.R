@@ -29,6 +29,13 @@
 #    - in one test, a single new factor level is introduced in a single column
 #    - in a separate test, multiple new factor levels are introduced in two 
 #      separate columns
+#
+# Additional tests:
+# 1. check that Y/N in classification model is consistent with the data
+#    - make sure model isn't treating Y as N and vice versa
+#    - test with characters as well as factors (including intentionally setting
+#      N and Y in the wrong order)
+
 
 context("Checking factor level coercion is working")
 
@@ -1070,3 +1077,151 @@ test_that("Extra factors are imputed correctly for LMM classification (2 columns
 # p5$impute <- TRUE
 # p5$debug <- F
 # p5$cores <- 1
+
+test_that("Y and N aren't swapped when label is a character", {
+  # Set up training data
+  set.seed(1)
+  n <- 200
+  d <- data.frame(id = 1:n,
+                  x = rnorm(n),
+                  y = rnorm(n),
+                  z = rnorm(n))
+  # Add response variable
+  d['positive'] <- ifelse(d$x + d$y + d$z + rnorm(n) > 0, "Y", "N")
+  d['negative'] <- ifelse(d$positive == "Y", "N", "Y")
+  set.seed(NULL)
+  
+  # New data: first row should be classified as non-positive/negative, 
+  # second row as positive/non-negative
+  dDeploy <- data.frame(id = c(-1,1), 
+                        x = c(-1, 1), 
+                        y = c(-1, 1), 
+                        z = c(-1, 1))
+  
+  # Build first model to check if positive
+  dDevelop1 <- d
+  dDevelop1$negative <- NULL
+  
+  # Build first model
+  p <- SupervisedModelDevelopmentParams$new()
+  p$df <- dDevelop1
+  p$type <- "classification"
+  p$predictedCol <- 'positive'
+  p$grainCol <- "id"
+  p$impute <- TRUE
+  p$debug <- F
+  p$cores <- 1
+  
+  capture.output(rf <- RandomForestDevelopment$new(p))
+  capture.output(rf$run())
+  
+  p2 <- SupervisedModelDeploymentParams$new()
+  p2$df <- dDeploy
+  p2$type <- "classification"
+  p2$predictedCol <- "positive"
+  p2$grainCol <- "id"
+  p2$impute <- TRUE
+  p2$debug <- F
+  p2$cores <- 1
+  
+  capture.output(rfD <- RandomForestDeployment$new(p2))
+  capture.output(rfD$deploy())
+  # get first model's predictions
+  outDf1 <- rfD$getOutDf()
+  
+  # Build second model
+  dDevelop2 <- d
+  dDevelop2$positive <- NULL
+  
+  p$df <- dDevelop2
+  p$predictedCol <- "negative"
+  
+  capture.output(rf <- RandomForestDevelopment$new(p))
+  capture.output(rf$run())
+  
+  p2$predictedCol <- "negative"
+  capture.output(rfD <- RandomForestDeployment$new(p2))
+  capture.output(rfD$deploy())
+  # get second model's predictions
+  outDf2 <- rfD$getOutDf()
+  
+  # Check that predictions are 1) non-positive and 2) positive
+  expect_true(outDf1$PredictedProbNBR[1] < 0.1)
+  expect_true(outDf1$PredictedProbNBR[2] > 0.9)
+  
+  # Check that predictions are 1) negative and 2) non-negative
+  expect_true(outDf2$PredictedProbNBR[1] > 0.9)
+  expect_true(outDf2$PredictedProbNBR[2] < 0.1)
+})
+
+test_that("Y and N aren't swapped label is a factor", {
+  # Set up training data
+  set.seed(1)
+  n <- 200
+  d <- data.frame(id = 1:n,
+                  x = rnorm(n),
+                  y = rnorm(n),
+                  z = rnorm(n))
+  # Add response variable
+  d['positive'] <- ifelse(d$x + d$y + d$z + rnorm(n) > 0, "Y", "N")
+  set.seed(NULL)
+  
+  # New data: first row should be classified as non-positive/negative, 
+  # second row as positive/non-negative
+  dDeploy <- data.frame(id = c(-1,1), 
+                        x = c(-1, 1), 
+                        y = c(-1, 1), 
+                        z = c(-1, 1))
+  
+  # Build first, setting factor levels in desired order
+  dDevelop1 <- d
+  dDevelop1$positive <- factor(dDevelop1$positive, levels = c("N", "Y"))
+  
+  # Build first model
+  p <- SupervisedModelDevelopmentParams$new()
+  p$df <- dDevelop1
+  p$type <- "classification"
+  p$predictedCol <- 'positive'
+  p$grainCol <- "id"
+  p$impute <- TRUE
+  p$debug <- F
+  p$cores <- 1
+  
+  capture.output(rf <- RandomForestDevelopment$new(p))
+  capture.output(rf$run())
+  
+  p2 <- SupervisedModelDeploymentParams$new()
+  p2$df <- dDeploy
+  p2$type <- "classification"
+  p2$predictedCol <- "positive"
+  p2$grainCol <- "id"
+  p2$impute <- TRUE
+  p2$debug <- F
+  p2$cores <- 1
+  
+  capture.output(rfD <- RandomForestDeployment$new(p2))
+  capture.output(rfD$deploy())
+  # get first model's predictions
+  outDf1 <- rfD$getOutDf()
+  
+  # Build second model, setting factor levels in reverse order
+  dDevelop2 <- d
+  dDevelop2$positive <- factor(dDevelop2$positive, levels = c("Y", "N"))
+  
+  p$df <- dDevelop2
+  
+  capture.output(rf <- RandomForestDevelopment$new(p))
+  capture.output(rf$run())
+  
+  capture.output(rfD <- RandomForestDeployment$new(p2))
+  capture.output(rfD$deploy())
+  # get second model's predictions
+  outDf2 <- rfD$getOutDf()
+  
+  # Check that predictions are 1) non-positive ...
+  expect_true(outDf1$PredictedProbNBR[1] < 0.1)
+  expect_true(outDf2$PredictedProbNBR[1] < 0.1)
+  # ... and 2) positive
+  expect_true(outDf1$PredictedProbNBR[2] > 0.9)
+  expect_true(outDf2$PredictedProbNBR[2] > 0.9)
+})
