@@ -13,14 +13,13 @@
 #' @importFrom R6 R6Class
 #' @import ranger
 #' @param type The type of model (either 'regression' or 'classification')
-#' @param df Dataframe whose columns are used for calc.
+#' @param df Dataframe whose columns are used for new predictions. Data structure should match development as 
+#' much as possible. Number of columns, names, types, grain, and predicted must be the same.
 #' @param grainCol The dataframe's column that has IDs pertaining to the grain
-#' @param predictedCol Column that you want to predict. If you're doing
-#' classification then this should be Y/N.
-#' @param impute For training df, set all-column imputation to F or T.
-#' This uses mean replacement for numeric columns
-#' and most frequent for factorized columns.
-#' F leads to removal of rows containing NULLs.
+#' @param predictedCol Column that you want to predict.
+#' @param impute For training df, set all-column imputation to T or F.
+#' If T, this uses values calculated in development.
+#' F leads to removal of rows containing NULLs and is not recommended.
 #' @param debug Provides the user extended output to the console, in order
 #' @param cores Number of cores you'd like to use.  Defaults to 2.
 #' @param modelName Optional string. Can specify the model name. If used, you must load the same one in the deploy step.
@@ -39,7 +38,7 @@
 #' Return the grain, all top factors, and their weights. \cr
 #' \emph{Usage:} \code{$getTopFactors(numberOfFactors = NA, includeWeights = FALSE)} \cr
 #' Params: \cr
-#'   - \code{numberOfFactors:} retuns the top \code{n} factors. Defaults to all factors. \cr
+#'   - \code{numberOfFactors:} returns the top \code{n} factors. Defaults to all factors. \cr
 #'   - \code{includeWeights:} If \code{TRUE}, returns weights associated with each factor.
 #' @section \code{$getOutDf()}:
 #' Returns the output dataframe. \cr

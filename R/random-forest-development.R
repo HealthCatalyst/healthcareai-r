@@ -1,7 +1,8 @@
 #' Compare predictive models, created on your data
 #'
 #' @description This step allows you to create a random forest model, based on
-#' your data.
+#' your data. Random forest is an ensemble model, well suited for non-linear data. It's fast
+#' to train and often a good starting point.
 #' @docType class
 #' @usage RandomForestDevelopment(type, df, grainCol, predictedCol, 
 #' impute, debug, cores, trees, tune, modelName)
@@ -19,10 +20,11 @@
 #' the grain. No ID columns are truly needed for this step.
 #' @param predictedCol Column that you want to predict. If you're doing
 #' classification then this should be Y/N.
-#' @param impute Set all-column imputation to F or T.
-#' This uses mean replacement for numeric columns
+#' @param impute Set all-column imputation to T or F.
+#' If T, this uses mean replacement for numeric columns
 #' and most frequent for factorized columns.
 #' F leads to removal of rows containing NULLs.
+#' Values are saved for deployment.
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
 #' @param cores Number of cores you'd like to use. Defaults to 2.
@@ -41,7 +43,7 @@
 #' @section \code{$run()}:
 #' Trains model, displays feature importance and performance. \cr
 #' \emph{Usage:}\code{$new()} 
-#' @section $getPredictions():
+#' @section \code{$getPredictions()}:
 #' Returns the predictions from test data. \cr
 #' \emph{Usage:} \code{$getPredictions()} \cr
 #' @section \code{$getROC()}:
