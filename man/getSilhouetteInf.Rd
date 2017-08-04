@@ -7,8 +7,8 @@
 getSilhouetteInf(x, dist)
 }
 \arguments{
-\item{x}{A vector of integers, the clustering result returned by kmeans(), 
-such as kmeans.fit$cluser}
+\item{x}{A vector of clusters, the clustering result returned by kmeans(), 
+such as kmeans.fit$clusTer}
 
 \item{dist}{A dissimilarity object resurned by dist()}
 }

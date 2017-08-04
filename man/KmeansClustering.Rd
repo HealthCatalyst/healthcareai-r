@@ -17,16 +17,23 @@ usePrinComp, numOfPrinComp,impute, debug)
 \item{grainCol}{Optional. The dataframe's column that has IDs pertaining to 
 the grain. No ID columns are truly needed for this step.}
 
-\item{labelCol}{Optional. In case the data frame contains a column that labels
-each row of the df. Need to be removed befroe clustering.}
+\item{labelCol}{Optional. Labels will not be used for clustering, but if the 
+data are labeled, this can be used for validation. Functions getClusterLabels()
+and getConfusionMatrix() are only available if labelCol is provided. Also supervised 
+models might be a better choice if labelCol is provided and the goal is classification.}
 
-\item{numOfCluster}{Number of clusters you want to build.}
+\item{numOfCluster}{Number of clusters you want to build. If left blank, will 
+be determined automatically from the elbow plot.}
 
-\item{usePrinComp}{Optional. TRUE or FALSE. If TRUE, will use the principle components
-to perform K-means clustering. Default is FALSE.}
+\item{usePrinComp}{Optional. TRUE or FALSE. Default is FALSE. If TRUE, the method 
+will use the principle components returned by princomp() as the new features to 
+perform K-means clustering. And if this is the case, function  
+getParallelCoordinatePlot() can no longer be used to expalin how variables 
+contributed in each cluster.}
 
-\item{numOfPrinComp}{Optional. Number of principle components you want to use to perform 
-K-means clustering.}
+\item{numOfPrinComp}{Optional. If usePrinComp is TRUE, you need to decide how 
+many principle components you want to use to perform K-means clustering. If left 
+blank, it will be determined automatically from the scree plot.}
 
 \item{impute}{Set all-column imputation to F or T.
 This uses mean replacement for numeric columns
@@ -71,6 +78,9 @@ cl$getElbowPlot()
 # Get the 2D representation of the cluster solution
 cl$get2DClustersPlot()
  
+# Get the sillhouette plot
+cl$getSilhouettePlot()
+
 # Get a confusion matrix if labelCol exists
 cl$getConfusionMatrix()
 

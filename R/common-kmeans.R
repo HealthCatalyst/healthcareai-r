@@ -290,8 +290,8 @@ assignClusterLabels <- function(cm, k) {
 #'
 #' @description Compute silhouette information according to a given k means
 #' clustering result
-#' @param x A vector of integers, the clustering result returned by kmeans(), 
-#' such as kmeans.fit$cluser
+#' @param x A vector of clusters, the clustering result returned by kmeans(), 
+#' such as kmeans.fit$clusTer
 #' @param dist A dissimilarity object resurned by dist()
 #' @return An n x 3 matrix with columns of cluster, neighbor and silhouette width
 #'
@@ -383,10 +383,12 @@ plotSilhouette <- function(x, col = "gray") {
   n <- nrow(x)
   cluster <- x[,"cluster"]
   silhouette_width <- x[, "sil_width"]
+  # For each clsuter, the average silhouette width of all the points in this cluster
   avgSilhouetteWidthofClusters <- tapply(silhouette_width, cluster, mean)
   sizeOfCluster <- table(cluster)
+  # Average silhouette width of all the points in the data set
   avgSilhouetteWidth <- mean(silhouette_width)
-  
+  # Order by ascending cluster and descending sil_width
   orderedx <- x[order(cluster, -x[,"sil_width"]) , , drop = FALSE]
   
   ## plot barplot

@@ -140,7 +140,7 @@ cl1$getElbowPlot()
 
 ## A more detailed example with dataset that has a label col
 It is possible that the dataset already has a label column that assigns each row 
-to a group. We can then compare the clustering result achieved by `KmeansClustering` with the original labels. This may help us to evaluate the accuracy of the clustering method.
+to a group. In this case, if your goal is to do classification, there are supervised models like `RandonForesrDevelopment', 'XGBoostDevelopment` available in `healthcareai` package. In the unsupervised models like clustering, label column can only be used for validatoin. We compare the clustering result achieved by `KmeansClustering` with the original labels to evaluate the accuracy of the clustering method. And only when `labelCol` is provided, functions getClusterLabels and getConfusionMatrix are available.
 
 ### Step 1: Load data and packages, set parameters and create clusterings
 ```r
@@ -181,7 +181,12 @@ cl2$getClusterLabels()
 ![comparison between clustering result and original labels](img/clusteringResultVsOriginalLabels.png)
 
 ### Step 4: Visualization of the clustering 
-Besides the 2D visualization plot, `KmeansClustering` also contains [parallel coordinates plot](https://en.wikipedia.org/wiki/Parallel_coordinates). 
+Besides the 2D visualization plot, `KmeansClustering` also contains [silhouette plot](https://en.wikipedia.org/wiki/Silhouette_(clustering)) and [parallel coordinates plot](https://en.wikipedia.org/wiki/Parallel_coordinates). 
+ 
+```r
+cl2$getSilhouettePlot()
+```
+![silhouette plot](img/clusteringSilhouettePlot.png)
 
 ```r
 cl2$getParallelCoordinatePlot()
@@ -239,7 +244,7 @@ cat(proc.time() - ptm,"\n")
 
 ## PCA is built in `KmeansClustering`
 
-In case that we may have data sets with a large number of features, PCA is built in `KmeansClustering` to reduce features when building clusters. Let's use the csv file of  seeds_dataset again as an example. 
+In case that we may have data sets with a large number of features, PCA is built in `KmeansClustering` to reduce the features to use when building clusters. Let's use the csv file of  seeds_dataset again as an example. 
 
 ```r
 ptm <- proc.time()
@@ -279,7 +284,7 @@ cl3$getScreePlot()
 ```
 ![scree plot](img/clusteringScreePlot.png)
 
-Then you can choose whether you want to use the PCs to do Kmeans clustering by setting the parameter `usePrinComp` to `TRUE` or `FALSE`. And you can decide how many PCs you want to use in clustering based on the scree plot. Or `KmeansClustering` can decide for you just by using the elbow point in the scree plot.
+Then you can choose whether you want to use the PCs to do Kmeans clustering by setting the parameter `usePrinComp` to `TRUE` or `FALSE`. And you can decide how many PCs you want to use in clustering based on the scree plot. Or `KmeansClustering` will determine for you just by using the elbow point in the scree plot.
 
 ### Full example code for PCA
 ```r
