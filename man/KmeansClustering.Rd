@@ -24,6 +24,10 @@ models might be a better choice if labelCol is provided and the goal is classifi
 
 \item{numOfCluster}{Number of clusters you want to build. If left blank, will 
 be determined automatically from the elbow plot.}
+data labeled this can be used for validation.}
+
+\item{numOfCluster}{Optional. Number of clusters you want to build. If left
+blank, will be determined automatically from the scree plot.}
 
 \item{usePrinComp}{Optional. TRUE or FALSE. Default is FALSE. If TRUE, the method 
 will use the principle components returned by princomp() as the new features to 

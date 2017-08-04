@@ -25,6 +25,13 @@
 #' @param numOfPrinComp Optional. If usePrinComp is TRUE, you need to decide how 
 #' many principle components you want to use to perform K-means clustering. If left 
 #' blank, it will be determined automatically from the scree plot. 
+#' data labeled this can be used for validation.
+#' @param numOfCluster Optional. Number of clusters you want to build. If left
+#' blank, will be determined automatically from the scree plot.
+#' @param usePrinComp Optional. TRUE or FALSE. If TRUE, will use the principle components
+#' to perform K-means clustering. Default is FALSE.
+#' @param numOfPrinComp Optional. Number of principle components you want to use to perform 
+#' K-means clustering. 
 #' @param impute Set all-column imputation to F or T.
 #' This uses mean replacement for numeric columns
 #' and most frequent for factorized columns.
