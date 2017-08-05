@@ -53,10 +53,16 @@ groupedLOCF <- function(df, id) {
 #' @description This class performs imputation on a data frame. For numeric columns,
 #' the column-mean is used; for factor columns, the most frequent value is used.
 #' @param df A dataframe of values with NAs.
-#' @param imputeVals A list of values to be used for imputation. Must be the same length
-#' as the number of columns in df.
+#' @param imputeVals A list of values to be used for imputation. If an unnamed list
+#' must be the same length as as the number of columns in `df` and the order of values
+#' in `imputeVals` should match the order of columns in `df`. If named, names will be
+#' matched to names of `df`, and you can provide a subset of columns in `df` (see @details).
 #' @return A list. The first element, df, is the imputed dataframe. The second element,
 #' imputeVals, is a list of the imputation value used.
+#' @details If `imputeVals` is a named list containing a subset of the columns in `df`,
+#' columns that don't have a value provided will have one calculated. If you wish
+#' to provide custom imputation values for a subset of columns and leave NAs
+#' in other columns, supply the value NA to `imputeVals` for those columns.
 #' #'
 #' @export
 #' @references \url{http://healthcare.ai}
@@ -129,6 +135,16 @@ imputeDF <- function(df, imputeVals = NULL) {
       imputeVals <- NULL
       # If it's same length as df, give it names of df
     } else if  (length(imputeVals) == ncol(df)) {
+      # Check to make sure each is of the same type as the respective column.
+      # Want characters and factors to align, likewise for integers, doubles, etc.
+      # So do a little hacky regex
+      char_imputeVals <- sapply(imputeVals, function(x) grepl("[a-zA-Z]", x))
+      char_cols <- sapply(df, function(x) any(grepl("[a-zA-Z]", x)))
+      if (!all.equal(char_imputeVals, unname(char_cols)))
+        stop("You seem to have an impute value of a different type than the 
+                corresponding column in the data frame. Consider naming the values 
+                in imputeVals with the corresponding column in the data frame.")
+
       names(imputeVals) <- names(df)
     } else {
       stop("imputeVals must be named, have one entry for each column in df, or be left blank.")
