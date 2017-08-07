@@ -7,25 +7,42 @@
 #' \item Push these predictions to SQL Server or CSV
 #' }
 #' @docType class
-#' @usage XGBoostDeployment(type, df, grainCol, testWindowCol, 
-#' predictedCol, impute, debug)
+#' @usage XGBoostDeployment(type, df, grainCol,
+#' predictedCol, impute, debug, cores, modelName)
 #' @import caret
 #' @import doParallel
 #' @import xgboost
 #' @importFrom R6 R6Class
 #' @param type The type of model (must be multiclass)
-#' @param df Dataframe whose columns are used for new predictions
+#' @param df Dataframe whose columns are used for new predictions. Data structure should match development as 
+#' much as possible. Number of columns, names, types, grain, and predicted must be the same.
 #' @param grainCol The dataframe's column that has IDs pertaining to the grain
-#' @param testWindowCol (Depreciated) Predictions will be made for all rows.
-#' @param predictedCol Column that you want to predict. If you're doing
-#' classification then this should be Y/N.
-#' @param impute For training df, set all-column imputation to F or T.
-#' This uses mean replacement for numeric columns
-#' and most frequent for factorized columns.
-#' F leads to removal of rows containing NULLs.
+#' @param predictedCol Column that you want to predict.
+#' @param impute For training df, set all-column imputation to T or F.
+#' If T, this uses values calculated in development.
+#' F leads to removal of rows containing NULLs and is not recommended.
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
-#' @return Returns a dataframe containing the grain column, the top 3 probabilities for each row, and the classes associated with those probabilities.
+#' @param cores Number of cores you'd like to use.  Defaults to 2.
+#' @param modelName Optional string. Can specify the model name. If used, you must load the same one in the deploy step.
+#' @section Methods: 
+#' The above describes params for initializing a new XGBoostDeployment class with 
+#' \code{$new()}. Individual methods are documented below.
+#' @section \code{$new()}:
+#' Initializes a new XGBoost deployment class using the 
+#' parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
+#' generating predictions. \cr
+#' \emph{Usage:} \code{$new(p)}
+#' @section \code{$deploy()}:
+#' Generate new predictions and prepare the output dataframe. \cr
+#' \emph{Usage:} \code{$deploy()} 
+#' @section \code{$getPredictions()}:
+#' Return the grain and predictions for each class. \cr
+#' \emph{Usage:} \code{$getPredictions()} \cr
+#' @section \code{$getOutDf()}:
+#' Returns a dataframe containing the grain column, the top 3 probabilities for each row, 
+#' and the classes associated with those probabilities. \cr
+#' \emph{Usage:} \code{$getOutDf()} 
 #' @export
 #' @seealso \code{\link{healthcareai}}
 #' @examples

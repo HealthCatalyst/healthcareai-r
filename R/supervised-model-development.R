@@ -96,7 +96,15 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
             && !isTargetYN(self$params$df[[self$params$predictedCol]])) {
           stop('predictedCol must be Y/N. IIF function in sql may help')
         }
-        
+
+        # Make sure N/Y are properly ordered (deals with edge case)
+        if (self$params$type == "classification" 
+            && is.factor(self$params$df[[self$params$predictedCol]]) 
+            && levels(self$params$df[[self$params$predictedCol]])[1] == "Y") {
+          self$params$df[[self$params$predictedCol]] <- 
+            factor(self$params$df[[self$params$predictedCol]], 
+                   levels = c("N", "Y"))
+        }
       }
 
       if (!is.null(p$impute))
@@ -141,11 +149,18 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
 
       # For use in confusion matrices
       private$prevalence <- table(self$params$df[[self$params$predictedCol]])[2]
-
-      if (length(returnColsWithMoreThanFiftyCategories(self$params$df)) > 0) {
+      
+      # Identify factor columns with more than 50 levels, other than grainCol 
+      # and predictedCol
+      skipCols <- c(self$params$predictedCol, 
+                    self$params$grainCol, 
+                    self$params$personCol)
+      fiftyPlus <- returnColsWithMoreThanFiftyCategories(self$params$df)
+      fiftyPlus <- fiftyPlus[!(fiftyPlus %in% skipCols)]
+      if (length(fiftyPlus) > 0) {
         warning('These columns in the df have more than fifty categories: \n',
                 paste(
-                 shQuote(returnColsWithMoreThanFiftyCategories(self$params$df)), 
+                 shQuote(fiftyPlus), 
                  collapse = ", "),
                  '\n This drastically reduces performance. \n',
                  'Consider combining into new col with fewer categories.')
@@ -184,6 +199,10 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         self$params$xgb_params$num_class <- self$params$xgb_numberOfClasses
         # Grain
         private$dfGrain <- self$params$df[[self$params$grainCol]]
+        if (is.null((private$dfGrain))) {
+          private$dfGrain <- 1:nrow(self$params$df)
+          self$params$grainCol <- "dfRowNumber"
+        }
         rm(ind, tempCol)
         # prints
         if (isTRUE(self$params$debug)) {
@@ -201,7 +220,11 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       
       # Remove factors levels which don't actually occur in the training data
       # Different case for single column vs. multiple columns
+      # Identify factor columns
       factors <- sapply(self$params$df, is.factor)
+      # Don't touch predictedCol, grainCol, or personCol
+      for (col in skipCols) factors[[col]] <- FALSE
+
       if (is.data.frame(self$params$df[, factors])) { # multiple columns
         self$params$df[, factors] <- lapply(self$params$df[, factors], as.character)
         self$params$df[, factors] <- lapply(self$params$df[, factors], as.factor)
@@ -214,7 +237,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       lowLevels = list()
       tempDf = self$params$df
       for (col in names(tempDf)) {
-        if (is.factor(tempDf[, col])) {
+        if (is.factor(tempDf[, col]) & !(col %in% skipCols)) { 
           tab <- table(tempDf[, col])
           if (any(tab <= 3)) {
             lowLevels[[col]] <- names(tab)[tab <= 3]  
