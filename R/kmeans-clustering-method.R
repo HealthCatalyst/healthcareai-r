@@ -276,7 +276,7 @@ KmeansClustering <- R6Class("KmeansClustering",
     },
     
     # Generawte elbow plot for k = 2 to k = 15
-    getElbowPlot = function(df) {
+    getElbowPlot = function() {
       plot(1:15, private$wss,
            type = "b", pch = 19, frame = FALSE, 
            xlab = "Number of clusters K",
@@ -285,7 +285,7 @@ KmeansClustering <- R6Class("KmeansClustering",
     },
     
     # Plot 2D cluster solution
-    get2DClustersPlot = function() {
+    get2DClustersPlot = function(labels = FALSE) {
       PC2s <- private$PCs[,1:2]
       cluster <- private$cluster
       D <- cbind(PC2s, cluster)
@@ -296,6 +296,8 @@ KmeansClustering <- R6Class("KmeansClustering",
            sub = paste("These two components explain",
                        format(100*sum(private$propVarEx[1:2]),digit = 3),
                        "% of the point variability"))
+      if (labels == TRUE) 
+        text(D$PC1, D$PC2, labels = private$grainColValues, cex = 0.7, pos = 3)
     },
     
     # Plot Silhouette plot
