@@ -19,19 +19,18 @@
 #' be determined automatically from the elbow plot.
 #' @param usePrinComp Optional. TRUE or FALSE. Default is FALSE. If TRUE, the method 
 #' will use the principle components returned by princomp() as the new features to 
-#' perform K-means clustering. And if this is the case, function  
-#' getParallelCoordinatePlot() can no longer be used to expalin how variables 
+#' perform K-means clustering. This may accelerate convergence on high-dimension
+#' datasets. If TRUE, getParallelCoordinatePlot() can no longer be used to expalin how variables 
 #' contributed in each cluster.
 #' @param numOfPrinComp Optional. If usePrinComp is TRUE, you need to decide how 
 #' many principle components you want to use to perform K-means clustering. If left 
 #' blank, it will be determined automatically from the scree plot. 
-#' data labeled this can be used for validation.
-#' @param impute Set all-column imputation to F or T.
+#' @param impute Set all-column imputation to FALSE or TRUE.
 #' This uses mean replacement for numeric columns
 #' and most frequent for factorized columns.
-#' F leads to removal of rows containing NULLs.
+#' FALSE leads to removal of rows containing NULLs.
 #' @param debug Provides the user extended output to the console, in order
-#' to monitor the calculations throughout. Use T or F.
+#' to monitor the calculations throughout. Use TRUE or FALSE.
 #' @references \url{http://hctools.org/}
 #' @seealso \code{\link{healthcareai}}
 #' @references \url{https://github.com/bryanhanson/ChemoSpecMarkeR/blob/master/R/findElbow.R}
@@ -167,7 +166,7 @@ KmeansClustering <- R6Class("KmeansClustering",
       # Find the optimal number of clusters
       k.max <- 15 # Maximal number of clusters
       private$wss <- sapply(1:k.max, 
-                            function(k){kmeans(scaledf, k, nstart = 10 )$tot.withinss})
+                            function(k){kmeans(scaledf, k, nstart = 3)$tot.withinss})
       private$optimalNumOfClusters <- findElbow(private$wss)
       
       # PCA
@@ -196,7 +195,7 @@ KmeansClustering <- R6Class("KmeansClustering",
         numOfClusters <- private$optimalNumOfClusters
       }
       # Run K-Means and save the result
-      private$kmeans.fit <- kmeans(private$dfCls, numOfClusters, nstart = 5)
+      private$kmeans.fit <- kmeans(private$dfCls, numOfClusters, nstart = 10)
       # Save the centers and clusters
       private$centers <- private$kmeans.fit[["centers"]]
       private$cluster <- private$kmeans.fit[["cluster"]]
