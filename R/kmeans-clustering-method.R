@@ -268,20 +268,6 @@ KmeansClustering <- R6Class("KmeansClustering",
       private$createDf()
     },
     
-    ## TODO: missing values?
-    getLabelOfNewdf = function(x) {
-      ## Load data, only use the columns that used in kmeans clustering
-      x <- x[,names(self$params$df)]
-      for (i in 1:nrow(x)) {
-        x[i,] <- (x[i,] - private$mean.vec)/private$sd.vec
-      }
-      # Compute squared euclidean distance from each sample to each cluster center
-      tmp <- sapply(seq_len(nrow(x)),
-                    function(i) apply(private$centers, 1,
-                                      function(v) sum((x[i, ] - v)^2)))
-      max.col(-t(tmp))  # find index of min distance
-    },
-    
     # Plot scree plot
     getScreePlot = function() {
       plot(private$propVarEx, xlab = "Principal Component",
@@ -320,7 +306,10 @@ KmeansClustering <- R6Class("KmeansClustering",
     
     # Plot parallel coordinates plot to see how variables contributed in each cluster
     getParallelCoordinatePlot = function() {
-      MASS::parcoord(private$dfCls, private$cluster)
+      if (self$params$usePrinComp == TRUE)
+        stop("This function is not available since principle components are used as 
+             new features to perform kmean clustering")
+      else MASS::parcoord(private$dfCls, private$cluster)
     },
     
     getOutDf = function() {
@@ -332,11 +321,15 @@ KmeansClustering <- R6Class("KmeansClustering",
     },
     
     getConfusionMatrix = function() {
-      return(private$confusionMatrix)
+      if (nchar(self$params$labelCol) == 0) 
+        stop("This function is unavailable since no labelCol is provided.")
+      else return(private$confusionMatrix)
     },
     
     getClusterLabels = function() {
-      return(private$clusterLabels)
+      if (nchar(self$params$labelCol) == 0) 
+        stop("This function is unavailable since no labelCol is provided.")
+      else return(private$clusterLabels)
     }
     
   )
