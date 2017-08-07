@@ -3,7 +3,7 @@
 #' @description This step allows you to use kmeans() to build clusters, based on
 #' your data.
 #' @docType class
-#' @usage KmeansClustering(object, df, grainCol, labelCol, numOfCluster,
+#' @usage KmeansClustering(object, df, grainCol, labelCol, numOfClusters,
 #' usePrinComp, numOfPrinComp,impute, debug)
 #' @importFrom R6 R6Class
 #' @import ranger

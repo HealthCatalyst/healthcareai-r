@@ -22,7 +22,7 @@ data are labeled, this can be used for validation. Functions getClusterLabels()
 and getConfusionMatrix() are only available if labelCol is provided. Also supervised 
 models might be a better choice if labelCol is provided and the goal is classification.}
 
-\item{numOfCluster}{Number of clusters you want to build. If left blank, will 
+\item{numOfClusters}{Number of clusters you want to build. If left blank, will 
 be determined automatically from the elbow plot.}
 
 \item{usePrinComp}{Optional. TRUE or FALSE. Default is FALSE. If TRUE, the method 

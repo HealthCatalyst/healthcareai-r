@@ -20,10 +20,11 @@ the grain. No ID columns are truly needed for this step.}
 \item{predictedCol}{Column that you want to predict. If you're doing
 classification then this should be Y/N.}
 
-\item{impute}{Set all-column imputation to F or T.
-This uses mean replacement for numeric columns
+\item{impute}{Set all-column imputation to T or F.
+If T, this uses mean replacement for numeric columns
 and most frequent for factorized columns.
-F leads to removal of rows containing NULLs.}
+F leads to removal of rows containing NULLs.
+Values are saved for deployment.}
 
 \item{debug}{Provides the user extended output to the console, in order
 to monitor the calculations throughout. Use T or F.}
@@ -39,7 +40,8 @@ to monitor the calculations throughout. Use T or F.}
 }
 \description{
 This step allows you to create an XGBoost classification model, based on
-your data. Use model type 'multiclass' with 2 or more classes.
+your data. Use model type 'multiclass' with 2 or more classes. XGBoost is an ensemble model,
+well suited to non-linear data and very fast. Can be parameter-dependent.
 }
 \section{Methods}{
  
