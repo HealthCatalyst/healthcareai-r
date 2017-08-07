@@ -6,7 +6,7 @@
 \title{Build clusters using kmeans()}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-KmeansClustering(object, df, grainCol, labelCol, numOfCluster,
+KmeansClustering(object, df, grainCol, labelCol, numOfClusters,
 usePrinComp, numOfPrinComp,impute, debug)
 }
 \arguments{

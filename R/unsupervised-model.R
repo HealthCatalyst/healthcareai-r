@@ -163,8 +163,6 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
           print(str(self$params$df))
         }
       }
-      # Save imputation values into modelInfo
-      # self$modelInfo$imputeVals <- private$imputeVals
       
       # Remove columns that are only NA
       self$params$df <- self$params$df[,colSums(is.na(self$params$df)) < nrow(self$params$df)]
