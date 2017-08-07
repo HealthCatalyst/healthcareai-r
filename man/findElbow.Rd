@@ -7,7 +7,7 @@
 findElbow(y)
 }
 \arguments{
-\item{y}{A numeric vector w/o NA's, values of the points in the curve}
+\item{y}{A numeric vector of more than 2 elements  w/o NA's}
 }
 \value{
 A number, the index of the elbow point.

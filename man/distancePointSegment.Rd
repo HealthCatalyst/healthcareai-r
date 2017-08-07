@@ -7,9 +7,9 @@
 distancePointSegment(px, py, x1, y1, x2, y2)
 }
 \arguments{
-\item{px}{A number, x axis of the point}
+\item{px}{A numeric vector, x axis of the points}
 
-\item{py}{A number, y axis of the point}
+\item{py}{A numeric vector, y axis of the points}
 
 \item{x1}{A number, x axis of the end point of the line segment}
 
@@ -20,7 +20,7 @@ distancePointSegment(px, py, x1, y1, x2, y2)
 \item{y2}{A number, y axis of the other end point of the line segment}
 }
 \value{
-A number, the length between the point and the line segment. If the 
+numeric vector, the length between the pointS and the line segment. If the 
 intersection point is outside the line segment, return the distance to the nearest 
 endpoint.
 }
@@ -29,7 +29,7 @@ compute the distance of a point from a line segment given the
 x, y axes of the points.
 }
 \examples{
-distancePointSegment(2,3,1,2,3,1)
+distancePointSegment(c(2,0),c(3,2),1,2,3,1)
 }
 \references{
 \url{http://healthcare.ai}

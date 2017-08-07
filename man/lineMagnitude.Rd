@@ -7,23 +7,23 @@
 lineMagnitude(x1, y1, x2, y2)
 }
 \arguments{
-\item{x1}{A number, x axis of one point}
+\item{x1}{A numeric vector, x axis of the points}
 
-\item{y1}{A number, y axis of one point}
+\item{y1}{A numeric vector, y axis of the points}
 
-\item{x2}{A number, x axis of the other point}
+\item{x2}{A numeric vector, x axis of the points}
 
-\item{y2}{A number, y axis of the other point}
+\item{y2}{A numeric vector, y axis of the points}
 }
 \value{
-A number, the length between two points.
+A numeric vector, the length between two points.
 }
 \description{
 compute the distance between two points given the x, y axes of the
 points.
 }
 \examples{
-lineMagnitude(1,2,5,3)
+lineMagnitude(c(1,0),c(2,0),5,3)
 }
 \references{
 \url{http://healthcare.ai}

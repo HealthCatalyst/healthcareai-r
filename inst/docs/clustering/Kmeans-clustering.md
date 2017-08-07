@@ -65,6 +65,11 @@ cl1$get2DClustersPlot()
 ```
 ![2D visualization output from KmeansClustering](img/clustering2Dplot.png)
 
+If you want to label each point with its grain ID, just call
+```r
+cl1$get2DClustersPlot(TRUE)
+```
+
 ## Step 5: Get the output data frame
 ```r
 outDf_seed <- cl1$getOutDf()

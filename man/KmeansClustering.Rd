@@ -27,22 +27,21 @@ be determined automatically from the elbow plot.}
 
 \item{usePrinComp}{Optional. TRUE or FALSE. Default is FALSE. If TRUE, the method 
 will use the principle components returned by princomp() as the new features to 
-perform K-means clustering. And if this is the case, function  
-getParallelCoordinatePlot() can no longer be used to expalin how variables 
+perform K-means clustering. This may accelerate convergence on high-dimension
+datasets. If TRUE, getParallelCoordinatePlot() can no longer be used to expalin how variables 
 contributed in each cluster.}
 
 \item{numOfPrinComp}{Optional. If usePrinComp is TRUE, you need to decide how 
 many principle components you want to use to perform K-means clustering. If left 
-blank, it will be determined automatically from the scree plot. 
-data labeled this can be used for validation.}
+blank, it will be determined automatically from the scree plot.}
 
-\item{impute}{Set all-column imputation to F or T.
+\item{impute}{Set all-column imputation to FALSE or TRUE.
 This uses mean replacement for numeric columns
 and most frequent for factorized columns.
-F leads to removal of rows containing NULLs.}
+FALSE leads to removal of rows containing NULLs.}
 
 \item{debug}{Provides the user extended output to the console, in order
-to monitor the calculations throughout. Use T or F.}
+to monitor the calculations throughout. Use TRUE or FALSE.}
 }
 \description{
 This step allows you to use kmeans() to build clusters, based on

@@ -69,17 +69,17 @@ pcaAnalysis <- function(df) {
 #'
 #' @description compute the distance between two points given the x, y axes of the
 #' points.
-#' @param x1 A number, x axis of one point
-#' @param y1 A number, y axis of one point
-#' @param x2 A number, x axis of the other point
-#' @param y2 A number, y axis of the other point
-#' @return A number, the length between two points.
+#' @param x1 A numeric vector, x axis of the points
+#' @param y1 A numeric vector, y axis of the points
+#' @param x2 A numeric vector, x axis of the points
+#' @param y2 A numeric vector, y axis of the points
+#' @return A numeric vector, the length between two points.
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
-#' lineMagnitude(1,2,5,3)
+#' lineMagnitude(c(1,0),c(2,0),5,3)
 lineMagnitude <- function(x1, y1, x2, y2) {
   dist <- sqrt((x2 - x1)^2 + (y2 - y1)^2)
   return(dist)
@@ -90,13 +90,13 @@ lineMagnitude <- function(x1, y1, x2, y2) {
 #'
 #' @description compute the distance of a point from a line segment given the 
 #' x, y axes of the points.
-#' @param px A number, x axis of the point
-#' @param py A number, y axis of the point
+#' @param px A numeric vector, x axis of the points
+#' @param py A numeric vector, y axis of the points
 #' @param x1 A number, x axis of the end point of the line segment
 #' @param y1 A number, y axis of the end point of the line segment
 #' @param x2 A number, x axis of the other end point of the line segment
 #' @param y2 A number, y axis of the other end point of the line segment
-#' @return A number, the length between the point and the line segment. If the 
+#' @return  numeric vector, the length between the pointS and the line segment. If the 
 #' intersection point is outside the line segment, return the distance to the nearest 
 #' endpoint.
 #'
@@ -107,14 +107,12 @@ lineMagnitude <- function(x1, y1, x2, y2) {
 #' @references \url{https://github.com/bryanhanson/ChemoSpecMarkeR/blob/master/R/findElbow.R}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
-#' distancePointSegment(2,3,1,2,3,1)
+#' distancePointSegment(c(2,0),c(3,2),1,2,3,1)
 distancePointSegment <- function(px, py, x1, y1, x2, y2) {
   ans <- NULL
   ix <- iy <- 0   # intersecting point
   lineMag <- lineMagnitude(x1, y1, x2, y2)
-  if (any(lineMag < 0.00000001)) { # modified for vectorization by BAH
-    #warning("short segment")
-    #return(9999)
+  if (any(lineMag < 0.00000001)) { 
     warning("At least one line segment given by x1, y1, x2, y2 is very short.")
   }
   u <- (((px - x1) * (x2 - x1)) + ((py - y1) * (y2 - y1)))
@@ -140,11 +138,11 @@ distancePointSegment <- function(px, py, x1, y1, x2, y2) {
 #'
 #' @description compute the distance of a point from a line given the 
 #' x, y axes of the point and the slope and intercept of the line.
-#' @param x A number, x axis of the point
-#' @param y A number, y axis of the point
+#' @param x A numeric vector, x axis of the points
+#' @param y A numeric vector, y axis of the points
 #' @param slope A number, the slope of the line
 #' @param intercept A number, the intercept of the line 
-#' @return A number, the length of the point from the line. 
+#' @return A numeric vector, the length of the pointS from the line. 
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
@@ -153,7 +151,7 @@ distancePointSegment <- function(px, py, x1, y1, x2, y2) {
 #' @references \url{https://github.com/bryanhanson/ChemoSpecMarkeR/blob/master/R/findElbow.R}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
-#' distancePointLine(2,3,-0.5,2.5)
+#' distancePointLine(c(2,0),c(3,2),-0.5,2.5)
 distancePointLine <- function(x, y, slope, intercept) {
   x1 <- x - 10
   x2 <- x + 10
@@ -168,7 +166,7 @@ distancePointLine <- function(x, y, slope, intercept) {
 #'
 #' @description finds the elbow of a curve that is concave to the line connecting
 #' the first and last points. 
-#' @param y A numeric vector w/o NA's, values of the points in the curve
+#' @param y A numeric vector of more than 2 elements  w/o NA's
 #' @return A number, the index of the elbow point. 
 #'
 #' @export
@@ -188,6 +186,8 @@ distancePointLine <- function(x, y, slope, intercept) {
 #' plot(y) # not concave
 #' ## findElbow(y) will gave an error
 findElbow <- function(y) {
+  if (length(y) <= 2) 
+    stop("The curve has less than 2 points. At least three points in a curve are needed to find its elbow.")
   # Add an index to argument values for easy plotting
   DF <- data.frame(x = 1:length(y), y = y)
   fit <- lm(y ~ x, DF[c(1,nrow(DF)),]) # 2 point 'fit'

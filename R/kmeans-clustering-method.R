@@ -168,6 +168,9 @@ KmeansClustering <- R6Class("KmeansClustering",
       private$wss <- sapply(1:k.max, 
                             function(k){kmeans(scaledf, k, nstart = 3)$tot.withinss})
       private$optimalNumOfClusters <- findElbow(private$wss)
+      if (isTRUE(self$params$debug)) {
+        print('find the optimal numbre of clusters...')
+      }
       
       # PCA
       pcaRes <- pcaAnalysis(self$params$df)
@@ -175,7 +178,13 @@ KmeansClustering <- R6Class("KmeansClustering",
       private$propVarEx <- pcaRes[[2]]
       
       # Find the optimal number of PCs
-      private$optimalNumOfPCs <- findElbow(private$propVarEx)
+      if (length(private$propVarEx) <= 2) 
+        private$optimalNumOfPCs = length(private$propVarEx)
+      else private$optimalNumOfPCs <- findElbow(private$propVarEx)
+      
+      if (isTRUE(self$params$debug)) {
+        print('find the optimal numbre of PCs...')
+      }
       
       # Use principle components if usePrinComp is TRUE 
       if (self$params$usePrinComp == TRUE && is.null(self$params$numOfPrinComp)) {
@@ -199,6 +208,10 @@ KmeansClustering <- R6Class("KmeansClustering",
       # Save the centers and clusters
       private$centers <- private$kmeans.fit[["centers"]]
       private$cluster <- private$kmeans.fit[["cluster"]]
+      
+      if (isTRUE(self$params$debug)) {
+        print('build clusters...')
+      }
       
       # Calculate confusion matrix and assign label to the clusters 
       # if labelCol exists
@@ -284,7 +297,7 @@ KmeansClustering <- R6Class("KmeansClustering",
     },
     
     # Plot 2D cluster solution
-    get2DClustersPlot = function(labels = FALSE) {
+    get2DClustersPlot = function(label = FALSE) {
       PC2s <- private$PCs[,1:2]
       cluster <- private$cluster
       D <- cbind(PC2s, cluster)
@@ -295,8 +308,11 @@ KmeansClustering <- R6Class("KmeansClustering",
            sub = paste("These two components explain",
                        format(100*sum(private$propVarEx[1:2]),digit = 3),
                        "% of the point variability"))
-      if (labels == TRUE) 
-        text(D$PC1, D$PC2, labels = private$grainColValues, cex = 0.7, pos = 3)
+      if (label == TRUE) {
+        if (nchar(self$params$grainCol) == 0) 
+          stop("Grain IDs are not available since no grainCol is provided")
+        else text(D$PC1, D$PC2, labels = private$grainColValues, cex = 0.7, pos = 3)
+      }
     },
     
     # Plot Silhouette plot
@@ -307,7 +323,7 @@ KmeansClustering <- R6Class("KmeansClustering",
     
     # Plot parallel coordinates plot to see how variables contributed in each cluster
     getParallelCoordinatePlot = function() {
-      if (self$params$usePrinComp == TRUE)
+      if (isTRUE(self$params$usePrinComp))
         stop("This function is not available since principle components are used as 
              new features to perform kmean clustering")
       else MASS::parcoord(private$dfCls, private$cluster)

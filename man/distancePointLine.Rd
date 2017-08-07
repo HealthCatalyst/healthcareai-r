@@ -7,23 +7,23 @@
 distancePointLine(x, y, slope, intercept)
 }
 \arguments{
-\item{x}{A number, x axis of the point}
+\item{x}{A numeric vector, x axis of the points}
 
-\item{y}{A number, y axis of the point}
+\item{y}{A numeric vector, y axis of the points}
 
 \item{slope}{A number, the slope of the line}
 
 \item{intercept}{A number, the intercept of the line}
 }
 \value{
-A number, the length of the point from the line.
+A numeric vector, the length of the pointS from the line.
 }
 \description{
 compute the distance of a point from a line given the 
 x, y axes of the point and the slope and intercept of the line.
 }
 \examples{
-distancePointLine(2,3,-0.5,2.5)
+distancePointLine(c(2,0),c(3,2),-0.5,2.5)
 }
 \references{
 \url{http://healthcare.ai}
