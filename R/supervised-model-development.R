@@ -252,9 +252,8 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
                                  'levels occurs 3 times or fewer:\n',
                                  paste('- ', names(lowLevels), ":", lowLevels, 
                                        collapse = "\n"),
-                                 '\nThere is a chance that the model will not ',
-                                 'train on all of them. Consider grouping ',
-                                 'these together with other levels.')
+                                 '\nConsider grouping these together with ',
+                                 'other levels.')
         # Print shorter warning if there are many factor levels which occur
         # infrequently
         if (max(unlist(lapply(lowLevels, length))) > 5) {
@@ -264,10 +263,9 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
                                    paste('- ', names(lowLevels), ":",
                                          lapply(lowLevels, length), "levels",
                                          collapse = "\n"),
-                                   '\nThere is a chance that the model will ',
-                                   'not train on all of them. Consider ',
-                                   'grouping these together with other levels.',
-                                   ' You can view the levels of a column using',
+                                   '\nConsider grouping these together with ',
+                                   'other levels.\n',
+                                   'You can view the levels of a column using',
                                    ' the "table" command.')
         }
         warning(warningMessage)
