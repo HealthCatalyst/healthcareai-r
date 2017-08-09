@@ -1,9 +1,12 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^inst/\.RData$
-^rmodel_probability\.rda$
-^rmodel_var_import\.rda$
-^rmodel_combined\.rda$
+^rmodel_probability_lasso\.rda$
+^rmodel_var_import_lasso\.rda$
+^rmodel_probability_RF\.rda$
+^rmodel_var_import_RF\.rda$
+^rmodel_probability_LMM\.rda$
+^rmodel_var_import_LMM\.rda$
 ^\.travis\.yml$
 ^\.vs$
 ^\.vs/healthcareai-r/v14/\.suo$
@@ -12,3 +15,5 @@
 ^inst/CIDatabase$
 ^CONTRIBUTING.md
 ^Rplot.png
+^mkdocs\.yml$
+^CHANGELOG\.md$

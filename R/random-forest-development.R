@@ -1,14 +1,11 @@
-# Import the common functions.
-source('R/common.R')
-source('R/supervised-model-development.R')
-
 #' Compare predictive models, created on your data
 #'
 #' @description This step allows you to create a random forest model, based on
-#' your data.
+#' your data. Random forest is an ensemble model, well suited for non-linear data. It's fast
+#' to train and often a good starting point.
 #' @docType class
-#' @usage RandomForestDevelopment(object, type, df, grainCol, predictedCol, 
-#' impute, debug)
+#' @usage RandomForestDevelopment(type, df, grainCol, predictedCol, 
+#' impute, debug, cores, trees, tune, modelName)
 #' @import caret
 #' @import doParallel
 #' @import e1071
@@ -17,18 +14,54 @@ source('R/supervised-model-development.R')
 #' @importFrom R6 R6Class
 #' @import ranger
 #' @import ROCR
-#' @import RODBC
-#' @param object of SuperviseModelParameters class for $new() constructor
 #' @param type The type of model (either 'regression' or 'classification')
 #' @param df Dataframe whose columns are used for calc.
-#' @param grainCol The dataframe's column that has IDs pertaining to the grain
-#' @param predictedCol Column that you want to predict.
-#' @param impute Set all-column imputation to F or T.
-#' This uses mean replacement for numeric columns
+#' @param grainCol Optional. The dataframe's column that has IDs pertaining to 
+#' the grain. No ID columns are truly needed for this step.
+#' @param predictedCol Column that you want to predict. If you're doing
+#' classification then this should be Y/N.
+#' @param impute Set all-column imputation to T or F.
+#' If T, this uses mean replacement for numeric columns
 #' and most frequent for factorized columns.
 #' F leads to removal of rows containing NULLs.
+#' Values are saved for deployment.
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
+#' @param cores Number of cores you'd like to use. Defaults to 2.
+#' @param trees Number of trees in the forest. Defaults to 201.
+#' @param tune If TRUE, automatically tune model for better performance. Creates grid using mtry param and 5-fold 
+#' cross validation. Note this takes longer.
+#' @param modelName Optional string. Can specify the model name. If used, you must load the same one in the deploy step.
+#' @section Methods: 
+#' The above describes params for initializing a new randomForestDevelopment class with 
+#' \code{$new()}. Individual methods are documented below.
+#' @section \code{$new()}:
+#' Initializes a new random forest development class using the 
+#' parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
+#' model training. \cr
+#' \emph{Usage:} \code{$new(p)}
+#' @section \code{$run()}:
+#' Trains model, displays feature importance and performance. \cr
+#' \emph{Usage:}\code{$new()} 
+#' @section \code{$getPredictions()}:
+#' Returns the predictions from test data. \cr
+#' \emph{Usage:} \code{$getPredictions()} \cr
+#' @section \code{$getROC()}:
+#' Returns the ROC curve object for \code{\link{plotROCs}}. Classification models only. \cr
+#' \emph{Usage:} \code{$getROC()} \cr
+#' @section \code{$getPRCurve()}:
+#' Returns the PR curve object for \code{\link{plotPRCurve}}. Classification models only. \cr
+#' \emph{Usage:} \code{$getROC()} \cr
+#' @section \code{$getAUROC()}:
+#' Returns the area under the ROC curve from testing for classification models. \cr
+#' \emph{Usage:} \code{$getAUROC()} \cr
+#' @section \code{$getRMSE()}:
+#' Returns the RMSE from test data for regression models. \cr
+#' \emph{Usage:} \code{$getRMSE()} \cr
+#' @section \code{$getMAE()}:
+#' Returns the RMSE from test data for regression models. \cr
+#' \emph{Usage:} \code{$getMAE()} \cr
+#' @export
 #' @references \url{http://hctools.org/}
 #' @seealso \code{\link{LassoDevelopment}}
 #' @seealso \code{\link{LinearMixedModelDevelopment}}
@@ -70,14 +103,18 @@ source('R/supervised-model-development.R')
 #' ptm <- proc.time()
 #'
 #' # Can delete this line in your work
-#' csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "healthcareai")
+#' csvfile <- system.file("extdata", 
+#'                        "HCRDiabetesClinical.csv", 
+#'                        package = "healthcareai")
 #'
 #' # Replace csvfile with 'your/path'
-#' df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
+#' df <- read.csv(file = csvfile, 
+#'                header = TRUE, 
+#'                na.strings = c("NULL", "NA", ""))
 #'
 #' head(df)
 #'
-#' df$InTestWindowFLG <- NULL
+#' df$PatientID <- NULL
 #'
 #' set.seed(42)
 #'
@@ -85,7 +122,7 @@ source('R/supervised-model-development.R')
 #' p$df <- df
 #' p$type <- "regression"
 #' p$impute <- TRUE
-#' p$grainCol <- "PatientID"
+#' p$grainCol <- "PatientEncounterID"
 #' p$predictedCol <- "A1CNBR"
 #' p$debug <- FALSE
 #' p$cores <- 1
@@ -102,9 +139,7 @@ source('R/supervised-model-development.R')
 #' print(proc.time() - ptm)
 #'
 #' \donttest{
-#' #### Example using SQL Server data #### This example requires: 1) That you alter
-#' #### your connection string / query
-#' #### This example is specific to Windows and is not tested. 
+#' #### Example using SQL Server data ####
 #'
 #' ptm <- proc.time()
 #' library(healthcareai)
@@ -116,24 +151,20 @@ source('R/supervised-model-development.R')
 #' trusted_connection=true
 #' "
 #'
+#' # This query should pull only rows for training. They must have a label.
 #' query <- "
 #' SELECT
 #' [PatientEncounterID]
-#' ,[PatientID]
 #' ,[SystolicBPNBR]
 #' ,[LDLNBR]
 #' ,[A1CNBR]
 #' ,[GenderFLG]
 #' ,[ThirtyDayReadmitFLG]
-#' ,[InTestWindowFLG]
 #' FROM [SAM].[dbo].[HCRDiabetesClinical]
-#' WHERE InTestWindowFLG = 'N'
 #' "
 #'
 #' df <- selectData(connection.string, query)
 #' head(df)
-#'
-#' df$InTestWindowFLG <- NULL
 #'
 #' set.seed(42)
 #'
@@ -141,7 +172,7 @@ source('R/supervised-model-development.R')
 #' p$df <- df
 #' p$type <- "classification"
 #' p$impute <- TRUE
-#' p$grainCol <- "PatientID"
+#' p$grainCol <- "PatientEncounterID"
 #' p$predictedCol <- "ThirtyDayReadmitFLG"
 #' p$debug <- FALSE
 #' p$cores <- 1
@@ -167,9 +198,6 @@ source('R/supervised-model-development.R')
 #' legendLoc <- "bottomleft"
 #' plotPRCurve(rocs, names, legendLoc)
 #'
-#' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-#' lasso$getCutOffs(tpr = 0.8)
-#'
 #' print(proc.time() - ptm)
 #' }
 #'
@@ -186,7 +214,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     # Grid object for grid search
     grid = NA,
 
-    # Git random forest model
+    # Get random forest model
     fitRF = NA,
 
     predictions = NA,
@@ -200,6 +228,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     MAE = NA,
 
     # Start of functions
+    
     buildGrid = function() {
       if (isTRUE(self$params$tune)) {
         optimal <- NA
@@ -249,15 +278,20 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     initialize = function(p) {
       set.seed(43)
       super$initialize(p)
-
+      if (is.null(self$params$modelName)) {
+        self$params$modelName = "RF" 
+      }
       if (!is.null(p$tune)) {
         self$params$tune = p$tune
       }
-      if (!is.null(p$numberOfTrees)) {
-        self$params$numberOfTrees = p$numberOfTrees
+      if (!is.null(p$trees)) {
+        self$params$trees = p$trees
       }
     },
-
+    getPredictions = function(){
+      return(private$predictions)
+    },
+    
     # Override: build RandomForest model
     buildModel = function() {
       trainControlParams.method <- ""
@@ -280,7 +314,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       train.control <- NA
       if (self$params$type == 'classification') {
 
-        train.control <- trainControl(
+        train.control <- caret::trainControl(
           method = trainControlParams.method,
           number = trainControlParams.number,
           verboseIter = isTRUE(self$params$debug),
@@ -293,7 +327,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       # Regression
       else if (self$params$type == 'regression') {
 
-        train.control <- trainControl(
+        train.control <- caret::trainControl(
           method = trainControlParams.method,
           number = trainControlParams.number,
           verboseIter = isTRUE(self$params$debug)
@@ -317,7 +351,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         method = "ranger",
         importance = "impurity",
         metric = rfTrainParams.metric,
-        num.trees = self$params$numberOfTrees,
+        num.trees = self$params$trees,
         tuneGrid = private$grid,
         trControl = train.control
       )
@@ -326,7 +360,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     # Perform prediction
     performPrediction = function() {
       if (self$params$type == 'classification') {
-        private$predictions <- predict(object = private$fitRF,
+        private$predictions <- caret::predict.train(object = private$fitRF,
                                       newdata = private$dfTest,
                                       type = 'prob')
         private$predictions <- private$predictions[,2]
@@ -338,7 +372,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         }
         
       } else if (self$params$type == 'regression') {
-        private$predictions <- predict(private$fitRF, newdata = private$dfTest)
+        private$predictions <- caret::predict.train(private$fitRF, newdata = private$dfTest)
         
         if (isTRUE(self$params$debug)) {
           print(paste0('Rows in regression prediction: ',
@@ -347,7 +381,6 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
           print(round(private$predictions[1:10],2))
         }
       }
-      
 
     },
 
@@ -375,9 +408,16 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
 
     # Override: run RandomForest algorithm
     run = function() {
+      
+      # Start default logit (for row-wise var importance)
+      # can be replaced with LIME-like functionality
+      super$fitGeneralizedLinearModel()
 
       # Build Model
       self$buildModel()
+      
+      # save model
+      super$saveModel(fitModel = private$fitRF)
 
       # Perform prediction
       self$performPrediction()
@@ -416,20 +456,11 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
 
     getMAE = function() {
       return(private$MAE)
-    },
-
-    # TODO: move to common, to reduce duplication
-    getCutOffs = function(tpr) {
-      # Get index of when true-positive rate is > tpr
-      indy <- which(as.numeric(unlist(private$ROCPlot@y.values)) > tpr)
-
-      # Correpsonding probability cutoff value (ie when category falls to 1)
-      print('Corresponding cutoff for 0/1 fallover:')
-      print(private$ROCPlot@alpha.values[[1]][indy[1]])
-
-      # Corresponding false-positive rate
-      print('Corresponding false-positive rate:')
-      print(private$ROCPlot@x.values[[1]][indy[1]][[1]])
+    }, 
+    
+    getCutOffs = function() {
+      warning("`getCutOffs` is deprecated. Please use `generateAUC` instead. See 
+              ?generateAUC", call. = FALSE)
     }
   )
 )

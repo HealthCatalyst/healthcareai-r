@@ -1,13 +1,13 @@
-source('R/common.R')
-source('R/supervised-model-development.R')
-
 #' Compare predictive models, created on your data
 #'
-#' @description This step allows one to create test models on your data
-#' and helps determine which performs best.
+#' @description This step allows you to create a linear mixed model on your data. LMM is 
+#' best suited to longitudinal data that has multiple entries for a each patient or
+#' physician. It will fit a slightly different linear model to each patient.
+#' This algorithm works best with linearly separable data sets. As data sets
+#' become longer than 100k rows or wider than 50 features, performance will suffer.
 #' @docType class
-#' @usage LinearMixedModelDevelopment(object, type, df, 
-#' grainCol, personCol, predictedCol, impute, debug)
+#' @usage LinearMixedModelDevelopment(type, df, 
+#' grainCol, personCol, predictedCol, impute, debug, cores, modelName)
 #' @import caret
 #' @import doParallel
 #' @import e1071
@@ -15,21 +15,52 @@ source('R/supervised-model-development.R')
 #' @import lme4
 #' @import pROC
 #' @importFrom R6 R6Class
-#' @import ranger
 #' @import ROCR
-#' @import RODBC
-#' @param object of SuperviseModelParameters class for $new() constructor
 #' @param type The type of model (either 'regression' or 'classification')
 #' @param df Dataframe whose columns are used for calc.
-#' @param grainCol The data frame's ID column pertaining to the grain
+#' @param grainCol Optional. The data frame's ID column pertaining to the grain
 #' @param personCol The data frame's ID column pertaining to the person/patient
-#' @param predictedCol Column that you want to predict.
-#' @param impute Set all-column imputation to F or T.
-#' This uses mean replacement for numeric columns
+#' @param predictedCol Column that you want to predict. If you're doing
+#' classification then this should be Y/N.
+#' @param impute Set all-column imputation to T or F.
+#' If T, this uses mean replacement for numeric columns
 #' and most frequent for factorized columns.
 #' F leads to removal of rows containing NULLs.
+#' Values are saved for deployment.
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
+#' @param cores Number of cores you'd like to use. Defaults to 2.
+#' @param modelName Optional string. Can specify the model name. If used, you must load the same one in the deploy step.
+#' @section Methods: 
+#' The above describes params for initializing a new linearMixedModelDevelopment class with 
+#' \code{$new()}. Individual methods are documented below.
+#' @section \code{$new()}:
+#' Initializes a new linear mixed model development class using the 
+#' parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
+#' model training. \cr
+#' \emph{Usage:} \code{$new(p)}
+#' @section \code{$run()}:
+#' Trains model, displays feature importance and performance. \cr
+#' \emph{Usage:}\code{$new()} 
+#' @section \code{$getPredictions()}:
+#' Returns the predictions from test data. \cr
+#' \emph{Usage:} \code{$getPredictions()} \cr
+#' @section \code{$getROC()}:
+#' Returns the ROC curve object for \code{\link{plotROCs}}. Classification models only. \cr
+#' \emph{Usage:} \code{$getROC()} \cr
+#' @section \code{$getPRCurve()}:
+#' Returns the PR curve object for \code{\link{plotPRCurve}}. Classification models only. \cr
+#' \emph{Usage:} \code{$getROC()} \cr
+#' @section \code{$getAUROC()}:
+#' Returns the area under the ROC curve from testing for classification models. \cr
+#' \emph{Usage:} \code{$getAUROC()} \cr
+#' @section \code{$getRMSE()}:
+#' Returns the RMSE from test data for regression models. \cr
+#' \emph{Usage:} \code{$getRMSE()} \cr
+#' @section \code{$getMAE()}:
+#' Returns the RMSE from test data for regression models. \cr
+#' \emph{Usage:} \code{$getMAE()} \cr
+#' @export
 #' @references \url{http://healthcare.ai/}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
@@ -99,8 +130,6 @@ source('R/supervised-model-development.R')
 #'
 #' head(df)
 #'
-#' df$InTestWindowFLG <- NULL
-#'
 #' set.seed(42)
 #'
 #' p <- SupervisedModelDevelopmentParams$new()
@@ -121,10 +150,7 @@ source('R/supervised-model-development.R')
 #' # Run Lasso
 #' # Lasso <- LassoDevelopment$new(p)
 #' # Lasso$run()
-#'
-#' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-#' # Lasso$getCutOffs(tpr = 0.8)
-#' print(proc.time() - ptm)
+#' cat(proc.time() - ptm, '\n')
 #' 
 #' \donttest{
 #' #### This example is specific to Windows and is not tested. 
@@ -142,6 +168,7 @@ source('R/supervised-model-development.R')
 #' trusted_connection=true
 #' "
 #'
+#' # This query should pull only rows for training. They must have a label.
 #' query <- "
 #' SELECT
 #'  [PatientEncounterID]
@@ -151,15 +178,12 @@ source('R/supervised-model-development.R')
 #' ,[A1CNBR]
 #' ,[GenderFLG]
 #' ,[ThirtyDayReadmitFLG]
-#' ,[InTestWindowFLG]
 #' FROM [SAM].[dbo].[HCRDiabetesClinical]
 #' --no WHERE clause, because we want train AND test
 #' "
 #'
 #' df <- selectData(connection.string, query)
 #' head(df)
-#'
-#' df$InTestWindowFLG <- NULL
 #'
 #' set.seed(42)
 #'
@@ -199,10 +223,7 @@ source('R/supervised-model-development.R')
 #' legendLoc <- "bottomleft"
 #' plotPRCurve(rocs, names, legendLoc)
 #'
-#' # For a given true-positive rate, get false-pos rate and 0/1 cutoff
-#' lmm$getCutOffs(tpr = 0.8)
-#'
-#' print(proc.time() - ptm)
+#' cat(proc.time() - ptm, '\n')
 #' }
 #' 
 #' @export
@@ -221,7 +242,7 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
     lmmTrain = NA,
     lmmTest = NA,
 
-    # Git random forest model
+    # Fit LMM
     fitLmm = NA,
 
     predictions = NA,
@@ -233,8 +254,10 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
     AUPR = NA,
     RMSE = NA,
     MAE = NA
+    
+    # functions
   ),
-
+  
   # Public members
   public = list(
 
@@ -243,8 +266,13 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
     # i.e. p = SuperviseModelParameters$new()
     initialize = function(p) {
       super$initialize(p)
+      if (is.null(self$params$modelName)) {
+        self$params$modelName = "LMM" 
+      }
     },
-
+    getPredictions = function(){
+      return(private$predictions)
+    },
     # Start of functions
     buildDataset = function(){
       # TODO Soon: Prepare data according to InTestWindow column, in case
@@ -254,8 +282,8 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
       private$trainTest <- rbind(private$dfTrain,private$dfTest)
 
       if (isTRUE(self$params$debug)) {
-        print('Re-combined train/test for MM specific use')
-        print(str(private$trainTest))
+       cat('Re-combined train/test for MM specific use', '\n')
+       cat(str(private$trainTest), '\n')
       }
 
       # TODO Later: figure out why ordering in sql query is better auc than internal
@@ -268,10 +296,10 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
       private$lmmTest <- data.table::setDT(private$trainTest)[, .SD[.N], by = eval(self$params$personCol)]
 
       if (isTRUE(self$params$debug)) {
-        print('Mixed model-specific training set after creation')
-        print(str(private$lmmTrain))
-        print('Mixed model-specific test set after creation')
-        print(str(private$lmmTest))
+       cat('Mixed model-specific training set after creation', '\n')
+       cat(str(private$lmmTrain), '\n')
+       cat('Mixed model-specific test set after creation', '\n')
+       cat(str(private$lmmTest), '\n')
       }
     },
 
@@ -299,10 +327,10 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
                         "(1|", self$params$personCol, ")")
 
       if (isTRUE(self$params$debug)) {
-        print('Formula to be used:')
-        print(formula)
-        print('Training the general linear mixed-model...')
-        print('Using random intercept with fixed mean...')
+        cat('Formula to be used:', '\n')
+        cat(formula, '\n')
+        cat('Training the general linear mixed-model...', '\n')
+        cat('Using random intercept with fixed mean...', '\n')
       }
 
       if (self$params$type == 'classification') {
@@ -325,9 +353,9 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
                                        type = "response")
         
         if (isTRUE(self$params$debug)) {
-          print(paste0('Predictions generated: ', nrow(private$predictions)))
-          print('First 10 raw classification probability predictions')
-          print(round(private$predictions[1:10],2))
+          cat(paste0('Predictions generated: ', nrow(private$predictions)), '\n')
+          cat('First 10 raw classification probability predictions', '\n')
+          cat(round(private$predictions[1:10],2), '\n')
         }
       }
       else if (self$params$type == 'regression') {
@@ -336,10 +364,10 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
                                        allow.new.levels = TRUE)
         
         if (isTRUE(self$params$debug)) {
-          print(paste0('Predictions generated: ',
+          cat(paste0('Predictions generated: ', '\n',
                        length(private$predictions)))
-          print('First 10 raw regression predictions (with row # first)')
-          print(round(private$predictions[1:10],2))
+          cat('First 10 raw regression predictions (with row # first)', '\n')
+          cat(round(private$predictions[1:10],2), '\n')
         }
       }
     },
@@ -364,13 +392,19 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
       return(invisible(private$fitLmm))
     },
 
-    # Override: run RandomForest algorithm
+    # Override: run Linear Mixed algorithm
     run = function() {
 
       self$buildDataset()
 
       # Build Model
       self$buildModel()
+      
+      # fit GLM for row-wise variable importance
+      super$fitGeneralizedLinearModel()
+      
+      # save model
+      super$saveModel(fitModel = private$fitLmm)
 
       # Perform prediction
       self$performPrediction()
@@ -381,7 +415,7 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
 
     getROC = function() {
       if (!isBinary(self$params$df[[self$params$predictedCol]])) {
-        print("ROC is not created because the column you're predicting is not binary")
+        cat("ROC is not created because the column you're predicting is not binary", '\n')
         return(NULL)
       }
       return(private$ROCPlot)
@@ -389,7 +423,7 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
     
     getPRCurve = function() {
       if (!isBinary(self$params$df[[self$params$predictedCol]])) {
-        print("PR Curve is not created because the column you're predicting is not binary")
+        cat("PR Curve is not created because the column you're predicting is not binary", '\n')
         return(NULL)
       }
       return(private$PRCurvePlot)
@@ -406,22 +440,10 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
     getMAE = function() {
       return(private$MAE)
     },
-
-    getPerf = function() {
-      return(private$perf)
-    },
-
-    getCutOffs = function(tpr) {
-      # Get index of when true-positive rate is > tpr
-      indy <- which(as.numeric(unlist(private$ROCPlot@y.values)) > tpr)
-
-      # Correpsonding probability cutoff value (ie when category falls to 1)
-      print('Corresponding cutoff for 0/1 fallover:')
-      print(private$ROCPlot@alpha.values[[1]][indy[1]])
-
-      # Corresponding false-positive rate
-      print('Corresponding false-positive rate:')
-      print(private$ROCPlot@x.values[[1]][indy[1]][[1]])
+    
+    getCutOffs = function() {
+      warning("`getCutOffs` is deprecated. Please use `generateAUC` instead. See 
+              ?generateAUC", call. = FALSE)
     }
   )
 )

@@ -1,7 +1,3 @@
-# Import the common functions.
-source('R/common.R')
-
-
 #' Make risk adjusted comparisons between groups/units or years/months
 #'
 #' @description This class allows you to create a model based on the
@@ -44,7 +40,6 @@ source('R/common.R')
 #' ,[A1CNBR]
 #' ,[GenderFLG]
 #' ,[ThirtyDayReadmitFLG]
-#' ,[InTestWindowFLG]
 #' FROM [SAM].[dbo].[HCRDiabetesClinical]
 #' "
 #'
@@ -107,7 +102,7 @@ RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
         method = "ranger",
         importance = 'impurity',
         metric = "ROC",
-        num.trees = self$params$numberOfTrees,
+        num.trees = self$params$trees,
         tuneGrid = private$grid,
         trControl = trainCtrl
       )

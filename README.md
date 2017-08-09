@@ -1,45 +1,87 @@
 # healthcareai
 
-[![Build status](https://ci.appveyor.com/api/projects/status/0xrpe233o9a16l4l/branch/master?svg=true)](https://ci.appveyor.com/project/CatalystAdmin/healthcareai-r/branch/master) 
-[![Travis-CI Build Status](https://travis-ci.org/HealthCatalystSLC/healthcareai-r.svg?branch=master)](https://travis-ci.org/HealthCatalystSLC/healthcareai-r/branch/master)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/HealthCatalystSLC/healthcareai-r/blob/master/LICENSE)
+[![Build status](https://ci.appveyor.com/api/projects/status/0xrpe233o9a16l4l/branch/master?svg=true)](https://ci.appveyor.com/project/CatalystAdmin/healthcareai-r/) 
+[![Travis-CI Build Status](https://travis-ci.org/HealthCatalyst/healthcareai-r.svg?branch=master)](https://travis-ci.org/HealthCatalyst/healthcareai-r)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/HealthCatalystSLC/healthcareai-r/blob/master/LICENSE)
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version-last-release/healthcareai)](https://cran.r-project.org/package=healthcareai)
 
 
 The aim of `healthcareai` is to make it easy to do machine learning with healthcare 
 data. The package has two main goals:
 
--  Allow one to easily create models based on tabular data, and deploy a best
-model that pushes predictions to SQL Server.
+-  Allow one to easily develop and compare models based on tabular data, and deploy a best model that pushes predictions to either databases or flat files.
 
 -  Provide tools related to data cleaning, manipulation, and imputation.
 
 ## For those starting out
 
-Installation:
+- If you haven't, install [R](https://cran.cnr.berkeley.edu) version >= 3.2.3 and [RStudio](https://www.rstudio.com/products/rstudio/download)
 
-- Find the console of RGui (which comes with R) or RStudio (which is recommended and downloaded separately).
+Note: if you're setting up R on an ETL server, don't download RStudio--simply open up RGui
 
-- Install the latest release of healthcareai
+## Install the latest release on Windows
 
-```{r}
+Open RStudio and work in the console
+
+```
 install.packages('healthcareai')
 ```
 
-- Note: if you want the bleeding edge version, use this:
-```R
-install.packages(c('caret','data.table','devtools','doParallel','e1071','grpreg','lme4','lubridate','pROC','R6','ranger','ROCR','RODBC'),repos = "https://cran.cnr.berkeley.edu/")
+## How to install the latest version on macOS
 
-library(devtools)
-devtools::install_github(repo='HealthCatalystSLC/healthcareai-r')
+Note: If using macOS with healthcare.ai, you'll have to use SQLite or csv files. We're working on adding MySQL connections. We'd [love to hear](http://healthcare.ai/contact) which other databases your connecting to, so we can provide native support!
+
+* Open R Studio
+* In the console, install other R healthcare.ai prerequisites via
+```
+install.packages(c('caret','data.table','DBI','doParallel','e1071','grpreg','lme4','odbc','pROC','R6','ranger','ROCR','RSQLite','xgboost'),repos = "https://cran.cnr.berkeley.edu/")
+```
+* Install healthcare.ai
+```
+install.packages('healthcareai')
 ```
 
-- Load the package you just installed and read the built-in docs
-```{r}
+## How to install latest version on Ubuntu (Linux)
+
+* An Ubuntu 14.04 Droplet with at least 1 GB of RAM is required for the installation.
+* Follow steps 1 and 2 [here](https://www.digitalocean.com/community/tutorials/how-to-set-up-r-on-ubuntu-14-04) to install R
+* Run `sudo apt-get install libiodbc2-dev`
+* Run `sudo apt-get install unixodbc unixodbc-dev`
+* After typing `R` run `install.packages('healthcareai')`
+
+## Install the bleeding edge version (for folks providing contributions)
+
+* Grab prerequisites via the console of RGui or (preferably) RStudio  
+```
+install.packages(c('caret','data.table','DBI','doParallel','e1071','grpreg','lme4','odbc','pROC','R6','ranger','ROCR','RSQLite','xgboost'),repos = "https://cran.cnr.berkeley.edu/")
+
+library(devtools)
+devtools::install_github(repo='HealthCatalyst/healthcareai-r')
+```
+
+## Tips on getting started
+
+#### Built-in examples
+Load the package you just installed and read the built-in docs
+```
 library(healthcareai)
 ?healthcareai
 ```
 
-- If you like Jupyter notebooks, check out [step 1](inst/notebooks/Example1.ipynb) and [step 2](inst/notebooks/Example2.ipynb) in model building with healthcareai.
+#### Website examples
+See our [docs website](http://healthcareai-r.readthedocs.io)
+
+#### Jupyter notebook examples
+If you like Jupyter notebooks, check out [step 1](https://github.com/HealthCatalystSLC/documentation/blob/master/notebooks/Example1.ipynb) and [step 2](https://github.com/HealthCatalystSLC/documentation/blob/master/notebooks/Example2.ipynb) in model building with healthcareai.
+
+## Join the community
+Read the blog and join the slack channel at [healthcare.ai](https://healthcare.ai)
+
+## What's new?
+The CRAN 0.1.12 release features
+
+- Check the availability of columns after patient admit (and avoid target leak) via featureAvailabilityProfiler!
+- One can now deploy predictions to flat files via getOutDf. See ?getOutDf for more.
 
 ## For issues
 
