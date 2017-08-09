@@ -7,7 +7,7 @@
 #' @return Supervised Model Development Params class
 #' 
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 initializeParamsForTesting <- function(df) {
   set.seed(43)
@@ -36,7 +36,7 @@ initializeParamsForTesting <- function(df) {
 #' warnings that should be suppressed
 #' 
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 ignoreSpecWarn <- function(code, wRegexps) {
   h <- function(w) {

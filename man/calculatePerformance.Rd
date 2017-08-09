@@ -23,7 +23,7 @@ Curves (if classification); otherwise nothing. Prints results.
 Generates AU_ROC and AU_PR (including 95% confidence)
 }
 \references{
-\url{http://healthcare.ai}
+\url{http://healthcareai-r.readthedocs.io}
 }
 \seealso{
 \code{\link{healthcareai}}

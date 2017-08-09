@@ -11,7 +11,7 @@
 #' @return numeric vector of hours, reasonably spaced
 #'
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' result <- calculateHourBins(90)
 #' result
@@ -53,7 +53,7 @@ calculateHourBins = function(lastHourOfInterest){
 #' @return A vector that contains the percentage of NULL in each column
 #'
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' df = data.frame(a=c(1,2,NA,NA,3),
@@ -85,7 +85,7 @@ countPercentEmpty <- function(df) {
 #' dataframe, with each vector holding the percentage full for each hour
 #'
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples 
 #' df <- data.frame(a = c(2,1,3,5,4,NA,7,NA),
@@ -253,7 +253,7 @@ featureAvailabilityProfiler = function(
 #' @return A labeled numeric vector, representing each column in input df
 #'
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples 
 #' df <- data.frame(a = c(1,2,NA,NA),
@@ -335,7 +335,7 @@ percentDataAvailableInDateRange = function(df,
 #' @return Nothing
 #'
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples 
 #' lis <- list()

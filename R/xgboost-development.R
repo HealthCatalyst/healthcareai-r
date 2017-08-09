@@ -47,7 +47,7 @@
 #' Returns the confusion matrix and statistics generated during model development. \cr
 #' \emph{Usage:} \code{$getConfusionMatrix()} \cr
 #' @export
-#' @references \url{http://hctools.org/}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso Information on the example dataset can be found at: 
 #' \url{http://archive.ics.uci.edu/ml/datasets/dermatology/}
 #' @seealso Information on the xgboost parameters can be found at:
