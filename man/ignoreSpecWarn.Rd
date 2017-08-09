@@ -20,7 +20,7 @@ expected when running specific unit tests, but are unrelated to the
 functionality being tested.
 }
 \references{
-\url{http://healthcare.ai}
+\url{http://healthcareai-r.readthedocs.io}
 }
 \seealso{
 \code{\link{healthcareai}}
