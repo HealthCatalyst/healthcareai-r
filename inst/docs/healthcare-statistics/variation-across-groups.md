@@ -37,7 +37,7 @@ head(df)
 * Next, let's define our subgroups by `Dept` and `Age` and use `LOS` (length of stay) as our measure of interest. Then we pass these parameters to `variationAcrossGroups`.
 
 ```r
-measureColumn <- 'measure'
+measureColumn <- 'LOS'
 
 categoricalCols <- c("Dept", "Age")
 
@@ -90,7 +90,7 @@ df <- read.csv(file = csvfile,
                na.strings = c("NULL", "NA", ""))
 
 
-measureColumn <- 'measure'
+measureColumn <- 'LOS'
 
 categoricalCols <- c("Dept", "Age")
 
