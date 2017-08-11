@@ -986,7 +986,7 @@ variationAcrossGroups <- function(df,
   }
   pvalRes <- format(pvalRes, digits = 6)
   
-  if (printTable == TRUE) {
+  if (isTRUE(printTable)) {
     
     # Return tables with mean/std and quartiles
     resTable <- list()
