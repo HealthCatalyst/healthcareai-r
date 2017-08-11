@@ -26,6 +26,8 @@ test_that("One cat column, one measure col, and no date columns give correct df"
                     Median = c('4.5','2.4'),
                     Q3 = c('6.0', '3.7'),
                     Max = c('9','5'),
+                    VolumnRaw = c('4','3'),
+                    Impact = c('1.94','1.97'),
                     stringsAsFactors = FALSE)
   
   expected <- list(df1,df2)
@@ -69,6 +71,8 @@ test_that("One cat column, one measure col, and no date col and NA in cat col
                               Median = c('4.0','2.4'),
                               Q3 = c('4.5', '3.7'),
                               Max = c('5','5'),
+                              VolumnRaw = c('3','3'),
+                              Impact = c('0.665','1.966'),
                               stringsAsFactors = FALSE)
             
             expected <- list(df1,df2)
@@ -126,6 +130,8 @@ test_that("Two cat columns and no date columns give correct df", {
                     Median = c(' 8.66',' 6.28',' 3.27',' 7.47',' 9.81','12.07'),
                     Q3 = c('14.6', '12.7','14.9','15.4','11.1','15.9'),
                     Max = c('19.6','20.6','16.6','19.2','19.3','23.1'),
+                    VolumnRaw = c("12", "32", "11", "28", " 9", " 8"),
+                    Impact = c("10.54", "32.51", "10.84", "22.76", " 6.36", " 4.78"),
                     stringsAsFactors = FALSE)
   
   expected <- list(df1,df2)
@@ -189,6 +195,8 @@ test_that("One cat col, one measure col, and one date col give correct df", {
                          Median = c('3.2','5.0','2.1','4.0','3.8','4.5'),
                          Q3 = c('4.10', '5.50','2.25','5.25','5.15','5.75'),
                          Max = c('5.0','6.0','2.4','9.0','6.5','8.0'),
+                         VolumnRaw = c("3", "3", "2", "4", "3", "4"),
+                         Impact = c("1.332", "1.812", "0.404", "2.166", "1.657", "2.105"),
                          stringsAsFactors = FALSE)
   
   
@@ -234,6 +242,8 @@ test_that("One cat column, two measure col, and no date columns give
                                    Median = c('  4.5','  2.4','134.0',' 90.0'),
                                    Q3 = c('  6.0', '  3.7','148.8','120.0'),
                                    Max = c('  9','  5','160','150'),
+                                   VolumnRaw = c("4", "3", "4", "3"),
+                                   Impact = c("1.943", "1.966", "1.481", "0.956"),
                                    stringsAsFactors = FALSE)
             
             expected <- list(df1,df2)
@@ -322,6 +332,9 @@ test_that("One cat col, two measure cols, and one date col give correct df", {
                                 '135.00','124.00','152.25','157.00','150.00','135.50'),
                          Max = c('  5.0','  6.0','  2.4','  9.0','  6.5','  8.0',
                                  '145.0','150.0','173.0','160.0','168.0','152.0'),
+                         VolumnRaw = c("3", "3", "2", "4", "3", "4", "3", "3", "2", "4", "3", "4"),
+                         Impact = c("1.332", "1.812", "0.404", "2.166", "1.657", "2.105", "0.279",
+                                    "0.879", "0.893", "2.487", "1.787", "0.891"),
                          stringsAsFactors = FALSE)
   
   expected <- list(df1,df2)

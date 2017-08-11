@@ -454,7 +454,7 @@ getPipedValue <- function(string) {
 #' ## Create the toy data set
 #' set.seed(2017)
 #' n = 200
-#' df <- data.frame(Dept = sample(c("A","B","C"), 
+#' df <- data.frame(Dept = sample(c("Dept1","Dept2","Dept3"), 
 #'                                size = n, 
 #'                                replace = TRUE, 
 #'                                prob =  c(0.5, 0.3, 0.2)),
@@ -463,14 +463,14 @@ getPipedValue <- function(string) {
 #'                  LOS = floor(abs(rnorm(n,10,5))),
 #'                  BP = sample(50:180, n, replace = TRUE))
 #'
-#' countA <- length(df$LOS[df$Dept == "A"])
-#' df$LOS[df$Dept == "A"] <- floor(df$LOS[df$Dept == "A"] + abs(rnorm(countA, mean = 2)))
-#' countB <- length(df$LOS[df$Dept == "B"])
-#' df$LOS[df$Dept == "B"] <- floor(df$LOS[df$Dept == "B"] + abs(rnorm(countB, mean = 5)))
+#' countA <- length(df$LOS[df$Dept == "Dept1"])
+#' df$LOS[df$Dept == "Dept1"] <- floor(df$LOS[df$Dept == "Dept1"] + abs(rnorm(countA, mean = 2)))
+#' countB <- length(df$LOS[df$Dept == "Dept2"])
+#' df$LOS[df$Dept == "Dept2"] <- floor(df$LOS[df$Dept == "Dept2"] + abs(rnorm(countB, mean = 5)))
 #' countY <- length(df$LOS[df$Age == "Young"])
 #' df$LOS[df$Age == "Old"] <- floor(df$LOS[df$Age == "Old"] + abs(rnorm(countY, mean = 10)))
-#' df$BP[df$Dept == "A"] <- floor(df$BP[df$Dept == "A"] + abs(rnorm(countA, mean = 2)))
-#' df$BP[df$Dept == "B"] <- floor(df$BP[df$Dept == "B"] + abs(rnorm(countB, mean = 15)))
+#' df$BP[df$Dept == "Dept1"] <- floor(df$BP[df$Dept == "Dept1"] + abs(rnorm(countA, mean = 2)))
+#' df$BP[df$Dept == "Dept2"] <- floor(df$BP[df$Dept == "Dept2"] + abs(rnorm(countB, mean = 15)))
 #' df$BP[df$Age == "Old"] <- floor(df$BP[df$Age == "Old"] + abs(rnorm(countY, mean = 20)))
 #'
 #' head(df)
@@ -490,16 +490,16 @@ getPipedValue <- function(string) {
 #' ## In this example, the function returns
 #' ### Two boxplots
 #' ### 1. The boxplot of LOS across the two factors, Dept and Age
-#' ###    Dept has 3 levels: A, B, C
+#' ###    Dept has 3 levels: Dept1, Dept2, Dept3
 #' ###    Age has 2 levels: Young and Old
 #' ###    Hence, there are a total of 6 different levels if we consider both factors:
-#' ###    A.Young, B.Young, c.Young, A.Old, B.Old, C.Old
+#' ###    Dept1.Young, Dept2.Young, Dept3.Young, Dept1.Old, Dept2.Old, Dept3.Old
 #' ###    They are shown in the x axis of the boxplot. 
 #' ###    Levels that are not significantly different one each other are
-#' ###    represented with the same letter. For example, groups A.Old and C.Old do
+#' ###    represented with the same letter. For example, groups Dept1.Old and Dept3.Old do
 #' ###    not have a significant difference in mean.
 #' ### 2. The boxplot of BP across the two factors, Dept and Age
-#' ###    From this boxplot, we can conclude that the group B.Old has a
+#' ###    From this boxplot, we can conclude that the group Dept2.Old has a
 #' ###    significant higher mean.
 #' ### 
 #' ### Two 95% family-wise confidence level plots
@@ -1007,6 +1007,8 @@ variationAcrossGroups <- function(df,
       m <- c()
       thirdQuartile <- c()
       maxVal <- c()
+      volumnRaw <- c()
+      impact <- c()
       for (i in 1:length(levels)) {
         means[i] <- mean(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
         std[i] <- sd(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
@@ -1015,13 +1017,16 @@ variationAcrossGroups <- function(df,
         m[i] <- median(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
         thirdQuartile[i] <- quantile(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], 0.75, na.rm = T)
         maxVal[i] <- max(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
+        volumnRaw[i] <- length(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]])
       }
       cov <- std/means
+      impact <- cov*volumnRaw
       measures <- rep(measureColumn[j], length(levels))
       # Output the table
       resTable[[j]] <- data.frame(measure = measures, group = levels, Mean = means, 
                                   Std = std, COV = cov, Min = minVal, 
-                                  Q1 = firstQuartile, Median = m, Q3 = thirdQuartile, Max = maxVal)
+                                  Q1 = firstQuartile, Median = m, Q3 = thirdQuartile, Max = maxVal,
+                                  VolumnRaw = volumnRaw, Impact = impact)
     }
     
     tabRes <- data.frame()
