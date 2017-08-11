@@ -38,6 +38,7 @@ database=SAM;
 trusted_connection=true
 "
 
+# This query should pull only rows for training. They must have a label.
 query = "
 SELECT
 [PatientEncounterID]
@@ -47,9 +48,7 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-,[InTestWindowFLG]
 FROM [SAM].[dbo].[DiabetesClinical]
-WHERE InTestWindowFLG = 'N'
 "
 
 df <- selectData(connection.string, query)
@@ -118,6 +117,7 @@ database=SAM;
 trusted_connection=true
 "
 
+# This query should pull only rows for training. They must have a label.
 query <- "
 SELECT
 [PatientEncounterID]
@@ -127,7 +127,6 @@ SELECT
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
-WHERE InTestWindowFLG = 'N'
 "
 df <- selectData(connection.string, query)
 head(df)
@@ -185,6 +184,7 @@ database=SAM;
 trusted_connection=true
 "
 
+# This query should pull only rows for training. They must have a label.
 query <- "
 SELECT
  [PatientEncounterID]
@@ -194,15 +194,11 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
---no WHERE clause, because we want train AND test
 "
 
 df <- selectData(connection.string, query)
 head(df)
-
-df$InTestWindowFLG <- NULL
 
 set.seed(42)
 

@@ -6,17 +6,15 @@
 \title{Compare predictive models, created on your data}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-LinearMixedModelDevelopment(object, type, df, 
-grainCol, personCol, predictedCol, impute, debug)
+LinearMixedModelDevelopment(type, df, 
+grainCol, personCol, predictedCol, impute, debug, cores, modelName)
 }
 \arguments{
-\item{object}{of SuperviseModelParameters class for $new() constructor}
-
 \item{type}{The type of model (either 'regression' or 'classification')}
 
 \item{df}{Dataframe whose columns are used for calc.}
 
-\item{grainCol}{The data frame's ID column pertaining to the grain}
+\item{grainCol}{Optional. The data frame's ID column pertaining to the grain}
 
 \item{personCol}{The data frame's ID column pertaining to the person/patient}
 
@@ -30,6 +28,10 @@ F leads to removal of rows containing NULLs.}
 
 \item{debug}{Provides the user extended output to the console, in order
 to monitor the calculations throughout. Use T or F.}
+
+\item{cores}{Number of cores you'd like to use. Defaults to 2.}
+
+\item{modelName}{Optional string. Can specify the model name. If used, you must load the same one in the deploy step.}
 }
 \description{
 This step allows one to create test models on your data
@@ -38,6 +40,62 @@ and helps determine which performs best.
 The linear mixed model functionality works best with data sets having fewer
 than 10,000 rows.
 }
+\section{Methods}{
+ 
+The above describes params for initializing a new linearMixedModelDevelopment class with 
+\code{$new()}. Individual methods are documented below.
+}
+
+\section{\code{$new()}}{
+
+Initializes a new linear mixed model development class using the 
+parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
+model training. \cr
+\emph{Usage:} \code{$new(p)}
+}
+
+\section{\code{$run()}}{
+
+Trains model, displays feature importance and performance. \cr
+\emph{Usage:}\code{$new()}
+}
+
+\section{\code{$getPredictions()}}{
+
+Returns the predictions from test data. \cr
+\emph{Usage:} \code{$getPredictions()} \cr
+}
+
+\section{\code{$getROC()}}{
+
+Returns the ROC curve object for \code{\link{plotROCs}}. Classification models only. \cr
+\emph{Usage:} \code{$getROC()} \cr
+}
+
+\section{\code{$getPRCurve()}}{
+
+Returns the PR curve object for \code{\link{plotPRCurve}}. Classification models only. \cr
+\emph{Usage:} \code{$getROC()} \cr
+}
+
+\section{\code{$getAUROC()}}{
+
+Returns the area under the ROC curve from testing for classification models. \cr
+\emph{Usage:} \code{$getAUROC()} \cr
+}
+
+\section{\code{$getRMSE()}}{
+
+Returns the RMSE from test data for regression models. \cr
+\emph{Usage:} \code{$getRMSE()} \cr
+}
+
+\section{\code{$getMAE()}}{
+
+Returns the RMSE from test data for regression models. \cr
+\emph{Usage:} \code{$getMAE()} \cr
+}
+
 \examples{
 
 ### Built-in example; Doing classification
@@ -105,8 +163,6 @@ df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 
 head(df)
 
-df$InTestWindowFLG <- NULL
-
 set.seed(42)
 
 p <- SupervisedModelDevelopmentParams$new()
@@ -145,6 +201,7 @@ database=SAM;
 trusted_connection=true
 "
 
+# This query should pull only rows for training. They must have a label.
 query <- "
 SELECT
  [PatientEncounterID]
@@ -154,15 +211,12 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
 --no WHERE clause, because we want train AND test
 "
 
 df <- selectData(connection.string, query)
 head(df)
-
-df$InTestWindowFLG <- NULL
 
 set.seed(42)
 

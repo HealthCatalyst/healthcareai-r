@@ -1,10 +1,11 @@
 #' Compare predictive models, created on your data
 #'
 #' @description This step allows you to create a random forest model, based on
-#' your data.
+#' your data. Random forest is an ensemble model, well suited for non-linear data. It's fast
+#' to train and often a good starting point.
 #' @docType class
-#' @usage RandomForestDevelopment(object, type, df, grainCol, predictedCol, 
-#' impute, debug)
+#' @usage RandomForestDevelopment(type, df, grainCol, predictedCol, 
+#' impute, debug, cores, trees, tune, modelName)
 #' @import caret
 #' @import doParallel
 #' @import e1071
@@ -13,20 +14,54 @@
 #' @importFrom R6 R6Class
 #' @import ranger
 #' @import ROCR
-#' @import RODBC
-#' @param object of SuperviseModelParameters class for $new() constructor
 #' @param type The type of model (either 'regression' or 'classification')
 #' @param df Dataframe whose columns are used for calc.
 #' @param grainCol Optional. The dataframe's column that has IDs pertaining to 
 #' the grain. No ID columns are truly needed for this step.
 #' @param predictedCol Column that you want to predict. If you're doing
 #' classification then this should be Y/N.
-#' @param impute Set all-column imputation to F or T.
-#' This uses mean replacement for numeric columns
+#' @param impute Set all-column imputation to T or F.
+#' If T, this uses mean replacement for numeric columns
 #' and most frequent for factorized columns.
 #' F leads to removal of rows containing NULLs.
+#' Values are saved for deployment.
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
+#' @param cores Number of cores you'd like to use. Defaults to 2.
+#' @param trees Number of trees in the forest. Defaults to 201.
+#' @param tune If TRUE, automatically tune model for better performance. Creates grid using mtry param and 5-fold 
+#' cross validation. Note this takes longer.
+#' @param modelName Optional string. Can specify the model name. If used, you must load the same one in the deploy step.
+#' @section Methods: 
+#' The above describes params for initializing a new randomForestDevelopment class with 
+#' \code{$new()}. Individual methods are documented below.
+#' @section \code{$new()}:
+#' Initializes a new random forest development class using the 
+#' parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
+#' model training. \cr
+#' \emph{Usage:} \code{$new(p)}
+#' @section \code{$run()}:
+#' Trains model, displays feature importance and performance. \cr
+#' \emph{Usage:}\code{$new()} 
+#' @section \code{$getPredictions()}:
+#' Returns the predictions from test data. \cr
+#' \emph{Usage:} \code{$getPredictions()} \cr
+#' @section \code{$getROC()}:
+#' Returns the ROC curve object for \code{\link{plotROCs}}. Classification models only. \cr
+#' \emph{Usage:} \code{$getROC()} \cr
+#' @section \code{$getPRCurve()}:
+#' Returns the PR curve object for \code{\link{plotPRCurve}}. Classification models only. \cr
+#' \emph{Usage:} \code{$getROC()} \cr
+#' @section \code{$getAUROC()}:
+#' Returns the area under the ROC curve from testing for classification models. \cr
+#' \emph{Usage:} \code{$getAUROC()} \cr
+#' @section \code{$getRMSE()}:
+#' Returns the RMSE from test data for regression models. \cr
+#' \emph{Usage:} \code{$getRMSE()} \cr
+#' @section \code{$getMAE()}:
+#' Returns the RMSE from test data for regression models. \cr
+#' \emph{Usage:} \code{$getMAE()} \cr
+#' @export
 #' @references \url{http://hctools.org/}
 #' @seealso \code{\link{LassoDevelopment}}
 #' @seealso \code{\link{LinearMixedModelDevelopment}}
@@ -80,7 +115,6 @@
 #' head(df)
 #'
 #' df$PatientID <- NULL
-#' df$InTestWindowFLG <- NULL
 #'
 #' set.seed(42)
 #'
@@ -117,6 +151,7 @@
 #' trusted_connection=true
 #' "
 #'
+#' # This query should pull only rows for training. They must have a label.
 #' query <- "
 #' SELECT
 #' [PatientEncounterID]
@@ -125,15 +160,11 @@
 #' ,[A1CNBR]
 #' ,[GenderFLG]
 #' ,[ThirtyDayReadmitFLG]
-#' ,[InTestWindowFLG]
 #' FROM [SAM].[dbo].[HCRDiabetesClinical]
-#' WHERE InTestWindowFLG = 'N'
 #' "
 #'
 #' df <- selectData(connection.string, query)
 #' head(df)
-#'
-#' df$InTestWindowFLG <- NULL
 #'
 #' set.seed(42)
 #'
@@ -185,7 +216,6 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
 
     # Get random forest model
     fitRF = NA,
-    fitLogit = NA,
 
     predictions = NA,
 
@@ -199,44 +229,6 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     variableImportanceList = NA,
 
     # Start of functions
-    saveModel = function() {
-      if (isTRUE(self$params$debug)) {
-        print('Saving model...')
-      }
-      
-        fitLogit <- private$fitLogit
-        fitObj <- private$fitRF
-        
-        save(fitLogit, file = "rmodel_var_import_RF.rda")
-        save(fitObj, file = "rmodel_probability_RF.rda")
-      },
-    
-    # this function must be in here for the row-wise predictions.
-    # can be replaced when LIME-like functionality is complete.
-    fitGeneralizedLinearModel = function() {
-      if (isTRUE(self$params$debug)) {
-        print('generating fitLogit for row-wise guidance...')
-      }
-      
-      if (self$params$type == 'classification') {
-        private$fitLogit <- glm(
-          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrain,
-          family = binomial(link = "logit"),
-          metric = "ROC",
-          control = list(maxit = 10000),
-          trControl = caret::trainControl(classProbs = TRUE, summaryFunction = twoClassSummary)
-        )
-        
-      } else if (self$params$type == 'regression') {
-        private$fitLogit <- glm(
-          as.formula(paste(self$params$predictedCol, '.', sep = " ~ ")),
-          data = private$dfTrain,
-          metric = "RMSE",
-          control = list(maxit = 10000)
-        )
-      }
-    },
     
     buildGrid = function() {
       if (isTRUE(self$params$tune)) {
@@ -287,17 +279,20 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     initialize = function(p) {
       set.seed(43)
       super$initialize(p)
-
+      if (is.null(self$params$modelName)) {
+        self$params$modelName = "RF" 
+      }
       if (!is.null(p$tune)) {
         self$params$tune = p$tune
       }
-      if (!is.null(p$numberOfTrees)) {
-        self$params$numberOfTrees = p$numberOfTrees
+      if (!is.null(p$trees)) {
+        self$params$trees = p$trees
       }
     },
     getPredictions = function(){
       return(private$predictions)
     },
+    
     # Override: build RandomForest model
     buildModel = function() {
       trainControlParams.method <- ""
@@ -357,7 +352,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         method = "ranger",
         importance = "impurity",
         metric = rfTrainParams.metric,
-        num.trees = self$params$numberOfTrees,
+        num.trees = self$params$trees,
         tuneGrid = private$grid,
         trControl = train.control
       )
@@ -428,13 +423,13 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       
       # Start default logit (for row-wise var importance)
       # can be replaced with LIME-like functionality
-      private$fitGeneralizedLinearModel()
+      super$fitGeneralizedLinearModel()
 
       # Build Model
       self$buildModel()
       
       # save model
-      private$saveModel()
+      super$saveModel(fitModel = private$fitRF)
 
       # Perform prediction
       self$performPrediction()

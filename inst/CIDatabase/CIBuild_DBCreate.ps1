@@ -35,6 +35,18 @@ CREATE TABLE [dbo].[HCRDeployRegressionBASE](
     [Factor3TXT] [varchar](255) NULL
 )
 
+CREATE TABLE [dbo].[dermatologyDeployClassificationBASE](
+    [BindingID] [int] NULL,[BindingNM] [varchar](255) NULL,
+    [LastLoadDTS] [datetime2](7) NULL,
+    [PatientID] [decimal](38, 0) NULL,
+    [PredictedProb1] [decimal](38, 2) NULL,
+    [PredictedClass1] [varchar](255) NULL,
+    [PredictedProb2] [decimal](38, 2) NULL,
+    [PredictedClass2] [varchar](255) NULL,
+    [PredictedProb3] [decimal](38, 2) NULL,
+    [PredictedClass3] [varchar](255) NULL
+)
+
 CREATE TABLE [dbo].[HCRDiabetesClinical](
     [PatientEncounterID] [float] NULL,
     [PatientID] [float] NULL,
@@ -42,8 +54,7 @@ CREATE TABLE [dbo].[HCRDiabetesClinical](
     [LDLNBR] [float] NULL,
     [A1CNBR] [float] NULL,
     [GenderFLG] [nvarchar](255) NULL,
-    [ThirtyDayReadmitFLG] [nvarchar](255) NULL,
-    [InTestWindowFLG] [nvarchar](255) NULL
+    [ThirtyDayReadmitFLG] [nvarchar](255) NULL
 )
 
 CREATE TABLE [dbo].[HCRWriteData](

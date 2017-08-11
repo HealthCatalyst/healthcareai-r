@@ -132,8 +132,7 @@ CREATE TABLE [dbo].[HCRDiabetesClinical](
 	[LDLNBR] [float] NULL,
 	[A1CNBR] [float] NULL,
 	[GenderFLG] [nvarchar](255) NULL,
-	[ThirtyDayReadmitFLG] [nvarchar](255) NULL,
-	[InTestWindowFLG] [nvarchar](255) NULL
+	[ThirtyDayReadmitFLG] [nvarchar](255) NULL
 )
 BULK INSERT dbo.HCRDiabetesClinical
 FROM 'YOUR_PATH_HERE\healthcareai-r\inst\extdata\HCRDiabetesClinical.csv'
@@ -149,6 +148,19 @@ CREATE TABLE [dbo].[HCRWriteData](
 	[a] [float] NULL,
 	[b] [float] NULL,
 	[c] [varchar](255) NULL
+)
+
+CREATE TABLE [dbo].[dermatologyDeployClassificationBASE](
+	[BindingID] [int] NULL,
+	[BindingNM] [varchar](255) NULL,
+	[LastLoadDTS] [datetime2](7) NULL,
+	[PatientID] [decimal](38, 0) NULL,
+	[PredictedProb1] [decimal](38, 2) NULL,
+	[PredictedClass1] [varchar](255) NULL,
+	[PredictedProb2] [decimal](38, 2) NULL,
+	[PredictedClass2] [varchar](255) NULL,
+	[PredictedProb3] [decimal](38, 2) NULL,
+	[PredictedClass3] [varchar](255) NULL
 )
 ```
 
