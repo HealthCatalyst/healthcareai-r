@@ -190,6 +190,9 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       # 2. Get the number of classes.
       # 3. Save the grain column for output.
       if (self$params$type == 'multiclass' ) {
+        # Forget target classes that don't occur in the developset
+        self$params$df[[self$params$predictedCol]] <-
+          as.factor(as.character(self$params$df[[self$params$predictedCol]]))
         # Names
         ind <- grep(self$params$predictedCol, colnames(self$params$df))
         tempCol <- self$params$df[,ind]
