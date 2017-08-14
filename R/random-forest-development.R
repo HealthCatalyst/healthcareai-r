@@ -65,12 +65,14 @@
 #' Returns the variable importance list. \cr
 #' \emph{Usage:} \code{$getVariableImportanceList(numTopVariables = NULL)} \cr
 #'  Params: \cr
-#'   - \code{numTopVariables:} The maximum number of variables to include \cr
+#'   - \code{numTopVariables:} The maximum number of variables to include. If no
+#'   value is specified, all variables are used. \cr
 #' @section \code{$plotVariableImportance()}:
 #' Plots the variable importance list. \cr
 #' \emph{Usage:} \code{$plotVariableImportance(numTopVariables = NULL)} \cr
 #'  Params: \cr
-#'   - \code{numTopVariables:} The maximum number of variables to include \cr
+#'   - \code{numTopVariables:} The maximum number of variables to include If no
+#'   value is specified, all variables are used. \cr
 #' 
 #' @export
 #' @references \url{http://hctools.org/}
