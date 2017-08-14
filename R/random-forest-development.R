@@ -61,6 +61,17 @@
 #' @section \code{$getMAE()}:
 #' Returns the RMSE from test data for regression models. \cr
 #' \emph{Usage:} \code{$getMAE()} \cr
+#' @section \code{$getVariableImportanceList()}:
+#' Returns the variable importance list. \cr
+#' \emph{Usage:} \code{$getVariableImportanceList(numTopVariables = NULL)} \cr
+#'  Params: \cr
+#'   - \code{numTopVariables:} The maximum number of variables to include \cr
+#' @section \code{$plotVariableImportance()}:
+#' Plots the variable importance list. \cr
+#' \emph{Usage:} \code{$plotVariableImportance(numTopVariables = NULL)} \cr
+#'  Params: \cr
+#'   - \code{numTopVariables:} The maximum number of variables to include \cr
+#' 
 #' @export
 #' @references \url{http://hctools.org/}
 #' @seealso \code{\link{LassoDevelopment}}
@@ -475,16 +486,17 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
               ?generateAUC", call. = FALSE)
     },
     
-    getVariableImportanceList = function() {
-      return(private$variableImportanceList)
+    getVariableImportanceList = function(numTopVariables = NULL) {
+      top <- min(numTopVariables, nrow(private$variableImportanceList))
+      return(private$variableImportanceList[1:top, ])
     },
     
     
-    plotVariableImportance = function() {
+    plotVariableImportance = function(numTopVariables = NULL) {
       # indent plot so that variable names can be read
       old_mai = par()$mai # save old margins
       par(mai = c(1,2,1,1))
-      vIL <- private$variableImportanceList
+      vIL <- self$getVariableImportanceList(numTopVariables)
       last_row <- nrow(vIL)
       # have most important variables on top, as in list
       barplot(vIL$importance[last_row:1],
