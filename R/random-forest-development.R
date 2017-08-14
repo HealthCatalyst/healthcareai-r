@@ -494,17 +494,27 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     },
     
     plotVariableImportance = function(numTopVariables = NULL) {
-      # indent plot so that variable names can be read
-      old_mai = par()$mai # save old margins
-      par(mai = c(1,2,1,1))
+      # Get information for plot before chaning margins
       vIL <- self$getVariableImportanceList(numTopVariables)
       last_row <- nrow(vIL)
       # have most important variables on top, as in list
-      barplot(vIL$importance[last_row:1],
-              names.arg = vIL$variable[last_row:1],
-              horiz = TRUE, las = 1, cex.names = 1, xlab = "Importance",
-              main = "Random Forest Variable Importance", col = "navy")
-      par(mai = old_mai) # reset margins
+      values <- vIL$importance[last_row:1]
+      labels <- vIL$variable[last_row:1]
+      old_mai = par()$mai # save old margins
+      # Change margins in tryCatch so that margins are always reset even if
+      # plotting fails
+      tryCatch({
+        # indent plot so that variable names can be read
+        par(mai = c(1,2,1,1))
+        barplot(values,
+                names.arg = labels,
+                horiz = TRUE, las = 1, cex.names = 1, xlab = "Importance",
+                main = "Random Forest Variable Importance", col = "navy")
+      }, error = function(e) {
+        message(e)
+      }, finally = {
+        par(mai = old_mai) # reset margins
+      })
     }
   )
 )
