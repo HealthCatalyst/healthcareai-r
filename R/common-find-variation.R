@@ -5,7 +5,7 @@
 #' @param vector A vector of numbers
 #' @return A scalar
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' \url{https://en.wikipedia.org/wiki/Coefficient_of_variation}
 #' @seealso \code{\link{healthcareai}}, \code{\link{findVariation}}
 #' @examples
@@ -36,7 +36,7 @@ calculateCOV <- function(vector) {
 #' @return A list of sub-lists. Each sub-list represents one possible 
 #' combination.
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}} \code{\link{findVariation}} 
 #' \code{\link{createVarianceTallTable}}
 #' @examples
@@ -75,7 +75,7 @@ createAllCombinations <- function(vector) {
 #' that subgroup as a percentage of the above subgroup (i.e., F within Gender);
 #' MeasureImpact is the subgroup COV * VolRaw (i.e., num of rows).
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}} 
 #' \code{\link{findVariation}}
 #' @examples
@@ -215,7 +215,7 @@ createVarianceTallTable <- function(df,
 #' that subgroup as a percentage of the above subgroup (i.e., F within Gender);
 #' MeasureImpact is the subgroup COV * VolRaw (i.e., num of rows).
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}} \code{\link{calculateCOV}} 
 #' \code{\link{createVarianceTallTable}}
 #' @examples

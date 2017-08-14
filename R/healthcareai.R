@@ -39,6 +39,7 @@
 #' have passed.}
 #' }
 #' 
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{LinearMixedModelDevelopment}}
 #' @seealso \code{\link{LinearMixedModelDeployment}}

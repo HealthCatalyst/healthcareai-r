@@ -12,7 +12,7 @@
 #' @import ROCR
 #' @import pROC
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 calculatePerformance <- function(predictions, ytest, type) {
   
@@ -75,7 +75,7 @@ calculatePerformance <- function(predictions, ytest, type) {
 #'
 #' @import ROCR
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' 
@@ -182,7 +182,7 @@ generateAUC <- function(predictions,
 #' @return Array of ideal cutoff and associated TPR/FPR or pre/rec.
 #' 
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 getCutOffList = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
   ## TODO: Give user the ability to give higher weight to recall or FPR
