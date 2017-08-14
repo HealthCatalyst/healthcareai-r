@@ -493,7 +493,6 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       return(private$variableImportanceList[1:top, ])
     },
     
-    
     plotVariableImportance = function(numTopVariables = NULL) {
       # indent plot so that variable names can be read
       old_mai = par()$mai # save old margins
