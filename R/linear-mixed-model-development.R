@@ -61,7 +61,7 @@
 #' Returns the RMSE from test data for regression models. \cr
 #' \emph{Usage:} \code{$getMAE()} \cr
 #' @export
-#' @references \url{http://healthcare.ai/}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #'

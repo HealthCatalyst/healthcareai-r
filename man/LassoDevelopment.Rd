@@ -20,10 +20,11 @@ the grain. No ID columns are truly needed for this step.}
 \item{predictedCol}{Column that you want to predict. If you're doing
 classification then this should be Y/N.}
 
-\item{impute}{Set all-column imputation to F or T.
-This uses mean replacement for numeric columns
+\item{impute}{Set all-column imputation to T or F.
+If T, this uses mean replacement for numeric columns
 and most frequent for factorized columns.
-F leads to removal of rows containing NULLs.}
+F leads to removal of rows containing NULLs.
+Values are saved for deployment.}
 
 \item{debug}{Provides the user extended output to the console, in order
 to monitor the calculations throughout. Use T or F.}
@@ -34,7 +35,8 @@ to monitor the calculations throughout. Use T or F.}
 }
 \description{
 This step allows you to create a Lasso model, based on
-your data.
+your data. Lasso is a linear model, best suited for linearly separable data. It's fast
+to train and often a good starting point.
 }
 \section{Methods}{
  
@@ -42,7 +44,7 @@ The above describes params for initializing a new lassoDevelopment class with
 \code{$new()}. Individual methods are documented below.
 }
 
-\section{$new()}{
+\section{\code{$new()}}{
 
 Initializes a new lasso development class using the 
 parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
@@ -222,7 +224,7 @@ cat(proc.time() - ptm,"\\n")
 
 }
 \references{
-\url{http://healthcare.ai}
+\url{http://healthcareai-r.readthedocs.io}
 }
 \seealso{
 \code{\link{RandomForestDevelopment}}

@@ -32,7 +32,7 @@ countMissingData(bob)
 countMissingData(bob, userNAs = c("void", "what"))
 }
 \references{
-\url{http://healthcare.ai}
+\url{http://healthcareai-r.readthedocs.io}
 }
 \seealso{
 \code{\link{healthcareai}}

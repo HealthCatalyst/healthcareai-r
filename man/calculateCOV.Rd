@@ -26,7 +26,7 @@ res2 <- calculateCOV(df$b)
 res2
 }
 \references{
-\url{http://healthcare.ai}
+\url{http://healthcareai-r.readthedocs.io}
 \url{https://en.wikipedia.org/wiki/Coefficient_of_variation}
 }
 \seealso{

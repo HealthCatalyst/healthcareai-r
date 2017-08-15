@@ -8,7 +8,7 @@
 #'
 #' @importFrom graphics legend title
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 plotPRCurve <- function(PRCurves, names, legendLoc) {
   # generate color vector TODO: auto generate these colors dynamically as rgb
@@ -57,7 +57,7 @@ plotPRCurve <- function(PRCurves, names, legendLoc) {
 #' @importFrom graphics legend title par
 #' @importFrom utils head
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 plotROCs <- function(rocs, names, legendLoc) {
   # generate color vector TODO: auto generate these colors dynamically as rgb

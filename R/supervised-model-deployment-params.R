@@ -8,7 +8,7 @@ library(R6)
 #' and helps determine which performs best.
 #' @docType class
 #' @importFrom R6 R6Class
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #'
 #' @export

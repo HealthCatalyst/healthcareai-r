@@ -8,7 +8,7 @@
 #' @import caret
 #' @importFrom R6 R6Class
 #' @param object of SupervisedModelDeploymentParams class for $new() constructor
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #'
 #' @export
