@@ -12,7 +12,7 @@
 #' @importFrom stats aggregate formula
 #' @importFrom utils tail
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #'dates <- c(as.Date('2012-01-01'),as.Date('2012-01-02'),as.Date('2012-02-01'),

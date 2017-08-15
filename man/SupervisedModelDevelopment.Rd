@@ -16,7 +16,7 @@ This step allows one to create test models on your data
 and helps determine which performs best.
 }
 \references{
-\url{http://healthcare.ai}
+\url{http://healthcareai-r.readthedocs.io}
 }
 \seealso{
 \code{\link{healthcareai}}

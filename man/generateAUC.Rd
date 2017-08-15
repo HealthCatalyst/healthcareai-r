@@ -52,7 +52,7 @@ auc = generateAUC(predictions = pred,
                   allCutoffsFlg = TRUE)
 }
 \references{
-\url{http://healthcare.ai}
+\url{http://healthcareai-r.readthedocs.io}
 }
 \seealso{
 \code{\link{healthcareai}}

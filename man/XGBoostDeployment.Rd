@@ -12,17 +12,16 @@ predictedCol, impute, debug, cores, modelName)
 \arguments{
 \item{type}{The type of model (must be multiclass)}
 
-\item{df}{Dataframe whose columns are used for new predictions}
+\item{df}{Dataframe whose columns are used for new predictions. Data structure should match development as 
+much as possible. Number of columns, names, types, grain, and predicted must be the same.}
 
 \item{grainCol}{The dataframe's column that has IDs pertaining to the grain}
 
-\item{predictedCol}{Column that you want to predict. If you're doing
-classification then this should be Y/N.}
+\item{predictedCol}{Column that you want to predict.}
 
-\item{impute}{For training df, set all-column imputation to F or T.
-This uses mean replacement for numeric columns
-and most frequent for factorized columns.
-F leads to removal of rows containing NULLs.}
+\item{impute}{For training df, set all-column imputation to T or F.
+If T, this uses values calculated in development.
+F leads to removal of rows containing NULLs and is not recommended.}
 
 \item{debug}{Provides the user extended output to the console, in order
 to monitor the calculations throughout. Use T or F.}

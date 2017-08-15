@@ -75,7 +75,7 @@
 #'   value is specified, all variables are used. \cr
 #' 
 #' @export
-#' @references \url{http://hctools.org/}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{LassoDevelopment}}
 #' @seealso \code{\link{LinearMixedModelDevelopment}}
 #' @seealso \code{\link{healthcareai}}

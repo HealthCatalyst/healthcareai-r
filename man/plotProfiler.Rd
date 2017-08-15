@@ -30,7 +30,7 @@ lis$LDL <- c(10, 30, 40, 70, 100, 120)
 plotProfiler(lis)
 }
 \references{
-\url{http://healthcare.ai}
+\url{http://healthcareai-r.readthedocs.io}
 }
 \seealso{
 \code{\link{healthcareai}}

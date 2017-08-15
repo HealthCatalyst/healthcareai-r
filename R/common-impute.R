@@ -13,7 +13,7 @@
 #'
 #' @import data.table
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' df <- data.frame(personID=c(1,1,2,2,3,3,3),
@@ -65,7 +65,7 @@ groupedLOCF <- function(df, id) {
 #' in other columns, supply the value NA to `imputeVals` for those columns.
 #' #'
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' 
