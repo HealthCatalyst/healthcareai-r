@@ -6,8 +6,7 @@
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version-last-release/healthcareai)](https://cran.r-project.org/package=healthcareai)
 
 
-The aim of `healthcareai` is to make it easy to do machine learning with healthcare 
-data. The package has two main goals:
+The aim of `healthcareai` is to make machine learning easy on healthcare data. The package has two main goals:
 
 -  Allow one to easily develop and compare models based on tabular data, and deploy a best model that pushes predictions to either databases or flat files.
 
@@ -105,7 +104,7 @@ After that's done, *here's the contribution workflow:*
 
 2) Create a topic branch to work in, as described [here](CONTRIBUTING.md#create-a-topic-branch-that-you-can-work-in)
 
-3) Create a throwaway file on the Desktop (or somewhere outside the repo), based on an example
+3) To test the new functionality you've created, use a new throw-away file on the Desktop (or somewhere outside the repo), perhaps based on a package example
 
 4) As you make changes
    - Document any new functions, methods, etc via [roxygen2](http://r-pkgs.had.co.nz/man.html)
