@@ -118,7 +118,10 @@
 ## Getting started with contributions
 
 - When your dev environment is set up, see [here](README.md#contributing) for the contribution workflow.
-- We try to adhere to [Hadley's R styleguide](http://adv-r.had.co.nz/Style.html)] when writing code together.
+- We try to adhere to [Hadley's R styleguide](http://adv-r.had.co.nz/Style.html) when writing code together. Overall:
+  - File names are like this: `cool-helpful-file.R`
+  - Function names are like this: `coolHelpfulFunction`
+  - Variable names are like this: `coolHelpfulVariable`
 - We try not introduce new package dependencies if we can avoid them.
 - Use :: when calling a function to show what namespace it comes from. For example: `healthcareai::findTrends()`. This makes debugging easier and prevents overloading.
 
