@@ -29,13 +29,7 @@ install.packages('healthcareai')
 
 ## How to install the latest version on macOS
 
-Note: If using macOS with healthcare.ai, you'll have to use SQLite or csv files. We're working on adding MySQL connections. We'd [love to hear](http://healthcare.ai/contact) which other databases your connecting to, so we can provide native support!
-
 * Open R Studio
-* In the console, install other R healthcare.ai prerequisites via
-```
-install.packages(c('caret','data.table','DBI','doParallel','e1071','grpreg','lme4','odbc','pROC','R6','ranger','ROCR','RSQLite','xgboost'),repos = "https://cran.cnr.berkeley.edu/")
-```
 * Install healthcare.ai
 ```
 install.packages('healthcareai')
@@ -51,10 +45,8 @@ install.packages('healthcareai')
 
 ## Install the bleeding edge version (for folks providing contributions)
 
-* Grab prerequisites via the console of RGui or (preferably) RStudio  
+* Work in the console of RGui or (preferably) RStudio  
 ```
-install.packages(c('caret','data.table','DBI','doParallel','e1071','grpreg','lme4','odbc','pROC','R6','ranger','ROCR','RSQLite','xgboost'),repos = "https://cran.cnr.berkeley.edu/")
-
 library(devtools)
 devtools::install_github(repo='HealthCatalyst/healthcareai-r')
 ```
@@ -141,8 +133,6 @@ After that's done, *here's the contribution workflow:*
    
    4. Run the roxygen2 examples via `devtools::run_examples()` and fix any errors
 
-   5. Under the build tab, run 'Check' and verify that only one roxygen warning arises
-      - This warning is due to the [limitations](https://github.com/wch/R6/issues/3) of roxygen and R6 method documentation
-      - This is the only warning/error/note that's allowed when merging to master
+   5. Under the build tab, run 'Check' and verify that no errors/warnings/notes arise
       
-   6. Now that your changes are working, communicate that to Levi in the pull request, such that he knows to do the code review associated with the PR. Please *don't* do tons of work and *then* start a PR. Early is good.
+   6. Now that your changes are working, communicate that to Levi and team in the pull request, such that he knows to do the code review associated with the PR. Please *don't* do tons of work and *then* start a PR. Early is good.
