@@ -4,7 +4,7 @@ library(R6)
 #' SupervisedModelDevelopmentParams class to set up parameters required to build SupervisedModel classes
 #'
 #' @description This step allows one to create test models on your data
-#' and helps determine which performs best.
+#' and helps determine which test performs best.
 #' @docType class
 #' @importFrom R6 R6Class
 #' @references \url{http://healthcareai-r.readthedocs.io}
