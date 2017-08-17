@@ -151,6 +151,40 @@ KmeansClustering <- R6Class("KmeansClustering",
         stop("Your data type must be numeric in order to use kmeans.")
       }
     },
+
+    performPCA = function() {
+    # User set usePrinComp to TRUE. Calculate principle components and apply
+      if (isTRUE(self$params$debug)) {
+        print('Doing principle component analysis...')
+      }
+      pcaRes <- pcaAnalysis(self$params$df)
+      private$PCs <- pcaRes[['PCs']]
+      private$propVarEx <- pcaRes[['prop_of_var']]
+
+      # User specified number of PCs to use
+      if (!is.null(self$params$numOfPrinComp)) {
+        private$dfCls <- private$PCs[,1:self$params$numOfPrinComp]
+
+      # User didn't specify number of PCs to use. Calculate from elbow plot.
+      } else {
+        if (isTRUE(self$params$debug)) {
+          print('Finding the optimal number of principle components...')
+        }
+        if (length(private$propVarEx) <= 2) {
+          private$optimalNumOfPCs = length(private$propVarEx)
+        } else {
+          private$optimalNumOfPCs <- findElbow(private$propVarEx)
+        }
+        private$dfCls <- private$PCs[,1:private$optimalNumOfPCs]
+      }
+    },
+
+    kmeansConfusionMatrix = function() {
+      # TODO replace with xgb shared function.
+      private$confusionMatrix <- calculateConfusion(private$labelColValues, private$cluster)
+      private$clusterLabels <- assignClusterLabels(private$confusionMatrix, 
+                                                   nrow(private$centers))
+    },
     
     # Perform clustering
     performClustering = function() {
@@ -162,63 +196,50 @@ KmeansClustering <- R6Class("KmeansClustering",
       private$meanVec <- scaleRes[['means']]
       private$sdVec <- scaleRes[['standard_deviations']]
       scaledDf <- scaleRes[['scaled_df']]
-      
-      # Find the optimal number of clusters
-      k.max <- 15 # Maximal number of clusters
-      private$wss <- sapply(1:k.max, 
-                            function(k){kmeans(scaledDf, k, nstart = 3)$tot.withinss})
-      private$optimalNumOfClusters <- findElbow(private$wss)
-      if (isTRUE(self$params$debug)) {
-        print('find the optimal numbre of clusters...')
-      }
-      
-      # PCA
-      pcaRes <- pcaAnalysis(self$params$df)
-      private$PCs <- pcaRes[[1]]
-      private$propVarEx <- pcaRes[[2]]
-      
-      # Find the optimal number of PCs
-      if (length(private$propVarEx) <= 2) 
-        private$optimalNumOfPCs = length(private$propVarEx)
-      else private$optimalNumOfPCs <- findElbow(private$propVarEx)
-      
-      if (isTRUE(self$params$debug)) {
-        print('find the optimal numbre of PCs...')
-      }
-      
-      # Use principle components if usePrinComp is TRUE 
-      if (self$params$usePrinComp == TRUE && is.null(self$params$numOfPrinComp)) {
-        private$dfCls <- private$PCs[,1:private$optimalNumOfPCs]
-      } else if (self$params$usePrinComp == TRUE && !is.null(self$params$numOfPrinComp)) {
-        private$dfCls <- private$PCs[,1:self$params$numOfPrinComp]
-      } else {
-        private$dfCls <- scaledDf
-      }
-      
-      # Build clusters
-      ## If the numOfClusters is not given, use the optimalNumOfClusters generated 
-      ## by findElbow()
+
+      # If the numOfClusters is not given, calculate optimal NumOfClusters 
+      # from findElbow()
       if (!is.null(self$params$numOfClusters)) {
         numOfClusters <- self$params$numOfClusters 
       } else {
+        # Find the optimal number of clusters
+        maxClusters <- 15 # Maximal number of clusters
+        private$wss <- sapply(1:maxClusters, 
+                              function(k){kmeans(scaledDf, k, nstart = 3)$TotalWithinSS})
+        private$optimalNumOfClusters <- findElbow(private$wss)
+        if (isTRUE(self$params$debug)) {
+          print('Finding the optimal number of clusters...')
+        }
         numOfClusters <- private$optimalNumOfClusters
       }
+      
+      # PCA
+      # Default to skipping PCA.
+      if (self$params$usePrinComp == FALSE){
+        private$dfCls <- scaledDf
+      # User set usePrinComp to TRUE. Calculate principle components and apply
+      } else { 
+        private$performPCA()
+      }
+
+      # Build clusters
       # Run K-Means and save the result
+      if (isTRUE(self$params$debug)) {
+        print('Building clusters...')
+      }
       private$kmeansFit <- kmeans(private$dfCls, numOfClusters, nstart = 10)
       # Save the centers and clusters
       private$centers <- private$kmeansFit[["centers"]]
       private$cluster <- private$kmeansFit[["cluster"]]
       
-      if (isTRUE(self$params$debug)) {
-        print('build clusters...')
-      }
       
       # Calculate confusion matrix and assign label to the clusters 
       # if labelCol exists
       if (nchar(self$params$labelCol) != 0) {
-        private$confusionMatrix <- calculateConfusion(private$labelColValues, private$cluster)
-        private$clusterLabels <- assignClusterLabels(private$confusionMatrix, 
-                                                     nrow(private$centers))
+        if (isTRUE(self$params$debug)) {
+          print('Generating confusion matrix...')
+        }
+        private$kmeansConfusionMatrix()
       }
     },
     
