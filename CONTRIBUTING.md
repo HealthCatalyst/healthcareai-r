@@ -88,84 +88,7 @@
   - roxygen2
   - testthat
   - evaluate
-
-### MSSQL Server
-
-Why MSSQL? Some of our integration tests read and write data to the database. MSSQL is currently the only supported database, though this will change.
-
-- Set up SQL Server, if you haven't already
-  - If on Windows, [install](http://stackoverflow.com/a/11278818/5636012) both SQL Server Express and SSMS Express
-    - Naviagate to [here](https://www.microsoft.com/en-us/download/details.aspx?id=29062)
-    - Look for and download ENU\x64\SQLEXPRWT_x64_ENU.exe
-    - When installing, be sure to check the box to install SSMS
-  - Create tables (on localhost) to receive predictive output using the code below (use SSMS if on Windows):
-  - Run these statements in the SAM database (which you may have to create)
-  - Modify the command to include your path to the local healthcare.ai repo where it says "YOUR_PATH_HERE"
-  
-```SQL
-CREATE TABLE [dbo].[HCRDeployClassificationBASE](
-	[BindingID] [int] NULL,
-	[BindingNM] [varchar](255) NULL,
-	[LastLoadDTS] [datetime2](7) NULL,
-	[PatientEncounterID] [decimal](38, 0) NULL,
-	[PredictedProbNBR] [decimal](38, 2) NULL,
-	[Factor1TXT] [varchar](255) NULL,
-	[Factor2TXT] [varchar](255) NULL,
-	[Factor3TXT] [varchar](255) NULL
-)
-
-CREATE TABLE [dbo].[HCRDeployRegressionBASE](
-	[BindingID] [int] NULL,
-	[BindingNM] [varchar](255) NULL,
-	[LastLoadDTS] [datetime2](7) NULL,
-	[PatientEncounterID] [decimal](38, 0) NULL,
-	[PredictedValueNBR] [decimal](38, 2) NULL,
-	[Factor1TXT] [varchar](255) NULL,
-	[Factor2TXT] [varchar](255) NULL,
-	[Factor3TXT] [varchar](255) NULL
-)
-
-CREATE TABLE [dbo].[HCRDiabetesClinical](
-	[PatientEncounterID] [float] NULL,
-	[PatientID] [float] NULL,
-	[SystolicBPNBR] [float] NULL,
-	[LDLNBR] [float] NULL,
-	[A1CNBR] [float] NULL,
-	[GenderFLG] [nvarchar](255) NULL,
-	[ThirtyDayReadmitFLG] [nvarchar](255) NULL
-)
-BULK INSERT dbo.HCRDiabetesClinical
-FROM 'YOUR_PATH_HERE\healthcareai-r\inst\extdata\HCRDiabetesClinical.csv'
-WITH
-(
-    FIRSTROW = 2,
-    FIELDTERMINATOR = ',',  --CSV field delimiter
-    ROWTERMINATOR = '\n',   --Use to shift the control to next row
-	KEEPNULLS
-)
-
-CREATE TABLE [dbo].[HCRWriteData](
-	[a] [float] NULL,
-	[b] [float] NULL,
-	[c] [varchar](255) NULL
-)
-
-CREATE TABLE [dbo].[dermatologyDeployClassificationBASE](
-	[BindingID] [int] NULL,
-	[BindingNM] [varchar](255) NULL,
-	[LastLoadDTS] [datetime2](7) NULL,
-	[PatientID] [decimal](38, 0) NULL,
-	[PredictedProb1] [decimal](38, 2) NULL,
-	[PredictedClass1] [varchar](255) NULL,
-	[PredictedProb2] [decimal](38, 2) NULL,
-	[PredictedClass2] [varchar](255) NULL,
-	[PredictedProb3] [decimal](38, 2) NULL,
-	[PredictedClass3] [varchar](255) NULL
-)
-```
-
-**Note, if you have issues connecting to localhost in SSMS or RStudio, see [here](https://github.com/HealthCatalystSLC/healthcareai-py/blob/master/localhost_config.md) to create an alias.**
-  
+ 
 ## Verify you can build the healthcareai package
 
 1. In RStudio, if you don't see healthcareai-r in the top right corner
@@ -178,9 +101,7 @@ CREATE TABLE [dbo].[dermatologyDeployClassificationBASE](
 5. Run the roxygen2 examples via `devtools::run_examples()`. Verify that these finish without errors
    - Verify that these pass without seeing errors
 6. Under the build tab, run 'Check'
-   - Verify that only one warning arises
-     - This warning is due to the [limitations](https://github.com/wch/R6/issues/3) of roxygen and R6 method documentation
-     - This is the only warning/error/note that's allowed when merging to master
+   - Verify that no errors/warnings arise
 
 ## RStudio :: Configure git
 
@@ -191,18 +112,18 @@ CREATE TABLE [dbo].[dermatologyDeployClassificationBASE](
 3. Configure line endings via `git config core.autocrlf true`
 4. Make git case-sensitive via `git config core.ignorecase false`
 5. Improve merge conflict resolution via `git config --global merge.conflictstyle diff3`
-6. If you use a personal email for github, and would rather have notifications go to your Health Cataylst email
-   - See [here](https://github.com/settings/notifications) -> Notification email -> Custom routing
-7. Set up SSH so you can push without typing password (optional, but nice)
+6. Set up SSH so you can push without typing password (optional, but nice)
    - See [here](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/), [here](https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/), and then [here](https://help.github.com/enterprise/11.10.340/user/articles/changing-a-remote-s-url/)
    
 ## Getting started with contributions
 
 - When your dev environment is set up, see [here](README.md#contributing) for the contribution workflow.
-- We try to adhere to [Hadley's R styleguide](http://adv-r.had.co.nz/Style.html)] when writing code together.
+- We try to adhere to [Hadley's R styleguide](http://adv-r.had.co.nz/Style.html) when writing code together. Overall:
+  - File names are like this: `cool-helpful-file.R`
+  - Function names are like this: `coolHelpfulFunction`
+  - Variable names are like this: `coolHelpfulVariable`
 - We try not introduce new package dependencies if we can avoid them.
 - Use :: when calling a function to show what namespace it comes from. For example: `healthcareai::findTrends()`. This makes debugging easier and prevents overloading.
-- Please try to use `message()` rather than `cat()` or `print()`
 
 ## RStudio Tips
 
