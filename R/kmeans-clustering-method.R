@@ -129,7 +129,7 @@ KmeansClustering <- R6Class("KmeansClustering",
   # Private members
   private = list(
     # Get kmeans model
-    kmeans.fit = NA,
+    kmeansFit = NA,
     confusionMatrix = NA,
     optimalNumOfClusters = NA,
     optimalNumOfPCs = NA,
@@ -139,8 +139,8 @@ KmeansClustering <- R6Class("KmeansClustering",
     cluster = NA,
     outDf = NA,
     clusterLabels = NA,
-    mean.vec = NA,
-    sd.vec = NA,
+    meanVec = NA,
+    sdVec = NA,
     dfCls = NA,
     wss = NA,
     
@@ -159,14 +159,14 @@ KmeansClustering <- R6Class("KmeansClustering",
       }
       # Scale data
       scaleRes <- dataScale(self$params$df)
-      private$mean.vec <- scaleRes[[1]]
-      private$sd.vec <- scaleRes[[2]]
-      scaledf <- scaleRes[[3]]
+      private$meanVec <- scaleRes[['means']]
+      private$sdVec <- scaleRes[['standard_deviations']]
+      scaledDf <- scaleRes[['scaled_df']]
       
       # Find the optimal number of clusters
       k.max <- 15 # Maximal number of clusters
       private$wss <- sapply(1:k.max, 
-                            function(k){kmeans(scaledf, k, nstart = 3)$tot.withinss})
+                            function(k){kmeans(scaledDf, k, nstart = 3)$tot.withinss})
       private$optimalNumOfClusters <- findElbow(private$wss)
       if (isTRUE(self$params$debug)) {
         print('find the optimal numbre of clusters...')
@@ -192,7 +192,7 @@ KmeansClustering <- R6Class("KmeansClustering",
       } else if (self$params$usePrinComp == TRUE && !is.null(self$params$numOfPrinComp)) {
         private$dfCls <- private$PCs[,1:self$params$numOfPrinComp]
       } else {
-        private$dfCls <- scaledf
+        private$dfCls <- scaledDf
       }
       
       # Build clusters
@@ -204,10 +204,10 @@ KmeansClustering <- R6Class("KmeansClustering",
         numOfClusters <- private$optimalNumOfClusters
       }
       # Run K-Means and save the result
-      private$kmeans.fit <- kmeans(private$dfCls, numOfClusters, nstart = 10)
+      private$kmeansFit <- kmeans(private$dfCls, numOfClusters, nstart = 10)
       # Save the centers and clusters
-      private$centers <- private$kmeans.fit[["centers"]]
-      private$cluster <- private$kmeans.fit[["cluster"]]
+      private$centers <- private$kmeansFit[["centers"]]
+      private$cluster <- private$kmeansFit[["cluster"]]
       
       if (isTRUE(self$params$debug)) {
         print('build clusters...')
@@ -315,12 +315,6 @@ KmeansClustering <- R6Class("KmeansClustering",
       }
     },
     
-    # Plot Silhouette plot
-    getSilhouettePlot = function() {
-      dis <- dist(private$dfCls, method = "euclidean")
-      plotSilhouette(getSilhouetteInf(private$cluster,dis), col = c(1:nrow(private$centers)))
-    },
-    
     # Plot parallel coordinates plot to see how variables contributed in each cluster
     getParallelCoordinatePlot = function() {
       if (isTRUE(self$params$usePrinComp))
@@ -334,7 +328,7 @@ KmeansClustering <- R6Class("KmeansClustering",
     },
     
     getKmeansfit = function() {
-      return(private$kmeans.fit)
+      return(private$kmeansFit)
     },
     
     getConfusionMatrix = function() {
