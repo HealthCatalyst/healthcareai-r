@@ -847,13 +847,15 @@ variationAcrossGroups <- function(df,
   }
   
   # plot boxplot
-  nCol <- if (printTukeyplot) 2 else 1
+  # nCol <- if (printTukeyplot) 2 else 1
   dev.off()
   # Save graphics paramters to reset on exit
   op <- par(no.readonly = TRUE)  
   on.exit(par(op))
-  par(mfrow = c(1, nCol), bg = "transparent", cex.axis = 1, mar = c(7, 4.1, 4.1, 2.1))
   labels <- gsub("\\.", " | ", labs[,2])
+  bMar <- max(7, max(nchar(labels)) / 2)
+  par(# mfrow = c(1, nCol), 
+    bg = "transparent", cex.axis = 1, mar = c(bMar, 4.1, 4.1, 2.1))
   boxplot(df[[measureColumn]] ~ interaction(l), 
           data = df, 
           # col = my_colors[as.numeric(labs[,1])],
@@ -874,7 +876,7 @@ variationAcrossGroups <- function(df,
             main = paste("Boxplot of", measureColumn, "Across", paste(categoricalCols, collapse = ", ")),
             cex.lab = 1.25, 
             outcol = "lightcoral", 
-            xaxt = "n", 
+            xaxt = "n",
             boxwex = 0.35
             , add = TRUE
     )
@@ -882,9 +884,9 @@ variationAcrossGroups <- function(df,
   text(c(1:nlevels(interaction(l))), plotRes$stats[nrow(plotRes$stats), ] + over, labs[,1])
   
   # x axis with ticks but without labels
-  axis(1, labels = FALSE)
+  axis(1, labels = FALSE, at = seq_along(labels))
   # Plot x labs at default x position
-  text(x = seq_along(labels), y = par("usr")[3] - 1, srt = 270, adj = 0,
+  text(x = seq_along(labels), y = par("usr")[3] - 1, srt = 270, adj = -.1,
        labels = labels, xpd = TRUE)
   
   ## If printTukeyplot == TRUE, plot the tukey's test.
@@ -892,17 +894,21 @@ variationAcrossGroups <- function(df,
     
     # Sort group differences matrix to plot in order of ascending p-value
     TUKEY[[1]] <- TUKEY[[1]][order(TUKEY[[1]][ , 4], -TUKEY[[1]][ , 1]), ]
-    
+    tLabs <- gsub("\\.", "|", rev(rownames(TUKEY[[1]])))
+    lMar <- max(6, max(nchar(tLabs)) / 3)
+    lCEX <- if (length(tLabs) < 15) 1 else if (length(tLabs) < 25) .85 else .7
+      
     # Different colors for signicantly different groups vs. not
     cols <- ifelse(TUKEY[[1]][ , 4] <= 0.05, "red", "black")
-    # par(mar = c(4.2,9,3.8,2))
+    frame()
+    par(mar = c(4.2, lMar, 3.8, 2), ask = TRUE)
     plot(TUKEY, col = cols, yaxt = "n")
     mtext(measureColumn)
     axis(2,
          at = seq_len(nrow(TUKEY[[1]])),
-         labels = gsub("\\.", "|", rev(rownames(TUKEY[[1]]))),
+         labels = tLabs,
          las = 1,
-         cex.axis = .8)
+         cex.axis = lCEX)
   }
   
   ## Get the statistics behind boxplot
