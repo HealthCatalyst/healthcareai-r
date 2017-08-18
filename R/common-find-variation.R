@@ -115,7 +115,7 @@ createVarianceTallTable <- function(df,
   
   if (!all(categoricalCols %in% names(df))) {
     stop('One of the categoricalCols is not in the df. See the example ',
-          'at ?createVarianceTallTable')
+         'at ?createVarianceTallTable')
   }
   
   if (!all(measureColumnVect %in% names(df))) {
@@ -127,7 +127,7 @@ createVarianceTallTable <- function(df,
       class(df$COV) != "integer") {
     stop("Your COV column needs to be of class numeric or integer")
   }
-
+  
   if (class(df$VolumePercent) != "numeric" &&  
       class(df$VolumePercent) != "integer") {
     stop("Your VolumePercent column needs to be of class numeric or integer")
@@ -171,11 +171,11 @@ createVarianceTallTable <- function(df,
                     paste0(measure, "|", df[i,"COV"]))
     
     MeasureVolumeRaw <- c(MeasureVolumeRaw, 
-                       paste0(measure, "|", df[i,"VolumeRaw"]))
-  
+                          paste0(measure, "|", df[i,"VolumeRaw"]))
+    
     MeasureVolumePercent <- c(MeasureVolumePercent, 
-                           paste0(measure, "|", df[i,"VolumePercent"]))
-  
+                              paste0(measure, "|", df[i,"VolumePercent"]))
+    
     MeasureImpact <- c(MeasureImpact, 
                        paste0(measure, "|", df[i,"Impact"]))
     
@@ -196,7 +196,7 @@ createVarianceTallTable <- function(df,
                          AboveMeanCOVFLG,
                          AboveMeanVolumeFLG,
                          stringsAsFactors = FALSE)
-
+  
   dfResult
 }
 
@@ -245,9 +245,9 @@ findVariation <- function(df,
     for (i in 1:length(measureColumn)) {
       if (class(df[[measureColumn[i]]]) != "numeric" &&  
           class(df[[measureColumn[i]]]) != "integer") {
-      stop("measureColumn needs to be of class numeric or integer. ",
-           measureColumn[i], " appears to be of type ", 
-           class(df[[measureColumn[i]]]))
+        stop("measureColumn needs to be of class numeric or integer. ",
+             measureColumn[i], " appears to be of type ", 
+             class(df[[measureColumn[i]]]))
       }
     }
   } else if (length(measureColumn) == 1) {
@@ -258,7 +258,7 @@ findVariation <- function(df,
            class(df[[measureColumn]]))
     }
   }
-
+  
   # Check that categorical columns exist and are of proper type
   if (length(categoricalCols) > 1) {
     for (i in 1:length(categoricalCols)) {
@@ -282,11 +282,11 @@ findVariation <- function(df,
     tryCatch(
       df[[dateCol]] <- as.Date(df[[dateCol]]),
       error = function(e) {
-      e$message <- paste0(dateCol, " may not be a datetime column,",
-                          " or the column may not be in format YYYY-MM-DD\n", e)
-      stop(e)
-    })
-
+        e$message <- paste0(dateCol, " may not be a datetime column,",
+                            " or the column may not be in format YYYY-MM-DD\n", e)
+        stop(e)
+      })
+    
     # Convert date into YYYY-MM
     df[[dateCol]] <- base::format(df[[dateCol]],"%Y-%m")
     
@@ -300,7 +300,7 @@ findVariation <- function(df,
   for (i in 1:length(listOfPossibleCombos)) {
     
     for (j in 1:length(measureColumn)) {
-    
+      
       currentCatColumnComboVect <- unlist(listOfPossibleCombos[i])
       
       # Prepare for aggregate - Collapse cat cols into one str, separated by +
@@ -325,8 +325,8 @@ findVariation <- function(df,
       
       dfSub$AboveMeanVolumeFLG <- ifelse(dfSub$VolumeRaw > mean(dfSub$VolumeRaw, 
                                                                 na.rm = TRUE), 
-                                        'Y', 
-                                        'N')
+                                         'Y', 
+                                         'N')
       
       # Remove rows where COV is NA (which are due to only one row in subset)
       dfSub <- healthcareai::removeRowsWithNAInSpecCol(dfSub, "COV")
@@ -341,7 +341,7 @@ findVariation <- function(df,
       if (!is.null(threshold)) {
         dfSub <- dfSub[dfSub$Impact > threshold,]
       }
-  
+      
       # If no rows in subgroup above threshold, send to next loop
       if (isTRUE(all(is.na(dfSub))) || nrow(dfSub) == 0) {
         next
@@ -351,12 +351,12 @@ findVariation <- function(df,
       dfTotal <- 
         rbind(dfTotal,
               healthcareai::createVarianceTallTable(
-                              df = dfSub, 
-                              categoricalCols = currentCatColumnComboVect,
-                              measure = measureColumn[j]))
+                df = dfSub, 
+                categoricalCols = currentCatColumnComboVect,
+                measure = measureColumn[j]))
     }
   }
-
+  
   if (nrow(dfTotal) == 0) {
     stop("No subgroups found above threshold.",
          " Try removing or lower your threshold, or select more rows")
@@ -544,23 +544,11 @@ variationAcrossGroups <- function(df,
     stop('The measure column or one of the categorical cols is not in the df')
   }
   
-  # Check that measure columns exist and are of proper type
-  if (length(measureColumn) > 1) {
-    for (i in 1:length(measureColumn)) {
-      if (class(df[[measureColumn[i]]]) != "numeric" &&  
-          class(df[[measureColumn[i]]]) != "integer") {
-        stop("measureColumn needs to be of class numeric or integer. ",
-             measureColumn[i], " appears to be of type ", 
-             class(df[[measureColumn[i]]]))
-      }
-    }
-  } else if (length(measureColumn) == 1) {
-    if (class(df[[measureColumn]]) != "numeric" &&  
-        class(df[[measureColumn]]) != "integer") {
-      stop("measureColumn needs to be of class numeric or integer. ",
-           measureColumn, " appears to be of type ", 
-           class(df[[measureColumn]]))
-    }
+  # Check that measure column exists and is of proper type
+  if (!is.numeric(df[[measureColumn]])) {
+    stop("measureColumn needs to be of class numeric or integer. ",
+         measureColumn, " appears to be of type ", 
+         class(df[[measureColumn]]))
   }
   
   # Check that categorical columns exist and are of proper type
@@ -603,20 +591,20 @@ variationAcrossGroups <- function(df,
     } else if (levelOfDateGroup == "quarterly") {
       # Quarterly: convert date into YYYY-MM
       df[[dateCol]] <- paste(base::format(df[[dateCol]], "%Y/"), 0, 
-                           sub( "Q", "", quarters(df[[dateCol]], abbreviate = TRUE)), 
-                           sep = "")
+                             sub( "Q", "", quarters(df[[dateCol]], abbreviate = TRUE)), 
+                             sep = "")
     } else if (levelOfDateGroup == "monthly") {
       # Monthly: convert date into YYYY-MM
       df[[dateCol]] <- base::format(df[[dateCol]],"%Y/%m")
     } else if (levelOfDateGroup == "weekly") {
       # Weekly:
       df[[dateCol]] <- paste(base::format(df[[dateCol]], "%Y/"), 
-                           strftime(df[[dateCol]], format = "%W"), 
-                           sep = "")
+                             strftime(df[[dateCol]], format = "%W"), 
+                             sep = "")
     } else {
       stop("levelOfDateGroup must be yearly, quarterly, monthly or weekly")
     }
-
+    
     # Add dateCol to categoricalList (now that it's just YYYY-MM)
     categoricalCols <- c(categoricalCols, dateCol)
   }
@@ -632,14 +620,14 @@ variationAcrossGroups <- function(df,
   # Function from package "multcompView": Convert a vector of hyphenated names into 
   # a character matrix with 2 columns containing the names split in each row
   vec2mat2 <- function(x, sep = "-") {
-      splits <- strsplit(x, sep)
-      n.spl <- sapply(splits, length)
-      if (any(n.spl != 2)) 
-        stop("Names must contain exactly one '", sep, "' each;  instead got ", 
-             paste(x, collapse = ", "))
-      x2 <- t(as.matrix(as.data.frame(splits)))
-      dimnames(x2) <- list(x, NULL)
-      x2
+    splits <- strsplit(x, sep)
+    n.spl <- sapply(splits, length)
+    if (any(n.spl != 2)) 
+      stop("Names must contain exactly one '", sep, "' each;  instead got ", 
+           paste(x, collapse = ", "))
+    x2 <- t(as.matrix(as.data.frame(splits)))
+    dimnames(x2) <- list(x, NULL)
+    x2
   }
   
   # Group the levels that are not different each other together
@@ -847,146 +835,94 @@ variationAcrossGroups <- function(df,
   for (i in 1:length(categoricalCols)) {
     l[[i]] <- df[[categoricalCols[i]]]
   }
-
-  # A panel of colors to draw each group with the same color 
-  # (from http://tools.medialab.sciences-po.fr/iwanthue/)
-    
-  my_colors <- c(rgb(255,172,95,maxColorValue = 255),
-                 rgb(79,67,199,maxColorValue = 255),
-                 rgb(197,205,22,maxColorValue = 255),
-                 rgb(80,122,255,maxColorValue = 255),
-                 rgb(226,198,21,maxColorValue = 255),
-                 rgb(157,54,189,maxColorValue = 255),
-                 rgb(57,221,104,maxColorValue = 255),
-                 rgb(139,27,151,maxColorValue = 255),
-                 rgb(126,220,93,maxColorValue = 255),
-                 rgb(37,74,180,maxColorValue = 255),
-                 rgb(135,176,0,maxColorValue = 255),
-                 rgb(2,111,224,maxColorValue = 255),
-                 rgb(112,156,0,maxColorValue = 255),
-                 rgb(82,148,255,maxColorValue = 255),
-                 rgb(160,160,0,maxColorValue = 255),
-                 rgb(138,39,133,maxColorValue = 255),
-                 rgb(0,133,41,maxColorValue = 255),
-                 rgb(255,99,181,maxColorValue = 255),
-                 rgb(0,165,111,maxColorValue = 255),
-                 rgb(182,0,96,maxColorValue = 255),
-                 rgb(48,216,245,maxColorValue = 255),
-                 rgb(219,48,38,maxColorValue = 255),
-                 rgb(8,179,255,maxColorValue = 255),
-                 rgb(202,113,0,maxColorValue = 255),
-                 rgb(74,167,255,maxColorValue = 255),
-                 rgb(179,130,0,maxColorValue = 255),
-                 rgb(57,78,150,maxColorValue = 255),
-                 rgb(188,207,108,maxColorValue = 255),
-                 rgb(107,63,138,maxColorValue = 255),
-                 rgb(118,117,0,maxColorValue = 255),
-                 rgb(245,159,255,maxColorValue = 255),
-                 rgb(81,87,26,maxColorValue = 255),
-                 rgb(215,186,252,maxColorValue = 255),
-                 rgb(167,66,0,maxColorValue = 255),
-                 rgb(82,196,255,maxColorValue = 255),
-                 rgb(185,0,43,maxColorValue = 255),
-                 rgb(1,164,157,maxColorValue = 255),
-                 rgb(255,86,100,maxColorValue = 255),
-                 rgb(137,134,187,maxColorValue = 255),
-                 rgb(255,127,85,maxColorValue = 255),
-                 rgb(245,176,236,maxColorValue = 255),
-                 rgb(108,77,23,maxColorValue = 255),
-                 rgb(255,170,196,maxColorValue = 255),
-                 rgb(210,199,132,maxColorValue = 255),
-                 rgb(157,25,89,maxColorValue = 255),
-                 rgb(171,105,96,maxColorValue = 255),
-                 rgb(122,62,101,maxColorValue = 255),
-                 rgb(255,133,152,maxColorValue = 255),
-                 rgb(135,60,42,maxColorValue = 255),
-                 rgb(137,56,65,maxColorValue = 255))
   
-  pvalueDf <- list()
-  plotRes <- list()
   
-  for (i in 1:length(measureColumn)) {
-    model <- lm(df[[measureColumn[i]]] ~ interaction(l))
-    ANOVA <- aov(model)
-    # Tukey test to study each pair of treatment :
-    TUKEY <- TukeyHSD(x = ANOVA, 'interaction(l)',conf.level = 0.95, ordered = TRUE)
-    labs <- generate_label_df(TUKEY, 'interaction(l)')
-    if (nrow(labs) > 2) {
-      labs <- labs[levels(interaction(l)),]
-    }
-    
-    # plot boxplot
-    devAskNewPage(ask = TRUE)
-    par(bg = "transparent", cex.axis = 1, mar = c(7, 4.1, 4.1, 2.1))
-    labels <- labs[,2]
-    a <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, col = my_colors[as.numeric(labs[,1])],
-                 ylab = measureColumn[i], ylim = c(min(df[measureColumn[[i]]], na.rm = TRUE), 
-                                                   1.1*max(df[[measureColumn[i]]], na.rm = TRUE)),
-                 cex.lab = 1.25, xaxt = "n")
-    # Now set the plot region to grey
-    rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "grey90")
-    grid(nx = NULL, ny = NULL, lwd = 1, lty = 3, col = "white") #grid over boxplot
-    par(new = TRUE)
-    a <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, 
-                 col = my_colors[as.numeric(labs[,1])],
-                 ylab = measureColumn[i], ylim = c(min(df[measureColumn[[i]]]) , 1.1*max(df[[measureColumn[i]]])),
-                 main = paste("Boxplot of", measureColumn[i], "Across", paste(categoricalCols,collapse = " ")),
-                 cex.lab = 1.25, outcol = "lightcoral", xaxt = "n", boxwex = 0.35, add = TRUE)
-    over = 0.1*max(a$stats[nrow(a$stats),] )
-    text(c(1:nlevels(interaction(l))) , a$stats[nrow(a$stats),] + over, labs[,1],
-         col = my_colors[as.numeric(labs[,1])])
-    
-    # x axis with ticks but without labels
-    axis(1, labels = FALSE)
-    # Plot x labs at default x position
-    text(x = seq_along(labels), y = par("usr")[3] - 1, srt = 45, adj = 1,
-         labels = labels, xpd = TRUE)
-    
-    ## Get the statistics behind boxplot
-    plotRes[[i]] <- boxplot(df[[measureColumn[i]]]~interaction(l), data = df, plot = FALSE)
-    
-    # plot 95% family-wise confidence level
-    tab <- TUKEY$`interaction(l)`
-    
-    if (nrow(tab) != 1) {
-      tab <- tab[order(tab[,4],-tab[,2]),]
-    }
-    
-    TUKEY$`interaction(l)` <- tab
-    
-    # Create tables with pvalue for each pair of groups
-    target <- rep(measureColumn[i], nrow(tab))
-    pvalueDf[[i]] <- data.frame(Measure = target,
-                                Groups = rownames(tab),p_value = tab[,4])
-    rownames(pvalueDf[[i]]) <- NULL
-    
-    if (length(TUKEY$'interaction(l)'[,4]) == 1) {
-      psig <- as.numeric(TUKEY$'interaction(l)'[,2]*TUKEY$'interaction(l)'[,3] >= 0 ) + 1
-    } else {
-      psig <- as.numeric(apply(TUKEY$'interaction(l)'[,2:3],1,prod) >= 0 ) + 1
-    }
-    
-    ## If printTukeyplot == TRUE, plot the tukey's test.
-    if (printTukeyplot == TRUE) {
-      devAskNewPage(ask = TRUE)
-      par(mar = c(4.2,9,3.8,2))
-      plot(TUKEY,col = psig, yaxt = "n")
-      legend("bottomright", legend = measureColumn[i],  cex = 1.25)
-      text(x = 0, labels = measureColumn[i])
-      for (j in 1:length(psig)) {
-        axis(2,at = j,labels = rownames(TUKEY$'interaction(l)')[length(psig) - j + 1],
-             las = 1,cex.axis = .8,col.axis = psig[length(psig) - j + 1])
-        }
-      }
-  } 
-
-  pvalRes <- data.frame()
-  for (i in 1:length(measureColumn)) {
-    pvalRes <- rbind(pvalRes,pvalueDf[[i]])
+  model <- lm(df[[measureColumn]] ~ interaction(l))
+  ANOVA <- aov(model)
+  # Tukey test to study each pair of treatment :
+  TUKEY <- TukeyHSD(x = ANOVA, conf.level = 0.95, ordered = TRUE)
+  labs <- generate_label_df(TUKEY, 'interaction(l)')
+  if (nrow(labs) > 2) {
+    labs <- labs[levels(interaction(l)),]
   }
-  pvalRes <- format(pvalRes, digits = 6)
   
-  if (isTRUE(printTable)) {
+  # plot boxplot
+  nCol <- if (printTukeyplot) 2 else 1
+  dev.off()
+  # Save graphics paramters to reset on exit
+  op <- par(no.readonly = TRUE)  
+  on.exit(par(op))
+  par(mfrow = c(1, nCol), bg = "transparent", cex.axis = 1, mar = c(7, 4.1, 4.1, 2.1))
+  labels <- gsub("\\.", " | ", labs[,2])
+  boxplot(df[[measureColumn]] ~ interaction(l), 
+          data = df, 
+          # col = my_colors[as.numeric(labs[,1])],
+          yaxt = "n",
+          ylim = c(min(df[[measureColumn]], na.rm = TRUE), 1.1 * max(df[[measureColumn]], na.rm = TRUE)),
+          cex.lab = 1.25, 
+          xaxt = "n")
+  # Now set the plot region to grey
+  rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "grey90")
+  grid(nx = NULL, ny = NULL, lwd = 1, lty = 3, col = "white") #grid over boxplot
+  # par(new = TRUE)
+  plotRes <- 
+    boxplot(df[[measureColumn]] ~ interaction(l), 
+            data = df, 
+            col = "white",  # my_colors[as.numeric(labs[,1])],
+            ylab = measureColumn,
+            ylim = c(min(df[[measureColumn]], na.rm = TRUE), 1.1 * max(df[[measureColumn]], na.rm = TRUE)),
+            main = paste("Boxplot of", measureColumn, "Across", paste(categoricalCols, collapse = ", ")),
+            cex.lab = 1.25, 
+            outcol = "lightcoral", 
+            xaxt = "n", 
+            boxwex = 0.35
+            , add = TRUE
+    )
+  over = 0.1*max(plotRes$stats[nrow(plotRes$stats),] )
+  text(c(1:nlevels(interaction(l))), plotRes$stats[nrow(plotRes$stats), ] + over, labs[,1])
+  
+  # x axis with ticks but without labels
+  axis(1, labels = FALSE)
+  # Plot x labs at default x position
+  text(x = seq_along(labels), y = par("usr")[3] - 1, srt = 270, adj = 0,
+       labels = labels, xpd = TRUE)
+  
+  ## If printTukeyplot == TRUE, plot the tukey's test.
+  if (printTukeyplot == TRUE) {
+    
+    # Sort group differences matrix to plot in order of ascending p-value
+    TUKEY[[1]] <- TUKEY[[1]][order(TUKEY[[1]][ , 4], -TUKEY[[1]][ , 1]), ]
+    
+    # Different colors for signicantly different groups vs. not
+    cols <- ifelse(TUKEY[[1]][ , 4] <= 0.05, "red", "black")
+    # par(mar = c(4.2,9,3.8,2))
+    plot(TUKEY, col = cols, yaxt = "n")
+    mtext(measureColumn)
+    axis(2,
+         at = seq_len(nrow(TUKEY[[1]])),
+         labels = gsub("\\.", "|", rev(rownames(TUKEY[[1]]))),
+         las = 1,
+         cex.axis = .8)
+  }
+  
+  ## Get the statistics behind boxplot
+  # plotRes <- boxplot(df[[measureColumn]] ~ interaction(l), data = df, plot = FALSE)
+  
+  # Create tables with pvalue for each pair of groups
+  # Get 95% family-wise confidence level
+  pvalueDF <- as.data.frame(TUKEY[[1]])
+  pvalueDF$Groups <- rownames(pvalueDF)
+  rownames(pvalueDF) <- NULL
+  # Arrange this data frame
+  pvalueDF <- pvalueDF[order(pvalueDF$`p adj`), 
+                       which(names(pvalueDF) %in% c("Groups", "diff", "p adj"))]
+  names(pvalueDF)[1:2] <- c("Mean Difference", "Adjusted p-value")
+  pvalueDF <- pvalueDF[, c(3, 1, 2)]
+  
+  
+  # } 
+  
+  if (printTable) {
     
     # Return tables with mean/std and quartiles
     resTable <- list()
@@ -997,60 +933,52 @@ variationAcrossGroups <- function(df,
       compl[[i]] <- completeDf[[categoricalCols[i]]]
     }
     
-    for (j in 1:length(measureColumn)) {
-      completeDf$newcol <- interaction(compl)
-      levels <- unique(completeDf$newcol)
-      means <- c()
-      std <- c()
-      minVal <- c()
-      firstQuartile <- c()
-      m <- c()
-      thirdQuartile <- c()
-      maxVal <- c()
-      volumnRaw <- c()
-      impact <- c()
-      for (i in 1:length(levels)) {
-        means[i] <- mean(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
-        std[i] <- sd(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
-        minVal[i] <- min(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
-        firstQuartile[i] <- quantile(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], 0.25, na.rm = T)
-        m[i] <- median(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
-        thirdQuartile[i] <- quantile(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], 0.75, na.rm = T)
-        maxVal[i] <- max(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]], na.rm = T)
-        volumnRaw[i] <- length(completeDf[completeDf$newcol == levels[i],][[measureColumn[j]]])
-      }
-      cov <- std/means
-      impact <- cov*volumnRaw
-      measures <- rep(measureColumn[j], length(levels))
-      # Output the table
-      resTable[[j]] <- data.frame(measure = measures, group = levels, Mean = means, 
-                                  Std = std, COV = cov, Min = minVal, 
-                                  Q1 = firstQuartile, Median = m, Q3 = thirdQuartile, Max = maxVal,
-                                  VolumnRaw = volumnRaw, Impact = impact)
+    completeDf$newcol <- interaction(compl)
+    levels <- unique(completeDf$newcol)
+    means <- c()
+    std <- c()
+    minVal <- c()
+    firstQuartile <- c()
+    m <- c()
+    thirdQuartile <- c()
+    maxVal <- c()
+    volumnRaw <- c()
+    impact <- c()
+    for (i in 1:length(levels)) {
+      means[i] <- mean(completeDf[completeDf$newcol == levels[i],][[measureColumn]], na.rm = T)
+      std[i] <- sd(completeDf[completeDf$newcol == levels[i],][[measureColumn]], na.rm = T)
+      minVal[i] <- min(completeDf[completeDf$newcol == levels[i],][[measureColumn]], na.rm = T)
+      firstQuartile[i] <- quantile(completeDf[completeDf$newcol == levels[i],][[measureColumn]], 0.25, na.rm = T)
+      m[i] <- median(completeDf[completeDf$newcol == levels[i],][[measureColumn]], na.rm = T)
+      thirdQuartile[i] <- quantile(completeDf[completeDf$newcol == levels[i],][[measureColumn]], 0.75, na.rm = T)
+      maxVal[i] <- max(completeDf[completeDf$newcol == levels[i],][[measureColumn]], na.rm = T)
+      volumnRaw[i] <- length(completeDf[completeDf$newcol == levels[i],][[measureColumn]])
     }
+    cov <- std/means
+    impact <- cov*volumnRaw
+    measures <- rep(measureColumn, length(levels))
+    # Output the table
+    resTable <- data.frame(measure = measures, group = levels, Mean = means, 
+                           Std = std, COV = cov, Min = minVal, 
+                           Q1 = firstQuartile, Median = m, Q3 = thirdQuartile, Max = maxVal,
+                           VolumnRaw = volumnRaw, Impact = impact)
     
-    tabRes <- data.frame()
-    for (i in 1:length(measureColumn)) {
-      tabRes <- rbind(tabRes,resTable[[i]])
-    }
-    tabRes <- format(tabRes, digits = 3)
-    outDf <- list(pvalRes,tabRes)
-    names(outDf) <- c("P value for each pair of groups", "Basic statistics of each group")
-    if (boxplotStats == FALSE) {
+    resTable <- format(resTable, digits = 3)
+    outDf <- list(pvalueDF, resTable)
+    names(outDf) <- c("Multiple-comparison adjusted p-values for each pair of groups", 
+                      "Basic statistics of each group")
+    if (!boxplotStats) {
       return(outDf)
     } else {
-      names(plotRes) <- measureColumn
-      out <- list(outDf,plotRes)
-      return(out)
+      return(list(outDf, plotRes))
     }
   }
   
-  if (printTable == FALSE && boxplotStats == TRUE) {
-    names(plotRes) <- measureColumn
+  if (!printTable && boxplotStats) {
     return(plotRes)
   }
   
-  if (printTable == FALSE && boxplotStats == FALSE) {
-    return()
+  if (!printTable && boxplotStats) {
+    stop("Shouldn't get here!")
   }
 }
