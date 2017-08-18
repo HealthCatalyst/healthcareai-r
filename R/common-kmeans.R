@@ -57,7 +57,7 @@ pcaAnalysis <- function(df) {
   #compute variance
   pcVar <- PcSd^2
   #proportion of variance explained
-  propVarExplained <- prVar/sum(prVar)
+  propVarExplained <- pcVar/sum(pcVar)
   res <- list(PCs=data.frame(pcNum), prop_of_var=propVarExplained)
   return(res)
 }
@@ -242,17 +242,17 @@ calculateConfusion <- function(labels, clusters) {
     confusionMatrix <- rbind(confusionMatrix, td[td$state == td$state[i],3]/total)
   }
   rownames(confusionMatrix) <- td[1:numOfLabels,1]
-  return(confusionMatrix)
+  return(as.data.frame(confusionMatrix))
 }
 
 #' @title
-#' Assign labels to the clusters 
+#' Assign labels to the kmeans confusion matrix 
 #'
-#' @description compute the distance of a point from a line given the 
-#' x, y axes of the point and the slope and intercept of the line.
-#' @param cm A confusion matrix, with each row converting to percentage
-#' @param k A number, number of clusters
-#' @return A list of length k, showing the labels that are assigned to each cluster.
+#' @description Finds the correct label for a the kmeans confusion matrix. This function
+#' assumes that the most populated cluster is the correct one for a given label.
+#' @param cm A square dataframe that holds a confusion matrix.
+#' Rownames must correspond to correct labels.
+#' @return A character vector of the label names.
 #'
 #' @export
 #' @references \url{http://healthcare.ai}
@@ -264,21 +264,17 @@ calculateConfusion <- function(labels, clusters) {
 #' labs <- iris[,5]
 #' cls <- kmeans.fit[["cluster"]]
 #' cm <- calculateConfusion(labels = labs, clusters = cls)
-#' assignClusterLabels(cm, 3)
+#' assignClusterLabels(cm)
 #' 
-assignClusterLabels <- function(cm, k) {
-  # Take the cluster label from the highest percentage in that column
-  cluster.labels <- list()
-  for (i in 1:k) {
-    cluster.labels <- rbind(cluster.labels, row.names(cm)[match(max(cm[,i]), cm[,i])])
+assignClusterLabels <- function(cm) {
+    # Error check to make sure the number of clusters and labels are equal.
+  if (ncol(cm)!=nrow(cm)){
+    stop("You must use the same number of clusters and labels")
   }
-
-  # Make sure all labels are included
-  for (l in rownames(cm)) {
-    if (!(l %in%  cluster.labels)) {
-      cluster.number <- match(max(cm[l,]), cm[l,])
-      cluster.labels[[cluster.number]] <- c(cluster.labels[[cluster.number]], l)
-    }
+  # Take the cluster label from the highest percentage in that row
+  clusterLabels <- character(length = length(rownames(cm)))
+  for (i in 1:length(rownames(cm))) {
+    clusterLabels[which(cm[i,]==max(cm[i,]))] <- rownames(cm)[i]
   }
-  return(cluster.labels)
+  return(clusterLabels)
 }

@@ -176,7 +176,7 @@ cl2$getKmeansfit()
 
 ### Step 3: Compare the clustering result with the original labels
 
-The confusion matrix showes that all iris setosa are assigned to cluster 2. 
+The confusion matrix shows that all iris setosa are assigned to cluster 2. 
 78% of iris versicolor and 28% of iris virginica are assigned to cluster 1. 22% of iris versicolor and 72% of iris virginica are assigned to cluster 3. Hence the best way to label the clusters is to label cluster 1 with versicolor, cluster 2 with setosa and cluster 3 with virginica. 
 
 ```r
@@ -185,20 +185,7 @@ cl2$getClusterLabels()
 ```
 ![comparison between clustering result and original labels](img/clusteringResultVsOriginalLabels.png)
 
-### Step 4: Visualization of the clustering 
-Besides the 2D visualization plot, `KmeansClustering` also contains [silhouette plot](https://en.wikipedia.org/wiki/Silhouette_(clustering)) and [parallel coordinates plot](https://en.wikipedia.org/wiki/Parallel_coordinates). 
- 
-```r
-cl2$getSilhouettePlot()
-```
-![silhouette plot](img/clusteringSilhouettePlot.png)
-
-```r
-cl2$getParallelCoordinatePlot()
-```
-![parallel coordinates plot](img/clusteringParallelCoordinatePlot.png)
-
-### Step 5: Get the output data frame
+### Step 4: Get the output data frame
 ```r
 outDf_iris <- cl2$getOutDf()
 head(outDf_iris)

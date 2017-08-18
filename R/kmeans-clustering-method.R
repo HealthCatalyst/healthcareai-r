@@ -64,9 +64,6 @@
 #' 
 #' # Get the 2D representation of the cluster solution
 #' cl$get2DClustersPlot()
-#'  
-#' # Get the sillhouette plot
-#' cl$getSilhouettePlot()
 #' 
 #' # Get a confusion matrix if labelCol exists
 #' cl$getConfusionMatrix()
@@ -130,6 +127,7 @@ KmeansClustering <- R6Class("KmeansClustering",
   private = list(
     # Get kmeans model
     kmeansFit = NA,
+    scaledDf = NA,
     confusionMatrix = NA,
     optimalNumOfClusters = NA,
     optimalNumOfPCs = NA,
@@ -153,7 +151,7 @@ KmeansClustering <- R6Class("KmeansClustering",
     },
 
     performPCA = function() {
-    # User set usePrinComp to TRUE. Calculate principle components and apply
+    # Calculate principle components for plotting.
       if (isTRUE(self$params$debug)) {
         print('Doing principle component analysis...')
       }
@@ -161,12 +159,15 @@ KmeansClustering <- R6Class("KmeansClustering",
       private$PCs <- pcaRes[['PCs']]
       private$propVarEx <- pcaRes[['prop_of_var']]
 
-      # User specified number of PCs to use
-      if (!is.null(self$params$numOfPrinComp)) {
-        private$dfCls <- private$PCs[,1:self$params$numOfPrinComp]
+      if (self$params$usePrinComp == FALSE) {
+        private$dfCls <- private$scaledDf
 
-      # User didn't specify number of PCs to use. Calculate from elbow plot.
-      } else {
+      # PCA=TRUE and user specified number of PCs to use
+      } else if (!is.null(self$params$numOfPrinComp)) {
+        private$dfCls <- private$PCs[,1:self$params$numOfPrinComp]
+      
+      # PCA=TRUE and user didn't specify number of PCs to use. Calculate from elbow plot.
+      } else if (is.null(private$optimalNumOfPCs)) {
         if (isTRUE(self$params$debug)) {
           print('Finding the optimal number of principle components...')
         }
@@ -178,12 +179,20 @@ KmeansClustering <- R6Class("KmeansClustering",
         private$dfCls <- private$PCs[,1:private$optimalNumOfPCs]
       }
     },
+    
+    getConfusionMatrix = function() {
+      if (nchar(self$params$labelCol) == 0) 
+        stop("This function is unavailable since no labelCol is provided.")
+      else return(private$confusionMatrix)
+    },
 
     kmeansConfusionMatrix = function() {
       # TODO replace with xgb shared function.
       private$confusionMatrix <- calculateConfusion(private$labelColValues, private$cluster)
-      private$clusterLabels <- assignClusterLabels(private$confusionMatrix, 
-                                                   nrow(private$centers))
+      private$clusterLabels <- assignClusterLabels(private$confusionMatrix)
+      # Apply labels and sort.
+      names(private$confusionMatrix) <- private$clusterLabels
+      private$confusionMatrix <- private$confusionMatrix[ , order(names(private$confusionMatrix))]
     },
     
     # Perform clustering
@@ -195,7 +204,7 @@ KmeansClustering <- R6Class("KmeansClustering",
       scaleRes <- dataScale(self$params$df)
       private$meanVec <- scaleRes[['means']]
       private$sdVec <- scaleRes[['standard_deviations']]
-      scaledDf <- scaleRes[['scaled_df']]
+      private$scaledDf <- scaleRes[['scaled_df']]
 
       # If the numOfClusters is not given, calculate optimal NumOfClusters 
       # from findElbow()
@@ -205,7 +214,7 @@ KmeansClustering <- R6Class("KmeansClustering",
         # Find the optimal number of clusters
         maxClusters <- 15 # Maximal number of clusters
         private$wss <- sapply(1:maxClusters, 
-                              function(k){kmeans(scaledDf, k, nstart = 3)$TotalWithinSS})
+                              function(k){kmeans(private$scaledDf, k, nstart = 3)$TotalWithinSS})
         private$optimalNumOfClusters <- findElbow(private$wss)
         if (isTRUE(self$params$debug)) {
           print('Finding the optimal number of clusters...')
@@ -213,14 +222,9 @@ KmeansClustering <- R6Class("KmeansClustering",
         numOfClusters <- private$optimalNumOfClusters
       }
       
-      # PCA
+      # Do PCA for plotting.
       # Default to skipping PCA.
-      if (self$params$usePrinComp == FALSE){
-        private$dfCls <- scaledDf
-      # User set usePrinComp to TRUE. Calculate principle components and apply
-      } else { 
-        private$performPCA()
-      }
+      private$performPCA()
 
       # Build clusters
       # Run K-Means and save the result
@@ -240,29 +244,61 @@ KmeansClustering <- R6Class("KmeansClustering",
           print('Generating confusion matrix...')
         }
         private$kmeansConfusionMatrix()
+
+        from <- 1:length(unique(private$labelColValues))
+        to <- private$clusterLabels
+        map = setNames(to,from)
+        private$cluster <- map[private$cluster]
       }
     },
     
     ## Generate the data frame that Combine grain.col, cluster labels, 
     ## and time to be put back into SAM table
+    # TODO add a distance metric to the output.
     createDf = function() {
       dtStamp <- as.POSIXlt(Sys.time())
-      private$outDf <- data.frame(
-        0,                                 # BindingID
-        'R',                               # BindingNM
-        dtStamp,                           # LastLoadDTS
-        private$grainColValues,            # GrainID
-        private$labelColValues,            # labelCol
-        private$cluster)                   
-      
-      colnames(private$outDf) <- c(
-        "BindingID",
-        "BindingNM",
-        "LastLoadDTS",
-        self$params$grainCol,
-        self$params$labelCol,
-        "cluster"
-      )
+
+      # If a label was provided
+      if (nchar(self$params$labelCol) != 0) {
+        if (isTRUE(self$params$debug)) {
+          print('Generating output dataframe using labels in labelCol...')
+        }
+        private$outDf <- data.frame(
+          0,                                 # BindingID
+          'R',                               # BindingNM
+          dtStamp,                           # LastLoadDTS
+          private$grainColValues,            # GrainID
+          private$labelColValues,            # labelCol
+          private$cluster)                   
+        
+        colnames(private$outDf) <- c(
+          "BindingID",
+          "BindingNM",
+          "LastLoadDTS",
+          self$params$grainCol,
+          self$params$labelCol,
+          "assignedCluster"
+        )
+      # No label column
+      } else {
+        if (isTRUE(self$params$debug)) {
+        print('Generating output dataframe without labels...')
+        }
+        private$outDf <- data.frame(
+          0,                                 # BindingID
+          'R',                               # BindingNM
+          dtStamp,                           # LastLoadDTS
+          private$grainColValues,            # GrainID
+          private$cluster)                   
+        
+        colnames(private$outDf) <- c(
+          "BindingID",
+          "BindingNM",
+          "LastLoadDTS",
+          self$params$grainCol,
+          "assignedCluster"
+        )
+      }
       
       # Remove columns that are only NA
       private$outDf <- removeColsWithOnlyNA(private$outDf)
@@ -308,7 +344,7 @@ KmeansClustering <- R6Class("KmeansClustering",
       abline(v = private$optimalNumOfPCs, lty = 2)
     },
     
-    # Generawte elbow plot for k = 2 to k = 15
+    # Generate elbow plot for k = 2 to k = 15
     getElbowPlot = function() {
       plot(1:15, private$wss,
            type = "b", pch = 19, frame = FALSE, 
@@ -350,21 +386,7 @@ KmeansClustering <- R6Class("KmeansClustering",
     
     getKmeansfit = function() {
       return(private$kmeansFit)
-    },
-    
-    getConfusionMatrix = function() {
-      if (nchar(self$params$labelCol) == 0) 
-        stop("This function is unavailable since no labelCol is provided.")
-      else return(private$confusionMatrix)
-    },
-    
-    getClusterLabels = function() {
-      if (nchar(self$params$labelCol) == 0) 
-        stop("This function is unavailable since no labelCol is provided.")
-      else return(private$clusterLabels)
     }
-    
   )
-  
 )
 

@@ -2,21 +2,20 @@
 % Please edit documentation in R/common-kmeans.R
 \name{assignClusterLabels}
 \alias{assignClusterLabels}
-\title{Assign labels to the clusters}
+\title{Assign labels to the kmeans confusion matrix}
 \usage{
-assignClusterLabels(cm, k)
+assignClusterLabels(cm)
 }
 \arguments{
-\item{cm}{A confusion matrix, with each row converting to percentage}
-
-\item{k}{A number, number of clusters}
+\item{cm}{A square dataframe that holds a confusion matrix.
+Rownames must correspond to correct labels.}
 }
 \value{
-A list of length k, showing the labels that are assigned to each cluster.
+A character vector of the label names.
 }
 \description{
-compute the distance of a point from a line given the 
-x, y axes of the point and the slope and intercept of the line.
+Finds the correct label for a the kmeans confusion matrix. This function
+assumes that the most populated cluster is the correct one for a given label.
 }
 \examples{
 data(iris)
@@ -25,7 +24,7 @@ kmeans.fit <- kmeans(iris[,1:4],3)
 labs <- iris[,5]
 cls <- kmeans.fit[["cluster"]]
 cm <- calculateConfusion(labels = labs, clusters = cls)
-assignClusterLabels(cm, 3)
+assignClusterLabels(cm)
 
 }
 \references{
