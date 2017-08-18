@@ -430,20 +430,17 @@ getPipedValue <- function(string) {
 
 #' @title
 #' Find variation across groups
-#' @description Plot a boxplot to compare the variation across the groups. 
+#' @description Plot boxplot and perform ANOVA and Tukey's HSD statistical tests to compare variation in a numeric variable (measureColumn) across groups (categoricalCols). 
 #' @param df A dataframe
-#' @param categoricalCols Vector of strings representing categorical column(s)
-#' @param measureColumn Vector of strings representing measure column(s)
-#' @param printTukeyplot Optinal, default is FALSE. If TRUE, presents the plot 
-#' returned by the Tukey's test.
-#' @param printTable Optional, default is TRUE. FALSE: not to show the table of  
-#' mean/std and quartiles and the table of p values.
-#' @param boxplotStats Optinal, defalut is FALSE. If TRUE, returns the statistics
-#' behindthe boxplot.
-#' @param dateCol Optional. A date(time) column to group by (done by month as default).
-#' @param levelOfDateGroup Optional. Specify how to group the date(time) column,
-#' can be yearly,quarterly,monthly(default) and weekly. 
-#' @return A boxplot to compare variation across groups.
+#' @param categoricalCols Character. Vector containing the name(s) of column(s) to group by
+#' @param measureColumn Character. The name of the numeric variable of interest
+#' @param printTukeyplot Logical. Plot mean differences between groups and confidence intervals from Tukey's HSD? Default is FALSE.
+#' @param printTables Optional. Logical. In addition to the model summary table, return summary statistics for each group? Default is TRUE.
+#' @param boxplotStats Optional. Logical. Returns statistics behind the boxplot? Defalut is FALSE. 
+#' @param dateCol Optional. Date. A date(time) column to group by (grouped by month by default).
+#' @param levelOfDateGroup Optional. Character. Level at which to group dateCol. One of yearly, quarterly, monthly (default), or weekly.
+#' @param sigLevel Optional. Numeric value between zero and one giving the alpha value for Tukey HSD test, i.e. the p-value threshold for significance.
+#' @return By default, list of two data frames giving model and group summary statistics respectively. If !printTables, just the model summary table. Side effect of printing a boxplot to compare variation across groups.
 #' @export
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}} \code{\link{findVariation}} 
@@ -451,7 +448,8 @@ getPipedValue <- function(string) {
 #' \url{https://cran.r-project.org/web/packages/multcompView/index.html}
 #' @examples
 #' 
-#' ## Create the toy data set
+#' ###################### Example 1 ######################
+#' # Create a toy data set
 #' set.seed(2017)
 #' n = 200
 #' df <- data.frame(Dept = sample(c("Dept1","Dept2","Dept3"), 
@@ -472,73 +470,65 @@ getPipedValue <- function(string) {
 #' df$BP[df$Dept == "Dept1"] <- floor(df$BP[df$Dept == "Dept1"] + abs(rnorm(countA, mean = 2)))
 #' df$BP[df$Dept == "Dept2"] <- floor(df$BP[df$Dept == "Dept2"] + abs(rnorm(countB, mean = 15)))
 #' df$BP[df$Age == "Old"] <- floor(df$BP[df$Age == "Old"] + abs(rnorm(countY, mean = 20)))
-#'
 #' head(df)
-#'
-#' ## Define the parameters 
-#' categoricalCols <- c("Dept","Age")
-#' measureColumn <- c("LOS","BP")
 #' 
-#' ## Call the function
+#' # Call the function
 #' variationAcrossGroups(df = df, 
-#'                        categoricalCols = categoricalCols,
-#'                        measureColumn = measureColumn, printTukeyplot = TRUE)
+#'                       categoricalCols = c("Dept", "Age"),
+#'                       measureColumn = "LOS", 
+#'                       printTukeyplot = TRUE)
 #'                        
-#' ## Since printTukeyplot = TRUE and default of printTable is TRUE, the function 
-#' ## above will return the boxplot, the 95% family-wise confidence interval plot, 
-#' ## as well as the tables. 
-#' ## In this example, the function returns
-#' ### Two boxplots
-#' ### 1. The boxplot of LOS across the two factors, Dept and Age
-#' ###    Dept has 3 levels: Dept1, Dept2, Dept3
-#' ###    Age has 2 levels: Young and Old
-#' ###    Hence, there are a total of 6 different levels if we consider both factors:
-#' ###    Dept1.Young, Dept2.Young, Dept3.Young, Dept1.Old, Dept2.Old, Dept3.Old
-#' ###    They are shown in the x axis of the boxplot. 
-#' ###    Levels that are not significantly different one each other are
-#' ###    represented with the same letter. For example, groups Dept1.Old and Dept3.Old do
-#' ###    not have a significant difference in mean.
-#' ### 2. The boxplot of BP across the two factors, Dept and Age
-#' ###    From this boxplot, we can conclude that the group Dept2.Old has a
-#' ###    significant higher mean.
-#' ### 
-#' ### Two 95% family-wise confidence level plots
-#' ###    These are the plots that present the results returned by Tukey's test. 
-#' ###    It allows to find means of a level that are significantly different 
-#' ###    from each other, comparing all possible pairs of means with a t-test 
-#' ###    like method. Red lines indicate a significant difference between the pair
-#' ###    of groups. The order of the lines is according to the p-values, from the 
-#' ###    smallest to the largest. The notation in the bottomright of the plot is
-#' ###    the measure column used to build the plot.
-#' ### Two tables: one shows the p-values returned by the Tukey's test. And the 
-#' ### other presents the means, sd and quartiles of each group.
+#' # Since printTukeyplot = TRUE and the default of printTables is TRUE, the function 
+#' # above prints the boxplot and the 95% family-wise confidence interval plot, and
+#' # returns the summary statistics tables. The two plots show:
 #' 
-#' #########################################################################
-#' set.seed(35)                      
-#' treatment = c(rep("A", 50) , rep("B", 20) , rep("C", 40), rep("D", 80) ,  rep("E", 20))
-#' value = c( sample(2:5, 50 , replace = TRUE) , sample(6:10, 20 , replace = TRUE), 
+#' # 1. The boxplot of LOS across all combinations of the two categories, Dept and Age.
+#' #    Dept has 3 levels: Dept1, Dept2, Dept3
+#' #    Age has 2 levels: Young and Old
+#' #    Hence, there are a total of 6 different groupings, which are shown on
+#' #    the x axis of the boxplot. 
+#' #    Groups that have a shared letter are *not* significantly different. 
+#' #    For example, groups Dept1 | Young and Dept2 | Young are not significantly
+#' #    different becauese they share an "a".
+#' #    On the other hand, Dept2 | Young and Dept3 | Young are significantly 
+#' #    different because they do not share a label letter.
+#' #    not have a significant difference in mean.
+#' # 
+#' # 2. Confidence-interval level plot
+#' #    This plot present the results of the Tukey's Honest Significant Differences test. 
+#' #    It compares all possible pairs of groups and adjusts p-values for multiple comparisons.
+#' #    Red lines indicate a significant difference between the two groups at the chosen 
+#' #    significance level (0.05 by default). Groups are ordered by p-values.
+#' 
+#' ###################### Example 2 ######################
+#' # This data set has two columns, some measured blood value, and an anesthetic treatment.
+#' # There are five anesthetics in the dataset: Midazolam, Propofol, Ketamine, Thiamylal, and Diazepam.
+#' set.seed(35)
+#' df1 <- data.frame(
+#'   anesthetic = c(rep("Midazolam", 50) , rep("Propofol", 20) , rep("Ketamine", 40) , 
+#'                  rep("Thiamylal", 80) ,  rep("Diazepam", 20)),
+#'   value = c( sample(2:5, 50 , replace = TRUE) , sample(6:10, 20 , replace = TRUE), 
 #'         sample(1:7, 40 , replace = TRUE), sample(3:10, 80 , replace = TRUE) , 
 #'         sample(10:20, 20 , replace = TRUE) )
-#' df1 = data.frame(treatment,value) ## This data set has two columns, one measure
-#'                                   ## column value and one categorical column treatment.
-#'                                   ## treatment has five levels: A B C D E
-#'                                   
-#' variationAcrossGroups(df1, categoricalCols = "treatment", measureColumn = "value")
-#' ## The boxplot tells us that treatment E has a significant different mean from 
-#' ## all the other treatments. Treatment A and C have no significant difference 
-#' ## in mean and so they share the same letter, and the same for treatment B and D. 
-#' ## But the means of treatment A and C are significantly different from B,D.
+#' )                      
+#' head(df1)
 #' 
+#' variationAcrossGroups(df1, "anesthetic", "value",  printTables = FALSE, sigLevel = .01)
+#' # The boxplot tells us that anesthetic Diazepam has a significantly different mean from 
+#' # all the other treatments at alpha = 0.01. Midazolam and Ketamine are not significantly different,
+#' # so they share the letter "a"; likewise for the Propofol and Thiamylal groups.
+#' # The means of Midazolam and Ketamine are significantly different from Propofol and Thiamylal.
 #'
 
 variationAcrossGroups <- function(df, 
                                   categoricalCols,
                                   measureColumn,
                                   printTukeyplot = FALSE,
-                                  printTable = TRUE,
+                                  printTables = TRUE,
                                   boxplotStats = FALSE,
                                   dateCol = NULL,
-                                  levelOfDateGroup = "monthly") {
+                                  levelOfDateGroup = "monthly",
+                                  sigLevel = .05) {
   
   if (!all(c(categoricalCols,measureColumn,dateCol) %in% names(df))) {
     stop('The measure column or one of the categorical cols is not in the df')
@@ -570,9 +560,15 @@ variationAcrossGroups <- function(df,
     }
   }
   
+  
+  if (findInterval(1, 0:1, rightmost.closed = TRUE) != 1)
+    stop("sigLevel must be between zero and one.")
+  
   # Check if there are two many interactions
   if (length(categoricalCols) > 10) {
     stop("Check if there are two many interactions. Length of categoricalCols cannot be larger than 10.")
+  } else if (length(categoricalCols) > 3) {
+    warning(length(categoricalCols), " categorical variables is a lot of interactions to examine simultaniously. Consider looking at a subset of variables at a given time.")
   }
   
   if (!is.null(dateCol)) {
@@ -637,7 +633,7 @@ variationAcrossGroups <- function(df,
     # into a character based display in which common characters identify levels 
     # or groups that are not significantly different.
     multcompLetters <- function(x, compare = "<",
-                                threshold = 0.05, Letters = c(letters, LETTERS, "."),
+                                threshold = sigLevel, Letters = c(letters, LETTERS, "."),
                                 reversed = FALSE){
       ##
       ## 1.  Covert to logical
@@ -837,10 +833,10 @@ variationAcrossGroups <- function(df,
   }
   
   
-  model <- lm(df[[measureColumn]] ~ interaction(l))
-  ANOVA <- aov(model)
-  # Tukey test to study each pair of treatment :
-  TUKEY <- TukeyHSD(x = ANOVA, conf.level = 0.95, ordered = TRUE)
+  model <- stats::lm(df[[measureColumn]] ~ interaction(l))
+  ANOVA <- stats::aov(model)
+  # Tukey test to examine each pair of groups :
+  TUKEY <- stats::TukeyHSD(x = ANOVA, conf.level = 1 - sigLevel, ordered = TRUE)
   labs <- generate_label_df(TUKEY, 'interaction(l)')
   if (nrow(labs) > 2) {
     labs <- labs[levels(interaction(l)),]
@@ -848,15 +844,15 @@ variationAcrossGroups <- function(df,
   
   # plot boxplot
   # nCol <- if (printTukeyplot) 2 else 1
-  dev.off()
+  grDevices::dev.off()
   # Save graphics paramters to reset on exit
-  op <- par(no.readonly = TRUE)  
-  on.exit(par(op))
+  op <- graphics::par(no.readonly = TRUE)  
+  on.exit(graphics::par(op))
   labels <- gsub("\\.", " | ", labs[,2])
   bMar <- max(7, max(nchar(labels)) / 2)
-  par(# mfrow = c(1, nCol), 
+  graphics::par(# mfrow = c(1, nCol), 
     bg = "transparent", cex.axis = 1, mar = c(bMar, 4.1, 4.1, 2.1))
-  boxplot(df[[measureColumn]] ~ interaction(l), 
+  graphics::boxplot(df[[measureColumn]] ~ interaction(l), 
           data = df, 
           # col = my_colors[as.numeric(labs[,1])],
           yaxt = "n",
@@ -864,30 +860,32 @@ variationAcrossGroups <- function(df,
           cex.lab = 1.25, 
           xaxt = "n")
   # Now set the plot region to grey
-  rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "grey90")
-  grid(nx = NULL, ny = NULL, lwd = 1, lty = 3, col = "white") #grid over boxplot
+  graphics::rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "grey90")
+  graphics::grid(nx = NULL, ny = NULL, lwd = 1, lty = 3, col = "white") #grid over boxplot
   # par(new = TRUE)
   plotRes <- 
-    boxplot(df[[measureColumn]] ~ interaction(l), 
+    graphics::boxplot(df[[measureColumn]] ~ interaction(l), 
             data = df, 
             col = "white",  # my_colors[as.numeric(labs[,1])],
             ylab = measureColumn,
             ylim = c(min(df[[measureColumn]], na.rm = TRUE), 1.1 * max(df[[measureColumn]], na.rm = TRUE)),
-            main = paste("Boxplot of", measureColumn, "Across", paste(categoricalCols, collapse = ", ")),
+            main = paste("Boxplot of", measureColumn, "across", paste(categoricalCols, collapse = ", ")),
             cex.lab = 1.25, 
-            outcol = "lightcoral", 
+            outcol = grDevices::adjustcolor("black", .5), 
             xaxt = "n",
             boxwex = 0.35
             , add = TRUE
+            , lex.order = TRUE
     )
-  over = 0.1*max(plotRes$stats[nrow(plotRes$stats),] )
-  text(c(1:nlevels(interaction(l))), plotRes$stats[nrow(plotRes$stats), ] + over, labs[,1])
+  graphics::mtext("Groups that do not share a letter are significantly different.")
+  over = 0.04 * max(plotRes$stats[nrow(plotRes$stats),] )
+  graphics::text(c(1:nlevels(interaction(l))), plotRes$stats[nrow(plotRes$stats), ] + over, labs[,1])
   
   # x axis with ticks but without labels
-  axis(1, labels = FALSE, at = seq_along(labels))
+  graphics::axis(1, labels = FALSE, at = seq_along(labels))
   # Plot x labs at default x position
-  text(x = seq_along(labels), y = par("usr")[3] - 1, srt = 270, adj = -.1,
-       labels = labels, xpd = TRUE)
+  graphics::text(x = seq_along(labels), y = par("usr")[3] - 1, srt = 270, adj = 0,
+       labels = paste0("  ", labels), xpd = TRUE)
   
   ## If printTukeyplot == TRUE, plot the tukey's test.
   if (printTukeyplot == TRUE) {
@@ -895,16 +893,16 @@ variationAcrossGroups <- function(df,
     # Sort group differences matrix to plot in order of ascending p-value
     TUKEY[[1]] <- TUKEY[[1]][order(TUKEY[[1]][ , 4], -TUKEY[[1]][ , 1]), ]
     tLabs <- gsub("\\.", "|", rev(rownames(TUKEY[[1]])))
-    lMar <- max(6, max(nchar(tLabs)) / 3)
+    lMar <- max(6, max(nchar(tLabs)) / 2)
     lCEX <- if (length(tLabs) < 15) 1 else if (length(tLabs) < 25) .85 else .7
-      
+    
     # Different colors for signicantly different groups vs. not
-    cols <- ifelse(TUKEY[[1]][ , 4] <= 0.05, "red", "black")
-    frame()
-    par(mar = c(4.2, lMar, 3.8, 2), ask = TRUE)
-    plot(TUKEY, col = cols, yaxt = "n")
-    mtext(measureColumn)
-    axis(2,
+    cols <- ifelse(TUKEY[[1]][ , 4] <= sigLevel, "red", "black")
+    graphics::frame()
+    graphics::par(mar = c(4.2, lMar, 3.8, 2), ask = TRUE)
+    graphics::plot(TUKEY, col = cols, yaxt = "n")
+    graphics::mtext(paste(measureColumn, "across", paste(categoricalCols, collapse = ", ")))
+    graphics::axis(2,
          at = seq_len(nrow(TUKEY[[1]])),
          labels = tLabs,
          las = 1,
@@ -924,15 +922,16 @@ variationAcrossGroups <- function(df,
                        which(names(pvalueDF) %in% c("Groups", "diff", "p adj"))]
   names(pvalueDF)[1:2] <- c("Mean Difference", "Adjusted p-value")
   pvalueDF <- pvalueDF[, c(3, 1, 2)]
+  pvalueDF <- format(pvalueDF, digits = 3)
   
-  
-  # } 
-  
-  if (printTable) {
+  if (!printTables) {
+    return(pvalueDF)
     
-    # Return tables with mean/std and quartiles
+  } else {
+    
+    # Calculate summary stats on groups
     resTable <- list()
-    completeDf <- df[complete.cases(df),]
+    completeDf <- df[stats::complete.cases(df),]
     
     compl <- list()
     for (i in 1:length(categoricalCols)) {
@@ -952,11 +951,11 @@ variationAcrossGroups <- function(df,
     impact <- c()
     for (i in 1:length(levels)) {
       means[i] <- mean(completeDf[completeDf$newcol == levels[i],][[measureColumn]], na.rm = T)
-      std[i] <- sd(completeDf[completeDf$newcol == levels[i],][[measureColumn]], na.rm = T)
+      std[i] <- stats::sd(completeDf[completeDf$newcol == levels[i],][[measureColumn]], na.rm = T)
       minVal[i] <- min(completeDf[completeDf$newcol == levels[i],][[measureColumn]], na.rm = T)
-      firstQuartile[i] <- quantile(completeDf[completeDf$newcol == levels[i],][[measureColumn]], 0.25, na.rm = T)
-      m[i] <- median(completeDf[completeDf$newcol == levels[i],][[measureColumn]], na.rm = T)
-      thirdQuartile[i] <- quantile(completeDf[completeDf$newcol == levels[i],][[measureColumn]], 0.75, na.rm = T)
+      firstQuartile[i] <- stats::quantile(completeDf[completeDf$newcol == levels[i],][[measureColumn]], 0.25, na.rm = T)
+      m[i] <- stats::median(completeDf[completeDf$newcol == levels[i],][[measureColumn]], na.rm = T)
+      thirdQuartile[i] <- stats::quantile(completeDf[completeDf$newcol == levels[i],][[measureColumn]], 0.75, na.rm = T)
       maxVal[i] <- max(completeDf[completeDf$newcol == levels[i],][[measureColumn]], na.rm = T)
       volumnRaw[i] <- length(completeDf[completeDf$newcol == levels[i],][[measureColumn]])
     }
@@ -973,18 +972,10 @@ variationAcrossGroups <- function(df,
     outDf <- list(pvalueDF, resTable)
     names(outDf) <- c("Multiple-comparison adjusted p-values for each pair of groups", 
                       "Basic statistics of each group")
-    if (!boxplotStats) {
-      return(outDf)
-    } else {
-      return(list(outDf, plotRes))
-    }
   }
   
-  if (!printTable && boxplotStats) {
-    return(plotRes)
-  }
-  
-  if (!printTable && boxplotStats) {
-    stop("Shouldn't get here!")
-  }
+  if (boxplotStats)
+    outDf <- c(outDf, plotRes)
+
+  return(outDf)
 }
