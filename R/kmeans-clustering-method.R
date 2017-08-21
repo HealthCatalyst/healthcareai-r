@@ -179,12 +179,6 @@ KmeansClustering <- R6Class("KmeansClustering",
         private$dfCls <- private$PCs[,1:private$optimalNumOfPCs]
       }
     },
-    
-    getConfusionMatrix = function() {
-      if (nchar(self$params$labelCol) == 0) 
-        stop("This function is unavailable since no labelCol is provided.")
-      else return(private$confusionMatrix)
-    },
 
     kmeansConfusionMatrix = function() {
       # TODO replace with xgb shared function.
@@ -235,8 +229,7 @@ KmeansClustering <- R6Class("KmeansClustering",
       # Save the centers and clusters
       private$centers <- private$kmeansFit[["centers"]]
       private$cluster <- private$kmeansFit[["cluster"]]
-      
-      
+
       # Calculate confusion matrix and assign label to the clusters 
       # if labelCol exists
       if (nchar(self$params$labelCol) != 0) {
@@ -244,12 +237,27 @@ KmeansClustering <- R6Class("KmeansClustering",
           print('Generating confusion matrix...')
         }
         private$kmeansConfusionMatrix()
+        cat('Confusion matrix for cluster assignment. Given as percentage. \n')
+        print(private$confusionMatrix)
+        cat('\n')
 
         from <- 1:length(unique(private$labelColValues))
         to <- private$clusterLabels
         map = setNames(to,from)
         private$cluster <- map[private$cluster]
       }
+
+      # prepare performance metrics
+      clusterOrder <- order(private$clusterLabels)
+      self$performance <- data.frame(clusterNum=1:length(private$clusterLabels),
+                          clusterName=private$clusterLabels[clusterOrder],
+                          withinClusterSS=private$kmeansFit$withinss[clusterOrder])
+
+      # Print performance metrics
+      cat('Total sum of squares errors within clusters is:', 
+        private$kmeansFit$tot.withinss, '\n')
+      cat('Sum of squares errors in each cluster is:\n')
+      print(self$performance)
     },
     
     ## Generate the data frame that Combine grain.col, cluster labels, 
@@ -275,9 +283,9 @@ KmeansClustering <- R6Class("KmeansClustering",
           "BindingID",
           "BindingNM",
           "LastLoadDTS",
-          self$params$grainCol,
-          self$params$labelCol,
-          "assignedCluster"
+          "Grain",
+          "trueCluster",
+          "predictedCluster"
         )
       # No label column
       } else {
@@ -295,7 +303,7 @@ KmeansClustering <- R6Class("KmeansClustering",
           "BindingID",
           "BindingNM",
           "LastLoadDTS",
-          self$params$grainCol,
+          "Grain",
           "assignedCluster"
         )
       }
@@ -315,6 +323,7 @@ KmeansClustering <- R6Class("KmeansClustering",
   
   # Public members
   public = list(
+    performance = NA,
     
     # Constructor
     # p: new SuperviseModelParameters class object,
@@ -365,6 +374,7 @@ KmeansClustering <- R6Class("KmeansClustering",
            sub = paste("These two components explain",
                        format(100*sum(private$propVarEx[1:2]),digit = 3),
                        "% of the point variability"))
+      legend(x='topright', legend=self$performance$clusterName, col=self$performance$clusterName, pch=16)
       if (label == TRUE) {
         if (nchar(self$params$grainCol) == 0) 
           stop("Grain IDs are not available since no grainCol is provided")
@@ -372,6 +382,12 @@ KmeansClustering <- R6Class("KmeansClustering",
       }
     },
     
+    getConfusionMatrix = function() {
+      if (nchar(self$params$labelCol) == 0) 
+        stop("This function is unavailable since no labelCol is provided.")
+      else return(private$confusionMatrix)
+    },
+
     # Plot parallel coordinates plot to see how variables contributed in each cluster
     getParallelCoordinatePlot = function() {
       if (isTRUE(self$params$usePrinComp))
