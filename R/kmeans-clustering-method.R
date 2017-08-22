@@ -49,6 +49,10 @@
 #' @section \code{$getOutDf()}:
 #' Returns the output dataframe for writing to SQL or CSV. \cr
 #' \emph{Usage:} \code{$getOutDf()} \cr
+#' @section \code{$getConfusionMatrix()}:
+#' Returns a confusion matrix of assigned cluster vs. provided labels. Clusters are named
+#' based on maximum overlap with label. Only available if labelCol is specified. \cr
+#' \emph{Usage:} \code{$getConfusionMatrix()} \cr
 #' @section \code{$getElbowPlot()}:
 #' Plots total within cluster error vs. number of clusters. Available if the number of clusters
 #' is unspecified. \cr
@@ -57,10 +61,51 @@
 #' Plots total variance explained vs. number of principle components. Available if the number of 
 #' principle components is unspecified. \cr
 #' \emph{Usage:} \code{$getScreePlot()} \cr
+#' @section \code{$getKmeansFit()}:
+#' Returns all attributes of the kmeans fit object. \cr
+#' \emph{Usage:} \code{$getKmeansFit()} \cr
 #' @references \url{http://hctools.org/}
 #' @seealso \code{\link{healthcareai}}
 #' @references \url{https://github.com/bryanhanson/ChemoSpecMarkeR/blob/master/R/findElbow.R}
 #' @examples
+#' 
+#' #### Example using Diabetes dataset ####
+#' ptm <- proc.time()
+#' # Can delete this line in your work
+#' csvfile <- system.file("extdata", 
+#'                        "HCRDiabetesClinical.csv", 
+#'                        package = "healthcareai")
+#' # Replace csvfile with 'your/path'
+#' df <- read.csv(file = csvfile, 
+#'                header = TRUE, 
+#'                na.strings = c("NULL", "NA", ""))
+#' head(df)
+#' df$PatientID <- NULL
+#' 
+#' set.seed(42)
+#' p <- UnsupervisedModelParams$new()
+#' p$df <- df
+#' p$impute <- TRUE
+#' p$grainCol <- "PatientEncounterID"
+#' p$debug <- FALSE
+#' p$cores <- 1
+#' p$numOfClusters <- 3
+#' 
+#' # Run k means clustering
+#' cl <- KmeansClustering$new(p)
+#' cl$run()
+#' 
+#' # Get the 2D representation of the cluster solution
+#' cl$get2DClustersPlot()
+#' 
+#' # Get the output data frame
+#' dfOut <- cl$getOutDf()
+#' head(dfOut) 
+#' 
+#' print(proc.time() - ptm)
+#' 
+#' 
+#' 
 #' 
 #' #### Example using iris dataset with labels ####
 #' ptm <- proc.time()
@@ -77,7 +122,6 @@
 #' p$impute <- TRUE
 #' p$debug <- FALSE
 #' p$cores <- 1
-#' p$numOfClusters <- 3
 #' 
 #' # Run k means clustering
 #' cl <- KmeansClustering$new(p)
@@ -88,13 +132,13 @@
 #' 
 #' # Get the output data frame
 #' dfOut <- cl$getOutDf()
-#' head(dfOut)#' 
+#' head(dfOut) 
 #' 
 #' ## Write to CSV (or JSON, MySQL, etc) using plain R syntax
 #' ## write.csv(dfOut,'path/clusteringresult.csv')
 #' 
 #' print(proc.time() - ptm)
-#'
+#' 
 #' @export
 
 KmeansClustering <- R6Class("KmeansClustering",
@@ -387,7 +431,7 @@ KmeansClustering <- R6Class("KmeansClustering",
       return(private$outDf)
     },
     
-    getKmeansfit = function() {
+    getKmeansFit = function() {
       return(private$kmeansFit)
     }
   )
