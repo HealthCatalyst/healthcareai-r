@@ -123,8 +123,8 @@ KmeansClustering <- R6Class("KmeansClustering",
     
     # Check if the data type is numeric
     checkDataType = function() {
-      #print(self$params$dataType)
-      if (isNumeric(self$params$df) == FALSE) {
+      a <- lapply(self$params$df,is.numeric)
+      if (all(unlist(a)) == FALSE) {
         stop("Kmeans requires a dataframe with numeric columns. 
           Remove non-numeric columns.")
       }
@@ -187,10 +187,10 @@ KmeansClustering <- R6Class("KmeansClustering",
       # from findElbow()
       if (!is.null(self$params$numOfClusters)) {
         numOfClusters <- self$params$numOfClusters 
-      } else if (!is.null(self$params$labelCol)) {
+      } else if (nchar(self$params$labelCol) != 0) {
         numOfClusters <- length(unique(self$params$labelCol))
         if (isTRUE(self$params$debug)) {
-          cat('Clustering on', numOfClusters,' as label column contains', numOfClusters,' unique 
+          cat('Clustering on', numOfClusters,',as label column contains', numOfClusters,'unique 
             labels. If you want less/more clusters, remove the label column. \n')
         }
       } else {

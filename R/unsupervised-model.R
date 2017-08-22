@@ -55,11 +55,12 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
       if (!is.null(p$grainCol)) 
         self$params$grainCol <- p$grainCol
       
-      if (!is.null(p$labelCol)) 
+      if (nchar(self$params$labelCol) != 0) { 
         self$params$labelCol <- p$labelCol
         cat('Kmeans is ideal for unlabeled data. The label column here is meant 
-          for comparison after clustering. If you are trying to do classification,
-          we recommend that you use supervised multiclass. \n')
+            for comparison after clustering. If you are trying to do classification,
+            we recommend that you use supervised multiclass. \n')
+      }
       
       if (!is.null(p$impute))
         self$params$impute <- p$impute
@@ -204,6 +205,14 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
       
       if (isTRUE(self$params$debug) && nchar(self$params$grainCol) != 0) {
         print('Entire data set after separating out label col')
+        print(str(self$params$df))
+        print('Now creating dummy variables...')
+      }
+      
+      data <- caret::dummyVars(~., data = self$params$df, fullRank = T)
+      self$params$df <- data.frame(predict(data, newdata = self$params$df, na.action = na.pass))
+      if (isTRUE(self$params$debug) && nchar(self$params$grainCol) != 0) {
+        print('Entire data set after creating dummy variables.')
         print(str(self$params$df))
       }
     }
