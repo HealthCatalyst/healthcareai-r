@@ -146,12 +146,14 @@ KmeansClustering <- R6Class("KmeansClustering",
     checkDataType = function() {
       #print(self$params$dataType)
       if (isNumeric(self$params$df) == FALSE) {
-        stop("Your data type must be numeric in order to use kmeans.")
+        stop("Kmeans requires a dataframe with numeric columns. 
+          Remove non-numeric columns.")
       }
     },
 
     performPCA = function() {
     # Calculate principle components for plotting.
+      browser()
       if (isTRUE(self$params$debug)) {
         print('Doing principle component analysis...')
       }
@@ -208,18 +210,24 @@ KmeansClustering <- R6Class("KmeansClustering",
         # Find the optimal number of clusters
         maxClusters <- 15 # Maximal number of clusters
         private$wss <- sapply(1:maxClusters, 
-                              function(k){kmeans(private$scaledDf, k, nstart = 3)$TotalWithinSS})
+                              function(k){kmeans(private$scaledDf, k, nstart = 3)$tot.withinss})
         private$optimalNumOfClusters <- findElbow(private$wss)
+        numOfClusters <- private$optimalNumOfClusters
+
         if (isTRUE(self$params$debug)) {
           print('Finding the optimal number of clusters...')
+          cat('Optimal number of clusters is:', numOfClusters,'. Look at elbow plot with
+            $getElbowPlot to see. \n')
         }
-        numOfClusters <- private$optimalNumOfClusters
+      }
+
+      # Set cluster labels to numbers if a label column wasn't specified.
+      if (nchar(self$params$labelCol) == 0) {
+        private$clusterLabels <- 1:numOfClusters 
       }
       
-      # Do PCA for plotting.
-      # Default to skipping PCA.
+      # Do PCA for plotting. If $usePrinComp==TRUE, it will use PCA data for clustering.
       private$performPCA()
-
       # Build clusters
       # Run K-Means and save the result
       if (isTRUE(self$params$debug)) {
@@ -237,7 +245,7 @@ KmeansClustering <- R6Class("KmeansClustering",
           print('Generating confusion matrix...')
         }
         private$kmeansConfusionMatrix()
-        cat('Confusion matrix for cluster assignment. Given as percentage. \n')
+        cat('Confusion matrix for cluster assignment, given as proportion correct. \n')
         print(private$confusionMatrix)
         cat('\n')
 
@@ -275,15 +283,15 @@ KmeansClustering <- R6Class("KmeansClustering",
           0,                                 # BindingID
           'R',                               # BindingNM
           dtStamp,                           # LastLoadDTS
-          private$grainColValues,            # GrainID
+          private$grainColValues,            # Grain
           private$labelColValues,            # labelCol
-          private$cluster)                   
+          private$cluster)                   # assigned cluster
         
         colnames(private$outDf) <- c(
           "BindingID",
           "BindingNM",
           "LastLoadDTS",
-          "Grain",
+          self$params$grainCol,
           "trueCluster",
           "predictedCluster"
         )
@@ -296,15 +304,15 @@ KmeansClustering <- R6Class("KmeansClustering",
           0,                                 # BindingID
           'R',                               # BindingNM
           dtStamp,                           # LastLoadDTS
-          private$grainColValues,            # GrainID
-          private$cluster)                   
+          private$grainColValues,            # Grain
+          private$cluster)                   # assigned cluster
         
         colnames(private$outDf) <- c(
           "BindingID",
           "BindingNM",
           "LastLoadDTS",
           "Grain",
-          "assignedCluster"
+          "predictedCluster"
         )
       }
       

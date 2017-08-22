@@ -269,7 +269,8 @@ calculateConfusion <- function(labels, clusters) {
 assignClusterLabels <- function(cm) {
     # Error check to make sure the number of clusters and labels are equal.
   if (ncol(cm)!=nrow(cm)){
-    stop("You must use the same number of clusters and labels")
+    stop("If you are using a labeled dataset, you must use the 
+      same number of clusters and labels")
   }
   # Take the cluster label from the highest percentage in that row
   clusterLabels <- character(length = length(rownames(cm)))

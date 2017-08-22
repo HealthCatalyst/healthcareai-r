@@ -183,6 +183,8 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
       if (nchar(self$params$grainCol) != 0) {
         private$grainColValues <- self$params$df[[self$params$grainCol]]
         self$params$df[[self$params$grainCol]] <- NULL
+      } else {
+        private$grainColValues <- 1:nrow(self$params$df)
       }
       
       if (isTRUE(self$params$debug) && nchar(self$params$grainCol) != 0) {
