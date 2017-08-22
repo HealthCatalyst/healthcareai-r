@@ -44,7 +44,7 @@
 #' \emph{Usage:}\code{$run()} 
 #' @section \code{$get2DClustersPlot()}:
 #' Displays the data and assigned clusters. PCA is used to visualize the top two priciple
-#' components for plotting. \cr
+#' components for plotting. This is unrelated to variable reduction for clustering. \cr
 #' \emph{Usage:} \code{$get2DClustersPlot()} \cr
 #' @section \code{$getOutDf()}:
 #' Returns the output dataframe for writing to SQL or CSV. \cr
@@ -304,7 +304,9 @@ KmeansClustering <- R6Class("KmeansClustering",
     # TODO add a distance metric to the output.
     createDf = function() {
       dtStamp <- as.POSIXlt(Sys.time())
-
+      if (nchar(self$params$grainCol)==0) {
+        self$params$grainCol <- 'Grain'
+      }
       # If a label was provided
       if (nchar(self$params$labelCol) != 0) {
         if (isTRUE(self$params$debug)) {
@@ -323,8 +325,8 @@ KmeansClustering <- R6Class("KmeansClustering",
           "BindingNM",
           "LastLoadDTS",
           self$params$grainCol,
-          "trueCluster",
-          "predictedCluster"
+          "trueGroup",
+          "assignedCluster"
         )
       # No label column
       } else {
@@ -343,7 +345,7 @@ KmeansClustering <- R6Class("KmeansClustering",
           "BindingNM",
           "LastLoadDTS",
           "Grain",
-          "predictedCluster"
+          "assignedCluster"
         )
       }
       

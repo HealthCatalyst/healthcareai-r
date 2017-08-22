@@ -55,7 +55,7 @@ UnsupervisedModel <- R6Class("UnsupervisedModel",
       if (!is.null(p$grainCol)) 
         self$params$grainCol <- p$grainCol
       
-      if (nchar(self$params$labelCol) != 0) { 
+      if (nchar(p$labelCol) != 0) { 
         self$params$labelCol <- p$labelCol
         cat('Kmeans is ideal for unlabeled data. The label column here is meant 
             for comparison after clustering. If you are trying to do classification,

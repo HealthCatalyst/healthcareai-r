@@ -15,25 +15,26 @@ usePrinComp, numOfPrinComp,impute, debug)
 \item{df}{Dataframe whose columns are used for calc.}
 
 \item{grainCol}{Optional. The dataframe's column that has IDs pertaining to 
-the grain. No ID columns are truly needed for this step.}
+the grain. No ID columns are truly needed for this step. If left blank, row numbers
+are used for identification.}
 
-\item{labelCol}{Optional. Labels will not be used for clustering, but if the 
-data are labeled, this can be used for validation. Functions getClusterLabels()
-and getConfusionMatrix() are only available if labelCol is provided. Also supervised 
-models might be a better choice if labelCol is provided and the goal is classification.}
+\item{labelCol}{Optional. Labels will not be used for clustering. Labels can be can be 
+used for validation. The number of clusters should be the same as the number of labels. 
+Functions getClusterLabels()
+and getConfusionMatrix() are only available if labelCol is provided. Generally, supervised 
+models are a better choice if your goal is classification.}
 
 \item{numOfClusters}{Number of clusters you want to build. If left blank, will 
 be determined automatically from the elbow plot.}
 
 \item{usePrinComp}{Optional. TRUE or FALSE. Default is FALSE. If TRUE, the method 
-will use the principle components returned by princomp() as the new features to 
+will use principle components as the new features to 
 perform K-means clustering. This may accelerate convergence on high-dimension
-datasets. If TRUE, getParallelCoordinatePlot() can no longer be used to expalin how variables 
-contributed in each cluster.}
+datasets.}
 
-\item{numOfPrinComp}{Optional. If usePrinComp is TRUE, you need to decide how 
-many principle components you want to use to perform K-means clustering. If left 
-blank, it will be determined automatically from the scree plot.}
+\item{numOfPrinComp}{Optional. If using principle components, you may specify the number
+to use to perform K-means clustering. If left 
+blank, it will be determined automatically from the scree (elbow) plot.}
 
 \item{impute}{Set all-column imputation to FALSE or TRUE.
 This uses mean replacement for numeric columns
@@ -44,12 +45,109 @@ FALSE leads to removal of rows containing NULLs.}
 to monitor the calculations throughout. Use TRUE or FALSE.}
 }
 \description{
-This step allows you to use kmeans() to build clusters, based on
-your data.
+This step allows you to use kmeans clustering to explore and group your data.
 }
+\section{Methods}{
+ 
+The above describes params for initializing a new KmeansClustering class with 
+\code{$new()}. Individual methods are documented below.
+}
+
+\section{\code{$new()}}{
+
+Initializes a new Kmeans Clustering class using the 
+parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
+clustering. \cr
+\emph{Usage:} \code{$new(p)}
+}
+
+\section{\code{$run()}}{
+
+Calculates clusters, displays performance. \cr
+\emph{Usage:}\code{$run()}
+}
+
+\section{\code{$get2DClustersPlot()}}{
+
+Displays the data and assigned clusters. PCA is used to visualize the top two priciple
+components for plotting. \cr
+\emph{Usage:} \code{$get2DClustersPlot()} \cr
+}
+
+\section{\code{$getOutDf()}}{
+
+Returns the output dataframe for writing to SQL or CSV. \cr
+\emph{Usage:} \code{$getOutDf()} \cr
+}
+
+\section{\code{$getConfusionMatrix()}}{
+
+Returns a confusion matrix of assigned cluster vs. provided labels. Clusters are named
+based on maximum overlap with label. Only available if labelCol is specified. \cr
+\emph{Usage:} \code{$getConfusionMatrix()} \cr
+}
+
+\section{\code{$getElbowPlot()}}{
+
+Plots total within cluster error vs. number of clusters. Available if the number of clusters
+is unspecified. \cr
+\emph{Usage:} \code{$getElbowPlot()} \cr
+}
+
+\section{\code{$getScreePlot()}}{
+
+Plots total variance explained vs. number of principle components. Available if the number of 
+principle components is unspecified. \cr
+\emph{Usage:} \code{$getScreePlot()} \cr
+}
+
+\section{\code{$getKmeansFit()}}{
+
+Returns all attributes of the kmeans fit object. \cr
+\emph{Usage:} \code{$getKmeansFit()} \cr
+}
+
 \examples{
 
-#### Example using iris dataset ####
+#### Example using Diabetes dataset ####
+ptm <- proc.time()
+# Can delete this line in your work
+csvfile <- system.file("extdata", 
+                       "HCRDiabetesClinical.csv", 
+                       package = "healthcareai")
+# Replace csvfile with 'your/path'
+df <- read.csv(file = csvfile, 
+               header = TRUE, 
+               na.strings = c("NULL", "NA", ""))
+head(df)
+df$PatientID <- NULL
+
+set.seed(42)
+p <- UnsupervisedModelParams$new()
+p$df <- df
+p$impute <- TRUE
+p$grainCol <- "PatientEncounterID"
+p$debug <- FALSE
+p$cores <- 1
+p$numOfClusters <- 3
+
+# Run k means clustering
+cl <- KmeansClustering$new(p)
+cl$run()
+
+# Get the 2D representation of the cluster solution
+cl$get2DClustersPlot()
+
+# Get the output data frame
+dfOut <- cl$getOutDf()
+head(dfOut) 
+
+print(proc.time() - ptm)
+
+
+
+
+#### Example using iris dataset with labels ####
 ptm <- proc.time()
 library(healthcareai)
 
@@ -60,7 +158,7 @@ set.seed(2017)
 
 p <- UnsupervisedModelParams$new()
 p$df <- iris
-p$labelCol <- "Species"
+p$labelCol <- 'Species'
 p$impute <- TRUE
 p$debug <- FALSE
 p$cores <- 1
@@ -69,63 +167,15 @@ p$cores <- 1
 cl <- KmeansClustering$new(p)
 cl$run()
 
-# Get the fit result
-cl$getKmeansfit()
-
-# Get the elbow plot which also presents the optimal number of clusters
-cl$getElbowPlot()
-
 # Get the 2D representation of the cluster solution
 cl$get2DClustersPlot()
 
-# Get a confusion matrix if labelCol exists
-cl$getConfusionMatrix()
-
-# Get cluster labels
-cl$getClusterLabels() ## label cluster 1 with "versicolor"
-                      ## label cluster 2 with "setosa"
-                      ## label cluster 3 with "virginica"
-
 # Get the output data frame
 dfOut <- cl$getOutDf()
-head(dfOut)
+head(dfOut) 
 
 ## Write to CSV (or JSON, MySQL, etc) using plain R syntax
 ## write.csv(dfOut,'path/clusteringresult.csv')
-
-print(proc.time() - ptm)
-
-#### Example using iris data and PCA ####
-ptm <- proc.time()
-library(healthcareai)
-
-set.seed(2017)
-
-p <- UnsupervisedModelParams$new()
-p$df <- iris
-p$labelCol <- "Species"
-p$cores <- 1
-usePrinComp <- TRUE
-
-# Run k means clustering
-cl <- KmeansClustering$new(p)
-cl$run()
-
-# Get the scree plot
-## This plot presents the fraction of total variance in the data as explained
-## or represented by each principle component.
-cl$getScreePlot()
-
-# According to the scree plot, we may decide to use the first 2 PCs to do clustering.
-p$usePrinComp <- TRUE
-p$numOfPrinComp <- 2 ## Not necessary since the default of numOfPrinComp is 2 
-
-# Run k means clustering
-cl <- KmeansClustering$new(p)
-cl$run()
-
-# Get the fit result
-cl$getKmeansfit()
 
 print(proc.time() - ptm)
 
