@@ -1,15 +1,16 @@
-#' Title Round numeric columns in a data frame
-#'
-#' @param df data frame
-#' @param digits number of digits to round to; defaults to 2
-#'
-#' @return data frame
-#'
-#' @examples
-#' df <- data.frame(x = rnorm(5), y = letters[1:5])
-#' attr(df, "one") <- 3
-#' df
-#' attributes(df)
+# Round numeric columns in a data frame
+#
+# @param df data frame
+# @param digits number of digits to round to; defaults to 2
+#
+# @return data frame
+#
+# @keywords internal
+# @examples
+# df <- data.frame(x = rnorm(5), y = letters[1:5])
+# attr(df, "one") <- 3
+# df
+# attributes(df)
 roundNumericCols <- function(df, digits = 2) {
   
   # Grab attributes to reapply before returning
