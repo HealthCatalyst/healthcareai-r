@@ -5,36 +5,45 @@
 \title{Find variation across groups}
 \usage{
 variationAcrossGroups(df, categoricalCols, measureColumn,
-  printTukeyplot = FALSE, printTables = TRUE, boxplotStats = FALSE,
-  dateCol = NULL, levelOfDateGroup = "monthly", sigLevel = 0.05)
+  plotGroupDifferences = FALSE, returnGroupStats = TRUE,
+  returnBoxplotStats = FALSE, dateCol = NULL,
+  levelOfDateGroup = "monthly", sigLevel = 0.05)
 }
 \arguments{
-\item{df}{A dataframe}
+\item{df}{A data frame containing group and measure columns.}
 
-\item{categoricalCols}{Character. Vector containing the name(s) of column(s) to group by}
+\item{categoricalCols}{Character. Vector containing the name(s) of column(s) to group by.}
 
-\item{measureColumn}{Character. The name of the numeric variable of interest}
+\item{measureColumn}{Character. The name of the numeric variable of interest.}
 
-\item{printTukeyplot}{Logical. Plot mean differences between groups and confidence intervals from Tukey's HSD? Default is FALSE.}
+\item{plotGroupDifferences}{Optional. Logical. Plot mean differences between groups 
+and confidence intervals from Tukey's HSD? Default is FALSE.}
 
-\item{printTables}{Optional. Logical. In addition to the model summary table, return summary statistics for each group? Default is TRUE.}
+\item{returnGroupStats}{Optional. Logical. In addition to the model summary table, 
+return summary statistics for each group? Default is TRUE.}
 
-\item{boxplotStats}{Optional. Logical. Returns statistics behind the boxplot? Defalut is FALSE.}
+\item{returnBoxplotStats}{Optional. Logical. Returns statistics behind the boxplot? 
+Defalut is FALSE.}
 
 \item{dateCol}{Optional. Date. A date(time) column to group by (grouped by month by default).}
 
-\item{levelOfDateGroup}{Optional. Character. Level at which to group dateCol. One of yearly, quarterly, monthly (default), or weekly.}
+\item{levelOfDateGroup}{Optional. Character. Level at which to group dateCol. 
+One of "yearly", "quarterly", "monthly" (default), or "weekly".}
 
-\item{sigLevel}{Optional. Numeric value between zero and one giving the alpha value for Tukey HSD test, i.e. the p-value threshold for significance.}
+\item{sigLevel}{Optional. Numeric value between zero and one giving the alpha 
+value for Tukey HSD test, i.e. the p-value threshold for significance.}
 }
 \value{
-By default, list of two data frames giving model and group summary statistics respectively. If !printTables, just the model summary table. Side effect of printing a boxplot to compare variation across groups.
+By default, a list of two data frames giving model and group summary 
+statistics respectively. If returnGroupStats is FALSE, just the model summary table. 
+Always induces the side effect of printing a boxplot to compare variation across groups.
 }
 \description{
-Plot boxplot and perform ANOVA and Tukey's HSD statistical tests to compare variation in a numeric variable (measureColumn) across groups (categoricalCols).
+Compare variation among groups on a continuous measure. Plot boxplot and
+ perform ANOVA with Tukey's HSD statistical test to compare variation in a 
+ numeric variable (measureColumn) across groups (categoricalCols).
 }
 \examples{
-
 ###################### Example 1 ######################
 # Create a toy data set
 set.seed(2017)
@@ -63,9 +72,9 @@ head(df)
 variationAcrossGroups(df = df, 
                       categoricalCols = c("Dept", "Age"),
                       measureColumn = "LOS", 
-                      printTukeyplot = TRUE)
+                      plotGroupDifferences = TRUE)
                        
-# Since printTukeyplot = TRUE and the default of printTables is TRUE, the function 
+# Since plotGroupDifferences = TRUE and the default of returnGroupStats is TRUE, the function 
 # above prints the boxplot and the 95\% family-wise confidence interval plot, and
 # returns the summary statistics tables. The two plots show:
 
@@ -100,7 +109,7 @@ df1 <- data.frame(
 )                      
 head(df1)
 
-variationAcrossGroups(df1, "anesthetic", "value",  printTables = FALSE, sigLevel = .01)
+variationAcrossGroups(df1, "anesthetic", "value",  returnGroupStats = FALSE, sigLevel = .01)
 # The boxplot tells us that anesthetic Diazepam has a significantly different mean from 
 # all the other treatments at alpha = 0.01. Midazolam and Ketamine are not significantly different,
 # so they share the letter "a"; likewise for the Propofol and Thiamylal groups.
@@ -110,7 +119,7 @@ variationAcrossGroups(df1, "anesthetic", "value",  printTables = FALSE, sigLevel
 \references{
 \url{http://healthcare.ai}
 
-This function uses multcompLetters() in package multcompView
+This function uses multcompView::multcompLetters() 
 \url{https://cran.r-project.org/web/packages/multcompView/index.html}
 }
 \seealso{

@@ -430,24 +430,41 @@ getPipedValue <- function(string) {
 
 #' @title
 #' Find variation across groups
-#' @description Plot boxplot and perform ANOVA and Tukey's HSD statistical tests to compare variation in a numeric variable (measureColumn) across groups (categoricalCols). 
-#' @param df A dataframe
-#' @param categoricalCols Character. Vector containing the name(s) of column(s) to group by
-#' @param measureColumn Character. The name of the numeric variable of interest
-#' @param printTukeyplot Logical. Plot mean differences between groups and confidence intervals from Tukey's HSD? Default is FALSE.
-#' @param printTables Optional. Logical. In addition to the model summary table, return summary statistics for each group? Default is TRUE.
-#' @param boxplotStats Optional. Logical. Returns statistics behind the boxplot? Defalut is FALSE. 
+#' @description Compare variation among groups on a continuous measure. Plot boxplot and
+#'  perform ANOVA with Tukey's HSD statistical test to compare variation in a 
+#'  numeric variable (measureColumn) across groups (categoricalCols). 
+#'  
+#' @param df A data frame containing group and measure columns.
+#' @param categoricalCols Character. Vector containing the name(s) of column(s) to group by.
+#' @param measureColumn Character. The name of the numeric variable of interest.
+#' @param plotGroupDifferences Optional. Logical. Plot results of Tukey's HSD test: 
+#' mean differences between groups and confidence intervals for each pairwise group
+#'  comparison? Default is FALSE.
+#' @param returnGroupStats Optional. Logical. In addition to the model summary table, 
+#' return summary statistics for each group? Default is TRUE.
+#' @param returnBoxplotStats Optional. Logical. Returns statistics behind the boxplot? 
+#' Defalut is FALSE. 
 #' @param dateCol Optional. Date. A date(time) column to group by (grouped by month by default).
-#' @param levelOfDateGroup Optional. Character. Level at which to group dateCol. One of yearly, quarterly, monthly (default), or weekly.
-#' @param sigLevel Optional. Numeric value between zero and one giving the alpha value for Tukey HSD test, i.e. the p-value threshold for significance.
-#' @return By default, list of two data frames giving model and group summary statistics respectively. If !printTables, just the model summary table. Side effect of printing a boxplot to compare variation across groups.
+#' @param levelOfDateGroup Optional. Character. Level at which to group dateCol. 
+#' One of "yearly", "quarterly", "monthly" (default), or "weekly".
+#' @param sigLevel Optional. Numeric value between zero and one giving the alpha 
+#' value for Tukey HSD test, i.e. the p-value threshold for significance.
+#' 
+#' @return #' By default, a list of two data frames giving model and group summary 
+#' statistics respectively. 
+#' If returnGroupStats is FALSE, just the model summary data frame.
+#'  
+#' This function always induces the side effect of printing a boxplot to compare 
+#' variation across groups.
+#' 
 #' @export
+#' 
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}} \code{\link{findVariation}} 
-#' @references This function uses multcompLetters() in package multcompView
+#' @references This function uses multcompView::multcompLetters() 
 #' \url{https://cran.r-project.org/web/packages/multcompView/index.html}
-#' @examples
 #' 
+#' @examples
 #' ###################### Example 1 ######################
 #' # Create a toy data set
 #' set.seed(2017)
@@ -476,9 +493,9 @@ getPipedValue <- function(string) {
 #' variationAcrossGroups(df = df, 
 #'                       categoricalCols = c("Dept", "Age"),
 #'                       measureColumn = "LOS", 
-#'                       printTukeyplot = TRUE)
+#'                       plotGroupDifferences = TRUE)
 #'                        
-#' # Since printTukeyplot = TRUE and the default of printTables is TRUE, the function 
+#' # Since plotGroupDifferences = TRUE and the default of returnGroupStats is TRUE, the function 
 #' # above prints the boxplot and the 95% family-wise confidence interval plot, and
 #' # returns the summary statistics tables. The two plots show:
 #' 
@@ -513,7 +530,7 @@ getPipedValue <- function(string) {
 #' )                      
 #' head(df1)
 #' 
-#' variationAcrossGroups(df1, "anesthetic", "value",  printTables = FALSE, sigLevel = .01)
+#' variationAcrossGroups(df1, "anesthetic", "value",  returnGroupStats = FALSE, sigLevel = .01)
 #' # The boxplot tells us that anesthetic Diazepam has a significantly different mean from 
 #' # all the other treatments at alpha = 0.01. Midazolam and Ketamine are not significantly different,
 #' # so they share the letter "a"; likewise for the Propofol and Thiamylal groups.
@@ -523,9 +540,9 @@ getPipedValue <- function(string) {
 variationAcrossGroups <- function(df, 
                                   categoricalCols,
                                   measureColumn,
-                                  printTukeyplot = FALSE,
-                                  printTables = TRUE,
-                                  boxplotStats = FALSE,
+                                  plotGroupDifferences = FALSE,
+                                  returnGroupStats = TRUE,
+                                  returnBoxplotStats = FALSE,
                                   dateCol = NULL,
                                   levelOfDateGroup = "monthly",
                                   sigLevel = .05) {
@@ -843,7 +860,9 @@ variationAcrossGroups <- function(df,
   }
   
   # plot boxplot
-  # nCol <- if (printTukeyplot) 2 else 1
+  # nCol <- if (plotGroupDifferences) 2 else 1
+  # This is a hacky way to ensure we have a new plotting canvas:
+  graphics::frame()
   grDevices::dev.off()
   # Save graphics paramters to reset on exit
   op <- graphics::par(no.readonly = TRUE)  
@@ -887,8 +906,8 @@ variationAcrossGroups <- function(df,
   graphics::text(x = seq_along(labels), y = par("usr")[3] - 1, srt = 270, adj = 0,
        labels = paste0("  ", labels), xpd = TRUE)
   
-  ## If printTukeyplot == TRUE, plot the tukey's test.
-  if (printTukeyplot == TRUE) {
+  ## If plotGroupDifferences == TRUE, plot the tukey's test.
+  if (plotGroupDifferences == TRUE) {
     
     # Sort group differences matrix to plot in order of ascending p-value
     TUKEY[[1]] <- TUKEY[[1]][order(TUKEY[[1]][ , 4], -TUKEY[[1]][ , 1]), ]
@@ -924,7 +943,7 @@ variationAcrossGroups <- function(df,
   pvalueDF <- pvalueDF[, c(3, 1, 2)]
   pvalueDF <- format(pvalueDF, digits = 3)
   
-  if (!printTables) {
+  if (!returnGroupStats) {
     return(pvalueDF)
     
   } else {
@@ -970,11 +989,11 @@ variationAcrossGroups <- function(df,
     
     resTable <- format(resTable, digits = 3)
     outDf <- list(pvalueDF, resTable)
-    names(outDf) <- c("Multiple-comparison adjusted p-values for each pair of groups", 
+    names(outDf) <- c("Multiple-comparison-adjusted p-values for each pair of groups", 
                       "Basic statistics of each group")
   }
   
-  if (boxplotStats)
+  if (returnBoxplotStats)
     outDf <- c(outDf, plotRes)
 
   return(outDf)
