@@ -949,7 +949,7 @@ variationAcrossGroups <- function(df,
                        which(names(pvalueDF) %in% c("Groups", "diff", "p adj"))]
   names(pvalueDF)[1:2] <- c("Mean Difference", "Adjusted p-value")
   pvalueDF <- pvalueDF[, c(3, 1, 2)]
-  pvalueDF <- format(pvalueDF, digits = 3)
+  pvalueDF <- healthcareai:::roundNumericCols(pvalueDF, digits = 3)
   
   if (!returnGroupStats) {
     return(pvalueDF)
@@ -995,7 +995,7 @@ variationAcrossGroups <- function(df,
                            Q1 = firstQuartile, Median = m, Q3 = thirdQuartile, Max = maxVal,
                            VolumnRaw = volumnRaw, Impact = impact)
     
-    resTable <- format(resTable, digits = 3)
+    resTable <- healthcareai:::roundNumericCols(resTable, digits = 3)
     outDf <- list(pvalueDF, resTable)
     names(outDf) <- c("Multiple-comparison-adjusted p-values for each pair of groups", 
                       "Basic statistics of each group")
