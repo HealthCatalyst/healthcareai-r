@@ -5,8 +5,7 @@
 \title{Find variation across groups}
 \usage{
 variationAcrossGroups(df, categoricalCols, measureColumn,
-  plotGroupDifferences = FALSE, returnGroupStats = TRUE,
-  returnBoxplotStats = FALSE, dateCol = NULL,
+  plotGroupDifferences = FALSE, returnGroupStats = FALSE, dateCol = NULL,
   levelOfDateGroup = "monthly", sigLevel = 0.05)
 }
 \arguments{
@@ -16,14 +15,12 @@ variationAcrossGroups(df, categoricalCols, measureColumn,
 
 \item{measureColumn}{Character. The name of the numeric variable of interest.}
 
-\item{plotGroupDifferences}{Optional. Logical. Plot mean differences between groups 
-and confidence intervals from Tukey's HSD? Default is FALSE.}
+\item{plotGroupDifferences}{Optional. Logical. Plot results of Tukey's HSD test: 
+mean differences between groups and confidence intervals for each pairwise group
+comparison? Default is FALSE.}
 
 \item{returnGroupStats}{Optional. Logical. In addition to the model summary table, 
-return summary statistics for each group? Default is TRUE.}
-
-\item{returnBoxplotStats}{Optional. Logical. Returns statistics behind the boxplot? 
-Defalut is FALSE.}
+return summary statistics for each group? Default is FALSE}
 
 \item{dateCol}{Optional. Date. A date(time) column to group by (grouped by month by default).}
 
@@ -34,9 +31,13 @@ One of "yearly", "quarterly", "monthly" (default), or "weekly".}
 value for Tukey HSD test, i.e. the p-value threshold for significance.}
 }
 \value{
-By default, a list of two data frames giving model and group summary 
-statistics respectively. If returnGroupStats is FALSE, just the model summary table. 
-Always induces the side effect of printing a boxplot to compare variation across groups.
+By default, a data frame giving summary statistics from Tukey's HSD
+test. If returnGroupStats is TRUE, a list of two data frames giving model and 
+group summary statistics respectively. 
+ 
+This function always induces the side effect of printing a boxplot to compare 
+variation across groups. If plotGroupDifferences is TRUE, also plots a 
+mean differences and confidence intervals between groups.
 }
 \description{
 Compare variation among groups on a continuous measure. Plot boxplot and
@@ -45,9 +46,11 @@ Compare variation among groups on a continuous measure. Plot boxplot and
 }
 \examples{
 ###################### Example 1 ######################
+
 # Create a toy data set
+
 set.seed(2017)
-n = 200
+n <- 200
 df <- data.frame(Dept = sample(c("Dept1","Dept2","Dept3"), 
                                size = n, 
                                replace = TRUE, 
@@ -56,6 +59,8 @@ df <- data.frame(Dept = sample(c("Dept1","Dept2","Dept3"),
                  Gender = factor(rbinom(50, 1, 0.45), labels = c("Male","Female")),
                  LOS = floor(abs(rnorm(n,10,5))),
                  BP = sample(50:180, n, replace = TRUE))
+                 
+# Make some differences among groups
 
 countA <- length(df$LOS[df$Dept == "Dept1"])
 df$LOS[df$Dept == "Dept1"] <- floor(df$LOS[df$Dept == "Dept1"] + abs(rnorm(countA, mean = 2)))
@@ -69,26 +74,26 @@ df$BP[df$Age == "Old"] <- floor(df$BP[df$Age == "Old"] + abs(rnorm(countY, mean 
 head(df)
 
 # Call the function
+
 variationAcrossGroups(df = df, 
                       categoricalCols = c("Dept", "Age"),
                       measureColumn = "LOS", 
                       plotGroupDifferences = TRUE)
                        
-# Since plotGroupDifferences = TRUE and the default of returnGroupStats is TRUE, the function 
-# above prints the boxplot and the 95\% family-wise confidence interval plot, and
-# returns the summary statistics tables. The two plots show:
+#    Since plotGroupDifferences = TRUE and the default of returnGroupStats is FALSE, 
+#    the function prints the boxplot and the 95\% family-wise confidence interval plot, and
+#    returns the summary statistics data frame. The two plots show:
 
-# 1. The boxplot of LOS across all combinations of the two categories, Dept and Age.
-#    Dept has 3 levels: Dept1, Dept2, Dept3
-#    Age has 2 levels: Young and Old
-#    Hence, there are a total of 6 different groupings, which are shown on
+# 1. The boxplot of LOS across all combinations of the two categories:
+#      Dept has 3 levels: Dept1, Dept2, Dept3
+#      Age has 2 levels: Young and Old
+#    Hence, there are a total of six groupings, which are shown on
 #    the x axis of the boxplot. 
 #    Groups that have a shared letter are *not* significantly different. 
-#    For example, groups Dept1 | Young and Dept2 | Young are not significantly
-#    different becauese they share an "a".
-#    On the other hand, Dept2 | Young and Dept3 | Young are significantly 
-#    different because they do not share a label letter.
-#    not have a significant difference in mean.
+#    For example, groups (Dept1 | Young) and (Dept2 | Young) do not have 
+#    significantly different mean LOS becauese they share an "a".
+#    On the other hand, (Dept2 | Young) and (Dept3 | Young) do have 
+#    significantly different LOS levels because they do not share a label letter.
 # 
 # 2. Confidence-interval level plot
 #    This plot present the results of the Tukey's Honest Significant Differences test. 
@@ -97,23 +102,32 @@ variationAcrossGroups(df = df,
 #    significance level (0.05 by default). Groups are ordered by p-values.
 
 ###################### Example 2 ######################
-# This data set has two columns, some measured blood value, and an anesthetic treatment.
-# There are five anesthetics in the dataset: Midazolam, Propofol, Ketamine, Thiamylal, and Diazepam.
+
+# This data set has two columns: a blood test result (value)
+and an anesthetic treatment (anesthetic). There are five anesthetics in the 
+dataset: Midazolam, Propofol, Ketamine, Thiamylal, and Diazepam.
+
+# Create and examine the data frame
+
 set.seed(35)
 df1 <- data.frame(
-  anesthetic = c(rep("Midazolam", 50) , rep("Propofol", 20) , rep("Ketamine", 40) , 
-                 rep("Thiamylal", 80) ,  rep("Diazepam", 20)),
-  value = c( sample(2:5, 50 , replace = TRUE) , sample(6:10, 20 , replace = TRUE), 
-        sample(1:7, 40 , replace = TRUE), sample(3:10, 80 , replace = TRUE) , 
-        sample(10:20, 20 , replace = TRUE) )
+  anesthetic = c(rep("Midazolam", 50), rep("Propofol", 20), rep("Ketamine", 40), 
+                 rep("Thiamylal", 80),  rep("Diazepam", 20)),
+  value = c(sample(2:5, 50, replace = TRUE), sample(6:10, 20, replace = TRUE), 
+            sample(1:7, 40, replace = TRUE), sample(3:10, 80, replace = TRUE), 
+            sample(10:20, 20, replace = TRUE))
 )                      
 head(df1)
 
-variationAcrossGroups(df1, "anesthetic", "value",  returnGroupStats = FALSE, sigLevel = .01)
-# The boxplot tells us that anesthetic Diazepam has a significantly different mean from 
-# all the other treatments at alpha = 0.01. Midazolam and Ketamine are not significantly different,
-# so they share the letter "a"; likewise for the Propofol and Thiamylal groups.
-# The means of Midazolam and Ketamine are significantly different from Propofol and Thiamylal.
+# Call the function with defaults, except change the p-value threshold to 0.01.
+
+variationAcrossGroups(df1, "anesthetic", "value", sigLevel = .01)
+
+# The boxplot tells us that Diazepam, Propofol, and Thiamylal all have 
+significantly different mean values from all other groups, including each other
+(p <= 0.01). Midazolam and Ketamine do not have significantly different mean 
+values because they share the label "a", but they are significantly different 
+from all the other treatments.
 
 }
 \references{
