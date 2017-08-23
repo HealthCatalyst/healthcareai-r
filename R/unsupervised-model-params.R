@@ -9,6 +9,7 @@ library(R6)
 #' @importFrom R6 R6Class
 #' @references \url{http://healthcare.ai}
 #' @seealso \code{\link{healthcareai}}
+#' @seealso \code{\link{KmeansClustering}}
 #'
 #' @export
 

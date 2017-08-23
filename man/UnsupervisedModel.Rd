@@ -19,5 +19,7 @@ This step allows one to build clusters on your data
 }
 \seealso{
 \code{\link{healthcareai}}
+
+\code{\link{KmeansClustering}}
 }
 \keyword{datasets}

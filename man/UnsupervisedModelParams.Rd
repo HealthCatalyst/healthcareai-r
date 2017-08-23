@@ -17,5 +17,7 @@ and helps determine which performs best.
 }
 \seealso{
 \code{\link{healthcareai}}
+
+\code{\link{KmeansClustering}}
 }
 \keyword{datasets}
