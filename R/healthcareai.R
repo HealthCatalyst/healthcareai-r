@@ -14,7 +14,8 @@
 #' populated over time. \code{\link{findVariation}}, \code{\link{findTrends}}, 
 #' and \code{\link{calculateTargetedCorrelations}} help surface insights from
 #' data. Manipulate dates using \code{\link{orderByDate}} and 
-#' \code{\link{countDaysSinceFirstDate}}. One can get quite far in healthcare
+#' \code{\link{countDaysSinceFirstDate}}. Cluster data with or without an 
+#' outcome variable with \code{\link{KmeansClustering}}. One can get quite far in healthcare
 #' data analysis without even going beyond this step. }
 #' 
 #' \item{\strong{Develop a machine learning model}}{\cr Use \code{\link{LassoDevelopment}} or

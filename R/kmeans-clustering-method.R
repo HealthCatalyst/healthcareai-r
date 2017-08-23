@@ -1,72 +1,73 @@
 #' Build clusters using kmeans()
-#'
-#' @description This step allows you to use kmeans clustering to explore and group your data.
+#' 
+#' @description This step allows you to use kmeans clustering to explore and
+#'   group your data.
 #' @docType class
-#' @usage KmeansClustering(object, df, grainCol, labelCol, numOfClusters,
-#' usePrinComp, numOfPrinComp,impute, debug)
+#' @usage KmeansClustering(object, df, grainCol, labelCol, numOfClusters, 
+#'   usePrinComp, numOfPrinComp,impute, debug)
 #' @importFrom R6 R6Class
-#' @param object of UnsuperviseModelParameters class for $new() constructor
+#' @param object of UnsupervisedModelParams class for $new() constructor
 #' @param df Dataframe whose columns are used for calc.
 #' @param grainCol Optional. The dataframe's column that has IDs pertaining to 
-#' the grain. No ID columns are truly needed for this step. If left blank, row numbers
-#' are used for identification.
-#' @param labelCol Optional. Labels will not be used for clustering. Labels can be can be 
-#' used for validation. The number of clusters should be the same as the number of labels. 
-#' Functions getClusterLabels()
-#' and getConfusionMatrix() are only available if labelCol is provided. Generally, supervised 
-#' models are a better choice if your goal is classification.
-#' @param numOfClusters Number of clusters you want to build. If left blank, will 
-#' be determined automatically from the elbow plot.
-#' @param usePrinComp Optional. TRUE or FALSE. Default is FALSE. If TRUE, the method 
-#' will use principle components as the new features to 
-#' perform K-means clustering. This may accelerate convergence on high-dimension
-#' datasets.
-#' @param numOfPrinComp Optional. If using principle components, you may specify the number
-#' to use to perform K-means clustering. If left 
-#' blank, it will be determined automatically from the scree (elbow) plot. 
-#' @param impute Set all-column imputation to FALSE or TRUE.
-#' This uses mean replacement for numeric columns
-#' and most frequent for factorized columns.
-#' FALSE leads to removal of rows containing NULLs.
-#' @param debug Provides the user extended output to the console, in order
-#' to monitor the calculations throughout. Use TRUE or FALSE.
-#' 
-#' @section Methods: 
-#' The above describes params for initializing a new KmeansClustering class with 
-#' \code{$new()}. Individual methods are documented below.
-#' @section \code{$new()}:
-#' Initializes a new Kmeans Clustering class using the 
-#' parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
-#' clustering. \cr
-#' \emph{Usage:} \code{$new(p)}
-#' @section \code{$run()}:
-#' Calculates clusters, displays performance. \cr
-#' \emph{Usage:}\code{$run()} 
-#' @section \code{$get2DClustersPlot()}:
-#' Displays the data and assigned clusters. PCA is used to visualize the top two priciple
-#' components for plotting. This is unrelated to variable reduction for clustering. \cr
-#' \emph{Usage:} \code{$get2DClustersPlot()} \cr
-#' @section \code{$getOutDf()}:
-#' Returns the output dataframe for writing to SQL or CSV. \cr
-#' \emph{Usage:} \code{$getOutDf()} \cr
-#' @section \code{$getConfusionMatrix()}:
-#' Returns a confusion matrix of assigned cluster vs. provided labels. Clusters are named
-#' based on maximum overlap with label. Only available if labelCol is specified. \cr
-#' \emph{Usage:} \code{$getConfusionMatrix()} \cr
-#' @section \code{$getElbowPlot()}:
-#' Plots total within cluster error vs. number of clusters. Available if the number of clusters
-#' is unspecified. \cr
-#' \emph{Usage:} \code{$getElbowPlot()} \cr
-#' @section \code{$getScreePlot()}:
-#' Plots total variance explained vs. number of principle components. Available if the number of 
-#' principle components is unspecified. \cr
-#' \emph{Usage:} \code{$getScreePlot()} \cr
-#' @section \code{$getKmeansFit()}:
-#' Returns all attributes of the kmeans fit object. \cr
-#' \emph{Usage:} \code{$getKmeansFit()} \cr
+#'   the grain. No ID columns are truly needed for this step. If left blank, row
+#'   numbers are used for identification.
+#' @param labelCol Optional. Labels will not be used for clustering. Labels can
+#'   be can be used for validation. The number of clusters should be the same as
+#'   the number of labels. Functions getClusterLabels() and getConfusionMatrix()
+#'   are only available if labelCol is provided. Generally, supervised models
+#'   are a better choice if your goal is classification.
+#' @param numOfClusters Number of clusters you want to build. If left blank,
+#'   will be determined automatically from the elbow plot.
+#' @param usePrinComp Optional. TRUE or FALSE. Default is FALSE. If TRUE, the
+#'   method will use principle components as the new features to perform K-means
+#'   clustering. This may accelerate convergence on high-dimension datasets.
+#' @param numOfPrinComp Optional. If using principle components, you may specify
+#'   the number to use to perform K-means clustering. If left blank, it will be
+#'   determined automatically from the scree (elbow) plot.
+#' @param impute Set all-column imputation to FALSE or TRUE. This uses mean
+#'   replacement for numeric columns and most frequent for factorized columns. 
+#'   FALSE leads to removal of rows containing NULLs.
+#' @param debug Provides the user extended output to the console, in order to
+#'   monitor the calculations throughout. Use TRUE or FALSE.
+#'   
+#' @details This is an unsupervised method for clustering data. That is, no
+#'   response variable is needed or used. If you want to examine how the data
+#'   clusters by some labeled grouping, you can specify the grouping in
+#'   \code{labelCol}, but the labels are not used in
+#'   the clustering process. If you want to use labels to train the model 
+#'   see \code{\link{LassoDevelopment}} or \code{\link{RandomForestDevelopment}}.
+#'   
+#' @section Methods: The above describes params for initializing a new
+#'   KmeansClustering class with \code{$new()}. Individual methods are
+#'   documented below.
+#' @section \code{$new()}: Initializes a new Kmeans Clustering class using the 
+#'   parameters saved in \code{p}, documented above. This method loads, cleans,
+#'   and prepares data for clustering. \cr \emph{Usage:} \code{$new(p)}
+#' @section \code{$run()}: Calculates clusters, displays performance. \cr 
+#'   \emph{Usage:}\code{$run()}
+#' @section \code{$get2DClustersPlot()}: Displays the data and assigned
+#'   clusters. PCA is used to visualize the top two priciple components for
+#'   plotting. This is unrelated to variable reduction for clustering. \cr 
+#'   \emph{Usage:} \code{$get2DClustersPlot()} \cr
+#' @section \code{$getOutDf()}: Returns the output dataframe for writing to SQL
+#'   or CSV. \cr \emph{Usage:} \code{$getOutDf()} \cr
+#' @section \code{$getConfusionMatrix()}: Returns a confusion matrix of assigned
+#'   cluster vs. provided labels. Clusters are named based on maximum overlap
+#'   with label. Only available if labelCol is specified. \cr \emph{Usage:}
+#'   \code{$getConfusionMatrix()} \cr
+#' @section \code{$getElbowPlot()}: Plots total within cluster error vs. number
+#'   of clusters. Available if the number of clusters is unspecified. \cr 
+#'   \emph{Usage:} \code{$getElbowPlot()} \cr
+#' @section \code{$getScreePlot()}: Plots total variance explained vs. number of
+#'   principle components. Available if the number of principle components is
+#'   unspecified. \cr \emph{Usage:} \code{$getScreePlot()} \cr
+#' @section \code{$getKmeansFit()}: Returns all attributes of the kmeans fit
+#'   object. \cr \emph{Usage:} \code{$getKmeansFit()} \cr
 #' @references \url{http://hctools.org/}
 #' @seealso \code{\link{healthcareai}}
-#' @references \url{https://github.com/bryanhanson/ChemoSpecMarkeR/blob/master/R/findElbow.R}
+#' @references
+#'   \url{https://github.com/bryanhanson/ChemoSpecMarkeR/blob/master/R/findElbow.R}
+#'   
 #' @examples
 #' 
 #' #### Example using Diabetes dataset ####
