@@ -232,7 +232,7 @@ KmeansClustering <- R6Class("KmeansClustering",
       if (!is.null(self$params$numOfClusters)) {
         numOfClusters <- self$params$numOfClusters 
       } else if (nchar(self$params$labelCol) != 0) {
-        numOfClusters <- length(unique(self$params$labelCol))
+        numOfClusters <- length(unique(private$labelColValues))
         if (isTRUE(self$params$debug)) {
           cat('Clustering on', numOfClusters,',as label column contains', numOfClusters,'unique 
             labels. If you want less/more clusters, remove the label column. \n')

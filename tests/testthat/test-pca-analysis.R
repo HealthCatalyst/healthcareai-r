@@ -20,7 +20,7 @@ test_that("A numeric data frame w/o NA's gives the correct result",{
   expected <- list(PCs, prop_of_var)
   names(expected) <- c("PCs","prop_of_var")
   
-  testthat::expect_equal(res,expected,tolerance = 1e-6)
+  expect_equal(res,expected,tolerance = 1e-6)
 })
 
 test_that("A numeric data frame with NA's gives correct error",{
@@ -28,6 +28,6 @@ test_that("A numeric data frame with NA's gives correct error",{
                    b = c(2,3,2,3,5,1,2,3,5,3,4,6),
                    c = c(6,5,8,9,0,8,9,NA,6,7,8,7))
   
-  testthat::expect_error(pcaAnalysis(df), # <-- error
+  expect_error(pcaAnalysis(df), # <-- error
                          "Missing values in data frame")
 })

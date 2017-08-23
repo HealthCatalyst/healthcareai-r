@@ -197,7 +197,7 @@ findElbow <- function(y) {
   use <- 2:(nrow(DF) - 1)
   refpts <- m*DF$x[use] + b
   if (all(refpts > DF$y[use]) | all(refpts < DF$y[use])) concave <- TRUE
-  if (!concave) stop("Your curve doesn't appear to be concave")
+  if (!concave) warning("Your curve doesn't appear to be concave, using 2 PCs.")
 
   # Calculate the orthogonal distances
   use <- 2:(nrow(DF) - 1)
@@ -205,6 +205,7 @@ findElbow <- function(y) {
   DF$dist <- c(NA, elbowd, NA) # first & last points don't have a distance
 
   vnum <- which.max(DF$dist)
+  if (!concave) vnum <- 2
   return(vnum)
 } 
 
@@ -269,8 +270,7 @@ calculateConfusion <- function(labels, clusters) {
 assignClusterLabels <- function(cm) {
     # Error check to make sure the number of clusters and labels are equal.
   if (ncol(cm)!=nrow(cm)){
-    stop("If you are using a labeled dataset, you must use the 
-      same number of clusters and labels")
+    stop("If you are using a labeled dataset, you must use the same number of clusters and labels")
   }
   # Take the cluster label from the highest percentage in that row
   clusterLabels <- character(length = length(rownames(cm)))
