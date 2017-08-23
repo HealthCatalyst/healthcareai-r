@@ -7,7 +7,7 @@
 #' @import caret
 #' @importFrom R6 R6Class
 #' @param object of SuperviseModelParameters class for $new() constructor
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #'
 #' @export
@@ -326,6 +326,11 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       if (self$params$type == 'classification' || self$params$type == 'multiclass' ) {
         self$params$df[[self$params$predictedCol]] = as.factor(self$params$df[[self$params$predictedCol]])
       }
+      
+      # Save column names for deploy
+      self$modelInfo$columnNames <- names(self$params$df)
+      
+      # Perform train/test split
 
       # Remove rows where predicted.col is null in train.
       # Also in test, because it breaks performance metric calculation.

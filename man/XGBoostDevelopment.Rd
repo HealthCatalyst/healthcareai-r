@@ -126,7 +126,7 @@ print(proc.time() - ptm)
 
 }
 \references{
-\url{http://hctools.org/}
+\url{http://healthcareai-r.readthedocs.io}
 }
 \seealso{
 Information on the example dataset can be found at: 

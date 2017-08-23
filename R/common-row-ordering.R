@@ -8,7 +8,7 @@
 #' @return A data frame ordered by date column
 #'
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' df <- data.frame(date=c('2009-01-01','2010-01-01','2009-03-08','2009-01-19'),

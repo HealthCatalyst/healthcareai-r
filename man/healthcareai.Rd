@@ -47,6 +47,8 @@ have passed.}
 }
 }
 \references{
+\url{http://healthcareai-r.readthedocs.io}
+
 \url{http://healthcare.ai}
 }
 \seealso{

@@ -8,7 +8,7 @@
 #' @return A boolean
 #'
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' isBinary(c(1,2,NA))
@@ -28,7 +28,7 @@ isBinary <- function(v) {
 #' @return A data frame with zero-variance columns removed
 #'
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' df <- data.frame(a=c(1,1,1),
@@ -53,7 +53,7 @@ removeColsWithAllSameValue <- function(df) {
 #' @return dfResult The input data frame with rows removed
 #'
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' df <- data.frame(a=c(1,2,3),b=c('Y','N',NA),c=c(NA,'Y','N'))
@@ -75,7 +75,7 @@ removeRowsWithNAInSpecCol <- function(df, desiredCol) {
 #' than 50 categories
 #'
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' df <- data.frame(a=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,

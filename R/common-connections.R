@@ -5,7 +5,7 @@
 #' @param df A dataframe
 #' @return A dataframe with three additional columns
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' df <- data.frame(a = c(1,2,NA,NA),
@@ -33,7 +33,7 @@ addSAMUtilityCols <- function(df) {
 #' @param randomize Boolean that dictates whether returned rows are randomized
 #' @return df A data frame containing the selected rows
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' 
@@ -132,7 +132,7 @@ selectData <- function(MSSQLConnectionString = NULL,
 #' ?MSSQLConnectionString instead.
 #' @return Nothing
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' 
