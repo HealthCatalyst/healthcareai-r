@@ -189,6 +189,10 @@ KmeansClustering <- R6Class("KmeansClustering",
 
       # PCA=TRUE and user specified number of PCs to use
       } else if (!is.null(self$params$numOfPrinComp)) {
+        
+        # Ensure number PCs to use is not greater than number of variables
+        if (ncol(private$PCs) < self$params$numOfPrinComp)
+            stop("numOfPrinComp must be less than the number of variables on which to cluster.")
         private$dfCls <- private$PCs[,1:self$params$numOfPrinComp]
       
       # PCA=TRUE and user didn't specify number of PCs to use. Calculate from elbow plot.
@@ -397,6 +401,9 @@ KmeansClustering <- R6Class("KmeansClustering",
     
     # Generate elbow plot for k = 2 to k = 15
     getElbowPlot = function() {
+      # Make sure number clusters wasn't provided
+      if (!is.null(self$params$numOfClusters))
+        stop("Elbow plots compare number of clusters, but you provided a number with numOfClusters.")
       plot(1:15, private$wss,
            type = "b", pch = 19, frame = FALSE, 
            xlab = "Number of clusters K",

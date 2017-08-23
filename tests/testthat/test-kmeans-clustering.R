@@ -4,6 +4,7 @@ context("Testing kmeans clustering and data prep")
 # 2. Clustering works with specified 3 clusters
 # 3. Clustering works with auto-PCA
 # 4. Clustering works with PCA and specified number of PCs
+# 5. Providing categorical columns throws error
 # Labeled Tests:
 # 1. Auto-clustering works with label
 # 2. Auto-clustering throws error number of clusters and number of labels mismatch.
@@ -136,6 +137,24 @@ test_that("Clustering works with PCA and specified number of PCs",{
   # 2nd feature is named 'PC2'
   expect_equal(colnames(kFit$centers)[3], 
                'PC3')
+})
+
+test_that("Providing categorical columns throws error", {
+  p <- UnsupervisedModelParams$new()
+  p$df <- data.frame(
+    anesthetic = c(rep("Midazolam", 50), rep("Propofol", 20), rep("Ketamine", 40), 
+                   rep("Thiamylal", 80),  rep("Diazepam", 20)),
+    value = c(sample(2:5, 50, replace = TRUE), sample(6:10, 20, replace = TRUE), 
+              sample(1:7, 40, replace = TRUE), sample(3:10, 80, replace = TRUE), 
+              sample(10:20, 20, replace = TRUE)))
+  # anesthetic is currently factor
+  cl <- KmeansClustering$new(p)
+  expect_error(cl$run())
+  
+  # make anesthetic a character and test again
+  p$df$anesthetic <- as.character(p$df$anesthetic)
+  cl <- KmeansClustering$new(p)
+  expect_error(cl$run())
 })
 
 
