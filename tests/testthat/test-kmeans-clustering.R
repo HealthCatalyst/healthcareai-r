@@ -1,9 +1,13 @@
 context("Testing kmeans clustering and data prep")
 # Unlabeled Tests:
-# 1. Autoclustering works, finds 5 clusters, and agrees with WSS
+# 1. Auto-clustering works, finds 5 clusters, and agrees with WSS
 # 2. Clustering works with specified 3 clusters
 # 3. Clustering works with auto-PCA
 # 4. Clustering works with PCA and specified number of PCs
+# Labeled Tests:
+# 1. Auto-clustering works with label
+# 2. Auto-clustering throws error number of clusters and number of labels mismatch.
+# 3. Auto-clustering works with label and PCA
 
 ##################################################################
 ##################################################################
