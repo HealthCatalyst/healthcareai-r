@@ -207,11 +207,21 @@ we recommend that you use supervised multiclass.\n')
       if (isTRUE(self$params$debug) && nchar(self$params$grainCol) != 0) {
         print('Entire data set after separating out label col')
         print(str(self$params$df))
-        print('Now creating dummy variables...')
+        print('Now creating dummy variables for binary columns...')
       }
       
+      # Create dummy variables for binary columns
+      # Find binary columns
+      nFacs <- sapply(self$params$df[,sapply(self$params$df, is.factor)], nlevels)
+      binaryCatCols <- names(nFacs[nFacs==2])
+      # Create dummies
       data <- caret::dummyVars(~., data = self$params$df, fullRank = T)
-      self$params$df <- data.frame(predict(data, newdata = self$params$df, na.action = na.pass))
+      temp <- data.frame(predict(data, newdata = self$params$df, na.action = na.pass))
+      # Remove originals, replace with binary
+      self$params$df[binaryCatCols] <- NULL
+      self$params$df <- cbind(self$params$df, temp)
+
+
       if (isTRUE(self$params$debug) && nchar(self$params$grainCol) != 0) {
         print('Entire data set after creating dummy variables.')
         print(str(self$params$df))
