@@ -272,10 +272,24 @@ assignClusterLabels <- function(cm) {
   if (ncol(cm)!=nrow(cm)){
     stop("If you are using a labeled dataset, you must use the same number of clusters and labels")
   }
-  # Take the cluster label from the highest percentage in that row
-  clusterLabels <- character(length = length(rownames(cm)))
-  for (i in 1:length(rownames(cm))) {
-    clusterLabels[which(cm[i,]==max(cm[i,]))] <- rownames(cm)[i]
+  if (any(apply(cm, 1, duplicated, incomparables = 0))) {
+    # If there are duplicates in the rows
+    warning('The boundary between 2 clusters perfectly splits a known category. 
+      This usually indicates a problem with the data. 
+      Label assignments are not available.')
+    clusterLabels <- colnames(cm)
+  } else if (any(apply(cm, 2, duplicated, incomparables = 0))) {
+    # If there are dupiclates in the columns
+    warning('One known category is split evenly into two clusters.
+      This usually indicates a problem with the data. 
+      Label assignments are not available.')
+    clusterLabels <- colnames(cm)
+  } else {
+    # Take the cluster label from the highest percentage in that row
+    clusterLabels <- character(length = length(rownames(cm)))
+    for (i in 1:length(rownames(cm))) {
+      clusterLabels[which(cm[i,]==max(cm[i,]))] <- rownames(cm)[i]
+    }
   }
   return(clusterLabels)
 }

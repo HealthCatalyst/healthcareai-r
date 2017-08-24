@@ -416,10 +416,11 @@ and categorical columns with more than 2 categories.")
       PC2s <- private$PCs[,1:2]
       cluster <- private$cluster
       D <- cbind(PC2s, cluster)
+      # True labels
       plot(D$PC1, D$PC2, col = D$cluster, pch = 16, cex = 1.1,
            xlab = "Component 1", 
            ylab = "Component 2",
-           main = "2D representation of the cluster solution",
+           main = "2D representation of the assigned clusters",
            sub = paste("These two components explain",
                        format(100*sum(private$propVarEx[1:2]),digit = 3),
                        "% of the point variability"))
