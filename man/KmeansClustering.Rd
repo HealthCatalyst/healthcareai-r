@@ -86,8 +86,9 @@ This is an unsupervised method for clustering data. That is, no
 \section{\code{$getConfusionMatrix()}}{
  Returns a confusion matrix of assigned
   cluster vs. provided labels. Clusters are named based on maximum overlap
-  with label. Only available if labelCol is specified. \cr \emph{Usage:}
-  \code{$getConfusionMatrix()} \cr
+  with label. Only available if labelCol is specified. Rows are true labels,
+  columns are assigned clusters. \cr 
+\emph{Usage:} \code{$getConfusionMatrix()} \cr
 }
 
 \section{\code{$getElbowPlot()}}{
