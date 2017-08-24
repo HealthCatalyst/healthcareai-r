@@ -176,3 +176,29 @@ imputeDF <- function(df, imputeVals = NULL) {
   
   return(list(df=df, imputeVals=imputeVals))
 }
+
+#' @title
+#' Depreciated in favor of \code{imputeDF}
+#'
+#' @description This class performs imputation on a vector. For numeric vectors
+#' the vector-mean is used; for factor columns, the most frequent value is used.
+#' @param v A vector, or column of values with NAs.
+#' @return A vector, or column of values now with no NAs
+#'
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
+#' @examples
+#' # For a numeric vector
+#' vResult <- imputeColumn(c(1,2,3,NA))
+#'
+#' # For a factor vector
+#' vResult <- imputeColumn(c('Y','N','Y',NA))
+#'
+#' # To use this function on an entire data frame:
+#' df <- data.frame(a=c(1,2,3,NA),
+#'                 b=c('Y','N','Y',NA))
+#' df[] <- lapply(df, imputeColumn)
+#' head(df)
+imputeColumn <- function(v) {
+  stop('This function was depreciated. Use imputeDF instead.')
+}
