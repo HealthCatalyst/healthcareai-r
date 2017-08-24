@@ -96,3 +96,23 @@ returnColsWithMoreThanFiftyCategories <- function(df) {
   }
   colList
 }
+
+#' @title
+#' Remove columns with DTS suffix
+#' @description Remove columns with DTS in the suffix of the column name
+#' @param df A data frame to be altered
+#' @return The input data frame with DTS suffix columns removed
+#'
+#' @export
+#' @references \url{http://healthcareai-r.readthedocs.io}
+#' @seealso \code{\link{healthcareai}}
+#' @examples
+#' df <- data.frame(testDTS=c(1,2,3),b=c('Y','N',NA),c=c(NA,'Y','N'))
+#' dfResult <- removeColsWithDTSSuffix(df)
+#' head(dfResult)
+removeColsWithDTSSuffix <- function(df){
+  dateList <- grep("DTS$", colnames(df))
+  if (length(dateList) > 0) {
+     df[, -dateList]
+  } else {df}
+}
