@@ -53,8 +53,9 @@
 #'   or CSV. \cr \emph{Usage:} \code{$getOutDf()} \cr
 #' @section \code{$getConfusionMatrix()}: Returns a confusion matrix of assigned
 #'   cluster vs. provided labels. Clusters are named based on maximum overlap
-#'   with label. Only available if labelCol is specified. \cr \emph{Usage:}
-#'   \code{$getConfusionMatrix()} \cr
+#'   with label. Only available if labelCol is specified. Rows are true labels,
+#'   columns are assigned clusters. \cr 
+#' \emph{Usage:} \code{$getConfusionMatrix()} \cr
 #' @section \code{$getElbowPlot()}: Plots total within cluster error vs. number
 #'   of clusters. Available if the number of clusters is unspecified. \cr 
 #'   \emph{Usage:} \code{$getElbowPlot()} \cr
@@ -281,7 +282,8 @@ and categorical columns with more than 2 categories.")
           print('Generating confusion matrix...')
         }
         private$kmeansConfusionMatrix()
-        cat('Confusion matrix for cluster assignment, given as proportion correct. \n')
+        cat('Confusion matrix for cluster assignment, given as proportion correct. \n
+          Columns are assigned clusters, Rows are true labels.')
         print(private$confusionMatrix)
         cat('\n')
 
