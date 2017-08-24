@@ -112,7 +112,12 @@ returnColsWithMoreThanFiftyCategories <- function(df) {
 #' head(dfResult)
 removeColsWithDTSSuffix <- function(df){
   dateList <- grep("DTS$", colnames(df))
-  if (length(dateList) > 0) {
-     df[, -dateList]
+  if (length(dateList) > 0 &&
+      (length(names(df)) - length(dateList)) != 1) {
+      df[, -dateList]
+  } else if (length(dateList) > 0 &&
+             (length(names(df)) - length(dateList)) == 1)
+  {
+    df[-dateList]
   } else {df}
 }

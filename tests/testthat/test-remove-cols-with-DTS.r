@@ -20,13 +20,11 @@ test_that("For a dataframe with multiple DTS columns, function returns expected
   
   df2 <- data.frame(testDTS = c(1,2,3),
                     b = c('Y','N',NA),
-                    test2DTS = c(NA,'Y','N'),
-                    d = c(3,2,1))
+                    test2DTS = c(NA,'Y','N'))
   
-  df2 <- as.data.frame(removeColsWithDTSSuffix(df2))
+  df2 <- removeColsWithDTSSuffix(df2)
   
-  expecteddf2 <- data.frame(b = c('Y','N',NA),
-                            d = c(3,2,1))
+  expecteddf2 <- data.frame(b = c('Y','N',NA))
   
   expect_identical(df2, expecteddf2)
 })
@@ -42,7 +40,7 @@ test_that("For a dataframe with no DTS columns, function returns expected
   
   expecteddf3 <- data.frame(a = c(1,2,3),
                             b = c('Y','N',NA),
-                            c = c(NA,'Y','N'))
+                            c=c(NA,'Y','N'))
   
   expect_identical(df3, expecteddf3)
 })
