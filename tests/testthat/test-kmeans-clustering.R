@@ -23,6 +23,7 @@ df <- read.csv(file = csvfile,
 df$PatientID <- NULL
 
 test_that("Auto-clustering works and finds 5 clusters",{
+  closeAllConnections()
   set.seed(2017)
   p <- UnsupervisedModelParams$new()
   p$df <- df
@@ -47,6 +48,7 @@ test_that("Auto-clustering works and finds 5 clusters",{
 })
 
 test_that("Clustering works with specified 3 clusters",{
+  closeAllConnections()
   set.seed(2017)
   p <- UnsupervisedModelParams$new()
   p$df <- df
@@ -72,6 +74,7 @@ test_that("Clustering works with specified 3 clusters",{
 })
 
 test_that("Clustering works with auto-PCA",{
+  closeAllConnections()
   # This dataset triggers the non-concave warning and defaults to 2 PCs.
   set.seed(2017)
   p <- UnsupervisedModelParams$new()
@@ -106,6 +109,7 @@ test_that("Clustering works with auto-PCA",{
 })
 
 test_that("Clustering works with PCA and specified number of PCs",{
+  closeAllConnections()
   set.seed(2017)
   p <- UnsupervisedModelParams$new()
   p$df <- df
@@ -140,6 +144,7 @@ test_that("Clustering works with PCA and specified number of PCs",{
 })
 
 test_that("Providing categorical columns throws error", {
+  closeAllConnections()
   p <- UnsupervisedModelParams$new()
   p$df <- data.frame(
     anesthetic = c(rep("Midazolam", 50), rep("Propofol", 20), rep("Ketamine", 40), 
@@ -164,6 +169,7 @@ test_that("Providing categorical columns throws error", {
 data(iris)
 
 test_that("Auto-clustering works with label",{
+  closeAllConnections()
   set.seed(2017)
   p <- UnsupervisedModelParams$new()
   p$df <- iris
@@ -200,6 +206,7 @@ test_that("Auto-clustering works with label",{
 })
 
 test_that("Autoclustering throws error number of clusters and number of labels mismatch.",{
+  closeAllConnections()
   set.seed(2017)
   p <- UnsupervisedModelParams$new()
   p$df <- iris
@@ -217,6 +224,7 @@ test_that("Autoclustering throws error number of clusters and number of labels m
 })
 
 test_that("Auto-clustering works with label and PCA",{
+  closeAllConnections()
   set.seed(2017)
   p <- UnsupervisedModelParams$new()
   p$df <- iris
