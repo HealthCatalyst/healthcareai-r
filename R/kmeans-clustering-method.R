@@ -170,8 +170,8 @@ KmeansClustering <- R6Class("KmeansClustering",
     checkDataType = function() {
       a <- lapply(self$params$df,is.numeric)
       if (all(unlist(a)) == FALSE) {
-        stop("Kmeans requires a dataframe with numeric columns. 
-          Remove non-numeric columns.")
+        stop("Kmeans requires a dataframe with numeric columns. Remove non-numeric columns
+and categorical columns with more than 2 categories.")
       }
     },
 

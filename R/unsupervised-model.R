@@ -212,11 +212,11 @@ we recommend that you use supervised multiclass.\n')
       
       # Create dummy variables for binary columns
       # Find binary columns
-      nFacs <- sapply(self$params$df[,sapply(self$params$df, is.factor)], nlevels)
+      nFacs <- sapply(self$params$df[sapply(self$params$df, is.factor)], nlevels)
       binaryCatCols <- names(nFacs[nFacs==2])
       # Create dummies
-      data <- caret::dummyVars(~., data = self$params$df, fullRank = T)
-      temp <- data.frame(predict(data, newdata = self$params$df, na.action = na.pass))
+      data <- caret::dummyVars(~., data = self$params$df[binaryCatCols], fullRank = T)
+      temp <- data.frame(predict(data, newdata = self$params$df[binaryCatCols], na.action = na.pass))
       # Remove originals, replace with binary
       self$params$df[binaryCatCols] <- NULL
       self$params$df <- cbind(self$params$df, temp)
