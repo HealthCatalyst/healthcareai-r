@@ -61,6 +61,19 @@
 #' @section \code{$getMAE()}:
 #' Returns the RMSE from test data for regression models. \cr
 #' \emph{Usage:} \code{$getMAE()} \cr
+#' @section \code{$getVariableImportanceList()}:
+#' Returns the variable importance list. \cr
+#' \emph{Usage:} \code{$getVariableImportanceList(numTopVariables = NULL)} \cr
+#'  Params: \cr
+#'   - \code{numTopVariables:} The maximum number of variables to include. If no
+#'   value is specified, all variables are used. \cr
+#' @section \code{$plotVariableImportance()}:
+#' Plots the variable importance list. \cr
+#' \emph{Usage:} \code{$plotVariableImportance(numTopVariables = NULL)} \cr
+#'  Params: \cr
+#'   - \code{numTopVariables:} The maximum number of variables to include. If no
+#'   value is specified, all variables are used. \cr
+#' 
 #' @export
 #' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{LassoDevelopment}}
@@ -228,6 +241,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     AUPR = NA,
     RMSE = NA,
     MAE = NA,
+    variableImportanceList = NA,
 
     # Start of functions
     
@@ -364,6 +378,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
                                       newdata = private$dfTest,
                                       type = 'prob')
         private$predictions <- private$predictions[,2]
+        names(private$predictions) <- row.names(private$dfTest) # add row nums
         
         if (isTRUE(self$params$debug)) {
           print(paste0('Number of predictions: ', nrow(private$predictions)))
@@ -373,6 +388,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         
       } else if (self$params$type == 'regression') {
         private$predictions <- caret::predict.train(private$fitRF, newdata = private$dfTest)
+        names(private$predictions) <- row.names(private$dfTest) # add row nums
         
         if (isTRUE(self$params$debug)) {
           print(paste0('Rows in regression prediction: ',
@@ -381,7 +397,6 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
           print(round(private$predictions[1:10],2))
         }
       }
-
     },
 
     # Generate performance metrics
@@ -402,6 +417,16 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       private$MAE <- calcObjList[[6]]
       
       print(caret::varImp(private$fitRF, top = 20))
+      
+      # Construct variable importance list
+      impList <- caret::varImp(private$fitRF)$importance
+      impList = data.frame(rownames(impList), impList$Overall)
+      colnames(impList) = c("variable", "importance")
+      # list in decreasing order
+      impList = impList[order(impList$importance, decreasing = TRUE), ]
+      row.names(impList) <- NULL
+      private$variableImportanceList <- impList
+      rm(impList)
       
       return(invisible(private$fitRF))
     },
@@ -461,6 +486,66 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     getCutOffs = function() {
       warning("`getCutOffs` is deprecated. Please use `generateAUC` instead. See 
               ?generateAUC", call. = FALSE)
+    },
+    
+    getVariableImportanceList = function(numTopVariables = NULL) {
+      top <- min(numTopVariables, nrow(private$variableImportanceList))
+      if (!is.null(numTopVariables)) {
+        if (top < numTopVariables) {
+          warning(paste0("You requested ", 
+                         numTopVariables, 
+                         " variables but the random forest was only trained ",
+                         "on ", 
+                         top, 
+                         " variables. Returning all variables."))
+        }
+      }
+      return(private$variableImportanceList[1:top, ])
+    },
+    
+    plotVariableImportance = function(numTopVariables = NULL) {
+      # Get information for plot before changing margins
+      vIL <- self$getVariableImportanceList(numTopVariables)
+      last_row <- nrow(vIL)
+      # have most important variables on top, as in list
+      values <- vIL$importance[last_row:1]
+      labels <- as.character(vIL$variable[last_row:1])
+      maxLabelLength <- max(nchar(labels))
+      limit = 23
+      if (maxLabelLength > limit) {
+        print(paste0("Long variable names have been abbreviated in the plot. ",
+                       "The (ordered) labels are as follows:"))
+        print(vIL)
+        print("These can also be accessed via $getVariableImportanceList()")
+        labels <- sapply(X = labels, FUN = function(label) {
+          labelLength <- nchar(label)
+          if (labelLength > limit) {
+            label <- paste0(substring(label, 1, (limit - 3)/2), 
+                            "...", 
+                            substring(label, 
+                                      labelLength - (limit - 3)/2, 
+                                      labelLength))
+          }
+          return(label)
+        })
+        maxLabelLength <- limit
+      }
+      old_mai = par()$mai # save old margins
+      # Change margins in tryCatch so that margins are always reset even if
+      # plotting fails
+      tryCatch({
+        # indent plot so that variable names can be read, indentation depends
+        # on the maximum label length
+        par(mai = c(1, 1 + maxLabelLength*0.12, 1, 1))
+        barplot(values,
+                names.arg = labels,
+                horiz = TRUE, las = 1, cex.names = 1, xlab = "Importance",
+                main = "Random Forest Variable Importance", col = "navy")
+      }, error = function(e) {
+        message(e)
+      }, finally = {
+        par(mai = old_mai) # reset margins
+      })
     }
   )
 )
