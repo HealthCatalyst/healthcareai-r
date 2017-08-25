@@ -74,7 +74,7 @@ p$xgb_params <- list("objective" = "multi:softprob",
 # Text of warning that we know will trigger and that we want to suppress
 warningText = paste("Each of the following categorical variable levels occurs ",
                     "3 times or fewer:\n-  x6 : Class1\n-  x27 : Class1\n-  ",
-                    "x33 : Class1\nThere is a chance",
+                    "x33 : Class1\nConsider grouping",
                     sep = "")
 # Run model
 xNew <- capture.output(ignoreSpecWarn(code = boost <- XGBoostDevelopment$new(p),
