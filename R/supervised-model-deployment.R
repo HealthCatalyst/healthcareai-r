@@ -94,9 +94,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   # for deploy method
   if (!is.null(p$cores))
   self$params$cores <- p$cores
-  
-  if (is.null(self$params$modelName))
-  self$params$modelName = private$modelName
   },
 
   loadData = function() {
@@ -336,9 +333,14 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     # Try to load the model
     tryCatch({
       # Set file names for model and associated information
-      fitObjFile <- paste("rmodel_probability_", self$params$modelName, ".rda", 
+      modelName <- ifelse(is.null(self$params$modelName), 
+                          "",
+                          paste0(self$params$modelName, "_"))
+      fitObjFile <- paste("rmodel_probability_", modelName, 
+                          private$algorithmShortName, ".rda", 
                           sep = "")
-      modelInfoFile <- paste("rmodel_info_", self$params$modelName, ".rda", 
+      modelInfoFile <- paste("rmodel_info_", modelName, 
+                             private$algorithmShortName, ".rda", 
                              sep = "")
       
       load(modelInfoFile)  # Get model info
