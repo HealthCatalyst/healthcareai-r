@@ -27,6 +27,8 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
     prevalence = NA,
     factorLevels = NA,
     imputeVals = NA,
+    
+    algorithmShortName = NA,
 
     clustersOnCores = NA,
     grainColValues = NA,
@@ -461,9 +463,15 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       modelInfo <- self$modelInfo
       
       # Set file names for model and associated information
-      fitObjFile <- paste("rmodel_probability_", self$params$modelName, ".rda", 
+      modelName <- ifelse(is.null(self$params$modelName),
+                          "",
+                          paste0(self$params$modelName, "_"))
+      
+      fitObjFile <- paste("rmodel_probability_", modelName, 
+                          private$algorithmShortName, ".rda", 
                           sep = "")
-      modelInfoFile <- paste("rmodel_info_", self$params$modelName, ".rda", 
+      modelInfoFile <- paste("rmodel_info_", modelName, 
+                             private$algorithmShortName, ".rda", 
                              sep = "")
 
       # Save model and associated information
