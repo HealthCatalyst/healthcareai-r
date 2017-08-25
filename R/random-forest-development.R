@@ -490,22 +490,51 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     
     getVariableImportanceList = function(numTopVariables = NULL) {
       top <- min(numTopVariables, nrow(private$variableImportanceList))
+      if (!is.null(numTopVariables)) {
+        if (top < numTopVariables) {
+          warning(paste0("You requested ", 
+                         numTopVariables, 
+                         " variables but the random forest was only trained ",
+                         "on ", 
+                         top, 
+                         " variables. Returning all variables."))
+        }
+      }
       return(private$variableImportanceList[1:top, ])
     },
     
     plotVariableImportance = function(numTopVariables = NULL) {
-      # Get information for plot before chaning margins
+      # Get information for plot before changing margins
       vIL <- self$getVariableImportanceList(numTopVariables)
       last_row <- nrow(vIL)
       # have most important variables on top, as in list
       values <- vIL$importance[last_row:1]
-      labels <- vIL$variable[last_row:1]
+      labels <- as.character(vIL$variable[last_row:1])
+      maxLabelLength <- max(nchar(labels))
+      limit <- 43
+      if (maxLabelLength > limit) {
+        warning(paste0("Long variable names have been abbreviated. To get the ",
+                       "full variable names, run $getVariableImportanceList()"))
+        labels <- sapply(X = labels, FUN = function(label) {
+          labelLength <- nchar(label)
+          if (labelLength > limit) {
+            label <- paste0(substring(label, 1, (limit - 3)/2), 
+                            "...", 
+                            substring(label, 
+                                      labelLength - (limit - 3)/2, 
+                                      labelLength))
+          }
+          return(label)
+        })
+        maxLabelLength <- limit
+      }
       old_mai = par()$mai # save old margins
       # Change margins in tryCatch so that margins are always reset even if
       # plotting fails
       tryCatch({
-        # indent plot so that variable names can be read
-        par(mai = c(1,2,1,1))
+        # indent plot so that variable names can be read, indentation depends
+        # on the maximum label length
+        par(mai = c(1, 1 + maxLabelLength*0.08, 1, 1))
         barplot(values,
                 names.arg = labels,
                 horiz = TRUE, las = 1, cex.names = 1, xlab = "Importance",
