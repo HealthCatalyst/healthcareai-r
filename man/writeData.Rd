@@ -64,6 +64,46 @@ writeData(MSSQLConnectionString = connectionString,
           df = df, 
           tableName = 'HCRWriteData')
 }
+
+\dontrun{
+# This example shows the RODBC way of writing to a non-default schema while 
+# ODBC is being fixed.
+
+# First, create this table in SQL Server using a non-default schema. The 
+# example creates this table in the SAM database on localhost. You will also 
+# need to create a new schema(Cardiovascular) in SSMS for this specific 
+# example to work.
+CREATE TABLE [Cardiovascular].[TestTable](
+[a] [float] NULL,
+[b] [float] NULL,
+[c] [varchar](255) NULL)
+
+# Install the RODBC pacakge onto your machine. You only need to do this one 
+# time.
+install.packages("RODBC")
+
+# Load the package
+library(RODBC)
+
+# Create a connection to work with
+con <- RODBC::odbcDriverConnect('driver={SQL Server};
+                                server=localhost;
+                                database=SAM;
+                                trusted_connection=true')
+
+# Df write to SQL Server. df columns names must match the SQL table in SSMS.
+df <- data.frame(a = c(10, 20, 30),
+                 b = c(20, 40, 60),
+                 c = c("oneT", "twoT", "threeT"))
+
+# Write the df to the SQL table                 
+RODBC::sqlSave(con, df, "Cardiovascular.TestTable", append = TRUE, 
+               rownames = FALSE)
+
+# Verify that the table was written to 
+confirmDf <- sqlQuery(con, 'select * from Cardiovascular.TestTable') 
+head(confirmDf)
+}
 }
 \references{
 \url{http://healthcareai-r.readthedocs.io}
