@@ -71,7 +71,7 @@
 #' Plots the variable importance list. \cr
 #' \emph{Usage:} \code{$plotVariableImportance(numTopVariables = NULL)} \cr
 #'  Params: \cr
-#'   - \code{numTopVariables:} The maximum number of variables to include If no
+#'   - \code{numTopVariables:} The maximum number of variables to include. If no
 #'   value is specified, all variables are used. \cr
 #' 
 #' @export
