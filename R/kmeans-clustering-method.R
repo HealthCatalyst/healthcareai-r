@@ -6,6 +6,7 @@
 #' @usage KmeansClustering(object, df, grainCol, labelCol, numOfClusters, 
 #'   usePrinComp, numOfPrinComp,impute, debug)
 #' @importFrom R6 R6Class
+#' @importFrom stats lm sd coef prcomp
 #' @param object of UnsupervisedModelParams class for $new() constructor
 #' @param df Dataframe whose columns are used for calc.
 #' @param grainCol Optional. The dataframe's column that has IDs pertaining to 
@@ -171,8 +172,8 @@ KmeansClustering <- R6Class("KmeansClustering",
     checkDataType = function() {
       a <- lapply(self$params$df,is.numeric)
       if (all(unlist(a)) == FALSE) {
-        stop("Kmeans requires a dataframe with numeric columns. Remove non-numeric columns
-and categorical columns with more than 2 categories.")
+        stop("Kmeans requires a dataframe with numeric columns. Remove non-numeric columns 
+          and categorical columns with more than 2 categories.")
       }
     },
 

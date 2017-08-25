@@ -16,22 +16,3 @@ A vector, or column of values now with no NAs
 This class performs imputation on a vector. For numeric vectors
 the vector-mean is used; for factor columns, the most frequent value is used.
 }
-\examples{
-# For a numeric vector
-vResult <- imputeColumn(c(1,2,3,NA))
-
-# For a factor vector
-vResult <- imputeColumn(c('Y','N','Y',NA))
-
-# To use this function on an entire data frame:
-df <- data.frame(a=c(1,2,3,NA),
-                b=c('Y','N','Y',NA))
-df[] <- lapply(df, imputeColumn)
-head(df)
-}
-\references{
-\url{http://healthcare.ai}
-}
-\seealso{
-\code{\link{healthcareai}}
-}

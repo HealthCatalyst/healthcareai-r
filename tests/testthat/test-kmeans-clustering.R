@@ -144,21 +144,26 @@ test_that("Clustering works with PCA and specified number of PCs",{
 })
 
 test_that("Providing categorical columns throws error", {
-  closeAllConnections()
+  df2 <- data.frame(a=1:10,
+                    b=31:40,
+                    c=c('chef','chef','chef','elmo','elmo','elmo','bert','bert','oscar','oscar'))
   p <- UnsupervisedModelParams$new()
-  p$df <- data.frame(
-    anesthetic = c(rep("Midazolam", 50), rep("Propofol", 20), rep("Ketamine", 40), 
-                   rep("Thiamylal", 80),  rep("Diazepam", 20)),
-    value = c(sample(2:5, 50, replace = TRUE), sample(6:10, 20, replace = TRUE), 
-              sample(1:7, 40, replace = TRUE), sample(3:10, 80, replace = TRUE), 
-              sample(10:20, 20, replace = TRUE)))
-  # anesthetic is currently factor
+  p$df <- df2
+  p$impute <- TRUE
+  p$debug <- FALSE
+  p$cores <- 1
   cl <- KmeansClustering$new(p)
+  # column c is a factor
   expect_error(cl$run())
-  
-  # make anesthetic a character and test again
-  p$df$anesthetic <- as.character(p$df$anesthetic)
+
+  df2$c <- as.character(df2$c)
+  p <- UnsupervisedModelParams$new()
+  p$df <- df2
+  p$impute <- TRUE
+  p$debug <- FALSE
+  p$cores <- 1
   cl <- KmeansClustering$new(p)
+  # column c is now a character
   expect_error(cl$run())
 })
 
