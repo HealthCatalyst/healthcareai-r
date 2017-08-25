@@ -81,7 +81,7 @@ test_that("Regression models can only be used for regression", {
                       "model, but you are trying to deploy a multiclass model"))
 })
 
-test_that("Warning is thrown if predicted columns don't match", {
+test_that("Warning is thrown if predicted columns do not match", {
   # Build toy dataframe with "response" as the predicted column
   n <- 100
   d <- data.frame(id = 1:n,
@@ -89,7 +89,7 @@ test_that("Warning is thrown if predicted columns don't match", {
                   y = rnorm(n),
                   z = rnorm(n))
   d$response <- ifelse(d$x + d$y + d$z  + rnorm(n) > 0, "Y", "N")
-  
+
   # Set up development parameters and develop model
   p <- SupervisedModelDevelopmentParams$new()
   p$df <- d
@@ -98,18 +98,18 @@ test_that("Warning is thrown if predicted columns don't match", {
   p$grainCol <- "id"
   capture.output(rf <- RandomForestDevelopment$new(p))
   capture.output(rf$run())
-  
+
   # Set up deployment parameters
   p2 <- SupervisedModelDeploymentParams$new()
   p2$df <- d
   p2$type <- "classification"
   p2$predictedCol <- "RESPONSE" # misspelled predicted column
   p2$grainCol <- "id"
-  
-  expect_warning(capture.output(rfD <- RandomForestDeployment$new(p2)), 
+
+  expect_warning(capture.output(rfD <- RandomForestDeployment$new(p2)),
                  paste0("The name of the predicted column in the saved model ",
-                        "differs from the name of the predicted column that ", 
-                        "you have set.", 
-                        "\n- Old predicted column: response", 
+                        "differs from the name of the predicted column that ",
+                        "you have set.",
+                        "\n- Old predicted column: response",
                         "\n- New predicted column: RESPONSE"))
 })
