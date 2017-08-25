@@ -318,10 +318,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       self$params$df <- self$params$df[,colSums(is.na(self$params$df)) < nrow(self$params$df)]
 
       # Remove date columns
-      dateList <- grep("DTS$", colnames(self$params$df))
-      if (length(dateList) > 0) {
-        self$params$df <- self$params$df[, -dateList]
-      }
+      self$params$df <- removeColsWithDTSSuffix(self$params$df)
 
       if (isTRUE(self$params$debug)) {
         print('Entire data set after removing cols with DTS (ie date cols)')
