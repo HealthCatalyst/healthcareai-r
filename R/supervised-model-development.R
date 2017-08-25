@@ -352,6 +352,11 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       # Save column names for deploy
       self$modelInfo$columnNames <- names(self$params$df)
       
+      # Save model parameters for deploy
+      self$modelInfo$type <- self$params$type
+      self$modelInfo$predictedCol <- self$params$predictedCol
+      self$modelInfo$grainCol <- self$params$grainCol
+      
       # Perform train/test split
 
       # Remove rows where predicted.col is null in train.

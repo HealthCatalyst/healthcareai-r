@@ -163,7 +163,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     # and grainCOl) and drop extra columns which weren't used in develop (e.g.,
     # columns with no variation in develop, brand new columns in deploy, etc.)
     columnsToKeep <- self$modelInfo$columnNames
-    toDrop <- c(self$params$predictedCol, self$params$grainCol)
+    toDrop <- c(self$modelInfo$predictedCol, self$modelInfo$grainCol)
     columnsToKeep <- columnsToKeep[!(columnsToKeep %in% toDrop)]
     # check that all needed columns from develop are present
     if (all(columnsToKeep %in% names(self$params$df))) {
@@ -359,6 +359,29 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
                        sep = "")
       stop(message)
     })
+    
+    # Trigger a warning if the predicted variable is different from that of
+    # the saved model (since the predicted column is not used, this does not
+    # necessarily imply a problem so should not trigger an error)
+    if (self$modelInfo$predictedCol != self$params$predictedCol) {
+      warningMessage <- paste0("The name of the predicted column in the saved ",
+                               "model differs from the name of the predicted ",
+                               "column that you have set.", 
+                               "\n- Old predicted column: ", 
+                               self$modelInfo$predictedCol,
+                               "\n- New predicted column: ", 
+                               self$params$predictedCol)
+      warning(warningMessage)
+    }
+    
+    # Check that the model type (classification, etc.) of the saved model
+    # matches the type used in deployment parameters. If not, trigger an error.
+    if (self$modelInfo$type != self$params$type) {
+      errorMessage <- paste0("The saved model you have loaded is a ",
+                             self$modelInfo$type, " model, but you are trying ",
+                             "to deploy a ", self$params$type, " model.")
+      stop(errorMessage)
+    }
   }
 ),
 
