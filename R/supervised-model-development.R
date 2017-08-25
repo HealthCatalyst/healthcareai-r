@@ -190,6 +190,9 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       # 2. Get the number of classes.
       # 3. Save the grain column for output.
       if (self$params$type == 'multiclass' ) {
+        # Forget target classes that don't occur in the developset
+        self$params$df[[self$params$predictedCol]] <-
+          as.factor(as.character(self$params$df[[self$params$predictedCol]]))
         # Names
         ind <- grep(self$params$predictedCol, colnames(self$params$df))
         tempCol <- self$params$df[,ind]
@@ -247,11 +250,28 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       
       # Print warning about factors with levels that occur infrequently
       if (length(lowLevels) > 0) {
-        warning('Each of the following categorical variable levels occurs 3 ', 
-                'times or fewer:\n',
-                paste('- ', names(lowLevels), ":", lowLevels, collapse = "\n"),
-                '\nThere is a chance that the model will not train on all of ',
-                'them. Consider grouping these together with other levels.')
+        # Detailed warning
+        warningMessage <- paste0('Each of the following categorical variable ',
+                                 'levels occurs 3 times or fewer:\n',
+                                 paste('- ', names(lowLevels), ":", lowLevels, 
+                                       collapse = "\n"),
+                                 '\nConsider grouping these together with ',
+                                 'other levels.')
+        # Print shorter warning if there are many factor levels which occur
+        # infrequently
+        if (max(unlist(lapply(lowLevels, length))) > 5) {
+          warningMessage <- paste0('Each of the following categorical ',
+                                   'variables has levels that occur 3 times or',
+                                   ' fewer:\n',
+                                   paste('- ', names(lowLevels), ":",
+                                         lapply(lowLevels, length), "levels",
+                                         collapse = "\n"),
+                                   '\nConsider grouping these together with ',
+                                   'other levels.\n',
+                                   'You can view the levels of a column using',
+                                   ' the "table" command.')
+        }
+        warning(warningMessage)
       }
       
       if (isTRUE(self$params$debug)) {
