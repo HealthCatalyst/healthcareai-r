@@ -511,10 +511,12 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       values <- vIL$importance[last_row:1]
       labels <- as.character(vIL$variable[last_row:1])
       maxLabelLength <- max(nchar(labels))
-      limit <- 43
+      limit = 23
       if (maxLabelLength > limit) {
-        warning(paste0("Long variable names have been abbreviated. To get the ",
-                       "full variable names, run $getVariableImportanceList()"))
+        print(paste0("Long variable names have been abbreviated in the plot. ",
+                       "The (ordered) labels are as follows:"))
+        print(vIL)
+        print("These can also be accessed via $getVariableImportanceList()")
         labels <- sapply(X = labels, FUN = function(label) {
           labelLength <- nchar(label)
           if (labelLength > limit) {
@@ -534,7 +536,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
       tryCatch({
         # indent plot so that variable names can be read, indentation depends
         # on the maximum label length
-        par(mai = c(1, 1 + maxLabelLength*0.08, 1, 1))
+        par(mai = c(1, 1 + maxLabelLength*0.12, 1, 1))
         barplot(values,
                 names.arg = labels,
                 horiz = TRUE, las = 1, cex.names = 1, xlab = "Importance",
