@@ -7,7 +7,7 @@
 #' @import caret
 #' @importFrom R6 R6Class
 #' @param object of SuperviseModelParameters class for $new() constructor
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #'
 #' @export
@@ -96,7 +96,15 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
             && !isTargetYN(self$params$df[[self$params$predictedCol]])) {
           stop('predictedCol must be Y/N. IIF function in sql may help')
         }
-        
+
+        # Make sure N/Y are properly ordered (deals with edge case)
+        if (self$params$type == "classification" 
+            && is.factor(self$params$df[[self$params$predictedCol]]) 
+            && levels(self$params$df[[self$params$predictedCol]])[1] == "Y") {
+          self$params$df[[self$params$predictedCol]] <- 
+            factor(self$params$df[[self$params$predictedCol]], 
+                   levels = c("N", "Y"))
+        }
       }
 
       if (!is.null(p$impute))
@@ -141,11 +149,18 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
 
       # For use in confusion matrices
       private$prevalence <- table(self$params$df[[self$params$predictedCol]])[2]
-
-      if (length(returnColsWithMoreThanFiftyCategories(self$params$df)) > 0) {
+      
+      # Identify factor columns with more than 50 levels, other than grainCol 
+      # and predictedCol
+      skipCols <- c(self$params$predictedCol, 
+                    self$params$grainCol, 
+                    self$params$personCol)
+      fiftyPlus <- returnColsWithMoreThanFiftyCategories(self$params$df)
+      fiftyPlus <- fiftyPlus[!(fiftyPlus %in% skipCols)]
+      if (length(fiftyPlus) > 0) {
         warning('These columns in the df have more than fifty categories: \n',
                 paste(
-                 shQuote(returnColsWithMoreThanFiftyCategories(self$params$df)), 
+                 shQuote(fiftyPlus), 
                  collapse = ", "),
                  '\n This drastically reduces performance. \n',
                  'Consider combining into new col with fewer categories.')
@@ -175,6 +190,9 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       # 2. Get the number of classes.
       # 3. Save the grain column for output.
       if (self$params$type == 'multiclass' ) {
+        # Forget target classes that don't occur in the developset
+        self$params$df[[self$params$predictedCol]] <-
+          as.factor(as.character(self$params$df[[self$params$predictedCol]]))
         # Names
         ind <- grep(self$params$predictedCol, colnames(self$params$df))
         tempCol <- self$params$df[,ind]
@@ -184,6 +202,10 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
         self$params$xgb_params$num_class <- self$params$xgb_numberOfClasses
         # Grain
         private$dfGrain <- self$params$df[[self$params$grainCol]]
+        if (is.null((private$dfGrain))) {
+          private$dfGrain <- 1:nrow(self$params$df)
+          self$params$grainCol <- "dfRowNumber"
+        }
         rm(ind, tempCol)
         # prints
         if (isTRUE(self$params$debug)) {
@@ -201,7 +223,11 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       
       # Remove factors levels which don't actually occur in the training data
       # Different case for single column vs. multiple columns
+      # Identify factor columns
       factors <- sapply(self$params$df, is.factor)
+      # Don't touch predictedCol, grainCol, or personCol
+      for (col in skipCols) factors[[col]] <- FALSE
+
       if (is.data.frame(self$params$df[, factors])) { # multiple columns
         self$params$df[, factors] <- lapply(self$params$df[, factors], as.character)
         self$params$df[, factors] <- lapply(self$params$df[, factors], as.factor)
@@ -214,7 +240,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       lowLevels = list()
       tempDf = self$params$df
       for (col in names(tempDf)) {
-        if (is.factor(tempDf[, col])) {
+        if (is.factor(tempDf[, col]) & !(col %in% skipCols)) { 
           tab <- table(tempDf[, col])
           if (any(tab <= 3)) {
             lowLevels[[col]] <- names(tab)[tab <= 3]  
@@ -224,11 +250,28 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       
       # Print warning about factors with levels that occur infrequently
       if (length(lowLevels) > 0) {
-        warning('Each of the following categorical variable levels occurs 3 ', 
-                'times or fewer:\n',
-                paste('- ', names(lowLevels), ":", lowLevels, collapse = "\n"),
-                '\nThere is a chance that the model will not train on all of ',
-                'them. Consider grouping these together with other levels.')
+        # Detailed warning
+        warningMessage <- paste0('Each of the following categorical variable ',
+                                 'levels occurs 3 times or fewer:\n',
+                                 paste('- ', names(lowLevels), ":", lowLevels, 
+                                       collapse = "\n"),
+                                 '\nConsider grouping these together with ',
+                                 'other levels.')
+        # Print shorter warning if there are many factor levels which occur
+        # infrequently
+        if (max(unlist(lapply(lowLevels, length))) > 5) {
+          warningMessage <- paste0('Each of the following categorical ',
+                                   'variables has levels that occur 3 times or',
+                                   ' fewer:\n',
+                                   paste('- ', names(lowLevels), ":",
+                                         lapply(lowLevels, length), "levels",
+                                         collapse = "\n"),
+                                   '\nConsider grouping these together with ',
+                                   'other levels.\n',
+                                   'You can view the levels of a column using',
+                                   ' the "table" command.')
+        }
+        warning(warningMessage)
       }
       
       if (isTRUE(self$params$debug)) {
@@ -275,10 +318,7 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       self$params$df <- self$params$df[,colSums(is.na(self$params$df)) < nrow(self$params$df)]
 
       # Remove date columns
-      dateList <- grep("DTS$", colnames(self$params$df))
-      if (length(dateList) > 0) {
-        self$params$df <- self$params$df[, -dateList]
-      }
+      self$params$df <- removeColsWithDTSSuffix(self$params$df)
 
       if (isTRUE(self$params$debug)) {
         print('Entire data set after removing cols with DTS (ie date cols)')
@@ -303,6 +343,11 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       if (self$params$type == 'classification' || self$params$type == 'multiclass' ) {
         self$params$df[[self$params$predictedCol]] = as.factor(self$params$df[[self$params$predictedCol]])
       }
+      
+      # Save column names for deploy
+      self$modelInfo$columnNames <- names(self$params$df)
+      
+      # Perform train/test split
 
       # Remove rows where predicted.col is null in train.
       # Also in test, because it breaks performance metric calculation.

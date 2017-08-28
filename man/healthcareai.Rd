@@ -16,12 +16,14 @@ This is done in a four-step process:
 \enumerate{
 \item{\strong{Load and profile data}}{\cr Use \code{\link{selectData}} to 
 pull data directly from the SQL database. Then, 
-\code{\link{featureAvailabilityProfiler}} and \code{\link{countPercentEmpty}} 
+\code{\link{featureAvailabilityProfiler}} and \code{\link{countMissingData}} 
 can help determine how many null values are in a column and how they are 
-populated over time. \code{\link{findVariation}}, \code{\link{findTrends}}, 
+populated over time. \code{\link{findVariation}}, \code{\link{variationAcrossGroups}},
+ \code{\link{findTrends}}, 
 and \code{\link{calculateTargetedCorrelations}} help surface insights from
 data. Manipulate dates using \code{\link{orderByDate}} and 
-\code{\link{countDaysSinceFirstDate}}. One can get quite far in healthcare
+\code{\link{countDaysSinceFirstDate}}. Cluster data with or without an 
+outcome variable with \code{\link{KmeansClustering}}. One can get quite far in healthcare
 data analysis without even going beyond this step. }
 
 \item{\strong{Develop a machine learning model}}{\cr Use \code{\link{LassoDevelopment}} or
@@ -31,11 +33,15 @@ features. Determine the best model using:
 \item Area under the ROC curve or area under the Performance-Recall 
 curve for classification problems (yes or no response). 
 \item Mean squared error for regression problems (continuous response).
-}}
+}
+If you are interested in doing multiclass classification, use \code{\link{XGBoostDevelopment}} 
+to train your model. Models will be automatically saved after creation.
+}
 
 \item{\strong{Deploy the machine learning model}}{\cr
-\code{\link{LassoDeployment}} or \code{\link{RandomForestDeployment}} to
-create a final model, automatically save it, predict against test data, and
+\code{\link{LassoDeployment}}, \code{\link{RandomForestDeployment}},
+or \code{\link{XGBoostDeployment}} to
+load the model from development, predict against test data, and
 push predicted values into a SQL environment. This can be tested locally,
 but eventually lives on the production server.}
 
@@ -47,6 +53,8 @@ have passed.}
 }
 }
 \references{
+\url{http://healthcareai-r.readthedocs.io}
+
 \url{http://healthcare.ai}
 }
 \seealso{

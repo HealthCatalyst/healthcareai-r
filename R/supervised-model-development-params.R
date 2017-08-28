@@ -7,7 +7,7 @@ library(R6)
 #' and helps determine which performs best.
 #' @docType class
 #' @importFrom R6 R6Class
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #'
 #' @export
@@ -28,7 +28,7 @@ SupervisedModelDevelopmentParams <- R6Class("SupervisedModelDevelopmentParams",
     debug = FALSE,
     varImp = TRUE,
     printResults = TRUE,
-    cores = 4,
+    cores = 2,
     tune = FALSE,
     trees = 201,
     xgb_numberOfClasses = NA,

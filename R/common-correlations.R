@@ -8,7 +8,7 @@
 #'
 #' @importFrom stats cor cor.test
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' df <- data.frame(a=c(1,2,3,4,5,6),
@@ -35,7 +35,7 @@ calculateAllCorrelations <- function(df) {
 #' p-values with the target column
 #'
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' df <- data.frame(a=c(1,2,3,4,5,6),

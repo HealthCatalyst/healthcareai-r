@@ -15,7 +15,7 @@
 #' @param groupCol Column that we'll use to differentiate
 #' @param impute Set all-column imputation to F or T.
 #'
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #'

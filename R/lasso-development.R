@@ -1,32 +1,64 @@
 #' Compare predictive models, created on your data
 #'
 #' @description This step allows you to create a Lasso model, based on
-#' your data.
+#' your data. Lasso is a linear model, best suited for linearly separable data. It's fast
+#' to train and often a good starting point.
 #' @docType class
-#' @usage LassoDevelopment(object, type, df, grainCol, predictedCol, impute,
-#' debug)
+#' @usage LassoDevelopment(type, df, grainCol, predictedCol, impute,
+#' debug, cores, modelName)
 #' @import caret
 #' @import doParallel
 #' @import e1071
 #' @import grpreg
 #' @import pROC
 #' @importFrom R6 R6Class
-#' @import ranger
 #' @import ROCR
-#' @param object of SuperviseModelParameters class for $new() constructor
 #' @param type The type of model (either 'regression' or 'classification')
 #' @param df Dataframe whose columns are used for calc.
 #' @param grainCol Optional. The dataframe's column that has IDs pertaining to 
 #' the grain. No ID columns are truly needed for this step.
 #' @param predictedCol Column that you want to predict. If you're doing
 #' classification then this should be Y/N.
-#' @param impute Set all-column imputation to F or T.
-#' This uses mean replacement for numeric columns
+#' @param impute Set all-column imputation to T or F.
+#' If T, this uses mean replacement for numeric columns
 #' and most frequent for factorized columns.
 #' F leads to removal of rows containing NULLs.
+#' Values are saved for deployment.
 #' @param debug Provides the user extended output to the console, in order
 #' to monitor the calculations throughout. Use T or F.
-#' @references \url{http://healthcare.ai}
+#' @param cores Number of cores you'd like to use. Defaults to 2.
+#' @param modelName Optional string. Can specify the model name. If used, you must load the same one in the deploy step.
+#' @section Methods: 
+#' The above describes params for initializing a new lassoDevelopment class with 
+#' \code{$new()}. Individual methods are documented below.
+#' @section \code{$new()}:
+#' Initializes a new lasso development class using the 
+#' parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
+#' model training. \cr
+#' \emph{Usage:} \code{$new(p)}
+#' @section \code{$run()}:
+#' Trains model, displays feature importance and performance. \cr
+#' \emph{Usage:}\code{$new()} 
+#' @section \code{$getPredictions()}:
+#' Returns the predictions from test data. \cr
+#' \emph{Usage:} \code{$getPredictions()} \cr
+#' @section \code{$getROC()}:
+#' Returns the ROC curve object for \code{\link{plotROCs}}. Classification models only. \cr
+#' \emph{Usage:} \code{$getROC()} \cr
+#' @section \code{$getPRCurve()}:
+#' Returns the PR curve object for \code{\link{plotPRCurve}}. Classification models only. \cr
+#' \emph{Usage:} \code{$getROC()} \cr
+#' @section \code{$getAUROC()}:
+#' Returns the area under the ROC curve from testing for classification models. \cr
+#' \emph{Usage:} \code{$getAUROC()} \cr
+#' @section \code{$getRMSE()}:
+#' Returns the RMSE from test data for regression models. \cr
+#' \emph{Usage:} \code{$getRMSE()} \cr
+#' @section \code{$getMAE()}:
+#' Returns the RMSE from test data for regression models. \cr
+#' \emph{Usage:} \code{$getMAE()} \cr
+#' @export
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{RandomForestDevelopment}}
 #' @seealso \code{\link{LinearMixedModelDevelopment}}
 #' @seealso \code{\link{healthcareai}}
@@ -206,6 +238,7 @@ LassoDevelopment <- R6Class("LassoDevelopment",
     },
 
     getPredictions = function(){
+      "Returns predictions from test data."
       return(private$predictions)
     },
 

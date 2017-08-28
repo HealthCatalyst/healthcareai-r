@@ -8,7 +8,7 @@
 #' @import caret
 #' @importFrom R6 R6Class
 #' @param object of SupervisedModelDeploymentParams class for $new() constructor
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #'
 #' @export
@@ -114,9 +114,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     # This also converts chr cols to (needed) factors
     self$params$df <- as.data.frame(unclass(self$params$df))
 
-    # Remove columns that are only NA
-    self$params$df <- self$params$df[, colSums(is.na(self$params$df)) < nrow(self$params$df)]
-
     # self$params$df[[self$params$predictedCol]] <- temp
 
     # Remove date columns
@@ -163,6 +160,22 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     # Remove predicted column if it exists
     if ((nchar(self$params$predictedCol) != 0) & (self$params$type != 'multiclass')) {
       self$params$df[[self$params$predictedCol]] <- NULL
+    }
+    
+    # Check that all columns used in develop are present (except predictedCol
+    # and grainCOl) and drop extra columns which weren't used in develop (e.g.,
+    # columns with no variation in develop, brand new columns in deploy, etc.)
+    columnsToKeep <- self$modelInfo$columnNames
+    toDrop <- c(self$params$predictedCol, self$params$grainCol)
+    columnsToKeep <- columnsToKeep[!(columnsToKeep %in% toDrop)]
+    # check that all needed columns from develop are present
+    if (all(columnsToKeep %in% names(self$params$df))) {
+      # drop extra columns in deploy
+      self$params$df <- self$params$df[, columnsToKeep]
+    } else {# missing columns from develop
+      missingCols <- columnsToKeep[!(columnsToKeep %in% names(self$params$df))]
+      stop(paste0("Some columns used to develop the model are missing\n",
+                  "Missing columns: ", paste(missingCols, collapse = " ")))
     }
 
     if (isTRUE(self$params$debug)) {

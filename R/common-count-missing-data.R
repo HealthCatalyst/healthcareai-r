@@ -11,7 +11,7 @@
 #' @return A numeric vector of the proportion of NAs in each column.
 #'
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' bob <- data.frame(d = c("NULL", NA, "empty", 5, "?", 'nil', "NaN", " ", 2),

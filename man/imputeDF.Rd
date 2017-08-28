@@ -4,22 +4,30 @@
 \alias{imputeDF}
 \title{Perform imputation on a dataframe}
 \usage{
-imputeDF(df, imputeVals = list())
+imputeDF(df, imputeVals = NULL)
 }
 \arguments{
 \item{df}{A dataframe of values with NAs.}
 
-\item{imputeVals}{A list of values to be used for imputation. Must be the same length
-as the number of columns in df.}
+\item{imputeVals}{A list of values to be used for imputation. If an unnamed list
+must be the same length as as the number of columns in `df` and the order of values
+in `imputeVals` should match the order of columns in `df`. If named, names will be
+matched to names of `df`, and you can provide a subset of columns in `df` (see @details).}
 }
 \value{
 A list. The first element, df, is the imputed dataframe. The second element,
 imputeVals, is a list of the imputation value used.
-#'
 }
 \description{
 This class performs imputation on a data frame. For numeric columns,
 the column-mean is used; for factor columns, the most frequent value is used.
+}
+\details{
+If `imputeVals` is a named list containing a subset of the columns in `df`,
+columns that don't have a value provided will have one calculated. If you wish
+to provide custom imputation values for a subset of columns and leave NAs
+in other columns, supply the value NA to `imputeVals` for those columns.
+#'
 }
 \examples{
 
@@ -48,7 +56,7 @@ dfOut <- out$df # imputed data frame
 print(dfOut)
 }
 \references{
-\url{http://healthcare.ai}
+\url{http://healthcareai-r.readthedocs.io}
 }
 \seealso{
 \code{\link{healthcareai}}

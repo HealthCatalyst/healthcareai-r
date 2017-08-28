@@ -12,7 +12,7 @@
 #' alternate predictions.
 #'
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' library(caret)
@@ -85,7 +85,7 @@ calulcateAlternatePredictions <- function(df,
 #' @param sizeOfSDPerturb Default is 0.5. Shrink or expand SD drop/addition
 #'
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' df <- data.frame(a=c(1,2,3),
@@ -185,7 +185,7 @@ calculateSDChanges <- function(dfOriginal,
 #' row, without alternative scenario
 #'
 #' @export
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #' library(caret)
