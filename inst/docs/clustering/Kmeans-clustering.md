@@ -1,330 +1,218 @@
 # Cluster analysis via `KmeansClustering`
 
-# What is this?
+This functionality allows exploration of data using kmeans clustering.
 
-This class let one perform kmeans clustering on numeric datasets.
+##### Is any dataset ready for model creation?
+Nope. This method only works for datasets with numeric and binary columns. You must remove categorical columns. The grain column and label columns are optional.
 
-## Is any dataset ready for model creation?
-Nope. This method only works for numerical dataset. So it'll help if you can 
-remove the non-numeric columns from the dataset beforehand, and set the grain col and label col if there is any.
+## Example 1: Explore your data
 
-## Step 1: Load data and packages 
-
+__Step 1:__ Load data and packages
 ```r
-ptm <- proc.time()
 library(healthcareai)
 
-# This example uses csv data
-# setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
-
-# Can delete this line in your work
-csvfile <- system.file("extdata", 
-                       "seeds_dataset.csv", 
-                       package = "healthcareai")
-
-# Replace csvfile with 'path/file'
-df <- read.csv(file = csvfile, 
-               header = TRUE, 
-               na.strings = c("NULL", "NA", ""))
+# This example uses the iris dataset without labels
+data(iris)
+df <- iris
               
 str(df)
 head(df)
-
 ```
 
-## Step 2: Set your parameters via ``UnsupervisedModelParams``
-
+__Step 2:__ Set your parameters via `UnsupervisedModelParams`
 - __Return__: an object representing your specific configuration.
 - __Arguments__:
-    - __df__: a data frame. The data your model is based on.
+    - __df__: Dataframe whose columns are used for calc.
+    - __grainCol__: Optional. The dataframe's column that has IDs pertaining to 
+   the grain. No ID columns are truly needed for this step. If left blank, row
+   numbers are used for identification.
+    - __labelCol__: Optional. Labels will not be used for clustering. Labels can
+    be can be used for validation. The number of clusters should be the same as
+    the number of labels. Functions getClusterLabels() and getConfusionMatrix()
+    are only available if labelCol is provided. Generally, supervised models
+    are a better choice if your goal is classification.
+    - __numOfClusters__ Optional. Number of clusters you want to build. If left blank,
+    will be determined automatically from the elbow plot.
+    - __usePrinComp__ Optional. TRUE or FALSE. Default is FALSE. If TRUE, the
+    method will use principle components as the new features to perform K-means
+    clustering. This may accelerate convergence on high-dimension datasets.
+    - __numOfPrinComp__ Optional. If using principle components, you may specify
+    the number to use to perform K-means clustering. If left blank, it will be
+    determined automatically from the scree (elbow) plot.
     - __impute__: a boolean, defaults to FALSE. Whether to impute by replacing NULLs with column mean (for numeric columns) or column mode (for categorical columns).
-    - __grainCol__: a string, defaults to None. Name of possible GrainID column in your dataset. If specified, this column will be removed, as it won't help the algorithm.
     - __debug__: a boolean, defaults to FALSE. If TRUE, console output when comparing models is verbose for easier debugging.
-    - __cores__: an int, defaults to 4. Number of cores on machine to use for model training.
 
 ```r
 p <- UnsupervisedModelParams$new()
 p$df <- df
-p$grainCol <- "grain_col"
 p$impute <- TRUE
 p$debug <- FALSE
-p$cores <- 1
+p$cores <- 2
+# p$numOfClusters <- 3 # Optional parameter
+
+# Note: The `numOfClusters` param will select the number of clusters to use. If left
+blank, Kmeans will use PCA to automatically find the optimal number of clusters. You
+can visualize this search using `getElbowPlot()`.
 ```
 
-## Step 3: Create the clustering via the `KmeansClustering` algorithms.
+__Step 3:__ Create the clusters via the `KmeansClustering` algorithms.
 
 ```r
 # Run kmeans 
-cl1 <- KmeansClustering$new(p)
-cl1$run()
+cl <- KmeansClustering$new(p)
+cl$run()
 ```
 
-## Step 4: 2D visualization of the clusters
+__Step 4:__ 2D visualization of the clusters
 ```r
-cl1$get2DClustersPlot()
+cl$get2DClustersPlot()
 ```
 ![2D visualization output from KmeansClustering](img/clustering2Dplot.png)
 
-If you want to label each point with its grain ID, just call
+If you want to label each point with its grain ID, call
 ```r
-cl1$get2DClustersPlot(TRUE)
+cl$get2DClustersPlot(TRUE)
 ```
 
-## Step 5: Get the output data frame
+__Step 5:__ Get the output data frame
 ```r
-outDf_seed <- cl1$getOutDf()
-head(outDf_seed)
+dfOut <- cl$getOutDf()
+head(dfOut)
 
 # Write to CSV (or JSON, MySQL, etc) using plain R syntax
 write.csv(outDf_seed,'path/clusteringresult.csv')
 ```
-![output data frame from KmeansClustering](img/clusteringOutDf.png)
 
-## Full example code
-
+#### Full example code
 ```r
 ptm <- proc.time()
 library(healthcareai)
-# This example uses csv data
-# setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
 
-# Can delete this line in your work
-csvfile <- system.file("extdata", 
-                       "seeds_dataset.csv", 
-                       package = "healthcareai")
-
-# Replace csvfile with 'path/file'
-df <- read.csv(file = csvfile, 
-               header = TRUE, 
-               na.strings = c("NULL", "NA", ""))
+# This example uses the iris dataset
+data(iris)
+df <- iris
               
 str(df)
 head(df)
 
 p <- UnsupervisedModelParams$new()
 p$df <- df
-p$grainCol <- "grain_col"
 p$impute <- TRUE
 p$debug <- FALSE
-p$cores <- 1
+p$cores <- 2
+# p$numOfClusters <- 3 # Optional parameter
 
-# Run kmeans 
-cl1 <- KmeansClustering$new(p)
-cl1$run()
+cl <- KmeansClustering$new(p)
+cl$run()
 
-cl1$get2DClustersPlot()
+cl$get2DClustersPlot()
 
-outDf_seed <- cl1$getOutDf()
-head(outDf_seed)
+dfOut <- cl$getOutDf()
+head(dfOut)
 
 # Write to CSV (or JSON, MySQL, etc) using plain R syntax
 write.csv(outDf_seed,'path/clusteringresult.csv')
 
-cat(proc.time() - ptm,"\n")
-```
-## Note: how to choose the optimal number of clusters?
-You can set the number of clusters by yourself when setting the parameters in step 2.
-
-```r
-p <- UnsupervisedModelParams$new()
-p$df <- df
-p$grainCol <- "grain_col"
-p$numOfClusters <- 3
-p$impute <- TRUE
-p$debug <- FALSE
-p$cores <- 1
+print(proc.time() - ptm,"\n")
 ```
 
-Otherwise `KmeanClustering` will choose the number of clusters for you using the [elbow plot](https://bl.ocks.org/rpgove/0060ff3b656618e9136b) built in the method. In this example, we will build three clusters according to the elbow plot.
+## Example 2: Clustering with a labeled dataset
 
-```r
-cl1$getElbowPlot()
-```
-![elbow plot from KmeansClustering](img/clusteringElbowPlot.png)
-
-
-## A more detailed example with dataset that has a label col
 It is possible that the dataset already has a label column that assigns each row 
-to a group. In this case, if your goal is to do classification, there are supervised models like `RandonForesrDevelopment', 'XGBoostDevelopment` available in `healthcareai` package. In the unsupervised models like clustering, label column can only be used for validatoin. We compare the clustering result achieved by `KmeansClustering` with the original labels to evaluate the accuracy of the clustering method. And only when `labelCol` is provided, functions getClusterLabels and getConfusionMatrix are available.
+to a group. If your goal is to do classification, there are supervised models like 
+`RandonForestDevelopment` and `XGBoostDevelopment` available in the `healthcareai` package that are more suitable. You might use this functionality for the scenario where you don't trust the label column and want to compare clustering's pattern recognition with the current label. (As opposed to assuming the known label is truth.) If the `labelCol` is provided, methods `getClusterLabels` and `getConfusionMatrix` are available.
 
-### Step 1: Load data and packages, set parameters and create clusterings
+__Step 1:__ Load data and packages 
 ```r
-# Let's use the famous build-in data set iris as an example
-ptm <- proc.time()
 library(healthcareai)
 
+# This example uses the iris dataset without labels
 data(iris)
-head(iris)
+df <- iris
+              
+str(df)
+head(df)
+```
 
-# Set params
+__Step 2:__ Set your parameters via `UnsupervisedModelParams`
+```r
 p <- UnsupervisedModelParams$new()
-p$df <- iris
-p$labelCol <- "Species"
+p$df <- df
+p$labelCol <- 'Species'
 p$impute <- TRUE
 p$debug <- FALSE
-p$cores <- 1
+p$cores <- 2
+```
 
+__Step 3:__ Create the clusters via the `KmeansClustering` algorithms.
+```r
 # Run kmeans 
-cl2 <- KmeansClustering$new(p)
-cl2$run()
+cl <- KmeansClustering$new(p)
+cl$run()
 ```
-### Step 2: View the clustering result
+
+__Step 4:__ 2D visualization of the clusters
 ```r
-cl2$getKmeansfit()
+cl$get2DClustersPlot()
 ```
-![output clustering result from KmeansClustering](img/clusteringResultOfDetailedEx.png)
+![2D visualization output from KmeansClustering](img/clustering2Dplot.png)
 
-### Step 3: Compare the clustering result with the original labels
-
-The confusion matrix shows that all iris setosa are assigned to cluster 2. 
-78% of iris versicolor and 28% of iris virginica are assigned to cluster 1. 22% of iris versicolor and 72% of iris virginica are assigned to cluster 3. Hence the best way to label the clusters is to label cluster 1 with versicolor, cluster 2 with setosa and cluster 3 with virginica. 
-
+If you want to label each point with its grain ID, call
 ```r
-cl2$getConfusionMatrix()
-cl2$getClusterLabels()
+cl$get2DClustersPlot(TRUE)
 ```
-![comparison between clustering result and original labels](img/clusteringResultVsOriginalLabels.png)
 
-### Step 4: Get the output data frame
+__Step 5:__ Get the output data frame
 ```r
-outDf_iris <- cl2$getOutDf()
-head(outDf_iris)
+dfOut <- cl$getOutDf()
+head(dfOut)
 
 # Write to CSV (or JSON, MySQL, etc) using plain R syntax
-write.csv(outDf_iris,'path/clusteringresult.csv')
+write.csv(outDf_seed,'path/clusteringresult.csv')
 ```
 
-### Full example code for the detailed example
-
+#### Full example code
 ```r
 ptm <- proc.time()
 library(healthcareai)
-ptm <- proc.time()
-library(healthcareai)
 
+# This example uses the iris dataset
 data(iris)
-head(iris)
-
-# Set params
-p <- UnsupervisedModelParams$new()
-p$df <- iris
-p$labelCol <- "Species"
-p$impute <- TRUE
-p$debug <- FALSE
-p$cores <- 1
-
-# Run kmeans 
-cl2 <- KmeansClustering$new(p)
-cl2$run()
-
-cl2$getKmeansfit()
-
-cl2$getConfusionMatrix()
-cl2$getClusterLabels()
-
-cl2$getSilhouettePlot()
-cl2$getParallelCoordinatePlot()
-
-outDf_iris <- cl2$getOutDf()
-head(outDf_iris)
-
-# Write to CSV (or JSON, MySQL, etc) using plain R syntax
-write.csv(outDf_iris,'path/clusteringresult.csv')
-
-cat(proc.time() - ptm,"\n")
-```
-
-## PCA is built in `KmeansClustering`
-
-In case that we may have data sets with a large number of features, PCA is built in `KmeansClustering` to reduce the features to use when building clusters. Let's use the csv file of  seeds_dataset again as an example. 
-
-```r
-ptm <- proc.time()
-library(healthcareai)
-# This example uses csv data
-# setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
-
-# Can delete this line in your work
-csvfile <- system.file("extdata", 
-                       "seeds_dataset.csv", 
-                       package = "healthcareai")
-
-# Replace csvfile with 'path/file'
-df <- read.csv(file = csvfile, 
-               header = TRUE, 
-               na.strings = c("NULL", "NA", ""))
+df <- iris
               
 str(df)
 head(df)
 
 p <- UnsupervisedModelParams$new()
 p$df <- df
-p$grainCol <- "grain_col"
+p$labelCol <- 'Species'
 p$impute <- TRUE
 p$debug <- FALSE
-p$cores <- 1
+p$cores <- 2
 
-# Run kmeans 
-cl3 <- KmeansClustering$new(p)
-cl3$run()
+cl <- KmeansClustering$new(p)
+cl$run()
+
+cl$get2DClustersPlot()
+
+dfOut <- cl$getOutDf()
+head(dfOut)
+
+# Write to CSV (or JSON, MySQL, etc) using plain R syntax
+write.csv(outDf_seed,'path/clusteringresult.csv')
+
+print(proc.time() - ptm,"\n")
 ```
 
-After loading the data, setting the params and running Kmeans, we can have a look of the [scree plot](http://support.minitab.com/en-us/minitab/17/topic-library/modeling-statistics/multivariate/principal-components-and-factor-analysis/what-is-a-scree-plot/)
+## Built-in Principle Component Analysis
 
+If your dataset has a large number of features, `KmeansClustering` might be very slow. You can reduce the dimensionality and speed things up using PCA. Set the param like so:
 ```r
-cl3$getScreePlot()
-```
-![scree plot](img/clusteringScreePlot.png)
-
-Then you can choose whether you want to use the PCs to do Kmeans clustering by setting the parameter `usePrinComp` to `TRUE` or `FALSE`. And you can decide how many PCs you want to use in clustering based on the scree plot. Or `KmeansClustering` will determine for you just by using the elbow point in the scree plot.
-
-### Full example code for PCA
-```r
-ptm <- proc.time()
-library(healthcareai)
-# This example uses csv data
-# setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
-
-# Can delete this line in your work
-csvfile <- system.file("extdata", 
-                       "seeds_dataset.csv", 
-                       package = "healthcareai")
-
-# Replace csvfile with 'path/file'
-df <- read.csv(file = csvfile, 
-               header = TRUE, 
-               na.strings = c("NULL", "NA", ""))
-              
-str(df)
-head(df)
-
-p <- UnsupervisedModelParams$new()
-p$df <- df
-p$grainCol <- "grain_col"
+# While setting params
 p$usePrinComp <- TRUE
-# p$numOfPrinComp <- 2 ## Optional
-p$impute <- TRUE
-p$debug <- FALSE
-p$cores <- 1
+# p$numOfPrinComp <- 3 # Optional
 
-# Run kmeans 
-cl3 <- KmeansClustering$new(p)
-cl3$run()
-
-# 2D visualization plot
-cl3$get2DClustersPlot()
-
-# Output data
-outDf_seed_pca <- cl3$getOutDf()
-head(outDf_seed_pca)
-
-# Write to CSV (or JSON, MySQL, etc) using plain R syntax
-write.csv(outDf_seed_pca,'path/clusteringresult.csv')
-
-cat(proc.time() - ptm,"\n")
+# Note: The `numOfPrinComp` param will select the number of PCs to use. If left
+blank, Kmeans will automatically find the optimal number of PCs to use. You
+can visualize this search using `getScreePlot()`.
 ```
-
-
-
-
-

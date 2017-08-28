@@ -48,7 +48,8 @@
 #'   \emph{Usage:}\code{$run()}
 #' @section \code{$get2DClustersPlot()}: Displays the data and assigned
 #'   clusters. PCA is used to visualize the top two priciple components for
-#'   plotting. This is unrelated to variable reduction for clustering. \cr 
+#'   plotting. This is unrelated to variable reduction for clustering. Passing 
+#'   TRUE to this function will display grain IDs on the plot. \cr 
 #'   \emph{Usage:} \code{$get2DClustersPlot()} \cr
 #' @section \code{$getOutDf()}: Returns the output dataframe for writing to SQL
 #'   or CSV. \cr \emph{Usage:} \code{$getOutDf()} \cr
