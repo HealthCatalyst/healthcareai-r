@@ -66,13 +66,14 @@ writeData(MSSQLConnectionString = connectionString,
 }
 
 \dontrun{
-# This example shows the RODBC way of writing to a non-default schema while 
-# ODBC is being fixed.
+This example shows the RODBC way of writing to a non-default schema while 
+ODBC is being fixed. Here is a link to the non-default issue in ODBC: 
+https://github.com/rstats-db/odbc/issues/91
 
-# First, create this table in SQL Server using a non-default schema. The 
-# example creates this table in the SAM database on localhost. You will also 
-# need to create a new schema(Cardiovascular) in SSMS for this specific 
-# example to work.
+First, create this table in SQL Server using a non-default schema. The 
+example creates this table in the SAM database on localhost. You will also 
+need to create a new schema(Cardiovascular) in SSMS for this specific 
+example to work.
 CREATE TABLE [Cardiovascular].[TestTable](
 [a] [float] NULL,
 [b] [float] NULL,
@@ -101,7 +102,7 @@ RODBC::sqlSave(con, df, "Cardiovascular.TestTable", append = TRUE,
                rownames = FALSE)
 
 # Verify that the table was written to 
-confirmDf <- sqlQuery(con, 'select * from Cardiovascular.TestTable') 
+confirmDf <- RODBC::sqlQuery(con, 'select * from Cardiovascular.TestTable') 
 head(confirmDf)
 }
 }
