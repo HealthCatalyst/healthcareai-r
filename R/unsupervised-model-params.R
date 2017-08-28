@@ -26,8 +26,8 @@ UnsupervisedModelParams <- R6Class("UnsupervisedModelParams",
     labelCol = "",
     grainCol = "",
     cores = 4,
-    usePrinComp = FALSE,
-    numOfPrinComp = NULL,
+    usePCA = FALSE,
+    numOfPCA = NULL,
     
     #Constructor
     initialize = function() {

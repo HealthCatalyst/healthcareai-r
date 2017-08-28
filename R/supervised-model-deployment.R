@@ -141,10 +141,22 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     }
 
     # Remove grain.col from df; below we split it into graintest
+    # Check that a grain column has been specified
     if (nchar(self$params$grainCol) != 0) {
-      fullGrain <- self$params$df[[self$params$grainCol]]
-      self$params$df[[self$params$grainCol]] <- NULL
+      # Check that grain column exists in dataframe
+      if (self$params$grainCol %in% names(self$params$df)) {
+        fullGrain <- self$params$df[[self$params$grainCol]]
+        self$params$df[[self$params$grainCol]] <- NULL
       } else {
+        # grain column not present in df -> ERROR
+        stop(paste0('The grain columm you provided does not match any column ',
+                    'in the the dataframe. Double check the spelling of your ',
+                    'grain column name, keeping in mind that R is case ',
+                    'sensitive.\nProvided grain column name: ', 
+                    self$params$grainCol))
+      }
+    } else {
+      # No grain column specified -> ERROR
       stop('You must specify a GrainID column when using DeploySupervisedModel')
     }
 
