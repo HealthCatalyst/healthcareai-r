@@ -4,7 +4,7 @@
 #'   group your data.
 #' @docType class
 #' @usage KmeansClustering(object, df, grainCol, labelCol, numOfClusters, 
-#'   usePrinComp, numOfPrinComp,impute, debug)
+#'   usePCA, numOfPCA,impute, debug)
 #' @importFrom R6 R6Class
 #' @importFrom stats lm sd coef prcomp
 #' @param object of UnsupervisedModelParams class for $new() constructor
@@ -19,10 +19,10 @@
 #'   are a better choice if your goal is classification.
 #' @param numOfClusters Number of clusters you want to build. If left blank,
 #'   will be determined automatically from the elbow plot.
-#' @param usePrinComp Optional. TRUE or FALSE. Default is FALSE. If TRUE, the
+#' @param usePCA Optional. TRUE or FALSE. Default is FALSE. If TRUE, the
 #'   method will use principle components as the new features to perform K-means
 #'   clustering. This may accelerate convergence on high-dimension datasets.
-#' @param numOfPrinComp Optional. If using principle components, you may specify
+#' @param numOfPCA Optional. If using principle components, you may specify
 #'   the number to use to perform K-means clustering. If left blank, it will be
 #'   determined automatically from the scree (elbow) plot.
 #' @param impute Set all-column imputation to FALSE or TRUE. This uses mean
@@ -187,16 +187,16 @@ KmeansClustering <- R6Class("KmeansClustering",
       private$PCs <- pcaRes[['PCs']]
       private$propVarEx <- pcaRes[['prop_of_var']]
 
-      if (self$params$usePrinComp == FALSE) {
+      if (self$params$usePCA == FALSE) {
         private$dfCls <- private$scaledDf
 
       # PCA=TRUE and user specified number of PCs to use
-      } else if (!is.null(self$params$numOfPrinComp)) {
+      } else if (!is.null(self$params$numOfPCA)) {
         
         # Ensure number PCs to use is not greater than number of variables
-        if (ncol(private$PCs) < self$params$numOfPrinComp)
-            stop("numOfPrinComp must be less than the number of variables on which to cluster.")
-        private$dfCls <- private$PCs[,1:self$params$numOfPrinComp]
+        if (ncol(private$PCs) < self$params$numOfPCA)
+            stop("numOfPCA must be less than the number of variables on which to cluster.")
+        private$dfCls <- private$PCs[,1:self$params$numOfPCA]
       
       # PCA=TRUE and user didn't specify number of PCs to use. Calculate from elbow plot.
       } else {
@@ -265,7 +265,7 @@ KmeansClustering <- R6Class("KmeansClustering",
         private$clusterLabels <- 1:numOfClusters 
       }
       
-      # Do PCA for plotting. If $usePrinComp==TRUE, it will use PCA data for clustering.
+      # Do PCA for plotting. If $usePCA==TRUE, it will use PCA data for clustering.
       private$performPCA()
       # Build clusters
       # Run K-Means and save the result

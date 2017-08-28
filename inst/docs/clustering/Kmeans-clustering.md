@@ -33,10 +33,10 @@ __Step 2:__ Set your parameters via `UnsupervisedModelParams`
       are a better choice if your goal is classification.
     - __numOfClusters__ Optional. Number of clusters you want to build. If left blank,
       will be determined automatically from the elbow plot.
-    - __usePrinComp__ Optional. TRUE or FALSE. Default is FALSE. If TRUE, the
+    - __usePCA__ Optional. TRUE or FALSE. Default is FALSE. If TRUE, the
       method will use principle components as the new features to perform K-means
       clustering. This may accelerate convergence on high-dimension datasets.
-    - __numOfPrinComp__ Optional. If using principle components, you may specify
+    - __numOfPCA__ Optional. If using principle components, you may specify
       the number to use to perform K-means clustering. If left blank, it will be
       determined automatically from the scree (elbow) plot.
     - __impute__: a boolean, defaults to FALSE. Whether to impute by replacing NULLs with column mean (for numeric columns) or column mode (for categorical columns).
@@ -200,7 +200,7 @@ print(proc.time() - ptm,"\n")
 If your dataset has a large number of features, `KmeansClustering` may be very slow. You can reduce the dimensionality and speed up clustering using PCA.
 ```r
 # While setting params
-p$usePrinComp <- TRUE
-# p$numOfPrinComp <- 3 # Optional
+p$usePCA <- TRUE
+# p$numOfPCA <- 3 # Optional
 ```
-Note: The `numOfPrinComp` parameter will select the number of PCs to use. If left blank, Kmeans will automatically find the optimal number of PCs to use. You can visualize this search using `getScreePlot()`.
+Note: The `numOfPCA` parameter will select the number of PCs to use. If left blank, Kmeans will automatically find the optimal number of PCs to use. You can visualize this search using `getScreePlot()`.
