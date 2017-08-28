@@ -7,7 +7,7 @@
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
 KmeansClustering(object, df, grainCol, labelCol, numOfClusters, 
-  usePrinComp, numOfPrinComp,impute, debug)
+  usePCA, numOfPCA,impute, debug)
 }
 \arguments{
 \item{object}{of UnsupervisedModelParams class for $new() constructor}
@@ -27,11 +27,11 @@ are a better choice if your goal is classification.}
 \item{numOfClusters}{Number of clusters you want to build. If left blank,
 will be determined automatically from the elbow plot.}
 
-\item{usePrinComp}{Optional. TRUE or FALSE. Default is FALSE. If TRUE, the
+\item{usePCA}{Optional. TRUE or FALSE. Default is FALSE. If TRUE, the
 method will use principle components as the new features to perform K-means
 clustering. This may accelerate convergence on high-dimension datasets.}
 
-\item{numOfPrinComp}{Optional. If using principle components, you may specify
+\item{numOfPCA}{Optional. If using principle components, you may specify
 the number to use to perform K-means clustering. If left blank, it will be
 determined automatically from the scree (elbow) plot.}
 

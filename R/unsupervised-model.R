@@ -72,11 +72,11 @@ we recommend that you use supervised multiclass.\n')
       if (!is.null(p$debug))
         self$params$debug <- p$debug
       
-      if (!is.null(p$usePrinComp))
-        self$params$usePrinComp <- p$usePrinComp
+      if (!is.null(p$usePCA))
+        self$params$usePCA <- p$usePCA
       
-      if (!is.null(p$numOfPrinComp))
-        self$params$numOfPrinComp <- p$numOfPrinComp
+      if (!is.null(p$numOfPCA))
+        self$params$numOfPCA <- p$numOfPCA
 
       
       if (!is.null(p$cores))
