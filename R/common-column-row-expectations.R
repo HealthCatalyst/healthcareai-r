@@ -96,3 +96,78 @@ returnColsWithMoreThanFiftyCategories <- function(df) {
   }
   colList
 }
+
+#' @title
+#' Remove columns with DTS suffix
+#' @description Remove columns with DTS in the suffix of the column name
+#' @param df A data frame to be altered
+#'
+#' @references \url{http://healthcareai-r.readthedocs.io}
+#' @seealso \code{\link{healthcareai}}
+#' @examples
+#' df <- data.frame(testDTS=c(1,2,3),b=c('Y','N',NA),c=c(NA,'Y','N'))
+#' dfResult <- removeColsWithDTSSuffix(df)
+#' head(dfResult)
+removeColsWithDTSSuffix <- function(df){
+  dateList <- grep("DTS$", colnames(df))
+  if (length(dateList) > 0 &&
+      (length(names(df)) - length(dateList)) != 1) {
+      df[, -dateList]
+  } else if (length(dateList) > 0 &&
+             (length(names(df)) - length(dateList)) == 1)
+  {
+    df[-dateList]
+  } else {df}
+}
+
+#' Check if a data frame only has numeric columns.
+#' @description Check if a dataframe only has numeric columns
+#' @param df A dataframe
+#' @return A boolean
+#' 
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
+#' @examples 
+#' df <- data.frame(a=c(1,2,3),
+#'                  b=c(NA,3,2))
+#' isNumeric(df)
+isNumeric <- function(df) {
+  a <- sapply(df, is.numeric)
+  at <- table(a)
+  if (is.na(at["TRUE"])) return(FALSE)
+  else if (at["TRUE"] == ncol(df)) {
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
+}
+
+#' Remove columns from a data frame that are only NA
+#' 
+#' @description Remove columns from a data frame when all of their rows are NA's
+#' @param df A data frame
+#' @return A data frame with columns of only NA's removed
+#'
+#' @export
+#' @references \url{http://healthcare.ai}
+#' @seealso \code{\link{healthcareai}}
+#' @examples
+#' df <- data.frame(a=c(1,1,1),
+#'                 b=c('a','b','b'),
+#'                 c=c('a','NA','a'),
+#'                 d=c(NA,NA,NA))
+#' dfResult <- removeColsWithOnlyNA(df)
+#' head(dfResult)
+#' 
+removeColsWithOnlyNA <- function(df) {
+  name <- names(df)[colSums(is.na(df)) < nrow(df)]
+  dfres <- df[,colSums(is.na(df)) < nrow(df)]
+  dfres <- as.data.frame(dfres)
+  if (ncol(dfres) == 0) {
+    cat("All columns were removed.")
+  }
+  names(dfres) <- name
+  dfres
+}
+

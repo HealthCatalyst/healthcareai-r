@@ -46,6 +46,7 @@ test_that("SQLite - insert df into table that didn't exist", {
                 "3 rows were inserted into the SQLite table HCRWriteData1")
 
   DBI::dbRemoveTable(con, 'HCRWriteData1')
+  DBI::dbDisconnect(con)
 })
 
 test_that("SQLite - check that table exists after inserting", {
@@ -66,4 +67,6 @@ test_that("SQLite - check that table exists after inserting", {
   expect_true(('HCRWriteData2' %in% DBI::dbListTables(con)))
   
   DBI::dbRemoveTable(con, 'HCRWriteData2')
+  DBI::dbDisconnect(con)
+
 })
