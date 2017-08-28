@@ -14,6 +14,7 @@ library(healthcareai)
 # This example uses the iris dataset without labels
 data(iris)
 df <- iris
+df$Species <- NULL
               
 str(df)
 head(df)
@@ -50,10 +51,10 @@ p$debug <- FALSE
 p$cores <- 2
 # p$numOfClusters <- 3 # Optional parameter
 
-# Note: The `numOfClusters` param will select the number of clusters to use. If left
+```
+Note: The `numOfClusters` param will select the number of clusters to use. If left
 blank, Kmeans will use PCA to automatically find the optimal number of clusters. You
 can visualize this search using `getElbowPlot()`.
-```
 
 __Step 3:__ Create the clusters via the `KmeansClustering` algorithms.
 
@@ -67,12 +68,7 @@ __Step 4:__ 2D visualization of the clusters
 ```r
 cl$get2DClustersPlot()
 ```
-![2D visualization output from KmeansClustering](img/clustering2Dplot.png)
-
-If you want to label each point with its grain ID, call
-```r
-cl$get2DClustersPlot(TRUE)
-```
+![2D visualization output from KmeansClustering](img/clustering_result.png)
 
 __Step 5:__ Get the output data frame
 ```r
@@ -91,6 +87,7 @@ library(healthcareai)
 # This example uses the iris dataset
 data(iris)
 df <- iris
+df$Species <- NULL
               
 str(df)
 head(df)
@@ -153,14 +150,9 @@ cl$run()
 
 __Step 4:__ 2D visualization of the clusters
 ```r
-cl$get2DClustersPlot()
+cl$get2DClustersPlot(TRUE) # Prints labels
 ```
-![2D visualization output from KmeansClustering](img/clustering2Dplot.png)
-
-If you want to label each point with its grain ID, call
-```r
-cl$get2DClustersPlot(TRUE)
-```
+![2D visualization output from KmeansClustering](img/clustering_result_labels.png)
 
 __Step 5:__ Get the output data frame
 ```r
@@ -193,7 +185,7 @@ p$cores <- 2
 cl <- KmeansClustering$new(p)
 cl$run()
 
-cl$get2DClustersPlot()
+cl$get2DClustersPlot(TRUE)
 
 dfOut <- cl$getOutDf()
 head(dfOut)
@@ -212,7 +204,7 @@ If your dataset has a large number of features, `KmeansClustering` might be very
 p$usePrinComp <- TRUE
 # p$numOfPrinComp <- 3 # Optional
 
-# Note: The `numOfPrinComp` param will select the number of PCs to use. If left
+```
+Note: The `numOfPrinComp` param will select the number of PCs to use. If left
 blank, Kmeans will automatically find the optimal number of PCs to use. You
 can visualize this search using `getScreePlot()`.
-```
