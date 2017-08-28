@@ -98,6 +98,7 @@ test_that("SQL Server - Returns zero rows msg when zero rows selected", {
 })
 
 test_that("SQL Server - Returns SQL error message when SQL error", {
+  skip_if_no_MSSQL()
   skip_on_travis()
   skip_on_cran()
   expect_error(selectData(MSSQLConnectionString = connection.string, query6),
