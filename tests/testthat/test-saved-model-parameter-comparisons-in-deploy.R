@@ -19,6 +19,7 @@ test_that("Classification models can only be used for classification", {
   p$type <- "classification"
   p$predictedCol <- "response"
   p$grainCol <- "id"
+  p$cores <- 1
   
   # Develop a classification model
   capture.output(rf <- RandomForestDevelopment$new(p))
@@ -30,6 +31,7 @@ test_that("Classification models can only be used for classification", {
   p2$type <- "regression" # param is incorrectly set to regression
   p2$predictedCol <- "response"
   p2$grainCol <- "id"
+  p2$cores <- 1
   
   expect_error(capture.output(rfD <- RandomForestDeployment$new(p2)),
                paste0("The saved model you have loaded is a classification ",
@@ -57,6 +59,7 @@ test_that("Regression models can only be used for regression", {
   p$type <- "regression"
   p$predictedCol <- "response"
   p$grainCol <- "id"
+  p$cores <- 1
   
   # Develop a regression model
   capture.output(rf <- RandomForestDevelopment$new(p))
@@ -68,6 +71,7 @@ test_that("Regression models can only be used for regression", {
   p2$type <- "classification" # param is incorrectly set to classification
   p2$predictedCol <- "response"
   p2$grainCol <- "id"
+  p2$cores <- 1
   
   expect_error(capture.output(rfD <- RandomForestDeployment$new(p2)),
                paste0("The saved model you have loaded is a regression ",
@@ -96,6 +100,7 @@ test_that("Warning is thrown if predicted columns do not match", {
   p$type <- "classification"
   p$predictedCol <- "response" # lowercase predicted column
   p$grainCol <- "id"
+  p$cores <- 1
   capture.output(rf <- RandomForestDevelopment$new(p))
   capture.output(rf$run())
 
@@ -103,13 +108,14 @@ test_that("Warning is thrown if predicted columns do not match", {
   p2 <- SupervisedModelDeploymentParams$new()
   p2$df <- d
   p2$type <- "classification"
-  p2$predictedCol <- "RESPONSE" # misspelled predicted column
+  p2$predictedCol <- "respons" # misspelled predicted column
   p2$grainCol <- "id"
+  p2$cores <- 1
 
   expect_warning(capture.output(rfD <- RandomForestDeployment$new(p2)),
-                 paste0("The name of the predicted column in the saved model ",
-                        "differs from the name of the predicted column that ",
-                        "you have set.",
+                 regexp = paste0("The name of the predicted column in the ",
+                        "saved model differs from the name of the predicted ",
+                        "column that you have set.",
                         "\n- Old predicted column: response",
-                        "\n- New predicted column: RESPONSE"))
+                        "\n- New predicted column: respons"))
 })
