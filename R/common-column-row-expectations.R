@@ -101,7 +101,9 @@ returnColsWithMoreThanFiftyCategories <- function(df) {
 #' Remove columns with DTS suffix
 #' @description Remove columns with DTS in the suffix of the column name
 #' @param df A data frame to be altered
-#'
+#' @return The input data frame with DTS suffix columns removed
+#' 
+#' @export
 #' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
