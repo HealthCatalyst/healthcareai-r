@@ -43,26 +43,12 @@ warningText = paste("Each of the following categorical variable levels occurs ",
                     "x33 : Class1\nConsider grouping",
                     sep = "")
 
-skip_if_no_MSSQL <- function() {
-  if (class(try((DBI::dbConnect(odbc::odbc(),
-                                .connection_string = connection.string)), 
-                silent = TRUE)) == "try-error") {
-    skip("No DB connection made")
-  } else if (DBI::dbExistsTable(conn = DBI::dbConnect(odbc::odbc(),
-                                                      .connection_string = 
-                                                      connection.string), 
-                                name = "HCRDiabetesClinical") == FALSE) {
-    skip("No DB found")
-  }
-}
-
 #### BEGIN TESTS ####
 
 test_that("XGBoost deploy pushes values to SQL Server", {
 
-  skip_if_no_MSSQL()
-  skip_on_travis()
-  skip_on_cran()
+  skip_if_no_MSSQL(tableName = "dermatologyDeployClassificationBASE", 
+                   connString = connection.string)
 
   capture.output(ignoreSpecWarn(code = boost <- XGBoostDevelopment$new(p),
                                 wRegexps = warningText))

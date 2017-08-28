@@ -18,28 +18,13 @@ connection.string <- "
   ,[ThirtyDayReadmitFLG]
   FROM [SAM].[dbo].[HCRDiabetesClinical]
   "
-  
-skip_if_no_MSSQL <- function() {
-  if (class(try((DBI::dbConnect(odbc::odbc(),
-                                .connection_string = connection.string)), 
-                silent = TRUE)) == "try-error") {
-    skip("No DB connection made")
-  } else if (DBI::dbExistsTable(conn = DBI::dbConnect(odbc::odbc(),
-                                                      .connection_string = 
-                                                      connection.string), 
-                                name = "HCRDiabetesClinical") == FALSE) {
-    skip("No DB found")
-  }
-}
 
-  
 #### BEGIN TESTS ####
 
  test_that("LMM deploy classification pushes values to SQL", {
 
-  skip_if_no_MSSQL()
-  skip_on_travis()
-  skip_on_cran()
+   skip_if_no_MSSQL(tableName = "HCRDiabetesClinical", 
+                    connString = connection.string)
 
   df <- selectData(connection.string, query)
   
@@ -74,7 +59,7 @@ skip_if_no_MSSQL <- function() {
   capture.output(dLMM <- LinearMixedModelDeployment$new(p2))
   out <- capture.output(suppressWarnings(dLMM$deploy()))
   capture.output(dfOut <- dLMM$getOutDf())
-  expect_output(writeData(MSSQLConnectionString = connectionString,
+  expect_output(writeData(MSSQLConnectionString = connection.string,
                           df = dfOut,
                           tableName = 'HCRDeployClassificationBASE'),
                 "50 rows were inserted into the SQL Server table HCRDeployClassificationBASE")
@@ -83,9 +68,8 @@ skip_if_no_MSSQL <- function() {
 
 test_that("LMM deploy regression pushes values to SQL", {
 
-  skip_if_no_MSSQL()
-  skip_on_travis()
-  skip_on_cran()
+  skip_if_no_MSSQL(tableName = "HCRDiabetesClinical", 
+                   connString = connection.string)
   
   df <- selectData(connection.string, query)
   
@@ -118,7 +102,7 @@ test_that("LMM deploy regression pushes values to SQL", {
   capture.output(dLMM <- LinearMixedModelDeployment$new(p2))
   out <- capture.output(suppressWarnings(dLMM$deploy()))
   capture.output(dfOut <- dLMM$getOutDf())
-  expect_output(writeData(MSSQLConnectionString = connectionString,
+  expect_output(writeData(MSSQLConnectionString = connection.string,
                           df = dfOut,
                           tableName = 'HCRDeployRegressionBASE'),
                 "50 rows were inserted into the SQL Server table HCRDeployRegressionBASE")
@@ -127,9 +111,8 @@ test_that("LMM deploy regression pushes values to SQL", {
 
 test_that("Lasso deploy classification pushes values to SQL Server", {
 
-  skip_if_no_MSSQL()
-  skip_on_travis()
-  skip_on_cran()
+  skip_if_no_MSSQL(tableName = "HCRDiabetesClinical", 
+                   connString = connection.string)
 
   df <- selectData(connection.string, query)
   
@@ -161,7 +144,7 @@ test_that("Lasso deploy classification pushes values to SQL Server", {
   capture.output(dL <- LassoDeployment$new(p2))
   capture.output(dL$deploy())
   capture.output(dfOut <- dL$getOutDf())
-  expect_output(writeData(MSSQLConnectionString = connectionString,
+  expect_output(writeData(MSSQLConnectionString = connection.string,
                           df = dfOut,
                           tableName = 'HCRDeployClassificationBASE'),
                 "50 rows were inserted into the SQL Server table HCRDeployClassificationBASE")
@@ -169,9 +152,8 @@ test_that("Lasso deploy classification pushes values to SQL Server", {
 
 test_that("Lasso deploy regression pushes values to SQL Server", {
 
-  skip_if_no_MSSQL()
-  skip_on_travis()
-  skip_on_cran()
+  skip_if_no_MSSQL(tableName = "HCRDiabetesClinical", 
+                   connString = connection.string)
   
   df <- selectData(connection.string, query)
   
@@ -204,7 +186,7 @@ test_that("Lasso deploy regression pushes values to SQL Server", {
   capture.output(dL <- LassoDeployment$new(p2))
   out <- capture.output(dL$deploy())
   capture.output(dfOut <- dL$getOutDf())
-  expect_output(writeData(MSSQLConnectionString = connectionString,
+  expect_output(writeData(MSSQLConnectionString = connection.string,
                           df = dfOut,
                           tableName = 'HCRDeployRegressionBASE'),
                 "50 rows were inserted into the SQL Server table HCRDeployRegressionBASE")
@@ -212,9 +194,8 @@ test_that("Lasso deploy regression pushes values to SQL Server", {
 
 test_that("rf deploy classification pushes values to SQL Server", {
 
-  skip_if_no_MSSQL()
-  skip_on_travis()
-  skip_on_cran()
+  skip_if_no_MSSQL(tableName = "HCRDiabetesClinical", 
+                   connString = connection.string)
   
   df <- selectData(connection.string, query)
   
@@ -249,7 +230,7 @@ test_that("rf deploy classification pushes values to SQL Server", {
   capture.output(dRF <- RandomForestDeployment$new(p2))
   out <- capture.output(dRF$deploy())
   capture.output(dfOut <- dRF$getOutDf())
-  expect_output(writeData(MSSQLConnectionString = connectionString,
+  expect_output(writeData(MSSQLConnectionString = connection.string,
                           df = dfOut,
                           tableName = 'HCRDeployClassificationBASE'),
                 "50 rows were inserted into the SQL Server table HCRDeployClassificationBASE")
@@ -258,9 +239,8 @@ test_that("rf deploy classification pushes values to SQL Server", {
 
 test_that("rf deploy regression pushes values to SQL Server", {
 
-  skip_if_no_MSSQL()
-  skip_on_travis()
-  skip_on_cran()
+  skip_if_no_MSSQL(tableName = "HCRDiabetesClinical", 
+                   connString = connection.string)
   
   df <- selectData(connection.string, query)
   
@@ -295,7 +275,7 @@ test_that("rf deploy regression pushes values to SQL Server", {
   capture.output(dRF <- RandomForestDeployment$new(p2))
   out <- capture.output(dRF$deploy())
   capture.output(dfOut <- dRF$getOutDf())
-  expect_output(writeData(MSSQLConnectionString = connectionString,
+  expect_output(writeData(MSSQLConnectionString = connection.string,
                           df = dfOut,
                           tableName = 'HCRDeployRegressionBASE'),
                 "50 rows were inserted into the SQL Server table HCRDeployRegressionBASE")
