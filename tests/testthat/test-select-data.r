@@ -49,6 +49,7 @@ test_that("Deprecated argument gives error", {
 connection.string = '
 driver={SQL Server};
 server=localhost;
+database = SAM;
 trusted_connection=true'
 
 query4 = '
@@ -64,25 +65,41 @@ from [SAM].[dbo].[HCRDiabetesClinical] order by LDLNBR'
 query6 = '
 SELECT [A1CNBR] FROM [SAM].[dbo].[DiabetesClinicall]'
 
+skip_if_no_MSSQL <- function() {
+  if (class(try((DBI::dbConnect(odbc::odbc(),
+                                .connection_string = connection.string)), 
+                silent = TRUE)) == "try-error") {
+    skip("No DB connection made")
+  } else if (DBI::dbExistsTable(conn = DBI::dbConnect(odbc::odbc(),
+                                                      .connection_string = 
+                                                      connection.string), 
+                                name = "HCRDiabetesClinical") == FALSE) {
+    skip("No DB found")
+  }
+}
 
 test_that("SQL Server - Returns correct selected data in data frame", {
+  
+  skip_if_no_MSSQL()
   skip_on_travis()
   skip_on_cran()
-  expect_equal(selectData(MSSQLConnectionString=connection.string, query4),
+  expect_equal(selectData(MSSQLConnectionString = connection.string, query4),
                data.frame(SystolicBPNBR = c(167,153,170,187,188,
                                             185,189,149,155,160)))
 })
 
 test_that("SQL Server - Returns zero rows msg when zero rows selected", {
+  
+  skip_if_no_MSSQL()
   skip_on_travis()
   skip_on_cran()
-  expect_warning(grepl(selectData(MSSQLConnectionString=connection.string, query5),
+  expect_warning(grepl(selectData(MSSQLConnectionString = connection.string, query5),
                  'Zero rows returned from SQL.'))
 })
 
 test_that("SQL Server - Returns SQL error message when SQL error", {
   skip_on_travis()
   skip_on_cran()
-  expect_error(selectData(MSSQLConnectionString=connection.string, query6),
+  expect_error(selectData(MSSQLConnectionString = connection.string, query6),
                'Your SQL likely contains an error.')
 })

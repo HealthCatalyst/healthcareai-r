@@ -1,6 +1,6 @@
 context("Checking deploy predictions from sql server to sql server")
 
-  connectionString <- "
+connection.string <- "
   driver={SQL Server};
   server=localhost;
   database=SAM;
@@ -18,15 +18,30 @@ context("Checking deploy predictions from sql server to sql server")
   ,[ThirtyDayReadmitFLG]
   FROM [SAM].[dbo].[HCRDiabetesClinical]
   "
+  
+skip_if_no_MSSQL <- function() {
+  if (class(try((DBI::dbConnect(odbc::odbc(),
+                                .connection_string = connection.string)), 
+                silent = TRUE)) == "try-error") {
+    skip("No DB connection made")
+  } else if (DBI::dbExistsTable(conn = DBI::dbConnect(odbc::odbc(),
+                                                      .connection_string = 
+                                                      connection.string), 
+                                name = "HCRDiabetesClinical") == FALSE) {
+    skip("No DB found")
+  }
+}
 
+  
 #### BEGIN TESTS ####
 
  test_that("LMM deploy classification pushes values to SQL", {
 
+  skip_if_no_MSSQL()
   skip_on_travis()
   skip_on_cran()
 
-  df <- selectData(connectionString, query)
+  df <- selectData(connection.string, query)
   
   dfDeploy <- df[951:1000,]
   
@@ -68,10 +83,11 @@ context("Checking deploy predictions from sql server to sql server")
 
 test_that("LMM deploy regression pushes values to SQL", {
 
+  skip_if_no_MSSQL()
   skip_on_travis()
   skip_on_cran()
   
-  df <- selectData(connectionString, query)
+  df <- selectData(connection.string, query)
   
   dfDeploy <- df[951:1000,]
   
@@ -111,10 +127,11 @@ test_that("LMM deploy regression pushes values to SQL", {
 
 test_that("Lasso deploy classification pushes values to SQL Server", {
 
+  skip_if_no_MSSQL()
   skip_on_travis()
   skip_on_cran()
 
-  df <- selectData(connectionString, query)
+  df <- selectData(connection.string, query)
   
   set.seed(43)
   p <- SupervisedModelDevelopmentParams$new()
@@ -152,10 +169,11 @@ test_that("Lasso deploy classification pushes values to SQL Server", {
 
 test_that("Lasso deploy regression pushes values to SQL Server", {
 
+  skip_if_no_MSSQL()
   skip_on_travis()
   skip_on_cran()
   
-  df <- selectData(connectionString, query)
+  df <- selectData(connection.string, query)
   
   set.seed(43)
   p <- SupervisedModelDevelopmentParams$new()
@@ -194,10 +212,11 @@ test_that("Lasso deploy regression pushes values to SQL Server", {
 
 test_that("rf deploy classification pushes values to SQL Server", {
 
+  skip_if_no_MSSQL()
   skip_on_travis()
   skip_on_cran()
   
-  df <- selectData(connectionString, query)
+  df <- selectData(connection.string, query)
   
   set.seed(43)
   p <- SupervisedModelDevelopmentParams$new()
@@ -239,10 +258,11 @@ test_that("rf deploy classification pushes values to SQL Server", {
 
 test_that("rf deploy regression pushes values to SQL Server", {
 
+  skip_if_no_MSSQL()
   skip_on_travis()
   skip_on_cran()
   
-  df <- selectData(connectionString, query)
+  df <- selectData(connection.string, query)
   
   set.seed(43)
   p <- SupervisedModelDevelopmentParams$new()
