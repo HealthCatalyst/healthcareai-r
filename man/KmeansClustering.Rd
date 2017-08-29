@@ -74,7 +74,8 @@ This is an unsupervised method for clustering data. That is, no
 \section{\code{$get2DClustersPlot()}}{
  Displays the data and assigned
   clusters. PCA is used to visualize the top two priciple components for
-  plotting. This is unrelated to variable reduction for clustering. \cr 
+  plotting. This is unrelated to variable reduction for clustering. Passing 
+  TRUE to this function will display grain IDs on the plot. \cr 
   \emph{Usage:} \code{$get2DClustersPlot()} \cr
 }
 
