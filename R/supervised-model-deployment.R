@@ -354,21 +354,46 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
                            sep = "")
     # Try to load the model
     tryCatch({
-      
       load(modelInfoFile)  # Get model info
       self$modelInfo <- modelInfo
       load(fitObjFile) # Produces fit object (for probability)
       private$fitObj <- fitObj
     }, error = function(e) {
-      # temporary fix until all models are working.
-      message <- paste('You must use a saved model. Run ',
+      # Detailed error message
+      message <- paste0('You must use a saved model. If you did not already ',
+                       'develop a model, first run ',
                        private$algorithmName,
-                       'Development to train and save the model, then ',
+                       'Development to train and save the model. See ?',
                        private$algorithmName,
-                       'Deployment to make predictions. See ?',
-                       private$algorithmName,
-                       'Development',
-                       sep = "")
+                       'Development for details.')
+      missingFileFlag <- FALSE
+      # Provide name of fitObjFile in error message if file doesn't exist 
+      if (!file.exists(fitObjFile)) {
+        message <- paste0(message,
+                          "\n- Could not find saved model file: ", fitObjFile)
+        missingFileFlag <- TRUE
+      }
+      # Provide name of modelInfoFile in error message if file doesn't exist 
+      if (!file.exists(modelInfoFile)) {
+        message <- paste0(message,
+                          "\n- Could not find associated saved model info ",
+                          "file: ", 
+                          modelInfoFile)
+        missingFileFlag <- TRUE
+      }
+      # Provide working directory if either of the two files is missing
+      if (missingFileFlag) {
+        message <- paste0(message, 
+                          "\n- Current working directory: ", getwd())
+        if (is.null(self$params$modelName)) {
+          # Remind user of modelName parameter if it was not set in deploy and 
+          # the default model files are missing
+          message <- paste0(message,
+                            "\nIf you set a custom model name in development, ",
+                            "make sure to also set the modelName ",
+                            "parameter in deployment.")
+        }
+      }
       stop(message)
     })
     
