@@ -358,6 +358,14 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       self$modelInfo <- modelInfo
       load(fitObjFile) # Produces fit object (for probability)
       private$fitObj <- fitObj
+      
+      # Explicitly print when default model name is being used.
+      if (is.null(self$params$modelName)) {
+        cat("The modelName parameter was not specified. Using defaults:\n",
+            "- ", fitObjFile, "\n",
+            "- ", modelInfoFile, "\n"
+            , sep = "")
+      }
     }, error = function(e) {
       # Detailed error message
       message <- paste0('You must use a saved model. If you did not already ',
