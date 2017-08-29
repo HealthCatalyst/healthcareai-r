@@ -1,71 +1,95 @@
 #' healthcareai: a streamlined way to develop and deploy models
 #'
-#' healthcareai provides a clean interface that lets one create and compare multiple
-#' models on your data, and then deploy the model that is most accurate. healthcareai
+#' healthcareai provides a clean interface to create and compare multiple
+#' models on your data and then deploy the model that is most accurate. healthcareai
 #' also includes functions for data exploration, data cleaning, and model evaluation.
 #'
-#' This is done in a four-step process:
+#' This is done in a three-step process: First, Loading, profiling, and feature 
+#' engineering. Second, developing a model. Third, deploying and monitoring the 
+#' model.
 #'
 #' \enumerate{
-#' \item{\strong{Load and profile data}}{\cr Use \code{\link{selectData}} to 
-#' pull data directly from the SQL database. Then, 
-#' \code{\link{featureAvailabilityProfiler}} and \code{\link{countMissingData}} 
-#' can help determine how many null values are in a column and how they are 
-#' populated over time. \code{\link{findVariation}}, \code{\link{variationAcrossGroups}},
-#'  \code{\link{findTrends}}, 
-#' and \code{\link{calculateTargetedCorrelations}} help surface insights from
-#' data. Manipulate dates using \code{\link{orderByDate}} and 
-#' \code{\link{countDaysSinceFirstDate}}. Cluster data with or without an 
-#' outcome variable with \code{\link{KmeansClustering}}. One can get quite far in healthcare
-#' data analysis without even going beyond this step. }
-#' 
-#' \item{\strong{Develop a machine learning model}}{\cr Use \code{\link{LassoDevelopment}} or
-#' \code{\link{RandomForestDevelopment}} and test different combinations of 
-#' features. Determine the best model using: 
+#' \item{\strong{Load and profile data}}{\cr
 #' \itemize{
-#' \item Area under the ROC curve or area under the Performance-Recall 
-#' curve for classification problems (yes or no response). 
-#' \item Mean squared error for regression problems (continuous response).
+#' \item{Loading Data:}
+#' \itemize{
+#' \item Use \code{\link{selectData}} to pull data directrly from a SQL 
+#' database}
+#' \item{Profiling Data:}
+#' \itemize{
+#' \item \code{\link{featureAvailabilityProfiler}} will find how much data is 
+#' present in each variable over time.
+#' \item \code{\link{countMissingData}} finds the proportion of missing data in 
+#' each variable.
+#' \item \code{\link{findVariation}} and \code{\link{variationAcrossGroups}} are
+#'  used to find variation across/between subgroups of data.
+#' \item \code{\link{findTrends}} finds trends that are six months or longer.
+#' \item \code{\link{calculateTargetedCorrelations}} will calculate correlations
+#'  for all numeric columns and a specified variable of interest.
+#' \item \code{\link{orderByDate}} will sort your data frame by date.
+#' \item \code{\link{isBinary}} will check if a column is only two values.
+#' \item \code{\link{returnColsWithMoreThanFiftyCategories}} shows which
+#' categorical columns have more than 50 categories.
+#' \item \code{\link{KmeansClustering}} used to cluster data with or without an
+#' outcome variable}
+#' \item{Feature Engineering:}
+#' \itemize{
+#' \item \code{\link{convertDateTimeColToDummies}} will convert a date variable
+#' into dummy columns of day, hour, etc. For seasonal pattern modeling.
+#' \item \code{\link{countDaysSinceFirstDate}} shows days since first day in 
+#' input column.
+#' \item \code{\link{groupedLOCF}} carries last observed value forward.
+#' \item \code{\link{imputeDF}} performs imputation on a data frame.
+#' \item \code{\link{}}}}
 #' }
-#' If you are interested in doing multiclass classification, use \code{\link{XGBoostDevelopment}} 
-#' to train your model. Models will be automatically saved after creation.
+#' 
+#' \item{\strong{Develop a machine learning model}}{\cr
+#' \itemize{
+#' \item{Models:}
+#' \itemize{
+#' \item \code{\link{LassoDevelopment}}: Used for regression or classification 
+#' and does an especially good job with a lot of variables.
+#' \item \code{\link{RandomForestDevelopment}}: Used for regression or 
+#' classification and is well suited to non-linear data.
+#' \item \code{\link{XGBoostDevelopment}}: Used for multi-class classification
+#' (problems where there are more than 2 classes). Well suited to non-linear 
+#' data.
+#' \item \code{\link{LinearMixedModelDevelopment}}: Best suited for longitudinal
+#' data and datasets with less than 100k rows and 50 variables. Can do
+#' classification or regression.
+#' }
+#' \item{Performance of Trained Models:}
+#' \itemize{
+#' \item Area under the ROC curve or area under the Performance-Recall curve are 
+#'  used to evaluate the performance of classification models.
+#' \item The Mean squared error(MSE) and root mean squared error(RMSE) are used 
+#' to evaluate the performance of regression problems.
+#' }
+#' }
+#' Models will be automatically saved in the working directory after creation.
 #' }
 #'
 #' \item{\strong{Deploy the machine learning model}}{\cr
-#' \code{\link{LassoDeployment}}, \code{\link{RandomForestDeployment}},
-#' or \code{\link{XGBoostDeployment}} to
-#' load the model from development, predict against test data, and
-#' push predicted values into a SQL environment. This can be tested locally,
-#' but eventually lives on the production server.}
+#' \code{\link{LassoDeployment}}, \code{\link{LinearMixedModelDevelopment}}, 
+#' \code{\link{RandomForestDeployment}}, or \code{\link{XGBoostDeployment}} to
+#' load the model from development and predict against test data.  Push
+#' predicted values into a SQL environment with \code{\link{writeData}}. The
+#' deployments can be tested locally, but eventually live on the production 
+#' server.}
 #' 
 #' \item{\strong{Monitor performance in production environment}}{\cr After 
 #' generating predictions and getting ground truth values, use 
-#' \code{\link{generateAUC}} to monitor performance over time. This 
-#' should happen after greater than 1000 predictions have been made or 30 days
-#' have passed.}
+#' \code{\link{generateAUC}} to monitor performance over time. This should 
+#' happen after the predictions can be validated with the result. If you're 
+#' predicting 30-day readmissions, you can't validate until 30 days have passed 
+#' since the predictions.}
 #' }
 #' 
 #' @references \url{http://healthcareai-r.readthedocs.io}
 #' @references \url{http://healthcare.ai}
-#' @seealso \code{\link{LinearMixedModelDevelopment}}
-#' @seealso \code{\link{LinearMixedModelDeployment}}
 #' @seealso \code{\link{RiskAdjustedComparisons}}
-#' @seealso \code{\link{imputeDF}}
-#' @seealso \code{\link{groupedLOCF}}
-#' @seealso \code{\link{selectData}}
-#' @seealso \code{\link{writeData}}
-#' @seealso \code{\link{orderByDate}}
-#' @seealso \code{\link{isBinary}}
 #' @seealso \code{\link{removeRowsWithNAInSpecCol}}
 #' @seealso \code{\link{removeColsWithAllSameValue}}
-#' @seealso \code{\link{returnColsWithMoreThanFiftyCategories}}
-#' @seealso \code{\link{findTrends}}
-#' @seealso \code{\link{convertDateTimeColToDummies}}
-#' @seealso \code{\link{countDaysSinceFirstDate}}
-#' @seealso \code{\link{calculateTargetedCorrelations}}
-#' @seealso \code{\link{calculateAllCorrelations}}
-#' @seealso \code{\link{featureAvailabilityProfiler}}
-#' @seealso \code{\link{generateAUC}}
 #' @docType package
 #' @name healthcareai
 NULL

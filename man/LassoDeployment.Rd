@@ -430,5 +430,9 @@ print(proc.time() - ptm)
 }
 \seealso{
 \code{\link{healthcareai}}
+
+\code{\link{writeData}}
+
+\code{\link{selectData}}
 }
 \keyword{datasets}
