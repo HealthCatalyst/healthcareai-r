@@ -48,7 +48,7 @@ test_that("Deprecated argument gives error", {
 connection.string = '
 driver={SQL Server};
 server=localhost;
-database = SAM;
+database=SAM;
 trusted_connection=true'
 
 query4 = '
