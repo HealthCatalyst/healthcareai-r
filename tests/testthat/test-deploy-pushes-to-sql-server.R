@@ -1,6 +1,6 @@
 context("Checking deploy predictions from sql server to sql server")
 
-  connectionString <- "
+connection.string <- "
   driver={SQL Server};
   server=localhost;
   database=SAM;
@@ -23,10 +23,10 @@ context("Checking deploy predictions from sql server to sql server")
 
  test_that("LMM deploy classification pushes values to SQL", {
 
-  skip_on_travis()
-  skip_on_cran()
+   skip_if_no_MSSQL(tableName = "HCRDiabetesClinical", 
+                    connString = connection.string)
 
-  df <- selectData(connectionString, query)
+  df <- selectData(connection.string, query)
   
   dfDeploy <- df[951:1000,]
   
@@ -59,7 +59,7 @@ context("Checking deploy predictions from sql server to sql server")
   capture.output(dLMM <- LinearMixedModelDeployment$new(p2))
   out <- capture.output(suppressWarnings(dLMM$deploy()))
   capture.output(dfOut <- dLMM$getOutDf())
-  expect_output(writeData(MSSQLConnectionString = connectionString,
+  expect_output(writeData(MSSQLConnectionString = connection.string,
                           df = dfOut,
                           tableName = 'HCRDeployClassificationBASE'),
                 "50 rows were inserted into the SQL Server table HCRDeployClassificationBASE")
@@ -68,10 +68,10 @@ context("Checking deploy predictions from sql server to sql server")
 
 test_that("LMM deploy regression pushes values to SQL", {
 
-  skip_on_travis()
-  skip_on_cran()
+  skip_if_no_MSSQL(tableName = "HCRDiabetesClinical", 
+                   connString = connection.string)
   
-  df <- selectData(connectionString, query)
+  df <- selectData(connection.string, query)
   
   dfDeploy <- df[951:1000,]
   
@@ -102,7 +102,7 @@ test_that("LMM deploy regression pushes values to SQL", {
   capture.output(dLMM <- LinearMixedModelDeployment$new(p2))
   out <- capture.output(suppressWarnings(dLMM$deploy()))
   capture.output(dfOut <- dLMM$getOutDf())
-  expect_output(writeData(MSSQLConnectionString = connectionString,
+  expect_output(writeData(MSSQLConnectionString = connection.string,
                           df = dfOut,
                           tableName = 'HCRDeployRegressionBASE'),
                 "50 rows were inserted into the SQL Server table HCRDeployRegressionBASE")
@@ -111,10 +111,10 @@ test_that("LMM deploy regression pushes values to SQL", {
 
 test_that("Lasso deploy classification pushes values to SQL Server", {
 
-  skip_on_travis()
-  skip_on_cran()
+  skip_if_no_MSSQL(tableName = "HCRDiabetesClinical", 
+                   connString = connection.string)
 
-  df <- selectData(connectionString, query)
+  df <- selectData(connection.string, query)
   
   set.seed(43)
   p <- SupervisedModelDevelopmentParams$new()
@@ -144,7 +144,7 @@ test_that("Lasso deploy classification pushes values to SQL Server", {
   capture.output(dL <- LassoDeployment$new(p2))
   capture.output(dL$deploy())
   capture.output(dfOut <- dL$getOutDf())
-  expect_output(writeData(MSSQLConnectionString = connectionString,
+  expect_output(writeData(MSSQLConnectionString = connection.string,
                           df = dfOut,
                           tableName = 'HCRDeployClassificationBASE'),
                 "50 rows were inserted into the SQL Server table HCRDeployClassificationBASE")
@@ -152,10 +152,10 @@ test_that("Lasso deploy classification pushes values to SQL Server", {
 
 test_that("Lasso deploy regression pushes values to SQL Server", {
 
-  skip_on_travis()
-  skip_on_cran()
+  skip_if_no_MSSQL(tableName = "HCRDiabetesClinical", 
+                   connString = connection.string)
   
-  df <- selectData(connectionString, query)
+  df <- selectData(connection.string, query)
   
   set.seed(43)
   p <- SupervisedModelDevelopmentParams$new()
@@ -186,7 +186,7 @@ test_that("Lasso deploy regression pushes values to SQL Server", {
   capture.output(dL <- LassoDeployment$new(p2))
   out <- capture.output(dL$deploy())
   capture.output(dfOut <- dL$getOutDf())
-  expect_output(writeData(MSSQLConnectionString = connectionString,
+  expect_output(writeData(MSSQLConnectionString = connection.string,
                           df = dfOut,
                           tableName = 'HCRDeployRegressionBASE'),
                 "50 rows were inserted into the SQL Server table HCRDeployRegressionBASE")
@@ -194,10 +194,10 @@ test_that("Lasso deploy regression pushes values to SQL Server", {
 
 test_that("rf deploy classification pushes values to SQL Server", {
 
-  skip_on_travis()
-  skip_on_cran()
+  skip_if_no_MSSQL(tableName = "HCRDiabetesClinical", 
+                   connString = connection.string)
   
-  df <- selectData(connectionString, query)
+  df <- selectData(connection.string, query)
   
   set.seed(43)
   p <- SupervisedModelDevelopmentParams$new()
@@ -230,7 +230,7 @@ test_that("rf deploy classification pushes values to SQL Server", {
   capture.output(dRF <- RandomForestDeployment$new(p2))
   out <- capture.output(dRF$deploy())
   capture.output(dfOut <- dRF$getOutDf())
-  expect_output(writeData(MSSQLConnectionString = connectionString,
+  expect_output(writeData(MSSQLConnectionString = connection.string,
                           df = dfOut,
                           tableName = 'HCRDeployClassificationBASE'),
                 "50 rows were inserted into the SQL Server table HCRDeployClassificationBASE")
@@ -239,10 +239,10 @@ test_that("rf deploy classification pushes values to SQL Server", {
 
 test_that("rf deploy regression pushes values to SQL Server", {
 
-  skip_on_travis()
-  skip_on_cran()
+  skip_if_no_MSSQL(tableName = "HCRDiabetesClinical", 
+                   connString = connection.string)
   
-  df <- selectData(connectionString, query)
+  df <- selectData(connection.string, query)
   
   set.seed(43)
   p <- SupervisedModelDevelopmentParams$new()
@@ -275,7 +275,7 @@ test_that("rf deploy regression pushes values to SQL Server", {
   capture.output(dRF <- RandomForestDeployment$new(p2))
   out <- capture.output(dRF$deploy())
   capture.output(dfOut <- dRF$getOutDf())
-  expect_output(writeData(MSSQLConnectionString = connectionString,
+  expect_output(writeData(MSSQLConnectionString = connection.string,
                           df = dfOut,
                           tableName = 'HCRDeployRegressionBASE'),
                 "50 rows were inserted into the SQL Server table HCRDeployRegressionBASE")

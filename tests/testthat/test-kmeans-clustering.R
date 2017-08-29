@@ -82,7 +82,7 @@ test_that("Clustering works with auto-PCA",{
   p$impute <- TRUE
   p$debug <- FALSE
   p$cores <- 1
-  p$usePrinComp <- TRUE
+  p$usePCA <- TRUE
 
   cl <- KmeansClustering$new(p)
   suppressWarnings(junk <- capture.output(cl$run()))
@@ -116,8 +116,8 @@ test_that("Clustering works with PCA and specified number of PCs",{
   p$impute <- TRUE
   p$debug <- FALSE
   p$cores <- 1
-  p$usePrinComp <- TRUE
-  p$numOfPrinComp <- 3
+  p$usePCA <- TRUE
+  p$numOfPCA <- 3
 
   cl <- KmeansClustering$new(p)
   junk <- capture.output(cl$run())
@@ -237,7 +237,7 @@ test_that("Auto-clustering works with label and PCA",{
   p$impute <- TRUE
   p$debug <- FALSE
   p$cores <- 1
-  p$usePrinComp <- TRUE
+  p$usePCA <- TRUE
 
   junk <- capture.output(cl <- KmeansClustering$new(p))
   junk <- capture.output(cl$run())
