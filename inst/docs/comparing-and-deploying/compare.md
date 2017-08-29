@@ -27,7 +27,6 @@ Nope. It'll help if you can follow these guidelines:
     - __database__: a database name. You'll pull data from this database.
 
 ```r
-ptm <- proc.time()
 library(healthcareai)
 library(RODBC)
 
@@ -48,7 +47,7 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-FROM [SAM].[dbo].[DiabetesClinical]
+FROM [SAM].[dbo].[HCRDiabetesClinical]
 "
 
 df <- selectData(connection.string, query)
