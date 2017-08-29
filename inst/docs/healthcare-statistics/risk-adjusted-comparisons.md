@@ -22,7 +22,6 @@ First, get some data organized (via SQL or Excel) that has the following:
 ## Step 1: Pull in the data via `selectData`
 
 ```r
-ptm <- proc.time()
 library(healthcareai)
 
 connection.string = "
@@ -41,7 +40,7 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-FROM [SAM].[dbo].[DiabetesClinical]
+FROM [SAM].[dbo].[HCRDiabetesClinical]
 "
 
 df <- selectData(connection.string, query)
@@ -99,7 +98,7 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-FROM [SAM].[dbo].[DiabetesClinical]
+FROM [SAM].[dbo].[HCRDiabetesClinical]
 "
 
 df <- selectData(connection.string, query)
