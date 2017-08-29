@@ -47,8 +47,8 @@ warningText = paste("Each of the following categorical variable levels occurs ",
 
 test_that("XGBoost deploy pushes values to SQL Server", {
 
-  skip_on_travis()
-  skip_on_cran()
+  skip_if_no_MSSQL(tableName = "dermatologyDeployClassificationBASE", 
+                   connString = connection.string)
 
   capture.output(ignoreSpecWarn(code = boost <- XGBoostDevelopment$new(p),
                                 wRegexps = warningText))

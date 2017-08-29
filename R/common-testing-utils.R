@@ -48,3 +48,31 @@ ignoreSpecWarn <- function(code, wRegexps) {
   }
   withCallingHandlers(code, warning = h)
 }
+
+#' @title
+#' Function to skip specific tests if MSSQL/specific databases not set up on 
+#' user's machine.
+#'
+#' @description This function is used in the testing files where R is used to 
+#' write to MSSQL.  It first checks for a connection to MSSQL.  If no connection
+#' to MSSQL, it will skip the test.  If there is a good connection but the
+#' specific database is not present it will skip the test as well.
+#' @param tableName What table to look for if connection is good. Entered as a 
+#' string.
+#' @param connString Connection string to use when trying to connect to MSSQL
+#' 
+#' @export
+#' @references \url{http://healthcareai-r.readthedocs.io}
+#' @seealso \code{\link{healthcareai}}
+skip_if_no_MSSQL <- function(tableName, connString) {
+  if (class(try((DBI::dbConnect(odbc::odbc(),
+                                .connection_string = connString)), 
+                silent = TRUE)) == "try-error") {
+    testthat::skip("No DB connection made")
+  } else if (DBI::dbExistsTable(conn = DBI::dbConnect(odbc::odbc(),
+                                                      .connection_string = 
+                                                      connString), 
+                                name = tableName) == FALSE) {
+    testthat::skip("No DB found")
+  }
+}
