@@ -99,7 +99,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   loadData = function() {
     # Load model info
     cat('Loading Model Info...','\n')
-    private$loadModelAndInfo(private$algorithmName)
+    private$loadModelAndInfo()
 
     cat('Loading Data...','\n')
     if (isTRUE(self$params$debug)) {
@@ -341,19 +341,19 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     }
   },
   
-  loadModelAndInfo = function(modelFullName) {
+  loadModelAndInfo = function() {
+    # Set file names for model and associated information
+    modelName <- ifelse(is.null(self$params$modelName), 
+                        "",
+                        paste0(self$params$modelName, "_"))
+    fitObjFile <- paste("rmodel_probability_", modelName, 
+                        private$algorithmShortName, ".rda", 
+                        sep = "")
+    modelInfoFile <- paste("rmodel_info_", modelName, 
+                           private$algorithmShortName, ".rda", 
+                           sep = "")
     # Try to load the model
     tryCatch({
-      # Set file names for model and associated information
-      modelName <- ifelse(is.null(self$params$modelName), 
-                          "",
-                          paste0(self$params$modelName, "_"))
-      fitObjFile <- paste("rmodel_probability_", modelName, 
-                          private$algorithmShortName, ".rda", 
-                          sep = "")
-      modelInfoFile <- paste("rmodel_info_", modelName, 
-                             private$algorithmShortName, ".rda", 
-                             sep = "")
       
       load(modelInfoFile)  # Get model info
       self$modelInfo <- modelInfo
@@ -362,11 +362,11 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     }, error = function(e) {
       # temporary fix until all models are working.
       message <- paste('You must use a saved model. Run ',
-                       modelFullName,
+                       private$algorithmName,
                        'Development to train and save the model, then ',
-                       modelFullName,
+                       private$algorithmName,
                        'Deployment to make predictions. See ?',
-                       modelFullName,
+                       private$algorithmName,
                        'Development',
                        sep = "")
       stop(message)
