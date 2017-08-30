@@ -35,6 +35,7 @@ addSAMUtilityCols <- function(df) {
 #' @export
 #' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
+#' @seealso \code{\link{writeData}}
 #' @examples
 #' 
 #' \donttest{
@@ -134,6 +135,7 @@ selectData <- function(MSSQLConnectionString = NULL,
 #' @export
 #' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
+#' @seealso \code{\link{selectData}}
 #' @examples
 #' 
 #' \donttest{

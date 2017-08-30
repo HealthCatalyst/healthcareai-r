@@ -1,11 +1,6 @@
-# Push artifacts up
-Push-AppveyorArtifact inst/extdata/HCRDiabetesClinical.csv
-
-# Use csv file to create SAM db and populate tables
-$csvFile = "c:\projects\healthcareai-r\inst\extdata\HCRDiabetesClinical.csv"
-
 # Create SAM database
 sqlcmd -b -S "(local)\SQL2012SP1" -Q "CREATE DATABASE [SAM]"
+
 # View databases
 # sqlcmd -S "(local)\SQL2012SP1" -Q "exec sp_databases"
 
@@ -81,10 +76,3 @@ WITH
 
 # Look at top 10 rows after CSV insertion.
 # sqlcmd -S "(local)\SQL2012SP1" -Q "SELECT TOP 10 * FROM SAM.dbo.HCRDiabetesClinical"
-
-
-# Look at contents of a few relevant directories
-Get-ChildItem -Path c:\projects\healthcareai-r\inst\CIDatabase
-Get-ChildItem -Path c:\projects\healthcareai-r
-Get-ChildItem -Path c:\projects\
-
