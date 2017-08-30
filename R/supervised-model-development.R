@@ -64,12 +64,24 @@ SupervisedModelDevelopment <- R6Class("SupervisedModelDevelopment",
       if (!is.null(p$df))
         self$params$df <- p$df
 
-      if (!is.null(p$grainCol))
+      if (p$grainCol != "") {
+        if (p$grainCol %in% colnames(p$df)) {
         self$params$grainCol <- p$grainCol
-
-      if (!is.null(p$predictedCol))
+        } else {
+          stop("Your specified grainCol is not in your development data.\n",
+               "Please check your specifications.")
+        }
+      }
+    
+      if (!is.null(p$predictedCol)) {
+        if (p$predictedCol %in% colnames(p$df)) {
         self$params$predictedCol <- p$predictedCol
-
+        } else { 
+          stop("Your specified predictedCol is not in your development data.\n",
+               "Please check your specifications.")
+        }
+      }
+    
       if (!is.null(p$personCol))
         self$params$personCol <- p$personCol
 
