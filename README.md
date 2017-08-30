@@ -70,17 +70,17 @@ Read the blog and join the slack channel at [healthcare.ai](https://healthcare.a
 
 ## What's new?
 The CRAN 1.0.0 release features:
-Added: 
-- Kmeans clustering
-- XGBoost multiclass support
-- findingVariation family of functions
-Changed: 
-- Develop step trains and saves models
-- Deploy no longer trains. Loads and predicts on all rows.
-- SQL uses a DBI back end
-Removed:
-- `testWindowCol` is no longer a param.
-- SQL reading/writing is outside model deployment.
+- Added: 
+  - Kmeans clustering
+  - XGBoost multiclass support
+  - findingVariation family of functions
+- Changed: 
+  - Develop step trains and saves models
+  - Deploy no longer trains. Loads and predicts on all rows.
+  - SQL uses a DBI back end
+- Removed:
+  - `testWindowCol` is no longer a param.
+  - SQL reading/writing is outside model deployment.
 
 ## For issues
 
