@@ -23,7 +23,9 @@
 
 ### macOS
 
-- [Installing Xcode](https://developer.apple.com/xcode/) is one way to get git on macOS
+- Open the Mac Terminal
+- Install [Xcode](https://en.wikipedia.org/wiki/Xcode) compilers via `xcode-select --install`
+- Accept the Xcode license via `sudo xcodebuild -license`
 
 ### Linux
 
@@ -35,6 +37,10 @@
 - Fork this repo (look for the link in the top right corner [here](https://github.com/HealthCatalystSLC/healthcareai-r)).
 - Click the green 'Clone or download' button and copy git link. You'll want to use the HTML address unless you have an SSH key for git already.
 - Open RStudio
+  - Install packages pre-requisites
+  ```
+  install.packages(c('caret','data.table','DBI','doParallel','e1071','grpreg','lme4','odbc','pROC','R6','ranger','ROCR','RSQLite','xgboost'),repos = "https://cran.cnr.berkeley.edu/")
+  ```
   - Look for Project dropdown (top right corner)
   - Click New Project
   - Click Version Control
