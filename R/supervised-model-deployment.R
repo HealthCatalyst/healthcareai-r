@@ -94,15 +94,12 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   # for deploy method
   if (!is.null(p$cores))
   self$params$cores <- p$cores
-  
-  if (is.null(self$params$modelName))
-  self$params$modelName = private$modelName
   },
 
   loadData = function() {
     # Load model info
     cat('Loading Model Info...','\n')
-    private$loadModelAndInfo(private$algorithmName)
+    private$loadModelAndInfo()
 
     cat('Loading Data...','\n')
     if (isTRUE(self$params$debug)) {
@@ -178,7 +175,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     # and grainCOl) and drop extra columns which weren't used in develop (e.g.,
     # columns with no variation in develop, brand new columns in deploy, etc.)
     columnsToKeep <- self$modelInfo$columnNames
-    toDrop <- c(self$params$predictedCol, self$params$grainCol)
+    toDrop <- c(self$modelInfo$predictedCol, self$modelInfo$grainCol)
     columnsToKeep <- columnsToKeep[!(columnsToKeep %in% toDrop)]
     # check that all needed columns from develop are present
     if (all(columnsToKeep %in% names(self$params$df))) {
@@ -344,31 +341,92 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     }
   },
   
-  loadModelAndInfo = function(modelFullName) {
+  loadModelAndInfo = function() {
+    # Set file names for model and associated information
+    modelName <- ifelse(is.null(self$params$modelName), 
+                        "",
+                        paste0(self$params$modelName, "_"))
+    fitObjFile <- paste("rmodel_probability_", modelName, 
+                        private$algorithmShortName, ".rda", 
+                        sep = "")
+    modelInfoFile <- paste("rmodel_info_", modelName, 
+                           private$algorithmShortName, ".rda", 
+                           sep = "")
     # Try to load the model
     tryCatch({
-      # Set file names for model and associated information
-      fitObjFile <- paste("rmodel_probability_", self$params$modelName, ".rda", 
-                          sep = "")
-      modelInfoFile <- paste("rmodel_info_", self$params$modelName, ".rda", 
-                             sep = "")
-      
       load(modelInfoFile)  # Get model info
       self$modelInfo <- modelInfo
       load(fitObjFile) # Produces fit object (for probability)
       private$fitObj <- fitObj
+      
+      # Explicitly print when default model name is being used.
+      if (is.null(self$params$modelName)) {
+        cat("The modelName parameter was not specified. Using defaults:\n",
+            "- ", fitObjFile, "\n",
+            "- ", modelInfoFile, "\n"
+            , sep = "")
+      }
     }, error = function(e) {
-      # temporary fix until all models are working.
-      message <- paste('You must use a saved model. Run ',
-                       modelFullName,
-                       'Development to train and save the model, then ',
-                       modelFullName,
-                       'Deployment to make predictions. See ?',
-                       modelFullName,
-                       'Development',
-                       sep = "")
+      # Detailed error message
+      message <- paste0('You must use a saved model. If you did not already ',
+                       'develop a model, first run ',
+                       private$algorithmName,
+                       'Development to train and save the model. See ?',
+                       private$algorithmName,
+                       'Development for details.')
+      missingFileFlag <- FALSE
+      # Provide name of fitObjFile in error message if file doesn't exist 
+      if (!file.exists(fitObjFile)) {
+        message <- paste0(message,
+                          "\n- Could not find saved model file: ", fitObjFile)
+        missingFileFlag <- TRUE
+      }
+      # Provide name of modelInfoFile in error message if file doesn't exist 
+      if (!file.exists(modelInfoFile)) {
+        message <- paste0(message,
+                          "\n- Could not find associated saved model info ",
+                          "file: ", 
+                          modelInfoFile)
+        missingFileFlag <- TRUE
+      }
+      # Provide working directory if either of the two files is missing
+      if (missingFileFlag) {
+        message <- paste0(message, 
+                          "\n- Current working directory: ", getwd())
+        if (is.null(self$params$modelName)) {
+          # Remind user of modelName parameter if it was not set in deploy and 
+          # the default model files are missing
+          message <- paste0(message,
+                            "\nIf you set a custom model name in development, ",
+                            "make sure to also set the modelName ",
+                            "parameter in deployment.")
+        }
+      }
       stop(message)
     })
+    
+    # Trigger a warning if the predicted variable is different from that of
+    # the saved model (since the predicted column is not used, this does not
+    # necessarily imply a problem so should not trigger an error)
+    if (self$modelInfo$predictedCol != self$params$predictedCol) {
+      warningMessage <- paste0("The name of the predicted column in the saved ",
+                               "model differs from the name of the predicted ",
+                               "column that you have set.", 
+                               "\n- Old predicted column: ", 
+                               self$modelInfo$predictedCol,
+                               "\n- New predicted column: ", 
+                               self$params$predictedCol)
+      warning(warningMessage)
+    }
+    
+    # Check that the model type (classification, etc.) of the saved model
+    # matches the type used in deployment parameters. If not, trigger an error.
+    if (self$modelInfo$type != self$params$type) {
+      errorMessage <- paste0("The saved model you have loaded is a ",
+                             self$modelInfo$type, " model, but you are trying ",
+                             "to deploy a ", self$params$type, " model.")
+      stop(errorMessage)
+    }
   }
 ),
 
