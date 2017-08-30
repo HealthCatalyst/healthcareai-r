@@ -134,5 +134,7 @@ Information on the example dataset can be found at:
 
 Information on the xgboost parameters can be found at:
 \url{https://github.com/dmlc/xgboost/blob/master/doc/parameter.md}
+
+\code{\link{selectData}}
 }
 \keyword{datasets}
