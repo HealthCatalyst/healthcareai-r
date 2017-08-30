@@ -38,9 +38,7 @@
 - Click the green 'Clone or download' button and copy git link. You'll want to use the HTML address unless you have an SSH key for git already.
 - Open RStudio
   - Install packages pre-requisites
-  ```
-  install.packages(c('caret','data.table','DBI','doParallel','e1071','grpreg','lme4','odbc','pROC','R6','ranger','ROCR','RSQLite','xgboost'),repos = "https://cran.cnr.berkeley.edu/")
-  ```
+  ```install.packages(c('caret','data.table','DBI','doParallel','e1071','grpreg','lme4','odbc','pROC','R6','ranger','ROCR','RSQLite','xgboost'),repos = "https://cran.cnr.berkeley.edu/")```
   - Look for Project dropdown (top right corner)
   - Click New Project
   - Click Version Control
