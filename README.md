@@ -28,8 +28,7 @@ install.packages('healthcareai')
 
 ## How to install the latest version on macOS
 
-* Open R Studio
-* Install healthcare.ai
+Open RStudio and work in the console
 ```
 install.packages('healthcareai')
 ```
@@ -44,7 +43,7 @@ install.packages('healthcareai')
 
 ## Install the bleeding edge version (for folks providing contributions)
 
-* Work in the console of RGui or (preferably) RStudio  
+Open RStudio and work in the console 
 ```
 library(devtools)
 devtools::install_github(repo='HealthCatalyst/healthcareai-r')
