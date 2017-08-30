@@ -63,7 +63,7 @@
 #' }
 #' \item{Performance of Trained Models:}
 #' \itemize{
-#' \item Area under the ROC curve or area under the Performance-Recall curve are 
+#' \item Area under the ROC curve or area under the precision-recall curve are 
 #'  used to evaluate the performance of classification models.
 #' \item The mean squared error (MSE) and root mean squared error (RMSE) are 
 #' used to evaluate the performance of regression problems.
