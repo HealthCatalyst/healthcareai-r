@@ -231,6 +231,8 @@ cat(proc.time() - ptm,"\\n")
 
 \code{\link{LinearMixedModelDevelopment}}
 
+\code{\link{selectData}}
+
 \code{\link{healthcareai}}
 }
 \keyword{datasets}

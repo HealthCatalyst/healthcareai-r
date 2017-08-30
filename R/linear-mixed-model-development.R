@@ -62,6 +62,7 @@
 #' \emph{Usage:} \code{$getMAE()} \cr
 #' @export
 #' @references \url{http://healthcareai-r.readthedocs.io}
+#' @seealso \code{\link{selectData}}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #'

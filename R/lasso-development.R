@@ -61,6 +61,7 @@
 #' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{RandomForestDevelopment}}
 #' @seealso \code{\link{LinearMixedModelDevelopment}}
+#' @seealso \code{\link{selectData}}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #'
