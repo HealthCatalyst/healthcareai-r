@@ -21,7 +21,6 @@ Note: if you're setting up R on an ETL server, don't download RStudio--simply op
 ## Install the latest release on Windows
 
 Open RStudio and work in the console
-
 ```
 install.packages('healthcareai')
 ```
