@@ -88,10 +88,18 @@ If you like Jupyter notebooks, check out [step 1](https://github.com/HealthCatal
 Read the blog and join the slack channel at [healthcare.ai](https://healthcare.ai)
 
 ## What's new?
-The CRAN 0.1.12 release features
-
-- Check the availability of columns after patient admit (and avoid target leak) via featureAvailabilityProfiler!
-- One can now deploy predictions to flat files via getOutDf. See ?getOutDf for more.
+The CRAN 1.0.0 release features:
+- Added: 
+  - Kmeans clustering
+  - XGBoost multiclass support
+  - findingVariation family of functions
+- Changed: 
+  - Develop step trains and saves models
+  - Deploy no longer trains. Loads and predicts on all rows.
+  - SQL uses a DBI back end
+- Removed:
+  - `testWindowCol` is no longer a param.
+  - SQL reading/writing is outside model deployment.
 
 ## For issues
 
