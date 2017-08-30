@@ -119,65 +119,33 @@ $(document).ready(function () {
 </div>
 
 
-<div id="deploy-models-and-make-new-predictions-via-deploylasso-deployrandomforest-or-deploylinearmixedmodel" class="section level1">
-<h1>Deploy models and make new predictions via <code>DeployLasso</code>, <code>DeployRandomForest</code>, or <code>DeployLinearMixedModel</code></h1>
+<div id="create-compare-and-save-models-via-lassodevelopment-randomforestdevelopment-and-linearmixedmodeldevelopment" class="section level1">
+<h1>Create, compare, and save models via <code>LassoDevelopment</code>, <code>RandomForestDevelopment</code>, and <code>LinearMixedModelDevelopment</code></h1>
 </div>
 <div id="what-is-this" class="section level1">
 <h1>What is this?</h1>
-<p>These classes let one deploy custom models on varied datasets via the following workflow:</p>
-<ol style="list-style-type: decimal">
-<li>Using the model <a href="compare.md">development</a> functions, you found a model that performs well and saved it automatically.</li>
-<li>Now, run the deploy methods however often you need to load the model and generate predictions for new people/encounters.</li>
-<li>Retrain the model whenever significant changes occur with the data (perhaps quarterly) using model development.</li>
-</ol>
-<p>One can do both classification (ie, predict Y or N) as well as regression (ie, predict a numeric field).</p>
-<div id="is-any-dataset-ready-for-model-creation-and-deployment" class="section level2">
-<h2>Is any dataset ready for model creation and deployment?</h2>
+<p>These classes let one create, compare, and save custom models on varied datasets.</p>
+<p>One can do both classification (ie, predict Y or N) as well as regression (ie, predict a numeric field, like cost).</p>
+<div id="is-any-dataset-ready-for-model-creation" class="section level2">
+<h2>Is any dataset ready for model creation?</h2>
 <p>Nope. It’ll help if you can follow these guidelines:</p>
 <ul>
 <li>Don’t use 0 or 1 for the independent variable when doing classification. Use Y/N instead. The IIF function in T-SQL may help here.</li>
-<li>Unlike the <a href="compare.md">development step</a> (which you should have already completed), you now only need to select test rows in your query.</li>
-<li>Predictions on test rows can be output to a dataframe or directly to an MSSQL table. If using a table, one has to create the table to receive the predicted values. You can work in SSMS (or SAMD, for those using Health Catalyst products):
-<ul>
-<li>Create these tables when doing classification or regression, respectively:</li>
-</ul></li>
+<li>Don’t pull in test data in this step. In other words, to compare models, we only want rows that have a known outcome attached to them.</li>
 </ul>
-<pre class="sql"><code>CREATE TABLE [SAM].[dbo].[HCRDeployClassificationBASE] (
-[BindingID] [int] ,
-[BindingNM] [varchar] (255),
-[LastLoadDTS] [datetime2] (7),
-[PatientEncounterID] [decimal] (38, 0),
-[PredictedProbNBR] [decimal] (38, 2),
-[Factor1TXT] [varchar] (255),
-[Factor2TXT] [varchar] (255),
-[Factor3TXT] [varchar] (255)
-)
-
-CREATE TABLE [SAM].[dbo].[HCRDeployRegressionBASE] (
-[BindingID] [int],
-[BindingNM] [varchar] (255),
-[LastLoadDTS] [datetime2] (7),
-[PatientEncounterID] [decimal] (38, 0),
-[PredictedValueNBR] [decimal] (38, 2),
-[Factor1TXT] [varchar] (255),
-[Factor2TXT] [varchar] (255),
-[Factor3TXT] [varchar] (255)
-)</code></pre>
 </div>
 <div id="how-can-i-improve-my-model-performance" class="section level2">
 <h2>How can I improve my model performance?</h2>
-<p>Note these preprocessing steps should first be tested and found useful in the <a href="compare.md">development step</a>.</p>
 <ul>
-<li>If you have lots of NULL values, you may want to turn on imputation via the <code>impute</code> argument (see below).</li>
 <li>If you have lots of NULL cells and your data is longitudinal, you may want to try <a href="/model-pre-processing/longitudinal-imputation">GroupedLOCF</a>.</li>
 <li>If you think the phenomenon you’re trying to predict has a seasonal or diurnal component, you may need some <a href="/model-pre-processing/seasonality-handling">feature engineering</a>.</li>
-<li>If your data is longitudinal, you may want to try the <code>LinearMixedModelDeployment</code> (detailed below).</li>
+<li>If your data is longitudinal, you may want to try the <code>LinearMixedModelDevelopment</code> (detailed below).</li>
 </ul>
 </div>
 <div id="step-1-pull-in-the-data-via-selectdata" class="section level2">
 <h2>Step 1: Pull in the data via <code>selectData</code></h2>
 <ul>
-<li><p><strong>Return</strong>: a data frame that represents your data.</p></li>
+<li><strong>Return</strong>: a data frame that represents your data.</li>
 <li><strong>Arguments</strong>:
 <ul>
 <li><strong>server</strong>: a server name. You’ll pull data from this server.</li>
@@ -213,9 +181,8 @@ head(df)</code></pre>
 <pre class="r"><code>library(healthcareai)
 ?healthcareai</code></pre>
 </div>
-<div id="step-2-develop-and-compare-several-models" class="section level2">
-<h2>Step 2: Develop and compare several models</h2>
-<p>Set up your parameters via <code>SupervisedModelDevelopmentParams</code></p>
+<div id="step-2-set-your-parameters-via-supervisedmodeldevelopmentparams" class="section level2">
+<h2>Step 2: Set your parameters via <code>SupervisedModelDevelopmentParams</code></h2>
 <ul>
 <li><strong>Return</strong>: an object representing your specific configuration.</li>
 <li><strong>Arguments</strong>:
@@ -237,7 +204,9 @@ p$grainCol = 'PatientEncounterID'
 p$predictedCol = 'ThirtyDayReadmitFLG'
 p$debug = FALSE
 p$cores = 1</code></pre>
-<p>Create the models via the <code>LassoDevelopment</code> or <code>RandomForestDevelopment</code> algorithms.</p>
+</div>
+<div id="step-3-create-the-models-via-the-lassodevelopment-and-randomforestdevelopment-algorithms." class="section level2">
+<h2>Step 3: Create the models via the <code>LassoDevelopment</code> and <code>RandomForestDevelopment</code> algorithms.</h2>
 <pre class="r"><code># Run Lasso
 Lasso &lt;- LassoDevelopment$new(p)
 Lasso$run()
@@ -246,53 +215,30 @@ Lasso$run()
 rf &lt;- RandomForestDevelopment$new(p)
 rf$run()</code></pre>
 </div>
-<div id="step-3-deploy-the-model" class="section level2">
-<h2>Step 3: Deploy the model</h2>
-<p>Specify a deploy set</p>
-<pre class="r"><code>#specify a deploy set
-dfDeploy &lt;- df[951:1000,]
-</code></pre>
-<p>Set deployment parameters via <code>SupvervisedModelDeploymentParams</code></p>
-<pre class="r"><code>p2 &lt;- SupervisedModelDeploymentParams$new()
-p2$type &lt;- &quot;classification&quot;
-p2$df &lt;- dfDeploy
-p2$grainCol &lt;- &quot;PatientEncounterID&quot;
-p2$predictedCol &lt;- &quot;ThirtyDayReadmitFLG&quot;
-p2$impute &lt;- TRUE
-p2$debug &lt;- FALSE
-p2$cores &lt;- 1</code></pre>
-<p>Since random forest performed better in step 2, we will choose to deploy the random forest model.</p>
-<pre class="r"><code>dL &lt;- RandomForestDeployment$new(p2)
-dL$deploy()
-dfOut &lt;- dL$getOutDf()
-dfOut</code></pre>
+<div id="lassodevelopment-details" class="section level2">
+<h2><code>LassoDevelopment</code> Details</h2>
+<p>This version of Lasso is based on the Grouped Lasso alogrithm offered by the <a href="https://cran.r-project.org/web/packages/grpreg/grpreg.pdf">grpreg package</a>. We prefer simple models to complicated ones, so for tuning the lambda regularization parameter, we use the 1SE rule, which means that we take the model with fewest coefficients, which is also within one standard error of the best model. This way, we provide guidance as to which features (ie, columns) should be kept in the deployed model.</p>
 </div>
-<div id="full-example-code-for-reading-from-and-pushing-to-sql-server" class="section level2">
-<h2>Full example code for reading from and pushing to SQL Server</h2>
-<pre class="r"><code>#### Classification example using SQL Server data ####
-# This example requires you to first create a table in SQL Server.
-# If you want to write output to a non-default schema, please see the section
-# below, titled: &quot;Deploying and Writing to non-default schemas in SQL Server&quot;.
-# If you prefer to not use SAMD, execute this in SSMS to create output table:
-# CREATE TABLE dbo.HCRDeployClassificationBASE(
-#   BindingID float, BindingNM varchar(255), LastLoadDTS datetime2,
-#   PatientEncounterID int, &lt;--change to match inputID
-#   PredictedProbNBR decimal(38, 2),
-#   Factor1TXT varchar(255), Factor2TXT varchar(255), Factor3TXT varchar(255)
-# )
-
-## 1. Loading data and packages.
-ptm &lt;- proc.time()
+<div id="randomforestdevelopment-details" class="section level2">
+<h2><code>RandomForestDevelopment</code> Details</h2>
+<p>This version of random forest is based on the wonderful <a href="https://cran.r-project.org/web/packages/ranger/ranger.pdf">ranger package</a>.</p>
+</div>
+<div id="full-example-code" class="section level2">
+<h2>Full example code</h2>
+<pre class="r"><code>ptm &lt;- proc.time()
 library(healthcareai)
+
 connection.string &lt;- &quot;
 driver={SQL Server};
 server=localhost;
 database=SAM;
 trusted_connection=true
 &quot;
+
+# This query should pull only rows for training. They must have a label.
 query &lt;- &quot;
 SELECT
-[PatientEncounterID] --Only need one ID column for random forest
+[PatientEncounterID]
 ,[SystolicBPNBR]
 ,[LDLNBR]
 ,[A1CNBR]
@@ -301,13 +247,10 @@ SELECT
 FROM [SAM].[dbo].[HCRDiabetesClinical]
 &quot;
 df &lt;- selectData(connection.string, query)
-# Partition develop and deploy data
-dfDeploy &lt;- df[951:1000,]
+head(df)
 
-## 2. Train and save the model using DEVELOP
-print('Historical, development data:')
-str(df)
 set.seed(42)
+
 p &lt;- SupervisedModelDevelopmentParams$new()
 p$df &lt;- df
 p$type &lt;- &quot;classification&quot;
@@ -316,122 +259,102 @@ p$grainCol &lt;- &quot;PatientEncounterID&quot;
 p$predictedCol &lt;- &quot;ThirtyDayReadmitFLG&quot;
 p$debug &lt;- FALSE
 p$cores &lt;- 1
-# Run RandomForest
-RandomForest &lt;- RandomForestDevelopment$new(p)
-RandomForest$run()
 
-## 3. Load saved model and use DEPLOY to generate predictions. 
-print('Fake production data:')
-str(dfDeploy)
-p2 &lt;- SupervisedModelDeploymentParams$new()
-p2$type &lt;- &quot;classification&quot;
-p2$df &lt;- dfDeploy
-p2$grainCol &lt;- &quot;PatientEncounterID&quot;
-p2$predictedCol &lt;- &quot;ThirtyDayReadmitFLG&quot;
-p2$impute &lt;- TRUE
-p2$debug &lt;- FALSE
-p2$cores &lt;- 1
-dL &lt;- RandomForestDeployment$new(p2)
-dL$deploy()
-dfOut &lt;- dL$getOutDf()
-writeData(MSSQLConnectionString = connection.string,
-          df = dfOut,
-          tableName = 'HCRDeployClassificationBASE')
-print(proc.time() - ptm)</code></pre>
+# Run Lasso
+lasso &lt;- LassoDevelopment$new(p)
+lasso$run()
+
+set.seed(42)
+# Run Random Forest
+rf &lt;- RandomForestDevelopment$new(p)
+rf$run()
+
+# Plot ROC
+rocs &lt;- list(rf$getROC(), lasso$getROC())
+names &lt;- c(&quot;Random Forest&quot;, &quot;Lasso&quot;)
+legendLoc &lt;- &quot;bottomright&quot;
+plotROCs(rocs, names, legendLoc)
+
+# Plot PR Curve
+rocs &lt;- list(rf$getPRCurve(), lasso$getPRCurve())
+names &lt;- c(&quot;Random Forest&quot;, &quot;Lasso&quot;)
+legendLoc &lt;- &quot;bottomleft&quot;
+plotPRCurve(rocs, names, legendLoc)
+
+cat(proc.time() - ptm,&quot;\n&quot;)</code></pre>
 </div>
-<div id="full-example-code-for-reading-and-pushing-predictions-to-a-csv" class="section level2">
-<h2>Full example code for reading (and pushing predictions to) a CSV</h2>
-<p>Start with the arguments. You’ll want to add</p>
-<pre class="r"><code>#### Classification Example using csv data ####
-
-## 1. Loading data and packages.
-ptm &lt;- proc.time()
+<div id="linearmixedmodeldevelopment-details" class="section level2">
+<h2><code>LinearMixedModelDevelopment</code> Details</h2>
+<p>This mixed model is designed for longitudinal datasets (ie, those that typically have more than one row per-person). The method is based on the lme4 package. It’s not as computationally efficient as the random forest algorithm, so it’s best to compare against the other algorithms on smaller datasets, and then scale up from there. In particular, this method works best on data sets having fewer than 10,000 rows.</p>
+</div>
+<div id="full-example-code-for-mixed-model-longitudinal-work" class="section level2">
+<h2>Full example code for mixed-model longitudinal work</h2>
+<pre class="r"><code>ptm &lt;- proc.time()
 library(healthcareai)
-# setwd('C:/Yourscriptlocation/Useforwardslashes') # Uncomment if using csv
-# Can delete this line in your work
-csvfile &lt;- system.file(&quot;extdata&quot;, 
-                       &quot;HCRDiabetesClinical.csv&quot;, 
-                       package = &quot;healthcareai&quot;)
-# Replace csvfile with 'path/file'
-df &lt;- read.csv(file = csvfile, 
-               header = TRUE, 
-               na.strings = c(&quot;NULL&quot;, &quot;NA&quot;, &quot;&quot;))
-df$PatientID &lt;- NULL # Only one ID column (ie, PatientEncounterID) is needed remove this column
-# Partition develop and deploy data
-dfDeploy &lt;- df[951:1000,]
 
-## 2. Train and save the model using DEVELOP
-print('Historical, development data:')
-str(df)
+connection.string &lt;- &quot;
+driver={SQL Server};
+server=localhost;
+database=SAM;
+trusted_connection=true
+&quot;
+
+# This query should pull only rows for training. They must have a label.
+query &lt;- &quot;
+SELECT
+ [PatientEncounterID]
+,[PatientID]
+,[SystolicBPNBR]
+,[LDLNBR]
+,[A1CNBR]
+,[GenderFLG]
+,[ThirtyDayReadmitFLG]
+FROM [SAM].[dbo].[HCRDiabetesClinical]
+&quot;
+
+df &lt;- selectData(connection.string, query)
+head(df)
+
 set.seed(42)
+
 p &lt;- SupervisedModelDevelopmentParams$new()
 p$df &lt;- df
 p$type &lt;- &quot;classification&quot;
 p$impute &lt;- TRUE
 p$grainCol &lt;- &quot;PatientEncounterID&quot;
+p$personCol &lt;- &quot;PatientID&quot;
 p$predictedCol &lt;- &quot;ThirtyDayReadmitFLG&quot;
 p$debug &lt;- FALSE
 p$cores &lt;- 1
-# Run RandomForest
-RandomForest &lt;- RandomForestDevelopment$new(p)
-RandomForest$run()
 
-## 3. Load saved model and use DEPLOY to generate predictions. 
-print('Fake production data:')
-str(dfDeploy)
-p2 &lt;- SupervisedModelDeploymentParams$new()
-p2$type &lt;- &quot;classification&quot;
-p2$df &lt;- dfDeploy
-p2$grainCol &lt;- &quot;PatientEncounterID&quot;
-p2$predictedCol &lt;- &quot;ThirtyDayReadmitFLG&quot;
-p2$impute &lt;- TRUE
-p2$debug &lt;- FALSE
-p2$cores &lt;- 1
-dL &lt;- RandomForestDeployment$new(p2)
-dL$deploy()
-dfOut &lt;- dL$getOutDf()
-head(dfOut)
-# Write to CSV (or JSON, MySQL, etc) using plain R syntax
-# write.csv(dfOut,'path/predictionsfile.csv')
-print(proc.time() - ptm)</code></pre>
-</div>
-<div id="deploying-and-writing-to-non-default-schemas-in-sql-server" class="section level2">
-<h2>Deploying and Writing to non-default schemas in SQL Server</h2>
-<p>As of the end of July 2017, there are some known issues with the packages <code>DBI</code> and <code>odbc</code>. These issues get in the way of those writing to non-default schemas in SQL-Server. We hope to have the implementation of <code>DBI</code> and <code>odbc</code> fixed soon but we are waiting on the developers of those resepctive packages to fix the issue. Links to the issues on github and stack overflow are <a href="https://stackoverflow.com/questions/45355885/odbc-dbi-in-r-will-not-write-to-a-table-with-a-non-default-schema-in-r?noredirect=1#comment77676303_45355885">here</a>, <a href="https://github.com/rstats-db/odbc/issues/91">here</a>, and <a href="https://github.com/rstats-db/DBI/issues/191">here</a>. For now, we have created a work-around using the package <code>RODBC</code>.</p>
-<p><strong>Note</strong>: <code>RODBC</code> is difficult to install on Mac OS. This work-around is mainly for Windows users. If Mac users can get<code>RODBC</code> installed on their machines, then the same code will work, but the installation will not be trivial.</p>
-<p>You may need to install RODBC using install.packages(“RODBC”). Here is an example of the work-around.</p>
-<pre class="r"><code>#First, create a table in SQL Server using a non-default schema. The example 
-#creates this table in the SAM database on localhost. You may also need to 
-#create a new schema(Cardiovascular) in SSMS for this specific example to work.
-#CREATE TABLE [Cardiovascular].[TestTable](
-#[a] [float] NULL,
-#[b] [float] NULL,
-#[c] [varchar](255) NULL)
+# Create Mixed Model
+lmm &lt;- LinearMixedModelDevelopment$new(p)
+lmm$run()
 
-#install the RODBC pacakge onto your machine. You only need to do this one time.
-install.packages(&quot;RODBC&quot;)
-#load the package
-library(RODBC)
+# Remove person col, since RF can't use it
+df$personCol &lt;- NULL
+p$df &lt;- df
+p$personCol &lt;- NULL
 
-#create a connection to work with
-con &lt;- RODBC::odbcDriverConnect('driver={SQL Server};
-                              server=localhost;
-                              database=SAM;
-                              trusted_connection=true')
+set.seed(42) 
+# Run Random Forest
+rf &lt;- RandomForestDevelopment$new(p)
+rf$run()
 
-#build a df to write to SQL Server. df columns names must match the SSMS table.
-df &lt;- data.frame(a = c(10, 20, 30),
-                 b = c(20, 40, 60),
-                 c = c(&quot;oneT&quot;, &quot;twoT&quot;, &quot;threeT&quot;))
+# Plot ROC
+rocs &lt;- list(lmm$getROC(), rf$getROC())
+names &lt;- c(&quot;Linear Mixed Model&quot;, &quot;Random Forest&quot;)
+legendLoc &lt;- &quot;bottomright&quot;
+plotROCs(rocs, names, legendLoc)
 
-#write the df to the table                 
-RODBC::sqlSave(con, df, &quot;Cardiovascular.TestTable&quot;, append = TRUE, 
-                rownames = FALSE)
-                
-#verify that the table was written to
-confirmDf &lt;- sqlQuery(con, 'select * from Cardiovascular.TestTable')
-head(confirmDf)</code></pre>
-<p>Note: if you need to see the built-in docs (which are always up-to-date):</p>
+# Plot PR Curve
+rocs &lt;- list(lmm$getPRCurve(), rf$getPRCurve())
+names &lt;- c(&quot;Linear Mixed Model&quot;, &quot;Random Forest&quot;)
+legendLoc &lt;- &quot;bottomleft&quot;
+plotPRCurve(rocs, names, legendLoc)
+
+cat(proc.time() - ptm, '\n')</code></pre>
+<p>Note: if you want a CSV example (ie, an example that you can run as-is), see the built-in docs:</p>
 <pre class="r"><code>library(healthcareai)
 ?healthcareai</code></pre>
 </div>
