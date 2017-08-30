@@ -21,8 +21,8 @@ defaultInfoFile <- "rmodel_info_RF.rda"
 
 # get custom file names for random forest model and info
 newName <- "non-deterministic-tree-ensemble"
-customFitObjFile <- paste("rmodel_probability_", newName, ".rda", sep = "")
-customInfoFile <- paste("rmodel_info_", newName, ".rda", sep = "")
+customFitObjFile <- paste("rmodel_probability_", newName, "_RF.rda", sep = "")
+customInfoFile <- paste("rmodel_info_", newName, "_RF.rda", sep = "")
 
 # Remove model save files if they exist
 for (file in c(defaultFitObjFile, 
@@ -82,8 +82,6 @@ dfOutDefault <- dL$getOutDf()
 # TESTS #
 
 test_that("Default model name is set correctly", {
-  expect_equal(RandomForest$params$modelName, "RF")
-  expect_equal(dL$params$modelName, "RF")
   expect_true(file.exists(defaultFitObjFile))
   expect_true(file.exists(defaultInfoFile))
 })

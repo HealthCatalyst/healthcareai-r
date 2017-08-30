@@ -232,7 +232,7 @@
     temp_predictions = NA,
     orderedProbs = NA,
 
-    modelName = 'XGB',
+    algorithmShortName = 'XGB',
     algorithmName = 'XGBoost',
 
     # functions

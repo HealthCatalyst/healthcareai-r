@@ -420,7 +420,7 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     
     fitRF = NA,
     predictions = NA,
-    modelName = 'RF',
+    algorithmShortName = 'RF',
     algorithmName = 'RandomForest',
 
     # functions

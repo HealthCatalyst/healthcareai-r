@@ -433,7 +433,7 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     
     fitLmm = NA,
     predictions = NA,
-    modelName = 'LMM',
+    algorithmShortName = 'LMM',
     algorithmName = 'LinearMixedModel',
 
     # functions
