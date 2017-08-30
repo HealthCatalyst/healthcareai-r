@@ -1,129 +1,74 @@
-# Plot boxplot across subgroups via `variationAcrossGroups`
+# Visualize variation across subgroups via `variationAcrossGroups`
 
 ## Why is it helpful?
 In healthcareai, we have the function `findVariation` that will search across 
 all combinations of groups and various measures to find high variation, and 
-return a data frame with information on variation and volumn. 
-`variationAcrossGroups`, furthermore, compares variations across all combinations
-of groups by presenting a boxplot, with a letter above the box, indicating if 
-there is a significant difference in the means of the combinations of groups. 
-For example, of all the patients (Female and Male, Old and Young), which group
-(among Female/Old, Female/Young, Male/Old and Male/Young) has the longest length of stay?
+return a data frame with information on variation and potential impact. 
+`variationAcrossGroups` compares variations across all combinations
+of groups by presenting a visualization. A boxplot shows size and distribution of 
+each group, and a letter above the box indicates if 
+there is a significant difference in the group means.
+
+This function can help answer questions like, "Which physicians order high-cost tests frequently with respect to their peers?" 
 
 
 
-## How to use the function?
+### Example
 
-Let's get started in RStudio!
-
-* First, we'll load healthcareai, upload a fake dataset on which to work, 
-and look at it:
+First, we'll load healthcareai and build a test dataset with two columns:
+blood test result (value) and an anesthetic treatment (anesthetic). There are five anesthetics in the dataset: Midazolam, Propofol, Ketamine, Thiamylal, and Diazepam.
 
 ```r
 library(healthcareai)
 
-csvfile <- system.file("extdata", 
-                       "variationAcrossGroupsExData.csv", 
-                       package = "healthcareai")
-
-# Replace csvfile with 'path/file'
-df <- read.csv(file = csvfile, 
-               header = TRUE, 
-               na.strings = c("NULL", "NA", ""))
-
-head(df)
+set.seed(35)
+df1 <- data.frame(
+  anesthetic = c(rep("Midazolam", 50), rep("Propofol", 20), rep("Ketamine", 40), 
+                 rep("Thiamylal", 80),  rep("Diazepam", 20)),
+  value = c(sample(2:5, 50, replace = TRUE), sample(6:10, 20, replace = TRUE), 
+            sample(1:7, 40, replace = TRUE), sample(3:10, 80, replace = TRUE), 
+            sample(10:20, 20, replace = TRUE)))                      
+head(df1)
 ```
 
-* Next, let's define our subgroups by `Dept` and `Age` and use `LOS` (length of stay) as our measure of interest. Then we pass these parameters to `variationAcrossGroups`.
+Define the categorical column, `anesthetic`, as a subgroup. We will assess their effect on the blood test stored in the `value` column using `variationAcrossGroups`.
 
 ```r
-measureColumn <- 'LOS'
-
-categoricalCols <- c("Dept", "Age")
-
-variationAcrossGroups(df,categoricalCols,measureColumn)
+variationAcrossGroups(df = df1, 
+                      categoricalCols = "anesthetic", 
+                      measureColumn = "value", 
+                      sigLevel = .01)
 ```
+If you have other categorical columns, it will show all combinations of groups. If you'd like to group by temporal variables, it's possible to separate dates by day, week, year, etc.
 
-* To disable the print of the tables and plot the results of Tukey's test:
+### Interpreting the output
 
-```r
-variationAcrossGroups(df,categoricalCols,measureColumn, printTable = FALSE,
-                            printTukeyplot = TRUE)
-```
+![Boxplot from variationAcrossGroups](img/variationAcrossGroupsBoxplot.png)
 
-## Function specs for ``variationAcrossGroups``
-- __Return__:
-    - __boxplot__: A boxplot with measure column on the y axis and groups across the 
-      categorical columns on the x axis. Boxes that share the same letter have the same 
-      mean according to a Tukey test. 
-    - __dataframe__: A data frame three columns wide, with information 
-      on p-values for each pair of the combination of groups (test if the pair 
-      have the same mean).
-    - __dataframe__: A data frame ten columns wide, with information on mean/sd 
-      and quartiles for each combination of groups.
-    
+The boxplot tells us that Diazepam, Propofol, and Thiamylal all have 
+significantly different mean values from all other groups, including each other
+(p <= 0.01). Midazolam and Ketamine do not have significantly different mean 
+values because they share the label "a", but they are significantly different 
+from all the other treatments.
+
+![Tukey test output from variationAcrossGroups](img/variationAcrossGroupsTukey.png)
+
+This plot present the results
+of the Tukey's Honest Significant Differences test. It compares all possible
+pairs of groups and adjusts p-values for multiple comparisons. Red lines
+indicate a significant difference between the two groups at the chosen 
+significance level (0.05 by default). Groups are ordered by p-values. The
+group with the greater mean value is always listed first.
+
+
+### Function params for ``variationAcrossGroups``
 - __Arguments__:
-    - __df__: a data frame that has both a measure and a categorical column.
-    - __categoricalCols__: Vector of strings representing categorical column(s)
-    - __measureColumn__: Vector of strings representing measure column(s)
+    - __df__: A data frame containing group and measure columns.
+    - __categoricalCols__: Character. Vector containing the name(s) of column(s) to group by.
+    - __measureColumn__: Character. The name of the numeric variable of interest.
+    - __plotGroupDifferences__: Optional. Logical. Plot results of Tukey's HSD test: mean differences between groups and confidence intervals for each pairwise group comparison? Default is FALSE.
+    - __returnGroupStats__: Optional. Logical. In addition to the model summary table, return summary statistics for each group? Default is FALSE.
     - __dateCol__: Optional. A date(time) column to group by (done by month).
-    - __printTukeyplot__: Optinal. TRUE or FALSE (default is FALSE). 
-    TRUE to show the plot of the results of Tukey's test. 
-    - __printTable__: Optional. TRUE or FASLE (default is TRUE). TRUE to show the 
-    tables of mean/sd and quartiles and p values.
-    - __boxplotStats__: Optional. TRUE or FASLE (default is FALSE). TRUE to show the 
-    statistics used to plot the boxplot.
+    - __levelOfDateGroup__: Optional. Character. Level at which to group dateCol. One of "yearly", "quarterly", "monthly" (default), or "weekly".
+    - __sigLevel__: Optional. Numeric value between zero and one giving the alpha value for Tukey HSD test, i.e. the p-value threshold for significance.
     
-
-## Full example code
-
-```r
-library(healthcareai)
-
-csvfile <- system.file("extdata", 
-                       "variationAcrossGroupsExData.csv", 
-                       package = "healthcareai")
-
-# Replace csvfile with 'path/file'
-df <- read.csv(file = csvfile, 
-               header = TRUE, 
-               na.strings = c("NULL", "NA", ""))
-
-
-measureColumn <- 'LOS'
-
-categoricalCols <- c("Dept", "Age")
-
-variationAcrossGroups(df,categoricalCols,measureColumn)
-
-variationAcrossGroups(df,categoricalCols,measureColumn, printTable = FALSE,
-                            printTukeyplot = TRUE)
-
-```
-
-## Function output
-### The table that showes the p-values for each pair of the combination of groups
-
-![Table output from variationAcrossGroups](img/variationAcrossGroupsTableOutput.png)
-
-### The boxplot across the combinations of `Dept` and `Age`
-* There is no significant difference in the mean of LOS between groups A.Old and C.Old.
-* There is also no significant difference in the mean of LOS between groups 
-  A.Young and B.Young, and between groups A.Young and C.Young.
-* Group B.Old has a significant longer LOS than the other groups.
-* Group C.Young has a significant shorter LOS than the other groups.
-
-![Boxplot output from variationAcrossGroups](img/variationAcrossGroupsBoxplotOutput.png)
-
-### The plot that showes the results of a Tukey's test
-* The confidence intervals in the plot are ordered by p values, the pair with the 
-  smallest p value is in the top.
-* Red lines indicate a p value less than 0.05, hence is significant.
-
-![Tukey plot output from variationAcrossGroups](img/variationAcrossGroupsTukeyplotOutput.png)
-
-As always, you can see the built-in docs via
-```r
-library(healthcareai)
-?variationAcrossGroups
-```

@@ -62,6 +62,7 @@ Note these preprocessing steps should first be tested and found useful in the [d
 
 ```r
 library(healthcareai)
+library(RODBC)
 
 connection.string = "
 driver={SQL Server};
@@ -70,15 +71,17 @@ database=SAM;
 trusted_connection=true
 "
 
+# This query should pull only rows for training. They must have a label.
 query = "
 SELECT
-[OrganizationLevel]
-,[MaritalStatus]
-,[Gender]
-,IIF([SalariedFlag]=0,'N','Y') AS SalariedFlag
-,[VacationHours]
-,[SickLeaveHours]
-FROM [AdventureWorks2012].[HumanResources].[Employee]
+[PatientEncounterID]
+,[PatientID]
+,[SystolicBPNBR]
+,[LDLNBR]
+,[A1CNBR]
+,[GenderFLG]
+,[ThirtyDayReadmitFLG]
+FROM [SAM].[dbo].[HCRDiabetesClinical]
 "
 
 df <- selectData(connection.string, query)
@@ -92,7 +95,9 @@ library(healthcareai)
 ?healthcareai
 ```
 
-## Step 2: Set your parameters via `SupervisedModelParameters`
+## Step 2: Develop and compare several models
+
+Set up your parameters via `SupervisedModelDevelopmentParams`
 
 - __Return__: an object representing your specific configuration.
 - __Arguments__:
@@ -105,36 +110,61 @@ library(healthcareai)
     - __cores__: an int, defaults to 4. Number of cores on machine to use for model training.
 
 ```r
-p <- DeploySupervisedModelParameters$new()
+p <- SupervisedModelDevelopmentParams$new()
 p$df = df
 p$type = 'classification'
 p$impute = TRUE
-p$grainCol = 'GrainID'
-p$predictedCol = 'SalariedFlag'
+p$grainCol = 'PatientEncounterID'
+p$predictedCol = 'ThirtyDayReadmitFLG'
 p$debug = FALSE
 p$cores = 1
-p$sqlConn = connection.string
-p$destSchemaTable = 'dbo.HCRDeployClassificationBASE'
 ```
 
-## Step 3: Create the models via the `DeployLasso` or `DeployRandomForest` algorithms.
+Create the models via the `LassoDevelopment` or `RandomForestDevelopment` algorithms.
 
 ```r
-# Run Lasso (if that's what performed best in the develop step)
-dL <- LassoDeployment$new(p)
-dL$deploy()
+# Run Lasso
+Lasso <- LassoDevelopment$new(p)
+Lasso$run()
 
-# Or run RandomForest (if that's what performed best in the develop step)
-dL <- RandomForestDeployment$new(p)
-dL$deploy()
-
-# Or run Linear Mixed Model (if that's what performed best in the develop step)
-
-p$personCol = 'PatientID' # Change to your PatientID col
-lMM <- LinearMixedModelDeployment$new(p)
-lMM$deploy()
+# Run Random Forest
+rf <- RandomForestDevelopment$new(p)
+rf$run()
 ```
-## Full example code for SQL Server
+
+##Step 3: Deploy the model
+
+Specify a deploy set
+
+```r
+#specify a deploy set
+dfDeploy <- df[951:1000,]
+
+```
+
+Set deployment parameters via `SupvervisedModelDeploymentParams`
+
+```r
+p2 <- SupervisedModelDeploymentParams$new()
+p2$type <- "classification"
+p2$df <- dfDeploy
+p2$grainCol <- "PatientEncounterID"
+p2$predictedCol <- "ThirtyDayReadmitFLG"
+p2$impute <- TRUE
+p2$debug <- FALSE
+p2$cores <- 1
+```
+
+Since random forest performed better in step 2, we will choose to deploy the random forest model.
+
+```r
+dL <- RandomForestDeployment$new(p2)
+dL$deploy()
+dfOut <- dL$getOutDf()
+dfOut
+```
+
+## Full example code for reading from and pushing to SQL Server
 
 ```r
 #### Classification example using SQL Server data ####
@@ -265,22 +295,6 @@ head(dfOut)
 # Write to CSV (or JSON, MySQL, etc) using plain R syntax
 # write.csv(dfOut,'path/predictionsfile.csv')
 print(proc.time() - ptm)
-```
-## Linear Mixed Model (small datasets with a longitudinal flavor)
-
-```r
-p2 <- SupervisedModelDeploymentParams$new()
-p2$type <- "classification"
-p2$df <- df
-p2$grainCol <- "PatientEncounterID" # Unique ID for each appointment
-p$personCol <- "PatientID" # Could be multiple visits per patient
-p2$predictedCol <- "ThirtyDayReadmitFLG"
-p2$impute <- TRUE
-p2$debug <- FALSE
-p2$cores <- 1
-
-dL <- LinearMixedModelDeployment$new(p2)
-dL$deploy()
 ```
 
 ##Deploying and Writing to non-default schemas in SQL Server

@@ -426,7 +426,7 @@ LassoDeployment <- R6Class(
     modMat = NA,
     
     predictions = NA,
-    modelName = 'lasso',
+    algorithmShortName = 'lasso',
     algorithmName = 'Lasso',
     
     # Functions

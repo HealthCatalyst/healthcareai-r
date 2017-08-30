@@ -66,22 +66,22 @@ writeData(MSSQLConnectionString = connectionString,
 }
 
 \dontrun{
-This example shows the RODBC way of writing to a non-default schema while 
-ODBC is being fixed. Here is a link to the non-default issue in ODBC: 
-https://github.com/rstats-db/odbc/issues/91
+#This example shows the RODBC way of writing to a non-default schema while 
+#ODBC is being fixed. Here is a link to the non-default issue in ODBC: 
+#https://github.com/rstats-db/odbc/issues/91
 
-First, create this table in SQL Server using a non-default schema. The 
-example creates this table in the SAM database on localhost. You will also 
-need to create a new schema(Cardiovascular) in SSMS for this specific 
-example to work.
-CREATE TABLE [Cardiovascular].[TestTable](
-[a] [float] NULL,
-[b] [float] NULL,
-[c] [varchar](255) NULL)
+#First, create this table in SQL Server using a non-default schema. The 
+#example creates this table in the SAM database on localhost. You will also 
+#need to create a new schema(Cardiovascular) in SSMS for this specific 
+#example to work.
+#CREATE TABLE [Cardiovascular].[TestTable](
+#[a] [float] NULL,
+#[b] [float] NULL,
+#[c] [varchar](255) NULL)
 
 # Install the RODBC pacakge onto your machine. You only need to do this one 
 # time.
-install.packages("RODBC")
+#install.packages("RODBC")
 
 # Load the package
 library(RODBC)

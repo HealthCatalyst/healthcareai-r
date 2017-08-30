@@ -232,6 +232,8 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     fitRF = NA,
 
     predictions = NA,
+    
+    algorithmShortName = "RF",
 
     # Performance metrics
     ROCPlot = NA,
@@ -293,9 +295,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     initialize = function(p) {
       set.seed(43)
       super$initialize(p)
-      if (is.null(self$params$modelName)) {
-        self$params$modelName = "RF" 
-      }
+      
       if (!is.null(p$tune)) {
         self$params$tune = p$tune
       }
