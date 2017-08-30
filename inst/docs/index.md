@@ -27,27 +27,13 @@ Note: if you're setting up R on an ETL server, don't download RStudio--simply op
 ## Install the latest release on Windows
 
 Open RStudio and work in the console
-
 ```
 install.packages('healthcareai')
 ```
 
 ## How to install the latest version on macOS
 
-Note: If using macOS with healthcare.ai, you'll have to use csv files. We're working on adding MySQL connections. We'd [love to hear](http://healthcare.ai/contact) which other databases your connecting to, so we can provide native support!
-
-* Open the Mac Terminal
-* Install [Xcode](https://en.wikipedia.org/wiki/Xcode) compilers via `xcode-select --install`
-* Accept the Xcode license via `sudo xcodebuild -license`
-* Install [Homebrew](https://brew.sh/) (the macOS package manager) with
-* Install ODBC driver via `brew update && brew install unixODBC`
-* Open R Studio
-* In the console, install RODBC from source with `install.packages('RODBC',type = "source")`
-* In the console, install other R healthcare.ai prerequisites via
-```
-install.packages(c('caret','data.table','DBI','doParallel','e1071','grpreg','lme4','odbc','pROC','R6','ranger','ROCR','RSQLite','xgboost'),repos = "https://cran.cnr.berkeley.edu/")
-```
-* Install healthcare.ai
+Open RStudio and work in the console
 ```
 install.packages('healthcareai')
 ```
@@ -62,13 +48,12 @@ install.packages('healthcareai')
 
 ## Install the bleeding edge version (for folks providing contributions)
 
-* Grab prerequisites via the console of RGui or (preferably) RStudio  
+Open RStudio and work in the console 
 ```
-install.packages(c('caret','data.table','DBI','doParallel','e1071','grpreg','lme4','odbc','pROC','R6','ranger','ROCR','RSQLite','xgboost'),repos = "https://cran.cnr.berkeley.edu/")
-
 library(devtools)
 devtools::install_github(repo='HealthCatalyst/healthcareai-r')
 ```
+
 ## Tips on getting started
 
 #### Built-in examples
@@ -88,10 +73,18 @@ If you like Jupyter notebooks, check out [step 1](https://github.com/HealthCatal
 Read the blog and join the slack channel at [healthcare.ai](https://healthcare.ai)
 
 ## What's new?
-The CRAN 0.1.12 release features
-
-- Check the availability of columns after patient admit (and avoid target leak) via featureAvailabilityProfiler!
-- One can now deploy predictions to flat files via getOutDf. See ?getOutDf for more.
+The CRAN 1.0.0 release features:
+- Added: 
+  - Kmeans clustering
+  - XGBoost multiclass support
+  - findingVariation family of functions
+- Changed: 
+  - Develop step trains and saves models
+  - Deploy no longer trains. Loads and predicts on all rows.
+  - SQL uses a DBI back end
+- Removed:
+  - `testWindowCol` is no longer a param.
+  - SQL reading/writing is outside model deployment.
 
 ## For issues
 
