@@ -59,4 +59,6 @@ head(df)
 }
 \seealso{
 \code{\link{healthcareai}}
+
+\code{\link{writeData}}
 }

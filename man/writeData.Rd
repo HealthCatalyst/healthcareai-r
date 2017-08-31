@@ -111,4 +111,6 @@ head(confirmDf)
 }
 \seealso{
 \code{\link{healthcareai}}
+
+\code{\link{selectData}}
 }

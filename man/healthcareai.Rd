@@ -20,7 +20,7 @@ model.
 \itemize{
 \item{Loading Data:}
 \itemize{
-\item Use \code{\link{selectData}} to pull data directrly from a SQL 
+\item Use \code{\link{selectData}} to pull data directly from a SQL 
 database}
 \item{Profiling and Analyzing Data - One can get quite far in healthcare data
 analysis without ever going beyond this step:}
@@ -32,7 +32,7 @@ each variable.
 \item \code{\link{findVariation}} and \code{\link{variationAcrossGroups}} are
  used to find variation across/between subgroups of data.
 \item \code{\link{findTrends}} finds trends that are six months or longer.
-\item \code{\link{RiskAdjustedComparisons}} Compares groups in a risk
+\item \code{\link{RiskAdjustedComparisons}} compares groups in a risk
 adjusted fashion. See 
 \href{http://www.jointcommission.org/assets/1/18/RA_Guide_Risk_Model.pdf}{RiskAdjustement}
 for a general introduction.
@@ -70,7 +70,7 @@ classification or regression.
 }
 \item{Performance of Trained Models:}
 \itemize{
-\item Area under the ROC curve or area under the Performance-Recall curve are 
+\item Area under the ROC curve or area under the precision-recall curve are 
  used to evaluate the performance of classification models.
 \item The mean squared error (MSE) and root mean squared error (RMSE) are 
 used to evaluate the performance of regression problems.
@@ -84,7 +84,7 @@ Note: models are saved in the working directory after creation.
 \item{Deploy the Model:}
 \itemize{
 \item Use \code{\link{LassoDeployment}}, 
-\code{\link{LinearMixedModelDevelopment}}, 
+\code{\link{LinearMixedModelDeployment}}, 
 \code{\link{RandomForestDeployment}}, or \code{\link{XGBoostDeployment}} to 
 load the model from development and predict against test data. The 
 deployments can be tested locally, but eventually live on the production 
