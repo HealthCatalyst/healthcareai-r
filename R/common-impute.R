@@ -47,6 +47,8 @@ groupedLOCF <- function(df, id) {
   dfResult
 }
 
+foo <- 'adfasdf'
+
 #' @title
 #' Perform imputation on a dataframe
 #'
