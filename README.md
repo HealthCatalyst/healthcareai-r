@@ -14,7 +14,7 @@ The aim of `healthcareai` is to make machine learning easy on healthcare data. T
 
 ## For those starting out
 
-- If you haven't, install [R](https://cran.cnr.berkeley.edu) version >= 3.2.3 and [RStudio](https://www.rstudio.com/products/rstudio/download)
+- If you haven't, install [R](https://CRAN.r-project.org/) version >= 3.2.3 and [RStudio](https://www.rstudio.com/products/rstudio/download)
 
 Note: if you're setting up R on an ETL server, don't download RStudio--simply open up RGui
 
@@ -59,9 +59,6 @@ library(healthcareai)
 
 #### Website examples
 See our [docs website](http://healthcareai-r.readthedocs.io)
-
-#### Jupyter notebook examples
-If you like Jupyter notebooks, check out [step 1](https://github.com/HealthCatalystSLC/documentation/blob/master/notebooks/Example1.ipynb) and [step 2](https://github.com/HealthCatalystSLC/documentation/blob/master/notebooks/Example2.ipynb) in model building with healthcareai.
 
 ## Join the community
 Read the blog and join the slack channel at [healthcare.ai](https://healthcare.ai)
