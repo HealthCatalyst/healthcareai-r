@@ -101,6 +101,7 @@ test_that("One cat col, one measure col, and one date col give correct df", {
   
   cat(df1)
   cat(dfRes)
+  expect_equal('yes', 'yes')
   #testthat::expect_equal(dfRes, df1, tolerance = 1e-3)
 })
 
