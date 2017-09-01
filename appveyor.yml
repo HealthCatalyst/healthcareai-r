@@ -33,8 +33,16 @@ environment:
 
   matrix:
     - R_VERSION: release
+      R_ARCH: x64
     
     - R_VERSION: devel
+      R_ARCH: x64
+
+    - R_VERSION: release
+      R_ARCH: i386
+    
+    - R_VERSION: devel
+      R_ARCH: i386
 
 #---------------------------------#
 #  notifications configuration    #
