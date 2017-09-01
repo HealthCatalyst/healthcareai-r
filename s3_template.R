@@ -46,10 +46,10 @@ mean.dog <- function(dog) {
 fido <- dog(species = 'pomeranian', age=7)
 boffo <- dog(species = 'mutt', age=3)
 
-# Try some methods on the dogs you instantiated.
+# Try some methods on the dogs you instantiated using explicit calls to the class method for speed and clarity
 bark.dog(fido)
 bark.dog(boffo)
-mean(fido)
+mean.dog(fido)
 
 # Access some variables of the dogs
 print(fido$age)
