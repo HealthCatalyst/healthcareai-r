@@ -5,7 +5,7 @@
 #   2. Create a `.bark()` method on that class with a sensisble default for non-dogs
 
 # global generic definition
-bark, <- function(x) UseMethod('bark')
+bark <- function(x) UseMethod('bark')
 
 # global generic default
 bark.default <- function(x){
@@ -50,6 +50,9 @@ boffo <- dog(species = 'mutt', age=3)
 bark.dog(fido)
 bark.dog(boffo)
 mean.dog(fido)
+
+# Note you can still use the global generic syntax, but it will be slower and harder to maintain
+mean(fido)
 
 # Access some variables of the dogs
 print(fido$age)
