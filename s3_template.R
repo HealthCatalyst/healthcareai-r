@@ -28,7 +28,7 @@ dog <- function(species, age){
   print(instance)
   
   return(instance)
-}
+}bar
 
 # Create a new method for the class
 bark.dog <- function(dog) {
@@ -53,6 +53,9 @@ mean.dog(fido)
 
 # Note you can still use the global generic syntax, but it will be slower and harder to maintain
 mean(fido)
+
+# calling the default bark method on not a dog
+bark('not a dog')
 
 # Access some variables of the dogs
 print(fido$age)
