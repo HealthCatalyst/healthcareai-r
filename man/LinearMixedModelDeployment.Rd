@@ -142,7 +142,7 @@ head(dfOut)
 
 print(proc.time() - ptm)
 
-\donttest{
+\dontrun{
 #### Classification example using SQL Server data ####
 # This example requires you to first create a table in SQL Server
 # If you prefer to not use SAMD, execute this in SSMS to create output table:
@@ -225,7 +225,7 @@ writeData(MSSQLConnectionString = connection.string,
 print(proc.time() - ptm)
 }
 
-\donttest{
+\dontrun{
 #### Regression Example using SQL Server data ####
 # This example requires you to first create a table in SQL Server
 # If you prefer to not use SAMD, execute this in SSMS to create output table:
@@ -309,7 +309,9 @@ writeData(MSSQLConnectionString = connection.string,
 print(proc.time() - ptm)
 }
 
+\dontrun{
 #### Classification example pulling from CSV and writing to SQLite ####
+
 
 ## 1. Loading data and packages.
 ptm <- proc.time()
@@ -374,7 +376,9 @@ writeData(SQLiteFileName = sqliteFile,
           tableName = 'HCRDeployClassificationBASE')
 
 print(proc.time() - ptm)
+}
 
+\dontrun{
 #### Regression example pulling from CSV and writing to SQLite ####
 
 ## 1. Loading data and packages.
@@ -441,6 +445,7 @@ writeData(SQLiteFileName = sqliteFile,
           tableName = 'HCRDeployRegressionBASE')
 
 print(proc.time() - ptm)
+}
 }
 \seealso{
 \code{\link{healthcareai}}

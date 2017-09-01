@@ -132,7 +132,7 @@ variationAcrossGroups(bp,
 \url{http://healthcare.ai}
 
 This function uses multcompView::multcompLetters() 
-  \url{https://cran.r-project.org/web/packages/multcompView/index.html}
+  \url{https://CRAN.R-project.org/package=multcompView}
 }
 \seealso{
 \code{\link{healthcareai}} \code{\link{findVariation}}
