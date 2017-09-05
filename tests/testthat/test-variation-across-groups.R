@@ -87,10 +87,10 @@ test_that("One cat col, one measure col, and one date col give correct df", {
                                  measureColumn = "LOS",
                                  dateCol = 'StartDTS')
   
-  df1 <- data.frame(Groups = c("F.2012/03-M.2012/01","F.2012/02-M.2012/01","M.2012/03-M.2012/01",
-                               "M.2012/02-M.2012/01","F.2012/03-F.2012/01","F.2012/02-F.2012/01",
+  df1 <- data.frame(Groups = c("F.2012/03-M.2012/01","F.2012/02-M.2012/01","M.2012/02-M.2012/01",
+                               "M.2012/03-M.2012/01","F.2012/03-F.2012/01","F.2012/02-F.2012/01",
                                "F.2012/01-M.2012/01","F.2012/03-M.2012/02","F.2012/03-M.2012/03",
-                               "M.2012/03-F.2012/01","M.2012/02-F.2012/01","F.2012/02-M.2012/02",
+                               "M.2012/02-F.2012/01","M.2012/03-F.2012/01","F.2012/02-M.2012/02",
                                "F.2012/02-M.2012/03","F.2012/03-F.2012/02","M.2012/03-M.2012/02"), 
                     `Mean Difference` = c(2.9, 2.65, 2, 2, 1.6, 1.35, 1.3, 0.9, 
                                           0.9, 0.7, 0.7, 0.65, 0.65, 0.25, 0),
@@ -98,11 +98,8 @@ test_that("One cat col, one measure col, and one date col give correct df", {
                                                       "0.967513","0.987223","0.994585","0.994585","0.998789",
                                                       "0.998789","0.998831","0.998831","0.999984","1.000000")),
                     check.names = FALSE)
-  
-  print(df1)
-  print(dfRes)
-  expect_equal('yes', 'yes')
-  #testthat::expect_equal(dfRes, df1, tolerance = 1e-3)
+
+  testthat::expect_equal(dfRes, df1, tolerance = 1e-3)
 })
 
 test_that("Two measure columns throws error", {
