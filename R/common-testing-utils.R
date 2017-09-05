@@ -66,7 +66,7 @@ ignoreSpecWarn <- function(code, wRegexps) {
 #' @seealso \code{\link{healthcareai}}
 skip_if_no_MSSQL <- function(tableName, connString) {
   if (class(try((DBI::dbConnect(odbc::odbc(),
-                                connection_string = connString)), 
+                                .connection_string = connString)), 
                 silent = TRUE)) == "try-error") {
     testthat::skip("No DB connection made")
   } else if (DBI::dbExistsTable(conn = DBI::dbConnect(odbc::odbc(),
