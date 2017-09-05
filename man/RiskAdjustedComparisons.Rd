@@ -28,7 +28,7 @@ terms of a particular measure.
 
 #### Example using SQL data ####
 
-\donttest{
+\dontrun{
 library(healthcareai)
 
 connection.string <- "
