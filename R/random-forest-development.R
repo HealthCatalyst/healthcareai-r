@@ -285,6 +285,10 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
           private$grid <- data.frame(mtry = max(floor(ncol(private$dfTrain)/3), 1), splitrule='variance')
         }
       }
+      # caret versions caret_6.0-77 and later need splitrule in gird;
+      # older versions need it to not be there. So we remove it:
+      if (numeric_version(packageVersion("caret")) < "6.0.77")
+        private$grid$splitrule <- NULL
     }
   ),
 
