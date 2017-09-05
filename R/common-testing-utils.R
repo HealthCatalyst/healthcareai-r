@@ -70,7 +70,7 @@ skip_if_no_MSSQL <- function(tableName, connString) {
                 silent = TRUE)) == "try-error") {
     testthat::skip("No DB connection made")
   } else if (DBI::dbExistsTable(conn = DBI::dbConnect(odbc::odbc(),
-                                                      connection_string = 
+                                                      .connection_string = 
                                                       connString), 
                                 name = tableName) == FALSE) {
     testthat::skip("No DB found")
