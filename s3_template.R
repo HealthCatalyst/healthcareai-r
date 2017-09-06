@@ -13,7 +13,7 @@ bark.default <- function(x){
 }
 
 # class constructor
-dog <- function(species, age){
+dog <- function(species, age) { # defaults can be added here like function(species='Mutt', age=3)
   if(!is.numeric(age)) stop("age must be numeric")
   if(!is.character(species)) stop('Species must be a string')
   
@@ -37,6 +37,28 @@ bark.dog <- function(dog) {
   }
 }
 
+# Add a method for the class that takes multiple arguments.
+# Global generic
+walk <- function(x, ...) UseMethod('walk') # The ... is the additional arguments part.
+
+# Default behavior
+walk.default <- function(x) {
+  print('Only dogs go for walks')
+}
+
+# Using multiple arguments (and their default values)
+walk.dog <- function(dog, nearDoor=FALSE, shoes=FALSE, leash=FALSE) {
+  walkProbability <- (nearDoor*2 + shoes*3 + leash*5) / 10
+  if (walkProbability < .5) {
+    print(paste0('Good ', dog$species, 's deserve walks.'))
+  } else if (walkProbability < 1) {
+    print(paste0('Walk likely for this good ', dog$species,'.'))
+  } else {
+    print(paste0('A walk! ', dog$age,' treats for everyone.'))
+  }
+  return(walkProbability)
+}
+
 # Adding a method to an existing generic
 mean.dog <- function(dog) {
   print(paste('That\'s a mean', dog$species))
@@ -50,6 +72,9 @@ boffo <- dog(species = 'mutt', age=3)
 bark.dog(fido)
 bark.dog(boffo)
 mean.dog(fido)
+
+walk.dog(fido)
+walk(fido, nearDoor = TRUE, shoes=TRUE, leash=TRUE)
 
 # Note you can still use the global generic syntax, but it will be slower and harder to maintain
 bark(fido)
