@@ -91,8 +91,14 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   if (!is.null(p$modelName))
   self$params$modelName <- p$modelName
   
+  if (!is.null(p$largerPredictionsDesired))
+  self$params$largerPredictionsDesired <- p$largerPredictionsDesired
+  
   if (!is.null(p$modifiableProcessVariables))
   self$params$modifiableProcessVariables <- p$modifiableProcessVariables
+
+  # TODO raise error/warning if modifiableProcessVariables is specified but
+  # largerPredictionsDesired isn't
 
   # for deploy method
   if (!is.null(p$cores))
