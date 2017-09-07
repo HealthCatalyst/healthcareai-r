@@ -90,6 +90,9 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   
   if (!is.null(p$modelName))
   self$params$modelName <- p$modelName
+  
+  if (!is.null(p$modifiableProcessVariables))
+  self$params$modifiableProcessVariables <- p$modifiableProcessVariables
 
   # for deploy method
   if (!is.null(p$cores))
