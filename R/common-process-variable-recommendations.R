@@ -1,7 +1,8 @@
 processVariableDfForOneRow <- function(baseRow,
                                        modifiableProcessVariables,
                                        factorLevels,
-                                       predictFunction) {
+                                       predictFunction,
+                                       largerPredictionsDesired) {
   
   currentPrediction <- as.numeric(predictFunction(baseRow))
   
@@ -29,8 +30,9 @@ processVariableDfForOneRow <- function(baseRow,
     }
   }
   processVarDf <- do.call(rbind, listOfSingleRowDfs)
+  processVarDf <- processVarDf[order(processVarDf$delta,
+                                     decreasing = largerPredictionsDesired), ]
   
   return(processVarDf)
 }
-
 
