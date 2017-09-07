@@ -544,6 +544,18 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     # Surface outDf as attribute for export to Oracle, MySQL, etc
     getOutDf = function() {
       return(private$outDf)
+    },
+    
+    performNewPredictions(newData) {
+      if (self$params$type == "classification") {
+        predictions <- caret::predict.train(object = private$fitRF,
+                                                    newdata = newData,
+                                                    type = 'prob')
+        private$predictions <- private$predictions[,2]
+      } else {
+        predictions <- caret::predict.train(private$fitRF, newdata = newData)
+      }
+      return(predictions)
     }
   )
 )
