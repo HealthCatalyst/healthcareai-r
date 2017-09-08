@@ -92,3 +92,26 @@ class(fido) # This is the class of fido
 methods(bark) # These are the methods that the bark generic can dispatch to
 methods(class = 'dog') # These are the generics that can use class dog
 
+# Add child class "pomeranian" to show method inheritance
+pomeranian <- function(age) {
+  
+  pom <- dog("pomeranian", age)
+  
+  # Keep parent and add new class
+  class(pom) <- c("pomeranian", class(pom))
+  return(pom)
+}
+
+# Add method specific to pomeranians
+bark.pomeranian <- function(pom) {
+  
+  if (!inherits(pom, "pomeranian"))
+    stop("You called bark.pomeranian, but the dog isn't a pomeranian")
+  
+  message("Did you know pomeranians actually don't bark, but woof?\n\nWOOF!")
+  
+}
+
+myPom <- pomeranian(4)
+bark(myPom)
+bark(dog("mutt", 3))
