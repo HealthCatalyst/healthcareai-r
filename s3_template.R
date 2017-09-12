@@ -9,7 +9,7 @@ bark <- function(x) UseMethod('bark')
 
 # global generic default
 bark.default <- function(x){
-  print('This isn\'t a dog and cannot bark bark.')
+  print('This isn\'t a dog and cannot bark.')
 }
 
 # class constructor
@@ -30,7 +30,7 @@ dog <- function(species, age) { # defaults can be added here like function(speci
   return(instance)
 }
 
-# Create a new method for the class
+# Create a new method for the dog class
 bark.dog <- function(dog) {
   for(i in 1:dog$age){
     print(paste('the', dog$species, 'says: woof'))
@@ -41,9 +41,9 @@ bark.dog <- function(dog) {
 # Global generic
 walk <- function(x, ...) UseMethod('walk') # The ... is the additional arguments part.
 
-# Default behavior
+# Global default generic
 walk.default <- function(x) {
-  print('Only dogs go for walks')
+  print('Only dogs go for walks. This is not a dog')
 }
 
 # Using multiple arguments (and their default values)
@@ -59,7 +59,7 @@ walk.dog <- function(dog, nearDoor=FALSE, shoes=FALSE, leash=FALSE) {
   return(walkProbability)
 }
 
-# Adding a method to an existing generic
+# Adding a class specific method to an existing global generic function
 mean.dog <- function(dog) {
   print(paste('That\'s a mean', dog$species))
 }
@@ -72,11 +72,11 @@ boffo <- dog(species = 'mutt', age=3)
 bark.dog(fido)
 bark.dog(boffo)
 mean.dog(fido)
-
 walk.dog(fido)
 walk(fido, nearDoor = TRUE, shoes=TRUE, leash=TRUE)
 
-# Note you can still use the global generic syntax, but it will be slower and harder to maintain
+# Note you can still use the global generic syntax, but it will be slower and harder to maintain.
+# So please don't
 bark(fido)
 mean(fido)
 
@@ -90,14 +90,13 @@ print(boffo$species)
 # Understand the dog class a bit
 class(fido) # This is the class of fido
 methods(bark) # These are the methods that the bark generic can dispatch to
-methods(class = 'dog') # These are the generics that can use class dog
+methods(class = 'dog') # These are the specific generics that can use class dog
 
 # Add child class "pomeranian" to show method inheritance
 pomeranian <- function(age) {
+  pom <- dog(species="pomeranian", age=age)
   
-  pom <- dog("pomeranian", age)
-  
-  # Keep parent and add new class
+  # Keep parent and add new class by combining a list of strings of the class names
   class(pom) <- c("pomeranian", class(pom))
   return(pom)
 }
@@ -105,13 +104,16 @@ pomeranian <- function(age) {
 # Add method specific to pomeranians
 bark.pomeranian <- function(pom) {
   
-  if (!inherits(pom, "pomeranian"))
+  if (!inherits(pom, "pomeranian")){
     stop("You called bark.pomeranian, but the dog isn't a pomeranian")
+  }
   
   message("Did you know pomeranians actually don't bark, but woof?\n\nWOOF!")
-  
 }
 
+# Demonstrate pomeratian methods
 myPom <- pomeranian(4)
 bark(myPom)
-bark(dog("mutt", 3))
+
+# Demonstrate pom specific method on a non-pom
+bark.pomeranian(dog('foo', 1))
