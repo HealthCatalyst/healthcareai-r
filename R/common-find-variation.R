@@ -882,6 +882,7 @@ variationAcrossGroups <- function(df,
   on.exit(graphics::par(op))
   labels <- gsub("\\.", " | ", labs[,2])
   bMar <- max(7, max(nchar(labels)) / 2)
+  # if bMar gets screwed up, set it equal to 4-7. It controls the x axis spacing.
   graphics::par(# mfrow = c(1, nCol), 
     bg = "transparent", cex.axis = 1, mar = c(bMar, 4.1, 4.1, 2.1))
   graphics::boxplot(df[[measureColumn]] ~ interaction(l), 
