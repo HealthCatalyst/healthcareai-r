@@ -5,7 +5,7 @@ build_process_variable_df_list <- function(dataframe,
                                            modifiable_variable_levels,
                                            predict_function, 
                                            low_probabilities_desired) {
-  # Add row numbers to 
+  # Add the grain colum
   dataframe["df_grain_column"] <- grainColumnValues
   # Build big dataframe of permuted data
   permuted_df <- permute_process_variables(dataframe,
@@ -16,7 +16,9 @@ build_process_variable_df_list <- function(dataframe,
   # Make Predictions 
   dataframe$base_prediction <- predict_function(newData = dataframe[!names(dataframe) %in% tracking_columns])
   permuted_df$new_prediction <- predict_function(newData = permuted_df[!names(permuted_df) %in% tracking_columns])
-
+  
+  # Scaling constant to change the ordering depending on 
+  # low_probabilities_desired; takes values +/- 1
   ordering_direction <- (-1)^low_probabilities_desired
     
   full_df <- dataframe %>%
@@ -32,13 +34,10 @@ build_process_variable_df_list <- function(dataframe,
                   base_prediction, 
                   new_prediction, 
                   delta) %>%
+    # For each grain column id, order the results by delta
     dplyr::arrange(df_grain_column, ordering_direction*desc(delta))
 
-  # lapply(1:nrow(dataframe), function(i) {
-  #   full_df %>%
-  #     dplyr::filter(df_row_number == i) %>%
-  #     dplyr::select(-c(df_row_number))
-  # })
+  # Split the large dataframe into a list of dataframes
   split(full_df, as.factor(full_df$df_grain_column))
 }
 
