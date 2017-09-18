@@ -539,6 +539,9 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
       # create dataframe for output
       super$createDf()
+      
+      # Build process variables df list
+      super$buildProcessVariableDfList()
     },
     
     # Surface outDf as attribute for export to Oracle, MySQL, etc

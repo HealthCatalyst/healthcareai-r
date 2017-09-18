@@ -436,6 +436,18 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
                              "to deploy a ", self$params$type, " model.")
       stop(errorMessage)
     }
+  }, 
+  
+  buildProcessVariableDfList = function() {
+    if (!is.null(self$params$modifiableProcessVariables)) {
+      # Get the factor levels for the modifiable process variables
+      modifiableVariableLevels <- self$modelInfo$factorLevels[self$params$modifiableProcessVariables]
+      # Build the process variables df list
+      self$processVariableDfList <- build_process_variable_df_list(dataframe = self$params$df,
+                                                                   modifiable_variable_levels = modifiableVariableLevels,
+                                                                   predict_function = self$performNewPredictions,
+                                                                   low_probabilities_desired = self$params$smallerPredictionsDesired)
+    }
   }
 ),
 
@@ -447,6 +459,8 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
     #parameters
     params = NA,
+    
+    processVariableDfList = NA,
 
     ###########
     # Functions

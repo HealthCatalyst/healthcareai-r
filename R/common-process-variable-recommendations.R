@@ -32,7 +32,7 @@ build_process_variable_df_list <- function(dataframe,
                   delta)
   
   ordering_direction <- (-1)^low_probabilities_desired
-  
+
   lapply(1:nrow(dataframe), function(i) {
     full_df %>%
       dplyr::filter(df_row_number == i) %>%
