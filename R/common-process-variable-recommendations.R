@@ -1,3 +1,29 @@
+build_process_df <- function(dataframe,
+                             modifiable_variable_levels) {
+  modifiable_names <- names(modifiable_variable_levels)
+
+  # Split up by variable
+  
+  # Copy for each level
+  do.call(rbind, lapply(seq_along(modifiable_variable_levels), function(i) {
+    # Fix variable
+    modifiable_variable <- modifiable_names[i]
+    levels <- modifiable_variable_levels[[i]]
+    # For one variable, cycle through all levels
+    one_variable_df <- do.call(rbind, lapply(seq_along(levels), function(j) {
+      df <- dataframe
+      # Replace modifiable variable with level
+      level <- levels[[j]]
+      df[[modifiable_variable]] <- level
+      df["alt_value"] <- as.character(level)
+      # Return the modified dataframe
+      df
+    }))
+    one_variable_df["process_variable_name"] <- as.character(modifiable_variable)
+    one_variable_df
+  }))
+}
+
 
 # One row of data
 processVariableDfForOneRow <- function(baseRow,
