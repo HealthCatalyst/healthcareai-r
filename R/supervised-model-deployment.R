@@ -439,7 +439,12 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   }, 
   
   buildProcessVariableDfList = function() {
-    if (!is.null(self$params$modifiableProcessVariables)) {
+    if (!is.null(self$params$modifiableProcessVariables)
+        & !is.null(self$params$smallerPredictionsDesired)) {
+      t0 <- proc.time()
+      cat("Computing modifiable process variable recommendations for ", 
+          nrow(self$params$df), 
+          " rows...")
       # Get the factor levels for the modifiable process variables
       modifiableVariableLevels <- self$modelInfo$factorLevels[self$params$modifiableProcessVariables]
       # Build the process variables df list
@@ -447,6 +452,9 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
                                                                    modifiable_variable_levels = modifiableVariableLevels,
                                                                    predict_function = self$performNewPredictions,
                                                                    low_probabilities_desired = self$params$smallerPredictionsDesired)
+      cat("\nModifiable process variable recommendations computed in ", 
+          (proc.time() - t0)[3], 
+          " seconds.")
     }
   }
 ),
@@ -508,6 +516,17 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
         }
       }
       return(topFactorsDf)
+    },
+    
+    get_process_variables_df = function(repeatedFactors = FALSE,
+                                        numTopFactors = 3) {
+      predCol <- ifelse(self$params$type == "classification",
+                        "PredictedProbNBR",
+                        "PredictedValueNBR")
+      cbind(private$outDf[c(self$params$grainCol, predCol)],
+            build_process_variables_df(self$processVariableDfList,
+                                       repeatedFactors,
+                                       numTopFactors))
     }
   )
 )
