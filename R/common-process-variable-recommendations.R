@@ -141,10 +141,10 @@ buildProcessVariablesDf = function(modFactorsList,
   return(modFactorsDf)
 }
 
-dropRepeated <- function(dfList, columnName) {
-  shortDfList <- lapply(dfList, function(rowDf) {
-    rowDf <- rowDf[!duplicated(rowDf[, c(columnName)]), ]
-    return(rowDf)
+drop_repeated <- function(df_list, column_name) {
+  # Build and return a list of trimmed dataframes
+  lapply(df_list, function(row_df) {
+    # Drop duplicates
+    row_df[!duplicated(row_df[, c(column_name)]), ]
   })
-  return(shortDfList)
 }
