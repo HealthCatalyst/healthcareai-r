@@ -450,7 +450,8 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       # Build the process variables df list
       self$processVariableDfList <- build_process_variable_df_list(dataframe = self$params$df,
                                                                    modifiable_variable_levels = modifiableVariableLevels,
-                                                                   predict_function = self$performNewPredictions,
+                                                                   grainColumnValues = private$grainTest,
+                                                                   predict_function = self$performNewPredictions, 
                                                                    low_probabilities_desired = self$params$smallerPredictionsDesired)
       cat("\nModifiable process variable recommendations computed in ", 
           (proc.time() - t0)[3], 
@@ -523,10 +524,16 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       predCol <- ifelse(self$params$type == "classification",
                         "PredictedProbNBR",
                         "PredictedValueNBR")
-      cbind(private$outDf[c(self$params$grainCol, predCol)],
-            build_process_variables_df(self$processVariableDfList,
-                                       repeatedFactors,
-                                       numTopFactors))
+
+      process_df <- dplyr::inner_join(private$outDf[c(self$params$grainCol, 
+                                                      predCol)] %>%
+                                        dplyr::rename(df_grain_column = X),
+                                      build_process_variables_df(self$processVariableDfList,
+                                                                 repeatedFactors,
+                                                                 numTopFactors),
+                        by = c("df_grain_column"))
+      names(process_df)[names(process_df) == "df_grain_column"] <- self$params$grainCol
+      process_df
     }
   )
 )
