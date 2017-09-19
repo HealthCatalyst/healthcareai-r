@@ -444,10 +444,7 @@ LassoDeployment <- R6Class(
       private$lambda1se <- private$fitGrLasso$lambda[private$indLambda1se]
       
       # Predictions (in terms of probability)
-      private$predictions <- stats::predict(object = private$fitGrLasso,
-                                     X = model.matrix(private$modFmla, data = self$params$df)[,-1],
-                                     lambda = private$lambda1se,
-                                     type = "response")
+      private$predictions <- self$performNewPredictions(self$params$df)
       
       if (isTRUE(self$params$debug)) {
         cat("Rows in prob prediction: ", nrow(private$predictedVals), '\n')
@@ -553,6 +550,13 @@ LassoDeployment <- R6Class(
     # Surface outDf as attribute for export to Oracle, MySQL, etc
     getOutDf = function() {
       return(private$outDf)
+    }, 
+    
+    performNewPredictions = function(newData) {
+      stats::predict(object = private$fitGrLasso,
+                     X = model.matrix(private$modFmla, data = newData)[,-1],
+                     lambda = private$lambda1se,
+                     type = "response")
     }
   )
 )

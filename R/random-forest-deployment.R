@@ -428,23 +428,18 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     # functions
     # Perform prediction
     performPrediction = function() {
-      if (self$params$type == 'classification') {
-        private$predictions <- caret::predict.train(object = private$fitRF,
-                                                    newdata = self$params$df,
-                                                    type = 'prob')
-        private$predictions <- private$predictions[,2]
-        
-        if (isTRUE(self$params$debug)) {
+      # Calculate predictions
+      private$predictions <- self$performNewPredictions(self$params$df)
+      
+      # Print first few predictions if debug = TRUE
+      if (self$params$debug) {
+        if (self$params$type == "classification") {
           cat('Number of predictions: ', nrow(private$predictions), '\n')
           cat('First 10 raw classification probability predictions', '\n')
           print(round(private$predictions[1:10],2))
-        }
-        
-      } else if (self$params$type == 'regression') {
-        private$predictions <- caret::predict.train(private$fitRF, newdata = self$params$df)
-        
-        if (isTRUE(self$params$debug)) {
-          cat('Rows in regression prediction: ', length(private$predictions), '\n')
+        } else {# type == "regression"
+          cat('Rows in regression prediction: ', 
+              length(private$predictions), '\n')
           cat('First 10 raw regression predictions (with row # first)', '\n')
           print(round(private$predictions[1:10],2))
         }
