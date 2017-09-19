@@ -1,10 +1,26 @@
+#' @title
+#' Build a list of dataframes with new predictions for each modifiable variable
+#' @description Builds a list consisting of one dataframe per row in
+#' \code{dataframe} which shows how the predictions for that row change as
+#' each of the mofifiable variables are altered
+#' @param dataframe a dataframe consisting of deployment data
+#' @param grain_column_values the grain column (values, not just the name) of 
+#' the deployment data
+#' @param modifiable_variable_levels a list whose 
+#' @param predict_function a function with which to make new predictions on the
+#' data
+#' @param low_probabilities_desired a boolean indicating whether the goal is to
+#' increase or decrease the predictions/predicted probabilities
+#' @return a list of dataframes
+#' @keywords internal
+#' @importFrom dplyr %>%
 build_process_variable_df_list <- function(dataframe,
-                                           grainColumnValues,
+                                           grain_column_values,
                                            modifiable_variable_levels,
                                            predict_function, 
                                            low_probabilities_desired) {
   # Add the grain colum
-  dataframe["df_grain_column"] <- grainColumnValues
+  dataframe["df_grain_column"] <- grain_column_values
   # Build big dataframe of permuted data
   permuted_df <- permute_process_variables(dataframe,
                                            modifiable_variable_levels)
