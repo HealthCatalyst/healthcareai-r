@@ -1,5 +1,3 @@
-library(tidyverse)
-
 build_process_variable_df_list <- function(dataframe,
                                            grainColumnValues,
                                            modifiable_variable_levels,
@@ -10,10 +8,11 @@ build_process_variable_df_list <- function(dataframe,
   # Build big dataframe of permuted data
   permuted_df <- permute_process_variables(dataframe,
                                            modifiable_variable_levels)
-  
+
+  # Columns not used in prediction
   tracking_columns <- c("df_grain_column", "process_variable_name", "alt_value")
   
-  # Make Predictions 
+  # Make Predictions on the original and permuted data
   dataframe$base_prediction <- predict_function(newData = dataframe[!names(dataframe) %in% tracking_columns])
   permuted_df$new_prediction <- predict_function(newData = permuted_df[!names(permuted_df) %in% tracking_columns])
   
@@ -21,6 +20,7 @@ build_process_variable_df_list <- function(dataframe,
   # low_probabilities_desired; takes values +/- 1
   ordering_direction <- (-1)^low_probabilities_desired
     
+  # Join the dataframes containing the old and new predictions
   full_df <- dataframe %>%
     # Join on row number
     dplyr::inner_join(permuted_df, by = "df_grain_column") %>%
@@ -45,26 +45,32 @@ permute_process_variables <- function(dataframe,
                                       modifiable_variable_levels) {
   modifiable_names <- names(modifiable_variable_levels)
 
-  # Copy for each level
-  do.call(rbind, lapply(seq_along(modifiable_variable_levels), function(i) {
-    # Fix variable
+  # Build a dataframe for each modifiable variable and glue these together
+  dplyr::bind_rows(lapply(seq_along(modifiable_variable_levels), function(i) {
+    # Get variable name and levels
     modifiable_variable <- modifiable_names[i]
-    levels <- modifiable_variable_levels[[i]]
-    # For one variable, cycle through all levels
-    one_variable_df <- do.call(rbind, lapply(seq_along(levels), function(j) {
-      df <- dataframe
-      # Replace modifiable variable with level
-      level <- levels[[j]]
-      df[[modifiable_variable]] <- level
-      df["current_value"] <- as.character(dataframe[[modifiable_variable]])
-      df["alt_value"] <- as.character(level)
-      # Return the modified dataframe
-      df
-    }))
+    levels <- factor(modifiable_variable_levels[[i]])
+
+    # For one variable, cycle through all levels and build a dataframe for each
+    # one by perturbing the levels, then combine these.
+    one_variable_df <- dplyr::bind_rows(lapply(levels,
+                                               FUN = build_one_level_df,
+                                               dataframe = dataframe,
+                                               modifiable_variable = modifiable_variable))
+    # Add the modifiable variable to the dataframe
     one_variable_df["process_variable_name"] <- as.character(modifiable_variable)
     # 
     one_variable_df
   }))
+}
+
+build_one_level_df <- function(dataframe, modifiable_variable, level) {
+  # Add reference columns
+  dataframe["current_value"] <- as.character(dataframe[[modifiable_variable]])
+  dataframe["alt_value"] <- as.character(level)
+  # Fill the modifiable variable column with the specified level
+  dataframe[[modifiable_variable]] <- level
+  return(dataframe)
 }
 
 
@@ -79,18 +85,24 @@ build_process_variables_df = function(modFactorsList,
   
   # Determine the maximum number of modifiable factors
   numTopFactors <- min(numTopFactors, nrow(modFactorsList[[1]]))
-  # Combine into dataframe
+  # Extract the first few rows from each individual dataframe and combine 
+  # them into one long row. Build the full dataframe out of such long rows.
   modFactorsDf <- do.call(rbind, lapply(modFactorsList, function(rowDf){
+    # Start by including the grain coulumn
     cbind(df_grain_column = rowDf$df_grain_column[[1]],
+          # Combine first few rows into a single row with the grain
           do.call(cbind, lapply(1:numTopFactors, function(i) {
+            # Drop unwanted columns
             row <- rowDf[i, !(names(rowDf) %in% c("df_grain_column",
                                                   "base_prediction"))]
+            # Rename the columns
             names(row) <- c(paste0("Modify", i, "TXT"),
                             paste0("Modify", i, "Current"), 
                             paste0("Modify", i, "AltValue"),
                             paste0("Modify", i, "AltPrediction"),
                             paste0("Modify", i, "Delta"))
-            return(row)
+            # Return the long row to help build the full dataframe
+            row
           }))
     )
   }))
