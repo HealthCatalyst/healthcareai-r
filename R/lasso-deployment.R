@@ -555,6 +555,7 @@ LassoDeployment <- R6Class(
       return(private$outDf)
     }, 
     
+    # Perform predictions on new data
     performNewPredictions = function(newData) {
       stats::predict(object = private$fitGrLasso,
                      X = model.matrix(private$modFmla, data = newData)[,-1],
