@@ -111,6 +111,17 @@ build_process_variables_df = function(modFactorsList,
   return(modFactorsDf)
 }
 
+
+#' @title
+#' Simultaneously remove duplicate row values in a list of dataframes.
+#' @description Takes a list of dataframes, each of which contains a column 
+#' with the same name and, for each dataframe, removes rows where the value in 
+#' the common column has already occured in a previous row of that dataframe.
+#' @param df_list A list of dataframes. Each dataframe should contain a column
+#' whose name matches \code{column_name}
+#' @param column_name The name of the column from which to remove duplicates.
+#' @return a list of dataframes with no repeated values in \code{column_name}
+#' @keywords internal
 drop_repeated <- function(df_list, column_name) {
   # Build and return a list of trimmed dataframes
   lapply(df_list, function(row_df) {
