@@ -109,6 +109,29 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     # Load model info
     cat('Loading Model Info...','\n')
     private$loadModelAndInfo()
+    
+    # Check that modifiable process variables make sense for lasso
+    if (private$algorithmName == "Lasso" 
+        & !(is.null(self$params$modifiableProcessVariables))) {
+      # Find modifiable variables with 0 coefficient
+      not_modifiable <- setdiff(self$params$modifiableProcessVariables,
+                                self$modelInfo$usedVariables)
+      # If such variables exist, remove them from the list of modifiable
+      # variables and print a warning.
+      if (length(not_modifiable) > 0) {
+        warning("The following variables have coefficients of 0 in the lasso ",
+                "model and will not be used as modifiable variables:\n",
+                paste(not_modifiable, collapse = ", "))
+        # Remove modifiable variables that are not used by lasso
+        self$params$modifiableProcessVariables <- intersect(self$params$modifiableProcessVariables,
+                                                            self$modelInfo$usedVariables)
+        # If all modifiable variables have 0 coefficient, set modifiable
+        # variable parameter to NULL
+        if (length(self$params$modifiableProcessVariables) == 0) {
+          self$params$modifiableProcessVariables <- NULL
+        }
+      }
+    }
 
     cat('Loading Data...','\n')
     if (isTRUE(self$params$debug)) {
