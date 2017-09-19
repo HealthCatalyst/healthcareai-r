@@ -91,14 +91,20 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   if (!is.null(p$modelName))
   self$params$modelName <- p$modelName
   
-  if (!is.null(p$smallerPredictionsDesired))
-  self$params$smallerPredictionsDesired <- p$smallerPredictionsDesired
-  
-  if (!is.null(p$modifiableProcessVariables))
-  self$params$modifiableProcessVariables <- p$modifiableProcessVariables
-
-  # TODO raise error/warning if modifiableProcessVariables is specified but
-  # smallerPredictionsDesired isn't
+  # Set modifiableProcessVariables and smallerPredictionsDesired params
+  if (!is.null(p$modifiableProcessVariables)) {
+    self$params$modifiableProcessVariables <- p$modifiableProcessVariables
+    if (!is.null(p$smallerPredictionsDesired)) {
+      self$params$smallerPredictionsDesired <- p$smallerPredictionsDesired
+    } else {# only modifiableProcessVariables specified
+      stop("The modifiableProcessVariables parameter was specified without ",
+           "also specifying the smallerPredictionsDesired parameter.")
+    }
+  } else if (!is.null(p$smallerPredictionsDesired)) {
+    warning("The smallerPredictionsDesired parameter was specified without ",
+            "also specifying the modifiableProcessVariables parameter.\n",
+            "The smallerPredictionsDesired parameter will be ignored.")
+  }
 
   # for deploy method
   if (!is.null(p$cores))
@@ -546,6 +552,11 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     # process varaibles
     get_process_variables_df = function(repeatedFactors = FALSE,
                                         numTopFactors = 3) {
+      # Check that modifiable process variables were set
+      if (is.null(self$params$modifiableProcessVariables)) {
+        stop("No modifiable process variables set.")
+      } 
+      
       # Get name of prediction column in outDf
       predCol <- ifelse(self$params$type == "classification",
                         "PredictedProbNBR",
