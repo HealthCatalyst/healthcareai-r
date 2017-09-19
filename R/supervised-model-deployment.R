@@ -542,20 +542,30 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       return(topFactorsDf)
     },
     
+    # Build and return a dataframe with recommendations for the modifiable
+    # process varaibles
     get_process_variables_df = function(repeatedFactors = FALSE,
                                         numTopFactors = 3) {
+      # Get name of prediction column in outDf
       predCol <- ifelse(self$params$type == "classification",
                         "PredictedProbNBR",
                         "PredictedValueNBR")
-
+      
+      # Join grain column and original prediction to recommendations
       process_df <- dplyr::inner_join(private$outDf[c(self$params$grainCol, 
                                                       predCol)] %>%
+                                        # Rename grain column to allow join
+                                        # otherwise "by" argument causes 
+                                        # problems
                                         dplyr::rename(df_grain_column = X),
                                       build_process_variables_df(self$processVariableDfList,
                                                                  repeatedFactors,
                                                                  numTopFactors),
-                        by = c("df_grain_column"))
+                                      by = c("df_grain_column"))
+      
+      # Rename grain column
       names(process_df)[names(process_df) == "df_grain_column"] <- self$params$grainCol
+      # Return the dataframe
       process_df
     }
   )
