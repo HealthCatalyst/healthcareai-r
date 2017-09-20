@@ -193,6 +193,6 @@ drop_repeated <- function(df_list, column_name) {
   # Build and return a list of trimmed dataframes
   lapply(df_list, function(row_df) {
     # Drop duplicates
-    row_df[!duplicated(row_df[, c(column_name)]), ]
+    row_df[!duplicated(row_df[, c(column_name)]), , drop = FALSE]
   })
 }
