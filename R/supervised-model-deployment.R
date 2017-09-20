@@ -550,8 +550,8 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     
     # Build and return a dataframe with recommendations for the modifiable
     # process varaibles
-    get_process_variables_df = function(repeatedFactors = FALSE,
-                                        numTopFactors = 3) {
+    getProcessVariablesDf = function(repeatedFactors = FALSE,
+                                     numTopFactors = 3) {
       # Check that modifiable process variables were set
       if (is.null(self$params$modifiableProcessVariables)) {
         stop("No modifiable process variables set.")
@@ -563,21 +563,21 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
                         "PredictedValueNBR")
       
       # Get grain column and original predictions
-      original_predictions <- private$outDf[c(self$params$grainCol, predCol)]
+      originalPredictions <- private$outDf[c(self$params$grainCol, predCol)]
       # Rename grainCol to allow dplyr join (else trouble with "by" argument)
-      names(original_predictions)[1] <- "df_grain_column"
+      names(originalPredictions)[1] <- "df_grain_column"
             
       # Join grain column and original prediction to recommendations
-      process_df <- dplyr::inner_join(original_predictions,
-                                      build_process_variables_df(self$processVariableDfList,
-                                                                 repeatedFactors,
-                                                                 numTopFactors),
+      processDf <- dplyr::inner_join(originalPredictions,
+                                     build_process_variables_df(self$processVariableDfList,
+                                                                repeatedFactors,
+                                                                numTopFactors),
                                       by = c("df_grain_column"))
       
       # Rename grain column
-      names(process_df)[names(process_df) == "df_grain_column"] <- self$params$grainCol
+      names(process_df)[names(processDf) == "df_grain_column"] <- self$params$grainCol
       # Return the dataframe
-      process_df
+      processDf
     }
   )
 )

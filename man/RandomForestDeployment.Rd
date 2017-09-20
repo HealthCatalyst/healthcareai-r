@@ -71,6 +71,16 @@ Returns the output dataframe. \cr
 \emph{Usage:} \code{$getOutDf()}
 }
 
+\section{\code{$getProcessVariablesDf()}}{
+
+Builds and returns a dataframe with information about the modifiable process 
+variables. \cr
+\emph{Usage:} \code{$getProcessVariablesDf(repeatedFactors = FALSE, numTopFactors = 3)} \cr
+Params: \cr
+  - \code{repeatedFactors} A boolean determining whether or not a single modifiable factor can be listed several times. \cr
+  - \code{numTopFactors} The number of modifiable process variables to include in each row.
+}
+
 \examples{
 
 #### Classification Example using csv data ####

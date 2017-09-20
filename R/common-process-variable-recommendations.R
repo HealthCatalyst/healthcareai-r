@@ -65,8 +65,9 @@ build_process_variable_df_list <- function(dataframe,
 
 #' @title Take a dataframe and build a larger dataframe by permuting the 
 #' values in certain columns.
-#' @description 
-#' @param dataframe
+#' @description Take a dataframe and build a larger dataframe by permuting the 
+#' values in the columns corresponding to \code{modifiable_variable_levels}.
+#' @param dataframe A dataframe.
 #' @param modifiable_variable_levels A list indexed by the modifiable 
 #' process variables and containing the factor levels of each such variable.
 #' @return A large dataframe where the values in the modifiable variable 

@@ -39,11 +39,24 @@
 #' Return the grain, all top factors, and their weights. \cr
 #' \emph{Usage:} \code{$getTopFactors(numberOfFactors = NA, includeWeights = FALSE)} \cr
 #' Params: \cr
-#'   - \code{numberOfFactors:} returns the top \code{n} factors. Defaults to all factors. \cr
-#'   - \code{includeWeights:} If \code{TRUE}, returns weights associated with each factor.
+#'   - \code{numberOfFactors} returns the top \code{n} factors. Defaults to all factors. \cr
+#'   - \code{includeWeights} If \code{TRUE}, returns weights associated with each factor.
 #' @section \code{$getOutDf()}:
 #' Returns the output dataframe. \cr
 #' \emph{Usage:} \code{$getOutDf()} 
+#' @section \code{$performNewPredictions()}:
+#' Performs predictions on new data which has gone through the necessary
+#' preprocessing. \cr
+#' \emph{Usage:} \code{$performNewPredictions(newData)} \cr
+#' Params: \cr
+#'   - \code{newData} A dataframe on which the model can make predictions.
+#' @section \code{$getProcessVariablesDf()}:
+#' Builds and returns a dataframe with information about the modifiable process 
+#' variables. \cr
+#' \emph{Usage:} \code{$getProcessVariablesDf(repeatedFactors = FALSE, numTopFactors = 3)} \cr
+#' Params: \cr
+#'   - \code{repeatedFactors} A boolean determining whether or not a single modifiable factor can be listed several times. \cr
+#'   - \code{numTopFactors} The number of modifiable process variables to include in each row.
 #' @export
 #' @seealso \code{\link{healthcareai}}
 #' @seealso \code{\link{writeData}}
