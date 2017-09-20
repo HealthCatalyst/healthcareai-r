@@ -2,27 +2,28 @@
 % Please edit documentation in R/common-process-variable-recommendations.R
 \name{build_process_variable_df_list}
 \alias{build_process_variable_df_list}
-\title{Build a list of dataframes with new predictions for each modifiable variable}
+\title{Build a list of dataframes with new predictions for each modifiable variable.}
 \usage{
 build_process_variable_df_list(dataframe, grain_column_values,
   modifiable_variable_levels, predict_function, low_probabilities_desired)
 }
 \arguments{
-\item{dataframe}{a dataframe consisting of deployment data}
+\item{dataframe}{A dataframe consisting of deployment data.}
 
-\item{grain_column_values}{the grain column (values, not just the name) of 
-the deployment data}
+\item{grain_column_values}{The grain column (values, not just the name) of 
+the deployment data.}
 
-\item{modifiable_variable_levels}{a list whose}
+\item{modifiable_variable_levels}{A list indexed by the modifiable 
+process variables and containing the factor levels of each such variable.}
 
-\item{predict_function}{a function with which to make new predictions on the
-data}
+\item{predict_function}{A function with which to make new predictions on the
+data.}
 
-\item{low_probabilities_desired}{a boolean indicating whether the goal is to
-increase or decrease the predictions/predicted probabilities}
+\item{low_probabilities_desired}{A boolean indicating whether the goal is to
+increase or decrease the predictions/predicted probabilities.}
 }
 \value{
-a list of dataframes
+A list of dataframes.
 }
 \description{
 Builds a list consisting of one dataframe per row in

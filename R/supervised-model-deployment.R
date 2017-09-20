@@ -479,7 +479,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       # Build the process variables df list
       self$processVariableDfList <- build_process_variable_df_list(dataframe = self$params$df,
                                                                    modifiable_variable_levels = modifiableVariableLevels,
-                                                                   grainColumnValues = private$grainTest,
+                                                                   grain_column_values = private$grainTest,
                                                                    predict_function = self$performNewPredictions, 
                                                                    low_probabilities_desired = self$params$smallerPredictionsDesired)
       cat("\nModifiable process variable recommendations computed in ", 
@@ -562,13 +562,13 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
                         "PredictedProbNBR",
                         "PredictedValueNBR")
       
+      # Get grain column and original predictions
+      original_predictions <- private$outDf[c(self$params$grainCol, predCol)]
+      # Rename grainCol to allow dplyr join (else trouble with "by" argument)
+      names(original_predictions)[1] <- "df_grain_column"
+            
       # Join grain column and original prediction to recommendations
-      process_df <- dplyr::inner_join(private$outDf[c(self$params$grainCol, 
-                                                      predCol)] %>%
-                                        # Rename grain column to allow join
-                                        # otherwise "by" argument causes 
-                                        # problems
-                                        dplyr::rename(df_grain_column = X),
+      process_df <- dplyr::inner_join(original_predictions,
                                       build_process_variables_df(self$processVariableDfList,
                                                                  repeatedFactors,
                                                                  numTopFactors),

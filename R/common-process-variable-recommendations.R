@@ -1,19 +1,25 @@
+# 1. Build List of Dataframes --------------------------------------------------
+# The following use a dataframe of (deploy) data to build a list of dataframes,
+# one for each row of data, containing information about how modifying each
+# modifiable process variable affects the prediction.
+
 #' @title
-#' Build a list of dataframes with new predictions for each modifiable variable
+#' Build a list of dataframes with new predictions for each modifiable variable.
 #' @description Builds a list consisting of one dataframe per row in
 #' \code{dataframe} which shows how the predictions for that row change as
 #' each of the mofifiable variables are altered
-#' @param dataframe a dataframe consisting of deployment data
-#' @param grain_column_values the grain column (values, not just the name) of 
-#' the deployment data
-#' @param modifiable_variable_levels a list whose 
-#' @param predict_function a function with which to make new predictions on the
-#' data
-#' @param low_probabilities_desired a boolean indicating whether the goal is to
-#' increase or decrease the predictions/predicted probabilities
-#' @return a list of dataframes
+#' @param dataframe A dataframe consisting of deployment data.
+#' @param grain_column_values The grain column (values, not just the name) of 
+#' the deployment data.
+#' @param modifiable_variable_levels A list indexed by the modifiable 
+#' process variables and containing the factor levels of each such variable.
+#' @param predict_function A function with which to make new predictions on the
+#' data.
+#' @param low_probabilities_desired A boolean indicating whether the goal is to
+#' increase or decrease the predictions/predicted probabilities.
+#' @return A list of dataframes.
 #' @keywords internal
-#' @importFrom dplyr %>%
+#' @importFrom dplyr %>% desc
 build_process_variable_df_list <- function(dataframe,
                                            grain_column_values,
                                            modifiable_variable_levels,
@@ -57,29 +63,54 @@ build_process_variable_df_list <- function(dataframe,
   split(full_df, as.factor(full_df$df_grain_column))
 }
 
+#' @title Take a dataframe and build a larger dataframe by permuting the 
+#' values in certain columns.
+#' @description 
+#' @param dataframe
+#' @param modifiable_variable_levels A list indexed by the modifiable 
+#' process variables and containing the factor levels of each such variable.
+#' @return A large dataframe where the values in the modifiable variable 
+#' columns have been permuted.
+#' @keywords internal
+#' @importFrom dplyr %>%
 permute_process_variables <- function(dataframe,
                                       modifiable_variable_levels) {
+  # Get the names of the modifiable variables
   modifiable_names <- names(modifiable_variable_levels)
 
   # Build a dataframe for each modifiable variable and glue these together
-  dplyr::bind_rows(lapply(seq_along(modifiable_variable_levels), function(i) {
+  lapply(X = seq_along(modifiable_variable_levels), FUN = function(i) {
     # Get variable name and levels
     modifiable_variable <- modifiable_names[i]
     levels <- factor(modifiable_variable_levels[[i]])
 
-    # For one variable, cycle through all levels and build a dataframe for each
-    # one by perturbing the levels, then combine these.
-    one_variable_df <- dplyr::bind_rows(lapply(levels,
-                                               FUN = build_one_level_df,
-                                               dataframe = dataframe,
-                                               modifiable_variable = modifiable_variable))
+    # For one variable, cycle through all levels and build a dataframe for
+    # each one by perturbing the levels, then combine these.
+    one_variable_df <- lapply(X = levels,
+                              FUN = build_one_level_df,
+                              dataframe = dataframe,
+                              modifiable_variable = modifiable_variable) %>%
+      dplyr::bind_rows()
     # Add the modifiable variable to the dataframe
     one_variable_df["process_variable_name"] <- as.character(modifiable_variable)
-    # 
+    # Output each one_variable_df so that they may be combined
     one_variable_df
-  }))
+  }) %>% 
+    dplyr::bind_rows()
 }
 
+
+#' @title
+#' Replace all value in the column of a dataframe with a given value.
+#' @description Takes a dataframe and replaces all the values in the 
+#' \code{modifiable_variable} column with the value \code{level}. Columns
+#' tracking which variable and level were used are also added to the dataframe.
+#' @param dataframe a dataframe
+#' @param modifiable_variable The name of the column whose values we wish to
+#' change
+#' @param level The value to use in the \code{modifiable_variable} column
+#' @return A dataframe
+#' @keywords internal
 build_one_level_df <- function(dataframe, modifiable_variable, level) {
   # Add reference columns
   dataframe["current_value"] <- as.character(dataframe[[modifiable_variable]])
@@ -89,28 +120,48 @@ build_one_level_df <- function(dataframe, modifiable_variable, level) {
   return(dataframe)
 }
 
+# 2. Build Output Dataframe ----------------------------------------------------
+# The folloiwng functions take the list of dataframes generated using the 
+# functions in 1. and combine these into a single dataframe with one row for
+# each original row of deploy data. This dataframe provides the top n most
+# useful modifiable factors.
 
-build_process_variables_df = function(modFactorsList,
-                                      repeatedFactors = FALSE,
-                                      numTopFactors = 3) {
+#' @title 
+#' Build a the output dataframe for modifiable process variables from a list
+#' of dataframes.
+#' @description Takes a list of dataframes built using 
+#' \code{build_process_variable_df_list} and returns a single dataframe listing 
+#' the best modifiable process variables to modify.
+#' @param list_of_dataframes A list of dataframes built using 
+#' \code{build_process_variable_df_list}.
+#' @param repeated_factors A boolean determining whether or not a single 
+#' modifiable factor can be listed several times.
+#' @param number_of_factors The number of modifiable process variables to 
+#' include in each row.
+#' @return A dataframe.
+#' @keywords internal
+build_process_variables_df = function(list_of_dataframes,
+                                      repeated_factors = FALSE,
+                                      number_of_factors = 3) {
   # Drop repeated rows, if desired
-  if (!repeatedFactors) {
-    modFactorsList <- drop_repeated(df_list = modFactorsList, 
+  if (!repeated_factors) {
+    list_of_dataframes <- drop_repeated(df_list = list_of_dataframes, 
                                     column_name = "process_variable_name")
   }
   
   # Determine the maximum number of modifiable factors
-  numTopFactors <- min(numTopFactors, nrow(modFactorsList[[1]]))
+  number_of_factors <- min(number_of_factors, nrow(list_of_dataframes[[1]]))
+  
   # Extract the first few rows from each individual dataframe and combine 
   # them into one long row. Build the full dataframe out of such long rows.
-  modFactorsDf <- do.call(rbind, lapply(modFactorsList, function(rowDf){
+  full_df <- do.call(rbind, lapply(list_of_dataframes, function(row_df){
     # Start by including the grain coulumn
-    cbind(df_grain_column = rowDf$df_grain_column[[1]],
+    cbind(df_grain_column = row_df$df_grain_column[[1]],
           # Combine first few rows into a single row with the grain
-          do.call(cbind, lapply(1:numTopFactors, function(i) {
+          do.call(cbind, lapply(1:number_of_factors, function(i) {
             # Drop unwanted columns
-            row <- rowDf[i, !(names(rowDf) %in% c("df_grain_column",
-                                                  "base_prediction"))]
+            row <- row_df[i, !(names(row_df) %in% c("df_grain_column",
+                                                    "base_prediction"))]
             # Rename the columns
             names(row) <- c(paste0("Modify", i, "TXT"),
                             paste0("Modify", i, "Current"), 
@@ -122,11 +173,10 @@ build_process_variables_df = function(modFactorsList,
           }))
     )
   }))
-  row.names(modFactorsDf) <- NULL
+  row.names(full_df) <- NULL
   
-  return(modFactorsDf)
+  return(full_df)
 }
-
 
 #' @title
 #' Simultaneously remove duplicate row values in a list of dataframes.
