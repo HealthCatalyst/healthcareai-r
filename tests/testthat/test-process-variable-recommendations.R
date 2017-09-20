@@ -1,0 +1,55 @@
+# The tests in this file test the functions in 
+# common-process-variable-recommendations.R and their integration into random 
+# forest and lasso deployment.
+
+# Tests of common-process-variable-recommendations.R functions -----------------
+
+context("Checking modifiable process variable recommendations")
+
+test_that("drop_repeated drops the correct rows", {
+  # Build a list of dataframes with repeated values in "id" column
+  d1 <- data.frame(id = c("A", "A", "B", "B", "C", "C"), x = 1:6)
+  d2 <- data.frame(id = c("A", "B", "C", "A", "B", "C"), x = 1:6)
+  d3 <- data.frame(id = c("A", "B", "C", "D", "E", "F"), x = 1:6)
+  d4 <- data.frame(id = c("A", "A", "B", "B", "A", "B"), x = 1:6)
+  df_list <- list(d1 = d1, d2 = d2, d3 = d3, d4 = d4)
+  
+  # Drop the repeated values in "id" column
+  small_df_list <- drop_repeated(df_list = df_list, column_name = "id")
+  
+  # Check that output list has the same length as the original
+  expect_length(small_df_list, length(df_list))
+  # Check that the correct half of the rows were dropped for d1 and d2
+  expect_equal(small_df_list$d1$x, c(1,3,5))
+  expect_equal(small_df_list$d2$x, c(1,2,3))
+  # Check that no rows were dropped for d3
+  expect_equal(small_df_list$d3$x, 1:6)
+  # Check that the correct 2/3 of rows were dropped for d4
+  expect_equal(small_df_list$d4$x, c(1,3))
+})
+
+test_that("build_one_level_df works", {
+  levels = c("A", "B", "C", "D")
+  column_x <- factor(c("A", "C", "D", "A", "D"), levels = levels)
+  level_C <- column_x[2]
+  
+  d <- data.frame(id = 1:5, 
+                  x = column_x, 
+                  y = c("red", "blue", "green", "white", "blue"))
+  
+  one_level_df <- build_one_level_df(dataframe = d,
+                                     modifiable_variable = "x",
+                                     level = level_C)
+  
+  # Check that column x is still a factor and has the correct levels
+  expect_true(is.factor(one_level_df$x))
+  expect_equal(levels(one_level_df$x), levels)
+  # Check that id and y columns are unchanged
+  expect_equal(one_level_df$id, d$id)
+  expect_equal(one_level_df$y, d$y)
+  # Check that the current_value and alt_value columns are correct
+  expect_equal(one_level_df$current_value, as.character(d$x))
+  expect_equal(one_level_df$alt_value, rep("C", times = nrow(d)))
+})
+
+# Tests of integration with random forest and lasso deployment -----------------
