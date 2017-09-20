@@ -575,7 +575,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
                                       by = c("df_grain_column"))
       
       # Rename grain column
-      names(process_df)[names(processDf) == "df_grain_column"] <- self$params$grainCol
+      names(processDf)[names(processDf) == "df_grain_column"] <- self$params$grainCol
       # Return the dataframe
       processDf
     }
