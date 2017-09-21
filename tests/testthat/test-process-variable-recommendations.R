@@ -53,14 +53,15 @@ test_that("build_one_level_df works", {
 })
 
 test_that("permute_process_variables gives the right shape and column types", {
-  
-  d <- data.frame(id = 1:5, 
-                  age = c(23, 46, 72, 18, 33), 
-                  gender = c("M", "F", "M", "F", "F"),
-                  flag = c("Y", "Y", "Y", "N", "N"),
-                  count = c(3, 5, 8, 13, 21),
-                  color = c("blue", "red", "green", "red", "blue"))
-  
+  # Build a toy dataframe
+  d <- data.frame(id = 1:4, 
+                  age = c(23, 46, 72, 18), 
+                  gender = c("M", "F", "M", "F"),
+                  flag = c("Y", "Y", "Y", "N"),
+                  count = c(3, 5, 8, 13),
+                  color = c("blue", "red", "green", "red"))
+  # Get the factor levels for the variables which we choose to be modifiable
+  # Note that flag is a factor, but not included in levels
   levels <- list(gender = levels(d$gender), color = levels(d$color))
   
   permuted_df <- permute_process_variables(dataframe = d,
@@ -72,9 +73,6 @@ test_that("permute_process_variables gives the right shape and column types", {
   
   # Check the number of dimensions is correct
   expect_equal(dim(permuted_df), c(expected_rows, expected_columns))
-  # Check age and flag columns are repeated but unchanged
-  expect_equal(permuted_df$age, rep(d$age, times = number_of_levels))
-  expect_equal(permuted_df$flag, rep(d$flag, times = number_of_levels))
   # Check that gender and color are still factors
   expect_true(is.factor(permuted_df$gender))
   expect_true(is.factor(permuted_df$color))
@@ -83,6 +81,42 @@ test_that("permute_process_variables gives the right shape and column types", {
   expect_true(is.character(permuted_df$current_value))
   expect_true(is.character(permuted_df$alt_value))
   expect_true(is.character(permuted_df$process_variable_name))
+})
+
+test_that("permute_process_variables gives the right values", {
+  # Build a toy dataframe
+  d <- data.frame(id = 1:4, 
+                  age = c(23, 46, 72, 18), 
+                  gender = c("M", "F", "M", "F"),
+                  flag = c("Y", "Y", "Y", "N"),
+                  count = c(3, 5, 8, 13),
+                  color = c("blue", "red", "green", "red"))
+  # Get the factor levels for the variables which we choose to be modifiable
+  # Note that flag is a factor, but not included in levels
+  levels <- list(gender = levels(d$gender), color = levels(d$color))
+  
+  permuted_df <- permute_process_variables(dataframe = d,
+                                           modifiable_variable_levels = levels)
+  
+  # Get the number of levels
+  number_of_levels <- length(unlist(levels))
+  
+  # Check age and flag columns are repeated but unchanged
+  expect_equal(permuted_df$age, rep(d$age, times = number_of_levels))
+  expect_equal(permuted_df$flag, rep(d$flag, times = number_of_levels))
+  
+  # Check values in a certain row
+  expect_equal(permuted_df$gender[3], factor("F", levels = levels$gender))
+  expect_equal(permuted_df$color[3], factor("green", levels = levels$color))
+  expect_equal(permuted_df$current_value[3], "M")
+  expect_equal(permuted_df$alt_value[3], "F")
+  expect_equal(permuted_df$process_variable_name[3], "gender")
+  # Check values in a different row
+  expect_equal(permuted_df$gender[17], factor("M", levels = levels$gender))
+  expect_equal(permuted_df$color[17], factor("red", levels = levels$color))
+  expect_equal(permuted_df$current_value[17], "blue")
+  expect_equal(permuted_df$alt_value[17], "red")
+  expect_equal(permuted_df$process_variable_name[17], "color")
 })
 
 # Tests of integration with random forest and lasso deployment -----------------
