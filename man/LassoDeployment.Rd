@@ -28,6 +28,14 @@ to monitor the calculations throughout. Use T or F.}
 \item{cores}{Number of cores you'd like to use. Defaults to 2.}
 
 \item{modelName}{Optional string. Can specify the model name. If used, you must load the same one in the deploy step.}
+
+\item{modifiableProcessVariables}{Optional. A vector containing the names of 
+categorical variables for which you would like recommendations. If specified, 
+you will also need to specify \code{smallerPredictionsDesired}.}
+
+\item{smallerPredictionsDesired}{Optional. A boolean indicating whether
+smallerpredictions/probabilities are more desirable for your model. To be 
+used in conjunction with \code{modifiableProcessVariables} (else ignored).}
 }
 \description{
 This step allows one to

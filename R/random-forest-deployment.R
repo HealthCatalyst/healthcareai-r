@@ -23,6 +23,12 @@
 #' @param debug Provides the user extended output to the console, in order
 #' @param cores Number of cores you'd like to use.  Defaults to 2.
 #' @param modelName Optional string. Can specify the model name. If used, you must load the same one in the deploy step.
+#' @param modifiableProcessVariables Optional. A vector containing the names of 
+#' categorical variables for which you would like recommendations. If specified, 
+#' you will also need to specify \code{smallerPredictionsDesired}.
+#' @param smallerPredictionsDesired Optional. A boolean indicating whether   
+#' smallerpredictions/probabilities are more desirable for your model. To be 
+#' used in conjunction with \code{modifiableProcessVariables} (else ignored).
 #' @section Methods: 
 #' The above describes params for initializing a new randomForestDeployment class with 
 #' \code{$new()}. Individual methods are documented below.
