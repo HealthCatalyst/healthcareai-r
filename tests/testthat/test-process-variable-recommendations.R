@@ -120,3 +120,125 @@ test_that("permute_process_variables gives the right values", {
 })
 
 # Tests of integration with random forest and lasso deployment -----------------
+
+test_that("process variable parameter mismatch throws warnings and errors", {
+  # Build a toy dataset
+  n <- 250
+  d <- data.frame(id = 1:n, 
+                  x = rnorm(n),
+                  y = sample(c("A", "B", "C"), replace = TRUE, size = n),
+                  z = sample(c("pie", "cake"), replace = TRUE, size = n))
+  # Assign a response variable
+  temp <- d$x + 
+    1.5 * (d$y == "A") - 1.5 * (d$y == "C") +
+    (d$z == "pie") - (d$z == "cake")
+  d$target <- ifelse(temp + rnorm(n) > 0, "Y", "N")
+  
+  # Develop a random forest model
+  p <- SupervisedModelDevelopmentParams$new()
+  p$df <- d
+  p$type <- "classification"
+  p$predictedCol <- "target"
+  p$grainCol <- "id"
+  p$cores <- 1
+  capture.output(rf <- RandomForestDevelopment$new(p))
+  capture.output(rf$run())
+  
+  # Set up development parameters including modifiableProcessVariables, but 
+  # not smallerPredictionsDesired
+  p2 <- SupervisedModelDeploymentParams$new()
+  p2$df <- d
+  p2$type <- "classification"
+  p2$predictedCol <- "target"
+  p2$grainCol <- "id"
+  p2$cores <- 1
+  p2$modifiableProcessVariables <- c("y", "z")
+  
+  # Check that error is thrown if the modifiableProcessVariables parameter is 
+  # specified without aslso specifying the smallerPredictionsDesired parameter
+  expect_error(capture.output(rfD <- RandomForestDeployment$new(p2)),
+               "The modifiableProcessVariables parameter was specified ",
+               "without also specifying the smallerPredictionsDesired ",
+               "parameter.")
+  
+  # Add smallerPredictionsDesired and remove modifiableProcessVariables
+  p2$modifiableProcessVariables <- NULL
+  p2$smallerPredictionsDesired <- TRUE
+  
+  # Check that a warning is thrown if the smallerPredictionsDesired parameter is 
+  # specified without aslso specifying the modifiableProcessVariables parameter
+  expect_warning(capture.output(rfD <- RandomForestDeployment$new(p2)),
+                 "The smallerPredictionsDesired parameter was specified ",
+                 "without also specifying the modifiableProcessVariables ", 
+                 "parameter.\nThe smallerPredictionsDesired parameter will be ",
+                 "ignored.")
+  
+  # Add modifiable variables not present in the data
+  p2$modifiableProcessVariables <- c("y", "z", "non-existant", "ghost")
+  
+  # Check that a warning is triggered if new modifiable process variables are
+  # introduced
+  expect_warning(capture.output(rfD <- RandomForestDeployment$new(p2)),
+                 "Some of the modifiable process variables specified are not ",
+                 "present in the data. Mystery variables:\n",
+                 " - non-existant\n",
+                 " - ghost\n",
+                 "These modifiable variables will not be used.")
+  
+  # Check that the extra modifiable process variables have been removed
+  expect_equal(rfD$params$modifiableProcessVariables, c("y", "z"))
+  
+  p2$modifiableProcessVariables <- c("non-existant", "ghost")
+  
+  # Check that a warning is triggered if none of the modifiable variables is
+  # actually present in the data
+  expect_warning(capture.output(rfD <- RandomForestDeployment$new(p2)),
+                 "Some of the modifiable process variables specified are not ",
+                 "present in the data. Mystery variables:\n",
+                 " - non-existant\n",
+                 " - ghost\n",
+                 "These modifiable variables will not be used.")
+  
+  # Check that the modifiable process variables is reset to null if none of the
+  # specified variables is actually present in the data.
+  expect_null(rfD$params$modifiableProcessVariables)
+})
+
+test_that("modifiable variables behave well with lasso variable selection", {
+  d <- data.frame(id = 1:12,
+                  x = c(0, 2, 1, 2, 0, 3, 0, 3, 3, 4, 2, 4),
+                  y = c("down", "down", "down", "down", "up", "down",
+                        "up", "down", "up", "up", "up", "down"),
+                  z = rep(c("huh", "meh"), times = 6),
+                  target = c(rep("N", times = 6), rep(c("Y"), times = 6)))
+  # Assign a response variable, uncorrelated with the variable w
+  d <- d[rep(1:12, times = 5), ]
+  
+  # Develop a random forest model
+  p <- SupervisedModelDevelopmentParams$new()
+  p$df <- d
+  p$type <- "classification"
+  p$predictedCol <- "target"
+  p$grainCol <- "id"
+  p$cores <- 1
+  capture.output(lasso <- LassoDevelopment$new(p))
+  ignoreSpecWarn(capture.output(lasso$run()), 
+                 wRegexps = "glm.fit: fitted probabilities numerically 0 or 1")
+  
+  # Set up development parameters including modifiableProcessVariables, but 
+  # not smallerPredictionsDesired
+  p2 <- SupervisedModelDeploymentParams$new()
+  p2$df <- d
+  p2$type <- "classification"
+  p2$predictedCol <- "target"
+  p2$grainCol <- "id"
+  p2$cores <- 1
+  p2$modifiableProcessVariables <- c("y", "z")
+  p2$smallerPredictionsDesired <- TRUE
+  
+  expect_warning(capture.output(lassoD <- LassoDeployment$new(p2)), 
+                 "The following variables have coefficients of 0 in the lasso ",
+                 "model and will not be used as modifiable variables:\n",
+                 " - z")
+  
+})

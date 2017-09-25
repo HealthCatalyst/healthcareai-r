@@ -92,14 +92,34 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   self$params$modelName <- p$modelName
   
   # Set modifiableProcessVariables and smallerPredictionsDesired params
+  # Check that either both are present or both are absent.
+  # Also check that the modifiable variables actually exist in the data
   if (!is.null(p$modifiableProcessVariables)) {
     self$params$modifiableProcessVariables <- p$modifiableProcessVariables
     if (!is.null(p$smallerPredictionsDesired)) {
       self$params$smallerPredictionsDesired <- p$smallerPredictionsDesired
-    } else {# only modifiableProcessVariables specified
+    } else {# If only modifiableProcessVariables is specified, trigger an error
       stop("The modifiableProcessVariables parameter was specified without ",
            "also specifying the smallerPredictionsDesired parameter.")
     }
+    # Check that mofiable process variable actually exist in the data
+    extraColumns <- setdiff(self$params$modifiableProcessVariables,
+                            names(self$params$df))
+    # Issue a warning if some variables are not found in the data
+    if (length(extraColumns) > 0) {
+      warning("Some of the modifiable process variables specified are not ",
+              "present in the data. Mystery variables: \n",
+              paste(" - ", extraColumns, collapse = "\n"),
+              "\nThese modifiable variables will not be used.")
+      self$params$modifiableProcessVariables <- intersect(self$params$modifiableProcessVariables,
+                                                          names(self$params$df))
+      # If no modifiable factors are actually present in the data, reset the 
+      # parameter to NULL
+      if (length(self$params$modifiableProcessVariables) == 0) {
+        self$params$modifiableProcessVariables <- NULL
+      }
+    }
+  # If only smallerPredictionsDesired is specified, trigger a warning
   } else if (!is.null(p$smallerPredictionsDesired)) {
     warning("The smallerPredictionsDesired parameter was specified without ",
             "also specifying the modifiableProcessVariables parameter.\n",
@@ -127,7 +147,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       if (length(not_modifiable) > 0) {
         warning("The following variables have coefficients of 0 in the lasso ",
                 "model and will not be used as modifiable variables:\n",
-                paste(not_modifiable, collapse = ", "))
+                paste(" - ", not_modifiable, "\n"))
         # Remove modifiable variables that are not used by lasso
         self$params$modifiableProcessVariables <- intersect(self$params$modifiableProcessVariables,
                                                             self$modelInfo$usedVariables)
