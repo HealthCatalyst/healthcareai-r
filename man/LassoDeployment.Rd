@@ -6,7 +6,7 @@
 \title{Deploy a production-ready predictive Lasso model}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-LassoDeployment(type, df, grainCol, predictedCol, impute, debug, cores, modelName)
+LassoDeployment(type, df, grainCol, predictedCol, impute, debug, cores, modelName, modifiableProcessVariables, smallerPredictionsDesired)
 }
 \arguments{
 \item{type}{The type of model (either 'regression' or 'classification')}

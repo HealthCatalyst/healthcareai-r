@@ -7,7 +7,7 @@
 #' \item Push these predictions to SQL Server
 #' }
 #' @docType class
-#' @usage LassoDeployment(type, df, grainCol, predictedCol, impute, debug, cores, modelName)
+#' @usage LassoDeployment(type, df, grainCol, predictedCol, impute, debug, cores, modelName, modifiableProcessVariables, smallerPredictionsDesired)
 #' @import caret
 #' @import doParallel
 #' @importFrom R6 R6Class
