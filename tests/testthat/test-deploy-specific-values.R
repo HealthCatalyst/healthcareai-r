@@ -218,9 +218,7 @@ test_that("rf regression predicted val (w/mtry tuning) is same each time", {
   
   # the mean of the predicted values was used here since specific value
   # testing leads to large tolerances
-  # Note: I (ML) am turning the tolerance way up to pass AppVeyor checks
-  # In the future we shouldn't build tests around stochastic processes
-  expect_true(abs(mean(dfRes$PredictedValueNBR) - 146.479) < 100)
+  expect_true(abs(mean(dfRes$PredictedValueNBR) - 146.479) < 10)
   closeAllConnections()
 })
 
