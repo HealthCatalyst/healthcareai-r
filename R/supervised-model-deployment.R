@@ -115,9 +115,18 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
                                                           names(self$params$df))
       # If no modifiable factors are actually present in the data, reset the 
       # parameter to NULL
-      if (length(self$params$modifiableProcessVariables) == 0) {
-        self$params$modifiableProcessVariables <- NULL
-      }
+      private$sanitizeModifiableVariables()
+    }
+    # Check that the modifiable variables are factors 
+    nonFactors <- private$findNonFactors(self$params$modifiableProcessVariables)
+    if (length(nonFactors) > 0) {
+      warning("Modifiable process variables must be categorical variables. ", 
+              "The following variables are not categorical and will not be ", 
+              "used:\n",
+              paste(" - ", nonFactors, collapse = "\n"))
+      self$params$modifiableProcessVariables <- setdiff(self$params$modifiableProcessVariables,
+                                                        nonFactors)
+      private$sanitizeModifiableVariables()
     }
   # If only smallerPredictionsDesired is specified, trigger a warning
   } else if (!is.null(p$smallerPredictionsDesired)) {
@@ -505,6 +514,24 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       cat("\nModifiable process variable recommendations computed in ", 
           (proc.time() - t0)[3], 
           " seconds.")
+    }
+  }, 
+  
+  # This function resets the modifiable variables parameter to NULL if there
+  # are no modifiable factors.
+  sanitizeModifiableVariables = function() {
+    if (length(self$params$modifiableProcessVariables) == 0) {
+      self$params$modifiableProcessVariables <- NULL
+    }
+  },
+  
+  # This function takes a vector of column names and returns the names of 
+  # columns which are not factors
+  findNonFactors = function(columns) {
+    if (!is.null(columns)) {
+      return(columns[!unlist(lapply(self$params$df[columns], is.factor))])
+    } else {
+      return(NULL)
     }
   }
 ),

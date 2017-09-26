@@ -134,6 +134,9 @@ test_that("permute_process_variables gives the right values", {
 #      are present in the data
 #   6. Check that the modifiable process variable parameter is reset to NULL if
 #      none of the modifiable variables is present in the data 
+#   7. Check that a warning is triggered if oen of the modifiable variables is
+#      not categorical
+#   8. Check that non-categorical modifiable variables are removed.
 test_that("process variable parameter mismatch throws warnings and errors", {
   # Build a toy dataset
   n <- 250
@@ -216,6 +219,19 @@ test_that("process variable parameter mismatch throws warnings and errors", {
   # 6. Check that the modifiable process variables is reset to null if none of 
   # the specified variables is actually present in the data.
   expect_null(rfD$params$modifiableProcessVariables)
+  
+  p2$modifiableProcessVariables <- c("x", "y", "z")
+  
+  # 7. Check that a warning is triggered if one of the modifiable variables is
+  # not actually a categorical variable.
+  expect_warning(capture.output(rfD <- RandomForestDeployment$new(p2)),
+                 "Modifiable process variables must be categorical variables. ",
+                 "The following vriables are not categorical and will not be ",
+                 "used:\n",
+                 " - x")
+  
+  # 8. Check that the extra non-categorical process variables have been removed
+  expect_equal(rfD$params$modifiableProcessVariables, c("y", "z"))
 })
 
 # This test checks that modifiable variables interact correctly with variables
