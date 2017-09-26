@@ -47,17 +47,19 @@ build_process_variable_df_list <- function(dataframe,
     # Join on row number
     dplyr::inner_join(permuted_df, by = "df_grain_column") %>%
     # Add delta column
-    dplyr::mutate(delta = new_prediction - base_prediction) %>% 
+    dplyr::mutate(delta = .data[["new_prediction"]] - 
+                    .data[["base_prediction"]]) %>% 
     # Restrict to desired columns
-    dplyr::select(df_grain_column,
-                  process_variable_name, 
-                  current_value, 
-                  alt_value, 
-                  base_prediction, 
-                  new_prediction, 
-                  delta) %>%
+    dplyr::select(.data[["df_grain_column"]],
+                  .data[["process_variable_name"]], 
+                  .data[["current_value"]], 
+                  .data[["alt_value"]], 
+                  .data[["base_prediction"]], 
+                  .data[["new_prediction"]], 
+                  .data[["delta"]]) %>%
     # For each grain column id, order the results by delta
-    dplyr::arrange(df_grain_column, ordering_direction*desc(delta))
+    dplyr::arrange(.data[["df_grain_column"]], 
+                   ordering_direction*desc(.data[["delta"]]))
 
   # Split the large dataframe into a list of dataframes
   split(full_df, as.factor(full_df$df_grain_column))
