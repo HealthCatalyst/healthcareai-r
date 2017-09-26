@@ -519,6 +519,9 @@ LassoDeployment <- R6Class(
 
     #Override: deploy the model
     deploy = function() {
+      
+      # Start sink to capture console ouptut
+      sink("tmp_prediction_console_output.txt", append = FALSE, split = TRUE)
 
       # Try to load the model
       private$fitGrLasso <- private$fitObj
@@ -548,6 +551,11 @@ LassoDeployment <- R6Class(
 
       # create dataframe for output
       super$createDf()
+
+      sink()  # Close connection
+      # Get metadata, attach to output DF and write to text file
+      super$getMetadata()
+
     },
     
     # Surface outDf as attribute for export to Oracle, MySQL, etc

@@ -22,7 +22,8 @@ tests/testthat/Rplots.pdf
 inst/notebooks/.ipynb_checkpoints
 Rplot.png
 # For unit tests around sqlite (DB)
-inst/extdata/unit-test.sqlite
+*inst/extdata/unit-test.sqlite
 # Dropbox tracking files
 *.DS_Store
 .credentials.R
+*.txt
