@@ -162,9 +162,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
                                                             self$modelInfo$usedVariables)
         # If all modifiable variables have 0 coefficient, set modifiable
         # variable parameter to NULL
-        if (length(self$params$modifiableProcessVariables) == 0) {
-          self$params$modifiableProcessVariables <- NULL
-        }
+        private$sanitizeModifiableVariables()
       }
     }
 
