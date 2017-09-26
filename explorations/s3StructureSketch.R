@@ -1,7 +1,13 @@
-# Note: This is very incomplete and somewhere between R and pseudocode
+# Note: This is incomplete, but sketches some general structure ideas for 
+# classes, methods, defaults, and workflow.
 
+# Initialize the generic function `develop`
 develop <- function(x, ... ) UseMethod("develop", x)
 
+# Create a develop method for formulas. This is standard with plot, randomForest, etc.
+# and lets the user provide formula syntax, which we then parse to separate
+# the response and features and provide to develop.default, or they can provide
+# a y column and x data matrix directly to develop.default
 develop.formula <- function(formula, data, ...) {
   
   if (!inherits(formula, "formula")) 
@@ -12,14 +18,13 @@ develop.formula <- function(formula, data, ...) {
   develop(data, predictColumn, ... )
 }
 
-# develop is already way too long and therefore non-modular.
-# Needs to be chunked out into smaller functions.
-develop <- function(data
+# develop should probably be chunked into smaller functions.
+develop.default <- function(data
                     , predictColumn = NULL
                     , type = NULL
                     # Default to using all algorithms defined for the type:
                     , algorithms = NULL
-                    # It's a little weird to put this much info the default, but
+                    # It's a little weird to put this much info in the default, but
                     # it would make it easy for users to copy this list and modify 
                     # it; otherwise nested lists can be tricky.
                     , tuningParams = list(randomForest = list(mtry = c(10, 100, 1000),
@@ -76,8 +81,11 @@ develop <- function(data
   # Perhaps call appropriate training function(s) here for type x algorithm
   # e.g. regression-lasso, classification-lasso, multiClass-xgb, etc.
   
-  # For each supported algorithm, check if it's to be trained
-  # If so train over hyperparameter grid and keep the best performing model.
+  # For each supported algorithm, check if it's to be trained.
+  # If so, train over hyperparameter grid, choose the model with best-performing
+  # hyperparameters and add that model to the model list. 
+  # NB: In general you don't want to grow lists like this in R, but for such a
+  # short list it's fine.
   if ("randomForest" %in% algorithms) {
     RFs <- train.rf(x = select(data, -predictColumn), 
                     y = data[[predictColumn]],
@@ -89,7 +97,11 @@ develop <- function(data
 
 }
 
-
+# For a given prediction task, an analyst will likely train multiple models, 
+# but they will always be of the same type (regression, classificaiton, etc.),
+# so I propose that our fundamental unit is a list of models -- class modelList
+# with child classes for regressionList, classificationList, etc. and parent
+# class list.
 modelList <- function(type, ...) {
   # Constructor function for class modelList
   checkModelType(type)
@@ -102,7 +114,8 @@ as.modelList <- function(models, type) {
   # Take a list of models and check their class
   # Might be able to determine type from models, but with all the different algorithms might be tough
   if (!inherits(models, "list"))
-    stop("models should be a list of models")
+    stop("models should be a list of models. If you have just a single model,
+         pass it to as.modelList wrapped in list(): as.modelList(models = list(myModel)")
   checkModelType(type)
   
   class(models) <- c(paste0(type, "List"), "modelList", "list")
@@ -111,7 +124,7 @@ as.modelList <- function(models, type) {
 checkModelType <- function(type) {
   modelTypes <- c("unsupervised", "classification", "multiClass", "regression")
   if (!type %in% modelTypes)
-    stop("type must be one of:", paste(modelTypes, " "))
+    stop("type must be one of:\t", paste(modelTypes, " "))
 }
 
 train <- function(x, ...) UseMethod(x)
@@ -143,7 +156,7 @@ assessModels <- function(modelList, metric = NULL) {
     # Use class(modelList) to pick our favorite
   }
     
-  # metric could be a function name. Need to figure out how to make that call work
+  # metric could be a function name. 
   scores <- sapply(models, metric) %>%
     # Add attribute for metric. Use elsewhere to determine whether min or max value is best model
     structure("metric" = metric)
