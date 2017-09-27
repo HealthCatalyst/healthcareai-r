@@ -508,7 +508,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
                                                                    modifiable_variable_levels = modifiableVariableLevels,
                                                                    grain_column_values = private$grainTest,
                                                                    predict_function = self$performNewPredictions, 
-                                                                   low_probabilities_desired = self$params$smallerPredictionsDesired)
+                                                                   smaller_better = self$params$smallerPredictionsDesired)
       cat("\nModifiable process variable recommendations computed in ", 
           (proc.time() - t0)[3], 
           " seconds.")

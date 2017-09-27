@@ -15,7 +15,7 @@
 #' process variables and containing the factor levels of each such variable.
 #' @param predict_function A function with which to make new predictions on the
 #' data.
-#' @param low_probabilities_desired A boolean indicating whether the goal is to
+#' @param smaller_better A boolean indicating whether the goal is to
 #' increase or decrease the predictions/predicted probabilities.
 #' @return A list of dataframes.
 #' @keywords internal
@@ -24,7 +24,7 @@ build_process_variable_df_list <- function(dataframe,
                                            grain_column_values,
                                            modifiable_variable_levels,
                                            predict_function, 
-                                           low_probabilities_desired) {
+                                           smaller_better) {
   # Add the grain colum
   dataframe["df_grain_column"] <- grain_column_values
   # Build big dataframe of permuted data
@@ -38,9 +38,8 @@ build_process_variable_df_list <- function(dataframe,
   dataframe$base_prediction <- predict_function(newData = dataframe[!names(dataframe) %in% tracking_columns])
   permuted_df$new_prediction <- predict_function(newData = permuted_df[!names(permuted_df) %in% tracking_columns])
   
-  # Scaling constant to change the ordering depending on 
-  # low_probabilities_desired; takes values +/- 1
-  ordering_direction <- (-1)^low_probabilities_desired
+  # Scaling constant to change the ordering depending on smaller_better
+  ordering_direction <- if (smaller_better) -1 else 1 
     
   # Join the dataframes containing the old and new predictions
   full_df <- dataframe %>%
