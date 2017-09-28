@@ -6,7 +6,7 @@
 \title{Deploy a production-ready predictive RandomForest model}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-RandomForestDeployment(type, df, grainCol, predictedCol, impute, debug, cores, modelName, modifiableProcessVariables, smallerPredictionsDesired)
+RandomForestDeployment(type, df, grainCol, predictedCol, impute, debug, cores, modelName)
 }
 \arguments{
 \item{type}{The type of model (either 'regression' or 'classification')}
@@ -27,14 +27,6 @@ F leads to removal of rows containing NULLs and is not recommended.}
 \item{cores}{Number of cores you'd like to use.  Defaults to 2.}
 
 \item{modelName}{Optional string. Can specify the model name. If used, you must load the same one in the deploy step.}
-
-\item{modifiableProcessVariables}{Optional. A vector containing the names of 
-categorical variables for which you would like recommendations. If specified, 
-you will also need to specify \code{smallerPredictionsDesired}.}
-
-\item{smallerPredictionsDesired}{Optional. A boolean indicating whether
-smallerpredictions/probabilities are more desirable for your model. To be 
-used in conjunction with \code{modifiableProcessVariables} (else ignored).}
 }
 \description{
 This step allows one to
@@ -83,8 +75,13 @@ Returns the output dataframe. \cr
 
 Builds and returns a dataframe with information about the modifiable process 
 variables. \cr
-\emph{Usage:} \code{$getProcessVariablesDf(repeatedFactors = FALSE, numTopFactors = 3)} \cr
+\emph{Usage:} \code{$getProcessVariablesDf(modifiableVariables, 
+grainColumnValues = NULL, smallerBetter = TRUE, repeatedFactors = FALSE,
+numTopFactors = 3)} \cr
 Params: \cr
+  - \code{modifiableVariables} A vector of names of categorical variables.\cr
+  - \code{grainColumnIDs} A vector of grain column IDs. If \code{NULL}, the whole deployment dataframe will be used.\cr
+  - \code{smallerBetter} A boolean determining whether or not lower predictions/probabilities are more desirable. \cr
   - \code{repeatedFactors} A boolean determining whether or not a single modifiable factor can be listed several times. \cr
   - \code{numTopFactors} The number of modifiable process variables to include in each row.
 }

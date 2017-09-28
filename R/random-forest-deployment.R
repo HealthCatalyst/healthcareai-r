@@ -7,7 +7,7 @@
 #' \item Push these predictions to SQL Server
 #' }
 #' @docType class
-#' @usage RandomForestDeployment(type, df, grainCol, predictedCol, impute, debug, cores, modelName, modifiableProcessVariables, smallerPredictionsDesired)
+#' @usage RandomForestDeployment(type, df, grainCol, predictedCol, impute, debug, cores, modelName)
 #' @import caret
 #' @import doParallel
 #' @importFrom R6 R6Class
@@ -23,12 +23,6 @@
 #' @param debug Provides the user extended output to the console, in order
 #' @param cores Number of cores you'd like to use.  Defaults to 2.
 #' @param modelName Optional string. Can specify the model name. If used, you must load the same one in the deploy step.
-#' @param modifiableProcessVariables Optional. A vector containing the names of 
-#' categorical variables for which you would like recommendations. If specified, 
-#' you will also need to specify \code{smallerPredictionsDesired}.
-#' @param smallerPredictionsDesired Optional. A boolean indicating whether   
-#' smallerpredictions/probabilities are more desirable for your model. To be 
-#' used in conjunction with \code{modifiableProcessVariables} (else ignored).
 #' @section Methods: 
 #' The above describes params for initializing a new randomForestDeployment class with 
 #' \code{$new()}. Individual methods are documented below.
@@ -49,11 +43,16 @@
 #' @section \code{$getOutDf()}:
 #' Returns the output dataframe. \cr
 #' \emph{Usage:} \code{$getOutDf()} 
-#' @section \code{$getProcessVariablesDf()}:
+#'@section \code{$getProcessVariablesDf()}:
 #' Builds and returns a dataframe with information about the modifiable process 
 #' variables. \cr
-#' \emph{Usage:} \code{$getProcessVariablesDf(repeatedFactors = FALSE, numTopFactors = 3)} \cr
+#' \emph{Usage:} \code{$getProcessVariablesDf(modifiableVariables, 
+#' grainColumnValues = NULL, smallerBetter = TRUE, repeatedFactors = FALSE,
+#' numTopFactors = 3)} \cr
 #' Params: \cr
+#'   - \code{modifiableVariables} A vector of names of categorical variables.\cr
+#'   - \code{grainColumnIDs} A vector of grain column IDs. If \code{NULL}, the whole deployment dataframe will be used.\cr
+#'   - \code{smallerBetter} A boolean determining whether or not lower predictions/probabilities are more desirable. \cr
 #'   - \code{repeatedFactors} A boolean determining whether or not a single modifiable factor can be listed several times. \cr
 #'   - \code{numTopFactors} The number of modifiable process variables to include in each row.
 #' @export
