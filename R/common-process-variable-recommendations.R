@@ -115,8 +115,8 @@ permute_process_variables <- function(dataframe,
 #' @keywords internal
 build_one_level_df <- function(dataframe, modifiable_variable, level) {
   # Add reference columns
-  dataframe["current_value"] <- as.character(dataframe[[modifiable_variable]])
-  dataframe["alt_value"] <- as.character(level)
+  dataframe$current_value <- as.character(dataframe[[modifiable_variable]])
+  dataframe$alt_value <- as.character(level)
   # Fill the modifiable variable column with the specified level
   dataframe[[modifiable_variable]] <- level
   return(dataframe)

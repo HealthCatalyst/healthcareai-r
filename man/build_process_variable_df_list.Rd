@@ -5,7 +5,7 @@
 \title{Build a list of dataframes with new predictions for each modifiable variable.}
 \usage{
 build_process_variable_df_list(dataframe, grain_column_values,
-  modifiable_variable_levels, predict_function, low_probabilities_desired)
+  modifiable_variable_levels, predict_function, smaller_better)
 }
 \arguments{
 \item{dataframe}{A dataframe consisting of deployment data.}
@@ -19,7 +19,7 @@ process variables and containing the factor levels of each such variable.}
 \item{predict_function}{A function with which to make new predictions on the
 data.}
 
-\item{low_probabilities_desired}{A boolean indicating whether the goal is to
+\item{smaller_better}{A boolean indicating whether the goal is to
 increase or decrease the predictions/predicted probabilities.}
 }
 \value{

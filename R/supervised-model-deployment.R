@@ -498,9 +498,9 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     if (!is.null(self$params$modifiableProcessVariables)
         & !is.null(self$params$smallerPredictionsDesired)) {
       t0 <- proc.time()
-      cat("Computing modifiable process variable recommendations for ", 
-          nrow(self$params$df), 
-          " rows...")
+      message("Computing modifiable process variable recommendations for ", 
+              nrow(self$params$df),
+              " rows...")
       # Get the factor levels for the modifiable process variables
       modifiableVariableLevels <- self$modelInfo$factorLevels[self$params$modifiableProcessVariables]
       # Build the process variables df list
@@ -509,9 +509,9 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
                                                                    grain_column_values = private$grainTest,
                                                                    predict_function = self$performNewPredictions, 
                                                                    smaller_better = self$params$smallerPredictionsDesired)
-      cat("\nModifiable process variable recommendations computed in ", 
-          (proc.time() - t0)[3], 
-          " seconds.")
+      message("\nModifiable process variable recommendations computed in ", 
+              (proc.time() - t0)[3],
+              " seconds.")
     }
   }, 
   
