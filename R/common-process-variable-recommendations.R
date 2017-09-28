@@ -1,3 +1,7 @@
+# Needed to avoid a CMD check note
+# TODO: move to a better place
+globalVariables(c(".data"))
+
 # 1. Build List of Dataframes --------------------------------------------------
 # The following use a dataframe of (deploy) data to build a list of dataframes,
 # one for each row of data, containing information about how modifying each
