@@ -131,6 +131,7 @@ pphcv <- function(df, target, high_card, type, pos_class = NULL, m = NULL,
     if (is.null(m)) {
       m = 1
     }
+    # If type is binary or continuous...
     if (type == "binary" || type == "continuous") {
       # Calculate the shrinkage factor for each high-cardinality level
       shrinkage_factor <- table(df[[i]]) / (m + table(df[[i]]))
