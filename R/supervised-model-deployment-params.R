@@ -32,9 +32,6 @@ SupervisedModelDeploymentParams <- R6Class("SupervisedModelDeploymentParams",
     xgb_numberOfClasses = NA,
     xgb_targetNames = NA,
     modelName = NULL,
-    
-    smallerPredictionsDesired = NULL,
-    modifiableProcessVariables = NULL,
 
     #Constructor
     initialize = function() {

@@ -91,50 +91,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   if (!is.null(p$modelName))
   self$params$modelName <- p$modelName
   
-  # Set modifiableProcessVariables and smallerPredictionsDesired params
-  # Check that either both are present or both are absent.
-  # Also check that the modifiable variables actually exist in the data
-  if (!is.null(p$modifiableProcessVariables)) {
-    self$params$modifiableProcessVariables <- p$modifiableProcessVariables
-    if (!is.null(p$smallerPredictionsDesired)) {
-      self$params$smallerPredictionsDesired <- p$smallerPredictionsDesired
-    } else {# If only modifiableProcessVariables is specified, trigger an error
-      stop("The modifiableProcessVariables parameter was specified without ",
-           "also specifying the smallerPredictionsDesired parameter.")
-    }
-    # Check that mofiable process variable actually exist in the data
-    extraColumns <- setdiff(self$params$modifiableProcessVariables,
-                            names(self$params$df))
-    # Issue a warning if some variables are not found in the data
-    if (length(extraColumns) > 0) {
-      warning("Some of the modifiable process variables specified are not ",
-              "present in the data. Mystery variables: \n",
-              paste(" - ", extraColumns, collapse = "\n"),
-              "\nThese modifiable variables will not be used.")
-      self$params$modifiableProcessVariables <- intersect(self$params$modifiableProcessVariables,
-                                                          names(self$params$df))
-      # If no modifiable factors are actually present in the data, reset the 
-      # parameter to NULL
-      private$sanitizeModifiableVariables()
-    }
-    # Check that the modifiable variables are factors 
-    nonFactors <- private$findNonFactors(self$params$modifiableProcessVariables)
-    if (length(nonFactors) > 0) {
-      warning("Modifiable process variables must be categorical variables. ", 
-              "The following variables are not categorical and will not be ", 
-              "used:\n",
-              paste(" - ", nonFactors, collapse = "\n"))
-      self$params$modifiableProcessVariables <- setdiff(self$params$modifiableProcessVariables,
-                                                        nonFactors)
-      private$sanitizeModifiableVariables()
-    }
-  # If only smallerPredictionsDesired is specified, trigger a warning
-  } else if (!is.null(p$smallerPredictionsDesired)) {
-    warning("The smallerPredictionsDesired parameter was specified without ",
-            "also specifying the modifiableProcessVariables parameter.\n",
-            "The smallerPredictionsDesired parameter will be ignored.")
-  }
-
   # for deploy method
   if (!is.null(p$cores))
   self$params$cores <- p$cores
@@ -144,27 +100,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     # Load model info
     cat('Loading Model Info...','\n')
     private$loadModelAndInfo()
-    
-    # Check that modifiable process variables make sense for lasso
-    if (private$algorithmName == "Lasso" 
-        & !(is.null(self$params$modifiableProcessVariables))) {
-      # Find modifiable variables with 0 coefficient
-      not_modifiable <- setdiff(self$params$modifiableProcessVariables,
-                                self$modelInfo$usedVariables)
-      # If such variables exist, remove them from the list of modifiable
-      # variables and print a warning.
-      if (length(not_modifiable) > 0) {
-        warning("The following variables have coefficients of 0 in the lasso ",
-                "model and will not be used as modifiable variables:\n",
-                paste(" - ", not_modifiable, "\n"))
-        # Remove modifiable variables that are not used by lasso
-        self$params$modifiableProcessVariables <- intersect(self$params$modifiableProcessVariables,
-                                                            self$modelInfo$usedVariables)
-        # If all modifiable variables have 0 coefficient, set modifiable
-        # variable parameter to NULL
-        private$sanitizeModifiableVariables()
-      }
-    }
 
     cat('Loading Data...','\n')
     if (isTRUE(self$params$debug)) {
@@ -494,33 +429,86 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     }
   }, 
   
-  buildProcessVariableDfList = function() {
-    if (!is.null(self$params$modifiableProcessVariables)
-        & !is.null(self$params$smallerPredictionsDesired)) {
-      t0 <- proc.time()
-      message("Computing modifiable process variable recommendations for ", 
-              nrow(self$params$df),
-              " rows...")
-      # Get the factor levels for the modifiable process variables
-      modifiableVariableLevels <- self$modelInfo$factorLevels[self$params$modifiableProcessVariables]
-      # Build the process variables df list
-      self$processVariableDfList <- build_process_variable_df_list(dataframe = self$params$df,
-                                                                   modifiable_variable_levels = modifiableVariableLevels,
-                                                                   grain_column_values = private$grainTest,
-                                                                   predict_function = self$performNewPredictions, 
-                                                                   smaller_better = self$params$smallerPredictionsDesired)
-      message("\nModifiable process variable recommendations computed in ", 
-              (proc.time() - t0)[3],
-              " seconds.")
+  buildProcessVariableDfList = function(modifiableVariables,
+                                        grainColumnValues = NULL, 
+                                        smallerBetter = TRUE) {
+    # If no grain column values are specified, use the whole dataframe
+    if (length(grainColumnValues) == 0) {
+      grainColumnValues <- private$grainTest
+    } else {
+      # Check for misspecified grain column values. If any are found, trigger a 
+      # warning
+      nonGrain <- grainColumnValues[!(grainColumnValues %in% private$grainTest)]
+      if (length(nonGrain) > 0) {
+        warning("AAARG")
+        grainColumnValues <- intersect(grainColumnValues, private$grainTest)
+      }
+      # Rearrange grain ids to match the rows
+      # TODO: figure out how to avoid re-ordering the grain column values but
+      # still match them up correctly with the dataframe rows
+      grainColumnValues <- private$grainTest[private$grainTest 
+                                             %in% grainColumnValues]
     }
+
+    # Get rows corresponding to the grain ids
+    dataframe <- self$params$df[private$grainTest %in% grainColumnValues, ]
+    
+    # Get the factor levels for the modifiable process variables
+    modifiableVariableLevels <- self$modelInfo$factorLevels[modifiableVariables]
+    # Build the process variables df list
+    build_process_variable_df_list(dataframe = dataframe,
+                                   modifiable_variable_levels = modifiableVariableLevels,
+                                   grain_column_values = grainColumnValues,
+                                   predict_function = self$performNewPredictions,
+                                   smaller_better = smallerBetter)
   }, 
   
-  # This function resets the modifiable variables parameter to NULL if there
-  # are no modifiable factors.
-  sanitizeModifiableVariables = function() {
-    if (length(self$params$modifiableProcessVariables) == 0) {
-      self$params$modifiableProcessVariables <- NULL
+  checkModifiableVariableInput = function(modifiableVariables) {
+    # Set modifiableProcessVariables and smallerPredictionsDesired params
+    # Check that either both are present or both are absent.
+    # Also check that the modifiable variables actually exist in the data
+
+    # Check that mofiable process variable actually exist in the data
+    extraColumns <- setdiff(modifiableVariables,
+                            names(self$params$df))
+    # Issue a warning if some variables are not found in the data
+    if (length(extraColumns) > 0) {
+      warning("Some of the modifiable process variables specified are not ",
+              "present in the data. Mystery variables: \n",
+              paste(" - ", extraColumns, collapse = "\n"),
+              "\nThese modifiable variables will not be used.")
+      modifiableVariables <- intersect(modifiableVariables, 
+                                       names(self$params$df))
     }
+    
+    # Check that the modifiable variables are factors
+    nonFactors <- private$findNonFactors(modifiableVariables)
+    if (length(nonFactors) > 0) {
+      warning("Modifiable process variables must be categorical variables. ",
+              "The following variables are not categorical and will not be ",
+              "used:\n",
+              paste(" - ", nonFactors, collapse = "\n"))
+      modifiableVariables <- setdiff(modifiableVariables, nonFactors)
+    }
+    
+    # Check that modifiable process variables make sense for lasso
+    if (private$algorithmName == "Lasso") {
+      # Find modifiable variables with 0 coefficient
+      notModifiable <- setdiff(modifiableVariables, 
+                               self$modelInfo$usedVariables)
+      # If such variables exist, remove them from the list of modifiable
+      # variables and print a warning.
+      if (length(notModifiable) > 0) {
+        warning("The following variables have coefficients of 0 in the lasso ",
+                "model and will not be used as modifiable variables:\n",
+                paste(" - ", notModifiable, "\n"))
+        # Remove modifiable variables that are not used by lasso
+        modifiableVariables <- intersect(modifiableVariables,
+                                         self$modelInfo$usedVariables)
+      }
+    }
+    
+    return(modifiableVariables)
   },
   
   # This function takes a vector of column names and returns the names of 
@@ -595,12 +583,20 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     
     # Build and return a dataframe with recommendations for the modifiable
     # process varaibles
-    getProcessVariablesDf = function(repeatedFactors = FALSE,
+    getProcessVariablesDf = function(modifiableVariables,
+                                     grainColumnValues = NULL,
+                                     smallerBetter = TRUE,
+                                     repeatedFactors = FALSE,
                                      numTopFactors = 3) {
-      # Check that modifiable process variables were set
-      if (is.null(self$params$modifiableProcessVariables)) {
-        stop("No modifiable process variables set.")
-      } 
+      t0 <- proc.time()
+      modifiableVariables <- private$checkModifiableVariableInput(modifiableVariables)
+      if (length(modifiableVariables) == 0) {
+        stop("No valid modifiable variables used.")
+      }
+
+      processVariableDfList <- private$buildProcessVariableDfList(modifiableVariables = modifiableVariables,
+                                                                  grainColumnValues = grainColumnValues,
+                                                                  smallerBetter = smallerBetter)
       
       # Get name of prediction column in outDf
       predCol <- ifelse(self$params$type == "classification",
@@ -614,13 +610,22 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
             
       # Join grain column and original prediction to recommendations
       processDf <- dplyr::inner_join(originalPredictions,
-                                     build_process_variables_df(self$processVariableDfList,
+                                     build_process_variables_df(processVariableDfList,
                                                                 repeatedFactors,
                                                                 numTopFactors),
                                       by = c("df_grain_column"))
       
       # Rename grain column
       names(processDf)[names(processDf) == "df_grain_column"] <- self$params$grainCol
+      if (self$params$debug) {
+        ellapsedTime <- (proc.time() - t0)[3]
+        message("Modifiable variables computed for ", 
+                nrow(processDf),
+                " rows in ", 
+                ellapsedTime, 
+                " seconds.")
+      }
+      
       # Return the dataframe
       processDf
     }
