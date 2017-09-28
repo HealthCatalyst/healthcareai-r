@@ -482,17 +482,19 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     }
     
     # Check that the modifiable variables are factors
-    nonFactors <- private$findNonFactors(modifiableVariables)
-    if (length(nonFactors) > 0) {
-      warning("Modifiable process variables must be categorical variables. ",
-              "The following variables are not categorical and will not be ",
-              "used:\n",
-              paste(" - ", nonFactors, collapse = "\n"))
-      modifiableVariables <- setdiff(modifiableVariables, nonFactors)
+    if (length(modifiableVariables) > 0) {
+      nonFactors <- private$findNonFactors(modifiableVariables)
+      if (length(nonFactors) > 0) {
+        warning("Modifiable process variables must be categorical variables. ",
+                "The following variables are not categorical and will not be ",
+                "used:\n",
+                paste(" - ", nonFactors, collapse = "\n"))
+        modifiableVariables <- setdiff(modifiableVariables, nonFactors)
+      }
     }
     
     # Check that modifiable process variables make sense for lasso
-    if (private$algorithmName == "Lasso") {
+    if (private$algorithmName == "Lasso" & length(modifiableVariables) > 0) {
       # Find modifiable variables with 0 coefficient
       notModifiable <- setdiff(modifiableVariables, 
                                self$modelInfo$usedVariables)
