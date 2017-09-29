@@ -6,33 +6,32 @@
 \title{Deploy a production-ready predictive Linear Mixed Model model}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-LinearMixedModelDeployment(type, df, 
-grainCol, personCol, testWindowCol, predictedCol, impute, debug)
+LinearMixedModelDeployment(type, df, grainCol, personCol, 
+predictedCol, impute, debug, cores, modelName)
 }
 \arguments{
 \item{type}{The type of model (either 'regression' or 'classification')}
 
-\item{df}{Dataframe whose columns are used for calc.}
+\item{df}{Dataframe whose columns are used for new predictions. Data structure should match development as 
+much as possible. Number of columns, names, types, grain, and predicted must be the same.}
 
 \item{grainCol}{Optional. The dataframe's column that has IDs pertaining to 
 the grain. No ID columns are truly needed for this step.}
 
 \item{personCol}{The data frame's columns that represents the patient/person}
 
-\item{testWindowCol}{Y or N. This column dictates the split between model 
-training and test sets. Those rows with N in this column indicate the 
-training set while those that have Y indicate the test set}
+\item{predictedCol}{Column that you want to predict.}
 
-\item{predictedCol}{Column that you want to predict. If you're doing
-classification then this should be Y/N.}
-
-\item{impute}{For training df, set all-column imputation to F or T.
-This uses mean replacement for numeric columns
-and most frequent for factorized columns.
-F leads to removal of rows containing NULLs.}
+\item{impute}{For training df, set all-column imputation to T or F.
+If T, this uses values calculated in development.
+F leads to removal of rows containing NULLs and is not recommended.}
 
 \item{debug}{Provides the user extended output to the console, in order
 to monitor the calculations throughout. Use T or F.}
+
+\item{cores}{Number of cores you'd like to use.  Defaults to 2.}
+
+\item{modelName}{Optional string. Can specify the model name. If used, you must load the same one in the deploy step.}
 }
 \description{
 This step allows one to
@@ -41,7 +40,43 @@ This step allows one to
 \item Run the model against test data to generate predictions
 \item Push these predictions to SQL Server
 }
+The linear mixed model functionality works best with smaller data sets.
 }
+\section{Methods}{
+ 
+The above describes params for initializing a new linearMixedModelDeployment class with 
+\code{$new()}. Individual methods are documented below.
+}
+
+\section{\code{$new()}}{
+
+Initializes a new linear mixed model deployment class using the 
+parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
+generating predictions. \cr
+\emph{Usage:} \code{$new(p)}
+}
+
+\section{\code{$deploy()}}{
+
+Generate new predictions, calculate top factors, and prepare the output dataframe. \cr
+\emph{Usage:}\code{$deploy()}
+}
+
+\section{\code{$getTopFactors()}}{
+
+Return the grain, all top factors, and their weights. \cr
+\emph{Usage:} \code{$getTopFactors(numberOfFactors = NA, includeWeights = FALSE)} \cr
+Params: \cr
+  - \code{numberOfFactors:} returns the top \code{n} factors. Defaults to all factors. \cr
+  - \code{includeWeights:} If \code{TRUE}, returns weights associated with each factor.
+}
+
+\section{\code{$getOutDf()}}{
+
+Returns the output dataframe. \cr
+\emph{Usage:} \code{$getOutDf()}
+}
+
 \examples{
 
 #### Classification Example using csv data ####
@@ -61,12 +96,12 @@ df <- read.csv(file = csvfile,
                header = TRUE, 
                na.strings = c("NULL", "NA", ""))
 
-head(df)
-str(df)
+# Save a dataframe for validation later on
+dfDeploy <- df[951:1000,]
 
 ## 2. Train and save the model using DEVELOP
-inTest <- df$InTestWindowFLG # save this for later.
-df$InTestWindowFLG <- NULL
+print('Historical, development data:')
+str(df)
 
 set.seed(42)
 p <- SupervisedModelDevelopmentParams$new()
@@ -80,33 +115,34 @@ p$debug <- FALSE
 p$cores <- 1
 
 # Run Linear Mixed Model
-LinearMixedModel <- LinearMixedModelDevelopment$new(p)
-LinearMixedModel$run()
+lmm <- LinearMixedModelDevelopment$new(p)
+lmm$run()
 
 ## 3. Load saved model and use DEPLOY to generate predictions. 
-df$InTestWindowFLG <- inTest
+print('Fake production data:')
+str(dfDeploy)
+
 p2 <- SupervisedModelDeploymentParams$new()
 p2$type <- "classification"
-p2$df <- df
-p2$testWindowCol <- "InTestWindowFLG"
+p2$df <- dfDeploy
 p2$grainCol <- "PatientEncounterID"
-p$personCol <- "PatientID"
+p2$personCol <- "PatientID"
 p2$predictedCol <- "ThirtyDayReadmitFLG"
 p2$impute <- TRUE
 p2$debug <- FALSE
 p2$cores <- 1
-p2$writeToDB <- FALSE
 
 dL <- LinearMixedModelDeployment$new(p2)
 dL$deploy()
 
-df <- dL$getOutDf()
+dfOut <- dL$getOutDf()
+head(dfOut)
 # Write to CSV (or JSON, MySQL, etc) using plain R syntax
-# write.csv(df,'path/predictionsfile.csv')
+# write.csv(dfOut,'path/predictionsfile.csv')
 
 print(proc.time() - ptm)
 
-\donttest{
+\dontrun{
 #### Classification example using SQL Server data ####
 # This example requires you to first create a table in SQL Server
 # If you prefer to not use SAMD, execute this in SSMS to create output table:
@@ -137,20 +173,19 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
 "
 
 df <- selectData(connection.string, query)
 
-head(df)
-str(df)
+# Save a dataframe for validation later on
+dfDeploy <- df[951:1000,]
 
 ## 2. Train and save the model using DEVELOP
-#' set.seed(42)
-inTest <- df$InTestWindowFLG # save this for deploy
-df$InTestWindowFLG <- NULL
+print('Historical, development data:')
+str(df)
 
+set.seed(42)
 p <- SupervisedModelDevelopmentParams$new()
 p$df <- df
 p$type <- "classification"
@@ -162,32 +197,35 @@ p$debug <- FALSE
 p$cores <- 1
 
 # Run Linear Mixed Model
-LinearMixedModel <- LinearMixedModelDevelopment$new(p)
-LinearMixedModel$run()
+lmm <- LinearMixedModelDevelopment$new(p)
+lmm$run()
 
 ## 3. Load saved model and use DEPLOY to generate predictions. 
-df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+print('Fake production data:')
+str(dfDeploy)
 
 p2 <- SupervisedModelDeploymentParams$new()
 p2$type <- "classification"
-p2$df <- df
+p2$df <- dfDeploy
 p2$grainCol <- "PatientEncounterID"
-p$personCol <- "PatientID"
-p2$testWindowCol <- "InTestWindowFLG"
+p2$personCol <- "PatientID"
 p2$predictedCol <- "ThirtyDayReadmitFLG"
 p2$impute <- TRUE
 p2$debug <- FALSE
 p2$cores <- 1
-p2$sqlConn <- connection.string
-p2$destSchemaTable <- "dbo.HCRDeployClassificationBASE"
 
 dL <- LinearMixedModelDeployment$new(p2)
 dL$deploy()
+dfOut <- dL$getOutDf()
+
+writeData(MSSQLConnectionString = connection.string,
+          df = dfOut,
+          tableName = 'HCRDeployClassificationBASE')
 
 print(proc.time() - ptm)
 }
 
-\donttest{
+\dontrun{
 #### Regression Example using SQL Server data ####
 # This example requires you to first create a table in SQL Server
 # If you prefer to not use SAMD, execute this in SSMS to create output table:
@@ -218,20 +256,19 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
 "
 
 df <- selectData(connection.string, query)
 
-head(df)
-str(df)
+# Save a dataframe for validation later on
+dfDeploy <- df[951:1000,]
 
 ## 2. Train and save the model using DEVELOP
-#' set.seed(42)
-inTest <- df$InTestWindowFLG # save this for deploy
-df$InTestWindowFLG <- NULL
+print('Historical, development data:')
+str(df)
 
+set.seed(42)
 p <- SupervisedModelDevelopmentParams$new()
 p$df <- df
 p$type <- "regression"
@@ -243,32 +280,178 @@ p$debug <- FALSE
 p$cores <- 1
 
 # Run Linear Mixed Model
-LinearMixedModel <- LinearMixedModelDevelopment$new(p)
-LinearMixedModel$run()
+lmm <- LinearMixedModelDevelopment$new(p)
+lmm$run()
 
 ## 3. Load saved model and use DEPLOY to generate predictions. 
-df$InTestWindowFLG <- inTest # put InTestWindowFLG back in.
+dfDeploy$A1CNBR <- NULL # You won't know the response in production
+print('Fake production data:')
+str(dfDeploy)
 
 p2 <- SupervisedModelDeploymentParams$new()
 p2$type <- "regression"
-p2$df <- df
+p2$df <- dfDeploy
 p2$grainCol <- "PatientEncounterID"
-p$personCol <- "PatientID"
-p2$testWindowCol <- "InTestWindowFLG"
+p2$personCol <- "PatientID"
 p2$predictedCol <- "A1CNBR"
 p2$impute <- TRUE
 p2$debug <- FALSE
 p2$cores <- 1
-p2$sqlConn <- connection.string
-p2$destSchemaTable <- "dbo.HCRDeployRegressionBASE"
 
 dL <- LinearMixedModelDeployment$new(p2)
 dL$deploy()
+dfOut <- dL$getOutDf()
+
+writeData(MSSQLConnectionString = connection.string,
+          df = dfOut,
+          tableName = 'HCRDeployRegressionBASE')
+
+print(proc.time() - ptm)
+}
+
+\dontrun{
+#### Classification example pulling from CSV and writing to SQLite ####
+
+
+## 1. Loading data and packages.
+ptm <- proc.time()
+library(healthcareai)
+
+# Can delete these system.file lines in your work
+csvfile <- system.file("extdata", 
+                       "HCRDiabetesClinical.csv", 
+                       package = "healthcareai")
+                       
+sqliteFile <- system.file("extdata",
+                          "unit-test.sqlite",
+                          package = "healthcareai")
+
+# Read in CSV; replace csvfile with 'path/file'
+df <- read.csv(file = csvfile, 
+               header = TRUE, 
+               na.strings = c("NULL", "NA", ""))
+
+# Save a dataframe for validation later on
+dfDeploy <- df[951:1000,]
+
+## 2. Train and save the model using DEVELOP
+print('Historical, development data:')
+str(df)
+
+set.seed(42)
+p <- SupervisedModelDevelopmentParams$new()
+p$df <- df
+p$type <- "classification"
+p$impute <- TRUE
+p$grainCol <- "PatientEncounterID"
+p$personCol <- "PatientID"
+p$predictedCol <- "ThirtyDayReadmitFLG"
+p$debug <- FALSE
+p$cores <- 1
+
+# Run Linear Mixed Model
+lmm <- LinearMixedModelDevelopment$new(p)
+lmm$run()
+
+## 3. Load saved model and use DEPLOY to generate predictions. 
+print('Fake production data:')
+str(dfDeploy)
+
+p2 <- SupervisedModelDeploymentParams$new()
+p2$type <- "classification"
+p2$df <- dfDeploy
+p2$grainCol <- "PatientEncounterID"
+p2$personCol <- "PatientID"
+p2$predictedCol <- "ThirtyDayReadmitFLG"
+p2$impute <- TRUE
+p2$debug <- FALSE
+p2$cores <- 1
+
+dL <- LinearMixedModelDeployment$new(p2)
+dL$deploy()
+dfOut <- dL$getOutDf()
+
+writeData(SQLiteFileName = sqliteFile,
+          df = dfOut,
+          tableName = 'HCRDeployClassificationBASE')
+
+print(proc.time() - ptm)
+}
+
+\dontrun{
+#### Regression example pulling from CSV and writing to SQLite ####
+
+## 1. Loading data and packages.
+ptm <- proc.time()
+library(healthcareai)
+
+# Can delete these system.file lines in your work
+csvfile <- system.file("extdata", 
+                       "HCRDiabetesClinical.csv", 
+                       package = "healthcareai")
+
+sqliteFile <- system.file("extdata",
+                          "unit-test.sqlite",
+                          package = "healthcareai")
+
+# Read in CSV; replace csvfile with 'path/file'
+df <- read.csv(file = csvfile, 
+               header = TRUE, 
+               na.strings = c("NULL", "NA", ""))
+
+# Save a dataframe for validation later on
+dfDeploy <- df[951:1000,]
+
+## 2. Train and save the model using DEVELOP
+print('Historical, development data:')
+str(df)
+
+set.seed(42)
+p <- SupervisedModelDevelopmentParams$new()
+p$df <- df
+p$type <- "regression"
+p$impute <- TRUE
+p$grainCol <- "PatientEncounterID"
+p$personCol <- "PatientID"
+p$predictedCol <- "A1CNBR"
+p$debug <- FALSE
+p$cores <- 1
+
+# Run Linear Mixed Model
+lmm <- LinearMixedModelDevelopment$new(p)
+lmm$run()
+
+## 3. Load saved model and use DEPLOY to generate predictions. 
+dfDeploy$A1CNBR <- NULL # You won't know the response in production
+print('Fake production data:')
+str(dfDeploy)
+
+p2 <- SupervisedModelDeploymentParams$new()
+p2$type <- "regression"
+p2$df <- dfDeploy
+p2$grainCol <- "PatientEncounterID"
+p2$personCol <- "PatientID"
+p2$predictedCol <- "A1CNBR"
+p2$impute <- TRUE
+p2$debug <- FALSE
+p2$cores <- 1
+
+dL <- LinearMixedModelDeployment$new(p2)
+dL$deploy()
+dfOut <- dL$getOutDf()
+
+writeData(SQLiteFileName = sqliteFile,
+          df = dfOut,
+          tableName = 'HCRDeployRegressionBASE')
 
 print(proc.time() - ptm)
 }
 }
 \seealso{
 \code{\link{healthcareai}}
+
+\code{\link{writeData}}
+
+\code{\link{selectData}}
 }
 \keyword{datasets}

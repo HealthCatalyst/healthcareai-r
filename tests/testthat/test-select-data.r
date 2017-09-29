@@ -44,11 +44,11 @@ test_that("Deprecated argument gives error", {
                      'connectionString argument has been deprecated'))
 })
 
-
 # Start SQL Server tests
 connection.string = '
 driver={SQL Server};
 server=localhost;
+database=SAM;
 trusted_connection=true'
 
 query4 = '
@@ -64,25 +64,31 @@ from [SAM].[dbo].[HCRDiabetesClinical] order by LDLNBR'
 query6 = '
 SELECT [A1CNBR] FROM [SAM].[dbo].[DiabetesClinicall]'
 
-
 test_that("SQL Server - Returns correct selected data in data frame", {
-  skip_on_travis()
   skip_on_cran()
-  expect_equal(selectData(MSSQLConnectionString=connection.string, query4),
+  skip_if_no_MSSQL(tableName = "HCRDiabetesClinical", 
+                   connString = connection.string)
+
+  expect_equal(selectData(MSSQLConnectionString = connection.string, query4),
                data.frame(SystolicBPNBR = c(167,153,170,187,188,
                                             185,189,149,155,160)))
 })
 
 test_that("SQL Server - Returns zero rows msg when zero rows selected", {
-  skip_on_travis()
   skip_on_cran()
-  expect_warning(grepl(selectData(MSSQLConnectionString=connection.string, query5),
+  skip_if_no_MSSQL(tableName = "HCRDiabetesClinical", 
+                   connString = connection.string)
+
+  expect_warning(grepl(selectData(MSSQLConnectionString = connection.string, 
+                                  query5),
                  'Zero rows returned from SQL.'))
 })
 
 test_that("SQL Server - Returns SQL error message when SQL error", {
-  skip_on_travis()
   skip_on_cran()
-  expect_error(selectData(MSSQLConnectionString=connection.string, query6),
+  skip_if_no_MSSQL(tableName = "HCRDiabetesClinical", 
+                   connString = connection.string)
+
+  expect_error(selectData(MSSQLConnectionString = connection.string, query6),
                'Your SQL likely contains an error.')
 })

@@ -28,7 +28,7 @@ terms of a particular measure.
 
 #### Example using SQL data ####
 
-\donttest{
+\dontrun{
 library(healthcareai)
 
 connection.string <- "
@@ -47,7 +47,6 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
 "
 
@@ -67,7 +66,7 @@ riskAdjComp$run()
 
 }
 \references{
-\url{http://healthcare.ai}
+\url{http://healthcareai-r.readthedocs.io}
 }
 \seealso{
 \code{\link{healthcareai}}

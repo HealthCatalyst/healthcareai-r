@@ -27,7 +27,6 @@ Nope. It'll help if you can follow these guidelines:
     - __database__: a database name. You'll pull data from this database.
 
 ```r
-ptm <- proc.time()
 library(healthcareai)
 library(RODBC)
 
@@ -38,6 +37,7 @@ database=SAM;
 trusted_connection=true
 "
 
+# This query should pull only rows for training. They must have a label.
 query = "
 SELECT
 [PatientEncounterID]
@@ -47,9 +47,7 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-,[InTestWindowFLG]
-FROM [SAM].[dbo].[DiabetesClinical]
-WHERE InTestWindowFLG = 'N'
+FROM [SAM].[dbo].[HCRDiabetesClinical]
 "
 
 df <- selectData(connection.string, query)
@@ -118,6 +116,7 @@ database=SAM;
 trusted_connection=true
 "
 
+# This query should pull only rows for training. They must have a label.
 query <- "
 SELECT
 [PatientEncounterID]
@@ -127,7 +126,6 @@ SELECT
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
-WHERE InTestWindowFLG = 'N'
 "
 df <- selectData(connection.string, query)
 head(df)
@@ -169,7 +167,8 @@ cat(proc.time() - ptm,"\n")
 
 ## `LinearMixedModelDevelopment` Details
 
-This mixed model is designed for longitudinal datasets (ie, those that typically have more than one row per-person). The method is based on the lme4 package. It's not as computationally efficient as the random forest algorithm, so it's best to compare against the other algorithms on smaller datasets, and then scale up from there.
+This mixed model is designed for longitudinal datasets (ie, those that typically have more than one row per-person). The method is based on the lme4 package. It's not as computationally efficient as the random forest algorithm, so it's best to compare against the other algorithms on smaller datasets, and then scale up from there.  In 
+particular, this method works best on data sets having fewer than 10,000 rows.
 
 ## Full example code for mixed-model longitudinal work
 
@@ -184,6 +183,7 @@ database=SAM;
 trusted_connection=true
 "
 
+# This query should pull only rows for training. They must have a label.
 query <- "
 SELECT
  [PatientEncounterID]
@@ -193,15 +193,11 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
---no WHERE clause, because we want train AND test
 "
 
 df <- selectData(connection.string, query)
 head(df)
-
-df$InTestWindowFLG <- NULL
 
 set.seed(42)
 

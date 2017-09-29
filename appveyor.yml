@@ -1,4 +1,5 @@
 # DO NOT CHANGE the "init" and "install" sections below
+#######################################################
 
 # Download script file from GitHub
 init:
@@ -33,8 +34,16 @@ environment:
 
   matrix:
     - R_VERSION: release
+      R_ARCH: x64
     
-    - R_VERSION: devel
+    # - R_VERSION: devel
+    #   R_ARCH: x64
+
+    - R_VERSION: release
+      R_ARCH: i386
+    
+    # - R_VERSION: devel
+    #   R_ARCH: i386
 
 #---------------------------------#
 #  notifications configuration    #

@@ -6,35 +6,97 @@
 \title{Compare predictive models, created on your data}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-LinearMixedModelDevelopment(object, type, df, 
-grainCol, personCol, predictedCol, impute, debug)
+LinearMixedModelDevelopment(type, df, 
+grainCol, personCol, predictedCol, impute, debug, cores, modelName)
 }
 \arguments{
-\item{object}{of SuperviseModelParameters class for $new() constructor}
-
 \item{type}{The type of model (either 'regression' or 'classification')}
 
 \item{df}{Dataframe whose columns are used for calc.}
 
-\item{grainCol}{The data frame's ID column pertaining to the grain}
+\item{grainCol}{Optional. The data frame's ID column pertaining to the grain}
 
 \item{personCol}{The data frame's ID column pertaining to the person/patient}
 
 \item{predictedCol}{Column that you want to predict. If you're doing
 classification then this should be Y/N.}
 
-\item{impute}{Set all-column imputation to F or T.
-This uses mean replacement for numeric columns
+\item{impute}{Set all-column imputation to T or F.
+If T, this uses mean replacement for numeric columns
 and most frequent for factorized columns.
-F leads to removal of rows containing NULLs.}
+F leads to removal of rows containing NULLs.
+Values are saved for deployment.}
 
 \item{debug}{Provides the user extended output to the console, in order
 to monitor the calculations throughout. Use T or F.}
+
+\item{cores}{Number of cores you'd like to use. Defaults to 2.}
+
+\item{modelName}{Optional string. Can specify the model name. If used, you must load the same one in the deploy step.}
 }
 \description{
-This step allows one to create test models on your data
-and helps determine which performs best.
+This step allows you to create a linear mixed model on your data. LMM is 
+best suited to longitudinal data that has multiple entries for a each patient or
+physician. It will fit a slightly different linear model to each patient.
+This algorithm works best with linearly separable data sets. As data sets
+become longer than 100k rows or wider than 50 features, performance will suffer.
 }
+\section{Methods}{
+ 
+The above describes params for initializing a new linearMixedModelDevelopment class with 
+\code{$new()}. Individual methods are documented below.
+}
+
+\section{\code{$new()}}{
+
+Initializes a new linear mixed model development class using the 
+parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
+model training. \cr
+\emph{Usage:} \code{$new(p)}
+}
+
+\section{\code{$run()}}{
+
+Trains model, displays feature importance and performance. \cr
+\emph{Usage:}\code{$new()}
+}
+
+\section{\code{$getPredictions()}}{
+
+Returns the predictions from test data. \cr
+\emph{Usage:} \code{$getPredictions()} \cr
+}
+
+\section{\code{$getROC()}}{
+
+Returns the ROC curve object for \code{\link{plotROCs}}. Classification models only. \cr
+\emph{Usage:} \code{$getROC()} \cr
+}
+
+\section{\code{$getPRCurve()}}{
+
+Returns the PR curve object for \code{\link{plotPRCurve}}. Classification models only. \cr
+\emph{Usage:} \code{$getROC()} \cr
+}
+
+\section{\code{$getAUROC()}}{
+
+Returns the area under the ROC curve from testing for classification models. \cr
+\emph{Usage:} \code{$getAUROC()} \cr
+}
+
+\section{\code{$getRMSE()}}{
+
+Returns the RMSE from test data for regression models. \cr
+\emph{Usage:} \code{$getRMSE()} \cr
+}
+
+\section{\code{$getMAE()}}{
+
+Returns the RMSE from test data for regression models. \cr
+\emph{Usage:} \code{$getMAE()} \cr
+}
+
 \examples{
 
 ### Built-in example; Doing classification
@@ -102,8 +164,6 @@ df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 
 head(df)
 
-df$InTestWindowFLG <- NULL
-
 set.seed(42)
 
 p <- SupervisedModelDevelopmentParams$new()
@@ -126,7 +186,7 @@ set.seed(42)
 # Lasso$run()
 cat(proc.time() - ptm, '\\n')
 
-\donttest{
+\dontrun{
 #### This example is specific to Windows and is not tested. 
 #### Example using SQL Server data ####
 # This example requires that you alter your connection string / query
@@ -142,6 +202,7 @@ database=SAM;
 trusted_connection=true
 "
 
+# This query should pull only rows for training. They must have a label.
 query <- "
 SELECT
  [PatientEncounterID]
@@ -151,15 +212,12 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-,[InTestWindowFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
 --no WHERE clause, because we want train AND test
 "
 
 df <- selectData(connection.string, query)
 head(df)
-
-df$InTestWindowFLG <- NULL
 
 set.seed(42)
 
@@ -204,9 +262,11 @@ cat(proc.time() - ptm, '\\n')
 
 }
 \references{
-\url{http://healthcare.ai/}
+\url{http://healthcareai-r.readthedocs.io}
 }
 \seealso{
+\code{\link{selectData}}
+
 \code{\link{healthcareai}}
 }
 \keyword{datasets}

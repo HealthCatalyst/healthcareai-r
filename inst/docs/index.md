@@ -20,54 +20,40 @@ Find our code at our [Github Repo ![Our Github repo](img/GitHub-Mark-120px-plus.
 
 ## For those starting out
 
-- If you haven't, install [R](https://cran.cnr.berkeley.edu) and [RStudio](https://www.rstudio.com/products/rstudio/download)
+- If you haven't, install [R](https://cran.cnr.berkeley.edu) version >= 3.2.3 and [RStudio](https://www.rstudio.com/products/rstudio/download)
 
 Note: if you're setting up R on an ETL server, don't download RStudio--simply open up RGui
 
 ## Install the latest release on Windows
 
 Open RStudio and work in the console
-
 ```
 install.packages('healthcareai')
 ```
 
 ## How to install the latest version on macOS
 
-Note: If using macOS with healthcare.ai, you'll have to use csv files. We're working on adding MySQL connections. We'd [love to hear](http://healthcare.ai/contact) which other databases your connecting to, so we can provide native support!
-
-* Open the Mac Terminal
-* Install [Xcode](https://en.wikipedia.org/wiki/Xcode) compilers via `xcode-select –install`
-* Accept the Xcode license via `sudo xcodebuild -license`
-* Install [Homebrew](https://brew.sh/) (the macOS package manager) with
-* Install ODBC driver via `brew update && brew install unixODBC`
-* Open R Studio
-* In the console, install RODBC from source with `install.packages('RODBC',type = "source")`
-* In the console, install other R healthcare.ai prerequisites via
-```
-install.packages(c('caret','data.table','doParallel','e1071','grpreg','lme4','lubridate','pROC','R6','ranger','ROCR'),repos = "https://cran.cnr.berkeley.edu/")
-```
-* Install healthcare.ai
+Open RStudio and work in the console
 ```
 install.packages('healthcareai')
 ```
 
 ## How to install latest version on Ubuntu (Linux)
 
+* An Ubuntu 14.04 Droplet with at least 1 GB of RAM is required for the installation.
 * Follow steps 1 and 2 [here](https://www.digitalocean.com/community/tutorials/how-to-set-up-r-on-ubuntu-14-04) to install R
 * Run `sudo apt-get install libiodbc2-dev`
-* Run `sudo apt-get install r-cran-rodbc`
+* Run `sudo apt-get install unixodbc unixodbc-dev`
 * After typing `R` run `install.packages('healthcareai')`
 
 ## Install the bleeding edge version (for folks providing contributions)
 
-* Grab prerequisites via the console of RGui or (preferably) RStudio  
+Open RStudio and work in the console 
 ```
-install.packages(c('caret','data.table','devtools','doParallel','e1071','grpreg','lme4','lubridate','pROC','R6','ranger','ROCR','RODBC'),repos = "https://cran.cnr.berkeley.edu/")
-
 library(devtools)
 devtools::install_github(repo='HealthCatalyst/healthcareai-r')
 ```
+
 ## Tips on getting started
 
 #### Built-in examples
@@ -87,11 +73,18 @@ If you like Jupyter notebooks, check out [step 1](https://github.com/HealthCatal
 Read the blog and join the slack channel at [healthcare.ai](https://healthcare.ai)
 
 ## What's new?
-
-Since the CRAN 0.1.11 release, the following has been added to the bleeding edge version
-
-- Output nightly predictions to a dataframe for use with MySQL, Oracle, etc. See the csv example at ?RandomForestDeployment
-- Evaluate in-the-wild performance via AU_ROC and AU_PR scores and plots. See more at ?generateAUC
+The CRAN 1.0.0 release features:
+- Added: 
+  - Kmeans clustering
+  - XGBoost multiclass support
+  - findingVariation family of functions
+- Changed: 
+  - Develop step trains and saves models
+  - Deploy no longer trains. Loads and predicts on all rows.
+  - SQL uses a DBI back end
+- Removed:
+  - `testWindowCol` is no longer a param.
+  - SQL reading/writing is outside model deployment.
 
 ## For issues
 

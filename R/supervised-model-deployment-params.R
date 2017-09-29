@@ -8,7 +8,7 @@ library(R6)
 #' and helps determine which performs best.
 #' @docType class
 #' @importFrom R6 R6Class
-#' @references \url{http://healthcare.ai}
+#' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #'
 #' @export
@@ -24,15 +24,14 @@ SupervisedModelDeploymentParams <- R6Class("SupervisedModelDeploymentParams",
     grainCol = "",
     predictedCol = "",
     personCol = "",
-    testWindowCol = "",
     impute = TRUE,
     debug = FALSE,
-    cores = 4,
-    writeToDB = TRUE,
-    sqlConn = "",
-    destSchemaTable = "",
+    cores = 2,
     rfmtry = 0,
     trees = 201,
+    xgb_numberOfClasses = NA,
+    xgb_targetNames = NA,
+    modelName = NULL,
 
     #Constructor
     initialize = function() {

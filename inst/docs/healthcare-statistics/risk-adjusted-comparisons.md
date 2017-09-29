@@ -22,25 +22,25 @@ First, get some data organized (via SQL or Excel) that has the following:
 ## Step 1: Pull in the data via `selectData`
 
 ```r
-ptm <- proc.time()
 library(healthcareai)
 
 connection.string = "
 driver={SQL Server};
 server=localhost;
-database=AdventureWorks2012;
+database=SAM;
 trusted_connection=true
 "
 
 query = "
 SELECT
-[OrganizationLevel]
-,[MaritalStatus]
-,[Gender]
-,IIF([SalariedFlag]=0,'N','Y') AS SalariedFlag
-,[VacationHours]
-,[SickLeaveHours]
-FROM [AdventureWorks2012].[HumanResources].[Employee]
+ [PatientEncounterID]
+,[PatientID]
+,[SystolicBPNBR]
+,[LDLNBR]
+,[A1CNBR]
+,[GenderFLG]
+,[ThirtyDayReadmitFLG]
+FROM [SAM].[dbo].[HCRDiabetesClinical]
 "
 
 df <- selectData(connection.string, query)
@@ -98,8 +98,7 @@ SELECT
 ,[A1CNBR]
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
-,[InTestWindowFLG]
-FROM [SAM].[dbo].[DiabetesClinical]
+FROM [SAM].[dbo].[HCRDiabetesClinical]
 "
 
 df <- selectData(connection.string, query)

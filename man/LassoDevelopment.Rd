@@ -6,12 +6,10 @@
 \title{Compare predictive models, created on your data}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
-LassoDevelopment(object, type, df, grainCol, predictedCol, impute,
-debug)
+LassoDevelopment(type, df, grainCol, predictedCol, impute,
+debug, cores, modelName)
 }
 \arguments{
-\item{object}{of SuperviseModelParameters class for $new() constructor}
-
 \item{type}{The type of model (either 'regression' or 'classification')}
 
 \item{df}{Dataframe whose columns are used for calc.}
@@ -22,18 +20,80 @@ the grain. No ID columns are truly needed for this step.}
 \item{predictedCol}{Column that you want to predict. If you're doing
 classification then this should be Y/N.}
 
-\item{impute}{Set all-column imputation to F or T.
-This uses mean replacement for numeric columns
+\item{impute}{Set all-column imputation to T or F.
+If T, this uses mean replacement for numeric columns
 and most frequent for factorized columns.
-F leads to removal of rows containing NULLs.}
+F leads to removal of rows containing NULLs.
+Values are saved for deployment.}
 
 \item{debug}{Provides the user extended output to the console, in order
 to monitor the calculations throughout. Use T or F.}
+
+\item{cores}{Number of cores you'd like to use. Defaults to 2.}
+
+\item{modelName}{Optional string. Can specify the model name. If used, you must load the same one in the deploy step.}
 }
 \description{
 This step allows you to create a Lasso model, based on
-your data.
+your data. Lasso is a linear model, best suited for linearly separable data. It's fast
+to train and often a good starting point.
 }
+\section{Methods}{
+ 
+The above describes params for initializing a new lassoDevelopment class with 
+\code{$new()}. Individual methods are documented below.
+}
+
+\section{\code{$new()}}{
+
+Initializes a new lasso development class using the 
+parameters saved in \code{p}, documented above. This method loads, cleans, and prepares data for
+model training. \cr
+\emph{Usage:} \code{$new(p)}
+}
+
+\section{\code{$run()}}{
+
+Trains model, displays feature importance and performance. \cr
+\emph{Usage:}\code{$new()}
+}
+
+\section{\code{$getPredictions()}}{
+
+Returns the predictions from test data. \cr
+\emph{Usage:} \code{$getPredictions()} \cr
+}
+
+\section{\code{$getROC()}}{
+
+Returns the ROC curve object for \code{\link{plotROCs}}. Classification models only. \cr
+\emph{Usage:} \code{$getROC()} \cr
+}
+
+\section{\code{$getPRCurve()}}{
+
+Returns the PR curve object for \code{\link{plotPRCurve}}. Classification models only. \cr
+\emph{Usage:} \code{$getROC()} \cr
+}
+
+\section{\code{$getAUROC()}}{
+
+Returns the area under the ROC curve from testing for classification models. \cr
+\emph{Usage:} \code{$getAUROC()} \cr
+}
+
+\section{\code{$getRMSE()}}{
+
+Returns the RMSE from test data for regression models. \cr
+\emph{Usage:} \code{$getRMSE()} \cr
+}
+
+\section{\code{$getMAE()}}{
+
+Returns the RMSE from test data for regression models. \cr
+\emph{Usage:} \code{$getMAE()} \cr
+}
+
 \examples{
 
 #### Example using iris dataset ####
@@ -78,7 +138,6 @@ df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
 head(df)
 
 df$PatientID <- NULL
-df$InTestWindowFLG <- NULL
 
 set.seed(42)
 p <- SupervisedModelDevelopmentParams$new()
@@ -114,7 +173,7 @@ server=localhost;
 database=SAM;
 trusted_connection=true
 "
-
+# This query should pull only rows for training. They must have a label.
 query <- "
 SELECT
 [PatientEncounterID]
@@ -124,7 +183,6 @@ SELECT
 ,[GenderFLG]
 ,[ThirtyDayReadmitFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
-WHERE InTestWindowFLG = 'N'
 "
 df <- selectData(connection.string, query)
 head(df)
@@ -166,12 +224,14 @@ cat(proc.time() - ptm,"\\n")
 
 }
 \references{
-\url{http://healthcare.ai}
+\url{http://healthcareai-r.readthedocs.io}
 }
 \seealso{
 \code{\link{RandomForestDevelopment}}
 
 \code{\link{LinearMixedModelDevelopment}}
+
+\code{\link{selectData}}
 
 \code{\link{healthcareai}}
 }
