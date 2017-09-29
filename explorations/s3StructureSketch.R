@@ -15,7 +15,7 @@ develop.formula <- function(formula, data, ...) {
              You passed it a ", class(formula))
   
   # Parse the formula to get the data and then use standard generic:
-  develop(data, predictColumn, ... )
+  develop.default(data, predictColumn, ... )
 }
 
 # develop should probably be chunked into smaller functions.
@@ -24,6 +24,7 @@ develop.default <- function(data
                     , type = NULL
                     # Default to using all algorithms defined for the type:
                     , algorithms = NULL
+                    , baseCategory = NULL
                     # It's a little weird to put this much info in the default, but
                     # it would make it easy for users to copy this list and modify 
                     # it; otherwise nested lists can be tricky.
@@ -87,6 +88,7 @@ develop.default <- function(data
   # NB: In general you don't want to grow lists like this in R, but for such a
   # short list it's fine.
   if ("randomForest" %in% algorithms) {
+    # data prep steps
     RFs <- train.rf(x = select(data, -predictColumn), 
                     y = data[[predictColumn]],
                     hyperParams = tuningParams$randomForest)
