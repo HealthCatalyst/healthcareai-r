@@ -56,26 +56,27 @@ test_that("Number of classes are calculated correctly", {
 })
 
 test_that("Accuracy is the same every time", {
-  expect_true(xRun[18] == "               Accuracy : 0.9577          ")
+  expect_equal(boost$run()$overall[["Accuracy"]], .9, tolerance = .1)
 })
 
 test_that("Predictions are the same every time", {
-  expect_true(round(xPred[1,6],5) == 0.86515)
+  expect_identical(unname(which.max(xPred[1, 2:7])), 3L)
 })
 
 test_that("Grain column is inserted correctly", {
-  expect_true(xPred[2,1] == 13)
+  expect_true(all(xPred$PatientID %in% df$PatientID))
 })
 
 test_that("Columns are mapped correctly", {
-  expect_true(xPred[2,9] == "two")
+  expect_true(all(xPred$predicted_label %in% unique(df$target)))
+  expect_true(all(xPred$true_label %in% unique(df$target)))
 })
 
 test_that("Max probability is found correctly", {
   expect_true(xPred[2,8] == "two")
 })
 
-test_that("Confusion matrix accuracy is the same every time", {
-  expect_true(xConf[15] == "               Accuracy : 0.9577          ")
+test_that("Confusion matrix accuracy is reasonably large", {
+  expect_true(boost$generateConfusionMatrix()$overall[["Accuracy"]] > 0.8)
 })
 
