@@ -208,7 +208,6 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
         cat('XGBoost currently only supports "multiclass" type.', '\n')
       }
 
-      set.seed(43)
       super$initialize(p)
 
       # TODO set up tuning to actually work.
