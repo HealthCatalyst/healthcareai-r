@@ -1193,7 +1193,7 @@ test_that("Y and N aren't swapped label is a factor", {
   
   # Build first model
   p <- SupervisedModelDevelopmentParams$new()
-  p$df <- dDevelop1
+  p$df <- d
   p$type <- "classification"
   p$predictedCol <- 'positive'
   p$grainCol <- "id"
