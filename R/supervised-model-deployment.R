@@ -486,9 +486,12 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       # healthcare.ai version
       metadata$healthcareai_version <- sesInfo$otherPkgs$healthcareai$Version
       
-      # Other packages
+      # Other packages with versions
       packages <- c(sesInfo$basePkgs, names(sesInfo$otherPkgs))
-      metadata$other_packages_loaded <- packages[packages != "healthcareai"]
+      packages <- sapply(packages[packages != "healthcareai"], 
+                         function(pkg) paste(pkg, as.character(packageVersion(pkg))),
+                         USE.NAMES = FALSE)
+      metadata$other_packages_loaded <- packages
       
       # Features
       metadata$feature_columns <- 
