@@ -106,15 +106,17 @@ test_that("Grain is correctly attached", {
 })
 
 test_that("Probabilities are correctly sorted", {
-  expect_true(round(outDf$PredictedProb1[1],5) == 0.91198)
-  expect_true(round(outDf$PredictedProb2[4],5) == 0.01804)
-  expect_true(round(outDf$PredictedProb3[7],5) == 0.00312)
+  # Check that probabilities are in decreasing order in each row
+  all(sapply(seq_len(nrow(outDf)), function(i)
+    all.equal(3:1, order(c(outDf[i, "PredictedProb1"], 
+                           outDf[i, "PredictedProb2"], 
+                           outDf[i, "PredictedProb3"])))
+    ))
 })
 
 test_that("Top categories are correctly parsed", {
-  expect_true(outDf$PredictedClass1[2] == 'six')
-  expect_true(outDf$PredictedClass1[5] == 'one')
-  expect_true(outDf$PredictedClass1[9] == 'five')
+  expect_true(all.equal(outDf$PredictedClass1, 
+                        boostD$getPredictions()$predicted_label))
 })
 
 ###########################
@@ -208,9 +210,9 @@ test_that("Single row predictions work for xgboost", {
   xDf <- capture.output(outDf <- boostD$getOutDf())
   
   # Check the id, top prediction probability, and top prediction class
-  expect_equal(outDf$id[1], 1776)
-  expect_equal(round(outDf$PredictedProb1[1],5), 0.90045)
-  expect_equal(outDf$PredictedClass1[1], "banana")
+  expect_equal(outDf$id, 1776)
+  expect_equal(outDf$PredictedProb1[1], 0.9, tolerance = .1)
+  expect_equal(outDf$PredictedClass1, "banana")
 })
 
 test_that("XGBoost predictions are independent of each other", {
