@@ -505,9 +505,16 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       ## Convert metadata list into formatted character vector to write to file
       to_write <- sapply(names(metadata), function(x) 
         paste0(x, ":\n\t", paste(metadata[[x]], collapse = ", ")))
-
+      
+      ## Add PHI warning to top of what will be written to log file
+      to_write <- c("WARNING: This file may contain Protected Health Information. Treat it with care.\n", to_write)
+      
       ## Write to file
       write(to_write, file = file_name, append = FALSE)
+      
+      ## Print to screen that file was written and may contain PHI
+      message("Model metadata written to ", file_name,  
+              "\nWARNING: **This file may contain PHI.**")
       
       ## Append console output to other metadata
       write("console_output_during_prediction:\n\t", file_name, append = TRUE)
