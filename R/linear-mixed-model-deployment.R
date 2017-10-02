@@ -543,6 +543,9 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     #Override: deploy the model
     deploy = function() {
 
+      # Start sink to capture console ouptut
+      sink("tmp_prediction_console_output.txt", append = FALSE, split = TRUE)
+
       # Try to load the model
       private$fitLmm <- private$fitObj
       private$fitObj <- NULL
@@ -569,6 +572,10 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
       # create dataframe for output
       super$createDf()
+      
+      sink()  # Close connection
+      # Get metadata, attach to output DF and write to text file
+      super$getMetadata()
     },
     
     # Surface outDf as attribute for export to Oracle, MySQL, etc
