@@ -255,7 +255,7 @@ test_that("smallerBetter parameter works", {
   expect_equal(pvdf$Modify1Delta[1], 0)
 })
 
-test_that("repeatedFactors and numTopFactor parameters work", {
+test_that("repeatedFactors and numTopFactors parameters work", {
   numberOfFactors <- 5
   pvdf <- rfD$getProcessVariablesDf(modifiableVariables = c("x", "y", "z"),
                                     repeatedFactors = TRUE, 
