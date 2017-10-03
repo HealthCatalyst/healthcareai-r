@@ -388,6 +388,9 @@
     #Override: deploy the model
     deploy = function() {
       cat('Loading XGB Model...','\n')
+      
+      # Start sink to capture console ouptut
+      sink("tmp_prediction_console_output.txt", append = FALSE, split = TRUE)
 
       # Try to load the model
       private$fitXGB <- private$fitObj
@@ -409,6 +412,11 @@
 
       # create dataframe for output
       private$createDf()
+      
+      sink()  # Close connection
+      # Get metadata, attach to output DF and write to text file
+      super$getMetadata()
+      
     },
     
     # Surface outDf as attribute for export to Oracle, MySQL, etc
