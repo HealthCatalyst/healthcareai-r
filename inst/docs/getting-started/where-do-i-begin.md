@@ -1,6 +1,7 @@
 # Where do I begin with healthcareai?
 
-That, of course, depends on what you want to accomplish:
+That, of course, depends on what you want to accomplish. healthcareai can help you do a lot of things with your data.
+![What can I do with healthcareai?](img/infographic_final.pdf)
 
 ## If you want create a model on your data via machine learning
 * Look at the [pre-processing tools](/model-pre-processing/feature-eng-overview) that might help your model. 
