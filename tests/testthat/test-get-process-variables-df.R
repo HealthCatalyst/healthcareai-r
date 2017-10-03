@@ -36,7 +36,7 @@ p2$cores <- 1
 capture.output(rfD <- RandomForestDeployment$new(p2))
 capture.output(rfD$deploy())
 
-# Begin Tests ------------------------------------------------------------------
+# Begin Tests: test that the correct variables are dropped ---------------------
 
 test_that("variables not present in the data are dropped", {
   # Add modifiable variables not present in the data
@@ -117,7 +117,7 @@ p2$cores <- 1
 capture.output(lassoD <- LassoDeployment$new(p2))
 capture.output(lassoD$deploy())
 
-# Resume Tests -----------------------------------------------------------------
+# Resume Tests: test that the correct variables are dropped with lasso ---------
 
 test_that("variables with non-zero lasso coefficient are recorded", {
   # Check that the useless variable is dropped
@@ -207,19 +207,90 @@ p2$cores <- 1
 capture.output(rfD <- RandomForestDeployment$new(p2))
 capture.output(rfD$deploy())
 
-# Resume Tests -----------------------------------------------------------------
+# Resume Tests: test that the function parameters behave as desired ------------
 
 test_that("output dataframe values are as expected", {
   pvdf <- rfD$getProcessVariablesDf(modifiableVariables = c("x", "y", "z"))
+  
+  # Check specific values in first row
+  expect_equal(pvdf$Modify1TXT[1], "y")
+  expect_equal(pvdf$Modify1Current[1], "A")
+  expect_equal(pvdf$Modify1AltValue[1], "C")
+  expect_true(pvdf$Modify1Delta[1] < -0.18 & pvdf$Modify1Delta[1] > -0.28)
+  
+  # Check specific values in second row
+  expect_equal(pvdf$Modify2TXT[2], "y")
+  expect_equal(pvdf$Modify2Current[2], "C")
+  expect_equal(pvdf$Modify2AltValue[2], "C")
+  expect_equal(pvdf$Modify1Delta[2], 0)
+  
+  # Check that the factors are ordered correctly
+  expect_true(all(pvdf$Modify1Delta <= pvdf$Modify2Delta))
+  expect_true(all(pvdf$Modify2Delta <= pvdf$Modify3Delta))
+  
+  # Check computation of deltas
+  expect_equal(pvdf$Modify1Delta, 
+               pvdf$Modify1AltPrediction - pvdf$PredictedProbNBR)
 })
 
 test_that("smallerBetter parameter works", {
   pvdf <- rfD$getProcessVariablesDf(modifiableVariables = c("x", "y", "z"), 
                                     smallerBetter = FALSE)  
+  
+  # Check that deltas are non-negative
+  expect_true(all(pvdf$Modify1Delta >= 0))
+  
+  # Check that the factors are ordered correctly
+  expect_true(all(pvdf$Modify1Delta >= pvdf$Modify2Delta))
+  expect_true(all(pvdf$Modify2Delta >= pvdf$Modify3Delta))
+  
+  # Check computation of deltas
+  expect_equal(pvdf$Modify1Delta, 
+               pvdf$Modify1AltPrediction - pvdf$PredictedProbNBR)
+  
+  # Check specific values in first row
+  expect_equal(pvdf$Modify1TXT[1], "x")
+  expect_equal(pvdf$Modify1Current[1], "true")
+  expect_equal(pvdf$Modify1AltValue[1], "true")
+  expect_equal(pvdf$Modify1Delta[1], 0)
 })
 
-test_that("repeatedFactors parameter works", {
+test_that("repeatedFactors and numTopFactor parameters work", {
+  numberOfFactors <- 5
   pvdf <- rfD$getProcessVariablesDf(modifiableVariables = c("x", "y", "z"),
                                     repeatedFactors = TRUE, 
-                                    numTopFactors = 5)  
+                                    numTopFactors = numberOfFactors)
+  
+  # Check the number of columns is correct: 2 + 5 * numTopFactors
+  expect_equal(ncol(pvdf), 2 + 5*numberOfFactors)
+  
+  # Check that repeated factor occurs
+  expect_equal(pvdf$Modify3TXT[1], "z")
+  expect_equal(pvdf$Modify4TXT[1], "z")
+  expect_equal(pvdf$Modify5TXT[1], "z")
+  expect_equal(pvdf$Modify5AltValue[1], "?")
+})
+
+test_that("grain column matching works", {
+  pvdf <- rfD$getProcessVariablesDf(modifiableVariables = c("x", "y", "z"), 
+                                    grainColumnIDs = 502:503)
+  
+  # Check number of rows
+  expect_equal(nrow(pvdf), 2)
+  
+  # Check grain column
+  expect_equal(pvdf$id, 502:503)
+  
+  # Check specific values in first row (second row in deploy data)
+  expect_equal(pvdf$Modify2TXT[1], "y")
+  expect_equal(pvdf$Modify2Current[1], "C")
+  expect_equal(pvdf$Modify2AltValue[1], "C")
+  expect_equal(pvdf$Modify1Delta[1], 0)
+  
+  # Check that ids are sorted, regardless of input order
+  pvdf <- rfD$getProcessVariablesDf(modifiableVariables = c("x", "y", "z"), 
+                                    grainColumnIDs = c(503, 501))
+  
+  # Check grain column
+  expect_equal(pvdf$id, c(501, 503))
 })
