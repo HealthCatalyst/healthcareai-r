@@ -159,3 +159,67 @@ test_that("error is triggered when no valid variables are used", {
   # Check that all 3 warnings were triggered
   expect_equal(length(warnings), 3)
 })
+
+# Setup: Build deterministic dataframe on which to test parameters -------------
+
+# Build a dataframe for classification
+d <- data.frame(id = 1:210,
+                x = rep(c("true", "false"), times = 105),
+                y = rep(c("A", "B", "C"), times = 70),
+                z = rep(c("N", "E", "S", "W", "?"), times = 42),
+                w = rep(seq(-1, 1, length.out = 35), times = 6))
+
+# Add a response variable
+temp <- ((d$x == "true") - (d$x == "false")) + 
+  ((d$y == "A") + 0.5 * (d$y == "B") - 1.5 * (d$y == "C")) +
+  ((d$z == "N") - (d$z == "E") + (d$z == "S") - (d$z == "W") + 0*(d$z == "?")) + 
+  1.5 * d$w + 
+  c(seq(-1, 1, length.out = 83), seq(1, -1, length.out = 127)) # add noise
+  
+d$target <- ifelse(temp > 0, "Y", "N")
+
+# Develop a random forest model
+p <- SupervisedModelDevelopmentParams$new()
+p$df <- d
+p$type <- "classification"
+p$predictedCol <- "target"
+p$grainCol <- "id"
+p$cores <- 1
+capture.output(rf <- RandomForestDevelopment$new(p))
+# supress warning that is unrelated to the unit test
+ignoreSpecWarn(capture.output(rf$run()), 
+               wRegexps = "glm.fit: fitted probabilities numerically 0 or 1")
+
+dDeploy <- data.frame(id = 501:503,
+                      x = c("true", "false", "false"),
+                      y = c("A", "C", "B"),
+                      z = c("N", "E", "?"),
+                      w = c(1, -1, 0))
+
+# Set up development parameters 
+p2 <- SupervisedModelDeploymentParams$new()
+p2$df <- dDeploy
+p2$type <- "classification"
+p2$predictedCol <- "target"
+p2$grainCol <- "id"
+p2$cores <- 1
+
+capture.output(rfD <- RandomForestDeployment$new(p2))
+capture.output(rfD$deploy())
+
+# Resume Tests -----------------------------------------------------------------
+
+test_that("output dataframe values are as expected", {
+  pvdf <- rfD$getProcessVariablesDf(modifiableVariables = c("x", "y", "z"))
+})
+
+test_that("smallerBetter parameter works", {
+  pvdf <- rfD$getProcessVariablesDf(modifiableVariables = c("x", "y", "z"), 
+                                    smallerBetter = FALSE)  
+})
+
+test_that("repeatedFactors parameter works", {
+  pvdf <- rfD$getProcessVariablesDf(modifiableVariables = c("x", "y", "z"),
+                                    repeatedFactors = TRUE, 
+                                    numTopFactors = 5)  
+})
