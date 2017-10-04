@@ -23,7 +23,8 @@ p$predictedCol <- "target"
 p$grainCol <- "id"
 p$cores <- 1
 capture.output(rf <- RandomForestDevelopment$new(p))
-capture.output(rf$run())
+ignoreSpecWarn(capture.output(rf$run()),
+               wRegexps = "ROC curve with AUC == 1")
 
 # Set up development parameters 
 p2 <- SupervisedModelDeploymentParams$new()
@@ -33,12 +34,12 @@ p2$predictedCol <- "target"
 p2$grainCol <- "id"
 p2$cores <- 1
 
-capture.output(rfD <- RandomForestDeployment$new(p2))
-capture.output(rfD$deploy())
-
 # Begin Tests: test that the correct variables are dropped ---------------------
 
 test_that("variables not present in the data are dropped", {
+  # Deploy in test to avoid warning
+  capture.output(rfD <- RandomForestDeployment$new(p2))
+  capture.output(rfD$deploy())
   # Add modifiable variables not present in the data
   extra_vars <- c("y", "z", "non-existant", "ghost")
   
@@ -61,6 +62,9 @@ test_that("variables not present in the data are dropped", {
 })
   
 test_that("non-categorical variables are dropped", {
+  # Deploy in test to avoid warning
+  capture.output(rfD <- RandomForestDeployment$new(p2))
+  capture.output(rfD$deploy())
   # Add a modifiable variable which is not categorical
   with_nums <- c("x", "y", "z")
   
@@ -102,8 +106,9 @@ p$grainCol <- "id"
 p$cores <- 1
 capture.output(lasso <- LassoDevelopment$new(p))
 # supress warning that is unrelated to the unit test
-ignoreSpecWarn(capture.output(lasso$run()), 
-               wRegexps = "glm.fit: fitted probabilities numerically 0 or 1")
+ignoreSpecWarn(capture.output(lasso$run()),
+               wRegexps = c("glm.fit: fitted probabilities numerically 0 or 1",
+                            "ROC curve with AUC == 1"))
 
 
 # Set up development parameters with one useless modifiable variable
@@ -114,9 +119,6 @@ p2$predictedCol <- "target"
 p2$grainCol <- "id"
 p2$cores <- 1
 
-capture.output(lassoD <- LassoDeployment$new(p2))
-capture.output(lassoD$deploy())
-
 # Resume Tests: test that the correct variables are dropped with lasso ---------
 
 test_that("variables with non-zero lasso coefficient are recorded", {
@@ -125,6 +127,9 @@ test_that("variables with non-zero lasso coefficient are recorded", {
 })
 
 test_that("variables with zero coefficient in lasso are dropped", {
+  # Deploy in test to avoid warning
+  capture.output(lassoD <- LassoDeployment$new(p2))
+  capture.output(lassoD$deploy())
   # Include variable with 0 coefficient in lasso model
   with_useless <- c("y", "useless")
   
@@ -145,7 +150,10 @@ test_that("variables with zero coefficient in lasso are dropped", {
   expect_true(setequal(values, c("y")))
 })
 
-test_that("error is triggered when no valid variables are used", {  
+test_that("error is triggered when no valid variables are used", {
+  # Deploy in test to avoid warning
+  capture.output(lassoD <- LassoDeployment$new(p2))
+  capture.output(lassoD$deploy())
   # include new variables, non-categorical variables, and variables with zero
   # coefficient in the lasso model.
   all_bad <- c("non-existant", "ghost", "x", "useless")
@@ -163,18 +171,16 @@ test_that("error is triggered when no valid variables are used", {
 # Setup: Build deterministic dataframe on which to test parameters -------------
 
 # Build a dataframe for classification
-d <- data.frame(id = 1:210,
-                x = rep(c("true", "false"), times = 105),
-                y = rep(c("A", "B", "C"), times = 70),
-                z = rep(c("N", "E", "S", "W", "?"), times = 42),
-                w = rep(seq(-1, 1, length.out = 35), times = 6))
+d <- data.frame(id = 1:600,
+                x = rep(c("true", "false"), times = 300),
+                y = rep(c("A", "B", "C"), times = 200),
+                z = rep(seq(-1, 1, length.out = 50), times = 12))
 
 # Add a response variable
 temp <- ((d$x == "true") - (d$x == "false")) + 
   ((d$y == "A") + 0.5 * (d$y == "B") - 1.5 * (d$y == "C")) +
-  ((d$z == "N") - (d$z == "E") + (d$z == "S") - (d$z == "W") + 0*(d$z == "?")) + 
-  1.5 * d$w + 
-  c(seq(-1, 1, length.out = 83), seq(1, -1, length.out = 127)) # add noise
+  1.5 * d$z + 
+  c(seq(-1, 1, length.out = 233), seq(1, -1, length.out = 367)) # add noise
   
 d$target <- ifelse(temp > 0, "Y", "N")
 
@@ -186,15 +192,13 @@ p$predictedCol <- "target"
 p$grainCol <- "id"
 p$cores <- 1
 capture.output(rf <- RandomForestDevelopment$new(p))
-# supress warning that is unrelated to the unit test
-ignoreSpecWarn(capture.output(rf$run()), 
-               wRegexps = "glm.fit: fitted probabilities numerically 0 or 1")
+ignoreSpecWarn(capture.output(rf$run()),
+               wRegexps = "ROC curve with AUC == 1")
 
 dDeploy <- data.frame(id = 501:503,
                       x = c("true", "false", "false"),
                       y = c("A", "C", "B"),
-                      z = c("N", "E", "?"),
-                      w = c(1, -1, 0))
+                      z = c(1, -1, 0))
 
 # Set up development parameters 
 p2 <- SupervisedModelDeploymentParams$new()
@@ -204,19 +208,19 @@ p2$predictedCol <- "target"
 p2$grainCol <- "id"
 p2$cores <- 1
 
-capture.output(rfD <- RandomForestDeployment$new(p2))
-capture.output(rfD$deploy())
-
 # Resume Tests: test that the function parameters behave as desired ------------
 
 test_that("output dataframe values are as expected", {
-  pvdf <- rfD$getProcessVariablesDf(modifiableVariables = c("x", "y", "z"))
+  # Deploy in test to avoid warning
+  capture.output(rfD <- RandomForestDeployment$new(p2))
+  capture.output(rfD$deploy())
+  
+  pvdf <- rfD$getProcessVariablesDf(modifiableVariables = c("x", "y"))
   
   # Check specific values in first row
   expect_equal(pvdf$Modify1TXT[1], "y")
   expect_equal(pvdf$Modify1Current[1], "A")
   expect_equal(pvdf$Modify1AltValue[1], "C")
-  expect_true(pvdf$Modify1Delta[1] < -0.18 & pvdf$Modify1Delta[1] > -0.28)
   
   # Check specific values in second row
   expect_equal(pvdf$Modify2TXT[2], "y")
@@ -226,7 +230,6 @@ test_that("output dataframe values are as expected", {
   
   # Check that the factors are ordered correctly
   expect_true(all(pvdf$Modify1Delta <= pvdf$Modify2Delta))
-  expect_true(all(pvdf$Modify2Delta <= pvdf$Modify3Delta))
   
   # Check computation of deltas
   expect_equal(pvdf$Modify1Delta, 
@@ -234,7 +237,11 @@ test_that("output dataframe values are as expected", {
 })
 
 test_that("smallerBetter parameter works", {
-  pvdf <- rfD$getProcessVariablesDf(modifiableVariables = c("x", "y", "z"), 
+  # Deploy in test to avoid warning
+  capture.output(rfD <- RandomForestDeployment$new(p2))
+  capture.output(rfD$deploy())
+  
+  pvdf <- rfD$getProcessVariablesDf(modifiableVariables = c("x", "y"), 
                                     smallerBetter = FALSE)  
   
   # Check that deltas are non-negative
@@ -256,23 +263,35 @@ test_that("smallerBetter parameter works", {
 })
 
 test_that("repeatedFactors and numTopFactors parameters work", {
+  # Deploy in test to avoid warning
+  capture.output(rfD <- RandomForestDeployment$new(p2))
+  capture.output(rfD$deploy())
+  
   numberOfFactors <- 5
-  pvdf <- rfD$getProcessVariablesDf(modifiableVariables = c("x", "y", "z"),
+  pvdf <- rfD$getProcessVariablesDf(modifiableVariables = c("x", "y"),
                                     repeatedFactors = TRUE, 
                                     numTopFactors = numberOfFactors)
   
   # Check the number of columns is correct: 2 + 5 * numTopFactors
   expect_equal(ncol(pvdf), 2 + 5*numberOfFactors)
   
+  # Get the variables appearing as modifiable
+  variables <- unlist(pvdf[1, c("Modify1TXT",
+                                "Modify2TXT", 
+                                "Modify3TXT", 
+                                "Modify4TXT", 
+                                "Modify5TXT")])
+  
   # Check that repeated factor occurs
-  expect_equal(pvdf$Modify3TXT[1], "z")
-  expect_equal(pvdf$Modify4TXT[1], "z")
-  expect_equal(pvdf$Modify5TXT[1], "z")
-  expect_equal(pvdf$Modify5AltValue[1], "?")
+  expect_true(any(table(variables) > 1))
 })
 
 test_that("grain column matching works", {
-  pvdf <- rfD$getProcessVariablesDf(modifiableVariables = c("x", "y", "z"), 
+  # Deploy in test to avoid warning
+  capture.output(rfD <- RandomForestDeployment$new(p2))
+  capture.output(rfD$deploy())
+  
+  pvdf <- rfD$getProcessVariablesDf(modifiableVariables = c("x", "y"), 
                                     grainColumnIDs = 502:503)
   
   # Check number of rows
@@ -288,7 +307,7 @@ test_that("grain column matching works", {
   expect_equal(pvdf$Modify1Delta[1], 0)
   
   # Check that ids are sorted, regardless of input order
-  pvdf <- rfD$getProcessVariablesDf(modifiableVariables = c("x", "y", "z"), 
+  pvdf <- rfD$getProcessVariablesDf(modifiableVariables = c("x", "y"), 
                                     grainColumnIDs = c(503, 501))
   
   # Check grain column
