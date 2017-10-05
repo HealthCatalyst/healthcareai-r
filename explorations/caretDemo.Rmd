@@ -1,0 +1,119 @@
+---
+title: "caret & recipes demo"
+author: "Michael Levy <michael.levy@healthcatalyst.com>"
+date: '`r Sys.Date()`'
+output: 
+  github_document: default
+  html_notebook: default
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+```
+
+
+I'm thinking we should use caret. Why I've changed my thinking about this:
+
+1. Taylor Miller used the term battle-tested to describe the methods we use, and that has been bouncing through my head all day. `caret` is battle-tested. It's been around for a long time and has been through several refactors.
+1. It does a lot of what we want to do. We can wrap this stuff instead of reinventing it, and therefore focus on our value proposition (which I see as lowering the burden to entry of ML via healthcare specific functionality and providing the simplest possible API to ML)
+1. The author has made a helper package, [`recipes`](https://topepo.github.io/recipes/index.html) that would allow us to capture pre-processing steps like imputation and normalization and apply them identically in development and deployment.
+1. caret is well liked by the community. I still think the documentation is sub-par, but the fact that smart, experienced people like it makes me think I never get over the caret-specific learning curve. Eduardo Arino de la Rubia, who gave the *R/Python is the best* talk Taylor posted, [said](https://www.youtube.com/watch?v=YmHyAHkjX_A) "This is probably a little extreme, but I believe caret is one of R's genuine competitive advantages..."
+1. It is extensible. So while it doesn't have native support for xgb, [we can still use xgb in the caret framework](https://topepo.github.io/caret/using-your-own-model-in-train.html).
+1. It will keep us on the rails of modern R modeling. Kuhn, the developer of caret, has Hadley working on the `recpies` helper package, which is a good signal.
+1. It has a [ton of models](http://topepo.github.io/caret/available-models.html), any of which would be easy for us to add support for.
+
+# Demo
+
+This obviously doesn't cover everything, but it shows how the packages work. I've comments to document what is `caret`, `recipes`, and `tidyverse` respectively.
+
+Load packages and data and split into train and test sets:
+
+```{r}
+library(tidyverse)
+library(recipes)
+library(caret)
+
+csvfile <- system.file("extdata", "HCRDiabetesClinical.csv", package = "healthcareai")
+df <- read.csv(file = csvfile, header = TRUE, na.strings = c("NULL", "NA", ""))
+# tidyverse:
+df <- replace_na(df, list(ThirtyDayReadmitFLG = "N"))  # Quickly fill in missing
+# outcomes; impute on the predictors later
+
+# caret:
+trainRows <- createDataPartition(df$ThirtyDayReadmitFLG, 1, .9)$Resample1
+# tidyverse:
+trainDF <- slice(df, trainRows)
+testDF <- slice(df, -trainRows)
+```
+
+Define a "recipe" of data prep:
+
+```{r}
+# recipes:
+# This defines the pipeline but doesn't manipulate the data
+myRecipe <- 
+  trainDF %>%
+  recipe(ThirtyDayReadmitFLG ~ SystolicBPNBR + LDLNBR + A1CNBR + GenderFLG) %>%
+  step_knnimpute(all_predictors(), K = 3) %>% # Also has bagged trees imputation, and mean and mode
+  step_center(all_numeric()) %>%
+  step_scale(all_numeric()) %>%
+  step_dummy(all_nominal(), -all_outcomes()) # Here, could just do step_dummy(GenderFLG)
+
+myRecipe
+```
+
+Apply the recipe to the training data to create a model matrix
+
+```{r}
+# This does calculations needed to manipulate the data (e.g. determine impute values)
+myRecipe <- prep(myRecipe)
+# Now we can apply those transformations to any dataset (by default the one defined on,
+# but also the deployment dataset), optionally `prep`ing on the new dataset to 
+# calculate new imputation values, e.g.
+modelMatrix <- bake(myRecipe)
+head(modelMatrix)
+
+```
+
+Define cross-validation details using random hyperparameter search. There is a lot of functionality on offer around hyperparameter tuning and model selection.
+
+```{r}
+# caret:
+# define model-agnostic details for hyperparameter tuning
+cvDetails <- 
+  trainControl(method = "cv",  # Can do repeat cv and bootstrapping just as easily
+               number = 5, 
+               classProbs = TRUE,  # Choose an optimal threshold and make Y/N calls
+               summaryFunction = twoClassSummary,  # Lots of options here
+               search = "random"  # or grid or modest support for fancier methods
+  )
+
+```
+
+Train a model and inspect
+
+```{r}
+rfFit <- train(x = modelMatrix, 
+               y = trainDF$ThirtyDayReadmitFLG,
+               metric = "ROC",
+               trControl = cvDetails,
+               tuneLength = 5  # How many hyperparameter combos to try
+               )
+methods(class = class(rfFit))  # Lots of methods available for us. Eg:
+confusionMatrix(rfFit)
+plot(rfFit)
+varImp(rfFit) %>%
+  plot()
+```
+
+Deployment can be as easy as:
+
+```{r}
+preds <- 
+  bake(myRecipe, newdata = testDF) %>%
+  predict(rfFit, .)
+
+# And inspect:
+confusionMatrix(preds, testDF$ThirtyDayReadmitFLG)
+```
+

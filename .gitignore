@@ -27,3 +27,5 @@ inst/extdata/unit-test.sqlite
 *.DS_Store
 .credentials.R
 *.txt
+.env
+env
