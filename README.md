@@ -14,7 +14,7 @@ The aim of `healthcareai` is to make machine learning easy on healthcare data. T
 
 ## For those starting out
 
-- If you haven't, install [R](https://cran.cnr.berkeley.edu) version >= 3.2.3 and [RStudio](https://www.rstudio.com/products/rstudio/download)
+- If you haven't, install [R](https://CRAN.r-project.org/) version >= 3.2.3 and [RStudio](https://www.rstudio.com/products/rstudio/download)
 
 Note: if you're setting up R on an ETL server, don't download RStudio--simply open up RGui
 
@@ -24,6 +24,8 @@ Open RStudio and work in the console
 ```
 install.packages('healthcareai')
 ```
+
+> If you don't have admin rights on the machine you are working on, and `library(healthcareai)` throws an error about packages not being available, you can likely solve the problem by defining a custom location in which to store R packages. To do this, open the Control Panel and click through User Accounts -> User Accounts -> Change my environment variables, and add a variable called `R_LIBS_USER` with the value being a path to a folder where you want to keep R packages. For example, you might create a new directory: `C:\Users\your.name\Documents\R\my_library` and use that to store your R packages. Then restart R Studio, run `install.packages("healthcareai")` and `library(healthcareai)` again and all should be well.
 
 ## How to install the latest version on macOS
 
@@ -59,9 +61,6 @@ library(healthcareai)
 
 #### Website examples
 See our [docs website](http://healthcareai-r.readthedocs.io)
-
-#### Jupyter notebook examples
-If you like Jupyter notebooks, check out [step 1](https://github.com/HealthCatalystSLC/documentation/blob/master/notebooks/Example1.ipynb) and [step 2](https://github.com/HealthCatalystSLC/documentation/blob/master/notebooks/Example2.ipynb) in model building with healthcareai.
 
 ## Join the community
 Read the blog and join the slack channel at [healthcare.ai](https://healthcare.ai)

@@ -21,7 +21,7 @@
 #'
 #' #### Example using SQL data ####
 #' 
-#' \donttest{
+#' \dontrun{
 #' library(healthcareai)
 #'
 #' connection.string <- "
@@ -86,7 +86,10 @@ RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
       private$dfTest <- self$params$df[self$params$df[[self$params$groupCol]] == j,]
       private$dfTrain <- self$params$df[self$params$df[[self$params$groupCol]] != j,]
 
-      private$grid <- data.frame(.mtry = floor(sqrt(ncol(private$dfTrain))))
+      # Only works for classification
+      private$grid <- data.frame(mtry = floor(sqrt(ncol(private$dfTrain))), splitrule='gini')
+      if (numeric_version(packageVersion("caret")) < "6.0.77")
+        private$grid$splitrule <- NULL
 
       trainCtrl <- trainControl(
         method = "none",
@@ -95,7 +98,7 @@ RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
         classProbs = TRUE,
         summaryFunction = twoClassSummary
       )
-
+      
       private$fitRf = train(
         x = private$dfTrain[ ,!(colnames(private$dfTrain) == self$params$predictedCol)],
         y = factor(private$dfTrain[[self$params$predictedCol]]),

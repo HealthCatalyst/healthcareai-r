@@ -35,6 +35,8 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   predictedVals = NA,
   modelName = NA,
   clustersOnCores = NA,
+  fitObjFile = NA,
+  modelInfoFile = NA,
 
   ###########
   # Functions
@@ -346,24 +348,24 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     modelName <- ifelse(is.null(self$params$modelName), 
                         "",
                         paste0(self$params$modelName, "_"))
-    fitObjFile <- paste("rmodel_probability_", modelName, 
+    private$fitObjFile <- paste("rmodel_probability_", modelName, 
                         private$algorithmShortName, ".rda", 
                         sep = "")
-    modelInfoFile <- paste("rmodel_info_", modelName, 
+    private$modelInfoFile <- paste("rmodel_info_", modelName, 
                            private$algorithmShortName, ".rda", 
                            sep = "")
     # Try to load the model
     tryCatch({
-      load(modelInfoFile)  # Get model info
+      load(private$modelInfoFile)  # Get model info
       self$modelInfo <- modelInfo
-      load(fitObjFile) # Produces fit object (for probability)
+      load(private$fitObjFile) # Produces fit object (for probability)
       private$fitObj <- fitObj
       
       # Explicitly print when default model name is being used.
       if (is.null(self$params$modelName)) {
         cat("The modelName parameter was not specified. Using defaults:\n",
-            "- ", fitObjFile, "\n",
-            "- ", modelInfoFile, "\n"
+            "- ", private$fitObjFile, "\n",
+            "- ", private$modelInfoFile, "\n"
             , sep = "")
       }
     }, error = function(e) {
@@ -376,17 +378,17 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
                        'Development for details.')
       missingFileFlag <- FALSE
       # Provide name of fitObjFile in error message if file doesn't exist 
-      if (!file.exists(fitObjFile)) {
+      if (!file.exists(private$fitObjFile)) {
         message <- paste0(message,
-                          "\n- Could not find saved model file: ", fitObjFile)
+                          "\n- Could not find saved model file: ", private$fitObjFile)
         missingFileFlag <- TRUE
       }
       # Provide name of modelInfoFile in error message if file doesn't exist 
-      if (!file.exists(modelInfoFile)) {
+      if (!file.exists(private$modelInfoFile)) {
         message <- paste0(message,
                           "\n- Could not find associated saved model info ",
                           "file: ", 
-                          modelInfoFile)
+                          private$modelInfoFile)
         missingFileFlag <- TRUE
       }
       # Provide working directory if either of the two files is missing
@@ -455,6 +457,74 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
     #Deploy the Model
     deploy = function() {
+    },
+    
+    # Get and write model metadata
+    getMetadata = function() {
+
+      # Initialize list of metadata items
+      metadata <- list()
+      
+      load(private$modelInfoFile)
+      sesInfo <- sessionInfo()
+      
+      # Model name (custom if provided, default otherwise)
+      metadata$model_name <- if (is.null(self$params$modelName)) "default" else self$params$modelName
+       
+      # Model algorithm
+      metadata$algorithm <- private$algorithmShortName
+      
+      # Datetime model last trained
+      metadata$model_last_developed <- file.mtime(private$fitObjFile)
+      
+      # Datetime predictions made
+      metadata$prediction_datetime <- Sys.time()
+      
+      # R version
+      metadata$r_version <- paste0(sesInfo$R.version$major, ".", sesInfo$R.version$minor)
+      
+      # healthcare.ai version
+      metadata$healthcareai_version <- sesInfo$otherPkgs$healthcareai$Version
+      
+      # Other packages with versions
+      packages <- c(sesInfo$basePkgs, names(sesInfo$otherPkgs))
+      packages <- sapply(packages[packages != "healthcareai"], 
+                         function(pkg) paste(pkg, as.character(packageVersion(pkg))),
+                         USE.NAMES = FALSE)
+      metadata$other_packages_loaded <- packages
+      
+      # Features
+      metadata$feature_columns <- 
+        modelInfo$columnNames[!modelInfo$columnNames %in% 
+                                c(modelInfo$predictedCol, modelInfo$grainCol)]
+      
+      # Assign metadata to an attribute of outDf
+      attr(private$outDf, "metadata") <- metadata
+      
+      # Write metadata to file
+      ## Copy captured session info to desired file name
+      file_name <- paste0(metadata$model_name, "_prediction_metadata.txt")
+      
+      ## Convert metadata list into formatted character vector to write to file
+      to_write <- sapply(names(metadata), function(x) 
+        paste0(x, ":\n\t", paste(metadata[[x]], collapse = ", ")))
+      
+      ## Add PHI warning to top of what will be written to log file
+      to_write <- c("WARNING: This file may contain Protected Health Information. Treat it with care.\n", to_write)
+      
+      ## Write to file
+      write(to_write, file = file_name, append = FALSE)
+      
+      ## Print to screen that file was written and may contain PHI
+      message("Model metadata written to ", file_name,  
+              "\nWARNING: **This file may contain PHI.**")
+      
+      ## Append console output to other metadata
+      write("console_output_during_prediction:\n\t", file_name, append = TRUE)
+      file.append(file_name, "tmp_prediction_console_output.txt")
+      
+      ## Remove sink file
+      invisible(file.remove("tmp_prediction_console_output.txt"))
     },
     
     # A function to get the ordered list of top factors with parameters to 
