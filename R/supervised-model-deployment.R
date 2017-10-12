@@ -478,7 +478,8 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       metadata$model_last_developed <- file.mtime(private$fitObjFile)
       
       # Datetime predictions made
-      metadata$prediction_datetime <- Sys.time()
+      metadata$prediction_datetime <- format(Sys.time(), 
+                                             paste("%Y-%m-%d %H:%M:%OS", 3, sep = ""))
       
       # R version
       metadata$r_version <- paste0(sesInfo$R.version$major, ".", sesInfo$R.version$minor)
@@ -503,7 +504,11 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       
       # Write metadata to file
       ## Copy captured session info to desired file name
-      file_name <- paste0(metadata$model_name, "_prediction_metadata.txt")
+      file_name <- paste0("predictionMetadata_",
+                          metadata$model_name, 
+                          "_",
+                          format(Sys.time(), paste("%Y-%m-%d_%H.%M.%OS", 3, sep = "")), 
+                          ".txt")
       
       ## Convert metadata list into formatted character vector to write to file
       to_write <- sapply(names(metadata), function(x) 
