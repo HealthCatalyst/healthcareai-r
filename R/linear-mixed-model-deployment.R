@@ -118,7 +118,7 @@
 #' 
 #' print(proc.time() - ptm)
 #' 
-#' \donttest{
+#' \dontrun{
 #' #### Classification example using SQL Server data ####
 #' # This example requires you to first create a table in SQL Server
 #' # If you prefer to not use SAMD, execute this in SSMS to create output table:
@@ -201,7 +201,7 @@
 #' print(proc.time() - ptm)
 #' }
 #' 
-#' \donttest{
+#' \dontrun{
 #' #### Regression Example using SQL Server data ####
 #' # This example requires you to first create a table in SQL Server
 #' # If you prefer to not use SAMD, execute this in SSMS to create output table:
@@ -285,7 +285,9 @@
 #' print(proc.time() - ptm)
 #' }
 #' 
+#' \dontrun{
 #' #### Classification example pulling from CSV and writing to SQLite ####
+#' 
 #' 
 #' ## 1. Loading data and packages.
 #' ptm <- proc.time()
@@ -350,7 +352,9 @@
 #'           tableName = 'HCRDeployClassificationBASE')
 #' 
 #' print(proc.time() - ptm)
+#' }
 #' 
+#' \dontrun{
 #' #### Regression example pulling from CSV and writing to SQLite ####
 #' 
 #' ## 1. Loading data and packages.
@@ -417,6 +421,7 @@
 #'           tableName = 'HCRDeployRegressionBASE')
 #' 
 #' print(proc.time() - ptm)
+#' }
 
 LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
@@ -538,6 +543,9 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
     #Override: deploy the model
     deploy = function() {
 
+      # Start sink to capture console ouptut
+      sink("tmp_prediction_console_output.txt", append = FALSE, split = TRUE)
+
       # Try to load the model
       private$fitLmm <- private$fitObj
       private$fitObj <- NULL
@@ -564,6 +572,10 @@ LinearMixedModelDeployment <- R6Class("LinearMixedModelDeployment",
 
       # create dataframe for output
       super$createDf()
+      
+      sink()  # Close connection
+      # Get metadata, attach to output DF and write to text file
+      super$getMetadata()
     },
     
     # Surface outDf as attribute for export to Oracle, MySQL, etc

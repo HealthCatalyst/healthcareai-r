@@ -218,7 +218,7 @@ test_that("rf regression predicted val (w/mtry tuning) is same each time", {
   
   # the mean of the predicted values was used here since specific value
   # testing leads to large tolerances
-  expect_true(abs(mean(dfRes$PredictedValueNBR) - 146.479) < .5)
+  expect_true(abs(mean(dfRes$PredictedValueNBR) - 146.479) < 10)
   closeAllConnections()
 })
 

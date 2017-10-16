@@ -1113,7 +1113,6 @@ test_that("Y and N aren't swapped when label is a character", {
   # Add response variable
   d['positive'] <- ifelse(d$x + d$y + d$z + rnorm(n) > 0, "Y", "N")
   d['negative'] <- ifelse(d$positive == "Y", "N", "Y")
-  set.seed(NULL)
   
   # New data: first row should be classified as non-positive/negative, 
   # second row as positive/non-negative
@@ -1170,12 +1169,10 @@ test_that("Y and N aren't swapped when label is a character", {
   outDf2 <- rfD$getOutDf()
   
   # Check that predictions are 1) non-positive and 2) positive
-  expect_true(outDf1$PredictedProbNBR[1] < 0.1)
-  expect_true(outDf1$PredictedProbNBR[2] > 0.9)
+  expect_true(outDf1$PredictedProbNBR[2] > outDf1$PredictedProbNBR[1])
   
   # Check that predictions are 1) negative and 2) non-negative
-  expect_true(outDf2$PredictedProbNBR[1] > 0.9)
-  expect_true(outDf2$PredictedProbNBR[2] < 0.1)
+  expect_true(outDf2$PredictedProbNBR[1] > outDf2$PredictedProbNBR[2])
 })
 
 test_that("Y and N aren't swapped label is a factor", {
@@ -1187,23 +1184,16 @@ test_that("Y and N aren't swapped label is a factor", {
                   y = rnorm(n),
                   z = rnorm(n))
   # Add response variable
-  d['positive'] <- ifelse(d$x + d$y + d$z + rnorm(n) > 0, "Y", "N")
-  set.seed(NULL)
-  
-  # New data: first row should be classified as non-positive/negative, 
-  # second row as positive/non-negative
+  d$positive <- factor(ifelse(d$x + d$y + d$z + rnorm(n) > 0, "Y", "N"))
+
   dDeploy <- data.frame(id = c(-1,1), 
                         x = c(-1, 1), 
                         y = c(-1, 1), 
                         z = c(-1, 1))
   
-  # Build first, setting factor levels in desired order
-  dDevelop1 <- d
-  dDevelop1$positive <- factor(dDevelop1$positive, levels = c("N", "Y"))
-  
   # Build first model
   p <- SupervisedModelDevelopmentParams$new()
-  p$df <- dDevelop1
+  p$df <- d
   p$type <- "classification"
   p$predictedCol <- 'positive'
   p$grainCol <- "id"
@@ -1229,11 +1219,9 @@ test_that("Y and N aren't swapped label is a factor", {
   outDf1 <- rfD$getOutDf()
   
   # Build second model, setting factor levels in reverse order
-  dDevelop2 <- d
-  dDevelop2$positive <- factor(dDevelop2$positive, levels = c("Y", "N"))
-  
-  p$df <- dDevelop2
-  
+  d$positive <- relevel(d$positive, "Y")
+
+  p$df <- d
   capture.output(rf <- RandomForestDevelopment$new(p))
   capture.output(rf$run())
   
@@ -1242,10 +1230,9 @@ test_that("Y and N aren't swapped label is a factor", {
   # get second model's predictions
   outDf2 <- rfD$getOutDf()
   
-  # Check that predictions are 1) non-positive ...
-  expect_true(outDf1$PredictedProbNBR[1] < 0.1)
-  expect_true(outDf2$PredictedProbNBR[1] < 0.1)
-  # ... and 2) positive
-  expect_true(outDf1$PredictedProbNBR[2] > 0.9)
-  expect_true(outDf2$PredictedProbNBR[2] > 0.9)
+  # Predictions are very different for the two rows in deployment,
+  # so just test that the greater of the two is the same for 
+  # each developed model
+  expect_equal(order(outDf1$PredictedProbNBR),
+               order(outDf2$PredictedProbNBR))
 })

@@ -255,9 +255,11 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         # TODO: make mtry calc a function (incl both tune and not)
         if (self$params$type == 'classification') {
           optimal <- floor(sqrt(ncol(private$dfTrain)))
+          ourSplitrule <- 'gini'
         }
         else if (self$params$type == 'regression') {
           optimal <- max(floor(ncol(private$dfTrain)/3), 1)
+          ourSplitrule <- 'variance'
         }
 
         mtryList <- c(optimal - 1, optimal, optimal + 1)
@@ -273,16 +275,20 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         print(paste(c('Performing grid search across these mtry values: ',
                       mtryList), collapse = " "))
 
-        private$grid <-  data.frame(mtry = mtryList) # Number of features/tree
+        private$grid <-  data.frame(mtry = mtryList, splitrule=ourSplitrule) # Number of features/tree
       }
       else {
         if (self$params$type == 'classification') {
-          private$grid <- data.frame(.mtry = floor(sqrt(ncol(private$dfTrain))))
+          private$grid <- data.frame(mtry = floor(sqrt(ncol(private$dfTrain))), splitrule='gini')
         }
         else if (self$params$type == 'regression') {
-          private$grid <- data.frame(.mtry = max(floor(ncol(private$dfTrain)/3), 1))
+          private$grid <- data.frame(mtry = max(floor(ncol(private$dfTrain)/3), 1), splitrule='variance')
         }
       }
+      # caret versions caret_6.0-77 and later need splitrule in gird;
+      # older versions need it to not be there. So we remove it:
+      if (numeric_version(packageVersion("caret")) < "6.0.77")
+        private$grid$splitrule <- NULL
     }
   ),
 
@@ -293,7 +299,6 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     # p: new SuperviseModelParameters class object,
     # i.e. p = SuperviseModelParameters$new()
     initialize = function(p) {
-      set.seed(43)
       super$initialize(p)
       
       if (!is.null(p$tune)) {

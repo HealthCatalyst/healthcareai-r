@@ -27,3 +27,6 @@ inst/extdata/unit-test.sqlite
 *.DS_Store
 .env
 env
+.credentials.R
+*.txt
+predictionMetadata*

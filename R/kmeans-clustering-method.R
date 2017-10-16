@@ -379,7 +379,6 @@ KmeansClustering <- R6Class("KmeansClustering",
     # p: new SuperviseModelParameters class object,
     # i.e. p = SuperviseModelParameters$new()
     initialize = function(p) {
-      set.seed(43)
       super$initialize(p)
     },
     
