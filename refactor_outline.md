@@ -18,7 +18,7 @@ Exceptions to one-function-per-file:
 - Short, non-exported utility functions can go in the `utilities.R` file.
 - Non-exported functions that will likely only be called by one exported function can go below the calling function in its file. This is useful to keep individual functions from getting too long. 
 
-All old code has been moved into `R/depreciated`. If you are going to use a substantial amount of code from the old package, bring it back into `R` and rename it to current standards with something like `git mv R/depreciated/common-correlations R/find_correlations`
+All old code has been moved into `R/depreciated`. If you are going to use a substantial amount of code from the old package, bring it back into `R` and rename it to current standards with something like `git mv R/depreciated/common-correlations R/find_correlations`. 
 
 # Functions
 
