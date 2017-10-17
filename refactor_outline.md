@@ -22,6 +22,8 @@ Exceptions to one-function-per-file:
 
 All old code has been moved into `R/depreciated`. If you are going to use a substantial amount of code from the old package, bring it back into `R` and rename it to current standards with something like `git mv R/depreciated/common-correlations R/find_correlations`. 
 
+All work on the refactor should be done in branches off of, PRs should be to, `refactorS3`.
+
 # Functions
 
 ## Profiling
