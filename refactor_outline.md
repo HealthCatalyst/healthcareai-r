@@ -6,7 +6,9 @@ We're using `strict` to enforce betteR practices, but RStudio [currently breaks]
 
 We're abiding by the [tidyverse style guide](http://style.tidyverse.org/). 
 
-Document using `roxygen2`. Be sure to read the [documentation section](http://style.tidyverse.org/code-documentation.html) of the style guide.
+Document using `roxygen2`. Be sure to read the [documentation section](http://style.tidyverse.org/code-documentation.html) of the style guide. 
+
+- Keep examples succinct. In general, one example showing the minimal use of the function (with defaults) and one example showing a customized use should be adequate. Longer examples can be vignettes.
 
 Use `testthat` for testing. Write tests before you write function code. Read the [testing chapter in Hadley's R packages](http://r-pkgs.had.co.nz/tests.html) about how to write good tests.
 
@@ -120,8 +122,8 @@ Identify best hyper-parameter values for each model to be trained. Return a `mod
     + Those functions should also have methods to take a vector of predictions and a vector of outcomes
 - `plot_predictions` for `regression_list`?
     + If just model list, plot predictions vs. actual
-    + Provide arguement for predictor. If provided plot residuals vs the predictor
-    + Provide arguement for group(s). Color points by first group, shape points by second group.
+    + Provide argument for predictor. If provided plot residuals vs the predictor
+    + Provide argument for group(s). Color points by first group, shape points by second group.
 
 ### Evaluate
 
@@ -131,7 +133,7 @@ Take a list of models from CV and score them based on an optional user-selected 
 
 In general, `predict` should take a model or model_list and a dataframe (`newdata`) and return predictions. It doesn't change the model object. 
 
-* Classification: should have switch for class vs probaility predictions. For former should have these options:
+* Classification: should have switch for class vs probability predictions. For former should have these options:
     - maximize accuracy based on training (default)
     - User provided threshold
     - User provided loss function (i.e. ratio of cost of false positive:false negative)

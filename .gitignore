@@ -30,3 +30,4 @@ env
 .credentials.R
 *.txt
 predictionMetadata*
+*.html
