@@ -1,14 +1,40 @@
+# Development Guidelines
+
+We're staying current with other R packages, so it's a good idea to update R and packages frequently. Update R from [CRAN](https://cran.r-project.org/) and then update packages with `update.packages(ask = FALSE)`. Updating packages will take a few minutes if you haven't done it recently.
+
+We're using `strict` to enforce betteR practices, but RStudio [currently breaks](https://github.com/hadley/strict/issues/5) if we try to load the package automatically at startup, so for now, run `library(strict)` whenever you're developing.
+
+We're abiding by the [tidyverse style guide](http://style.tidyverse.org/). 
+
+Document using `roxygen2`. Be sure to read the [documentation section](http://style.tidyverse.org/code-documentation.html) of the style guide.
+
+Use `testthat` for testing. Write tests before you write function code. Read the [testing chapter in Hadley's R packages](http://r-pkgs.had.co.nz/tests.html) about how to write good tests.
+
+In general, each function should get its own file with the filename matching the function name. Note that subdirectories within `healthcareai-r/R` are not allowed. Verb function names are good, e.g. `find_correlations`, `predict`.
+
+Exceptions to one-function-per-file:
+
+- Class definition files should be called `class.R` and contain `class()` and `as.class()` constructor functions and a `is.class` test function. 
+- Short, non-exported utility functions can go in the `utilities.R` file.
+- Non-exported functions that will likely only be called by one exported function can go below the calling function in its file. This is useful to keep individual functions from getting too long. 
+
+All old code has been moved into `R/depreciated`. If you are going to use a substantial amount of code from the old package, bring it back into `R` and rename it to current standards with something like `git mv R/depreciated/common-correlations R/find_correlations`
+
+# Functions
+
 ## Profiling
 
-Eventually, we should wrap this into a single `profile` function, perhaps optionally writing a notebook that contains the results.
+*Much of this section is reworking existing functions to work better, put fewer requirements on the user (e.g. not needing to pre-sort a data frame, choose sensible defaults), conform to R standards (e.g. separate numeric and text columns in findVariation), and leverage tidyverse to enable piping, pretty ggplot plots, etc.*
 
-Many of the items in this section are reworking existing functions in the package to work better, put fewer requirements on the user (e.g. not needing to pre-sort a data frame, choose sensible defaults), conform to R standards (e.g. separate numeric and text columns in findVariation), and leverage tidyverse to enable piping, pretty ggplot plots, etc. 
+Eventually, we should wrap this into a single `profile` function, optionally writing a notebook that contains the results.
 
-Part of this process is functions should generally return an object that has `print.`, `summary.`, and `plot.` methods:
-    - `print.` being what happens if you run the function without assignment; a very high level summary
-    - `summary.` being a more detailed high level view
-    - `plot.` 
-    - These objects should have slots for whatever data the user might want to extract, e.g. `null_profiled$percent_missing`
+These functions should generally return an object that has `print.`, `summary.`, and `plot.` methods, and have slots for whatever data the user might want to extract, e.g. `null_profiled$percent_missing`.
+
+- `print.` -- what happens if you run the function without assignment; a very high level summary
+- `summary.` -- a more detailed high level view
+- `plot.` -- summarize results in a plot
+
+### Profiling Functions
 
 - Find correlations
 	- This could identify numeric and low-cardinality categoricals and calculate correlations between them
@@ -23,7 +49,6 @@ Part of this process is functions should generally return an object that has `pr
     + ID columns with no variance 
     + ID categorical columns with unique entries on every row
 - find variation & variation across groups
-
 
 ## Data shaping
 
@@ -44,9 +69,9 @@ These options don't all need to be available in the v2.0 release. In roughly des
     + Longitudinal: LOCF. Don't require the user to sort the data frame and lose the data.table dependency. 
         * This isn't available off the shelf in `recipes`, but it would be great if we can keep this in the `recipes` pipeline. Here is the [guide to defining new steps](https://topepo.github.io/recipes/articles/Custom_Steps.html). 
 - [timestamp -> features](https://topepo.github.io/recipes/reference/step_date.html) 
-    + And [holidays](https://topepo.github.io/recipes/reference/)step_holiday.html
+    + And [holidays](https://topepo.github.io/recipes/reference/)step_holiday.html)
 - [Group low-frequency categories](https://topepo.github.io/recipes/reference/step_other.html)
-- Impact Coding, see Ethans PR #653 -- It would be great to work this into the `recipes` pipeline!
+- Impact Coding, see Ethans PR #653 -- This should really be worked into the `recipes` pipeline so that it can be re-deployed at prediction time. Here is the [guide to defining new recipe steps](https://topepo.github.io/recipes/articles/Custom_Steps.html). 
 - [Create interactions](https://topepo.github.io/recipes/reference/step_interact.html) -- this shouldn't be done for tree-based models that can get at interactions other ways, but it can be very useful for regression based models. Consider giving the user the option to specify `interaction_depth = c(1, 2, 3)`, warn them if that would create a very large table, and use the interaction-including dataset only for regression based models.  
 - [ordered categories to numerics](https://topepo.github.io/recipes/reference/step_ordinalscore.html)
 - Scaling & centering
@@ -66,34 +91,34 @@ Take user inputs and prepare them for the cross validation pipeline. User input 
 - Optional 
     - formula
     - type (classification, regression, etc.)
-    - 
     + Algorithms to be used
     + Cross validation details
         * Number of folds
         * Number of repeats (or do we not want to offer repeated CV?)
-        * Hyperparameter search details at level of:
-            - Number of combinations to try
-            - Hyperparameters to tune over
+        * Hyperparameter search details. One of:
+            - Number of combinations to try, or
+            - Hyperparameters to tune over, or
+            - Hyperparameters to tune over + number of values to try for each, or
             - Hyperparameters to tune over + values to use (e.g. I know I want 200 trees, but tune over mtry = 10, 30, or 70)
     + Performance metric (AUROC, AUPR, accuracy or MRSE, MAE, etc.)
     + Loss function for classification scored by accuracy
 
 ### Cross Validation
 
-Identify best hyper-parameter values for each model to be trained. Return a `modelList` object with child class `regressionList`, `multiclassList`, etc. (and parent class `list`).
+Identify best hyper-parameter values for each model to be trained. Return a `model_list` object with child class `regression_ist`, `multiclass_list`, etc. (and parent class `list`).
 
 - Note that for some models this will involve retraining the model for each combination of hyperparamter values in each CV fold (automated by caret), while other models can accomplish hyperparameter optimization analytically (see both of the answers [here](https://stats.stackexchange.com/questions/69638/) and the second paragraph in [this caret documentation page](http://topepo.github.io/caret/random-hyperparameter-search.html))
-- Keep out-of-fold predictions for the best hyperparameters in the modelList object returned from CV
+- Keep out-of-fold predictions for the best hyperparameters in the model_list object returned from CV
 
-#### modelList Methods
+#### model_list Methods
 
 - `print`: which model did best and what was its score
 - `summary`: scores of all models
 - `plot`: bar/dot chart of model scores. 
-- `plotROC` & `plotPR` for `classificationList` objects (probably leveraging existing packages)
+- `plot_ROC` & `plot_PR` for `classification_list` objects (probably leveraging existing packages)
     + Plot all model's curves and provide AUCs in legend
     + Those functions should also have methods to take a vector of predictions and a vector of outcomes
-- `plotPredictions` for `regressionList`?
+- `plot_predictions` for `regression_list`?
     + If just model list, plot predictions vs. actual
     + Provide arguement for predictor. If provided plot residuals vs the predictor
     + Provide arguement for group(s). Color points by first group, shape points by second group.
@@ -104,7 +129,7 @@ Take a list of models from CV and score them based on an optional user-selected 
 
 ## Predict
 
-In general, `predict` should take a model or modelList and a dataframe (`newdata`) and return predictions. It doesn't change the model object. 
+In general, `predict` should take a model or model_list and a dataframe (`newdata`) and return predictions. It doesn't change the model object. 
 
 * Classification: should have switch for class vs probaility predictions. For former should have these options:
     - maximize accuracy based on training (default)
