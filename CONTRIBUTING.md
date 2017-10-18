@@ -1,3 +1,77 @@
+# Development guidelines for the S3 Refactor
+
+## Package Management
+
+We're staying current with other R packages, so it's a good idea to develop with updated versions of R and packages. Update R from [CRAN](https://cran.r-project.org/) and then update packages with `update.packages(ask = FALSE)`. Updating packages will take a few minutes if you haven't done it recently.
+
+## Code Guidelines
+
+- We use `testthat` for testing. Write tests before you write function code. Read the [testing chapter in Hadley's R packages](http://r-pkgs.had.co.nz/tests.html) about how to write good tests.
+
+- We use `lintr` to check code style. You can check your style with `lint_package()`. It will also be checked on running tests and on travis.
+  + Should you need to violate `lintr` rules, put `# nolint` at the end of the violating line.
+
+- We're using `strict` to enforce betteR practices, but RStudio [currently breaks](https://github.com/hadley/strict/issues/5) if we try to load the package automatically at startup, so for now, run `library(strict)` whenever you're developing.
+
+## Documentation
+
+- Document using `roxygen2`. Be sure to read the [documentation section](http://style.tidyverse.org/code-documentation.html) of the style guide. 
+
+- Keep examples succinct. In general, one example showing the minimal use of the function (with defaults) and one example showing a customized use should be adequate. Longer examples can be vignettes.
+
+## Code Style
+
+We abide by the [tidyverse style guide](http://style.tidyverse.org/). Additional style details below.
+
+We use two packages to enforce coding practices: `strict` and `lintr`:
+
+- Install `lintr`...
+  + RStudio...
+  + There is a Sublime integration for lintr, [here](https://github.com/jimhester/lintr#sublime-text-3).
+
+Additional details:
+
+- Piped lines of code should start with a line that is just the name of the data frame. Assignment should go on its own line. E.g.
+
+```r
+df <-
+  df %>%
+    filter(!is.na(var))
+```
+
+- To extract a vector from a data frame at the end of a piped sequence, use `dplyr::pull(var)` rather than `.[[var]]` or `.$var`. 
+
+- For programming with dplyr, e.g. `filter(df, columnFromUser > 0)`, run `dplyr`'s `vignette("programming")`
+
+- In general, each function should get its own file with the filename matching the function name. 
+  + Note that subdirectories within `healthcareai-r/R` are not allowed. 
+  + Verb function names are good, e.g. `find_correlations`, `predict`
+  + Exceptions to one-function-per-file:
+    * Class definition files should be called `class.R` and contain `class()` and `as.class()` constructor functions and a `is.class` test function. 
+    * Short, non-exported utility functions can go in the `utilities.R` file. 
+        - Use the `@noRd` tag in the roxygen documentation of these functions and be sure not to `@export` them.
+    * Non-exported functions that will likely only be called by one exported function can go below the calling function in its file. This is useful to keep individual functions from getting too long. 
+    * Depreciated functions, see below
+
+## Organization
+
+- When you replace an old function:
+  + Place the old function at the bottom of the new function's file 
+  + Use `.Depreciated` or `.Defunct` to point the user to the new function.
+
+- All old code has been moved into `R/depreciated`. If you are going to use a substantial amount of code from the old package, bring it back into `R` and rename it to current standards with something like `git mv R/depreciated/common-correlations R/find_correlations`. 
+
+- All work on the refactor should be done in branches off of, and PRs should be to, `refactorS3`.
+
+## TBD
+
+[`vtreat`](https://github.com/WinVector/vtreat/) implements impact coding and deals with a bunch of common problems we often run into. We should use it. It would be great to bake it into the recipes pipeline.
+
+
+
+
+*Old CONTRIBUTING, which should have the above integrated and be cleaned up post-refactor:*
+
 # Setting up your development environment (to enable contributions)
 
 ## Set up R, RStudio, and healthcare.ai
