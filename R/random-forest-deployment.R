@@ -43,18 +43,26 @@
 #' @section \code{$getOutDf()}:
 #' Returns the output dataframe. \cr
 #' \emph{Usage:} \code{$getOutDf()} 
-#'@section \code{$getProcessVariablesDf()}:
+#' @section \code{$getProcessVariablesDf()}:
 #' Builds and returns a dataframe with information about the modifiable process 
 #' variables. \cr
 #' \emph{Usage:} \code{$getProcessVariablesDf(modifiableVariables, 
-#' grainColumnValues = NULL, smallerBetter = TRUE, repeatedFactors = FALSE,
-#' numTopFactors = 3)} \cr
+#' modifiableVariableLevels = NULL, grainColumnValues = NULL, 
+#' smallerBetter = TRUE, repeatedFactors = FALSE, numTopFactors = 3)} \cr
 #' Params: \cr
 #'   - \code{modifiableVariables} A vector of names of categorical variables.\cr
-#'   - \code{grainColumnIDs} A vector of grain column IDs. If \code{NULL}, the whole deployment dataframe will be used.\cr
-#'   - \code{smallerBetter} A boolean determining whether or not lower predictions/probabilities are more desirable. \cr
-#'   - \code{repeatedFactors} A boolean determining whether or not a single modifiable factor can be listed several times. \cr
-#'   - \code{numTopFactors} The number of modifiable process variables to include in each row.
+#'   - \code{modifiableVariableLevels} A list of variable values indexed by 
+#'   modifiable variable names. This allows one to use numeric variables by 
+#'   specifying baselines and to restric categorical variables by limiting 
+#'   which factors can be recommended.\cr
+#'   - \code{grainColumnIDs} A vector of grain column IDs. If \code{NULL}, the 
+#'   whole deployment dataframe will be used.\cr
+#'   - \code{smallerBetter} A boolean determining whether or not lower 
+#'   predictions/probabilities are more desirable. \cr
+#'   - \code{repeatedFactors} A boolean determining whether or not a single 
+#'   modifiable factor can be listed several times. \cr
+#'   - \code{numTopFactors} The number of modifiable process variables to 
+#'   nclude in each row.
 #' @export
 #' @seealso \code{\link{healthcareai}}
 #' @seealso \code{\link{writeData}}
