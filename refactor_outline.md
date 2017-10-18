@@ -4,7 +4,19 @@ We're staying current with other R packages, so it's a good idea to update R and
 
 We're using `strict` to enforce betteR practices, but RStudio [currently breaks](https://github.com/hadley/strict/issues/5) if we try to load the package automatically at startup, so for now, run `library(strict)` whenever you're developing.
 
-We're abiding by the [tidyverse style guide](http://style.tidyverse.org/). 
+We're abiding by the [tidyverse style guide](http://style.tidyverse.org/). Additional details:
+
+- Piped lines of code should start with a line that is just the name of the data frame. Assignment should go on its own line. E.g.
+
+```r
+df <-
+  df %>%
+    filter(!is.na(var))
+```
+
+- To extract a vector from a data frame at the end of a piped sequence, use `dplyr::pull(var)` rather than `.[[var]]` or `.$var`. 
+
+- For programming with dplyr, e.g. `filter(df, columnFromUser == "0")`, see `vignette("programming")`
 
 Document using `roxygen2`. Be sure to read the [documentation section](http://style.tidyverse.org/code-documentation.html) of the style guide. 
 
@@ -23,6 +35,8 @@ Exceptions to one-function-per-file:
 All old code has been moved into `R/depreciated`. If you are going to use a substantial amount of code from the old package, bring it back into `R` and rename it to current standards with something like `git mv R/depreciated/common-correlations R/find_correlations`. 
 
 All work on the refactor should be done in branches off of, PRs should be to, `refactorS3`.
+
+[`vtreat`](https://github.com/WinVector/vtreat/) implements impact coding and a bunch of other common problems we often run into. We should use it. It would be great to bake it into the recipes pipeline.
 
 # Functions
 
