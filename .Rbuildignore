@@ -17,3 +17,5 @@
 ^Rplot.png
 ^mkdocs\.yml$
 ^CHANGELOG\.md$
+.lintr
+*.credentials.R
