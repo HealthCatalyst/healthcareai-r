@@ -43,6 +43,18 @@
 #' @section \code{$getOutDf()}:
 #' Returns the output dataframe. \cr
 #' \emph{Usage:} \code{$getOutDf()} 
+#'@section \code{$getProcessVariablesDf()}:
+#' Builds and returns a dataframe with information about the modifiable process 
+#' variables. \cr
+#' \emph{Usage:} \code{$getProcessVariablesDf(modifiableVariables, 
+#' grainColumnValues = NULL, smallerBetter = TRUE, repeatedFactors = FALSE,
+#' numTopFactors = 3)} \cr
+#' Params: \cr
+#'   - \code{modifiableVariables} A vector of names of categorical variables.\cr
+#'   - \code{grainColumnIDs} A vector of grain column IDs. If \code{NULL}, the whole deployment dataframe will be used.\cr
+#'   - \code{smallerBetter} A boolean determining whether or not lower predictions/probabilities are more desirable. \cr
+#'   - \code{repeatedFactors} A boolean determining whether or not a single modifiable factor can be listed several times. \cr
+#'   - \code{numTopFactors} The number of modifiable process variables to include in each row.
 #' @export
 #' @seealso \code{\link{healthcareai}}
 #' @seealso \code{\link{writeData}}
@@ -428,23 +440,18 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     # functions
     # Perform prediction
     performPrediction = function() {
-      if (self$params$type == 'classification') {
-        private$predictions <- caret::predict.train(object = private$fitRF,
-                                                    newdata = self$params$df,
-                                                    type = 'prob')
-        private$predictions <- private$predictions[,2]
-        
-        if (isTRUE(self$params$debug)) {
+      # Calculate predictions
+      private$predictions <- self$performNewPredictions(self$params$df)
+      
+      # Print first few predictions if debug = TRUE
+      if (self$params$debug) {
+        if (self$params$type == "classification") {
           cat('Number of predictions: ', nrow(private$predictions), '\n')
           cat('First 10 raw classification probability predictions', '\n')
           print(round(private$predictions[1:10],2))
-        }
-        
-      } else if (self$params$type == 'regression') {
-        private$predictions <- caret::predict.train(private$fitRF, newdata = self$params$df)
-        
-        if (isTRUE(self$params$debug)) {
-          cat('Rows in regression prediction: ', length(private$predictions), '\n')
+        } else {# type == "regression"
+          cat('Rows in regression prediction: ', 
+              length(private$predictions), '\n')
           cat('First 10 raw regression predictions (with row # first)', '\n')
           print(round(private$predictions[1:10],2))
         }
@@ -552,6 +559,19 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     # Surface outDf as attribute for export to Oracle, MySQL, etc
     getOutDf = function() {
       return(private$outDf)
+    },
+    
+    # Perform predictions on new data
+    performNewPredictions = function(newData) {
+      if (self$params$type == "classification") {
+        predictions <- caret::predict.train(object = private$fitRF,
+                                            newdata = newData,
+                                            type = 'prob')
+        predictions <- predictions[,2]
+      } else {
+        predictions <- caret::predict.train(private$fitRF, newdata = newData)
+      }
+      return(predictions)
     }
   )
 )
