@@ -4,7 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased] - 2017-08-02
+## [1.1.0] - 2017-10-11
+
+### Added
+- Deploy now saves information about the model and deployment as an attribute of the output dataframe. This information is written to a log file in the working directory.
+- `skip_on_not_appveyor` will skip a unit test unless it's being run on Appveyor.
+
+## Changed
+- Unit tests involving MSSQL now only run on Appveyor.
+
+## Removed
+- `skip_if_no_mssql` isn't needed as a test utility anymore.
+
+
+## [1.0.0] - 2017-08-02
 
 ### Added
 - Multiclass functionality with XGBoost is supported using `XGBoostDevelopment` and `XGBoostDeployment`. 
