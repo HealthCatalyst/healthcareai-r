@@ -10,7 +10,7 @@
 #' # Move to working directory 
 #' # setwd("Prod Server/Machine Learning/MyProject")
 #' 
-#' Start console logging
+#' # Start console logging
 #' startProdLogs()
 #' 
 #' # Deploy -------------------------------------------------
@@ -29,7 +29,7 @@ startProdLogs = function() {
                       format(Sys.time(), paste("%Y-%m-%d_%H.%M.%OS", 3, sep = "")), 
                       ".txt")
   closeAllConnections() # clean up connections before creating a new one.
-  file_connection <- file(description = paste0(getwd(),"/",log_name), open = "wt")
+  file_connection <- file(description = file_name, open = "wt")
 
   # Set console output and messages (special type of output) to get logged.
   sink(file = file_connection)
@@ -37,7 +37,7 @@ startProdLogs = function() {
 
   # Confirm working directory
   print(paste("Working directory is", getwd()))
-  print(paste("Logging to", log_name))
+  print(paste("Logging to", file_name))
 }
 
 #' @title
