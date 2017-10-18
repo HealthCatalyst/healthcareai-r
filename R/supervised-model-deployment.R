@@ -431,7 +431,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     }
   }, 
   
-  buildProcessVariableDfList = function(modifiableVariables,
+  buildProcessVariableDfList = function(modifiableVariableLevels,
                                         grainColumnValues = NULL, 
                                         smallerBetter = TRUE) {
     # If no grain column values are specified, use the whole dataframe
@@ -455,8 +455,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     # Get rows corresponding to the grain ids
     dataframe <- self$params$df[private$grainTest %in% grainColumnValues, ]
     
-    # Get the factor levels for the modifiable process variables
-    modifiableVariableLevels <- self$modelInfo$factorLevels[modifiableVariables]
     # Build the process variables df list
     build_process_variable_df_list(dataframe = dataframe,
                                    modifiable_variable_levels = modifiableVariableLevels,
@@ -465,7 +463,8 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
                                    smaller_better = smallerBetter)
   }, 
   
-  checkModifiableVariableInput = function(modifiableVariables) {
+  checkModifiableVariableInput = function(modifiableVariables, 
+                                          modifiableVariableLevels) {
     # Set modifiableProcessVariables and smallerPredictionsDesired params
     # Check that either both are present or both are absent.
     # Also check that the modifiable variables actually exist in the data
@@ -481,18 +480,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
               "\nThese modifiable variables will not be used.")
       modifiableVariables <- intersect(modifiableVariables, 
                                        names(self$params$df))
-    }
-    
-    # Check that the modifiable variables are factors
-    if (length(modifiableVariables) > 0) {
-      nonFactors <- private$findNonFactors(modifiableVariables)
-      if (length(nonFactors) > 0) {
-        warning("Modifiable process variables must be categorical variables. ",
-                "The following variables are not categorical and will not be ",
-                "used:\n",
-                paste(" - ", nonFactors, collapse = "\n"))
-        modifiableVariables <- setdiff(modifiableVariables, nonFactors)
-      }
     }
     
     # Check that modifiable process variables make sense for lasso
@@ -512,7 +499,32 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       }
     }
     
-    return(modifiableVariables)
+    # Check that the modifiable variables are factors or that levels have been
+    # specified explicitly
+    if (length(modifiableVariables) > 0) {
+      nonFactors <- private$findNonFactors(modifiableVariables)
+      nonFactors <- setdiff(nonFactors, names(modifiableVariableLevels))
+      if (length(nonFactors) > 0) {
+        warning("Modifiable process variables must either be categorical ",
+                "variables or you must explicitly specify the levels. The ", 
+                "following variables are not categorical and will not be ",
+                "used:\n",
+                paste(" - ", nonFactors, collapse = "\n"))
+        modifiableVariables <- setdiff(modifiableVariables, nonFactors)
+      }
+    }
+    
+    # Add factor levels which weren't specified explicitly
+    for (variable in modifiableVariables) {
+      if (!(variable %in% names(modifiableVariableLevels))) {
+        modifiableVariableLevels[[variable]] <- self$modelInfo$factorLevels[[variable]]
+      }
+    }
+    
+    # Subset to only include valid variables
+    modifiableVariableLevels <- modifiableVariableLevels[modifiableVariables]
+    
+    return(modifiableVariableLevels)
   },
   
   # This function takes a vector of column names and returns the names of 
@@ -661,6 +673,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     # Build and return a dataframe with recommendations for the modifiable
     # process varaibles
     getProcessVariablesDf = function(modifiableVariables,
+                                     modifiableVariableLevels = NULL,
                                      grainColumnIDs = NULL,
                                      smallerBetter = TRUE,
                                      repeatedFactors = FALSE,
@@ -668,13 +681,14 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       # Keep track of time for debugging.
       t0 <- proc.time()
       # Remove modifiable variables which are not valid.
-      modifiableVariables <- private$checkModifiableVariableInput(modifiableVariables)
-      if (length(modifiableVariables) == 0) {
+      modifiableVariableLevels <- private$checkModifiableVariableInput(modifiableVariables,
+                                                                       modifiableVariableLevels)
+      if (length(modifiableVariableLevels) == 0) {
         stop("No valid modifiable variables used.")
       }
       
       # Build the list of dataframes.
-      processVariableDfList <- private$buildProcessVariableDfList(modifiableVariables = modifiableVariables,
+      processVariableDfList <- private$buildProcessVariableDfList(modifiableVariableLevels = modifiableVariableLevels,
                                                                   grainColumnValues = grainColumnIDs,
                                                                   smallerBetter = smallerBetter)
       

@@ -71,8 +71,9 @@ test_that("non-categorical variables are dropped", {
   # Check that a warning is triggered if one of the modifiable variables is
   # not actually a categorical variable.
   expect_warning(capture.output(pvdf2 <- rfD$getProcessVariablesDf(with_nums)),
-                 "Modifiable process variables must be categorical variables. ",
-                 "The following vriables are not categorical and will not be ",
+                 "Modifiable process variables must either be categorical ",
+                 "variables or you must explicitly specify the levels. The ", 
+                 "following variables are not categorical and will not be ",
                  "used:\n",
                  " - x")
   
