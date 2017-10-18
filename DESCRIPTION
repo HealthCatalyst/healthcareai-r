@@ -22,6 +22,7 @@ Imports:
     data.table,
     DBI,
     doParallel,
+    dplyr,
     e1071,
     grpreg,
     lme4,

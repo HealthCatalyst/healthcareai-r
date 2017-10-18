@@ -71,6 +71,21 @@ Returns the output dataframe. \cr
 \emph{Usage:} \code{$getOutDf()}
 }
 
+\section{\code{$getProcessVariablesDf()}}{
+
+Builds and returns a dataframe with information about the modifiable process 
+variables. \cr
+\emph{Usage:} \code{$getProcessVariablesDf(modifiableVariables, 
+grainColumnValues = NULL, smallerBetter = TRUE, repeatedFactors = FALSE,
+numTopFactors = 3)} \cr
+Params: \cr
+  - \code{modifiableVariables} A vector of names of categorical variables.\cr
+  - \code{grainColumnIDs} A vector of grain column IDs. If \code{NULL}, the whole deployment dataframe will be used.\cr
+  - \code{smallerBetter} A boolean determining whether or not lower predictions/probabilities are more desirable. \cr
+  - \code{repeatedFactors} A boolean determining whether or not a single modifiable factor can be listed several times. \cr
+  - \code{numTopFactors} The number of modifiable process variables to include in each row.
+}
+
 \examples{
 
 #### Classification Example using csv data ####
