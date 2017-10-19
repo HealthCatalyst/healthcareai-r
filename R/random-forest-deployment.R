@@ -428,9 +428,9 @@
 #' 
 #' #### Example Get Recommendations from Deployed Model: getProcessVariablesDf####
 #' # This example shows how to use the getProcessVariableDf() function, using a
-#' # model similar to the one built in Example Classification from CSV. The main
-#' # difference is that we use a data set where systolic blood pressure is a 
-#' # categorical variable.
+#' # model similar to the one built in Classification Example using csv data. 
+#' # The main difference is that we use a data set where systolic blood pressure 
+#' # is a categorical variable.
 #'
 #' csvfile <- system.file("extdata", 
 #'                       "HCRDiabetesClinical.csv", 
@@ -487,8 +487,9 @@
 #' ## Get Recommendations using getProcessVariablesDf
 #' 
 #' # Categorical variables can simply be listed as modifiable variables and all
-#' # factors levels will be used for comparison purposes. The dataframe generated
-#' # from the code below will consider all possible blood pressure categories
+#' # factors levels will be used for comparison purposes. The dataframe 
+#' # generated from the code below will consider all possible blood pressure
+#' # categories.
 #' dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP"))
 #' 
 #' # By default, the function returns recommendations for all rows, but we can 
@@ -497,22 +498,22 @@
 #'                          grainColumnIDs = c(954, 965, 996))
 #' 
 #' # The variableLevels parameter can be used to limit which factor levels are
-#' # considered (for categorical variables). The dataframe generated from the code
-#' # below will only make comparisons with normal BP and pre-hypertensive
+#' # considered (for categorical variables). The dataframe generated from the 
+#' # code below will only make comparisons with normal BP and pre-hypertensive
 #' dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP"),
 #'                          variableLevels = list(SystolicBP = c("Normal",
 #'                                                               "Pre-hypertensive")))
 #' 
-#' # The variableLevels parameter can be used to allow recommendations for numeric
-#' # variables, by providing specific values. In the code below, the predictions
-#' # will be compared to those for an A1C of 5.6
+#' # The variableLevels parameter can be used to allow recommendations for 
+#' # numeric variables, by providing specific values. In the code below, the
+#' # predictions will be compared to those for an A1C of 5.6
 #' dL$getProcessVariablesDf(modifiableVariables = c("A1CNBR"),
 #'                          variableLevels = list(A1CNBR = c(5.6)))
 #' 
-#' # The repeatedFactors parameter allows one to get multiple recommendations for 
-#' # the same variable. For example, reducing A1C to 5.0 might most improve a 
-#' # patient's risk, but reducing A1C to 5.5 is likely to also reduce the risk and
-#' # that change might be more impactful than altering the patient's blood
+#' # The repeatedFactors parameter allows one to get multiple recommendations  
+#' # for the same variable. For example, reducing A1C to 5.0 might most improve
+#' # a patient's risk, but reducing A1C to 5.5 is likely to also reduce the risk
+#' # and that change might be more impactful than altering the patient's blood
 #' # pressure.
 #' dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP", "A1CNBR"),
 #'                          variableLevels = list(SystolicBP = c("Normal",
@@ -529,10 +530,10 @@
 #'                          repeatedFactors = TRUE, 
 #'                          numTopFactors = 5)
 #' 
-#' # If we want to make recommendations for increasing the probability (not likely
-#' # in the case of readmissions), we can do so using the smallerBetter parameter.
-#' # (Here, all the deltas will be non-negative, corresponding to an increased 
-#' # risk)
+#' # If we want to make recommendations for increasing the probability (not 
+#' # likely in the case of readmissions), we can do so using the smallerBetter 
+#' # parameter. (Here, all the deltas will be non-negative, corresponding to an 
+#' # increased risk)
 #' dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP"),
 #'                          smallerBetter = FALSE)
 
