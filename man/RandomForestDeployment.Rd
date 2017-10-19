@@ -452,6 +452,116 @@ writeData(SQLiteFileName = sqliteFile,
           tableName = 'HCRDeployRegressionBASE')
 
 print(proc.time() - ptm)
+
+#### Example Get Recommendations from Deployed Model: getProcessVariablesDf####
+# This example shows how to use the getProcessVariableDf() function, using a
+# model similar to the one built in Example Classification from CSV. The main
+# difference is that we use a data set where systolic blood pressure is a 
+# categorical variable.
+
+csvfile <- system.file("extdata", 
+                      "HCRDiabetesClinical.csv", 
+                      package = "healthcareai")
+
+# Replace csvfile with 'path/file'
+df <- read.csv(file = csvfile, 
+               header = TRUE, 
+               na.strings = c("NULL", "NA", ""))
+
+df$PatientID <- NULL # Remove extra ID
+
+# Convert systolic blood pressure from a numeric variable to a categorical 
+# variable with 5 categories: normal, pre-hypertension, stage 1 hypertension,
+# stage 2 hypertension, and hypertensive crisis
+df$SystolicBP <- ifelse(df$SystolicBPNBR < 140, 
+                        ifelse(df$SystolicBPNBR < 120, 
+                               "Normal", 
+                               "Pre-hypertensive"), 
+                        ifelse(df$SystolicBPNBR < 160, 
+                               "Stage_1", 
+                               ifelse(df$SystolicBP < 180, "Stage_2", "Crisis")))
+df$SystolicBPNBR <- NULL
+
+# Save a dataframe for validation later on
+dfDeploy <- df[951:1000,]
+
+## Develop and Deploy the model
+set.seed(42)
+p <- SupervisedModelDevelopmentParams$new()
+p$df <- df
+p$type <- "classification"
+p$impute <- TRUE
+p$grainCol <- "PatientEncounterID"
+p$predictedCol <- "ThirtyDayReadmitFLG"
+p$debug <- FALSE
+p$cores <- 1
+
+RandomForest <- RandomForestDevelopment$new(p)
+RandomForest$run()
+
+p2 <- SupervisedModelDeploymentParams$new()
+p2$type <- "classification"
+p2$df <- dfDeploy
+p2$grainCol <- "PatientEncounterID"
+p2$predictedCol <- "ThirtyDayReadmitFLG"
+p2$impute <- TRUE
+p2$debug <- FALSE
+p2$cores <- 1
+
+dL <- RandomForestDeployment$new(p2)
+dL$deploy()
+
+## Get Recommendations using getProcessVariablesDf
+
+# Categorical variables can simply be listed as modifiable variables and all
+# factors levels will be used for comparison purposes. The dataframe generated
+# from the code below will consider all possible blood pressure categories
+dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP"))
+
+# By default, the function returns recommendations for all rows, but we can 
+# restrict to specific rows using the grainColumnIDs parameter
+dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP"), 
+                         grainColumnIDs = c(954, 965, 996))
+
+# The variableLevels parameter can be used to limit which factor levels are
+# considered (for categorical variables). The dataframe generated from the code
+# below will only make comparisons with normal BP and pre-hypertensive
+dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP"),
+                         variableLevels = list(SystolicBP = c("Normal",
+                                                              "Pre-hypertensive")))
+
+# The variableLevels parameter can be used to allow recommendations for numeric
+# variables, by providing specific values. In the code below, the predictions
+# will be compared to those for an A1C of 5.6
+dL$getProcessVariablesDf(modifiableVariables = c("A1CNBR"),
+                         variableLevels = list(A1CNBR = c(5.6)))
+
+# The repeatedFactors parameter allows one to get multiple recommendations for 
+# the same variable. For example, reducing A1C to 5.0 might most improve a 
+# patient's risk, but reducing A1C to 5.5 is likely to also reduce the risk and
+# that change might be more impactful than altering the patient's blood
+# pressure.
+dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP", "A1CNBR"),
+                         variableLevels = list(SystolicBP = c("Normal",
+                                                              "Pre-hypertensive"),
+                                               A1CNBR = c(5.0, 5.5, 6, 6.5)), 
+                         repeatedFactors = TRUE)
+
+# The numTopFactors parameter allows one to set the maximum number of 
+# recommendations to display (with the default being 3)
+dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP", "A1CNBR"),
+                         variableLevels = list(SystolicBP = c("Normal",
+                                                              "Pre-hypertensive"),
+                                               A1CNBR = c(5.0, 5.5, 6, 6.5)), 
+                         repeatedFactors = TRUE, 
+                         numTopFactors = 5)
+
+# If we want to make recommendations for increasing the probability (not likely
+# in the case of readmissions), we can do so using the smallerBetter parameter.
+# (Here, all the deltas will be non-negative, corresponding to an increased 
+# risk)
+dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP"),
+                         smallerBetter = FALSE)
 }
 \seealso{
 \code{\link{healthcareai}}

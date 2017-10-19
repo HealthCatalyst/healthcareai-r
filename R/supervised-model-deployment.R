@@ -683,7 +683,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       # Remove modifiable variables which are not valid.
       variableLevels <- private$checkModifiableVariableInput(modifiableVariables,
                                                              variableLevels)
-      if (length(modifiableVariableLevels) == 0) {
+      if (length(variableLevels) == 0) {
         stop("No valid modifiable variables used.")
       }
       
