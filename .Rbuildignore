@@ -18,4 +18,6 @@
 ^mkdocs\.yml$
 ^CHANGELOG\.md$
 .lintr
-*.credentials.R
+.credentials.R
+*prediction_metadata*
+*.html
