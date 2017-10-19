@@ -289,3 +289,4 @@ test_that("lasso regression predicted val is the same each time", {
   expect_true(abs(dfRes$PredictedValueNBR[27] - 149.5992) < 1.0e-2)
   closeAllConnections()
 })
+

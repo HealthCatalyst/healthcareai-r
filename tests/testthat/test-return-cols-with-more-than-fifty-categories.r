@@ -39,3 +39,4 @@ test_that("Correct list is returned when there are more than one columns with gr
 
   expect_equal(colList, c('b','c'))
 })
+

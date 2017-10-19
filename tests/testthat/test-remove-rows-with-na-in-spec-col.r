@@ -129,3 +129,4 @@ test_that("Remove all rows successfully", {
   df6original<-removeRowsWithNAInSpecCol(df6original,'c')
   expect_identical(df6original, df6)
 })
+

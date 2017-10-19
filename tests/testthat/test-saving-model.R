@@ -129,3 +129,4 @@ test_that("Model with custom name deploys correctly", {
   # Check that the output of the models is the same
   expect_equal(dfOutDefault[1:3, 4:8], dfOutCustom[1:3, 4:8])
 })
+

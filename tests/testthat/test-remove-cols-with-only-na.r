@@ -39,3 +39,4 @@ test_that("All columns are removed when all columns are NA's in every row", {
   testthat::expect_output(removeColsWithOnlyNA(df1),
                 "All columns were removed.")
 })
+
