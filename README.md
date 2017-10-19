@@ -6,7 +6,7 @@
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version-last-release/healthcareai)](https://cran.r-project.org/package=healthcareai)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.999334.svg)](https://doi.org/10.5281/zenodo.999334)
 
-The aim of `healthcareai` is to make machine learning easy on healthcare data. The package has two main goals:
+The aim of `healthcareai` is to make machine learning easy on healthcare data and make you look very smart. The package has two main goals:
 
 -  Allow one to easily develop and compare models based on tabular data, and deploy a best model that pushes predictions to either databases or flat files.
 
