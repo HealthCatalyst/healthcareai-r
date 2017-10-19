@@ -19,8 +19,11 @@
 ^CHANGELOG\.md$
 .lintr
 .credentials.R
-*prediction_metadata*
-*.html
+txt$
+html$
 ^docs$
 ^_pkgdown\.yml$
 ^pkgdown$
+^explorations$
+^refactor_outline\.md$
+^decisions\.md$

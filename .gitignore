@@ -28,7 +28,7 @@ inst/extdata/unit-test.sqlite
 .env
 env
 .credentials.R
-*.txt
-predictionMetadata*
-*.html
-
+# txt files anywhere
+**/*.txt
+# html files in home directory; preserve in docs/
+/*.html
