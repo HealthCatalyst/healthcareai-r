@@ -21,3 +21,6 @@
 .credentials.R
 *prediction_metadata*
 *.html
+^docs$
+^_pkgdown\.yml$
+^pkgdown$
