@@ -509,11 +509,13 @@ dL$deploy()
 
 ## Get Recommendations
 
-# getProcessVariablesDf only uses variables with non-zero coefficients, 
+# \\code{getProcessVariablesDf} only uses variables with non-zero coefficients, 
 # automatically discarding the rest. In this example, only A1CNBR had a
 # nonzerocoefficient. Even though this variable is numeric, we can still use
 # getProcessVariablesDf using the variableLevels parameter. For examples with
-# categorical variables, see the examples in?RandomForestDeployment
+# categorical variables and additional details about \\code{getProcessVariablesDf},
+# see the examples in ?RandomForestDeployment
+
 dL$getProcessVariablesDf(modifiableVariables = c("A1CNBR"),
                          variableLevels = list(A1CNBR = c(5.6, 6.0, 6.5)))
 
