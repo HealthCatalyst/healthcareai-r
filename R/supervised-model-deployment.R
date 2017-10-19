@@ -673,7 +673,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     # Build and return a dataframe with recommendations for the modifiable
     # process varaibles
     getProcessVariablesDf = function(modifiableVariables,
-                                     modifiableVariableLevels = NULL,
+                                     variableLevels = NULL,
                                      grainColumnIDs = NULL,
                                      smallerBetter = TRUE,
                                      repeatedFactors = FALSE,
@@ -681,14 +681,14 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       # Keep track of time for debugging.
       t0 <- proc.time()
       # Remove modifiable variables which are not valid.
-      modifiableVariableLevels <- private$checkModifiableVariableInput(modifiableVariables,
-                                                                       modifiableVariableLevels)
+      variableLevels <- private$checkModifiableVariableInput(modifiableVariables,
+                                                             variableLevels)
       if (length(modifiableVariableLevels) == 0) {
         stop("No valid modifiable variables used.")
       }
       
       # Build the list of dataframes.
-      processVariableDfList <- private$buildProcessVariableDfList(modifiableVariableLevels = modifiableVariableLevels,
+      processVariableDfList <- private$buildProcessVariableDfList(modifiableVariableLevels = variableLevels,
                                                                   grainColumnValues = grainColumnIDs,
                                                                   smallerBetter = smallerBetter)
       

@@ -54,11 +54,11 @@
 #' Builds and returns a dataframe with information about the modifiable process 
 #' variables. \cr
 #' \emph{Usage:} \code{$getProcessVariablesDf(modifiableVariables, 
-#' modifiableVariableLevels = NULL, grainColumnValues = NULL, 
-#' smallerBetter = TRUE, repeatedFactors = FALSE, numTopFactors = 3)} \cr
+#' variableLevels = NULL, grainColumnValues = NULL, smallerBetter = TRUE, 
+#' repeatedFactors = FALSE, numTopFactors = 3)} \cr
 #' Params: \cr
 #'   - \code{modifiableVariables} A vector of names of categorical variables.\cr
-#'   - \code{modifiableVariableLevels} A list of variable values indexed by 
+#'   - \code{variableLevels} A list of variable values indexed by 
 #'   modifiable variable names. This allows one to use numeric variables by 
 #'   specifying baselines and to restric categorical variables by limiting 
 #'   which factors can be recommended.\cr
