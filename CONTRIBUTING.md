@@ -27,6 +27,8 @@
 
 - We use `testthat` for testing. Write tests before you write function code. Read the [testing chapter in Hadley's R packages](http://r-pkgs.had.co.nz/tests.html) about how to write good tests.
 
+- At the end of any test file that creates data or log files, cleanup the files with `file.remove`.
+
 ## Code Style
 
 We abide by the [tidyverse style guide](http://style.tidyverse.org/). Additional style details below.
