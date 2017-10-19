@@ -189,3 +189,4 @@ imputeDF <- function(df, imputeVals = NULL) {
 imputeColumn <- function(v) {
   stop('This function was depreciated. Use imputeDF instead.')
 }
+

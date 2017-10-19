@@ -256,3 +256,4 @@ XGBoostDevelopment <- R6Class("XGBoostDevelopment",
     }
   )
 )
+

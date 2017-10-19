@@ -153,3 +153,4 @@ RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
     }
   )
 )
+
