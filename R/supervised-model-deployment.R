@@ -521,6 +521,18 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       }
     }
     
+    # If variables are provided in `modifiableVariableLevels` but not 
+    # `modifiableVariables` add them to the latter with a warning
+    omitted <- 
+      names(modifiableVariableLevels)[
+        which(!names(modifiableVariableLevels) %in% modifiableVariables)]
+    if (length(omitted)) {
+      warning(paste(omitted, collapse = ", "), "included in ",
+              "modifiableVariableLevels but not modifiableVariables.",
+              " Added to modifiableVariables.")
+      modifiableVariables <- c(modifiableVariables, omitted)
+    }
+    
     # Subset to only include valid variables
     modifiableVariableLevels <- modifiableVariableLevels[modifiableVariables]
     
