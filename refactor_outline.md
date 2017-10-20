@@ -15,7 +15,7 @@ These functions should generally return an object that has `print.`, `summary.`,
 ### Profiling Functions
 
 - Find correlations
-	- This could identify numeric and low-cardinality categoricals and calculate correlations between them
+    - This could identify numeric and low-cardinality categoricals and calculate correlations between them
     - `plot.` method could call `corrplot` or `ggpairs`
 - Feature availability over time since admit, `featureAvailabilityProfiler`
 - Null profiling, % missing in each column, optionally within dates as in `percentDataAvailableInDateRange`
@@ -78,8 +78,8 @@ Take user inputs and prepare them for the cross validation pipeline. User input 
             - Hyperparameters to tune over, or
             - Hyperparameters to tune over + number of values to try for each, or
             - Hyperparameters to tune over + values to use (e.g. I know I want 200 trees, but tune over mtry = 10, 30, or 70)
-    + Performance metric (AUROC, AUPR, accuracy or MRSE, MAE, etc.)
-    + Loss function for classification scored by accuracy
+        * Performance metric (AUROC, AUPR, accuracy or MRSE, MAE, etc.)
+        * Loss function for classification scored by accuracy
 
 ### Cross Validation
 
