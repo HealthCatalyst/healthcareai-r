@@ -5,6 +5,7 @@
 #' \item Load a saved model from \code{\link{LassoDevelopment}}
 #' \item Run the model against test data to generate predictions
 #' \item Push these predictions to SQL Server
+#' \item Identify factors that could benefit outcomes (see final examples)
 #' }
 #' @docType class
 #' @usage LassoDeployment(type, df, grainCol, predictedCol, impute, debug, cores, modelName)
@@ -479,11 +480,11 @@
 #' 
 #' ## Get Recommendations
 #' 
-#' # \code{getProcessVariablesDf} only uses variables with non-zero coefficients, 
+#' # getProcessVariablesDf only uses variables with non-zero coefficients, 
 #' # automatically discarding the rest. In this example, only A1CNBR had a
 #' # nonzerocoefficient. Even though this variable is numeric, we can still use
 #' # getProcessVariablesDf using the variableLevels parameter. For examples with
-#' # categorical variables and additional details about \code{getProcessVariablesDf},
+#' # categorical variables and additional details about getProcessVariablesDf,
 #' # see the examples in ?RandomForestDeployment
 #' 
 #' dL$getProcessVariablesDf(modifiableVariables = c("A1CNBR"),
