@@ -1,5 +1,5 @@
 #' @title
-#' Analyze points in time to deterime whether or not Nelson Rule 1 was violated
+#' Analyze points in time to determine whether or not Nelson Rule 1 was violated
 #' @description
 #' Search within a data frame to find violations of Nelson Rule 1.
 #' Nelson Rule 1: One point is more than 3 standard deviations from the mean.
