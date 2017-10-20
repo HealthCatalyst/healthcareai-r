@@ -62,8 +62,8 @@ Generate new predictions, calculate top factors, and prepare the output datafram
 Return the grain, all top factors, and their weights. \cr
 \emph{Usage:} \code{$getTopFactors(numberOfFactors = NA, includeWeights = FALSE)} \cr
 Params: \cr
-  - \code{numberOfFactors:} returns the top \code{n} factors. Defaults to all factors. \cr
-  - \code{includeWeights:} If \code{TRUE}, returns weights associated with each factor.
+  - \code{numberOfFactors} returns the top \code{n} factors. Defaults to all factors. \cr
+  - \code{includeWeights} If \code{TRUE}, returns weights associated with each factor.
 }
 
 \section{\code{$getOutDf()}}{
@@ -72,7 +72,32 @@ Returns the output dataframe. \cr
 \emph{Usage:} \code{$getOutDf()}
 }
 
+\section{\code{$performNewPredictions()}}{
+
+Performs predictions on new data which has gone through the necessary
+preprocessing. \cr
+\emph{Usage:} \code{$performNewPredictions(newData)} \cr
+Params: \cr
+  - \code{newData} A dataframe on which the model can make predictions.
+}
+
+\section{\code{$getProcessVariablesDf()}}{
+
+Builds and returns a dataframe with information about the modifiable process 
+variables. \cr
+\emph{Usage:} \code{$getProcessVariablesDf(modifiableVariables, 
+grainColumnValues = NULL, smallerBetter = TRUE, repeatedFactors = FALSE,
+numTopFactors = 3)} \cr
+Params: \cr
+  - \code{modifiableVariables} A vector of names of categorical variables.\cr
+  - \code{grainColumnIDs} A vector of grain column IDs. If \code{NULL}, the whole deployment dataframe will be used.\cr
+  - \code{smallerBetter} A boolean determining whether or not lower predictions/probabilities are more desirable. \cr
+  - \code{repeatedFactors} A boolean determining whether or not a single modifiable factor can be listed several times. \cr
+  - \code{numTopFactors} The number of modifiable process variables to include in each row.
+}
+
 \examples{
+
 
 #### Classification Example using csv data ####
 ## 1. Loading data and packages.
