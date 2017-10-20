@@ -471,7 +471,26 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     # Set modifiableProcessVariables and smallerPredictionsDesired params
     # Check that either both are present or both are absent.
     # Also check that the modifiable variables actually exist in the data
-
+    
+    # If variables are provided in `modifiableVariableLevels` but not 
+    # `modifiableVariables` add them to the latter with a warning
+    if (missing(modifiableVariables)) {
+      modifiableVariables <- names(modifiableVariableLevels)
+      warning("No modifiableVariables provided. Using names of ",
+              "modifiableVariableLevels: ",
+              paste(modifiableVariables, collapse = ", "))
+    } else {
+      omitted <- 
+        names(modifiableVariableLevels)[
+          which(!names(modifiableVariableLevels) %in% modifiableVariables)]
+      if (length(omitted)) {
+        warning(paste(omitted, collapse = ", "), " included in ",
+                "modifiableVariableLevels but not modifiableVariables.",
+                " Added to modifiableVariables.")
+        modifiableVariables <- c(modifiableVariables, omitted)
+      }
+    }
+    
     # Check that mofiable process variable actually exist in the data
     extraColumns <- setdiff(modifiableVariables,
                             names(self$params$df))
@@ -522,18 +541,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       if (!(variable %in% names(modifiableVariableLevels))) {
         modifiableVariableLevels[[variable]] <- self$modelInfo$factorLevels[[variable]]
       }
-    }
-    
-    # If variables are provided in `modifiableVariableLevels` but not 
-    # `modifiableVariables` add them to the latter with a warning
-    omitted <- 
-      names(modifiableVariableLevels)[
-        which(!names(modifiableVariableLevels) %in% modifiableVariables)]
-    if (length(omitted)) {
-      warning(paste(omitted, collapse = ", "), "included in ",
-              "modifiableVariableLevels but not modifiableVariables.",
-              " Added to modifiableVariables.")
-      modifiableVariables <- c(modifiableVariables, omitted)
     }
     
     # Subset to only include valid variables
