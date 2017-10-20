@@ -5,7 +5,7 @@
 #' \item Load a saved model from \code{\link{RandomForestDevelopment}}
 #' \item Run the model against test data to generate predictions
 #' \item Push these predictions to SQL Server
-#' \item Identify factors that could benefit outcomes (see final example code)
+#' \item Identify factors that could benefit outcomes (see final examples)
 #' }
 #' @docType class
 #' @usage RandomForestDeployment(type, df, grainCol, predictedCol, impute, debug, cores, modelName)
@@ -485,39 +485,39 @@
 #' dL <- RandomForestDeployment$new(p2)
 #' dL$deploy()
 #' 
-#' ## Get Recommendations using \code{getProcessVariablesDf}
+#' ## Get Recommendations using getProcessVariablesDf
 #' 
-#' # Categorical variables can simply be listed as \code{modifiableVariables} and all
+#' # Categorical variables can simply be listed as modifiableVariables and all
 #' # factors levels will be used for comparison purposes. The dataframe 
 #' # generated from the code below will consider all possible blood pressure
 #' # categories.
 #' dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP"))
 #' 
 #' # By default, the function returns recommendations for all rows, but we can 
-#' # restrict to specific rows using the \code{grainColumnIDs} parameter
+#' # restrict to specific rows using the grainColumnIDs parameter
 #' dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP"), 
 #'                          grainColumnIDs = c(954, 965, 996))
 #' 
-#' # The \code{variableLevels} parameter can be used to limit which factor levels are
+#' # The variableLevels parameter can be used to limit which factor levels are
 #' # considered (for categorical variables). The dataframe generated from the 
 #' # code below will only make comparisons with normal BP and pre-hypertensive
 #' dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP"),
 #'                          variableLevels = list(SystolicBP = c("Normal",
 #'                                                               "Pre-hypertensive")))
 #' 
-#' # The \code{variableLevels} parameter can also be used to allow recommendations for 
+#' # The variableLevels parameter can also be used to allow recommendations for 
 #' # numeric variables, by providing specific target values of the numeric 
 #' # variable to make comparisons to. In the code below, the predictions will be 
 #' # compared to those for an A1C of 5.6
 #' dL$getProcessVariablesDf(modifiableVariables = c("A1CNBR"),
 #'                          variableLevels = list(A1CNBR = c(5.6)))
 #' 
-#' # The \code{repeatedFactors} parameter allows one to get multiple recommendations  
+#' # The repeatedFactors parameter allows one to get multiple recommendations  
 #' # for the same variable. For example, reducing A1C to 5.0 might most improve
 #' # a patient's risk, but reducing A1C to 5.5 is likely to also reduce the risk
 #' # and that change might be more impactful than altering the patient's blood
-#' # pressure. When \code{repeatedFactors} is TRUE, both those results will
-#' # be included. If \code{repeatedFactors} were FALSE, only the most beneficial
+#' # pressure. When repeatedFactors is TRUE, both those results will
+#' # be included. If repeatedFactors were FALSE, only the most beneficial
 #' # value of A1C would be included.
 #' dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP", "A1CNBR"),
 #'                          variableLevels = list(SystolicBP = c("Normal",
@@ -525,7 +525,7 @@
 #'                                                A1CNBR = c(5.0, 5.5, 6, 6.5)), 
 #'                          repeatedFactors = TRUE)
 #' 
-#' # The \code{numTopFactors} parameter allows one to set the maximum number of 
+#' # The numTopFactors parameter allows one to set the maximum number of 
 #' # recommendations to display (with the default being 3)
 #' dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP", "A1CNBR"),
 #'                          variableLevels = list(SystolicBP = c("Normal",
@@ -535,7 +535,7 @@
 #'                          numTopFactors = 5)
 #' 
 #' # If greater values of the predicted variable are preferable, setting
-#' # \code{smallerBetter = FALSE} will identify the factors that most increase
+#' # smallerBetter to FALSE will identify the factors that most increase
 #' # the value of the outcome variable. In this case, the deltas will be 
 #' # positive, corresponding to an increased risk
 #' dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP"),
