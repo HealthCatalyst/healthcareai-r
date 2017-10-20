@@ -434,6 +434,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   buildProcessVariableDfList = function(modifiableVariableLevels,
                                         grainColumnValues = NULL, 
                                         smallerBetter = TRUE) {
+
     # If no grain column values are specified, use the whole dataframe
     if (length(grainColumnValues) == 0) {
       grainColumnValues <- private$grainTest
@@ -442,7 +443,9 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       # warning
       nonGrain <- grainColumnValues[!(grainColumnValues %in% private$grainTest)]
       if (length(nonGrain) > 0) {
-        warning("AAARG")
+        wrn_mes <- paste0("The following grain column IDs could not be found",
+               " and will be omitted: ", paste(nonGrain, collapse = " "))
+        warning(wrn_mes)
         grainColumnValues <- intersect(grainColumnValues, private$grainTest)
       }
       # Rearrange grain ids to match the rows
