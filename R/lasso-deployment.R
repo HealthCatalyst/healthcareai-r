@@ -39,16 +39,35 @@
 #' Return the grain, all top factors, and their weights. \cr
 #' \emph{Usage:} \code{$getTopFactors(numberOfFactors = NA, includeWeights = FALSE)} \cr
 #' Params: \cr
-#'   - \code{numberOfFactors:} returns the top \code{n} factors. Defaults to all factors. \cr
-#'   - \code{includeWeights:} If \code{TRUE}, returns weights associated with each factor.
+#'   - \code{numberOfFactors} returns the top \code{n} factors. Defaults to all factors. \cr
+#'   - \code{includeWeights} If \code{TRUE}, returns weights associated with each factor.
 #' @section \code{$getOutDf()}:
 #' Returns the output dataframe. \cr
 #' \emph{Usage:} \code{$getOutDf()} 
+#' @section \code{$performNewPredictions()}:
+#' Performs predictions on new data which has gone through the necessary
+#' preprocessing. \cr
+#' \emph{Usage:} \code{$performNewPredictions(newData)} \cr
+#' Params: \cr
+#'   - \code{newData} A dataframe on which the model can make predictions.
+#' @section \code{$getProcessVariablesDf()}:
+#' Builds and returns a dataframe with information about the modifiable process 
+#' variables. \cr
+#' \emph{Usage:} \code{$getProcessVariablesDf(modifiableVariables, 
+#' grainColumnValues = NULL, smallerBetter = TRUE, repeatedFactors = FALSE,
+#' numTopFactors = 3)} \cr
+#' Params: \cr
+#'   - \code{modifiableVariables} A vector of names of categorical variables.\cr
+#'   - \code{grainColumnIDs} A vector of grain column IDs. If \code{NULL}, the whole deployment dataframe will be used.\cr
+#'   - \code{smallerBetter} A boolean determining whether or not lower predictions/probabilities are more desirable. \cr
+#'   - \code{repeatedFactors} A boolean determining whether or not a single modifiable factor can be listed several times. \cr
+#'   - \code{numTopFactors} The number of modifiable process variables to include in each row.
 #' @export
 #' @seealso \code{\link{healthcareai}}
 #' @seealso \code{\link{writeData}}
 #' @seealso \code{\link{selectData}}
 #' @examples
+#' 
 #' 
 #' #### Classification Example using csv data ####
 #' ## 1. Loading data and packages.
@@ -444,10 +463,7 @@ LassoDeployment <- R6Class(
       private$lambda1se <- private$fitGrLasso$lambda[private$indLambda1se]
       
       # Predictions (in terms of probability)
-      private$predictions <- stats::predict(object = private$fitGrLasso,
-                                     X = model.matrix(private$modFmla, data = self$params$df)[,-1],
-                                     lambda = private$lambda1se,
-                                     type = "response")
+      private$predictions <- self$performNewPredictions(self$params$df)
       
       if (isTRUE(self$params$debug)) {
         cat("Rows in prob prediction: ", nrow(private$predictedVals), '\n')
@@ -561,6 +577,14 @@ LassoDeployment <- R6Class(
     # Surface outDf as attribute for export to Oracle, MySQL, etc
     getOutDf = function() {
       return(private$outDf)
+    }, 
+    
+    # Perform predictions on new data
+    performNewPredictions = function(newData) {
+      stats::predict(object = private$fitGrLasso,
+                     X = model.matrix(private$modFmla, data = newData)[,-1],
+                     lambda = private$lambda1se,
+                     type = "response")
     }
   )
 )
