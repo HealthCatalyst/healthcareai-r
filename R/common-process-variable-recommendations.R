@@ -88,7 +88,12 @@ permute_process_variables <- function(dataframe,
   lapply(X = seq_along(modifiable_variable_levels), FUN = function(i) {
     # Get variable name and levels
     modifiable_variable <- modifiable_names[i]
-    levels <- factor(modifiable_variable_levels[[i]])
+    if (is.factor(dataframe[[modifiable_variable]])) {
+      levels <- factor(modifiable_variable_levels[[i]], 
+                       levels = levels(dataframe[[modifiable_variable]]))
+    } else {
+      levels <- modifiable_variable_levels[[i]]
+    }
 
     # For one variable, cycle through all levels and build a dataframe for
     # each one by perturbing the levels, then combine these.
