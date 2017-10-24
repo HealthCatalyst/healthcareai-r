@@ -7,10 +7,11 @@
 catalyst_test_deploy_in_prod()
 }
 \description{
-This is meant to test the production environment on ETL servers. Use it instead of a long running deploy script.
+This is meant to test the production environment on ETL servers. 
+Use it instead of a long running deploy script.
 }
 \seealso{
-\code{\link{startProdLogs}}
+\code{\link{start_prod_logs}}
 
-\code{\link{stopProdLogs}}
+\code{\link{stop_prod_logs}}
 }

@@ -1,17 +1,18 @@
 #' @title
 #' Sets console logging to a file in the working directory.
 #'
-#' @description Logs all console messages and output to a timestamped file called, "deployConsoleLog..."
-#' in the working directory. This is meant to be used in production to monitor console output on ETL servers.
+#' @description Logs all console messages and output to a timestamped file 
+#' called, "deployConsoleLog..." in the working directory. This is meant to be 
+#' used in production to monitor console output on ETL servers.
 #' @export
-#' @seealso \code{\link{stopProdLogs}}
+#' @seealso \code{\link{stop_prod_logs}}
 #' @examples
 #' # Object Attribute Base should contain a script like this:
 #' # Move to working directory 
 #' # setwd("Prod Server/Machine Learning/MyProject")
 #' 
 #' # Start console logging
-#' startProdLogs()
+#' start_prod_logs()
 #' 
 #' # Deploy -------------------------------------------------
 #' # Test deployment. Comment/delete when working
@@ -21,13 +22,13 @@
 #' # source("myDeployScript.R")
 #' 
 #' # Stop console logging
-#' stopProdLogs()
-startProdLogs = function() {
+#' stop_prod_logs()
+start_prod_logs = function() {
   # Create file name and open connection
   file_name <- paste0("deployConsoleLog", 
-                      "_",
-                      format(Sys.time(), paste("%Y-%m-%d_%H.%M.%OS", 3, sep = "")), 
-                      ".txt")
+    "_",
+    format(Sys.time(), paste("%Y-%m-%d_%H.%M.%OS", 3, sep = "")), 
+    ".txt")
   closeAllConnections() # clean up connections before creating a new one.
   file_connection <- file(description = file_name, open = "wt")
 
@@ -43,10 +44,11 @@ startProdLogs = function() {
 #' @title
 #' Stops all console logging.
 #'
-#' @description Stops all console logging. This is meant to be used in production to monitor console output on ETL servers.
+#' @description Stops all console logging. This is meant to be used in 
+#' production to monitor console output on ETL servers.
 #' @export
-#' @seealso \code{\link{startProdLogs}}
-stopProdLogs = function() {
+#' @seealso \code{\link{start_prod_logs}}
+stop_prod_logs = function() {
   # Stop writing to the file
   sink(type = "message")
   sink()
@@ -55,12 +57,14 @@ stopProdLogs = function() {
 #' @title
 #' Test function to check that the production environment is active.
 #'
-#' @description This is meant to test the production environment on ETL servers. Use it instead of a long running deploy script.
+#' @description This is meant to test the production environment on ETL servers. 
+#' Use it instead of a long running deploy script.
 #' @export
-#' @seealso \code{\link{startProdLogs}}
-#' @seealso \code{\link{stopProdLogs}}
+#' @seealso \code{\link{start_prod_logs}}
+#' @seealso \code{\link{stop_prod_logs}}
 catalyst_test_deploy_in_prod = function() {
-  print("If you're reading this in the log file, deployment is ready to go in prod.")
+  print("If you're reading this in the log file, 
+    deployment is ready to go in prod.")
   library(healthcareai)
-  print(paste("Healthcareai version: ", packageVersion("healthcareai")))
+  print(paste("Healthcareai version: ", utils::packageVersion("healthcareai")))
 }
