@@ -29,6 +29,7 @@ build_process_variable_df_list <- function(dataframe,
                                            modifiable_variable_levels,
                                            predict_function, 
                                            smaller_better) {
+
   # Add the grain colum
   dataframe["df_grain_column"] <- grain_column_values
   # Build big dataframe of permuted data
@@ -63,6 +64,23 @@ build_process_variable_df_list <- function(dataframe,
     # For each grain column id, order the results by delta
     dplyr::arrange(.data[["df_grain_column"]], 
                    ordering_direction*desc(.data[["delta"]]))
+  
+  # Check for predictions that are same or worse as the original and       
+  # replace the recomendation and modified prediction with the originals
+  # and the delta with 0
+  to_fix <-
+    if (smaller_better) {
+      full_df$delta >= 0L
+    } else {
+      full_df$delta <= 0L
+    }
+
+  if (length(to_fix)) {
+    # These rows will only be exposed if best delta is 0, so replace with current
+    full_df$alt_value[to_fix] <- full_df$current_value[to_fix]
+    full_df$new_prediction[to_fix] <- full_df$base_prediction[to_fix]
+    full_df$delta[to_fix] <- 0
+  }
 
   # Split the large dataframe into a list of dataframes
   split(full_df, as.factor(full_df$df_grain_column))
@@ -88,7 +106,12 @@ permute_process_variables <- function(dataframe,
   lapply(X = seq_along(modifiable_variable_levels), FUN = function(i) {
     # Get variable name and levels
     modifiable_variable <- modifiable_names[i]
-    levels <- factor(modifiable_variable_levels[[i]])
+    if (is.factor(dataframe[[modifiable_variable]])) {
+      levels <- factor(modifiable_variable_levels[[i]], 
+                       levels = levels(dataframe[[modifiable_variable]]))
+    } else {
+      levels <- modifiable_variable_levels[[i]]
+    }
 
     # For one variable, cycle through all levels and build a dataframe for
     # each one by perturbing the levels, then combine these.
