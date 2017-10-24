@@ -45,8 +45,23 @@
 #'  geom_point(data = df[df$violationFLG == TRUE,]
 #'    ,aes(color = violationFLG))
 
-nelsonRule1 <- function(df, measure_col, date_col, plot_flg) {
+nelsonRule1 <- function(df, measure_col, date_col, plot_flg = TRUE) {
   library(ggplot2)
+  
+  # Check to make sure that df is a dataframe
+  if (!(is.data.frame(df))) {
+    stop('df must be a dataframe.')
+  }
+  
+  # Check to make sure that date_col is a date
+  if (!(class(df[[date_col]]) == "Date")) {
+    stop('date_col must be a date.')
+  }
+  
+  # Check to make sure that date_col is a date
+  if (!(is.numeric(df[[measure_col]]))) {
+    stop('measure_col must be numeric.')
+  }
   
   ucl <- mean(df[[measure_col]]) + 3 * sd(df[[measure_col]])
   lcl <- mean(df[[measure_col]]) - 3 * sd(df[[measure_col]])
@@ -98,6 +113,6 @@ measureValue[19] <- 22
 measureValue[47] <- 177
 
 d <- data.frame(date, measureValue)
-nr1 <- nelsonRule1(df = d, measure_col = 'measureValue', date_col = 'date', plot_flg = TRUE)
+nr1 <- nelsonRule1(df = d, measure_col = 'measureValue', date_col = 'date')
 dfViolations <- nr1$dfViolations
 nr1
