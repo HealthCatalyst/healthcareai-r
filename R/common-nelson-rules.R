@@ -4,10 +4,10 @@
 #' Search within a data frame to find violations of Nelson Rule 1.
 #' Nelson Rule 1: One point is more than 3 standard deviations from the mean.
 #' @param df A data frame
-#' @param measureCol A string denoting the column that contains the numeric
+#' @param measure_col A string denoting the column that contains the numeric
 #' value to be evaluated by the nelsonRule1 function
-#' @param dateCol A string denoting the date column used for evaluating
-#' nelsonRule1 over time
+#' @param date_col A string denoting the date column used for evaluating
+#' Nelson Rule 1 over time
 #' @return A data frame containing the date, measure value, uppper control
 #' limit, lower control limit, a flag indicating whether or not a rule violation
 #' occured and a description of the violation.
@@ -69,29 +69,29 @@ nelsonRule1 <- function(df, measure_col, date_col, plot_flg = TRUE) {
   violationFLG <- as.numeric(df[[measure_col]] > ucl | df[[measure_col]] < lcl)
   
   violationDSC <- ifelse(df[[measure_col]] > ucl, 'more than 3 standard deviations above the mean'
-                         ,ifelse(df[[measure_col]] < lcl, 'more than 3 standard deviations below the mean',NA))
+    ,ifelse(df[[measure_col]] < lcl, 'more than 3 standard deviations below the mean',NA))
   
   out <- list()
   
   df <- data.frame(date = df[[date_col]]
-         ,measure = df[[measure_col]]
-         ,ucl = ucl
-         ,lcl = lcl
-         ,violationFLG = violationFLG
-         ,violationDSC = violationDSC)
+    ,measure = df[[measure_col]]
+    ,ucl = ucl
+    ,lcl = lcl
+    ,violationFLG = violationFLG
+    ,violationDSC = violationDSC)
   
   colnames(df)[1:2] <- c(date_col,measure_col)
   
   ifelse(plot_flg == TRUE,
     out$p <- ggplot(data = df
-                ,aes(x = date
-                     ,y = measureValue)) +
-          geom_line() +
-          geom_hline(data = unique(df$ucl), yintercept = unique(df$ucl)) +
-          geom_hline(data = unique(df$lcl), yintercept = unique(df$lcl)) +
-          geom_hline(aes(yintercept = mean(measureValue)), linetype = 'dashed') +
-          geom_point(data = df[df$violationFLG == TRUE,]
-                     ,color = 'red'),
+      ,aes(x = date
+        ,y = measureValue)) +
+      geom_line() +
+      geom_hline(data = unique(df$ucl), yintercept = unique(df$ucl)) +
+      geom_hline(data = unique(df$lcl), yintercept = unique(df$lcl)) +
+      geom_hline(aes(yintercept = mean(measureValue)), linetype = 'dashed') +
+      geom_point(data = df[df$violationFLG == TRUE,]
+        ,color = 'red'),
     out$p <- NA
   )
   
@@ -102,17 +102,3 @@ nelsonRule1 <- function(df, measure_col, date_col, plot_flg = TRUE) {
   return(out)
 }
 
-date <- seq.Date(from = as.Date('2016-01-03'), length.out = 52, by = 'week')
-set.seed(34)
-measureValue <- rnorm(length(date), mean = 100, sd = 15)
-
-# Alter some measureValues to be at least 3 standard deviations from the mean
-# so they can be displayed as violation examples.
-measureValue[9] <- 179
-measureValue[19] <- 22
-measureValue[47] <- 177
-
-d <- data.frame(date, measureValue)
-nr1 <- nelsonRule1(df = d, measure_col = 'measureValue', date_col = 'date')
-dfViolations <- nr1$dfViolations
-nr1
