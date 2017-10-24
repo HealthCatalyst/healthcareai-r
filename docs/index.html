@@ -16,7 +16,7 @@
 <![endif]-->
 </head>
 <body>
-    <div class="container template-home">
+    <div class="container template-vignette">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
@@ -38,6 +38,18 @@
 <li>
   <a href="reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="articles/site_only/fake_vignette.html">fake vignette</a>
+    </li>
+  </ul>
+</li>
       </ul>
 <ul class="nav navbar-nav navbar-right"></ul>
 </div>
@@ -49,162 +61,26 @@
 
       
       </header><div class="row">
-  <div class="contents col-md-9">
-    <div id="healthcareai" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#healthcareai" class="anchor"></a>healthcareai</h1></div>
+  <div class="col-md-9">
+    
 
-<p>The aim of <code>healthcareai</code> is to make machine learning easy on healthcare data. The package has two main goals:</p>
-<ul>
-<li><p>Allow one to easily develop and compare models based on tabular data, and deploy a best model that pushes predictions to either databases or flat files.</p></li>
-<li><p>Provide tools related to data cleaning, manipulation, and imputation.</p></li>
-</ul>
-<div id="for-those-starting-out" class="section level2">
-<h2 class="hasAnchor">
-<a href="#for-those-starting-out" class="anchor"></a>For those starting out</h2>
-<ul>
-<li>If you haven’t, install <a href="https://CRAN.r-project.org/">R</a> version &gt;= 3.2.3 and <a href="https://www.rstudio.com/products/rstudio/download">RStudio</a>
-</li>
-</ul>
-<p>Note: if you’re setting up R on an ETL server, don’t download RStudio–simply open up RGui</p>
-</div>
-<div id="install-the-latest-release-on-windows" class="section level2">
-<h2 class="hasAnchor">
-<a href="#install-the-latest-release-on-windows" class="anchor"></a>Install the latest release on Windows</h2>
-<p>Open RStudio and work in the console</p>
-<pre><code>install.packages('healthcareai')</code></pre>
-<blockquote>
-<p>If you don’t have admin rights on the machine you are working on, and <code>library(healthcareai)</code> throws an error about packages not being available, you can likely solve the problem by defining a custom location in which to store R packages. To do this, open the Control Panel and click through User Accounts -&gt; User Accounts -&gt; Change my environment variables, and add a variable called <code>R_LIBS_USER</code> with the value being a path to a folder where you want to keep R packages. For example, you might create a new directory: <code>C:\Users\your.name\Documents\R\my_library</code> and use that to store your R packages. Then restart R Studio, run <code>install.packages("healthcareai")</code> and <code>library(healthcareai)</code> again and all should be well.</p>
-</blockquote>
-</div>
-<div id="how-to-install-the-latest-version-on-macos" class="section level2">
-<h2 class="hasAnchor">
-<a href="#how-to-install-the-latest-version-on-macos" class="anchor"></a>How to install the latest version on macOS</h2>
-<p>Open RStudio and work in the console</p>
-<pre><code>install.packages('healthcareai')</code></pre>
-</div>
-<div id="how-to-install-latest-version-on-ubuntu-linux" class="section level2">
-<h2 class="hasAnchor">
-<a href="#how-to-install-latest-version-on-ubuntu-linux" class="anchor"></a>How to install latest version on Ubuntu (Linux)</h2>
-<ul>
-<li>An Ubuntu 14.04 Droplet with at least 1 GB of RAM is required for the installation.</li>
-<li>Follow steps 1 and 2 <a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-r-on-ubuntu-14-04">here</a> to install R</li>
-<li>Run <code>sudo apt-get install libiodbc2-dev</code>
-</li>
-<li>Run <code>sudo apt-get install unixodbc unixodbc-dev</code>
-</li>
-<li>After typing <code>R</code> run <code>install.packages('healthcareai')</code>
-</li>
-</ul>
-</div>
-<div id="install-the-bleeding-edge-version-for-folks-providing-contributions" class="section level2">
-<h2 class="hasAnchor">
-<a href="#install-the-bleeding-edge-version-for-folks-providing-contributions" class="anchor"></a>Install the bleeding edge version (for folks providing contributions)</h2>
-<p>Open RStudio and work in the console</p>
-<pre><code>library(devtools)
-devtools::install_github(repo='HealthCatalyst/healthcareai-r')</code></pre>
-</div>
-<div id="tips-on-getting-started" class="section level2">
-<h2 class="hasAnchor">
-<a href="#tips-on-getting-started" class="anchor"></a>Tips on getting started</h2>
-<div id="built-in-examples" class="section level4">
-<h4 class="hasAnchor">
-<a href="#built-in-examples" class="anchor"></a>Built-in examples</h4>
-<p>Load the package you just installed and read the built-in docs</p>
-<pre><code>library(healthcareai)
-?healthcareai</code></pre>
-</div>
-<div id="website-examples" class="section level4">
-<h4 class="hasAnchor">
-<a href="#website-examples" class="anchor"></a>Website examples</h4>
-<p>See our <a href="http://healthcareai-r.readthedocs.io">docs website</a></p>
-</div>
-</div>
-<div id="join-the-community" class="section level2">
-<h2 class="hasAnchor">
-<a href="#join-the-community" class="anchor"></a>Join the community</h2>
-<p>Read the blog and join the slack channel at <a href="https://healthcare.ai">healthcare.ai</a></p>
-</div>
-<div id="whats-new" class="section level2">
-<h2 class="hasAnchor">
-<a href="#whats-new" class="anchor"></a>What’s new?</h2>
-<p>The CRAN 1.0.0 release features:</p>
-<ul>
-<li>Added:</li>
-<li>Kmeans clustering</li>
-<li>XGBoost multiclass support</li>
-<li>findingVariation family of functions</li>
-<li>Changed:</li>
-<li>Develop step trains and saves models</li>
-<li>Deploy no longer trains. Loads and predicts on all rows.</li>
-<li>SQL uses a DBI back end</li>
-<li>Removed:</li>
-<li>
-<code>testWindowCol</code> is no longer a param.</li>
-<li>SQL reading/writing is outside model deployment.</li>
-</ul>
-</div>
-<div id="for-issues" class="section level2">
-<h2 class="hasAnchor">
-<a href="#for-issues" class="anchor"></a>For issues</h2>
-<ul>
-<li>
-<p>Double check that the code follows the examples in the built-in docs</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(healthcareai)
-?healthcareai</code></pre></div>
-</li>
-<li><p>Make sure you’ve thoroughly read the descriptions found <a href="http://healthcareai-r.readthedocs.io">here</a></p></li>
-<li>If you’re still seeing an error, file an issue on <a href="http://stackoverflow.com/">Stack Overflow</a> using the healthcare-ai tag. Please provide</li>
-<li>Details on your environment (OS, database type, R vs Py)</li>
-<li>Goals (ie, what are you trying to accomplish)</li>
-<li><p>Crystal clear steps for reproducing the error</p></li>
-</ul>
-</div>
-<div id="contributing" class="section level2">
-<h2 class="hasAnchor">
-<a href="#contributing" class="anchor"></a>Contributing</h2>
-<p>You want to help? Woohoo! We welcome that and are willing to help newbies get started.</p>
-<p>First, see <a href="CONTRIBUTING.md">here</a> for instructions on setting up your development environment</p>
-<p>After that’s done, <em>here’s the contribution workflow:</em></p>
-<p>1) Identify an issue that suits your skill level <a href="https://github.com/HealthCatalystSLC/healthcareai-r/issues">here</a></p>
-<ul>
-<li>Only look for issues in the Backlog category</li>
-<li>If you’re new to open source, please look for issues with the <code>bug low</code>, <code>help wanted</code>, or <code>docs</code> tags</li>
-<li>Please reach out with questions on details and where to start</li>
-</ul>
-<p>2) Create a topic branch to work in, as described <a href="CONTRIBUTING.md#create-a-topic-branch-that-you-can-work-in">here</a></p>
-<p>3) To test the new functionality you’ve created, use a new throw-away file on the Desktop (or somewhere outside the repo), perhaps based on a package example</p>
-<p>4) As you make changes</p>
-<ul>
-<li>Document any new functions, methods, etc via <a href="http://r-pkgs.had.co.nz/man.html">roxygen2</a>
-</li>
-<li>Be sure to build often
-<ul>
-<li>Note: building checks for errors and allows you to use the latest code</li>
-</ul>
-</li>
-<li>Make small commits after getting a small piece working</li>
-<li>Push often so your changes are backed up. See <a href="https://gist.github.com/blackfalcon/8428401#push-your-branch">here</a> for more</li>
-</ul>
-<p>5) Early on, create a <a href="https://yangsu.github.io/pull-request-tutorial/">pull request</a> such that Levi and team can discuss the changes that you’re making. Conversation is good.</p>
-<p>6) When you’re done with the issue you chose, do the following</p>
-<ol>
-<li>Merge the master branch into your topic branch (so that you have the latest changes from master)</li>
-</ol>
-<p><code>git checkout LeviBugFix    git fetch    git merge --no-ff origin/master</code> - This opens a text editor called <a href="https://github.com/yuanqing/vim-basics/blob/master/README.md">vim</a>, where you type <code>i</code>, type your commit message, and <a href="http://stackoverflow.com/a/6098842/5636012">then save</a></p>
-<ol>
-<li><p>Build and fix any errors</p></li>
-<li><p>Run tests via <code>devtools::tests()</code> or CTRL+SHIFT+D and fix any errors</p></li>
-<li><p>Run the roxygen2 examples via <code><a href="http://www.rdocumentation.org/packages/devtools/topics/run_examples">devtools::run_examples()</a></code> and fix any errors</p></li>
-<li><p>Under the build tab, run ‘Check’ and verify that no errors/warnings/notes arise</p></li>
-<li><p>Now that your changes are working, communicate that to Levi and team in the pull request, such that he knows to do the code review associated with the PR. Please <em>don’t</em> do tons of work and <em>then</em> start a PR. Early is good.</p></li>
-</ol>
+    
+    
+<div class="contents">
+<div id="hello" class="section level1">
+<div class="page-header"><h1 class="hasAnchor">
+<a href="#hello" class="anchor"></a>Hello!</h1></div>
+<p>This is our pkgdown homepage, which is now distinct from our readme (by default README.md would be used here.)</p>
+<p>This was auto-generated from an R Markdown file (<code>index.Rmd</code>), so we can do things like this:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cl<span class="op">$</span><span class="kw">get2DClustersPlot</span>()</code></pre></div>
+<p><img src="index_files/figure-html/plot-1.png" width="672"></p>
 </div>
 </div>
   </div>
 
-  <div class="col-md-3" id="sidebar">
-    <h2>Links</h2>
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+    <h2 class="hasAnchor">
+<a href="#sidebar" class="anchor"></a>Links</h2>
 <ul class="list-unstyled">
 <li>Download from CRAN at <br><a href="https://cran.r-project.org/package=healthcareai">https://​cran.r-project.org/​package=healthcareai</a>
 </li>
@@ -221,15 +97,8 @@ devtools::install_github(repo='HealthCatalyst/healthcareai-r')</code></pre>
 <li>Taylor Miller <br><small class="roles"> Author </small> </li>
 <li>Taylor Larsen <br><small class="roles"> Author </small> </li>
 </ul>
-<h2>Dev status</h2>
-<ul class="list-unstyled">
-<li><a href="https://ci.appveyor.com/project/CatalystAdmin/healthcareai-r/"><img src="https://ci.appveyor.com/api/projects/status/0xrpe233o9a16l4l/branch/master?svg=true" alt="Build status"></a></li>
-<li><a href="https://travis-ci.org/HealthCatalyst/healthcareai-r"><img src="https://travis-ci.org/HealthCatalyst/healthcareai-r.svg?branch=master" alt="Travis-CI Build Status"></a></li>
-<li><a href="https://github.com/HealthCatalystSLC/healthcareai-r/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a></li>
-<li><a href="https://cran.r-project.org/package=healthcareai"><img src="http://www.r-pkg.org/badges/version-last-release/healthcareai" alt="CRAN_Status_Badge"></a></li>
-<li><a href="https://doi.org/10.5281/zenodo.999334"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.999334.svg" alt="DOI"></a></li>
-</ul>
 </div>
+
 </div>
 
 

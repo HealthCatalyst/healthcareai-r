@@ -60,6 +60,18 @@
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/site_only/fake_vignette.html">fake vignette</a>
+    </li>
+  </ul>
+</li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
@@ -109,8 +121,7 @@ than 50 categories</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='co'># NOT RUN {</span>
-<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>data.frame</span>(<span class='kw'>a</span><span class='kw'>=</span><span class='fu'>c</span>(<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,
+    <pre class="examples"><div class='input'><span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>data.frame</span>(<span class='kw'>a</span><span class='kw'>=</span><span class='fu'>c</span>(<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,
                     <span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>),
                  <span class='kw'>b</span><span class='kw'>=</span><span class='fu'>c</span>(<span class='st'>'a'</span>,<span class='st'>'b'</span>,<span class='st'>'c'</span>,<span class='st'>'d'</span>,<span class='st'>'e'</span>,<span class='st'>'f'</span>,<span class='st'>'g'</span>,<span class='st'>'h'</span>,<span class='st'>'i'</span>,<span class='st'>'j'</span>,<span class='st'>'k'</span>,<span class='st'>'l'</span>,<span class='st'>'m'</span>,<span class='st'>'n'</span>,
                      <span class='st'>'o'</span>,<span class='st'>'p'</span>,<span class='st'>'q'</span>,<span class='st'>'r'</span>,<span class='st'>'s'</span>,<span class='st'>'t'</span>,<span class='st'>'u'</span>,<span class='st'>'v'</span>,<span class='st'>'w'</span>,<span class='st'>'x'</span>,<span class='st'>'y'</span>,<span class='st'>'z'</span>,<span class='st'>'aa'</span>,
@@ -118,8 +129,7 @@ than 50 categories</p>
                      <span class='st'>'mm'</span>,<span class='st'>'nn'</span>,<span class='st'>'oo'</span>,<span class='st'>'pp'</span>,<span class='st'>'qq'</span>,<span class='st'>'rr'</span>,<span class='st'>'ss'</span>,<span class='st'>'tt'</span>,<span class='st'>'uu'</span>,<span class='st'>'vv'</span>,<span class='st'>'ww'</span>,
                      <span class='st'>'xx'</span>,<span class='st'>'yy'</span>))
 <span class='no'>colList</span> <span class='kw'>&lt;-</span> <span class='fu'>returnColsWithMoreThanFiftyCategories</span>(<span class='no'>df</span>)
-<span class='no'>colList</span>
-<span class='co'># }</span></pre>
+<span class='no'>colList</span></div><div class='output co'>#&gt; [1] "b"</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

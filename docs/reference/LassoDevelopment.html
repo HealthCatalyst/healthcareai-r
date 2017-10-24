@@ -60,6 +60,18 @@
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/site_only/fake_vignette.html">fake vignette</a>
+    </li>
+  </ul>
+</li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
@@ -204,14 +216,19 @@ model training.
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='co'># NOT RUN {</span>
+    <pre class="examples"><div class='input'>
 <span class='co'>#### Example using iris dataset ####</span>
 <span class='no'>ptm</span> <span class='kw'>&lt;-</span> <span class='fu'>proc.time</span>()
 <span class='fu'>library</span>(<span class='no'>healthcareai</span>)
 
 <span class='fu'>data</span>(<span class='no'>iris</span>)
-<span class='fu'>head</span>(<span class='no'>iris</span>)
-
+<span class='fu'>head</span>(<span class='no'>iris</span>)</div><div class='output co'>#&gt;   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+#&gt; 1          5.1         3.5          1.4         0.2  setosa
+#&gt; 2          4.9         3.0          1.4         0.2  setosa
+#&gt; 3          4.7         3.2          1.3         0.2  setosa
+#&gt; 4          4.6         3.1          1.5         0.2  setosa
+#&gt; 5          5.0         3.6          1.4         0.2  setosa
+#&gt; 6          5.4         3.9          1.7         0.4  setosa</div><div class='input'>
 <span class='fu'>set.seed</span>(<span class='fl'>42</span>)
 
 <span class='no'>p</span> <span class='kw'>&lt;-</span> <span class='no'>SupervisedModelDevelopmentParams</span>$<span class='fu'>new</span>()
@@ -225,15 +242,27 @@ model training.
 
 <span class='co'># Run Lasso</span>
 <span class='no'>lasso</span> <span class='kw'>&lt;-</span> <span class='no'>LassoDevelopment</span>$<span class='fu'>new</span>(<span class='no'>p</span>)
-<span class='no'>lasso</span>$<span class='fu'>run</span>()
-
+<span class='no'>lasso</span>$<span class='fu'>run</span>()</div><div class='output co'>#&gt; RMSE: 0.34639848 
+#&gt; MAE: 0.26759093 
+#&gt; Grouped Lasso coefficients: 
+#&gt;       (Intercept)      Sepal.Length      Petal.Length       Petal.Width 
+#&gt;         2.5274566         0.1692443         0.0000000         0.0000000 
+#&gt; Speciesversicolor  Speciesvirginica 
+#&gt;        -0.7241716        -0.6554086 
+#&gt; Variables with non-zero coefficients:  Sepal.Length Species </div><div class='input'>
 <span class='fu'>set.seed</span>(<span class='fl'>42</span>)
 <span class='co'># Run Random Forest</span>
 <span class='no'>rf</span> <span class='kw'>&lt;-</span> <span class='no'>RandomForestDevelopment</span>$<span class='fu'>new</span>(<span class='no'>p</span>)
-<span class='no'>rf</span>$<span class='fu'>run</span>()
-
-<span class='fu'>cat</span>(<span class='fu'>proc.time</span>() - <span class='no'>ptm</span>,<span class='st'>"\n"</span>)
-
+<span class='no'>rf</span>$<span class='fu'>run</span>()</div><div class='output co'>#&gt; RMSE: 0.33198289 
+#&gt; MAE: 0.25716023 
+#&gt; ranger variable importance
+#&gt; 
+#&gt;              Overall
+#&gt; Petal.Length  100.00
+#&gt; Petal.Width    87.04
+#&gt; Sepal.Length   31.89
+#&gt; Species         0.00</div><div class='input'>
+<span class='fu'>cat</span>(<span class='fu'>proc.time</span>() - <span class='no'>ptm</span>,<span class='st'>"\n"</span>)</div><div class='output co'>#&gt; 0.691 0.012 0.684 0 0 </div><div class='input'>
 <span class='co'>#### Example using csv data ####</span>
 <span class='fu'>library</span>(<span class='no'>healthcareai</span>)
 <span class='co'># setwd('C:/Your/script/location') # Needed if using YOUR CSV file</span>
@@ -244,8 +273,20 @@ model training.
 <span class='co'># Replace csvfile with '/path/to/yourfile'</span>
 <span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>read.csv</span>(<span class='kw'>file</span> <span class='kw'>=</span> <span class='no'>csvfile</span>, <span class='kw'>header</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>na.strings</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"NULL"</span>, <span class='st'>"NA"</span>, <span class='st'>""</span>))
 
-<span class='fu'>head</span>(<span class='no'>df</span>)
-
+<span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;   PatientEncounterID PatientID SystolicBPNBR LDLNBR A1CNBR GenderFLG
+#&gt; 1                  1     10001           167    195    4.2         M
+#&gt; 2                  2     10001           153    214    5.0         M
+#&gt; 3                  3     10001           170    191    4.0         M
+#&gt; 4                  4     10002           187    135    4.4         M
+#&gt; 5                  5     10002           188    125    4.3         M
+#&gt; 6                  6     10002           185    178    5.0         M
+#&gt;   ThirtyDayReadmitFLG
+#&gt; 1                   N
+#&gt; 2                   N
+#&gt; 3                   N
+#&gt; 4                   N
+#&gt; 5                   N
+#&gt; 6                   N</div><div class='input'>
 <span class='no'>df</span>$<span class='no'>PatientID</span> <span class='kw'>&lt;-</span> <span class='kw'>NULL</span>
 
 <span class='fu'>set.seed</span>(<span class='fl'>42</span>)
@@ -260,17 +301,36 @@ model training.
 
 <span class='co'># Run Lasso</span>
 <span class='no'>lasso</span> <span class='kw'>&lt;-</span> <span class='no'>LassoDevelopment</span>$<span class='fu'>new</span>(<span class='no'>p</span>)
-<span class='no'>lasso</span>$<span class='fu'>run</span>()
-
+<span class='no'>lasso</span>$<span class='fu'>run</span>()</div><div class='output co'>#&gt; Area under the ROC curve is: 0.77 
+#&gt; Ideal cutoff is 0.17, yielding TPR of 0.83 and FPR of 0.32 
+#&gt; 95% CI AU_ROC: (0.67 , 0.88) 
+#&gt; 
+#&gt; Area under the PR curve is: 0.30 
+#&gt; Ideal cutoff is 0.18, yielding Precision of 0.43 and Recall of 0.60 
+#&gt; 
+#&gt; Grouped Lasso coefficients: 
+#&gt;   (Intercept) SystolicBPNBR        LDLNBR        A1CNBR    GenderFLGM 
+#&gt;    -3.0095923     0.0000000     0.0000000     0.2102113     0.0000000 
+#&gt; Variables with non-zero coefficients:  A1CNBR </div><div class='input'>
 <span class='fu'>set.seed</span>(<span class='fl'>42</span>)
 <span class='co'># Run Random Forest</span>
 <span class='no'>rf</span> <span class='kw'>&lt;-</span> <span class='no'>RandomForestDevelopment</span>$<span class='fu'>new</span>(<span class='no'>p</span>)
-<span class='no'>rf</span>$<span class='fu'>run</span>()
-
-<span class='fu'>cat</span>(<span class='fu'>proc.time</span>() - <span class='no'>ptm</span>,<span class='st'>"\n"</span>)
-
-<span class='co'># }</span><span class='co'># NOT RUN {</span>
-<span class='co'>#### Example using SQL Server data #### This example requires: 1) That you alter</span>
+<span class='no'>rf</span>$<span class='fu'>run</span>()</div><div class='output co'>#&gt; Area under the ROC curve is: 0.92 
+#&gt; Ideal cutoff is 0.17, yielding TPR of 0.90 and FPR of 0.16 
+#&gt; 95% CI AU_ROC: (0.87 , 0.98) 
+#&gt; 
+#&gt; Area under the PR curve is: 0.72 
+#&gt; Ideal cutoff is 0.33, yielding Precision of 0.71 and Recall of 0.73 
+#&gt; 
+#&gt; ranger variable importance
+#&gt; 
+#&gt;               Overall
+#&gt; SystolicBPNBR  100.00
+#&gt; A1CNBR          98.62
+#&gt; LDLNBR          78.07
+#&gt; GenderFLG        0.00</div><div class='input'>
+<span class='fu'>cat</span>(<span class='fu'>proc.time</span>() - <span class='no'>ptm</span>,<span class='st'>"\n"</span>)</div><div class='output co'>#&gt; 1.407 0.023 1.342 0 0 </div><div class='input'>
+</div><div class='input'><span class='co'>#### Example using SQL Server data #### This example requires: 1) That you alter</span>
 <span class='co'>#### your connection string / query</span>
 
 <span class='no'>ptm</span> <span class='kw'>&lt;-</span> <span class='fu'>proc.time</span>()
@@ -293,9 +353,13 @@ SELECT
 ,[ThirtyDayReadmitFLG]
 FROM [SAM].[dbo].[HCRDiabetesClinical]
 "</span>
-<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='selectData.html'>selectData</a></span>(<span class='no'>connection.string</span>, <span class='no'>query</span>)
-<span class='fu'>head</span>(<span class='no'>df</span>)
-
+<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='selectData.html'>selectData</a></span>(<span class='no'>connection.string</span>, <span class='no'>query</span>)</div><div class='output co'>#&gt; <span class='error'>Error: nanodbc/nanodbc.cpp:950: IM002: [unixODBC][Driver Manager]Data source name not found, and no default driver specified </span></div><div class='input'><span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;   PatientEncounterID SystolicBPNBR LDLNBR A1CNBR GenderFLG ThirtyDayReadmitFLG
+#&gt; 1                  1           167    195    4.2         M                   N
+#&gt; 2                  2           153    214    5.0         M                   N
+#&gt; 3                  3           170    191    4.0         M                   N
+#&gt; 4                  4           187    135    4.4         M                   N
+#&gt; 5                  5           188    125    4.3         M                   N
+#&gt; 6                  6           185    178    5.0         M                   N</div><div class='input'>
 <span class='fu'>set.seed</span>(<span class='fl'>42</span>)
 
 <span class='no'>p</span> <span class='kw'>&lt;-</span> <span class='no'>SupervisedModelDevelopmentParams</span>$<span class='fu'>new</span>()
@@ -309,29 +373,46 @@ FROM [SAM].[dbo].[HCRDiabetesClinical]
 
 <span class='co'># Run Lasso</span>
 <span class='no'>lasso</span> <span class='kw'>&lt;-</span> <span class='no'>LassoDevelopment</span>$<span class='fu'>new</span>(<span class='no'>p</span>)
-<span class='no'>lasso</span>$<span class='fu'>run</span>()
-
+<span class='no'>lasso</span>$<span class='fu'>run</span>()</div><div class='output co'>#&gt; Area under the ROC curve is: 0.77 
+#&gt; Ideal cutoff is 0.17, yielding TPR of 0.83 and FPR of 0.32 
+#&gt; 95% CI AU_ROC: (0.67 , 0.88) 
+#&gt; 
+#&gt; Area under the PR curve is: 0.30 
+#&gt; Ideal cutoff is 0.18, yielding Precision of 0.43 and Recall of 0.60 
+#&gt; 
+#&gt; Grouped Lasso coefficients: 
+#&gt;   (Intercept) SystolicBPNBR        LDLNBR        A1CNBR    GenderFLGM 
+#&gt;    -3.0095923     0.0000000     0.0000000     0.2102113     0.0000000 
+#&gt; Variables with non-zero coefficients:  A1CNBR </div><div class='input'>
 <span class='fu'>set.seed</span>(<span class='fl'>42</span>)
 <span class='co'># Run Random Forest</span>
 <span class='no'>rf</span> <span class='kw'>&lt;-</span> <span class='no'>RandomForestDevelopment</span>$<span class='fu'>new</span>(<span class='no'>p</span>)
-<span class='no'>rf</span>$<span class='fu'>run</span>()
-
+<span class='no'>rf</span>$<span class='fu'>run</span>()</div><div class='output co'>#&gt; Area under the ROC curve is: 0.92 
+#&gt; Ideal cutoff is 0.17, yielding TPR of 0.90 and FPR of 0.16 
+#&gt; 95% CI AU_ROC: (0.87 , 0.98) 
+#&gt; 
+#&gt; Area under the PR curve is: 0.72 
+#&gt; Ideal cutoff is 0.33, yielding Precision of 0.71 and Recall of 0.73 
+#&gt; 
+#&gt; ranger variable importance
+#&gt; 
+#&gt;               Overall
+#&gt; SystolicBPNBR  100.00
+#&gt; A1CNBR          98.62
+#&gt; LDLNBR          78.07
+#&gt; GenderFLG        0.00</div><div class='input'>
 <span class='co'># Plot ROC</span>
 <span class='no'>rocs</span> <span class='kw'>&lt;-</span> <span class='fu'>list</span>(<span class='no'>rf</span>$<span class='fu'>getROC</span>(), <span class='no'>lasso</span>$<span class='fu'>getROC</span>())
 <span class='no'>names</span> <span class='kw'>&lt;-</span> <span class='fu'>c</span>(<span class='st'>"Random Forest"</span>, <span class='st'>"Lasso"</span>)
 <span class='no'>legendLoc</span> <span class='kw'>&lt;-</span> <span class='st'>"bottomright"</span>
-<span class='fu'><a href='plotROCs.html'>plotROCs</a></span>(<span class='no'>rocs</span>, <span class='no'>names</span>, <span class='no'>legendLoc</span>)
-
+<span class='fu'><a href='plotROCs.html'>plotROCs</a></span>(<span class='no'>rocs</span>, <span class='no'>names</span>, <span class='no'>legendLoc</span>)</div><div class='img'><img src='LassoDevelopment-1.png' alt='' width='700' height='432.632880098887' /></div><div class='output co'>#&gt; NULL</div><div class='input'>
 <span class='co'># Plot PR Curve</span>
 <span class='no'>rocs</span> <span class='kw'>&lt;-</span> <span class='fu'>list</span>(<span class='no'>rf</span>$<span class='fu'>getPRCurve</span>(), <span class='no'>lasso</span>$<span class='fu'>getPRCurve</span>())
 <span class='no'>names</span> <span class='kw'>&lt;-</span> <span class='fu'>c</span>(<span class='st'>"Random Forest"</span>, <span class='st'>"Lasso"</span>)
 <span class='no'>legendLoc</span> <span class='kw'>&lt;-</span> <span class='st'>"bottomleft"</span>
-<span class='fu'><a href='plotPRCurve.html'>plotPRCurve</a></span>(<span class='no'>rocs</span>, <span class='no'>names</span>, <span class='no'>legendLoc</span>)
-
-<span class='fu'>cat</span>(<span class='fu'>proc.time</span>() - <span class='no'>ptm</span>,<span class='st'>"\n"</span>)
-<span class='co'># }</span># NOT RUN {
-# }
-</pre>
+<span class='fu'><a href='plotPRCurve.html'>plotPRCurve</a></span>(<span class='no'>rocs</span>, <span class='no'>names</span>, <span class='no'>legendLoc</span>)</div><div class='img'><img src='LassoDevelopment-2.png' alt='' width='700' height='432.632880098887' /></div><div class='output co'>#&gt; NULL</div><div class='input'>
+<span class='fu'>cat</span>(<span class='fu'>proc.time</span>() - <span class='no'>ptm</span>,<span class='st'>"\n"</span>)</div><div class='output co'>#&gt; 1.189 0.02 1.106 0 0 </div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
