@@ -18,9 +18,9 @@
 #' much as possible. Number of columns, names, types, grain, and predicted must be the same.
 #' @param grainCol The dataframe's column that has IDs pertaining to the grain
 #' @param predictedCol Column that you want to predict.
-#' @param impute For training df, set all-column imputation to T or F.
-#' If T, this uses values calculated in development.
-#' F leads to removal of rows containing NULLs and is not recommended.
+#' @param impute For training df, set all-column imputation to TRUE or FALSE.
+#' If TRUE, this uses values calculated in development.
+#' FALSE leads to removal of rows containing NULLs and is not recommended.
 #' @param debug Provides the user extended output to the console, in order
 #' @param cores Number of cores you'd like to use.  Defaults to 2.
 #' @param modelName Optional string. Can specify the model name. If used, you must load the same one in the deploy step.
@@ -45,17 +45,17 @@
 #' Returns the output dataframe. \cr
 #' \emph{Usage:} \code{$getOutDf()} 
 #' @section \code{$getProcessVariablesDf()}:
-#' Builds and returns a dataframe with information about the modifiable process 
-#' variables. \cr
+#' Get a data frame with expected changes in outcomes conditional on process
+#' variable changes. \cr
 #' \emph{Usage:} \code{$getProcessVariablesDf(modifiableVariables, 
 #' variableLevels = NULL, grainColumnValues = NULL, smallerBetter = TRUE, 
 #' repeatedFactors = FALSE, numTopFactors = 3)} \cr
 #' Params: \cr
-#'   - \code{modifiableVariables} A vector of names of categorical variables.\cr
+#'   - \code{modifiableVariables} A vector of names of modifiable variables.\cr
 #'   - \code{variableLevels} A list of variable values indexed by 
 #'   modifiable variable names. This allows one to use numeric variables by 
 #'   specifying baselines and to restrict categorical variables by limiting 
-#'   which factors can be recommended.\cr
+#'   which factors can be surfaced.\cr
 #'   - \code{grainColumnIDs} A vector of grain column IDs. If \code{NULL}, the 
 #'   whole deployment dataframe will be used.\cr
 #'   - \code{smallerBetter} A boolean determining whether or not lower 
@@ -63,7 +63,7 @@
 #'   - \code{repeatedFactors} A boolean determining whether or not a single 
 #'   modifiable factor can be listed several times. \cr
 #'   - \code{numTopFactors} The number of modifiable process variables to 
-#'   nclude in each row.
+#'   include in each row.
 #' @export
 #' @seealso \code{\link{healthcareai}}
 #' @seealso \code{\link{writeData}}
@@ -427,12 +427,21 @@
 #' 
 #' print(proc.time() - ptm)
 #' 
-#' #### Example Get Recommendations from Deployed Model: getProcessVariablesDf####
-#' # This example shows how to use the getProcessVariableDf() function, using a
-#' # model similar to the one built in Classification Example using csv data. 
-#' # The main difference is that we use a data set where systolic blood pressure 
-#' # is a categorical variable.
+#' #### Identify factors that could benefit outcomes: getProcessVariablesDf ####
+#' #############################################################################
+#' 
+#' # getProcessVariableDf() identifies opportunities for improved outcomes at
+#' # the grain level. It is important that the variables ("modifiableVariables")
+#' # and values ("variableLevels") used in this function are under the control 
+#' # of the care management process. The best use case for this function is a
+#' # "natural experiment" where otherwise similar groups had different 
+#' # treatments applied to them, and that treatment is the modifiable variable
+#' # of interest.
 #'
+#' # This example shows how to use the getProcessVariableDf() function, using 
+#' # another readmission-prediction model. In this example systolic blood pressure 
+#' # is converted into a categorical variable to demonstrate functionality.
+#' 
 #' csvfile <- system.file("extdata", 
 #'                       "HCRDiabetesClinical.csv", 
 #'                       package = "healthcareai")
@@ -485,7 +494,7 @@
 #' dL <- RandomForestDeployment$new(p2)
 #' dL$deploy()
 #' 
-#' ## Get Recommendations using getProcessVariablesDf
+#' ## Get predicted outcome changes using getProcessVariablesDf
 #' 
 #' # Categorical variables can simply be listed as modifiableVariables and all
 #' # factors levels will be used for comparison purposes. The dataframe 
@@ -493,7 +502,7 @@
 #' # categories.
 #' dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP"))
 #' 
-#' # By default, the function returns recommendations for all rows, but we can 
+#' # By default, the function returns predictions for all rows, but we can 
 #' # restrict to specific rows using the grainColumnIDs parameter
 #' dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP"), 
 #'                          grainColumnIDs = c(954, 965, 996))
@@ -505,14 +514,14 @@
 #'                          variableLevels = list(SystolicBP = c("Normal",
 #'                                                               "Pre-hypertensive")))
 #' 
-#' # The variableLevels parameter can also be used to allow recommendations for 
+#' # The variableLevels parameter can also be used to allow predictions for 
 #' # numeric variables, by providing specific target values of the numeric 
 #' # variable to make comparisons to. In the code below, the predictions will be 
 #' # compared to those for an A1C of 5.6
 #' dL$getProcessVariablesDf(modifiableVariables = c("A1CNBR"),
 #'                          variableLevels = list(A1CNBR = c(5.6)))
 #' 
-#' # The repeatedFactors parameter allows one to get multiple recommendations  
+#' # The repeatedFactors parameter allows one to get multiple predictions  
 #' # for the same variable. For example, reducing A1C to 5.0 might most improve
 #' # a patient's risk, but reducing A1C to 5.5 is likely to also reduce the risk
 #' # and that change might be more impactful than altering the patient's blood
@@ -526,7 +535,7 @@
 #'                          repeatedFactors = TRUE)
 #' 
 #' # The numTopFactors parameter allows one to set the maximum number of 
-#' # recommendations to display (with the default being 3)
+#' # predictions to display (with the default being 3)
 #' dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP", "A1CNBR"),
 #'                          variableLevels = list(SystolicBP = c("Normal",
 #'                                                               "Pre-hypertensive"),
