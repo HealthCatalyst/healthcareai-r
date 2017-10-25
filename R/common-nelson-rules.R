@@ -31,19 +31,9 @@
 #'
 #'d <- data.frame(date, measureValue)
 #'
-#'df <- nelsonRule1(df = d, measureCol = 'measureValue', dateCol = 'date')
+#'nr1 <- nelsonRule1(df = d, measureCol = 'measureValue', dateCol = 'date')
 #'
-#'df
-#'
-#'ggplot(data = df
-#'  ,aes(x = date
-#'  ,y = measure)) +
-#'  geom_line() +
-#'  geom_hline(data = unique(df$ucl), yintercept = unique(df$ucl)) +
-#'  geom_hline(data = unique(df$lcl), yintercept = unique(df$lcl)) +
-#'  geom_hline(aes(yintercept = mean(df$measure)), linetype = 'dashed') +
-#'  geom_point(data = df[df$violationFLG == TRUE,]
-#'    ,aes(color = violationFLG))
+#'nr1
 
 nelsonRule1 <- function(df, measure_col, date_col, plot_flg = TRUE) {
   library(ggplot2)
