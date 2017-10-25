@@ -434,6 +434,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   buildProcessVariableDfList = function(modifiableVariableLevels,
                                         grainColumnValues = NULL, 
                                         smallerBetter = TRUE) {
+
     # If no grain column values are specified, use the whole dataframe
     if (length(grainColumnValues) == 0) {
       grainColumnValues <- private$grainTest
@@ -442,7 +443,9 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       # warning
       nonGrain <- grainColumnValues[!(grainColumnValues %in% private$grainTest)]
       if (length(nonGrain) > 0) {
-        warning("AAARG")
+        wrn_mes <- paste0("The following grain column IDs could not be found",
+               " and will be omitted: ", paste(nonGrain, collapse = " "))
+        warning(wrn_mes)
         grainColumnValues <- intersect(grainColumnValues, private$grainTest)
       }
       # Rearrange grain ids to match the rows
@@ -468,7 +471,26 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     # Set modifiableProcessVariables and smallerPredictionsDesired params
     # Check that either both are present or both are absent.
     # Also check that the modifiable variables actually exist in the data
-
+    
+    # If variables are provided in `modifiableVariableLevels` but not 
+    # `modifiableVariables` add them to the latter with a warning
+    if (missing(modifiableVariables)) {
+      modifiableVariables <- names(modifiableVariableLevels)
+      warning("No modifiableVariables provided. Using names of ",
+              "modifiableVariableLevels: ",
+              paste(modifiableVariables, collapse = ", "))
+    } else {
+      omitted <- 
+        names(modifiableVariableLevels)[
+          which(!names(modifiableVariableLevels) %in% modifiableVariables)]
+      if (length(omitted)) {
+        warning(paste(omitted, collapse = ", "), " included in ",
+                "modifiableVariableLevels but not modifiableVariables.",
+                " Added to modifiableVariables.")
+        modifiableVariables <- c(modifiableVariables, omitted)
+      }
+    }
+    
     # Check that mofiable process variable actually exist in the data
     extraColumns <- setdiff(modifiableVariables,
                             names(self$params$df))
@@ -519,18 +541,6 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
       if (!(variable %in% names(modifiableVariableLevels))) {
         modifiableVariableLevels[[variable]] <- self$modelInfo$factorLevels[[variable]]
       }
-    }
-    
-    # If variables are provided in `modifiableVariableLevels` but not 
-    # `modifiableVariables` add them to the latter with a warning
-    omitted <- 
-      names(modifiableVariableLevels)[
-        which(!names(modifiableVariableLevels) %in% modifiableVariables)]
-    if (length(omitted)) {
-      warning(paste(omitted, collapse = ", "), "included in ",
-              "modifiableVariableLevels but not modifiableVariables.",
-              " Added to modifiableVariables.")
-      modifiableVariables <- c(modifiableVariables, omitted)
     }
     
     # Subset to only include valid variables

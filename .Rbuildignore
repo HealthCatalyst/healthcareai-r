@@ -17,8 +17,8 @@
 ^Rplot.png
 ^mkdocs\.yml$
 ^CHANGELOG\.md$
+^predictionMetadata*$
 .lintr
-.credentials.R
 txt$
 html$
 ^docs$
