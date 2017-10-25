@@ -83,7 +83,7 @@ nelsonRule1 <- function(df, measure_col, date_col, plot_flg = TRUE) {
   colnames(df)[1:2] <- c(date_col,measure_col)
   
   ifelse(plot_flg == TRUE,
-    out$p <- ggplot(data = df
+    out$p <- ggplot2::ggplot(data = df
       ,aes(x = date
         ,y = measureValue)) +
       geom_line() +
