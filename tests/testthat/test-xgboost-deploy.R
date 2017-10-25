@@ -333,3 +333,4 @@ test_that("Factors and characters give the same results", {
 })
 
 
+

@@ -273,3 +273,4 @@ test_that("Auto-clustering works with label and PCA",{
   expect_equal(colnames(kFit$centers)[2], 
                'PC2')
 })
+

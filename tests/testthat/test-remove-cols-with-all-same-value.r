@@ -232,3 +232,4 @@ test_that("Extra columns in deploy are dropped", {
   expect_true(!("z" %in% names(rfD$params$df)))
   expect_true(!("b" %in% names(rfD$params$df)))
 })
+

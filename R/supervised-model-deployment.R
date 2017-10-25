@@ -92,7 +92,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   
   if (!is.null(p$modelName))
   self$params$modelName <- p$modelName
-
+  
   # for deploy method
   if (!is.null(p$cores))
   self$params$cores <- p$cores
@@ -429,6 +429,124 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
                              "to deploy a ", self$params$type, " model.")
       stop(errorMessage)
     }
+  }, 
+  
+  buildProcessVariableDfList = function(modifiableVariableLevels,
+                                        grainColumnValues = NULL, 
+                                        smallerBetter = TRUE) {
+    # If no grain column values are specified, use the whole dataframe
+    if (length(grainColumnValues) == 0) {
+      grainColumnValues <- private$grainTest
+    } else {
+      # Check for misspecified grain column values. If any are found, trigger a 
+      # warning
+      nonGrain <- grainColumnValues[!(grainColumnValues %in% private$grainTest)]
+      if (length(nonGrain) > 0) {
+        warning("AAARG")
+        grainColumnValues <- intersect(grainColumnValues, private$grainTest)
+      }
+      # Rearrange grain ids to match the rows
+      # TODO: figure out how to avoid re-ordering the grain column values but
+      # still match them up correctly with the dataframe rows
+      grainColumnValues <- private$grainTest[private$grainTest 
+                                             %in% grainColumnValues]
+    }
+
+    # Get rows corresponding to the grain ids
+    dataframe <- self$params$df[private$grainTest %in% grainColumnValues, ]
+    
+    # Build the process variables df list
+    build_process_variable_df_list(dataframe = dataframe,
+                                   modifiable_variable_levels = modifiableVariableLevels,
+                                   grain_column_values = grainColumnValues,
+                                   predict_function = self$performNewPredictions,
+                                   smaller_better = smallerBetter)
+  }, 
+  
+  checkModifiableVariableInput = function(modifiableVariables, 
+                                          modifiableVariableLevels) {
+    # Set modifiableProcessVariables and smallerPredictionsDesired params
+    # Check that either both are present or both are absent.
+    # Also check that the modifiable variables actually exist in the data
+
+    # Check that mofiable process variable actually exist in the data
+    extraColumns <- setdiff(modifiableVariables,
+                            names(self$params$df))
+    # Issue a warning if some variables are not found in the data
+    if (length(extraColumns) > 0) {
+      warning("Some of the modifiable process variables specified are not ",
+              "present in the data. Mystery variables: \n",
+              paste(" - ", extraColumns, collapse = "\n"),
+              "\nThese modifiable variables will not be used.")
+      modifiableVariables <- intersect(modifiableVariables, 
+                                       names(self$params$df))
+    }
+    
+    # Check that modifiable process variables make sense for lasso
+    if (private$algorithmName == "Lasso" & length(modifiableVariables) > 0) {
+      # Find modifiable variables with 0 coefficient
+      notModifiable <- setdiff(modifiableVariables, 
+                               self$modelInfo$usedVariables)
+      # If such variables exist, remove them from the list of modifiable
+      # variables and print a warning.
+      if (length(notModifiable) > 0) {
+        warning("The following variables have coefficients of 0 in the lasso ",
+                "model and will not be used as modifiable variables:\n",
+                paste(" - ", notModifiable, "\n"))
+        # Remove modifiable variables that are not used by lasso
+        modifiableVariables <- intersect(modifiableVariables,
+                                         self$modelInfo$usedVariables)
+      }
+    }
+    
+    # Check that the modifiable variables are factors or that levels have been
+    # specified explicitly
+    if (length(modifiableVariables) > 0) {
+      nonFactors <- private$findNonFactors(modifiableVariables)
+      nonFactors <- setdiff(nonFactors, names(modifiableVariableLevels))
+      if (length(nonFactors) > 0) {
+        warning("Modifiable process variables must either be categorical ",
+                "variables or you must explicitly specify the levels. The ", 
+                "following variables are not categorical and will not be ",
+                "used:\n",
+                paste(" - ", nonFactors, collapse = "\n"))
+        modifiableVariables <- setdiff(modifiableVariables, nonFactors)
+      }
+    }
+    
+    # Add factor levels which weren't specified explicitly
+    for (variable in modifiableVariables) {
+      if (!(variable %in% names(modifiableVariableLevels))) {
+        modifiableVariableLevels[[variable]] <- self$modelInfo$factorLevels[[variable]]
+      }
+    }
+    
+    # If variables are provided in `modifiableVariableLevels` but not 
+    # `modifiableVariables` add them to the latter with a warning
+    omitted <- 
+      names(modifiableVariableLevels)[
+        which(!names(modifiableVariableLevels) %in% modifiableVariables)]
+    if (length(omitted)) {
+      warning(paste(omitted, collapse = ", "), "included in ",
+              "modifiableVariableLevels but not modifiableVariables.",
+              " Added to modifiableVariables.")
+      modifiableVariables <- c(modifiableVariables, omitted)
+    }
+    
+    # Subset to only include valid variables
+    modifiableVariableLevels <- modifiableVariableLevels[modifiableVariables]
+    
+    return(modifiableVariableLevels)
+  },
+  
+  # This function takes a vector of column names and returns the names of 
+  # columns which are not factors
+  findNonFactors = function(columns) {
+    if (!is.null(columns)) {
+      return(columns[!unlist(lapply(self$params$df[columns], is.factor))])
+    } else {
+      return(NULL)
+    }
   }
 ),
 
@@ -440,6 +558,8 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
     #parameters
     params = NA,
+    
+    processVariableDfList = NA,
 
     ###########
     # Functions
@@ -560,6 +680,61 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
         }
       }
       return(topFactorsDf)
+    },
+    
+    # Build and return a dataframe with recommendations for the modifiable
+    # process varaibles
+    getProcessVariablesDf = function(modifiableVariables,
+                                     variableLevels = NULL,
+                                     grainColumnIDs = NULL,
+                                     smallerBetter = TRUE,
+                                     repeatedFactors = FALSE,
+                                     numTopFactors = 3) {
+      # Keep track of time for debugging.
+      t0 <- proc.time()
+      # Remove modifiable variables which are not valid.
+      variableLevels <- private$checkModifiableVariableInput(modifiableVariables,
+                                                             variableLevels)
+      if (length(variableLevels) == 0) {
+        stop("No valid modifiable variables used.")
+      }
+      
+      # Build the list of dataframes.
+      processVariableDfList <- private$buildProcessVariableDfList(modifiableVariableLevels = variableLevels,
+                                                                  grainColumnValues = grainColumnIDs,
+                                                                  smallerBetter = smallerBetter)
+      
+      # Get name of prediction column in outDf
+      predCol <- ifelse(self$params$type == "classification",
+                        "PredictedProbNBR",
+                        "PredictedValueNBR")
+      
+      # Get grain column and original predictions
+      originalPredictions <- private$outDf[c(self$params$grainCol, predCol)]
+      # Rename grainCol to allow dplyr join (else trouble with "by" argument)
+      names(originalPredictions)[1] <- "df_grain_column"
+            
+      # Join grain column and original prediction to recommendations
+      processDf <- dplyr::inner_join(originalPredictions,
+                                     build_process_variables_df(processVariableDfList,
+                                                                repeatedFactors,
+                                                                numTopFactors),
+                                      by = c("df_grain_column"))
+      
+      # Rename grain column
+      names(processDf)[names(processDf) == "df_grain_column"] <- self$params$grainCol
+      if (self$params$debug) {
+        ellapsedTime <- (proc.time() - t0)[3]
+        message("Modifiable variables computed for ", 
+                nrow(processDf),
+                " rows in ", 
+                ellapsedTime, 
+                " seconds.")
+      }
+      
+      # Return the dataframe
+      processDf
     }
   )
 )
+

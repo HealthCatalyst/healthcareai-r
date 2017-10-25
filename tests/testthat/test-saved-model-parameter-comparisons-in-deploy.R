@@ -119,3 +119,4 @@ test_that("Warning is thrown if predicted columns do not match", {
                         "\n- Old predicted column: response",
                         "\n- New predicted column: respons"))
 })
+

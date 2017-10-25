@@ -22,6 +22,7 @@ Imports:
     data.table,
     DBI,
     doParallel,
+    dplyr,
     e1071,
     grpreg,
     lme4,
@@ -34,6 +35,7 @@ Imports:
     xgboost
 RoxygenNote: 6.0.1
 Suggests:
-    testthat
+    testthat,
+    lintr
 URL: http://healthcareai-r.readthedocs.io
 BugReports: https://github.com/HealthCatalyst/healthcareai-r/issues

@@ -98,45 +98,5 @@ library(healthcareai)
 
 You want to help? Woohoo! We welcome that and are willing to help newbies get started.
 
-First, see [here](CONTRIBUTING.md) for instructions on setting up your development environment
+First, see [here](CONTRIBUTING.md) for instructions on setting up your development environment and how to contribute.
 
-After that's done, *here's the contribution workflow:*
-
-1) Identify an issue that suits your skill level [here](https://github.com/HealthCatalystSLC/healthcareai-r/issues)
-   - Only look for issues in the Backlog category
-   - If you're new to open source, please look for issues with the `bug low`, `help wanted`, or `docs` tags
-   - Please reach out with questions on details and where to start
-
-2) Create a topic branch to work in, as described [here](CONTRIBUTING.md#create-a-topic-branch-that-you-can-work-in)
-
-3) To test the new functionality you've created, use a new throw-away file on the Desktop (or somewhere outside the repo), perhaps based on a package example
-
-4) As you make changes
-   - Document any new functions, methods, etc via [roxygen2](http://r-pkgs.had.co.nz/man.html)
-   - Be sure to build often
-     - Note: building checks for errors and allows you to use the latest code
-   - Make small commits after getting a small piece working
-   - Push often so your changes are backed up. See [here](https://gist.github.com/blackfalcon/8428401#push-your-branch) for more
-   
-5) Early on, create a [pull request](https://yangsu.github.io/pull-request-tutorial/) such that Levi and team can discuss the changes that you're making. Conversation is good.
-   
-6) When you're done with the issue you chose, do the following
-   
-   1. Merge the master branch into your topic branch (so that you have the latest changes from master)
-   
-   ```
-   git checkout LeviBugFix
-   git fetch
-   git merge --no-ff origin/master
-   ```
-     - This opens a text editor called [vim](https://github.com/yuanqing/vim-basics/blob/master/README.md), where you type `i`, type your commit message, and [then save](http://stackoverflow.com/a/6098842/5636012)
-   
-   2. Build and fix any errors
-
-   3. Run tests via `devtools::tests()` or CTRL+SHIFT+D and fix any errors
-   
-   4. Run the roxygen2 examples via `devtools::run_examples()` and fix any errors
-
-   5. Under the build tab, run 'Check' and verify that no errors/warnings/notes arise
-      
-   6. Now that your changes are working, communicate that to Levi and team in the pull request, such that he knows to do the code review associated with the PR. Please *don't* do tons of work and *then* start a PR. Early is good.

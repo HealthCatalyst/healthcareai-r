@@ -195,3 +195,4 @@ test_that("rf deploy regression pushes values to SQLite", {
                 "50 rows were inserted into the SQLite table HCRDeployRegressionBASE")
 })
 
+

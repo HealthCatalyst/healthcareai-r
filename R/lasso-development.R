@@ -374,6 +374,7 @@ LassoDevelopment <- R6Class("LassoDevelopment",
           type = "groups",
           lambda = private$lambda1se
         )]
+        self$modelInfo$usedVariables <- imp
         cat("Variables with non-zero coefficients: ", imp,"\n")
         
       }
@@ -390,14 +391,14 @@ LassoDevelopment <- R6Class("LassoDevelopment",
       # Build Model
       self$buildModel()
       
-      # save model
-      super$saveModel(fitModel = private$fitGrLasso)
-      
       # Perform prediction
       self$performPrediction()
       
       # Generate performance metrics
       self$generatePerformanceMetrics()
+      
+      # save model
+      super$saveModel(fitModel = private$fitGrLasso)
     },
     
     getROC = function() {

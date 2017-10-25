@@ -189,3 +189,4 @@ test_that("dev predictedCol not in dev df gives proper error", {
   
   expect_error(RandomForestDevelopment$new(p), "Your specified predictedCol is")
 })
+

@@ -28,5 +28,9 @@ inst/extdata/unit-test.sqlite
 .env
 env
 .credentials.R
-*.txt
-predictionMetadata*
+# txt files anywhere
+**/*.txt
+# html files in home directory; preserve in docs/
+/*.html
+# Not certain that we don't need these, but I'm not sure why pkgdown is causing their generation:
+docs/reference/*.pdf

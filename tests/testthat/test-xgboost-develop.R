@@ -80,3 +80,4 @@ test_that("Confusion matrix accuracy is reasonably large", {
   expect_true(boost$generateConfusionMatrix()$overall[["Accuracy"]] > 0.8)
 })
 
+

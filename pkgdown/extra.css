@@ -1,0 +1,173 @@
+body {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.25em;
+    font-weight: 300;
+    color: #333;
+    background: #F0F3F6;
+    margin: 50px 25px;
+}
+
+a {
+    color: #2a99b6;
+}
+
+a:hover {
+    color: #33bbdf;
+}
+
+
+
+/* Style Guide */
+
+h1 {
+    font-size: 36px;
+    line-height: 2.625em;
+    font-weight: 600;
+    color: #000;
+}
+
+h2 {
+    font-size: 22px;
+    line-height: 1.5em;
+    font-weight: 400;
+    color: #006D9A;
+}
+
+h3 {
+    font-size: 20px;
+    line-height: 1.5em;
+    font-weight: 300;
+    color: #6D6E70;
+}
+
+h4 {
+    font-size: 17px;
+    line-height: 1.313em;
+    font-weight: 300;
+    color: #333;
+}
+
+table {
+    color: #323232;
+    border-collapse: collapse;
+}
+
+table, th,td {
+    border-left: 1px solid #DAD9D8;
+    border-right: 1px solid #DAD9D8;
+    border-bottom: 1px solid #DAD9D8;
+}
+
+td {
+    border: 1px solid #DAD9D8;
+}
+
+tr:first-child {
+    border-top-color: transparent !important;
+    border-left-color: transparent !important;
+    border-right-color: transparent !important;
+}
+
+th {
+    border-top-color: transparent !important;
+    border-left-color: transparent !important;
+    border-right-color: transparent !important;
+}
+
+th, td {
+    padding: 1em !important;
+    vertical-align: middle;
+}
+
+tr {
+    background-color: white;
+}
+
+th {
+    color: #006D9A;
+    font-weight: 600;
+}
+
+tr:nth-child(2n) {
+    background-color: #F0F3F6;
+}
+
+tr:nth-child(2n):hover, tr:hover {
+    background-color: #AEE1F4;
+    box-shadow: 0px 2px 6px #d4d4d4;
+}
+/* End Style Guide */
+
+
+/* Header Hacks */
+header, footer, div.page {
+    width: 760px;
+    margin: 0 auto;
+    padding: 20px 30px;
+}
+
+div#header h1, div#header h4 {
+    margin: 0;
+}
+
+div#header h1.title{
+    background: #384655;
+    color: #fff;
+    margin-left: -30px !important;
+    margin-right: -40px !important;
+    padding-left: 30px !important;
+    font-size: 22px;
+}
+
+div#header h4.author {
+    margin-top: 10px;
+}
+
+/* App-like header experiment */
+
+/*div#header h4.author, div#header h4.date {
+    margin-left: -30px;
+    margin-right: -40px;
+    padding-left: 30px;
+    background: #d7dde4;
+    color: #384655;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 300;
+}
+
+div#header h4.author {
+    padding-top: 6px;
+}
+
+div#header h4.date {
+    padding-bottom: 6px;
+    border-bottom: 1px solid #7f7f7f;
+}*/
+
+div#header nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+div#header nav ul li {
+    display: inline;
+    margin: 0 8px 0 0;
+    padding: 0;
+}
+
+/* TOC Hacks */
+
+div.toc-content {
+    background: #fff;
+}
+
+#TOC {
+    margin: 0px 0px 20px 0px !important;
+}
+
+li.active {
+    background: #00AEFF !important;
+}

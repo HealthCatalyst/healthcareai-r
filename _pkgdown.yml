@@ -1,0 +1,17 @@
+reference:
+  - title: Model Development
+    desc: Train machine learning models
+    contents:
+    - contains("Development")
+  - title: Model Deployment
+    desc: Put a model into production
+    contents:
+    - contains("Deployment")
+  - title: SQL helpers
+    desc: Interface with a database
+    contents:
+    - selectData
+    - writeData
+  - title: Everything Else
+    desc: Is still to be added. Possibly [automatically](https://stackoverflow.com/questions/45886789/include-all-other-functions-in-a-pkgdown-reference-yaml)
+    contents: 

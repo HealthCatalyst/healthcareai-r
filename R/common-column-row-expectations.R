@@ -200,3 +200,4 @@ isTargetYN <- function(x) {
   boolResult <- all(NAremoved %in% c('Y', 'N'))
   boolResult
 }
+

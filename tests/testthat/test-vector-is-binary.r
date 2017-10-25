@@ -19,3 +19,4 @@ test_that("False is returned when more than two values are present w/o NA", {
   expect_equal(isBinary(c(1,2,5,1,2)), FALSE)
   expect_equal(isBinary(c(1,4,4,2,2)), FALSE)
 })
+

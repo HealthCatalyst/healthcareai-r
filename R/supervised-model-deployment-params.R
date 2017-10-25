@@ -38,3 +38,4 @@ SupervisedModelDeploymentParams <- R6Class("SupervisedModelDeploymentParams",
     }
   )
 )
+
