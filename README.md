@@ -25,7 +25,14 @@ Open RStudio and work in the console
 install.packages('healthcareai')
 ```
 
-> If you don't have admin rights on the machine you are working on, and `library(healthcareai)` throws an error about packages not being available, you can likely solve the problem by defining a custom location in which to store R packages. To do this, open the Control Panel and click through User Accounts -> User Accounts -> Change my environment variables, and add a variable called `R_LIBS_USER` with the value being a path to a folder where you want to keep R packages. For example, you might create a new directory: `C:\Users\your.name\Documents\R\my_library` and use that to store your R packages. Then restart R Studio, run `install.packages("healthcareai")` and `library(healthcareai)` again and all should be well.
+#### If `install.packages('healthcareai')` or `library(healthcareai)` fails
+
+If you don't have admin rights on the machine you are working on, you may need to set a custom location for your R libraries. Here's how to do that:
+
+1. *Create a folder to hold your R packages.* You'll generally have write access to your `Documents` folder, so you might create a new directory: `C:\Users\your.name\Documents\R\R_library`. Shift-right click on that folder and copy its path.
+2. *Define a system variable with that folder location.* Open the Control Panel and click through User Accounts -> User Accounts -> Change my environment variables, and add a variable called `R_LIBS_USER`, and paste the folder path (`C:\Users\your.name\Documents\R\R_library`) into the value field. Make sure the path is not surrounded by `"`s.
+3. *Tell R to use that location.* Restart R Studio, run `install.packages('healthcareai')`, and if asked whether you want to use a custom library location choose yes, which may be sufficient. If not, click into the Console in R Studio, type `.libPaths()`, paste the path to your new library folder inside the `()`, and change the `\`s to `/`. You should end up with a line that looks like: `.libPaths("C:/Users/your.name/Documents/R/R_library")`. Press enter to run that.
+4. *Try again.* Run `install.packages('healthcareai')` and `library(healthcareai)` again and all should be well! 
 
 ## How to install the latest version on macOS
 
