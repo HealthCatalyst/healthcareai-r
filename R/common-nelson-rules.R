@@ -31,7 +31,7 @@
 #'
 #'d <- data.frame(date, measureValue)
 #'
-#'nr1 <- nelsonRule1(df = d, measureCol = 'measureValue', dateCol = 'date')
+#'nr1 <- nelsonRule1(df = d, measure_col = 'measureValue', date_col = 'date')
 #'
 #'nr1
 
@@ -59,36 +59,36 @@ nelsonRule1 <- function(df, measure_col, date_col, plot_flg = TRUE) {
   violationFLG <- as.numeric(df[[measure_col]] > ucl | df[[measure_col]] < lcl)
   
   violationDSC <- ifelse(df[[measure_col]] > ucl, 'more than 3 standard deviations above the mean'
-    ,ifelse(df[[measure_col]] < lcl, 'more than 3 standard deviations below the mean',NA))
+                         ,ifelse(df[[measure_col]] < lcl, 'more than 3 standard deviations below the mean',NA))
   
   out <- list()
   
   df <- data.frame(date = df[[date_col]]
-    ,measure = df[[measure_col]]
-    ,ucl = ucl
-    ,lcl = lcl
-    ,violationFLG = violationFLG
-    ,violationDSC = violationDSC)
+                   ,measure = df[[measure_col]]
+                   ,ucl = ucl
+                   ,lcl = lcl
+                   ,violationFLG = violationFLG
+                   ,violationDSC = violationDSC)
   
   colnames(df)[1:2] <- c(date_col,measure_col)
   
   ifelse(plot_flg == TRUE,
-    out$p <- ggplot2::ggplot(data = df
-      ,aes(x = date
-        ,y = measureValue)) +
-      geom_line() +
-      geom_hline(data = unique(df$ucl), yintercept = unique(df$ucl)) +
-      geom_hline(data = unique(df$lcl), yintercept = unique(df$lcl)) +
-      geom_hline(aes(yintercept = mean(measureValue)), linetype = 'dashed') +
-      geom_point(data = df[df$violationFLG == TRUE,]
-        ,color = 'red'),
-    out$p <- NA
-  )
-  
-  #return(p)
-  
-  out$dfViolations <- df[df$violationFLG == 1,]
-  
-  return(out)
+         out$p <- eval(parse(text = paste0(
+           "ggplot2::ggplot(data = df
+           ,aes(x = ",date_col,", y = ",measure_col,")) +
+           geom_line() +
+           geom_hline(data = unique(df$ucl), yintercept = unique(df$ucl)) +
+           geom_hline(data = unique(df$lcl), yintercept = unique(df$lcl)) +
+           geom_hline(aes(yintercept = mean(",measure_col,")), linetype = 'dashed') +
+           geom_point(data = df[df$violationFLG == TRUE,]
+           ,color = 'red')"))),
+           out$p <- NA
+         )
+         
+         #return(p)
+         
+         out$dfViolations <- df[df$violationFLG == 1,]
+         
+         return(out)
 }
 
