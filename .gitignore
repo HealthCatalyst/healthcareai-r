@@ -14,7 +14,7 @@
 .Rproj.user/
 .Ruserdata
 # Saved objects
-*.rda
+# *.rda
 # Genered plots from tests
 tests/testthat/Rplots.pdf
 .Rproj.user
