@@ -33,9 +33,10 @@
 
 We abide by the [tidyverse style guide](http://style.tidyverse.org/). Additional style details below.
 
-- We use `lintr` to check code style. You can check your style with `lint_package()`. It will also be checked on `devtools::test()` and on travis.
+- We use `lintr` to check code style. You can check your style with `lint_package()` or an individual file with `lint("path/to/file.R")`. It will also be checked on `devtools::test()` and on travis.
     * Should you need to violate `lintr` rules, put `# nolint` at the end of the violating line.
     * There is a Sublime integration for lintr, [here](https://github.com/jimhester/lintr#sublime-text-3).
+- Commits that edit existing code should either make substantive or stylistic changes. Try to avoid mixing the two as it makes the substantive changes harder to find.
 
 - We use `strict` to enforce betteR practices, but RStudio [currently breaks](https://github.com/hadley/strict/issues/5) if we try to load the package automatically at startup, so for now, run `library(strict)` whenever you're developing.
 
