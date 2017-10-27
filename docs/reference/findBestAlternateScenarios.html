@@ -52,7 +52,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="..//index.html">
+  <a href="../index.html">
     <span class="fa fa-home fa-lg"></span>
      
   </a>
@@ -132,7 +132,8 @@ row, without alternative scenario</p></td>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>library</span>(<span class='no'>caret</span>)
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='fu'>library</span>(<span class='no'>caret</span>)
 <span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>data.frame</span>(<span class='kw'>a</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>1</span>,<span class='fl'>2</span>,<span class='fl'>3</span>,<span class='fl'>1</span>),
                  <span class='kw'>b</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>'m'</span>,<span class='st'>'f'</span>,<span class='st'>'m'</span>,<span class='st'>'m'</span>),
                  <span class='kw'>c</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>0.7</span>,<span class='fl'>1.4</span>,<span class='fl'>2.4</span>,<span class='fl'>2.0</span>),
@@ -145,35 +146,24 @@ row, without alternative scenario</p></td>
                             <span class='kw'>sizeOfSDPerturb</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
                             <span class='kw'>numColLeaveOut</span> <span class='kw'>=</span> <span class='st'>'d'</span>)
 
-<span class='no'>glmOb</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://www.rdocumentation.org/packages/caret/topics/train'>train</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>df</span>,<span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span>,<span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>'glm'</span>,<span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>'binomial'</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: model fit failed for Resample10: parameter=none Error in `contrasts&lt;-`(`*tmp*`, value = contr.funs[1 + isOF[nn]]) : </span>
-#&gt; <span class='warning'>  contrasts can be applied only to factors with 2 or more levels</span></div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: predictions failed for Resample11: parameter=none Error in family(object)$linkinv(pred) : </span>
-#&gt; <span class='warning'>  Argument eta must be a nonempty numeric vector</span></div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: model fit failed for Resample13: parameter=none Error in `contrasts&lt;-`(`*tmp*`, value = contr.funs[1 + isOF[nn]]) : </span>
-#&gt; <span class='warning'>  contrasts can be applied only to factors with 2 or more levels</span></div><div class='output co'>#&gt; <span class='warning'>Warning: model fit failed for Resample14: parameter=none Error in `contrasts&lt;-`(`*tmp*`, value = contr.funs[1 + isOF[nn]]) : </span>
-#&gt; <span class='warning'>  contrasts can be applied only to factors with 2 or more levels</span></div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: predictions failed for Resample18: parameter=none Error in family(object)$linkinv(pred) : </span>
-#&gt; <span class='warning'>  Argument eta must be a nonempty numeric vector</span></div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: model fit failed for Resample23: parameter=none Error in `contrasts&lt;-`(`*tmp*`, value = contr.funs[1 + isOF[nn]]) : </span>
-#&gt; <span class='warning'>  contrasts can be applied only to factors with 2 or more levels</span></div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: predictions failed for Resample25: parameter=none Error in family(object)$linkinv(pred) : </span>
-#&gt; <span class='warning'>  Argument eta must be a nonempty numeric vector</span></div><div class='output co'>#&gt; <span class='warning'>Warning: There were missing values in resampled performance measures.</span></div><div class='input'>
+<span class='no'>glmOb</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://www.rdocumentation.org/packages/caret/topics/train'>train</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>df</span>,<span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span>,<span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>'glm'</span>,<span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>'binomial'</span>)
+
 <span class='no'>originalPred</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='kw'>object</span> <span class='kw'>=</span> <span class='no'>glmOb</span>,
                         <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>df</span>[<span class='fl'>4</span>,],
-                        <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>'prob'</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='input'>
+                        <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>'prob'</span>)
+
 <span class='no'>alternatePred</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='calulcateAlternatePredictions.html'>calulcateAlternatePredictions</a></span>(<span class='kw'>df</span> <span class='kw'>=</span> <span class='no'>dfAlt</span>,
                                                <span class='kw'>modelObj</span> <span class='kw'>=</span> <span class='no'>glmOb</span>,
                                                <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>'lasso'</span>,
-                                               <span class='kw'>removeCols</span> <span class='kw'>=</span> <span class='st'>'AlteredCol'</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='output co'>#&gt; <span class='warning'>Warning: prediction from a rank-deficient fit may be misleading</span></div><div class='input'>
+                                               <span class='kw'>removeCols</span> <span class='kw'>=</span> <span class='st'>'AlteredCol'</span>)
+
 <span class='no'>dfResult</span> <span class='kw'>&lt;-</span> <span class='fu'>findBestAlternateScenarios</span>(<span class='kw'>dfAlternateFeat</span> <span class='kw'>=</span> <span class='no'>dfAlt</span>,
                                        <span class='kw'>originalRow</span> <span class='kw'>=</span> <span class='no'>df</span>[<span class='fl'>4</span>,],
                                        <span class='kw'>predictionVector</span> <span class='kw'>=</span> <span class='fu'>as.numeric</span>(<span class='no'>alternatePred</span>),
-                                       <span class='kw'>predictionOriginal</span> <span class='kw'>=</span> <span class='no'>originalPred</span><span class='kw'>[[</span><span class='fl'>2</span>]])</div><div class='output co'>#&gt; orderedProbDrop 
-#&gt; 5.826192e-11 5.826192e-11 -3.97698e-05 -0.0001486937 
-#&gt; orderedColChanged 
-#&gt; a c c a 
-#&gt; orderedAlternateValue 
-#&gt; 1.521286 1.770529 1.029471 2.478714 </div><div class='input'>
-<span class='no'>dfResult</span></div><div class='output co'>#&gt;   orderedProbDrop orderedColChanged orderedAlternateValue
-#&gt; 1    5.826192e-11                 a              1.521286
-#&gt; 2    5.826192e-11                 c              1.770529
-#&gt; 3   -3.976980e-05                 c              1.029471
-#&gt; 4   -1.486937e-04                 a              2.478714</div></pre>
+                                       <span class='kw'>predictionOriginal</span> <span class='kw'>=</span> <span class='no'>originalPred</span><span class='kw'>[[</span><span class='fl'>2</span>]])
+
+<span class='no'>dfResult</span>
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -192,7 +182,7 @@ row, without alternative scenario</p></td>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Levi Thatcher, Mike Mastanduno, Michael Levy, Taylor Miller, Taylor Larsen.</p>
+  <p>Developed by Levi Thatcher, Michael Levy, Mike Mastanduno, Taylor Larsen, Taylor Miller.</p>
 </div>
 
 <div class="pkgdown">

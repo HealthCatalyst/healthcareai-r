@@ -52,7 +52,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="..//index.html">
+  <a href="../index.html">
     <span class="fa fa-home fa-lg"></span>
      
   </a>
@@ -136,8 +136,10 @@ database file to query from</p></td>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
-</div><div class='input'><span class='co'># This example is specific to SQL Server</span>
+    <pre class="examples"># NOT RUN {
+# }
+<span class='co'># NOT RUN {</span>
+<span class='co'># This example is specific to SQL Server</span>
 
 <span class='co'># To instead pull data from Oracle see here </span>
 <span class='co'># https://cran.r-project.org/web/packages/ROracle/ROracle.pdf</span>
@@ -159,13 +161,9 @@ database file to query from</p></td>
   FROM SAM.dbo.HCRDiabetesClinical
   '</span>
 
-<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>selectData</span>(<span class='no'>connectionString</span>, <span class='no'>query</span>)</div><div class='output co'>#&gt; <span class='error'>Error: nanodbc/nanodbc.cpp:950: IM002: [unixODBC][Driver Manager]Data source name not found, and no default driver specified </span></div><div class='input'><span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;                                               
-#&gt; 1 function (x, df1, df2, ncp, log = FALSE)    
-#&gt; 2 {                                           
-#&gt; 3     if (missing(ncp))                       
-#&gt; 4         .Call(C_df, x, df1, df2, log)       
-#&gt; 5     else .Call(C_dnf, x, df1, df2, ncp, log)
-#&gt; 6 }                                           </div></pre>
+<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>selectData</span>(<span class='no'>connectionString</span>, <span class='no'>query</span>)
+<span class='fu'>head</span>(<span class='no'>df</span>)
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -186,7 +184,7 @@ database file to query from</p></td>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Levi Thatcher, Mike Mastanduno, Michael Levy, Taylor Miller, Taylor Larsen.</p>
+  <p>Developed by Levi Thatcher, Michael Levy, Mike Mastanduno, Taylor Larsen, Taylor Miller.</p>
 </div>
 
 <div class="pkgdown">

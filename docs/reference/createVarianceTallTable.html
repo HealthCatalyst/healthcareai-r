@@ -52,7 +52,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="..//index.html">
+  <a href="../index.html">
     <span class="fa fa-home fa-lg"></span>
      
   </a>
@@ -134,7 +134,8 @@ MeasureImpact is the subgroup COV * VolRaw (i.e., num of rows).</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>data.frame</span>(<span class='kw'>LactateOrderProvSpecDSC</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"Pulmonary Disease"</span>,
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>data.frame</span>(<span class='kw'>LactateOrderProvSpecDSC</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"Pulmonary Disease"</span>,
                                              <span class='st'>"Family Medicine"</span>),
                  <span class='kw'>LactateOrderProvNM</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"Hector Salamanca"</span>,
                                         <span class='st'>"Gus Fring"</span>),
@@ -145,26 +146,15 @@ MeasureImpact is the subgroup COV * VolRaw (i.e., num of rows).</p>
                  <span class='kw'>AboveMeanCOVFLG</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>'Y'</span>,<span class='st'>'N'</span>),
                  <span class='kw'>AboveMeanVolumeFLG</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>'N'</span>,<span class='st'>'Y'</span>))
 
-<span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;   LactateOrderProvSpecDSC LactateOrderProvNM  COV VolumeRaw VolumePercent
-#&gt; 1       Pulmonary Disease   Hector Salamanca 0.43         2          0.32
-#&gt; 2         Family Medicine          Gus Fring 0.35         3          0.78
-#&gt;   Impact AboveMeanCOVFLG AboveMeanVolumeFLG
-#&gt; 1   0.46               Y                  N
-#&gt; 2   1.05               N                  Y</div><div class='input'>
+<span class='fu'>head</span>(<span class='no'>df</span>)
+
 <span class='no'>categoricalCols</span> <span class='kw'>&lt;-</span> <span class='fu'>c</span>(<span class='st'>"LactateOrderProvSpecDSC"</span>,<span class='st'>"LactateOrderProvNM"</span>)
 
 <span class='no'>dfRes</span> <span class='kw'>&lt;-</span> <span class='fu'>createVarianceTallTable</span>(<span class='kw'>df</span> <span class='kw'>=</span> <span class='no'>df</span>,
                                  <span class='kw'>categoricalCols</span> <span class='kw'>=</span> <span class='no'>categoricalCols</span>,
                                  <span class='kw'>measure</span> <span class='kw'>=</span> <span class='st'>"LOS"</span>)
-<span class='fu'>head</span>(<span class='no'>dfRes</span>)</div><div class='output co'>#&gt;                        DimensionalAttributes                  CategoriesGrouped
-#&gt; 1 LactateOrderProvSpecDSC|LactateOrderProvNM Pulmonary Disease|Hector Salamanca
-#&gt; 2 LactateOrderProvSpecDSC|LactateOrderProvNM          Family Medicine|Gus Fring
-#&gt;   MeasureCOV MeasureVolumeRaw MeasureVolumePercent MeasureImpact
-#&gt; 1   LOS|0.43            LOS|2             LOS|0.32      LOS|0.46
-#&gt; 2   LOS|0.35            LOS|3             LOS|0.78      LOS|1.05
-#&gt;   AboveMeanCOVFLG AboveMeanVolumeFLG
-#&gt; 1           LOS|Y              LOS|N
-#&gt; 2           LOS|N              LOS|Y</div></pre>
+<span class='fu'>head</span>(<span class='no'>dfRes</span>)
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -185,7 +175,7 @@ MeasureImpact is the subgroup COV * VolRaw (i.e., num of rows).</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Levi Thatcher, Mike Mastanduno, Michael Levy, Taylor Miller, Taylor Larsen.</p>
+  <p>Developed by Levi Thatcher, Michael Levy, Mike Mastanduno, Taylor Larsen, Taylor Miller.</p>
 </div>
 
 <div class="pkgdown">

@@ -52,7 +52,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="..//index.html">
+  <a href="../index.html">
     <span class="fa fa-home fa-lg"></span>
      
   </a>
@@ -146,8 +146,10 @@ database, and whether Windows Authentication will be used. See
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
-</div><div class='input'><span class='co'># This example is specific to SQL Server.</span>
+    <pre class="examples"># NOT RUN {
+# }
+<span class='co'># NOT RUN {</span>
+<span class='co'># This example is specific to SQL Server.</span>
 
 <span class='co'># To instead pull data from Oracle see here </span>
 <span class='co'># https://cran.r-project.org/web/packages/ROracle/ROracle.pdf</span>
@@ -175,8 +177,10 @@ database, and whether Windows Authentication will be used. See
 
 <span class='fu'>writeData</span>(<span class='kw'>MSSQLConnectionString</span> <span class='kw'>=</span> <span class='no'>connectionString</span>,
           <span class='kw'>df</span> <span class='kw'>=</span> <span class='no'>df</span>,
-          <span class='kw'>tableName</span> <span class='kw'>=</span> <span class='st'>'HCRWriteData'</span>)</div><div class='output co'>#&gt; <span class='error'>Error: nanodbc/nanodbc.cpp:950: IM002: [unixODBC][Driver Manager]Data source name not found, and no default driver specified </span></div><div class='input'>
-</div><span class='co'># NOT RUN {</span>
+          <span class='kw'>tableName</span> <span class='kw'>=</span> <span class='st'>'HCRWriteData'</span>)
+<span class='co'># }</span># NOT RUN {
+# }
+<span class='co'># NOT RUN {</span>
 <span class='co'>#This example shows the RODBC way of writing to a non-default schema while </span>
 <span class='co'>#ODBC is being fixed. Here is a link to the non-default issue in ODBC: </span>
 <span class='co'>#https://github.com/rstats-db/odbc/issues/91</span>
@@ -236,7 +240,7 @@ database, and whether Windows Authentication will be used. See
 
       <footer>
       <div class="copyright">
-  <p>Developed by Levi Thatcher, Mike Mastanduno, Michael Levy, Taylor Miller, Taylor Larsen.</p>
+  <p>Developed by Levi Thatcher, Michael Levy, Mike Mastanduno, Taylor Larsen, Taylor Miller.</p>
 </div>
 
 <div class="pkgdown">
