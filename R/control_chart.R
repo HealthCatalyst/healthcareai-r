@@ -27,6 +27,9 @@
 #' specified. Invisibly, returns a ggplot object for further customization.
 #' @export
 #' @import ggplot2
+#' @importFrom readr read_csv
+#' @importFrom tibble data_frame
+#' @importFrom stats as.formula
 #'
 #' @examples
 #' d <- 
@@ -95,7 +98,7 @@ control_chart <- function(d, measure, x, group1, group2,
   if (!missing(group1) && !missing(group2)) {
     chart <-
       chart +
-      facet_grid(as.formula(paste(group2, "~", group1)))
+      facet_grid(stats::as.formula(paste(group2, "~", group1)))
   } else if (!missing(group1)) {
     chart <-
       chart +
