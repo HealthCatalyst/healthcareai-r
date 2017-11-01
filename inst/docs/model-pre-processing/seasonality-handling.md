@@ -1,4 +1,4 @@
-# Seasonality handling via ``convertDateTimeColToDummies``
+# Seasonality handling via ``splitOutDateTimeCols``
 
 ## What is this?
 
@@ -23,7 +23,7 @@ head(df)
 ```
 * Next, we'll create the extra date and time colums by calling the function and then we'll look at the transformed dataset
 ```r
-df <- convertDateTimeColToDummies(df, 'dtCol')
+df <- splitOutDateTimeCols(df, 'dtCol')
 head(df)
 ```
 
@@ -46,6 +46,6 @@ y1 <- c(.5,1,3,6,8,13,14,1)
 y2 <- c(.8,1,1.2,1.2,1.2,1.3,1.3,1)
 df <- data.frame(dtCol,y1,y2)
 
-df <- convertDateTimeColToDummies(df, 'dtCol')
+df <- splitOutDateTimeCols(df, 'dtCol')
 head(df)
 ```

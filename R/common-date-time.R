@@ -1,8 +1,36 @@
 #' @title
-#' Convert datetime column into dummy columns
+#' Converts datetime columns into dummy columns
 #'
 #' @description
-#' Convert datetime column into dummy columns of day, hour, etc, such that one
+#' THIS FUNCTION HAS BEEN RENAMED TO splitOutDateTimeCols
+#'
+#' @param df A data frame. Indicates the datetime column.
+#' @param dateTimeCol A string. Column name in df that will be converted
+#' into several columns.
+#' @param depth A string. Specifies the depth with which to expand extra columns
+#' (starting with a year column). 'd' expands to day, 'h' expands to hour
+#' (default), m' expands to minute, and 's' expands to second.
+#' @param returnDtCol A boolean. Return the original dateTimeCol with
+#' the modified data frame?
+#' @return Warning message stating the function has been renamed to 
+#' splitOutDateTimeCols.
+#' @export
+#' @references \url{http://healthcareai-r.readthedocs.io}
+#' @seealso \code{\link{healthcareai}}
+
+convertDateTimeColToDummies <- function(df, dateTimeCol, depth = "h", returnDtCol = FALSE) {
+  warning("convertDateTimeColToDummies has been renamed to splitOutDateTimeCols")
+}
+
+
+
+
+
+#' @title
+#' Splits datetime column into multiple date features
+#'
+#' @description
+#' Splits datetime column into columns of day, hour, etc, such that one
 #' can use daily and seasonal patterns in their model building.
 #'
 #' @param df A data frame. Indicates the datetime column.
@@ -27,9 +55,9 @@
 #' y2 <- c(.8,1,1.2,1.2,1.2,1.3,1.3,1)
 #' df <- data.frame(dtCol,y1,y2)
 #'
-#' df <- convertDateTimeColToDummies(df, 'dtCol')
+#' df <- splitOutDateTimeCols(df, 'dtCol')
 #' head(df)
-convertDateTimeColToDummies <- function(df, dateTimeCol, depth = "h", returnDtCol = FALSE) {
+splitOutDateTimeCols <- function(df, dateTimeCol, depth = "h", returnDtCol = FALSE) {
   if (depth == "d") {
     df[[dateTimeCol]] <- as.POSIXct(df[[dateTimeCol]])
     df$year <- as.POSIXlt(df[[dateTimeCol]])$year + 1900
@@ -75,6 +103,10 @@ convertDateTimeColToDummies <- function(df, dateTimeCol, depth = "h", returnDtCo
   df
 }
 
+
+
+    
+  
 #' @title
 #' Creates column based on days since first date
 #'
