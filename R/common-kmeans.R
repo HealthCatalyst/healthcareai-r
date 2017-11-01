@@ -50,10 +50,10 @@ dataScale <- function(df) {
 
 pcaAnalysis <- function(df) {
   if (sum(is.na(df)) > 0) stop("Missing values in data frame")
-  prinComp <- prcomp(df, scale. = T)
-  pcNum <- prinComp$x
+  PCA <- prcomp(df, scale. = T)
+  pcNum <- PCA$x
   #compute standard deviation of each principal component
-  PcSd <- prinComp$sdev
+  PcSd <- PCA$sdev
   #compute variance
   pcVar <- PcSd^2
   #proportion of variance explained

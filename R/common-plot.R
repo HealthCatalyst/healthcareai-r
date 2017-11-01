@@ -26,7 +26,9 @@ plotPRCurve <- function(PRCurves, names, legendLoc) {
            mar = c(4, 4, 3, 2) + 0.1,
            type = 'l',
            main = "PR Curve",
-           xlab = "Recall", ylab = "Precision")
+           xlab = "Recall", ylab = "Precision",
+           # set axis limits manually
+           xlim = c(0, 1), ylim = c(0, 1))
     } else {
       par(pty = "s")
       par(new = TRUE) # lay second line over first
@@ -37,7 +39,9 @@ plotPRCurve <- function(PRCurves, names, legendLoc) {
            type = 'l',
            main = "PR Curve",
            xlab = "Recall", ylab = "Precision",
-           yaxt = "n") # turn off extra y axis
+           yaxt = "n", # turn off extra y axis
+           # set axis limits manually
+           xlim = c(0, 1), ylim = c(0, 1))
     }
     prIndex <- prIndex + 1
   }

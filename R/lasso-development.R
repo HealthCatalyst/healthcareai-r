@@ -61,6 +61,7 @@
 #' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{RandomForestDevelopment}}
 #' @seealso \code{\link{LinearMixedModelDevelopment}}
+#' @seealso \code{\link{selectData}}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #'
@@ -214,6 +215,8 @@ LassoDevelopment <- R6Class("LassoDevelopment",
     modMat = NA,
     predictions = NA,
     
+    algorithmShortName = "lasso",
+    
     # Performance metrics
     ROCPlot = NA,
     PRCurvePlot = NA,
@@ -232,9 +235,6 @@ LassoDevelopment <- R6Class("LassoDevelopment",
     # i.e. p = SuperviseModelParameters$new()
     initialize = function(p) {
       super$initialize(p)
-      if (is.null(self$params$modelName)) {
-        self$params$modelName = "lasso"
-      }
     },
 
     getPredictions = function(){
@@ -374,6 +374,7 @@ LassoDevelopment <- R6Class("LassoDevelopment",
           type = "groups",
           lambda = private$lambda1se
         )]
+        self$modelInfo$usedVariables <- imp
         cat("Variables with non-zero coefficients: ", imp,"\n")
         
       }
@@ -390,14 +391,14 @@ LassoDevelopment <- R6Class("LassoDevelopment",
       # Build Model
       self$buildModel()
       
-      # save model
-      super$saveModel(fitModel = private$fitGrLasso)
-      
       # Perform prediction
       self$performPrediction()
       
       # Generate performance metrics
       self$generatePerformanceMetrics()
+      
+      # save model
+      super$saveModel(fitModel = private$fitGrLasso)
     },
     
     getROC = function() {

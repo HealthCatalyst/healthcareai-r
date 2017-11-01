@@ -186,7 +186,7 @@ set.seed(42)
 # Lasso$run()
 cat(proc.time() - ptm, '\\n')
 
-\donttest{
+\dontrun{
 #### This example is specific to Windows and is not tested. 
 #### Example using SQL Server data ####
 # This example requires that you alter your connection string / query
@@ -265,6 +265,8 @@ cat(proc.time() - ptm, '\\n')
 \url{http://healthcareai-r.readthedocs.io}
 }
 \seealso{
+\code{\link{selectData}}
+
 \code{\link{healthcareai}}
 }
 \keyword{datasets}

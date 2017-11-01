@@ -62,6 +62,7 @@
 #' \emph{Usage:} \code{$getMAE()} \cr
 #' @export
 #' @references \url{http://healthcareai-r.readthedocs.io}
+#' @seealso \code{\link{selectData}}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
 #'
@@ -152,7 +153,7 @@
 #' # Lasso$run()
 #' cat(proc.time() - ptm, '\n')
 #' 
-#' \donttest{
+#' \dontrun{
 #' #### This example is specific to Windows and is not tested. 
 #' #### Example using SQL Server data ####
 #' # This example requires that you alter your connection string / query
@@ -246,6 +247,8 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
     fitLmm = NA,
 
     predictions = NA,
+    
+    algorithmShortName = "LMM",
 
     # Performance metrics
     ROCPlot = NA,
@@ -266,9 +269,6 @@ LinearMixedModelDevelopment <- R6Class("LinearMixedModelDevelopment",
     # i.e. p = SuperviseModelParameters$new()
     initialize = function(p) {
       super$initialize(p)
-      if (is.null(self$params$modelName)) {
-        self$params$modelName = "LMM" 
-      }
     },
     getPredictions = function(){
       return(private$predictions)

@@ -48,3 +48,19 @@ ignoreSpecWarn <- function(code, wRegexps) {
   }
   withCallingHandlers(code, warning = h)
 }
+
+#' @title
+#' Function to skip specific tests if they are not being run on Appveyor.
+#'
+#' @description This function will skip a test if it's not being run on Appveyor. 
+#' Used for SQL Server related tests, since we don't know if the environment will be
+#' present. These tests are are run on Appveyor.
+#' 
+#' @export
+#' @references \url{http://healthcareai-r.readthedocs.io}
+skip_on_not_appveyor = function() {
+    if (identical(Sys.getenv("APPVEYOR"), "True")) {
+        return()
+    }
+    testthat::skip("Not on Appveyor")
+}

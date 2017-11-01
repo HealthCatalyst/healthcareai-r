@@ -92,7 +92,6 @@ test_that("mae_lmm is the same each time the test is run", {
 test_that("AUC_lasso is the same each time the test is run", {
   df$PatientID <- NULL #<- Note this happens affects all following tests
 
-  skip_on_cran()
   p <- initializeParamsForTesting(df)
   p$df = df
   p$type = 'classification'
@@ -106,7 +105,6 @@ test_that("AUC_lasso is the same each time the test is run", {
 
 test_that("rmse_lasso is the same each time the test is run non-factor column", {
 
-  skip_on_cran()
   p <- initializeParamsForTesting(df)
   p$type = 'regression'
   p$predictedCol = 'A1CNBR'
@@ -120,7 +118,6 @@ test_that("rmse_lasso is the same each time the test is run non-factor column", 
 
 test_that("mae_lasso is the same each time the test is run non-factor column", {
 
-  skip_on_cran()
   p <- initializeParamsForTesting(df)
   p$type = 'regression'
   p$predictedCol = 'A1CNBR'
@@ -137,7 +134,6 @@ test_that("mae_lasso is the same each time the test is run non-factor column", {
 
 test_that("AUC_rf is the same each time the test is run", {
   
-  skip_on_cran()
   p <- initializeParamsForTesting(df)
   p$type = 'classification'
   p$predictedCol = 'ThirtyDayReadmitFLG'
@@ -151,7 +147,6 @@ test_that("AUC_rf is the same each time the test is run", {
 
 test_that("rmse_rf is the same each time the test is run non-factor column", {
 
-  skip_on_cran()
   p <- initializeParamsForTesting(df)
   p$type = 'regression'
   p$predictedCol = 'A1CNBR'
@@ -165,7 +160,6 @@ test_that("rmse_rf is the same each time the test is run non-factor column", {
 
 test_that("mae_rf is the same each time the test is run non-factor column", {
 
-  skip_on_cran()
   p <- initializeParamsForTesting(df)
   p$type = 'regression'
   p$predictedCol = 'A1CNBR'
@@ -177,4 +171,21 @@ test_that("mae_rf is the same each time the test is run non-factor column", {
 
 })
 
+test_that("dev grainCol not in dev df gives proper error", {
+  
+  p$type <- "classification"
+  p$predictedCol <- "ThirtyDayReadmitFLG"
+  p$grainCol <- "Winnie the Pooh"
+  
+  expect_error(RandomForestDevelopment$new(p), "Your specified grainCol is not")
+  
+})
 
+test_that("dev predictedCol not in dev df gives proper error", {
+  
+  p$grainCol <- 'PatientEncounterID'
+  p$type <- "classification"
+  p$predictedCol <- "fleshEatingDandruff"
+  
+  expect_error(RandomForestDevelopment$new(p), "Your specified predictedCol is")
+})

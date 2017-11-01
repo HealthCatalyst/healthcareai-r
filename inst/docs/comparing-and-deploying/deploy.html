@@ -185,6 +185,7 @@ CREATE TABLE [SAM].[dbo].[HCRDeployRegressionBASE] (
 </ul></li>
 </ul>
 <pre class="r"><code>library(healthcareai)
+library(RODBC)
 
 connection.string = &quot;
 driver={SQL Server};
@@ -193,26 +194,28 @@ database=SAM;
 trusted_connection=true
 &quot;
 
+# This query should pull only rows for training. They must have a label.
 query = &quot;
 SELECT
-[OrganizationLevel]
-,[MaritalStatus]
-,[Gender]
-,IIF([SalariedFlag]=0,'N','Y') AS SalariedFlag
-,[VacationHours]
-,[SickLeaveHours]
-FROM [AdventureWorks2012].[HumanResources].[Employee]
+[PatientEncounterID]
+,[PatientID]
+,[SystolicBPNBR]
+,[LDLNBR]
+,[A1CNBR]
+,[GenderFLG]
+,[ThirtyDayReadmitFLG]
+FROM [SAM].[dbo].[HCRDiabetesClinical]
 &quot;
 
 df &lt;- selectData(connection.string, query)
-head(df)
-str(df)</code></pre>
+head(df)</code></pre>
 <p>Note: if you want a CSV example (ie, an example that you can run as-is), see the built-in docs:</p>
 <pre class="r"><code>library(healthcareai)
 ?healthcareai</code></pre>
 </div>
-<div id="step-2-set-your-parameters-via-supervisedmodelparameters" class="section level2">
-<h2>Step 2: Set your parameters via <code>SupervisedModelParameters</code></h2>
+<div id="step-2-develop-and-compare-several-models" class="section level2">
+<h2>Step 2: Develop and compare several models</h2>
+<p>Set up your parameters via <code>SupervisedModelDevelopmentParams</code></p>
 <ul>
 <li><strong>Return</strong>: an object representing your specific configuration.</li>
 <li><strong>Arguments</strong>:
@@ -226,35 +229,46 @@ str(df)</code></pre>
 <li><strong>cores</strong>: an int, defaults to 4. Number of cores on machine to use for model training.</li>
 </ul></li>
 </ul>
-<pre class="r"><code>p &lt;- DeploySupervisedModelParameters$new()
+<pre class="r"><code>p &lt;- SupervisedModelDevelopmentParams$new()
 p$df = df
 p$type = 'classification'
 p$impute = TRUE
-p$grainCol = 'GrainID'
-p$predictedCol = 'SalariedFlag'
+p$grainCol = 'PatientEncounterID'
+p$predictedCol = 'ThirtyDayReadmitFLG'
 p$debug = FALSE
-p$cores = 1
-p$sqlConn = connection.string
-p$destSchemaTable = 'dbo.HCRDeployClassificationBASE'</code></pre>
+p$cores = 1</code></pre>
+<p>Create the models via the <code>LassoDevelopment</code> or <code>RandomForestDevelopment</code> algorithms.</p>
+<pre class="r"><code># Run Lasso
+Lasso &lt;- LassoDevelopment$new(p)
+Lasso$run()
+
+# Run Random Forest
+rf &lt;- RandomForestDevelopment$new(p)
+rf$run()</code></pre>
 </div>
-<div id="step-3-create-the-models-via-the-deploylasso-or-deployrandomforest-algorithms." class="section level2">
-<h2>Step 3: Create the models via the <code>DeployLasso</code> or <code>DeployRandomForest</code> algorithms.</h2>
-<pre class="r"><code># Run Lasso (if that's what performed best in the develop step)
-dL &lt;- LassoDeployment$new(p)
+<div id="step-3-deploy-the-model" class="section level2">
+<h2>Step 3: Deploy the model</h2>
+<p>Specify a deploy set</p>
+<pre class="r"><code>#specify a deploy set
+dfDeploy &lt;- df[951:1000,]
+</code></pre>
+<p>Set deployment parameters via <code>SupvervisedModelDeploymentParams</code></p>
+<pre class="r"><code>p2 &lt;- SupervisedModelDeploymentParams$new()
+p2$type &lt;- &quot;classification&quot;
+p2$df &lt;- dfDeploy
+p2$grainCol &lt;- &quot;PatientEncounterID&quot;
+p2$predictedCol &lt;- &quot;ThirtyDayReadmitFLG&quot;
+p2$impute &lt;- TRUE
+p2$debug &lt;- FALSE
+p2$cores &lt;- 1</code></pre>
+<p>Since random forest performed better in step 2, we will choose to deploy the random forest model.</p>
+<pre class="r"><code>dL &lt;- RandomForestDeployment$new(p2)
 dL$deploy()
-
-# Or run RandomForest (if that's what performed best in the develop step)
-dL &lt;- RandomForestDeployment$new(p)
-dL$deploy()
-
-# Or run Linear Mixed Model (if that's what performed best in the develop step)
-
-p$personCol = 'PatientID' # Change to your PatientID col
-lMM &lt;- LinearMixedModelDeployment$new(p)
-lMM$deploy()</code></pre>
+dfOut &lt;- dL$getOutDf()
+dfOut</code></pre>
 </div>
-<div id="full-example-code-for-sql-server" class="section level2">
-<h2>Full example code for SQL Server</h2>
+<div id="full-example-code-for-reading-from-and-pushing-to-sql-server" class="section level2">
+<h2>Full example code for reading from and pushing to SQL Server</h2>
 <pre class="r"><code>#### Classification example using SQL Server data ####
 # This example requires you to first create a table in SQL Server.
 # If you want to write output to a non-default schema, please see the section
@@ -380,21 +394,6 @@ head(dfOut)
 # Write to CSV (or JSON, MySQL, etc) using plain R syntax
 # write.csv(dfOut,'path/predictionsfile.csv')
 print(proc.time() - ptm)</code></pre>
-</div>
-<div id="linear-mixed-model-small-datasets-with-a-longitudinal-flavor" class="section level2">
-<h2>Linear Mixed Model (small datasets with a longitudinal flavor)</h2>
-<pre class="r"><code>p2 &lt;- SupervisedModelDeploymentParams$new()
-p2$type &lt;- &quot;classification&quot;
-p2$df &lt;- df
-p2$grainCol &lt;- &quot;PatientEncounterID&quot; # Unique ID for each appointment
-p$personCol &lt;- &quot;PatientID&quot; # Could be multiple visits per patient
-p2$predictedCol &lt;- &quot;ThirtyDayReadmitFLG&quot;
-p2$impute &lt;- TRUE
-p2$debug &lt;- FALSE
-p2$cores &lt;- 1
-
-dL &lt;- LinearMixedModelDeployment$new(p2)
-dL$deploy()</code></pre>
 </div>
 <div id="deploying-and-writing-to-non-default-schemas-in-sql-server" class="section level2">
 <h2>Deploying and Writing to non-default schemas in SQL Server</h2>

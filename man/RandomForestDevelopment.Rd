@@ -99,6 +99,24 @@ Returns the RMSE from test data for regression models. \cr
 \emph{Usage:} \code{$getMAE()} \cr
 }
 
+\section{\code{$getVariableImportanceList()}}{
+
+Returns the variable importance list. \cr
+\emph{Usage:} \code{$getVariableImportanceList(numTopVariables = NULL)} \cr
+ Params: \cr
+  - \code{numTopVariables:} The maximum number of variables to include. If no
+  value is specified, all variables are used. \cr
+}
+
+\section{\code{$plotVariableImportance()}}{
+
+Plots the variable importance list. \cr
+\emph{Usage:} \code{$plotVariableImportance(numTopVariables = NULL)} \cr
+ Params: \cr
+  - \code{numTopVariables:} The maximum number of variables to include. If no
+  value is specified, all variables are used. \cr
+}
+
 \examples{
 
 #### Example using iris dataset ####
@@ -242,6 +260,8 @@ print(proc.time() - ptm)
 \code{\link{LassoDevelopment}}
 
 \code{\link{LinearMixedModelDevelopment}}
+
+\code{\link{selectData}}
 
 \code{\link{healthcareai}}
 }
