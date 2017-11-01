@@ -1,39 +1,41 @@
 #' Create a control chart
 #' 
-#' Create a control, aka Shewhart chart
+#' Create a control chart, aka Shewhart chart:
 #' \url{https://en.wikipedia.org/wiki/Control_chart}. 
 #'
-#' @param d data frame
-#' @param measure variable of interest, to go on the y-axis
+#' @param d data frame or a path to a csv file that will be read in
+#' @param measure variable of interest mapped to y-axis
 #' @param x variable to go on the x-axis, often a time variable. If unspecified
-#' row indices will be used.
-#' @param group1 Optional grouping variable to be panelled horizontally.
-#' @param group2 Optional grouping variable to be panelled vertically.
+#' row indices will be used
+#' @param group1 Optional grouping variable to be panelled horizontally
+#' @param group2 Optional grouping variable to be panelled vertically
 #' @param center_line Function used to calculate central tendency. 
-#' Defaults to mean.
+#' Defaults to mean
 #' @param sigmas Number of standard deviations above and below the central 
-#' tendency to call a point influenced by "special cause variation".
-#' Defaults to 3.
+#' tendency to call a point influenced by "special cause variation."
+#' Defaults to 3
 #' @param save_to Optional file path to save chart. If not provided, the chart
-#' will be printed on screen.  
-#' @param plot_width In inches. Only useful if save_to is specified.
-#' @param plot_height In inches. Only useful if save_to is specified.
-#' @param plot_title Title in upper-left.
-#' @param plot_catpion Caption in lower-right.
-#' @param plot_font_size Base font size; text elements will be scaled to this.
+#' will be printed on screen
+#' @param plot_width In inches. Only used if save_to is specified
+#' @param plot_height In inches. Only used if save_to is specified
+#' @param plot_title Title in upper-left
+#' @param plot_catpion Caption in lower-right
+#' @param plot_font_size Base font size; text elements will be scaled to this
 #'
 #' @return Generally called for the side effect of printing the control chart
-#' if save_to is not specified or saving the control chart to file if save_to
-#' is specified. Invisibly, returns a ggplot object for further customization.
+#' or writing the control chart to file, depending on whether save_to is 
+#' specified. Invisibly, returns a ggplot object for further customization.
 #' @export
 #' @import ggplot2
 #'
 #' @examples
-#' d <- tibble::data_frame(
-#' day = sample(c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"), 100, TRUE),
-#' person = sample(c("Tom", "Jane", "Alex"), 100, TRUE),
-#' count = rbinom(100, 20, ifelse(day == "Friday", .5, .2)),
-#' date = Sys.Date() - sample.int(100))
+#' d <- 
+#'   tibble::data_frame(
+#'     day = sample(c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"), 
+#'                  100, TRUE),
+#'     person = sample(c("Tom", "Jane", "Alex"), 100, TRUE),
+#'     count = rbinom(100, 20, ifelse(day == "Friday", .5, .2)),
+#'     date = Sys.Date() - sample.int(100))
 #' control_chart(d, "count")
 #' control_chart(d, "count", group1 = "day", group2 = "person")
 #' if (require(ggplot2)) {
@@ -55,6 +57,7 @@ control_chart <- function(d, measure, x, group1, group2,
   if (missing(d) || !(is.data.frame(d) || is.character(d))) {
     stop("You have to provide a data frame or a file location.")
   } else if (is.character(d)) {
+    message("Attempting to read csv from ", d)
     d <- readr::read_csv(d)
   }
 
