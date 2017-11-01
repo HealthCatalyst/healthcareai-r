@@ -2,7 +2,7 @@ context("Checking control_chart")
 
 # Setup ------------------------------------------------------------------------
 library(ggplot2)
-testD <- tibble::tibble(
+test_df <- tibble::tibble(
   var1 = rep(letters[1:2], each = 10),
   var2 = rep(letters[2:5], times = 5),
   outcome = c(1:19, 25)  # To get different mean and median
@@ -10,23 +10,23 @@ testD <- tibble::tibble(
 
 # Test control_chart -----------------------------------------------------------
 test_that("control_chart returns a ggplot object", {
-  output <- control_chart(testD, "outcome")
+  output <- control_chart(test_df, "outcome")
   expect_true(is.ggplot(output))
-  output <- control_chart(testD, "outcome", group1 = "var1", group2 = "var2")
+  output <- control_chart(test_df, "outcome", group1 = "var1", group2 = "var2")
   expect_true(is.ggplot(output))
-  output <- control_chart(testD, "outcome", group1 = "var1", group2 = "var2", 
+  output <- control_chart(test_df, "outcome", group1 = "var1", group2 = "var2",
                           save_to = "tmpFile.png")
   expect_true(is.ggplot(output))
 })
 
 test_that("control_chart writes file if given a save_to path", {
   suppressWarnings(invisible(file.remove("tmpFile.png")))
-  output <- control_chart(testD, "outcome", save_to = "tmpFile.png")
+  output <- control_chart(test_df, "outcome", save_to = "tmpFile.png")
   expect_true(file.exists("tmpFile.png"))
 })
 
 test_that("control_chart takes csv filepath as argumnent", {
-  readr::write_csv(testD, "tmpFile.csv")
+  readr::write_csv(test_df, "tmpFile.csv")
   output <- control_chart(d = "tmpFile.csv", measure = "outcome")
   expect_true(is.ggplot(output))
   control_chart(d = "tmpFile.csv", measure = "outcome", save_to = "tmpFile.png")
@@ -34,7 +34,7 @@ test_that("control_chart takes csv filepath as argumnent", {
 
 
 # Test calculate_bounds --------------------------------------------------------
-bounds <- calculate_bounds(d = testD,
+bounds <- calculate_bounds(d = test_df,
                            measure = "outcome",
                            center_line = mean,
                            sigmas = 3)
@@ -54,7 +54,7 @@ test_that("calculate_bounds returns correct values with defaults", {
 
 test_that("calculate_bounds returns correct values with non-defaults", {
 
-  new_bounds <- calculate_bounds(d = testD,
+  new_bounds <- calculate_bounds(d = test_df,
                            measure = "outcome",
                            center_line = median,
                            sigmas = 2)

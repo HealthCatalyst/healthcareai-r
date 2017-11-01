@@ -66,11 +66,11 @@ control_chart <- function(d, measure, x, group1, group2,
     x <- "x"
     d$x <- seq_len(nrow(d))
   }
-  
+
   bounds <- calculate_bounds(d, measure, center_line, sigmas)
 
   # Calculate central tendency and upper and lower limits
-  d$outside <- ifelse(d[[measure]] > bounds[["upper"]] | 
+  d$outside <- ifelse(d[[measure]] > bounds[["upper"]] |
                         d[[measure]] < bounds[["lower"]], "out", "in")
 
   # Make plot
