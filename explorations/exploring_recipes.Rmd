@@ -1,0 +1,251 @@
+---
+title: "Exploring Caret and Recipes"
+output: html_notebook
+---
+Using recipes to do data prep is awesome. I think our primary value add will be
+custom recipes to clean and prepare, and custom steps to do things like add
+`hcai_missing` as a factor level.
+
+- A recipe is a exactly that. It's a process to transform data. Only the 
+process.
+- `prep` will gather the ingredients needed to apply the recipe. Example: One
+must know the mean before centering.
+- `bake` actually applies the recipe. Any subset of the same data can be 
+baked with the recipe.
+
+Basic examples can be found here:
+https://github.com/topepo/recipes/blob/master/vignettes/Simple_Example.Rmd
+
+Custom step examples can be found here:
+https://github.com/topepo/recipes/blob/master/vignettes/Custom_Steps.Rmd
+
+Or below for some starter code.
+
+```{r}
+library(caret)
+library(recipes)
+library(tidyverse)
+library(healthcareai)
+```
+
+
+Load a diabetes dataset. Download from `Box/Data Science Team/Classification/diabetes.csv`
+```{r}
+df <- as.tibble(read.csv("diabetic_data.csv", stringsAsFactors = FALSE))
+
+df$X <- NULL
+
+# Change to binary
+df$readmitted[df$readmitted==">30"] <- "N"
+df$readmitted <- as.factor(ifelse(df$readmitted == "<30", "Y", "N"))
+
+# Replace ? with NA
+df[df == "?"] <- NA
+
+cols_to_factor <- c("race", "gender", "admission_type_id", "discharge_disposition_id",
+  "admission_source_id", "payer_code", "medical_specialty", "diag_1", "diag_2", "diag_3", 
+  "metformin", "repaglinide", "nateglinide", "chlorpropamide", "glimepiride", 
+  "acetohexamide", "glipizide","glyburide","tolbutamide","pioglitazone","rosiglitazone",
+  "acarbose","miglitol","troglitazone","tolazamide","examide","citoglipton","insulin",
+  "glyburide.metformin","glipizide.metformin","glimepiride.pioglitazone","metformin.rosiglitazone",
+  "metformin.pioglitazone","change","diabetesMed", "readmitted")
+df[cols_to_factor] <- lapply(df[cols_to_factor], as.factor)
+
+df$age <- factor(df$age, ordered = TRUE)
+
+df[c("weight", "max_glu_serum", "A1Cresult")] <- lapply(
+  df[c("weight", "max_glu_serum", "A1Cresult")], as.numeric)
+
+data <- df %>% slice(1:20000)
+
+glimpse(data)
+
+print("size of dataset:")
+print(dim(data))
+
+print("unique patients:")
+print(length(unique(data$patient_nbr)))
+
+print("missing percentage:")
+print(countMissingData(data))
+
+print("structure:")
+print(str(data))
+```
+
+Train test split
+Splitting on the readmitted flag makes sure that the distribution is the same in both sets.
+```{r}
+train_index <- createDataPartition(data$readmitted,
+  p = 0.8,
+  times = 1,
+  list = TRUE)
+
+data_train <- data[train_index$Resample1, ]
+data_test <- data[-train_index$Resample1, ]
+```
+
+
+### Basic Recipe
+Use `?selections` to see how to select certain variables. One can select by type, role, or name
+This one does centering and scaling of numeric variables.
+```{r}
+# Initialize
+rec_obj <- recipe(readmitted ~ ., data = data)
+
+# Create recipe
+standardized <- rec_obj %>%
+  step_center(all_numeric()) %>%
+  step_scale(all_numeric()) 
+standardized
+
+# Train recipe
+trained_rec <- prep(standardized, training = data_train)
+
+# Apply recipe
+data_train <- bake(trained_rec, newdata = data_train)
+data_test  <- bake(trained_rec, newdata = data_test)
+```
+
+Add more steps with by just adding to the trained recipe. Get a list of steps using `apropos("^step_")`
+```{r}
+apropos("^step_")
+```
+
+Updating a recipe
+```{r}
+# Update recipe
+trained_rec <- trained_rec %>%
+  step_nzv(all_predictors())
+
+# Train updated recipe (recall that you'll have to start with a fresh copy of
+# data_train to apply the recipe from the beginning).
+data_train <- data[train_index$Resample1, ]
+data_test <- data[-train_index$Resample1, ]
+trained_rec <- prep(trained_rec, training = data_train)
+
+# Apply recipe
+data_train <- bake(trained_rec, newdata = data_train)
+data_test  <- bake(trained_rec, newdata = data_test)
+```
+
+Dummification
+```{r}
+# Update recipe
+trained_rec <- trained_rec %>%
+  step_dummy(starts_with("gender"))
+
+# Train updated recipe
+data_train <- data[train_index$Resample1, ]
+data_test <- data[-train_index$Resample1, ]
+trained_rec <- prep(trained_rec, training = data_train)
+
+# Apply recipe
+data_train <- bake(trained_rec, newdata = data_train)
+data_test  <- bake(trained_rec, newdata = data_test)
+```
+
+## Adding a custom step
+Factors should get a level called, `hcai_missing`. Then, NA values should be set to this value. If there are no missing values, this column will still generate a dummy column. To do this, we need a custom recipes function.
+
+```{r}
+# Initialize the user-facing function
+step_hcai_missing <- function(recipe, ..., role = NA, 
+                            trained = FALSE) {
+## bake but do not evaluate the variable selectors with
+## the `quos` function in `rlang`
+  terms <- rlang::quos(...) 
+  if(length(terms) == 0)
+    stop("Please supply at least one variable specification. See ?selections.")
+  add_step(
+    recipe, 
+    step_hcai_missing_new(
+      terms = terms, 
+      trained = trained))
+}
+
+# Initialze a new object
+step_hcai_missing_new <- function(terms = NULL, role = NA, trained = FALSE) {
+  step(
+    subclass = "hcai_missing", 
+    terms = terms,
+    role = role,
+    trained = trained
+  )
+}
+
+# Add the hcai_missing method to prep
+prep.step_hcai_missing <- function(x, training, info = NULL, ...) {
+  col_names <- terms_select(terms = x$terms, info = info)
+  
+  x$names <- col_names
+  # Always return the updated step
+  x
+}
+
+# Add the hcai_missing method to bake
+bake.step_hcai_missing <- function(object, newdata, ...) {
+  require(tibble)
+  ## For illustration (and not speed), we will loop through the affected variables
+  ## and do the computations
+  vars <- object$names
+  
+  for(i in vars) {
+      # Add missing level
+      levs <- levels(newdata[[i]])
+      levels(newdata[[i]]) <- c(levs, "Missing_healthcareai")
+      
+      # Set NA to the new level
+      newdata[is.na(newdata[, i]), i] <- "Missing_healthcareai"
+  }
+  ## Always convert to tibbles on the way out
+  as_tibble(newdata)
+}
+```
+
+
+Give it a try.
+```{r}
+rec_obj2 <- recipe(readmitted ~ ., data = data)
+
+rec_obj2 <- rec_obj2 %>%
+  step_hcai_missing(starts_with("medical_sp"))
+
+data_train <- data[train_index$Resample1, ]
+data_test <- data[-train_index$Resample1, ]
+rec_obj2 <- prep(rec_obj2, training = data_train)
+
+out <- bake(rec_obj2, data_train)
+out
+```
+
+```{r}
+# Initialize
+rec_obj <- recipe(readmitted ~ ., data = data)
+
+# Create recipe
+standardized <- rec_obj %>%
+  step_center(all_numeric()) %>%
+  step_scale(all_numeric()) %>%
+  step_hcai_missing(all_nominal())
+
+# Train recipe
+data_train <- data[train_index$Resample1, ]
+data_test <- data[-train_index$Resample1, ]
+trained_rec <- prep(standardized, training = data_train)
+
+# Apply recipe
+data_train <- bake(trained_rec, newdata = data_train)
+data_test  <- bake(trained_rec, newdata = data_test)
+```
+
+## Ordering
+Suggested order of potential steps:
+1. Impute
+2. Individual transformations for skewness and other issues
+3. Discretize (if needed and if you have no other choice)
+4. Create dummy variables
+5. Create interactions
+6. Normalization steps (center, scale, range, etc)
+7. Multivariate transformation (e.g. PCA, spatial sign, etc)
+
