@@ -27,3 +27,4 @@ test_that("AU_PR, precision, and recall are calculated correctly", {
   expect_equal(output$IdealCutoffs[2], 0.2638889, tolerance = 1e-6) 
   expect_equal(output$IdealCutoffs[3], 0.826087, tolerance = 1e-6)
 })
+

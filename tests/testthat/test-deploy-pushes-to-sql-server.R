@@ -269,3 +269,4 @@ test_that("rf deploy regression pushes values to SQL Server", {
                 "50 rows were inserted into the SQL Server table HCRDeployRegressionBASE")
   closeAllConnections()
 })
+

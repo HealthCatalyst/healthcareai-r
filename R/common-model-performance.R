@@ -221,3 +221,4 @@ getCutOffList = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
     return(c(cutoff, pre, rec)) # list of integers
   }
 }
+

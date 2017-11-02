@@ -707,3 +707,4 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     }
   )
 )
+

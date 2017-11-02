@@ -47,6 +47,8 @@ groupedLOCF <- function(df, id) {
   dfResult
 }
 
+foo <- 'adfasdf'
+
 #' @title
 #' Perform imputation on a dataframe
 #'
@@ -187,3 +189,4 @@ imputeDF <- function(df, imputeVals = NULL) {
 imputeColumn <- function(v) {
   stop('This function was depreciated. Use imputeDF instead.')
 }
+

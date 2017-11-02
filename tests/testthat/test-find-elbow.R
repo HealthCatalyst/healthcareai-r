@@ -12,3 +12,4 @@ test_that("A non-concave curve gives correct error",{
                          "Your curve doesn't appear to be concave, using 2 PCs.")
 })
 
+

@@ -34,3 +34,4 @@ UnsupervisedModelParams <- R6Class("UnsupervisedModelParams",
     }
   )
 )
+

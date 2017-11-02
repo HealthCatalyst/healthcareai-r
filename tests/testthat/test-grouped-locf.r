@@ -136,3 +136,4 @@ test_that("Observation carried forward when observation type is boolean", {
                                '01/01/2015','01/15/2015','01/30/2015'))
   expect_identical(groupedLOCF(dt,'PersonID'), dtresult)
 })
+

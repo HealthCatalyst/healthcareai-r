@@ -393,3 +393,4 @@ test_that("Date column passed as number gives correct error", {
                          paste0("Age may not be a datetime column, or the",
                                 " column may not be in format YYYY-MM-DD"))
 })
+

@@ -25,3 +25,4 @@ test_that("Risk-adjusted comparison runs", {
   expect_equal(as.character(riskAdjComp$dfReturn$groupbyList[1]), 'M')
   expect_equal(class(riskAdjComp$dfReturn$comparativePerformance), 'numeric')
 })
+

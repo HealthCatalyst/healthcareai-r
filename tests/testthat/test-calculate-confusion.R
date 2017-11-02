@@ -27,3 +27,4 @@ test_that("labels vector with NA give the correct matrix",{
 })
 
 
+

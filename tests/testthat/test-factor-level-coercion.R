@@ -1236,3 +1236,4 @@ test_that("Y and N aren't swapped label is a factor", {
   expect_equal(order(outDf1$PredictedProbNBR),
                order(outDf2$PredictedProbNBR))
 })
+

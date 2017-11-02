@@ -100,3 +100,4 @@
 #' @docType package
 #' @name healthcareai
 NULL
+
