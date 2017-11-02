@@ -149,54 +149,68 @@ data_test  <- bake(trained_rec, newdata = data_test)
 Factors should get a level called, `hcai_missing`. Then, NA values should be set to this value. If there are no missing values, this column will still generate a dummy column. To do this, we need a custom recipes function.
 
 ```{r}
-# Initialize the user-facing function
-step_hcai_missing <- function(recipe, ..., role = NA, 
-                            trained = FALSE) {
-## bake but do not evaluate the variable selectors with
-## the `quos` function in `rlang`
+# This is the user-facing function
+step_hcai_missing <- function(recipe, 
+                              ..., 
+                              role = NA, 
+                              trained = FALSE,
+                              na_percentage = NULL) {
   terms <- rlang::quos(...) 
-  if(length(terms) == 0)
+  if (length(terms) == 0)
     stop("Please supply at least one variable specification. See ?selections.")
   add_step(
     recipe, 
     step_hcai_missing_new(
-      terms = terms, 
-      trained = trained))
+      terms = terms,
+      role = role,
+      trained = trained,
+      na_percentage = na_percentage
+    )
+  )
 }
 
 # Initialze a new object
-step_hcai_missing_new <- function(terms = NULL, role = NA, trained = FALSE) {
+step_hcai_missing_new <- function(terms = NULL, 
+                                  role = NA, 
+                                  trained = FALSE,
+                                  na_percentage = NULL) {
   step(
     subclass = "hcai_missing", 
     terms = terms,
     role = role,
-    trained = trained
+    trained = trained,
+    na_percentage = na_percentage
   )
 }
 
-# Add the hcai_missing method to prep
+# prep method
 prep.step_hcai_missing <- function(x, training, info = NULL, ...) {
   col_names <- terms_select(terms = x$terms, info = info)
+  na_percentage <- sapply(training[, col_names], function(x) {
+    100 * round(sum(is.na(x)) / length(x), 3)
+    }
+  )
   
-  x$names <- col_names
-  # Always return the updated step
-  x
+  step_hcai_missing_new(
+    terms = x$terms,
+    role = x$role,
+    trained = TRUE,
+    na_percentage = na_percentage
+  )
 }
 
-# Add the hcai_missing method to bake
+# bake method
 bake.step_hcai_missing <- function(object, newdata, ...) {
   require(tibble)
-  ## For illustration (and not speed), we will loop through the affected variables
-  ## and do the computations
-  vars <- object$names
+  vars <- names(object$na_percentage)
   
-  for(i in vars) {
-      # Add missing level
-      levs <- levels(newdata[[i]])
-      levels(newdata[[i]]) <- c(levs, "Missing_healthcareai")
-      
-      # Set NA to the new level
-      newdata[is.na(newdata[, i]), i] <- "Missing_healthcareai"
+  for (i in vars) {
+    # Add missing level
+    levs <- levels(newdata[[i]])
+    levels(newdata[[i]]) <- c(levs, "hcai_missing")
+    
+    # Set NA to the new level
+    newdata[is.na(newdata[, i]), i] <- "hcai_missing"
   }
   ## Always convert to tibbles on the way out
   as_tibble(newdata)
