@@ -32,6 +32,7 @@
 #' @importFrom stats as.formula
 #'
 #' @examples
+#' # Create a data frame to plot from
 #' d <- 
 #'   tibble::data_frame(
 #'     day = sample(c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"), 
@@ -39,8 +40,15 @@
 #'     person = sample(c("Tom", "Jane", "Alex"), 100, TRUE),
 #'     count = rbinom(100, 20, ifelse(day == "Friday", .5, .2)),
 #'     date = Sys.Date() - sample.int(100))
+#' # The most basic plot. If x is not provided, observations will be plotted
+#' # in order of the rows
 #' control_chart(d, "count")
+#' # Specify categorical variables for group1 and/or group2 to get a separate
+#' # panel for each category or combination thereof
 #' control_chart(d, "count", group1 = "day", group2 = "person")
+#' # In addition to printing or writing the plot to file, control_chart
+#' # returns the plot as a ggplot2 obejct, which you can then further 
+#' # customize like so
 #' if (require(ggplot2)) {
 #' x <- control_chart(d, "count", "date")
 #' x + 
@@ -72,7 +80,7 @@ control_chart <- function(d, measure, x, group1, group2,
     stop(group1, "isn't the name of a column in d")
   if (!missing(group2) && !group2 %in% names(d))
     stop(group2, "isn't the name of a column in d")
-  
+
   if (!missing(save_to) && !grepl("\\.[[:alpha:]]{3,4}$", save_to))
     stop("save_to has to end with a graphics extension such as .png or .pdf")
 

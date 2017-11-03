@@ -57,7 +57,9 @@ test_that("control_chart errors if measure column present", {
 test_that("control_chart errors if save_to doesn't look like an image file", {
   expect_error(control_chart(test_df, "outcome", save_to = "file"))
   expect_error(control_chart(test_df, "outcome", save_to = "file.notextension"))
-  expect_success(control_chart(test_df, "outcome", save_to = "tmpFile.PNG"))
+  # test there isn't an error if extension is all caps
+  expect_error(control_chart(test_df, "outcome", save_to = "tmpFile.PNG"),
+               regexp = NA)
 })
 
 
