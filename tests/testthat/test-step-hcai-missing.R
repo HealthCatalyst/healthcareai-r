@@ -1,11 +1,14 @@
-
 context("Checking recipe step hcai-missing")
+
+library(healthcareai)
+library(tibble)
+library(caret)
+library(recipes)
 
 # Setup ------------------------------------------------------------------------
 # set seed for reproducibility
 set.seed(7)
-
-# build hot dog set
+# build dataset
 n = 300
 d <- tibble(id = 1:n,
                  playerID = sample(1:9, size = n, replace = TRUE),
@@ -35,25 +38,70 @@ train_index <- caret::createDataPartition(
 d_train <- d[train_index$Resample1, ]
 d_test <- d[-train_index$Resample1, ]
 
-# Tests ------------------------------------------------------------------------
-test_that("Recip", {
-
-  
-  # Check that a prediction is made
-  expect_equal(rfOutd1$id[1], 9001)
-  expect_is(rfOutd1$PredictedProbNBR[1], "numeric")
-})
-
-
-
 rec_obj <- recipe(is_goomba ~ ., data = d)
 
 rec_obj <- rec_obj %>%
   step_hcai_missing(all_nominal())
 
-data_train <- data[train_index$Resample1, ]
-data_test <- data[-train_index$Resample1, ]
-rec_obj <- prep(rec_obj, training = data_train)
+junk <- capture.output(
+  rec_obj <- prep(rec_obj, training = d_train)
+)
 
-out <- bake(rec_obj, data_train)
-out
+junk <- capture.output(
+  out_train <- bake(rec_obj, d_train)
+)
+
+junk <- capture.output(
+  out_test <- bake(rec_obj, d_test)
+)
+
+# Tests ------------------------------------------------------------------------
+test_that("Recipe object is updated with step", {
+  expect_equal(class(rec_obj$steps[[1]])[1], "step_hcai_missing")
+})
+
+test_that("Recipe is prepped correctly", {
+  expect_equal(
+    rec_obj$steps[[1]]$na_percentage[[1]],
+    33.2)
+  
+  expect_equal(
+    names(rec_obj$steps[[1]]$na_percentage)[1],
+    "character")
+  
+  expect_equal(
+    rec_obj$steps[[1]]$na_percentage[[2]],
+    8.7)
+  
+  expect_equal(
+    names(rec_obj$steps[[1]]$na_percentage)[2],
+    "suit")
+})
+
+test_that("Recipe is baked correctly on training data", {
+  expect_true("hcai_missing" %in% levels(out_train$character))
+  
+  expect_equal(
+    sum(out_train$character == "hcai_missing"),
+    80)
+  
+  expect_true("hcai_missing" %in% levels(out_train$suit))
+              
+  expect_equal(
+    sum(out_train$suit == "hcai_missing"),
+    21)
+})
+
+test_that("Recipe is baked correctly on test data", {
+  expect_true("hcai_missing" %in% levels(out_test$character))
+  
+  expect_equal(
+    sum(out_test$character == "hcai_missing"),
+    20)
+  
+  expect_true("hcai_missing" %in% levels(out_test$suit))
+  
+  expect_equal(
+    sum(out_test$suit == "hcai_missing"),
+    9)
+})
