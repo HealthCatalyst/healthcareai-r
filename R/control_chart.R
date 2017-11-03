@@ -72,6 +72,9 @@ control_chart <- function(d, measure, x, group1, group2,
     stop(group1, "isn't the name of a column in d")
   if (!missing(group2) && !group2 %in% names(d))
     stop(group2, "isn't the name of a column in d")
+  
+  if (!missing(save_to) && !grepl("\\.[[:alpha:]]{3,4}$", save_to))
+    stop("save_to has to end with a graphics extension such as .png or .pdf")
 
   if (missing(x)) {
     x <- "x"

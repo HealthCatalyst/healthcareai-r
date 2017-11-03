@@ -25,6 +25,12 @@ test_that("control_chart writes file if given a save_to path", {
   expect_true(file.exists("tmpFile.png"))
 })
 
+test_that("no file written when filename isn't provided", {
+  n_files <- list.files()
+  x <- control_chart(test_df, "outcome")
+  expect_equal(n_files, list.files())
+})
+
 test_that("control_chart takes csv filepath as argumnent", {
   readr::write_csv(test_df, "tmpFile.csv")
   output <- control_chart(d = "tmpFile.csv", measure = "outcome")
@@ -42,6 +48,16 @@ test_that("control_chart errors if grouping variables aren't present", {
   expect_error(control_chart(test_df, "outcome", group1 = "not_a_column"))
   expect_error(control_chart(test_df, "outcome", group1 = "var1", group2 = "n"))
   expect_error(control_chart(test_df, "outcome", group1 = "va"))
+})
+
+test_that("control_chart errors if measure column present", {
+  expect_error(control_chart(test_df, group1 = "not_a_column"))
+})
+
+test_that("control_chart errors if save_to doesn't look like an image file", {
+  expect_error(control_chart(test_df, "outcome", save_to = "file"))
+  expect_error(control_chart(test_df, "outcome", save_to = "file.notextension"))
+  expect_success(control_chart(test_df, "outcome", save_to = "tmpFile.PNG"))
 })
 
 
@@ -77,5 +93,4 @@ test_that("calculate_bounds returns correct values with non-defaults", {
 })
 
 # Clean up ---------------------------------------------------------------------
-file.remove("tmpFile.png")
-file.remove("tmpFile.csv")
+file.remove(c("tmpFile.png", "tmpFile.PNG", "tmpFile.csv"))
