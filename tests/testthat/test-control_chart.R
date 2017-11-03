@@ -32,6 +32,18 @@ test_that("control_chart takes csv filepath as argumnent", {
   control_chart(d = "tmpFile.csv", measure = "outcome", save_to = "tmpFile.png")
 })
 
+test_that("control_chart errors if it doesn't get a data frame", {
+  expect_error(control_chart())
+  expect_error(control_chart(1))
+  expect_error(control_chart(list(a = 1, b = 2)))
+})
+
+test_that("control_chart errors if grouping variables aren't present", {
+  expect_error(control_chart(test_df, "outcome", group1 = "not_a_column"))
+  expect_error(control_chart(test_df, "outcome", group1 = "var1", group2 = "n"))
+  expect_error(control_chart(test_df, "outcome", group1 = "va"))
+})
+
 
 # Test calculate_bounds --------------------------------------------------------
 bounds <- calculate_bounds(d = test_df,

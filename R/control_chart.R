@@ -68,6 +68,11 @@ control_chart <- function(d, measure, x, group1, group2,
     stop("You have to provide a measure variable name.")
   }
 
+  if (!missing(group1) && !group1 %in% names(d))
+    stop(group1, "isn't the name of a column in d")
+  if (!missing(group2) && !group2 %in% names(d))
+    stop(group2, "isn't the name of a column in d")
+
   if (missing(x)) {
     x <- "x"
     d$x <- seq_len(nrow(d))
