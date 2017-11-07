@@ -41,8 +41,27 @@ NA values must g `step_scale` estimates
  using these standard deviations.
 }
 \examples{
-df <- data.frame(date=c('2009-01-01','2010-01-01','2009-03-08','2009-01-19'),
-                a=c(1,2,3,4))
-dfResult <- orderByDate(df,'date', descending=FALSE)
-head(dfResult)
+n = 100
+d <- tibble(encounter_id = 1:n,
+            patient_id = sample(1:20, size = n, replace = TRUE),
+            hemoglobin_count = rnorm(n, mean = 15, sd = 1),
+            hemoglobin_category = sample(c("Low", "Normal", "High", NA), 
+                                         size = n, replace = TRUE),
+            disease = ifelse(hemoglobin_count < 12, "Yes", "No")
+)
+
+# Initialize
+my_recipe <- recipe(disease ~ ., data = d)
+
+# Create recipe
+my_recipe <- my_recipe \%>\%
+  step_hcai_missing(all_nominal())
+my_recipe
+
+# Train recipe
+trained_recipe <- prep(my_recipe, training = d)
+
+# Apply recipe
+data_modified <- bake(trained_recipe, newdata = d)
+
 }

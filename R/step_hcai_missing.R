@@ -19,22 +19,43 @@
 #'  NA counts).
 #'
 #' @export
+#' @import recipes
+#' @importFrom rlang quos
 #' @details NA values must g `step_scale` estimates
 #'  the variable standard deviations from the data used in the
 #'  `training` argument of `prep.recipe`.
 #'  `bake.recipe` then applies the scaling to new data sets
 #'  using these standard deviations.
 #' @examples
-#' df <- data.frame(date=c('2009-01-01','2010-01-01','2009-03-08','2009-01-19'),
-#'                 a=c(1,2,3,4))
-#' dfResult <- orderByDate(df,'date', descending=FALSE)
-#' head(dfResult)
+#' n = 100
+#' d <- tibble(encounter_id = 1:n,
+#'             patient_id = sample(1:20, size = n, replace = TRUE),
+#'             hemoglobin_count = rnorm(n, mean = 15, sd = 1),
+#'             hemoglobin_category = sample(c("Low", "Normal", "High", NA), 
+#'                                          size = n, replace = TRUE),
+#'             disease = ifelse(hemoglobin_count < 12, "Yes", "No")
+#' )
+#' 
+#' # Initialize
+#' my_recipe <- recipe(disease ~ ., data = d)
+#' 
+#' # Create recipe
+#' my_recipe <- my_recipe %>%
+#'   step_hcai_missing(all_nominal())
+#' my_recipe
+#' 
+#' # Train recipe
+#' trained_recipe <- prep(my_recipe, training = d)
+#' 
+#' # Apply recipe
+#' data_modified <- bake(trained_recipe, newdata = d)
+#' 
 step_hcai_missing <- function(recipe, 
                               ..., 
                               role = NA, 
                               trained = FALSE,
                               na_percentage = NULL) {
-  terms <- rlang::quos(...) 
+  terms <- quos(...) 
   if (length(terms) == 0)
     stop("Please supply at least one variable specification. See ?selections.")
   add_step(
@@ -78,9 +99,9 @@ prep.step_hcai_missing <- function(x, training, info = NULL, ...) {
   )
 }
 
+#' @importFrom tibble as_tibble
 #' @export
 bake.step_hcai_missing <- function(object, newdata, ...) {
-  require(tibble)
   vars <- names(object$na_percentage)
   
   for (i in vars) {
@@ -94,3 +115,13 @@ bake.step_hcai_missing <- function(object, newdata, ...) {
   ## Always convert to tibbles on the way out
   as_tibble(newdata)
 }
+
+#' @importFrom utils getFromNamespace
+#' @export
+print.step_hcai_missing <-
+  function(x, width = max(20, options()$width - 30), ...) {
+    printer = getFromNamespace("printer", "recipes")
+    cat("Filling NA with hcai_missing for ", sep = "")
+    printer(names(x$na_percentage), x$terms, x$trained, width = width)
+    invisible(x)
+  }
