@@ -201,7 +201,6 @@ prep.step_hcai_missing <- function(x, training, info = NULL, ...) {
 
 # bake method
 bake.step_hcai_missing <- function(object, newdata, ...) {
-  require(tibble)
   vars <- names(object$na_percentage)
   
   for (i in vars) {
@@ -213,7 +212,7 @@ bake.step_hcai_missing <- function(object, newdata, ...) {
     newdata[is.na(newdata[, i]), i] <- "hcai_missing"
   }
   ## Always convert to tibbles on the way out
-  as_tibble(newdata)
+  tibble::as_tibble(newdata)
 }
 ```
 
