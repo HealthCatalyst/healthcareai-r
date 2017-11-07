@@ -41,6 +41,9 @@ NA values must g `step_scale` estimates
  using these standard deviations.
 }
 \examples{
+library(healthcareai)
+library(tibble)
+library(recipes)
 n = 100
 d <- tibble(encounter_id = 1:n,
             patient_id = sample(1:20, size = n, replace = TRUE),

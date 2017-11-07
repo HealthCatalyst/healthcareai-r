@@ -30,8 +30,11 @@ Imports:
     pROC,
     R6,
     ranger,
+    recipes,
+    rlang,
     ROCR,
     RSQLite,
+    tibble,
     xgboost
 RoxygenNote: 6.0.1
 Suggests:

@@ -27,6 +27,9 @@
 #'  `bake.recipe` then applies the scaling to new data sets
 #'  using these standard deviations.
 #' @examples
+#' library(healthcareai)
+#' library(tibble)
+#' library(recipes)
 #' n = 100
 #' d <- tibble(encounter_id = 1:n,
 #'             patient_id = sample(1:20, size = n, replace = TRUE),
