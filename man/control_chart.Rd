@@ -11,14 +11,14 @@ control_chart(d, measure, x, group1, group2, center_line = mean, sigmas = 3,
 \arguments{
 \item{d}{data frame or a path to a csv file that will be read in}
 
-\item{measure}{variable of interest mapped to y-axis}
+\item{measure}{variable of interest mapped to y-axis (quoted, ie as a string)}
 
 \item{x}{variable to go on the x-axis, often a time variable. If unspecified
-row indices will be used}
+row indices will be used (quoted)}
 
-\item{group1}{Optional grouping variable to be panelled horizontally}
+\item{group1}{Optional grouping variable to be panelled horizontally (quoted)}
 
-\item{group2}{Optional grouping variable to be panelled vertically}
+\item{group2}{Optional grouping variable to be panelled vertically (quoted)}
 
 \item{center_line}{Function used to calculate central tendency. 
 Defaults to mean}
