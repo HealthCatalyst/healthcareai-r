@@ -68,8 +68,6 @@ control_chart <- function(d, measure, x, group1, group2,
                           plot_title = NULL, plot_catpion = NULL,
                           plot_font_size = 11) {
 
-  theme_set(theme_bw())
-
   if (missing(d) || !(is.data.frame(d) || is.character(d))) {
     stop("You have to provide a data frame or a file location.")
   } else if (is.character(d)) {
