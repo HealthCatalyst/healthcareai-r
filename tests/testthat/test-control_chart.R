@@ -36,6 +36,7 @@ test_that("control_chart takes csv filepath as argumnent", {
   output <- control_chart(d = "tmpFile.csv", measure = "outcome")
   expect_true(is.ggplot(output))
   control_chart(d = "tmpFile.csv", measure = "outcome", save_to = "tmpFile.png")
+  expect_true(file.exists("tmpFile.png"))
 })
 
 test_that("control_chart errors if it doesn't get a data frame", {
@@ -62,6 +63,16 @@ test_that("control_chart errors if save_to doesn't look like an image file", {
                regexp = NA)
 })
 
+test_that("control_chart has correct number of panels", {
+  output <- control_chart(test_df, "outcome")
+  expect_equal(nrow(ggplot_build(output)$layout$panel_layout), 1L)
+  output <- control_chart(test_df, "outcome", group1 = "var1")
+  expect_equal(nrow(ggplot_build(output)$layout$panel_layout),
+               length(unique(test_df$var1)))
+  output <- control_chart(test_df, "outcome", group1 = "var1", group2 = "var2")
+  expect_equal(nrow(ggplot_build(output)$layout$panel_layout),
+               length(unique(test_df$var1)) * length(unique(test_df$var2)))
+})
 
 # Test calculate_bounds --------------------------------------------------------
 bounds <- calculate_bounds(d = test_df,
@@ -95,4 +106,4 @@ test_that("calculate_bounds returns correct values with non-defaults", {
 })
 
 # Clean up ---------------------------------------------------------------------
-file.remove(c("tmpFile.png", "tmpFile.PNG", "tmpFile.csv"))
+invisible(file.remove(c("tmpFile.png", "tmpFile.csv")))
