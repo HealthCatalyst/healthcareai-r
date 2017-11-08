@@ -13,8 +13,8 @@
 # RStudio files
 .Rproj.user/
 .Ruserdata
-# Saved objects
-# *.rda
+# Saved objects. Needed now for built in datasets. Don't want those in tests
+tests/testthat/*.rda
 # Genered plots from tests
 tests/testthat/Rplots.pdf
 .Rproj.user
