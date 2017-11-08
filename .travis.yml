@@ -38,7 +38,7 @@ matrix:
       CXX1X=g++-4.9
       CXX1XSTD=-std=c++11
     after_success:
-      - Rscript -e 'lintr::lint_package()'
+      - Rscript -e 'lintr::lint_package(linters = lintr::default_linters[!grepl("object_usage", names(lintr::default_linters))])'
       - Rscript -e 'covr::codecov()'
       
   - os: osx
