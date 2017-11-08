@@ -24,14 +24,17 @@ Imports:
     doParallel,
     dplyr,
     e1071,
+    ggplot2,
     grpreg,
     lme4,
     odbc,
     pROC,
     R6,
     ranger,
+    readr,
     ROCR,
     RSQLite,
+    tibble,
     xgboost
 RoxygenNote: 6.0.1
 Suggests:

@@ -52,7 +52,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="..//index.html">
+  <a href="../index.html">
     <span class="fa fa-home fa-lg"></span>
      
   </a>
@@ -127,15 +127,16 @@ to the list of already defined NAs.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>bob</span> <span class='kw'>&lt;-</span> <span class='fu'>data.frame</span>(<span class='kw'>d</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"NULL"</span>, <span class='fl'>NA</span>, <span class='st'>"empty"</span>, <span class='fl'>5</span>, <span class='st'>"?"</span>, <span class='st'>'nil'</span>, <span class='st'>"NaN"</span>, <span class='st'>" "</span>, <span class='fl'>2</span>),
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='no'>bob</span> <span class='kw'>&lt;-</span> <span class='fu'>data.frame</span>(<span class='kw'>d</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"NULL"</span>, <span class='fl'>NA</span>, <span class='st'>"empty"</span>, <span class='fl'>5</span>, <span class='st'>"?"</span>, <span class='st'>'nil'</span>, <span class='st'>"NaN"</span>, <span class='st'>" "</span>, <span class='fl'>2</span>),
                   <span class='kw'>y</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"??"</span>, <span class='st'>' '</span>, <span class='st'>"999"</span>, <span class='fl'>999</span>, <span class='st'>"tom"</span>, <span class='st'>"5"</span>, <span class='fl'>7</span>, <span class='fl'>10</span>, <span class='fl'>2</span>),
                   <span class='kw'>l</span> <span class='kw'>=</span> <span class='fu'>rep</span>(<span class='fl'>NA</span>, <span class='fl'>9</span>),
                   <span class='kw'>a</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"blank"</span>, <span class='fl'>0</span>, <span class='st'>"na"</span>, <span class='st'>"None"</span>, <span class='st'>"none"</span>, <span class='fl'>3</span>, <span class='fl'>10</span>, <span class='fl'>4</span>, <span class='st'>"what"</span>),
                   <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>10</span>, <span class='fl'>5</span>, <span class='fl'>8</span>, <span class='fl'>1</span>, <span class='fl'>NA</span>, <span class='st'>"NULL"</span>, <span class='fl'>NaN</span>, <span class='st'>"Nas"</span>, <span class='fl'>2</span>),
                   <span class='kw'>new</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>1</span>, <span class='fl'>2</span>, <span class='fl'>3</span>, <span class='fl'>4</span>, <span class='fl'>5</span>, <span class='st'>"void"</span>, <span class='fl'>7</span>, <span class='fl'>8</span>, <span class='st'>"what"</span>))
-<span class='fu'>countMissingData</span>(<span class='no'>bob</span>)</div><div class='output co'>#&gt;      d      y      l      a      n    new 
-#&gt; 0.6667 0.2222 1.0000 0.1111 0.3333 0.0000 </div><div class='input'><span class='fu'>countMissingData</span>(<span class='no'>bob</span>, <span class='kw'>userNAs</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"void"</span>, <span class='st'>"what"</span>))</div><div class='output co'>#&gt;      d      y      l      a      n    new 
-#&gt; 0.6667 0.2222 1.0000 0.2222 0.3333 0.2222 </div></pre>
+<span class='fu'>countMissingData</span>(<span class='no'>bob</span>)
+<span class='fu'>countMissingData</span>(<span class='no'>bob</span>, <span class='kw'>userNAs</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"void"</span>, <span class='st'>"what"</span>))
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -156,7 +157,7 @@ to the list of already defined NAs.</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Levi Thatcher, Mike Mastanduno, Michael Levy, Taylor Miller, Taylor Larsen.</p>
+  <p>Developed by Levi Thatcher, Michael Levy, Mike Mastanduno, Taylor Larsen, Taylor Miller.</p>
 </div>
 
 <div class="pkgdown">

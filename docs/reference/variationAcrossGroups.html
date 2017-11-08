@@ -52,7 +52,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="..//index.html">
+  <a href="../index.html">
     <span class="fa fa-home fa-lg"></span>
      
   </a>
@@ -166,7 +166,8 @@ value for Tukey HSD test, i.e. the p-value threshold for significance.</p></td>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'>### Example 1 ###</span>
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='co'>### Example 1 ###</span>
 
 <span class='co'># This example dataset has two columns: a blood test result (value)</span>
 <span class='co'># and an anesthetic treatment (anesthetic). There are five anesthetics in the </span>
@@ -179,24 +180,10 @@ value for Tukey HSD test, i.e. the p-value threshold for significance.</p></td>
   <span class='kw'>value</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fu'>sample</span>(<span class='fl'>2</span>:<span class='fl'>5</span>, <span class='fl'>50</span>, <span class='kw'>replace</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>), <span class='fu'>sample</span>(<span class='fl'>6</span>:<span class='fl'>10</span>, <span class='fl'>20</span>, <span class='kw'>replace</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>),
             <span class='fu'>sample</span>(<span class='fl'>1</span>:<span class='fl'>7</span>, <span class='fl'>40</span>, <span class='kw'>replace</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>), <span class='fu'>sample</span>(<span class='fl'>3</span>:<span class='fl'>10</span>, <span class='fl'>80</span>, <span class='kw'>replace</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>),
             <span class='fu'>sample</span>(<span class='fl'>10</span>:<span class='fl'>20</span>, <span class='fl'>20</span>, <span class='kw'>replace</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)))
-<span class='fu'>head</span>(<span class='no'>df1</span>)</div><div class='output co'>#&gt;   anesthetic value
-#&gt; 1  Midazolam     5
-#&gt; 2  Midazolam     2
-#&gt; 3  Midazolam     4
-#&gt; 4  Midazolam     5
-#&gt; 5  Midazolam     3
-#&gt; 6  Midazolam     2</div><div class='input'>
-<span class='fu'>variationAcrossGroups</span>(<span class='no'>df1</span>, <span class='st'>"anesthetic"</span>, <span class='st'>"value"</span>, <span class='kw'>sigLevel</span> <span class='kw'>=</span> <span class='fl'>.01</span>)</div><div class='output co'>#&gt;                 Groups Mean Difference Adjusted p-value
-#&gt; 1   Propofol-Midazolam           4.640            0.000
-#&gt; 2   Diazepam-Midazolam          12.090            0.000
-#&gt; 3    Diazepam-Ketamine          11.875            0.000
-#&gt; 4   Diazepam-Thiamylal           9.438            0.000
-#&gt; 5    Diazepam-Propofol           7.450            0.000
-#&gt; 6    Propofol-Ketamine           4.425            0.000
-#&gt; 7  Thiamylal-Midazolam           2.652            0.000
-#&gt; 8   Thiamylal-Ketamine           2.437            0.000
-#&gt; 9   Propofol-Thiamylal           1.988            0.001
-#&gt; 10  Ketamine-Midazolam           0.215            0.986</div><div class='input'>
+<span class='fu'>head</span>(<span class='no'>df1</span>)
+
+<span class='fu'>variationAcrossGroups</span>(<span class='no'>df1</span>, <span class='st'>"anesthetic"</span>, <span class='st'>"value"</span>, <span class='kw'>sigLevel</span> <span class='kw'>=</span> <span class='fl'>.01</span>)
+
 <span class='co'># The boxplot tells us that Diazepam, Propofol, and Thiamylal all have </span>
 <span class='co'># significantly different mean values from all other groups, including each other</span>
 <span class='co'># (p &lt;= 0.01). Midazolam and Ketamine do not have significantly different mean </span>
@@ -226,80 +213,40 @@ value for Tukey HSD test, i.e. the p-value threshold for significance.</p></td>
                        <span class='fu'>ifelse</span>(<span class='no'>bp</span>$<span class='no'>admit_date</span> <span class='kw'>&gt;</span> <span class='st'>"2015-12-31"</span>, <span class='fl'>1.5</span>, <span class='fl'>1</span>) +
                        <span class='fu'>ifelse</span>(<span class='no'>bp</span>$<span class='no'>department</span> <span class='kw'>==</span> <span class='st'>"Cardiology"</span>, <span class='fl'>80</span>, <span class='fl'>0</span>),
                      <span class='fu'>ifelse</span>(<span class='no'>bp</span>$<span class='no'>department</span> <span class='kw'>==</span> <span class='st'>"Oncology"</span>, <span class='fl'>60</span>, <span class='fl'>30</span>)))
-<span class='fu'>head</span>(<span class='no'>bp</span>)</div><div class='output co'>#&gt;         department admit_date  BP
-#&gt; 1 Gastroenterology 2016-07-09 194
-#&gt; 2         Oncology 2017-01-11 221
-#&gt; 3       Cardiology 2017-09-28 253
-#&gt; 4       Cardiology 2017-07-05 263
-#&gt; 5         Oncology 2016-05-31 145
-#&gt; 6         Oncology 2017-01-21 199</div><div class='input'>
+<span class='fu'>head</span>(<span class='no'>bp</span>)
+
 <span class='fu'>variationAcrossGroups</span>(<span class='no'>bp</span>,
                       <span class='kw'>categoricalCols</span> <span class='kw'>=</span> <span class='st'>"department"</span>,
                       <span class='kw'>measureColumn</span> <span class='kw'>=</span> <span class='st'>"BP"</span>,
                       <span class='kw'>dateCol</span> <span class='kw'>=</span> <span class='st'>"admit_date"</span>,
                       <span class='kw'>levelOfDateGroup</span> <span class='kw'>=</span> <span class='st'>"yearly"</span>,
-                      <span class='kw'>plotGroupDifferences</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt;                                         Groups Mean Difference Adjusted p-value
-#&gt; 1                Cardiology.2016-Oncology.2015         162.185            0.000
-#&gt; 2                Cardiology.2017-Oncology.2015         153.694            0.000
-#&gt; 3        Cardiology.2016-Gastroenterology.2015         153.548            0.000
-#&gt; 4                Cardiology.2016-Oncology.2017         111.917            0.000
-#&gt; 5                Cardiology.2015-Oncology.2015          97.686            0.000
-#&gt; 6        Cardiology.2017-Gastroenterology.2015         145.057            0.000
-#&gt; 7                Cardiology.2017-Oncology.2017         103.426            0.000
-#&gt; 8                  Oncology.2016-Oncology.2015          90.470            0.000
-#&gt; 9              Cardiology.2016-Cardiology.2015          64.498            0.000
-#&gt; 10         Gastroenterology.2017-Oncology.2015          87.208            0.000
-#&gt; 11               Cardiology.2016-Oncology.2016          71.715            0.000
-#&gt; 12             Cardiology.2017-Cardiology.2015          56.007            0.000
-#&gt; 13       Cardiology.2015-Gastroenterology.2015          89.050            0.000
-#&gt; 14         Gastroenterology.2016-Oncology.2015          84.720            0.000
-#&gt; 15       Cardiology.2016-Gastroenterology.2017          74.977            0.000
-#&gt; 16       Cardiology.2016-Gastroenterology.2016          77.465            0.000
-#&gt; 17               Cardiology.2017-Oncology.2016          63.224            0.000
-#&gt; 18       Cardiology.2017-Gastroenterology.2017          66.486            0.000
-#&gt; 19       Cardiology.2017-Gastroenterology.2016          68.974            0.000
-#&gt; 20         Oncology.2016-Gastroenterology.2015          81.833            0.000
-#&gt; 21 Gastroenterology.2017-Gastroenterology.2015          78.571            0.000
-#&gt; 22 Gastroenterology.2016-Gastroenterology.2015          76.083            0.001
-#&gt; 23               Cardiology.2015-Oncology.2017          47.418            0.001
-#&gt; 24                 Oncology.2017-Oncology.2015          50.268            0.004
-#&gt; 25                 Oncology.2016-Oncology.2017          40.202            0.074
-#&gt; 26         Gastroenterology.2017-Oncology.2017          36.940            0.206
-#&gt; 27         Oncology.2017-Gastroenterology.2015          41.632            0.228
-#&gt; 28         Gastroenterology.2016-Oncology.2017          34.452            0.353
-#&gt; 29       Cardiology.2015-Gastroenterology.2016          12.967            0.988
-#&gt; 30             Cardiology.2016-Cardiology.2017           8.491            0.995
-#&gt; 31       Cardiology.2015-Gastroenterology.2017          10.479            0.996
-#&gt; 32               Cardiology.2015-Oncology.2016           7.217            0.999
-#&gt; 33         Gastroenterology.2015-Oncology.2015           8.636            1.000
-#&gt; 34         Oncology.2016-Gastroenterology.2016           5.750            1.000
-#&gt; 35         Oncology.2016-Gastroenterology.2017           3.262            1.000
-#&gt; 36 Gastroenterology.2017-Gastroenterology.2016           2.488            1.000</div><div class='input'>                       
-# Since plotGroupDifferences = TRUE and the default of returnGroupStats is
-# FALSE, the function prints the boxplot and the 95% family-wise confidence
-# interval plot, and returns the summary statistics data frame. The two plots
-# show: 
-# 
-#   1. The boxplot of BP across all combinations of the two categories. 
-#   department has 3 levels, as does date grouped by year, so there are a total
-#   of 3 x 3 = 9 groupings, which are shown on the x axis of the boxplot. Groups
-#   that have a shared letter are *not* significantly different. For example,
-#   (Gastroenterology | 2015) and (Oncology | 2015) share a "b" label, so
-#   patients in those groups do not have significantly different mean BP. On the
-#   other hand, (Cardiology | 2015) and (Gastroenterology | 2015) do not share a
-#   label, so patients in those groups do have significantly different BP. Likewise,
-#   Oncology patients in 2015 have different BPs from Oncology patients in either of the subsequent
-#   years, but Oncology patients in 2016 and 2017 do not have significantly
-#   different BP (as shown by their shared "c" label). 
-#   
-#   2. Confidence-interval level plot This plot present the results
-#   of the Tukey's Honest Significant Differences test. It compares all possible
-#   pairs of groups and adjusts p-values for multiple comparisons. Red lines
-#   indicate a significant difference between the two groups at the chosen 
-#   significance level (0.05 by default). Groups are ordered by p-values. The
-#   group with the greater mean value is always listed first (e.g. Cardiology |
-#   2016 has greater BP than Oncology 2015).
-</div></pre>
+                      <span class='kw'>plotGroupDifferences</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+
+<span class='co'># Since plotGroupDifferences = TRUE and the default of returnGroupStats is</span>
+<span class='co'># FALSE, the function prints the boxplot and the 95% family-wise confidence</span>
+<span class='co'># interval plot, and returns the summary statistics data frame. The two plots</span>
+<span class='co'># show: </span>
+<span class='co'># </span>
+<span class='co'>#   1. The boxplot of BP across all combinations of the two categories. </span>
+<span class='co'>#   department has 3 levels, as does date grouped by year, so there are a total</span>
+<span class='co'>#   of 3 x 3 = 9 groupings, which are shown on the x axis of the boxplot. Groups</span>
+<span class='co'>#   that have a shared letter are *not* significantly different. For example,</span>
+<span class='co'>#   (Gastroenterology | 2015) and (Oncology | 2015) share a "b" label, so</span>
+<span class='co'>#   patients in those groups do not have significantly different mean BP. On the</span>
+<span class='co'>#   other hand, (Cardiology | 2015) and (Gastroenterology | 2015) do not share a</span>
+<span class='co'>#   label, so patients in those groups do have significantly different BP. Likewise,</span>
+<span class='co'>#   Oncology patients in 2015 have different BPs from Oncology patients in either of the subsequent</span>
+<span class='co'>#   years, but Oncology patients in 2016 and 2017 do not have significantly</span>
+<span class='co'>#   different BP (as shown by their shared "c" label). </span>
+<span class='co'>#   </span>
+<span class='co'>#   2. Confidence-interval level plot This plot present the results</span>
+<span class='co'>#   of the Tukey's Honest Significant Differences test. It compares all possible</span>
+<span class='co'>#   pairs of groups and adjusts p-values for multiple comparisons. Red lines</span>
+<span class='co'>#   indicate a significant difference between the two groups at the chosen </span>
+<span class='co'>#   significance level (0.05 by default). Groups are ordered by p-values. The</span>
+<span class='co'>#   group with the greater mean value is always listed first (e.g. Cardiology |</span>
+<span class='co'>#   2016 has greater BP than Oncology 2015).</span>
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -320,7 +267,7 @@ value for Tukey HSD test, i.e. the p-value threshold for significance.</p></td>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Levi Thatcher, Mike Mastanduno, Michael Levy, Taylor Miller, Taylor Larsen.</p>
+  <p>Developed by Levi Thatcher, Michael Levy, Mike Mastanduno, Taylor Larsen, Taylor Miller.</p>
 </div>
 
 <div class="pkgdown">

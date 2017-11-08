@@ -52,7 +52,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="..//index.html">
+  <a href="../index.html">
     <span class="fa fa-home fa-lg"></span>
      
   </a>
@@ -136,7 +136,8 @@ dataframe, with each vector holding the percentage full for each hour</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>data.frame</span>(<span class='kw'>a</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>2</span>,<span class='fl'>1</span>,<span class='fl'>3</span>,<span class='fl'>5</span>,<span class='fl'>4</span>,<span class='fl'>NA</span>,<span class='fl'>7</span>,<span class='fl'>NA</span>),
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>data.frame</span>(<span class='kw'>a</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>2</span>,<span class='fl'>1</span>,<span class='fl'>3</span>,<span class='fl'>5</span>,<span class='fl'>4</span>,<span class='fl'>NA</span>,<span class='fl'>7</span>,<span class='fl'>NA</span>),
                  <span class='kw'>b</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>0.7</span>,-<span class='fl'>2</span>,<span class='fl'>NA</span>,-<span class='fl'>4</span>,-<span class='fl'>5</span>,-<span class='fl'>6</span>,<span class='fl'>NA</span>,<span class='fl'>NA</span>),
                  <span class='kw'>c</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>100</span>,<span class='fl'>300</span>,<span class='fl'>200</span>,<span class='fl'>NA</span>,<span class='fl'>NA</span>,<span class='fl'>NA</span>,<span class='fl'>NA</span>,<span class='fl'>500</span>),
                  <span class='kw'>d</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>407</span>,<span class='fl'>500</span>,<span class='fl'>506</span>,<span class='fl'>504</span>,<span class='fl'>NA</span>,<span class='fl'>NA</span>,<span class='fl'>NA</span>,<span class='fl'>405</span>),
@@ -148,62 +149,14 @@ dataframe, with each vector holding the percentage full for each hour</p>
                             <span class='st'>'2012-01-03 00:00:00'</span>,<span class='st'>'2012-01-03 00:00:00'</span>,
                             <span class='st'>'2012-01-03 00:00:00'</span>,<span class='st'>'2012-01-03 00:00:00'</span>,
                             <span class='st'>'2012-01-03 00:00:00'</span>,<span class='st'>'2012-01-03 00:00:00'</span>))
-<span class='fu'>str</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt; 'data.frame':	8 obs. of  6 variables:
-#&gt;  $ a     : num  2 1 3 5 4 NA 7 NA
-#&gt;  $ b     : num  0.7 -2 NA -4 -5 -6 NA NA
-#&gt;  $ c     : num  100 300 200 NA NA NA NA 500
-#&gt;  $ d     : num  407 500 506 504 NA NA NA 405
-#&gt;  $ admit : Factor w/ 4 levels "2012-01-01 00:00:00",..: 1 1 2 2 3 3 4 4
-#&gt;  $ loaded: Factor w/ 1 level "2012-01-03 00:00:00": 1 1 1 1 1 1 1 1</div><div class='input'><span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;    a    b   c   d               admit              loaded
-#&gt; 1  2  0.7 100 407 2012-01-01 00:00:00 2012-01-03 00:00:00
-#&gt; 2  1 -2.0 300 500 2012-01-01 00:00:00 2012-01-03 00:00:00
-#&gt; 3  3   NA 200 506 2012-01-01 12:00:00 2012-01-03 00:00:00
-#&gt; 4  5 -4.0  NA 504 2012-01-01 12:00:00 2012-01-03 00:00:00
-#&gt; 5  4 -5.0  NA  NA 2012-01-02 00:00:00 2012-01-03 00:00:00
-#&gt; 6 NA -6.0  NA  NA 2012-01-02 00:00:00 2012-01-03 00:00:00</div><div class='input'>
+<span class='fu'>str</span>(<span class='no'>df</span>)
+<span class='fu'>head</span>(<span class='no'>df</span>)
+
 <span class='no'>d</span> <span class='kw'>&lt;-</span> <span class='fu'>featureAvailabilityProfiler</span>(<span class='kw'>df</span> <span class='kw'>=</span> <span class='no'>df</span>,
                                  <span class='kw'>startDateColumn</span> <span class='kw'>=</span> <span class='st'>'admit'</span>,
-                                 <span class='kw'>lastLoadDateColumn</span> <span class='kw'>=</span> <span class='st'>'loaded'</span>)</div><div class='output co'>#&gt; Loaded  8  rows and  7  columns
-#&gt; Earliest admit (or equivalent) is from:  1325530800  (from  admit )
-#&gt; Data was last loaded on:  1325574000  (from  loaded )
-#&gt; Columns that will be assessed for nulls:abcd
-#&gt; Calculating nulls for features from hrs:  0  to  1 
-#&gt; 
-#&gt; Calculating nulls for features from hrs:  1  to  2 
-#&gt; 
-#&gt; Calculating nulls for features from hrs:  2  to  3 
-#&gt; 
-#&gt; Calculating nulls for features from hrs:  3  to  4 
-#&gt; 
-#&gt; Calculating nulls for features from hrs:  4  to  6 
-#&gt; 
-#&gt; Calculating nulls for features from hrs:  6  to  8 
-#&gt; 
-#&gt; Calculating nulls for features from hrs:  8  to  12 
-#&gt; 
-#&gt; Calculating nulls for features from hrs:  12  to  18 
-#&gt; 
-#&gt; Calculating nulls for features from hrs:  18  to  24 
-#&gt; 
-#&gt; Calculating nulls for features from hrs:  24  to  48 
-#&gt; 
-#&gt; Calculating nulls for features from hrs:  48  to  72 
-#&gt; 
-#&gt; Calculating nulls for features from hrs:  72  to  73 </div><div class='img'><img src='featureAvailabilityProfiler-1.png' alt='' width='700' height='432.632880098887' /></div><div class='input'><span class='no'>d</span> <span class='co'># Look at the data in the console                                </span></div><div class='output co'>#&gt; $hoursSinceAdmit
-#&gt;  [1]  0  1  2  3  4  6  8 12 18 24 48 72
-#&gt; 
-#&gt; $a
-#&gt;  [1] NaN NaN NaN NaN NaN NaN NaN  50 NaN  75 100 NaN
-#&gt; 
-#&gt; $b
-#&gt;  [1] NaN NaN NaN NaN NaN NaN NaN   0 NaN  75 100 NaN
-#&gt; 
-#&gt; $c
-#&gt;  [1] NaN NaN NaN NaN NaN NaN NaN  50 NaN  25 100 NaN
-#&gt; 
-#&gt; $d
-#&gt;  [1] NaN NaN NaN NaN NaN NaN NaN  50 NaN  50 100 NaN
-#&gt; </div></pre>
+                                 <span class='kw'>lastLoadDateColumn</span> <span class='kw'>=</span> <span class='st'>'loaded'</span>)
+<span class='no'>d</span> <span class='co'># Look at the data in the console                                </span>
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -224,7 +177,7 @@ dataframe, with each vector holding the percentage full for each hour</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Levi Thatcher, Mike Mastanduno, Michael Levy, Taylor Miller, Taylor Larsen.</p>
+  <p>Developed by Levi Thatcher, Michael Levy, Mike Mastanduno, Taylor Larsen, Taylor Miller.</p>
 </div>
 
 <div class="pkgdown">
