@@ -35,6 +35,7 @@ Imports:
     ROCR,
     RSQLite,
     tibble,
+    tidyr,
     xgboost
 RoxygenNote: 6.0.1
 Suggests:

@@ -102,21 +102,25 @@ prep.step_hcai_missing <- function(x, training, info = NULL, ...) {
   )
 }
 
-#' @importFrom tibble as_tibble
+#' @importFrom tidyr replace_na
+#' @importFrom stats setNames
 #' @export
 bake.step_hcai_missing <- function(object, newdata, ...) {
   vars <- names(object$na_percentage)
   
-  for (i in vars) {
-    # Add missing level
-    levs <- levels(newdata[[i]])
-    levels(newdata[[i]]) <- c(levs, "hcai_missing")
-    
-    # Set NA to the new level
-    newdata[is.na(newdata[, i]), i] <- "hcai_missing"
-  }
-  ## Always convert to tibbles on the way out
-  as_tibble(newdata)
+  # Add new level to all factors
+  newdata[vars] <- lapply(newdata[vars], function(x){
+    levels(x) <- c(levels(x), "hcai_missing")
+    x
+  })
+  
+  # Replace NAs
+  replacement_list <-
+    rep("hcai_missing", length(vars)) %>%
+    as.list %>%
+    setNames(vars)
+  newdata <- newdata %>%
+    replace_na(replacement_list)
 }
 
 #' @importFrom utils getFromNamespace
