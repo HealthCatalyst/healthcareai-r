@@ -38,6 +38,7 @@ matrix:
       CXX1X=g++-4.9
       CXX1XSTD=-std=c++11
     after_success:
+      - Rscript -e 'lintr::lint_package()'
       - Rscript -e 'covr::codecov()'
       
   - os: osx
