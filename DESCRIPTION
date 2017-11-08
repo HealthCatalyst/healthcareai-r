@@ -1,18 +1,18 @@
 Package: healthcareai
 Type: Package
 Title: Tools for Healthcare Machine Learning
-Version: 1.1.0
-Date: 2017-10-11
+Version: 1.2.0
+Date: 2017-10-25
 Authors@R: c(
-    person("Levi", "Thatcher", email = "levi.thatcher@healthcatalyst.com", role = c("aut", "cre")),
+    person("Levi", "Thatcher", email = "levi.thatcher@healthcatalyst.com", role = "aut"),
+    person("Michael", "Levy", email = "michael.levy@healthcatalyst.com", role = c("aut", "cre")),
     person("Mike", "Mastanduno", email = "michael.mastanduno@healthcatalyst.com", role = "aut"),
-    person("Michael", "Levy", email = "michael.levy@healthcatalyst.com", role = "aut"),
-    person("Taylor", "Miller", email = "taylor.miller@healthcatalyst.com", role = "aut"),
-    person("Taylor", "Larsen", email = "taylor.larsen@healthcatalyst.com", role = "aut"))
+    person("Taylor", "Larsen", email = "taylor.larsen@healthcatalyst.com", role = "aut"),
+    person("Taylor", "Miller", email = "taylor.miller@healthcatalyst.com", role = "aut"))
 Description: A machine learning toolbox tailored to healthcare data.
     Aids in data cleaning, model development, hyperparameter tuning, and model
-    deployment in a production SQL environment. Algorithms currently supported
-    are Lasso, Random Forest, XGBoost, Kmeans clustering, and Linear Mixed Model.
+    deployment in a production 'SQL' environment. Algorithms currently supported
+    are Lasso, Random Forest, Extreme Gradient Boosting, K-means clustering, and Linear Mixed Modeling.
 License: MIT + file LICENSE
 LazyData: TRUE
 Depends:

@@ -17,3 +17,4 @@
 ^Rplot.png
 ^mkdocs\.yml$
 ^CHANGELOG\.md$
+^predictionMetadata*$
