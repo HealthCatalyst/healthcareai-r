@@ -91,7 +91,7 @@ control_chart <- function(d, measure, x, group1, group2,
     x <- "x"
     d$x <- seq_len(nrow(d))
   } else if (!x %in% names(d)) {
-    stop("You provided x = \"", x, 
+    stop("You provided x = \"", x,
          "\" but that isn't the name of a column in ", match.call()[["d"]])
   }
 
