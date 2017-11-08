@@ -8,17 +8,20 @@
 #' value to be evaluated by the nelsonRule1 function
 #' @param date_col A string denoting the date column used for evaluating
 #' Nelson Rule 1 over time
+#' @param plot_flg ##############################################This is a test
 #' @return A data frame containing the date, measure value, uppper control
 #' limit, lower control limit, a flag indicating whether or not a rule violation
 #' occured and a description of the violation.
 #'
 #' @importFrom stats aggregate formula
 #' @importFrom utils tail
+#' @import ggplot2
 #' @export
 #' @references \url{http://healthcareai-r.readthedocs.io}
 #' \url{https://en.wikipedia.org/wiki/Nelson_rules}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
+#'library(healthcareai)
 #'date <- seq.Date(from = as.Date('2016-01-03'), length.out = 52, by = 'week')
 #'set.seed(34)
 #'measureValue <- rnorm(length(date), mean = 100, sd = 15)
@@ -36,8 +39,6 @@
 #'nr1
 
 nelsonRule1 <- function(df, measure_col, date_col, plot_flg = TRUE) {
-  library(ggplot2)
-  
   # Check to make sure that df is a dataframe
   if (!(is.data.frame(df))) {
     stop('df must be a dataframe.')
