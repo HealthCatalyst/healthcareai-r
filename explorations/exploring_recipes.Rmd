@@ -59,18 +59,6 @@ df[c("weight", "max_glu_serum", "A1Cresult")] <- lapply(
 data <- df %>% slice(1:20000)
 
 glimpse(data)
-
-print("size of dataset:")
-print(dim(data))
-
-print("unique patients:")
-print(length(unique(data$patient_nbr)))
-
-print("missing percentage:")
-print(countMissingData(data))
-
-print("structure:")
-print(str(data))
 ```
 
 Train test split
@@ -88,7 +76,9 @@ data_test <- data[-train_index$Resample1, ]
 
 ### Basic Recipe
 Use `?selections` to see how to select certain variables. One can select by type, role, or name
-This one does centering and scaling of numeric variables.
+This one does centering and scaling of numeric variables. I've made extra objects
+here so that it's easier to see what's happening. Typically however, we'd just
+pipe the whole thing through.
 ```{r}
 # Initialize
 rec_obj <- recipe(readmitted ~ ., data = data)
@@ -146,8 +136,25 @@ data_test  <- bake(trained_rec, newdata = data_test)
 ```
 
 ## Adding a custom step
-Factors should get a level called, `hcai_missing`. Then, NA values should be set to this value. If there are no missing values, this column will still generate a dummy column. To do this, we need a custom recipes function.
+Factors should get a level called, `hcai_missing`. Then, NA values should be set to this value. If there are no missing values, this column will still generate a dummy column. To do this, we need a custom recipes function. To make a custom step, you need:
+1. a user-facing function with documentation
+2. a initializing function
+3. a prep method that is exported using roxygen
+4. a bake method that is exported using roxygen
+5. a print method that is exported using roxygen
 
+All steps should have the params, `recipe, ..., role, and trained`, initialized
+as I have them here. Other params are optional and specific to the recipe.
+- recipe is the recipe object. It can be a blank one or an existing one.
+- ... represents a list of column names to act on. It can be generated usign 
+dplyr-like syntax. see `?selections` for info.
+- role is a recipes thing, keeps track of which variables are predictors or targets, etc.
+- trained gets switched to true during `prep`.
+Error checking typically goes before `add_step`, which just instantiates the 
+new step class.
+
+The `quos` command will take the variable names in `...` and save them as names,
+rather than evaluating them.
 ```{r}
 # This is the user-facing function
 step_hcai_missing <- function(recipe, 
@@ -168,7 +175,11 @@ step_hcai_missing <- function(recipe,
     )
   )
 }
+```
 
+Here we define the instantiation of the new step. Basically just initialized the 
+step to the default values and assigns the correct subclass to the step.
+```{r}
 # Initialze a new object
 step_hcai_missing_new <- function(terms = NULL, 
                                   role = NA, 
@@ -182,14 +193,24 @@ step_hcai_missing_new <- function(terms = NULL,
     na_percentage = na_percentage
   )
 }
+```
 
+Prep is where things get interesting. This is the function that trains our step.
+First, use `terms_select` to select the column names from the terms list.
+Execute whatever code is needed for training the step. In our case, I compute the
+percentage of NA that will get imputed so that it will be saved in the recipe and
+can be looked at later.
+If you were centering numeric columns to 0, you would compute the mean here.
+Now, we initialize the new step with `trained=TRUE` and the populated extra arguments.
+- x is the recipe object
+- training is the data to prep the recipe with.
+```{r}
 # prep method
 prep.step_hcai_missing <- function(x, training, info = NULL, ...) {
   col_names <- terms_select(terms = x$terms, info = info)
   na_percentage <- sapply(training[, col_names], function(x) {
     100 * round(sum(is.na(x)) / length(x), 3)
-    }
-  )
+  })
   
   step_hcai_missing_new(
     terms = x$terms,
@@ -198,26 +219,48 @@ prep.step_hcai_missing <- function(x, training, info = NULL, ...) {
     na_percentage = na_percentage
   )
 }
+```
 
+Bake is what applies the step. It takes the prepared values from prep and applies them.
+You shouldn't need to do more calculations in bake, just apply what came from prep. 
+This ensures that you can apply to new data. This should always output a tibble.
+```{r}
 # bake method
 bake.step_hcai_missing <- function(object, newdata, ...) {
   vars <- names(object$na_percentage)
   
-  for (i in vars) {
-    # Add missing level
-    levs <- levels(newdata[[i]])
-    levels(newdata[[i]]) <- c(levs, "hcai_missing")
-    
-    # Set NA to the new level
-    newdata[is.na(newdata[, i]), i] <- "hcai_missing"
-  }
-  ## Always convert to tibbles on the way out
-  tibble::as_tibble(newdata)
+  # Add new level to all factors
+  newdata[vars] <- lapply(newdata[vars], function(x){
+    levels(x) <- c(levels(x), "hcai_missing")
+    x
+  })
+  
+  # Replace NAs
+  replacement_list <-
+    rep("hcai_missing", length(vars)) %>%
+    as.list %>%
+    setNames(vars)
+  newdata <- newdata %>%
+    replace_na(replacement_list)
+}
+```
+
+Finally, the print method. This is kind of important, as recipes expects this method
+for nice, clean output. `printer` is a non-exported function in recipes, which 
+can be accessed using `getFromNamespace`. the `cat` is consistent with the rest of
+the steps.
+```{r}
+print.step_hcai_missing <- 
+  function(x, width = max(20, options()$width - 30), ...) {
+    printer = getFromNamespace("printer", "recipes")
+    cat("Filling NA with hcai_missing for ", sep = "")
+    printer(names(x$na_percentage), x$terms, x$trained, width = width)
+    invisible(x)
 }
 ```
 
 
-Give it a try.
+## Try the custom recipe.
 ```{r}
 rec_obj2 <- recipe(readmitted ~ ., data = data)
 
