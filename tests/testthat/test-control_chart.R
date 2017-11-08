@@ -51,8 +51,12 @@ test_that("control_chart errors if grouping variables aren't present", {
   expect_error(control_chart(test_df, "outcome", group1 = "va"))
 })
 
-test_that("control_chart errors if measure column present", {
-  expect_error(control_chart(test_df, group1 = "not_a_column"))
+test_that("control_chart errors if measure or x column not present", {
+  expect_error(control_chart(test_df, "outcome", group1 = "not_a_column"),
+               regexp = "column")
+  expect_error(control_chart(test_df, "outcome", group2 = "not_here"),
+               regexp = "column")
+  expect_error(control_chart(test_df, "outcome", x = "i'm not a variable"))
 })
 
 test_that("control_chart errors if save_to doesn't look like an image file", {

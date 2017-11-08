@@ -82,9 +82,9 @@ control_chart <- function(d, measure, x, group1, group2,
   }
 
   if (!missing(group1) && !group1 %in% names(d))
-    stop(group1, "isn't the name of a column in d")
+    stop(group1, " isn't the name of a column in ", match.call()[["d"]])
   if (!missing(group2) && !group2 %in% names(d))
-    stop(group2, "isn't the name of a column in d")
+    stop(group2, " isn't the name of a column in ", match.call()[["d"]])
 
   if (!missing(save_to) && !grepl("\\.[[:alpha:]]{3,4}$", save_to))
     stop("save_to has to end with a graphics extension such as .png or .pdf")
@@ -92,6 +92,9 @@ control_chart <- function(d, measure, x, group1, group2,
   if (missing(x)) {
     x <- "x"
     d$x <- seq_len(nrow(d))
+  } else if (!x %in% names(d)) {
+    stop("You provided x = \"", x, 
+         "\" but that isn't the name of a column in ", match.call()[["d"]])
   }
 
   bounds <- calculate_bounds(d, measure, center_line, sigmas)
