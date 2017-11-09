@@ -19,7 +19,9 @@
 #' @seealso \code{\link{healthcareai}}
 
 convertDateTimeColToDummies <- function(df, dateTimeCol, depth = "h", returnDtCol = FALSE) {
-  warning("convertDateTimeColToDummies has been renamed to splitOutDateTimeCols")
+  .Deprecated("splitOutDateTimeCols", "healthcareai")
+  splitOutDateTimeCols(df = df, dateTimeCol = dateTimeCol,
+                       depth = depth, returnDtCol = returnDtCol)
 }
 
 
@@ -58,40 +60,24 @@ convertDateTimeColToDummies <- function(df, dateTimeCol, depth = "h", returnDtCo
 #' df <- splitOutDateTimeCols(df, 'dtCol')
 #' head(df)
 splitOutDateTimeCols <- function(df, dateTimeCol, depth = "h", returnDtCol = FALSE) {
+  
+  df[[dateTimeCol]] <- as.POSIXct(df[[dateTimeCol]])
+  df$year <- as.POSIXlt(df[[dateTimeCol]])$year + 1900
+  df$month <- as.POSIXlt(df[[dateTimeCol]])$mo + 1
+  df$weekOfYear <- strftime(df[[dateTimeCol]], format = "%W")
+  df$dayOfMonth <- as.POSIXlt(df[[dateTimeCol]])$mday
+  df$dayOfWeek <- as.POSIXlt(df[[dateTimeCol]])$wday + 1
+  
   if (depth == "d") {
-    df[[dateTimeCol]] <- as.POSIXct(df[[dateTimeCol]])
-    df$year <- as.POSIXlt(df[[dateTimeCol]])$year + 1900
-    df$month <- as.POSIXlt(df[[dateTimeCol]])$mo + 1
-    df$weekOfYear <- strftime(df[[dateTimeCol]], format = "%W")
-    df$dayOfMonth <- as.POSIXlt(df[[dateTimeCol]])$mday
-    df$dayOfWeek <- as.POSIXlt(df[[dateTimeCol]])$wday + 1
-    
-  } else if (depth == "h") {
-    df[[dateTimeCol]] <- as.POSIXct(df[[dateTimeCol]])
-    df$year <- as.POSIXlt(df[[dateTimeCol]])$year + 1900
-    df$month <- as.POSIXlt(df[[dateTimeCol]])$mo + 1
-    df$weekOfYear <- strftime(df[[dateTimeCol]], format = "%W")
-    df$dayOfMonth <- as.POSIXlt(df[[dateTimeCol]])$mday
-    df$dayOfWeek <- as.POSIXlt(df[[dateTimeCol]])$wday + 1
+  
+    } else if (depth == "h") {
     df$hour <- as.POSIXlt(df[[dateTimeCol]])$hour
     
   } else if (depth == "m") {
-    df[[dateTimeCol]] <- as.POSIXct(df[[dateTimeCol]])
-    df$year <- as.POSIXlt(df[[dateTimeCol]])$year + 1900
-    df$month <- as.POSIXlt(df[[dateTimeCol]])$mo + 1
-    df$weekOfYear <- strftime(df[[dateTimeCol]], format = "%W")
-    df$dayOfMonth <- as.POSIXlt(df[[dateTimeCol]])$mday
-    df$dayOfWeek <- as.POSIXlt(df[[dateTimeCol]])$wday + 1
     df$hour <- as.POSIXlt(df[[dateTimeCol]])$hour
     df$min <- as.POSIXlt(df[[dateTimeCol]])$min
     
   } else if (depth == "s") {
-    df[[dateTimeCol]] <- as.POSIXct(df[[dateTimeCol]])
-    df$year <- as.POSIXlt(df[[dateTimeCol]])$year + 1900
-    df$month <- as.POSIXlt(df[[dateTimeCol]])$mo + 1
-    df$weekOfYear <- strftime(df[[dateTimeCol]], format = "%W")
-    df$dayOfMonth <- as.POSIXlt(df[[dateTimeCol]])$mday
-    df$dayOfWeek <- as.POSIXlt(df[[dateTimeCol]])$wday + 1
     df$hour <- as.POSIXlt(df[[dateTimeCol]])$hour
     df$min <- as.POSIXlt(df[[dateTimeCol]])$min
     df$Sec <- as.POSIXlt(df[[dateTimeCol]])$sec
