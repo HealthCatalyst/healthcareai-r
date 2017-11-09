@@ -52,7 +52,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="..//index.html">
+  <a href="../index.html">
     <span class="fa fa-home fa-lg"></span>
      
   </a>
@@ -135,10 +135,11 @@ terms of a particular measure.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
+    <pre class="examples"># NOT RUN {
 #### Example using SQL data ####
 
-</div><span class='co'># NOT RUN {</span>
+# }
+<span class='co'># NOT RUN {</span>
 <span class='fu'>library</span>(<span class='no'>healthcareai</span>)
 
 <span class='no'>connection.string</span> <span class='kw'>&lt;-</span> <span class='st'>"
@@ -172,8 +173,9 @@ FROM [SAM].[dbo].[HCRDiabetesClinical]
 
 <span class='no'>riskAdjComp</span> <span class='kw'>&lt;-</span> <span class='no'>RiskAdjustedComparisons</span>$<span class='fu'>new</span>(<span class='no'>p</span>)
 <span class='no'>riskAdjComp</span>$<span class='fu'>run</span>()
-<span class='co'># }</span><div class='input'>
-</div></pre>
+<span class='co'># }</span># NOT RUN {
+# }
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -194,7 +196,7 @@ FROM [SAM].[dbo].[HCRDiabetesClinical]
 
       <footer>
       <div class="copyright">
-  <p>Developed by Levi Thatcher, Mike Mastanduno, Michael Levy, Taylor Miller, Taylor Larsen.</p>
+  <p>Developed by Levi Thatcher, Michael Levy, Mike Mastanduno, Taylor Larsen, Taylor Miller.</p>
 </div>
 
 <div class="pkgdown">

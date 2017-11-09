@@ -56,7 +56,9 @@ test_that("Number of classes are calculated correctly", {
 })
 
 test_that("Accuracy is the same every time", {
+  sink(tempfile())
   expect_equal(boost$run()$overall[["Accuracy"]], .9, tolerance = .1)
+  sink()
 })
 
 test_that("Predictions are the same every time", {
@@ -77,7 +79,7 @@ test_that("Max probability is found correctly", {
 })
 
 test_that("Confusion matrix accuracy is reasonably large", {
+  sink(tempfile())
   expect_true(boost$generateConfusionMatrix()$overall[["Accuracy"]] > 0.8)
+  sink()
 })
-
-

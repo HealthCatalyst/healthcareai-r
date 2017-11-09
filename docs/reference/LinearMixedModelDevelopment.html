@@ -52,7 +52,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="..//index.html">
+  <a href="../index.html">
     <span class="fa fa-home fa-lg"></span>
      
   </a>
@@ -219,16 +219,15 @@ model training.
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
+    <pre class="examples"><span class='co'># NOT RUN {</span>
 <span class='co'>### Built-in example; Doing classification</span>
 <span class='fu'>library</span>(<span class='no'>healthcareai</span>)
-<span class='fu'>library</span>(<span class='no'>lme4</span>)</div><div class='output co'>#&gt; <span class='message'>Loading required package: Matrix</span></div><div class='input'>
+<span class='fu'>library</span>(<span class='no'>lme4</span>)
+
 <span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='no'>sleepstudy</span>
 
-<span class='fu'>str</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt; 'data.frame':	180 obs. of  3 variables:
-#&gt;  $ Reaction: num  250 259 251 321 357 ...
-#&gt;  $ Days    : num  0 1 2 3 4 5 6 7 8 9 ...
-#&gt;  $ Subject : Factor w/ 18 levels "308","309","310",..: 1 1 1 1 1 1 1 1 1 1 ...</div><div class='input'>
+<span class='fu'>str</span>(<span class='no'>df</span>)
+
 <span class='co'># Create binary column for classification</span>
 <span class='no'>df</span>$<span class='no'>ReactionFLG</span> <span class='kw'>&lt;-</span> <span class='fu'>ifelse</span>(<span class='no'>df</span>$<span class='no'>Reaction</span> <span class='kw'>&gt;</span> <span class='fl'>300</span>, <span class='st'>"Y"</span>, <span class='st'>"N"</span>)
 <span class='no'>df</span>$<span class='no'>Reaction</span> <span class='kw'>&lt;-</span> <span class='kw'>NULL</span>
@@ -245,13 +244,8 @@ model training.
 
 <span class='co'># Create Mixed Model</span>
 <span class='no'>lmm</span> <span class='kw'>&lt;-</span> <span class='no'>LinearMixedModelDevelopment</span>$<span class='fu'>new</span>(<span class='no'>p</span>)
-<span class='no'>lmm</span>$<span class='fu'>run</span>()</div><div class='output co'>#&gt; Area under the ROC curve is: 0.75 
-#&gt; Ideal cutoff is 0.66, yielding TPR of 0.82 and FPR of 0.29 
-#&gt; 95% CI AU_ROC: (0.46 , 1.00) 
-#&gt; 
-#&gt; Area under the PR curve is: 0.70 
-#&gt; Ideal cutoff is 0.65, yielding Precision of 0.79 and Recall of 1.00 
-#&gt; </div><div class='input'>
+<span class='no'>lmm</span>$<span class='fu'>run</span>()
+
 <span class='co'>### Doing regression</span>
 <span class='fu'>library</span>(<span class='no'>healthcareai</span>)
 
@@ -262,11 +256,8 @@ model training.
 <span class='co'># Add GrainID, which is equivalent to PatientEncounterID</span>
 <span class='no'>df</span>$<span class='no'>GrainID</span> <span class='kw'>&lt;-</span> <span class='fu'>seq.int</span>(<span class='fu'>nrow</span>(<span class='no'>df</span>))
 
-<span class='fu'>str</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt; 'data.frame':	180 obs. of  4 variables:
-#&gt;  $ Reaction: num  250 259 251 321 357 ...
-#&gt;  $ Days    : num  0 1 2 3 4 5 6 7 8 9 ...
-#&gt;  $ Subject : Factor w/ 18 levels "308","309","310",..: 1 1 1 1 1 1 1 1 1 1 ...
-#&gt;  $ GrainID : int  1 2 3 4 5 6 7 8 9 10 ...</div><div class='input'>
+<span class='fu'>str</span>(<span class='no'>df</span>)
+
 <span class='fu'>set.seed</span>(<span class='fl'>42</span>)
 <span class='no'>p</span> <span class='kw'>&lt;-</span> <span class='no'>SupervisedModelDevelopmentParams</span>$<span class='fu'>new</span>()
 <span class='no'>p</span>$<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='no'>df</span>
@@ -280,8 +271,8 @@ model training.
 
 <span class='co'># Create Mixed Model</span>
 <span class='no'>lmm</span> <span class='kw'>&lt;-</span> <span class='no'>LinearMixedModelDevelopment</span>$<span class='fu'>new</span>(<span class='no'>p</span>)
-<span class='no'>lmm</span>$<span class='fu'>run</span>()</div><div class='output co'>#&gt; RMSE: 42.54466382 
-#&gt; MAE: 34.41874852 </div><div class='input'>
+<span class='no'>lmm</span>$<span class='fu'>run</span>()
+
 <span class='co'>#### Example using csv data ####</span>
 <span class='fu'>library</span>(<span class='no'>healthcareai</span>)
 <span class='co'># setwd('C:/Your/script/location') # Needed if using YOUR CSV file</span>
@@ -292,20 +283,8 @@ model training.
 <span class='co'>#Replace csvfile with "path/to/yourfile"</span>
 <span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>read.csv</span>(<span class='kw'>file</span> <span class='kw'>=</span> <span class='no'>csvfile</span>, <span class='kw'>header</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>na.strings</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"NULL"</span>, <span class='st'>"NA"</span>, <span class='st'>""</span>))
 
-<span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;   PatientEncounterID PatientID SystolicBPNBR LDLNBR A1CNBR GenderFLG
-#&gt; 1                  1     10001           167    195    4.2         M
-#&gt; 2                  2     10001           153    214    5.0         M
-#&gt; 3                  3     10001           170    191    4.0         M
-#&gt; 4                  4     10002           187    135    4.4         M
-#&gt; 5                  5     10002           188    125    4.3         M
-#&gt; 6                  6     10002           185    178    5.0         M
-#&gt;   ThirtyDayReadmitFLG
-#&gt; 1                   N
-#&gt; 2                   N
-#&gt; 3                   N
-#&gt; 4                   N
-#&gt; 5                   N
-#&gt; 6                   N</div><div class='input'>
+<span class='fu'>head</span>(<span class='no'>df</span>)
+
 <span class='fu'>set.seed</span>(<span class='fl'>42</span>)
 
 <span class='no'>p</span> <span class='kw'>&lt;-</span> <span class='no'>SupervisedModelDevelopmentParams</span>$<span class='fu'>new</span>()
@@ -320,20 +299,15 @@ model training.
 
 <span class='co'># Create Mixed Model</span>
 <span class='no'>lmm</span> <span class='kw'>&lt;-</span> <span class='no'>LinearMixedModelDevelopment</span>$<span class='fu'>new</span>(<span class='no'>p</span>)
-<span class='no'>lmm</span>$<span class='fu'>run</span>()</div><div class='output co'>#&gt; <span class='warning'>Warning: Model is nearly unidentifiable: large eigenvalue ratio</span>
-#&gt; <span class='warning'> - Rescale variables?</span></div><div class='output co'>#&gt; Area under the ROC curve is: 0.93 
-#&gt; Ideal cutoff is 0.21, yielding TPR of 0.80 and FPR of 0.07 
-#&gt; 95% CI AU_ROC: (0.88 , 0.99) 
-#&gt; 
-#&gt; Area under the PR curve is: 0.81 
-#&gt; Ideal cutoff is 0.59, yielding Precision of 0.94 and Recall of 0.68 
-#&gt; </div><div class='input'>
+<span class='no'>lmm</span>$<span class='fu'>run</span>()
+
 <span class='fu'>set.seed</span>(<span class='fl'>42</span>)
 <span class='co'># Run Lasso</span>
 <span class='co'># Lasso &lt;- LassoDevelopment$new(p)</span>
 <span class='co'># Lasso$run()</span>
-<span class='fu'>cat</span>(<span class='fu'>proc.time</span>() - <span class='no'>ptm</span>, <span class='st'>'\n'</span>)</div><div class='output co'>#&gt; 2.69 0.023 1.425 0 0 </div><div class='input'>
-</div><span class='co'># NOT RUN {</span>
+<span class='fu'>cat</span>(<span class='fu'>proc.time</span>() - <span class='no'>ptm</span>, <span class='st'>'\n'</span>)
+
+<span class='co'># }</span><span class='co'># NOT RUN {</span>
 <span class='co'>#### This example is specific to Windows and is not tested. </span>
 <span class='co'>#### Example using SQL Server data ####</span>
 <span class='co'># This example requires that you alter your connection string / query</span>
@@ -405,8 +379,9 @@ FROM [SAM].[dbo].[HCRDiabetesClinical]
 <span class='fu'><a href='plotPRCurve.html'>plotPRCurve</a></span>(<span class='no'>rocs</span>, <span class='no'>names</span>, <span class='no'>legendLoc</span>)
 
 <span class='fu'>cat</span>(<span class='fu'>proc.time</span>() - <span class='no'>ptm</span>, <span class='st'>'\n'</span>)
-<span class='co'># }</span><div class='input'>
-</div></pre>
+<span class='co'># }</span># NOT RUN {
+# }
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -445,7 +420,7 @@ FROM [SAM].[dbo].[HCRDiabetesClinical]
 
       <footer>
       <div class="copyright">
-  <p>Developed by Levi Thatcher, Mike Mastanduno, Michael Levy, Taylor Miller, Taylor Larsen.</p>
+  <p>Developed by Levi Thatcher, Michael Levy, Mike Mastanduno, Taylor Larsen, Taylor Miller.</p>
 </div>
 
 <div class="pkgdown">

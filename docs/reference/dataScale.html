@@ -52,7 +52,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="..//index.html">
+  <a href="../index.html">
     <span class="fa fa-home fa-lg"></span>
      
   </a>
@@ -121,32 +121,11 @@ sds, and a scaled data frame.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>data.frame</span>(<span class='kw'>a</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>2</span>,<span class='fl'>1</span>,<span class='fl'>3</span>,<span class='fl'>2</span>,<span class='fl'>4</span>),<span class='kw'>b</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>NA</span>,<span class='fl'>8</span>,<span class='fl'>6</span>,<span class='fl'>7</span>,<span class='fl'>9</span>))
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>data.frame</span>(<span class='kw'>a</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>2</span>,<span class='fl'>1</span>,<span class='fl'>3</span>,<span class='fl'>2</span>,<span class='fl'>4</span>),<span class='kw'>b</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>NA</span>,<span class='fl'>8</span>,<span class='fl'>6</span>,<span class='fl'>7</span>,<span class='fl'>9</span>))
 <span class='no'>res</span> <span class='kw'>&lt;-</span> <span class='fu'>dataScale</span>(<span class='no'>df</span>)
-<span class='no'>res</span></div><div class='output co'>#&gt; $means
-#&gt; $means$a
-#&gt; [1] 2.4
-#&gt; 
-#&gt; $means$b
-#&gt; [1] 7.5
-#&gt; 
-#&gt; 
-#&gt; $standard_deviations
-#&gt; $standard_deviations$a
-#&gt; [1] 1.140175
-#&gt; 
-#&gt; $standard_deviations$b
-#&gt; [1] 1.290994
-#&gt; 
-#&gt; 
-#&gt; $scaled_df
-#&gt;            a          b
-#&gt; 1 -0.3508232         NA
-#&gt; 2 -1.2278812  0.3872983
-#&gt; 3  0.5262348 -1.1618950
-#&gt; 4 -0.3508232 -0.3872983
-#&gt; 5  1.4032928  1.1618950
-#&gt; </div></pre>
+<span class='no'>res</span>
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -167,7 +146,7 @@ sds, and a scaled data frame.</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Levi Thatcher, Mike Mastanduno, Michael Levy, Taylor Miller, Taylor Larsen.</p>
+  <p>Developed by Levi Thatcher, Michael Levy, Mike Mastanduno, Taylor Larsen, Taylor Miller.</p>
 </div>
 
 <div class="pkgdown">
