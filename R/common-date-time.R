@@ -42,7 +42,10 @@ convertDateTimeColToDummies <- function(df, dateTimeCol, depth = "h", returnDtCo
 #' (starting with a year column). 'd' expands to day, 'h' expands to hour
 #' (default), m' expands to minute, and 's' expands to second.
 #' @param returnDtCol A boolean. Return the original dateTimeCol with
-#' the modified data frame?
+#' the modified data frame.
+#' @param format A character string giving a date-time format as used by 
+#' \code{\link{strptime}}. Default is '%Y-%m-%d %H:%M:%S'. If depth is 'h', 'm',
+#' or 's', the format must include that to return those values.
 #' @return A data frame which now includes several columns based on time
 #' rather than just one datetime column
 #'
@@ -59,9 +62,9 @@ convertDateTimeColToDummies <- function(df, dateTimeCol, depth = "h", returnDtCo
 #'
 #' df <- splitOutDateTimeCols(df, 'dtCol')
 #' head(df)
-splitOutDateTimeCols <- function(df, dateTimeCol, depth = "h", returnDtCol = FALSE) {
+splitOutDateTimeCols <- function(df, dateTimeCol, depth = "h", returnDtCol = FALSE, format = "%Y-%m-%d %H:%M:%S" ) {
   
-  df[[dateTimeCol]] <- as.POSIXct(df[[dateTimeCol]])
+  df[[dateTimeCol]] <- as.POSIXct(df[[dateTimeCol]],format = format)
   df$year <- as.POSIXlt(df[[dateTimeCol]])$year + 1900
   df$month <- as.POSIXlt(df[[dateTimeCol]])$mo + 1
   df$weekOfYear <- strftime(df[[dateTimeCol]], format = "%W")

@@ -4,7 +4,8 @@
 \alias{splitOutDateTimeCols}
 \title{Splits datetime column into multiple date features}
 \usage{
-splitOutDateTimeCols(df, dateTimeCol, depth = "h", returnDtCol = FALSE)
+splitOutDateTimeCols(df, dateTimeCol, depth = "h", returnDtCol = FALSE,
+  format = "\%Y-\%m-\%d \%H:\%M:\%S")
 }
 \arguments{
 \item{df}{A data frame. Indicates the datetime column.}
@@ -17,7 +18,11 @@ into several columns.}
 (default), m' expands to minute, and 's' expands to second.}
 
 \item{returnDtCol}{A boolean. Return the original dateTimeCol with
-the modified data frame?}
+the modified data frame.}
+
+\item{format}{A character string giving a date-time format as used by 
+\code{\link{strptime}}. Default is '%Y-%m-%d %H:%M:%S'. If depth is 'h', 'm',
+or 's', the format must include that to return those values.}
 }
 \value{
 A data frame which now includes several columns based on time
