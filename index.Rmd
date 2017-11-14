@@ -1,0 +1,47 @@
+---
+title: "healthcare.ai"
+author: "seems to be ignored"
+output: html_document
+---
+
+# Hello!
+
+This is our pkgdown homepage, which is now distinct from our readme (by default README.md would be used here.)
+
+This was auto-generated from an R Markdown file (`index.Rmd`), so we can do things like this:
+
+```{r setup, include = FALSE}
+library(healthcareai)
+
+#### Example using Diabetes dataset ####
+ptm <- proc.time()
+# Can delete this line in your work
+csvfile <- system.file("extdata", 
+                       "HCRDiabetesClinical.csv", 
+                       package = "healthcareai")
+# Replace csvfile with 'your/path'
+df <- read.csv(file = csvfile, 
+               header = TRUE, 
+               na.strings = c("NULL", "NA", ""))
+head(df)
+df$PatientID <- NULL
+
+set.seed(42)
+p <- UnsupervisedModelParams$new()
+p$df <- df
+p$impute <- TRUE
+p$grainCol <- "PatientEncounterID"
+p$debug <- FALSE
+p$cores <- 1
+p$numOfClusters <- 3
+
+# Run k means clustering
+cl <- KmeansClustering$new(p)
+cl$run()
+
+# Get the 2D representation of the cluster solution
+```
+
+```{r plot}
+cl$get2DClustersPlot()
+```
