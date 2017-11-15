@@ -53,16 +53,16 @@
 #' # Apply recipe
 #' data_modified <- bake(trained_recipe, newdata = d)
 #' 
-step_hcai_missing <- function(recipe, 
-                              ..., 
-                              role = NA, 
+step_hcai_missing <- function(recipe,
+                              ...,
+                              role = NA,
                               trained = FALSE,
                               na_percentage = NULL) {
-  terms <- quos(...) 
+  terms <- quos(...)
   if (length(terms) == 0)
     stop("Please supply at least one variable specification. See ?selections.")
   add_step(
-    recipe, 
+    recipe,
     step_hcai_missing_new(
       terms = terms,
       role = role,
@@ -73,12 +73,12 @@ step_hcai_missing <- function(recipe,
 }
 
 # Initialze a new object
-step_hcai_missing_new <- function(terms = NULL, 
-                                  role = NA, 
+step_hcai_missing_new <- function(terms = NULL,
+                                  role = NA,
                                   trained = FALSE,
                                   na_percentage = NULL) {
   step(
-    subclass = "hcai_missing", 
+    subclass = "hcai_missing",
     terms = terms,
     role = role,
     trained = trained,
@@ -93,7 +93,7 @@ prep.step_hcai_missing <- function(x, training, info = NULL, ...) {
     100 * round(sum(is.na(x)) / length(x), 3)
   }
   )
-  
+
   step_hcai_missing_new(
     terms = x$terms,
     role = x$role,
@@ -107,13 +107,13 @@ prep.step_hcai_missing <- function(x, training, info = NULL, ...) {
 #' @export
 bake.step_hcai_missing <- function(object, newdata, ...) {
   vars <- names(object$na_percentage)
-  
+
   # Add new level to all factors
   newdata[vars] <- lapply(newdata[vars], function(x){
     levels(x) <- c(levels(x), "hcai_missing")
     x
   })
-  
+
   # Replace NAs
   replacement_list <-
     rep("hcai_missing", length(vars)) %>%
@@ -127,7 +127,7 @@ bake.step_hcai_missing <- function(object, newdata, ...) {
 #' @export
 print.step_hcai_missing <-
   function(x, width = max(20, options()$width - 30), ...) {
-    printer = getFromNamespace("printer", "recipes")
+    printer <- getFromNamespace("printer", "recipes")
     cat("Filling NA with hcai_missing for ", sep = "")
     printer(names(x$na_percentage), x$terms, x$trained, width = width)
     invisible(x)

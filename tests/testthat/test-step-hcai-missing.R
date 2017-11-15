@@ -9,19 +9,19 @@ library(recipes)
 # set seed for reproducibility
 set.seed(7)
 # build dataset
-n = 300
+n <- 300
 d <- tibble(id = 1:n,
                  playerID = sample(1:9, size = n, replace = TRUE),
                  level = sample(1:12, size = n, replace = TRUE),
-                 world = sample(1:8, size = n, replace = TRUE), 
-                 character = sample(c("Mario", "Luigi"), size = n, 
+                 world = sample(1:8, size = n, replace = TRUE),
+                 character = sample(c("Mario", "Luigi"), size = n,
                                     replace = TRUE),
-                 suit = sample(c("Fire Flower", "Raccoon", "Frog", "P Wing"), 
+                 suit = sample(c("Fire Flower", "Raccoon", "Frog", "P Wing"),
                                     size = n, replace = TRUE)
                  )
 
 # target
-d["is_goomba"] <- ifelse((d["world"] - 2*d["level"] - 1) > 0, "Y", "N")
+d["is_goomba"] <- ifelse( (d["world"] - 2 * d["level"] - 1) > 0, "Y", "N")
 
 # Add NAs
 inds <- sample(1:n, 30, replace = FALSE)
@@ -64,15 +64,15 @@ test_that("Recipe is prepped correctly", {
   expect_equal(
     rec_obj$steps[[1]]$na_percentage[[1]],
     33.2)
-  
+
   expect_equal(
     names(rec_obj$steps[[1]]$na_percentage)[1],
     "character")
-  
+
   expect_equal(
     rec_obj$steps[[1]]$na_percentage[[2]],
     8.7)
-  
+
   expect_equal(
     names(rec_obj$steps[[1]]$na_percentage)[2],
     "suit")
@@ -80,13 +80,13 @@ test_that("Recipe is prepped correctly", {
 
 test_that("Recipe is baked correctly on training data", {
   expect_true("hcai_missing" %in% levels(out_train$character))
-  
+
   expect_equal(
     sum(out_train$character == "hcai_missing"),
     80)
-  
+
   expect_true("hcai_missing" %in% levels(out_train$suit))
-              
+
   expect_equal(
     sum(out_train$suit == "hcai_missing"),
     21)
@@ -94,13 +94,13 @@ test_that("Recipe is baked correctly on training data", {
 
 test_that("Recipe is baked correctly on test data", {
   expect_true("hcai_missing" %in% levels(out_test$character))
-  
+
   expect_equal(
     sum(out_test$character == "hcai_missing"),
     20)
-  
+
   expect_true("hcai_missing" %in% levels(out_test$suit))
-  
+
   expect_equal(
     sum(out_test$suit == "hcai_missing"),
     9)
