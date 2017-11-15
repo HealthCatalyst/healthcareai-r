@@ -105,3 +105,10 @@ test_that("Recipe is baked correctly on test data", {
     sum(out_test$suit == "hcai_missing"),
     9)
 })
+
+test_that("Printer method works correctly within print.recipe()", {
+  res <- capture.output(recipes:::print.recipe(rec_obj))
+  expect_equal(
+    res[13],
+    "Filling NA with hcai_missing for character, suit [trained]")
+})
