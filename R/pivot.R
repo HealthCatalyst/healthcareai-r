@@ -10,21 +10,16 @@
 #'
 #' @return
 #' @export
-#' 
-#' @importFrom rlang .data
 #' @importFrom rlang :=
 #'
 #' @examples
-dummify <- function(d, grain, spread, fill, fun = sum) {
-  # dummify "spreads" spread into separate columns, creating one row for 
+pivot <- function(d, grain, spread, fill, fun = sum) {
+  # pivot "spreads" spread into separate columns, creating one row for 
   # each entry in grain
   # fill can be the name of a column in d containing value to fill in
   # otherwise it should be a single value that value will be used to fill in 
   # all present values
-  # Other columns in d will be dropped
-  
-  require(purrr); require(dplyr)
-  
+
   # Capture argument column names as quosures
   grain <- rlang::enquo(grain)
   spread <- rlang::enquo(spread)
@@ -33,11 +28,15 @@ dummify <- function(d, grain, spread, fill, fun = sum) {
   # If fill wasn't provided, create and use a column with all 1s, with message
   if (rlang::quo_is_missing(fill)) {
     message("No fill column was provided, so using \"1\" for present entities")
+    # Create quosure'd variable name "fill_ones"
     fill <- quo(fill_ones)
     d <- mutate(d, !!quo_name(fill) := rep(1L, nrow(d)))
   }
   
-  # Check inputs
+  # Make sure there's no missingness in grain or spread
+  missing_check(d, grain)
+  missing_check(d, spread)
+  
   # Make sure fun is a function
   if (!is.function(fun)) stop(match.call()$fun, "isn't a function")
   
@@ -46,58 +45,63 @@ dummify <- function(d, grain, spread, fill, fun = sum) {
     d %>%
     dplyr::mutate(!!quo_name(grain) := as.factor(!!grain),
                   !!quo_name(spread) := as.factor(!!spread))
-  
-  # Check if there are any grain-spread pairs that have more than one entry.
-  
+  # Pull factor levels to use as row deliniators and column names
+  to_rows <- levels(pull(d, !!grain))
+  to_cols <- levels(pull(d, !!spread))
+
+  # Check if there are any grain-spread pairs that have more than one entry...
   need_aggregate <- any(duplicated(dplyr::select(d, !!grain, !!spread)))
+  # ... If there are, aggregate rows
   if (need_aggregate) 
     d <- aggregate_rows(d, grain, spread, fill, fun)
-
-  browser()
-  stop()
-  
-  
-  
-  
-  if (any(is.na(d[[spread]])))
-    stop("There's missingness in ", spread, ". Deal with it before dummifying.")
-  
-  # Identify what to turn into rows and columns
-  toRows <- levels(d[[grain]])
-  toCols <- levels(d[[spread]])
-  
-  # If fill isn't a column in d, repeat it; otherwise pull it out of d
-  fill <- if (!fill %in% names(d)) rep(fill, nrow(d)) else d[[fill]]
   
   # Create a data frame full of zeros, which will be replaced where appropriate
   # Critically, columns are arranged by the integer representation of spread
   # which allows us to index the entries by those integers
-  out <- data.frame(matrix(0, nrow = length(toRows), ncol = length(toCols),
-                           dimnames = list(NULL, toCols))) 
-  out$id <- toRows
-  # Loop over each row. Maybe this should be apply(out, 1, ...). Test speed.
+  out <- data.frame(matrix(0, nrow = length(to_rows), ncol = length(to_cols),
+                           dimnames = list(NULL, to_cols))) 
+  out <- mutate(out, !!quo_name(grain) := to_rows)
+  # Loop over each row.
   out <- 
-    map_df(toRows,  ~ {
-      # To do: Fill with 1 by default, or take additional column with fill values
+    purrr::map_df(to_rows,  ~ {
       # Pull the current row of interest
-      keep <- filter(out, id == .x)
+      keep <- filter(out, (!!grain) == .x)
       # Inside-out:
       # i IDs rows in original dataframe that we want in this row of output
       # Subsetting `d[[spread]]` by those rows gives us factor levels to fill in
       # Converting them to integers gives the indices to fill in
-      i <- which(d[[grain]] == .x)
-      keep[as.integer(d[[spread]][i])] <- fill[i]
+      i <- which(pull(d, !!grain) == .x)
+      keep[as.integer(pull(d, !!spread)[i])] <- pull(d, !!fill)[i]
       return(keep)
     })  
-  
+
   # Arrange and rename columns
+  ## Put the grain column first
   out <- out[, c(ncol(out), 1:(ncol(out) - 1))]
-  names(out)[1] <- grain
-  names(out)[2:ncol(out)] <- paste0(spread, "_", names(out)[2:ncol(out)])
+  ## Add spread as prefix to non-ID columns
+  names(out)[2:ncol(out)] <- 
+    paste0(rlang::quo_name(spread), "_", names(out)[2:ncol(out)])
   
   return(out)
 }
 
+#' Check column in data frame for any missingness
+#'
+#' @param d data frame
+#' @param quo_var a quosure'd variable, probably captured by rlang::enquo
+#' in the parent function
+#'
+#' @return TRUE if no missingness. Otherwise stops with an informative message.
+#' @noRd
+missing_check <- function(d, quo_var) {
+  if (!any(is.na(pull(d, !!quo_var)))) {
+    return(TRUE)
+  } else {
+    called_from <- sys.call(1)[[1]]
+    stop("Fill in missingness in ", rlang::get_expr(quo_var),
+         " before calling ", called_from)
+  }
+}
 
 aggregate_rows <- function(d, grain, spread, fill, fun) {
   
@@ -116,16 +120,19 @@ aggregate_rows <- function(d, grain, spread, fill, fun) {
   return(d)
 }
 
-dummify(dd, identity, category, fun = mean)
 
-# set.seed(405)
-# dd <- data.frame(
-#   identity = sample(letters[1:4], 5, TRUE),
-#   category = sample(LETTERS, 5, TRUE),
-#   ff = sample(100, 5)
-# )
-# dd
-# dummify(dd, "identity", "category")
-# dummify(dd, "identity", "category", "ff")
+set.seed(405)
+dd <- data.frame(
+  identity = sample(letters[1:4], 5, TRUE),
+  category = sample(LETTERS, 5, TRUE),
+  ff = sample(100, 5)
+)
+dd
+pivot(dd, identity, category, ff)
+# dd$identity[3] <- NA
+# pivot(dd, identity, category, fun = mean)
+# pivot(dd, "identity", "category")
+# pivot(dd, "identity", "category", "ff")
 # dd$category[4] <- "H"
-# dummify(dd, "identity", "category", "ff", sum)
+# pivot(dd, "identity", "category", "ff", sum)
+
