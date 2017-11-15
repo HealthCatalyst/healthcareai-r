@@ -7,13 +7,15 @@
 #' after aggregation if \code{fun} is provided. If \code{fill} is not provided,
 #' counts will be used (as though a fill column of all 1s had been provided.)
 #' @param fun Bare (unquoted) function to handle aggreation
+#' @param missing_fill Value to fill for combinations of grain and spread that are
+#' not present. Defaults to NA.
 #'
-#' @return
+#' @return 
 #' @export
 #' @importFrom rlang :=
 #'
 #' @examples
-pivot <- function(d, grain, spread, fill, fun = sum) {
+pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
   # pivot "spreads" spread into separate columns, creating one row for 
   # each entry in grain
   # fill can be the name of a column in d containing value to fill in
@@ -58,10 +60,14 @@ pivot <- function(d, grain, spread, fill, fun = sum) {
   # Create a data frame full of zeros, which will be replaced where appropriate
   # Critically, columns are arranged by the integer representation of spread
   # which allows us to index the entries by those integers
-  out <- data.frame(matrix(0, nrow = length(to_rows), ncol = length(to_cols),
-                           dimnames = list(NULL, to_cols))) 
+  out <- 
+    matrix(missing_fill, 
+           nrow = length(to_rows), ncol = length(to_cols),
+           dimnames = list(NULL, to_cols)) %>%
+    tibble::as_tibble() 
   out <- mutate(out, !!quo_name(grain) := to_rows)
   # Loop over each row.
+  
   out <- 
     purrr::map_df(to_rows,  ~ {
       # Pull the current row of interest
@@ -119,20 +125,3 @@ aggregate_rows <- function(d, grain, spread, fill, fun) {
   
   return(d)
 }
-
-
-set.seed(405)
-dd <- data.frame(
-  identity = sample(letters[1:4], 5, TRUE),
-  category = sample(LETTERS, 5, TRUE),
-  ff = sample(100, 5)
-)
-dd
-pivot(dd, identity, category, ff)
-# dd$identity[3] <- NA
-# pivot(dd, identity, category, fun = mean)
-# pivot(dd, "identity", "category")
-# pivot(dd, "identity", "category", "ff")
-# dd$category[4] <- "H"
-# pivot(dd, "identity", "category", "ff", sum)
-
