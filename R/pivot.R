@@ -1,16 +1,23 @@
 #' pivot
 #'
-#' @param d 
-#' @param grain 
-#' @param spread 
-#' @param fill Column to be used to fill the values of cells in the output, 
-#' after aggregation if \code{fun} is provided. If \code{fill} is not provided,
-#' counts will be used (as though a fill column of all 1s had been provided.)
-#' @param fun Bare (unquoted) function to handle aggreation
-#' @param missing_fill Value to fill for combinations of grain and spread that are
-#' not present. Defaults to NA.
+#' @param d data frame
+#' @param grain Column that defines rows. Unquoted.
+#' @param spread Column that will become multiple columns. Unquoted.
+#' @param fill Column to be used to fill the values of cells in the output (
+#' perhaps after aggregation by \code{fun}). If \code{fill} is not provided,
+#' counts will be used, as though a fill column of 1s had been provided.
+#' @param fun Function for aggreation, defaults to \code{sum}.
+#' @param missing_fill Value to fill for combinations of grain and spread that 
+#' are not present. Defaults to NA, but 0 may be useful as well.
 #'
-#' @return 
+#' @return A tibble data frame with one row for each unique value of 
+#' \code{grain}, and one column for each unique value of \code{spread} plus
+#' one column for grain. 
+#' 
+#' Entries in the tibble are defined by the fill column. Combinations of 
+#' \code{grain} x \code{spread} that are not present in \code{d} will be filled
+#' in with \code{missing_fill}. If there are \code{grain} x \code{spread} pairs
+#' that appear more than once in d, they will be aggregated by \code{fun}.
 #' @export
 #' @importFrom rlang :=
 #'
@@ -31,10 +38,16 @@ pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
   if (rlang::quo_is_missing(fill)) {
     message("No fill column was provided, so using \"1\" for present entities")
     # Create quosure'd variable name "fill_ones"
-    fill <- quo(fill_ones)
-    d <- mutate(d, !!quo_name(fill) := rep(1L, nrow(d)))
+    fill <- rlang::quo(fill_ones)
+    d <- dplyr::mutate(d, !!rlang::quo_name(fill) := rep(1L, nrow(d)))
   }
   
+  # Make sure all three columns are present
+  cols <- sapply(c(grain, spread, fill), rlang::quo_name)
+  present <- cols %in% names(d)
+  if (any(!present))
+    stop(paste(cols[!present], collapse = ", "), " not found in ", match.call()$d)
+
   # Make sure there's no missingness in grain or spread
   missing_check(d, grain)
   missing_check(d, spread)
@@ -45,11 +58,11 @@ pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
   # Convert grouping variables to factors
   d <- 
     d %>%
-    dplyr::mutate(!!quo_name(grain) := as.factor(!!grain),
-                  !!quo_name(spread) := as.factor(!!spread))
+    dplyr::mutate(!!rlang::quo_name(grain) := as.factor(!!grain),
+                  !!rlang::quo_name(spread) := as.factor(!!spread))
   # Pull factor levels to use as row deliniators and column names
-  to_rows <- levels(pull(d, !!grain))
-  to_cols <- levels(pull(d, !!spread))
+  to_rows <- levels(dplyr::pull(d, !!grain))
+  to_cols <- levels(dplyr::pull(d, !!spread))
 
   # Check if there are any grain-spread pairs that have more than one entry...
   need_aggregate <- any(duplicated(dplyr::select(d, !!grain, !!spread)))
@@ -65,19 +78,18 @@ pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
            nrow = length(to_rows), ncol = length(to_cols),
            dimnames = list(NULL, to_cols)) %>%
     tibble::as_tibble() 
-  out <- mutate(out, !!quo_name(grain) := to_rows)
+  out <- dplyr::mutate(out, !!rlang::quo_name(grain) := to_rows)
   # Loop over each row.
-  
   out <- 
     purrr::map_df(to_rows,  ~ {
       # Pull the current row of interest
-      keep <- filter(out, (!!grain) == .x)
+      keep <- dplyr::filter(out, (!!grain) == .x)
       # Inside-out:
       # i IDs rows in original dataframe that we want in this row of output
       # Subsetting `d[[spread]]` by those rows gives us factor levels to fill in
       # Converting them to integers gives the indices to fill in
-      i <- which(pull(d, !!grain) == .x)
-      keep[as.integer(pull(d, !!spread)[i])] <- pull(d, !!fill)[i]
+      i <- which(dplyr::pull(d, !!grain) == .x)
+      keep[as.integer(dplyr::pull(d, !!spread)[i])] <- dplyr::pull(d, !!fill)[i]
       return(keep)
     })  
 
@@ -91,37 +103,31 @@ pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
   return(out)
 }
 
-#' Check column in data frame for any missingness
+#' Aggregate rows
 #'
-#' @param d data frame
-#' @param quo_var a quosure'd variable, probably captured by rlang::enquo
-#' in the parent function
+#' @param d 
+#' @param grain 
+#' @param spread 
+#' @param fill 
+#' @param fun 
+#' 
+#' @details All variables comes straight through from pivot.
 #'
-#' @return TRUE if no missingness. Otherwise stops with an informative message.
+#' @return
 #' @noRd
-missing_check <- function(d, quo_var) {
-  if (!any(is.na(pull(d, !!quo_var)))) {
-    return(TRUE)
-  } else {
-    called_from <- sys.call(1)[[1]]
-    stop("Fill in missingness in ", rlang::get_expr(quo_var),
-         " before calling ", called_from)
-  }
-}
-
 aggregate_rows <- function(d, grain, spread, fill, fun) {
-  
   # Test if the user provided a 'fun'. If not warn that we'll use sum
   if (is.null(match.call(call = sys.call(1))$fun)) 
-    warning("There are some duplicate pairs of ", rlang::get_expr(grain), 
-            " and ", rlang::get_expr(spread), " and you didn't provide an ",
-            "aggregating function to \"fun\". Using the default function sum ",
-            "to aggregate.")
+    warning("There are rows that contain the same values of both ",
+            rlang::get_expr(grain), " and ", rlang::get_expr(spread), 
+            " but you didn't provide a function for their aggregation. ",
+            "Proceding with the default: fun = sum.")
   # Aggregate
   d <- 
     d %>%
-    group_by(!!grain, !!spread) %>%
-    summarize(!!quo_name(fill) := fun(!!fill))
+    dplyr::group_by(!!grain, !!spread) %>%
+    dplyr::summarize(!!rlang::quo_name(fill) := fun(!!fill)) %>%
+    dplyr::ungroup()
   
   return(d)
 }
