@@ -68,3 +68,23 @@ test_that("Non-supported methods throw errors.", {
     regexp = "non-supported nominal method"
   )
 })
+
+test_that("bag impute called on both types", {
+  rec_obj_new <- rec_obj %>%
+    hcai_impute(numeric_method = "bagimpute")
+  expect_equal(class(rec_obj_new$steps[[1]])[1], "step_bagimpute")
+  
+  rec_obj_new <- rec_obj %>%
+    hcai_impute(nominal_method = "bagimpute")
+  expect_equal(class(rec_obj_new$steps[[2]])[1], "step_bagimpute")
+})
+
+test_that("knn impute called on both types", {
+  rec_obj_new <- rec_obj %>%
+    hcai_impute(numeric_method = "knnimpute")
+  expect_equal(class(rec_obj_new$steps[[1]])[1], "step_knnimpute")
+  
+  rec_obj_new <- rec_obj %>%
+    hcai_impute(nominal_method = "knnimpute")
+  expect_equal(class(rec_obj_new$steps[[2]])[1], "step_knnimpute")
+})

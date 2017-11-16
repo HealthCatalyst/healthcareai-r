@@ -65,6 +65,10 @@ hcai_impute <- function(rec_obj,
   # defaults to mean for numerics.
   if (numeric_method == "mean") {
     rec_obj <- step_meanimpute(rec_obj, all_numeric())
+  } else if (numeric_method == "bagimpute") {
+    rec_obj <- step_bagimpute(rec_obj, all_numeric())
+  } else if (numeric_method == "knnimpute") {
+    rec_obj <- step_knnimpute(rec_obj, all_numeric())
   } else {
     stop("non-supported numeric method")
   }
@@ -72,6 +76,10 @@ hcai_impute <- function(rec_obj,
   # defaults to new category for nominal
   if (nominal_method == "new_category") {
     impute_method <- step_hcai_missing(rec_obj, all_nominal())
+  } else if (nominal_method == "bagimpute") {
+    impute_method <- step_bagimpute(rec_obj, all_nominal())
+  }  else if (nominal_method == "knnimpute") {
+    impute_method <- step_knnimpute(rec_obj, all_nominal())
   } else {
     stop("non-supported nominal method")
   }
