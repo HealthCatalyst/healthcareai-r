@@ -15,14 +15,14 @@ into several columns.}
 
 \item{depth}{A string. Specifies the depth with which to expand extra columns
 (starting with a year column). 'd' expands to day, 'h' expands to hour
-(default), m' expands to minute, and 's' expands to second.}
+(default), 'm' expands to minute, and 's' expands to second.}
 
 \item{returnDtCol}{A boolean. Return the original dateTimeCol with
 the modified data frame.}
 
 \item{format}{A character string giving a date-time format as used by 
-\code{\link{strptime}}. Default is '%Y-%m-%d %H:%M:%S'. If depth is 'h', 'm',
-or 's', the format must include that to return those values.}
+\code{\link{strptime}}. Default is '\%Y-\%m-\%d \%H:\%M:\%S'. If depth is 'h', 'm',
+or 's', the format must include an '\%H:\%M:\%S' format structure to return those values.}
 }
 \value{
 A data frame which now includes several columns based on time
