@@ -15,7 +15,8 @@ value to be evaluated by the nelsonRule1 function}
 \item{date_col}{A string denoting the date column used for evaluating
 Nelson Rule 1 over time}
 
-\item{plot_flg}{##############################################This is a test}
+\item{plot_flg}{A binary indicator of whether or not to include a plot in the
+output of the function}
 }
 \value{
 A data frame containing the date, measure value, uppper control

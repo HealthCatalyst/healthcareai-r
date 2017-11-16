@@ -8,7 +8,8 @@
 #' value to be evaluated by the nelsonRule1 function
 #' @param date_col A string denoting the date column used for evaluating
 #' Nelson Rule 1 over time
-#' @param plot_flg ##############################################This is a test
+#' @param plot_flg A binary indicator of whether or not to include a plot in the
+#' output of the function
 #' @return A data frame containing the date, measure value, uppper control
 #' limit, lower control limit, a flag indicating whether or not a rule violation
 #' occured and a description of the violation.
