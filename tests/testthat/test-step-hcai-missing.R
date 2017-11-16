@@ -112,3 +112,25 @@ test_that("Printer method works correctly within print.recipe()", {
     res[13],
     "Filling NA with hcai_missing for character, suit [trained]")
 })
+
+test_that("Warning is triggered for greater than 50% NA", {
+  d$character[1:160] <- NA
+  d$suit[1:200] <- NA
+  d_train <- d[train_index$Resample1, ]
+  
+my_rec <- recipe(is_goomba ~ ., data = d) %>%
+    step_hcai_missing(all_nominal())
+
+res <- capture.output(
+  capture.output(prep(my_rec, training = d_train),
+  type = "message"))
+
+expect_equal(
+  substr(res[17], 6, 19),
+  "character: 68%")
+
+expect_equal(
+  substr(res[18], 6, 16),
+  "suit: 70.1%")
+})
+
