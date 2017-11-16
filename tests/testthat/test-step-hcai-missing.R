@@ -55,6 +55,20 @@ junk <- capture.output(
   out_test <- bake(rec_obj, d_test)
 )
 
+
+d$koopa = sample(c("Blue", "Red", NA), prob = c(.2, .212, .588), 
+                  size = n, replace = TRUE)
+d_train <- d[train_index$Resample1, ]
+
+rec_obj2 <- recipe(is_goomba ~ ., data = d) %>%
+  step_hcai_missing(matches("koopa"))
+
+mes <- capture.output(
+  junk <- capture.output(
+    junk <- prep(rec_obj2, training = d2_train)
+  ), type = "message"
+)
+
 # Tests ------------------------------------------------------------------------
 test_that("Recipe object is updated with step", {
   expect_equal(class(rec_obj$steps[[1]])[1], "step_hcai_missing")
@@ -114,23 +128,8 @@ test_that("Printer method works correctly within print.recipe()", {
 })
 
 test_that("Warning is triggered for greater than 50% NA", {
-  d$character[1:160] <- NA
-  d$suit[1:200] <- NA
-  d_train <- d[train_index$Resample1, ]
-  
-my_rec <- recipe(is_goomba ~ ., data = d) %>%
-    step_hcai_missing(all_nominal())
-
-res <- capture.output(
-  capture.output(prep(my_rec, training = d_train),
-  type = "message"))
-
-expect_equal(
-  substr(res[17], 6, 19),
-  "character: 68%")
-
-expect_equal(
-  substr(res[18], 6, 16),
-  "suit: 70.1%")
+  expect_equal(
+    mes[3],
+    "koopa: 61%")
 })
 

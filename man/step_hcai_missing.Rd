@@ -50,7 +50,7 @@ d <- tibble(encounter_id = 1:n,
             hemoglobin_count = rnorm(n, mean = 15, sd = 1),
             hemoglobin_category = sample(c("Low", "Normal", "High", NA), 
                                          size = n, replace = TRUE),
-            disease = ifelse(hemoglobin_count < 12, "Yes", "No")
+            disease = ifelse(hemoglobin_count < 15, "Yes", "No")
 )
 
 # Initialize
