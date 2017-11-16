@@ -42,8 +42,10 @@ rec_obj <- recipe(is_goomba ~ ., data = d)
 
 # Tests ------------------------------------------------------------------------
 test_that("Bad rec_obj throws an error", {
-  expect_error(hcai_impute())
-  expect_error(hcai_impute(rec_obj = "yeah hi!"))
+  expect_error(hcai_impute(), 
+               regexp = 'argument "rec_obj" is missing, with no default')
+  expect_error(hcai_impute(rec_obj = "yeah hi!"),
+               regexp = "rec_obj must be recipe object")
 })
 
 test_that("Defaults return mean on numeric, hcai on nominal", {
@@ -52,4 +54,17 @@ test_that("Defaults return mean on numeric, hcai on nominal", {
 
   expect_equal(class(rec_obj_new$steps[[1]])[1], "step_meanimpute")
   expect_equal(class(rec_obj_new$steps[[2]])[1], "step_hcai_missing")
+})
+
+test_that("Non-supported methods throw errors.", {
+  expect_error(
+    rec_obj %>%
+      hcai_impute(numeric_method = "guess"),
+    regexp = "non-supported numeric method"
+  )
+  expect_error(
+    rec_obj %>%
+      hcai_impute(nominal_method = "guess"),
+    regexp = "non-supported nominal method"
+  )
 })

@@ -65,10 +65,14 @@ hcai_impute <- function(rec_obj,
   # defaults to mean for numerics.
   if (numeric_method == "mean") {
     rec_obj <- step_meanimpute(rec_obj, all_numeric())
+  } else {
+    stop("non-supported numeric method")
   }
   
   # defaults to new category for nominal
   if (nominal_method == "new_category") {
     impute_method <- step_hcai_missing(rec_obj, all_nominal())
+  } else {
+    stop("non-supported nominal method")
   }
 }
