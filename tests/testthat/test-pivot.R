@@ -9,21 +9,34 @@ pivot(dd, person, day, count)
 
 # Test pivot -------------------------------------------------------------------
 test_that("pivot fails informatively if any provided columns aren't present", {
-            expect_error(pivot(dd, person, group), regexp = "group")
-            expect_error(pivot(dd, whatev, day, count), regexp = "whatev")
-            expect_error(pivot(dd, person, day, not_here), regexp = "not_here")
-            expect_error(pivot(dd, aaa, bbb, ccc), regexp = "aaa")
-            expect_error(pivot(dd, aaa, bbb, ccc), regexp = "ccc")
-          })
+  expect_error(pivot(dd, person, group), regexp = "group")
+  expect_error(pivot(dd, whatev, day, count), regexp = "whatev")
+  expect_error(pivot(dd, person, day, not_here), regexp = "not_here")
+  expect_error(pivot(dd, aaa, bbb, ccc), regexp = "aaa")
+  expect_error(pivot(dd, aaa, bbb, ccc), regexp = "ccc")
+})
 
-test_that("pivot warns if no fill column or no function provided", {
-  expect_warning(pivot(dd, person, day))
+test_that("pivot says something if no fill column or no function provided", {
+  expect_warning(pivot(dd, person, day), regexp = "function")
+  expect_warning(pivot(dd, person, day, count), regexp = "function")
+  expect_message(pivot(dd, person, day, fun = length), regexp = "fill")
+})
+
+
+test_that("pivot fills in NAs where no instances present, and only there", {
+  mark_missing <-
+    tibble::tibble(person = "Mark", day = 1, count = 13, activity = "bath") %>%
+    rbind(dd, .) %>%
+    pivot(person, day, count)
+  expect_true(is.na(mark_missing$day_2[mark_missing$person == "Mark"]))
+  expect_false(is.na(mark_missing$day_1[mark_missing$person == "Mark"]))
+  expect_false(is.na(mark_missing$day_2[mark_missing$person == "Jane"]))
 })
 
 # Test aggregate_rows ----------------------------------------------------------
-agg_dd <- aggregate_rows(d = dd, 
-                         grain = rlang::quo(person), 
-                         spread = rlang::quo(day), 
+agg_dd <- aggregate_rows(d = dd,
+                         grain = rlang::quo(person),
+                         spread = rlang::quo(day),
                          fill = rlang::quo(count),
                          fun = sum)
 
@@ -42,9 +55,9 @@ test_that("aggregate_rows sums correctly by default", {
 })
 
 test_that("aggregate_rows averages correctly when mean is provided to fun", {
-  expect_equal(aggregate_rows(d = dd, 
-                              grain = rlang::quo(person), 
-                              spread = rlang::quo(day), 
+  expect_equal(aggregate_rows(d = dd,
+                              grain = rlang::quo(person),
+                              spread = rlang::quo(day),
                               fill = rlang::quo(count),
                               fun = mean)$count,
                c(mean(dd$count[dd$person == "Jack" & dd$day == "1"]),
@@ -54,9 +67,9 @@ test_that("aggregate_rows averages correctly when mean is provided to fun", {
 })
 
 test_that("aggregate_rows errors if fill is character and fun needs numeric", {
-  expect_error(aggregate_rows(d = dd, 
-                              grain = rlang::quo(person), 
-                              spread = rlang::quo(day), 
+  expect_error(aggregate_rows(d = dd,
+                              grain = rlang::quo(person),
+                              spread = rlang::quo(day),
                               fill = rlang::quo(activity),
                               fun = sum),
                regexp = "character")
@@ -64,9 +77,9 @@ test_that("aggregate_rows errors if fill is character and fun needs numeric", {
 
 test_that("aggregate_rows takes function(x) and works with character `fill`", {
   expect_equal(
-    aggregate_rows(d = dd, 
-                   grain = rlang::quo(person), 
-                   spread = rlang::quo(day), 
+    aggregate_rows(d = dd,
+                   grain = rlang::quo(person),
+                   spread = rlang::quo(day),
                    fill = rlang::quo(activity),
                    # Find the mode in each group
                    fun = function(x) names(sort(table(x), decreasing = TRUE))[1]
@@ -74,8 +87,3 @@ test_that("aggregate_rows takes function(x) and works with character `fill`", {
     c("shower", "shower", "bath", "bath")
   )
 })
-
-test_that("aggregate_rows fills in NAs where no instances present", {
-  
-})
-dd$person <- forcats::fct_expand(dd$person, "Mark")

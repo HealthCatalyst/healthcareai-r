@@ -64,8 +64,15 @@ pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
   # Check if there are any grain-spread pairs that have more than one entry...
   need_aggregate <- any(duplicated(dplyr::select(d, !!grain, !!spread)))
   # ... If there are, aggregate rows
-  if (need_aggregate)
+  if (need_aggregate) {
+    # Test if the user provided a 'fun'. If not warn that we'll use sum
+    if (is.null(match.call()$fun))
+      warning("There are rows that contain the same values of both ",
+              rlang::get_expr(grain), " and ", rlang::get_expr(spread),
+              " but you didn't provide a function for their aggregation. ",
+              "Proceding with the default: fun = sum.")
     d <- aggregate_rows(d, grain, spread, fill, fun)
+  }
 
   out <- pivot_maker(d, grain, spread, fill, missing_fill)
 
@@ -85,13 +92,6 @@ pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
 #' @return Aggregated data frame
 #' @noRd
 aggregate_rows <- function(d, grain, spread, fill, fun) {
-  # Test if the user provided a 'fun'. If not warn that we'll use sum
-  if (is.null(match.call(call = sys.call(1))$fun))
-    warning("There are rows that contain the same values of both ",
-            rlang::get_expr(grain), " and ", rlang::get_expr(spread),
-            " but you didn't provide a function for their aggregation. ",
-            "Proceding with the default: fun = sum.")
-  # Aggregate
   d <-
     d %>%
     dplyr::group_by(!!grain, !!spread) %>%
