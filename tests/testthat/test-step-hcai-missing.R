@@ -56,7 +56,7 @@ d$koopa = sample(c("Blue", "Red", NA), prob = c(.2, .212, .588),
 d2_train <- d[train_index$Resample1, ]
 
 rec_obj2 <- recipe(is_goomba ~ ., data = d) %>%
-  step_hcai_missing(matches("koopa"))
+  step_hcai_missing(starts_with("koop"))
 
 # Tests ------------------------------------------------------------------------
 test_that("Recipe object is updated with step", {
@@ -111,15 +111,17 @@ test_that("Recipe is baked correctly on test data", {
 
 test_that("Printer method works correctly within print.recipe()", {
   expect_output(
-    print.recipe(rec_obj),
-    "Filling NA with hcai_missing for character, suit [trained]")
+    print(rec_obj),
+    regexp = "[Filling NA with hcai_missing for character, suit]"
+  )
 })
 
 test_that("Warning is triggered for greater than 50% NA", {
   expect_message(
    junk <- capture_output(
-      junk <- prep(rec_obj2, training = d2_train),
-    "koopa: 61%")
+      junk <- prep(rec_obj2, training = d2_train)
+   ),
+  regexp = "[koopa: 61]"
   )
 })
 
