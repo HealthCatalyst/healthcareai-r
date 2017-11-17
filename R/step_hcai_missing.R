@@ -2,30 +2,28 @@
 #' Clean NA values from categorical/nominal variables
 #'
 #' @description \code{step_hcai_missing} creates a specification of a recipe that 
-#'  will replace NA values `hcai_missing`.
+#'  will replace NA values with a new factor level, \code{hcai_missing}.
 #' @param recipe A recipe object. The step will be added to the sequence of 
 #'  operations for this recipe.
 #' @param ... One or more selector functions to choose which variables are 
-#'  affected by the step. See [selections()] for more details.
+#'  affected by the step. See \link{selections()} for more details.
 #' @param role Not used by this step since no new variables are created.
 #' @param trained A logical to indicate if the number of NA values have been
 #'  counted in preprocessing.
 #' @param na_percentage A named numeric vector of NA percentages. This
-#'  is `NULL` until computed by [prep.recipe()].
-#' @return An updated version of `recipe` with the new step
+#'  is \code{NULL} until computed by \code{prep.recipe()}.
+#' @return An updated version of \code{recipe} with the new step
 #'  added to the sequence of existing steps (if any). For the
-#'  `tidy` method, a tibble with columns `terms` (the
-#'  selectors or variables selected) and `value` (the
+#'  \code{tidy} method, a tibble with columns \code{terms} (the
+#'  selectors or variables selected) and \code{value} (the
 #'  NA counts).
 #'
 #' @export
 #' @import recipes
 #' @importFrom rlang quos
-#' @details NA values must g `step_scale` estimates
-#'  the variable standard deviations from the data used in the
-#'  `training` argument of `prep.recipe`.
-#'  `bake.recipe` then applies the scaling to new data sets
-#'  using these standard deviations.
+#' @details NA values are counted when the recipe is trained using 
+#' \code{prep.recipe}. \code{bake.recipe} then fills in the missing values for
+#' the new data.
 #' @examples
 #' library(healthcareai)
 #' library(tibble)
@@ -90,7 +88,7 @@ step_hcai_missing_new <- function(terms = NULL,
 prep.step_hcai_missing <- function(x, training, info = NULL, ...) {
   col_names <- terms_select(terms = x$terms, info = info)
   na_percentage <- sapply(training[, col_names], function(x) {
-    100 * round(sum(is.na(x)) / length(x), 3)
+    100 * sum(is.na(x)) / length(x)
   }
   )
 
@@ -100,7 +98,7 @@ prep.step_hcai_missing <- function(x, training, info = NULL, ...) {
 and will be filled with the category 'hcai_missing':")
   message(paste0(names(na_percentage[na_percentage > 50]),
                  ": ", 
-                 na_percentage[na_percentage > 50], "%",
+                 round(na_percentage[na_percentage > 50], 3), "%",
                  collapse = "\n"))
   }
   
