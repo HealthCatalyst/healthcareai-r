@@ -6,7 +6,7 @@
 #' @param recipe A recipe object. The step will be added to the sequence of 
 #'  operations for this recipe.
 #' @param ... One or more selector functions to choose which variables are 
-#'  affected by the step. See \link{selections()} for more details.
+#'  affected by the step. See \code{?recipes::selections()} for more details.
 #' @param role Not used by this step since no new variables are created.
 #' @param trained A logical to indicate if the number of NA values have been
 #'  counted in preprocessing.
@@ -141,8 +141,9 @@ print.step_hcai_missing <-
     invisible(x)
   }
 
+#' @importFrom tibble tibble
+#' @importFrom broom tidy
 #' @export
-#' @param x An \code{hcai_missing} recipe object.
 tidy.step_hcai_missing <- function(x, ...) {
   if (x$trained == TRUE) {
     res <- tibble(terms = names(x$na_percentage),

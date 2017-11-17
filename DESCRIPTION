@@ -18,6 +18,7 @@ LazyData: TRUE
 Depends:
     R (>= 3.2.3)
 Imports:
+    broom,
     caret,
     data.table,
     DBI,

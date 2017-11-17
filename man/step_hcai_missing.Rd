@@ -12,7 +12,7 @@ step_hcai_missing(recipe, ..., role = NA, trained = FALSE,
 operations for this recipe.}
 
 \item{...}{One or more selector functions to choose which variables are 
-affected by the step. See \link{selections()} for more details.}
+affected by the step. See \code{?recipes::selections()} for more details.}
 
 \item{role}{Not used by this step since no new variables are created.}
 

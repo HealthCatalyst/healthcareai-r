@@ -126,7 +126,7 @@ test_that("Warning is triggered for greater than 50% NA", {
 })
 
 test_that("tidy method prints correctly", {
-  exp <- tibble(terms = c("character", "suit"),
+  exp <- tibble::tibble(terms = c("character", "suit"),
                 value = c(33.20, 8.71))
   expect_equal(
     exp,
