@@ -1,13 +1,9 @@
 context("Checking recipe step hcai-missing")
 
-library(healthcareai)
-library(tibble)
-library(caret)
-library(recipes)
-
 # Setup ------------------------------------------------------------------------
 # set seed for reproducibility
 set.seed(7)
+browser()
 # build dataset
 n <- 300
 d <- tibble(id = 1:n,
@@ -24,9 +20,9 @@ d <- tibble(id = 1:n,
 d["is_goomba"] <- ifelse( (d["world"] - 2 * d["level"] - 1) > 0, "Y", "N")
 
 # Add NAs
-inds <- sample(1:n, 30, replace = FALSE)
+inds <- sample(n, 30, replace = FALSE)
 d$suit[inds] <- NA
-inds <- sample(1:n, 100, replace = FALSE)
+inds <- sample(n, 100, replace = FALSE)
 d$character[inds] <- NA
 
 train_index <- caret::createDataPartition(
