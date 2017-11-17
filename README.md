@@ -6,6 +6,18 @@
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version-last-release/healthcareai)](https://cran.r-project.org/package=healthcareai)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.999334.svg)](https://doi.org/10.5281/zenodo.999334)
 
+## Refactor Resources
+
+- Main guidelines are at top of [CONTRIBUTING](CONTRIBUTING.md)
+- Early ideas about the [overall pipeline structure](explorations/s3StructureSketch.R)
+- [S3 generic examples](explorations/s3_template.R)
+- [caret examples](explorations/caretDemo.md)
+- [recipes examples](explorations/exploring_recipes.Rmd)
+- [NSE Programming with `rlang`](explorations/programming_with_dplyr.md)
+- [Outline of the refactor](refactor_outline.md) but this has been split out into github issues in the refactor epic
+
+---
+
 The aim of `healthcareai` is to make machine learning easy on healthcare data. The package has two main goals:
 
 -  Allow one to easily develop and compare models based on tabular data, and deploy a best model that pushes predictions to either databases or flat files.
