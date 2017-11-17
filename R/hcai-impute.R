@@ -55,25 +55,31 @@
 #' 
 hcai_impute <- function(rec_obj, 
                         numeric_method = "mean",
-                        nominal_method = "new_category") {
+                        nominal_method = "new_category",
+                        knn_params = list(K = 5,
+                          impute_with = imp_vars(all_predictors()),
+                          seed_val = sample.int(10^4, 1))) {
   # Check to make sure rec_obj is the right type
   if (class(rec_obj) != "recipe") {
     stop("rec_obj must be recipe object"
     )
   }
   
-  # defaults to mean for numerics.
+  # Numerics
   if (numeric_method == "mean") {
     rec_obj <- step_meanimpute(rec_obj, all_numeric())
   } else if (numeric_method == "bagimpute") {
     rec_obj <- step_bagimpute(rec_obj, all_numeric())
   } else if (numeric_method == "knnimpute") {
-    rec_obj <- step_knnimpute(rec_obj, all_numeric())
+    rec_obj <- step_knnimpute(rec_obj, all_numeric(),
+      K = knn_params$K,
+      impute_with = knn_params$impute_with,
+      seed_val = knn_params$seed_val)
   } else {
     stop("non-supported numeric method")
   }
   
-  # defaults to new category for nominal
+  # Nominals
   if (nominal_method == "new_category") {
     impute_method <- step_hcai_missing(rec_obj, all_nominal())
   } else if (nominal_method == "bagimpute") {
