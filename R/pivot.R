@@ -23,7 +23,47 @@
 #' @export
 #'
 #' @examples
+#' meds <-
+#'   tibble::tibble(
+#'     patient_id = c("A", "A", "A", "B"),
+#'     medication = c("zoloft", "asprin", "lipitor", "asprin"),
+#'     pills_per_day = c(1, 8, 2, 4)
+#'   )
+#' meds
 #'
+#' # Number of pills of each medication each patient gets:
+#' pivot(
+#'   d = meds,
+#'   grain = patient_id,
+#'   spread = medication,
+#'   fill = pills_per_day,
+#'   missing_fill = 0
+#' )
+#'
+#' bills <-
+#'   tibble::tibble(
+#'     patient_id = rep(c("A", "B"), each = 4),
+#'     dept_id = rep(c("ED", "ICU"), times = 4),
+#'     charge = runif(8, 0, 1e4),
+#'     date = Sys.Date() - sample(0:2, 8, TRUE)
+#'   )
+#' bills
+#'
+#' # Total charges for patient x department:
+#' pivot(bills, patient_id, dept_id, charge, sum)
+#'
+#' # Count of charges per patient x day:
+#' pivot(bills, patient_id, date)
+#'
+#' # Can provide a custom function to fun; takes fill as input.
+#' # Get the difference between the greatest and smallest charge in each
+#' # department for each patient and format it as currency.
+#' pivot(d = bills,
+#'       grain = patient_id,
+#'       spread = dept_id,
+#'       fill = charge,
+#'       fun = function(x) paste0("$", round(max(x) - min(x), 2)))
+#' )
 pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
   # pivot "spreads" spread into separate columns, creating one row for
   # each entry in grain
