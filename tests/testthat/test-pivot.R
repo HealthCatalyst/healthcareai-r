@@ -5,7 +5,6 @@ dd <- tibble::tibble(person = as.factor(rep(c("Jack", "Jane"), each = 6)),
                      day = as.factor(rep(1:2, 6)),
                      count = 1:12,
                      activity = rep(c("shower", "shower", "bath"), each = 4))
-pivot(dd, person, day, count)
 
 # Test pivot -------------------------------------------------------------------
 test_that("pivot fails informatively if any provided columns aren't present", {
@@ -24,13 +23,51 @@ test_that("pivot says something if no fill column or no function provided", {
 
 
 test_that("pivot fills in NAs where no instances present, and only there", {
-  mark_missing <-
-    tibble::tibble(person = "Mark", day = 1, count = 13, activity = "bath") %>%
-    rbind(dd, .) %>%
-    pivot(person, day, count)
+  suppressWarnings(
+    mark_missing <-
+      tibble::tibble(person = "Mark",
+                     day = 1,
+                     count = 13,
+                     activity = "bath") %>%
+      rbind(dd, .) %>%
+      pivot(person, day, count)
+  )
   expect_true(is.na(mark_missing$day_2[mark_missing$person == "Mark"]))
   expect_false(is.na(mark_missing$day_1[mark_missing$person == "Mark"]))
   expect_false(is.na(mark_missing$day_2[mark_missing$person == "Jane"]))
+})
+
+test_that("pivot returns expected data frame summing column", {
+  expect_equal(
+    tibble::tibble(
+      person = c("Jack", "Jane"),
+      day_1 = c(9L, 27L),
+      day_2 = c(12L, 30L)
+    ),
+    pivot(dd, person, day, count, sum)
+  )
+})
+
+test_that("pivot returns expected data frame with no fill column", {
+  expect_equal(
+    tibble::tibble(
+      person = c("Jack", "Jane"),
+      day_1 = c(3L, 3L),
+      day_2 = c(3L, 3L)
+    ),
+    suppressWarnings(pivot(dd, person, day))
+  )
+})
+
+test_that("pivot returns expected data frame with custom function", {
+  expect_equal(
+    tibble::tibble(
+      person = c("Jack", "Jane"),
+      day_1 = c(6L, 4L),
+      day_2 = c(6L, 4L)
+    ),
+    pivot(dd, person, day, fill = activity, fun = function(x) min(nchar(x)))
+  )
 })
 
 # Test aggregate_rows ----------------------------------------------------------
@@ -85,5 +122,57 @@ test_that("aggregate_rows takes function(x) and works with character `fill`", {
                    fun = function(x) names(sort(table(x), decreasing = TRUE))[1]
     )$activity,
     c("shower", "shower", "bath", "bath")
+  )
+})
+
+# Test pivot_maker -------------------------------------------------------------
+to_pivot <-
+  tibble::tibble(
+    rows = factor(c("a", "a", "b")),
+    cols = factor(c(1, 2, 1)),
+    num_fill = 1:3,
+    char_fill = c("one", NA, "three")
+  )
+num_pivot <-
+  tibble::tibble(
+    rows = c("a", "b"),
+    cols_1 = c(1L, 3L),
+    cols_2 = c(2L, NA)
+  )
+char_pivot <-
+  tibble::tibble(
+    rows = c("a", "b"),
+    cols_1 = c("one", "three"),
+    cols_2 = c(NA_character_, NA_character_)
+  )
+
+test_that("pivot_maker pivots correctly with defaults", {
+  expect_equal(
+    pivot_maker(d = to_pivot,
+                grain = rlang::quo(rows),
+                spread = rlang::quo(cols),
+                fill = rlang::quo(num_fill),
+                missing_fill = NA),
+    num_pivot
+  )
+  expect_equal(
+    pivot_maker(d = to_pivot,
+                grain = rlang::quo(rows),
+                spread = rlang::quo(cols),
+                fill = rlang::quo(char_fill),
+                missing_fill = NA),
+    char_pivot
+  )
+})
+
+test_that("pivot_maker respects missing_fill", {
+  num_pivot$cols_2[is.na(num_pivot$cols_2)] <- 0L
+  expect_equal(
+    pivot_maker(d = to_pivot,
+                grain = rlang::quo(rows),
+                spread = rlang::quo(cols),
+                fill = rlang::quo(num_fill),
+                missing_fill = 0L),
+    num_pivot
   )
 })
