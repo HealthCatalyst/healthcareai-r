@@ -14,14 +14,16 @@
 #' \code{grain}, and one column for each unique value of \code{spread} plus
 #' one column for grain.
 #'
-#' Entries in the tibble are defined by the fill column. Combinations of
+#' @details Entries in the tibble are defined by the fill column. Combinations of
 #' \code{grain} x \code{spread} that are not present in \code{d} will be filled
 #' in with \code{missing_fill}. If there are \code{grain} x \code{spread} pairs
 #' that appear more than once in d, they will be aggregated by \code{fun}.
-#' @export
+#'
 #' @importFrom rlang :=
+#' @export
 #'
 #' @examples
+#'
 pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
   # pivot "spreads" spread into separate columns, creating one row for
   # each entry in grain
@@ -46,7 +48,8 @@ pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
   cols <- sapply(c(grain, spread, fill), rlang::quo_name)
   present <- cols %in% names(d)
   if (any(!present))
-    stop(paste(cols[!present], collapse = ", "), " not found in ", match.call()$d)
+    stop(paste(cols[!present], collapse = ", "),
+         " not found in ", match.call()$d)
 
   # Make sure there's no missingness in grain or spread
   missing_check(d, grain)
@@ -67,7 +70,7 @@ pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
   if (need_aggregate) {
     # Test if the user provided a 'fun'. If not warn that we'll use sum
     if (is.null(match.call()$fun))
-      warning("There are rows that contain the same values of both ",
+      message("There are rows that contain the same values of both ",
               rlang::get_expr(grain), " and ", rlang::get_expr(spread),
               " but you didn't provide a function for their aggregation. ",
               "Proceding with the default: fun = sum.")
@@ -144,7 +147,7 @@ pivot_maker <- function(d, grain, spread, fill, missing_fill) {
   # Arrange and rename columns
   ## Put the grain column first
   pivoted <- pivoted[, c(ncol(pivoted), 1:(ncol(pivoted) - 1))]
-  ## Add spread as prefix to non-ID columns
+  ## Add spread as prefix to nonID columns
   names(pivoted)[2:ncol(pivoted)] <-
     paste0(rlang::quo_name(spread), "_", names(pivoted)[2:ncol(pivoted)])
 

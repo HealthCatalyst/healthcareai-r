@@ -15,9 +15,9 @@ test_that("pivot fails informatively if any provided columns aren't present", {
   expect_error(pivot(dd, aaa, bbb, ccc), regexp = "ccc")
 })
 
-test_that("pivot says something if no fill column or no function provided", {
-  expect_warning(pivot(dd, person, day), regexp = "function")
-  expect_warning(pivot(dd, person, day, count), regexp = "function")
+test_that("pivot prints message if no fill column or no function provided", {
+  expect_message(pivot(dd, person, day), regexp = "function")
+  expect_message(pivot(dd, person, day, count), regexp = "function")
   expect_message(pivot(dd, person, day, fun = length), regexp = "fill")
 })
 
