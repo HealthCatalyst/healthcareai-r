@@ -123,16 +123,7 @@ pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
 }
 
 #' Aggregate rows
-#'
-#' @param d
-#' @param grain
-#' @param spread
-#' @param fill
-#' @param fun
-#'
-#' @details All variables comes straight through from pivot.
-#'
-#' @return Aggregated data frame
+#' @details All variables come through from pivot
 #' @noRd
 aggregate_rows <- function(d, grain, spread, fill, fun) {
   d <-
@@ -145,12 +136,6 @@ aggregate_rows <- function(d, grain, spread, fill, fun) {
 }
 
 #' Make pivoted table
-#'
-#' @param d
-#' @param grain
-#' @param spread
-#' @param fill
-#' @param missing_fill
 #' @details All variables come through from pivot
 #' @return Pivoted tibble. One row for each grain; one column for each spread
 #' @noRd
