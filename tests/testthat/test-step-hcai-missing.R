@@ -60,13 +60,13 @@ rec_obj2 <- recipe(is_goomba ~ ., data = d) %>%
 
 # Tests ------------------------------------------------------------------------
 test_that("Recipe object is updated with step", {
-  expect_equal(class(rec_obj$steps[[1]])[1], "step_hcai_ming")
+  expect_equal(class(rec_obj$steps[[1]])[1], "step_hcai_missing")
 })
 
 test_that("Recipe is prepped correctly", {
   expect_equal(
     rec_obj$steps[[1]]$na_percentage[[1]],
-    33.2)
+    33.195, tolerance = .001)
 
   expect_equal(
     names(rec_obj$steps[[1]]$na_percentage)[1],
@@ -74,7 +74,7 @@ test_that("Recipe is prepped correctly", {
 
   expect_equal(
     rec_obj$steps[[1]]$na_percentage[[2]],
-    8.7)
+    8.714, tolerance = .001)
 
   expect_equal(
     names(rec_obj$steps[[1]]$na_percentage)[2],
@@ -125,3 +125,11 @@ test_that("Warning is triggered for greater than 50% NA", {
   )
 })
 
+test_that("tidy method prints correctly", {
+  exp <- tibble(terms = c("character", "suit"),
+                value = c(33.20, 8.71))
+  expect_equal(
+    exp,
+    broom::tidy(rec_obj$steps[[1]])
+  )
+})
