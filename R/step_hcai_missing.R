@@ -86,7 +86,7 @@ step_hcai_missing_new <- function(terms = NULL,
 
 #' @export
 prep.step_hcai_missing <- function(x, training, info = NULL, ...) {
-  col_names <- terms_select(terms = x$terms, info = info)
+  col_names <- recipes::terms_select(terms = x$terms, info = info)
   na_percentage <- sapply(training[, col_names], function(x) {
     100 * sum(is.na(x)) / length(x)
   }
@@ -98,7 +98,7 @@ prep.step_hcai_missing <- function(x, training, info = NULL, ...) {
 and will be filled with the category 'hcai_missing':")
   message(paste0(names(na_percentage[na_percentage > 50]),
                  ": ", 
-                 round(na_percentage[na_percentage > 50], 3), "%",
+                 round(na_percentage[na_percentage > 50], 2), "%",
                  collapse = "\n"))
   }
   
@@ -140,3 +140,13 @@ print.step_hcai_missing <-
     printer(names(x$na_percentage), x$terms, x$trained, width = width)
     invisible(x)
   }
+
+#' @export
+#' @param x An \code{hcai_missing} recipe object.
+tidy.step_hcai_missing <- function(x, ...) {
+  if (x$trained == TRUE) {
+    res <- tibble(terms = names(x$na_percentage),
+                  value = round(x$na_percentage, 2))
+  }
+  res
+}
