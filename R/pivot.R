@@ -1,20 +1,22 @@
-#' pivot
+#' Make a long data frame wide, possibly aggregating rows in the process
 #'
 #' @param d data frame
 #' @param grain Column that defines rows. Unquoted.
 #' @param spread Column that will become multiple columns. Unquoted.
-#' @param fill Column to be used to fill the values of cells in the output (
-#' perhaps after aggregation by \code{fun}). If \code{fill} is not provided,
+#' @param fill Column to be used to fill the values of cells in the output,
+#' perhaps after aggregation by \code{fun}. If \code{fill} is not provided,
 #' counts will be used, as though a fill column of 1s had been provided.
-#' @param fun Function for aggreation, defaults to \code{sum}.
+#' @param fun Function for aggreation, defaults to \code{sum}. Custom functions
+#' can be used with the same syntax as the apply family of functions, e.g.
+#' \code{fun = function(x) some_function(another_fun(x))}.
 #' @param missing_fill Value to fill for combinations of grain and spread that
 #' are not present. Defaults to NA, but 0 may be useful as well.
 #'
 #' @return A tibble data frame with one row for each unique value of
 #' \code{grain}, and one column for each unique value of \code{spread} plus
-#' one column for grain.
+#' one column for the entries in grain.
 #'
-#' @details Entries in the tibble are defined by the fill column. Combinations of
+#' Entries in the tibble are defined by the fill column. Combinations of
 #' \code{grain} x \code{spread} that are not present in \code{d} will be filled
 #' in with \code{missing_fill}. If there are \code{grain} x \code{spread} pairs
 #' that appear more than once in d, they will be aggregated by \code{fun}.
@@ -49,20 +51,20 @@
 #'   )
 #' bills
 #'
-#' # Total charges for patient x department:
+#' # Total charges per patient x department:
 #' pivot(bills, patient_id, dept_id, charge, sum)
 #'
 #' # Count of charges per patient x day:
 #' pivot(bills, patient_id, date)
 #'
-#' # Can provide a custom function to fun; takes fill as input.
+#' # Can provide a custom function to fun, which will take fill as input.
 #' # Get the difference between the greatest and smallest charge in each
 #' # department for each patient and format it as currency.
 #' pivot(d = bills,
 #'       grain = patient_id,
 #'       spread = dept_id,
 #'       fill = charge,
-#'       fun = function(x) paste0("$", round(max(x) - min(x), 2)))
+#'       fun = function(x) paste0("$", round(max(x) - min(x), 2))
 #' )
 pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
   # pivot "spreads" spread into separate columns, creating one row for
