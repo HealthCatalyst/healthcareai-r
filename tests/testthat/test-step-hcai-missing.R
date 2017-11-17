@@ -6,7 +6,7 @@ set.seed(7)
 browser()
 # build dataset
 n <- 300
-d <- tibble(id = 1:n,
+d <- tibble::tibble(id = 1:n,
                  playerID = sample(1:9, size = n, replace = TRUE),
                  level = sample(1:12, size = n, replace = TRUE),
                  world = sample(1:8, size = n, replace = TRUE),
@@ -34,21 +34,21 @@ train_index <- caret::createDataPartition(
 d_train <- d[train_index$Resample1, ]
 d_test <- d[-train_index$Resample1, ]
 
-rec_obj <- recipe(is_goomba ~ ., data = d)
+rec_obj <- recipes::recipe(is_goomba ~ ., data = d)
 
 rec_obj <- rec_obj %>%
   step_hcai_missing(all_nominal())
 
 junk <- capture.output(
-  rec_obj <- prep(rec_obj, training = d_train)
+  rec_obj <- recipes::prep(rec_obj, training = d_train)
 )
 
 junk <- capture.output(
-  out_train <- bake(rec_obj, d_train)
+  out_train <- recipes::bake(rec_obj, d_train)
 )
 
 junk <- capture.output(
-  out_test <- bake(rec_obj, d_test)
+  out_test <- recipes::bake(rec_obj, d_test)
 )
 
 
@@ -61,7 +61,7 @@ rec_obj2 <- recipe(is_goomba ~ ., data = d) %>%
 
 mes <- capture.output(
   junk <- capture.output(
-    junk <- prep(rec_obj2, training = d2_train)
+    junk <- recipes::prep(rec_obj2, training = d2_train)
   ), type = "message"
 )
 
