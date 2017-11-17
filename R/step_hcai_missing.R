@@ -1,7 +1,7 @@
 #' @title
 #' Clean NA values from categorical/nominal variables
 #'
-#' @description `step_hcai_missing` creates a specification of a recipe that 
+#' @description \code{step_hcai_missing} creates a specification of a recipe that 
 #'  will replace NA values `hcai_missing`.
 #' @param recipe A recipe object. The step will be added to the sequence of 
 #'  operations for this recipe.
