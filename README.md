@@ -12,6 +12,7 @@
 - Early ideas about the [overall pipeline structure](explorations/s3StructureSketch.R)
 - [S3 generic examples](explorations/s3_template.R)
 - [caret examples](explorations/caretDemo.md)
+- [custom caret models/hyperparameters example](explorations/customize_caret.R)
 - [recipes examples](explorations/exploring_recipes.Rmd)
 - [NSE Programming with `rlang`](explorations/programming_with_dplyr.md)
 - [Outline of the refactor](refactor_outline.md) but this has been split out into github issues in the refactor epic
