@@ -33,15 +33,14 @@ Splits datetime column into columns of day, hour, etc, such that one
 can use daily and seasonal patterns in their model building.
 }
 \examples{
-dtCol <- c('2001-06-09 12:45:05','2002-01-29 09:30:05','2002-02-02 07:36:50',
-          '2002-03-04 16:45:01','2002-11-13 20:00:10','2003-01-29 07:31:43',
-          '2003-07-07 17:30:02','2003-09-28 01:03:20')
-y1 <- c(.5,1,3,6,8,13,14,1)
-y2 <- c(.8,1,1.2,1.2,1.2,1.3,1.3,1)
-df <- data.frame(dtCol,y1,y2)
-
-df <- splitOutDateTimeCols(df, 'dtCol')
-head(df)
+df <- data.frame(
+  dtCol = c('2001-06-09 12:45:05', '2002-01-29 09:30:05','2002-02-02 07:36:50',
+            '2002-03-04 16:45:01','2002-11-13 20:00:10','2003-01-29 07:31:43',
+            '2003-07-07 17:30:02','2003-09-28 01:03:20'),
+  y1 = c(.5, 1, 3, 6, 8, 13, 14, 1),
+  y2 = c(.8, 1, 1.2, 1.2, 1.2, 1.3, 1.3, 1)
+)
+splitOutDateTimeCols(df, 'dtCol')
 }
 \references{
 \url{http://healthcareai-r.readthedocs.io}

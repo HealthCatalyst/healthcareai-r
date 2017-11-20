@@ -36,7 +36,7 @@ test_that("For a DT column with DD/MM/YYYY format for depth='s', function return
                                           weekOfYear = c("23", "04", "06"), dayOfMonth = c(9L, 29L, 13L),
                                           dayOfWeek = c(7, 3, 4), hour = c(12L, 9L, 7L), min = c(45L, 30L, 36L),
                                           Sec = c(5, 5, 50)), 
-                                     .Names = c("y1", "y2", "year", "month", "weekOfYear","dayOfMonth", "dayOfWeek","hour", "min", "Sec"),
+                                     .Names = c("y1", "y2", "year", "month", "weekOfYear","dayOfMonth", "dayOfWeek","hour", "min", "sec"),
                                      row.names = c(NA, -3L), class = "data.frame")
             expect_identical(df2, expecteddf2)
   })
