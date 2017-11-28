@@ -210,6 +210,10 @@ createVarianceTallTable <- function(df,
 #' @param dateCol Optional. A date(time) column to group by (done by month) 
 #' @param threshold A scalar number, representing the minimum impact values
 #' that are returned
+#' @param wideOutput If TRUE (default) categoricalCols and measureColumn will
+#' be mixed in with results. If FALSE, output table will have Group and
+#' Measure columns that reflect categoricalCols and measureColumn, and results
+#' will appear in their own columns.
 #' @return A dataframe of eight columns. MeasureVolumeRaw denotes number of rows 
 #' in the particular subgroup; MeasureVolumePercent denotes percent of rows in 
 #' that subgroup as a percentage of the above subgroup (i.e., F within Gender);
@@ -348,9 +352,6 @@ findVariation <- function(df,
         next
       }
       
-      # Add measure column
-      dfSub$Measure <- measureColumn[j]
-      
       if (wideOutput) {
       # Create pipe-delimited, fixed number of columns and add to overall df
       dfTotal <- 
@@ -360,6 +361,9 @@ findVariation <- function(df,
                 categoricalCols = currentCatColumnComboVect,
                 measure = measureColumn[j]))
       } else {
+        # Add measure column
+        dfSub$Measure <- measureColumn[j]
+        
         # Convet group column/s to Variable.Value
         if (length(listOfPossibleCombos[[i]]) == 1) {
           dfSub$Group <- paste(names(dfSub)[1], dfSub[, 1], sep = ".")
@@ -374,7 +378,7 @@ findVariation <- function(df,
         # Get rid of old group/s column
         dfSub <- dfSub[, -which(names(dfSub) %in% listOfPossibleCombos[[i]])]
         # Move new group column to front
-        dfSub <- dfSub[, c(ncol(dfSub), seq_len(ncol(dfSub) - 1))]
+        dfSub <- dfSub[, c(ncol(dfSub):(ncol(dfSub) - 1), seq_len(ncol(dfSub) - 2))]
         dfTotal <- rbind(dfTotal, dfSub)
       }
     }
