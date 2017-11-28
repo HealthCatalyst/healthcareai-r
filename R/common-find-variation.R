@@ -438,6 +438,7 @@ getPipedValue <- function(string) {
 #' @param categoricalCols Character. Vector containing the name(s) of column(s)
 #'   to group by.
 #' @param measureColumn Character. The name of the numeric variable of interest.
+#' @param plotBoxplot Logical. Print boxplot with Tukey HSD labels?
 #' @param plotGroupDifferences Optional. Logical. Plot results of Tukey's HSD
 #'   test: mean differences between groups and confidence intervals for each
 #'   pairwise group comparison? Default is FALSE.

@@ -18,7 +18,7 @@ into several columns.}
 (default), 'm' expands to minute, and 's' expands to second.}
 
 \item{returnDtCol}{A boolean. Return the original dateTimeCol with
-the modified data frame.}
+the modified data frame?}
 
 \item{format}{A character string giving a date-time format as used by 
 \code{\link{strptime}}. Default is '\%Y-\%m-\%d \%H:\%M:\%S'. If depth is 'h', 'm',
