@@ -78,7 +78,7 @@ hcai_impute <- function(rec_obj,
   defaults <- list(
     bag_model = NULL,
     bag_options = list(nbagg = 25, keepX = FALSE),
-    knnimpute_K = 5,
+    knn_K = 5,
     impute_with = imp_vars(all_predictors()),
     seed_val = sample.int(1000, 1)
   )
@@ -104,7 +104,7 @@ hcai_impute <- function(rec_obj,
     rec_obj <- step_knnimpute(
       rec_obj, 
       all_numeric(), 
-      K = num_p$knnimpute_K,
+      K = num_p$knn_K,
       impute_with = num_p$impute_with,
       seed_val = num_p$seed_val)
   } else {
@@ -126,7 +126,7 @@ hcai_impute <- function(rec_obj,
     rec_obj <- step_knnimpute(
       rec_obj, 
       all_nominal(), 
-      K = nom_p$knnimpute_K,
+      K = nom_p$knn_K,
       impute_with = nom_p$impute_with,
       seed_val = nom_p$seed_val)
   } else {

@@ -89,9 +89,15 @@ test_that("knnimpute impute called on both types", {
   expect_equal(class(rec_obj_new$steps[[2]])[1], "step_knnimpute")
 })
 
-# test_that("API takes knnimpute and bagimpute params", {
-#   rec_obj_new <- rec_obj %>%
-#     hcai_impute(numeric_method = "knnimpute",
-#                 knnimpute_params = list(K = 3))
-#   expect_equal(tr_rec1$steps[[1]]$K, 3)
-# })
+test_that("API takes knnimpute and bagimpute params", {
+  rec_obj_new <- rec_obj %>%
+    hcai_impute(numeric_method = "knnimpute",
+                numeric_params = list(knn_K = 3))
+  expect_equal(rec_obj_new$steps[[1]]$K, 3)
+  
+  rec_obj_new <- rec_obj %>%
+    hcai_impute(nominal_method = "bagimpute",
+                nominal_params = list(bag_options = list(nbagg = 10, 
+                  keepX = FALSE)))
+  expect_equal(rec_obj_new$steps[[2]]$options$nbagg, 10)
+})
