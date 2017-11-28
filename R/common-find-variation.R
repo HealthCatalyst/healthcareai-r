@@ -929,6 +929,38 @@ variationAcrossGroups <- function(df,
                                                        hjust = 1, vjust = .5))
   if (plotBoxplot)
     print(ggp)
+  
+  # If plotGroupDifferences, write it to file
+  
+  
+  if (plotGroupDifferences == TRUE) {		
+    png("group_differences.png", height = 600, width = 800)
+    # Sort group differences matrix to plot in order of ascending p-value		
+    if (nrow(TUKEY[[1]]) > 1)		
+      TUKEY[[1]] <- TUKEY[[1]][order(TUKEY[[1]][ , 4], -TUKEY[[1]][ , 1]), ]		
+    tLabs <- gsub("\\.", "|", rev(rownames(TUKEY[[1]])))		
+    lMar <- max(6, max(nchar(tLabs)) / 2)		
+    lCEX <- 		
+      if (length(tLabs) < 15) 1 else 		
+        if (length(tLabs) < 25) .85 else 		
+          if (length(tLabs) < 50) .7 else .6		
+    
+    # Different colors for signicantly different groups vs. not		
+    cols <- ifelse(TUKEY[[1]][ , 4] <= sigLevel, "red", "black")		
+    # graphics::frame()		
+    graphics::par(mar = c(4.2, lMar, 3.8, 2))		
+    graphics::plot(TUKEY, col = cols, yaxt = "n")		
+    graphics::mtext(paste(measureColumn, "across", paste(categoricalCols, collapse = ", ")))		
+    graphics::axis(2,		
+                   at = seq_len(nrow(TUKEY[[1]])),		
+                   labels = tLabs,		
+                   las = 1,		
+                   cex.axis = lCEX)
+    dev.off()
+  }
+  
+  
+  
 
   # Create tables with pvalue for each pair of groups
   # Get 95% family-wise confidence level
