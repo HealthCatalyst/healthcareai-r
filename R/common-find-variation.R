@@ -234,7 +234,8 @@ findVariation <- function(df,
                           categoricalCols,
                           measureColumn,
                           dateCol = NULL,
-                          threshold = NULL) {
+                          threshold = NULL,
+                          wideOutput = TRUE) {
   
   if (!all(c(categoricalCols,measureColumn,dateCol) %in% names(df))) {
     stop('The measure column or one of the categorical cols is not in the df')
@@ -347,9 +348,10 @@ findVariation <- function(df,
         next
       }
       
+      # Add measure column
+      dfSub$Measure <- measureColumn[j]
       
-      browser()
-      
+      if (wideOutput) {
       # Create pipe-delimited, fixed number of columns and add to overall df
       dfTotal <- 
         rbind(dfTotal,
@@ -357,6 +359,24 @@ findVariation <- function(df,
                 df = dfSub, 
                 categoricalCols = currentCatColumnComboVect,
                 measure = measureColumn[j]))
+      } else {
+        # Convet group column/s to Variable.Value
+        if (length(listOfPossibleCombos[[i]]) == 1) {
+          dfSub$Group <- paste(names(dfSub)[1], dfSub[, 1], sep = ".")
+        } else {
+          labs <- 
+            sapply(listOfPossibleCombos[[i]], function(var) {
+              column <- which(names(dfSub) == var)
+              paste(names(dfSub)[column], dfSub[, column], sep = ".")
+            })
+          dfSub$Group <- apply(labs, 1, paste, collapse = "|")
+        }
+        # Get rid of old group/s column
+        dfSub <- dfSub[, -which(names(dfSub) %in% listOfPossibleCombos[[i]])]
+        # Move new group column to front
+        dfSub <- dfSub[, c(ncol(dfSub), seq_len(ncol(dfSub) - 1))]
+        dfTotal <- rbind(dfTotal, dfSub)
+      }
     }
   }
   
@@ -365,6 +385,9 @@ findVariation <- function(df,
          " Try removing or lower your threshold, or select more rows")
   } else {
     
+    if (!wideOutput)
+      return(dfTotal[order(-dfTotal$Impact), ])
+
     # Convert from factor to char for OVERALL ordering
     #dfTotal$DimensionalAttributes <- as.character(dfTotal$DimensionalAttributes)
     
