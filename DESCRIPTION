@@ -24,6 +24,7 @@ Imports:
     doParallel,
     dplyr,
     e1071,
+    ggplot2,
     grpreg,
     lme4,
     odbc,

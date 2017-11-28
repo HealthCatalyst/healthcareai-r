@@ -5,7 +5,7 @@
 \title{Find high variation}
 \usage{
 findVariation(df, categoricalCols, measureColumn, dateCol = NULL,
-  threshold = NULL)
+  threshold = NULL, wideOutput = TRUE)
 }
 \arguments{
 \item{df}{A dataframe}
@@ -18,6 +18,11 @@ findVariation(df, categoricalCols, measureColumn, dateCol = NULL,
 
 \item{threshold}{A scalar number, representing the minimum impact values
 that are returned}
+
+\item{wideOutput}{If TRUE (default) categoricalCols and measureColumn will
+be mixed in with results. If FALSE, output table will have Group and
+Measure columns that reflect categoricalCols and measureColumn, and results
+will appear in their own columns.}
 }
 \value{
 A dataframe of eight columns. MeasureVolumeRaw denotes number of rows 
