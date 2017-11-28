@@ -571,7 +571,6 @@ variationAcrossGroups <- function(df,
          class(df[[measureColumn]]))
   }
   
-  
   # Check that categorical columns exist and are of proper type
   if (length(categoricalCols) > 1) {
     for (i in 1:length(categoricalCols)) {
@@ -591,6 +590,9 @@ variationAcrossGroups <- function(df,
     }
   }
   
+  # Remove rows with missingness in any of the variables that matter
+  df <- df[, c(categoricalCols, measureColumn, dateCol)]
+  df <- stats::na.omit(df)
   
   if (findInterval(1, 0:1, rightmost.closed = TRUE) != 1)
     stop("sigLevel must be between zero and one.")
