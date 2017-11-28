@@ -54,56 +54,81 @@
 #' data_modified <- bake(trained_recipe, newdata = d)
 #' 
 hcai_impute <- function(rec_obj, 
-                        numeric_params = "mean",
-                        nominal_params = "new_category") {
+                        numeric_method = "mean",
+                        nominal_method = "new_category",
+                        numeric_params = NULL,
+                        nominal_params = NULL) {
   # Check to make sure rec_obj is the right type
   if (class(rec_obj) != "recipe") {
     stop("rec_obj must be recipe object"
     )
   }
   
-  # If defaults are used or params are missing, fill in defaults
-  if (numeric_params == "mean" | is.null(numeric_params)) {
-    numeric_params = list(method = "mean")
+  # If methods dont exist, use defaults
+  if (!(numeric_method %in% c("mean", "bagimpute", "knnimpute"))) {
+    stop("non-supported numeric method. Use \"mean\", \"bagimpute\", 
+         or \"knnimpute\"")
   }
-  if (nominal_params == "new_category" | is.null(nominal_params)) {
-    nominal_params = list(method = "new_category")
-  }
-  # Fill in defaults if only method is specified
-  if (numeric_params$method == "bagimpute" & length(numeric_params) == 1) {
-    numeric_params$models <- NULL
-    numeric_params$options <- list(nbagg = 25, keepX = FALSE)
-    numeric_params$impute_with <- imp_vars(all_predictors())
-    numeric_params$seed_val <- sample.int(10 ^ 4, 1)
-  }
-  if (nominal_params$method == "bagimpute" & length(nominal_params) == 1) {
-    nominal_params$models <- NULL
-    nominal_params$options <- list(nbagg = 25, keepX = FALSE)
-    nominal_params$impute_with <- imp_vars(all_predictors())
-    nominal_params$seed_val <- sample.int(10 ^ 4, 1)
+  if (!(nominal_method %in% c("new_category", "bagimpute", "knnimpute"))) {
+    stop("non-supported nominal method. Use \"new_category\", \"bagimpute\", 
+         or \"knnimpute\"")
   }
   
+  # Assign defaults for params
+  defaults <- list(
+    bag_model = NULL,
+    bag_options = list(nbagg = 25, keepX = FALSE),
+    knnimpute_K = 5,
+    impute_with = imp_vars(all_predictors()),
+    seed_val = sample.int(1000, 1)
+  )
+  
+  # Fill in user-specified params
+  num_p <- defaults
+  num_p[names(num_p) %in% names(numeric_params)] <- numeric_params
+  nom_p <- defaults
+  nom_p[names(nom_p) %in% names(nominal_params)] <- nominal_params
+
   # Numerics
-  if (numeric_params == "mean") {
+  if (numeric_method == "mean") {
     rec_obj <- step_meanimpute(rec_obj, all_numeric())
   } else if (numeric_method == "bagimpute") {
-    rec_obj <- step_bagimpute(rec_obj, all_numeric())
+    rec_obj <- step_bagimpute(
+      rec_obj, 
+      all_numeric(), 
+      models = num_p$bag_model,
+      options = num_p$bag_options,
+      impute_with = num_p$impute_with,
+      seed_val = num_p$seed_val)
   } else if (numeric_method == "knnimpute") {
-    rec_obj <- step_knnimpute(rec_obj, all_numeric(),
-      K = knn_params$K,
-      impute_with = knn_params$impute_with,
-      seed_val = knn_params$seed_val)
+    rec_obj <- step_knnimpute(
+      rec_obj, 
+      all_numeric(), 
+      K = num_p$knnimpute_K,
+      impute_with = num_p$impute_with,
+      seed_val = num_p$seed_val)
   } else {
     stop("non-supported numeric method")
   }
   
   # Nominals
   if (nominal_method == "new_category") {
-    impute_method <- step_hcai_missing(rec_obj, all_nominal())
+    rec_obj <- step_hcai_missing(rec_obj, all_nominal())
   } else if (nominal_method == "bagimpute") {
-    impute_method <- step_bagimpute(rec_obj, all_nominal())
+    rec_obj <- step_bagimpute(
+      rec_obj, 
+      all_nominal(), 
+      models = nom_p$bag_model,
+      options = nom_p$bag_options,
+      impute_with = nom_p$impute_with,
+      seed_val = nom_p$seed_val)
   }  else if (nominal_method == "knnimpute") {
-    impute_method <- step_knnimpute(rec_obj, all_nominal())
+    rec_obj <- step_knnimpute(
+      rec_obj, 
+      all_nominal(), 
+      K = nom_p$knnimpute_K,
+      impute_with = nom_p$impute_with,
+      seed_val = nom_p$seed_val)
   } else {
     stop("non-supported nominal method")
   }
