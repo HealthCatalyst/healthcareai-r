@@ -873,14 +873,11 @@ variationAcrossGroups <- function(df,
     labs <- labs[levels(interaction(l)),]
   }
   
-  
-  # browser()
-  
-  
   df$l <- sapply(1:length(l[[1]]), function(i) 
     paste(sapply(seq_len(length(l)), function(j) l[[j]][i]), collapse = ".")
   )
-    # unlist(l)
+  
+  # Make ggplot
   ggp <- 
     ggplot2::ggplot(df, ggplot2::aes_string(y = measureColumn)) + 
     ggplot2::geom_boxplot(ggplot2::aes(x = l))
@@ -892,86 +889,13 @@ variationAcrossGroups <- function(df,
     lab = labs$Letters
   )
   ggp <- 
-  ggp +
+    ggp +
     ggplot2::geom_label(ggplot2::aes(x = x, y = y, label = lab), labels) +
-    scale_x_discrete(name = NULL) 
+    ggplot2::scale_x_discrete(name = NULL) +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, 
+                                                       hjust = 1, vjust = .5))
   if (plotBoxplot)
     print(ggp)
-  
-  if (FALSE) {
-    # plot boxplot
-    # nCol <- if (plotGroupDifferences) 2 else 1
-    # This is a hacky way to ensure we have a new plotting canvas:
-    graphics::frame()
-    grDevices::dev.off()
-    # Save graphics paramters to reset on exit
-    op <- graphics::par(no.readonly = TRUE)  
-    on.exit(graphics::par(op))
-    labels <- gsub("\\.", " | ", labs[,2])
-    bMar <- max(7, max(nchar(labels)) / 2)
-    # if bMar gets screwed up, set it equal to 4-7. It controls the x axis spacing.
-    graphics::par(# mfrow = c(1, nCol), 
-      bg = "transparent", cex.axis = 1, mar = c(bMar, 4.1, 4.1, 2.1))
-    graphics::boxplot(df[[measureColumn]] ~ interaction(l), 
-                      data = df, 
-                      # col = my_colors[as.numeric(labs[,1])],
-                      yaxt = "n",
-                      ylim = c(min(df[[measureColumn]], na.rm = TRUE), 1.1 * max(df[[measureColumn]], na.rm = TRUE)),
-                      cex.lab = 1.25, 
-                      xaxt = "n")
-    # Now set the plot region to grey
-    graphics::rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "grey90")
-    graphics::grid(nx = NULL, ny = NULL, lwd = 1, lty = 3, col = "white") #grid over boxplot
-    # par(new = TRUE)
-    plotRes <- 
-      graphics::boxplot(df[[measureColumn]] ~ interaction(l), 
-                        data = df, 
-                        col = "white",  # my_colors[as.numeric(labs[,1])],
-                        ylab = measureColumn,
-                        ylim = c(min(df[[measureColumn]], na.rm = TRUE), 1.1 * max(df[[measureColumn]], na.rm = TRUE)),
-                        main = paste("Boxplot of", measureColumn, "across", paste(categoricalCols, collapse = ", ")),
-                        cex.lab = 1.25, 
-                        outcol = grDevices::adjustcolor("black", .5), 
-                        xaxt = "n",
-                        boxwex = 0.35
-                        , add = TRUE
-                        , lex.order = TRUE
-      )
-    graphics::mtext("Groups that do not share a letter are significantly different.")
-    over = 0.04 * max(plotRes$stats[nrow(plotRes$stats),] )
-    graphics::text(c(1:nlevels(interaction(l))), plotRes$stats[nrow(plotRes$stats), ] + over, labs[,1])
-    
-    # x axis with ticks but without labels
-    graphics::axis(1, labels = FALSE, at = seq_along(labels))
-    # Plot x labs at default x position
-    graphics::text(x = seq_along(labels), y = par("usr")[3] - 1, srt = 90, adj = 1,
-                   labels = paste0(labels, "  "), xpd = TRUE)
-    
-    ## If plotGroupDifferences == TRUE, plot the tukey's test.
-    if (plotGroupDifferences == TRUE) {
-      # Sort group differences matrix to plot in order of ascending p-value
-      if (nrow(TUKEY[[1]]) > 1)
-        TUKEY[[1]] <- TUKEY[[1]][order(TUKEY[[1]][ , 4], -TUKEY[[1]][ , 1]), ]
-      tLabs <- gsub("\\.", "|", rev(rownames(TUKEY[[1]])))
-      lMar <- max(6, max(nchar(tLabs)) / 2)
-      lCEX <- 
-        if (length(tLabs) < 15) 1 else 
-          if (length(tLabs) < 25) .85 else 
-            if (length(tLabs) < 50) .7 else .6
-      
-      # Different colors for signicantly different groups vs. not
-      cols <- ifelse(TUKEY[[1]][ , 4] <= sigLevel, "red", "black")
-      graphics::frame()
-      graphics::par(mar = c(4.2, lMar, 3.8, 2), ask = TRUE)
-      graphics::plot(TUKEY, col = cols, yaxt = "n")
-      graphics::mtext(paste(measureColumn, "across", paste(categoricalCols, collapse = ", ")))
-      graphics::axis(2,
-                     at = seq_len(nrow(TUKEY[[1]])),
-                     labels = tLabs,
-                     las = 1,
-                     cex.axis = lCEX)
-    }
-  }
 
   # Create tables with pvalue for each pair of groups
   # Get 95% family-wise confidence level
