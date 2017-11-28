@@ -428,3 +428,9 @@ test_that("Error thrown when pos_class not specified when type == binary", {
                      target = "Ycategorical"), 
                "You must specify the positive class of your binary target")
 })
+
+test_that("Error thrown when high_card is not in given data", {
+  expect_error(pphcv(df = dat, high_card = "someVar", type = "continuous",
+                     target = "Ycontinuous"), 
+               "someVar is not in your data")
+})
