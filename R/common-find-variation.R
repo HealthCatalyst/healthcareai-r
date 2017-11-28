@@ -905,6 +905,8 @@ variationAcrossGroups <- function(df,
   if (nrow(labs) > 2) {
     labs <- labs[levels(interaction(l)),]
   }
+  # Hotfix for unknown missingness
+  labs <- na.omit(labs)
   
   df$l <- sapply(1:length(l[[1]]), function(i) 
     paste(sapply(seq_len(length(l)), function(j) l[[j]][i]), collapse = ".")
