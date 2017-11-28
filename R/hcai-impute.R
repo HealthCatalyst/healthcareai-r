@@ -54,19 +54,37 @@
 #' data_modified <- bake(trained_recipe, newdata = d)
 #' 
 hcai_impute <- function(rec_obj, 
-                        numeric_method = "mean",
-                        nominal_method = "new_category",
-                        knn_params = list(K = 5,
-                          impute_with = imp_vars(all_predictors()),
-                          seed_val = sample.int(10^4, 1))) {
+                        numeric_params = "mean",
+                        nominal_params = "new_category") {
   # Check to make sure rec_obj is the right type
   if (class(rec_obj) != "recipe") {
     stop("rec_obj must be recipe object"
     )
   }
   
+  # If defaults are used or params are missing, fill in defaults
+  if (numeric_params == "mean" | is.null(numeric_params)) {
+    numeric_params = list(method = "mean")
+  }
+  if (nominal_params == "new_category" | is.null(nominal_params)) {
+    nominal_params = list(method = "new_category")
+  }
+  # Fill in defaults if only method is specified
+  if (numeric_params$method == "bagimpute" & length(numeric_params) == 1) {
+    numeric_params$models <- NULL
+    numeric_params$options <- list(nbagg = 25, keepX = FALSE)
+    numeric_params$impute_with <- imp_vars(all_predictors())
+    numeric_params$seed_val <- sample.int(10 ^ 4, 1)
+  }
+  if (nominal_params$method == "bagimpute" & length(nominal_params) == 1) {
+    nominal_params$models <- NULL
+    nominal_params$options <- list(nbagg = 25, keepX = FALSE)
+    nominal_params$impute_with <- imp_vars(all_predictors())
+    nominal_params$seed_val <- sample.int(10 ^ 4, 1)
+  }
+  
   # Numerics
-  if (numeric_method == "mean") {
+  if (numeric_params == "mean") {
     rec_obj <- step_meanimpute(rec_obj, all_numeric())
   } else if (numeric_method == "bagimpute") {
     rec_obj <- step_bagimpute(rec_obj, all_numeric())
