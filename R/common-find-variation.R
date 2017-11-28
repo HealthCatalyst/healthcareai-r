@@ -347,6 +347,9 @@ findVariation <- function(df,
         next
       }
       
+      
+      browser()
+      
       # Create pipe-delimited, fixed number of columns and add to overall df
       dfTotal <- 
         rbind(dfTotal,

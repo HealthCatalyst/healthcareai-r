@@ -1,2 +1,2 @@
 #' @import utils 
-utils::globalVariables(c("x", "y", "labs"))
+utils::globalVariables(c("x", "y", "lab"))
