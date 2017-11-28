@@ -22,9 +22,7 @@ connection.string <- "
 #### BEGIN TESTS ####
 
 test_that("LMM deploy classification pushes values to SQL", {
-  skip_on_cran()
-  skip_if_no_MSSQL(tableName = "HCRDiabetesClinical", 
-                   connString = connection.string)
+  skip_on_not_appveyor()
 
   df <- selectData(connection.string, query)
   
@@ -67,9 +65,7 @@ test_that("LMM deploy classification pushes values to SQL", {
 })
 
 test_that("LMM deploy regression pushes values to SQL", {
-  skip_on_cran()
-  skip_if_no_MSSQL(tableName = "HCRDiabetesClinical", 
-                   connString = connection.string)
+  skip_on_not_appveyor()
   
   df <- selectData(connection.string, query)
   
@@ -110,9 +106,7 @@ test_that("LMM deploy regression pushes values to SQL", {
 }) 
 
 test_that("Lasso deploy classification pushes values to SQL Server", {
-  skip_on_cran()
-  skip_if_no_MSSQL(tableName = "HCRDiabetesClinical", 
-                   connString = connection.string)
+  skip_on_not_appveyor()
 
   df <- selectData(connection.string, query)
   
@@ -151,9 +145,7 @@ test_that("Lasso deploy classification pushes values to SQL Server", {
 })
 
 test_that("Lasso deploy regression pushes values to SQL Server", {
-  skip_on_cran()
-  skip_if_no_MSSQL(tableName = "HCRDiabetesClinical", 
-                   connString = connection.string)
+  skip_on_not_appveyor()
   
   df <- selectData(connection.string, query)
   
@@ -193,9 +185,7 @@ test_that("Lasso deploy regression pushes values to SQL Server", {
 })
 
 test_that("rf deploy classification pushes values to SQL Server", {
-  skip_on_cran()
-  skip_if_no_MSSQL(tableName = "HCRDiabetesClinical", 
-                   connString = connection.string)
+  skip_on_not_appveyor()
   
   df <- selectData(connection.string, query)
   
@@ -238,9 +228,7 @@ test_that("rf deploy classification pushes values to SQL Server", {
 })
 
 test_that("rf deploy regression pushes values to SQL Server", {
-  skip_on_cran()
-  skip_if_no_MSSQL(tableName = "HCRDiabetesClinical", 
-                   connString = connection.string)
+  skip_on_not_appveyor()
   
   df <- selectData(connection.string, query)
   

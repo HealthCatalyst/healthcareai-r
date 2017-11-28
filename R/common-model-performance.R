@@ -192,7 +192,8 @@ getCutOffList = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
   # for ROC curves
   if (aucType == 'SS') {
     d = (x - 0) ^ 2 + (y - 1) ^ 2
-    ind = which.min(d)
+    best <- which(d == min(d))
+    ind <- best[length(best)]
     tpr = y[[ind]]
     fpr = x[[ind]]
     cutoff = p[[ind]]
@@ -207,7 +208,8 @@ getCutOffList = function(perf, aucType = 'SS', allCutoffsFlg = FALSE) {
     d = (x - 1) ^ 2 + (y - 1) ^ 2
     # Convert NaNs to one
     d[ is.nan(d) ] <- 1
-    ind = which(d == min(d))
+    best <- which(d == min(d))
+    ind <- best[length(best)]
     pre = y[[ind]]
     rec = x[[ind]]
     cutoff = p[[ind]]

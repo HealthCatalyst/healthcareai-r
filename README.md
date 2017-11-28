@@ -4,7 +4,7 @@
 [![Travis-CI Build Status](https://travis-ci.org/HealthCatalyst/healthcareai-r.svg?branch=master)](https://travis-ci.org/HealthCatalyst/healthcareai-r)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/HealthCatalystSLC/healthcareai-r/blob/master/LICENSE)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version-last-release/healthcareai)](https://cran.r-project.org/package=healthcareai)
-
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.999334.svg)](https://doi.org/10.5281/zenodo.999334)
 
 The aim of `healthcareai` is to make machine learning easy on healthcare data. The package has two main goals:
 
@@ -24,6 +24,15 @@ Open RStudio and work in the console
 ```
 install.packages('healthcareai')
 ```
+
+#### If `install.packages('healthcareai')` or `library(healthcareai)` fails
+
+If you don't have admin rights on the machine you are working on, you may need to set a custom location for your R libraries. Here's how to do that:
+
+1. *Create a folder to hold your R packages.* You'll generally have write access to your `Documents` folder, so you might create a new directory: `C:\Users\your.name\Documents\R\R_library`. Shift-right click on that folder and copy its path.
+2. *Define a system variable with that folder location.* Open the Control Panel and click through User Accounts -> User Accounts -> Change my environment variables, and add a variable called `R_LIBS_USER`, and paste the folder path (`C:\Users\your.name\Documents\R\R_library`) into the value field. Make sure the path is not surrounded by `"`s.
+3. *Tell R to use that location.* Restart R Studio, run `install.packages('healthcareai')`, and if asked whether you want to use a custom library location choose yes, which may be sufficient. If not, click into the Console in R Studio, type `.libPaths()`, paste the path to your new library folder inside the `()`, and change the `\`s to `/`. You should end up with a line that looks like: `.libPaths("C:/Users/your.name/Documents/R/R_library")`. Press enter to run that.
+4. *Try again.* Run `install.packages('healthcareai')` and `library(healthcareai)` again and all should be well! 
 
 ## How to install the latest version on macOS
 
@@ -96,45 +105,5 @@ library(healthcareai)
 
 You want to help? Woohoo! We welcome that and are willing to help newbies get started.
 
-First, see [here](CONTRIBUTING.md) for instructions on setting up your development environment
+First, see [here](CONTRIBUTING.md) for instructions on setting up your development environment and how to contribute.
 
-After that's done, *here's the contribution workflow:*
-
-1) Identify an issue that suits your skill level [here](https://github.com/HealthCatalystSLC/healthcareai-r/issues)
-   - Only look for issues in the Backlog category
-   - If you're new to open source, please look for issues with the `bug low`, `help wanted`, or `docs` tags
-   - Please reach out with questions on details and where to start
-
-2) Create a topic branch to work in, as described [here](CONTRIBUTING.md#create-a-topic-branch-that-you-can-work-in)
-
-3) To test the new functionality you've created, use a new throw-away file on the Desktop (or somewhere outside the repo), perhaps based on a package example
-
-4) As you make changes
-   - Document any new functions, methods, etc via [roxygen2](http://r-pkgs.had.co.nz/man.html)
-   - Be sure to build often
-     - Note: building checks for errors and allows you to use the latest code
-   - Make small commits after getting a small piece working
-   - Push often so your changes are backed up. See [here](https://gist.github.com/blackfalcon/8428401#push-your-branch) for more
-   
-5) Early on, create a [pull request](https://yangsu.github.io/pull-request-tutorial/) such that Levi and team can discuss the changes that you're making. Conversation is good.
-   
-6) When you're done with the issue you chose, do the following
-   
-   1. Merge the master branch into your topic branch (so that you have the latest changes from master)
-   
-   ```
-   git checkout LeviBugFix
-   git fetch
-   git merge --no-ff origin/master
-   ```
-     - This opens a text editor called [vim](https://github.com/yuanqing/vim-basics/blob/master/README.md), where you type `i`, type your commit message, and [then save](http://stackoverflow.com/a/6098842/5636012)
-   
-   2. Build and fix any errors
-
-   3. Run tests via `devtools::tests()` or CTRL+SHIFT+D and fix any errors
-   
-   4. Run the roxygen2 examples via `devtools::run_examples()` and fix any errors
-
-   5. Under the build tab, run 'Check' and verify that no errors/warnings/notes arise
-      
-   6. Now that your changes are working, communicate that to Levi and team in the pull request, such that he knows to do the code review associated with the PR. Please *don't* do tons of work and *then* start a PR. Early is good.

@@ -299,7 +299,6 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     # p: new SuperviseModelParameters class object,
     # i.e. p = SuperviseModelParameters$new()
     initialize = function(p) {
-      set.seed(43)
       super$initialize(p)
       
       if (!is.null(p$tune)) {

@@ -4,7 +4,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased] - 2017-08-02
+## [1.2.0] - 2017-10-19
+
+### Added
+- *Limone* -- a [lime](https://www.oreilly.com/learning/introduction-to-local-interpretable-model-agnostic-explanations-lime)-like model interpretation tool.
+    - Called via `getProcessVariablesDf`
+    - See examples at the end of the help files for `RandomForestDeployment` and `LassoDeployment` for usage details
+
+## [1.1.0] - 2017-10-11
+
+### Added
+- Deploy now saves information about the model and deployment as an attribute of the output dataframe. This information is written to a log file in the working directory.
+- `skip_on_not_appveyor` will skip a unit test unless it's being run on Appveyor.
+
+### Changed
+- Unit tests involving MSSQL now only run on Appveyor.
+
+### Removed
+- `skip_if_no_mssql` isn't needed as a test utility anymore.
+
+
+## [1.0.0] - 2017-08-02
 
 ### Added
 - Multiclass functionality with XGBoost is supported using `XGBoostDevelopment` and `XGBoostDeployment`. 
@@ -12,7 +32,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `findVariaion` will return groups with the highest variation of a chosen target measure within a data set.
 - `variationAcrossGroups` will plot a boxplot of variation between groups for a chosen target measure.
 
-## Changed
+### Changed
 - `SupervisedModelDevelopment` now saves the model after training
 - `SupervisedModelDeployment` no longer trains models. It only loads the model saved in `SupervisedModelDevelopment`. Predictions are made for all data.
 - `imputeColumn` was replaced with `imputeDF`
@@ -20,7 +40,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - SQL tools are now common functions used outside the algorithms.
 - Model file documentation files now accurately reflect the available methods.
 
-## Removed
+### Removed
 - `testWindowCol` is no longer a param in `SupervisedModelDeployment` or used in the algorithms.
 - `writeToDB` is no longer a param in `SupervisedModelDeployment` or used in the algorithms.
 - `destSchemaTable` is no longer a param in `SupervisedModelDeployment` or used in the algorithms.

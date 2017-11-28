@@ -35,6 +35,8 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   predictedVals = NA,
   modelName = NA,
   clustersOnCores = NA,
+  fitObjFile = NA,
+  modelInfoFile = NA,
 
   ###########
   # Functions
@@ -90,7 +92,7 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
   
   if (!is.null(p$modelName))
   self$params$modelName <- p$modelName
-
+  
   # for deploy method
   if (!is.null(p$cores))
   self$params$cores <- p$cores
@@ -346,24 +348,24 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
     modelName <- ifelse(is.null(self$params$modelName), 
                         "",
                         paste0(self$params$modelName, "_"))
-    fitObjFile <- paste("rmodel_probability_", modelName, 
+    private$fitObjFile <- paste("rmodel_probability_", modelName, 
                         private$algorithmShortName, ".rda", 
                         sep = "")
-    modelInfoFile <- paste("rmodel_info_", modelName, 
+    private$modelInfoFile <- paste("rmodel_info_", modelName, 
                            private$algorithmShortName, ".rda", 
                            sep = "")
     # Try to load the model
     tryCatch({
-      load(modelInfoFile)  # Get model info
+      load(private$modelInfoFile)  # Get model info
       self$modelInfo <- modelInfo
-      load(fitObjFile) # Produces fit object (for probability)
+      load(private$fitObjFile) # Produces fit object (for probability)
       private$fitObj <- fitObj
       
       # Explicitly print when default model name is being used.
       if (is.null(self$params$modelName)) {
         cat("The modelName parameter was not specified. Using defaults:\n",
-            "- ", fitObjFile, "\n",
-            "- ", modelInfoFile, "\n"
+            "- ", private$fitObjFile, "\n",
+            "- ", private$modelInfoFile, "\n"
             , sep = "")
       }
     }, error = function(e) {
@@ -376,17 +378,17 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
                        'Development for details.')
       missingFileFlag <- FALSE
       # Provide name of fitObjFile in error message if file doesn't exist 
-      if (!file.exists(fitObjFile)) {
+      if (!file.exists(private$fitObjFile)) {
         message <- paste0(message,
-                          "\n- Could not find saved model file: ", fitObjFile)
+                          "\n- Could not find saved model file: ", private$fitObjFile)
         missingFileFlag <- TRUE
       }
       # Provide name of modelInfoFile in error message if file doesn't exist 
-      if (!file.exists(modelInfoFile)) {
+      if (!file.exists(private$modelInfoFile)) {
         message <- paste0(message,
                           "\n- Could not find associated saved model info ",
                           "file: ", 
-                          modelInfoFile)
+                          private$modelInfoFile)
         missingFileFlag <- TRUE
       }
       # Provide working directory if either of the two files is missing
@@ -427,6 +429,134 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
                              "to deploy a ", self$params$type, " model.")
       stop(errorMessage)
     }
+  }, 
+  
+  buildProcessVariableDfList = function(modifiableVariableLevels,
+                                        grainColumnValues = NULL, 
+                                        smallerBetter = TRUE) {
+
+    # If no grain column values are specified, use the whole dataframe
+    if (length(grainColumnValues) == 0) {
+      grainColumnValues <- private$grainTest
+    } else {
+      # Check for misspecified grain column values. If any are found, trigger a 
+      # warning
+      nonGrain <- grainColumnValues[!(grainColumnValues %in% private$grainTest)]
+      if (length(nonGrain) > 0) {
+        wrn_mes <- paste0("The following grain column IDs could not be found",
+               " and will be omitted: ", paste(nonGrain, collapse = " "))
+        warning(wrn_mes)
+        grainColumnValues <- intersect(grainColumnValues, private$grainTest)
+      }
+      # Rearrange grain ids to match the rows
+      # TODO: figure out how to avoid re-ordering the grain column values but
+      # still match them up correctly with the dataframe rows
+      grainColumnValues <- private$grainTest[private$grainTest 
+                                             %in% grainColumnValues]
+    }
+
+    # Get rows corresponding to the grain ids
+    dataframe <- self$params$df[private$grainTest %in% grainColumnValues, ]
+    
+    # Build the process variables df list
+    build_process_variable_df_list(dataframe = dataframe,
+                                   modifiable_variable_levels = modifiableVariableLevels,
+                                   grain_column_values = grainColumnValues,
+                                   predict_function = self$performNewPredictions,
+                                   smaller_better = smallerBetter)
+  }, 
+  
+  checkModifiableVariableInput = function(modifiableVariables, 
+                                          modifiableVariableLevels) {
+    # Set modifiableProcessVariables and smallerPredictionsDesired params
+    # Check that either both are present or both are absent.
+    # Also check that the modifiable variables actually exist in the data
+    
+    # If variables are provided in `modifiableVariableLevels` but not 
+    # `modifiableVariables` add them to the latter with a warning
+    if (missing(modifiableVariables)) {
+      modifiableVariables <- names(modifiableVariableLevels)
+      warning("No modifiableVariables provided. Using names of ",
+              "modifiableVariableLevels: ",
+              paste(modifiableVariables, collapse = ", "))
+    } else {
+      omitted <- 
+        names(modifiableVariableLevels)[
+          which(!names(modifiableVariableLevels) %in% modifiableVariables)]
+      if (length(omitted)) {
+        warning(paste(omitted, collapse = ", "), " included in ",
+                "modifiableVariableLevels but not modifiableVariables.",
+                " Added to modifiableVariables.")
+        modifiableVariables <- c(modifiableVariables, omitted)
+      }
+    }
+    
+    # Check that mofiable process variable actually exist in the data
+    extraColumns <- setdiff(modifiableVariables,
+                            names(self$params$df))
+    # Issue a warning if some variables are not found in the data
+    if (length(extraColumns) > 0) {
+      warning("Some of the modifiable process variables specified are not ",
+              "present in the data. Mystery variables: \n",
+              paste(" - ", extraColumns, collapse = "\n"),
+              "\nThese modifiable variables will not be used.")
+      modifiableVariables <- intersect(modifiableVariables, 
+                                       names(self$params$df))
+    }
+    
+    # Check that modifiable process variables make sense for lasso
+    if (private$algorithmName == "Lasso" & length(modifiableVariables) > 0) {
+      # Find modifiable variables with 0 coefficient
+      notModifiable <- setdiff(modifiableVariables, 
+                               self$modelInfo$usedVariables)
+      # If such variables exist, remove them from the list of modifiable
+      # variables and print a warning.
+      if (length(notModifiable) > 0) {
+        warning("The following variables have coefficients of 0 in the lasso ",
+                "model and will not be used as modifiable variables:\n",
+                paste(" - ", notModifiable, "\n"))
+        # Remove modifiable variables that are not used by lasso
+        modifiableVariables <- intersect(modifiableVariables,
+                                         self$modelInfo$usedVariables)
+      }
+    }
+    
+    # Check that the modifiable variables are factors or that levels have been
+    # specified explicitly
+    if (length(modifiableVariables) > 0) {
+      nonFactors <- private$findNonFactors(modifiableVariables)
+      nonFactors <- setdiff(nonFactors, names(modifiableVariableLevels))
+      if (length(nonFactors) > 0) {
+        warning("Modifiable process variables must either be categorical ",
+                "variables or you must explicitly specify the levels. The ", 
+                "following variables are not categorical and will not be ",
+                "used:\n",
+                paste(" - ", nonFactors, collapse = "\n"))
+        modifiableVariables <- setdiff(modifiableVariables, nonFactors)
+      }
+    }
+    
+    # Add factor levels which weren't specified explicitly
+    for (variable in modifiableVariables) {
+      if (!(variable %in% names(modifiableVariableLevels))) {
+        modifiableVariableLevels[[variable]] <- self$modelInfo$factorLevels[[variable]]
+      }
+    }
+    
+    # Subset to only include valid variables
+    modifiableVariableLevels <- modifiableVariableLevels[modifiableVariables]
+    
+    return(modifiableVariableLevels)
+  },
+  
+  # This function takes a vector of column names and returns the names of 
+  # columns which are not factors
+  findNonFactors = function(columns) {
+    if (!is.null(columns)) {
+      return(columns[!unlist(lapply(self$params$df[columns], is.factor))])
+    } else {
+      return(NULL)
+    }
   }
 ),
 
@@ -438,6 +568,8 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
     #parameters
     params = NA,
+    
+    processVariableDfList = NA,
 
     ###########
     # Functions
@@ -455,6 +587,79 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
 
     #Deploy the Model
     deploy = function() {
+    },
+    
+    # Get and write model metadata
+    getMetadata = function() {
+
+      # Initialize list of metadata items
+      metadata <- list()
+      
+      load(private$modelInfoFile)
+      sesInfo <- sessionInfo()
+      
+      # Model name (custom if provided, default otherwise)
+      metadata$model_name <- if (is.null(self$params$modelName)) "default" else self$params$modelName
+       
+      # Model algorithm
+      metadata$algorithm <- private$algorithmShortName
+      
+      # Datetime model last trained
+      metadata$model_last_developed <- file.mtime(private$fitObjFile)
+      
+      # Datetime predictions made
+      metadata$prediction_datetime <- format(Sys.time(), 
+                                             paste("%Y-%m-%d %H:%M:%OS", 3, sep = ""))
+      
+      # R version
+      metadata$r_version <- paste0(sesInfo$R.version$major, ".", sesInfo$R.version$minor)
+      
+      # healthcare.ai version
+      metadata$healthcareai_version <- sesInfo$otherPkgs$healthcareai$Version
+      
+      # Other packages with versions
+      packages <- c(sesInfo$basePkgs, names(sesInfo$otherPkgs))
+      packages <- sapply(packages[packages != "healthcareai"], 
+                         function(pkg) paste(pkg, as.character(packageVersion(pkg))),
+                         USE.NAMES = FALSE)
+      metadata$other_packages_loaded <- packages
+      
+      # Features
+      metadata$feature_columns <- 
+        modelInfo$columnNames[!modelInfo$columnNames %in% 
+                                c(modelInfo$predictedCol, modelInfo$grainCol)]
+      
+      # Assign metadata to an attribute of outDf
+      attr(private$outDf, "metadata") <- metadata
+      
+      # Write metadata to file
+      ## Copy captured session info to desired file name
+      file_name <- paste0("predictionMetadata_",
+                          metadata$model_name, 
+                          "_",
+                          format(Sys.time(), paste("%Y-%m-%d_%H.%M.%OS", 3, sep = "")), 
+                          ".txt")
+      
+      ## Convert metadata list into formatted character vector to write to file
+      to_write <- sapply(names(metadata), function(x) 
+        paste0(x, ":\n\t", paste(metadata[[x]], collapse = ", ")))
+      
+      ## Add PHI warning to top of what will be written to log file
+      to_write <- c("WARNING: This file may contain Protected Health Information. Treat it with care.\n", to_write)
+      
+      ## Write to file
+      write(to_write, file = file_name, append = FALSE)
+      
+      ## Print to screen that file was written and may contain PHI
+      message("Model metadata written to ", file_name,  
+              "\nWARNING: **This file may contain PHI.**")
+      
+      ## Append console output to other metadata
+      write("console_output_during_prediction:\n\t", file_name, append = TRUE)
+      file.append(file_name, "tmp_prediction_console_output.txt")
+      
+      ## Remove sink file
+      invisible(file.remove("tmp_prediction_console_output.txt"))
     },
     
     # A function to get the ordered list of top factors with parameters to 
@@ -485,6 +690,60 @@ SupervisedModelDeployment <- R6Class("SupervisedModelDeployment",
         }
       }
       return(topFactorsDf)
+    },
+    
+    # Build and return a dataframe with recommendations for the modifiable
+    # process varaibles
+    getProcessVariablesDf = function(modifiableVariables,
+                                     variableLevels = NULL,
+                                     grainColumnIDs = NULL,
+                                     smallerBetter = TRUE,
+                                     repeatedFactors = FALSE,
+                                     numTopFactors = 3) {
+      # Keep track of time for debugging.
+      t0 <- proc.time()
+      # Remove modifiable variables which are not valid.
+      variableLevels <- private$checkModifiableVariableInput(modifiableVariables,
+                                                             variableLevels)
+      if (length(variableLevels) == 0) {
+        stop("No valid modifiable variables used.")
+      }
+      
+      # Build the list of dataframes.
+      processVariableDfList <- private$buildProcessVariableDfList(modifiableVariableLevels = variableLevels,
+                                                                  grainColumnValues = grainColumnIDs,
+                                                                  smallerBetter = smallerBetter)
+      
+      # Get name of prediction column in outDf
+      predCol <- ifelse(self$params$type == "classification",
+                        "PredictedProbNBR",
+                        "PredictedValueNBR")
+      
+      # Get grain column and original predictions
+      originalPredictions <- private$outDf[c(self$params$grainCol, predCol)]
+      # Rename grainCol to allow dplyr join (else trouble with "by" argument)
+      names(originalPredictions)[1] <- "df_grain_column"
+            
+      # Join grain column and original prediction to recommendations
+      processDf <- dplyr::inner_join(originalPredictions,
+                                     build_process_variables_df(processVariableDfList,
+                                                                repeatedFactors,
+                                                                numTopFactors),
+                                      by = c("df_grain_column"))
+      
+      # Rename grain column
+      names(processDf)[names(processDf) == "df_grain_column"] <- self$params$grainCol
+      if (self$params$debug) {
+        ellapsedTime <- (proc.time() - t0)[3]
+        message("Modifiable variables computed for ", 
+                nrow(processDf),
+                " rows in ", 
+                ellapsedTime, 
+                " seconds.")
+      }
+      
+      # Return the dataframe
+      processDf
     }
   )
 )

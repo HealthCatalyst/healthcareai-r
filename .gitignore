@@ -26,3 +26,5 @@ inst/extdata/unit-test.sqlite
 # Dropbox tracking files
 *.DS_Store
 .credentials.R
+*.txt
+predictionMetadata*

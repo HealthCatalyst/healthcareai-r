@@ -37,7 +37,9 @@
 #' outcome variable}
 #' \item{Feature Engineering:}
 #' \itemize{
-#' \item \code{\link{convertDateTimeColToDummies}} will convert a date variable
+#' \item \code{\link{convertDateTimeColToDummies}} renamed to 
+#' splitOutDateTimeCols. Leaving shell with warning until the following release.
+#' \item \code{\link{splitOutDateTimeCols}} will convert a date variable
 #' into dummy columns of day, hour, etc. For seasonal pattern modeling.
 #' \item \code{\link{countDaysSinceFirstDate}} shows days since first day in 
 #' input column.

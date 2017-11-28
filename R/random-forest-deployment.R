@@ -5,6 +5,7 @@
 #' \item Load a saved model from \code{\link{RandomForestDevelopment}}
 #' \item Run the model against test data to generate predictions
 #' \item Push these predictions to SQL Server
+#' \item Identify factors that could benefit outcomes (see final examples)
 #' }
 #' @docType class
 #' @usage RandomForestDeployment(type, df, grainCol, predictedCol, impute, debug, cores, modelName)
@@ -17,9 +18,9 @@
 #' much as possible. Number of columns, names, types, grain, and predicted must be the same.
 #' @param grainCol The dataframe's column that has IDs pertaining to the grain
 #' @param predictedCol Column that you want to predict.
-#' @param impute For training df, set all-column imputation to T or F.
-#' If T, this uses values calculated in development.
-#' F leads to removal of rows containing NULLs and is not recommended.
+#' @param impute For training df, set all-column imputation to TRUE or FALSE.
+#' If TRUE, this uses values calculated in development.
+#' FALSE leads to removal of rows containing NULLs and is not recommended.
 #' @param debug Provides the user extended output to the console, in order
 #' @param cores Number of cores you'd like to use.  Defaults to 2.
 #' @param modelName Optional string. Can specify the model name. If used, you must load the same one in the deploy step.
@@ -43,6 +44,26 @@
 #' @section \code{$getOutDf()}:
 #' Returns the output dataframe. \cr
 #' \emph{Usage:} \code{$getOutDf()} 
+#' @section \code{$getProcessVariablesDf()}:
+#' Get a data frame with expected changes in outcomes conditional on process
+#' variable changes. \cr
+#' \emph{Usage:} \code{$getProcessVariablesDf(modifiableVariables, 
+#' variableLevels = NULL, grainColumnValues = NULL, smallerBetter = TRUE, 
+#' repeatedFactors = FALSE, numTopFactors = 3)} \cr
+#' Params: \cr
+#'   - \code{modifiableVariables} A vector of names of modifiable variables.\cr
+#'   - \code{variableLevels} A list of variable values indexed by 
+#'   modifiable variable names. This allows one to use numeric variables by 
+#'   specifying baselines and to restrict categorical variables by limiting 
+#'   which factors can be surfaced.\cr
+#'   - \code{grainColumnIDs} A vector of grain column IDs. If \code{NULL}, the 
+#'   whole deployment dataframe will be used.\cr
+#'   - \code{smallerBetter} A boolean determining whether or not lower 
+#'   predictions/probabilities are more desirable. \cr
+#'   - \code{repeatedFactors} A boolean determining whether or not a single 
+#'   modifiable factor can be listed several times. \cr
+#'   - \code{numTopFactors} The number of modifiable process variables to 
+#'   include in each row.
 #' @export
 #' @seealso \code{\link{healthcareai}}
 #' @seealso \code{\link{writeData}}
@@ -405,6 +426,129 @@
 #'           tableName = 'HCRDeployRegressionBASE')
 #' 
 #' print(proc.time() - ptm)
+#' 
+#' #### Identify factors that could benefit outcomes: getProcessVariablesDf ####
+#' #############################################################################
+#' 
+#' # getProcessVariableDf() identifies opportunities for improved outcomes at
+#' # the grain level. It is important that the variables ("modifiableVariables")
+#' # and values ("variableLevels") used in this function are under the control 
+#' # of the care management process. The best use case for this function is a
+#' # "natural experiment" where otherwise similar groups had different 
+#' # treatments applied to them, and that treatment is the modifiable variable
+#' # of interest.
+#'
+#' # This example shows how to use the getProcessVariableDf() function, using 
+#' # another readmission-prediction model. In this example systolic blood pressure 
+#' # is converted into a categorical variable to demonstrate functionality.
+#' 
+#' csvfile <- system.file("extdata", 
+#'                       "HCRDiabetesClinical.csv", 
+#'                       package = "healthcareai")
+#'
+#' # Replace csvfile with 'path/file'
+#' df <- read.csv(file = csvfile, 
+#'                header = TRUE, 
+#'                na.strings = c("NULL", "NA", ""))
+#' 
+#' df$PatientID <- NULL # Remove extra ID
+#' 
+#' # Convert systolic blood pressure from a numeric variable to a categorical 
+#' # variable with 5 categories: normal, pre-hypertension, stage 1 hypertension,
+#' # stage 2 hypertension, and hypertensive crisis
+#' df$SystolicBP <- ifelse(df$SystolicBPNBR < 140, 
+#'                         ifelse(df$SystolicBPNBR < 120, 
+#'                                "Normal", 
+#'                                "Pre-hypertensive"), 
+#'                         ifelse(df$SystolicBPNBR < 160, 
+#'                                "Stage_1", 
+#'                                ifelse(df$SystolicBP < 180, "Stage_2", "Crisis")))
+#' df$SystolicBPNBR <- NULL
+#' 
+#' # Save a dataframe for validation later on
+#' dfDeploy <- df[951:1000,]
+#' 
+#' ## Develop and Deploy the model
+#' set.seed(42)
+#' p <- SupervisedModelDevelopmentParams$new()
+#' p$df <- df
+#' p$type <- "classification"
+#' p$impute <- TRUE
+#' p$grainCol <- "PatientEncounterID"
+#' p$predictedCol <- "ThirtyDayReadmitFLG"
+#' p$debug <- FALSE
+#' p$cores <- 1
+#' 
+#' RandomForest <- RandomForestDevelopment$new(p)
+#' RandomForest$run()
+#' 
+#' p2 <- SupervisedModelDeploymentParams$new()
+#' p2$type <- "classification"
+#' p2$df <- dfDeploy
+#' p2$grainCol <- "PatientEncounterID"
+#' p2$predictedCol <- "ThirtyDayReadmitFLG"
+#' p2$impute <- TRUE
+#' p2$debug <- FALSE
+#' p2$cores <- 1
+#' 
+#' dL <- RandomForestDeployment$new(p2)
+#' dL$deploy()
+#' 
+#' ## Get predicted outcome changes using getProcessVariablesDf
+#' 
+#' # Categorical variables can simply be listed as modifiableVariables and all
+#' # factors levels will be used for comparison purposes. The dataframe 
+#' # generated from the code below will consider all possible blood pressure
+#' # categories.
+#' dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP"))
+#' 
+#' # By default, the function returns predictions for all rows, but we can 
+#' # restrict to specific rows using the grainColumnIDs parameter
+#' dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP"), 
+#'                          grainColumnIDs = c(954, 965, 996))
+#' 
+#' # The variableLevels parameter can be used to limit which factor levels are
+#' # considered (for categorical variables). The dataframe generated from the 
+#' # code below will only make comparisons with normal BP and pre-hypertensive
+#' dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP"),
+#'                          variableLevels = list(SystolicBP = c("Normal",
+#'                                                               "Pre-hypertensive")))
+#' 
+#' # The variableLevels parameter can also be used to allow predictions for 
+#' # numeric variables, by providing specific target values of the numeric 
+#' # variable to make comparisons to. In the code below, the predictions will be 
+#' # compared to those for an A1C of 5.6
+#' dL$getProcessVariablesDf(modifiableVariables = c("A1CNBR"),
+#'                          variableLevels = list(A1CNBR = c(5.6)))
+#' 
+#' # The repeatedFactors parameter allows one to get multiple predictions  
+#' # for the same variable. For example, reducing A1C to 5.0 might most improve
+#' # a patient's risk, but reducing A1C to 5.5 is likely to also reduce the risk
+#' # and that change might be more impactful than altering the patient's blood
+#' # pressure. When repeatedFactors is TRUE, both those results will
+#' # be included. If repeatedFactors were FALSE, only the most beneficial
+#' # value of A1C would be included.
+#' dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP", "A1CNBR"),
+#'                          variableLevels = list(SystolicBP = c("Normal",
+#'                                                               "Pre-hypertensive"),
+#'                                                A1CNBR = c(5.0, 5.5, 6, 6.5)), 
+#'                          repeatedFactors = TRUE)
+#' 
+#' # The numTopFactors parameter allows one to set the maximum number of 
+#' # predictions to display (with the default being 3)
+#' dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP", "A1CNBR"),
+#'                          variableLevels = list(SystolicBP = c("Normal",
+#'                                                               "Pre-hypertensive"),
+#'                                                A1CNBR = c(5.0, 5.5, 6, 6.5)), 
+#'                          repeatedFactors = TRUE, 
+#'                          numTopFactors = 5)
+#' 
+#' # If greater values of the predicted variable are preferable, setting
+#' # smallerBetter to FALSE will identify the factors that most increase
+#' # the value of the outcome variable. In this case, the deltas will be 
+#' # positive, corresponding to an increased risk
+#' dL$getProcessVariablesDf(modifiableVariables = c("SystolicBP"),
+#'                          smallerBetter = FALSE)
 
 RandomForestDeployment <- R6Class("RandomForestDeployment",
   #Inheritance
@@ -428,23 +572,18 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
     # functions
     # Perform prediction
     performPrediction = function() {
-      if (self$params$type == 'classification') {
-        private$predictions <- caret::predict.train(object = private$fitRF,
-                                                    newdata = self$params$df,
-                                                    type = 'prob')
-        private$predictions <- private$predictions[,2]
-        
-        if (isTRUE(self$params$debug)) {
+      # Calculate predictions
+      private$predictions <- self$performNewPredictions(self$params$df)
+      
+      # Print first few predictions if debug = TRUE
+      if (self$params$debug) {
+        if (self$params$type == "classification") {
           cat('Number of predictions: ', nrow(private$predictions), '\n')
           cat('First 10 raw classification probability predictions', '\n')
           print(round(private$predictions[1:10],2))
-        }
-        
-      } else if (self$params$type == 'regression') {
-        private$predictions <- caret::predict.train(private$fitRF, newdata = self$params$df)
-        
-        if (isTRUE(self$params$debug)) {
-          cat('Rows in regression prediction: ', length(private$predictions), '\n')
+        } else {# type == "regression"
+          cat('Rows in regression prediction: ', 
+              length(private$predictions), '\n')
           cat('First 10 raw regression predictions (with row # first)', '\n')
           print(round(private$predictions[1:10],2))
         }
@@ -512,6 +651,9 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
     #Override: deploy the model
     deploy = function() {
+      
+      # Start sink to capture console ouptut
+      sink("tmp_prediction_console_output.txt", append = FALSE, split = TRUE)
 
       # Try to load the model
       private$fitRF <- private$fitObj
@@ -539,11 +681,29 @@ RandomForestDeployment <- R6Class("RandomForestDeployment",
 
       # create dataframe for output
       super$createDf()
+      
+      sink()  # Close connection
+      # Get metadata, attach to output DF and write to text file
+      super$getMetadata()
+      
     },
     
     # Surface outDf as attribute for export to Oracle, MySQL, etc
     getOutDf = function() {
       return(private$outDf)
+    },
+    
+    # Perform predictions on new data
+    performNewPredictions = function(newData) {
+      if (self$params$type == "classification") {
+        predictions <- caret::predict.train(object = private$fitRF,
+                                            newdata = newData,
+                                            type = 'prob')
+        predictions <- predictions[,2]
+      } else {
+        predictions <- caret::predict.train(private$fitRF, newdata = newData)
+      }
+      return(predictions)
     }
   )
 )
