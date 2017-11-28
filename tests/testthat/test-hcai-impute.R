@@ -1,10 +1,5 @@
 context("Checking recipe step hcai-missing")
 
-library(healthcareai)
-library(tibble)
-library(caret)
-library(recipes)
-
 # Setup ------------------------------------------------------------------------
 # set seed for reproducibility
 set.seed(7)
@@ -24,6 +19,10 @@ d <- tibble(id = 1:n,
 d["is_goomba"] <- ifelse( (d["world"] - 2 * d["level"] - 1) > 0, "Y", "N")
 
 # Add NAs
+inds <- sample(1:n, 70, replace = FALSE)
+d$level[inds] <- NA
+inds <- sample(1:n, 50, replace = FALSE)
+d$world[inds] <- NA
 inds <- sample(1:n, 30, replace = FALSE)
 d$suit[inds] <- NA
 inds <- sample(1:n, 100, replace = FALSE)
@@ -100,4 +99,32 @@ test_that("API takes knnimpute and bagimpute params", {
                 nominal_params = list(bag_options = list(nbagg = 10, 
                   keepX = FALSE)))
   expect_equal(rec_obj_new$steps[[2]]$options$nbagg, 10)
+})
+
+test_that("Default imputation methods bake expected results",{
+  res <- capture_output(d_imputed <- rec_obj %>%
+    hcai_impute() %>%
+    prep(training = d_train) %>%
+    bake(newdata = d_test))
+  expect_equal(d_imputed$level[2], 6.31, tolerance = 2)
+  expect_equal(d_imputed$character[2], "hcai_missing")
+})
+
+test_that("knn imputation bakes expected results",{
+  res <- capture_output(d_imputed <- rec_obj %>%
+                          hcai_impute(numeric_method = "knnimpute",
+                            nominal_method = "knnimpute") %>%
+                          prep(training = d_train) %>%
+                          bake(newdata = d_test))
+  expect_equal(d_imputed$level[2], 6.31, tolerance = 2)
+  expect_equal(d_imputed$character[2], "hcai_missing")
+})
+
+test_that("bag imputation bakes expected results",{
+  res <- capture_output(d_imputed <- rec_obj %>%
+                          hcai_impute() %>%
+                          prep(training = d_train) %>%
+                          bake(newdata = d_test))
+  expect_equal(d_imputed$level[2], 6.31, tolerance = 2)
+  expect_equal(d_imputed$character[2], "hcai_missing")
 })
