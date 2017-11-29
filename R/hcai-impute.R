@@ -53,7 +53,7 @@
 #' data_modified <- bake(trained_recipe, newdata = d)
 #' countMissingData(data_modified)
 #' 
-hcai_impute <- function(rec_obj, 
+hcai_impute <- function(rec_obj,
                         numeric_method = "mean",
                         nominal_method = "new_category",
                         numeric_params = NULL,
@@ -63,17 +63,17 @@ hcai_impute <- function(rec_obj,
     stop("rec_obj must be recipe object"
     )
   }
-  
+
   # If methods dont exist, use defaults
   if (!(numeric_method %in% c("mean", "bagimpute", "knnimpute"))) {
-    stop("non-supported numeric method. Use \"mean\", \"bagimpute\", 
+    stop("non-supported numeric method. Use \"mean\", \"bagimpute\",
          or \"knnimpute\"")
   }
   if (!(nominal_method %in% c("new_category", "bagimpute", "knnimpute"))) {
-    stop("non-supported nominal method. Use \"new_category\", \"bagimpute\", 
+    stop("non-supported nominal method. Use \"new_category\", \"bagimpute\",
          or \"knnimpute\"")
   }
-  
+
   # Assign defaults for params
   defaults <- list(
     bag_model = NULL,
@@ -82,7 +82,7 @@ hcai_impute <- function(rec_obj,
     impute_with = imp_vars(all_predictors()),
     seed_val = sample.int(1000, 1)
   )
-  
+
   # Fill in user-specified params
   num_p <- defaults
   num_p[names(num_p) %in% names(numeric_params)] <- numeric_params
@@ -94,37 +94,37 @@ hcai_impute <- function(rec_obj,
     rec_obj <- step_meanimpute(rec_obj, all_numeric())
   } else if (numeric_method == "bagimpute") {
     rec_obj <- step_bagimpute(
-      rec_obj, 
-      all_numeric(), 
+      rec_obj,
+      all_numeric(),
       models = num_p$bag_model,
       options = num_p$bag_options,
       impute_with = num_p$impute_with,
       seed_val = num_p$seed_val)
   } else if (numeric_method == "knnimpute") {
     rec_obj <- step_knnimpute(
-      rec_obj, 
-      all_numeric(), 
+      rec_obj,
+      all_numeric(),
       K = num_p$knn_K,
       impute_with = num_p$impute_with)
   } else {
     stop("non-supported numeric method")
   }
-  
+
   # Nominals
   if (nominal_method == "new_category") {
     rec_obj <- step_hcai_missing(rec_obj, all_nominal())
   } else if (nominal_method == "bagimpute") {
     rec_obj <- step_bagimpute(
-      rec_obj, 
-      all_nominal(), 
+      rec_obj,
+      all_nominal(),
       models = nom_p$bag_model,
       options = nom_p$bag_options,
       impute_with = nom_p$impute_with,
       seed_val = nom_p$seed_val)
   }  else if (nominal_method == "knnimpute") {
     rec_obj <- step_knnimpute(
-      rec_obj, 
-      all_nominal(), 
+      rec_obj,
+      all_nominal(),
       K = nom_p$knn_K,
       impute_with = nom_p$impute_with)
   } else {

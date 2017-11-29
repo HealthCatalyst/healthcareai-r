@@ -56,7 +56,7 @@ junk <- capture.output(
 )
 
 
-d$koopa = sample(c("Blue", "Red", NA), prob = c(.2, .212, .588), 
+d$koopa <- sample(c("Blue", "Red", NA), prob = c(.2, .212, .588),
                   size = n, replace = TRUE)
 d_train <- d[train_index$Resample1, ]
 
@@ -132,4 +132,3 @@ test_that("Warning is triggered for greater than 50% NA", {
     mes[3],
     "koopa: 61%")
 })
-

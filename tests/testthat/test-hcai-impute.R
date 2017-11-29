@@ -4,29 +4,35 @@ context("Checking recipe step hcai-missing")
 # set seed for reproducibility
 set.seed(7)
 # build hot dog set
-n = 300
+n <- 300
 df <- data.frame(id = 1:n,
                  vendorID = sample(1:9, size = n, replace = T),
                  length = rnorm(n, mean = 7, sd = 2),
-                 diameter = rnorm(n, mean = 2, sd = 0.5), 
+                 diameter = rnorm(n, mean = 2, sd = 0.5),
                  heat = sample(c("Cold", "Hot"), size = n, replace = T),
-                 condiment = sample(c("Ketchup", "Mustard", "Wasabi", "Syrup"), 
+                 condiment = sample(c("Ketchup", "Mustard", "Wasabi", "Syrup"),
                                     size = n, replace = T)
 )
 
 # give hotdog likeliness score
-df['hotDogScore'] <- df['length'] - 2*df['diameter'] - 1
-df$hotDogScore[df['heat'] == "Hot"]  = df$hotDogScore[df['heat'] == "Hot"] + 1
-df$hotDogScore[df['heat'] == "Cold"]  = df$hotDogScore[df['heat'] == "Cold"] - 1
-df$hotDogScore[df['condiment'] == "Ketchup"] <- df$hotDogScore[df['condiment'] == "Ketchup"] + 1
-df$hotDogScore[df['condiment'] == "Mustard"] <- df$hotDogScore[df['condiment'] == "Mustard"] + 2
-df$hotDogScore[df['condiment'] == "Wasabi"] <- df$hotDogScore[df['condiment'] == "Wasabi"] - 1
-df$hotDogScore[df['condiment'] == "Syrup"] <- df$hotDogScore[df['condiment'] == "Syrup"] - 4
+df["hot_dog"] <- df["length"] - 2 * df["diameter"] - 1
+df$hot_dog[df["heat"] == "Hot"]  <-
+  df$hot_dog[df["heat"] == "Hot"] + 1
+df$hot_dog[df["heat"] == "Cold"]  <-
+  df$hot_dog[df["heat"] == "Cold"] - 1
+df$hot_dog[df["condiment"] == "Ketchup"] <-
+  df$hot_dog[df["condiment"] == "Ketchup"] + 1
+df$hot_dog[df["condiment"] == "Mustard"] <-
+  df$hot_dog[df["condiment"] == "Mustard"] + 2
+df$hot_dog[df["condiment"] == "Wasabi"] <-
+  df$hot_dog[df["condiment"] == "Wasabi"] - 1
+df$hot_dog[df["condiment"] == "Syrup"] <-
+  df$hot_dog[df["condiment"] == "Syrup"] - 4
 
 
 # Add noise
-df$hotDogScore <- df$hotDogScore + rnorm(n, mean = 0, sd = 1.25)
-df$hotDogScore <- ifelse(df$hotDogScore > 0, "Y", "N")
+df$hot_dog <- df$hot_dog + rnorm(n, mean = 0, sd = 1.25)
+df$hot_dog <- ifelse(df$hot_dog > 0, "Y", "N")
 
 # Add missing data
 df$condiment[sample(1:n, 32, replace = FALSE)] <- NA
@@ -35,7 +41,7 @@ df$heat[sample(1:n, 125, replace = FALSE)] <- NA
 df$diameter[sample(1:n, 9, replace = FALSE)] <- NA
 
 train_index <- caret::createDataPartition(
-  df$hotDogScore,
+  df$hot_dog,
   p = 0.8,
   times = 1,
   list = TRUE)
@@ -43,12 +49,12 @@ train_index <- caret::createDataPartition(
 d_train <- df[train_index$Resample1, ]
 d_test <- df[-train_index$Resample1, ]
 
-rec_obj <- recipe(hotDogScore ~ ., data = d_train)
+rec_obj <- recipe(hot_dog ~ ., data = d_train)
 
 # Tests ------------------------------------------------------------------------
 test_that("Bad rec_obj throws an error", {
-  expect_error(hcai_impute(), 
-               regexp = 'argument "rec_obj" is missing, with no default')
+  expect_error(hcai_impute(),
+               regexp = "argument \"rec_obj\" is missing, with no default")
   expect_error(hcai_impute(rec_obj = "yeah hi!"),
                regexp = "rec_obj must be recipe object")
 })
@@ -78,7 +84,7 @@ test_that("bag impute called on both types", {
   rec_obj_new <- rec_obj %>%
     hcai_impute(numeric_method = "bagimpute")
   expect_equal(class(rec_obj_new$steps[[1]])[1], "step_bagimpute")
-  
+
   rec_obj_new <- rec_obj %>%
     hcai_impute(nominal_method = "bagimpute")
   expect_equal(class(rec_obj_new$steps[[2]])[1], "step_bagimpute")
@@ -88,7 +94,7 @@ test_that("knnimpute impute called on both types", {
   rec_obj_new <- rec_obj %>%
     hcai_impute(numeric_method = "knnimpute")
   expect_equal(class(rec_obj_new$steps[[1]])[1], "step_knnimpute")
-  
+
   rec_obj_new <- rec_obj %>%
     hcai_impute(nominal_method = "knnimpute")
   expect_equal(class(rec_obj_new$steps[[2]])[1], "step_knnimpute")
@@ -99,15 +105,15 @@ test_that("API takes knnimpute and bagimpute params", {
     hcai_impute(numeric_method = "knnimpute",
                 numeric_params = list(knn_K = 3))
   expect_equal(rec_obj_new$steps[[1]]$K, 3)
-  
+
   rec_obj_new <- rec_obj %>%
     hcai_impute(nominal_method = "bagimpute",
-                nominal_params = list(bag_options = list(nbagg = 10, 
+                nominal_params = list(bag_options = list(nbagg = 10,
                   keepX = FALSE)))
   expect_equal(rec_obj_new$steps[[2]]$options$nbagg, 10)
 })
 
-test_that("Default imputation methods bake expected results",{
+test_that("Default imputation methods bake expected results", {
   res <- capture_output(d_imputed <- rec_obj %>%
     hcai_impute() %>%
     prep(training = d_train) %>%
@@ -116,7 +122,7 @@ test_that("Default imputation methods bake expected results",{
   expect_equal(as.character(d_imputed$heat[3]), "hcai_missing")
 })
 
-test_that("knn imputation bakes expected results",{
+test_that("knn imputation bakes expected results", {
   res <- capture_output(d_imputed <- rec_obj %>%
                           hcai_impute(numeric_method = "knnimpute",
                             nominal_method = "knnimpute") %>%
@@ -126,7 +132,7 @@ test_that("knn imputation bakes expected results",{
   expect_equal(as.character(d_imputed$condiment[3]), "Syrup")
 })
 
-test_that("bag imputation bakes expected results",{
+test_that("bag imputation bakes expected results", {
   res <- capture_output(d_imputed <- rec_obj %>%
                           hcai_impute(numeric_method = "bagimpute",
                             nominal_method = "bagimpute",
@@ -140,37 +146,37 @@ test_that("bag imputation bakes expected results",{
 })
 
 test_that("random columns don't get imputed", {
-  # If a categorical column is completely uncorrelated with other columns, bag 
+  # If a categorical column is completely uncorrelated with other columns, bag
   # impute will not fill in the missing data. This test is mostly just to make
   # sure this function is behaving as it was when it was written.
-  
+
   # add randomly distributed columns with NAs
   df$random_chars <- sample(c("NYC", "Chicago"), n, replace = TRUE)
   df$random_nums <- sample(1:n, n, replace = FALSE)
   df$random_chars[sample(1:n, 55, replace = FALSE)] <- NA
   df$random_nums[sample(1:n, 45, replace = FALSE)] <- NA
-  
+
   d_train <- df[train_index$Resample1, ]
   d_test <- df[-train_index$Resample1, ]
-  
+
   # trees
-  rec_obj <- recipe(hotDogScore ~ ., data = d_train)
+  rec_obj <- recipe(hot_dog ~ ., data = d_train)
   res <- capture_output(d_imputed <- rec_obj %>%
                           hcai_impute(numeric_method = "bagimpute",
                                       nominal_method = "bagimpute",
                                       numeric_params = list(seed_val = 30),
                                       nominal_params = list(seed_val = 30)) %>%
                           prep(training = d_train) %>%
-                          bake(newdata = d_test)) 
-  
+                          bake(newdata = d_test))
+
   expect_true(any(countMissingData(d_imputed) != 0))
-  
+
   # knn
-  rec_obj <- recipe(hotDogScore ~ ., data = d_train)
+  rec_obj <- recipe(hot_dog ~ ., data = d_train)
   res <- capture_output(prepped <- rec_obj %>%
                           hcai_impute(numeric_method = "knnimpute",
                                       nominal_method = "knnimpute") %>%
-                          prep(training = d_train)) 
-  
+                          prep(training = d_train))
+
   expect_error(prepped %>% bake(newdata = d_test))
 })
