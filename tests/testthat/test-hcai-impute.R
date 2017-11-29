@@ -139,10 +139,38 @@ test_that("bag imputation bakes expected results",{
   expect_equal(d_imputed$length[14], 7.797, tolerance = 2)
 })
 
-test_that("failed imputation warns and returns imputed dataframe", {
+test_that("random columns don't get imputed", {
+  # If a categorical column is completely uncorrelated with other columns, bag 
+  # impute will not fill in the missing data. This test is mostly just to make
+  # sure this function is behaving as it was when it was written.
   
+  # add randomly distributed columns with NAs
+  df$random_chars <- sample(c("NYC", "Chicago"), n, replace = TRUE)
+  df$random_nums <- sample(1:n, n, replace = FALSE)
+  df$random_chars[sample(1:n, 55, replace = FALSE)] <- NA
+  df$random_nums[sample(1:n, 45, replace = FALSE)] <- NA
+  
+  d_train <- df[train_index$Resample1, ]
+  d_test <- df[-train_index$Resample1, ]
+  
+  # trees
+  rec_obj <- recipe(hotDogScore ~ ., data = d_train)
+  res <- capture_output(d_imputed <- rec_obj %>%
+                          hcai_impute(numeric_method = "bagimpute",
+                                      nominal_method = "bagimpute",
+                                      numeric_params = list(seed_val = 30),
+                                      nominal_params = list(seed_val = 30)) %>%
+                          prep(training = d_train) %>%
+                          bake(newdata = d_test)) 
+  
+  expect_true(any(countMissingData(d_imputed) != 0))
+  
+  # knn
+  rec_obj <- recipe(hotDogScore ~ ., data = d_train)
+  res <- capture_output(prepped <- rec_obj %>%
+                          hcai_impute(numeric_method = "knnimpute",
+                                      nominal_method = "knnimpute") %>%
+                          prep(training = d_train)) 
+  
+  expect_error(prepped %>% bake(newdata = d_test))
 })
-
-
-
-

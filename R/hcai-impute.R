@@ -1,37 +1,35 @@
 #' @title
-#' Clean NA values from categorical/nominal variables
+#' Specify imputation methods for an existing recipe
 #'
-#' @description `step_hcai_missing` creates a specification of a recipe that 
-#'  will replace NA values `hcai_missing`.
-#' @param recipe A recipe object. The step will be added to the sequence of 
+#' @description `hcai-impute` adds various imputation methods to an existing 
+#' recipe. Currently supports mean (numeric only), new_category (categorical 
+#' only), bagged trees, or knn. 
+#' @param rec_obj A recipe object. imputation will be added to the sequence of 
 #'  operations for this recipe.
-#' @param ... One or more selector functions to choose which variables are 
-#'  affected by the step. See [selections()] for more details.
-#' @param role Not used by this step since no new variables are created.
-#' @param trained A logical to indicate if the number of NA values have been
-#'  counted in preprocessing.
-#' @param na_percentage A named numeric vector of NA percentages. This
-#'  is `NULL` until computed by [prep.recipe()].
+#' @param numeric_method Defaults to \code{"mean"}. Other choices are 
+#' \code{"bagimpute"} or \code{"knnimpute"}. 
+#' @param nominal_method Defaults to \code{"new_category"}. Other choices are 
+#' \code{"bagimpute"} or \code{"knnimpute"}. 
+#' @param numeric_params A named list with parmeters to use with chosen
+#' imputation method on numeric data. Options are \code{bag_model}, 
+#' \code{bag_options}, \code{knn_k}, \code{impute_with}, or \code{seed_val}. 
+#' See \link{step_bagimpute} or \link{step_knnimpute} for details.
+#' @param nominal_params A named list with parmeters to use with chosen
+#' imputation method on nominal data. Options are \code{bag_model}, 
+#' \code{bag_options}, \code{knn_k}, \code{impute_with}, or \code{seed_val}. 
+#' See \link{step_bagimpute} or \link{step_knnimpute} for details.
 #' @return An updated version of `recipe` with the new step
-#'  added to the sequence of existing steps (if any). For the
-#'  `tidy` method, a tibble with columns `terms` (the
-#'  selectors or variables selected) and `value` (the
-#'  NA counts).
+#'  added to the sequence of existing steps.
 #'
 #' @export
 #' @import recipes
-#' @importFrom rlang quos
-#' @details NA values must g `step_scale` estimates
-#'  the variable standard deviations from the data used in the
-#'  `training` argument of `prep.recipe`.
-#'  `bake.recipe` then applies the scaling to new data sets
-#'  using these standard deviations.
+
 #' @examples
 #' library(healthcareai)
-#' library(tibble)
 #' library(recipes)
+#' 
 #' n = 100
-#' d <- tibble(encounter_id = 1:n,
+#' d <- tibble::tibble(encounter_id = 1:n,
 #'             patient_id = sample(1:20, size = n, replace = TRUE),
 #'             hemoglobin_count = rnorm(n, mean = 15, sd = 1),
 #'             hemoglobin_category = sample(c("Low", "Normal", "High", NA), 
@@ -44,7 +42,8 @@
 #' 
 #' # Create recipe
 #' my_recipe <- my_recipe %>%
-#'   step_hcai_missing(all_nominal())
+#'   hcai_impute(numeric_method = "mean",
+#'     nominal_method = "new_category")
 #' my_recipe
 #' 
 #' # Train recipe
@@ -52,6 +51,7 @@
 #' 
 #' # Apply recipe
 #' data_modified <- bake(trained_recipe, newdata = d)
+#' countMissingData(data_modified)
 #' 
 hcai_impute <- function(rec_obj, 
                         numeric_method = "mean",
