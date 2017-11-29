@@ -4,7 +4,7 @@
 \alias{variationAcrossGroups}
 \title{Find variation across groups}
 \usage{
-variationAcrossGroups(df, categoricalCols, measureColumn,
+variationAcrossGroups(df, categoricalCols, measureColumn, plotBoxplot = TRUE,
   plotGroupDifferences = FALSE, returnGroupStats = FALSE, dateCol = NULL,
   levelOfDateGroup = "monthly", sigLevel = 0.05)
 }
@@ -15,6 +15,8 @@ variationAcrossGroups(df, categoricalCols, measureColumn,
 to group by.}
 
 \item{measureColumn}{Character. The name of the numeric variable of interest.}
+
+\item{plotBoxplot}{Logical. Print boxplot with Tukey HSD labels?}
 
 \item{plotGroupDifferences}{Optional. Logical. Plot results of Tukey's HSD
 test: mean differences between groups and confidence intervals for each
