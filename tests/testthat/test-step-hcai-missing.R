@@ -1,16 +1,12 @@
 context("Checking recipe step hcai-missing")
 
-library(healthcareai)
-library(tibble)
-library(caret)
 library(recipes)
-
 # Setup ------------------------------------------------------------------------
 # set seed for reproducibility
 set.seed(7)
 # build dataset
 n <- 300
-d <- tibble(id = 1:n,
+d <- tibble::tibble(id = 1:n,
                  playerID = sample(1:9, size = n, replace = TRUE),
                  level = sample(1:12, size = n, replace = TRUE),
                  world = sample(1:8, size = n, replace = TRUE),
@@ -22,11 +18,10 @@ d <- tibble(id = 1:n,
 
 # target
 d["is_goomba"] <- ifelse( (d["world"] - 2 * d["level"] - 1) > 0, "Y", "N")
-
 # Add NAs
-inds <- sample(1:n, 30, replace = FALSE)
+inds <- sample(n, 30, replace = FALSE)
 d$suit[inds] <- NA
-inds <- sample(1:n, 100, replace = FALSE)
+inds <- sample(n, 100, replace = FALSE)
 d$character[inds] <- NA
 
 train_index <- caret::createDataPartition(
@@ -43,31 +38,25 @@ rec_obj <- recipe(is_goomba ~ ., data = d)
 rec_obj <- rec_obj %>%
   step_hcai_missing(all_nominal())
 
-junk <- capture.output(
+junk <- capture_output(
   rec_obj <- prep(rec_obj, training = d_train)
 )
 
-junk <- capture.output(
+junk <- capture_output(
   out_train <- bake(rec_obj, d_train)
 )
 
-junk <- capture.output(
+junk <- capture_output(
   out_test <- bake(rec_obj, d_test)
 )
 
 
 d$koopa <- sample(c("Blue", "Red", NA), prob = c(.2, .212, .588),
                   size = n, replace = TRUE)
-d_train <- d[train_index$Resample1, ]
+d2_train <- d[train_index$Resample1, ]
 
 rec_obj2 <- recipe(is_goomba ~ ., data = d) %>%
-  step_hcai_missing(matches("koopa"))
-
-mes <- capture.output(
-  junk <- capture.output(
-    junk <- prep(rec_obj2, training = d2_train)
-  ), type = "message"
-)
+  step_hcai_missing(starts_with("koop"))
 
 # Tests ------------------------------------------------------------------------
 test_that("Recipe object is updated with step", {
@@ -77,7 +66,7 @@ test_that("Recipe object is updated with step", {
 test_that("Recipe is prepped correctly", {
   expect_equal(
     rec_obj$steps[[1]]$na_percentage[[1]],
-    33.2)
+    33.195, tolerance = .001)
 
   expect_equal(
     names(rec_obj$steps[[1]]$na_percentage)[1],
@@ -85,7 +74,7 @@ test_that("Recipe is prepped correctly", {
 
   expect_equal(
     rec_obj$steps[[1]]$na_percentage[[2]],
-    8.7)
+    8.714, tolerance = .001)
 
   expect_equal(
     names(rec_obj$steps[[1]]$na_percentage)[2],
@@ -121,14 +110,26 @@ test_that("Recipe is baked correctly on test data", {
 })
 
 test_that("Printer method works correctly within print.recipe()", {
-  res <- capture.output(recipes:::print.recipe(rec_obj))
-  expect_equal(
-    res[13],
-    "Filling NA with hcai_missing for character, suit [trained]")
+  expect_output(
+    print(rec_obj),
+    regexp = "[Filling NA with hcai_missing for character, suit]"
+  )
 })
 
 test_that("Warning is triggered for greater than 50% NA", {
+  expect_message(
+   junk <- capture_output(
+      junk <- prep(rec_obj2, training = d2_train)
+   ),
+  regexp = "[koopa: 61]"
+  )
+})
+
+test_that("tidy method prints correctly", {
+  exp <- tibble::tibble(terms = c("character", "suit"),
+                value = c(33.20, 8.71))
   expect_equal(
-    mes[3],
-    "koopa: 61%")
+    exp,
+    broom::tidy(rec_obj$steps[[1]])
+  )
 })
