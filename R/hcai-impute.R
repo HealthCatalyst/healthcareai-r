@@ -105,8 +105,7 @@ hcai_impute <- function(rec_obj,
       rec_obj, 
       all_numeric(), 
       K = num_p$knn_K,
-      impute_with = num_p$impute_with,
-      seed_val = num_p$seed_val)
+      impute_with = num_p$impute_with)
   } else {
     stop("non-supported numeric method")
   }
@@ -127,8 +126,7 @@ hcai_impute <- function(rec_obj,
       rec_obj, 
       all_nominal(), 
       K = nom_p$knn_K,
-      impute_with = nom_p$impute_with,
-      seed_val = nom_p$seed_val)
+      impute_with = nom_p$impute_with)
   } else {
     stop("non-supported nominal method")
   }

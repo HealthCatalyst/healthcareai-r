@@ -3,41 +3,47 @@ context("Checking recipe step hcai-missing")
 # Setup ------------------------------------------------------------------------
 # set seed for reproducibility
 set.seed(7)
-# build dataset
-n <- 300
-d <- tibble(id = 1:n,
-                 playerID = sample(1:9, size = n, replace = TRUE),
-                 level = sample(1:12, size = n, replace = TRUE),
-                 world = sample(1:8, size = n, replace = TRUE),
-                 character = sample(c("Mario", "Luigi"), size = n,
-                                    replace = TRUE),
-                 suit = sample(c("Fire Flower", "Raccoon", "Frog", "P Wing"),
-                                    size = n, replace = TRUE)
-                 )
+# build hot dog set
+n = 300
+df <- data.frame(id = 1:n,
+                 vendorID = sample(1:9, size = n, replace = T),
+                 length = rnorm(n, mean = 7, sd = 2),
+                 diameter = rnorm(n, mean = 2, sd = 0.5), 
+                 heat = sample(c("Cold", "Hot"), size = n, replace = T),
+                 condiment = sample(c("Ketchup", "Mustard", "Wasabi", "Syrup"), 
+                                    size = n, replace = T)
+)
 
-# target
-d["is_goomba"] <- ifelse( (d["world"] - 2 * d["level"] - 1) > 0, "Y", "N")
+# give hotdog likeliness score
+df['hotDogScore'] <- df['length'] - 2*df['diameter'] - 1
+df$hotDogScore[df['heat'] == "Hot"]  = df$hotDogScore[df['heat'] == "Hot"] + 1
+df$hotDogScore[df['heat'] == "Cold"]  = df$hotDogScore[df['heat'] == "Cold"] - 1
+df$hotDogScore[df['condiment'] == "Ketchup"] <- df$hotDogScore[df['condiment'] == "Ketchup"] + 1
+df$hotDogScore[df['condiment'] == "Mustard"] <- df$hotDogScore[df['condiment'] == "Mustard"] + 2
+df$hotDogScore[df['condiment'] == "Wasabi"] <- df$hotDogScore[df['condiment'] == "Wasabi"] - 1
+df$hotDogScore[df['condiment'] == "Syrup"] <- df$hotDogScore[df['condiment'] == "Syrup"] - 4
 
-# Add NAs
-inds <- sample(1:n, 70, replace = FALSE)
-d$level[inds] <- NA
-inds <- sample(1:n, 50, replace = FALSE)
-d$world[inds] <- NA
-inds <- sample(1:n, 30, replace = FALSE)
-d$suit[inds] <- NA
-inds <- sample(1:n, 100, replace = FALSE)
-d$character[inds] <- NA
+
+# Add noise
+df$hotDogScore <- df$hotDogScore + rnorm(n, mean = 0, sd = 1.25)
+df$hotDogScore <- ifelse(df$hotDogScore > 0, "Y", "N")
+
+# Add missing data
+df$condiment[sample(1:n, 32, replace = FALSE)] <- NA
+df$length[sample(1:n, 51, replace = FALSE)] <- NA
+df$heat[sample(1:n, 125, replace = FALSE)] <- NA
+df$diameter[sample(1:n, 9, replace = FALSE)] <- NA
 
 train_index <- caret::createDataPartition(
-  d$is_goomba,
+  df$hotDogScore,
   p = 0.8,
   times = 1,
   list = TRUE)
 
-d_train <- d[train_index$Resample1, ]
-d_test <- d[-train_index$Resample1, ]
+d_train <- df[train_index$Resample1, ]
+d_test <- df[-train_index$Resample1, ]
 
-rec_obj <- recipe(is_goomba ~ ., data = d)
+rec_obj <- recipe(hotDogScore ~ ., data = d_train)
 
 # Tests ------------------------------------------------------------------------
 test_that("Bad rec_obj throws an error", {
@@ -106,8 +112,8 @@ test_that("Default imputation methods bake expected results",{
     hcai_impute() %>%
     prep(training = d_train) %>%
     bake(newdata = d_test))
-  expect_equal(d_imputed$level[2], 6.31, tolerance = 2)
-  expect_equal(d_imputed$character[2], "hcai_missing")
+  expect_equal(d_imputed$length[13], 6.87, tolerance = 2)
+  expect_equal(as.character(d_imputed$heat[3]), "hcai_missing")
 })
 
 test_that("knn imputation bakes expected results",{
@@ -116,15 +122,27 @@ test_that("knn imputation bakes expected results",{
                             nominal_method = "knnimpute") %>%
                           prep(training = d_train) %>%
                           bake(newdata = d_test))
-  expect_equal(d_imputed$level[2], 6.31, tolerance = 2)
-  expect_equal(d_imputed$character[2], "hcai_missing")
+  expect_equal(d_imputed$diameter[18], 2.16, tolerance = 2)
+  expect_equal(as.character(d_imputed$condiment[3]), "Syrup")
 })
 
 test_that("bag imputation bakes expected results",{
   res <- capture_output(d_imputed <- rec_obj %>%
-                          hcai_impute() %>%
+                          hcai_impute(numeric_method = "bagimpute",
+                            nominal_method = "bagimpute",
+                            numeric_params = list(seed_val = 30),
+                            nominal_params = list(seed_val = 30)) %>%
                           prep(training = d_train) %>%
                           bake(newdata = d_test))
-  expect_equal(d_imputed$level[2], 6.31, tolerance = 2)
-  expect_equal(d_imputed$character[2], "hcai_missing")
+  expect_equal(as.character(d_imputed$heat[8]), "Cold")
+  expect_equal(as.character(d_imputed$condiment[8]), "Mustard")
+  expect_equal(d_imputed$length[14], 7.797, tolerance = 2)
 })
+
+test_that("failed imputation warns and returns imputed dataframe", {
+  
+})
+
+
+
+
