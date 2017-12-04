@@ -127,7 +127,23 @@ pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
               rlang::get_expr(grain), " and ", rlang::get_expr(spread),
               " but you didn't provide a function for their aggregation. ",
               "Proceeding with the default: fun = sum.")
-    d <- aggregate_rows(d, grain, spread, fill, fun)
+    # Define "safe" version of aggregate_rows for error handling
+    ar <- purrr::safely(aggregate_rows)
+    d <- ar(d, grain, spread, fill, fun)
+    # If aggregate_rows errored, print informative message for 1 common error
+    if (is.null(d$error)) {
+      d <- d$result
+    } else {
+      err <- d$error
+      if (grepl("must be length 1", d)) {
+        stop("Aggregating with fun didn't produce a single value for each",
+             " combination of grain x spread. Make sure fun is an aggregating",
+             " function.")
+      } else {
+        stop(err)
+      }
+
+    }
   } else {
     # If user provided a fun, message that it won't be used
     if (!missing(fun))
@@ -149,7 +165,6 @@ aggregate_rows <- function(d, grain, spread, fill, fun) {
     dplyr::group_by(!!grain, !!spread) %>%
     dplyr::summarize(!!rlang::quo_name(fill) := fun(!!fill)) %>%
     dplyr::ungroup()
-
   return(d)
 }
 
