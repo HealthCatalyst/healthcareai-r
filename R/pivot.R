@@ -128,6 +128,11 @@ pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
               " but you didn't provide a function for their aggregation. ",
               "Proceeding with the default: fun = sum.")
     d <- aggregate_rows(d, grain, spread, fill, fun)
+  } else {
+    # If user provided a fun, message that it won't be used
+    if (!missing(fun))
+      message("You provided a function to fun, but there aren't any rows
+              that need to be aggregated, so it will be ignored.")
   }
 
   out <- pivot_maker(d, grain, spread, fill, missing_fill)
