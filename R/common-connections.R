@@ -32,6 +32,7 @@ addSAMUtilityCols <- function(df) {
 #' database file to query from
 #' @param randomize Boolean that dictates whether returned rows are randomized
 #' @return df A data frame containing the selected rows
+#' @import methods
 #' @export
 #' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}

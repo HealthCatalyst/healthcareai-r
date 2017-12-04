@@ -488,7 +488,10 @@ getPipedValue <- function(string) {
 #'   This function always induces the side effect of printing a boxplot to
 #'   compare variation across groups. If plotGroupDifferences is TRUE, also
 #'   plots a mean differences and confidence intervals between groups.
-#'   
+#'
+#' @importFrom grDevices dev.off   
+#' @importFrom grDevices png
+#' @importFrom stats na.omit
 #' @export
 #' 
 #' @references \url{http://healthcare.ai}
