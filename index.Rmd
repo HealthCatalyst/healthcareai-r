@@ -45,4 +45,3 @@ cl$run()
 ```{r plot}
 cl$get2DClustersPlot()
 ```
-
