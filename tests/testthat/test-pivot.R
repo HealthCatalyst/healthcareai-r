@@ -70,6 +70,48 @@ test_that("pivot returns expected data frame with custom function", {
   )
 })
 
+# Test do_aggregate ------------------------------------------------------------
+test_that("do_aggregate produces messages appropriately", {
+  expect_message(
+    do_aggregate(d = dd,
+                 grain = rlang::quo(person),
+                 spread = rlang::quo(day),
+                 fill = rlang::quo(count),
+                 fun = sum,
+                 default_fun = TRUE),
+    regexp = "didn't provide a function"
+  )
+  expect_message(
+    do_aggregate(d = dd,
+                 grain = rlang::quo(person),
+                 spread = rlang::quo(day),
+                 fill = rlang::quo(count),
+                 fun = sum,
+                 default_fun = FALSE),
+    regexp = NA
+  )
+  expect_message(
+    do_aggregate(d = dd[1:2, ],
+                 grain = rlang::quo(person),
+                 spread = rlang::quo(day),
+                 fill = rlang::quo(count),
+                 fun = sum,
+                 default_fun = FALSE),
+    regexp = "You provided")
+})
+
+test_that("do_aggregate produces informative error if aggregation failed", {
+  expect_error(
+    do_aggregate(d = dd,
+                 grain = rlang::quo(person),
+                 spread = rlang::quo(day),
+                 fill = rlang::quo(count),
+                 fun = function(x) x - 1,
+                 default_fun = FALSE),
+    regexp = "Aggregation"
+  )
+})
+
 # Test aggregate_rows ----------------------------------------------------------
 agg_dd <- aggregate_rows(d = dd,
                          grain = rlang::quo(person),
