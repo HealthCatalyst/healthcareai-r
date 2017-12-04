@@ -1,4 +1,4 @@
-#' Make a long data frame wide, possibly aggregating rows in the process
+#' Pivot from a long data frame to a wide data frame
 #'
 #' @param d data frame
 #' @param grain Column that defines rows. Unquoted.
@@ -6,7 +6,7 @@
 #' @param fill Column to be used to fill the values of cells in the output,
 #' perhaps after aggregation by \code{fun}. If \code{fill} is not provided,
 #' counts will be used, as though a fill column of 1s had been provided.
-#' @param fun Function for aggreation, defaults to \code{sum}. Custom functions
+#' @param fun Function for aggregation, defaults to \code{sum}. Custom functions
 #' can be used with the same syntax as the apply family of functions, e.g.
 #' \code{fun = function(x) some_function(another_fun(x))}.
 #' @param missing_fill Value to fill for combinations of grain and spread that
@@ -20,6 +20,18 @@
 #' \code{grain} x \code{spread} that are not present in \code{d} will be filled
 #' in with \code{missing_fill}. If there are \code{grain} x \code{spread} pairs
 #' that appear more than once in d, they will be aggregated by \code{fun}.
+#'
+#' @details \code{pivot} is useful when you want to change the grain of your
+#' data, for example from the procedure grain to the patient grain. In that
+#' example, each patient might have 0, 1, or more medications. To make a
+#' patient-level table, we need a column for each medication, which is what
+#' it means to make a wide table. The \code{fill} argument dictates what to
+#' put in each of the medication columns, e.g. the dose the patient got.
+#' \code{fill} defaults to "1", as an indicator variable. If any patients have
+#' multiple rows for the same medication (say they recieved a med more than
+#' once), we need a way to deal with that, which is what the \code{fun} argument
+#' handles. By default it uses \code{sum}, so if \code{fill} is left as its
+#' default, the count of instances for each patient will be used.
 #'
 #' @importFrom rlang :=
 #' @export
@@ -115,7 +127,7 @@ pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
       message("There are rows that contain the same values of both ",
               rlang::get_expr(grain), " and ", rlang::get_expr(spread),
               " but you didn't provide a function for their aggregation. ",
-              "Proceding with the default: fun = sum.")
+              "Proceeding with the default: fun = sum.")
     d <- aggregate_rows(d, grain, spread, fill, fun)
   }
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/pivot.R
 \name{pivot}
 \alias{pivot}
-\title{Make a long data frame wide, possibly aggregating rows in the process}
+\title{Pivot from a long data frame to a wide data frame}
 \usage{
 pivot(d, grain, spread, fill, fun = sum, missing_fill = NA)
 }
@@ -17,7 +17,7 @@ pivot(d, grain, spread, fill, fun = sum, missing_fill = NA)
 perhaps after aggregation by \code{fun}. If \code{fill} is not provided,
 counts will be used, as though a fill column of 1s had been provided.}
 
-\item{fun}{Function for aggreation, defaults to \code{sum}. Custom functions
+\item{fun}{Function for aggregation, defaults to \code{sum}. Custom functions
 can be used with the same syntax as the apply family of functions, e.g.
 \code{fun = function(x) some_function(another_fun(x))}.}
 
@@ -35,7 +35,20 @@ in with \code{missing_fill}. If there are \code{grain} x \code{spread} pairs
 that appear more than once in d, they will be aggregated by \code{fun}.
 }
 \description{
-Make a long data frame wide, possibly aggregating rows in the process
+Pivot from a long data frame to a wide data frame
+}
+\details{
+\code{pivot} is useful when you want to change the grain of your
+data, for example from the procedure grain to the patient grain. In that
+example, each patient might have 0, 1, or more medications. To make a
+patient-level table, we need a column for each medication, which is what
+it means to make a wide table. The \code{fill} argument dictates what to
+put in each of the medication columns, e.g. the dose the patient got.
+\code{fill} defaults to "1", as an indicator variable. If any patients have
+multiple rows for the same medication (say they recieved a med more than
+once), we need a way to deal with that, which is what the \code{fun} argument
+handles. By default it uses \code{sum}, so if \code{fill} is left as its
+default, the count of instances for each patient will be used.
 }
 \examples{
 meds <-
