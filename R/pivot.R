@@ -102,15 +102,14 @@ pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
   cols <- sapply(c(grain, spread, fill), rlang::quo_name)
   present <- cols %in% names(d)
   if (any(!present))
-    stop(paste(cols[!present], collapse = ", "),
-         " not found in ", match.call()$d)
+    stop(paste(cols[!present], collapse = ", "), " not found in d.")
 
   # Make sure there's no missingness in grain or spread
   missing_check(d, grain)
   missing_check(d, spread)
 
   # Make sure fun is a function
-  if (!is.function(fun)) stop(match.call()$fun, "isn't a function")
+  if (!is.function(fun)) stop("fun isn't a function")
 
   # Convert grouping variables to factors
   d <-
