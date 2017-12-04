@@ -89,6 +89,8 @@ pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
   grain <- rlang::enquo(grain)
   spread <- rlang::enquo(spread)
   fill <- rlang::enquo(fill)
+  # Check if the user provided a function for warning later
+  default_fun <- is.null(match.call()$fun)
 
   # If fill wasn't provided, create and use a column with all 1s, with message
   if (rlang::quo_is_missing(fill)) {
@@ -117,43 +119,53 @@ pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
     dplyr::mutate(!!rlang::quo_name(grain) := as.factor(!!grain),
                   !!rlang::quo_name(spread) := as.factor(!!spread))
 
+  d <- do_aggregate(d, grain, spread, fill, fun, default_fun)
+
+  out <- pivot_maker(d, grain, spread, fill, missing_fill)
+
+  return(out)
+}
+
+do_aggregate <- function(d, grain, spread, fill, fun, default_fun) {
   # Check if there are any grain-spread pairs that have more than one entry...
   need_aggregate <- any(duplicated(dplyr::select(d, !!grain, !!spread)))
-  # ... If there are, aggregate rows
-  if (need_aggregate) {
-    # Test if the user provided a 'fun'. If not warn that we'll use sum
-    if (is.null(match.call()$fun))
+
+  # Aggregation not needed. Return d, with a message if fun was provided
+  if (!need_aggregate) {
+    if (!default_fun) {
+      message("You provided a function to 'fun', but there aren't any rows
+              that need to be aggregated, so it will be ignored.")
+    }
+    return(d)
+  }
+
+  # Aggregation is needed
+    # If the user didn't provide fun, warn that we'll use sum
+    if (default_fun) {
       message("There are rows that contain the same values of both ",
               rlang::get_expr(grain), " and ", rlang::get_expr(spread),
-              " but you didn't provide a function for their aggregation. ",
-              "Proceeding with the default: fun = sum.")
-    # Define "safe" version of aggregate_rows for error handling
+              " but you didn't provide a function to 'fun' for their ",
+              "aggregation. Proceeding with the default: fun = sum.")
+    }
+
+  # Define "safe" version of aggregate_rows for error handling
     ar <- purrr::safely(aggregate_rows)
     d <- ar(d, grain, spread, fill, fun)
-    # If aggregate_rows errored, print informative message for 1 common error
+    # If aggregate_rows didn't error, return result
     if (is.null(d$error)) {
-      d <- d$result
+      return(d$result)
+      # Otherwise print informative message if aggregation failed
     } else {
-      err <- d$error
-      if (grepl("must be length 1", d)) {
-        stop("Aggregating with fun didn't produce a single value for each",
-             " combination of grain x spread. Make sure fun is an aggregating",
+      err <- d$error[[1]]
+      if (grepl("must be length 1", err)) {
+        stop("Aggregation with 'fun' produced more than one value for some",
+             " grain-by-spread combinations. Make sure fun is an aggregating",
              " function.")
       } else {
         stop(err)
       }
 
     }
-  } else {
-    # If user provided a fun, message that it won't be used
-    if (!missing(fun))
-      message("You provided a function to fun, but there aren't any rows
-              that need to be aggregated, so it will be ignored.")
-  }
-
-  out <- pivot_maker(d, grain, spread, fill, missing_fill)
-
-  return(out)
 }
 
 #' Aggregate rows
