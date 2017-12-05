@@ -8,10 +8,10 @@ step_hcai_missing(recipe, ..., role = NA, trained = FALSE,
   na_percentage = NULL)
 }
 \arguments{
-\item{recipe}{A recipe object. The step will be added to the sequence of 
+\item{recipe}{A recipe object. The step will be added to the sequence of
 operations for this recipe.}
 
-\item{...}{One or more selector functions to choose which variables are 
+\item{...}{One or more selector functions to choose which variables are
 affected by the step. See \code{?recipes::selections()} for more details.}
 
 \item{role}{Not used by this step since no new variables are created.}
@@ -30,11 +30,11 @@ An updated version of \code{recipe} with the new step
  NA counts).
 }
 \description{
-\code{step_hcai_missing} creates a specification of a recipe that 
+\code{step_hcai_missing} creates a specification of a recipe that
  will replace NA values with a new factor level, \code{hcai_missing}.
 }
 \details{
-NA values are counted when the recipe is trained using 
+NA values are counted when the recipe is trained using
 \code{prep.recipe}. \code{bake.recipe} then fills in the missing values for
 the new data.
 }
@@ -46,7 +46,7 @@ n = 100
 d <- tibble(encounter_id = 1:n,
             patient_id = sample(1:20, size = n, replace = TRUE),
             hemoglobin_count = rnorm(n, mean = 15, sd = 1),
-            hemoglobin_category = sample(c("Low", "Normal", "High", NA), 
+            hemoglobin_category = sample(c("Low", "Normal", "High", NA),
                                          size = n, replace = TRUE),
             disease = ifelse(hemoglobin_count < 15, "Yes", "No")
 )
