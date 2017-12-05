@@ -30,6 +30,7 @@ Imports:
     lme4,
     odbc,
     pROC,
+    purrr,
     R6,
     ranger,
     readr,
