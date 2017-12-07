@@ -62,7 +62,8 @@ missingness <- function(d,
 #' @description DEPRICATED. Use \code{\link{missingness}} instead.
 #' @param x A data frame or matrix
 #' @param userNAs A vector of user defined NA values.
-countMissingData <- function(x, userNAs = NULL) {
+#' @export
+countMissingData <- function(x, userNAs = NULL) {  # nolint
 
   .Deprecated("missingness", "healthcareai")
   missingness(x)
