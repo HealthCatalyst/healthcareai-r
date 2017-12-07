@@ -169,7 +169,7 @@ test_that("random columns don't get imputed", {
                           prep(training = d_train) %>%
                           bake(newdata = d_test))
 
-  expect_true(any(countMissingData(d_imputed) != 0))
+  expect_true(any(missingness(d_imputed, return_df = FALSE) != 0))
 
   # knn
   rec_obj <- recipe(hot_dog ~ ., data = d_train)
