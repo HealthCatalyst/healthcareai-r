@@ -5,7 +5,7 @@
 \title{Percent of entries in each column that are missing}
 \usage{
 missingness(d, return_df = TRUE, to_search = c("NA", "NAs", "na", "NaN",
-  "99", "999", "9999", "?", "??", "nil", "NULL", " ", ""))
+  "?", "??", "nil", "NULL", " ", ""))
 }
 \arguments{
 \item{d}{A data frame or matrix}
