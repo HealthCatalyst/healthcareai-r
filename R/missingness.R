@@ -16,8 +16,8 @@
 #' missingness(d)
 missingness <- function(d,
                         return_df = TRUE,
-                        to_search = c("NA", "NAs", "na", "NaN", "99", "999",
-                                      "9999", "?", "??", "nil", "NULL", " ", "")
+                        to_search = c("NA", "NAs", "na", "NaN",
+                                      "?", "??", "nil", "NULL", " ", "")
                         ) {
   if (is.matrix(d) | (is.vector(d) && !is.list(d)))
     d <- as.data.frame(d)
