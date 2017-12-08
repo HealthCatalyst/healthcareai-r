@@ -33,3 +33,4 @@ test_that("violations are correctly identified",{
   
   expect_equal(res, expected, tolerance = 1e-6)
 })
+

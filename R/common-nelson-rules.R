@@ -130,8 +130,6 @@ nelsonRule1 <- function(df, measure_col, date_col, plot_flg = TRUE) {
 #'nelsonRule2(d, 'measureValue', 'date')
 
 nelsonRule2 <- function(df, measure_col, date_col, plot_flg = TRUE) {
-  library(ggplot2)
-  
   # Check to make sure that df is a dataframe
   if (!(is.data.frame(df))) {
     stop('df must be a dataframe.')
