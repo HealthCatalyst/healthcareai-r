@@ -51,7 +51,7 @@ junk <- capture_output(
 )
 
 
-d$koopa = sample(c("Blue", "Red", NA), prob = c(.2, .212, .588), 
+d$koopa <- sample(c("Blue", "Red", NA), prob = c(.2, .212, .588),
                   size = n, replace = TRUE)
 d2_train <- d[train_index$Resample1, ]
 

@@ -1,11 +1,11 @@
 #' @title
 #' Clean NA values from categorical/nominal variables
 #'
-#' @description \code{step_hcai_missing} creates a specification of a recipe that 
+#' @description \code{step_hcai_missing} creates a specification of a recipe that
 #'  will replace NA values with a new factor level, \code{hcai_missing}.
-#' @param recipe A recipe object. The step will be added to the sequence of 
+#' @param recipe A recipe object. The step will be added to the sequence of
 #'  operations for this recipe.
-#' @param ... One or more selector functions to choose which variables are 
+#' @param ... One or more selector functions to choose which variables are
 #'  affected by the step. See \code{?recipes::selections()} for more details.
 #' @param role Not used by this step since no new variables are created.
 #' @param trained A logical to indicate if the number of NA values have been
@@ -21,7 +21,7 @@
 #' @export
 #' @import recipes
 #' @importFrom rlang quos
-#' @details NA values are counted when the recipe is trained using 
+#' @details NA values are counted when the recipe is trained using
 #' \code{prep.recipe}. \code{bake.recipe} then fills in the missing values for
 #' the new data.
 #' @examples
@@ -32,25 +32,25 @@
 #' d <- tibble(encounter_id = 1:n,
 #'             patient_id = sample(1:20, size = n, replace = TRUE),
 #'             hemoglobin_count = rnorm(n, mean = 15, sd = 1),
-#'             hemoglobin_category = sample(c("Low", "Normal", "High", NA), 
+#'             hemoglobin_category = sample(c("Low", "Normal", "High", NA),
 #'                                          size = n, replace = TRUE),
 #'             disease = ifelse(hemoglobin_count < 15, "Yes", "No")
 #' )
-#' 
+#'
 #' # Initialize
 #' my_recipe <- recipe(disease ~ ., data = d)
-#' 
+#'
 #' # Create recipe
 #' my_recipe <- my_recipe %>%
 #'   step_hcai_missing(all_nominal())
 #' my_recipe
-#' 
+#'
 #' # Train recipe
 #' trained_recipe <- prep(my_recipe, training = d)
-#' 
+#'
 #' # Apply recipe
 #' data_modified <- bake(trained_recipe, newdata = d)
-#' 
+#'
 step_hcai_missing <- function(recipe,
                               ...,
                               role = NA,
@@ -94,14 +94,14 @@ prep.step_hcai_missing <- function(x, training, info = NULL, ...) {
 
   # Give warnings about greater than 50% null
   if (any(na_percentage > 50)) {
-  message("The following categorical columns have greater than 50% missing values 
-and will be filled with the category 'hcai_missing':")
-  message(paste0(names(na_percentage[na_percentage > 50]),
-                 ": ", 
-                 round(na_percentage[na_percentage > 50], 2), "%",
-                 collapse = "\n"))
+    message("The following categorical columns have greater than 50% missing values
+            and will be filled with the category 'hcai_missing':")
+    message(paste0(names(na_percentage[na_percentage > 50]),
+                   ": ",
+                   round(na_percentage[na_percentage > 50], 2), "%",
+                   collapse = "\n"))
   }
-  
+
   step_hcai_missing_new(
     terms = x$terms,
     role = x$role,
