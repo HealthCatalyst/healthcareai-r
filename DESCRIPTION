@@ -29,6 +29,7 @@ Imports:
     grpreg,
     lme4,
     odbc,
+    purrr,
     pROC,
     R6,
     ranger,

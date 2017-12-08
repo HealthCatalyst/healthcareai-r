@@ -9,23 +9,23 @@ hcai_impute(rec_obj, numeric_method = "mean",
   nominal_params = NULL)
 }
 \arguments{
-\item{rec_obj}{A recipe object. imputation will be added to the sequence of 
+\item{rec_obj}{A recipe object. imputation will be added to the sequence of
 operations for this recipe.}
 
-\item{numeric_method}{Defaults to \code{"mean"}. Other choices are 
+\item{numeric_method}{Defaults to \code{"mean"}. Other choices are
 \code{"bagimpute"} or \code{"knnimpute"}.}
 
-\item{nominal_method}{Defaults to \code{"new_category"}. Other choices are 
+\item{nominal_method}{Defaults to \code{"new_category"}. Other choices are
 \code{"bagimpute"} or \code{"knnimpute"}.}
 
 \item{numeric_params}{A named list with parmeters to use with chosen
-imputation method on numeric data. Options are \code{bag_model}, 
-\code{bag_options}, \code{knn_k}, \code{impute_with}, or \code{seed_val}. 
+imputation method on numeric data. Options are \code{bag_model},
+\code{bag_options}, \code{knn_k}, \code{impute_with}, or \code{seed_val}.
 See \link{step_bagimpute} or \link{step_knnimpute} for details.}
 
 \item{nominal_params}{A named list with parmeters to use with chosen
-imputation method on nominal data. Options are \code{bag_model}, 
-\code{bag_options}, \code{knn_k}, \code{impute_with}, or \code{seed_val}. 
+imputation method on nominal data. Options are \code{bag_model},
+\code{bag_options}, \code{knn_k}, \code{impute_with}, or \code{seed_val}.
 See \link{step_bagimpute} or \link{step_knnimpute} for details.}
 }
 \value{
@@ -33,8 +33,8 @@ An updated version of `recipe` with the new step
  added to the sequence of existing steps.
 }
 \description{
-`hcai-impute` adds various imputation methods to an existing 
-recipe. Currently supports mean (numeric only), new_category (categorical 
+`hcai-impute` adds various imputation methods to an existing
+recipe. Currently supports mean (numeric only), new_category (categorical
 only), bagged trees, or knn.
 }
 \examples{
@@ -45,7 +45,7 @@ n = 100
 d <- tibble::tibble(encounter_id = 1:n,
             patient_id = sample(1:20, size = n, replace = TRUE),
             hemoglobin_count = rnorm(n, mean = 15, sd = 1),
-            hemoglobin_category = sample(c("Low", "Normal", "High", NA), 
+            hemoglobin_category = sample(c("Low", "Normal", "High", NA),
                                          size = n, replace = TRUE),
             disease = ifelse(hemoglobin_count < 15, "Yes", "No")
 )
@@ -64,6 +64,5 @@ trained_recipe <- prep(my_recipe, training = d)
 
 # Apply recipe
 data_modified <- bake(trained_recipe, newdata = d)
-countMissingData(data_modified)
-
+missingness(data_modified)
 }
