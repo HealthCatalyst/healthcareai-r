@@ -52,6 +52,9 @@ into dummy columns of day, hour, etc. For seasonal pattern modeling.
 input column.
 \item \code{\link{groupedLOCF}} carries last observed value forward. This is
 an imputation method for longitudinal data.
+\item \code{\link{pphcv}} Turns un-usable high-cardinality variables into
+usable predictors (the conditional probabilities and expectations of the 
+classes based on the outcome variable).
 }}
 }
 
