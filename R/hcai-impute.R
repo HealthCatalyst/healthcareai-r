@@ -12,11 +12,11 @@
 #' \code{"bagimpute"} or \code{"knnimpute"}.
 #' @param numeric_params A named list with parmeters to use with chosen
 #' imputation method on numeric data. Options are \code{bag_model},
-#' \code{bag_options}, \code{knn_k}, \code{impute_with}, or \code{seed_val}.
+#' \code{bag_options}, \code{knn_K}, \code{impute_with}, or \code{seed_val}.
 #' See \link{step_bagimpute} or \link{step_knnimpute} for details.
 #' @param nominal_params A named list with parmeters to use with chosen
 #' imputation method on nominal data. Options are \code{bag_model},
-#' \code{bag_options}, \code{knn_k}, \code{impute_with}, or \code{seed_val}.
+#' \code{bag_options}, \code{knn_K}, \code{impute_with}, or \code{seed_val}.
 #' See \link{step_bagimpute} or \link{step_knnimpute} for details.
 #' @return An updated version of `recipe` with the new step
 #'  added to the sequence of existing steps.
@@ -25,12 +25,12 @@
 #' @import recipes
 
 #' @examples
-#' library(healthcareai)
 #' library(recipes)
 #'
 #' n = 100
-#' d <- tibble::tibble(encounter_id = 1:n,
-#'             patient_id = sample(1:20, size = n, replace = TRUE),
+#' set.seed(9)
+#' d <- tibble::tibble(patient_id = 1:n,
+#'             age = sample(c(30:80, NA), size = n, replace = TRUE),
 #'             hemoglobin_count = rnorm(n, mean = 15, sd = 1),
 #'             hemoglobin_category = sample(c("Low", "Normal", "High", NA),
 #'                                          size = n, replace = TRUE),
@@ -42,8 +42,7 @@
 #'
 #' # Create recipe
 #' my_recipe <- my_recipe %>%
-#'   hcai_impute(numeric_method = "mean",
-#'     nominal_method = "new_category")
+#'   hcai_impute()
 #' my_recipe
 #'
 #' # Train recipe
@@ -52,13 +51,26 @@
 #' # Apply recipe
 #' data_modified <- bake(trained_recipe, newdata = d)
 #' missingness(data_modified)
+#'
+#'
+#' # Specify methods:
+#' my_recipe <- my_recipe %>%
+#'   hcai_impute(numeric_method = "bagimpute",
+#'     nominal_method = "new_category")
+#' my_recipe
+#'
+#' # Specify methods and params:
+#' my_recipe <- my_recipe %>%
+#'   hcai_impute(numeric_method = "knnimpute",
+#'     numeric_params = list(knn_K = 4))
+#' my_recipe
 hcai_impute <- function(rec_obj,
                         numeric_method = "mean",
                         nominal_method = "new_category",
                         numeric_params = NULL,
                         nominal_params = NULL) {
   # Check to make sure rec_obj is the right type
-  if (class(rec_obj) != "recipe") {
+  if (!inherits(rec_obj, "recipe")) {
     stop("rec_obj must be recipe object"
     )
   }
@@ -83,10 +95,20 @@ hcai_impute <- function(rec_obj,
   )
 
   # Fill in user-specified params
-  num_p <- defaults
+  num_p <- nom_p <- defaults
   num_p[names(num_p) %in% names(numeric_params)] <- numeric_params
-  nom_p <- defaults
   nom_p[names(nom_p) %in% names(nominal_params)] <- nominal_params
+
+  # Warn if extra bag names
+  available_param_names <- c("bag_model", "bag_options", "knn_K", "impute_with",
+    "seed_val")
+  all_user_params <- names(c(numeric_params, nominal_params))
+  extras  <- all_user_params[!(all_user_params %in% available_param_names)]
+  if (length(extras > 0)) {
+    warning("You have extra imputation parameters that won't be used: ",
+      paste(extras, collapse = ", "),
+      ". Available params are: ", paste(available_param_names, collapse = ", "))
+  }
 
   # Numerics
   if (numeric_method == "mean") {
@@ -129,4 +151,5 @@ hcai_impute <- function(rec_obj,
   } else {
     stop("non-supported nominal method")
   }
+  return(rec_obj)
 }

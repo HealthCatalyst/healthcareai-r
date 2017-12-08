@@ -80,6 +80,21 @@ test_that("Non-supported methods throw errors.", {
   )
 })
 
+test_that("Non-supported params throw warnings.", {
+  expect_warning(
+    rec_obj %>%
+      hcai_impute(numeric_method = "knnimpute",
+        numeric_params = list(knn_K = 5, more_cowbell = TRUE)),
+    regexp = "more_cowbell"
+  )
+  expect_warning(
+    rec_obj %>%
+      hcai_impute(nominal_method = "bagimpute",
+                  nominal_params = list(bag_model = "m", prune = TRUE)),
+    regexp = "prune"
+  )
+})
+
 test_that("bag impute called on both types", {
   rec_obj_new <- rec_obj %>%
     hcai_impute(numeric_method = "bagimpute")

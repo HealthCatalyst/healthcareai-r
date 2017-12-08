@@ -20,12 +20,12 @@ operations for this recipe.}
 
 \item{numeric_params}{A named list with parmeters to use with chosen
 imputation method on numeric data. Options are \code{bag_model},
-\code{bag_options}, \code{knn_k}, \code{impute_with}, or \code{seed_val}.
+\code{bag_options}, \code{knn_K}, \code{impute_with}, or \code{seed_val}.
 See \link{step_bagimpute} or \link{step_knnimpute} for details.}
 
 \item{nominal_params}{A named list with parmeters to use with chosen
 imputation method on nominal data. Options are \code{bag_model},
-\code{bag_options}, \code{knn_k}, \code{impute_with}, or \code{seed_val}.
+\code{bag_options}, \code{knn_K}, \code{impute_with}, or \code{seed_val}.
 See \link{step_bagimpute} or \link{step_knnimpute} for details.}
 }
 \value{
@@ -38,12 +38,12 @@ recipe. Currently supports mean (numeric only), new_category (categorical
 only), bagged trees, or knn.
 }
 \examples{
-library(healthcareai)
 library(recipes)
 
 n = 100
-d <- tibble::tibble(encounter_id = 1:n,
-            patient_id = sample(1:20, size = n, replace = TRUE),
+set.seed(9)
+d <- tibble::tibble(patient_id = 1:n,
+            age = sample(c(30:80, NA), size = n, replace = TRUE),
             hemoglobin_count = rnorm(n, mean = 15, sd = 1),
             hemoglobin_category = sample(c("Low", "Normal", "High", NA),
                                          size = n, replace = TRUE),
@@ -55,8 +55,7 @@ my_recipe <- recipe(disease ~ ., data = d)
 
 # Create recipe
 my_recipe <- my_recipe \%>\%
-  hcai_impute(numeric_method = "mean",
-    nominal_method = "new_category")
+  hcai_impute()
 my_recipe
 
 # Train recipe
@@ -65,4 +64,17 @@ trained_recipe <- prep(my_recipe, training = d)
 # Apply recipe
 data_modified <- bake(trained_recipe, newdata = d)
 missingness(data_modified)
+
+
+# Specify methods:
+my_recipe <- my_recipe \%>\%
+  hcai_impute(numeric_method = "bagimpute",
+    nominal_method = "new_category")
+my_recipe
+
+# Specify methods and params:
+my_recipe <- my_recipe \%>\%
+  hcai_impute(numeric_method = "knnimpute",
+    numeric_params = list(knn_K = 4))
+my_recipe
 }
