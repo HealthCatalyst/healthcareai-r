@@ -94,6 +94,7 @@ nelsonRule1 <- function(df, measure_col, date_col, plot_flg = TRUE) {
          return(out)
 }
 
+
 #' @title
 #' Analyze points in time to determine whether or not Nelson Rule 2 was violated
 #' @description
@@ -205,14 +206,3 @@ nelsonRule2 <- function(df, measure_col, date_col, plot_flg = TRUE) {
   
   return(out)
 }
-
-date <- seq.Date(from = as.Date('2016-01-03'), length.out = 104, by = 'week')
-set.seed(34)
-measureValue <- rnorm(length(date), mean = 100, sd = 15)
-d <- data.frame(date, measureValue)
-
-# Alter some measureValues so a violation occurs
-d[['measureValue']][33:41] <- runif(n = 9,min = 105, max = 135)
-d[['measureValue']][78:87] <- runif(n = 10,min = 80, max = 95)
-
-nelsonRule2(d, 'measureValue', 'date')

@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.1] - 2017-11-29
+
+### Added
+- `findVariation` now has a `wideOutput` argument that enables a tidy data frame to be returned. `wideOutput` defaults to TRUE, which preserves the old (non-tidy) behavior; FALSE produces a tidy data frame.
+- `variationAcrossGroups` now leverages `ggplot2` for its boxplot, which produces reliably better graphics.
+    - `plotBoxplot` is new logical argument that allows the user to turn off printing of the boxplot. Defaults to TRUE.
+    - If `plotGroupDifferences` is TRUE, the chart is written to file in the working directory instead of printing on screen. This eliminates the need for an interactive session with the user pressing Enter to produce a plot.
+
 ## [1.2.0] - 2017-10-19
 
 ### Added

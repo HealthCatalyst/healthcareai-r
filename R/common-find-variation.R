@@ -210,6 +210,10 @@ createVarianceTallTable <- function(df,
 #' @param dateCol Optional. A date(time) column to group by (done by month) 
 #' @param threshold A scalar number, representing the minimum impact values
 #' that are returned
+#' @param wideOutput If TRUE (default) categoricalCols and measureColumn will
+#' be mixed in with results. If FALSE, output table will have Group and
+#' Measure columns that reflect categoricalCols and measureColumn, and results
+#' will appear in their own columns.
 #' @return A dataframe of eight columns. MeasureVolumeRaw denotes number of rows 
 #' in the particular subgroup; MeasureVolumePercent denotes percent of rows in 
 #' that subgroup as a percentage of the above subgroup (i.e., F within Gender);
@@ -234,7 +238,8 @@ findVariation <- function(df,
                           categoricalCols,
                           measureColumn,
                           dateCol = NULL,
-                          threshold = NULL) {
+                          threshold = NULL,
+                          wideOutput = TRUE) {
   
   if (!all(c(categoricalCols,measureColumn,dateCol) %in% names(df))) {
     stop('The measure column or one of the categorical cols is not in the df')
@@ -347,6 +352,7 @@ findVariation <- function(df,
         next
       }
       
+      if (wideOutput) {
       # Create pipe-delimited, fixed number of columns and add to overall df
       dfTotal <- 
         rbind(dfTotal,
@@ -354,6 +360,27 @@ findVariation <- function(df,
                 df = dfSub, 
                 categoricalCols = currentCatColumnComboVect,
                 measure = measureColumn[j]))
+      } else {
+        # Add measure column
+        dfSub$Measure <- measureColumn[j]
+        
+        # Convet group column/s to Variable.Value
+        if (length(listOfPossibleCombos[[i]]) == 1) {
+          dfSub$Group <- paste(names(dfSub)[1], dfSub[, 1], sep = ".")
+        } else {
+          labs <- 
+            sapply(listOfPossibleCombos[[i]], function(var) {
+              column <- which(names(dfSub) == var)
+              paste(names(dfSub)[column], dfSub[, column], sep = ".")
+            })
+          dfSub$Group <- apply(labs, 1, paste, collapse = "|")
+        }
+        # Get rid of old group/s column
+        dfSub <- dfSub[, -which(names(dfSub) %in% listOfPossibleCombos[[i]])]
+        # Move new group column to front
+        dfSub <- dfSub[, c(ncol(dfSub):(ncol(dfSub) - 1), seq_len(ncol(dfSub) - 2))]
+        dfTotal <- rbind(dfTotal, dfSub)
+      }
     }
   }
   
@@ -362,6 +389,9 @@ findVariation <- function(df,
          " Try removing or lower your threshold, or select more rows")
   } else {
     
+    if (!wideOutput)
+      return(dfTotal[order(-dfTotal$Impact), ])
+
     # Convert from factor to char for OVERALL ordering
     #dfTotal$DimensionalAttributes <- as.character(dfTotal$DimensionalAttributes)
     
@@ -438,6 +468,7 @@ getPipedValue <- function(string) {
 #' @param categoricalCols Character. Vector containing the name(s) of column(s)
 #'   to group by.
 #' @param measureColumn Character. The name of the numeric variable of interest.
+#' @param plotBoxplot Logical. Print boxplot with Tukey HSD labels?
 #' @param plotGroupDifferences Optional. Logical. Plot results of Tukey's HSD
 #'   test: mean differences between groups and confidence intervals for each
 #'   pairwise group comparison? Default is FALSE.
@@ -457,7 +488,10 @@ getPipedValue <- function(string) {
 #'   This function always induces the side effect of printing a boxplot to
 #'   compare variation across groups. If plotGroupDifferences is TRUE, also
 #'   plots a mean differences and confidence intervals between groups.
-#'   
+#'
+#' @importFrom grDevices dev.off   
+#' @importFrom grDevices png
+#' @importFrom stats na.omit
 #' @export
 #' 
 #' @references \url{http://healthcare.ai}
@@ -549,6 +583,7 @@ getPipedValue <- function(string) {
 variationAcrossGroups <- function(df, 
                                   categoricalCols,
                                   measureColumn,
+                                  plotBoxplot = TRUE,
                                   plotGroupDifferences = FALSE,
                                   returnGroupStats = FALSE,
                                   dateCol = NULL,
@@ -570,7 +605,6 @@ variationAcrossGroups <- function(df,
          class(df[[measureColumn]]))
   }
   
-  
   # Check that categorical columns exist and are of proper type
   if (length(categoricalCols) > 1) {
     for (i in 1:length(categoricalCols)) {
@@ -590,6 +624,9 @@ variationAcrossGroups <- function(df,
     }
   }
   
+  # Remove rows with missingness in any of the variables that matter
+  df <- df[, c(categoricalCols, measureColumn, dateCol)]
+  df <- stats::na.omit(df)
   
   if (findInterval(1, 0:1, rightmost.closed = TRUE) != 1)
     stop("sigLevel must be between zero and one.")
@@ -859,7 +896,7 @@ variationAcrossGroups <- function(df,
   
   l <- list()
   for (i in 1:length(categoricalCols)) {
-    l[[i]] <- df[[categoricalCols[i]]]
+    l[[i]] <- as.character(df[[categoricalCols[i]]])
   }
   
   
@@ -871,79 +908,64 @@ variationAcrossGroups <- function(df,
   if (nrow(labs) > 2) {
     labs <- labs[levels(interaction(l)),]
   }
+  # Hotfix for unknown missingness
+  labs <- na.omit(labs)
   
-  # plot boxplot
-  # nCol <- if (plotGroupDifferences) 2 else 1
-  # This is a hacky way to ensure we have a new plotting canvas:
-  graphics::frame()
-  grDevices::dev.off()
-  # Save graphics paramters to reset on exit
-  op <- graphics::par(no.readonly = TRUE)  
-  on.exit(graphics::par(op))
-  labels <- gsub("\\.", " | ", labs[,2])
-  bMar <- max(7, max(nchar(labels)) / 2)
-  # if bMar gets screwed up, set it equal to 4-7. It controls the x axis spacing.
-  graphics::par(# mfrow = c(1, nCol), 
-    bg = "transparent", cex.axis = 1, mar = c(bMar, 4.1, 4.1, 2.1))
-  graphics::boxplot(df[[measureColumn]] ~ interaction(l), 
-          data = df, 
-          # col = my_colors[as.numeric(labs[,1])],
-          yaxt = "n",
-          ylim = c(min(df[[measureColumn]], na.rm = TRUE), 1.1 * max(df[[measureColumn]], na.rm = TRUE)),
-          cex.lab = 1.25, 
-          xaxt = "n")
-  # Now set the plot region to grey
-  graphics::rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "grey90")
-  graphics::grid(nx = NULL, ny = NULL, lwd = 1, lty = 3, col = "white") #grid over boxplot
-  # par(new = TRUE)
-  plotRes <- 
-    graphics::boxplot(df[[measureColumn]] ~ interaction(l), 
-            data = df, 
-            col = "white",  # my_colors[as.numeric(labs[,1])],
-            ylab = measureColumn,
-            ylim = c(min(df[[measureColumn]], na.rm = TRUE), 1.1 * max(df[[measureColumn]], na.rm = TRUE)),
-            main = paste("Boxplot of", measureColumn, "across", paste(categoricalCols, collapse = ", ")),
-            cex.lab = 1.25, 
-            outcol = grDevices::adjustcolor("black", .5), 
-            xaxt = "n",
-            boxwex = 0.35
-            , add = TRUE
-            , lex.order = TRUE
-    )
-  graphics::mtext("Groups that do not share a letter are significantly different.")
-  over = 0.04 * max(plotRes$stats[nrow(plotRes$stats),] )
-  graphics::text(c(1:nlevels(interaction(l))), plotRes$stats[nrow(plotRes$stats), ] + over, labs[,1])
+  df$l <- sapply(1:length(l[[1]]), function(i) 
+    paste(sapply(seq_len(length(l)), function(j) l[[j]][i]), collapse = ".")
+  )
   
-  # x axis with ticks but without labels
-  graphics::axis(1, labels = FALSE, at = seq_along(labels))
-  # Plot x labs at default x position
-  graphics::text(x = seq_along(labels), y = par("usr")[3] - 1, srt = 90, adj = 1,
-       labels = paste0(labels, "  "), xpd = TRUE)
+  # Make ggplot
+  ggp <- 
+    ggplot2::ggplot(df, ggplot2::aes_string(y = measureColumn)) + 
+    ggplot2::geom_boxplot(ggplot2::aes(x = l))
+  ggdata <- ggplot2::layer_data(ggp)
+  xmove <- with(ggdata, mean(xmax - x)) / 2
+  labels <- data.frame(
+    x = ggdata$x + xmove,
+    y = ggdata$upper,
+    lab = labs$Letters
+  )
+  ggp <- 
+    ggp +
+    ggplot2::geom_label(ggplot2::aes(x = x, y = y, label = lab), labels) +
+    ggplot2::scale_x_discrete(name = NULL) +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, 
+                                                       hjust = 1, vjust = .5))
+  if (plotBoxplot)
+    print(ggp)
   
-  ## If plotGroupDifferences == TRUE, plot the tukey's test.
-  if (plotGroupDifferences == TRUE) {
-    # Sort group differences matrix to plot in order of ascending p-value
-    if (nrow(TUKEY[[1]]) > 1)
-      TUKEY[[1]] <- TUKEY[[1]][order(TUKEY[[1]][ , 4], -TUKEY[[1]][ , 1]), ]
-    tLabs <- gsub("\\.", "|", rev(rownames(TUKEY[[1]])))
-    lMar <- max(6, max(nchar(tLabs)) / 2)
-    lCEX <- 
-      if (length(tLabs) < 15) 1 else 
-        if (length(tLabs) < 25) .85 else 
-          if (length(tLabs) < 50) .7 else .6
+  # If plotGroupDifferences, write it to file
+  
+  
+  if (plotGroupDifferences == TRUE) {		
+    png("group_differences.png", height = 600, width = 800)
+    # Sort group differences matrix to plot in order of ascending p-value		
+    if (nrow(TUKEY[[1]]) > 1)		
+      TUKEY[[1]] <- TUKEY[[1]][order(TUKEY[[1]][ , 4], -TUKEY[[1]][ , 1]), ]		
+    tLabs <- gsub("\\.", "|", rev(rownames(TUKEY[[1]])))		
+    lMar <- max(6, max(nchar(tLabs)) / 2)		
+    lCEX <- 		
+      if (length(tLabs) < 15) 1 else 		
+        if (length(tLabs) < 25) .85 else 		
+          if (length(tLabs) < 50) .7 else .6		
     
-    # Different colors for signicantly different groups vs. not
-    cols <- ifelse(TUKEY[[1]][ , 4] <= sigLevel, "red", "black")
-    graphics::frame()
-    graphics::par(mar = c(4.2, lMar, 3.8, 2), ask = TRUE)
-    graphics::plot(TUKEY, col = cols, yaxt = "n")
-    graphics::mtext(paste(measureColumn, "across", paste(categoricalCols, collapse = ", ")))
-    graphics::axis(2,
-         at = seq_len(nrow(TUKEY[[1]])),
-         labels = tLabs,
-         las = 1,
-         cex.axis = lCEX)
+    # Different colors for signicantly different groups vs. not		
+    cols <- ifelse(TUKEY[[1]][ , 4] <= sigLevel, "red", "black")		
+    # graphics::frame()		
+    graphics::par(mar = c(4.2, lMar, 3.8, 2))		
+    graphics::plot(TUKEY, col = cols, yaxt = "n")		
+    graphics::mtext(paste(measureColumn, "across", paste(categoricalCols, collapse = ", ")))		
+    graphics::axis(2,		
+                   at = seq_len(nrow(TUKEY[[1]])),		
+                   labels = tLabs,		
+                   las = 1,		
+                   cex.axis = lCEX)
+    dev.off()
   }
+  
+  
+  
 
   # Create tables with pvalue for each pair of groups
   # Get 95% family-wise confidence level
