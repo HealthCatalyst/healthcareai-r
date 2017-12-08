@@ -27,6 +27,7 @@ Imports:
     ggplot2,
     grpreg,
     lme4,
+    methods,
     odbc,
     pROC,
     R6,

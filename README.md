@@ -106,4 +106,3 @@ library(healthcareai)
 You want to help? Woohoo! We welcome that and are willing to help newbies get started.
 
 First, see [here](CONTRIBUTING.md) for instructions on setting up your development environment and how to contribute.
-

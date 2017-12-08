@@ -1,9 +1,8 @@
 #' @title
-#' Convert datetime column into dummy columns
+#' Converts datetime columns into dummy columns
 #'
 #' @description
-#' Convert datetime column into dummy columns of day, hour, etc, such that one
-#' can use daily and seasonal patterns in their model building.
+#' THIS FUNCTION HAS BEEN RENAMED TO \code{\link{splitOutDateTimeCols}}
 #'
 #' @param df A data frame. Indicates the datetime column.
 #' @param dateTimeCol A string. Column name in df that will be converted
@@ -15,58 +14,77 @@
 #' the modified data frame?
 #' @return A data frame which now includes several columns based on time
 #' rather than just one datetime column
+#' @export
+#' @references \url{http://healthcareai-r.readthedocs.io}
+#' @seealso \code{\link{healthcareai}}
+#' @examples
+#' df <- data.frame(
+#'   dtCol = c('2001-06-09 12:45:05', '2002-01-29 09:30:05','2002-02-02 07:36:50',
+#'             '2002-03-04 16:45:01','2002-11-13 20:00:10','2003-01-29 07:31:43',
+#'             '2003-07-07 17:30:02','2003-09-28 01:03:20'),
+#'   y1 = c(.5, 1, 3, 6, 8, 13, 14, 1),
+#'   y2 = c(.8, 1, 1.2, 1.2, 1.2, 1.3, 1.3, 1)
+#' )
+#' splitOutDateTimeCols(df, 'dtCol')
+convertDateTimeColToDummies <- function(df, dateTimeCol, depth = "h", returnDtCol = FALSE) {
+  .Deprecated("splitOutDateTimeCols", "healthcareai")
+  splitOutDateTimeCols(df = df, dateTimeCol = dateTimeCol,
+                       depth = depth, returnDtCol = returnDtCol)
+}
+
+#' @title
+#' Splits datetime column into multiple date features
+#'
+#' @description
+#' Splits datetime column into columns of day, hour, etc, such that one
+#' can use daily and seasonal patterns in their model building.
+#'
+#' @param df A data frame. Indicates the datetime column.
+#' @param dateTimeCol A string. Column name in df that will be converted
+#' into several columns.
+#' @param depth A string. Specifies the depth with which to expand extra columns
+#' (starting with a year column). 'd' expands to day, 'h' expands to hour
+#' (default), 'm' expands to minute, and 's' expands to second.
+#' @param returnDtCol A boolean. Return the original dateTimeCol with
+#' the modified data frame?
+#' @param format A character string giving a date-time format as used by 
+#' \code{\link{strptime}}. Default is '\%Y-\%m-\%d \%H:\%M:\%S'. If depth is 'h', 'm',
+#' or 's', the format must include an '\%H:\%M:\%S' format structure to return those values.
+#' @return A data frame which now includes several columns based on time
+#' rather than just one datetime column
 #'
 #' @export
 #' @references \url{http://healthcareai-r.readthedocs.io}
 #' @seealso \code{\link{healthcareai}}
 #' @examples
-#' dtCol <- c('2001-06-09 12:45:05','2002-01-29 09:30:05','2002-02-02 07:36:50',
-#'           '2002-03-04 16:45:01','2002-11-13 20:00:10','2003-01-29 07:31:43',
-#'           '2003-07-07 17:30:02','2003-09-28 01:03:20')
-#' y1 <- c(.5,1,3,6,8,13,14,1)
-#' y2 <- c(.8,1,1.2,1.2,1.2,1.3,1.3,1)
-#' df <- data.frame(dtCol,y1,y2)
-#'
-#' df <- convertDateTimeColToDummies(df, 'dtCol')
-#' head(df)
-convertDateTimeColToDummies <- function(df, dateTimeCol, depth = "h", returnDtCol = FALSE) {
-  if (depth == "d") {
-    df[[dateTimeCol]] <- as.POSIXct(df[[dateTimeCol]])
-    df$year <- as.POSIXlt(df[[dateTimeCol]])$year + 1900
-    df$month <- as.POSIXlt(df[[dateTimeCol]])$mo + 1
-    df$weekOfYear <- strftime(df[[dateTimeCol]], format = "%W")
-    df$dayOfMonth <- as.POSIXlt(df[[dateTimeCol]])$mday
-    df$dayOfWeek <- as.POSIXlt(df[[dateTimeCol]])$wday + 1
-    
-  } else if (depth == "h") {
-    df[[dateTimeCol]] <- as.POSIXct(df[[dateTimeCol]])
-    df$year <- as.POSIXlt(df[[dateTimeCol]])$year + 1900
-    df$month <- as.POSIXlt(df[[dateTimeCol]])$mo + 1
-    df$weekOfYear <- strftime(df[[dateTimeCol]], format = "%W")
-    df$dayOfMonth <- as.POSIXlt(df[[dateTimeCol]])$mday
-    df$dayOfWeek <- as.POSIXlt(df[[dateTimeCol]])$wday + 1
+#' df <- data.frame(
+#'   dtCol = c('2001-06-09 12:45:05', '2002-01-29 09:30:05','2002-02-02 07:36:50',
+#'             '2002-03-04 16:45:01','2002-11-13 20:00:10','2003-01-29 07:31:43',
+#'             '2003-07-07 17:30:02','2003-09-28 01:03:20'),
+#'   y1 = c(.5, 1, 3, 6, 8, 13, 14, 1),
+#'   y2 = c(.8, 1, 1.2, 1.2, 1.2, 1.3, 1.3, 1)
+#' )
+#' splitOutDateTimeCols(df, 'dtCol')
+splitOutDateTimeCols <- function(df, dateTimeCol, depth = "h", returnDtCol = FALSE, format = "%Y-%m-%d %H:%M:%S" ) {
+  
+  df[[dateTimeCol]] <- as.POSIXct(df[[dateTimeCol]], format = format)
+  if(any(is.na(df[['dtCol']]))) {
+    warning("There are NAs during the conversion process. Check the date format before continuing.")
+  }
+  df$year <- as.POSIXlt(df[[dateTimeCol]])$year + 1900
+  df$month <- as.POSIXlt(df[[dateTimeCol]])$mo + 1
+  df$weekOfYear <- strftime(df[[dateTimeCol]], format = "%W")
+  df$dayOfMonth <- as.POSIXlt(df[[dateTimeCol]])$mday
+  df$dayOfWeek <- as.POSIXlt(df[[dateTimeCol]])$wday + 1
+  
+  if (depth == "h" || depth == "m" || depth == "s") {
     df$hour <- as.POSIXlt(df[[dateTimeCol]])$hour
-    
-  } else if (depth == "m") {
-    df[[dateTimeCol]] <- as.POSIXct(df[[dateTimeCol]])
-    df$year <- as.POSIXlt(df[[dateTimeCol]])$year + 1900
-    df$month <- as.POSIXlt(df[[dateTimeCol]])$mo + 1
-    df$weekOfYear <- strftime(df[[dateTimeCol]], format = "%W")
-    df$dayOfMonth <- as.POSIXlt(df[[dateTimeCol]])$mday
-    df$dayOfWeek <- as.POSIXlt(df[[dateTimeCol]])$wday + 1
-    df$hour <- as.POSIXlt(df[[dateTimeCol]])$hour
+  }
+  if (depth == "m" || depth == "s") {
     df$min <- as.POSIXlt(df[[dateTimeCol]])$min
-    
-  } else if (depth == "s") {
-    df[[dateTimeCol]] <- as.POSIXct(df[[dateTimeCol]])
-    df$year <- as.POSIXlt(df[[dateTimeCol]])$year + 1900
-    df$month <- as.POSIXlt(df[[dateTimeCol]])$mo + 1
-    df$weekOfYear <- strftime(df[[dateTimeCol]], format = "%W")
-    df$dayOfMonth <- as.POSIXlt(df[[dateTimeCol]])$mday
-    df$dayOfWeek <- as.POSIXlt(df[[dateTimeCol]])$wday + 1
-    df$hour <- as.POSIXlt(df[[dateTimeCol]])$hour
-    df$min <- as.POSIXlt(df[[dateTimeCol]])$min
-    df$Sec <- as.POSIXlt(df[[dateTimeCol]])$sec
+  } 
+  if (depth == "s") {
+    df$sec <- as.POSIXlt(df[[dateTimeCol]])$sec
   }
   
   if (isTRUE(!returnDtCol)) {
