@@ -185,7 +185,7 @@ nelsonRule2 <- function(df, measure_col, date_col, plot_flg = TRUE) {
   
   ifelse(plot_flg == TRUE,
          out$p <- eval(parse(text = paste0(
-           "ggplot2::ggplot(data = df
+           "ggplot(data = df
              ,aes(x = ",date_col,", y = ",measure_col,")) +
              geom_line() +
              geom_line() +
