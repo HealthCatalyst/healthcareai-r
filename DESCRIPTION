@@ -18,6 +18,7 @@ LazyData: TRUE
 Depends:
     R (>= 3.2.3)
 Imports:
+    broom,
     caret,
     data.table,
     DBI,
@@ -28,13 +29,18 @@ Imports:
     grpreg,
     lme4,
     odbc,
+    purrr,
     pROC,
+    purrr,
     R6,
     ranger,
     readr,
+    recipes,
+    rlang,
     ROCR,
     RSQLite,
     tibble,
+    tidyr,
     xgboost
 RoxygenNote: 6.0.1
 Suggests:

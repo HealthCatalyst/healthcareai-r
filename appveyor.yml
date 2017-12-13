@@ -55,4 +55,4 @@ notifications:
      - healthcatalystslc+appveyor@mailbox.org
    subject: 'r-appveyor build {{status}}'
    on_build_success: false
-   on_build_failure: true
+   on_build_failure: false
