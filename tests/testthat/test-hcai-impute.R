@@ -1,4 +1,4 @@
-context("Checking recipe step hcai-missing")
+context("Checking hcai-impute recipe builder")
 
 # Setup ------------------------------------------------------------------------
 # set seed for reproducibility
