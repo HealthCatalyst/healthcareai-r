@@ -18,7 +18,7 @@ LazyData: TRUE
 Depends:
     R (>= 3.2.3)
 Imports:
-    caret,
+    caret (>= 6.0.78),
     data.table,
     DBI,
     doParallel,
@@ -31,7 +31,7 @@ Imports:
     odbc,
     pROC,
     R6,
-    ranger,
+    ranger (>= 0.8.0),
     ROCR,
     RSQLite,
     xgboost
