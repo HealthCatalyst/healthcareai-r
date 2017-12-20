@@ -253,29 +253,28 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         # Create reasonable gridsearch for mtry
         # This optimal value comes from randomForest documentation
         # TODO: make mtry calc a function (incl both tune and not)
+        ## Could make tuning length a parameter. For now just 5.
+        tune_length <- 7L
+        nvar <- ncol(private$dfTrain) - 1L
+        mtryList <- 
+          if (nvar <= tune_length) {
+            mtryList <- 1:nvar
+          } else {
+            # Focus mtry search on smaller side of nvar
+            mtryList <- unique(floor(seq(1, sqrt(nvar), length.out = tune_length) ^ 2))
+          }
+        
+        # Choose split rule
         if (self$params$type == 'classification') {
-          optimal <- floor(sqrt(ncol(private$dfTrain)))
           ourSplitrule <- 'gini'
-        }
-        else if (self$params$type == 'regression') {
-          optimal <- max(floor(ncol(private$dfTrain)/3), 1)
+        } else if (self$params$type == 'regression') {
           ourSplitrule <- 'variance'
         }
-
-        mtryList <- c(optimal - 1, optimal, optimal + 1)
-        # Make it such that lowest mtry is 2
-        if (length(which(mtryList < 0)) > 0) {
-          mtryList <- mtryList + 3
-        } else if (length(which(mtryList == 0)) > 0) {
-          mtryList <- mtryList + 2
-        } else if (length(which(mtryList == 1)) > 0) {
-          mtryList <- mtryList + 1
-        }
-
+        
         print(paste(c('Performing grid search across these mtry values: ',
                       mtryList), collapse = " "))
 
-        private$grid <-  data.frame(mtry = mtryList, splitrule=ourSplitrule) # Number of features/tree
+        private$grid <- data.frame(mtry = mtryList, splitrule=ourSplitrule) # Number of features/tree
       }
       else {
         if (self$params$type == 'classification') {
@@ -291,7 +290,7 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         private$grid$splitrule <- NULL
     }
   ),
-
+  
   # Public members
   public = list(
 
