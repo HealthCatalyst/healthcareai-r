@@ -87,7 +87,9 @@ RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
       private$dfTrain <- self$params$df[self$params$df[[self$params$groupCol]] != j,]
 
       # Only works for classification
-      private$grid <- data.frame(mtry = floor(sqrt(ncol(private$dfTrain))), splitrule='gini')
+      private$grid <- data.frame(mtry = floor(sqrt(ncol(private$dfTrain))), 
+                                 splitrule = 'gini',
+                                 min.node.size = 1)
       if (numeric_version(packageVersion("caret")) < "6.0.77")
         private$grid$splitrule <- NULL
 
