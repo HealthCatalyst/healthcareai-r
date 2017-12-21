@@ -25,36 +25,46 @@
 # Initialize
 
 impute <- function(data = NULL,
-                        rec_obj = NULL,
-                        numeric_method = "mean",
-                        nominal_method = "new_category",
-                        numeric_params = NULL,
-                        nominal_params = NULL) {
+                   target = NULL,
+                   rec_obj = NULL,
+                   numeric_method = "mean",
+                   nominal_method = "new_category",
+                   numeric_params = NULL,
+                   nominal_params = NULL) {
 
 
   # Check to make sure that df is a dataframe
   if (!(is.data.frame(data))) {
-    stop('data must be a tibble or dataframe.')
+    stop("\"data\" must be a tibble or dataframe.")
   }
 
-  # Check to make sure imputeVals is a list or NULL
-  if (!(inherits(rec_obj, "recipe") || is.null(rec_obj))) {
-    stop("rec_obj must be a valid recipe object.")
+  # Check to make sure rec_obj is a valid recipe
+  if (!inherits(rec_obj, "recipe") && !is.null(rec_obj)) {
+    stop("\"rec_obj\" must be a valid recipe object.")
   }
 
-  # If recipe object is not provided, train it.
-  if (!(is.null(rec_obj))) {
-    rec_obj <- recipe(disease ~ ., data = fit_data)
+  # If recipe object is not provided, train it and predict.
+  if (is.null(rec_obj)) {
+    if (is.null(target) || !(target %in% names(data))) {
+      stop("\"target\" must be a column name in data")
+    }
+
+    form = paste0(target, " ~ .")
+
+    # Train
+    rec_obj <- recipe(x = data, formula = form) %>%
+      hcai_impute(numeric_method = numeric_method,
+                  nominal_method = nominal_method,
+                  numeric_params = numeric_params,
+                  nominal_params = nominal_params) %>%
+        prep(training = data)
   }
+    # Predict
+  data_imputed <-
+    bake(rec_obj, newdata = data)
 
-  # Create recipe
-  my_recipe <- my_recipe %>%
-    hcai_impute()
-  my_recipe
-
-  # Train recipe
-  trained_recipe <- prep(my_recipe, training = d)
-
-  # Apply recipe
-  data_modified <- bake(trained_recipe, newdata = d)
+  return(list(data_imputed = data_imputed,
+            rec_obj = rec_obj))
 }
+
+
