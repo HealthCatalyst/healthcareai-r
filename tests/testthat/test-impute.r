@@ -5,8 +5,7 @@ context("Testing impute")
 set.seed(7)
 # build hot dog set
 n <- 300
-df <- data.frame(id = 1:n,
-                 animalID = sample(1:9, size = n, replace = T),
+df <- data.frame(animal_id = 1:n,
                  length = rnorm(n, mean = 7, sd = 2),
                  width = rnorm(n, mean = 2, sd = 0.5),
                  fur = sample(c("Long", "Short"), size = n, replace = T),
@@ -61,24 +60,30 @@ test_that("Bad data throws an error", {
                regexp = "\"data\" must be a tibble")
   expect_error(impute(data = "yeah hi!"),
                regexp = "\"data\" must be a tibble")
-  expect_error(impute(data = df, target = "non-column"),
-               regexp = "\"target\" must be a column name in data")
-  expect_error(impute(data = df, target = "kitty", rec_obj = "fried_fish"),
+  expect_error(capture_output(
+    impute(data = df, grain = "non-column", target = "kitty")),
+           regexp = "\"grain\" must be a column name in data")
+  expect_error(capture_output(
+    impute(data = df, grain = "animalID", target = "naught")),
+           regexp = "\"target\" must be a column name in data")
+  expect_error(impute(data = df, grain = "animalID", target = "kitty",
+                      rec_obj = "fried_fish"),
                regexp = "\"rec_obj\" must be a valid recipe object.")
 
 })
 
 test_that("No recipe with defaults trains and predicts.", {
   capture_output(res <- impute(data = d_train,
-    target = "kitty"))
-  expect_equal(res$data_imputed$length[1], 6.92, tol = .02)
+                               grain = "animal_id",
+                               target = "kitty"))
+  expect_equal(res$data_imputed$length[1], 7.1, tol = .02)
   expect_equal(as.character(res$data_imputed$color[2]), "hcai_missing")
   expect_equal(as.character(res$data_imputed$fur[3]), "hcai_missing")
   expect_equal(res$data_imputed$width[3], 2.02, tol = .02)
 
   capture_output(res <- impute(data = d_test,
     rec_obj = res$rec_obj))
-  expect_equal(res$data_imputed$length[1], 6.92, tol = .02)
+  expect_equal(res$data_imputed$length[1], 7.1, tol = .02)
   expect_equal(as.character(res$data_imputed$color[2]), "hcai_missing")
   expect_equal(as.character(res$data_imputed$fur[3]), "hcai_missing")
   expect_equal(res$data_imputed$width[3], 2.02, tol = .02)
@@ -86,41 +91,58 @@ test_that("No recipe with defaults trains and predicts.", {
 
 test_that("No recipe with methods trains and predicts.", {
   capture_output(res <- impute(data = d_train,
-    target = "kitty",
-    nominal_method = "bagimpute",
-    numeric_method = "knnimpute"))
-  expect_equal(res$data_imputed$length[1], 6.06, tol = .02)
+                               grain = "animal_id",
+                               target = "kitty",
+                               nominal_method = "bagimpute",
+                               numeric_method = "knnimpute"))
+  expect_equal(res$data_imputed$length[1], 8.69, tol = .02)
   expect_equal(as.character(res$data_imputed$color[2]), "Black")
-  expect_equal(as.character(res$data_imputed$fur[3]), "Long")
-  expect_equal(res$data_imputed$width[3], 1.61, tol = .02)
+  expect_equal(as.character(res$data_imputed$fur[3]), "Short")
+  expect_equal(res$data_imputed$width[3], 2.13, tol = .02)
 
   capture_output(res <- impute(data = d_test,
                                rec_obj = res$rec_obj))
-  expect_equal(res$data_imputed$length[1], 6.92, tol = .02)
-  expect_equal(as.character(res$data_imputed$color[2]), "Orange")
-  expect_equal(as.character(res$data_imputed$fur[3]), "Long")
-  expect_equal(res$data_imputed$width[3], 2.13, tol = .02)
+  expect_equal(res$data_imputed$length[1], 6.16, tol = .02)
+  expect_equal(as.character(res$data_imputed$color[2]), "Mixed")
+  expect_equal(as.character(res$data_imputed$fur[3]), "Short")
+  expect_equal(res$data_imputed$width[3], 1.81, tol = .02)
 })
 
 test_that("No recipe with methods and params trains and predicts.", {
   capture_output(res <- impute(data = d_train,
-    target = "kitty",
-    nominal_method = "bagimpute",
-    numeric_method = "knnimpute",
-    nominal_params = list(bag_options = list(nbagg = 20)),
-    numeric_params = list(knn_K = 3)))
+                               grain = "animal_id",
+                               target = "kitty",
+                               nominal_method = "bagimpute",
+                               numeric_method = "knnimpute",
+                               nominal_params =
+                                 list(bag_options = list(nbagg = 20)),
+                               numeric_params = list(knn_K = 3)))
   expect_equal(res$data_imputed$length[1], 7.97, tol = .02)
-  expect_equal(as.character(res$data_imputed$color[2]), "Black")
-  expect_equal(as.character(res$data_imputed$fur[3]), "Long")
-  expect_equal(res$data_imputed$width[3], 1.48, tol = .02)
+  expect_equal(as.character(res$data_imputed$color[2]), "Orange")
+  expect_equal(as.character(res$data_imputed$fur[3]), "Short")
+  expect_equal(res$data_imputed$width[3], 1.83, tol = .02)
 
   capture_output(res <- impute(data = d_test,
                                rec_obj = res$rec_obj))
-  expect_equal(res$data_imputed$length[1], 6.76, tol = .02)
-  expect_equal(as.character(res$data_imputed$color[2]), "Orange")
-  expect_equal(as.character(res$data_imputed$fur[3]), "Long")
-  expect_equal(res$data_imputed$width[3], 2.32, tol = .02)
+  expect_equal(res$data_imputed$length[1], 6.47, tol = .02)
+  expect_equal(as.character(res$data_imputed$color[2]), "Mixed")
+  expect_equal(as.character(res$data_imputed$fur[3]), "Short")
+  expect_equal(res$data_imputed$width[3], 1.74, tol = .02)
 })
 
+test_that("Grain and target are not imputed but are returned.", {
+  d_train$animal_id[1:5] <- NA
+  d_train$kitty[1:5] <- NA
+  capture_output(res <- impute(data = d_train,
+                               grain = "animal_id",
+                               target = "kitty"))
+
+  # Make sure that target and grain exist but don't get imputed.
+
+  d_test$animalID[1:5] <- NA
+  d_test$kitty[1:5] <- NA
+  capture_output(res <- impute(data = d_test,
+                               rec_obj = res$rec_obj))
+})
 
 
