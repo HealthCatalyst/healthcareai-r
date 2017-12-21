@@ -90,9 +90,7 @@ RiskAdjustedComparisons <- R6Class("RiskAdjustedComparisons",
       private$grid <- data.frame(mtry = floor(sqrt(ncol(private$dfTrain))), 
                                  splitrule = 'gini',
                                  min.node.size = 1)
-      if (numeric_version(packageVersion("caret")) < "6.0.77")
-        private$grid$splitrule <- NULL
-
+      
       trainCtrl <- trainControl(
         method = "none",
         number = 1,
