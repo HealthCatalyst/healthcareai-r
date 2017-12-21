@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.3] - 2017-12-20
+
+### Added
+- `RandomForestDevelopment` now tunes over three hyperparameters: number of variables to try at each split, the split assessment metric, and minimum node size. This maintains compatibility with the current version of the `ranger` package, and an explicit minimum versions of `ranger` and `caret` are now specified.
+- `RandomForestDevelopment` now tunes over a greater range of `mtry`, and the results of hyperparameter tuning are presented graphically and in the console output.
+
+## [1.2.2] - 2017-12-03
+
+### Added
+- Import `methods` for use outside of R GUI or R Studio.
+
 ## [1.2.1] - 2017-11-29
 
 ### Added
