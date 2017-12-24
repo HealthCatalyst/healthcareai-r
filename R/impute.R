@@ -6,12 +6,10 @@
 #' new_category (categorical only), bagged trees, or knn. Grain and target will
 #' not be imputed.
 #' @param data A dataframe or tibble containing data to impute.
-#' @param target A string, the name of the target column. Required if training
-#' a new recipe.
-#' @param grain A string, the name of the grain column. Required if training
-#' a new recipe.
-#' @param rec_obj Optional, a recipe object. If provided, grain and target are
-#' not required and this recipe will be used to bake data contained in data.
+#' @param target A string, the name of the target column. Required.
+#' @param grain A string, the name of the grain column. Required.
+#' @param rec_obj Optional, a recipe object. If provided, this recipe will be
+#' used to bake data contained in data.
 #' @param numeric_method Defaults to \code{"mean"}. Other choices are
 #' \code{"bagimpute"} or \code{"knnimpute"}.
 #' @param nominal_method Defaults to \code{"new_category"}. Other choices are
@@ -28,28 +26,33 @@
 #'
 #' @export
 #' @import recipes
-
 #' @examples
 #' library(recipes)
 #'
 #' n = 100
 #' set.seed(9)
 #' d <- tibble::tibble(patient_id = 1:n,
-#'                     age = sample(c(30:80, NA), size = n, replace = TRUE),
+#'                     age = sample(c(30:80), size = n, replace = TRUE),
 #'                     hemoglobin_count = rnorm(n, mean = 15, sd = 1),
 #'                     hemoglobin_category = sample(c("Low", "Normal", "High", NA),
 #'                                                  size = n, replace = TRUE),
 #'                     disease = ifelse(hemoglobin_count < 15, "Yes", "No")
 #' )
+#' d$age[sample(1:n, size = 20)] <- NA
+#' d$hemoglobin_count[sample(1:n, size = 15)] <- NA
+#'
+#'
 #' d_train <- d[1:80, ]
 #' d_test <- d[81:100, ]
-#'
-#' # Train imputer
+#' # Train imputer and apply
 #' data_and_recipe <- impute(data = d_train,
 #'                           grain = "patient_id",
 #'                           target = "disease")
+#'
 #' # Apply to new data
 #' res <- impute(data = d_test,
+#'               grain = "patient_id",
+#'               target = "disease",
 #'               rec_obj = data_and_recipe$rec_obj)
 #'
 #' # Specify methods:
@@ -66,14 +69,8 @@
 #'                           nominal_method = "knnimpute",
 #'                           nominal_params = list(knn_K = 4))
 #'
-#' impute <- function(data = NULL,
-#'                    target = NULL,
-#'                    grain = NULL,
-#'                    rec_obj = NULL,
-#'                    numeric_method = "mean",
-#'                    nominal_method = "new_category",
-#'                    numeric_params = NULL,
-#'                    nominal_params = NULL) {
+#'
+#'
 #'
 impute <- function(data = NULL,
                    target = NULL,
