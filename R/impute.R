@@ -93,20 +93,31 @@ impute <- function(data = NULL,
     stop("\"rec_obj\" must be a valid recipe object.")
   }
 
+  if (is.null(target) || !(target %in% names(data))) {
+    stop("\"target\" must be a column name in data")
+  }
+  if (is.null(grain) || !(grain %in% names(data))) {
+    stop("\"grain\" must be a column name in data.")
+  }
+
+  d_grain <- data[grain]
+  d_target <- data[target]
+
+  # Save column order
+  col_order <- names(data)
+
   message("Data contains the following levels of missingness:")
   print(missingness(data))
-  message("Grain and target columns will not be imputed.")
+  message(paste0("Grain and target columns will not be imputed. These rows ",
+    "should be removed before training a model!"))
+
+  # Recipes will impute grain even if it's removed in formula. Remove it
+  # explicitly. Target will be removed by formula.
+  data[grain] <- NULL
 
   # If recipe object is not provided, train it and predict.
   if (is.null(rec_obj)) {
-    if (is.null(target) || !(target %in% names(data))) {
-      stop("\"target\" must be a column name in data")
-    }
-    if (is.null(grain) || !(grain %in% names(data))) {
-      stop("\"grain\" must be a column name in data.")
-    }
-
-    form = paste0(target, " ~ . - ", grain)
+    form = paste0(target, " ~ .")
 
     # Train
     rec_obj <- recipe(x = data, formula = form) %>%
@@ -119,6 +130,11 @@ impute <- function(data = NULL,
     # Predict
   data_imputed <-
     bake(rec_obj, newdata = data)
+
+  # Add grain and target back in.
+  data_imputed[grain] <- d_grain
+  data_imputed[target] <- d_target
+  data_imputed <- data_imputed[, col_order]
 
   return(list(data_imputed = data_imputed,
             rec_obj = rec_obj))

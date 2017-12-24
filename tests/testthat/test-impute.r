@@ -3,7 +3,7 @@ context("Testing impute")
 # Setup ------------------------------------------------------------------------
 # set seed for reproducibility
 set.seed(7)
-# build hot dog set
+# build data set to predict whether or not animal_id is a kitty
 n <- 300
 df <- data.frame(animal_id = 1:n,
                  length = rnorm(n, mean = 7, sd = 2),
@@ -82,7 +82,9 @@ test_that("No recipe with defaults trains and predicts.", {
   expect_equal(res$data_imputed$width[3], 2.02, tol = .02)
 
   capture_output(res <- impute(data = d_test,
-    rec_obj = res$rec_obj))
+                               grain = "animal_id",
+                               target = "kitty",
+                               rec_obj = res$rec_obj))
   expect_equal(res$data_imputed$length[1], 7.1, tol = .02)
   expect_equal(as.character(res$data_imputed$color[2]), "hcai_missing")
   expect_equal(as.character(res$data_imputed$fur[3]), "hcai_missing")
@@ -95,17 +97,19 @@ test_that("No recipe with methods trains and predicts.", {
                                target = "kitty",
                                nominal_method = "bagimpute",
                                numeric_method = "knnimpute"))
-  expect_equal(res$data_imputed$length[1], 8.69, tol = .02)
+  expect_equal(res$data_imputed$length[1], 6.6, tol = .02)
   expect_equal(as.character(res$data_imputed$color[2]), "Black")
   expect_equal(as.character(res$data_imputed$fur[3]), "Short")
-  expect_equal(res$data_imputed$width[3], 2.13, tol = .02)
+  expect_equal(res$data_imputed$width[3], 1.73, tol = .02)
 
   capture_output(res <- impute(data = d_test,
+                               grain = "animal_id",
+                               target = "kitty",
                                rec_obj = res$rec_obj))
-  expect_equal(res$data_imputed$length[1], 6.16, tol = .02)
+  expect_equal(res$data_imputed$length[1], 4.78, tol = .02)
   expect_equal(as.character(res$data_imputed$color[2]), "Mixed")
-  expect_equal(as.character(res$data_imputed$fur[3]), "Short")
-  expect_equal(res$data_imputed$width[3], 1.81, tol = .02)
+  expect_equal(as.character(res$data_imputed$fur[3]), "Long")
+  expect_equal(res$data_imputed$width[3], 1.95, tol = .02)
 })
 
 test_that("No recipe with methods and params trains and predicts.", {
@@ -117,17 +121,19 @@ test_that("No recipe with methods and params trains and predicts.", {
                                nominal_params =
                                  list(bag_options = list(nbagg = 20)),
                                numeric_params = list(knn_K = 3)))
-  expect_equal(res$data_imputed$length[1], 7.97, tol = .02)
-  expect_equal(as.character(res$data_imputed$color[2]), "Orange")
+  expect_equal(res$data_imputed$length[1], 7.1, tol = .02)
+  expect_equal(as.character(res$data_imputed$color[2]), "Black")
   expect_equal(as.character(res$data_imputed$fur[3]), "Short")
   expect_equal(res$data_imputed$width[3], 1.83, tol = .02)
 
   capture_output(res <- impute(data = d_test,
+                               grain = "animal_id",
+                               target = "kitty",
                                rec_obj = res$rec_obj))
-  expect_equal(res$data_imputed$length[1], 6.47, tol = .02)
+  expect_equal(res$data_imputed$length[1], 4.68, tol = .02)
   expect_equal(as.character(res$data_imputed$color[2]), "Mixed")
   expect_equal(as.character(res$data_imputed$fur[3]), "Short")
-  expect_equal(res$data_imputed$width[3], 1.74, tol = .02)
+  expect_equal(res$data_imputed$width[3], 1.95, tol = .02)
 })
 
 test_that("Grain and target are not imputed but are returned.", {
@@ -136,13 +142,22 @@ test_that("Grain and target are not imputed but are returned.", {
   capture_output(res <- impute(data = d_train,
                                grain = "animal_id",
                                target = "kitty"))
+  expect_true(is.na(res$data_imputed$animal_id[2]))
+  expect_true(is.na(res$data_imputed$kitty[4]))
 
-  # Make sure that target and grain exist but don't get imputed.
-
-  d_test$animalID[1:5] <- NA
+  d_test$animal_id[1:5] <- NA
   d_test$kitty[1:5] <- NA
   capture_output(res <- impute(data = d_test,
+                               grain = "animal_id",
+                               target = "kitty",
                                rec_obj = res$rec_obj))
+  expect_true(is.na(res$data_imputed$animal_id[2]))
+  expect_true(is.na(res$data_imputed$kitty[4]))
 })
 
-
+test_that("Columns have the same order after", {
+  capture_output(res <- impute(data = d_train,
+                               grain = "animal_id",
+                               target = "kitty"))
+  expect_equal(names(d_train), names(res$data_imputed))
+})
