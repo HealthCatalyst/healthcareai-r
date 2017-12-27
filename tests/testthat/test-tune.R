@@ -1,11 +1,12 @@
 context("Checking model tuning")
 
 # Setup ------------------------------------------------------------------------
+set.seed(9346)
 test_df <- data.frame(
   x1 = rep(letters[1:2], each = 10),
-  x2 = rnorm(20),
-  x3 = c(1:19, 25)
+  x2 = rnorm(20)
 )
+test_df$x3 <- as.integer(as.factor(test_df$x1)) * test_df$x2
 
 ## Temporary test until grid search is implemented
 test_that("tune_models errors if tune_method isn't 'random'", {
