@@ -70,7 +70,7 @@ tune_models <- function(d,
          "trying to train a classification model. If that's what you want ",
          "convert it explicitly with as.factor().")
   }
-
+  # Choose metric if not provided
   if (missing(metric)) {
     metric <-
       if (model_class == "regression") {
@@ -86,10 +86,11 @@ tune_models <- function(d,
     stop("Currently supported algorithms are: ",
          paste(available, collapse = ", "),
          ".\nNot supported: ", paste(unsupported, collapse = ", "))
-  # We use kknn and ranger, but user input is "knn" and "rf
+  # We use kknn and ranger, but user input is "knn" and "rf"
   models[models == "knn"] <- "kknn"
   models[models == "rf"] <- "ranger"
 
+  # Set up cross validation details
   if (tune_method == "random") {
     train_control <-
       caret::trainControl(method = "cv",
@@ -107,6 +108,7 @@ tune_models <- function(d,
     train_control$classProbs <- TRUE  # nolint
   }
 
+  # Loop over models, tuning each
   train_list <-
     lapply(models, function(model) {
       message("Running cross validation for ", model)
@@ -119,6 +121,7 @@ tune_models <- function(d,
       )
     })
 
+  # Add classes
   class(train_list) <- c(paste0(model_class, "_list"),
                          "model_list",
                          class(train_list))
