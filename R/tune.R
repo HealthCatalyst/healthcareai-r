@@ -54,6 +54,13 @@ tune_models <- function(d,
         "ROC"
       }
   }
+  # Make sure models are supported
+  available <- c("rf", "knn")
+  unsupported <- models[!models %in% available]
+  if (length(unsupported))
+    stop("Currently supported algorithms are: ",
+         paste(available, collapse = ", "),
+         ".\nNot supported: ", paste(unsupported, collapse = ", "))
   # We use kknn and ranger, but user input is "knn" and "rf
   models[models == "knn"] <- "kknn"
   models[models == "rf"] <- "ranger"

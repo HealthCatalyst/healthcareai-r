@@ -72,3 +72,8 @@ test_that("tune_models returns a model_list", {
   expect_s3_class(r_models, "model_list")
   expect_s3_class(r_models, "regression_list")
 })
+
+test_that("tune_models errors informatively if the algorithm isn't supported", {
+  expect_error(tune_models(test_df, x3, "regression", "not a model"),
+               regexp = "supported")
+})
