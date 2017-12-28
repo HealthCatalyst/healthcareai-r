@@ -50,25 +50,34 @@ tune_models <- function(d,
   outcome <- rlang::enquo(outcome)
   # Make sure outcome's class works with model_class, or infer it
   outcome_class <- class(dplyr::pull(d, !!outcome))
-  if (missing(model_class)) {
-    if (outcome_class %in% c("character", "factor")) {
+  looks_categorical <- outcome_class %in% c("character", "factor", "logical")
+  looks_numeric <- is.numeric(dplyr::pull(d, !!outcome))
+  if (!looks_categorical && !looks_numeric) {
+    # outcome is weird class
+    stop(rlang::quo_name(outcome), " is ", class(dplyr::pull(d, !!outcome)),
+         ", and tune_models doesn't know what to do with that.")
+  } else if (missing(model_class)) {
+    # Need to infer model_class
+    if (looks_categorical) {
       message(rlang::quo_name(outcome),
               " looks categorical, so training classification algorithms.")
       model_class <- "classification"
-    } else if (is.numeric(dplyr::pull(d, !!outcome)) {
+    } else {
       message(rlang::quo_name(outcome),
               " looks numeric, so training regression algorithms.")
       model_class <- "regression"
+      # User provided model_class, so check it
     }
-  } else if (outcome_class %in% c("character", "factor") &&
-             model_class == "regression") {
-    stop(rlang::quo_name(outcome), " is ", outcome_class, " but you're ",
-         "trying to train a regression model.")
-  } else if (is.numeric(dplyr::pull(d, !!outcome)) &&
-             model_class == "classification") {
-    stop(rlang::quo_name(outcome), " is ", outcome_class, " but you're ",
-         "trying to train a classification model. If that's what you want ",
-         "convert it explicitly with as.factor().")
+  } else {
+    # Check user-provided model_class
+    if (looks_categorical && model_class == "regression") {
+      stop(rlang::quo_name(outcome), " is ", outcome_class, " but you're ",
+           "trying to train a regression model.")
+    } else if (looks_numeric && model_class == "classification") {
+      stop(rlang::quo_name(outcome), " is ", outcome_class, " but you're ",
+           "trying to train a classification model. If that's what you want ",
+           "convert it explicitly with as.factor().")
+    }
   }
   # Choose metric if not provided
   if (missing(metric)) {
