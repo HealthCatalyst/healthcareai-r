@@ -248,50 +248,53 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
     
     buildGrid = function() {
       if (isTRUE(self$params$tune)) {
-        optimal <- NA
-
+        
         # Create reasonable gridsearch for mtry
-        # This optimal value comes from randomForest documentation
-        # TODO: make mtry calc a function (incl both tune and not)
+        ## Could make tuning length a parameter. For now just 5.
+        mtry_length <- 5L
+        nvar <- ncol(private$dfTrain) - 1L
+        mtryList <- 
+          if (nvar <= mtry_length) {
+            mtryList <- 1:nvar
+          } else {
+            # Focus mtry search on smaller side of nvar
+            mtryList <- unique(floor(seq(1, sqrt(nvar), length.out = mtry_length) ^ 2))
+          }
+        
+        # Choose split rules
         if (self$params$type == 'classification') {
-          optimal <- floor(sqrt(ncol(private$dfTrain)))
-          ourSplitrule <- 'gini'
+          ourSplitrule <- c('gini', 'extratrees')
+        } else if (self$params$type == 'regression') {
+          ourSplitrule <- c('variance', 'extratrees')
+        }
+        
+        # Choose minimum node size
+        min_node_size <- c(1L, 5L)
+        
+        # Build grid
+        private$grid <- expand.grid(mtry = mtryList, 
+                                    splitrule = ourSplitrule,
+                                    min.node.size = min_node_size)
+        message('Performing grid search over the following grid. This may take some ',
+                'time, especially if your data frame is large.')
+        print(private$grid)
+        
+      }
+      else {  # If not tuning, use ranger's defaults
+        if (self$params$type == 'classification') {
+          private$grid <- data.frame(mtry = floor(sqrt(ncol(private$dfTrain))), 
+                                     splitrule = 'gini',
+                                     min.node.size = 1)
         }
         else if (self$params$type == 'regression') {
-          optimal <- max(floor(ncol(private$dfTrain)/3), 1)
-          ourSplitrule <- 'variance'
-        }
-
-        mtryList <- c(optimal - 1, optimal, optimal + 1)
-        # Make it such that lowest mtry is 2
-        if (length(which(mtryList < 0)) > 0) {
-          mtryList <- mtryList + 3
-        } else if (length(which(mtryList == 0)) > 0) {
-          mtryList <- mtryList + 2
-        } else if (length(which(mtryList == 1)) > 0) {
-          mtryList <- mtryList + 1
-        }
-
-        print(paste(c('Performing grid search across these mtry values: ',
-                      mtryList), collapse = " "))
-
-        private$grid <-  data.frame(mtry = mtryList, splitrule=ourSplitrule) # Number of features/tree
-      }
-      else {
-        if (self$params$type == 'classification') {
-          private$grid <- data.frame(mtry = floor(sqrt(ncol(private$dfTrain))), splitrule='gini')
-        }
-        else if (self$params$type == 'regression') {
-          private$grid <- data.frame(mtry = max(floor(ncol(private$dfTrain)/3), 1), splitrule='variance')
+          private$grid <- data.frame(mtry = max(floor(ncol(private$dfTrain)/3), 1), 
+                                     splitrule = 'variance',
+                                     min.node.size = 5)
         }
       }
-      # caret versions caret_6.0-77 and later need splitrule in gird;
-      # older versions need it to not be there. So we remove it:
-      if (numeric_version(packageVersion("caret")) < "6.0.77")
-        private$grid$splitrule <- NULL
     }
   ),
-
+  
   # Public members
   public = list(
 
@@ -375,6 +378,12 @@ RandomForestDevelopment <- R6Class("RandomForestDevelopment",
         tuneGrid = private$grid,
         trControl = train.control
       )
+      if (self$params$tune) {
+        suppressWarnings(print(ggplot(private$fitRF)))
+        message("The best performing hyperparameter combination was:\n")
+        print(structure(private$fitRF$bestTune, row.names = ""))
+        message("\n")
+      }
     },
 
     # Perform prediction
