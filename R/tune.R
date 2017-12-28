@@ -70,6 +70,11 @@ tune_models <- function(d,
     }
   } else {
     # Check user-provided model_class
+    supported_classes <- c("regression", "classification")
+    if (!model_class %in% supported_classes)
+      stop("Supported model classes are: ",
+           paste(supported_classes, collapse = ", "),
+           ". You supplied this unsupported class: ", model_class)
     if (looks_categorical && model_class == "regression") {
       stop(rlang::quo_name(outcome), " is ", outcome_class, " but you're ",
            "trying to train a regression model.")
@@ -94,7 +99,8 @@ tune_models <- function(d,
   if (length(unsupported))
     stop("Currently supported algorithms are: ",
          paste(available, collapse = ", "),
-         ".\nNot supported: ", paste(unsupported, collapse = ", "))
+         ". You supplied these unsupported algorithms: ",
+         paste(unsupported, collapse = ", "))
   # We use kknn and ranger, but user input is "knn" and "rf"
   models[models == "knn"] <- "kknn"
   models[models == "rf"] <- "ranger"
