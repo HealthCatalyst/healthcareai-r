@@ -36,6 +36,22 @@
 #'   combination in each fold for each model, so run time is a function of
 #'   length(models) x n_folds x tune_depth.
 #'
+#' @example
+#' ### Takes ~10 seconds
+#' \dontrun{
+#' # Remove identifier variable not to be used in model
+#' d <- dplyr::select(pima_diabetes, -PatientID)
+#' # Choose 200 rows to speed tuning
+#' d <- dplyr::sample_n(d, 200)
+#' m <- tune_models(d, outcome = Diabetes, model_class = "classification")
+#' # Plot performance over hyperparameter values for random forest
+#' ggplot2::ggplot(m$rf)
+#' # Extract confusion matrix for KNN
+#' caret::confusionMatrix(m$knn, norm = "none")
+#' # Compare performance of algorithms at best hyperparameter values
+#' rs <- resamples(m)
+#' dotplot(rs)
+#' }
 tune_models <- function(d,
                         outcome,
                         model_class,
@@ -102,6 +118,7 @@ tune_models <- function(d,
          ". You supplied these unsupported algorithms: ",
          paste(unsupported, collapse = ", "))
   # We use kknn and ranger, but user input is "knn" and "rf"
+  provided_models <- models  # Keep user names to name model_list
   models[models == "knn"] <- "kknn"
   models[models == "rf"] <- "ranger"
 
@@ -136,6 +153,8 @@ tune_models <- function(d,
                    tuneLength = tune_depth
       )
     })
+  # Add model names
+  names(train_list) <- provided_models
 
   # Add classes
   class(train_list) <- c(paste0(model_class, "_list"),
