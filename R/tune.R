@@ -104,7 +104,8 @@ tune_models <- function(d,
     train_control <-
       caret::trainControl(method = "cv",
                           number = n_folds,
-                          search = "random"
+                          search = "random",
+                          savePredictions = "final"
       )
   } else {
     stop("Currently tune_method = \"random\" is the only supported method",
