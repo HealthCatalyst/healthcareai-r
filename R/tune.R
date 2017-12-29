@@ -44,7 +44,7 @@
 #' d <- dplyr::select(pima_diabetes, -PatientID)
 #' d <- stats::na.omit(d)
 #' d <- dplyr::sample_n(d, 100)
-#' m <- tune_models(d, outcome = Diabetes, model_class = "classification")
+#' m <- tune(d, outcome = Diabetes, model_class = "classification")
 #' # Plot performance over hyperparameter values for random forest
 #' ggplot2::ggplot(m$rf)
 #' # Extract confusion matrix for KNN
@@ -53,7 +53,7 @@
 #' rs <- resamples(m)
 #' dotplot(rs)
 #' }
-tune_models <- function(d,
+tune <- function(d,
                         outcome,
                         model_class,
                         models = c("rf", "knn"),
@@ -72,7 +72,7 @@ tune_models <- function(d,
   if (!looks_categorical && !looks_numeric) {
     # outcome is weird class
     stop(rlang::quo_name(outcome), " is ", class(dplyr::pull(d, !!outcome)),
-         ", and tune_models doesn't know what to do with that.")
+         ", and tune doesn't know what to do with that.")
   } else if (missing(model_class)) {
     # Need to infer model_class
     if (looks_categorical) {
