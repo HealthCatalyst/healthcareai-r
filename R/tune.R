@@ -31,6 +31,8 @@
 #'
 #' @importFrom kknn kknn
 #' @importFrom ranger ranger
+#' @importFrom dplyr mutate
+#' @importFrom rlang quo_name
 #'
 #' @details Note that in general a model is trained for each hyperparameter
 #'   combination in each fold for each model, so run time is a function of
@@ -54,20 +56,24 @@
 #' dotplot(rs)
 #' }
 tune <- function(d,
-                        outcome,
-                        model_class,
-                        models = c("rf", "knn"),
-                        n_folds = 5,
-                        tune_depth = 10,
-                        tune_method = "random",
-                        metric,
-                        hyperparameters) {
-
+                 outcome,
+                 model_class,
+                 models = c("rf", "knn"),
+                 n_folds = 5,
+                 tune_depth = 10,
+                 tune_method = "random",
+                 metric,
+                 hyperparameters) {
   # Organize arguments and defaults
   outcome <- rlang::enquo(outcome)
+  # tibbles upset some algorithms, plus handles matrices, maybe
+  d <- as.data.frame(d)
   # Make sure outcome's class works with model_class, or infer it
   outcome_class <- class(dplyr::pull(d, !!outcome))
-  looks_categorical <- outcome_class %in% c("character", "factor", "logical")
+  looks_categorical <- outcome_class %in% c("character", "factor")
+  # Some algorithms need the response to be factor instead of char or lgl
+  if (looks_categorical)
+    d <- dplyr::mutate(d, !!rlang::quo_name(outcome) := as.factor(!!outcome))
   looks_numeric <- is.numeric(dplyr::pull(d, !!outcome))
   if (!looks_categorical && !looks_numeric) {
     # outcome is weird class

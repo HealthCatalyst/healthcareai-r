@@ -25,7 +25,7 @@ test_that("Error informatively if outcome class doesn't match model_class", {
 test_that("tune doesn't error on knn regression", {
   expect_error(
     tune(d = test_df, outcome = x3, model_class = "regression",
-                models = "knn", n_folds = 2, tune_depth = 2)
+         models = "knn", n_folds = 2, tune_depth = 2)
     , regexp = NA)
 
 })
@@ -33,7 +33,7 @@ test_that("tune doesn't error on knn regression", {
 test_that("tune doesn't error on knn classification", {
   expect_error(
     tune(d = test_df, outcome = x1, model_class = "classification",
-                models = "knn", n_folds = 2, tune_depth = 2)
+         models = "knn", n_folds = 2, tune_depth = 2)
     , regexp = NA)
 })
 
@@ -41,7 +41,7 @@ test_that("tune doesn't error on rf regression", {
   expect_error(
     suppressWarnings(  # rf-regression issues unimportant warning sometimes
       tune(d = test_df, outcome = x3, model_class = "regression",
-                  models = "rf", n_folds = 2, tune_depth = 2)
+           models = "rf", n_folds = 2, tune_depth = 2)
     )
     , regexp = NA)
 })
@@ -49,7 +49,7 @@ test_that("tune doesn't error on rf regression", {
 test_that("tune doesn't error on rf classification", {
   expect_error(
     tune(d = test_df, outcome = x1, model_class = "classification",
-                models = "rf", n_folds = 2, tune_depth = 2)
+         models = "rf", n_folds = 2, tune_depth = 2)
     , regexp = NA)
 })
 
@@ -57,19 +57,19 @@ test_that("tune doesn't error on rf classification", {
 test_that("tune doesn't error on rf & knn classification", {
   expect_error(
     tune(d = test_df, outcome = x1, model_class = "classification",
-                models = c("rf", "knn"), n_folds = 2, tune_depth = 2)
+         models = c("rf", "knn"), n_folds = 2, tune_depth = 2)
     , regexp = NA)
 })
 
 test_that("tune returns a model_list of appropriate type", {
   c_models <-
     tune(d = test_df, outcome = x1, model_class = "classification",
-                n_folds = 2, tune_depth = 2)
+         n_folds = 2, tune_depth = 2)
   # rf-regression issues unimportant warning sometimes
   suppressWarnings({
     r_models <-
       tune(d = test_df, outcome = x3, model_class = "regression",
-                  n_folds = 2, tune_depth = 2)
+           n_folds = 2, tune_depth = 2)
   })
   expect_s3_class(c_models, "model_list")
   expect_s3_class(c_models, "classification_list")
@@ -108,7 +108,7 @@ test_that("tune errors informatively if the algorithm isn't supported", {
 test_that("tune supports various loss functions in classification", {
   expect_warning(
     tune(d = test_df, outcome = x1, model_class = "classification",
-                metric = "ROC", models = "knn", n_folds = 2, tune_depth = 2)
+         metric = "ROC", models = "knn", n_folds = 2, tune_depth = 2)
     , regexp = NA)
   # Not yet supported
   # expect_warning(
@@ -130,11 +130,21 @@ test_that("tune supports various loss functions in classification", {
 test_that("tune supports various loss functions in regression", {
   expect_warning(
     tune(d = test_df, outcome = x2, model_class = "regression",
-                metric = "MAE", models = "knn", n_folds = 2, tune_depth = 2)
+         metric = "MAE", models = "knn", n_folds = 2, tune_depth = 2)
     , regexp = NA)
   expect_warning(
     tune(d = test_df, outcome = x2, model_class = "regression",
-                metric = "Rsquared", models = "knn", n_folds = 2,
-                tune_depth = 2)
+         metric = "Rsquared", models = "knn", n_folds = 2,
+         tune_depth = 2)
     , regexp = NA)
+})
+
+test_that("tune handles character outcome", {
+  test_df$x1 <- as.character(test_df$x1)
+  expect_s3_class(tune(test_df, x1, "classification"), "classification_list")
+})
+
+test_that("tune handles tibble input", {
+  expect_s3_class(tune(tibble::as_tibble(test_df), x1, "classification"),
+                  "classification_list")
 })
