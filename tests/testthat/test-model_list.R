@@ -1,8 +1,22 @@
 # Setup ------------------------------------------------------------------------
 data(mtcars)
 mtcars$am <- as.factor(c("automatic", "manual")[mtcars$am + 1])
-rf <- ranger::ranger(mpg ~ ., mtcars)
-kn <- kknn::kknn(am ~ ., train = mtcars[1:20, ], test = mtcars[21:nrow(mtcars), ])
+rf <- caret::train(x = dplyr::select(mtcars, -am),
+                   y = mtcars$am,
+                   method = "ranger",
+                   trControl = trainControl(method = "none"),
+                   tuneGrid = data.frame(mtry = 3,
+                                         splitrule = "gini",
+                                         min.node.size = 2)
+)
+kn <- caret::train(x = dplyr::select(mtcars, -am),
+                   y = mtcars$am,
+                   method = "kknn",
+                   trControl = trainControl(method = "none"),
+                   tuneGrid = data.frame(kmax = 3,
+                                         distance = 1,
+                                         kernel = "rectangular")
+)
 r_models <- tune(mtcars, mpg)
 c_models <- tune(mtcars, am)
 
@@ -33,16 +47,22 @@ test_that("as.model_list warns if input isn't a model", {
 })
 
 test_that("as.model_list succeeds with empty input", {
-  as.model_list(type = "regression")
-  as.model_list(type = "classification")
+  expect_s3_class(as.model_list(type = "regression"), "regression_list")
+  expect_s3_class(as.model_list(type = "classification"), "classification_list")
 })
 
 test_that("as.model_list succeeds with one or more models as input", {
   # Note that we don't check the outcome variable against model type here
-  as.model_list(rf, type = "classification")
-  as.model_list(rf, kn, type = "regression")
-  as.model_list(listed_models = list(rf, kn), type = "classification")
-  as.model_list(listed_models = list(rf), type = "regression")
+  expect_s3_class(as.model_list(rf, type = "classification"), "model_list")
+  expect_s3_class(as.model_list(rf, kn, type = "regression"), "model_list")
+  expect_s3_class(
+    as.model_list(listed_models = list(rf, kn), type = "classification"),
+    "model_list"
+  )
+  expect_s3_class(
+    as.model_list(listed_models = list(rf), type = "regression"),
+    "model_list"
+  )
 })
 
 test_that("as.model_list preserves model names", {

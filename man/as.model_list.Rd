@@ -7,7 +7,7 @@
 as.model_list(..., listed_models = NULL, type)
 }
 \arguments{
-\item{...}{Models to put into a model list}
+\item{...}{\code{caret}-trained models to put into a model list}
 
 \item{listed_models}{Use this if your models are already in a list}
 

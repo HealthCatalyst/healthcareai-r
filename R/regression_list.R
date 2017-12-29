@@ -11,9 +11,8 @@
 #' @importFrom purrr map_df
 #'
 #' @examples
-#' mtcars %>%
-#'  tune(mpg) %>%
-#'  plot()
+#' m <- tune(mtcars, mpg)
+#' plot(m)
 plot.regression_list <- function(rlist, print = TRUE) {
   if (!inherits(rlist, "regression_list"))
     stop("rlist is class ", class(rlist)[1], ", but needs to be regression_list")
@@ -38,11 +37,19 @@ plot.regression_list <- function(rlist, print = TRUE) {
 }
 
 summary.regression_list <- function(rlist) {
+  # Data details: rows, features, outcome class/alg type
+  # CV Details: n-folds, param depth
+  # Names of algs
+  # Best performing alg and hyperparameter values
+  # Tables of hyperparamter values and performance
+  names(m[[1]])
+  m[[1]]$trainingData
 
 }
 
 print.regression_list <- function(rlist) {
-
+  # Algs trained, depth
+  # Best model: Alg, hyperparameters, metric
 }
 
 evaluate.regression_list <- function(rlist) {

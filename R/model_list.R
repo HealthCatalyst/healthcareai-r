@@ -6,6 +6,7 @@
 #'
 #' @return An empty list with classes list, model_list, and type_list
 #' @export
+#' @importFrom purrr map_lgl
 #'
 #' @examples
 #' model_list("regression")
@@ -17,7 +18,7 @@ model_list <- function(type, ...) {
 
 #' Make models into model_list object
 #'
-#' @param ... Models to put into a model list
+#' @param ... \code{caret}-trained models to put into a model list
 #' @param listed_models Use this if your models are already in a list
 #' @param type "classification" or "regression"
 #'
@@ -28,8 +29,8 @@ as.model_list <- function(..., listed_models = NULL, type) {
     c(structure(list(...),
                 names = sapply(match.call(expand.dots = FALSE)$..., deparse)),
       listed_models)
-  if (length(listed_models) && is.atomic(unlist(listed_models)))
-    warning("That doesn't look like models.")
+  if (any(!purrr::map_lgl(listed_models, inherits, "train")))
+    warning("Those don't look like caret-trained models.")
   check_model_type(type)
   class(listed_models) <- c(paste0(type, "_list"),
                             "model_list",

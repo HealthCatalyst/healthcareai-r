@@ -20,7 +20,6 @@ Plot of model performance as a function of algorithm and
 Plot performance of regression models
 }
 \examples{
-mtcars \%>\%
- tune(mpg) \%>\%
- plot()
+m <- tune(mtcars, mpg)
+plot(m)
 }
