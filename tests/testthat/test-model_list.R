@@ -1,10 +1,12 @@
-context("Checking model_list constructors")
+# Setup ------------------------------------------------------------------------
+data(mtcars)
+mtcars$am <- as.factor(c("automatic", "manual")[mtcars$am + 1])
+rf <- ranger::ranger(mpg ~ ., mtcars)
+kn <- kknn::kknn(am ~ ., train = mtcars[1:20, ], test = mtcars[21:nrow(mtcars), ])
+r_models <- tune(mtcars, mpg)
+c_models <- tune(mtcars, am)
 
-# Setup
-set.seed(8301)
-d <- data.frame(x = rnorm(10), y = sample(c("a", "b"), 10, TRUE))
-rf <- ranger::ranger(y ~ x, d)
-kn <- kknn::kknn(y ~ x, d[1:8, ], d[9:10, ])
+context("Checking model_list constructors") # ----------------------------------
 
 test_that("model_list fails if type is unsupported", {
   expect_error(model_list(type = "what am i even?"))
@@ -22,9 +24,12 @@ test_that("model_list succeeds without model input", {
   expect_s3_class(empty_class, "model_list")
 })
 
-test_that("as.model_list fails if type is unsupported and warns if input isn't model", {   # nolint
-  expect_warning(as.model_list(1:5, type = "regression"))
+test_that("as.model_list fails if type is unsupported", {
   expect_error(as.model_list(type = "what am i even?"))
+})
+
+test_that("as.model_list warns if input isn't a model", {
+  expect_warning(as.model_list(1:5, type = "regression"))
 })
 
 test_that("as.model_list succeeds with empty input", {
@@ -52,3 +57,21 @@ test_that("as.model_list preserves model names", {
     c("rf", "kn")
   )
 })
+
+context("Checking model_list plotters") # --------------------------------------
+
+test_that("plot.regression_list works", {
+  expect_equal(class(plot(r_models, print = FALSE)),
+               c("gg", "ggplot"))
+  expect_equal(class(plot.regression_list(r_models, print = FALSE)),
+               c("gg", "ggplot"))
+  expect_error(plot.regression_list(c_models, print = FALSE),
+               regexp = "classification")
+  r2 <- tune(mtcars, mpg, metric = "Rsquared")
+  expect_s3_class(plot(r2, print = FALSE), "gg")
+})
+
+# test_that("plot.classification_list works", {
+#   expect_error(plot.classification_list(r_models, print = FALSE),
+#                regexp = "regression")
+# })
