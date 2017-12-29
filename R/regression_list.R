@@ -21,14 +21,13 @@ plot.regression_list <- function(rlist, print = TRUE) {
   y_range <- c(min(bounds[1, ]), max(bounds[2, ]))
   nrows <- ceiling(length(rlist) / 2)
   gg_list <-
-    lapply(names(rlist), function(m) {
-      mod <- rlist[[m]]
+    lapply(rlist, function(mod) {
       # optimum is min or max depending on metric
       optimum <- if (mod$maximize) max else min
       best_metric <- round(optimum(mod$results[[mod$metric]]), 2)
       ggplot(mod) +
         ylim(y_range) +
-        labs(title = m,
+        labs(title = mod$modelInfo$label,
              caption = paste("Best ", mod$metric, ": ", best_metric))
     })
   gg <- cowplot::plot_grid(plotlist = gg_list)
@@ -49,13 +48,13 @@ plot.regression_list <- function(rlist, print = TRUE) {
 #
 # }
 #
-# print.regression_list <- function(rlist) {
-#   rinfo <- extract_model_info(rlist)
-#   cat("Trained", tolower(rinfo$m_class),
-#       tolower(paste(rinfo$algs, collapse = ", ")), "on"
-#   )
-#
-# }
+print.regression_list <- function(rlist) {
+  rinfo <- extract_model_info(rlist)
+  cat("Trained", tolower(rinfo$m_class),
+      tolower(paste(rinfo$algs, collapse = ", ")), "on"
+  )
+
+}
 
 evaluate.regression_list <- function(rlist) {
 

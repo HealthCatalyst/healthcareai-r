@@ -47,8 +47,8 @@
 #' d <- stats::na.omit(d)
 #' d <- dplyr::sample_n(d, 100)
 #' m <- tune(d, outcome = Diabetes, model_class = "classification")
-#' # Plot performance over hyperparameter values for random forest
-#' ggplot2::ggplot(m$rf)
+#' # Plot performance over hyperparameter values for each algorithm
+#' plot(m)
 #' # Extract confusion matrix for KNN
 #' caret::confusionMatrix(m$knn, norm = "none")
 #' # Compare performance of algorithms at best hyperparameter values
@@ -151,7 +151,8 @@ tune <- function(d,
   # Loop over models, tuning each
   train_list <-
     lapply(models, function(model) {
-      message("Running cross validation for ", model)
+      message("Running cross validation for ",
+              caret::getModelInfo(model)[[1]]$label)
       caret::train(x = dplyr::select(d, -!!outcome),
                    y = dplyr::pull(d, !!outcome),
                    method = model,
