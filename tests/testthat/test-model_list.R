@@ -22,7 +22,7 @@ test_that("model_list succeeds without model input", {
   expect_s3_class(empty_class, "model_list")
 })
 
-test_that("as.model_list fails if type is unsupported and warns if input isn't model", {   # no lint
+test_that("as.model_list fails if type is unsupported and warns if input isn't model", {   # nolint
   expect_warning(as.model_list(1:5, type = "regression"))
   expect_error(as.model_list(type = "what am i even?"))
 })
