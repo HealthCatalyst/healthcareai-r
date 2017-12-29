@@ -36,7 +36,7 @@
 #'   combination in each fold for each model, so run time is a function of
 #'   length(models) x n_folds x tune_depth.
 #'
-#' @example
+#' @examples
 #' ### Takes ~10 seconds
 #' \dontrun{
 #' # Remove identifier variable not to be used in model
@@ -157,8 +157,7 @@ tune_models <- function(d,
   names(train_list) <- provided_models
 
   # Add classes
-  class(train_list) <- c(paste0(model_class, "_list"),
-                         "model_list",
-                         class(train_list))
+  train_list <- as.model_list(listed_models = train_list, type = model_class)
+
   return(train_list)
 }
