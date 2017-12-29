@@ -55,12 +55,13 @@ Note that in general a model is trained for each hyperparameter
   length(models) x n_folds x tune_depth.
 }
 \examples{
-### Takes ~10 seconds
 \dontrun{
-# Remove identifier variable not to be used in model
+### Takes ~7 seconds
+# Remove identifier variables and rows with missingness,
+# and choose 100 rows to speed tuning
 d <- dplyr::select(pima_diabetes, -PatientID)
-# Choose 200 rows to speed tuning
-d <- dplyr::sample_n(d, 200)
+d <- stats::na.omit(d)
+d <- dplyr::sample_n(d, 100)
 m <- tune_models(d, outcome = Diabetes, model_class = "classification")
 # Plot performance over hyperparameter values for random forest
 ggplot2::ggplot(m$rf)
