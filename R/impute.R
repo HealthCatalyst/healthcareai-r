@@ -3,22 +3,28 @@
 #'
 #' @description `impute` will impute your data using a variety of methods for
 #' both nominal and numeric data. Currently supports mean (numeric only),
-#' new_category (categorical only), bagged trees, or knn. Grain and target will
-#' not be imputed.
+#' new_category (categorical only), bagged trees, or knn.
 #' @param d A dataframe or tibble containing data to impute.
+#' @param ... Optional. Unquoted variable names to not be imputed. These will
+#' be returned unaltered.
 #' @param rec_obj Optional, a recipe object. If provided, this recipe will be
-#' used to bake data contained in d.
+#' applied to impute new data contained in d with values saved in the recipe.
+#' Use this param if you'd like to save imputation values from a large data set
+#' and then apply them to a small dataset (rather than recalculating from a much
+#' smaller number of rows).
 #' @param numeric_method Defaults to \code{"mean"}. Other choices are
 #' \code{"bagimpute"} or \code{"knnimpute"}.
 #' @param nominal_method Defaults to \code{"new_category"}. Other choices are
 #' \code{"bagimpute"} or \code{"knnimpute"}.
 #' @param numeric_params A named list with parmeters to use with chosen
-#' imputation method on numeric data. Options are \code{bag_model},
-#' \code{bag_options}, \code{knn_K}, \code{impute_with}, or \code{seed_val}.
+#' imputation method on numeric data. Options are \code{bag_model} (bagimpute
+#' only), \code{bag_options} (bagimpute only), \code{knn_K}, (knnimpute only),
+#' \code{impute_with}, (bag or knn) or \code{seed_val} (bag or knn).
 #' See \link{step_bagimpute} or \link{step_knnimpute} for details.
 #' @param nominal_params A named list with parmeters to use with chosen
-#' imputation method on nominal data. Options are \code{bag_model},
-#' \code{bag_options}, \code{knn_K}, \code{impute_with}, or \code{seed_val}.
+#' imputation method on nominal data. Options are \code{bag_model} (bagimpute
+#' only), \code{bag_options} (bagimpute only), \code{knn_K}, (knnimpute only),
+#' \code{impute_with}, (bag or knn) or \code{seed_val} (bag or knn).
 #' See \link{step_bagimpute} or \link{step_knnimpute} for details.
 #' @return Imputed data and a reusable recipe object for future imputation.
 #'
@@ -71,15 +77,15 @@
 #'
 #'
 impute <- function(d = NULL,
+                   ...,
                    rec_obj = NULL,
-                   ignore_columns,
                    numeric_method = "mean",
                    nominal_method = "new_category",
                    numeric_params = NULL,
                    nominal_params = NULL) {
   # Check to make sure that df is a dframe
   if (!(is.data.frame(d))) {
-    stop("\"d\" must be a tibble or dframe.")
+    stop("\"d\" must be a tibble or dataframe.")
   }
 
   # Check to make sure rec_obj is a valid recipe
@@ -87,9 +93,17 @@ impute <- function(d = NULL,
     stop("\"rec_obj\" must be a valid recipe object.")
   }
 
-  ignore_columns <- rlang::enquo(ignore_columns)
+  ignore_columns <- rlang::quos(...)
 
-  if (rlang::quo_is_missing(ignore_columns)) {
+  # Save column order
+  col_order <- names(d)
+
+  # Display missingness
+  message("d contains the following levels of missingness:")
+  print(missingness(d))
+  message(paste0("Ignore columns will not be imputed."))
+
+  if (length(ignore_columns) == 0) {
     d_ignore <- NULL
   } else {
     # Make sure all columns are present
@@ -98,21 +112,15 @@ impute <- function(d = NULL,
     if (any(!present))
       stop(paste(cols[!present], collapse = ", "), " not found in d.")
 
-    d_ignore <- select(d, !!ignore_columns)
-    d <- select(d, -!!ignore_columns)
+    d_ignore <- dplyr::select(d, !!!ignore_columns)
+    d <- dplyr::select(d, -one_of(cols)) # -!!!ignore_columns failed here.
   }
 
-  # Save column order
-  col_order <- names(d)
-
-  message("d contains the following levels of missingness:")
-  print(missingness(d))
-  message(paste0("Ignore columns will not be imputed."))
 
   # If recipe object is not provided, train it and predict.
   if (is.null(rec_obj)) {
     # Train
-    rec_obj <- recipe(x = d) %>%
+    rec_obj <- recipe(x = d, formula = "~.") %>%
       hcai_impute(numeric_method = numeric_method,
                   nominal_method = nominal_method,
                   numeric_params = numeric_params,
