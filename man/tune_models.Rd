@@ -54,3 +54,20 @@ Note that in general a model is trained for each hyperparameter
   combination in each fold for each model, so run time is a function of
   length(models) x n_folds x tune_depth.
 }
+\examples{
+### Takes ~10 seconds
+\dontrun{
+# Remove identifier variable not to be used in model
+d <- dplyr::select(pima_diabetes, -PatientID)
+# Choose 200 rows to speed tuning
+d <- dplyr::sample_n(d, 200)
+m <- tune_models(d, outcome = Diabetes, model_class = "classification")
+# Plot performance over hyperparameter values for random forest
+ggplot2::ggplot(m$rf)
+# Extract confusion matrix for KNN
+caret::confusionMatrix(m$knn, norm = "none")
+# Compare performance of algorithms at best hyperparameter values
+rs <- resamples(m)
+dotplot(rs)
+}
+}
