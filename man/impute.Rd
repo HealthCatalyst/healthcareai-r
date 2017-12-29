@@ -4,19 +4,21 @@
 \alias{impute}
 \title{Impute data and return a reusable recipe.}
 \usage{
-impute(data = NULL, target = NULL, grain = NULL, rec_obj = NULL,
-  numeric_method = "mean", nominal_method = "new_category",
-  numeric_params = NULL, nominal_params = NULL)
+impute(d = NULL, ..., rec_obj = NULL, numeric_method = "mean",
+  nominal_method = "new_category", numeric_params = NULL,
+  nominal_params = NULL)
 }
 \arguments{
-\item{data}{A dataframe or tibble containing data to impute.}
+\item{d}{A dataframe or tibble containing data to impute.}
 
-\item{target}{A string, the name of the target column. Required.}
-
-\item{grain}{A string, the name of the grain column. Required.}
+\item{...}{Optional. Unquoted variable names to not be imputed. These will
+be returned unaltered.}
 
 \item{rec_obj}{Optional, a recipe object. If provided, this recipe will be
-used to bake data contained in data.}
+applied to impute new data contained in d with values saved in the recipe.
+Use this param if you'd like to save imputation values from a large data set
+and then apply them to a small dataset (rather than recalculating from a much
+smaller number of rows).}
 
 \item{numeric_method}{Defaults to \code{"mean"}. Other choices are
 \code{"bagimpute"} or \code{"knnimpute"}.}
@@ -25,13 +27,15 @@ used to bake data contained in data.}
 \code{"bagimpute"} or \code{"knnimpute"}.}
 
 \item{numeric_params}{A named list with parmeters to use with chosen
-imputation method on numeric data. Options are \code{bag_model},
-\code{bag_options}, \code{knn_K}, \code{impute_with}, or \code{seed_val}.
+imputation method on numeric data. Options are \code{bag_model} (bagimpute
+only), \code{bag_options} (bagimpute only), \code{knn_K}, (knnimpute only),
+\code{impute_with}, (bag or knn) or \code{seed_val} (bag or knn).
 See \link{step_bagimpute} or \link{step_knnimpute} for details.}
 
 \item{nominal_params}{A named list with parmeters to use with chosen
-imputation method on nominal data. Options are \code{bag_model},
-\code{bag_options}, \code{knn_K}, \code{impute_with}, or \code{seed_val}.
+imputation method on nominal data. Options are \code{bag_model} (bagimpute
+only), \code{bag_options} (bagimpute only), \code{knn_K}, (knnimpute only),
+\code{impute_with}, (bag or knn) or \code{seed_val} (bag or knn).
 See \link{step_bagimpute} or \link{step_knnimpute} for details.}
 }
 \value{
@@ -40,53 +44,30 @@ Imputed data and a reusable recipe object for future imputation.
 \description{
 `impute` will impute your data using a variety of methods for
 both nominal and numeric data. Currently supports mean (numeric only),
-new_category (categorical only), bagged trees, or knn. Grain and target will
-not be imputed.
+new_category (categorical only), bagged trees, or knn.
 }
 \examples{
 library(recipes)
+d <- pima_diabetes
 
-n = 100
-set.seed(9)
-d <- tibble::tibble(patient_id = 1:n,
-                    age = sample(c(30:80), size = n, replace = TRUE),
-                    hemoglobin_count = rnorm(n, mean = 15, sd = 1),
-                    hemoglobin_category = sample(c("Low", "Normal", "High", NA),
-                                                 size = n, replace = TRUE),
-                    disease = ifelse(hemoglobin_count < 15, "Yes", "No")
-)
-d$age[sample(1:n, size = 20)] <- NA
-d$hemoglobin_count[sample(1:n, size = 15)] <- NA
-
-
-d_train <- d[1:80, ]
-d_test <- d[81:100, ]
-# Train imputer and apply
-data_and_recipe <- impute(data = d_train,
-                          grain = "patient_id",
-                          target = "disease")
-
+d_train <- d[1:700, ]
+d_test <- d[701:768, ]
+# Train imputer
+data_and_recipe <- impute(d = d_train,
+                          patient_id, diabetes)
 # Apply to new data
-res <- impute(data = d_test,
-              grain = "patient_id",
-              target = "disease",
+res <- impute(d = d_test,
+              patient_id, diabetes,
               rec_obj = data_and_recipe$rec_obj)
-
 # Specify methods:
-data_and_recipe <- impute(data = d_train,
-                          grain = "patient_id",
-                          target = "disease",
+data_and_recipe <- impute(d = d_train,
+                          patient_id, diabetes,
                           numeric_method = "bagimpute",
                           nominal_method = "new_category")
-
 # Specify method and param:
-data_and_recipe <- impute(data = d_train,
-                          grain = "patient_id",
-                          target = "disease",
+data_and_recipe <- impute(d = d_train,
+                          patient_id, diabetes,
                           nominal_method = "knnimpute",
                           nominal_params = list(knn_K = 4))
-
-
-
 
 }

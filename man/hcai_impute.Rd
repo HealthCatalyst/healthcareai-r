@@ -19,13 +19,15 @@ operations for this recipe.}
 \code{"bagimpute"} or \code{"knnimpute"}.}
 
 \item{numeric_params}{A named list with parmeters to use with chosen
-imputation method on numeric data. Options are \code{bag_model},
-\code{bag_options}, \code{knn_K}, \code{impute_with}, or \code{seed_val}.
+imputation method on numeric data. Options are \code{bag_model} (bagimpute
+only), \code{bag_options} (bagimpute only), \code{knn_K}, (knnimpute only),
+\code{impute_with}, (bag or knn) or \code{seed_val} (bag or knn).
 See \link{step_bagimpute} or \link{step_knnimpute} for details.}
 
 \item{nominal_params}{A named list with parmeters to use with chosen
-imputation method on nominal data. Options are \code{bag_model},
-\code{bag_options}, \code{knn_K}, \code{impute_with}, or \code{seed_val}.
+imputation method on nominal data. Options are \code{bag_model} (bagimpute
+only), \code{bag_options} (bagimpute only), \code{knn_K}, (knnimpute only),
+\code{impute_with}, (bag or knn) or \code{seed_val} (bag or knn).
 See \link{step_bagimpute} or \link{step_knnimpute} for details.}
 }
 \value{

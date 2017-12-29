@@ -38,19 +38,19 @@
 #' d_test <- d[701:768, ]
 #' # Train imputer
 #' data_and_recipe <- impute(d = d_train,
-#'                           PatientID, Diabetes)
+#'                           patient_id, diabetes)
 #' # Apply to new data
 #' res <- impute(d = d_test,
-#'               PatientID, Diabetes,
+#'               patient_id, diabetes,
 #'               rec_obj = data_and_recipe$rec_obj)
 #' # Specify methods:
 #' data_and_recipe <- impute(d = d_train,
-#'                           PatientID, Diabetes,
+#'                           patient_id, diabetes,
 #'                           numeric_method = "bagimpute",
 #'                           nominal_method = "new_category")
 #' # Specify method and param:
 #' data_and_recipe <- impute(d = d_train,
-#'                           PatientID, Diabetes,
+#'                           patient_id, diabetes,
 #'                           nominal_method = "knnimpute",
 #'                           nominal_params = list(knn_K = 4))
 #'
@@ -91,7 +91,7 @@ impute <- function(d = NULL,
       stop(paste(cols[!present], collapse = ", "), " not found in d.")
 
     d_ignore <- dplyr::select(d, !!!ignore_columns)
-    d <- dplyr::select(d, -one_of(cols)) # -!!!ignore_columns failed here.
+    d <- dplyr::select(d, -dplyr::one_of(cols)) # -!!!ignore_columns failed here.
   }
 
   # If recipe object is not provided, train it and predict.
@@ -109,7 +109,7 @@ impute <- function(d = NULL,
     bake(rec_obj, newdata = d)
 
   # Add ignore columns back in.
-  d_imputed <- bind_cols(d_imputed, d_ignore)
+  d_imputed <- dplyr::bind_cols(d_imputed, d_ignore)
   d_imputed <- d_imputed[, col_order]
 
   return(list(d_imputed = d_imputed,
