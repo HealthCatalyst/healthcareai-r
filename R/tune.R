@@ -30,7 +30,7 @@
 #' @export
 #'
 #' @importFrom kknn kknn
-#' @importFrom randomForest randomForest
+#' @importFrom ranger ranger
 #'
 #' @details Note that in general a model is trained for each hyperparameter
 #'   combination in each fold for each model, so run time is a function of
