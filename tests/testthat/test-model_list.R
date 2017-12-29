@@ -38,6 +38,12 @@ test_that("model_list succeeds without model input", {
   expect_s3_class(empty_class, "model_list")
 })
 
+test_that("model lists have target attribute", {
+  expect_equal(attr(model_list(type = "classification"), "target"), ".outcome")
+  expect_equal(attr(r_models, "target"), "mpg")
+  expect_equal(attr(c_models, "target"), "am")
+})
+
 test_that("as.model_list fails if type is unsupported", {
   expect_error(as.model_list(type = "what am i even?"))
 })

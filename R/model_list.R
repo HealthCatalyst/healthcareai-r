@@ -21,10 +21,12 @@ model_list <- function(type, ...) {
 #' @param ... \code{caret}-trained models to put into a model list
 #' @param listed_models Use this if your models are already in a list
 #' @param type "classification" or "regression"
+#' @param target Quoted name of response variable
 #'
 #' @return A model_list with child class type_list
 #' @export
-as.model_list <- function(..., listed_models = NULL, type) {
+as.model_list <- function(..., listed_models = NULL, type,
+                          target = ".outcome") {
   listed_models <-
     c(structure(list(...),
                 names = sapply(match.call(expand.dots = FALSE)$..., deparse)),
@@ -37,6 +39,7 @@ as.model_list <- function(..., listed_models = NULL, type) {
   class(listed_models) <- c(paste0(type, "_list"),
                             "model_list",
                             class(listed_models))
+  attr(listed_models, "target") <- target
   return(listed_models)
 }
 
