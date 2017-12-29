@@ -32,49 +32,27 @@
 #' @import recipes
 #' @examples
 #' library(recipes)
+#' d <- pima_diabetes
 #'
-#' n = 100
-#' set.seed(9)
-#' d <- tibble::tibble(patient_id = 1:n,
-#'                     age = sample(c(30:80), size = n, replace = TRUE),
-#'                     hemoglobin_count = rnorm(n, mean = 15, sd = 1),
-#'                     hemoglobin_category = sample(c("Low", "Normal", "High", NA),
-#'                                                  size = n, replace = TRUE),
-#'                     disease = ifelse(hemoglobin_count < 15, "Yes", "No")
-#' )
-#' d$age[sample(1:n, size = 20)] <- NA
-#' d$hemoglobin_count[sample(1:n, size = 15)] <- NA
-#'
-#'
-#' d_train <- d[1:80, ]
-#' d_test <- d[81:100, ]
-#' # Train imputer and apply
+#' d_train <- d[1:700, ]
+#' d_test <- d[701:768, ]
+#' # Train imputer
 #' data_and_recipe <- impute(d = d_train,
-#'                           grain = "patient_id",
-#'                           target = "disease")
-#'
+#'                           PatientID, Diabetes)
 #' # Apply to new data
 #' res <- impute(d = d_test,
-#'               grain = "patient_id",
-#'               target = "disease",
+#'               PatientID, Diabetes,
 #'               rec_obj = data_and_recipe$rec_obj)
-#'
 #' # Specify methods:
-#' d_and_recipe <- impute(d = d_train,
-#'                           grain = "patient_id",
-#'                           target = "disease",
+#' data_and_recipe <- impute(d = d_train,
+#'                           PatientID, Diabetes,
 #'                           numeric_method = "bagimpute",
 #'                           nominal_method = "new_category")
-#'
 #' # Specify method and param:
-#' d_and_recipe <- impute(d = d_train,
-#'                           grain = "patient_id",
-#'                           target = "disease",
+#' data_and_recipe <- impute(d = d_train,
+#'                           PatientID, Diabetes,
 #'                           nominal_method = "knnimpute",
 #'                           nominal_params = list(knn_K = 4))
-#'
-#'
-#'
 #'
 impute <- function(d = NULL,
                    ...,
@@ -115,7 +93,6 @@ impute <- function(d = NULL,
     d_ignore <- dplyr::select(d, !!!ignore_columns)
     d <- dplyr::select(d, -one_of(cols)) # -!!!ignore_columns failed here.
   }
-
 
   # If recipe object is not provided, train it and predict.
   if (is.null(rec_obj)) {
