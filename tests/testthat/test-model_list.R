@@ -42,8 +42,9 @@ test_that("as.model_list fails if type is unsupported", {
   expect_error(as.model_list(type = "what am i even?"))
 })
 
-test_that("as.model_list warns if input isn't a model", {
-  expect_warning(as.model_list(1:5, type = "regression"))
+test_that("as.model_list warns if input isn't a caret model", {
+  expect_error(as.model_list(1:5, type = "regression"))
+  expect_error(as.model_list(ranger::ranger(mpg ~ ., mtcars)))
 })
 
 test_that("as.model_list succeeds with empty input", {
