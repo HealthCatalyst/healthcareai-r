@@ -65,7 +65,8 @@ test_that("tune_models returns a model_list of appropriate type", {
   c_models <-
     tune_models(d = test_df, outcome = x1, model_class = "classification",
                 n_folds = 2, tune_depth = 2)
-  suppressWarnings({  # rf-regression issues unimportant warning sometimes
+  # rf-regression issues unimportant warning sometimes
+  suppressWarnings({
     r_models <-
       tune_models(d = test_df, outcome = x3, model_class = "regression",
                   n_folds = 2, tune_depth = 2)
@@ -76,10 +77,11 @@ test_that("tune_models returns a model_list of appropriate type", {
   expect_s3_class(r_models, "regression_list")
 })
 
-test_that("tune_models returns a model_list of appropriate type when not specified", {  # no lint
+test_that("tune_models returns a model_list of appropriate type when not specified", {  # nolint
   c_models <-
     tune_models(d = test_df, outcome = x1, n_folds = 2, tune_depth = 2)
-  suppressWarnings({  # rf-regression issues unimportant warning sometimes
+  # rf-regression issues unimportant warning sometimes
+  suppressWarnings({
     r_models <-
       tune_models(d = test_df, outcome = x3, n_folds = 2, tune_depth = 2)
   })
@@ -89,7 +91,7 @@ test_that("tune_models returns a model_list of appropriate type when not specifi
   expect_s3_class(r_models, "regression_list")
 })
 
-test_that("tune_models errors informatively if outcome is list", {  # no lint
+test_that("tune_models errors informatively if outcome is list", {  # nolint
   test_df$x3 <- as.list(test_df$x3)
   expect_error(
     tune_models(d = test_df, outcome = x3, n_folds = 2, tune_depth = 2),
@@ -120,7 +122,8 @@ test_that("tune_models supports various loss functions in classification", {
   #   , regexp = NA)
   # expect_warning(
   #   tune_models(d = test_df, outcome = x1, model_class = "classification",
-  #               metric = "accuracy", models = "knn", n_folds = 2, tune_depth = 2)
+  #               metric = "accuracy", models = "knn", n_folds = 2,
+  #               tune_depth = 2)
   #   , regexp = NA)
 })
 
