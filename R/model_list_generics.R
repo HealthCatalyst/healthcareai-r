@@ -1,3 +1,54 @@
+#' print method for model_list
+#'
+#' @param mlist model_list
+#'
+#' @return the input
+#' @noRd
+print.model_list <- function(mlist) {
+  rinfo <- extract_model_info(mlist)
+  hyperp <-
+    rinfo$best_model_tune %>%
+    sapply(as.character) %>%
+    paste(names(.), ., sep = " = ", collapse = "\n  ")
+  out <- paste0(
+    "Target: ", rinfo$target,
+    "\nClass: ", rinfo$m_class,
+    "\nAlgorithms Tuned: ", paste(rinfo$algs, collapse = ", "),
+    "\nPerformance Metric: ", rinfo$metric,
+    "\nNumber of Observations: ", rinfo$ddim[1],
+    "\nNumber of Features: ", rinfo$ddim[2] - 1L,
+
+    "\n\nBest model: ", rinfo$best_model_name,
+    "\n", rinfo$metric, " = ", round(rinfo$best_model_perf, 2),
+    "\nHyperparameter values:", "\n  ", hyperp
+  )
+  cat(out)
+  return(invisible(mlist))
+}
+
+#' summary method for model_list
+#'
+#' @param mlist model_list
+#'
+#' @return the summary
+#' @noRd
+summary.model_list <- function(mlist) {
+  # Data details: rows, features, outcome class/alg type
+  # CV Details: n-folds, param depth
+  # Names of algs
+  # Best performing alg and hyperparameter values
+  # Tables of hyperparamter values and performance
+  rinfo <- extract_model_info(mlist)
+
+  names(m[[1]])
+  print()
+  ncol(m[[1]]$trainingData) - 1
+
+  class(out) <- summary.model_list
+  return(out)
+}
+
+
 #' Plot performance of regression models
 #'
 #' @param rlist regression_list object as returned by \code{\link{tune}}
@@ -32,47 +83,7 @@ plot.regression_list <- function(rlist, print = TRUE) {
   return(invisible(gg))
 }
 
-# summary.regression_list <- function(rlist) {
-#   # Data details: rows, features, outcome class/alg type
-#   # CV Details: n-folds, param depth
-#   # Names of algs
-#   # Best performing alg and hyperparameter values
-#   # Tables of hyperparamter values and performance
-#   names(m[[1]])
-#   print()
-#   ncol(m[[1]]$trainingData) - 1
-#
-# }
-
-#' print method for regression_list
-#'
-#' @param rlist regression_list
-#'
-#' @return the input
-#' @noRd
-print.regression_list <- function(rlist) {
-  rinfo <- extract_model_info(rlist)
-  hyperp <-
-    rinfo$best_model_tune %>%
-    sapply(as.character) %>%
-    paste(names(.), ., sep = " = ", collapse = "\n  ")
-  out <- paste0(
-    "Target: ", rinfo$target,
-    "\nClass: ", rinfo$m_class,
-    "\nAlgorithms Tuned: ", paste(rinfo$algs, collapse = ", "),
-    "\nPerformance Metric: ", rinfo$metric,
-    "\nNumber of Observations: ", rinfo$ddim[1],
-    "\nNumber of Features: ", rinfo$ddim[2] - 1L,
-
-    "\n\nBest model: ", rinfo$best_model_name,
-    "\n", rinfo$metric, " = ", round(rinfo$best_model_perf, 2),
-    "\nHyperparameter values:", "\n  ", hyperp
-  )
-  cat(out)
-  return(invisible(rlist))
-}
-
-evaluate.regression_list <- function(rlist) {
+evaluate.regression_list <- function(mlist) {
 
   return()  # Best model
 }

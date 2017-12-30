@@ -103,8 +103,11 @@ test_that("plot.regression_list works", {
 #                regexp = "regression")
 # })
 
-test_that("print.regression_list works", {
+test_that("print.model_list works", {
   rprint <- capture_output(r_models, TRUE)
   expect_true(nchar(rprint) > 0)
   expect_true(grepl("regression", rprint, ignore.case = TRUE))
+  cprint <- capture_output(c_models, TRUE)
+  expect_true(nchar(cprint) > 0)
+  expect_true(grepl("classification", cprint, ignore.case = TRUE))
 })
