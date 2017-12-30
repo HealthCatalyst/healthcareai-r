@@ -85,7 +85,7 @@ test_that("as.model_list preserves model names", {
   )
 })
 
-context("Checking model_list plotters") # --------------------------------------
+context("Checking model_list generics") # --------------------------------------
 
 test_that("plot.regression_list works", {
   expect_equal(class(plot(r_models, print = FALSE)),
@@ -102,3 +102,9 @@ test_that("plot.regression_list works", {
 #   expect_error(plot.classification_list(r_models, print = FALSE),
 #                regexp = "regression")
 # })
+
+test_that("print.regression_list works", {
+  rprint <- capture_output(r_models, TRUE)
+  expect_true(nchar(rprint) > 0)
+  expect_true(grepl("regression", rprint, ignore.case = TRUE))
+})
