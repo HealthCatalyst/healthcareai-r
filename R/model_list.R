@@ -33,7 +33,7 @@ as.model_list <- function(..., listed_models = NULL, type,
       listed_models)
   if (any(!purrr::map_lgl(listed_models, inherits, "train")))
     stop("Those don't look like caret-trained models.")
-  if (length(unique(lapply(listed_models, function(mm) mm$trainingData))) > 1)
+  if (length(unique(lapply(listed_models, function(mm) mm$trainingData))) > 1)  # nolint
     stop("Those models don't appear to have been trained on the same data.")
   check_model_type(type)
   class(listed_models) <- c(paste0(type, "_list"),

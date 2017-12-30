@@ -111,3 +111,17 @@ test_that("print.model_list works", {
   expect_true(nchar(cprint) > 0)
   expect_true(grepl("classification", cprint, ignore.case = TRUE))
 })
+
+test_that("summary.model_list works", {
+  rsumout <- capture_output(rsum <- summary(r_models), TRUE)
+  expect_true(nchar(rsumout) > 0)
+  expect_true(grepl("hyperparameters", rsumout, ignore.case = TRUE))
+  expect_true(is.list(rsum))
+  expect_true(rlang::is_named(rsum))
+
+  csumout <- capture_output(csum <- summary(c_models), TRUE)
+  expect_true(nchar(csumout) > 0)
+  expect_true(grepl("hyperparameters", csumout, ignore.case = TRUE))
+  expect_true(is.list(csum))
+  expect_true(rlang::is_named(csum))
+})

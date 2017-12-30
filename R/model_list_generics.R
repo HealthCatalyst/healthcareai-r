@@ -2,14 +2,10 @@
 #'
 #' @param mlist model_list
 #'
-#' @return the input
+#' @export
 #' @noRd
 print.model_list <- function(mlist) {
   rinfo <- extract_model_info(mlist)
-  hyperp <-
-    rinfo$best_model_tune %>%
-    sapply(as.character) %>%
-    paste(names(.), ., sep = " = ", collapse = "\n  ")
   out <- paste0(
     "Target: ", rinfo$target,
     "\nClass: ", rinfo$m_class,
@@ -20,7 +16,7 @@ print.model_list <- function(mlist) {
 
     "\n\nBest model: ", rinfo$best_model_name,
     "\n", rinfo$metric, " = ", round(rinfo$best_model_perf, 2),
-    "\nHyperparameter values:", "\n  ", hyperp
+    "\nHyperparameter values:", "\n  ", rinfo$best_model_tune
   )
   cat(out)
   return(invisible(mlist))
@@ -29,8 +25,10 @@ print.model_list <- function(mlist) {
 #' summary method for model_list
 #'
 #' @param mlist model_list
+#' @return list of tuning performance data frames, invisibly
+#' @importFrom dplyr %>%
 #'
-#' @return the summary
+#' @export
 #' @noRd
 summary.model_list <- function(mlist) {
   # Data details: rows, features, outcome class/alg type
@@ -39,15 +37,25 @@ summary.model_list <- function(mlist) {
   # Best performing alg and hyperparameter values
   # Tables of hyperparamter values and performance
   rinfo <- extract_model_info(mlist)
-
-  names(m[[1]])
-  print()
-  ncol(m[[1]]$trainingData) - 1
-
-  class(out) <- summary.model_list
-  return(out)
+  hyperp <-
+    rinfo$best_model_tune %>%
+    sapply(as.character) %>%
+    paste(names(.), ., sep = " = ", collapse = ", ")
+  out <- paste0("Best performance: ", rinfo$metric, " = ",
+                round(rinfo$best_model_perf, 2), "\n",
+                rinfo$best_model_name, " with hyperparameters:\n  ",
+                rinfo$best_model_tune)
+  cat(out)
+  cat("\n\nOut-of-fold performance of all trained models:\n\n")
+  perf <- lapply(mlist, function(x) {
+    ord <- order(x$results[[rinfo$metric]])
+    if (mlist[[1]]$maximize) ord <- rev(ord)
+    structure(x$results[ord, ], row.names = seq_len(nrow(x$results)))
+  })
+  names(perf) <- rinfo$algs
+  print(perf)
+  return(invisible(perf))
 }
-
 
 #' Plot performance of regression models
 #'
@@ -57,13 +65,17 @@ summary.model_list <- function(mlist) {
 #' @return Plot of model performance as a function of algorithm and
 #'   hyperparameter values tuned over. Generally called for the side effect of
 #'   printing a plot, but the plot is also invisibly returned.
-#' @noRd
+#'
 #' @importFrom cowplot plot_grid
 #' @importFrom purrr map_df
 #' @importFrom purrr map_chr
+#' @export
+#' @examples
+#' plot(tune(mtcars, mpg))
 plot.regression_list <- function(rlist, print = TRUE) {
   if (!inherits(rlist, "regression_list"))
-    stop("rlist is class ", class(rlist)[1], ", but needs to be regression_list")
+    stop("rlist is class ", class(rlist)[1],
+         ", but needs to be regression_list")
   bounds <- purrr::map_df(rlist, function(m) range(m$results[[m$metric]]))
   y_range <- c(min(bounds[1, ]), max(bounds[2, ]))
   nrows <- ceiling(length(rlist) / 2)
@@ -74,10 +86,10 @@ plot.regression_list <- function(rlist, print = TRUE) {
       best_metric <- round(optimum(mod$results[[mod$metric]]), 2)
       ggplot(mod) +
         ylim(y_range) +
-        labs(title = mod$modelInfo$label,
+        labs(title = mod$modelInfo$label,  # nolint
              caption = paste("Best ", mod$metric, ": ", best_metric))
     })
-  gg <- cowplot::plot_grid(plotlist = gg_list)
+  gg <- cowplot::plot_grid(plotlist = gg_list, nrow = nrows)
   if (print)
     print(gg)
   return(invisible(gg))
@@ -99,14 +111,17 @@ extract_model_info <- function(mlist) {
   optimum <- if (mlist[[1]]$maximize) max else min
   metric <- mlist[[1]]$metric
   best_metrics <- purrr::map_dbl(mlist, ~ optimum(.x$results[[metric]]))
-  best_model <- which(best_metrics == optimum(best_metrics))[1] # 1 in case of tie
-  algs <- purrr::map_chr(mlist, ~ .x$modelInfo$label)
-  m_class <- mlist[[1]]$modelType
+  best_model <- which(best_metrics == optimum(best_metrics))[1] # 1 in case tie
+  algs <- purrr::map_chr(mlist, ~ .x$modelInfo$label)  # nolint
+  m_class <- mlist[[1]]$modelType  # nolint
   target <- attr(mlist, "target")
-  ddim <- dim(mlist[[1]]$trainingData)
+  ddim <- dim(mlist[[1]]$trainingData)  # nolint
   best_model_name <- algs[best_model]
   best_model_perf <- best_metrics[best_model]
-  best_model_tune <- mlist[[best_model]]$bestTune
+  best_model_tune <-
+    mlist[[best_model]]$bestTune %>%  # nolint
+    sapply(as.character) %>%
+    paste(names(.), ., sep = " = ", collapse = "\n  ")
   list(
     m_class = m_class,
     algs = algs,
