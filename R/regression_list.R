@@ -6,14 +6,10 @@
 #' @return Plot of model performance as a function of algorithm and
 #'   hyperparameter values tuned over. Generally called for the side effect of
 #'   printing a plot, but the plot is also invisibly returned.
-#' @export
+#' @noRd
 #' @importFrom cowplot plot_grid
 #' @importFrom purrr map_df
 #' @importFrom purrr map_chr
-#'
-#' @examples
-#' m <- tune(mtcars, mpg)
-#' plot(m)
 plot.regression_list <- function(rlist, print = TRUE) {
   if (!inherits(rlist, "regression_list"))
     stop("rlist is class ", class(rlist)[1], ", but needs to be regression_list")
@@ -47,13 +43,33 @@ plot.regression_list <- function(rlist, print = TRUE) {
 #   ncol(m[[1]]$trainingData) - 1
 #
 # }
-#
+
+#' print method for regression_list
+#'
+#' @param rlist regression_list
+#'
+#' @return the input
+#' @noRd
 print.regression_list <- function(rlist) {
   rinfo <- extract_model_info(rlist)
-  cat("Trained", tolower(rinfo$m_class),
-      tolower(paste(rinfo$algs, collapse = ", ")), "on"
-  )
+  hyperp <-
+    rinfo$best_model_tune %>%
+    sapply(as.character) %>%
+    paste(names(.), ., sep = " = ", collapse = "\n  ")
+  out <- paste0(
+    "Target: ", rinfo$target,
+    "\nClass: ", rinfo$m_class,
+    "\nAlgorithms Tuned: ", paste(rinfo$algs, collapse = ", "),
+    "\nPerformance Metric: ", rinfo$metric,
+    "\nNumber of Observations: ", rinfo$ddim[1],
+    "\nNumber of Features: ", rinfo$ddim[2] - 1L,
 
+    "\n\nBest model: ", rinfo$best_model_name,
+    "\n", rinfo$metric, " = ", round(rinfo$best_model_perf, 2),
+    "\nHyperparameter values:", "\n  ", hyperp
+  )
+  cat(out)
+  return(invisible(rlist))
 }
 
 evaluate.regression_list <- function(rlist) {
@@ -61,16 +77,21 @@ evaluate.regression_list <- function(rlist) {
   return()  # Best model
 }
 
+#' Get info from a model_list
+#'
+#' @param mlist
+#'
+#' @return list of statistics
+#' @noRd
 extract_model_info <- function(mlist) {
   # optimum is min or max depending on metric
   optimum <- if (mlist[[1]]$maximize) max else min
   metric <- mlist[[1]]$metric
   best_metrics <- purrr::map_dbl(mlist, ~ optimum(.x$results[[metric]]))
-  best_model <- which(best_metric == optimum(best_metric))[1] # 1 in case of tie
+  best_model <- which(best_metrics == optimum(best_metrics))[1] # 1 in case of tie
   algs <- purrr::map_chr(mlist, ~ .x$modelInfo$label)
   m_class <- mlist[[1]]$modelType
-  # outcome <-
-    mlist[[1]]$finalModel$
+  target <- attr(mlist, "target")
   ddim <- dim(mlist[[1]]$trainingData)
   best_model_name <- algs[best_model]
   best_model_perf <- best_metrics[best_model]
@@ -78,6 +99,7 @@ extract_model_info <- function(mlist) {
   list(
     m_class = m_class,
     algs = algs,
+    target = target,
     metric = metric,
     best_model_name = best_model_name,
     best_model_perf = best_model_perf,

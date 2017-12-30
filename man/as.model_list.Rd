@@ -4,7 +4,7 @@
 \alias{as.model_list}
 \title{Make models into model_list object}
 \usage{
-as.model_list(..., listed_models = NULL, type)
+as.model_list(..., listed_models = NULL, type, target = ".outcome")
 }
 \arguments{
 \item{...}{\code{caret}-trained models to put into a model list}
@@ -12,6 +12,8 @@ as.model_list(..., listed_models = NULL, type)
 \item{listed_models}{Use this if your models are already in a list}
 
 \item{type}{"classification" or "regression"}
+
+\item{target}{Quoted name of response variable}
 }
 \value{
 A model_list with child class type_list

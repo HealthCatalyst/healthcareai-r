@@ -63,8 +63,8 @@ d <- dplyr::select(pima_diabetes, -PatientID)
 d <- stats::na.omit(d)
 d <- dplyr::sample_n(d, 100)
 m <- tune(d, outcome = Diabetes, model_class = "classification")
-# Plot performance over hyperparameter values for random forest
-ggplot2::ggplot(m$rf)
+# Plot performance over hyperparameter values for each algorithm
+plot(m)
 # Extract confusion matrix for KNN
 caret::confusionMatrix(m$knn, norm = "none")
 # Compare performance of algorithms at best hyperparameter values
