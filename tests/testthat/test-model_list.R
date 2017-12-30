@@ -87,21 +87,25 @@ test_that("as.model_list preserves model names", {
 
 context("Checking model_list generics") # --------------------------------------
 
-test_that("plot.regression_list works", {
+test_that("plot.model_list works on regression_list", {
   expect_equal(class(plot(r_models, print = FALSE)),
                c("gg", "ggplot"))
-  expect_equal(class(plot.regression_list(r_models, print = FALSE)),
+  expect_equal(class(plot.model_list(r_models, print = FALSE)),
                c("gg", "ggplot"))
-  expect_error(plot.regression_list(c_models, print = FALSE),
-               regexp = "classification")
-  r2 <- tune(mtcars, mpg, metric = "Rsquared")
+  expect_error(plot.model_list(ranger::ranger(mpg ~ ., mtcars), print = FALSE),
+               regexp = "model_list")
+  r2 <- tune(mtcars, mpg, models = "rf", metric = "Rsquared")
   expect_s3_class(plot(r2, print = FALSE), "gg")
 })
 
-# test_that("plot.classification_list works", {
-#   expect_error(plot.classification_list(r_models, print = FALSE),
-#                regexp = "regression")
-# })
+test_that("plot.model_list works on classification_list", {
+  expect_equal(class(plot(c_models, print = FALSE)),
+               c("gg", "ggplot"))
+  expect_equal(class(plot.model_list(c_models, print = FALSE)),
+               c("gg", "ggplot"))
+  expect_error(plot.model_list(ranger::ranger(am ~ ., mtcars), print = FALSE),
+               regexp = "model_list")
+})
 
 test_that("print.model_list works", {
   rprint <- capture_output(r_models, TRUE)

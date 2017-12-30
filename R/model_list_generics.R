@@ -57,9 +57,9 @@ summary.model_list <- function(mlist) {
   return(invisible(perf))
 }
 
-#' Plot performance of regression models
+#' Plot performance of models
 #'
-#' @param rlist regression_list object as returned by \code{\link{tune}}
+#' @param mlist modellist object as returned by \code{\link{tune}}
 #' @param print If TRUE (default) plot is printed
 #'
 #' @return Plot of model performance as a function of algorithm and
@@ -72,15 +72,15 @@ summary.model_list <- function(mlist) {
 #' @export
 #' @examples
 #' plot(tune(mtcars, mpg))
-plot.regression_list <- function(rlist, print = TRUE) {
-  if (!inherits(rlist, "regression_list"))
-    stop("rlist is class ", class(rlist)[1],
-         ", but needs to be regression_list")
-  bounds <- purrr::map_df(rlist, function(m) range(m$results[[m$metric]]))
+plot.model_list <- function(mlist, print = TRUE) {
+  if (!inherits(mlist, "model_list"))
+    stop("mlist is class ", class(mlist)[1],
+         ", but needs to be model_list")
+  bounds <- purrr::map_df(mlist, function(m) range(m$results[[m$metric]]))
   y_range <- c(min(bounds[1, ]), max(bounds[2, ]))
-  nrows <- ceiling(length(rlist) / 2)
+  nrows <- ceiling(length(mlist) / 2)
   gg_list <-
-    lapply(rlist, function(mod) {
+    lapply(mlist, function(mod) {
       # optimum is min or max depending on metric
       optimum <- if (mod$maximize) max else min
       best_metric <- round(optimum(mod$results[[mod$metric]]), 2)
@@ -94,6 +94,7 @@ plot.regression_list <- function(rlist, print = TRUE) {
     print(gg)
   return(invisible(gg))
 }
+
 
 evaluate.regression_list <- function(mlist) {
 
