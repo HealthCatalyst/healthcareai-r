@@ -11,7 +11,8 @@
 #' model_list("regression")
 model_list <- function(model_class, ...) {
   check_model_class(model_class = model_class)
-  empty_list <- as.model_list(listed_models = list(...), model_class = model_class)
+  empty_list <- as.model_list(listed_models = list(...),
+                              model_class = model_class)
   return(empty_list)
 }
 
@@ -34,14 +35,14 @@ as.model_list <- function(..., listed_models = NULL, target = ".outcome",
   if (length(listed_models)) {
     if (any(!purrr::map_lgl(listed_models, inherits, "train")))
       stop("Those don't look like caret-trained models.")
-    if (length(unique(lapply(listed_models, function(mm) mm$trainingData))) > 1)  # nolint
+    if (length(unique(lapply(listed_models, function(mm) mm$trainingData))) > 1)
       stop("Those models don't appear to have been trained on the same data.")
     types <- unique(tolower(purrr::map_chr(listed_models, ~ .x$modelType)))
     if (length(types) > 1L)
       stop("All model_class elements need to be the same. Yours: ",
            paste(types, collapse = ", "))
     if (!missing(model_class) && model_class != types)
-      stop("You provided a model_class argument, but it doesn't match the model(s).")
+      stop("model_class doesn't match the model(s).")
     model_class <- types
     names(listed_models) <- purrr::map_chr(listed_models, ~ .x$modelInfo$label)
   }

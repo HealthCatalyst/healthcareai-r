@@ -119,14 +119,14 @@ extract_model_info <- function(mlist) {
   metric <- mlist[[1]]$metric
   best_metrics <- purrr::map_dbl(mlist, ~ optimum(.x$results[[metric]]))
   best_model <- which(best_metrics == optimum(best_metrics))[1] # 1 in case tie
-  algs <- purrr::map_chr(mlist, ~ .x$modelInfo$label)  # nolint
-  m_class <- mlist[[1]]$modelType  # nolint
+  algs <- purrr::map_chr(mlist, ~ .x$modelInfo$label)
+  m_class <- mlist[[1]]$modelType
   target <- attr(mlist, "target")
-  ddim <- dim(mlist[[1]]$trainingData)  # nolint
+  ddim <- dim(mlist[[1]]$trainingData)
   best_model_name <- algs[best_model]
   best_model_perf <- best_metrics[best_model]
   best_model_tune <-
-    mlist[[best_model]]$bestTune %>%  # nolint
+    mlist[[best_model]]$bestTune %>%
     sapply(as.character) %>%
     paste(names(.), ., sep = " = ", collapse = "\n  ")
   list(

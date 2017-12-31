@@ -54,8 +54,9 @@ test_that("as.model_list fails if model_class is unsupported", {
   expect_error(as.model_list(model_class = "what am i even?"))
 })
 
-test_that("as.model_list warns if input isn't a caret model", {
+test_that("as.model_list errors if input isn't a caret model", {
   expect_error(as.model_list(1:5, model_class = "regression"))
+  expect_error(as.model_list("HEY"))
   expect_error(as.model_list(ranger::ranger(mpg ~ ., mtcars)))
 })
 
@@ -83,11 +84,11 @@ test_that("as.model_list returns correct model names (from modelInfo$label)", {
   correct_names <- names(r_models)
   m_list <- structure(list(rf, kn), names = c("rando", "knn"))
   expect_equal(
-    names(as.model_list(listed_models = m_list, model_class = "classification")),
+    names(as.model_list(listed_models = m_list)),
     correct_names
   )
   expect_equal(
-    names(as.model_list(rf, kn, model_class = "classification")),
+    names(as.model_list(rf, kn)),
     correct_names
   )
 })

@@ -77,7 +77,7 @@ test_that("tune returns a model_list of appropriate type", {
   expect_s3_class(r_models, "regression_list")
 })
 
-test_that("tune returns a model_list of appropriate type when not specified", {  # nolint
+test_that("tune returns a model_list of appropriate type when not specified", {
   c_models <-
     tune(d = test_df, outcome = x1, n_folds = 2, tune_depth = 2)
   # rf-regression issues unimportant warning sometimes
@@ -91,7 +91,7 @@ test_that("tune returns a model_list of appropriate type when not specified", { 
   expect_s3_class(r_models, "regression_list")
 })
 
-test_that("tune errors informatively if outcome is list", {  # nolint
+test_that("tune errors informatively if outcome is list", {
   test_df$x3 <- as.list(test_df$x3)
   expect_error(
     tune(d = test_df, outcome = x3, n_folds = 2, tune_depth = 2),
