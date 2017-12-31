@@ -5,19 +5,23 @@
 #' @export
 #' @noRd
 print.model_list <- function(mlist) {
-  rinfo <- extract_model_info(mlist)
-  out <- paste0(
-    "Target: ", rinfo$target,
-    "\nClass: ", rinfo$m_class,
-    "\nAlgorithms Tuned: ", paste(rinfo$algs, collapse = ", "),
-    "\nPerformance Metric: ", rinfo$metric,
-    "\nNumber of Observations: ", rinfo$ddim[1],
-    "\nNumber of Features: ", rinfo$ddim[2] - 1L,
+  if (length(mlist)) {
+    rinfo <- extract_model_info(mlist)
+    out <- paste0(
+      "Target: ", rinfo$target,
+      "\nClass: ", rinfo$m_class,
+      "\nAlgorithms Tuned: ", paste(rinfo$algs, collapse = ", "),
+      "\nPerformance Metric: ", rinfo$metric,
+      "\nNumber of Observations: ", rinfo$ddim[1],
+      "\nNumber of Features: ", rinfo$ddim[2] - 1L,
 
-    "\n\nBest model: ", rinfo$best_model_name,
-    "\n", rinfo$metric, " = ", round(rinfo$best_model_perf, 2),
-    "\nHyperparameter values:", "\n  ", rinfo$best_model_tune
-  )
+      "\n\nBest model: ", rinfo$best_model_name,
+      "\n", rinfo$metric, " = ", round(rinfo$best_model_perf, 2),
+      "\nHyperparameter values:", "\n  ", rinfo$best_model_tune
+    )
+  } else {
+    out <- paste("Empty", class(mlist)[1], "object.")
+  }
   cat(out)
   return(invisible(mlist))
 }
@@ -31,11 +35,8 @@ print.model_list <- function(mlist) {
 #' @export
 #' @noRd
 summary.model_list <- function(mlist) {
-  # Data details: rows, features, outcome class/alg type
-  # CV Details: n-folds, param depth
-  # Names of algs
-  # Best performing alg and hyperparameter values
-  # Tables of hyperparamter values and performance
+  if (!length(mlist))
+    stop("mlist is empty.")
   rinfo <- extract_model_info(mlist)
   hyperp <-
     rinfo$best_model_tune %>%
@@ -68,11 +69,12 @@ summary.model_list <- function(mlist) {
 #'
 #' @importFrom cowplot plot_grid
 #' @importFrom purrr map_df
-#' @importFrom purrr map_chr
 #' @export
 #' @examples
 #' plot(tune(mtcars, mpg))
 plot.model_list <- function(mlist, print = TRUE) {
+  if (!length(mlist))
+    stop("mlist is empty.")
   if (!inherits(mlist, "model_list"))
     stop("mlist is class ", class(mlist)[1],
          ", but needs to be model_list")
@@ -97,14 +99,18 @@ plot.model_list <- function(mlist, print = TRUE) {
 
 
 evaluate.regression_list <- function(mlist) {
-
+  # mlist <- r_models
+  # x <- mlist[[1]]
+  lapply(mlist, function(x) {
+    x$results[[x$metric]]
+  })
   return()  # Best model
 }
 
 #' Get info from a model_list
 #'
-#' @param mlist
-#'
+#' @param mlist model_list
+#' @importFrom purrr map_chr
 #' @return list of statistics
 #' @noRd
 extract_model_info <- function(mlist) {

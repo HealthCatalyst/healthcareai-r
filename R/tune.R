@@ -166,7 +166,6 @@ tune <- function(d,
 
   # Add classes
   train_list <- as.model_list(listed_models = train_list,
-                              type = model_class,
                               target = rlang::quo_name(outcome))
 
   return(train_list)
