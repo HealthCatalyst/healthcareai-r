@@ -97,14 +97,17 @@ plot.model_list <- function(mlist, print = TRUE) {
   return(invisible(gg))
 }
 
-
-evaluate.regression_list <- function(mlist) {
-  # mlist <- r_models
-  # x <- mlist[[1]]
-  lapply(mlist, function(x) {
-    x$results[[x$metric]]
-  })
-  return()  # Best model
+if (FALSE) {
+  # This is tricky because finalModel is a ranger (or whatever) class object,
+  # not a train object.
+  evaluate.model_list <- function(mlist) {
+    f <- if (mlist[[1]]$maximize) max else min
+    each_best <- purrr::map_dbl(mlist, ~ f(.x$results[[.x$metric]]))
+    which_best <- which(f(each_best) == each_best)[1]
+    message("Returning the best model, a ", names(which_best))
+    out <- mlist[[which_best]]$finalModel
+    return(out)
+  }
 }
 
 #' Get info from a model_list
