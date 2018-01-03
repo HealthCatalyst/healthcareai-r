@@ -114,7 +114,7 @@ impute <- function(d = NULL,
     # Train
     rec_obj <-
       d %>%
-      recipe(formula = "~.") %>%
+      recipe(formula = "~.") %>%  # nolint
       hcai_impute(numeric_method = numeric_method,
                   nominal_method = nominal_method,
                   numeric_params = numeric_params,
