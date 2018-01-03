@@ -16,9 +16,8 @@ be returned unaltered.}
 
 \item{rec_obj}{Optional, a recipe object. If provided, this recipe will be
 applied to impute new data contained in d with values saved in the recipe.
-Use this param if you'd like to save imputation values from a large data set
-and then apply them to a small dataset (rather than recalculating from a much
-smaller number of rows).}
+Use this param if you'd like to apply the same values used for imputation on
+a training dataset in production.}
 
 \item{numeric_method}{Defaults to \code{"mean"}. Other choices are
 \code{"bagimpute"} or \code{"knnimpute"}.}
@@ -39,7 +38,8 @@ only), \code{bag_options} (bagimpute only), \code{knn_K}, (knnimpute only),
 See \link{step_bagimpute} or \link{step_knnimpute} for details.}
 }
 \value{
-Imputed data and a reusable recipe object for future imputation.
+Imputed data frame with reusable recipe object for future imputation
+in attribute "rec_obj".
 }
 \description{
 `impute` will impute your data using a variety of methods for
@@ -53,21 +53,13 @@ d <- pima_diabetes
 d_train <- d[1:700, ]
 d_test <- d[701:768, ]
 # Train imputer
-data_and_recipe <- impute(d = d_train,
-                          patient_id, diabetes)
+train_imputed <- impute(d = d_train, patient_id, diabetes)
 # Apply to new data
-res <- impute(d = d_test,
-              patient_id, diabetes,
-              rec_obj = data_and_recipe$rec_obj)
+impute(d = d_test, patient_id, diabetes, rec_obj = attr(d, "rec_obj"))
 # Specify methods:
-data_and_recipe <- impute(d = d_train,
-                          patient_id, diabetes,
-                          numeric_method = "bagimpute",
-                          nominal_method = "new_category")
+impute(d = d_train, patient_id, diabetes, numeric_method = "bagimpute",
+nominal_method = "new_category")
 # Specify method and param:
-data_and_recipe <- impute(d = d_train,
-                          patient_id, diabetes,
-                          nominal_method = "knnimpute",
-                          nominal_params = list(knn_K = 4))
-
+impute(d = d_train, patient_id, diabetes, nominal_method = "knnimpute",
+nominal_params = list(knn_K = 4))
 }

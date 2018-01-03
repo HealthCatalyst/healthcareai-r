@@ -4,14 +4,14 @@
 #' @description `impute` will impute your data using a variety of methods for
 #' both nominal and numeric data. Currently supports mean (numeric only),
 #' new_category (categorical only), bagged trees, or knn.
+#'
 #' @param d A dataframe or tibble containing data to impute.
 #' @param ... Optional. Unquoted variable names to not be imputed. These will
 #' be returned unaltered.
 #' @param rec_obj Optional, a recipe object. If provided, this recipe will be
 #' applied to impute new data contained in d with values saved in the recipe.
-#' Use this param if you'd like to save imputation values from a large data set
-#' and then apply them to a small dataset (rather than recalculating from a much
-#' smaller number of rows).
+#' Use this param if you'd like to apply the same values used for imputation on
+#' a training dataset in production.
 #' @param numeric_method Defaults to \code{"mean"}. Other choices are
 #' \code{"bagimpute"} or \code{"knnimpute"}.
 #' @param nominal_method Defaults to \code{"new_category"}. Other choices are
@@ -26,7 +26,9 @@
 #' only), \code{bag_options} (bagimpute only), \code{knn_K}, (knnimpute only),
 #' \code{impute_with}, (bag or knn) or \code{seed_val} (bag or knn).
 #' See \link{step_bagimpute} or \link{step_knnimpute} for details.
-#' @return Imputed data and a reusable recipe object for future imputation.
+#'
+#' @return Imputed data frame with reusable recipe object for future imputation
+#' in attribute "rec_obj".
 #'
 #' @export
 #' @import recipes
@@ -41,23 +43,15 @@
 #' d_train <- d[1:700, ]
 #' d_test <- d[701:768, ]
 #' # Train imputer
-#' data_and_recipe <- impute(d = d_train,
-#'                           patient_id, diabetes)
+#' train_imputed <- impute(d = d_train, patient_id, diabetes)
 #' # Apply to new data
-#' res <- impute(d = d_test,
-#'               patient_id, diabetes,
-#'               rec_obj = data_and_recipe$rec_obj)
+#' impute(d = d_test, patient_id, diabetes, rec_obj = attr(d, "rec_obj"))
 #' # Specify methods:
-#' data_and_recipe <- impute(d = d_train,
-#'                           patient_id, diabetes,
-#'                           numeric_method = "bagimpute",
-#'                           nominal_method = "new_category")
+#' impute(d = d_train, patient_id, diabetes, numeric_method = "bagimpute",
+#' nominal_method = "new_category")
 #' # Specify method and param:
-#' data_and_recipe <- impute(d = d_train,
-#'                           patient_id, diabetes,
-#'                           nominal_method = "knnimpute",
-#'                           nominal_params = list(knn_K = 4))
-#'
+#' impute(d = d_train, patient_id, diabetes, nominal_method = "knnimpute",
+#' nominal_params = list(knn_K = 4))
 impute <- function(d = NULL,
                    ...,
                    rec_obj = NULL,
@@ -100,7 +94,7 @@ impute <- function(d = NULL,
                                                         numeric_method,
                                                         nominal_method))
       ) %>%
-    print()
+      print()
   }
 
   if (length(ignore_columns) == 0) {
@@ -112,29 +106,33 @@ impute <- function(d = NULL,
       stop(paste(ignored[!present], collapse = ", "), " not found in d.")
 
     d_ignore <- dplyr::select(d, !!!ignore_columns)
-    d <- dplyr::select(d, -dplyr::one_of(ignored)) # -!!!ignore_columns failed here.
+    d <- dplyr::select(d, -dplyr::one_of(ignored))
   }
 
   # If recipe object is not provided, train it and predict.
   if (is.null(rec_obj)) {
     # Train
-    rec_obj <- recipe(x = d, formula = "~.") %>%
+    rec_obj <-
+      d %>%
+      recipe(formula = "~.") %>%
       hcai_impute(numeric_method = numeric_method,
                   nominal_method = nominal_method,
                   numeric_params = numeric_params,
                   nominal_params = nominal_params) %>%
-        prep(training = d)
+      prep(training = d)
   }
-    # Predict
-  d_imputed <-
-    bake(rec_obj, newdata = d)
+  # Predict
+  d_imputed <- bake(rec_obj, newdata = d)
 
   # Add ignore columns back in.
   d_imputed <- dplyr::bind_cols(d_imputed, d_ignore)
   d_imputed <- d_imputed[, col_order]
 
-  return(list(d_imputed = d_imputed,
-            rec_obj = rec_obj))
+  # Add recipe object as an attribute of the data frame
+  attr(d_imputed, "rec_obj") <- rec_obj
+
+  # Add class signature to data frame so we can ID for imputation in deployment
+  class(d_imputed) <- c("hcai_imputed_df", class(d_imputed))
+
+  return(d_imputed)
 }
-
-
