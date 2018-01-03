@@ -30,6 +30,10 @@
 #'
 #' @export
 #' @import recipes
+#' @importFrom dplyr filter
+#' @importFrom dplyr mutate
+#' @importFrom purrr map_chr
+#'
 #' @examples
 #' library(recipes)
 #' d <- pima_diabetes
@@ -62,7 +66,7 @@ impute <- function(d = NULL,
                    numeric_params = NULL,
                    nominal_params = NULL) {
   # Check to make sure that df is a dframe
-  if (!(is.data.frame(d))) {
+  if (!is.data.frame(d)) {
     stop("\"d\" must be a tibble or dataframe.")
   }
 
@@ -76,10 +80,28 @@ impute <- function(d = NULL,
   # Save column order
   col_order <- names(d)
 
-  # Display missingness
-  message("d contains the following levels of missingness:")
-  print(missingness(d))
-  message(paste0("Ignore columns will not be imputed."))
+  # Display missingness and which variables will and won't be imputed
+  has_missingness <-
+    d %>%
+    missingness() %>%
+    dplyr::filter(percent_missing > 0)
+  ignored <- purrr::map_chr(ignore_columns, rlang::quo_name)
+  missingness_ignored <- split(has_missingness,
+                               has_missingness$variable %in% ignored)
+  if ("TRUE" %in% names(missingness_ignored)) {
+    warning("These ignored variables still have missingness: ",
+            paste(missingness_ignored[["TRUE"]]$variable, collapse = ", "))
+  }
+  if ("FALSE" %in% names(missingness_ignored)) {
+    message("The following missingness will be imputed: ")
+    missingness_ignored[["FALSE"]] %>%
+      dplyr::mutate(imputation_method =
+                      purrr::map_chr(variable, ~ ifelse(is.numeric(d[[.x]]),
+                                                        numeric_method,
+                                                        nominal_method))
+      ) %>%
+    print()
+  }
 
   if (length(ignore_columns) == 0) {
     d_ignore <- NULL

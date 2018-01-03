@@ -129,19 +129,18 @@ test_that("No recipe with methods and params trains and predicts.", {
   expect_equal(res$d_imputed$width[3], 1.95, tol = .02)
 })
 
-test_that("Grain and target are not imputed but are returned.", {
+test_that("Ignored columns are not imputed but are returned.", {
   d_train$animal_id[1:5] <- NA
   d_train$kitty[1:5] <- NA
-  capture_output(res <- impute(d = d_train,
-                               animal_id, kitty,))
+  expect_warning(capture_output(res <- impute(d = d_train, animal_id, kitty)))
   expect_true(is.na(res$d_imputed$animal_id[2]))
   expect_true(is.na(res$d_imputed$kitty[4]))
 
   d_test$animal_id[1:5] <- NA
   d_test$kitty[1:5] <- NA
-  capture_output(res <- impute(d = d_test,
-                               animal_id, kitty,
-                               rec_obj = res$rec_obj))
+  expect_warning(capture_output(
+    res <- impute(d = d_test, animal_id, kitty, rec_obj = res$rec_obj)
+  ))
   expect_true(is.na(res$d_imputed$animal_id[2]))
   expect_true(is.na(res$d_imputed$kitty[4]))
 })
@@ -150,4 +149,10 @@ test_that("Columns have the same order after", {
   capture_output(res <- impute(d = d_train,
                                animal_id, kitty,))
   expect_equal(names(d_train), names(res$d_imputed))
+})
+
+test_that("Missingness in ignored columns throws warning, elsewhere doesn't", {
+  d_train$animal_id[1:10] <- NA
+  expect_warning(tmp <- impute(d_train, animal_id))
+  expect_warning(tmp <- impute(d_train, kitty), regexp = NA)
 })
