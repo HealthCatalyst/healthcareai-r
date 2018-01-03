@@ -107,13 +107,12 @@ impute <- function(d = NULL,
     d_ignore <- NULL
   } else {
     # Make sure all columns are present
-    cols <- sapply(ignore_columns, rlang::quo_name)
-    present <- cols %in% names(d)
+    present <- ignored %in% names(d)
     if (any(!present))
-      stop(paste(cols[!present], collapse = ", "), " not found in d.")
+      stop(paste(ignored[!present], collapse = ", "), " not found in d.")
 
     d_ignore <- dplyr::select(d, !!!ignore_columns)
-    d <- dplyr::select(d, -dplyr::one_of(cols)) # -!!!ignore_columns failed here.
+    d <- dplyr::select(d, -dplyr::one_of(ignored)) # -!!!ignore_columns failed here.
   }
 
   # If recipe object is not provided, train it and predict.
