@@ -71,6 +71,11 @@ tune <- function(d,
   # Make sure outcome's class works with model_class, or infer it
   outcome_class <- class(dplyr::pull(d, !!outcome))
   looks_categorical <- outcome_class %in% c("character", "factor")
+  # If tune_depth is too small, won't get coverage over hyperparameters.
+  ### Remove this when implementing grid search
+  if (tune_depth < 10)
+    warning("tune_depth = ", tune_depth, " may not provide adaquate coverage ",
+            "of hyperparameter space.")
   # Some algorithms need the response to be factor instead of char or lgl
   if (looks_categorical)
     d <- dplyr::mutate(d, !!rlang::quo_name(outcome) := as.factor(!!outcome))
