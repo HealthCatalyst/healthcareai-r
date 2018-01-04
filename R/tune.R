@@ -76,6 +76,8 @@ tune <- function(d,
   if (tune_depth < 10)
     warning("tune_depth = ", tune_depth, " may not provide adaquate coverage ",
             "of hyperparameter space.")
+  if (n_folds <= 1)
+    stop("n_folds must be greater than 1.")
   # Some algorithms need the response to be factor instead of char or lgl
   if (looks_categorical)
     d <- dplyr::mutate(d, !!rlang::quo_name(outcome) := as.factor(!!outcome))
