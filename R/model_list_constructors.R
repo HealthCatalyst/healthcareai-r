@@ -1,6 +1,7 @@
 #' Constructor function for class model_list
 #'
-#' @param model_class Every model_list object has a child class that specifies the model_class. Currently classification and regression are supported.
+#' @param model_class Every model_list object has a child class that specifies
+#'   the model_class. Currently classification and regression are supported.
 #' @param ... Models to become a model_list, but you should use as.model_list
 #'
 #' @return An empty list with classes list, model_list, and type_list
@@ -28,10 +29,11 @@ model_list <- function(model_class, ...) {
 #' @export
 as.model_list <- function(..., listed_models = NULL, target = ".outcome",
                           model_class) {
-  listed_models <-
-    c(structure(list(...),
-                names = sapply(match.call(expand.dots = FALSE)$..., deparse)),
-      listed_models)
+  listed_models <- c(
+    structure(list(...),
+              names = purrr::map_chr(as.list(match.call(expand.dots = FALSE)$...), deparse)),  # nolint
+    listed_models
+  )
   if (length(listed_models)) {
     if (any(!purrr::map_lgl(listed_models, inherits, "train")))
       stop("Those don't look like caret-trained models.")

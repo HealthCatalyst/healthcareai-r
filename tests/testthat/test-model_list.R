@@ -15,6 +15,7 @@ r_models <- tune(mtcars, mpg)
 c_models <- tune(mtcars, am)
 single_model_as <- as.model_list(rf)
 single_model_tune <- tune(mtcars, am, models = "rf")
+double_model_as <- as.model_list(rf, kn)
 r_empty <- model_list(model_class = "regression")
 c_empty <- model_list(model_class = "classification")
 
@@ -68,8 +69,6 @@ test_that("as.model_list succeeds with empty input", {
 })
 
 test_that("as.model_list succeeds with one or more models as input", {
-  # Note that we don't check the outcome variable against model_class
-  # This should fail now #############
   expect_s3_class(as.model_list(rf, model_class = "classification"),
                   "model_list")
   expect_s3_class(as.model_list(rf, kn), "model_list")
