@@ -1,7 +1,8 @@
 #' @title
 #' Impute data and return a reusable recipe.
 #'
-#' @description `impute` will impute your data using a variety of methods for
+#' @description
+#' \code{impute} will impute your data using a variety of methods for
 #' both nominal and numeric data. Currently supports mean (numeric only),
 #' new_category (categorical only), bagged trees, or knn.
 #'
@@ -26,7 +27,8 @@
 #' only), \code{bag_options} (bagimpute only), \code{knn_K}, (knnimpute only),
 #' \code{impute_with}, (bag or knn) or \code{seed_val} (bag or knn).
 #' See \link{step_bagimpute} or \link{step_knnimpute} for details.
-#'
+#' @param verbose Gives a print out of what will be imputed and which method
+#' will be used.
 #' @return Imputed data frame with reusable recipe object for future imputation
 #' in attribute "rec_obj".
 #'
@@ -86,7 +88,7 @@ impute <- function(d = NULL,
 
   if ("FALSE" %in% names(missingness_ignored)) {
     imp_summary <- missingness_ignored[["FALSE"]] %>%
-      dplyr::mutate(imputation_method =
+      dplyr::mutate(imputation_method_used =
                       purrr::map_chr(variable, ~ ifelse(is.numeric(d[[.x]]),
                                                         numeric_method,
                                                         nominal_method))
@@ -95,9 +97,9 @@ impute <- function(d = NULL,
   if ("TRUE" %in% names(missingness_ignored)) {
     warning("These ignored variables still have missingness: ",
             paste(missingness_ignored[["TRUE"]]$variable, collapse = ", "))
-    imp_summary <- bind_rows(imp_summary,
+    imp_summary <- dplyr::bind_rows(imp_summary,
                              missingness_ignored[["TRUE"]] %>%
-                               dplyr::mutate(imputation_method = "Ignored"))
+                               dplyr::mutate(imputation_method = "ignored"))
 
   }
 
@@ -145,4 +147,16 @@ impute <- function(d = NULL,
   class(d_imputed) <- c("hcai_imputed_df", class(d_imputed))
 
   return(d_imputed)
+}
+
+# print method for impute
+#' @export
+print.hcai_imputed_df <- function(x, ...) {
+  s <- attr(x, "imp_summary")
+  r <- attr(x, "rec_obj")
+
+  message("Missingness and imputation method to be used:")
+  print(s)
+  message("\nRecipe object used for imputation:")
+  print(r)
 }

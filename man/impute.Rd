@@ -6,7 +6,7 @@
 \usage{
 impute(d = NULL, ..., rec_obj = NULL, numeric_method = "mean",
   nominal_method = "new_category", numeric_params = NULL,
-  nominal_params = NULL)
+  nominal_params = NULL, verbose = FALSE)
 }
 \arguments{
 \item{d}{A dataframe or tibble containing data to impute.}
@@ -36,13 +36,16 @@ imputation method on nominal data. Options are \code{bag_model} (bagimpute
 only), \code{bag_options} (bagimpute only), \code{knn_K}, (knnimpute only),
 \code{impute_with}, (bag or knn) or \code{seed_val} (bag or knn).
 See \link{step_bagimpute} or \link{step_knnimpute} for details.}
+
+\item{verbose}{Gives a print out of what will be imputed and which method
+will be used.}
 }
 \value{
 Imputed data frame with reusable recipe object for future imputation
 in attribute "rec_obj".
 }
 \description{
-`impute` will impute your data using a variety of methods for
+\code{impute} will impute your data using a variety of methods for
 both nominal and numeric data. Currently supports mean (numeric only),
 new_category (categorical only), bagged trees, or knn.
 }

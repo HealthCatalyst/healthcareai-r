@@ -172,9 +172,24 @@ test_that("Output of impute is same for tibble vs data frame", {
   )
 })
 
-
 test_that("rec_obj attr is a recipe class object", {
   capture_output(imp_train <- impute(d_train))
   expect_true("rec_obj" %in% names(attributes(imp_train)))
   expect_s3_class(attr(imp_train, "rec_obj"), "recipe")
+})
+
+test_that("imp_summary attr is contained within d_imputed", {
+  capture_output(imp_train <- impute(d_train))
+  expect_true("imp_summary" %in% names(attributes(imp_train)))
+})
+
+test_that("print method works as expected", {
+  d_train$animal_id[1:5] <- NA
+  d_train$kitty[1:5] <- NA
+  expect_warning(
+    msg <- capture_output(
+      capture_messages(
+        res <- impute(d = d_train, animal_id, kitty, verbose = TRUE))))
+  expect_true(grepl("ignored", msg))
+  expect_true(grepl("new_category", msg))
 })

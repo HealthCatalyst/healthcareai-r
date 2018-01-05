@@ -2,6 +2,7 @@
 
 S3method(bake,step_hcai_missing)
 S3method(prep,step_hcai_missing)
+S3method(print,hcai_imputed_df)
 S3method(print,step_hcai_missing)
 S3method(tidy,step_hcai_missing)
 export(KmeansClustering)
