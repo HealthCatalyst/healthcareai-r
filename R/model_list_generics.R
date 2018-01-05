@@ -40,7 +40,7 @@ summary.model_list <- function(mlist) {
   rinfo <- extract_model_info(mlist)
   hyperp <-
     rinfo$best_model_tune %>%
-    sapply(as.character) %>%
+    purrr::map_chr(as.character) %>%
     paste(names(.), ., sep = " = ", collapse = ", ")
   out <- paste0("Best performance: ", rinfo$metric, " = ",
                 round(rinfo$best_model_perf, 2), "\n",
@@ -130,7 +130,7 @@ extract_model_info <- function(mlist) {
   best_model_perf <- best_metrics[best_model]
   best_model_tune <-
     mlist[[best_model]]$bestTune %>%
-    sapply(as.character) %>%
+    purrr::map_chr(as.character) %>%
     paste(names(.), ., sep = " = ", collapse = "\n  ")
   list(
     m_class = m_class,
