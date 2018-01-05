@@ -153,23 +153,28 @@ test_that("Columns have the same order after", {
 
 test_that("Missingness in ignored columns throws warning, elsewhere doesn't", {
   d_train$animal_id[1:10] <- NA
-  expect_warning(tmp <- impute(d_train, animal_id))
-  expect_warning(tmp <- impute(d_train, kitty), regexp = NA)
+  expect_warning(
+    capture_output(tmp <- impute(d_train, animal_id)))
+  expect_warning(capture_output(
+    tmp <- impute(d_train, kitty)), regexp = NA)
 })
 
 test_that("Output of impute is a data frame with our custom child class", {
-  imped <- impute(d_train)
+  capture_output(imped <- impute(d_train))
   expect_true(is.data.frame(imped))
   expect_s3_class(imped, "hcai_imputed_df")
 })
 
 test_that("Output of impute is same for tibble vs data frame", {
-  expect_equal(impute(d_train), impute(tibble::as_tibble(d_train)))
+  expect_equal(
+    capture_output(impute(d_train)),
+    capture_output(impute(tibble::as_tibble(d_train)))
+  )
 })
 
 
 test_that("rec_obj attr is a recipe class object", {
-  imp_train <- impute(d_train)
+  capture_output(imp_train <- impute(d_train))
   expect_true("rec_obj" %in% names(attributes(imp_train)))
   expect_s3_class(attr(imp_train, "rec_obj"), "recipe")
 })

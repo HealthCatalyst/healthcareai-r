@@ -58,7 +58,8 @@ impute <- function(d = NULL,
                    numeric_method = "mean",
                    nominal_method = "new_category",
                    numeric_params = NULL,
-                   nominal_params = NULL) {
+                   nominal_params = NULL,
+                   verbose = FALSE) {
   # Check to make sure that df is a dframe
   if (!is.data.frame(d)) {
     stop("\"d\" must be a tibble or dataframe.")
@@ -82,22 +83,30 @@ impute <- function(d = NULL,
   ignored <- purrr::map_chr(ignore_columns, rlang::quo_name)
   missingness_ignored <- split(has_missingness,
                                has_missingness$variable %in% ignored)
-  if ("TRUE" %in% names(missingness_ignored)) {
-    warning("These ignored variables still have missingness: ",
-            paste(missingness_ignored[["TRUE"]]$variable, collapse = ", "))
-  }
+
   if ("FALSE" %in% names(missingness_ignored)) {
-    message("The following missingness will be imputed: ")
-    missingness_ignored[["FALSE"]] %>%
+    imp_summary <- missingness_ignored[["FALSE"]] %>%
       dplyr::mutate(imputation_method =
                       purrr::map_chr(variable, ~ ifelse(is.numeric(d[[.x]]),
                                                         numeric_method,
                                                         nominal_method))
-      ) %>%
-      print()
+      )
+  }
+  if ("TRUE" %in% names(missingness_ignored)) {
+    warning("These ignored variables still have missingness: ",
+            paste(missingness_ignored[["TRUE"]]$variable, collapse = ", "))
+    imp_summary <- bind_rows(imp_summary,
+                             missingness_ignored[["TRUE"]] %>%
+                               dplyr::mutate(imputation_method = "Ignored"))
+
   }
 
-  if (length(ignore_columns) == 0) {
+  if (verbose) {
+    message("The following missingness will be imputed: ")
+    print(imp_summary)
+  }
+
+  if (!length(ignore_columns)) {
     d_ignore <- NULL
   } else {
     # Make sure all columns are present
@@ -130,6 +139,7 @@ impute <- function(d = NULL,
 
   # Add recipe object as an attribute of the data frame
   attr(d_imputed, "rec_obj") <- rec_obj
+  attr(d_imputed, "imp_summary") <- imp_summary
 
   # Add class signature to data frame so we can ID for imputation in deployment
   class(d_imputed) <- c("hcai_imputed_df", class(d_imputed))
