@@ -1,2 +1,2 @@
-#' @import utils 
-utils::globalVariables(c("outside"))
+#' @import utils
+utils::globalVariables(c("outside", "percent_missing", "variable"))

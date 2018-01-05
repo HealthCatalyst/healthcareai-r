@@ -1,4 +1,4 @@
-context("Checking recipe step hcai-missing")
+context("Checking hcai-impute recipe builder")
 
 # Setup ------------------------------------------------------------------------
 # set seed for reproducibility
@@ -194,4 +194,20 @@ test_that("random columns don't get imputed", {
                           prep(training = d_train))
 
   expect_error(prepped %>% bake(newdata = d_test))
+})
+
+test_that("all nominal or numeric columns throw warning and add 1 step", {
+  d_num <- d_train[, 1:4]
+  expect_warning(rec_obj <- recipe(~ ., data = d_num) %>%
+    hcai_impute(),
+    regexp = "All variables are numeric")
+  capture_output(res <- prep(rec_obj, training = d_num))
+  expect_equal(length(res$steps), 1)
+
+  d_nom <- d_train[, 5:7]
+  expect_warning(rec_obj <- recipe(~ ., data = d_nom) %>%
+                   hcai_impute(),
+                 regexp = "All variables are nominal")
+  capture_output(res <- prep(rec_obj, training = d_nom))
+  expect_equal(length(res$steps), 1)
 })

@@ -1,332 +1,195 @@
-# Tests:
-# Test imputation using one function call for the following scenarios:
-# 1. Entire dataframe, character and numeric inputs
-# 2. Only a subset of a dataframe
-# 3. Factor inputs
-# 4. Factor inputs with 2 modes (uses alphabetical ranking)
-# 5. Irrelevant list of impute values throws warning but doesn't get in the way
-# 6. When a non-default value is provided it is used and doesn't interfere with defaults
-# a. All columns are provided in unnamed list
-# b. Named list of imputeVals in different order than df columns is provided
-# c. Only the non-default column is provided
-# 7. Impute values with names not in df are ignored with warning
-# 8. NAs are honored as imputation values
-# Test imputation using 2 function calls (first saves the values, second applies them):
-# 1. Entire dataframe, character and numeric inputs
-# 2. Only a subset of a dataframe
-# 3. Factor inputs
-# 4. Factor inputs with 2 modes (uses alphabetical ranking)
-# 5. Calculate values for 4 columns, apply them correctly to 2 columns.
-# 6. When an impute value would be a new level to be applied and another is irrelevant
-# Error Handling:
-# 1. Different length args
-# 2. An all-NA column
-# 3. No effect on full columns of factors, numbers, and characters
-# 4. When inputs are not correct types
-# 5. Unnamed list not of same length as df produces error
-# 6. Partially named list produces error
-# 7. Unnamed imputeVals with different variable types than df errors
+context("Testing impute")
 
-context("Checking that columns and dataframes are imputed correctly")
+# Setup ------------------------------------------------------------------------
+# set seed for reproducibility
+set.seed(7)
+# build data set to predict whether or not animal_id is a kitty
+n <- 300
+df <- data.frame(animal_id = 1:n,
+                 length = rnorm(n, mean = 7, sd = 2),
+                 width = rnorm(n, mean = 2, sd = 0.5),
+                 fur = sample(c("Long", "Short"), size = n, replace = T),
+                 color = sample(c("Orange", "Black", "White", "Mixed"),
+                                    size = n, replace = T)
+)
 
-test_that("entire dataframe is imputed correctly", {
-  df <- data.frame(a=c(1,2,3,NA), b=c('Y','N','Y',NA),
-                   c=c(11,21,31,43), d=as.factor(c('Y','N','N',NA)))
-  out <- imputeDF(df)
-  dfOut <- out$df
-  imputeVals <- out$imputeVals
-  dfExpected <- data.frame(a=c(1,2,3,2), b=c('Y','N','Y','Y'),
-                           c=c(11,21,31,43), d=as.factor(c('Y','N','N','N')))
-  valsExpected <- list(a=2, b='Y', c=26.5, d='N')
-  expect_identical(dfOut, dfExpected)
-  expect_identical(imputeVals, valsExpected)
+# give kitty likeliness score
+df["kitty"] <- df["length"] - 2 * df["width"] - 1
+df$kitty[df["fur"] == "Long"]  <-
+  df$kitty[df["fur"] == "Long"] + 1
+df$kitty[df["fur"] == "Short"]  <-
+  df$kitty[df["fur"] == "Short"] - 1
+df$kitty[df["color"] == "Mixed"] <-
+  df$kitty[df["color"] == "Mixed"] + 1
+df$kitty[df["color"] == "Orange"] <-
+  df$kitty[df["color"] == "Orange"] + 2
+df$kitty[df["color"] == "Black"] <-
+  df$kitty[df["color"] == "Black"] - 1
+df$kitty[df["color"] == "White"] <-
+  df$kitty[df["color"] == "White"] - 4
+
+
+# Add noise
+df$kitty <- df$kitty + rnorm(n, mean = 0, sd = 1.25)
+df$kitty <- ifelse(df$kitty > 0, "Y", "N")
+
+# Add missing data
+df$color[sample(1:n, 32, replace = FALSE)] <- NA
+df$length[sample(1:n, 51, replace = FALSE)] <- NA
+df$fur[sample(1:n, 125, replace = FALSE)] <- NA
+df$width[sample(1:n, 9, replace = FALSE)] <- NA
+
+train_index <- caret::createDataPartition(
+  df$kitty,
+  p = 0.8,
+  times = 1,
+  list = TRUE)
+
+d_train <- df[train_index$Resample1, ]
+d_test <- df[-train_index$Resample1, ]
+
+d_train$length[1] <- d_test$length[1] <- NA
+d_train$color[2] <- d_test$color[2] <- NA
+d_train$width[3] <-  d_test$width[3] <- NA
+d_train$fur[3] <- d_test$fur[3] <- NA
+
+
+# Tests ------------------------------------------------------------------------
+test_that("Bad data throws an error", {
+  expect_error(impute(),
+               regexp = "\"d\" must be a tibble")
+  expect_error(impute(d = "yeah hi!"),
+               regexp = "\"d\" must be a tibble")
+  expect_error(impute(d = df, rec_obj = "fried_fish"),
+               regexp = "\"rec_obj\" must be a valid recipe object.")
 })
 
-
-test_that('impute a subset of a data frame', {
-  df <- data.frame(a=c(1,2,3,NA), b=c('Y','N','Y',NA),
-                   c=c(11,21,31,43), d=c('Y','N','N',NA))
-  df <- df[,c(1,2,4)]
-  out <- imputeDF(df)
-  dfOut <- out$df
-  imputeVals <- out$imputeVals
-  dfExpected <- data.frame(a=c(1,2,3,2), b=c('Y','N','Y','Y'), d=as.factor(c('Y','N','N','N')))
-  valsExpected <- list(a=2, b='Y', d='N')
-  expect_identical(dfOut, dfExpected)
-  expect_identical(imputeVals, valsExpected)
+test_that("Bad ignore_colums are parsed correctly.", {
+  capture_output(expect_error(impute(d = d_train, chippies),
+                              regexp = "chippies not found in d"))
+  capture_output(expect_error(impute(d = d_train, chippies, fishes),
+                              regexp = "chippies, fishes not found in d"))
 })
 
+test_that("No recipe with defaults trains and predicts.", {
+  capture_output(res <- impute(d = d_train,
+                               animal_id, kitty))
+  expect_equal(res$length[1], 7.1, tol = .02)
+  expect_equal(as.character(res$color[2]), "hcai_missing")
+  expect_equal(as.character(res$fur[3]), "hcai_missing")
+  expect_equal(res$width[3], 2.02, tol = .02)
 
-test_that('impute a whole data frame of factors in one step', {
-  df <- data.frame(a=as.factor(c('apple','banana','kiwi','kiwi',NA)), 
-                   b=as.factor(c('toaster','trumpet','roomba',NA, 'toaster')))
-  out <- imputeDF(df)
-  dfOut <- out$df
-  imputeVals <- out$imputeVals
-  dfExpected <- data.frame(a=as.factor(c('apple','banana','kiwi','kiwi','kiwi')), 
-                           b=as.factor(c('toaster','trumpet','roomba','toaster', 'toaster')))
-  valsExpected <- list(a='kiwi', b='toaster')
-  expect_identical(dfOut, dfExpected)
-  expect_identical(imputeVals, valsExpected)
+  capture_output(res <- impute(d = d_test,
+                               animal_id, kitty,
+                               rec_obj = attr(res, "rec_obj")))
+  expect_equal(res$length[1], 7.1, tol = .02)
+  expect_equal(as.character(res$color[2]), "hcai_missing")
+  expect_equal(as.character(res$fur[3]), "hcai_missing")
+  expect_equal(res$width[3], 2.02, tol = .02)
 })
 
+test_that("No recipe with methods trains and predicts.", {
+  capture_output(res <- impute(d = d_train,
+                               animal_id, kitty,
+                               nominal_method = "bagimpute",
+                               numeric_method = "knnimpute"))
+  expect_equal(res$length[1], 6.6, tol = .02)
+  expect_equal(as.character(res$color[2]), "Black")
+  expect_equal(as.character(res$fur[3]), "Short")
+  expect_equal(res$width[3], 1.73, tol = .02)
 
-test_that('impute a whole data frame of factors with 2 modes', {
-  df <- data.frame(a=as.factor(c('apple','apple','kiwi','kiwi',NA)), 
-                   b=as.factor(c('toaster','trumpet','trumpet',NA, 'toaster')))
-  out <- imputeDF(df)
-  dfOut <- out$df
-  imputeVals <- out$imputeVals
-  dfExpected <- data.frame(a=as.factor(c('apple','apple','kiwi','kiwi','apple')), 
-                           b=as.factor(c('toaster','trumpet','trumpet','toaster', 'toaster')))
-  valsExpected <- list(a='apple', b='toaster')
-  expect_identical(dfOut, dfExpected)
-  expect_identical(imputeVals, valsExpected)
+  capture_output(res <- impute(d = d_test,
+                               animal_id, kitty,
+                               rec_obj = attr(res, "rec_obj")))
+  expect_equal(res$length[1], 4.78, tol = .02)
+  expect_equal(as.character(res$color[2]), "Mixed")
+  expect_equal(as.character(res$fur[3]), "Long")
+  expect_equal(res$width[3], 1.95, tol = .02)
 })
 
+test_that("No recipe with methods and params trains and predicts.", {
+  capture_output(res <- impute(d = d_train,
+                               animal_id, kitty,
+                               nominal_method = "bagimpute",
+                               numeric_method = "knnimpute",
+                               nominal_params =
+                                 list(bag_options = list(nbagg = 20)),
+                               numeric_params = list(knn_K = 3)))
+  expect_equal(res$length[1], 7.1, tol = .02)
+  expect_equal(as.character(res$color[2]), "Black")
+  expect_equal(as.character(res$fur[3]), "Short")
+  expect_equal(res$width[3], 1.83, tol = .02)
 
-test_that('impute a single column', {
-  df <- data.frame(a=c(1,2,3,NA), b=c('Y','N','Y',NA),
-                   c=c(11,21,31,43), d=c('Y','N','N',NA))
-  df <- df['a']
-  out <- imputeDF(df)
-  dfOut <- out$df
-  imputeVals <- out$imputeVals
-  dfExpected <- data.frame(a=c(1,2,3,2))
-  valsExpected <- list(a=2)
-  expect_identical(dfOut, dfExpected)
-  expect_identical(imputeVals, valsExpected)
+  capture_output(res <- impute(d = d_test,
+                               animal_id, kitty,
+                               rec_obj = attr(res, "rec_obj")))
+  expect_equal(res$length[1], 4.68, tol = .02)
+  expect_equal(as.character(res$color[2]), "Mixed")
+  expect_equal(as.character(res$fur[3]), "Short")
+  expect_equal(res$width[3], 1.95, tol = .02)
 })
 
-test_that("Irrelevant list of impute values throws warning but doesn't get in the way", {
-  original <- data.frame(x = c(3, -3, NA, 0), y = c("A", "A", "B", NA))
-  default_target <- list(df = data.frame(x = c(3, -3, 0, 0),
-                                         y = c("A", "A", "B", "A")),
-                         imputeVals = list(x = 0, y = "A"))
-  expect_warning(out <- imputeDF(original, list(a = 1, b = "three")))
-  expect_identical(out, default_target)
-})
+test_that("Ignored columns are not imputed but are returned.", {
+  d_train$animal_id[1:5] <- NA
+  d_train$kitty[1:5] <- NA
+  expect_warning(capture_output(res <- impute(d = d_train, animal_id, kitty)))
+  expect_true(is.na(res$animal_id[2]))
+  expect_true(is.na(res$kitty[4]))
 
-test_that("When a non-default value is provided it is used and doesn't interfere with defaults", {
-  original <- data.frame(x = c(3, -3, NA, 0), y = c("A", "A", "B", NA))
-  custom_target <- list(df = data.frame(x = c(3, -3, 0, 0),
-                                        y = c("A", "A", "B", "C")),
-                        imputeVals = list(x = 0, y = "C"))
-  expect_identical(imputeDF(original, list(0, "C")), custom_target)  
-  expect_identical(imputeDF(original, list(y = "C", x = 0)), custom_target)  
-  expect_identical(imputeDF(original, list(y = "C")), custom_target)  
-})
-
-test_that("Impute values with names not in df are ignored with warning", {
-  original <- data.frame(x = c(3, -3, NA, 0), y = c("A", "A", "B", NA))
-  custom_target <- list(df = data.frame(x = c(3, -3, 0, 0),
-                                        y = c("A", "A", "B", "C")),
-                        imputeVals = list(x = 0, y = "C"))
-  expect_warning(expect_identical(
-    imputeDF(original, list("z" = 5, y = "C")), custom_target
+  d_test$animal_id[1:5] <- NA
+  d_test$kitty[1:5] <- NA
+  expect_warning(capture_output(
+    res <- impute(d = d_test, animal_id, kitty, rec_obj = attr(res, "rec_obj"))
   ))
-  expect_warning(expect_identical(
-    imputeDF(original, list(y = "C", "z" = 5)), custom_target
-  ))
+  expect_true(is.na(res$animal_id[2]))
+  expect_true(is.na(res$kitty[4]))
 })
 
-test_that("NAs are honored as imputation values", {
-  original <- data.frame(x = c(3, -3, NA, 0), y = c("A", "A", "B", NA))
-  iv <- list(x = NA, y = "C")
-  target <- list(df = data.frame(x = c(3, -3, NA, 0),
-                                 y = c("A", "A", "B", "C")),
-                 imputeVals = list(x = NA, y = "C"))
+test_that("Columns have the same order after", {
+  capture_output(res <- impute(d = d_train,
+                               animal_id, kitty,))
+  expect_equal(names(d_train), names(res))
 })
 
-
-############### 2 STEPS ###############
-test_that('impute a whole data frame in two steps', {
-  df <- data.frame(a=c(1,2,3,NA), b=c('Y','N','Y',NA),
-                   c=c(11,21,31,43), d=c('Y','N','N',NA))
-  # Find values
-  out <- imputeDF(df)
-  imputeVals <- out$imputeVals
-  # Insert values
-  capture.output(out <- imputeDF(df,imputeVals))
-  dfOut <- out$df
-  imputeVals <- out$imputeVals
-  dfExpected <- data.frame(a=c(1,2,3,2), b=c('Y','N','Y','Y'),
-                           c=c(11,21,31,43), d=as.factor(c('Y','N','N','N')))
-  valsExpected <- list(a=2, b='Y', c=26.5, d='N')
-  expect_identical(dfOut, dfExpected)
-  expect_identical(imputeVals, valsExpected)
+test_that("Missingness in ignored columns throws warning, elsewhere doesn't", {
+  d_train$animal_id[1:10] <- NA
+  expect_warning(
+    capture_output(tmp <- impute(d_train, animal_id)))
+  expect_warning(capture_output(
+    tmp <- impute(d_train, kitty)), regexp = NA)
 })
 
-
-test_that('impute a subset of a data frame in two steps', {
-  df <- data.frame(a=c(1,2,3,NA), b=c('Y','N','Y',NA),
-                   c=c(11,21,31,43), d=c('Y','N','N',NA))
-  df <- df[,c(1,2,4)]
-  # Find values
-  out <- imputeDF(df)
-  imputeVals <- out$imputeVals
-  # Insert values
-  capture.output(out <- imputeDF(df,imputeVals))
-  dfOut <- out$df
-  imputeVals <- out$imputeVals
-  dfExpected <- data.frame(a=c(1,2,3,2), b=c('Y','N','Y','Y'), d=as.factor(c('Y','N','N','N')))
-  valsExpected <- list(a=2, b='Y', d='N')
-  expect_identical(dfOut, dfExpected)
-  expect_identical(imputeVals, valsExpected)
-}) 
-
-
-test_that('impute a whole data frame of factors in two steps', {
-  df <- data.frame(a=as.factor(c('apple','banana','kiwi','kiwi',NA)), 
-                   b=as.factor(c('toaster','trumpet','roomba',NA, 'toaster')))
-  out <- imputeDF(df)
-  imputeVals <- out$imputeVals
-  # Insert values
-  capture.output(out <- imputeDF(df,imputeVals))
-  dfOut <- out$df
-  imputeVals <- out$imputeVals
-  dfExpected <- data.frame(a=as.factor(c('apple','banana','kiwi','kiwi','kiwi')), 
-                           b=as.factor(c('toaster','trumpet','roomba','toaster', 'toaster')))
-  valsExpected <- list(a='kiwi', b='toaster')
-  expect_identical(dfOut, dfExpected)
-  expect_identical(imputeVals, valsExpected)
+test_that("Output of impute is a data frame with our custom child class", {
+  capture_output(imped <- impute(d_train))
+  expect_true(is.data.frame(imped))
+  expect_s3_class(imped, "hcai_imputed_df")
 })
 
-
-test_that('impute a single column in two steps', {
-  df <- data.frame(a=c(1,2,3,NA), b=c('Y','N','Y',NA),
-                   c=c(11,21,31,43), d=c('Y','N','N',NA))
-  df <- df['a']
-  # Insert values
-  out <- imputeDF(df)
-  imputeVals <- out$imputeVals
-  # Insert values
-  capture.output(out <- imputeDF(df,imputeVals))
-  dfOut <- out$df
-  imputeVals <- out$imputeVals
-  dfExpected <- data.frame(a=c(1,2,3,2))
-  valsExpected <- list(a=2)
-  expect_identical(dfOut, dfExpected)
-  expect_identical(imputeVals, valsExpected)
+test_that("Output of impute is same for tibble vs data frame", {
+  expect_equal(
+    capture_output(impute(d_train)),
+    capture_output(impute(tibble::as_tibble(d_train)))
+  )
 })
 
-
-test_that('collect values on a 4 column DF, apply them to 2 columns in two steps', {
-  df <- data.frame(a=c(1,2,3,NA), b=c('Y','N','Y',NA),
-                   c=c(11,21,31,43), d=as.factor(c('Y','N','N',NA)))
-  # Find values for 4 columns
-  out <- imputeDF(df)
-  imputeVals <- out$imputeVals
-  # Insert values for columns 2 and 4 only
-  df <- df[,c(2,4)]
-  colsToImpute <- c('b','d')
-  capture.output(out <- imputeDF(df,imputeVals[colsToImpute]))
-  dfOut <- out$df
-  dfExpected <- data.frame(b=c('Y','N','Y','Y'),
-                           d=as.factor(c('Y','N','N','N')))
-  valsExpected <- list(b='Y', d='N')
-  expect_identical(dfOut, dfExpected)
+test_that("rec_obj attr is a recipe class object", {
+  capture_output(imp_train <- impute(d_train))
+  expect_true("rec_obj" %in% names(attributes(imp_train)))
+  expect_s3_class(attr(imp_train, "rec_obj"), "recipe")
 })
 
-
-test_that('Apply values that are not present in the dataframe,
-          discard unused impute values with a warning.', {
-            df <- data.frame(a=as.factor(c('bagel','muffin','toast',NA)), 
-                             b=as.factor(c('juice','water','milk',NA)))
-            # Assing different values
-            imputeVals <- list(b='pancake', d='wine')
-            expect_warning(
-              capture.output(out <- imputeDF(df,imputeVals))
-            )
-            dfOut <- out$df
-            dfExpected <- data.frame(a=as.factor(c('bagel','muffin','toast','bagel')), 
-                                     b=as.factor(c('juice','water','milk','pancake')))
-            expect_identical(dfOut, dfExpected)
-          })
-
-
-############### ERROR HANDLING ###############
-# collect values on a 4 column DF, apply them to 2 columns
-# This should no longer throw an error. Rather, the two named values
-# get used and the others have their values calculated in the second imputeDF call
-test_that('No error when fed 4 column DF and 2 named values.', {
-  df <- data.frame(a=c(1,2,3,NA), b=c('Y','N','Y',NA),
-                   c=c(11,21,31,43), d=as.factor(c('Y','N','N',NA)))
-  # Find values for 4 columns
-  out <- imputeDF(df)
-  imputeVals <- out$imputeVals
-  # Insert values for columns 2 and 4 only
-  colsToImpute <- c('b','d')
-  expect_identical(imputeDF(df, imputeVals[colsToImpute]),
-                   imputeDF(df))
+test_that("imp_summary attr is contained within d_imputed", {
+  capture_output(imp_train <- impute(d_train))
+  expect_true("imp_summary" %in% names(attributes(imp_train)))
 })
 
-
-test_that('error when a column is all NA', {
-  df <- data.frame(a=c(NA,NA,NA,NA), b=c('Y','N','Y','Y') )
-  expect_error(imputeDF(df), 'replacement has length zero')
-})
-
-
-test_that('does nothing for a full column of numbers', {
-  df <- data.frame(a=c(1,2,3,4,5))
-  out <- imputeDF(df)
-  dfOut <- out$df
-  valsExpected <- list(a=3)
-  imputeVals <- out$imputeVals
-  expect_identical(dfOut, df)
-  expect_identical(imputeVals, valsExpected)
-})
-
-
-test_that('does nothing for a full column of chars', {
-  df <- data.frame(a=c('lion', 'tiger', 'liger', 'warthog','lion'), 
-                   b=c('cheeseburger','bacon','pie','lentils', 'pie'))
-  out <- imputeDF(df)
-  dfOut <- out$df
-  imputeVals <- out$imputeVals
-  valsExpected <- list(a='lion', b='pie')
-  expect_identical(dfOut, df)
-  expect_identical(imputeVals, valsExpected)
-})
-
-
-test_that('does nothing for a full column of factors', {
-  df <- data.frame(a=as.factor(c('lion', 'tiger', 'liger', 'warthog','lion')), 
-                   b=as.factor(c('cheeseburger','bacon','pie','lentils', 'pie')))
-  out <- imputeDF(df)
-  dfOut <- out$df
-  imputeVals <- out$imputeVals
-  valsExpected <- list(a='lion', b='pie')
-  expect_identical(dfOut, df)
-  expect_identical(imputeVals, valsExpected)
-})
-
-
-test_that('error when df is not a dataframe.', {
-  expect_error(imputeDF(c(1,2,3,4)), 'df must be a dataframe')
-})
-
-
-test_that('error when imputeVals is not a list.', {
-  df <- data.frame(a=c(1,2,3,NA), b=c(11,21,31,43))
-  expect_error(imputeDF(df, c(2,26.5)), 'imputeValues must be a list.')
-})
-
-test_that("Unnamed list not of same length as df produces error", {
-  original <- data.frame(x = c(3, -3, NA, 0), y = c("A", "A", "B", NA))
-  expect_error(imputeDF(original, list("C")))
-  expect_error(imputeDF(original, list("C", 1, 3, 4)))
-})
-
-test_that("Partially named list produces error", {
-  original <- data.frame(x = c(3, -3, NA, 0), y = c("A", "A", "B", NA))
-  expect_error(imputeDF(original, list("C", name = 4)))
-})
-
-test_that("Unnamed imputeVals with different variable types than df errors", {
-  original <- data.frame(x = c(3, -3, NA, 0), y = c("A", "A", "B", NA))
-  expect_error(imputeDF(original, list("apple", "banana")))
-  expect_error(imputeDF(original, list(3, 0)))
-  expect_error(imputeDF(original, list("APPLE!!!", 0)))
+test_that("print method works as expected", {
+  d_train$animal_id[1:5] <- NA
+  d_train$kitty[1:5] <- NA
+  expect_warning(
+    msg <- capture_output(
+      capture_messages(
+        res <- impute(d = d_train, animal_id, kitty, verbose = TRUE))))
+  expect_true(grepl("ignored", msg))
+  expect_true(grepl("new_category", msg))
 })
