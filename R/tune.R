@@ -39,15 +39,16 @@
 #'   length(models) x n_folds x tune_depth.
 #'
 #' @examples
-#' ### Takes ~10 seconds
 #' \dontrun{
-#' # Remove identifier variable not to be used in model
+#' ### Takes ~7 seconds
+#' # Remove identifier variables and rows with missingness,
+#' # and choose 100 rows to speed tuning
 #' d <- dplyr::select(pima_diabetes, -PatientID)
-#' # Choose 200 rows to speed tuning
-#' d <- dplyr::sample_n(d, 200)
+#' d <- stats::na.omit(d)
+#' d <- dplyr::sample_n(d, 100)
 #' m <- tune(d, outcome = Diabetes, model_class = "classification")
-#' # Plot performance over hyperparameter values for random forest
-#' ggplot2::ggplot(m$rf)
+#' # Plot performance over hyperparameter values for each algorithm
+#' plot(m)
 #' # Extract confusion matrix for KNN
 #' caret::confusionMatrix(m$knn, norm = "none")
 #' # Compare performance of algorithms at best hyperparameter values
@@ -70,6 +71,13 @@ tune <- function(d,
   # Make sure outcome's class works with model_class, or infer it
   outcome_class <- class(dplyr::pull(d, !!outcome))
   looks_categorical <- outcome_class %in% c("character", "factor")
+  # If tune_depth is too small, won't get coverage over hyperparameters.
+  ### Remove this when implementing grid search
+  if (tune_depth < 10)
+    warning("tune_depth = ", tune_depth, " may not provide adaquate coverage ",
+            "of hyperparameter space.")
+  if (n_folds <= 1)
+    stop("n_folds must be greater than 1.")
   # Some algorithms need the response to be factor instead of char or lgl
   if (looks_categorical)
     d <- dplyr::mutate(d, !!rlang::quo_name(outcome) := as.factor(!!outcome))
@@ -150,7 +158,8 @@ tune <- function(d,
   # Loop over models, tuning each
   train_list <-
     lapply(models, function(model) {
-      message("Running cross validation for ", model)
+      message("Running cross validation for ",
+              caret::getModelInfo(model)[[1]]$label)
       caret::train(x = dplyr::select(d, -!!outcome),
                    y = dplyr::pull(d, !!outcome),
                    method = model,
@@ -163,7 +172,8 @@ tune <- function(d,
   names(train_list) <- provided_models
 
   # Add classes
-  train_list <- as.model_list(listed_models = train_list, type = model_class)
+  train_list <- as.model_list(listed_models = train_list,
+                              target = rlang::quo_name(outcome))
 
   return(train_list)
 }
