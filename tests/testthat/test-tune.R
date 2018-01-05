@@ -53,6 +53,10 @@ test_that("tune doesn't error on rf classification", {
     , regexp = NA)
 })
 
+test_that("tune errors sensibly if outcome isn't present", {
+  expect_error(tune(test_df, xxx), regexp = "xxx")
+})
+
 # Training multiple models in one call
 test_that("tune doesn't error on rf & knn classification", {
   expect_error(

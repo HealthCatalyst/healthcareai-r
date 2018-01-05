@@ -68,14 +68,12 @@ tune <- function(d,
   outcome <- rlang::enquo(outcome)
   # tibbles upset some algorithms, plus handles matrices, maybe
   d <- as.data.frame(d)
+  # Is outcome present?
+  if (!rlang::quo_name(outcome) %in% names(d))
+    stop(rlang::quo_name(outcome), "isn't a column in d.")
   # Make sure outcome's class works with model_class, or infer it
   outcome_class <- class(dplyr::pull(d, !!outcome))
   looks_categorical <- outcome_class %in% c("character", "factor")
-  # If tune_depth is too small, won't get coverage over hyperparameters.
-  ### Remove this when implementing grid search
-  if (tune_depth < 10)
-    warning("tune_depth = ", tune_depth, " may not provide adaquate coverage ",
-            "of hyperparameter space.")
   if (n_folds <= 1)
     stop("n_folds must be greater than 1.")
   # Some algorithms need the response to be factor instead of char or lgl
