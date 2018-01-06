@@ -66,19 +66,25 @@ tune <- function(d,
                  hyperparameters) {
   # Organize arguments and defaults
   outcome <- rlang::enquo(outcome)
+  # Grab data prep recipe object to add to model_list at end
+  rec_obj <-
+    if ("rec_obj" %in% names(attributes(d))) attr(d, "rec_obj") else NULL
   # tibbles upset some algorithms, plus handles matrices, maybe
   d <- as.data.frame(d)
+  if (n_folds <= 1)
+    stop("n_folds must be greater than 1.")
   # Is outcome present?
   if (!rlang::quo_name(outcome) %in% names(d))
     stop(rlang::quo_name(outcome), "isn't a column in d.")
   # Make sure outcome's class works with model_class, or infer it
   outcome_class <- class(dplyr::pull(d, !!outcome))
   looks_categorical <- outcome_class %in% c("character", "factor")
-  if (n_folds <= 1)
-    stop("n_folds must be greater than 1.")
   # Some algorithms need the response to be factor instead of char or lgl
+  # Get rid of unused levels if they're present
   if (looks_categorical)
-    d <- dplyr::mutate(d, !!rlang::quo_name(outcome) := as.factor(!!outcome))
+    d <- dplyr::mutate(d,
+                       !!rlang::quo_name(outcome) := as.factor(!!outcome),
+                       !!rlang::quo_name(outcome) := droplevels(!!outcome))
   looks_numeric <- is.numeric(dplyr::pull(d, !!outcome))
   if (!looks_categorical && !looks_numeric) {
     # outcome is weird class
@@ -172,6 +178,9 @@ tune <- function(d,
   # Add classes
   train_list <- as.model_list(listed_models = train_list,
                               target = rlang::quo_name(outcome))
+
+  # Add recipe object if one came in on d
+  attr(train_list, "rec_obj") <- rec_obj
 
   return(train_list)
 }
