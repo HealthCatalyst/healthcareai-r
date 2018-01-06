@@ -16,10 +16,11 @@ Description: A machine learning toolbox tailored to healthcare data.
 License: MIT + file LICENSE
 LazyData: TRUE
 Depends:
-    R (>= 3.2.3)
+    R (>= 3.4)
 Imports:
     broom,
-    caret,
+    caret (>= 6.0.78),
+    cowplot,
     data.table,
     DBI,
     doParallel,
@@ -27,13 +28,14 @@ Imports:
     e1071,
     ggplot2,
     grpreg,
+    kknn,
     lme4,
     odbc,
     purrr,
     pROC,
     purrr,
     R6,
-    ranger,
+    ranger (>= 0.8.0),
     readr,
     recipes,
     rlang,

@@ -153,10 +153,9 @@ impute <- function(d = NULL,
 #' @export
 print.hcai_imputed_df <- function(x, ...) {
   s <- attr(x, "imp_summary")
-  r <- attr(x, "rec_obj")
-
-  message("Missingness and imputation method to be used:")
+  cat("Original missingness and methods used in imputation:\n\n")
   print(s)
-  message("\nRecipe object used for imputation:")
-  print(r)
+  cat("\nCurrent data:\n\n")
+  NextMethod(print, x)
+  return(invisible(x))
 }

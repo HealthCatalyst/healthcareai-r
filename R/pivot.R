@@ -101,7 +101,7 @@ pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
   }
 
   # Make sure all three columns are present
-  cols <- sapply(c(grain, spread, fill), rlang::quo_name)
+  cols <- purrr::map2_chr(c(grain, spread, fill), rlang::quo_name)
   present <- cols %in% names(d)
   if (any(!present))
     stop(paste(cols[!present], collapse = ", "), " not found in d.")
