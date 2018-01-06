@@ -88,7 +88,7 @@ plot.model_list <- function(mlist, print = TRUE) {
       best_metric <- round(optimum(mod$results[[mod$metric]]), 2)
       ggplot(mod) +
         ylim(y_range) +
-        labs(title = mod$modelInfo$label,  # nolint
+        labs(title = mod$modelInfo$label,
              caption = paste("Best ", mod$metric, ": ", best_metric))
     })
   gg <- cowplot::plot_grid(plotlist = gg_list, nrow = nrows)

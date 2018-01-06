@@ -7,7 +7,8 @@
 model_list(model_class, ...)
 }
 \arguments{
-\item{model_class}{Every model_list object has a child class that specifies the model_class. Currently classification and regression are supported.}
+\item{model_class}{Every model_list object has a child class that specifies
+the model_class. Currently classification and regression are supported.}
 
 \item{...}{Models to become a model_list, but you should use as.model_list}
 }
