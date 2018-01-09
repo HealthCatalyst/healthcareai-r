@@ -59,6 +59,8 @@ data_prep <- function(d = NULL,
                    grain = NULL,
                    ...,
                    rec_obj = NULL,
+                   convert_0_1_to_factor = TRUE,
+                   convert_dates_to_features = TRUE,
                    numeric_method = "mean",
                    nominal_method = "new_category",
                    numeric_params = NULL,
@@ -90,6 +92,7 @@ data_prep <- function(d = NULL,
   d_ignore <- dplyr::select(d, !!!ignored)
   d <- dplyr::select(d, -dplyr::one_of(ignored))
 
+  # Initialize recipe
   rec <- d %>%
     recipe(formula = "~.")
 
@@ -97,17 +100,22 @@ data_prep <- function(d = NULL,
   # rec <- rec %>% step_hcai_mostly_missing_to_factor()
 
   # Convert 0/1 columns to factors (step_bin2factor)
-  # rec <- rec %>% step_hcai_01_to_factor()
+  cols <- find_0_1_cols(d)
+  rec <- rec %>%
+    step_bin2factor(!!cols)
 
   # Convert date columns to useful features
-  date_cols <- find_date_cols(d)
-  rec <- rec %>%
-    step_date(one_of(date_cols),
-              features = c("dow", "month", "year"))
+  # cols <- find_date_cols(d)
+  # rec <- rec %>%
+  #   step_date(one_of(cols),
+  #             features = c("dow", "month", "year"))
 
   # Impute
+  # rec <- rec %>%
+  #   hcai_impute()
 
   # Collapse rare factors into "other"
+
 
   # Log transform
 
@@ -122,100 +130,109 @@ data_prep <- function(d = NULL,
   # Remove columns with near zero variance
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  # Check to make sure rec_obj is a valid recipe
-  if (!inherits(rec_obj, "recipe") && !is.null(rec_obj)) {
-    stop("\"rec_obj\" must be a valid recipe object.")
-  }
-
-  d_ignore <- dplyr::select(d, !!!ignore_columns)
-  # Save column order
-  col_order <- names(d)
-
-  # Display missingness and which variables will and won't be imputed
-  has_missingness <-
-    d %>%
-    missingness() %>%
-    dplyr::filter(percent_missing > 0)
-  ignored <- purrr::map_chr(ignore_columns, rlang::quo_name)
-  missingness_ignored <- split(has_missingness,
-                               has_missingness$variable %in% ignored)
-
-  if ("FALSE" %in% names(missingness_ignored)) {
-    imp_summary <- missingness_ignored[["FALSE"]] %>%
-      dplyr::mutate(imputation_method_used =
-                      purrr::map_chr(variable, ~ ifelse(is.numeric(d[[.x]]),
-                                                        numeric_method,
-                                                        nominal_method))
-      )
-  }
-  if ("TRUE" %in% names(missingness_ignored)) {
-    warning("These ignored variables still have missingness: ",
-            paste(missingness_ignored[["TRUE"]]$variable, collapse = ", "))
-    imp_summary <- dplyr::bind_rows(imp_summary,
-                             missingness_ignored[["TRUE"]] %>%
-                               dplyr::mutate(imputation_method = "ignored"))
-
-  }
-
-  if (verbose) {
-    message("The following missingness will be imputed: ")
-    print(imp_summary)
-  }
-
-  if (!length(ignore_columns)) {
-    d_ignore <- NULL
-  } else {
-    # Make sure all columns are present
-    present <- ignored %in% names(d)
-    if (any(!present))
-      stop(paste(ignored[!present], collapse = ", "), " not found in d.")
-
-    d_ignore <- dplyr::select(d, !!!ignore_columns)
-    d <- dplyr::select(d, -dplyr::one_of(ignored))
-  }
-
-  # If recipe object is not provided, train it and predict.
-  if (is.null(rec_obj)) {
-    # Train
-    rec_obj <-
-      d %>%
-      recipe(formula = "~.") %>%  # nolint
-      hcai_impute(numeric_method = numeric_method,
-                  nominal_method = nominal_method,
-                  numeric_params = numeric_params,
-                  nominal_params = nominal_params) %>%
-      prep(training = d)
-  }
-  # Predict
-  d_imputed <- bake(rec_obj, newdata = d)
+  # Apply recipe
+  d_clean <- rec %>%
+    prep(training = d) %>%
+    bake(newdata = d)
 
   # Add ignore columns back in.
-  d_imputed <- dplyr::bind_cols(d_imputed, d_ignore)
-  d_imputed <- d_imputed[, col_order]
+  d_clean <- dplyr::bind_cols(d_ignore, d_clean)
 
-  # Add recipe object as an attribute of the data frame
-  attr(d_imputed, "rec_obj") <- rec_obj
-  attr(d_imputed, "imp_summary") <- imp_summary
-
-  # Add class signature to data frame so we can ID for imputation in deployment
-  class(d_imputed) <- c("hcai_imputed_df", class(d_imputed))
-
-  return(d_imputed)
+  attr(d_clean, "rec_obj") <- rec
+  return(d_clean)
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+  # # Check to make sure rec_obj is a valid recipe
+  # if (!inherits(rec_obj, "recipe") && !is.null(rec_obj)) {
+  #   stop("\"rec_obj\" must be a valid recipe object.")
+  # }
+  #
+  # d_ignore <- dplyr::select(d, !!!ignore_columns)
+  # # Save column order
+  # col_order <- names(d)
+  #
+  # # Display missingness and which variables will and won't be imputed
+  # has_missingness <-
+  #   d %>%
+  #   missingness() %>%
+  #   dplyr::filter(percent_missing > 0)
+  # ignored <- purrr::map_chr(ignore_columns, rlang::quo_name)
+  # missingness_ignored <- split(has_missingness,
+  #                              has_missingness$variable %in% ignored)
+  #
+  # if ("FALSE" %in% names(missingness_ignored)) {
+  #   imp_summary <- missingness_ignored[["FALSE"]] %>%
+  #     dplyr::mutate(imputation_method_used =
+  #                     purrr::map_chr(variable, ~ ifelse(is.numeric(d[[.x]]),
+  #                                                       numeric_method,
+  #                                                       nominal_method))
+  #     )
+  # }
+  # if ("TRUE" %in% names(missingness_ignored)) {
+  #   warning("These ignored variables still have missingness: ",
+  #           paste(missingness_ignored[["TRUE"]]$variable, collapse = ", "))
+  #   imp_summary <- dplyr::bind_rows(imp_summary,
+  #                            missingness_ignored[["TRUE"]] %>%
+  #                              dplyr::mutate(imputation_method = "ignored"))
+  #
+  # }
+  #
+  # if (verbose) {
+  #   message("The following missingness will be imputed: ")
+  #   print(imp_summary)
+  # }
+  #
+  # if (!length(ignore_columns)) {
+  #   d_ignore <- NULL
+  # } else {
+  #   # Make sure all columns are present
+  #   present <- ignored %in% names(d)
+  #   if (any(!present))
+  #     stop(paste(ignored[!present], collapse = ", "), " not found in d.")
+  #
+  #   d_ignore <- dplyr::select(d, !!!ignore_columns)
+  #   d <- dplyr::select(d, -dplyr::one_of(ignored))
+  # }
+  #
+  # # If recipe object is not provided, train it and predict.
+  # if (is.null(rec_obj)) {
+  #   # Train
+  #   rec_obj <-
+  #     d %>%
+  #     recipe(formula = "~.") %>%  # nolint
+  #     hcai_impute(numeric_method = numeric_method,
+  #                 nominal_method = nominal_method,
+  #                 numeric_params = numeric_params,
+  #                 nominal_params = nominal_params) %>%
+  #     prep(training = d)
+  # }
+  # # Predict
+  # d_imputed <- bake(rec_obj, newdata = d)
+  #
+  # # Add ignore columns back in.
+  # d_imputed <- dplyr::bind_cols(d_imputed, d_ignore)
+  # d_imputed <- d_imputed[, col_order]
+  #
+  # # Add recipe object as an attribute of the data frame
+  # attr(d_imputed, "rec_obj") <- rec_obj
+  # attr(d_imputed, "imp_summary") <- imp_summary
+  #
+  # # Add class signature to data frame so we can ID for imputation in deployment
+  # class(d_imputed) <- c("hcai_imputed_df", class(d_imputed))
+  #
+  # return(d_imputed)
 
 # print method for impute
 #' @export

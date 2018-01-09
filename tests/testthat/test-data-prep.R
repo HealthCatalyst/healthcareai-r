@@ -11,7 +11,9 @@ df <- data.frame(song_id = 1:n,
                  genre = sample(c("Rock", "Jazz", "Country"),
                                 size = n, replace = T),
                  reaction = sample(c("Love", "Huh", "Dislike", "Mixed"),
-                                    size = n, replace = T)
+                                    size = n, replace = T),
+                 guitar_flag = sample(c(0, 1), size = n, replace = T),
+                 drum_flag = sample(c(0, 1, NA), size = n, replace = T)
 )
 
 # give is_ween likeliness score
@@ -53,7 +55,7 @@ d_test <- df[-train_index$Resample1, ]
 
 d_train$length[1] <- d_test$length[1] <- NA
 d_train$reaction[2] <- d_test$reaction[2] <- NA
-d_train$width[3] <-  d_test$weirdness[3] <- NA
+d_train$weirdness[3] <-  d_test$weirdness[3] <- NA
 d_train$genre[3] <- d_test$genre[3] <- NA
 
 
@@ -85,3 +87,23 @@ test_that("Bad target, grain, or ignore throws an error", {
                          cowbell, spoons),
                regexp = "cowbell, spoons not found in d")
 })
+
+test_that("0/1 columns are found and converted", {
+  capture_output(
+    d_clean <- data_prep(d = d_train,
+                       target = is_ween,
+                       grain = song_id,
+                       length,
+                       convert_0_1_to_factor = TRUE)
+  )
+
+  expect_true(is.factor(d_clean$guitar_flag))
+  expect_true(is.factor(d_clean$drum_flag))
+
+  lev <- levels(d_clean$guitar_flag)
+  expect_equal(lev[ordered(lev)], c("no", "yes"))
+
+  lev <- levels(d_clean$drum_flag)
+  expect_equal(lev[ordered(lev)], c("no", "yes"))
+})
+
