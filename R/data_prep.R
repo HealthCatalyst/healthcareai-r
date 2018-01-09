@@ -94,12 +94,14 @@ data_prep <- function(d = NULL,
     recipe(formula = "~.")
 
   # Find largely missing columns and convert to factors
-  rec <- rec %>% step_hcai_mostly_missing_to_factor()
+  # rec <- rec %>% step_hcai_mostly_missing_to_factor()
 
   # Convert 0/1 columns to factors (step_bin2factor)
-  rec <- rec %>% step_hcai_01_to_factor()
+  # rec <- rec %>% step_hcai_01_to_factor()
 
   # Convert date columns to useful features
+  rec <- rec %>%
+    step
 
   # Impute
 
