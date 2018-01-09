@@ -100,8 +100,10 @@ data_prep <- function(d = NULL,
   # rec <- rec %>% step_hcai_01_to_factor()
 
   # Convert date columns to useful features
+  date_cols <- find_date_cols(d)
   rec <- rec %>%
-    step
+    step_date(one_of(date_cols),
+              features = c("dow", "month", "year"))
 
   # Impute
 
