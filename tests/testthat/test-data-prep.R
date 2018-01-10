@@ -19,7 +19,9 @@ df <- data.frame(song_id = 1:n,
         posixct_col = lubridate::ymd("2004-03-04") + lubridate::days(1:10),
         col_DTS = lubridate::ymd("2006-03-04") + lubridate::days(1:10),
         missing82 = sample(1:10, n, replace = TRUE),
-        missing64 = sample(100:300, n, replace = TRUE)
+        missing64 = sample(100:300, n, replace = TRUE),
+        state = sample(c("NY", "MA", "CT", "CA", "VT", "NH"), size = n, replace = T,
+                           prob = c(0.18, 0.1, 0.1, 0.6, 0.01, 0.01))
 )
 
 # give is_ween likeliness score
@@ -100,7 +102,10 @@ test_that("0/1 columns are found and converted with defaults", {
                        target = is_ween,
                        grain = song_id,
                        length,
-                       convert_0_1_to_factor = TRUE)
+                       convert_0_1_to_factor = TRUE,
+                       convert_dates = FALSE,
+                       impute = FALSE,
+                       collapse_rare_factors = FALSE)
   )
 
   expect_true(is.factor(d_clean$guitar_flag))
@@ -120,7 +125,9 @@ test_that("date columns are found and converted with defaults", {
                          grain = song_id,
                          length,
                          convert_0_1_to_factor = FALSE,
-                         convert_dates = TRUE)
+                         convert_dates = TRUE,
+                         impute = FALSE,
+                         collapse_rare_factors = FALSE)
   )
 
   expect_true(is.factor(d_clean$date_col_dow))
@@ -128,7 +135,7 @@ test_that("date columns are found and converted with defaults", {
   expect_true(is.numeric(d_clean$col_DTS_year))
   expect_equal(as.character(d_clean$date_col_month[1]), "Mar")
   expect_equal(d_clean$posixct_col_year[2], 2004)
-  expect_equal(as.character(d_clean$col_DTS_dow[3]), "Wed")
+  expect_equal(as.character(d_clean$col_DTS_dow[3]), "Tues")
 })
 
 test_that("impute works with defaults", {
@@ -139,8 +146,12 @@ test_that("impute works with defaults", {
                          length,
                          convert_0_1_to_factor = FALSE,
                          convert_dates = FALSE,
-                         impute = TRUE)
+                         impute = TRUE,
+                         collapse_rare_factors = FALSE)
   )
+  expect_equal(d_clean$weirdness[3], 3.88, tol = .01)
+  expect_equal(as.character(d_clean$genre[2]), "Country")
+  expect_equal(as.character(d_clean$reaction[4]), "Dislike")
 })
 
 test_that("impute works with params", {
@@ -153,12 +164,13 @@ test_that("impute works with params", {
                  convert_dates = FALSE,
                  impute = list(numeric_method = "knnimpute",
                                nominal_method = "bagimpute",
-                               numeric_params = list(knn_K = 4),
-                               nominal_params = NULL))
+                               numeric_params = list(knn_K = 5),
+                               nominal_params = NULL),
+                 collapse_rare_factors = FALSE)
   )
-  expect_equal(d_clean$weirdness[3], 4.85, tol = .01)
-  expect_equal(as.character(d_clean$genre[2]), "Jazz")
-  expect_equal(as.character(d_clean$reaction[4]), "Huh")
+  expect_equal(d_clean$weirdness[3], 4.55, tol = .01)
+  expect_equal(as.character(d_clean$genre[2]), "Country")
+  expect_equal(as.character(d_clean$reaction[4]), "Dislike")
 })
 
 test_that("impute works with partial/extra params", {
@@ -169,11 +181,11 @@ test_that("impute works with partial/extra params", {
                          length,
                          convert_0_1_to_factor = FALSE,
                          convert_dates = FALSE,
-                         impute = list(numeric_method = "knnimpute",
-                                       numeric_params = list(knn_K = 5)))
+                         impute = list(numeric_method = "bagimpute"),
+                         collapse_rare_factors = FALSE)
   )
   m <- missingness(d_clean)
-  expect_equal(m$percent_missing[m$variable == "length"], 15.8)
+  expect_equal(m$percent_missing[m$variable == "length"], 18.3)
   expect_true(all(m$percent_missing[!(m$variable %in% "length")] == 0))
 
   expect_warning(capture_output(
@@ -185,6 +197,26 @@ test_that("impute works with partial/extra params", {
                          convert_dates = FALSE,
                          impute = list(numeric_method = "knnimpute",
                                        numeric_params = list(knn_K = 5),
-                                       the_best_params = "Moi!"))),
+                                       the_best_params = "Moi!"),
+                         collapse_rare_factors = FALSE)),
   regexp = "the_best_params")
 })
+
+
+test_that("impute works with partial/extra params", {
+  capture_output(
+    d_clean <- data_prep(d = d_train,
+                         target = is_ween,
+                         grain = song_id,
+                         length,
+                         convert_0_1_to_factor = FALSE,
+                         convert_dates = FALSE,
+                         impute = FALSE,
+                         collapse_rare_factors = TRUE)
+  )
+  exp <- c("CA", "CT", "MA", "NY", "other")
+  expect_equal(levels(d_clean$state), exp)
+  exp <- c("Dislike", "Huh", "Love", "Mixed")
+  expect_equal(levels(d_clean$reaction), exp)
+})
+

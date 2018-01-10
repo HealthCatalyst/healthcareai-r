@@ -61,6 +61,7 @@ data_prep <- function(d = NULL,
                    rec_obj = NULL,
                    convert_0_1_to_factor = TRUE,
                    convert_dates = TRUE,
+                   collapse_rare_factors = TRUE,
                    impute = TRUE,
                    verbose = FALSE) {
 
@@ -136,12 +137,15 @@ data_prep <- function(d = NULL,
                     numeric_params = ip$numeric_params,
                     nominal_params = ip$nominal_params)
 
-  } else {
+  } else if (impute != FALSE) {
     stop("impute must be boolean or list.")
   }
 
   # Collapse rare factors into "other"
-
+  if (collapse_rare_factors == TRUE) {
+  rec <- rec %>%
+    step_other(all_nominal(), threshold = .02)
+  }
 
   # Log transform
 
