@@ -100,12 +100,7 @@ test_that("0/1 columns are found and converted with defaults", {
   capture_output(
     d_clean <- data_prep(d = d_train,
                        target = is_ween,
-                       grain = song_id,
-                       length,
-                       convert_0_1_to_factor = TRUE,
-                       convert_dates = FALSE,
-                       impute = FALSE,
-                       collapse_rare_factors = FALSE)
+                       grain = song_id)
   )
 
   expect_true(is.factor(d_clean$guitar_flag))
@@ -122,12 +117,7 @@ test_that("date columns are found and converted with defaults", {
   capture_output(
     d_clean <- data_prep(d = d_train,
                          target = is_ween,
-                         grain = song_id,
-                         length,
-                         convert_0_1_to_factor = FALSE,
-                         convert_dates = TRUE,
-                         impute = FALSE,
-                         collapse_rare_factors = FALSE)
+                         grain = song_id)
   )
 
   expect_true(is.factor(d_clean$date_col_dow))
@@ -142,12 +132,7 @@ test_that("impute works with defaults", {
   capture_output(
     d_clean <- data_prep(d = d_train,
                          target = is_ween,
-                         grain = song_id,
-                         length,
-                         convert_0_1_to_factor = FALSE,
-                         convert_dates = FALSE,
-                         impute = TRUE,
-                         collapse_rare_factors = FALSE)
+                         grain = song_id)
   )
   expect_equal(d_clean$weirdness[3], 3.88, tol = .01)
   expect_equal(as.character(d_clean$genre[2]), "Country")
@@ -159,14 +144,10 @@ test_that("impute works with params", {
     d_clean <- data_prep(d = d_train,
                  target = is_ween,
                  grain = song_id,
-                 length,
-                 convert_0_1_to_factor = FALSE,
-                 convert_dates = FALSE,
                  impute = list(numeric_method = "knnimpute",
                                nominal_method = "bagimpute",
                                numeric_params = list(knn_K = 5),
-                               nominal_params = NULL),
-                 collapse_rare_factors = FALSE)
+                               nominal_params = NULL))
   )
   expect_equal(d_clean$weirdness[3], 4.55, tol = .01)
   expect_equal(as.character(d_clean$genre[2]), "Country")
@@ -178,11 +159,7 @@ test_that("impute works with partial/extra params", {
     d_clean <- data_prep(d = d_train,
                          target = is_ween,
                          grain = song_id,
-                         length,
-                         convert_0_1_to_factor = FALSE,
-                         convert_dates = FALSE,
-                         impute = list(numeric_method = "bagimpute"),
-                         collapse_rare_factors = FALSE)
+                         impute = list(numeric_method = "bagimpute"))
   )
   m <- missingness(d_clean)
   expect_equal(m$percent_missing[m$variable == "length"], 18.3)
@@ -192,13 +169,9 @@ test_that("impute works with partial/extra params", {
     d_clean <- data_prep(d = d_train,
                          target = is_ween,
                          grain = song_id,
-                         length,
-                         convert_0_1_to_factor = FALSE,
-                         convert_dates = FALSE,
                          impute = list(numeric_method = "knnimpute",
                                        numeric_params = list(knn_K = 5),
-                                       the_best_params = "Moi!"),
-                         collapse_rare_factors = FALSE)),
+                                       the_best_params = "Moi!"))),
   regexp = "the_best_params")
 })
 
@@ -207,12 +180,7 @@ test_that("impute works with partial/extra params", {
   capture_output(
     d_clean <- data_prep(d = d_train,
                          target = is_ween,
-                         grain = song_id,
-                         length,
-                         convert_0_1_to_factor = FALSE,
-                         convert_dates = FALSE,
-                         impute = FALSE,
-                         collapse_rare_factors = TRUE)
+                         grain = song_id)
   )
   exp <- c("CA", "CT", "MA", "NY", "other")
   expect_equal(levels(d_clean$state), exp)
