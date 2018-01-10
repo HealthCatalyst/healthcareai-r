@@ -6,16 +6,16 @@ set.seed(7)
 # build data set to predict whether or not animal_id is a is_ween
 n <- 100
 d <- data.frame(song_id = 1:n,
-                length = rnorm(n, mean = 4, sd = 1),
-                tuba_flag = sample(c(0, 1), size = n, replace = T),
-                drum_flag = sample(c(0, 1, NA), size = n, replace = T),
-                reaction = sample(c("Love", "Huh", "Dislike", "Mixed"),
-                                  size = n, replace = T),
-                date_col = lubridate::ymd("2002-03-04") + days(1:10),
-                posixct_col = lubridate::ymd("2004-03-04") + days(1:10),
-                col_DTS = lubridate::ymd("2006-03-04") + days(1:10),
-                missing82 = sample(1:10, n, replace = TRUE),
-                missing64 = sample(100:300, n, replace = TRUE)
+       length = rnorm(n, mean = 4, sd = 1),
+       tuba_flag = sample(c(0, 1), size = n, replace = T),
+       drum_flag = sample(c(0, 1, NA), size = n, replace = T),
+       reaction = sample(c("Love", "Huh", "Dislike", "Mixed"),
+                         size = n, replace = T),
+       date_col = lubridate::ymd("2002-03-04") + lubridate::days(1:10),
+       posixct_col = lubridate::ymd("2004-03-04") + lubridate::days(1:10),
+       col_DTS = lubridate::ymd("2006-03-04") + lubridate::days(1:10),
+       missing82 = sample(1:10, n, replace = TRUE),
+       missing64 = sample(100:300, n, replace = TRUE)
 )
 d$posixct_col <- as.POSIXct(d$posixct_col)
 d$col_DTS <- as.character((d$col_DTS))

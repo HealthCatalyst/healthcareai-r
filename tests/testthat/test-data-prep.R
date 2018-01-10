@@ -6,14 +6,20 @@ set.seed(7)
 # build data set to predict whether or not animal_id is a is_ween
 n <- 300
 df <- data.frame(song_id = 1:n,
-                 length = rnorm(n, mean = 4, sd = 1),
-                 weirdness = rnorm(n, mean = 4, sd = 2),
-                 genre = sample(c("Rock", "Jazz", "Country"),
-                                size = n, replace = T),
-                 reaction = sample(c("Love", "Huh", "Dislike", "Mixed"),
-                                    size = n, replace = T),
-                 guitar_flag = sample(c(0, 1), size = n, replace = T),
-                 drum_flag = sample(c(0, 1, NA), size = n, replace = T)
+        length = rnorm(n, mean = 4, sd = 1),
+        weirdness = rnorm(n, mean = 4, sd = 2),
+        genre = sample(c("Rock", "Jazz", "Country"),
+                       size = n, replace = T),
+        reaction = sample(c("Love", "Huh", "Dislike", "Mixed"),
+                          size = n, replace = T),
+        guitar_flag = sample(c(0, 1), size = n, replace = T),
+        drum_flag = sample(c(0, 1, NA), size = n, replace = T,
+                           prob = c(0.45, 0.45, 0.1)),
+        date_col = lubridate::ymd("2002-03-04") + lubridate::days(1:10),
+        posixct_col = lubridate::ymd("2004-03-04") + lubridate::days(1:10),
+        col_DTS = lubridate::ymd("2006-03-04") + lubridate::days(1:10),
+        missing82 = sample(1:10, n, replace = TRUE),
+        missing64 = sample(100:300, n, replace = TRUE)
 )
 
 # give is_ween likeliness score
@@ -88,7 +94,7 @@ test_that("Bad target, grain, or ignore throws an error", {
                regexp = "cowbell, spoons not found in d")
 })
 
-test_that("0/1 columns are found and converted", {
+test_that("0/1 columns are found and converted with defaults", {
   capture_output(
     d_clean <- data_prep(d = d_train,
                        target = is_ween,
@@ -107,3 +113,78 @@ test_that("0/1 columns are found and converted", {
   expect_equal(lev[ordered(lev)], c("no", "yes"))
 })
 
+test_that("date columns are found and converted with defaults", {
+  capture_output(
+    d_clean <- data_prep(d = d_train,
+                         target = is_ween,
+                         grain = song_id,
+                         length,
+                         convert_0_1_to_factor = FALSE,
+                         convert_dates = TRUE)
+  )
+
+  expect_true(is.factor(d_clean$date_col_dow))
+  expect_true(is.factor(d_clean$posixct_col_month))
+  expect_true(is.numeric(d_clean$col_DTS_year))
+  expect_equal(as.character(d_clean$date_col_month[1]), "Mar")
+  expect_equal(d_clean$posixct_col_year[2], 2004)
+  expect_equal(as.character(d_clean$col_DTS_dow[3]), "Wed")
+})
+
+test_that("impute works with defaults", {
+  capture_output(
+    d_clean <- data_prep(d = d_train,
+                         target = is_ween,
+                         grain = song_id,
+                         length,
+                         convert_0_1_to_factor = FALSE,
+                         convert_dates = FALSE,
+                         impute = TRUE)
+  )
+})
+
+test_that("impute works with params", {
+  capture_output(
+    d_clean <- data_prep(d = d_train,
+                 target = is_ween,
+                 grain = song_id,
+                 length,
+                 convert_0_1_to_factor = FALSE,
+                 convert_dates = FALSE,
+                 impute = list(numeric_method = "knnimpute",
+                               nominal_method = "bagimpute",
+                               numeric_params = list(knn_K = 4),
+                               nominal_params = NULL))
+  )
+  expect_equal(d_clean$weirdness[3], 4.85, tol = .01)
+  expect_equal(as.character(d_clean$genre[2]), "Jazz")
+  expect_equal(as.character(d_clean$reaction[4]), "Huh")
+})
+
+test_that("impute works with partial/extra params", {
+  capture_output(
+    d_clean <- data_prep(d = d_train,
+                         target = is_ween,
+                         grain = song_id,
+                         length,
+                         convert_0_1_to_factor = FALSE,
+                         convert_dates = FALSE,
+                         impute = list(numeric_method = "knnimpute",
+                                       numeric_params = list(knn_K = 5)))
+  )
+  m <- missingness(d_clean)
+  expect_equal(m$percent_missing[m$variable == "length"], 15.8)
+  expect_true(all(m$percent_missing[!(m$variable %in% "length")] == 0))
+
+  expect_warning(capture_output(
+    d_clean <- data_prep(d = d_train,
+                         target = is_ween,
+                         grain = song_id,
+                         length,
+                         convert_0_1_to_factor = FALSE,
+                         convert_dates = FALSE,
+                         impute = list(numeric_method = "knnimpute",
+                                       numeric_params = list(knn_K = 5),
+                                       the_best_params = "Moi!"))),
+  regexp = "the_best_params")
+})

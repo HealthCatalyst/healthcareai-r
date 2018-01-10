@@ -60,11 +60,8 @@ data_prep <- function(d = NULL,
                    ...,
                    rec_obj = NULL,
                    convert_0_1_to_factor = TRUE,
-                   convert_dates_to_features = TRUE,
-                   numeric_method = "mean",
-                   nominal_method = "new_category",
-                   numeric_params = NULL,
-                   nominal_params = NULL,
+                   convert_dates = TRUE,
+                   impute = TRUE,
                    verbose = FALSE) {
 
   # Check to make sure that d is a dframe
@@ -100,19 +97,48 @@ data_prep <- function(d = NULL,
   # rec <- rec %>% step_hcai_mostly_missing_to_factor()
 
   # Convert 0/1 columns to factors (step_bin2factor)
-  cols <- find_0_1_cols(d)
-  rec <- rec %>%
-    step_bin2factor(!!cols)
+  if (convert_0_1_to_factor == TRUE) {
+    cols <- find_0_1_cols(d)
+    rec <- rec %>%
+      step_bin2factor(!!cols)
+  }
 
   # Convert date columns to useful features
-  # cols <- find_date_cols(d)
-  # rec <- rec %>%
-  #   step_date(one_of(cols),
-  #             features = c("dow", "month", "year"))
+  if (convert_dates == TRUE) {
+    cols <- find_date_cols(d)
+    rec <- rec %>%
+      step_date(!!cols,
+                features = c("dow", "month", "year"))
+  }
 
   # Impute
-  # rec <- rec %>%
-  #   hcai_impute()
+  if (isTRUE(impute)) {
+    rec <- rec %>%
+      hcai_impute()
+  } else if (is.list(impute)) {
+    # Set defaults
+    ip <- list(numeric_method = "mean",
+                     nominal_method = "new_category",
+                     numeric_params = NULL,
+                     nominal_params = NULL)
+    ip[names(ip) %in% names(impute)] <- impute[names(impute) %in% names(ip)]
+
+    extras  <- names(impute)[!(names(impute) %in% names(ip))]
+    if (length(extras > 0)) {
+      warning("You have extra imputation parameters that won't be used: ",
+              paste(extras, collapse = ", "),
+              ". Available params are: ", paste(names(ip), collapse = ", "))
+    }
+    # Impute takes defaults or user specified inputs. Error handling inside.
+    rec <- rec %>%
+        hcai_impute(numeric_method = ip$numeric_method,
+                    nominal_method = ip$nominal_method,
+                    numeric_params = ip$numeric_params,
+                    nominal_params = ip$nominal_params)
+
+  } else {
+    stop("impute must be boolean or list.")
+  }
 
   # Collapse rare factors into "other"
 

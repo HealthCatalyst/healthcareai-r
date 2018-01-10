@@ -22,8 +22,8 @@ find_mostly_missing_cols <- function(d, percent_missing_threshold = 80) {
 find_date_cols <- function(d) {
   # Returns names of date columns
   cols <- c(
-    names(d[purrr::map(d, is.Date) == TRUE]),
-    names(d[purrr::map(d, is.POSIXct) == TRUE]),
+    names(d[purrr::map(d, lubridate::is.Date) == TRUE]),
+    names(d[purrr::map(d, lubridate::is.POSIXct) == TRUE]),
     names(d[grepl(pattern = "DTS", names(d))])
   )
   cols <- unique(cols)
