@@ -21,7 +21,9 @@ df <- data.frame(song_id = 1:n,
         missing82 = sample(1:10, n, replace = TRUE),
         missing64 = sample(100:300, n, replace = TRUE),
         state = sample(c("NY", "MA", "CT", "CA", "VT", "NH"), size = n, replace = T,
-                           prob = c(0.18, 0.1, 0.1, 0.6, 0.01, 0.01))
+                           prob = c(0.18, 0.1, 0.1, 0.6, 0.01, 0.01)),
+        a_nzv_col = sample(c("man", "boognish"),
+                           size = n, replace = T, prob = c(0.999, 0.001))
 )
 
 # give is_ween likeliness score
@@ -117,7 +119,9 @@ test_that("date columns are found and converted with defaults", {
   capture_output(
     d_clean <- data_prep(d = d_train,
                          target = is_ween,
-                         grain = song_id)
+                         grain = song_id,
+                         center = FALSE,
+                         scale = FALSE)
   )
 
   expect_true(is.factor(d_clean$date_col_dow))
@@ -132,7 +136,9 @@ test_that("impute works with defaults", {
   capture_output(
     d_clean <- data_prep(d = d_train,
                          target = is_ween,
-                         grain = song_id)
+                         grain = song_id,
+                         center = FALSE,
+                         scale = FALSE)
   )
   expect_equal(d_clean$weirdness[3], 3.88, tol = .01)
   expect_equal(as.character(d_clean$genre[2]), "Country")
@@ -144,6 +150,8 @@ test_that("impute works with params", {
     d_clean <- data_prep(d = d_train,
                  target = is_ween,
                  grain = song_id,
+                 center = FALSE,
+                 scale = FALSE,
                  impute = list(numeric_method = "knnimpute",
                                nominal_method = "bagimpute",
                                numeric_params = list(knn_K = 5),
@@ -159,6 +167,8 @@ test_that("impute works with partial/extra params", {
     d_clean <- data_prep(d = d_train,
                          target = is_ween,
                          grain = song_id,
+                         center = FALSE,
+                         scale = FALSE,
                          impute = list(numeric_method = "bagimpute"))
   )
   m <- missingness(d_clean)
@@ -169,6 +179,8 @@ test_that("impute works with partial/extra params", {
     d_clean <- data_prep(d = d_train,
                          target = is_ween,
                          grain = song_id,
+                         center = FALSE,
+                         scale = FALSE,
                          impute = list(numeric_method = "knnimpute",
                                        numeric_params = list(knn_K = 5),
                                        the_best_params = "Moi!"))),
@@ -176,7 +188,7 @@ test_that("impute works with partial/extra params", {
 })
 
 
-test_that("impute works with partial/extra params", {
+test_that("rare factors go to other", {
   capture_output(
     d_clean <- data_prep(d = d_train,
                          target = is_ween,
@@ -188,10 +200,23 @@ test_that("impute works with partial/extra params", {
   expect_equal(levels(d_clean$reaction), exp)
 })
 
-test_that("center", {
+test_that("centering and scaling work", {
   capture_output(
     d_clean <- data_prep(d = d_train,
                          target = is_ween,
                          grain = song_id)
   )
+  expect_equal(mean(d_clean$length), 0, tol = .01)
+  expect_equal(mean(d_clean$weirdness), 0, tol = .01)
+  expect_equal(sd(d_clean$length), 1, tol = .01)
+  expect_equal(sd(d_clean$weirdness), 1, tol = .01)
+})
+
+test_that("near zero variance columns are removed", {
+  capture_output(
+    d_clean <- data_prep(d = d_train,
+                         target = is_ween,
+                         grain = song_id)
+  )
+  expect_true(is.null(d_clean$a_nzv_col))
 })
