@@ -188,3 +188,10 @@ test_that("impute works with partial/extra params", {
   expect_equal(levels(d_clean$reaction), exp)
 })
 
+test_that("center", {
+  capture_output(
+    d_clean <- data_prep(d = d_train,
+                         target = is_ween,
+                         grain = song_id)
+  )
+})

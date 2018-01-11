@@ -63,6 +63,10 @@ data_prep <- function(d = NULL,
                    convert_dates = TRUE,
                    collapse_rare_factors = TRUE,
                    impute = TRUE,
+                   center = TRUE,
+                   scale = TRUE,
+                   remove_near_zero_variance = TRUE,
+                   dummies = FALSE,
                    verbose = FALSE) {
 
   # Check to make sure that d is a dframe
@@ -104,12 +108,13 @@ data_prep <- function(d = NULL,
       step_bin2factor(!!cols)
   }
 
-  # Convert date columns to useful features
+  # Convert date columns to useful features and remove original.
   if (convert_dates == TRUE) {
     cols <- find_date_cols(d)
     rec <- rec %>%
       step_date(!!cols,
-                features = c("dow", "month", "year"))
+                features = c("dow", "month", "year")) %>%
+      step_rm(!!cols)
   }
 
   # Impute
@@ -142,23 +147,37 @@ data_prep <- function(d = NULL,
   }
 
   # Collapse rare factors into "other"
-  if (collapse_rare_factors == TRUE) {
+  if (isTRUE(collapse_rare_factors)) {
   rec <- rec %>%
     step_other(all_nominal(), threshold = .02)
   }
 
   # Log transform
+  # Saving until columns can be specified
 
   # Center
+  if (isTRUE(center)) {
+    rec <- rec %>%
+      step_center(all_numeric())
+  }
 
   # Scale
-
-  # Interactions
-
-  # Remove date columns
+  if (isTRUE(scale)) {
+    rec <- rec %>%
+      step_scale(all_numeric())
+  }
 
   # Remove columns with near zero variance
+  if (isTRUE(remove_near_zero_variance)) {
+    rec <- rec %>%
+      step_nzv(everything())
+  }
 
+  # Dummies
+  if (isTRUE(dummies)) {
+    rec <- rec %>%
+      step_dummy(all_nominal())
+  }
 
   # Apply recipe
   d_clean <- rec %>%
