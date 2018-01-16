@@ -26,16 +26,17 @@ missingness <- function(d,
     stop("The first argument to missingness is a ", class(d),
          " but must be a data frame, matrix, or vector.")
 
-
   # Check for possible representations of missingness
   possible_na <-
-    purrr::map(d, ~ to_search[to_search %in% .x]) %>%
+    purrr::map(d, ~ to_search[to_search %in% .x[!is.na(.x)]]) %>%
     unlist() %>%
     unique()
-  if (length(possible_na))
+  if (length(possible_na)) {
+    possible_na <- map_chr(possible_na, function(st) paste0('"', st, '"'))
     warning("Found these strings that may represent missing values: ",
             paste(possible_na, collapse = ", "),
             ". If they do represent missingness, replace them with NA.")
+  }
 
   miss <-
     d %>%
@@ -45,13 +46,8 @@ missingness <- function(d,
     `*`(100) %>%
     round(1)
 
-  if (return_df) {
-    miss <-
-      miss %>%
-      as.data.frame() %>%
-      tibble::rownames_to_column() %>%
-      setNames(c("variable", "percent_missing"))
-  }
+  if (return_df)
+    miss <- data.frame(variable = names(miss), percent_missing = miss)
 
   return(miss)
 }
