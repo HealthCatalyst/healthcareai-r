@@ -46,13 +46,8 @@ missingness <- function(d,
     `*`(100) %>%
     round(1)
 
-  if (return_df) {
-    miss <-
-      miss %>%
-      as.data.frame() %>%
-      tibble::rownames_to_column() %>%
-      setNames(c("variable", "percent_missing"))
-  }
+  if (return_df)
+    miss <- data.frame(variable = names(miss), percent_missing = miss)
 
   return(miss)
 }
