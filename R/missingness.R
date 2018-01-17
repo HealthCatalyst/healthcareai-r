@@ -46,8 +46,10 @@ missingness <- function(d,
     `*`(100) %>%
     round(1)
 
-  if (return_df)
+  if (return_df) {
     miss <- data.frame(variable = names(miss), percent_missing = miss)
+    rownames(d) <- NULL
+  }
 
   return(miss)
 }
