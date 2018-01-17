@@ -47,7 +47,9 @@ missingness <- function(d,
     round(1)
 
   if (return_df) {
-    miss <- data.frame(variable = names(miss), percent_missing = miss)
+    miss <- data.frame(variable = names(miss),
+                       percent_missing = miss,
+                       stringsAsFactors = FALSE)
     rownames(d) <- NULL
   }
 
