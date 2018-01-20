@@ -1,13 +1,7 @@
 find_0_1_cols <- function(d) {
   # Returns names of columns that have only 0/1 in them.
-  d <- d[purrr::map(d, is.numeric) == TRUE]
-  cols <- purrr::map(d, function(x) {
-    n <- names(table(x))
-    ifelse(all(n[ordered(n)][1:2] == c("0", "1")),
-           TRUE,
-           FALSE)})
-  cols <- names(cols[cols == TRUE])
-  return(cols)
+  cols <- purrr::map_lgl(d, ~ all(.x %in% c(0L, 1L, NA_integer_)))
+  return(names(d)[cols])
 }
 
 find_mostly_missing_cols <- function(d, percent_missing_threshold = 80) {
