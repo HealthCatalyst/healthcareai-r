@@ -27,8 +27,8 @@ pima_diabetes
 \description{
 A dataset containing diabetes status and other health-related variables for
 768 females, at least 21 years old, of Pima Indian heritage. As pointed out
-(see source URL below), the source data had some biologically impossible zero values.
-We have replaced zero values in every variable except \code{Pregnancies} with
-NA.
+(see source URL below), the source data had some biologically impossible zero
+values. We have replaced zero values in every variable except
+\code{Pregnancies} with NA.
 }
 \keyword{datasets}
