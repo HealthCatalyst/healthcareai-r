@@ -5,25 +5,25 @@ context("Testing data_prep")
 set.seed(7)
 # build data set to predict whether or not animal_id is a is_ween
 n <- 300
-df <- data.frame(song_id = 1:n,
-        length = rnorm(n, mean = 4, sd = 1),
-        weirdness = rnorm(n, mean = 4, sd = 2),
-        genre = sample(c("Rock", "Jazz", "Country"),
-                       size = n, replace = T),
-        reaction = sample(c("Love", "Huh", "Dislike", "Mixed"),
-                          size = n, replace = T),
-        guitar_flag = sample(c(0, 1), size = n, replace = T),
-        drum_flag = sample(c(0, 1, NA), size = n, replace = T,
-                           prob = c(0.45, 0.45, 0.1)),
-        date_col = lubridate::ymd("2002-03-04") + lubridate::days(1:10),
-        posixct_col = lubridate::ymd("2004-03-04") + lubridate::days(1:10),
-        col_DTS = lubridate::ymd("2006-03-04") + lubridate::days(1:10),
-        missing82 = sample(1:10, n, replace = TRUE),
-        missing64 = sample(100:300, n, replace = TRUE),
-        state = sample(c("NY", "MA", "CT", "CA", "VT", "NH"), size = n, replace = T,
-                           prob = c(0.18, 0.1, 0.1, 0.6, 0.01, 0.01)),
-        a_nzv_col = sample(c("man", "boognish"),
-                           size = n, replace = T, prob = c(0.999, 0.001))
+df <- data.frame(
+  song_id = 1:n,
+  length = rnorm(n, mean = 4, sd = 1),
+  weirdness = rnorm(n, mean = 4, sd = 2),
+  genre = sample(c("Rock", "Jazz", "Country"), size = n, replace = T),
+  reaction = sample(c("Love", "Huh", "Dislike", "Mixed"),
+                    size = n, replace = T),
+  guitar_flag = sample(c(0, 1), size = n, replace = T),
+  drum_flag = sample(c(0, 1, NA), size = n, replace = T,
+                     prob = c(0.45, 0.45, 0.1)),
+  date_col = lubridate::ymd("2002-03-04") + lubridate::days(sample(1000, n)),
+  posixct_col = lubridate::ymd("2004-03-04") + lubridate::days(sample(1000, n)),
+  col_DTS = lubridate::ymd("2006-03-04") + lubridate::days(sample(1000, n)),
+  missing82 = sample(1:10, n, replace = TRUE),
+  missing64 = sample(100:300, n, replace = TRUE),
+  state = sample(c("NY", "MA", "CT", "CA", "VT", "NH"), size = n, replace = T,
+                 prob = c(0.18, 0.1, 0.1, 0.6, 0.01, 0.01)),
+  a_nzv_col = sample(c("man", "boognish"),
+                     size = n, replace = T, prob = c(0.999, 0.001))
 )
 
 # give is_ween likeliness score
@@ -77,68 +77,36 @@ test_that("Bad data throws an error", {
                regexp = "\"d\" must be a tibble")
 })
 
-test_that("Bad target, grain, or ignore throws an error", {
-  expect_error(data_prep(d = d_train),
-               regexp = "\"target\" is required")
-  expect_error(data_prep(d = d_train, target = is_ween),
-               regexp = "\"grain\" is required")
-  expect_error(data_prep(d = d_train, target = is_queen, grain = song_id),
+test_that("Bad ignored columns throws an error", {
+  expect_error(data_prep(d = d_train, cowbell),
                regexp = "not found in d")
-  expect_error(data_prep(d = d_train, target = is_ween, grain = dance_id),
+  expect_error(data_prep(d = d_train, cowbell, spoons),
                regexp = "not found in d")
-  expect_error(data_prep(d = d_train,
-                         target = is_ween,
-                         grain = song_id,
-                         cowbell),
-               regexp = "not found in d")
-  expect_error(data_prep(d = d_train,
-                         target = is_ween,
-                         grain = song_id,
-                         cowbell, spoons),
-               regexp = "cowbell, spoons not found in d")
 })
 
 test_that("0/1 columns are found and converted with defaults", {
-  capture_output(
-    d_clean <- data_prep(d = d_train,
-                       target = is_ween,
-                       grain = song_id)
-  )
-
+  d_clean <- data_prep(d = d_train, is_ween, song_id)
   expect_true(is.factor(d_clean$guitar_flag))
   expect_true(is.factor(d_clean$drum_flag))
-
-  lev <- levels(d_clean$guitar_flag)
-  expect_equal(lev[ordered(lev)], c("no", "yes"))
-
-  lev <- levels(d_clean$drum_flag)
-  expect_equal(lev[ordered(lev)], c("no", "yes"))
+  expect_true(all(c("N", "Y") %in% levels(d_clean$guitar_flag)))
+  expect_true(all(c("N", "Y") %in% levels(d_clean$drum_flag)))
 })
 
 test_that("date columns are found and converted with defaults", {
-  capture_output(
-    d_clean <- data_prep(d = d_train,
-                         target = is_ween,
-                         grain = song_id,
-                         center = FALSE,
-                         scale = FALSE)
-  )
-
+  d_clean <- data_prep(d = d_train, is_ween, song_id)
   expect_true(is.factor(d_clean$date_col_dow))
   expect_true(is.factor(d_clean$posixct_col_month))
   expect_true(is.numeric(d_clean$col_DTS_year))
-  expect_equal(as.character(d_clean$date_col_month[1]), "Mar")
-  expect_equal(d_clean$posixct_col_year[2], 2004)
-  expect_equal(as.character(d_clean$col_DTS_dow[3]), "Tues")
+  expect_true(all(c("Jan", "Mar") %in% d_clean$date_col_month))
+  expect_true(all(2004:2006 %in% d_clean$posixct_col_year))
+  expect_true(all(c("Sun", "Mon", "Tue") %in% d_clean$col_DTS_dow))
 })
 
 test_that("impute works with defaults", {
   capture_output(
     d_clean <- data_prep(d = d_train,
-                         target = is_ween,
-                         grain = song_id,
-                         center = FALSE,
-                         scale = FALSE)
+                         is_ween,
+                         song_id)
   )
   expect_equal(d_clean$weirdness[3], 3.88, tol = .01)
   expect_equal(as.character(d_clean$genre[2]), "Country")
@@ -148,14 +116,12 @@ test_that("impute works with defaults", {
 test_that("impute works with params", {
   capture_output(
     d_clean <- data_prep(d = d_train,
-                 target = is_ween,
-                 grain = song_id,
-                 center = FALSE,
-                 scale = FALSE,
-                 impute = list(numeric_method = "knnimpute",
-                               nominal_method = "bagimpute",
-                               numeric_params = list(knn_K = 5),
-                               nominal_params = NULL))
+                         is_ween,
+                         song_id,
+                         impute = list(numeric_method = "knnimpute",
+                                       nominal_method = "bagimpute",
+                                       numeric_params = list(knn_K = 5),
+                                       nominal_params = NULL))
   )
   expect_equal(d_clean$weirdness[3], 4.55, tol = .01)
   expect_equal(as.character(d_clean$genre[2]), "Country")
@@ -165,10 +131,8 @@ test_that("impute works with params", {
 test_that("impute works with partial/extra params", {
   capture_output(
     d_clean <- data_prep(d = d_train,
-                         target = is_ween,
-                         grain = song_id,
-                         center = FALSE,
-                         scale = FALSE,
+                         is_ween,
+                         song_id,
                          impute = list(numeric_method = "bagimpute"))
   )
   m <- missingness(d_clean)
@@ -177,22 +141,20 @@ test_that("impute works with partial/extra params", {
 
   expect_warning(capture_output(
     d_clean <- data_prep(d = d_train,
-                         target = is_ween,
-                         grain = song_id,
-                         center = FALSE,
-                         scale = FALSE,
+                         is_ween,
+                         song_id,
                          impute = list(numeric_method = "knnimpute",
                                        numeric_params = list(knn_K = 5),
                                        the_best_params = "Moi!"))),
-  regexp = "the_best_params")
+    regexp = "the_best_params")
 })
 
 
 test_that("rare factors go to other", {
   capture_output(
     d_clean <- data_prep(d = d_train,
-                         target = is_ween,
-                         grain = song_id)
+                         is_ween,
+                         song_id)
   )
   exp <- c("CA", "CT", "MA", "NY", "other")
   expect_equal(levels(d_clean$state), exp)
@@ -203,8 +165,8 @@ test_that("rare factors go to other", {
 test_that("centering and scaling work", {
   capture_output(
     d_clean <- data_prep(d = d_train,
-                         target = is_ween,
-                         grain = song_id)
+                         is_ween,
+                         song_id)
   )
   expect_equal(mean(d_clean$length), 0, tol = .01)
   expect_equal(mean(d_clean$weirdness), 0, tol = .01)
@@ -215,8 +177,8 @@ test_that("centering and scaling work", {
 test_that("near zero variance columns are removed", {
   capture_output(
     d_clean <- data_prep(d = d_train,
-                         target = is_ween,
-                         grain = song_id)
+                         is_ween,
+                         song_id)
   )
   expect_true(is.null(d_clean$a_nzv_col))
 })
