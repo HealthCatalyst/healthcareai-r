@@ -102,6 +102,16 @@ test_that("date columns are found and converted with defaults", {
   expect_true(all(c("Sun", "Mon", "Tue") %in% d_clean$col_DTS_dow))
 })
 
+test_that("convert_dates works when non default", {
+  dd <- prep_data(d_train, convert_dates = FALSE)
+  expect_true(all(c("date_col", "posixct_col", "col_DTS") %in% names(dd)))
+  dd <- prep_data(d_train, convert_dates = "quarter")
+  expect_true("date_col_quarter" %in% names(dd))
+  expect_false("date_col_dow" %in% names(dd))
+  dd <- prep_data(d_train, convert_dates = c("doy", "quarter"))
+  expect_true(all(c("date_col_doy", "date_col_quarter") %in% names(dd)))
+})
+
 test_that("impute works with defaults", {
   d_clean <- prep_data(d = d_train, is_ween, song_id)
   expect_equal(unique(d_clean$weirdness[is.na(d_train$weirdness)]),
