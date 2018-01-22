@@ -1,8 +1,12 @@
 #' Title
 #'
-#' @param d
-#' @param ...
-#' @param rec_obj
+#' @param d A dataframe or tibble containing data to impute.
+#' @param ... Optional. Unquoted variable names to not be prepped. These will be
+#'   returned unaltered.
+#' @param rec_obj Optional. A `recipes` object or data frame containing a
+#'   `recipes` object in the `rec_obj` attribute slot (as returned from this
+#'   function). If present, that recipe will be applied and other arguments will
+#'   be ignored.
 #' @param convert_0_1_to_factor
 #' @param convert_dates Logical or character. If TRUE (default), day-of-week,
 #'   month, and year columns are generated from date columns and date columns
@@ -52,111 +56,111 @@ prep_data <- function(d = NULL,
     d_ignore <- NULL
   }
 
-  # If a recipe or data frame is provided in rec_obj, apply that and return
+  # If a recipe or data frame is provided in rec_obj, apply that...
   if (!is.null(rec_obj)) {
     rec_obj <- check_rec_obj(rec_obj)
-    # ...
-  }
+    d_clean <- bake(rec_obj, newdata = d)
+  # ... Else, build recipe step by step
+  } else {
+    # Initialize recipe
+    rec <- d %>%
+      recipe(formula = "~.")
 
+    # Find largely missing columns and convert to factors
+    # rec <- rec %>% step_hcai_mostly_missing_to_factor()
 
-  # Initialize recipe
-  rec <- d %>%
-    recipe(formula = "~.")
-
-  # Find largely missing columns and convert to factors
-  # rec <- rec %>% step_hcai_mostly_missing_to_factor()
-
-  # Convert 0/1 columns to factors (step_bin2factor)
-  if (convert_0_1_to_factor) {
-    cols <- find_0_1_cols(d)
-    rec <- rec %>%
-      step_bin2factor(!!cols, levels = c("Y", "N"))
-  }
-
-  # Convert date columns to useful features and remove original.
-  if (!is.logical(convert_dates)) {
-    if (!is.character(convert_dates))  #  || is.null(names(convert_date))
-      stop("convert_dates must be logical or features for step_date")
-    sdf <- convert_dates
-    convert_dates <- TRUE
-  }
-  if (convert_dates) {
-    # If user didn't provide features, set them to defaults
-    if (!exists("sdf"))
-      sdf <- c("dow", "month", "year")
-    cols <- find_date_cols(d)
-    rec <-
-      do.call(step_date, list(recipe = rec, cols, features = sdf)) %>%
-      step_rm(cols)
-  }
-
-  # Impute
-  if (impute) {
-    rec <- rec %>%
-      hcai_impute()
-  } else if (is.list(impute)) {
-    # Set defaults
-    ip <- list(numeric_method = "mean",
-               nominal_method = "new_category",
-               numeric_params = NULL,
-               nominal_params = NULL)
-    ip[names(ip) %in% names(impute)] <- impute[names(impute) %in% names(ip)]
-    extras  <- names(impute)[!(names(impute) %in% names(ip))]
-    if (length(extras > 0)) {
-      warning("You have extra imputation parameters that won't be used: ",
-              paste(extras, collapse = ", "),
-              ". Available params are: ", paste(names(ip), collapse = ", "))
+    # Convert 0/1 columns to factors (step_bin2factor)
+    if (convert_0_1_to_factor) {
+      cols <- find_0_1_cols(d)
+      rec <- rec %>%
+        step_bin2factor(!!cols, levels = c("Y", "N"))
     }
-    # Impute takes defaults or user specified inputs. Error handling inside.
-    rec <- rec %>%
-      hcai_impute(numeric_method = ip$numeric_method,
-                  nominal_method = ip$nominal_method,
-                  numeric_params = ip$numeric_params,
-                  nominal_params = ip$nominal_params)
-  } else if (impute != FALSE) {
-    stop("impute must be boolean or list.")
+
+    # Convert date columns to useful features and remove original.
+    if (!is.logical(convert_dates)) {
+      if (!is.character(convert_dates))  #  || is.null(names(convert_date))
+        stop("convert_dates must be logical or features for step_date")
+      sdf <- convert_dates
+      convert_dates <- TRUE
+    }
+    if (convert_dates) {
+      # If user didn't provide features, set them to defaults
+      if (!exists("sdf"))
+        sdf <- c("dow", "month", "year")
+      cols <- find_date_cols(d)
+      rec <-
+        do.call(step_date, list(recipe = rec, cols, features = sdf)) %>%
+        step_rm(cols)
+    }
+
+    # Impute
+    if (impute) {
+      rec <- rec %>%
+        hcai_impute()
+    } else if (is.list(impute)) {
+      # Set defaults
+      ip <- list(numeric_method = "mean",
+                 nominal_method = "new_category",
+                 numeric_params = NULL,
+                 nominal_params = NULL)
+      ip[names(ip) %in% names(impute)] <- impute[names(impute) %in% names(ip)]
+      extras  <- names(impute)[!(names(impute) %in% names(ip))]
+      if (length(extras > 0)) {
+        warning("You have extra imputation parameters that won't be used: ",
+                paste(extras, collapse = ", "),
+                ". Available params are: ", paste(names(ip), collapse = ", "))
+      }
+      # Impute takes defaults or user specified inputs. Error handling inside.
+      rec <- rec %>%
+        hcai_impute(numeric_method = ip$numeric_method,
+                    nominal_method = ip$nominal_method,
+                    numeric_params = ip$numeric_params,
+                    nominal_params = ip$nominal_params)
+    } else if (impute != FALSE) {
+      stop("impute must be boolean or list.")
+    }
+
+    # Collapse rare factors into "other"
+    if (collapse_rare_factors) {
+      rec <- rec %>%
+        step_other(all_nominal(), threshold = .02)
+    }
+
+    # Log transform
+    # Saving until columns can be specified
+
+    # Center
+    if (center) {
+      rec <- rec %>%
+        step_center(all_numeric())
+    }
+
+    # Scale
+    if (scale) {
+      rec <- rec %>%
+        step_scale(all_numeric())
+    }
+
+    # Remove columns with near zero variance
+    if (remove_near_zero_variance) {
+      rec <- rec %>%
+        step_nzv(everything())
+    }
+
+    # Dummies
+    if (dummies) {
+      rec <- rec %>%
+        step_dummy(all_nominal())
+    }
+
+    # Apply recipe
+    d_clean <- rec %>%
+      prep(training = d) %>%
+      bake(newdata = d)
+
+    # Add ignore columns back in.
+    d_clean <- dplyr::bind_cols(d_ignore, d_clean)
   }
-
-  # Collapse rare factors into "other"
-  if (collapse_rare_factors) {
-    rec <- rec %>%
-      step_other(all_nominal(), threshold = .02)
-  }
-
-  # Log transform
-  # Saving until columns can be specified
-
-  # Center
-  if (center) {
-    rec <- rec %>%
-      step_center(all_numeric())
-  }
-
-  # Scale
-  if (scale) {
-    rec <- rec %>%
-      step_scale(all_numeric())
-  }
-
-  # Remove columns with near zero variance
-  if (remove_near_zero_variance) {
-    rec <- rec %>%
-      step_nzv(everything())
-  }
-
-  # Dummies
-  if (dummies) {
-    rec <- rec %>%
-      step_dummy(all_nominal())
-  }
-
-  # Apply recipe
-  d_clean <- rec %>%
-    prep(training = d) %>%
-    bake(newdata = d)
-
-  # Add ignore columns back in.
-  d_clean <- dplyr::bind_cols(d_ignore, d_clean)
 
   attr(d_clean, "rec_obj") <- rec
   return(d_clean)
