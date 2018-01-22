@@ -19,6 +19,7 @@
 #'
 #' @return
 #' @export
+#' @import recipes
 #'
 #' @examples
 prep_data <- function(d = NULL,
@@ -51,10 +52,12 @@ prep_data <- function(d = NULL,
     d_ignore <- NULL
   }
 
-  ##### TO DO
-  # if (!is.null(rec_obj)) -- pull check and grab-from-attr from impute.R
-  #   Apply recipe and return
-  #####
+  # If a recipe or data frame is provided in rec_obj, apply that and return
+  if (!is.null(rec_obj)) {
+    rec_obj <- check_rec_obj(rec_obj)
+    # ...
+  }
+
 
   # Initialize recipe
   rec <- d %>%
@@ -142,7 +145,7 @@ prep_data <- function(d = NULL,
   }
 
   # Dummies
-  if (isTRUE(dummies)) {
+  if (dummies) {
     rec <- rec %>%
       step_dummy(all_nominal())
   }

@@ -19,3 +19,15 @@ find_date_cols <- function(d) {
   by_name <- purrr::map_lgl(names(d), ~grepl("DTS$", .x))
   return(names(d)[by_class | by_name])
 }
+
+check_rec_obj <- function(rec_obj) {
+  # If rec_obj is a data frame, look for a recipe object in the attribute slot
+  if (inherits(rec_obj, "data.frame") && !is.null(attr(rec_obj, "rec_obj")))
+    rec_obj <- attr(rec_obj, "rec_obj")
+  # Check to make sure rec_obj is a valid recipe
+  if (!inherits(rec_obj, "recipe") && !is.null(rec_obj)) {
+    stop("\"rec_obj\" must be a valid recipe object or a dataframe with ",
+         "a valid recipes object in the rec_obj attribute.")
+  }
+  return(rec_obj)
+}

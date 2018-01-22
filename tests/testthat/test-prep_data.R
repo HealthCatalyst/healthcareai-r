@@ -116,6 +116,8 @@ test_that("impute works with defaults", {
   d_clean <- prep_data(d = d_train, is_ween, song_id)
   expect_equal(unique(d_clean$weirdness[is.na(d_train$weirdness)]),
                mean(d_train$weirdness, na.rm = TRUE))
+  ### When the function can be used on test data (providing a recipe from
+  ### prep_data):
   # d_clean_test <- prep_data(d_test, is_ween, song_id, rec_obj = d_clean)
   # expect_equal(unique(d_clean_test$weirdness[is.na(d_test$weirdness)]),
   #              mean(d_train$weirdness, na.rm = TRUE))

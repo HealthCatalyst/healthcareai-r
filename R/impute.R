@@ -66,18 +66,12 @@ impute <- function(d = NULL,
     stop("\"d\" must be a tibble or dataframe.")
   }
 
-  # If rec_obj is a data frame, look for a recipe object in the attribute slot
-  if (inherits(rec_obj, "data.frame") && !is.null(attr(rec_obj, "rec_obj")))
-    rec_obj <- attr(rec_obj, "rec_obj")
-  # Check to make sure rec_obj is a valid recipe
-  if (!inherits(rec_obj, "recipe") && !is.null(rec_obj)) {
-    stop("\"rec_obj\" must be a valid recipe object.")
-  }
-
   ignore_columns <- rlang::quos(...)
-
   # Save column order
   col_order <- names(d)
+
+  # If rec_obj is NULL, stays that way; else looked for in attr and validated
+  rec_obj <- check_rec_obj(rec_obj)
 
   # Display missingness and which variables will and won't be imputed
   has_missingness <-
