@@ -112,20 +112,25 @@ test_that("convert_dates works when non default", {
   expect_true(all(c("date_col_doy", "date_col_quarter") %in% names(dd)))
 })
 
-test_that("impute works with defaults", {
+test_that("prep_data works with defaults", {
   d_clean <- prep_data(d = d_train, is_ween, song_id)
   expect_equal(unique(d_clean$weirdness[is.na(d_train$weirdness)]),
                mean(d_train$weirdness, na.rm = TRUE))
-  ### When the function can be used on test data (providing a recipe from
-  ### prep_data):
-  # d_clean_test <- prep_data(d_test, is_ween, song_id, rec_obj = d_clean)
-  # expect_equal(unique(d_clean_test$weirdness[is.na(d_test$weirdness)]),
-  #              mean(d_train$weirdness, na.rm = TRUE))
   expect_true(all.equal(droplevels(d_clean$genre[!is.na(d_train$genre)]),
                         d_train$genre[!is.na(d_train$genre)]))
   expect_true(all(d_clean$genre[is.na(d_train$genre)] == "hcai_missing"))
 })
 
+test_that("prep_data applies recipe from training on test data", {
+  d_clean <- prep_data(d = d_train, is_ween, song_id)
+  d_clean_test <- prep_data(d_test, is_ween, song_id,
+                            rec_obj = attr(d_clean, "rec_obj"))
+  d_clean_test2 <- prep_data(d_test, is_ween, song_id, rec_obj = d_clean)
+  expect_equal(d_clean_test, d_clean_test2)
+  expect_equal(unique(d_clean_test$weirdness[is.na(d_test$weirdness)]),
+               mean(d_train$weirdness, na.rm = TRUE))
+  expect_true(all(d_clean_test$genre[is.na(d_test$genre)] == "hcai_missing"))
+})
 
 ### You are here ###
 test_that("impute works with params", {

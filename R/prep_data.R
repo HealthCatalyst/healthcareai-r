@@ -59,20 +59,19 @@ prep_data <- function(d = NULL,
   # If a recipe or data frame is provided in rec_obj, apply that...
   if (!is.null(rec_obj)) {
     rec_obj <- check_rec_obj(rec_obj)
-    d_clean <- bake(rec_obj, newdata = d)
   # ... Else, build recipe step by step
   } else {
     # Initialize recipe
-    rec <- d %>%
+    rec_obj <- d %>%
       recipe(formula = "~.")
 
     # Find largely missing columns and convert to factors
-    # rec <- rec %>% step_hcai_mostly_missing_to_factor()
+    # rec_obj <- rec_obj %>% step_hcai_mostly_missing_to_factor()
 
     # Convert 0/1 columns to factors (step_bin2factor)
     if (convert_0_1_to_factor) {
       cols <- find_0_1_cols(d)
-      rec <- rec %>%
+      rec_obj <- rec_obj %>%
         step_bin2factor(!!cols, levels = c("Y", "N"))
     }
 
@@ -88,14 +87,14 @@ prep_data <- function(d = NULL,
       if (!exists("sdf"))
         sdf <- c("dow", "month", "year")
       cols <- find_date_cols(d)
-      rec <-
-        do.call(step_date, list(recipe = rec, cols, features = sdf)) %>%
+      rec_obj <-
+        do.call(step_date, list(recipe = rec_obj, cols, features = sdf)) %>%
         step_rm(cols)
     }
 
     # Impute
-    if (impute) {
-      rec <- rec %>%
+    if (impute) { ### This won't work; if impute is a list it will error here.
+      rec_obj <- rec_obj %>%
         hcai_impute()
     } else if (is.list(impute)) {
       # Set defaults
@@ -111,7 +110,7 @@ prep_data <- function(d = NULL,
                 ". Available params are: ", paste(names(ip), collapse = ", "))
       }
       # Impute takes defaults or user specified inputs. Error handling inside.
-      rec <- rec %>%
+      rec_obj <- rec_obj %>%
         hcai_impute(numeric_method = ip$numeric_method,
                     nominal_method = ip$nominal_method,
                     numeric_params = ip$numeric_params,
@@ -122,7 +121,7 @@ prep_data <- function(d = NULL,
 
     # Collapse rare factors into "other"
     if (collapse_rare_factors) {
-      rec <- rec %>%
+      rec_obj <- rec_obj %>%
         step_other(all_nominal(), threshold = .02)
     }
 
@@ -131,37 +130,37 @@ prep_data <- function(d = NULL,
 
     # Center
     if (center) {
-      rec <- rec %>%
+      rec_obj <- rec_obj %>%
         step_center(all_numeric())
     }
 
     # Scale
     if (scale) {
-      rec <- rec %>%
+      rec_obj <- rec_obj %>%
         step_scale(all_numeric())
     }
 
     # Remove columns with near zero variance
     if (remove_near_zero_variance) {
-      rec <- rec %>%
+      rec_obj <- rec_obj %>%
         step_nzv(everything())
     }
 
     # Dummies
     if (dummies) {
-      rec <- rec %>%
+      rec_obj <- rec_obj %>%
         step_dummy(all_nominal())
     }
 
-    # Apply recipe
-    d_clean <- rec %>%
-      prep(training = d) %>%
-      bake(newdata = d)
-
-    # Add ignore columns back in.
-    d_clean <- dplyr::bind_cols(d_ignore, d_clean)
+    # Prep the newly built recipe
+    rec_obj <- prep(rec_obj, training = d)
   }
 
-  attr(d_clean, "rec_obj") <- rec
-  return(d_clean)
+  # Bake either the newly built or passed-in recipe
+  d <- recipes::bake(rec_obj, d)
+  # Add ignore columns back in and attach recipe
+  d <- dplyr::bind_cols(d_ignore, d)
+  attr(d, "rec_obj") <- rec_obj
+
+  return(d)
 }

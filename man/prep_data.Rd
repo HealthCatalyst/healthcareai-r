@@ -10,6 +10,16 @@ prep_data(d = NULL, ..., rec_obj = NULL, convert_0_1_to_factor = TRUE,
   scale = FALSE, dummies = FALSE, verbose = FALSE)
 }
 \arguments{
+\item{d}{A dataframe or tibble containing data to impute.}
+
+\item{...}{Optional. Unquoted variable names to not be prepped. These will be
+returned unaltered.}
+
+\item{rec_obj}{Optional. A `recipes` object or data frame containing a
+`recipes` object in the `rec_obj` attribute slot (as returned from this
+function). If present, that recipe will be applied and other arguments will
+be ignored.}
+
 \item{convert_dates}{Logical or character. If TRUE (default), day-of-week,
 month, and year columns are generated from date columns and date columns
 are removed. If FALSE, date columns are left intact. If a character vector,
