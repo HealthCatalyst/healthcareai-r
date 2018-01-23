@@ -224,3 +224,25 @@ test_that("dummy columns are created as expected", {
   n <- names(dplyr::select(d_clean, starts_with("reaction")))
   expect_true(all(n == exp))
 })
+
+test_that("print method works as expected", {
+  msg <- capture_output(
+    capture_messages(
+      dd <- prep_data(d = d_train,
+                    song_id,
+                    is_ween,
+                    verbose = TRUE)
+    )
+  )
+  expect_true(grepl("step 7 other training", msg))
+  expect_true(grepl("genre            42.3", msg))
+  expect_true(grepl("Collapsing factor levels for genre, reaction", msg))
+  expect_true(grepl("is_ween nominal   ignored original", msg))
+  expect_true(grepl("col_DTS_year numeric predictor  derived", msg))
+
+  out <- capture_output(capture_messages(print(dd)))
+  expect_true(grepl("genre            42.3", out))
+  expect_true(grepl("Collapsing factor levels for genre, reaction", out))
+  expect_true(grepl("is_ween nominal   ignored original", out))
+  expect_true(grepl("col_DTS_year numeric predictor  derived", out))
+})

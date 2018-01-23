@@ -35,7 +35,7 @@
 #' @param dummies Logical. If TRUE, dummy columns will be created. Note most
 #' machine learning algorithms in R are more efficient when dummies are not
 #' provided.
-#' @param verbose Logical. If TRUE, verbose consold output will describe every
+#' @param verbose Logical. If TRUE, verbose console output will describe every
 #' step. This output can be called (even when verbose is FALSE) using the print
 #' method on a prepped data frame.
 #'
@@ -77,10 +77,6 @@ prep_data <- function(d = NULL,
 
   # TODO: Refactor imputation summary in impute to be used here.
   prep_summary <- list("missingness" = missingness(d))
-  if (verbose) {
-    message("Missingness in data before processing:")
-    print(prep_summary)
-  }
 
   # If a recipe or data frame is provided in rec_obj, apply that...
   if (!is.null(rec_obj)) {
@@ -205,7 +201,6 @@ prep_data <- function(d = NULL,
     # Prep the newly built recipe ---------------------------------------------
     rec_obj <- prep(rec_obj, training = d)
   }
-
   # Bake either the newly built or passed-in recipe
   d <- recipes::bake(rec_obj, d)
   # Add ignore columns back in and attach recipe
@@ -214,13 +209,35 @@ prep_data <- function(d = NULL,
 
   # TODO: Remove unused factor levels with droplevels.
 
-  prep_summary["steps"] <- print(rec_obj)
-  prep_summary["baked_data"] <- summary(rec_obj)
+  # Build up prep_data summary for verbose output.
+  junk <- capture_output(prep_summary$steps <- print(rec_obj))
+  prep_summary$baked_data <- summary(rec_obj)
+
+  if (length(ignored) > 0) {
+    ignored_types <- purrr::map(d_ignore, function(x) {
+      if (is.numeric(x)) {
+        return("numeric")
+      } else if (is.factor(x) || is.character(x)) {
+        return("nominal")
+      }
+    })
+    prep_summary$baked_data <-
+      bind_rows(tibble::tibble(variable = ignored,
+                               type = as.character(ignored_types),
+                               role = "ignored",
+                               source = "original"),
+                prep_summary$baked_data)
+  }
+
   # attach prep_summary to data
   attr(d, "prep_summary") <- prep_summary
 
   # Add class signature to data frame so we can ID for imputation in deployment
   class(d) <- c("hcai_prepped_df", class(d))
+
+  if (verbose) {
+    print(d)
+  }
 
   return(d)
 }
@@ -228,15 +245,14 @@ prep_data <- function(d = NULL,
 # print method for prep_data
 #' @export
 print.hcai_prepped_df <- function(x, ...) {
-  s <- attr(x, "prepped_summary")
-  cat("Original missingness and methods used in data prep:")
+  s <- attr(x, "prep_summary")
+  message("Original missingness and methods used in data prep:")
   print(s$missingness)
-  cat("= = = = = = = = = = = = = = = = = = = = = = = = = = ")
-  cat("\nThese steps were performed on the data:\n")
+  message("These steps were performed on the data:")
   print(s$steps)
-  cat("= = = = = = = = = = = = = = = = = = = = = = = = = = ")
-  cat("\nBaked data and column types:\n")
+  message("Baked data column types:")
   print(s$baked_data)
-  NextMethod(print, x)
+  message("Preview of baked data:")
+  print.data.frame(x[1:5, ])
   return(invisible(x))
 }
