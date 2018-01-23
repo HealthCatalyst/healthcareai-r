@@ -46,7 +46,7 @@
 #' # Train imputer
 #' train_imputed <- impute(d = d_train, patient_id, diabetes)
 #' # Apply to new data
-#' impute(d = d_test, patient_id, diabetes, rec_obj = attr(d, "rec_obj"))
+#' impute(d = d_test, patient_id, diabetes, train_imputed)
 #' # Specify methods:
 #' impute(d = d_train, patient_id, diabetes, numeric_method = "bagimpute",
 #' nominal_method = "new_category")
@@ -81,7 +81,8 @@ impute <- function(d = NULL,
   ignored <- purrr::map_chr(ignore_columns, rlang::quo_name)
   missingness_ignored <- split(has_missingness,
                                has_missingness$variable %in% ignored)
-
+  if (!length(missingness_ignored))
+    imp_summary <- "No imputation needed -- all variables fully present!"
   if ("FALSE" %in% names(missingness_ignored)) {
     imp_summary <- missingness_ignored[["FALSE"]] %>%
       dplyr::mutate(imputation_method_used =

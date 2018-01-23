@@ -20,7 +20,16 @@ find_date_cols <- function(d) {
   return(names(d)[by_class | by_name])
 }
 
+#' If rec_obj was provided to function calling check_rec_obj, check that it's
+#' not a missing attribute and that it's either a recipes object or a data
+#' frame containing a recipes object in the "rec_obj" attr. If the latter,
+#' return the recipe.
+#' @noRd
 check_rec_obj <- function(rec_obj) {
+  rec_obj_provided <- sys.call(sys.parent(1))$rec_obj
+  if (is.null(rec_obj) && !is.null(rec_obj_provided))
+    stop("Attribute \"", rec_obj_provided[[3]], "\" not found in ",
+         rec_obj_provided[[2]])
   # If rec_obj is a data frame, look for a recipe object in the attribute slot
   if (inherits(rec_obj, "data.frame") && !is.null(attr(rec_obj, "rec_obj")))
     rec_obj <- attr(rec_obj, "rec_obj")
