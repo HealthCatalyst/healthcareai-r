@@ -49,10 +49,10 @@ prep_data <- function(d = NULL,
                       ...,
                       rec_obj = NULL,
                       convert_0_1_to_factor = TRUE,
-                      convert_dates = TRUE,
-                      collapse_rare_factors = TRUE,
                       remove_near_zero_variance = TRUE,
+                      convert_dates = TRUE,
                       impute = TRUE,
+                      collapse_rare_factors = TRUE,
                       center = FALSE,
                       scale = FALSE,
                       dummies = FALSE,
@@ -75,11 +75,25 @@ prep_data <- function(d = NULL,
     d_ignore <- NULL
   }
 
+  # TODO: Refactor imputation summary in impute to be used here.
+  prep_summary <- list("missingness" = missingness(d))
+  if (verbose) {
+    message("Missingness in data before processing:")
+    print(prep_summary)
+  }
+
   # If a recipe or data frame is provided in rec_obj, apply that...
   if (!is.null(rec_obj)) {
     rec_obj <- check_rec_obj(rec_obj)
+
+    if (verbose) {
+      message("Using loaded recipe on the new data")
+    }
   # ... Else, build recipe step by step
   } else {
+    if (verbose) {
+      message("Training new recipe")
+    }
     # Initialize recipe
     rec_obj <- d %>%
       recipe(formula = "~.")
@@ -198,5 +212,31 @@ prep_data <- function(d = NULL,
   d <- dplyr::bind_cols(d_ignore, d)
   attr(d, "rec_obj") <- rec_obj
 
+  # TODO: Remove unused factor levels with droplevels.
+
+  prep_summary["steps"] <- print(rec_obj)
+  prep_summary["baked_data"] <- summary(rec_obj)
+  # attach prep_summary to data
+  attr(d, "prep_summary") <- prep_summary
+
+  # Add class signature to data frame so we can ID for imputation in deployment
+  class(d) <- c("hcai_prepped_df", class(d))
+
   return(d)
+}
+
+# print method for prep_data
+#' @export
+print.hcai_prepped_df <- function(x, ...) {
+  s <- attr(x, "prepped_summary")
+  cat("Original missingness and methods used in data prep:")
+  print(s$missingness)
+  cat("= = = = = = = = = = = = = = = = = = = = = = = = = = ")
+  cat("\nThese steps were performed on the data:\n")
+  print(s$steps)
+  cat("= = = = = = = = = = = = = = = = = = = = = = = = = = ")
+  cat("\nBaked data and column types:\n")
+  print(s$baked_data)
+  NextMethod(print, x)
+  return(invisible(x))
 }

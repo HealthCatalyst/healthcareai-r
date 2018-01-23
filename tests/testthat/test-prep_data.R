@@ -213,7 +213,7 @@ test_that("dummy columns are created as expected", {
                        dummies = TRUE)
   exp <- c("genre_Jazz", "genre_Rock", "genre_hcai_missing")
   n <- names(dplyr::select(d_clean, starts_with("genre")))
-  expect_true(all(ng == exp))
+  expect_true(all(n == exp))
 
   exp <- c("guitar_flag_N", "guitar_flag_other")
   n <- names(dplyr::select(d_clean, starts_with("guitar")))
