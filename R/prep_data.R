@@ -7,23 +7,42 @@
 #'   `recipes` object in the `rec_obj` attribute slot (as returned from this
 #'   function). If present, that recipe will be applied and other arguments will
 #'   be ignored.
-#' @param convert_0_1_to_factor
+#' @param convert_0_1_to_factor Logical. If TRUE (default), columns that contain
+#' only 0 and 1 will be converted to factor with levels "Y" and "N".
+#' @param remove_near_zero_variance Logical. If TRUE (default), columns with
+#' near-zero variance will be removed. These columns are either a single value,
+#' or meet both of the following criteria: 1. they have very few unique values
+#' relative to the number of samples and 2. the ratio of the frequency of the
+#' most common value to the frequency of the second most common value is large.
 #' @param convert_dates Logical or character. If TRUE (default), day-of-week,
 #'   month, and year columns are generated from date columns and date columns
-#'   are removed. If FALSE, date columns are left intact. If a character vector,
+#'   are removed. If FALSE, date columns are removed. If a character vector,
 #'   it is passed to the `features` argument of `recipes::step_date`. E.g. if
-#'   you want only month and year back: `convert_dates = c("quarter", "year")`.
-#' @param collapse_rare_factors
-#' @param remove_near_zero_variance
-#' @param impute
-#' @param center
-#' @param scale
-#' @param dummies
-#' @param verbose
+#'   you want only quarter and year back: `convert_dates = c("quarter", "year")`.
+#' @param impute Logical or list. If TRUE (default), columns will be imputed
+#' using mean (numeric), and new category (nominal). If FALSE, data will not be
+#' imputed. If list, possible values are `numeric_method`, `nominal_method`,
+#' `numeric_params`, `nominal_params` and are passed into the arguments of
+#' `hcai_impute`.
+#' @param collapse_rare_factors Logical or numeric. If TRUE (default), factor
+#' levels representing less than 3% of the data will be collapsed into a new
+#' category, `other`. If numeric, the value should be between 0 and 1 and will
+#' be passed directly into the `threshold` argument of `recipes::step_other`.
+#' @param center Logical. If TRUE, numeric columns will be centered to have a
+#' mean of 0.
+#' @param scale Logical. If TRUE, numeric columns will be scaled to have a
+#' standard deviation of 1.
+#' @param dummies Logical. If TRUE, dummy columns will be created. Note most
+#' machine learning algorithms in R are more efficient when dummies are not
+#' provided.
+#' @param verbose Logical. If TRUE, verbose consold output will describe every
+#' step. This output can be called (even when verbose is FALSE) using the print
+#' method on a prepped data frame.
 #'
 #' @return
 #' @export
 #' @import recipes
+#' @seealso \code{\link{hcai_impute}}
 #'
 #' @examples
 prep_data <- function(d = NULL,
@@ -68,14 +87,20 @@ prep_data <- function(d = NULL,
     # Find largely missing columns and convert to factors
     # rec_obj <- rec_obj %>% step_hcai_mostly_missing_to_factor()
 
-    # Convert 0/1 columns to factors (step_bin2factor)
+    # Convert 0/1 columns to factors (step_bin2factor) ------------------------
     if (convert_0_1_to_factor) {
       cols <- find_0_1_cols(d)
       rec_obj <- rec_obj %>%
         step_bin2factor(!!cols, levels = c("Y", "N"))
     }
 
-    # Convert date columns to useful features and remove original.
+    # Remove columns with near zero variance ----------------------------------
+    if (remove_near_zero_variance) {
+      rec_obj <- rec_obj %>%
+        step_nzv(all_predictors())
+    }
+
+    # Convert date columns to useful features and remove original. ------------
     if (!is.logical(convert_dates)) {
       if (!is.character(convert_dates))  #  || is.null(names(convert_date))
         stop("convert_dates must be logical or features for step_date")
@@ -90,10 +115,18 @@ prep_data <- function(d = NULL,
       rec_obj <-
         do.call(step_date, list(recipe = rec_obj, cols, features = sdf)) %>%
         step_rm(cols)
+    } else {
+      cols <- find_date_cols(d)
+      rec_obj <- rec_obj %>%
+        step_rm(cols)
+      if (verbose) {
+        warning("These date columns will be removed: ",
+                paste(cols, collapse = ", "))
+      }
     }
 
-    # Impute
-    if (impute) { ### This won't work; if impute is a list it will error here.
+    # Impute ------------------------------------------------------------------
+    if (isTRUE(impute)) {
       rec_obj <- rec_obj %>%
         hcai_impute()
     } else if (is.list(impute)) {
@@ -109,6 +142,7 @@ prep_data <- function(d = NULL,
                 paste(extras, collapse = ", "),
                 ". Available params are: ", paste(names(ip), collapse = ", "))
       }
+
       # Impute takes defaults or user specified inputs. Error handling inside.
       rec_obj <- rec_obj %>%
         hcai_impute(numeric_method = ip$numeric_method,
@@ -119,40 +153,42 @@ prep_data <- function(d = NULL,
       stop("impute must be boolean or list.")
     }
 
-    # Collapse rare factors into "other"
+    # Collapse rare factors into "other" --------------------------------------
+    if (!is.logical(collapse_rare_factors)) {
+      if (!is.numeric(collapse_rare_factors))
+        stop("collapse_rare_factors must be logical or numeric")
+      fac_thresh <- collapse_rare_factors
+      collapse_rare_factors <- TRUE
+    }
     if (collapse_rare_factors) {
+      if (!exists("fac_thresh"))
+        fac_thresh <- 0.03
       rec_obj <- rec_obj %>%
-        step_other(all_nominal(), threshold = .02)
+        step_other(all_nominal(), threshold = fac_thresh)
     }
 
     # Log transform
     # Saving until columns can be specified
 
-    # Center
+    # Center ------------------------------------------------------------------
     if (center) {
       rec_obj <- rec_obj %>%
         step_center(all_numeric())
     }
 
-    # Scale
+    # Scale -------------------------------------------------------------------
     if (scale) {
       rec_obj <- rec_obj %>%
         step_scale(all_numeric())
     }
 
-    # Remove columns with near zero variance
-    if (remove_near_zero_variance) {
-      rec_obj <- rec_obj %>%
-        step_nzv(everything())
-    }
-
-    # Dummies
+    # Dummies -----------------------------------------------------------------
     if (dummies) {
       rec_obj <- rec_obj %>%
         step_dummy(all_nominal())
     }
 
-    # Prep the newly built recipe
+    # Prep the newly built recipe ---------------------------------------------
     rec_obj <- prep(rec_obj, training = d)
   }
 

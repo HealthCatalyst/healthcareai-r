@@ -99,17 +99,20 @@ test_that("date columns are found and converted with defaults", {
   expect_true(is.numeric(d_clean$col_DTS_year))
   expect_true(all(c("Jan", "Mar") %in% d_clean$date_col_month))
   expect_true(all(2004:2006 %in% d_clean$posixct_col_year))
-  expect_true(all(c("Sun", "Mon", "Tue") %in% d_clean$col_DTS_dow))
+  expect_true(all(c("Sun", "Mon", "Tues") %in% d_clean$col_DTS_dow))
 })
 
 test_that("convert_dates works when non default", {
-  dd <- prep_data(d_train, convert_dates = FALSE)
-  expect_true(all(c("date_col", "posixct_col", "col_DTS") %in% names(dd)))
   dd <- prep_data(d_train, convert_dates = "quarter")
   expect_true("date_col_quarter" %in% names(dd))
   expect_false("date_col_dow" %in% names(dd))
   dd <- prep_data(d_train, convert_dates = c("doy", "quarter"))
   expect_true(all(c("date_col_doy", "date_col_quarter") %in% names(dd)))
+})
+
+test_that("convert_dates removes date columns when false", {
+  dd <- prep_data(d_train, convert_dates = FALSE)
+  expect_true(!all(c("date_col", "posixct_col", "col_DTS") %in% names(dd)))
 })
 
 test_that("prep_data works with defaults", {
@@ -132,15 +135,21 @@ test_that("prep_data applies recipe from training on test data", {
   expect_true(all(d_clean_test$genre[is.na(d_test$genre)] == "hcai_missing"))
 })
 
-### You are here ###
+test_that("near zero variance columns are removed", {
+  d_clean <- prep_data(d = d_train,
+                         is_ween,
+                         song_id)
+  expect_true(is.null(d_clean$a_nzv_col))
+})
+
 test_that("impute works with params", {
   d_clean <- prep_data(d_train, is_ween, song_id,
                        impute = list(numeric_method = "knnimpute",
                                      nominal_method = "bagimpute",
                                      numeric_params = list(knn_K = 5),
                                      nominal_params = NULL))
-  expect_equal(d_clean$weirdness[3], 4.55, tol = .01)
-  expect_equal(as.character(d_clean$genre[2]), "Country")
+  expect_equal(d_clean$weirdness[3], 5.35, tol = .01)
+  expect_equal(as.character(d_clean$genre[2]), "Jazz")
   expect_equal(as.character(d_clean$reaction[4]), "Dislike")
 })
 
@@ -148,9 +157,10 @@ test_that("impute works with partial/extra params", {
     d_clean <- prep_data(d = d_train,
                          is_ween,
                          song_id,
+                         length,
                          impute = list(numeric_method = "bagimpute"))
   m <- missingness(d_clean)
-  expect_equal(m$percent_missing[m$variable == "length"], 18.3)
+  expect_equal(m$percent_missing[m$variable == "length"], 17.4)
   expect_true(all(m$percent_missing[!(m$variable %in% "length")] == 0))
 
   expect_warning(capture_output(
@@ -165,28 +175,52 @@ test_that("impute works with partial/extra params", {
 
 
 test_that("rare factors go to other", {
-    d_clean <- prep_data(d = d_train,
+  d_clean <- prep_data(d = d_train,
                          is_ween,
                          song_id)
   exp <- c("CA", "CT", "MA", "NY", "other")
   expect_equal(levels(d_clean$state), exp)
-  exp <- c("Dislike", "Huh", "Love", "Mixed")
+  exp <- c("Dislike", "Huh", "Love", "Mixed", "hcai_missing")
   expect_equal(levels(d_clean$reaction), exp)
 })
 
+test_that("rare factors go to other when a threshold is specified", {
+  d_clean <- prep_data(d = d_train,
+                       is_ween,
+                       song_id,
+                       collapse_rare_factors = 0.15)
+  exp <- c("CA", "NY", "other")
+  expect_equal(levels(d_clean$state), exp)
+})
+
 test_that("centering and scaling work", {
-    d_clean <- prep_data(d = d_train,
-                         is_ween,
-                         song_id)
+  d_clean <- prep_data(d = d_train,
+                       is_ween,
+                       song_id,
+                       center = TRUE,
+                       scale = TRUE)
   expect_equal(mean(d_clean$length), 0, tol = .01)
   expect_equal(mean(d_clean$weirdness), 0, tol = .01)
   expect_equal(sd(d_clean$length), 1, tol = .01)
   expect_equal(sd(d_clean$weirdness), 1, tol = .01)
 })
 
-test_that("near zero variance columns are removed", {
-    d_clean <- prep_data(d = d_train,
-                         is_ween,
-                         song_id)
-  expect_true(is.null(d_clean$a_nzv_col))
+test_that("dummy columns are created as expected", {
+  d_clean <- prep_data(d = d_train,
+                       is_ween,
+                       song_id,
+                       convert_dates = FALSE,
+                       dummies = TRUE)
+  exp <- c("genre_Jazz", "genre_Rock", "genre_hcai_missing")
+  n <- names(dplyr::select(d_clean, starts_with("genre")))
+  expect_true(all(ng == exp))
+
+  exp <- c("guitar_flag_N", "guitar_flag_other")
+  n <- names(dplyr::select(d_clean, starts_with("guitar")))
+  expect_true(all(n == exp))
+
+  exp <- c("reaction_Huh", "reaction_Love", "reaction_Mixed",
+           "reaction_hcai_missing" )
+  n <- names(dplyr::select(d_clean, starts_with("reaction")))
+  expect_true(all(n == exp))
 })
