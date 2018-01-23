@@ -43,10 +43,10 @@
 #' ### Takes ~7 seconds
 #' # Remove identifier variables and rows with missingness,
 #' # and choose 100 rows to speed tuning
-#' d <- dplyr::select(pima_diabetes, -PatientID)
+#' d <- dplyr::select(pima_diabetes, -patient_id)
 #' d <- stats::na.omit(d)
 #' d <- dplyr::sample_n(d, 100)
-#' m <- tune_models(d, outcome = Diabetes, model_class = "classification")
+#' m <- tune_models(d, outcome = diabetes, model_class = "classification")
 #' # Plot performance over hyperparameter values for each algorithm
 #' plot(m)
 #' # Extract confusion matrix for KNN
@@ -118,6 +118,8 @@ tune_models <- function(d,
            "convert it explicitly with as.factor().")
     }
   }
+  # Convert all character variables to factors. kknn sometimes chokes on chars
+  d <- mutate_if(d, is.character, as.factor)
   # Choose metric if not provided
   if (missing(metric)) {
     metric <-
