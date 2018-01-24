@@ -2,32 +2,90 @@
 % Please edit documentation in R/prep_data.R
 \name{prep_data}
 \alias{prep_data}
-\title{Title}
+\title{Prepare data for machine learning}
 \usage{
 prep_data(d = NULL, ..., rec_obj = NULL, convert_0_1_to_factor = TRUE,
-  convert_dates = TRUE, collapse_rare_factors = TRUE,
-  remove_near_zero_variance = TRUE, impute = TRUE, center = FALSE,
-  scale = FALSE, dummies = FALSE, verbose = FALSE)
+  remove_near_zero_variance = TRUE, convert_dates = TRUE, impute = TRUE,
+  collapse_rare_factors = TRUE, center = FALSE, scale = FALSE,
+  dummies = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{d}{A dataframe or tibble containing data to impute.}
 
 \item{...}{Optional. Unquoted variable names to not be prepped. These will be
-returned unaltered.}
-
-\item{rec_obj}{Optional. A `recipes` object or data frame containing a
+returned unaltered.
+param rec_obj Optional. A `recipes` object or data frame containing a
 `recipes` object in the `rec_obj` attribute slot (as returned from this
 function). If present, that recipe will be applied and other arguments will
 be ignored.}
 
+\item{convert_0_1_to_factor}{Logical. If TRUE (default), columns that contain
+only 0 and 1 will be converted to factor with levels "Y" and "N".}
+
+\item{remove_near_zero_variance}{Logical. If TRUE (default), columns with
+near-zero variance will be removed. These columns are either a single value,
+or meet both of the following criteria: 1. they have very few unique values
+relative to the number of samples and 2. the ratio of the frequency of the
+most common value to the frequency of the second most common value is large.}
+
 \item{convert_dates}{Logical or character. If TRUE (default), day-of-week,
 month, and year columns are generated from date columns and date columns
-are removed. If FALSE, date columns are left intact. If a character vector,
+are removed. If FALSE, date columns are removed. If a character vector,
 it is passed to the `features` argument of `recipes::step_date`. E.g. if
-you want only month and year back: `convert_dates = c("quarter", "year")`.}
+you want only quarter and year back: `convert_dates = c("quarter", "year")`.}
 
-\item{verbose}{}
+\item{impute}{Logical or list. If TRUE (default), columns will be imputed
+using mean (numeric), and new category (nominal). If FALSE, data will not be
+imputed. If list, possible values are `numeric_method`, `nominal_method`,
+`numeric_params`, `nominal_params` and are passed into the arguments of
+`hcai_impute`.}
+
+\item{collapse_rare_factors}{Logical or numeric. If TRUE (default), factor
+levels representing less than 3% of the data will be collapsed into a new
+category, `other`. If numeric, the value should be between 0 and 1 and will
+be passed directly into the `threshold` argument of `recipes::step_other`.}
+
+\item{center}{Logical. If TRUE, numeric columns will be centered to have a
+mean of 0.}
+
+\item{scale}{Logical. If TRUE, numeric columns will be scaled to have a
+standard deviation of 1.}
+
+\item{dummies}{Logical. If TRUE, dummy columns will be created. Note most
+machine learning algorithms in R are more efficient when dummies are not
+provided.}
+
+\item{verbose}{Logical. If TRUE, verbose console output will describe every
+step. This output can be called (even when verbose is FALSE) using the print
+method on a prepped data frame.}
+}
+\value{
+Prepared data frame with reusable recipe object for future data
+preparation in attribute "rec_obj". Also a summary of how the data was
+prepared in attribute "prep_summary".
 }
 \description{
-Title
+\code{prep_data} will prepare your data for use with
+\code{\link{tune}} or other machine learning packages. Data can be
+transformed in the following ways:
+\enumerate{
+  \item{Convert columns with only 0/1 to factor}
+  \item{Remove columns with near-zero variance}
+  \item{Convert date columns to useful features}
+  \item{Fill in missing values with various imputation methods}
+  \item{Collapse rare categories into `other`}
+  \item{Center numeric columns}
+  \item{Standardize numeric columns}
+  \item{Create dummy variables}
+}
+After preparing your data, a recipe will be saved for identical use on
+future data. If a recipe object is passed to `prep_data`, it will apply that
+recipe to the data. The new data must be identical in structure to the data
+that the recipe was prepared with.
+}
+\examples{
+print("Curses.")
+}
+\seealso{
+\code{\link{hcai_impute}}
 }

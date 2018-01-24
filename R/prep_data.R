@@ -1,12 +1,30 @@
-#' Title
+#' @title Prepare data for machine learning
+#'
+#' @description \code{prep_data} will prepare your data for use with
+#' \code{\link{tune}} or other machine learning packages. Data can be
+#' transformed in the following ways:
+#' \enumerate{
+#'   \item{Convert columns with only 0/1 to factor}
+#'   \item{Remove columns with near-zero variance}
+#'   \item{Convert date columns to useful features}
+#'   \item{Fill in missing values with various imputation methods}
+#'   \item{Collapse rare categories into `other`}
+#'   \item{Center numeric columns}
+#'   \item{Standardize numeric columns}
+#'   \item{Create dummy variables}
+#' }
+#' After preparing your data, a recipe will be saved for identical use on
+#' future data. If a recipe object is passed to `prep_data`, it will apply that
+#' recipe to the data. The new data must be identical in structure to the data
+#' that the recipe was prepared with.
 #'
 #' @param d A dataframe or tibble containing data to impute.
 #' @param ... Optional. Unquoted variable names to not be prepped. These will be
-#'   returned unaltered.
-#' @param rec_obj Optional. A `recipes` object or data frame containing a
-#'   `recipes` object in the `rec_obj` attribute slot (as returned from this
-#'   function). If present, that recipe will be applied and other arguments will
-#'   be ignored.
+#' returned unaltered.
+#' param rec_obj Optional. A `recipes` object or data frame containing a
+#' `recipes` object in the `rec_obj` attribute slot (as returned from this
+#' function). If present, that recipe will be applied and other arguments will
+#' be ignored.
 #' @param convert_0_1_to_factor Logical. If TRUE (default), columns that contain
 #' only 0 and 1 will be converted to factor with levels "Y" and "N".
 #' @param remove_near_zero_variance Logical. If TRUE (default), columns with
@@ -15,10 +33,10 @@
 #' relative to the number of samples and 2. the ratio of the frequency of the
 #' most common value to the frequency of the second most common value is large.
 #' @param convert_dates Logical or character. If TRUE (default), day-of-week,
-#'   month, and year columns are generated from date columns and date columns
-#'   are removed. If FALSE, date columns are removed. If a character vector,
-#'   it is passed to the `features` argument of `recipes::step_date`. E.g. if
-#'   you want only quarter and year back: `convert_dates = c("quarter", "year")`.
+#' month, and year columns are generated from date columns and date columns
+#' are removed. If FALSE, date columns are removed. If a character vector,
+#' it is passed to the `features` argument of `recipes::step_date`. E.g. if
+#' you want only quarter and year back: `convert_dates = c("quarter", "year")`.
 #' @param impute Logical or list. If TRUE (default), columns will be imputed
 #' using mean (numeric), and new category (nominal). If FALSE, data will not be
 #' imputed. If list, possible values are `numeric_method`, `nominal_method`,
@@ -39,12 +57,14 @@
 #' step. This output can be called (even when verbose is FALSE) using the print
 #' method on a prepped data frame.
 #'
-#' @return
+#' @return Prepared data frame with reusable recipe object for future data
+#' preparation in attribute "rec_obj". Also a summary of how the data was
+#' prepared in attribute "prep_summary".
 #' @export
-#' @import recipes
 #' @seealso \code{\link{hcai_impute}}
 #'
 #' @examples
+#' print("Curses.")
 prep_data <- function(d = NULL,
                       ...,
                       rec_obj = NULL,
@@ -92,7 +112,7 @@ prep_data <- function(d = NULL,
     }
     # Initialize recipe
     rec_obj <- d %>%
-      recipe(formula = "~.")
+      recipes::recipe(formula = "~.")
 
     # Find largely missing columns and convert to factors
     # rec_obj <- rec_obj %>% step_hcai_mostly_missing_to_factor()
@@ -101,13 +121,13 @@ prep_data <- function(d = NULL,
     if (convert_0_1_to_factor) {
       cols <- find_0_1_cols(d)
       rec_obj <- rec_obj %>%
-        step_bin2factor(!!cols, levels = c("Y", "N"))
+        recipes::step_bin2factor(!!cols, levels = c("Y", "N"))
     }
 
     # Remove columns with near zero variance ----------------------------------
     if (remove_near_zero_variance) {
       rec_obj <- rec_obj %>%
-        step_nzv(all_predictors())
+        recipes::step_nzv(all_predictors())
     }
 
     # Convert date columns to useful features and remove original. ------------
@@ -123,12 +143,13 @@ prep_data <- function(d = NULL,
         sdf <- c("dow", "month", "year")
       cols <- find_date_cols(d)
       rec_obj <-
-        do.call(step_date, list(recipe = rec_obj, cols, features = sdf)) %>%
-        step_rm(cols)
+        do.call(recipes::step_date,
+                list(recipe = rec_obj, cols, features = sdf)) %>%
+        recipes::step_rm(cols)
     } else {
       cols <- find_date_cols(d)
       rec_obj <- rec_obj %>%
-        step_rm(cols)
+        recipes::step_rm(cols)
       if (verbose) {
         warning("These date columns will be removed: ",
                 paste(cols, collapse = ", "))
@@ -174,7 +195,7 @@ prep_data <- function(d = NULL,
       if (!exists("fac_thresh"))
         fac_thresh <- 0.03
       rec_obj <- rec_obj %>%
-        step_other(all_nominal(), threshold = fac_thresh)
+        recipes::step_other(all_nominal(), threshold = fac_thresh)
     }
 
     # Log transform
@@ -183,23 +204,23 @@ prep_data <- function(d = NULL,
     # Center ------------------------------------------------------------------
     if (center) {
       rec_obj <- rec_obj %>%
-        step_center(all_numeric())
+        recipes::step_center(all_numeric())
     }
 
     # Scale -------------------------------------------------------------------
     if (scale) {
       rec_obj <- rec_obj %>%
-        step_scale(all_numeric())
+        recipes::step_scale(all_numeric())
     }
 
     # Dummies -----------------------------------------------------------------
     if (dummies) {
       rec_obj <- rec_obj %>%
-        step_dummy(all_nominal())
+        recipes::step_dummy(all_nominal())
     }
 
     # Prep the newly built recipe ---------------------------------------------
-    rec_obj <- prep(rec_obj, training = d)
+    rec_obj <- recipes::prep(rec_obj, training = d)
   }
   # Bake either the newly built or passed-in recipe
   d <- recipes::bake(rec_obj, d)
@@ -213,7 +234,7 @@ prep_data <- function(d = NULL,
   junk <- capture_output(prep_summary$steps <- print(rec_obj))
   prep_summary$baked_data <- summary(rec_obj)
 
-  if (length(ignored) > 0) {
+  if (!is.null(d_ignore)) {
     ignored_types <- purrr::map(d_ignore, function(x) {
       if (is.numeric(x)) {
         return("numeric")
