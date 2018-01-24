@@ -21,7 +21,7 @@
 #' @param d A dataframe or tibble containing data to impute.
 #' @param ... Optional. Unquoted variable names to not be prepped. These will be
 #' returned unaltered.
-#' param rec_obj Optional. A `recipes` object or data frame containing a
+#' @param rec_obj Optional. A `recipes` object or data frame containing a
 #' `recipes` object in the `rec_obj` attribute slot (as returned from this
 #' function). If present, that recipe will be applied and other arguments will
 #' be ignored.
@@ -64,7 +64,37 @@
 #' @seealso \code{\link{hcai_impute}}
 #'
 #' @examples
-#' print("Curses.")
+#' library(recipes)
+#' d <- pima_diabetes
+#'
+#' d_train <- d[1:700, ]
+#' d_test <- d[701:768, ]
+#'
+#' # Prep data and recipe. Ignore grain and target columns.
+#' d_train_clean <- prep_data(d = d_train,
+#'                            patient_id,
+#'                            diabetes)
+#' saved_recipe <- attr(d_train_clean, "rec_obj")
+#'
+#' # Apply to new data
+#' d_test_clean <- prep_data(d = d_test,
+#'                           patient_id,
+#'                           diabetes,
+#'                           rec_obj = saved_recipe)
+#' # Print a summary of what was done
+#' print(d_train_clean)
+#'
+#' # Use non-defaults for prep:
+#' d_train_clean <- prep_data(d = d_train,
+#'                            patient_id,
+#'                            diabetes,
+#'                            impute = list(numeric_method = "bagimpute",
+#'                                          nominal_method = "bagimpute"),
+#'                            collapse_rare_factors = FALSE,
+#'                            center = TRUE,
+#'                            scale = TRUE,
+#'                            dummies = TRUE)
+#'
 prep_data <- function(d = NULL,
                       ...,
                       rec_obj = NULL,
@@ -91,11 +121,20 @@ prep_data <- function(d = NULL,
     # Separate data into ignored and not
     d_ignore <- dplyr::select(d, !!!ignored)
     d <- dplyr::select(d, -dplyr::one_of(ignored))
+
+    # Warn if ignored columns have missingness
+    m <- missingness(d_ignore) %>%
+      dplyr::filter(percent_missing > 0)
+    if (!purrr::is_empty(m$variable)) {
+      warning("These ignored variables still have missingness: ",
+              paste(m$variable, collapse = ", "))
+    }
+
   } else {
     d_ignore <- NULL
   }
 
-  # TODO: Refactor imputation summary in impute to be used here.
+  # TODO: Refactor imputation summary in impute to be also used here.
   prep_summary <- list("missingness" = missingness(d))
 
   # If a recipe or data frame is provided in rec_obj, apply that...
@@ -120,8 +159,10 @@ prep_data <- function(d = NULL,
     # Convert 0/1 columns to factors (step_bin2factor) ------------------------
     if (convert_0_1_to_factor) {
       cols <- find_0_1_cols(d)
-      rec_obj <- rec_obj %>%
-        recipes::step_bin2factor(!!cols, levels = c("Y", "N"))
+      if (!purrr::is_empty(cols)) {
+        rec_obj <- rec_obj %>%
+          recipes::step_bin2factor(!!cols, levels = c("Y", "N"))
+      }
     }
 
     # Remove columns with near zero variance ----------------------------------
@@ -142,14 +183,18 @@ prep_data <- function(d = NULL,
       if (!exists("sdf"))
         sdf <- c("dow", "month", "year")
       cols <- find_date_cols(d)
-      rec_obj <-
-        do.call(recipes::step_date,
-                list(recipe = rec_obj, cols, features = sdf)) %>%
-        recipes::step_rm(cols)
+      if (!purrr::is_empty(cols)) {
+        rec_obj <-
+          do.call(recipes::step_date,
+                  list(recipe = rec_obj, cols, features = sdf)) %>%
+          recipes::step_rm(cols)
+      }
     } else {
       cols <- find_date_cols(d)
-      rec_obj <- rec_obj %>%
-        recipes::step_rm(cols)
+      if (!purrr::is_empty(cols)) {
+        rec_obj <- rec_obj %>%
+          recipes::step_rm(cols)
+      }
       if (verbose) {
         warning("These date columns will be removed: ",
                 paste(cols, collapse = ", "))

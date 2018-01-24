@@ -154,6 +154,20 @@ test_that("prep_data applies recipe from training on test data", {
   expect_true(all(d_clean_test$genre[is.na(d_test$genre)] == "hcai_missing"))
 })
 
+test_that("prep_data works when certain column types are missing", {
+  d2 <- d_train %>%
+    dplyr::select(-dplyr::one_of(c("a_nzv_col", "date_col", "posixct_col",
+                                   "col_DTS", "drum_flag", "guitar_flag")))
+  capture_output(
+    d_clean <- prep_data(d = d2, is_ween, song_id)
+  )
+  expect_equal(unique(d_clean$weirdness[is.na(d2$weirdness)]),
+               mean(d2$weirdness, na.rm = TRUE))
+  expect_true(all.equal(droplevels(d_clean$genre[!is.na(d2$genre)]),
+                        d2$genre[!is.na(d2$genre)]))
+  expect_true(all(d_clean$genre[is.na(d2$genre)] == "hcai_missing"))
+})
+
 test_that("near zero variance columns are removed", {
   capture_output(
     d_clean <- prep_data(d = d_train,
@@ -274,6 +288,13 @@ test_that("rec_obj attr is a recipe class object", {
 test_that("prep_summary attr is contained within prepped data", {
   capture_output(dd <- prep_data(d_train))
   expect_true("prep_summary" %in% names(attributes(dd)))
+})
+
+test_that("warning is given when ignored columns have missingness", {
+  expect_warning(capture_output(
+    prep_data(d_train, reaction, length)
+  ),
+  regexp = "reaction, length")
 })
 
 test_that("print method works as expected", {

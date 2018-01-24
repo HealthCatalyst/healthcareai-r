@@ -84,7 +84,37 @@ recipe to the data. The new data must be identical in structure to the data
 that the recipe was prepared with.
 }
 \examples{
-print("Curses.")
+library(recipes)
+d <- pima_diabetes
+
+d_train <- d[1:700, ]
+d_test <- d[701:768, ]
+
+# Prep data and recipe. Ignore grain and target columns.
+d_train_clean <- prep_data(d = d_train,
+                           patient_id,
+                           diabetes)
+saved_recipe <- attr(d_train_clean, "rec_obj")
+
+# Apply to new data
+d_test_clean <- prep_data(d = d_test,
+                          patient_id,
+                          diabetes,
+                          rec_obj = saved_recipe)
+# Print a summary of what was done
+print(d_train_clean)
+
+# Use non-defaults for prep:
+d_train_clean <- prep_data(d = d_train,
+                           patient_id,
+                           diabetes,
+                           impute = list(numeric_method = "bagimpute",
+                                         nominal_method = "bagimpute"),
+                           collapse_rare_factors = FALSE,
+                           center = TRUE,
+                           scale = TRUE,
+                           dummies = TRUE)
+
 }
 \seealso{
 \code{\link{hcai_impute}}
