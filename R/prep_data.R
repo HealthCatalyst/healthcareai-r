@@ -144,7 +144,7 @@ prep_data <- function(d = NULL,
     if (verbose) {
       message("Using loaded recipe on the new data")
     }
-  # ... Else, build recipe step by step
+    # ... Else, build recipe step by step
   } else {
     if (verbose) {
       message("Training new recipe")
@@ -276,7 +276,7 @@ prep_data <- function(d = NULL,
   # TODO: Remove unused factor levels with droplevels.
 
   # Build up prep_data summary for verbose output.
-  junk <- capture_output(prep_summary$steps <- print(rec_obj))
+  junk <- utils::capture.output(prep_summary$steps <- print(rec_obj))
   prep_summary$baked_data <- summary(rec_obj)
 
   if (!is.null(d_ignore)) {
@@ -288,11 +288,11 @@ prep_data <- function(d = NULL,
       }
     })
     prep_summary$baked_data <-
-      bind_rows(tibble::tibble(variable = ignored,
-                               type = as.character(ignored_types),
-                               role = "ignored",
-                               source = "original"),
-                prep_summary$baked_data)
+      dplyr::bind_rows(tibble::tibble(variable = ignored,
+                                      type = as.character(ignored_types),
+                                      role = "ignored",
+                                      source = "original"),
+                       prep_summary$baked_data)
   }
 
   # attach prep_summary to data

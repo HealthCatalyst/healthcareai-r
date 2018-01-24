@@ -195,12 +195,10 @@ test_that("impute works with partial/extra params", {
     d_clean <- prep_data(d = d_train,
                          is_ween,
                          song_id,
-                         length,
                          impute = list(numeric_method = "bagimpute"))
   )
   m <- missingness(d_clean)
-  expect_equal(m$percent_missing[m$variable == "length"], 17.4)
-  expect_true(all(m$percent_missing[!(m$variable %in% "length")] == 0))
+  expect_true(all(m$percent_missing == 0))
 
   expect_warning(capture_output(
     d_clean <- prep_data(d = d_train,
