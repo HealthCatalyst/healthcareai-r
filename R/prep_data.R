@@ -1,70 +1,69 @@
 #' @title Prepare data for machine learning
 #'
 #' @description \code{prep_data} will prepare your data for use with
-#' \code{\link{tune}} or other machine learning packages. Data can be
-#' transformed in the following ways:
-#' \enumerate{
-#'   \item{Convert columns with only 0/1 to factor}
-#'   \item{Remove columns with near-zero variance}
-#'   \item{Convert date columns to useful features}
-#'   \item{Fill in missing values with various imputation methods}
-#'   \item{Collapse rare categories into `other`}
-#'   \item{Center numeric columns}
-#'   \item{Standardize numeric columns}
-#'   \item{Create dummy variables}
-#' }
-#' After preparing your data, a recipe will be saved for identical use on
-#' future data. If a recipe object is passed to `prep_data`, it will apply that
-#' recipe to the data. The new data must be identical in structure to the data
-#' that the recipe was prepared with.
+#'   \code{\link{tune_models}} or other machine learning packages. Data can be
+#'   transformed in the following ways: \enumerate{ \item{Convert columns with
+#'   only 0/1 to factor} \item{Remove columns with near-zero variance}
+#'   \item{Convert date columns to useful features} \item{Fill in missing values
+#'   with various imputation methods} \item{Collapse rare categories into
+#'   `other`} \item{Center numeric columns} \item{Standardize numeric columns}
+#'   \item{Create dummy variables} } While preparing your data, a recipe will be
+#'   generated for identical transformation of future data and stored in the
+#'   `rec_obj` attribute of the output data frame. If a recipe object is passed
+#'   to `prep_data` via the `rec_obj` argument, that recipe will be applied to
+#'   the data. This allows you to transform data in model training and apply
+#'   exactly the same transformations in model testing and deployment. The new
+#'   data must be identical in structure to the data that the recipe was
+#'   prepared with.
 #'
 #' @param d A dataframe or tibble containing data to impute.
 #' @param ... Optional. Unquoted variable names to not be prepped. These will be
-#' returned unaltered.
+#'   returned unaltered. Typically ID and outcome columns would go here.
 #' @param rec_obj Optional. A `recipes` object or data frame containing a
-#' `recipes` object in the `rec_obj` attribute slot (as returned from this
-#' function). If present, that recipe will be applied and other arguments will
-#' be ignored.
+#'   `recipes` object in the `rec_obj` attribute slot (as returned from this
+#'   function). If present, that recipe will be applied and other arguments will
+#'   be ignored.
 #' @param convert_0_1_to_factor Logical. If TRUE (default), columns that contain
-#' only 0 and 1 will be converted to factor with levels "Y" and "N".
+#'   only 0 and 1 will be converted to factor with levels "Y" and "N".
 #' @param remove_near_zero_variance Logical. If TRUE (default), columns with
-#' near-zero variance will be removed. These columns are either a single value,
-#' or meet both of the following criteria: 1. they have very few unique values
-#' relative to the number of samples and 2. the ratio of the frequency of the
-#' most common value to the frequency of the second most common value is large.
+#'   near-zero variance will be removed. These columns are either a single
+#'   value, or meet both of the following criteria: 1. they have very few unique
+#'   values relative to the number of samples and 2. the ratio of the frequency
+#'   of the most common value to the frequency of the second most common value
+#'   is large.
 #' @param convert_dates Logical or character. If TRUE (default), day-of-week,
-#' month, and year columns are generated from date columns and date columns
-#' are removed. If FALSE, date columns are removed. If a character vector,
-#' it is passed to the `features` argument of `recipes::step_date`. E.g. if
-#' you want only quarter and year back: `convert_dates = c("quarter", "year")`.
+#'   month, and year columns are generated from date columns and date columns
+#'   are removed. If FALSE, date columns are removed. If a character vector, it
+#'   is passed to the `features` argument of `recipes::step_date`. E.g. if you
+#'   want only quarter and year back: `convert_dates = c("quarter", "year")`.
 #' @param impute Logical or list. If TRUE (default), columns will be imputed
-#' using mean (numeric), and new category (nominal). If FALSE, data will not be
-#' imputed. If list, possible values are `numeric_method`, `nominal_method`,
-#' `numeric_params`, `nominal_params` and are passed into the arguments of
-#' `hcai_impute`.
+#'   using mean (numeric), and new category (nominal). If FALSE, data will not
+#'   be imputed. If list, possible values are `numeric_method`,
+#'   `nominal_method`, `numeric_params`, `nominal_params` and are passed into
+#'   the arguments of `hcai_impute`.
 #' @param collapse_rare_factors Logical or numeric. If TRUE (default), factor
-#' levels representing less than 3% of the data will be collapsed into a new
-#' category, `other`. If numeric, the value should be between 0 and 1 and will
-#' be passed directly into the `threshold` argument of `recipes::step_other`.
-#' @param center Logical. If TRUE, numeric columns will be centered to have a
-#' mean of 0.
+#'   levels representing less than 3 percent of observations will be collapsed
+#'   into a new category, `other`. If numeric, must be in {0, 1} the proportion
+#'   of observations below which levels will be grouped into other. See
+#'   `recipes::step_other`.
+#' @param center Logical. If TRUE, numeric columns will be
+#'   centered to have a mean of 0. Default is FALSE.
 #' @param scale Logical. If TRUE, numeric columns will be scaled to have a
-#' standard deviation of 1.
+#'   standard deviation of 1. Default is FALSE.
 #' @param dummies Logical. If TRUE, dummy columns will be created. Note most
-#' machine learning algorithms in R are more efficient when dummies are not
-#' provided.
+#'   machine learning algorithms in R are more efficient when dummies are not
+#'   provided.
 #' @param verbose Logical. If TRUE, verbose console output will describe every
-#' step. This output can be called (even when verbose is FALSE) using the print
-#' method on a prepped data frame.
+#'   step. This output can be called (even when verbose is FALSE) using the
+#'   print method on a prepped data frame.
 #'
 #' @return Prepared data frame with reusable recipe object for future data
-#' preparation in attribute "rec_obj". Also a summary of how the data was
-#' prepared in attribute "prep_summary".
+#'   preparation in attribute "rec_obj". Also a summary of how the data was
+#'   prepared in attribute "prep_summary".
 #' @export
 #' @seealso \code{\link{hcai_impute}}
 #'
 #' @examples
-#' library(recipes)
 #' d <- pima_diabetes
 #'
 #' d_train <- d[1:700, ]
@@ -129,7 +128,6 @@ prep_data <- function(d = NULL,
       warning("These ignored variables still have missingness: ",
               paste(m$variable, collapse = ", "))
     }
-
   } else {
     d_ignore <- NULL
   }
@@ -137,10 +135,9 @@ prep_data <- function(d = NULL,
   # TODO: Refactor imputation summary in impute to be also used here.
   prep_summary <- list("missingness" = missingness(d))
 
-  # If a recipe or data frame is provided in rec_obj, apply that...
+  # If a recipe or data frame is provided in rec_obj, skip building the recipe
   if (!is.null(rec_obj)) {
     rec_obj <- check_rec_obj(rec_obj)
-
     if (verbose) {
       message("Using loaded recipe on the new data")
     }
@@ -151,10 +148,10 @@ prep_data <- function(d = NULL,
     }
     # Initialize recipe
     rec_obj <- d %>%
-      recipes::recipe(formula = "~.")
+      recipes::recipe(formula = "~.")  # nolint
 
     # Find largely missing columns and convert to factors
-    # rec_obj <- rec_obj %>% step_hcai_mostly_missing_to_factor()
+    # rec_obj <- rec_obj %>% step_hcai_mostly_missing_to_factor()  # nolint
 
     # Convert 0/1 columns to factors (step_bin2factor) ------------------------
     if (convert_0_1_to_factor) {
@@ -233,6 +230,8 @@ prep_data <- function(d = NULL,
     if (!is.logical(collapse_rare_factors)) {
       if (!is.numeric(collapse_rare_factors))
         stop("collapse_rare_factors must be logical or numeric")
+      if (collapse_rare_factors >= 1 || collapse_rare_factors < 0)
+        stop("If numeric, collapse_rare_factors should be between 0 and 1.")
       fac_thresh <- collapse_rare_factors
       collapse_rare_factors <- TRUE
     }

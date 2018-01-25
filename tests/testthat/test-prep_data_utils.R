@@ -18,7 +18,7 @@ d <- data.frame(song_id = 1:n,
        missing64 = sample(100:300, n, replace = TRUE)
 )
 d$posixct_col <- as.POSIXct(d$posixct_col)
-d$col_DTS <- as.character((d$col_DTS))
+d$col_DTS <- as.character(d$col_DTS)
 d$missing82[sample(1:n, 82, replace = FALSE)] <- NA
 d$missing64[sample(1:n, 64, replace = FALSE)] <- NA
 
