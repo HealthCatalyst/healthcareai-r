@@ -92,6 +92,11 @@ test_that("0/1 columns are found and converted with defaults", {
   expect_true(is.factor(d_clean$drum_flag))
   expect_true(all(c("N", "Y") %in% levels(d_clean$guitar_flag)))
   expect_true(all(c("N", "Y") %in% levels(d_clean$drum_flag)))
+  expect_true(all.equal(which(d_clean$drum_flag == "Y"),
+                        which(d_train$drum_flag == 1)))
+  expect_true(all.equal(which(d_clean$drum_flag == "N"),
+                        which(d_train$drum_flag == 0)))
+
 })
 
 test_that("date columns are found and converted with defaults", {
@@ -103,7 +108,7 @@ test_that("date columns are found and converted with defaults", {
   expect_true(is.numeric(d_clean$col_DTS_year))
   expect_true(all(c("Jan", "Mar") %in% d_clean$date_col_month))
   expect_true(all(2004:2006 %in% d_clean$posixct_col_year))
-  expect_true(all(c("Sun", "Mon", "Tues") %in% d_clean$col_DTS_dow))
+  expect_true(all(c("Sun", "Mon", "Tue") %in% d_clean$col_DTS_dow))
 })
 
 test_that("convert_dates works when non default", {
