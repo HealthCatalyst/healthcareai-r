@@ -119,7 +119,7 @@ tune_models <- function(d,
     }
   }
   # Convert all character variables to factors. kknn sometimes chokes on chars
-  d <- mutate_if(d, is.character, as.factor)
+  d <- dplyr::mutate_if(d, is.character, as.factor)
   # Choose metric if not provided
   if (missing(metric)) {
     metric <-
