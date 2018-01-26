@@ -62,4 +62,5 @@ test_that("predict classification returns a tibble", {
 
 test_that("prepping data inside or before predict produces same output", {
   all.equal(prpn, prpp)
+  all.equal(pcpn, pcpp)
 })
