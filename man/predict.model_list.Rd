@@ -4,7 +4,8 @@
 \alias{predict.model_list}
 \title{Make predictions}
 \usage{
-\method{predict}{model_list}(models, newdata, prepdata, ...)
+\method{predict}{model_list}(models, newdata, type = if (class(models[[1]]) ==
+  "classification_list") "prob" else "raw", prepdata)
 }
 \arguments{
 \item{models}{model_list object, as from `tune_models`}
@@ -20,8 +21,9 @@ predictions are made. Set this to TRUE to force already-prepped data
 through `prep_data` again, or set to FALSE to prevent `newdata` from being
 sent through `prep_data`.}
 
-\item{...}{Passed to `predict.regression_list` or
-`predict.classification_list`}
+\item{...}{Passed to `caret::predict.train`. For classification models,
+\code{type = "raw"} will return Y/N predictions instead of class
+probabilities.}
 }
 \value{
 A tibble data frame: newdata with an additional column for the
