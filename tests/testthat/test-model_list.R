@@ -11,10 +11,10 @@ kn <- caret::train(x = dplyr::select(mtcars, -am),
                    method = "kknn",
                    tuneLength = 2
 )
-r_models <- tune(mtcars, mpg)
-c_models <- tune(mtcars, am)
+r_models <- tune_models(mtcars, mpg)
+c_models <- tune_models(mtcars, am)
 single_model_as <- as.model_list(rf)
-single_model_tune <- tune(mtcars, am, models = "rf")
+single_model_tune <- tune_models(mtcars, am, models = "rf")
 double_model_as <- as.model_list(rf, kn)
 r_empty <- model_list(model_class = "regression")
 c_empty <- model_list(model_class = "classification")
@@ -101,7 +101,7 @@ test_that("plot.model_list works on regression_list", {
                c("gg", "ggplot"))
   expect_error(plot.model_list(ranger::ranger(mpg ~ ., mtcars), print = FALSE),
                regexp = "model_list")
-  r2 <- tune(mtcars, mpg, models = "rf", metric = "Rsquared")
+  r2 <- tune_models(mtcars, mpg, models = "rf", metric = "Rsquared")
   expect_s3_class(plot(r2, print = FALSE), "gg")
 })
 

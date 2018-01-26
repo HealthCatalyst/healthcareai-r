@@ -17,7 +17,7 @@ print.model_list <- function(mlist) {
 
       "\n\nBest model: ", rinfo$best_model_name,
       "\n", rinfo$metric, " = ", round(rinfo$best_model_perf, 2),
-      "\nHyperparameter values:", "\n  ", rinfo$best_model_tune
+      "\nHyperparameter values:", "\n  ", format_tune(rinfo$best_model_tune)
     )
   } else {
     out <- paste("Empty", class(mlist)[1], "object.")
@@ -38,14 +38,14 @@ summary.model_list <- function(mlist) {
   if (!length(mlist))
     stop("mlist is empty.")
   rinfo <- extract_model_info(mlist)
-  hyperp <-
-    rinfo$best_model_tune %>%
-    purrr::map_chr(as.character) %>%
-    paste(names(.), ., sep = " = ", collapse = ", ")
+  # hyperp <-
+  #   rinfo$best_model_tune %>%
+  #   purrr::map_chr(as.character) %>%
+  #   paste(names(.), ., sep = " = ", collapse = ", ")
   out <- paste0("Best performance: ", rinfo$metric, " = ",
                 round(rinfo$best_model_perf, 2), "\n",
                 rinfo$best_model_name, " with hyperparameters:\n  ",
-                rinfo$best_model_tune)
+                format_tune(rinfo$best_model_tune))
   cat(out)
   cat("\n\nOut-of-fold performance of all trained models:\n\n")
   perf <- lapply(mlist, function(x) {
@@ -71,7 +71,7 @@ summary.model_list <- function(mlist) {
 #' @importFrom purrr map_df
 #' @export
 #' @examples
-#' plot(tune(mtcars, mpg))
+#' plot(tune_models(mtcars, mpg))
 plot.model_list <- function(mlist, print = TRUE) {
   if (!length(mlist))
     stop("mlist is empty.")
@@ -126,12 +126,12 @@ extract_model_info <- function(mlist) {
   m_class <- mlist[[1]]$modelType
   target <- attr(mlist, "target")
   ddim <- dim(mlist[[1]]$trainingData)
-  best_model_name <- algs[best_model]
-  best_model_perf <- best_metrics[best_model]
+  best_model_name <- algs[[best_model]]
+  best_model_perf <- best_metrics[[best_model]]
   best_model_tune <-
-    mlist[[best_model]]$bestTune %>%
-    purrr::map_chr(as.character) %>%
-    paste(names(.), ., sep = " = ", collapse = "\n  ")
+    mlist[[best_model]]$bestTune # %>%
+    # purrr::map_chr(as.character) %>%
+    # paste(names(.), ., sep = " = ", collapse = "\n  ")
   list(
     m_class = m_class,
     algs = algs,
@@ -142,4 +142,16 @@ extract_model_info <- function(mlist) {
     best_model_tune = best_model_tune,
     ddim = ddim
   )
+}
+
+#' Format extract_model_info()$best_model_tune for printing
+#'
+#' @param best_tune character vector
+#' @importFrom purrr map_chr
+#' @return character vector for printing
+#' @noRd
+format_tune <- function(best_tune) {
+  best_tune %>%
+    purrr::map_chr(as.character) %>%
+    paste(names(.), ., sep = " = ", collapse = "\n  ")
 }
