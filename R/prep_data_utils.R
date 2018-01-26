@@ -37,8 +37,8 @@ check_rec_obj <- function(rec_obj) {
   if (is.null(rec_obj) && !is.null(rec_obj_provided))
     stop("Attribute \"", rec_obj_provided[[3]], "\" not found in ",
          rec_obj_provided[[2]])
-  # If rec_obj is a data frame, look for a recipe object in the attribute slot
-  if (inherits(rec_obj, "data.frame") && !is.null(attr(rec_obj, "rec_obj")))
+  # If there is a recipe object in the attribute slot, use it
+  if (class(attr(rec_obj, "rec_obj")) == "recipe")
     rec_obj <- attr(rec_obj, "rec_obj")
   # Check to make sure rec_obj is a valid recipe
   if (!inherits(rec_obj, "recipe") && !is.null(rec_obj)) {
