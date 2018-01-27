@@ -68,6 +68,7 @@ tune_models <- function(d,
                  hyperparameters) {
   # Organize arguments and defaults
   outcome <- rlang::enquo(outcome)
+  models <- tolower(models)
   # Grab data prep recipe object to add to model_list at end
   rec_obj <-
     if ("rec_obj" %in% names(attributes(d))) attr(d, "rec_obj") else NULL
