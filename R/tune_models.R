@@ -43,14 +43,16 @@
 #' ### Takes ~7 seconds
 #' # Remove identifier variables and rows with missingness,
 #' # and choose 100 rows to speed tuning
-#' d <- dplyr::select(pima_diabetes, -patient_id)
-#' d <- stats::na.omit(d)
-#' d <- dplyr::sample_n(d, 100)
+#' d <-
+#'   pima_diabetes %>%
+#'   dplyr::select(-patient_id) %>%
+#'   stats::na.omit() %>%
+#'   dplyr::sample_n(100)
 #' m <- tune_models(d, outcome = diabetes, model_class = "classification")
 #' # Plot performance over hyperparameter values for each algorithm
 #' plot(m)
 #' # Extract confusion matrix for KNN
-#' caret::confusionMatrix(m$knn, norm = "none")
+#' caret::confusionMatrix(m[[2]], norm = "none")
 #' # Compare performance of algorithms at best hyperparameter values
 #' rs <- resamples(m)
 #' dotplot(rs)
