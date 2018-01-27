@@ -155,3 +155,19 @@ format_tune <- function(best_tune) {
     purrr::map_chr(as.character) %>%
     paste(names(.), ., sep = " = ", collapse = "\n  ")
 }
+
+#' Class check
+#' @param x object
+#' @return logical
+#' @export
+is.model_list <- function(x) "model_list" %in% class(x)
+#' Class check
+#' @param x object
+#' @return logical
+#' @export
+is.classification_list <- function(x) "classification_list" %in% class(x)
+#' Class check
+#' @param x object
+#' @return logical
+#' @export
+is.regression_list <- function(x) "regression_list" %in% class(x)
