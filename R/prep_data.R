@@ -23,8 +23,8 @@
 #'   `recipes` object in the `rec_obj` attribute slot (as returned from this
 #'   function). If present, that recipe will be applied and other arguments will
 #'   be ignored.
-#' @param convert_0_1_to_factor Logical. If TRUE (default), columns that contain
-#'   only 0 and 1 will be converted to factor with levels "Y" and "N".
+#' @param outcome Optional. Unquoted column name that indicates the target
+#' variable. If this target is 0/1, it will be coerced to Y/N
 #' @param remove_near_zero_variance Logical. If TRUE (default), columns with
 #'   near-zero variance will be removed. These columns are either a single
 #'   value, or meet both of the following criteria: 1. they have very few unique
@@ -94,10 +94,10 @@
 #'                            scale = TRUE,
 #'                            dummies = TRUE)
 #'
-prep_data <- function(d = NULL,
+prep_data <- function(d,
+                      outcome = NULL,
                       ...,
                       rec_obj = NULL,
-                      convert_0_1_to_factor = TRUE,
                       remove_near_zero_variance = TRUE,
                       convert_dates = TRUE,
                       impute = TRUE,
@@ -110,6 +110,29 @@ prep_data <- function(d = NULL,
   if (!is.data.frame(d)) {
     stop("\"d\" must be a tibble or dataframe.")
   }
+
+  # If outcome is present, validate it.
+  d_ignore = NULL
+  outcome <- rlang::enquo(outcome)
+  if (length(outcome)) {
+    outcome_name <- rlang::quo_name(outcome)
+    if (!(outcome_name %in% names(d))) {
+      stop(paste(outcome_name, " not found in d."))
+    }
+    # Check if there are NAs in the target
+    if (any(is.na(dplyr::pull(d, !!outcome)))) {
+      stop(paste("Found NA values in the outcome column. Clean your data or",
+                 "remove these rows before training a model."))
+    }
+    # Change target to y/n if it's 0/1
+    if (find_0_1_cols(dplyr::select(d, !!outcome)) == outcome_name) {
+      d[outcome_name] <- ifelse(dplyr::select(d, !!outcome) == 1, 'y', 'n')
+    }
+    # Add target to d_ignore and remove from d
+    d_ignore <- dplyr::select(d, !!outcome)
+    d <- dplyr::select(d, -!!outcome)
+  }
+
   ignore_columns <- rlang::quos(...)
   if (length(ignore_columns)) {
     ignored <- purrr::map_chr(ignore_columns, rlang::quo_name)
@@ -118,7 +141,7 @@ prep_data <- function(d = NULL,
       stop(paste(ignored[!present], collapse = ", "), " not found in d.")
 
     # Separate data into ignored and not
-    d_ignore <- dplyr::select(d, !!!ignored)
+    d_ignore <- dplyr::bind_cols(d_ignore, dplyr::select(d, !!!ignored))
     d <- dplyr::select(d, -dplyr::one_of(ignored))
 
     # Warn if ignored columns have missingness
@@ -128,11 +151,10 @@ prep_data <- function(d = NULL,
       warning("These ignored variables still have missingness: ",
               paste(m$variable, collapse = ", "))
     }
-  } else {
-    d_ignore <- NULL
   }
 
-  # TODO: Refactor imputation summary in impute to be also used here.
+  # TODO: Refactor imputation summary in impute to be also used here. Or just
+  # call impute rather than hcai_impute
   prep_summary <- list("missingness" = missingness(d))
 
   # If a recipe or data frame is provided in rec_obj, skip building the recipe
@@ -152,15 +174,6 @@ prep_data <- function(d = NULL,
 
     # Find largely missing columns and convert to factors
     # rec_obj <- rec_obj %>% step_hcai_mostly_missing_to_factor()  # nolint
-
-    # Convert 0/1 columns to factors (step_bin2factor) ------------------------
-    if (convert_0_1_to_factor) {
-      cols <- find_0_1_cols(d)
-      if (!purrr::is_empty(cols)) {
-        rec_obj <- rec_obj %>%
-          recipes::step_bin2factor(!!cols, levels = c("Y", "N"))
-      }
-    }
 
     # Remove columns with near zero variance ----------------------------------
     if (remove_near_zero_variance) {
@@ -278,21 +291,21 @@ prep_data <- function(d = NULL,
   junk <- utils::capture.output(prep_summary$steps <- print(rec_obj))
   prep_summary$baked_data <- summary(rec_obj)
 
-  if (!is.null(d_ignore)) {
-    ignored_types <- purrr::map(d_ignore, function(x) {
-      if (is.numeric(x)) {
-        return("numeric")
-      } else if (is.factor(x) || is.character(x)) {
-        return("nominal")
-      }
-    })
-    prep_summary$baked_data <-
-      dplyr::bind_rows(tibble::tibble(variable = ignored,
-                                      type = as.character(ignored_types),
-                                      role = "ignored",
-                                      source = "original"),
-                       prep_summary$baked_data)
-  }
+  # if (!is.null(d_ignore)) {
+  #   ignored_types <- purrr::map(d_ignore, function(x) {
+  #     if (is.numeric(x)) {
+  #       return("numeric")
+  #     } else if (is.factor(x) || is.character(x)) {
+  #       return("nominal")
+  #     }
+  #   })
+  #   prep_summary$baked_data <-
+  #     dplyr::bind_rows(tibble::tibble(variable = ignored,
+  #                                     type = as.character(ignored_types),
+  #                                     role = "ignored",
+  #                                     source = "original"),
+  #                      prep_summary$baked_data)
+  # }
 
   # attach prep_summary to data
   attr(d, "prep_summary") <- prep_summary
