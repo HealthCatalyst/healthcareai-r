@@ -1,25 +1,23 @@
 #' Make predictions
 #'
 #' @param models model_list object, as from `tune_models`
-#' @param newdata data frame with same structure as the input to `tune_models`
-#'   that generated `models`. If the data that models were tuned on was
-#'   prepaired via `prep_data`, newdata will be prepared the same way, unless
-#'   prepdata is FALSE.
+#' @param newdata data frame with same structure as the input to `train_models`
+#'   or `tune_models` that generated `models`. If the data that models were
+#'   tuned on was prepaired via `prep_data`, newdata will be prepared the same
+#'   way, unless prepdata is FALSE.
 #' @param prepdata Logical, rarely needs to be set by the user. By default, if
 #'   `newdata` hasn't been prepped, it will be prepped by `prep_data` before
 #'   predictions are made. Set this to TRUE to force already-prepped data
 #'   through `prep_data` again, or set to FALSE to prevent `newdata` from being
 #'   sent through `prep_data`.
-#' @param ... Passed to `caret::predict.train`. For classification models,
-#'   \code{type = "raw"} will return Y/N predictions instead of class
-#'   probabilities.
-#'
 #' @return A tibble data frame: newdata with an additional column for the
 #'   predictions in "predicted_TARGET" where TARGET is the name of the variable
-#'   being predicted. The tibble will have child class "hcai_predicted_df" and
+#'   being predicted. If classification, the new column will contain predicted
+#'   probabilities. The tibble will have child class "hcai_predicted_df" and
 #'   attribute "model_info" that contains information about the model used to
 #'   make predictions.
 #' @export
+#' @importFrom caret predict.train
 #'
 #' @details prepping data inside `predict` has the advantage of returning your
 #'   predictions with the data frame in its original (unprepped) format. To do
@@ -28,27 +26,33 @@
 #'   `prep_data` or `train_models`.
 #'
 #' @examples
-predict.model_list <- function(models, newdata,
-                               type = if (class(models[[1]]) == "classification_list") "prob" else "raw",
-                               prepdata) {
+predict.model_list <- function(models, newdata, prepdata) {
   if (!inherits(newdata, "data.frame"))
     stop("newdata must be a data frame")
   mi <- extract_model_info(models)
+  best_models <- models[[mi$best_model_name]]
   # If prepdata provided by user; follow that. Else, prep if newdata hasn't been
   prep <-
     if (!missing(prepdata)) {
       prepdata
     } else {
-      !inherits(newdata, "hcai_prepped_df")
+      # Compare names and classes in training and newdata, except target...
+      same_vars <-
+        all.equal(get_classes_sorted(dplyr::select(newdata, -which(names(newdata) == mi$target))), # nolint
+                  get_classes_sorted(dplyr::select(best_models$trainingData, -.outcome))) # nolint
+      # ...If all are the same or newdata has class hcai_prepped_df, don't prep
+      !(same_vars || inherits(newdata, "hcai_prepped_df"))
     }
+  # If classification, want probabilities. If regression, raw's the only option
+  type <- if (is.classification_list(models)) "prob" else "raw"
   # This bit of repition avoids copying newdata if it's not being prepped
   preds <-
     if (prep) {
       prep_data(newdata, rec_obj = attr(models, "rec_obj")) %>%
-        predict(models[[mi$best_model_name]], ., type = type)
+        caret::predict.train(best_models, ., type = type)
     } else {
       newdata %>%
-        predict(models[[mi$best_model_name]], ., type = type)
+        caret::predict.train(best_models, ., type = type)
     }
   if (is.data.frame(preds)) preds <- dplyr::pull(preds, Y)
   newdata[[paste0("predicted_", mi$target)]] <- preds
@@ -77,4 +81,11 @@ print.hcai_predicted_df <- function(d, ...) {
   message(mes)
   tibble:::print.tbl_df(d)
   return(invisible(d))
+}
+
+#' get_classes_sorted
+#' @noRd
+get_classes_sorted <- function(d) {
+  classes <- map_chr(d, class)
+  return(classes[order(names(classes))])
 }
