@@ -110,9 +110,9 @@ prep_data <- function(d,
   if (!is.data.frame(d)) {
     stop("\"d\" must be a tibble or dataframe.")
   }
-
+  attrs <- list() # To be built and applied at end
   # If outcome is present, validate it.
-  d_ignore = NULL
+  d_ignore <- NULL
   outcome <- rlang::enquo(outcome)
   if (!rlang::quo_is_missing(outcome)) {
     outcome_name <- rlang::quo_name(outcome)
@@ -126,11 +126,13 @@ prep_data <- function(d,
     }
     # Change target to y/n if it's 0/1
     if (find_0_1_cols(dplyr::select(d, !!outcome)) == outcome_name) {
-      d[outcome_name] <- ifelse(dplyr::select(d, !!outcome) == 1, 'y', 'n')
+      d[outcome_name] <- ifelse(dplyr::select(d, !!outcome) == 1, "Y", "N")
     }
     # Add target to d_ignore and remove from d
     d_ignore <- dplyr::select(d, !!outcome)
     d <- dplyr::select(d, -!!outcome)
+    # Add attribute identifying outcome
+    attrs <- c(attrs, outcome = outcome_name)
   }
 
   ignore_columns <- rlang::quos(...)
@@ -150,9 +152,12 @@ prep_data <- function(d,
     if (!purrr::is_empty(m$variable)) {
       warning("These ignored variables still have missingness: ",
               paste(m$variable, collapse = ", "))
+
       # TODO: Refactor imputation summary in impute to be also used here. Or just
       # call impute rather than hcai_impute
     }
+    # Add attribute identifying outcome
+    attrs <- c(attrs, ignored_cols = list(unname(ignored)))
   }
 
   # If a recipe or data frame is provided in rec_obj, skip building the recipe
@@ -282,13 +287,18 @@ prep_data <- function(d,
   # Add ignore columns back in and attach recipe
   d <- dplyr::bind_cols(d_ignore, d)
   attr(d, "rec_obj") <- rec_obj
+  # Attach outcome and ignored columns as attributes
+  for (i in seq_along(attrs)) {
+    attr(d, names(attrs)[i]) <- attrs[[i]]
+  }
+
 
   # TODO: Remove unused factor levels with droplevels.
 
-  # Build up prep_data summary for verbose output.
+  # # Build up prep_data summary for verbose output.
   # junk <- utils::capture.output(prep_summary$steps <- print(rec_obj))
   # prep_summary$baked_data <- summary(rec_obj)
-
+  #
   # if (!is.null(d_ignore)) {
   #   ignored_types <- purrr::map(d_ignore, function(x) {
   #     if (is.numeric(x)) {
@@ -304,8 +314,7 @@ prep_data <- function(d,
   #                                     source = "original"),
   #                      prep_summary$baked_data)
   # }
-
-  # attach prep_summary to data
+  # # attach prep_summary to data
   # attr(d, "prep_summary") <- prep_summary
 
   # Add class signature to data frame so we can ID for imputation in deployment

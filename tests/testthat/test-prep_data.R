@@ -135,7 +135,7 @@ test_that("prep_data works with defaults and two ignore columns", {
 test_that("0/1 outcome is converted to y/n", {
   d_train$is_ween <- ifelse(d_train$is_ween == "Y", 1, 0)
   d_clean <- prep_data(d = d_train, outcome = is_ween)
-  expect_equal(levels(as.factor(d_clean$is_ween)), c("n", "y"))
+  expect_equal(levels(as.factor(d_clean$is_ween)), c("N", "Y"))
 })
 
 test_that("date columns are found and converted with defaults", {
@@ -146,7 +146,7 @@ test_that("date columns are found and converted with defaults", {
   expect_true(is.numeric(d_clean$col_DTS_year))
   expect_true(all(c("Jan", "Mar") %in% d_clean$date_col_month))
   expect_true(all(2004:2006 %in% d_clean$posixct_col_year))
-  expect_true(all(c("Sun", "Mon", "Tues") %in% d_clean$col_DTS_dow))
+  expect_true(all(c("Sun", "Mon", "Tue") %in% d_clean$col_DTS_dow))
 })
 
 test_that("convert_dates works when non default", {
@@ -204,9 +204,7 @@ test_that("near zero variance columns are removed", {
 
 test_that("impute gives warning when column has 50% or more NA", {
   d_train$reaction[1:200] <- NA
-  expect_warning(d_clean <- prep_data(d = d_train,
-                                      outcome = is_ween,
-                                      song_id),
+  expect_warning(d_clean <- prep_data(d = d_train, outcome = is_ween, song_id),
                  regexp = "reaction")
 })
 
@@ -313,10 +311,10 @@ test_that("rec_obj attr is a recipe class object", {
   expect_s3_class(attr(dd, "rec_obj"), "recipe")
 })
 
-test_that("prep_summary attr is contained within prepped data", {
-  dd <- prep_data(d_train)
-  expect_true("prep_summary" %in% names(attributes(dd)))
-})
+# test_that("prep_summary attr is contained within prepped data", {
+#   dd <- prep_data(d_train)
+#   expect_true("prep_summary" %in% names(attributes(dd)))
+# })
 
 test_that("warning is given when ignored columns have missingness", {
   expect_warning(
@@ -324,16 +322,20 @@ test_that("warning is given when ignored columns have missingness", {
     regexp = "reaction, length")
 })
 
-
-
-
-
-
+test_that("names of ignored and outcome columns get attached as attributes", {
+  d_clean <- prep_data(d = d_train, outcome = is_ween, song_id)
+  expect_true(all(c("outcome", "ignored_cols", "rec_obj") %in%
+                    names(attributes(d_clean))))
+  expect_true(attr(d_clean, "outcome") == "is_ween")
+  expect_true(attr(d_clean, "ignored_cols") == "song_id")
+  multi_ignore <- prep_data(d_train, song_id, a_nzv_col, state)
+  expect_true(all.equal(attr(multi_ignore, "ignored_cols"),
+                        c("song_id", "a_nzv_col", "state")))
+})
 
 test_that("print method works as expected", {
   dd <- prep_data(d = d_train,
                   song_id,
                   outcome = is_ween,
                   verbose = TRUE)
-
 })
