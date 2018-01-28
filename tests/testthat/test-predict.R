@@ -18,23 +18,25 @@ te <- swiss[-part, ]
 ## Except training data not prepped and newdata prepped; that shouldn't work
 # Format: m - r = reg, c = class - p = prepped, n = not
 mcp <-
-  swiss %>%
+  tr %>%
   prep_data(province, Catholic, dummies = TRUE) %>%
   dplyr::select(-province) %>%
   tune_models(Catholic)
 mcn <-
-  swiss %>%
+  tr %>%
   dplyr::select(-province) %>%
   tune_models(Catholic)
-mrp <-
-  swiss %>%
-  prep_data(province, Fertility, dummies = TRUE) %>%
-  dplyr::select(-province) %>%
-  tune_models(Fertility)
-mrn <-
-  swiss %>%
-  dplyr::select(-province) %>%
-  tune_models(Fertility)
+suppressWarnings({  # Warning when RF can't find a good cut
+  mrp <-
+    tr %>%
+    prep_data(province, Fertility, dummies = TRUE) %>%
+    dplyr::select(-province) %>%
+    tune_models(Fertility)
+  mrn <-
+    tr %>%
+    dplyr::select(-province) %>%
+    tune_models(Fertility)
+})
 # And prepped newdata to go with them
 te_reg_prep <- prep_data(te, rec_obj = mrp)
 te_class_prep <- prep_data(te, rec_obj = mcp)
@@ -61,6 +63,20 @@ test_that("predict classification returns a tibble", {
 })
 
 test_that("prepping data inside or before predict produces same output", {
-  all.equal(prpn, prpp)
-  all.equal(pcpn, pcpp)
+  expect_true(all.equal(prpn$predicted_Fertility, prpp$predicted_Fertility, prnn$predicted_Fertility))
+  expect_true(all.equal(pcpn$predicted_Catholic, pcpp$predicted_Catholic, pcnn$predicted_Catholic))
+})
+
+test_that("predictions are better than chance", {
+  # Classification: predicted probs for actual Ys are greater than for actual Ns
+  pcpn %>%
+    dplyr::group_by(Catholic) %>%
+    dplyr::summarize(mean_predicted_prob = mean(predicted_Catholic)) %>%
+    with(., mean_predicted_prob[Catholic == "Y"] >
+           mean_predicted_prob[Catholic == "N"]) %>%
+    expect_true()
+  # Regression: residuals are less than mean prediction
+  with(prpn, mean(abs(predicted_Fertility - Fertility)) <
+         mean(abs(mean(Fertility) - Fertility))) %>%
+    expect_true()
 })
