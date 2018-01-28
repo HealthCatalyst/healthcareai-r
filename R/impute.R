@@ -1,36 +1,35 @@
-#' @title
-#' Impute data and return a reusable recipe.
+#' @title Impute data and return a reusable recipe.
 #'
-#' @description
-#' \code{impute} will impute your data using a variety of methods for
-#' both nominal and numeric data. Currently supports mean (numeric only),
+#' @description \code{impute} will impute your data using a variety of methods
+#' for both nominal and numeric data. Currently supports mean (numeric only),
 #' new_category (categorical only), bagged trees, or knn.
 #'
 #' @param d A dataframe or tibble containing data to impute.
-#' @param ... Optional. Unquoted variable names to not be imputed. These will
-#' be returned unaltered.
-#' @param rec_obj Optional, a recipe object. If provided, this recipe will be
-#' applied to impute new data contained in d with values saved in the recipe.
-#' Use this param if you'd like to apply the same values used for imputation on
-#' a training dataset in production.
+#' @param ... Optional. Unquoted variable names to not be imputed. These will be
+#'   returned unaltered.
+#' @param rec_obj Optional, a recipe object or an imputed data frame (containing
+#'   a recipe object as an attribute). If provided, this recipe will be applied
+#'   to impute new data contained in d with values saved in the recipe. Use this
+#'   param if you'd like to apply the same values used for imputation on a
+#'   training dataset in production.
 #' @param numeric_method Defaults to \code{"mean"}. Other choices are
-#' \code{"bagimpute"} or \code{"knnimpute"}.
+#'   \code{"bagimpute"} or \code{"knnimpute"}.
 #' @param nominal_method Defaults to \code{"new_category"}. Other choices are
-#' \code{"bagimpute"} or \code{"knnimpute"}.
+#'   \code{"bagimpute"} or \code{"knnimpute"}.
 #' @param numeric_params A named list with parmeters to use with chosen
-#' imputation method on numeric data. Options are \code{bag_model} (bagimpute
-#' only), \code{bag_options} (bagimpute only), \code{knn_K}, (knnimpute only),
-#' \code{impute_with}, (bag or knn) or \code{seed_val} (bag or knn).
-#' See \link{step_bagimpute} or \link{step_knnimpute} for details.
+#'   imputation method on numeric data. Options are \code{bag_model} (bagimpute
+#'   only), \code{bag_options} (bagimpute only), \code{knn_K}, (knnimpute only),
+#'   \code{impute_with}, (bag or knn) or \code{seed_val} (bag or knn). See
+#'   \link{step_bagimpute} or \link{step_knnimpute} for details.
 #' @param nominal_params A named list with parmeters to use with chosen
-#' imputation method on nominal data. Options are \code{bag_model} (bagimpute
-#' only), \code{bag_options} (bagimpute only), \code{knn_K}, (knnimpute only),
-#' \code{impute_with}, (bag or knn) or \code{seed_val} (bag or knn).
-#' See \link{step_bagimpute} or \link{step_knnimpute} for details.
+#'   imputation method on nominal data. Options are \code{bag_model} (bagimpute
+#'   only), \code{bag_options} (bagimpute only), \code{knn_K}, (knnimpute only),
+#'   \code{impute_with}, (bag or knn) or \code{seed_val} (bag or knn). See
+#'   \link{step_bagimpute} or \link{step_knnimpute} for details.
 #' @param verbose Gives a print out of what will be imputed and which method
-#' will be used.
+#'   will be used.
 #' @return Imputed data frame with reusable recipe object for future imputation
-#' in attribute "rec_obj".
+#'   in attribute "rec_obj".
 #'
 #' @export
 #' @import recipes
@@ -47,7 +46,7 @@
 #' # Train imputer
 #' train_imputed <- impute(d = d_train, patient_id, diabetes)
 #' # Apply to new data
-#' impute(d = d_test, patient_id, diabetes, rec_obj = attr(d, "rec_obj"))
+#' impute(d = d_test, patient_id, diabetes, train_imputed)
 #' # Specify methods:
 #' impute(d = d_train, patient_id, diabetes, numeric_method = "bagimpute",
 #' nominal_method = "new_category")
@@ -67,15 +66,12 @@ impute <- function(d = NULL,
     stop("\"d\" must be a tibble or dataframe.")
   }
 
-  # Check to make sure rec_obj is a valid recipe
-  if (!inherits(rec_obj, "recipe") && !is.null(rec_obj)) {
-    stop("\"rec_obj\" must be a valid recipe object.")
-  }
-
   ignore_columns <- rlang::quos(...)
-
   # Save column order
   col_order <- names(d)
+
+  # If rec_obj is NULL, stays that way; else looked for in attr and validated
+  rec_obj <- check_rec_obj(rec_obj)
 
   # Display missingness and which variables will and won't be imputed
   has_missingness <-
@@ -85,7 +81,8 @@ impute <- function(d = NULL,
   ignored <- purrr::map_chr(ignore_columns, rlang::quo_name)
   missingness_ignored <- split(has_missingness,
                                has_missingness$variable %in% ignored)
-
+  if (!length(missingness_ignored))
+    imp_summary <- "No imputation needed -- all variables fully present!"
   if ("FALSE" %in% names(missingness_ignored)) {
     imp_summary <- missingness_ignored[["FALSE"]] %>%
       dplyr::mutate(imputation_method_used =

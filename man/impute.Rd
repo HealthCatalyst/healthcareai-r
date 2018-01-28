@@ -11,13 +11,14 @@ impute(d = NULL, ..., rec_obj = NULL, numeric_method = "mean",
 \arguments{
 \item{d}{A dataframe or tibble containing data to impute.}
 
-\item{...}{Optional. Unquoted variable names to not be imputed. These will
-be returned unaltered.}
+\item{...}{Optional. Unquoted variable names to not be imputed. These will be
+returned unaltered.}
 
-\item{rec_obj}{Optional, a recipe object. If provided, this recipe will be
-applied to impute new data contained in d with values saved in the recipe.
-Use this param if you'd like to apply the same values used for imputation on
-a training dataset in production.}
+\item{rec_obj}{Optional, a recipe object or an imputed data frame (containing
+a recipe object as an attribute). If provided, this recipe will be applied
+to impute new data contained in d with values saved in the recipe. Use this
+param if you'd like to apply the same values used for imputation on a
+training dataset in production.}
 
 \item{numeric_method}{Defaults to \code{"mean"}. Other choices are
 \code{"bagimpute"} or \code{"knnimpute"}.}
@@ -28,25 +29,25 @@ a training dataset in production.}
 \item{numeric_params}{A named list with parmeters to use with chosen
 imputation method on numeric data. Options are \code{bag_model} (bagimpute
 only), \code{bag_options} (bagimpute only), \code{knn_K}, (knnimpute only),
-\code{impute_with}, (bag or knn) or \code{seed_val} (bag or knn).
-See \link{step_bagimpute} or \link{step_knnimpute} for details.}
+\code{impute_with}, (bag or knn) or \code{seed_val} (bag or knn). See
+\link{step_bagimpute} or \link{step_knnimpute} for details.}
 
 \item{nominal_params}{A named list with parmeters to use with chosen
 imputation method on nominal data. Options are \code{bag_model} (bagimpute
 only), \code{bag_options} (bagimpute only), \code{knn_K}, (knnimpute only),
-\code{impute_with}, (bag or knn) or \code{seed_val} (bag or knn).
-See \link{step_bagimpute} or \link{step_knnimpute} for details.}
+\code{impute_with}, (bag or knn) or \code{seed_val} (bag or knn). See
+\link{step_bagimpute} or \link{step_knnimpute} for details.}
 
 \item{verbose}{Gives a print out of what will be imputed and which method
 will be used.}
 }
 \value{
 Imputed data frame with reusable recipe object for future imputation
-in attribute "rec_obj".
+  in attribute "rec_obj".
 }
 \description{
-\code{impute} will impute your data using a variety of methods for
-both nominal and numeric data. Currently supports mean (numeric only),
+\code{impute} will impute your data using a variety of methods
+for both nominal and numeric data. Currently supports mean (numeric only),
 new_category (categorical only), bagged trees, or knn.
 }
 \examples{
@@ -58,7 +59,7 @@ d_test <- d[701:768, ]
 # Train imputer
 train_imputed <- impute(d = d_train, patient_id, diabetes)
 # Apply to new data
-impute(d = d_test, patient_id, diabetes, rec_obj = attr(d, "rec_obj"))
+impute(d = d_test, patient_id, diabetes, train_imputed)
 # Specify methods:
 impute(d = d_train, patient_id, diabetes, numeric_method = "bagimpute",
 nominal_method = "new_category")

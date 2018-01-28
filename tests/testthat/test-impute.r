@@ -193,3 +193,15 @@ test_that("print method works as expected", {
   expect_true(grepl("ignored", msg))
   expect_true(grepl("new_category", msg))
 })
+
+test_that("a data.frame with a rec_obj in rec_obj slot works", {
+  imp_train <- impute(d_train)
+  expect_equal(impute(d_test, rec_obj = imp_train),
+               impute(d_test, rec_obj = attr(imp_train, "rec_obj")))
+})
+
+test_that("an attr that doesn't exist passed to rec_obj errors", {
+  imp_train <- impute(d_train)
+  expect_error(impute(d_test, rec_obj = attr(imp_train, "nonsense")),
+               regexp = "nonsense")
+})

@@ -94,12 +94,12 @@ prep.step_hcai_missing <- function(x, training, info = NULL, ...) {
 
   # Give warnings about greater than 50% null
   if (any(na_percentage > 50)) {
-    message("The following categorical columns have greater than 50% missing ",
-            "values and will be filled with the category 'hcai_missing':")
-    message(paste0(names(na_percentage[na_percentage > 50]),
-                   ": ",
-                   round(na_percentage[na_percentage > 50], 2), "%",
-                   collapse = "\n"))
+    warn_deets <-
+      paste0(names(na_percentage[na_percentage > 50]), ": ",
+            round(na_percentage[na_percentage > 50], 0), "%", collapse = "\n")
+    warning("The following categorical columns have greater than 50% missing ",
+            "values and will be filled with the category 'hcai_missing':\n",
+            warn_deets)
   }
 
   step_hcai_missing_new(
@@ -114,8 +114,12 @@ prep.step_hcai_missing <- function(x, training, info = NULL, ...) {
 #' @importFrom stats setNames
 #' @export
 bake.step_hcai_missing <- function(object, newdata, ...) {
-  vars <- names(object$na_percentage)
 
+  # If no columns to be imputed, return the input data
+  if (is.null(object$na_percentage))
+    return(newdata)
+
+  vars <- names(object$na_percentage)
   # Add new level to all factors
   newdata[vars] <- lapply(newdata[vars], function(x){
     levels(x) <- c(levels(x), "hcai_missing")
@@ -127,7 +131,7 @@ bake.step_hcai_missing <- function(object, newdata, ...) {
     rep("hcai_missing", length(vars)) %>%
     as.list %>%
     setNames(vars)
-  newdata <- newdata %>%
+  newdata %>%
     replace_na(replacement_list)
 }
 
