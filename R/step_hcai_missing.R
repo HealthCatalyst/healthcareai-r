@@ -94,12 +94,12 @@ prep.step_hcai_missing <- function(x, training, info = NULL, ...) {
 
   # Give warnings about greater than 50% null
   if (any(na_percentage > 50)) {
-    message("The following categorical columns have greater than 50% missing ",
-            "values and will be filled with the category 'hcai_missing':")
-    message(paste0(names(na_percentage[na_percentage > 50]),
-                   ": ",
-                   round(na_percentage[na_percentage > 50], 2), "%",
-                   collapse = "\n"))
+    warn_deets <-
+      paste0(names(na_percentage[na_percentage > 50]), ": ",
+            round(na_percentage[na_percentage > 50], 0), "%", collapse = "\n")
+    warning("The following categorical columns have greater than 50% missing ",
+            "values and will be filled with the category 'hcai_missing':\n",
+            warn_deets)
   }
 
   step_hcai_missing_new(
