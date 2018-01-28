@@ -95,8 +95,8 @@
 #'                            dummies = TRUE)
 #'
 prep_data <- function(d,
-                      outcome = NULL,
                       ...,
+                      outcome,
                       rec_obj = NULL,
                       remove_near_zero_variance = TRUE,
                       convert_dates = TRUE,
@@ -114,7 +114,7 @@ prep_data <- function(d,
   # If outcome is present, validate it.
   d_ignore = NULL
   outcome <- rlang::enquo(outcome)
-  if (length(outcome)) {
+  if (!rlang::quo_is_missing(outcome)) {
     outcome_name <- rlang::quo_name(outcome)
     if (!(outcome_name %in% names(d))) {
       stop(paste(outcome_name, " not found in d."))

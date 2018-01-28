@@ -92,6 +92,16 @@ test_that("Bad ignored columns throws an error", {
                regexp = "not found in d")
 })
 
+test_that("prep_data works with just param d", {
+  d_clean <- prep_data(d = d_train)
+
+  expect_equal(unique(d_clean$weirdness[is.na(d_train$weirdness)]),
+               mean(d_train$weirdness, na.rm = TRUE))
+  expect_true(all.equal(droplevels(d_clean$genre[!is.na(d_train$genre)]),
+                        d_train$genre[!is.na(d_train$genre)]))
+  expect_true(all(d_clean$genre[is.na(d_train$genre)] == "hcai_missing"))
+})
+
 test_that("prep_data works with defaults and no ignore columns", {
   d_clean <- prep_data(d = d_train, outcome = is_ween)
 
@@ -266,10 +276,6 @@ test_that("dummy columns are created as expected", {
 
   exp <- c("genre_Jazz", "genre_Rock", "genre_hcai_missing")
   n <- names(dplyr::select(d_clean, starts_with("genre")))
-  expect_true(all(n == exp))
-
-  exp <- c("guitar_flag_N", "guitar_flag_other")
-  n <- names(dplyr::select(d_clean, starts_with("guitar")))
   expect_true(all(n == exp))
 
   exp <- c("reaction_Huh", "reaction_Love", "reaction_Mixed",
