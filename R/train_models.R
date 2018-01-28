@@ -1,3 +1,15 @@
+#' Title
+#'
+#' @param d
+#' @param outcome
+#' @param ...
+#' @param models
+#' @param impute
+#'
+#' @return
+#' @export
+#'
+#' @examples
 train_models <- function(d, outcome, ..., models = c("rf", "knn"), impute = TRUE) {
   outcome <- rlang::enquo(outcome)
   y <- dplyr::pull(d, !!outcome)
