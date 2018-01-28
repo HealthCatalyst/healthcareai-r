@@ -105,6 +105,6 @@ print.hcai_predicted_df <- function(d, ...) {
 #' get_classes_sorted
 #' @noRd
 get_classes_sorted <- function(d) {
-  classes <- map_chr(d, class)
+  classes <- purrr::map_chr(d, class)
   return(classes[order(names(classes))])
 }
