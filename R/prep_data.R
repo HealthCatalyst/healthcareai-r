@@ -141,7 +141,7 @@ prep_data <- function(d,
       stop(paste(ignored[!present], collapse = ", "), " not found in d.")
 
     # Separate data into ignored and not
-    d_ignore <- dplyr::bind_cols(d_ignore, dplyr::select(d, !!!ignored))
+    d_ignore <- dplyr::bind_cols(d_ignore, dplyr::select(d, !!ignored))
     d <- dplyr::select(d, -dplyr::one_of(ignored))
 
     # Warn if ignored columns have missingness

@@ -72,7 +72,7 @@ d_train$genre[3] <- d_test$genre[3] <- NA
 # Tests ------------------------------------------------------------------------
 test_that("Bad data throws an error", {
   expect_error(prep_data(),
-               regexp = "\"d\" must be a tibble")
+               regexp = "\"d\" is missing")
   expect_error(prep_data(d = "yeah hi!"),
                regexp = "\"d\" must be a tibble")
 })
@@ -92,6 +92,36 @@ test_that("Bad ignored columns throws an error", {
                regexp = "not found in d")
 })
 
+test_that("prep_data works with defaults and no ignore columns", {
+  d_clean <- prep_data(d = d_train, outcome = is_ween)
+
+  expect_equal(unique(d_clean$weirdness[is.na(d_train$weirdness)]),
+               mean(d_train$weirdness, na.rm = TRUE))
+  expect_true(all.equal(droplevels(d_clean$genre[!is.na(d_train$genre)]),
+                        d_train$genre[!is.na(d_train$genre)]))
+  expect_true(all(d_clean$genre[is.na(d_train$genre)] == "hcai_missing"))
+})
+
+test_that("prep_data works with defaults and one ignore column", {
+  d_clean <- prep_data(d = d_train, outcome = is_ween, song_id)
+
+  expect_equal(unique(d_clean$weirdness[is.na(d_train$weirdness)]),
+               mean(d_train$weirdness, na.rm = TRUE))
+  expect_true(all.equal(droplevels(d_clean$genre[!is.na(d_train$genre)]),
+                        d_train$genre[!is.na(d_train$genre)]))
+  expect_true(all(d_clean$genre[is.na(d_train$genre)] == "hcai_missing"))
+})
+
+test_that("prep_data works with defaults and two ignore columns", {
+  d_clean <- prep_data(d = d_train, outcome = is_ween, song_id, state)
+
+  expect_equal(unique(d_clean$weirdness[is.na(d_train$weirdness)]),
+               mean(d_train$weirdness, na.rm = TRUE))
+  expect_true(all.equal(droplevels(d_clean$genre[!is.na(d_train$genre)]),
+                        d_train$genre[!is.na(d_train$genre)]))
+  expect_true(all(d_clean$genre[is.na(d_train$genre)] == "hcai_missing"))
+})
+
 test_that("0/1 outcome is converted to y/n", {
   d_train$is_ween <- ifelse(d_train$is_ween == "Y", 1, 0)
   d_clean <- prep_data(d = d_train, outcome = is_ween)
@@ -106,7 +136,7 @@ test_that("date columns are found and converted with defaults", {
   expect_true(is.numeric(d_clean$col_DTS_year))
   expect_true(all(c("Jan", "Mar") %in% d_clean$date_col_month))
   expect_true(all(2004:2006 %in% d_clean$posixct_col_year))
-  expect_true(all(c("Sun", "Mon", "Tue") %in% d_clean$col_DTS_dow))
+  expect_true(all(c("Sun", "Mon", "Tues") %in% d_clean$col_DTS_dow))
 })
 
 test_that("convert_dates works when non default", {
@@ -126,15 +156,6 @@ test_that("convert_dates removes date columns when false", {
   expect_true(!all(c("date_col", "posixct_col", "col_DTS") %in% names(dd)))
 })
 
-test_that("prep_data works with defaults", {
-  d_clean <- prep_data(d = d_train, outcome = is_ween, song_id)
-
-  expect_equal(unique(d_clean$weirdness[is.na(d_train$weirdness)]),
-               mean(d_train$weirdness, na.rm = TRUE))
-  expect_true(all.equal(droplevels(d_clean$genre[!is.na(d_train$genre)]),
-                        d_train$genre[!is.na(d_train$genre)]))
-  expect_true(all(d_clean$genre[is.na(d_train$genre)] == "hcai_missing"))
-})
 
 test_that("prep_data applies recipe from training on test data", {
   d_clean <- prep_data(d = d_train, outcome = is_ween, song_id)
