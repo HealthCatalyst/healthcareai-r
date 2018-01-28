@@ -4,31 +4,27 @@
 \alias{predict.model_list}
 \title{Make predictions}
 \usage{
-\method{predict}{model_list}(models, newdata, type = if (class(models[[1]]) ==
-  "classification_list") "prob" else "raw", prepdata)
+\method{predict}{model_list}(models, newdata, prepdata)
 }
 \arguments{
 \item{models}{model_list object, as from `tune_models`}
 
-\item{newdata}{data frame with same structure as the input to `tune_models`
-that generated `models`. If the data that models were tuned on was
-prepaired via `prep_data`, newdata will be prepared the same way, unless
-prepdata is FALSE.}
+\item{newdata}{data frame with same structure as the input to `train_models`
+or `tune_models` that generated `models`. If the data that models were
+tuned on was prepaired via `prep_data`, newdata will be prepared the same
+way, unless prepdata is FALSE.}
 
 \item{prepdata}{Logical, rarely needs to be set by the user. By default, if
 `newdata` hasn't been prepped, it will be prepped by `prep_data` before
 predictions are made. Set this to TRUE to force already-prepped data
 through `prep_data` again, or set to FALSE to prevent `newdata` from being
 sent through `prep_data`.}
-
-\item{...}{Passed to `caret::predict.train`. For classification models,
-\code{type = "raw"} will return Y/N predictions instead of class
-probabilities.}
 }
 \value{
 A tibble data frame: newdata with an additional column for the
   predictions in "predicted_TARGET" where TARGET is the name of the variable
-  being predicted. The tibble will have child class "hcai_predicted_df" and
+  being predicted. If classification, the new column will contain predicted
+  probabilities. The tibble will have child class "hcai_predicted_df" and
   attribute "model_info" that contains information about the model used to
   make predictions.
 }
@@ -41,4 +37,24 @@ prepping data inside `predict` has the advantage of returning your
   this, simply pass the data frame on which predictions are to be generated
   to `newdata` in the same format as the training data was passed to
   `prep_data` or `train_models`.
+}
+\examples{
+library(dplyr)
+# Make a small, 50 row data frame with no missingness
+small_data <-
+  pima_diabetes \%>\%
+  stats::na.omit() \%>\%
+  sample_n(50)
+# Split the data into 80\% for model training and 20\% for testing
+train_rows <- caret::createDataPartition(small_data$skinfold, p = .8)[[1]]
+training <- slice(small_data, train_rows)
+testing <- slice(small_data, -train_rows)
+# Prepare the training data by centering and scaling numeric variables
+# and one-hot encoding categorical variables
+prepped_training <- prep_data(training, skinfold, patient_id,
+                              center = TRUE, scale = TRUE, dummies = TRUE)
+Tune models. Because patient_id was ignored it has to be removed
+models <- tune_models(select(prepped_training, -patient_id), skinfold)
+predictions <- predict(models, testing)
+predictions$predicted_skinfold
 }
