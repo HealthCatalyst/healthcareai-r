@@ -3,7 +3,11 @@
 find_0_1_cols <- function(d) {
   # Returns names of columns that have only 0/1 in them.
   cols <- purrr::map_lgl(d, ~ all(.x %in% c(0L, 1L, NA_integer_)))
-  return(names(d)[cols])
+  if (any(cols == TRUE)) {
+    return(names(d)[cols])
+  } else {
+    return(FALSE)
+  }
 }
 
 #' Returns names of columns that are more than 80% missing by default.
