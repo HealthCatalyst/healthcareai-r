@@ -171,7 +171,7 @@ test_that("prep_data applies recipe from training on test data", {
   d_clean <- prep_data(d = d_train, outcome = is_ween, song_id)
 
   d_clean_test <- prep_data(d_test, outcome = is_ween, song_id,
-                          rec_obj = attr(d_clean, "rec_obj"))
+                            rec_obj = attr(d_clean, "rec_obj"))
   d_clean_test2 <- prep_data(d_test, outcome = is_ween, song_id,
                              rec_obj = d_clean)
 
@@ -196,10 +196,18 @@ test_that("prep_data works when certain column types are missing", {
 
 test_that("near zero variance columns are removed", {
   d_clean <- prep_data(d = d_train,
-                         outcome = is_ween,
-                         song_id)
+                       outcome = is_ween,
+                       song_id)
 
   expect_true(is.null(d_clean$a_nzv_col))
+})
+
+test_that("impute gives warning when column has 50% or more NA", {
+  d_train$reaction[1:200] <- NA
+  expect_warning(d_clean <- prep_data(d = d_train,
+                                      outcome = is_ween,
+                                      song_id),
+                 regexp = "reaction")
 })
 
 test_that("impute works with params", {
@@ -216,9 +224,9 @@ test_that("impute works with params", {
 
 test_that("impute works with partial/extra params", {
   d_clean <- prep_data(d = d_train,
-                         outcome = is_ween,
-                         song_id,
-                         impute = list(numeric_method = "bagimpute"))
+                       outcome = is_ween,
+                       song_id,
+                       impute = list(numeric_method = "bagimpute"))
   m <- missingness(d_clean)
   expect_true(all(m$percent_missing == 0))
 
@@ -233,15 +241,24 @@ test_that("impute works with partial/extra params", {
 })
 
 
-test_that("rare factors go to other", {
+test_that("rare factors go to other by default", {
   d_clean <- prep_data(d = d_train,
-                         outcome = is_ween,
-                         song_id)
+                       outcome = is_ween,
+                       song_id)
 
   exp <- c("CA", "CT", "MA", "NY", "other")
   expect_equal(levels(d_clean$state), exp)
   exp <- c("Dislike", "Huh", "Love", "Mixed", "hcai_missing")
   expect_equal(levels(d_clean$reaction), exp)
+})
+
+test_that("rare factors unchanged when FALSE", {
+  d_clean <- prep_data(d = d_train,
+                       outcome = is_ween,
+                       song_id,
+                       collapse_rare_factors = FALSE)
+  exp <- c("CA", "CT", "MA", "NH", "NY", "VT", "hcai_missing")
+  expect_equal(levels(d_clean$state), exp)
 })
 
 test_that("rare factors go to other when a threshold is specified", {
@@ -304,13 +321,19 @@ test_that("prep_summary attr is contained within prepped data", {
 test_that("warning is given when ignored columns have missingness", {
   expect_warning(
     prep_data(d_train, reaction, length),
-  regexp = "reaction, length")
+    regexp = "reaction, length")
 })
+
+
+
+
+
+
 
 test_that("print method works as expected", {
   dd <- prep_data(d = d_train,
-                song_id,
-                outcome = is_ween,
-                verbose = TRUE)
+                  song_id,
+                  outcome = is_ween,
+                  verbose = TRUE)
 
 })

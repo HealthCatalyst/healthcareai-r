@@ -150,12 +150,10 @@ prep_data <- function(d,
     if (!purrr::is_empty(m$variable)) {
       warning("These ignored variables still have missingness: ",
               paste(m$variable, collapse = ", "))
+      # TODO: Refactor imputation summary in impute to be also used here. Or just
+      # call impute rather than hcai_impute
     }
   }
-
-  # TODO: Refactor imputation summary in impute to be also used here. Or just
-  # call impute rather than hcai_impute
-  prep_summary <- list("missingness" = missingness(d))
 
   # If a recipe or data frame is provided in rec_obj, skip building the recipe
   if (!is.null(rec_obj)) {
@@ -288,8 +286,8 @@ prep_data <- function(d,
   # TODO: Remove unused factor levels with droplevels.
 
   # Build up prep_data summary for verbose output.
-  junk <- utils::capture.output(prep_summary$steps <- print(rec_obj))
-  prep_summary$baked_data <- summary(rec_obj)
+  # junk <- utils::capture.output(prep_summary$steps <- print(rec_obj))
+  # prep_summary$baked_data <- summary(rec_obj)
 
   # if (!is.null(d_ignore)) {
   #   ignored_types <- purrr::map(d_ignore, function(x) {
@@ -308,7 +306,7 @@ prep_data <- function(d,
   # }
 
   # attach prep_summary to data
-  attr(d, "prep_summary") <- prep_summary
+  # attr(d, "prep_summary") <- prep_summary
 
   # Add class signature to data frame so we can ID for imputation in deployment
   class(d) <- c("hcai_prepped_df", class(d))
