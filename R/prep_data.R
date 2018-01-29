@@ -238,42 +238,49 @@ prep_data <- function(d,
       stop("impute must be boolean or list.")
     }
 
-    # Collapse rare factors into "other" --------------------------------------
-    if (!is.logical(collapse_rare_factors)) {
-      if (!is.numeric(collapse_rare_factors))
-        stop("collapse_rare_factors must be logical or numeric")
-      if (collapse_rare_factors >= 1 || collapse_rare_factors < 0)
-        stop("If numeric, collapse_rare_factors should be between 0 and 1.")
-      fac_thresh <- collapse_rare_factors
-      collapse_rare_factors <- TRUE
-    }
-    if (collapse_rare_factors) {
-      if (!exists("fac_thresh"))
-        fac_thresh <- 0.03
-      recipe <- recipe %>%
-        recipes::step_other(all_nominal(), - all_outcomes(),
-                            threshold = fac_thresh)
-    }
+    # If there are nominal predictors, apply nominal transformations
+    var_info <- recipe$var_info
+    if (any(var_info$type == "nominal" & var_info$role == "predictor")) {
+      # Collapse rare factors into "other" --------------------------------------
+      if (!is.logical(collapse_rare_factors)) {
+        if (!is.numeric(collapse_rare_factors))
+          stop("collapse_rare_factors must be logical or numeric")
+        if (collapse_rare_factors >= 1 || collapse_rare_factors < 0)
+          stop("If numeric, collapse_rare_factors should be between 0 and 1.")
+        fac_thresh <- collapse_rare_factors
+        collapse_rare_factors <- TRUE
+      }
+      if (collapse_rare_factors) {
+        if (!exists("fac_thresh"))
+          fac_thresh <- 0.03
+        recipe <- recipe %>%
+          recipes::step_other(all_nominal(), - all_outcomes(),
+                              threshold = fac_thresh)
+      }
 
-    # Log transform
-    # Saving until columns can be specified
-
-    # Center ------------------------------------------------------------------
-    if (center) {
-      recipe <- recipe %>%
-        recipes::step_center(all_numeric(), - all_outcomes())
-    }
-
-    # Scale -------------------------------------------------------------------
-    if (scale) {
-      recipe <- recipe %>%
-        recipes::step_scale(all_numeric(), - all_outcomes())
+      # make_dummies -----------------------------------------------------------------
+      if (make_dummies) {
+        recipe <- recipe %>%
+          recipes::step_dummy(all_nominal(), - all_outcomes())
+      }
     }
 
-    # make_dummies -----------------------------------------------------------------
-    if (make_dummies) {
-      recipe <- recipe %>%
-        recipes::step_dummy(all_nominal(), - all_outcomes())
+    if (any(var_info$type == "numeric" & var_info$role == "predictor")) {
+
+      # Log transform
+      # Saving until columns can be specified
+
+      # Center ------------------------------------------------------------------
+      if (center) {
+        recipe <- recipe %>%
+          recipes::step_center(all_numeric(), - all_outcomes())
+      }
+
+      # Scale -------------------------------------------------------------------
+      if (scale) {
+        recipe <- recipe %>%
+          recipes::step_scale(all_numeric(), - all_outcomes())
+      }
     }
 
     # Prep the newly built recipe ---------------------------------------------
