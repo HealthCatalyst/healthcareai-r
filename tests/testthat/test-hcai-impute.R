@@ -49,18 +49,18 @@ train_index <- caret::createDataPartition(
 d_train <- df[train_index$Resample1, ]
 d_test <- df[-train_index$Resample1, ]
 
-rec_obj <- recipe(hot_dog ~ ., data = d_train)
+recipe <- recipe(hot_dog ~ ., data = d_train)
 
 # Tests ------------------------------------------------------------------------
-test_that("Bad rec_obj throws an error", {
+test_that("Bad recipe throws an error", {
   expect_error(hcai_impute(),
-               regexp = "argument \"rec_obj\" is missing, with no default")
-  expect_error(hcai_impute(rec_obj = "yeah hi!"),
-               regexp = "rec_obj must be recipe object")
+               regexp = "argument \"recipe\" is missing, with no default")
+  expect_error(hcai_impute(recipe = "yeah hi!"),
+               regexp = "recipe must be recipe object")
 })
 
 test_that("Defaults return mean on numeric, hcai on nominal", {
-  rec_obj_new <- rec_obj %>%
+  rec_obj_new <- recipe %>%
     hcai_impute()
 
   expect_equal(class(rec_obj_new$steps[[1]])[1], "step_meanimpute")
@@ -69,12 +69,12 @@ test_that("Defaults return mean on numeric, hcai on nominal", {
 
 test_that("Non-supported methods throw errors.", {
   expect_error(
-    rec_obj %>%
+    recipe %>%
       hcai_impute(numeric_method = "guess"),
     regexp = "non-supported numeric method"
   )
   expect_error(
-    rec_obj %>%
+    recipe %>%
       hcai_impute(nominal_method = "guess"),
     regexp = "non-supported nominal method"
   )
@@ -82,13 +82,13 @@ test_that("Non-supported methods throw errors.", {
 
 test_that("Non-supported params throw warnings.", {
   expect_warning(
-    rec_obj %>%
+    recipe %>%
       hcai_impute(numeric_method = "knnimpute",
         numeric_params = list(knn_K = 5, more_cowbell = TRUE)),
     regexp = "more_cowbell"
   )
   expect_warning(
-    rec_obj %>%
+    recipe %>%
       hcai_impute(nominal_method = "bagimpute",
                   nominal_params = list(bag_model = "m", prune = TRUE)),
     regexp = "prune"
@@ -96,32 +96,32 @@ test_that("Non-supported params throw warnings.", {
 })
 
 test_that("bag impute called on both types", {
-  rec_obj_new <- rec_obj %>%
+  rec_obj_new <- recipe %>%
     hcai_impute(numeric_method = "bagimpute")
   expect_equal(class(rec_obj_new$steps[[1]])[1], "step_bagimpute")
 
-  rec_obj_new <- rec_obj %>%
+  rec_obj_new <- recipe %>%
     hcai_impute(nominal_method = "bagimpute")
   expect_equal(class(rec_obj_new$steps[[2]])[1], "step_bagimpute")
 })
 
 test_that("knnimpute impute called on both types", {
-  rec_obj_new <- rec_obj %>%
+  rec_obj_new <- recipe %>%
     hcai_impute(numeric_method = "knnimpute")
   expect_equal(class(rec_obj_new$steps[[1]])[1], "step_knnimpute")
 
-  rec_obj_new <- rec_obj %>%
+  rec_obj_new <- recipe %>%
     hcai_impute(nominal_method = "knnimpute")
   expect_equal(class(rec_obj_new$steps[[2]])[1], "step_knnimpute")
 })
 
 test_that("API takes knnimpute and bagimpute params", {
-  rec_obj_new <- rec_obj %>%
+  rec_obj_new <- recipe %>%
     hcai_impute(numeric_method = "knnimpute",
                 numeric_params = list(knn_K = 3))
   expect_equal(rec_obj_new$steps[[1]]$K, 3)
 
-  rec_obj_new <- rec_obj %>%
+  rec_obj_new <- recipe %>%
     hcai_impute(nominal_method = "bagimpute",
                 nominal_params = list(bag_options = list(nbagg = 10,
                   keepX = FALSE)))
@@ -129,7 +129,7 @@ test_that("API takes knnimpute and bagimpute params", {
 })
 
 test_that("Default imputation methods bake expected results", {
-  res <- capture_output(d_imputed <- rec_obj %>%
+  res <- capture_output(d_imputed <- recipe %>%
     hcai_impute() %>%
     prep(training = d_train) %>%
     bake(newdata = d_test))
@@ -138,7 +138,7 @@ test_that("Default imputation methods bake expected results", {
 })
 
 test_that("knn imputation bakes expected results", {
-  res <- capture_output(d_imputed <- rec_obj %>%
+  res <- capture_output(d_imputed <- recipe %>%
                           hcai_impute(numeric_method = "knnimpute",
                             nominal_method = "knnimpute") %>%
                           prep(training = d_train) %>%
@@ -148,7 +148,7 @@ test_that("knn imputation bakes expected results", {
 })
 
 test_that("bag imputation bakes expected results", {
-  res <- capture_output(d_imputed <- rec_obj %>%
+  res <- capture_output(d_imputed <- recipe %>%
                           hcai_impute(numeric_method = "bagimpute",
                             nominal_method = "bagimpute",
                             numeric_params = list(seed_val = 30),
@@ -175,8 +175,8 @@ test_that("random columns don't get imputed", {
   d_test <- df[-train_index$Resample1, ]
 
   # trees
-  rec_obj <- recipe(hot_dog ~ ., data = d_train)
-  res <- capture_output(d_imputed <- rec_obj %>%
+  recipe <- recipe(hot_dog ~ ., data = d_train)
+  res <- capture_output(d_imputed <- recipe %>%
                           hcai_impute(numeric_method = "bagimpute",
                                       nominal_method = "bagimpute",
                                       numeric_params = list(seed_val = 30),
@@ -187,8 +187,8 @@ test_that("random columns don't get imputed", {
   expect_true(any(missingness(d_imputed, return_df = FALSE) != 0))
 
   # knn
-  rec_obj <- recipe(hot_dog ~ ., data = d_train)
-  res <- capture_output(prepped <- rec_obj %>%
+  recipe <- recipe(hot_dog ~ ., data = d_train)
+  res <- capture_output(prepped <- recipe %>%
                           hcai_impute(numeric_method = "knnimpute",
                                       nominal_method = "knnimpute") %>%
                           prep(training = d_train))
@@ -196,18 +196,18 @@ test_that("random columns don't get imputed", {
   expect_error(prepped %>% bake(newdata = d_test))
 })
 
-test_that("all nominal or numeric columns throw warning and add 1 step", {
-  d_num <- d_train[, 1:4]
-  expect_warning(rec_obj <- recipe(~ ., data = d_num) %>%
-    hcai_impute(),
-    regexp = "All variables are numeric")
-  capture_output(res <- prep(rec_obj, training = d_num))
-  expect_equal(length(res$steps), 1)
+test_that("all nominal or all numeric columns add 1 step", {
+  num_dat <- dplyr::select_if(d_train, is.numeric)
+  rec <-
+    recipe( ~ ., num_dat) %>%
+    hcai_impute() %>%
+    prep(training = num_dat)
+  expect_equal(length(rec$steps), 1)
 
-  d_nom <- d_train[, 5:7]
-  expect_warning(rec_obj <- recipe(~ ., data = d_nom) %>%
-                   hcai_impute(),
-                 regexp = "All variables are nominal")
-  capture_output(res <- prep(rec_obj, training = d_nom))
-  expect_equal(length(res$steps), 1)
+  nom_dat <- dplyr::select_if(d_train, function(x) is.character(x) | is.factor(x))
+  rec <-
+    recipe( ~ ., nom_dat) %>%
+    hcai_impute() %>%
+    prep(training = nom_dat)
+  expect_equal(length(rec$steps), 1)
 })

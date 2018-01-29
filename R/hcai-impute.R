@@ -4,7 +4,7 @@
 #' @description `hcai-impute` adds various imputation methods to an existing
 #' recipe. Currently supports mean (numeric only), new_category (categorical
 #' only), bagged trees, or knn.
-#' @param rec_obj A recipe object. imputation will be added to the sequence of
+#' @param recipe A recipe object. imputation will be added to the sequence of
 #'  operations for this recipe.
 #' @param numeric_method Defaults to \code{"mean"}. Other choices are
 #' \code{"bagimpute"} or \code{"knnimpute"}.
@@ -66,14 +66,14 @@
 #'   hcai_impute(numeric_method = "knnimpute",
 #'     numeric_params = list(knn_K = 4))
 #' my_recipe
-hcai_impute <- function(rec_obj,
+hcai_impute <- function(recipe,
                         numeric_method = "mean",
                         nominal_method = "new_category",
                         numeric_params = NULL,
                         nominal_params = NULL) {
-  # Check to make sure rec_obj is the right type
-  if (!inherits(rec_obj, "recipe")) {
-    stop("rec_obj must be recipe object"
+  # Check to make sure recipe is the right type
+  if (!inherits(recipe, "recipe")) {
+    stop("recipe must be recipe object"
     )
   }
 
@@ -103,36 +103,34 @@ hcai_impute <- function(rec_obj,
 
   # Warn if extra bag names
   available_param_names <- c("bag_model", "bag_options", "knn_K", "impute_with",
-    "seed_val")
+                             "seed_val")
   all_user_params <- names(c(numeric_params, nominal_params))
   extras  <- all_user_params[!(all_user_params %in% available_param_names)]
   if (length(extras > 0)) {
     warning("You have extra imputation parameters that won't be used: ",
-      paste(extras, collapse = ", "),
-      ". Available params are: ", paste(available_param_names, collapse = ", "))
+            paste(extras, collapse = ", "),
+            ". Available params are: ", paste(available_param_names, collapse = ", "))
   }
 
   # Catch datasets of only one type
-  all_nominal <- !any(rec_obj$var_info$type == "numeric")
-  all_numeric <- !any(rec_obj$var_info$type == "nominal")
+  all_nominal <- !any(recipe$var_info$type == "numeric")
+  all_numeric <- !any(recipe$var_info$type == "nominal")
 
   # Numerics
-  if (all_nominal) {
-    warning("All variables are nominal, numeric methods won't be used.")
-  } else {
+  if (!all_nominal) {
     if (numeric_method == "mean") {
-      rec_obj <- step_meanimpute(rec_obj, all_numeric())
+      recipe <- step_meanimpute(recipe, all_numeric())
     } else if (numeric_method == "bagimpute") {
-      rec_obj <- step_bagimpute(
-        rec_obj,
+      recipe <- step_bagimpute(
+        recipe,
         all_numeric(), - all_outcomes(),
         models = num_p$bag_model,
         options = num_p$bag_options,
         impute_with = num_p$impute_with,
         seed_val = num_p$seed_val)
     } else if (numeric_method == "knnimpute") {
-      rec_obj <- step_knnimpute(
-        rec_obj,
+      recipe <- step_knnimpute(
+        recipe,
         all_numeric(), - all_outcomes(),
         K = num_p$knn_K,
         impute_with = num_p$impute_with)
@@ -142,22 +140,20 @@ hcai_impute <- function(rec_obj,
   }
 
   # Nominals
-  if (all_numeric) {
-    warning("All variables are numeric, nominal methods won't be used.")
-  } else {
-  if (nominal_method == "new_category") {
-      rec_obj <- step_hcai_missing(rec_obj, all_nominal(), - all_outcomes())
+  if (!all_numeric) {
+    if (nominal_method == "new_category") {
+      recipe <- step_hcai_missing(recipe, all_nominal(), - all_outcomes())
     } else if (nominal_method == "bagimpute") {
-      rec_obj <- step_bagimpute(
-        rec_obj,
+      recipe <- step_bagimpute(
+        recipe,
         all_nominal(),
         models = nom_p$bag_model, - all_outcomes(),
         options = nom_p$bag_options,
         impute_with = nom_p$impute_with,
         seed_val = nom_p$seed_val)
     }  else if (nominal_method == "knnimpute") {
-      rec_obj <- step_knnimpute(
-        rec_obj,
+      recipe <- step_knnimpute(
+        recipe,
         all_nominal(), - all_outcomes(),
         K = nom_p$knn_K,
         impute_with = nom_p$impute_with)
@@ -165,5 +161,5 @@ hcai_impute <- function(rec_obj,
       stop("non-supported nominal method")
     }
   }
-  return(rec_obj)
+  return(recipe)
 }

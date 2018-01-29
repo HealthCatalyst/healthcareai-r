@@ -334,3 +334,13 @@ test_that("New variables present in deployment get ignored with a warning", {
                  regexp = "extra")
   expect_true(all.equal(pd$extra, seq_len(nrow(d_train))))
 })
+
+test_that("All numeric variables aren't a problem", {
+  d <- data.frame(x = 1:5, y = 5:1, id_var = letters[1:5])
+  expect_s3_class(prep_data(d, id_var), "hcai_prepped_df")
+})
+
+test_that("All numeric variables aren't a problem", {
+  d <- data.frame(x = 1:5, y = 5:1, id_var = letters[1:5])
+  expect_s3_class(prep_data(d, id_var), "hcai_prepped_df")
+})

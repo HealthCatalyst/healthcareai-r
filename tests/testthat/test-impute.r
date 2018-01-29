@@ -60,8 +60,8 @@ test_that("Bad data throws an error", {
                regexp = "\"d\" must be a tibble")
   expect_error(impute(d = "yeah hi!"),
                regexp = "\"d\" must be a tibble")
-  expect_error(impute(d = df, rec_obj = "fried_fish"),
-               regexp = "\"rec_obj\" must be a valid recipe object.")
+  expect_error(impute(d = df, recipe = "fried_fish"),
+               regexp = "\"recipe\" must be a valid recipe object.")
 })
 
 test_that("Bad ignore_colums are parsed correctly.", {
@@ -81,7 +81,7 @@ test_that("No recipe with defaults trains and predicts.", {
 
   capture_output(res <- impute(d = d_test,
                                animal_id, kitty,
-                               rec_obj = attr(res, "rec_obj")))
+                               recipe = attr(res, "recipe")))
   expect_equal(res$length[1], 7.1, tol = .02)
   expect_equal(as.character(res$color[2]), "hcai_missing")
   expect_equal(as.character(res$fur[3]), "hcai_missing")
@@ -100,7 +100,7 @@ test_that("No recipe with methods trains and predicts.", {
 
   capture_output(res <- impute(d = d_test,
                                animal_id, kitty,
-                               rec_obj = attr(res, "rec_obj")))
+                               recipe = attr(res, "recipe")))
   expect_equal(res$length[1], 4.78, tol = .02)
   expect_equal(as.character(res$color[2]), "Mixed")
   expect_equal(as.character(res$fur[3]), "Long")
@@ -122,7 +122,7 @@ test_that("No recipe with methods and params trains and predicts.", {
 
   capture_output(res <- impute(d = d_test,
                                animal_id, kitty,
-                               rec_obj = attr(res, "rec_obj")))
+                               recipe = attr(res, "recipe")))
   expect_equal(res$length[1], 4.68, tol = .02)
   expect_equal(as.character(res$color[2]), "Mixed")
   expect_equal(as.character(res$fur[3]), "Short")
@@ -139,7 +139,7 @@ test_that("Ignored columns are not imputed but are returned.", {
   d_test$animal_id[1:5] <- NA
   d_test$kitty[1:5] <- NA
   expect_warning(capture_output(
-    res <- impute(d = d_test, animal_id, kitty, rec_obj = attr(res, "rec_obj"))
+    res <- impute(d = d_test, animal_id, kitty, recipe = attr(res, "recipe"))
   ))
   expect_true(is.na(res$animal_id[2]))
   expect_true(is.na(res$kitty[4]))
@@ -172,10 +172,10 @@ test_that("Output of impute is same for tibble vs data frame", {
   )
 })
 
-test_that("rec_obj attr is a recipe class object", {
+test_that("recipe attr is a recipe class object", {
   capture_output(imp_train <- impute(d_train))
-  expect_true("rec_obj" %in% names(attributes(imp_train)))
-  expect_s3_class(attr(imp_train, "rec_obj"), "recipe")
+  expect_true("recipe" %in% names(attributes(imp_train)))
+  expect_s3_class(attr(imp_train, "recipe"), "recipe")
 })
 
 test_that("imp_summary attr is contained within d_imputed", {
@@ -194,14 +194,14 @@ test_that("print method works as expected", {
   expect_true(grepl("new_category", msg))
 })
 
-test_that("a data.frame with a rec_obj in rec_obj slot works", {
+test_that("a data.frame with a recipe in recipe slot works", {
   imp_train <- impute(d_train)
-  expect_equal(impute(d_test, rec_obj = imp_train),
-               impute(d_test, rec_obj = attr(imp_train, "rec_obj")))
+  expect_equal(impute(d_test, recipe = imp_train),
+               impute(d_test, recipe = attr(imp_train, "recipe")))
 })
 
-test_that("an attr that doesn't exist passed to rec_obj errors", {
+test_that("an attr that doesn't exist passed to recipe errors", {
   imp_train <- impute(d_train)
-  expect_error(impute(d_test, rec_obj = attr(imp_train, "nonsense")),
+  expect_error(impute(d_test, recipe = attr(imp_train, "nonsense")),
                regexp = "nonsense")
 })
