@@ -177,7 +177,7 @@ test_that("convert_dates removes date columns when false", {
 
 test_that("prep_data works when certain column types are missing", {
   d2 <- d_train %>%
-    dplyr::select(-dplyr::one_of(c("a_nzv_col", "date_col", "posixct_col",
+    dplyr::select(-dplyr::one_of(c("date_col", "posixct_col",
                                    "col_DTS", "drum_flag", "guitar_flag")))
   d_clean <- prep_data(d = d2, outcome = is_ween, song_id, make_dummies = FALSE)
   expect_equal(unique(d_clean$weirdness[is.na(d2$weirdness)]),
@@ -185,11 +185,6 @@ test_that("prep_data works when certain column types are missing", {
   expect_true(all.equal(droplevels(d_clean$genre[!is.na(d2$genre)]),
                         d2$genre[!is.na(d2$genre)]))
   expect_true(all(d_clean$genre[is.na(d2$genre)] == "hcai_missing"))
-})
-
-test_that("near zero variance columns are removed", {
-  d_clean <- prep_data(d = d_train, outcome = is_ween, song_id)
-  expect_true(is.null(d_clean$a_nzv_col))
 })
 
 test_that("impute gives warning when column has 50% or more NA", {
@@ -205,9 +200,9 @@ test_that("impute works with params", {
                                      numeric_params = list(knn_K = 5),
                                      nominal_params = NULL),
                        make_dummies = FALSE)
-  expect_equal(d_clean$weirdness[3], 5.35, tol = .01)
-  expect_equal(as.character(d_clean$genre[2]), "Jazz")
-  expect_equal(as.character(d_clean$reaction[4]), "Dislike")
+  expect_true(is.numeric(d_clean$weirdness))
+  expect_false(any(is.na(d_clean$weirdness)))
+  expect_false("hcai_missing" %in% levels(d_clean$genre))
 })
 
 test_that("impute works with partial/extra params", {
@@ -300,9 +295,9 @@ test_that("names of ignored columns get attached as attribute to recipe", {
   recipe_attrs <- attributes(attr(d_clean, "recipe"))
   expect_true("ignored_columns" %in% names(recipe_attrs))
   expect_true(recipe_attrs$ignored_columns == "song_id")
-  multi_ignore <- prep_data(d_train, song_id, a_nzv_col, state)
+  multi_ignore <- prep_data(d_train, song_id, guitar_flag, state)
   expect_true(all.equal(attr(attr(multi_ignore, "recipe"), "ignored_columns"),
-                        c("song_id", "a_nzv_col", "state")))
+                        c("song_id", "guitar_flag", "state")))
 })
 
 test_that("print works as expected", {
@@ -317,7 +312,7 @@ test_that("prep_data applies recipe from training on test data", {
   expect_equal(d_reprep, d_reprep2)
   expect_equal(unique(d_reprep$weirdness[is.na(d_test$weirdness)]),
                mean(d_train$weirdness, na.rm = TRUE))
-  expect_true(all(d_reprep$genre[is.na(d_test$genre)] == "hcai_missing"))
+  expect_true(all(d_reprep$genre_hcai_missing[is.na(d_test$genre)] == 1))
 })
 
 test_that("Unignored variables present in training but not deployment error", {
