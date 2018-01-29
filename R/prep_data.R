@@ -282,6 +282,15 @@ prep_data <- function(d,
 
   # Bake either the newly built or passed-in recipe
   d <- recipes::bake(recipe, d)
+
+  # Find and issue warnings. Perhaps this should be wrapped in if (verbose)
+  steps <- map_chr(recipe$steps, ~ attr(.x, "class")[1])
+  ## near-zero variance
+  if ("step_nzv" %in% steps &&
+      length(nzv_removed <- recipe$steps[[which(steps == "step_nzv")]]$removals))
+    warning("Removing these near-zero variance columns: ",
+            paste(nzv_removed, collapse = ", "))
+
   # Add ignore columns back in and attach as attribute to recipe
   d <- dplyr::bind_cols(d_ignore, d)
   attr(recipe, "ignored_columns") <- unname(ignored)

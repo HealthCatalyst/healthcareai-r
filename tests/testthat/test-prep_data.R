@@ -21,9 +21,7 @@ df <- data.frame(
   missing82 = sample(1:10, n, replace = TRUE),
   missing64 = sample(100:300, n, replace = TRUE),
   state = sample(c("NY", "MA", "CT", "CA", "VT", "NH"), size = n, replace = T,
-                 prob = c(0.18, 0.1, 0.1, 0.6, 0.01, 0.01)),
-  a_nzv_col = sample(c("man", "boognish"),
-                     size = n, replace = T, prob = c(0.999, 0.001))
+                 prob = c(0.18, 0.1, 0.1, 0.6, 0.01, 0.01))
 )
 
 # give is_ween likeliness score
@@ -344,4 +342,50 @@ test_that("All numeric variables aren't a problem", {
 test_that("All numeric variables aren't a problem", {
   d <- data.frame(x = 1:5, y = 5:1, id_var = letters[1:5])
   expect_s3_class(prep_data(d, id_var), "hcai_prepped_df")
+})
+
+test_that("remove_near_zero_variance is respected, works, and warns", {
+  d_train <- mutate(d_train,
+                    a_nzv_col = c("rare", rep("common", nrow(d_train) - 1)))
+  expect_warning(def <- prep_data(d_train), regexp = "a_nzv_col")
+  expect_false("a_nzv_col" %in% names(def))
+  # nzv_col should be removed in deployement even if it has variance
+  d_test <- mutate(d_test,
+                   a_nzv_col = sample(letters, nrow(d_test), replace = TRUE))
+  expect_warning(pd <- prep_data(d_test, recipe = def), regexp = "a_nzv_col")
+  expect_false("a_nzv_col" %in% names(def))
+  stay <- prep_data(d_train, remove_near_zero_variance = FALSE, make_dummies = FALSE)
+  expect_true("a_nzv_col" %in% names(stay))
+})
+
+test_that("collapse_rare_factors works", {
+  d_train <- mutate(d_train, imbal = c(letters, rep("common", nrow(d_train) - 26)))
+  pd <- prep_data(d_train,
+                  collapse_rare_factors = FALSE,
+                  make_dummies = FALSE)
+  expect_true(all(letters %in% pd$imbal))
+  coll <- prep_data(d_train, make_dummies = FALSE)
+  expect_false(any(letters %in% coll$imbal))
+})
+
+test_that("collapse_rare_factors respects threshold", {
+  # 1% < a < 2%
+  d_train <- mutate(d_train, imbal = c(rep("a", 4),
+                                       rep("common", nrow(d_train) - 4)))
+  def <- prep_data(d_train, remove_near_zero_variance = FALSE,
+                   make_dummies = FALSE)
+  below_thresh <- prep_data(d_train, remove_near_zero_variance = FALSE,
+                            make_dummies = FALSE, collapse_rare_factors = .02)
+  above_thresh <- prep_data(d_train, remove_near_zero_variance = FALSE,
+                            make_dummies = FALSE, collapse_rare_factors = .01)
+  never <- prep_data(d_train, remove_near_zero_variance = FALSE,
+                   make_dummies = FALSE, collapse_rare_factors = FALSE)
+  expect_false("a" %in% def$imbal)
+  expect_false("a" %in% below_thresh$imbal)
+  expect_true("a" %in% above_thresh$imbal)
+  expect_true("a" %in% never$imbal)
+  expect_true("other" %in% def$imbal)
+  expect_true("other" %in% below_thresh$imbal)
+  expect_false("other" %in% above_thresh$imbal)
+  expect_false("other" %in% never$imbal)
 })
