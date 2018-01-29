@@ -152,6 +152,9 @@ tidy.step_hcai_missing <- function(x, ...) {
   if (x$trained == TRUE) {
     res <- tibble(terms = names(x$na_percentage),
                   value = round(x$na_percentage, 2))
+  } else {
+    term_names <- recipes:::sel2char(x$terms)
+    res <- tibble(terms = term_names, value = NA_real_)
   }
   res
 }
