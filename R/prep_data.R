@@ -142,8 +142,8 @@ prep_data <- function(d,
       ignored <- c(ignored, newvars)
       d_ignore <- dplyr::bind_cols(d_ignore, dplyr::select(d, !!newvars))
     }
-    # Look for variables unignored in traiing but missing here and error
-    missing_vars <- setdiff(recipe$var_info$variable, names(d))
+    # Look for predictors unignored in training but missing here and error
+    missing_vars <- setdiff(recipe$var_info$variable[recipe$var_info$role == "predictor"], names(d))
     if (length(missing_vars))
       stop("These variables were present in training but are missing or ignored here: ",
            paste(missing_vars, collapse = ", "))

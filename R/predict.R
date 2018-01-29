@@ -1,7 +1,7 @@
 #' Make predictions
 #'
 #' @param models model_list object, as from `tune_models`
-#' @param newdata data frame with same structure as the input to `train_models`
+#' @param newdata data on which to make predictions.  with same structure as the input to `tune_models` or the input to `prep_data`
 #'   or `tune_models` that generated `models`. If the data that models were
 #'   tuned on was prepaired via `prep_data`, newdata will be prepared the same
 #'   way, unless prepdata is FALSE.
