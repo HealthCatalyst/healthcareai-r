@@ -14,14 +14,17 @@
 #'   the data. This allows you to transform data in model training and apply
 #'   exactly the same transformations in model testing and deployment. The new
 #'   data must be identical in structure to the data that the recipe was
-#'   prepared with.
+#'   prepared with. \item{Add levels} Add levels for rare and missing values in
+#'   factors to protect your deployed model from surprise missingness or new
+#'   values.
 #'
 #' @param d A dataframe or tibble containing data to impute.
 #' @param ... Optional. Unquoted variable names to not be prepped. These will be
 #'   returned unaltered. Typically ID and outcome columns would go here.
 #' @param outcome Optional. Unquoted column name that indicates the target
 #'   variable. If provided, argument must be named. If this target is 0/1, it
-#'   will be coerced to Y/N if factor_outcome is TRUE.
+#'   will be coerced to Y/N if factor_outcome is TRUE; other manipulation steps
+#'   will not be applied to the outcome.
 #' @param recipe Optional. Recipe for how to prep d. In model deployment, pass
 #'   the output from this function in training to this argument in deployment to
 #'   prepare the deployment data identically to how the training data was
@@ -82,7 +85,7 @@
 #' d_test_prepped <- prep_data(d_test, recipe = d_train_prepped)
 #'
 #' # View the transformations applied and the prepped data
-#' d_train_prepped
+#' d_test_prepped
 #'
 #' # Customize preparations:
 #' prep_data(d = d_train, patient_id, diabetes,
