@@ -35,13 +35,6 @@ test_that("Recipe is baked correctly on test data", {
                        all(c("other", "hcai_missing") %in% levels(.x)))))
 })
 
-test_that("Printer method works correctly within print.recipe()", {
-  expect_output(
-    print(rec_obj),
-    regexp = "[Filling NA with hcai_missing for character, suit]"
-  )
-})
-
 test_that("Warning is triggered for greater than 50% NA", {
   unprepped_print <- capture_output(print(stepped))
   expect_true(any(map_lgl(unprepped_print, ~ grepl("Adding levels", .x))))

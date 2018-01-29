@@ -117,7 +117,7 @@ test_that("Printer method works correctly within print.recipe()", {
 })
 
 test_that("Warning is triggered for greater than 50% NA", {
-  expect_message(
+  expect_warning(
    junk <- capture_output(
       junk <- prep(rec_obj2, training = d2_train)
    ),
