@@ -125,7 +125,7 @@ hcai_impute <- function(rec_obj,
     } else if (numeric_method == "bagimpute") {
       rec_obj <- step_bagimpute(
         rec_obj,
-        all_numeric(),
+        all_numeric(), - all_outcomes(),
         models = num_p$bag_model,
         options = num_p$bag_options,
         impute_with = num_p$impute_with,
@@ -133,7 +133,7 @@ hcai_impute <- function(rec_obj,
     } else if (numeric_method == "knnimpute") {
       rec_obj <- step_knnimpute(
         rec_obj,
-        all_numeric(),
+        all_numeric(), - all_outcomes(),
         K = num_p$knn_K,
         impute_with = num_p$impute_with)
     } else {
@@ -146,19 +146,19 @@ hcai_impute <- function(rec_obj,
     warning("All variables are numeric, nominal methods won't be used.")
   } else {
   if (nominal_method == "new_category") {
-      rec_obj <- step_hcai_missing(rec_obj, all_nominal())
+      rec_obj <- step_hcai_missing(rec_obj, all_nominal(), - all_outcomes())
     } else if (nominal_method == "bagimpute") {
       rec_obj <- step_bagimpute(
         rec_obj,
         all_nominal(),
-        models = nom_p$bag_model,
+        models = nom_p$bag_model, - all_outcomes(),
         options = nom_p$bag_options,
         impute_with = nom_p$impute_with,
         seed_val = nom_p$seed_val)
     }  else if (nominal_method == "knnimpute") {
       rec_obj <- step_knnimpute(
         rec_obj,
-        all_nominal(),
+        all_nominal(), - all_outcomes(),
         K = nom_p$knn_K,
         impute_with = nom_p$impute_with)
     } else {
