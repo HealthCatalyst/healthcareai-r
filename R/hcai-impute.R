@@ -67,8 +67,8 @@
 #'     numeric_params = list(knn_K = 4))
 #' my_recipe
 hcai_impute <- function(recipe,
-                        numeric_method = "mean",
                         nominal_method = "new_category",
+                        numeric_method = "mean",
                         numeric_params = NULL,
                         nominal_params = NULL) {
   # Check to make sure recipe is the right type
@@ -112,9 +112,10 @@ hcai_impute <- function(recipe,
             ". Available params are: ", paste(available_param_names, collapse = ", "))
   }
 
-  # Catch datasets of only one type
-  all_nominal <- !any(recipe$var_info$type == "numeric")
-  all_numeric <- !any(recipe$var_info$type == "nominal")
+  # Catch datasets where all predictors are of one type
+  vi <- recipe$var_info
+  all_nominal <- !any(vi$type[vi$role == "predictor"] == "numeric")
+  all_numeric <- !any(vi$type[vi$role == "predictor"] == "nominal")
 
   # Numerics
   if (!all_nominal) {
