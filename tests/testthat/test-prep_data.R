@@ -68,6 +68,11 @@ d_train$reaction[2] <- d_test$reaction[2] <- NA
 d_train$weirdness[3] <-  d_test$weirdness[3] <- NA
 d_train$genre[3] <- d_test$genre[3] <- NA
 
+d_prep <- prep_data(d = d_train, outcome = is_ween, song_id)
+d_reprep <- prep_data(d_test, outcome = is_ween, song_id,
+                          rec_obj = attr(d_prep, "rec_obj"))
+d_reprep2 <- prep_data(d_test, outcome = is_ween, song_id,
+                           rec_obj = d_prep)
 
 # Tests ------------------------------------------------------------------------
 test_that("Bad data throws an error", {
@@ -164,21 +169,6 @@ test_that("convert_dates removes date columns when false", {
   dd <- prep_data(d_train, convert_dates = FALSE)
 
   expect_true(!all(c("date_col", "posixct_col", "col_DTS") %in% names(dd)))
-})
-
-
-test_that("prep_data applies recipe from training on test data", {
-  d_clean <- prep_data(d = d_train, outcome = is_ween, song_id)
-
-  d_clean_test <- prep_data(d_test, outcome = is_ween, song_id,
-                            rec_obj = attr(d_clean, "rec_obj"))
-  d_clean_test2 <- prep_data(d_test, outcome = is_ween, song_id,
-                             rec_obj = d_clean)
-
-  expect_equal(d_clean_test, d_clean_test2)
-  expect_equal(unique(d_clean_test$weirdness[is.na(d_test$weirdness)]),
-               mean(d_train$weirdness, na.rm = TRUE))
-  expect_true(all(d_clean_test$genre[is.na(d_test$genre)] == "hcai_missing"))
 })
 
 test_that("prep_data works when certain column types are missing", {
@@ -338,4 +328,24 @@ test_that("print method works as expected", {
                   song_id,
                   outcome = is_ween,
                   verbose = TRUE)
+})
+
+test_that("prep_data applies recipe from training on test data", {
+  expect_equal(d_reprep, d_reprep2)
+  expect_equal(unique(d_reprep$weirdness[is.na(d_test$weirdness)]),
+               mean(d_train$weirdness, na.rm = TRUE))
+  expect_true(all(d_reprep$genre[is.na(d_test$genre)] == "hcai_missing"))
+})
+
+test_that("Unignored variables present in training but not deployment error", {
+  expect_error(prep_data(dplyr::select(d_test, -length), rec_obj = d_prep))
+  expect_error(prep_data(dplyr::select(d_test, -is_ween), rec_obj = d_prep))
+  expect_s3_class(prep_data(dplyr::select(d_test, -song_id), rec_obj = d_prep),
+                  "hcai_prepped_df")
+})
+
+test_that("variables present in deployment but not in training get ignored", {
+  big_d <- mutate(d, extra = seq_len(nrow(d)))
+  pd <- prep_data(big_d, rec_obj = d_prep)
+  expect_true(pd$extra == seq_len(nrow(d)))
 })
