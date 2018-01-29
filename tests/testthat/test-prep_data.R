@@ -384,3 +384,21 @@ test_that("collapse_rare_factors respects threshold", {
   expect_false("other" %in% above_thresh$imbal)
   expect_false("other" %in% never$imbal)
 })
+
+test_that("hcai_missing and other are added to all nominal columns", {
+  d <- data.frame(has_missing = c(rep(NA, 10), rep('b', 20)),
+                  has_rare = c("rare", rep("common", 29)),
+                  has_both = c("rare", NA, rep("common", 28)),
+                  has_neither = c(rep("cat1", 15), rep("cat2", 15)))
+  pd <- prep_data(d, make_dummies = FALSE, remove_near_zero_variance = FALSE, collapse_rare_factors = .05)
+  lapply(pd, levels)
+  expect_true(all(purrr::map_lgl(pd, ~ all(c("other", "rare") %in% levels(.x)))))
+
+  scrambled <- data.frame(has_missing = c(rep("cat1", 15), rep("cat2", 15)),
+                          has_rare = c(rep(NA, 10), rep('b', 20)),
+                          has_both = c("rare", rep("common", 29)),
+                          has_neither = c("rare", NA, rep("common", 28)))
+  scrambled_prep <- prep_data(scrambled, recipe = attr(pd, "recipe"))
+  lapply(scrambled_prep, levels)
+  expect_true(all(purrr::map_lgl(scrambled_prep, ~ all(c("other", "rare") %in% levels(.x)))))
+})
