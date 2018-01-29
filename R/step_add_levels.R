@@ -52,6 +52,12 @@ print.step_add_levels <- function(x, width = max(20, options()$width - 30), ...)
 
 #' @rdname step_add_levels
 #' @param x A `step_add_levels` object.
+#' @export
 tidy.step_add_levels <- function(x, ...) {
-  browser()
+  res <- if (x$trained) {
+    tibble(terms = x$cols, value = paste(x$levels, collapse = ", "))
+  } else {
+    tibble(terms = recipes:::sel2char(x$terms), value = NA_character_)
+  }
+  return(res)
 }
