@@ -27,7 +27,7 @@
 #'   prepare the deployment data identically to how the training data was
 #'   prepared. If training data is big, pull the recipe from the "recipe"
 #'   attribute of the prepped training data frame and pass that to this
-#'   argument. If present, all following arguments but verbose will be ignored.
+#'   argument. If present, all following arguments will be ignored.
 #' @param remove_near_zero_variance Logical. If TRUE (default), columns with
 #'   near-zero variance will be removed. These columns are either a single
 #'   value, or meet both of the following criteria: 1. they have very few unique
@@ -58,8 +58,6 @@
 #'   created for categorical variables.
 #' @param factor_outcome Logical. If TRUE (default) and if all entries in outcome are 0 or
 #'   1 they will be converted to factor with levels N and Y for classification.
-#' @param verbose Logical. If TRUE, verbose console output will describe every
-#'   step.
 #'
 #' @return Prepared data frame with reusable recipe object for future data
 #'   preparation in attribute "recipe". Attribute recipe contains the names of
@@ -98,8 +96,7 @@ prep_data <- function(d,
                       center = FALSE,
                       scale = FALSE,
                       make_dummies = TRUE,
-                      factor_outcome = TRUE,
-                      verbose = FALSE) {
+                      factor_outcome = TRUE) {
   # Check to make sure that d is a dframe
   if (!is.data.frame(d)) {
     stop("\"d\" must be a tibble or dataframe.")
@@ -125,7 +122,7 @@ prep_data <- function(d,
 
   # If there's a recipe in recipe, use that
   if (!is.null(recipe)) {
-    if (verbose) message("Using loaded recipe on the new data")
+    message("Applying provided recipe to new data")
     recipe <- check_rec_obj(recipe)
     # Look for variables that weren't present in training, add them to ignored
     newvars <- setdiff(names(d), c(recipe$var_info$variable,
@@ -144,7 +141,7 @@ prep_data <- function(d,
   } else {
 
     # Initialize a new recipe
-    if (verbose) message("Training new recipe")
+    message("Training new recipe")
     ## Start by making all variables predictors...
     recipe <- recipes::recipe(d, ~ .)
     ## Then deal with outcome if present
@@ -202,12 +199,8 @@ prep_data <- function(d,
       }
     } else {
       cols <- find_date_cols(d)
-      if (!purrr::is_empty(cols)) {
+      if (!purrr::is_empty(cols))
         recipe <- recipes::step_rm(recipe, cols)
-      }
-      if (verbose)
-        warning("These date columns will be removed: ",
-                paste(cols, collapse = ", "))
     }
 
     # Impute ------------------------------------------------------------------

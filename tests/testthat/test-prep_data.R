@@ -307,11 +307,12 @@ test_that("names of ignored columns get attached as attribute to recipe", {
                         c("song_id", "a_nzv_col", "state")))
 })
 
-# TODO
-test_that("verbose works as expected", {
-  dd <- prep_data(d = d_train, song_id, outcome = is_ween, verbose = TRUE)
-})
 test_that("print works as expected", {
+  messaged <- capture_messages(catted <- capture.output(d_prep))
+  expect_true(any(grepl("Recipe", messaged)))
+  expect_true(any(grepl("prepped", messaged)))
+  expect_true(any(grepl("Recipe", catted)))
+  expect_true(any(grepl("tibble", catted)))
 })
 
 test_that("prep_data applies recipe from training on test data", {

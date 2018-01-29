@@ -4,12 +4,12 @@
 \alias{hcai_impute}
 \title{Specify imputation methods for an existing recipe}
 \usage{
-hcai_impute(rec_obj, numeric_method = "mean",
+hcai_impute(recipe, numeric_method = "mean",
   nominal_method = "new_category", numeric_params = NULL,
   nominal_params = NULL)
 }
 \arguments{
-\item{rec_obj}{A recipe object. imputation will be added to the sequence of
+\item{recipe}{A recipe object. imputation will be added to the sequence of
 operations for this recipe.}
 
 \item{numeric_method}{Defaults to \code{"mean"}. Other choices are

@@ -4,7 +4,7 @@
 \alias{impute}
 \title{Impute data and return a reusable recipe.}
 \usage{
-impute(d = NULL, ..., rec_obj = NULL, numeric_method = "mean",
+impute(d = NULL, ..., recipe = NULL, numeric_method = "mean",
   nominal_method = "new_category", numeric_params = NULL,
   nominal_params = NULL, verbose = FALSE)
 }
@@ -14,7 +14,7 @@ impute(d = NULL, ..., rec_obj = NULL, numeric_method = "mean",
 \item{...}{Optional. Unquoted variable names to not be imputed. These will be
 returned unaltered.}
 
-\item{rec_obj}{Optional, a recipe object or an imputed data frame (containing
+\item{recipe}{Optional, a recipe object or an imputed data frame (containing
 a recipe object as an attribute). If provided, this recipe will be applied
 to impute new data contained in d with values saved in the recipe. Use this
 param if you'd like to apply the same values used for imputation on a
@@ -43,7 +43,7 @@ will be used.}
 }
 \value{
 Imputed data frame with reusable recipe object for future imputation
-  in attribute "rec_obj".
+  in attribute "recipe".
 }
 \description{
 \code{impute} will impute your data using a variety of methods

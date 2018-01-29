@@ -7,7 +7,7 @@
 prep_data(d, ..., outcome, recipe = NULL, remove_near_zero_variance = TRUE,
   convert_dates = TRUE, impute = TRUE, collapse_rare_factors = TRUE,
   center = FALSE, scale = FALSE, make_dummies = TRUE,
-  factor_outcome = TRUE, verbose = FALSE)
+  factor_outcome = TRUE)
 }
 \arguments{
 \item{d}{A dataframe or tibble containing data to impute.}
@@ -24,7 +24,7 @@ the output from this function in training to this argument in deployment to
 prepare the deployment data identically to how the training data was
 prepared. If training data is big, pull the recipe from the "recipe"
 attribute of the prepped training data frame and pass that to this
-argument. If present, all following arguments but verbose will be ignored.}
+argument. If present, all following arguments will be ignored.}
 
 \item{remove_near_zero_variance}{Logical. If TRUE (default), columns with
 near-zero variance will be removed. These columns are either a single
@@ -63,9 +63,6 @@ created for categorical variables.}
 
 \item{factor_outcome}{Logical. If TRUE (default) and if all entries in outcome are 0 or
 1 they will be converted to factor with levels N and Y for classification.}
-
-\item{verbose}{Logical. If TRUE, verbose console output will describe every
-step.}
 }
 \value{
 Prepared data frame with reusable recipe object for future data
