@@ -31,23 +31,23 @@ find_date_cols <- function(d) {
   return(names(d)[by_class | by_name])
 }
 
-#' If rec_obj was provided to function calling check_rec_obj, check that it's
+#' If recipe was provided to function calling check_rec_obj, check that it's
 #' not a missing attribute and that it's either a recipes object or a data
-#' frame containing a recipes object in the "rec_obj" attr. If the latter,
+#' frame containing a recipes object in the "recipe" attr. If the latter,
 #' return the recipe.
 #' @noRd
-check_rec_obj <- function(rec_obj) {
-  rec_obj_provided <- sys.call(sys.parent(1))$rec_obj
-  if (is.null(rec_obj) && !is.null(rec_obj_provided))
+check_rec_obj <- function(recipe) {
+  rec_obj_provided <- sys.call(sys.parent(1))$recipe
+  if (is.null(recipe) && !is.null(rec_obj_provided))
     stop("Attribute \"", rec_obj_provided[[3]], "\" not found in ",
          rec_obj_provided[[2]])
   # If there is a recipe object in the attribute slot, use it
-  if (class(attr(rec_obj, "rec_obj")) == "recipe")
-    rec_obj <- attr(rec_obj, "rec_obj")
-  # Check to make sure rec_obj is a valid recipe
-  if (!inherits(rec_obj, "recipe") && !is.null(rec_obj)) {
-    stop("\"rec_obj\" must be a valid recipe object or a dataframe with ",
-         "a valid recipes object in the rec_obj attribute.")
+  if (class(attr(recipe, "recipe")) == "recipe")
+    recipe <- attr(recipe, "recipe")
+  # Check to make sure recipe is a valid recipe
+  if (!inherits(recipe, "recipe") && !is.null(recipe)) {
+    stop("\"recipe\" must be a valid recipe object or a dataframe with ",
+         "a valid recipes object in the recipe attribute.")
   }
-  return(rec_obj)
+  return(recipe)
 }

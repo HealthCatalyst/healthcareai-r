@@ -53,7 +53,7 @@ testing <- slice(small_data, -train_rows)
 # and one-hot encoding categorical variables
 prepped_training <- prep_data(training, skinfold, patient_id,
                               center = TRUE, scale = TRUE, dummies = TRUE)
-Tune models. Because patient_id was ignored it has to be removed
+# Tune models. Because patient_id was ignored it has to be removed
 models <- tune_models(select(prepped_training, -patient_id), skinfold)
 predictions <- predict(models, testing)
 predictions$predicted_skinfold

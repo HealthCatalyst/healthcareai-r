@@ -43,7 +43,7 @@ test_that("find_date_cols returns date columns", {
 test_that("check_rec_obj", {
   expect_s3_class(check_rec_obj(recipes::recipe(d)), "recipe")
   expect_s3_class(
-    check_rec_obj(structure(d, "rec_obj" = recipes::recipe(d, drum_flag ~ .))),
+    check_rec_obj(structure(d, "recipe" = recipes::recipe(d, drum_flag ~ .))),
     "recipe")
   expect_error(check_rec_obj(d))
   expect_error(check_rec_obj("recipe"))

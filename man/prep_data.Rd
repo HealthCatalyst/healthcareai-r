@@ -4,10 +4,10 @@
 \alias{prep_data}
 \title{Prepare data for machine learning}
 \usage{
-prep_data(d = NULL, ..., rec_obj = NULL, convert_0_1_to_factor = TRUE,
-  remove_near_zero_variance = TRUE, convert_dates = TRUE, impute = TRUE,
-  collapse_rare_factors = TRUE, center = FALSE, scale = FALSE,
-  dummies = FALSE, verbose = FALSE)
+prep_data(d, ..., outcome, recipe = NULL, remove_near_zero_variance = TRUE,
+  convert_dates = TRUE, impute = TRUE, collapse_rare_factors = TRUE,
+  center = FALSE, scale = FALSE, make_dummies = TRUE,
+  factor_outcome = TRUE, verbose = FALSE)
 }
 \arguments{
 \item{d}{A dataframe or tibble containing data to impute.}
@@ -15,13 +15,16 @@ prep_data(d = NULL, ..., rec_obj = NULL, convert_0_1_to_factor = TRUE,
 \item{...}{Optional. Unquoted variable names to not be prepped. These will be
 returned unaltered. Typically ID and outcome columns would go here.}
 
-\item{rec_obj}{Optional. A `recipes` object or data frame containing a
-`recipes` object in the `rec_obj` attribute slot (as returned from this
-function). If present, that recipe will be applied and other arguments will
-be ignored.}
+\item{outcome}{Optional. Unquoted column name that indicates the target
+variable. If provided, argument must be named. If this target is 0/1, it
+will be coerced to Y/N if factor_outcome is TRUE.}
 
-\item{convert_0_1_to_factor}{Logical. If TRUE (default), columns that contain
-only 0 and 1 will be converted to factor with levels "Y" and "N".}
+\item{recipe}{Optional. Recipe for how to prep d. In model deployment, pass
+the output from this function in training to this argument in deployment to
+prepare the deployment data identically to how the training data was
+prepared. If training data is big, pull the recipe from the "recipe"
+attribute of the prepped training data frame and pass that to this
+argument. If present, all following arguments but verbose will be ignored.}
 
 \item{remove_near_zero_variance}{Logical. If TRUE (default), columns with
 near-zero variance will be removed. These columns are either a single
@@ -30,42 +33,44 @@ values relative to the number of samples and 2. the ratio of the frequency
 of the most common value to the frequency of the second most common value
 is large.}
 
-\item{convert_dates}{Logical or character. If TRUE (default), day-of-week,
-month, and year columns are generated from date columns and date columns
-are removed. If FALSE, date columns are removed. If a character vector, it
-is passed to the `features` argument of `recipes::step_date`. E.g. if you
-want only quarter and year back: `convert_dates = c("quarter", "year")`.}
+\item{convert_dates}{Logical or character. If TRUE (default), date columns
+are identifed and used to generate day-of-week, month, and year columns,
+and the original date columns are removed. If FALSE, date columns are
+removed. If a character vector, it is passed to the `features` argument of
+`recipes::step_date`. E.g. if you want only quarter and year back:
+`convert_dates = c("quarter", "year")`.}
 
 \item{impute}{Logical or list. If TRUE (default), columns will be imputed
 using mean (numeric), and new category (nominal). If FALSE, data will not
-be imputed. If list, possible values are `numeric_method`,
-`nominal_method`, `numeric_params`, `nominal_params` and are passed into
-the arguments of `hcai_impute`.}
+be imputed. If this is a list, it must be named, with possible entries for
+`numeric_method`, `nominal_method`, `numeric_params`, `nominal_params`,
+which are passed to `hcai_impute`.}
 
 \item{collapse_rare_factors}{Logical or numeric. If TRUE (default), factor
 levels representing less than 3 percent of observations will be collapsed
-into a new category, `other`. If numeric, must be in {0, 1} the proportion
-of observations below which levels will be grouped into other. See
-`recipes::step_other`.}
+into a new category, `other`. If numeric, must be in {0, 1}, and is the
+proportion of observations below which levels will be grouped into other.
+See `recipes::step_other`.}
 
-\item{center}{Logical. If TRUE, numeric columns will be
-centered to have a mean of 0. Default is FALSE.}
+\item{center}{Logical. If TRUE, numeric columns will be centered to have a
+mean of 0. Default is FALSE.}
 
 \item{scale}{Logical. If TRUE, numeric columns will be scaled to have a
 standard deviation of 1. Default is FALSE.}
 
-\item{dummies}{Logical. If TRUE, dummy columns will be created. Note most
-machine learning algorithms in R are more efficient when dummies are not
-provided.}
+\item{make_dummies}{Logical. If TRUE (default), dummy columns will be
+created for categorical variables.}
+
+\item{factor_outcome}{Logical. If TRUE (default) and if all entries in outcome are 0 or
+1 they will be converted to factor with levels N and Y for classification.}
 
 \item{verbose}{Logical. If TRUE, verbose console output will describe every
-step. This output can be called (even when verbose is FALSE) using the
-print method on a prepped data frame.}
+step.}
 }
 \value{
 Prepared data frame with reusable recipe object for future data
-  preparation in attribute "rec_obj". Also a summary of how the data was
-  prepared in attribute "prep_summary".
+  preparation in attribute "recipe". Attribute recipe contains the names of
+  ignored columns (those passed to ...) in attribute "ignored_columns".
 }
 \description{
 \code{prep_data} will prepare your data for use with
@@ -77,45 +82,34 @@ Prepared data frame with reusable recipe object for future data
   `other`} \item{Center numeric columns} \item{Standardize numeric columns}
   \item{Create dummy variables} } While preparing your data, a recipe will be
   generated for identical transformation of future data and stored in the
-  `rec_obj` attribute of the output data frame. If a recipe object is passed
-  to `prep_data` via the `rec_obj` argument, that recipe will be applied to
+  `recipe` attribute of the output data frame. If a recipe object is passed
+  to `prep_data` via the `recipe` argument, that recipe will be applied to
   the data. This allows you to transform data in model training and apply
   exactly the same transformations in model testing and deployment. The new
   data must be identical in structure to the data that the recipe was
   prepared with.
 }
 \examples{
-d <- pima_diabetes
+d_train <- pima_diabetes[1:700, ]
+d_test <- pima_diabetes[701:768, ]
 
-d_train <- d[1:700, ]
-d_test <- d[701:768, ]
+# Prep data. Ignore patient_id (identifier) and treat diabetes as outcome
+d_train_prepped <- prep_data(d = d_train, patient_id, outcome = diabetes)
 
-# Prep data and recipe. Ignore grain and target columns.
-d_train_clean <- prep_data(d = d_train,
-                           patient_id,
-                           diabetes)
-saved_recipe <- attr(d_train_clean, "rec_obj")
+# Prep test data by reapplying the same transformations as to training data
+d_test_prepped <- prep_data(d_test, recipe = d_train_prepped)
 
-# Apply to new data
-d_test_clean <- prep_data(d = d_test,
-                          patient_id,
-                          diabetes,
-                          rec_obj = saved_recipe)
-# Print a summary of what was done
-print(d_train_clean)
+# View the transformations applied and the prepped data
+d_train_prepped
 
-# Use non-defaults for prep:
-d_train_clean <- prep_data(d = d_train,
-                           patient_id,
-                           diabetes,
-                           impute = list(numeric_method = "bagimpute",
-                                         nominal_method = "bagimpute"),
-                           collapse_rare_factors = FALSE,
-                           center = TRUE,
-                           scale = TRUE,
-                           dummies = TRUE)
-
+# Customize preparations:
+prep_data(d = d_train, patient_id, diabetes,
+          impute = list(numeric_method = "bagimpute",
+                        nominal_method = "bagimpute"),
+          collapse_rare_factors = FALSE, convert_dates = "year",
+          center = TRUE, scale = TRUE, make_dummies = FALSE)
 }
 \seealso{
-\code{\link{hcai_impute}}
+\code{\link{hcai_impute}}, \code{\link{tune_models}},
+\code{\link{predict.model_list}}
 }
