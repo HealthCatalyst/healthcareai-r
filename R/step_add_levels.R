@@ -37,8 +37,21 @@ prep.step_add_levels <- function(x, training, info) {
 
 #' @export
 bake.step_add_levels <- function(object, newdata, ...) {
- for (column in object$cols) {
-   levels(newdata[[column]]) <- union(levels(newdata[[column]]), object$levels)
- }
+  for (column in object$cols) {
+    levels(newdata[[column]]) <- union(levels(newdata[[column]]), object$levels)
+  }
   as_tibble(newdata)
+}
+
+#' @export
+print.step_add_levels <- function(x, width = max(20, options()$width - 30), ...) {
+  cat("Adding levels to: ", sep = "")
+  recipes:::printer(x$levels, x$terms, x$trained, width = width)
+  invisible(x)
+}
+
+#' @rdname step_add_levels
+#' @param x A `step_add_levels` object.
+tidy.step_add_levels <- function(x, ...) {
+  browser()
 }
