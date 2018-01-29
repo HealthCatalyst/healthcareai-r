@@ -202,7 +202,7 @@ test_that("impute works with params", {
                        make_dummies = FALSE)
   expect_true(is.numeric(d_clean$weirdness))
   expect_false(any(is.na(d_clean$weirdness)))
-  expect_false("hcai_missing" %in% levels(d_clean$genre))
+  expect_true("hcai_missing" %in% levels(d_clean$genre))
 })
 
 test_that("impute works with partial/extra params", {
@@ -225,14 +225,15 @@ test_that("rare factors go to other by default", {
   expect_equal(sum(purrr::map_lgl(exp, ~ any(grepl(.x, names(d_clean))))),
                length(exp) - 1)
   d_clean <- prep_data(d = d_train, outcome = is_ween, song_id, make_dummies = FALSE)
-  expect_equal(levels(d_clean$state), exp)
+  expect_true(all(exp %in% levels(d_clean$state)))
   exp <- c("Dislike", "Huh", "Love", "Mixed", "hcai_missing")
-  expect_equal(levels(d_clean$reaction), exp)
+  expect_true(all(exp %in% levels(d_clean$reaction)))
 })
 
 test_that("rare factors unchanged when FALSE", {
   d_clean <- prep_data(d = d_train, outcome = is_ween, song_id,
-                       collapse_rare_factors = FALSE, make_dummies = FALSE)
+                       collapse_rare_factors = FALSE, make_dummies = FALSE,
+                       add_levels = FALSE)
   exp <- c("CA", "CT", "MA", "NH", "NY", "VT", "hcai_missing")
   expect_equal(levels(d_clean$state), exp)
 })
@@ -245,7 +246,8 @@ test_that("absent levels get dummified if rare factors are collapsed", {
 
 test_that("rare factors go to other when a threshold is specified", {
   d_clean <- prep_data(d = d_train, outcome = is_ween, song_id,
-                       collapse_rare_factors = 0.15, make_dummies = FALSE)
+                       collapse_rare_factors = 0.15, make_dummies = FALSE,
+                       add_levels = FALSE)
   exp <- c("CA", "NY", "other")
   expect_equal(levels(d_clean$state), exp)
 })
@@ -261,13 +263,14 @@ test_that("centering and scaling work", {
 
 test_that("dummy columns are created as expected", {
   d_clean <- prep_data(d = d_train, outcome = is_ween, song_id,
-                       convert_dates = FALSE, make_dummies = TRUE)
+                       convert_dates = FALSE, make_dummies = TRUE,
+                       add_levels = FALSE)
   exp <- c("genre_Jazz", "genre_Rock", "genre_hcai_missing")
-  n <- names(dplyr::select(d_clean, starts_with("genre")))
+  n <- names(dplyr::select(d_clean, dplyr::starts_with("genre")))
   expect_true(all(exp %in% n))
   exp <- c("reaction_Huh", "reaction_Love", "reaction_Mixed",
            "reaction_hcai_missing" )
-  n <- names(dplyr::select(d_clean, starts_with("reaction")))
+  n <- names(dplyr::select(d_clean, dplyr::starts_with("reaction")))
   expect_true(all(n == exp))
 })
 
@@ -323,7 +326,7 @@ test_that("Unignored variables present in training but not deployment error", {
 })
 
 test_that("New variables present in deployment get ignored with a warning", {
-  big_d <- mutate(d_train, extra = seq_len(nrow(d_clean)))
+  big_d <- dplyr::mutate(d_train, extra = seq_len(nrow(d_train)))
   expect_warning(pd <- prep_data(big_d, recipe = attr(d_prep, "recipe")),
                  regexp = "extra")
   expect_true(all.equal(pd$extra, seq_len(nrow(d_train))))
@@ -388,7 +391,7 @@ test_that("collapse_rare_factors respects threshold", {
 })
 
 test_that("hcai_missing and other are added to all nominal columns", {
-  d <- data.frame(has_missing = c(rep(NA, 10), rep('b', 20)),
+  d <- data.frame(has_missing = c(rep(NA, 10), rep("b", 20)),
                   has_rare = c("rare", rep("common", 29)),
                   has_both = c("rare", NA, rep("common", 28)),
                   has_neither = c(rep("cat1", 15), rep("cat2", 15)))
@@ -397,7 +400,7 @@ test_that("hcai_missing and other are added to all nominal columns", {
   expect_true(all(purrr::map_lgl(pd, ~ all(c("other", "hcai_missing") %in% levels(.x)))))
 
   scrambled <- data.frame(has_missing = c(rep("cat1", 15), rep("cat2", 15)),
-                          has_rare = c(rep(NA, 10), rep('b', 20)),
+                          has_rare = c(rep(NA, 10), rep("b", 20)),
                           has_both = c("rare", rep("common", 29)),
                           has_neither = c("rare", NA, rep("common", 28)))
   scrambled_prep <- prep_data(scrambled, recipe = attr(pd, "recipe"))

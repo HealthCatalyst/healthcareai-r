@@ -25,7 +25,7 @@
 step_add_levels <- function(recipe, ..., role = NA, trained = FALSE,
                             cols = NULL, levels = c("other", "hcai_missing")) {
   terms <- rlang::quos(...)
-  if(length(terms) == 0)
+  if (length(terms) == 0)
     stop("Please supply at least one variable specification. See ?selections.")
   add_step(recipe,
            step_add_levels_new(terms = terms, trained = trained, role = role,
@@ -52,7 +52,7 @@ bake.step_add_levels <- function(object, newdata, ...) {
   for (column in object$cols) {
     levels(newdata[[column]]) <- union(levels(newdata[[column]]), object$levels)
   }
-  as_tibble(newdata)
+  tibble::as_tibble(newdata)
 }
 
 #' @export
@@ -67,9 +67,9 @@ print.step_add_levels <- function(x, width = max(20, options()$width - 30), ...)
 #' @export
 tidy.step_add_levels <- function(x, ...) {
   res <- if (x$trained) {
-    tibble(terms = x$cols, value = paste(x$levels, collapse = ", "))
+    tibble::tibble(terms = x$cols, value = paste(x$levels, collapse = ", "))
   } else {
-    tibble(terms = recipes:::sel2char(x$terms), value = NA_character_)
+    tibble::tibble(terms = recipes:::sel2char(x$terms), value = NA_character_)
   }
   return(res)
 }

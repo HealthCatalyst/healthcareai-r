@@ -26,7 +26,7 @@ mcn <-
   tr %>%
   dplyr::select(-province) %>%
   tune_models(Catholic)
-suppressWarnings({  # Warning when RF can't find a good cut
+suppressWarnings({  # Warning when RF can't find a good cut # nolint
   mrp <-
     tr %>%
     prep_data(province, Fertility, dummies = TRUE) %>%

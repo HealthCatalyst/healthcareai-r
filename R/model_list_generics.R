@@ -38,10 +38,6 @@ summary.model_list <- function(mlist) {
   if (!length(mlist))
     stop("mlist is empty.")
   rinfo <- extract_model_info(mlist)
-  # hyperp <-
-  #   rinfo$best_model_tune %>%
-  #   purrr::map_chr(as.character) %>%
-  #   paste(names(.), ., sep = " = ", collapse = ", ")
   out <- paste0("Best performance: ", rinfo$metric, " = ",
                 round(rinfo$best_model_perf, 2), "\n",
                 rinfo$best_model_name, " with hyperparameters:\n  ",
@@ -129,9 +125,7 @@ extract_model_info <- function(mlist) {
   best_model_name <- algs[[best_model]]
   best_model_perf <- best_metrics[[best_model]]
   best_model_tune <-
-    mlist[[best_model]]$bestTune # %>%
-    # purrr::map_chr(as.character) %>%
-    # paste(names(.), ., sep = " = ", collapse = "\n  ")
+    mlist[[best_model]]$bestTune
   list(
     m_class = m_class,
     algs = algs,

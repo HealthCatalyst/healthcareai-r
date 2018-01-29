@@ -72,7 +72,7 @@ predict.model_list <- function(models, newdata, prepdata) {
       newdata %>%
         caret::predict.train(best_models, ., type = type)
     }
-  if (is.data.frame(preds)) preds <- dplyr::pull(preds, Y)
+  if (is.data.frame(preds)) preds <- dplyr::pull(preds, Y)  # nolint
   newdata[[paste0("predicted_", mi$target)]] <- preds
   newdata <- tibble::as_tibble(newdata)
   class(newdata) <- c("hcai_predicted_df", class(newdata))
