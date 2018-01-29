@@ -6,7 +6,7 @@
 \usage{
 prep_data(d, ..., outcome, recipe = NULL, remove_near_zero_variance = TRUE,
   convert_dates = TRUE, impute = TRUE, collapse_rare_factors = TRUE,
-  center = FALSE, scale = FALSE, make_dummies = TRUE,
+  center = FALSE, scale = FALSE, make_dummies = TRUE, add_levels = TRUE,
   factor_outcome = TRUE)
 }
 \arguments{
@@ -58,11 +58,17 @@ mean of 0. Default is FALSE.}
 \item{scale}{Logical. If TRUE, numeric columns will be scaled to have a
 standard deviation of 1. Default is FALSE.}
 
-\item{make_dummies}{Logical. If TRUE (default), dummy columns will be
-created for categorical variables.}
+\item{make_dummies}{Logical. If TRUE (default), dummy columns will be created
+for categorical variables.}
 
-\item{factor_outcome}{Logical. If TRUE (default) and if all entries in outcome are 0 or
-1 they will be converted to factor with levels N and Y for classification.}
+\item{add_levels}{Logical. If TRUE (defaults), "other" and "hcai_missing"
+will be added to all nominal columns. This is protective in deployment: new
+levels found in deployment will become "other" and missingness in
+deployment can become "hcai_missing".}
+
+\item{factor_outcome}{Logical. If TRUE (default) and if all entries in
+outcome are 0 or 1 they will be converted to factor with levels N and Y for
+classification.}
 }
 \value{
 Prepared data frame with reusable recipe object for future data
@@ -108,5 +114,5 @@ prep_data(d = d_train, patient_id, diabetes,
 }
 \seealso{
 \code{\link{hcai_impute}}, \code{\link{tune_models}},
-\code{\link{predict.model_list}}
+  \code{\link{predict.model_list}}
 }

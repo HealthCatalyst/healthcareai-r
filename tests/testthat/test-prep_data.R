@@ -332,11 +332,13 @@ test_that("New variables present in deployment get ignored with a warning", {
 test_that("All numeric variables aren't a problem", {
   d <- data.frame(x = 1:5, y = 5:1, id_var = letters[1:5])
   expect_s3_class(prep_data(d, id_var), "hcai_prepped_df")
+  expect_s3_class(prep_data(d, outcome = "id_var"), "hcai_prepped_df")
 })
 
-test_that("All numeric variables aren't a problem", {
-  d <- data.frame(x = 1:5, y = 5:1, id_var = letters[1:5])
+test_that("All nominal variables aren't a problem", {
+  d <- data.frame(x = letters, y = rev(letters), id_var = 1:26)
   expect_s3_class(prep_data(d, id_var), "hcai_prepped_df")
+  expect_s3_class(prep_data(d, outcome = id_var), "hcai_prepped_df")
 })
 
 test_that("remove_near_zero_variance is respected, works, and warns", {
@@ -390,15 +392,20 @@ test_that("hcai_missing and other are added to all nominal columns", {
                   has_rare = c("rare", rep("common", 29)),
                   has_both = c("rare", NA, rep("common", 28)),
                   has_neither = c(rep("cat1", 15), rep("cat2", 15)))
-  pd <- prep_data(d, make_dummies = FALSE, remove_near_zero_variance = FALSE, collapse_rare_factors = .05)
-  lapply(pd, levels)
-  expect_true(all(purrr::map_lgl(pd, ~ all(c("other", "rare") %in% levels(.x)))))
+  pd <- prep_data(d, make_dummies = FALSE, remove_near_zero_variance = FALSE,
+                  collapse_rare_factors = .05)
+  expect_true(all(purrr::map_lgl(pd, ~ all(c("other", "hcai_missing") %in% levels(.x)))))
 
   scrambled <- data.frame(has_missing = c(rep("cat1", 15), rep("cat2", 15)),
                           has_rare = c(rep(NA, 10), rep('b', 20)),
                           has_both = c("rare", rep("common", 29)),
                           has_neither = c("rare", NA, rep("common", 28)))
   scrambled_prep <- prep_data(scrambled, recipe = attr(pd, "recipe"))
-  lapply(scrambled_prep, levels)
-  expect_true(all(purrr::map_lgl(scrambled_prep, ~ all(c("other", "rare") %in% levels(.x)))))
+  expect_true(all(purrr::map_lgl(scrambled_prep, ~ all(c("other", "hcai_missing") %in% levels(.x)))))
+})
+
+test_that("add_levels doesn't add levels to outcome", {
+  d <- data.frame(x = c("A", "B"), y = 1:2)
+  pd <- prep_data(d, outcome = x, make_dummies = FALSE, add_levels = FALSE)
+  expect_false(any(c("other", "hcai_missing") %in% levels(pd$x)))
 })

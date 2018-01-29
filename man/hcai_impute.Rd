@@ -4,18 +4,17 @@
 \alias{hcai_impute}
 \title{Specify imputation methods for an existing recipe}
 \usage{
-hcai_impute(recipe, numeric_method = "mean",
-  nominal_method = "new_category", numeric_params = NULL,
-  nominal_params = NULL)
+hcai_impute(recipe, nominal_method = "new_category",
+  numeric_method = "mean", numeric_params = NULL, nominal_params = NULL)
 }
 \arguments{
 \item{recipe}{A recipe object. imputation will be added to the sequence of
 operations for this recipe.}
 
-\item{numeric_method}{Defaults to \code{"mean"}. Other choices are
+\item{nominal_method}{Defaults to \code{"new_category"}. Other choices are
 \code{"bagimpute"} or \code{"knnimpute"}.}
 
-\item{nominal_method}{Defaults to \code{"new_category"}. Other choices are
+\item{numeric_method}{Defaults to \code{"mean"}. Other choices are
 \code{"bagimpute"} or \code{"knnimpute"}.}
 
 \item{numeric_params}{A named list with parmeters to use with chosen

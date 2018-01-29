@@ -54,17 +54,22 @@
 #'   mean of 0. Default is FALSE.
 #' @param scale Logical. If TRUE, numeric columns will be scaled to have a
 #'   standard deviation of 1. Default is FALSE.
-#' @param make_dummies Logical. If TRUE (default), dummy columns will be
-#'   created for categorical variables.
-#' @param factor_outcome Logical. If TRUE (default) and if all entries in outcome are 0 or
-#'   1 they will be converted to factor with levels N and Y for classification.
+#' @param make_dummies Logical. If TRUE (default), dummy columns will be created
+#'   for categorical variables.
+#' @param add_levels Logical. If TRUE (defaults), "other" and "hcai_missing"
+#'   will be added to all nominal columns. This is protective in deployment: new
+#'   levels found in deployment will become "other" and missingness in
+#'   deployment can become "hcai_missing".
+#' @param factor_outcome Logical. If TRUE (default) and if all entries in
+#'   outcome are 0 or 1 they will be converted to factor with levels N and Y for
+#'   classification.
 #'
 #' @return Prepared data frame with reusable recipe object for future data
 #'   preparation in attribute "recipe". Attribute recipe contains the names of
 #'   ignored columns (those passed to ...) in attribute "ignored_columns".
 #' @export
 #' @seealso \code{\link{hcai_impute}}, \code{\link{tune_models}},
-#' \code{\link{predict.model_list}}
+#'   \code{\link{predict.model_list}}
 #'
 #' @examples
 #' d_train <- pima_diabetes[1:700, ]
@@ -96,6 +101,7 @@ prep_data <- function(d,
                       center = FALSE,
                       scale = FALSE,
                       make_dummies = TRUE,
+                      add_levels = TRUE,
                       factor_outcome = TRUE) {
   # Check to make sure that d is a dframe
   if (!is.data.frame(d)) {
@@ -251,7 +257,11 @@ prep_data <- function(d,
                               threshold = fac_thresh)
       }
 
-      # make_dummies -----------------------------------------------------------------
+      # Add protective levels --------------------------------------------------
+      if (add_levels)
+        recipe <- step_add_levels(recipe, all_nominal(), - all_outcomes())
+
+      # make_dummies -----------------------------------------------------------
       if (make_dummies) {
         recipe <- recipe %>%
           recipes::step_dummy(all_nominal(), - all_outcomes())

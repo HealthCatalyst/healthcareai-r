@@ -11,10 +11,35 @@ step_add_levels(recipe, ..., role = NA, trained = FALSE, cols = NULL,
 \method{tidy}{step_add_levels}(x, ...)
 }
 \arguments{
-\item{levels}{}
+\item{recipe}{recipe object. This step will be added}
+
+\item{...}{One or more selector functions}
+
+\item{role}{Ought to be nominal}
+
+\item{trained}{Has the recipe been prepped?}
+
+\item{levels}{Factor levels to add to variables. Default = c("other",
+"hcai_missing")}
 
 \item{x}{A `step_add_levels` object.}
 }
+\value{
+Recipe with the new step
+}
 \description{
 Add levels to nominal variables
+}
+\examples{
+d <- data.frame(num = 1:30,
+                has_missing = c(rep(NA, 10), rep('b', 20)),
+                has_rare = c("rare", rep("common", 29)),
+                has_both = c("rare", NA, rep("common", 28)),
+                has_neither = c(rep("cat1", 15), rep("cat2", 15)))
+rec <- recipe( ~ ., d) \%>\%
+  step_add_levels(all_nominal()) \%>\%
+  prep(training = d)
+baked <- bake(rec, d)
+lapply(d[, sapply(d, is.factor)], levels)
+lapply(baked[, sapply(baked, is.factor)], levels)
 }
