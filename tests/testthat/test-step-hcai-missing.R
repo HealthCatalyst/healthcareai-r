@@ -132,4 +132,6 @@ test_that("tidy method prints correctly", {
     exp,
     broom::tidy(rec_obj$steps[[1]])
   )
+  rec_obj <- recipe(is_goomba ~ ., data = d) %>% step_hcai_missing(all_nominal())
+  expect_s3_class(broom::tidy(rec_obj$steps[[1]]), "tbl_df")
 })

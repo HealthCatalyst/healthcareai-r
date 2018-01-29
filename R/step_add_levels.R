@@ -1,15 +1,27 @@
 #' Add levels to nominal variables
 #'
-#' @param recipe
-#' @param ...
-#' @param role
-#' @param trained
-#' @param levels
+#' @param recipe recipe object. This step will be added
+#' @param ... One or more selector functions
+#' @param role Ought to be nominal
+#' @param trained Has the recipe been prepped?
+#' @param levels Factor levels to add to variables. Default = c("other",
+#'   "hcai_missing")
 #'
-#' @return
+#' @return Recipe with the new step
 #' @export
 #'
 #' @examples
+#' d <- data.frame(num = 1:30,
+#'                 has_missing = c(rep(NA, 10), rep('b', 20)),
+#'                 has_rare = c("rare", rep("common", 29)),
+#'                 has_both = c("rare", NA, rep("common", 28)),
+#'                 has_neither = c(rep("cat1", 15), rep("cat2", 15)))
+#' rec <- recipe( ~ ., d) %>%
+#'   step_add_levels(all_nominal()) %>%
+#'   prep(training = d)
+#' baked <- bake(rec, d)
+#' lapply(d[, sapply(d, is.factor)], levels)
+#' lapply(baked[, sapply(baked, is.factor)], levels)
 step_add_levels <- function(recipe, ..., role = NA, trained = FALSE,
                             cols = NULL, levels = c("other", "hcai_missing")) {
   terms <- rlang::quos(...)

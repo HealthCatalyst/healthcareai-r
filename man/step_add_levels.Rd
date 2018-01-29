@@ -2,13 +2,18 @@
 % Please edit documentation in R/step_add_levels.R
 \name{step_add_levels}
 \alias{step_add_levels}
+\alias{tidy.step_add_levels}
 \title{Add levels to nominal variables}
 \usage{
-step_add_levels(recipe, ..., role = NA, trained = FALSE,
+step_add_levels(recipe, ..., role = NA, trained = FALSE, cols = NULL,
   levels = c("other", "hcai_missing"))
+
+\method{tidy}{step_add_levels}(x, ...)
 }
 \arguments{
 \item{levels}{}
+
+\item{x}{A `step_add_levels` object.}
 }
 \description{
 Add levels to nominal variables

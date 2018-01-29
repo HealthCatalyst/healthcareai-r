@@ -43,19 +43,20 @@ test_that("Printer method works correctly within print.recipe()", {
 })
 
 test_that("Warning is triggered for greater than 50% NA", {
-  expect_message(
-   junk <- capture_output(
-      junk <- prep(rec_obj2, training = d2_train)
-   ),
-  regexp = "[koopa: 61]"
-  )
+  unprepped_print <- capture_output(print(stepped))
+  expect_true(any(map_lgl(unprepped_print, ~ grepl("Adding levels", .x))))
+  expect_false(any(map_lgl(unprepped_print, ~ grepl("hcai_missing", .x))))
+  prepped_print <- capture_output(print(prepped))
+  expect_true(any(map_lgl(prepped_print, ~ grepl("Adding levels", .x))))
+  expect_true(any(map_lgl(prepped_print, ~ grepl("hcai_missing", .x))))
 })
 
 test_that("tidy method prints correctly", {
-  exp <- tibble::tibble(terms = c("character", "suit"),
-                value = c(33.20, 8.71))
-  expect_equal(
-    exp,
-    broom::tidy(rec_obj$steps[[1]])
-  )
+  tidy_step <- broom::tidy(stepped$steps[[1]])
+  expect_s3_class(tidy_step, "tbl_df")
+  expect_true(all.equal(names(tidy_step), c("terms", "value")))
+  tidy_prep <- broom::tidy(prepped$steps[[1]])
+  expect_s3_class(tidy_prep, "tbl_df")
+  expect_true(all.equal(names(tidy_prep), c("terms", "value")))
+  expect_true(all.equal(tidy_prep$terms, names(d)[purrr::map_lgl(d, is.factor)]))
 })
