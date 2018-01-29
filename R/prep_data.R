@@ -24,7 +24,8 @@
 #'   function). If present, that recipe will be applied and other arguments will
 #'   be ignored.
 #' @param outcome Optional. Unquoted column name that indicates the target
-#' variable. If this target is 0/1, it will be coerced to Y/N
+#'   variable. If provided, argument must be named. If this target is 0/1, it
+#'   will be coerced to Y/N
 #' @param remove_near_zero_variance Logical. If TRUE (default), columns with
 #'   near-zero variance will be removed. These columns are either a single
 #'   value, or meet both of the following criteria: 1. they have very few unique
@@ -46,8 +47,8 @@
 #'   into a new category, `other`. If numeric, must be in {0, 1} the proportion
 #'   of observations below which levels will be grouped into other. See
 #'   `recipes::step_other`.
-#' @param center Logical. If TRUE, numeric columns will be
-#'   centered to have a mean of 0. Default is FALSE.
+#' @param center Logical. If TRUE, numeric columns will be centered to have a
+#'   mean of 0. Default is FALSE.
 #' @param scale Logical. If TRUE, numeric columns will be scaled to have a
 #'   standard deviation of 1. Default is FALSE.
 #' @param dummies Logical. If TRUE, dummy columns will be created. Note most
@@ -110,10 +111,57 @@ prep_data <- function(d,
   if (!is.data.frame(d)) {
     stop("\"d\" must be a tibble or dataframe.")
   }
+  # Deal with "..." columns to be ignored
+  ignore_columns <- rlang::quos(...)
+  ignored <- purrr::map_chr(ignore_columns, rlang::quo_name)
+  if (length(ignore_columns)) {
+    present <- ignored %in% names(d)
+    if (any(!present))
+      stop(paste(ignored[!present], collapse = ", "), " not found in d.")
+    # Separate data into ignored and not
+    d_ignore <- dplyr::select(d, !!ignored)
+    d <- dplyr::select(d, -dplyr::one_of(ignored))
+    # Warn if ignored columns have missingness
+    m <- missingness(d_ignore) %>%
+      dplyr::filter(percent_missing > 0)
+    if (!purrr::is_empty(m$variable))
+      warning("These ignored variables have missingness: ",
+              paste(m$variable, collapse = ", "))
+  }
+
+  # If there's a recipe in rec_obj, use that
+  if (!is.null(rec_obj)) {
+    if (verbose) message("Using loaded recipe on the new data")
+    rec_obj <- check_rec_obj(rec_obj)
+    # Look for variables that weren't present in training, add them to ignored
+    newvars <- setdiff(names(d), rec_obj$var_info$variable)
+    if (length(newvars)) {
+      warning("These variables were not observed in training ",
+              "and will be ignored: ", paste(newvars, collapse = ", "))
+      ignored <- c(ignored, newvars)
+      d_ignore <- dplyr::bind_cols(d_ignore, dplyr::select(d, !!newvars))
+    }
+    # Look for variables unignored in traiing but missing here and error
+    missing_vars <- setdiff(rec_obj$var_info$variable, names(d))
+    if (length(missing_vars))
+      stop("These variables were present in training but are missing here: ",
+           paste(newvars, collapse = ", "))
+  } else {
+    # Initialize a new recipe
+    if (verbose) message("Training new recipe")
+    outcome <- rlang::enquo(outcome)
+    ## Start by making all variables predictors...
+    rec_obj <- recipes::recipe(d, ~ .)
+    ## ...then change the role of outcome, if present, which warns
+    suppressWarnings({
+      if (!rlang::quo_is_missing(outcome))
+        rec_obj <- recipes::add_role(rec_obj, !!outcome, new_role = "outcome")
+    })
+  }
+
   attrs <- list() # To be built and applied at end
   # If outcome is present, validate it.
   d_ignore <- NULL
-  outcome <- rlang::enquo(outcome)
   if (!rlang::quo_is_missing(outcome)) {
     outcome_name <- rlang::quo_name(outcome)
     if (!(outcome_name %in% names(d))) {
@@ -135,153 +183,121 @@ prep_data <- function(d,
     attrs <- c(attrs, outcome = outcome_name)
   }
 
-  ignore_columns <- rlang::quos(...)
-  if (length(ignore_columns)) {
-    ignored <- purrr::map_chr(ignore_columns, rlang::quo_name)
-    present <- ignored %in% names(d)
-    if (any(!present))
-      stop(paste(ignored[!present], collapse = ", "), " not found in d.")
 
-    # Separate data into ignored and not
-    d_ignore <- dplyr::bind_cols(d_ignore, dplyr::select(d, !!ignored))
-    d <- dplyr::select(d, -dplyr::one_of(ignored))
+  # TODO: Refactor imputation summary in impute to be also used here. Or just
+  # call impute rather than hcai_impute
 
-    # Warn if ignored columns have missingness
-    m <- missingness(d_ignore) %>%
-      dplyr::filter(percent_missing > 0)
-    if (!purrr::is_empty(m$variable)) {
-      warning("These ignored variables still have missingness: ",
-              paste(m$variable, collapse = ", "))
+  # Add attribute identifying outcome
+  attrs <- c(attrs, ignored_cols = list(unname(ignored)))
 
-      # TODO: Refactor imputation summary in impute to be also used here. Or just
-      # call impute rather than hcai_impute
-    }
-    # Add attribute identifying outcome
-    attrs <- c(attrs, ignored_cols = list(unname(ignored)))
+
+  # Find largely missing columns and convert to factors
+  # rec_obj <- rec_obj %>% step_hcai_mostly_missing_to_factor()  # nolint
+
+  # Remove columns with near zero variance ----------------------------------
+  if (remove_near_zero_variance) {
+    rec_obj <- rec_obj %>%
+      recipes::step_nzv(all_predictors())
   }
 
-  # If a recipe or data frame is provided in rec_obj, skip building the recipe
-  if (!is.null(rec_obj)) {
-    rec_obj <- check_rec_obj(rec_obj)
-    if (verbose) {
-      message("Using loaded recipe on the new data")
+  # Convert date columns to useful features and remove original. ------------
+  if (!is.logical(convert_dates)) {
+    if (!is.character(convert_dates))  #  || is.null(names(convert_date))
+      stop("convert_dates must be logical or features for step_date")
+    sdf <- convert_dates
+    convert_dates <- TRUE
+  }
+  if (convert_dates) {
+    # If user didn't provide features, set them to defaults
+    if (!exists("sdf"))
+      sdf <- c("dow", "month", "year")
+    cols <- find_date_cols(d)
+    if (!purrr::is_empty(cols)) {
+      rec_obj <-
+        do.call(recipes::step_date,
+                list(recipe = rec_obj, cols, features = sdf)) %>%
+        recipes::step_rm(cols)
     }
-    # ... Else, build recipe step by step
   } else {
+    cols <- find_date_cols(d)
+    if (!purrr::is_empty(cols)) {
+      rec_obj <- rec_obj %>%
+        recipes::step_rm(cols)
+    }
     if (verbose) {
-      message("Training new recipe")
+      warning("These date columns will be removed: ",
+              paste(cols, collapse = ", "))
     }
-    # Initialize recipe
-    rec_obj <- d %>%
-      recipes::recipe(formula = "~.")  # nolint
-
-    # Find largely missing columns and convert to factors
-    # rec_obj <- rec_obj %>% step_hcai_mostly_missing_to_factor()  # nolint
-
-    # Remove columns with near zero variance ----------------------------------
-    if (remove_near_zero_variance) {
-      rec_obj <- rec_obj %>%
-        recipes::step_nzv(all_predictors())
-    }
-
-    # Convert date columns to useful features and remove original. ------------
-    if (!is.logical(convert_dates)) {
-      if (!is.character(convert_dates))  #  || is.null(names(convert_date))
-        stop("convert_dates must be logical or features for step_date")
-      sdf <- convert_dates
-      convert_dates <- TRUE
-    }
-    if (convert_dates) {
-      # If user didn't provide features, set them to defaults
-      if (!exists("sdf"))
-        sdf <- c("dow", "month", "year")
-      cols <- find_date_cols(d)
-      if (!purrr::is_empty(cols)) {
-        rec_obj <-
-          do.call(recipes::step_date,
-                  list(recipe = rec_obj, cols, features = sdf)) %>%
-          recipes::step_rm(cols)
-      }
-    } else {
-      cols <- find_date_cols(d)
-      if (!purrr::is_empty(cols)) {
-        rec_obj <- rec_obj %>%
-          recipes::step_rm(cols)
-      }
-      if (verbose) {
-        warning("These date columns will be removed: ",
-                paste(cols, collapse = ", "))
-      }
-    }
-
-    # Impute ------------------------------------------------------------------
-    if (isTRUE(impute)) {
-      rec_obj <- rec_obj %>%
-        hcai_impute()
-    } else if (is.list(impute)) {
-      # Set defaults
-      ip <- list(numeric_method = "mean",
-                 nominal_method = "new_category",
-                 numeric_params = NULL,
-                 nominal_params = NULL)
-      ip[names(ip) %in% names(impute)] <- impute[names(impute) %in% names(ip)]
-      extras  <- names(impute)[!(names(impute) %in% names(ip))]
-      if (length(extras > 0)) {
-        warning("You have extra imputation parameters that won't be used: ",
-                paste(extras, collapse = ", "),
-                ". Available params are: ", paste(names(ip), collapse = ", "))
-      }
-
-      # Impute takes defaults or user specified inputs. Error handling inside.
-      rec_obj <- rec_obj %>%
-        hcai_impute(numeric_method = ip$numeric_method,
-                    nominal_method = ip$nominal_method,
-                    numeric_params = ip$numeric_params,
-                    nominal_params = ip$nominal_params)
-    } else if (impute != FALSE) {
-      stop("impute must be boolean or list.")
-    }
-
-    # Collapse rare factors into "other" --------------------------------------
-    if (!is.logical(collapse_rare_factors)) {
-      if (!is.numeric(collapse_rare_factors))
-        stop("collapse_rare_factors must be logical or numeric")
-      if (collapse_rare_factors >= 1 || collapse_rare_factors < 0)
-        stop("If numeric, collapse_rare_factors should be between 0 and 1.")
-      fac_thresh <- collapse_rare_factors
-      collapse_rare_factors <- TRUE
-    }
-    if (collapse_rare_factors) {
-      if (!exists("fac_thresh"))
-        fac_thresh <- 0.03
-      rec_obj <- rec_obj %>%
-        recipes::step_other(all_nominal(), threshold = fac_thresh)
-    }
-
-    # Log transform
-    # Saving until columns can be specified
-
-    # Center ------------------------------------------------------------------
-    if (center) {
-      rec_obj <- rec_obj %>%
-        recipes::step_center(all_numeric())
-    }
-
-    # Scale -------------------------------------------------------------------
-    if (scale) {
-      rec_obj <- rec_obj %>%
-        recipes::step_scale(all_numeric())
-    }
-
-    # Dummies -----------------------------------------------------------------
-    if (dummies) {
-      rec_obj <- rec_obj %>%
-        recipes::step_dummy(all_nominal())
-    }
-
-    # Prep the newly built recipe ---------------------------------------------
-    rec_obj <- recipes::prep(rec_obj, training = d)
   }
+
+  # Impute ------------------------------------------------------------------
+  if (isTRUE(impute)) {
+    rec_obj <- rec_obj %>%
+      hcai_impute()
+  } else if (is.list(impute)) {
+    # Set defaults
+    ip <- list(numeric_method = "mean",
+               nominal_method = "new_category",
+               numeric_params = NULL,
+               nominal_params = NULL)
+    ip[names(ip) %in% names(impute)] <- impute[names(impute) %in% names(ip)]
+    extras  <- names(impute)[!(names(impute) %in% names(ip))]
+    if (length(extras > 0)) {
+      warning("You have extra imputation parameters that won't be used: ",
+              paste(extras, collapse = ", "),
+              ". Available params are: ", paste(names(ip), collapse = ", "))
+    }
+
+    # Impute takes defaults or user specified inputs. Error handling inside.
+    rec_obj <- rec_obj %>%
+      hcai_impute(numeric_method = ip$numeric_method,
+                  nominal_method = ip$nominal_method,
+                  numeric_params = ip$numeric_params,
+                  nominal_params = ip$nominal_params)
+  } else if (impute != FALSE) {
+    stop("impute must be boolean or list.")
+  }
+
+  # Collapse rare factors into "other" --------------------------------------
+  if (!is.logical(collapse_rare_factors)) {
+    if (!is.numeric(collapse_rare_factors))
+      stop("collapse_rare_factors must be logical or numeric")
+    if (collapse_rare_factors >= 1 || collapse_rare_factors < 0)
+      stop("If numeric, collapse_rare_factors should be between 0 and 1.")
+    fac_thresh <- collapse_rare_factors
+    collapse_rare_factors <- TRUE
+  }
+  if (collapse_rare_factors) {
+    if (!exists("fac_thresh"))
+      fac_thresh <- 0.03
+    rec_obj <- rec_obj %>%
+      recipes::step_other(all_nominal(), threshold = fac_thresh)
+  }
+
+  # Log transform
+  # Saving until columns can be specified
+
+  # Center ------------------------------------------------------------------
+  if (center) {
+    rec_obj <- rec_obj %>%
+      recipes::step_center(all_numeric())
+  }
+
+  # Scale -------------------------------------------------------------------
+  if (scale) {
+    rec_obj <- rec_obj %>%
+      recipes::step_scale(all_numeric())
+  }
+
+  # Dummies -----------------------------------------------------------------
+  if (dummies) {
+    rec_obj <- rec_obj %>%
+      recipes::step_dummy(all_nominal())
+  }
+
+  # Prep the newly built recipe ---------------------------------------------
+  rec_obj <- recipes::prep(rec_obj, training = d)
+
   # Bake either the newly built or passed-in recipe
   d <- recipes::bake(rec_obj, d)
   # Add ignore columns back in and attach recipe
