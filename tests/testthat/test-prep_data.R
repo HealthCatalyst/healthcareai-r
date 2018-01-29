@@ -99,7 +99,6 @@ test_that("Bad ignored columns throws an error", {
 
 test_that("prep_data works with just param d", {
   d_clean <- prep_data(d = d_train)
-
   expect_equal(unique(d_clean$weirdness[is.na(d_train$weirdness)]),
                mean(d_train$weirdness, na.rm = TRUE))
   expect_true(all.equal(droplevels(d_clean$genre[!is.na(d_train$genre)]),
@@ -137,10 +136,13 @@ test_that("prep_data works with defaults and two ignore columns", {
   expect_true(all(d_clean$genre[is.na(d_train$genre)] == "hcai_missing"))
 })
 
-test_that("0/1 outcome is converted to y/n", {
+test_that("0/1 outcome is converted to N/Y", {
   d_train$is_ween <- ifelse(d_train$is_ween == "Y", 1, 0)
   d_clean <- prep_data(d = d_train, outcome = is_ween)
-  expect_equal(levels(as.factor(d_clean$is_ween)), c("N", "Y"))
+  expect_s3_class(d_clean$is_ween, "factor")
+  expect_true(all.equal(which(d_train$is_ween == 1),
+                        which(d_clean$is_ween == "Y")))
+  expect_true(all.equal(sort(levels(d_clean$is_ween)), c("N", "Y")))
 })
 
 test_that("date columns are found and converted with defaults", {
@@ -156,18 +158,14 @@ test_that("date columns are found and converted with defaults", {
 
 test_that("convert_dates works when non default", {
   dd <- prep_data(d_train, convert_dates = "quarter")
-
   expect_true("date_col_quarter" %in% names(dd))
   expect_false("date_col_dow" %in% names(dd))
-
   dd <- prep_data(d_train, convert_dates = c("doy", "quarter"))
-
   expect_true(all(c("date_col_doy", "date_col_quarter") %in% names(dd)))
 })
 
 test_that("convert_dates removes date columns when false", {
   dd <- prep_data(d_train, convert_dates = FALSE)
-
   expect_true(!all(c("date_col", "posixct_col", "col_DTS") %in% names(dd)))
 })
 
@@ -176,7 +174,6 @@ test_that("prep_data works when certain column types are missing", {
     dplyr::select(-dplyr::one_of(c("a_nzv_col", "date_col", "posixct_col",
                                    "col_DTS", "drum_flag", "guitar_flag")))
   d_clean <- prep_data(d = d2, outcome = is_ween, song_id)
-
   expect_equal(unique(d_clean$weirdness[is.na(d2$weirdness)]),
                mean(d2$weirdness, na.rm = TRUE))
   expect_true(all.equal(droplevels(d_clean$genre[!is.na(d2$genre)]),
@@ -312,22 +309,22 @@ test_that("warning is given when ignored columns have missingness", {
     regexp = "reaction, length")
 })
 
-test_that("names of ignored and outcome columns get attached as attributes", {
+test_that("names of ignored columns get attached as attribute to rec_obj", {
   d_clean <- prep_data(d = d_train, outcome = is_ween, song_id)
-  expect_true(all(c("outcome", "ignored_cols", "rec_obj") %in%
-                    names(attributes(d_clean))))
-  expect_true(attr(d_clean, "outcome") == "is_ween")
-  expect_true(attr(d_clean, "ignored_cols") == "song_id")
+  expect_true("rec_obj" %in% names(attributes(d_clean)))
+  recipe_attrs <- attributes(attr(d_clean, "rec_obj"))
+  expect_true("ignored_columns" %in% names(recipe_attrs))
+  expect_true(recipe_attrs$ignored_columns == "song_id")
   multi_ignore <- prep_data(d_train, song_id, a_nzv_col, state)
-  expect_true(all.equal(attr(multi_ignore, "ignored_cols"),
+  expect_true(all.equal(attr(attr(multi_ignore, "rec_obj"), "ignored_columns"),
                         c("song_id", "a_nzv_col", "state")))
 })
 
-test_that("print method works as expected", {
-  dd <- prep_data(d = d_train,
-                  song_id,
-                  outcome = is_ween,
-                  verbose = TRUE)
+# TODO
+test_that("verbose works as expected", {
+  dd <- prep_data(d = d_train, song_id, outcome = is_ween, verbose = TRUE)
+})
+test_that("print works as expected", {
 })
 
 test_that("prep_data applies recipe from training on test data", {
@@ -344,8 +341,9 @@ test_that("Unignored variables present in training but not deployment error", {
                   "hcai_prepped_df")
 })
 
-test_that("variables present in deployment but not in training get ignored", {
-  big_d <- mutate(d, extra = seq_len(nrow(d)))
-  pd <- prep_data(big_d, rec_obj = d_prep)
-  expect_true(pd$extra == seq_len(nrow(d)))
+test_that("New variables present in deployment get ignored with a warning", {
+  big_d <- mutate(d_train, extra = seq_len(nrow(d_clean)))
+  expect_warning(pd <- prep_data(big_d, rec_obj = attr(d_prep, "rec_obj")),
+                 regexp = "extra")
+  expect_true(all.equal(pd$extra, seq_len(nrow(d_train))))
 })
