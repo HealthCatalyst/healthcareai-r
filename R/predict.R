@@ -1,15 +1,18 @@
 #' Make predictions
 #'
 #' @param models model_list object, as from `tune_models`
-#' @param newdata data on which to make predictions.  with same structure as the input to `tune_models` or the input to `prep_data`
-#'   or `tune_models` that generated `models`. If the data that models were
-#'   tuned on was prepaired via `prep_data`, newdata will be prepared the same
-#'   way, unless prepdata is FALSE.
+#' @param newdata data on which to make predictions. If missing, predictions
+#'   will be made on the training data. Should have the same structure as the
+#'   input to `prep_data`,`tune_models` or `train_models`. `predict` will try to
+#'   figure out if the data need to be prepped by `prep_data` before making
+#'   predictions; this can be overriden by setting prepdata is FALSE, but this
+#'   should rarely be needed.
 #' @param prepdata Logical, rarely needs to be set by the user. By default, if
 #'   `newdata` hasn't been prepped, it will be prepped by `prep_data` before
 #'   predictions are made. Set this to TRUE to force already-prepped data
 #'   through `prep_data` again, or set to FALSE to prevent `newdata` from being
 #'   sent through `prep_data`.
+#'
 #' @return A tibble data frame: newdata with an additional column for the
 #'   predictions in "predicted_TARGET" where TARGET is the name of the variable
 #'   being predicted. If classification, the new column will contain predicted
@@ -66,7 +69,7 @@ predict.model_list <- function(models, newdata, prepdata) {
   # This bit of repition avoids copying newdata if it's not being prepped
   preds <-
     if (prep) {
-      prep_data(newdata, rec_obj = attr(models, "rec_obj")) %>%
+      prep_data(newdata, recipe = attr(models, "recipe")) %>%
         caret::predict.train(best_models, ., type = type)
     } else {
       newdata %>%

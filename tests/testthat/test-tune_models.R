@@ -152,3 +152,9 @@ test_that("tune handles tibble input", {
   expect_s3_class(tune_models(tibble::as_tibble(test_df), x1, "classification"),
                   "classification_list")
 })
+
+test_that("If a column was ignored in prep_data it's ignored in tune", {
+  pd <- prep_data(test_df, x3)
+  mods <- tune_models(pd, x2)
+  expect_false("x3" %in% names(mods[[1]]$trainingData))
+})

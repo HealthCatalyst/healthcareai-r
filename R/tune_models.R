@@ -58,20 +58,35 @@
 #' dotplot(rs)
 #' }
 tune_models <- function(d,
-                 outcome,
-                 model_class,
-                 models = c("rf", "knn"),
-                 n_folds = 5,
-                 tune_depth = 10,
-                 tune_method = "random",
-                 metric,
-                 hyperparameters) {
+                        outcome,
+                        model_class,
+                        models = c("rf", "knn"),
+                        n_folds = 5,
+                        tune_depth = 10,
+                        tune_method = "random",
+                        metric,
+                        hyperparameters) {
   # Organize arguments and defaults
   outcome <- rlang::enquo(outcome)
+  outcome_chr <- rlang::quo_name(outcome)
   models <- tolower(models)
   # Grab data prep recipe object to add to model_list at end
-  rec_obj <-
-    if ("rec_obj" %in% names(attributes(d))) attr(d, "rec_obj") else NULL
+  recipe <-
+    if ("recipe" %in% names(attributes(d))) attr(d, "recipe") else NULL
+  if (!is.null(recipe)) {
+    # Pull columns ignored in prep_data out of d
+    ignored <- attr(recipe, "ignored_columns")
+    if (!is.null(ignored)) {
+      d <- dplyr::select(d, -dplyr::one_of(ignored))
+      message("Ignored in prep so won't be used to tune models: ",
+              paste(ignored, collapse = ", "))
+    }
+    # If an outcome was specified in prep_data make sure it's the same here
+    prep_outcome <-recipe$var_info$variable[recipe$var_info$role == "outcome"]
+    if (length(prep_outcome) && prep_outcome != outcome_chr)
+      stop("outcome in prep_data (", prep_outcome, ") and outcome in tune models (",
+           outcome_chr, ") are different. They need to be the same.")
+  }
   # tibbles upset some algorithms, plus handles matrices, maybe
   d <- as.data.frame(d)
   if (n_folds <= 1)
@@ -185,7 +200,7 @@ tune_models <- function(d,
                               target = rlang::quo_name(outcome))
 
   # Add recipe object if one came in on d
-  attr(train_list, "rec_obj") <- rec_obj
+  attr(train_list, "recipe") <- recipe
 
   return(train_list)
 }

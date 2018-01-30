@@ -22,7 +22,7 @@ print.model_list <- function(mlist) {
   } else {
     out <- paste("Empty", class(mlist)[1], "object.")
   }
-  cat(out)
+  cat(out, "\n")
   return(invisible(mlist))
 }
 

@@ -9,10 +9,12 @@
 \arguments{
 \item{models}{model_list object, as from `tune_models`}
 
-\item{newdata}{data frame with same structure as the input to `train_models`
-or `tune_models` that generated `models`. If the data that models were
-tuned on was prepaired via `prep_data`, newdata will be prepared the same
-way, unless prepdata is FALSE.}
+\item{newdata}{data on which to make predictions. If missing, predictions
+will be made on the training data. Should have the same structure as the
+input to `prep_data`,`tune_models` or `train_models`. `predict` will try to
+figure out if the data need to be prepped by `prep_data` before making
+predictions; this can be overriden by setting prepdata is FALSE, but this
+should rarely be needed.}
 
 \item{prepdata}{Logical, rarely needs to be set by the user. By default, if
 `newdata` hasn't been prepped, it will be prepped by `prep_data` before
