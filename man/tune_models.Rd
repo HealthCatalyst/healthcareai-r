@@ -6,7 +6,8 @@
 cross-validation}
 \usage{
 tune_models(d, outcome, model_class, models = c("rf", "knn"), n_folds = 5,
-  tune_depth = 10, tune_method = "random", metric, hyperparameters)
+  tune_depth = 10, tune_method = "random", metric, hyperparameters,
+  verbose = FALSE)
 }
 \arguments{
 \item{d}{A data frame}
@@ -41,6 +42,8 @@ the respective model. Entries in each inner-list are the values of the
 hyperparameter to try. These will be expanded to run a full grid search
 over every combination of values. For details on support models and
 hyperparameters see \code{\link{supported_models}}.}
+
+\item{verbose}{Logical, defaults to FALSE. Get additional info via messages?}
 }
 \value{
 A model_list object
@@ -56,19 +59,26 @@ Note that in general a model is trained for each hyperparameter
 }
 \examples{
 \dontrun{
-### Takes ~7 seconds
-# Remove identifier variables and rows with missingness,
-# and choose 100 rows to speed tuning
-d <-
-  pima_diabetes \%>\%
-  dplyr::select(-patient_id) \%>\%
-  stats::na.omit() \%>\%
-  dplyr::sample_n(100)
-m <- tune_models(d, outcome = diabetes, model_class = "classification")
+### Takes ~20 seconds
+# Prepare data for tuning
+d <- prep_data(pima_diabetes, patient_id, outcome = diabetes)
+
+# Tune random forest and k-nearest neighbors classification models
+m <- tune_models(d, outcome = diabetes)
+
+# Get some info about the tuned models
+m
+
+# Get more detailed info
+summary(m)
+
 # Plot performance over hyperparameter values for each algorithm
 plot(m)
-# Extract confusion matrix for KNN
-caret::confusionMatrix(m[[2]], norm = "none")
+
+# Extract confusion matrix for random forest (the model with best-performing
+# hyperparameter values is used)
+caret::confusionMatrix(m$`Random Forest`, norm = "none")
+
 # Compare performance of algorithms at best hyperparameter values
 rs <- resamples(m)
 dotplot(rs)

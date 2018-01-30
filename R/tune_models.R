@@ -25,6 +25,7 @@
 #'   hyperparameter to try. These will be expanded to run a full grid search
 #'   over every combination of values. For details on support models and
 #'   hyperparameters see \code{\link{supported_models}}.
+#' @param verbose Logical, defaults to FALSE. Get additional info via messages?
 #'
 #' @export
 #' @importFrom kknn kknn
@@ -42,19 +43,26 @@
 #'
 #' @examples
 #' \dontrun{
-#' ### Takes ~7 seconds
-#' # Remove identifier variables and rows with missingness,
-#' # and choose 100 rows to speed tuning
-#' d <-
-#'   pima_diabetes %>%
-#'   dplyr::select(-patient_id) %>%
-#'   stats::na.omit() %>%
-#'   dplyr::sample_n(100)
-#' m <- tune_models(d, outcome = diabetes, model_class = "classification")
+#' ### Takes ~20 seconds
+#' # Prepare data for tuning
+#' d <- prep_data(pima_diabetes, patient_id, outcome = diabetes)
+#'
+#' # Tune random forest and k-nearest neighbors classification models
+#' m <- tune_models(d, outcome = diabetes)
+#'
+#' # Get some info about the tuned models
+#' m
+#'
+#' # Get more detailed info
+#' summary(m)
+#'
 #' # Plot performance over hyperparameter values for each algorithm
 #' plot(m)
-#' # Extract confusion matrix for KNN
-#' caret::confusionMatrix(m[[2]], norm = "none")
+#'
+#' # Extract confusion matrix for random forest (the model with best-performing
+#' # hyperparameter values is used)
+#' caret::confusionMatrix(m$`Random Forest`, norm = "none")
+#'
 #' # Compare performance of algorithms at best hyperparameter values
 #' rs <- resamples(m)
 #' dotplot(rs)
@@ -67,7 +75,8 @@ tune_models <- function(d,
                         tune_depth = 10,
                         tune_method = "random",
                         metric,
-                        hyperparameters) {
+                        hyperparameters,
+                        verbose = FALSE) {
   # Organize arguments and defaults
   outcome <- rlang::enquo(outcome)
   outcome_chr <- rlang::quo_name(outcome)
@@ -88,8 +97,9 @@ tune_models <- function(d,
     ignored <- ignored[ignored %in% names(d)]
     if (!is.null(ignored) && length(ignored)) {
       d <- dplyr::select(d, -dplyr::one_of(ignored))
-      message("Variable(s) ignored in prep_data won't be used to tune models: ",
-              paste(ignored, collapse = ", "))
+      if (verbose)
+        message("Variable(s) ignored in prep_data won't be used to tune models: ",
+                paste(ignored, collapse = ", "))
     }
     # If an outcome was specified in prep_data make sure it's the same here
     prep_outcome <-recipe$var_info$variable[recipe$var_info$role == "outcome"]
@@ -118,15 +128,15 @@ tune_models <- function(d,
   } else if (missing(model_class)) {
     # Need to infer model_class
     if (looks_categorical) {
-      message(outcome_chr,
-              " looks categorical, so training classification algorithms.")
+      mes <- paste0(outcome_chr, " looks categorical, so training classification algorithms.")
       model_class <- "classification"
     } else {
-      message(outcome_chr,
-              " looks numeric, so training regression algorithms.")
+      mes <- paste0(outcome_chr, " looks numeric, so training regression algorithms.")
       model_class <- "regression"
       # User provided model_class, so check it
     }
+    if (verbose)
+      message(mes)
   } else {
     # Check user-provided model_class
     supported_classes <- c("regression", "classification")
@@ -192,6 +202,29 @@ tune_models <- function(d,
     lapply(models, function(model) {
       message("Running cross validation for ",
               caret::getModelInfo(model)[[1]]$label)
+      # Hack to reduce kmax for kknn from nrow/3 to log(nrow)*3
+      if (model == "kknn") {
+        kn <- caret::getModelInfo("kknn")$kknn
+        kn$grid <- function(x, y, len = NULL, search = "grid") {
+          if(search == "grid") {
+            out <- data.frame(kmax = (5:((2 * len)+4))[(5:((2 * len)+4))%%2 > 0],
+                              distance = 2,
+                              kernel = "optimal")
+          } else {
+            by_val <- if(is.factor(y)) length(levels(y)) else 1
+            kerns <- c("rectangular", "triangular", "epanechnikov", "biweight", "triweight",
+                       "cos", "inv", "gaussian")
+            # Editted line:
+            out <- data.frame(kmax = sample(seq(1, floor(log(nrow(x)) * 3), by = by_val),
+                                            size = len, replace = TRUE),
+                              distance = runif(len, min = 0, max = 3),
+                              kernel = sample(kerns, size = len, replace = TRUE))
+          }
+          out
+        }
+        model <- kn
+      }
+      # Train models
       caret::train(x = dplyr::select(d, -!!outcome),
                    y = dplyr::pull(d, !!outcome),
                    method = model,

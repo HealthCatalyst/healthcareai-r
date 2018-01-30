@@ -320,7 +320,6 @@ test_that("prep_data applies recipe from training on test data", {
 
 test_that("Unignored variables present in training but not deployment error", {
   expect_error(prep_data(dplyr::select(d_test, -length), recipe = d_prep))
-  expect_error(prep_data(dplyr::select(d_test, -is_ween), recipe = d_prep))
   expect_s3_class(prep_data(dplyr::select(d_test, -song_id), recipe = d_prep),
                   "hcai_prepped_df")
 })
