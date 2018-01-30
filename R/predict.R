@@ -1,11 +1,11 @@
-#' Make predictions
+#' Make predictions using the best-performing model from tuning
 #'
 #' @param models model_list object, as from `tune_models`
 #' @param newdata data on which to make predictions. If missing, predictions
 #'   will be made on the training data. Should have the same structure as the
 #'   input to `prep_data`,`tune_models` or `train_models`. `predict` will try to
-#'   figure out if the data need to be prepped by `prep_data` before making
-#'   predictions; this can be overriden by setting prepdata is FALSE, but this
+#'   figure out if the data need to be sent through `prep_data` before making
+#'   predictions; this can be overriden by setting `prepdata = FALSE``, but this
 #'   should rarely be needed.
 #' @param prepdata Logical, rarely needs to be set by the user. By default, if
 #'   `newdata` hasn't been prepped, it will be prepped by `prep_data` before
@@ -22,36 +22,43 @@
 #' @export
 #' @importFrom caret predict.train
 #'
-#' @details prepping data inside `predict` has the advantage of returning your
-#'   predictions with the data frame in its original (unprepped) format. To do
-#'   this, simply pass the data frame on which predictions are to be generated
-#'   to `newdata` in the same format as the training data was passed to
-#'   `prep_data` or `train_models`.
+#' @details The model and hyperparameter values with the best out-of-fold
+#'   performance in model training according to the selected metric is used to
+#'   make predictions. Prepping data inside `predict` has the advantage of
+#'   returning your predictions with the newdata in its original format.
 #'
 #' @examples
 #' library(dplyr)
-#' # Make a small, 50 row data frame with no missingness
-#' small_data <-
+#' models <-
 #'   pima_diabetes %>%
-#'   stats::na.omit() %>%
-#'   sample_n(50)
-#' # Split the data into 80% for model training and 20% for testing
-#' train_rows <- caret::createDataPartition(small_data$skinfold, p = .8)[[1]]
-#' training <- slice(small_data, train_rows)
-#' testing <- slice(small_data, -train_rows)
-#' # Prepare the training data by centering and scaling numeric variables
-#' # and making dummies from categorical variables
-#' prepped_training <- prep_data(training, skinfold, patient_id,
-#'                               center = TRUE, scale = TRUE, make_dummies = TRUE)
-#' # Tune models. Because patient_id was ignored it has to be removed
-#' models <- tune_models(select(prepped_training, -patient_id), skinfold)
-#' predictions <- predict(models, testing)
-#' predictions$predicted_skinfold
+#'   # Use only the first 50 rows to keep computation fast
+#'   slice(1:50) %>%
+#'   # Prep data with patient_id being ignored and diabetes as the outcome
+#'   prep_data(patient_id, outcome = diabetes) %>%
+#'   # Tune models based on parameters passed to prep_data
+#'   tune_models(diabetes)
+#' # Make prediction on the next 50 rows. This uses the best-performing model in
+#' # tuning cross validation, and it also prepares the new data in the same way as
+#' # the training data was prepared.
+#' predictions <- predict(models, newdata = slice(pima_diabetes, 51:70))
+#' predictions
+#' ggplot(predictions, aes(x = predicted_diabetes, fill = diabetes)) +
+#'   geom_density(alpha = .5)
 predict.model_list <- function(models, newdata, prepdata) {
-  if (!inherits(newdata, "data.frame"))
-    stop("newdata must be a data frame")
   mi <- extract_model_info(models)
   best_models <- models[[mi$best_model_name]]
+  if (missing(newdata)) {
+    newdata <-
+      best_models$trainingData %>%
+      dplyr::mutate(!!mi$target := .outcome) %>%
+      dplyr::select(- .outcome)
+    # caret::train strips hcai_prepped_df class from newdata. So,
+    # check recipe attr to see if it was prepped and if so convert.
+    if ("recipe" %in% names(attributes(models)))
+      class(newdata) <- c("hcai_prepped_df", class(newdata))
+  }
+  if (!inherits(newdata, "data.frame"))
+    stop("newdata must be a data frame")
   # If prepdata provided by user; follow that. Else, prep if newdata hasn't been
   # and the variables used to tune models aren't present.
   prep <-
@@ -73,6 +80,7 @@ predict.model_list <- function(models, newdata, prepdata) {
         TRUE
       } else { FALSE }
     }
+
   # If classification, want probabilities. If regression, raw's the only option
   type <- if (is.classification_list(models)) "prob" else "raw"
   # This bit of repition avoids copying newdata if it's not being prepped

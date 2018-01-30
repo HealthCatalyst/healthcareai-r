@@ -94,3 +94,12 @@ test_that("predictions are better than chance", {
          mean(abs(mean(Fertility) - Fertility))) %>%
     expect_true()
 })
+
+test_that("If newdata isn't provided, make predictions on training data", {
+  pc <- predict(mcp)
+  expect_s3_class(pc, "hcai_predicted_df")
+  expect_true(all(c("Catholic", "predicted_Catholic") %in% names(pc)))
+  pr <- predict(mrn)
+  expect_s3_class(pr, "hcai_predicted_df")
+  expect_true(all(c("Fertility", "predicted_Fertility") %in% names(pr)))
+})

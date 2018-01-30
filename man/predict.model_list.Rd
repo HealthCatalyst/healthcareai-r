@@ -2,7 +2,7 @@
 % Please edit documentation in R/predict.R
 \name{predict.model_list}
 \alias{predict.model_list}
-\title{Make predictions}
+\title{Make predictions using the best-performing model from tuning}
 \usage{
 \method{predict}{model_list}(models, newdata, prepdata)
 }
@@ -12,8 +12,8 @@
 \item{newdata}{data on which to make predictions. If missing, predictions
 will be made on the training data. Should have the same structure as the
 input to `prep_data`,`tune_models` or `train_models`. `predict` will try to
-figure out if the data need to be prepped by `prep_data` before making
-predictions; this can be overriden by setting prepdata is FALSE, but this
+figure out if the data need to be sent through `prep_data` before making
+predictions; this can be overriden by setting `prepdata = FALSE``, but this
 should rarely be needed.}
 
 \item{prepdata}{Logical, rarely needs to be set by the user. By default, if
@@ -31,32 +31,29 @@ A tibble data frame: newdata with an additional column for the
   make predictions.
 }
 \description{
-Make predictions
+Make predictions using the best-performing model from tuning
 }
 \details{
-prepping data inside `predict` has the advantage of returning your
-  predictions with the data frame in its original (unprepped) format. To do
-  this, simply pass the data frame on which predictions are to be generated
-  to `newdata` in the same format as the training data was passed to
-  `prep_data` or `train_models`.
+The model and hyperparameter values with the best out-of-fold
+  performance in model training according to the selected metric is used to
+  make predictions. Prepping data inside `predict` has the advantage of
+  returning your predictions with the newdata in its original format.
 }
 \examples{
 library(dplyr)
-# Make a small, 50 row data frame with no missingness
-small_data <-
+models <-
   pima_diabetes \%>\%
-  stats::na.omit() \%>\%
-  sample_n(50)
-# Split the data into 80\% for model training and 20\% for testing
-train_rows <- caret::createDataPartition(small_data$skinfold, p = .8)[[1]]
-training <- slice(small_data, train_rows)
-testing <- slice(small_data, -train_rows)
-# Prepare the training data by centering and scaling numeric variables
-# and making dummies from categorical variables
-prepped_training <- prep_data(training, skinfold, patient_id,
-                              center = TRUE, scale = TRUE, make_dummies = TRUE)
-# Tune models. Because patient_id was ignored it has to be removed
-models <- tune_models(select(prepped_training, -patient_id), skinfold)
-predictions <- predict(models, testing)
-predictions$predicted_skinfold
+  # Use only the first 50 rows to keep computation fast
+  slice(1:50) \%>\%
+  # Prep data with patient_id being ignored and diabetes as the outcome
+  prep_data(patient_id, outcome = diabetes) \%>\%
+  # Tune models based on parameters passed to prep_data
+  tune_models(diabetes)
+# Make prediction on the next 50 rows. This uses the best-performing model in
+# tuning cross validation, and it also prepares the new data in the same way as
+# the training data was prepared.
+predictions <- predict(models, newdata = slice(pima_diabetes, 51:70))
+predictions
+ggplot(predictions, aes(x = predicted_diabetes, fill = diabetes)) +
+  geom_density(alpha = .5)
 }
