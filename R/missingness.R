@@ -50,7 +50,7 @@ missingness <- function(d,
     miss <- data.frame(variable = names(miss),
                        percent_missing = miss,
                        stringsAsFactors = FALSE)
-    rownames(d) <- NULL
+    rownames(miss) <- NULL
   }
 
   return(miss)

@@ -44,3 +44,8 @@ test_that("Output is of right class", {
   expect_true(is.data.frame(missingness(d3, return_df = TRUE)))
   expect_true(is.vector(missingness(d3, return_df = FALSE)))
 })
+
+test_that("Variable names aren't repeated in rownames", {
+  out <- missingness(data.frame(x = 1:2, y = c("a", NA)))
+  expect_true(length(setdiff(rownames(out), out$variable)) > 0)
+})
