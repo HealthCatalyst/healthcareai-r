@@ -32,7 +32,8 @@
 #' @importFrom dplyr mutate
 #' @importFrom rlang quo_name
 #'
-#' @seealso \code{\link{prep_data}}, \code{\link{predict.model_list}}
+#' @seealso \code{\link{prep_data}}, \code{\link{predict.model_list}},
+#'   \code{\link{supported_models}}
 #'
 #' @return A model_list object
 #' @details Note that in general a model is trained for each hyperparameter

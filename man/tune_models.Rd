@@ -75,5 +75,6 @@ dotplot(rs)
 }
 }
 \seealso{
-\code{\link{prep_data}}, \code{\link{predict.model_list}}
+\code{\link{prep_data}}, \code{\link{predict.model_list}},
+  \code{\link{supported_models}}
 }
