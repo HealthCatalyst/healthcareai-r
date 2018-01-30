@@ -3,28 +3,18 @@
 #'
 #' @param d A data frame
 #' @param outcome Name of the column to predict
-#' @param model_class One of "regression", "classification", "multiclass", or
-#'   "unsupervised", but only regression and classification are currently
-#'   supported.
+#' @param model_class One of "regression", "classification"
 #' @param models Names of models to try, by default for regression and
 #'   classification "rf" for random forest and "knn" for k-nearest neighbors.
 #'   See \code{\link{supported_models}} for available models.
 #' @param n_folds How many folds to use in cross-validation? Default = 5.
 #' @param tune_depth How many hyperparameter combinations to try? Defualt = 10.
-#' @param tune_method How to search hyperparameter space? Only "random" is
-#'   currently supported. Eventually, "random" (default) or "grid".
+#' @param tune_method "random" (default)
 #' @param metric What metric to use to assess model performance? Options for
 #'   regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
 #'   error), or "Rsquared." For classification: "ROC" (area under the receiver
 #'   operating characteristic curve).
-#' @param hyperparameters Currently not supported. Optional. A list of
-#'   hyperparameter values to tune over. Overrides \code{tune_depth}. A list of
-#'   lists. The names of the outer-list must match \code{models}. The names of
-#'   each inner-list must match the hyperparameters available to tune over for
-#'   the respective model. Entries in each inner-list are the values of the
-#'   hyperparameter to try. These will be expanded to run a full grid search
-#'   over every combination of values. For details on support models and
-#'   hyperparameters see \code{\link{supported_models}}.
+#' @param hyperparameters Currently not supported.
 #' @param verbose Logical, defaults to FALSE. Get additional info via messages?
 #'
 #' @export
