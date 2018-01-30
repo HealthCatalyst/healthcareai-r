@@ -37,7 +37,7 @@ Imports:
     R6,
     ranger (>= 0.8.0),
     readr,
-    recipes,
+    recipes (>= 0.1.2),
     rlang,
     ROCR,
     RSQLite,
