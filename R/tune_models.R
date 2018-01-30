@@ -26,14 +26,15 @@
 #'   over every combination of values. For details on support models and
 #'   hyperparameters see \code{\link{supported_models}}.
 #'
-#' @return A model_list object
 #' @export
-#'
 #' @importFrom kknn kknn
 #' @importFrom ranger ranger
 #' @importFrom dplyr mutate
 #' @importFrom rlang quo_name
 #'
+#' @seealso \code{\link{prep_data}}, \code{\link{predict.model_list}}
+#'
+#' @return A model_list object
 #' @details Note that in general a model is trained for each hyperparameter
 #'   combination in each fold for each model, so run time is a function of
 #'   length(models) x n_folds x tune_depth.

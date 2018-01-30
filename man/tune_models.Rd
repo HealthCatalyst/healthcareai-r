@@ -74,3 +74,6 @@ rs <- resamples(m)
 dotplot(rs)
 }
 }
+\seealso{
+\code{\link{prep_data}}, \code{\link{predict.model_list}}
+}

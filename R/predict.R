@@ -21,6 +21,7 @@
 #'   make predictions.
 #' @export
 #' @importFrom caret predict.train
+#' @seealso \code{\link{tune_models}}, \code{\link{prep_data}}
 #'
 #' @details The model and hyperparameter values with the best out-of-fold
 #'   performance in model training according to the selected metric is used to

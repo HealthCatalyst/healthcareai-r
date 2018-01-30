@@ -1,6 +1,7 @@
 context("Test predict")
 
 ### Setup. Data from caret.
+set.seed(2570)
 library(magrittr)
 data("swiss")
 swiss <-

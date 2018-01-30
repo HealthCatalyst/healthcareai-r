@@ -57,3 +57,6 @@ predictions
 ggplot(predictions, aes(x = predicted_diabetes, fill = diabetes)) +
   geom_density(alpha = .5)
 }
+\seealso{
+\code{\link{tune_models}}, \code{\link{prep_data}}
+}

@@ -84,16 +84,14 @@ Prepared data frame with reusable recipe object for future data
   \item{Convert date columns to useful features} \item{Fill in missing values
   with various imputation methods} \item{Collapse rare categories into
   `other`} \item{Center numeric columns} \item{Standardize numeric columns}
-  \item{Create dummy variables} } While preparing your data, a recipe will be
-  generated for identical transformation of future data and stored in the
-  `recipe` attribute of the output data frame. If a recipe object is passed
-  to `prep_data` via the `recipe` argument, that recipe will be applied to
-  the data. This allows you to transform data in model training and apply
-  exactly the same transformations in model testing and deployment. The new
-  data must be identical in structure to the data that the recipe was
-  prepared with. \item{Add levels} Add levels for rare and missing values in
-  factors to protect your deployed model from surprise missingness or new
-  values.
+  \item{Create dummy variables} \item{Add levels to factors for rare and
+  missing data}} While preparing your data, a recipe will be generated for
+  identical transformation of future data and stored in the `recipe`
+  attribute of the output data frame. If a recipe object is passed to
+  `prep_data` via the `recipe` argument, that recipe will be applied to the
+  data. This allows you to transform data in model training and apply exactly
+  the same transformations in model testing and deployment. The new data must
+  be identical in structure to the data that the recipe was prepared with.
 }
 \examples{
 d_train <- pima_diabetes[1:700, ]
