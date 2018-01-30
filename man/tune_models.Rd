@@ -53,9 +53,12 @@ Identify the best performing model by tuning hyperparameters via
 cross-validation
 }
 \details{
-Note that in general a model is trained for each hyperparameter
-  combination in each fold for each model, so run time is a function of
-  length(models) x n_folds x tune_depth.
+Note that this function is training a lot of models (100 by default)
+  and so can take a while to execute. In general a model is trained for each
+  hyperparameter combination in each fold for each model, so run time is a
+  function of length(models) x n_folds x tune_depth. At the default settings,
+  a 1000 row, 10 column data frame should complete in about 30 seconds on a
+  good laptop.
 }
 \examples{
 \dontrun{
