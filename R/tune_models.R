@@ -70,15 +70,23 @@ tune_models <- function(d,
   outcome <- rlang::enquo(outcome)
   outcome_chr <- rlang::quo_name(outcome)
   models <- tolower(models)
+
+  # tibbles upset some algorithms, plus handles matrices, maybe
+  d <- as.data.frame(d)
+  if (n_folds <= 1)
+    stop("n_folds must be greater than 1.")
+
   # Grab data prep recipe object to add to model_list at end
   recipe <-
     if ("recipe" %in% names(attributes(d))) attr(d, "recipe") else NULL
   if (!is.null(recipe)) {
     # Pull columns ignored in prep_data out of d
     ignored <- attr(recipe, "ignored_columns")
-    if (!is.null(ignored)) {
+    # Only ignored columns that are present now
+    ignored <- ignored[ignored %in% names(d)]
+    if (!is.null(ignored) && length(ignored)) {
       d <- dplyr::select(d, -dplyr::one_of(ignored))
-      message("Ignored in prep so won't be used to tune models: ",
+      message("Variable(s) ignored in prep_data won't be used to tune models: ",
               paste(ignored, collapse = ", "))
     }
     # If an outcome was specified in prep_data make sure it's the same here
@@ -87,13 +95,10 @@ tune_models <- function(d,
       stop("outcome in prep_data (", prep_outcome, ") and outcome in tune models (",
            outcome_chr, ") are different. They need to be the same.")
   }
-  # tibbles upset some algorithms, plus handles matrices, maybe
-  d <- as.data.frame(d)
-  if (n_folds <= 1)
-    stop("n_folds must be greater than 1.")
+
   # Is outcome present?
-  if (!rlang::quo_name(outcome) %in% names(d))
-    stop(rlang::quo_name(outcome), "isn't a column in d.")
+  if (!outcome_chr %in% names(d))
+    stop(outcome_chr, " isn't a column in d.")
   # Make sure outcome's class works with model_class, or infer it
   outcome_class <- class(dplyr::pull(d, !!outcome))
   looks_categorical <- outcome_class %in% c("character", "factor")
@@ -101,21 +106,21 @@ tune_models <- function(d,
   # Get rid of unused levels if they're present
   if (looks_categorical)
     d <- dplyr::mutate(d,
-                       !!rlang::quo_name(outcome) := as.factor(!!outcome),
-                       !!rlang::quo_name(outcome) := droplevels(!!outcome))
+                       !!outcome_chr := as.factor(!!outcome),
+                       !!outcome_chr := droplevels(!!outcome))
   looks_numeric <- is.numeric(dplyr::pull(d, !!outcome))
   if (!looks_categorical && !looks_numeric) {
     # outcome is weird class
-    stop(rlang::quo_name(outcome), " is ", class(dplyr::pull(d, !!outcome)),
+    stop(outcome_chr, " is ", class(dplyr::pull(d, !!outcome)),
          ", and tune_models doesn't know what to do with that.")
   } else if (missing(model_class)) {
     # Need to infer model_class
     if (looks_categorical) {
-      message(rlang::quo_name(outcome),
+      message(outcome_chr,
               " looks categorical, so training classification algorithms.")
       model_class <- "classification"
     } else {
-      message(rlang::quo_name(outcome),
+      message(outcome_chr,
               " looks numeric, so training regression algorithms.")
       model_class <- "regression"
       # User provided model_class, so check it
@@ -128,16 +133,17 @@ tune_models <- function(d,
            paste(supported_classes, collapse = ", "),
            ". You supplied this unsupported class: ", model_class)
     if (looks_categorical && model_class == "regression") {
-      stop(rlang::quo_name(outcome), " is ", outcome_class, " but you're ",
+      stop(outcome_chr, " is ", outcome_class, " but you're ",
            "trying to train a regression model.")
     } else if (looks_numeric && model_class == "classification") {
-      stop(rlang::quo_name(outcome), " is ", outcome_class, " but you're ",
+      stop(outcome_chr, " is ", outcome_class, " but you're ",
            "trying to train a classification model. If that's what you want ",
            "convert it explicitly with as.factor().")
     }
   }
   # Convert all character variables to factors. kknn sometimes chokes on chars
   d <- dplyr::mutate_if(d, is.character, as.factor)
+
   # Choose metric if not provided
   if (missing(metric)) {
     metric <-
@@ -197,7 +203,7 @@ tune_models <- function(d,
 
   # Add classes
   train_list <- as.model_list(listed_models = train_list,
-                              target = rlang::quo_name(outcome))
+                              target = outcome_chr)
 
   # Add recipe object if one came in on d
   attr(train_list, "recipe") <- recipe

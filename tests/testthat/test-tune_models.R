@@ -155,6 +155,6 @@ test_that("tune handles tibble input", {
 
 test_that("If a column was ignored in prep_data it's ignored in tune", {
   pd <- prep_data(test_df, x3)
-  mods <- tune_models(pd, x2)
+  capture_warnings(mods <- tune_models(pd, x2))
   expect_false("x3" %in% names(mods[[1]]$trainingData))
 })

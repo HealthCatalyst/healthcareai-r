@@ -131,7 +131,7 @@ prep_data <- function(d,
 
   # If there's a recipe in recipe, use that
   if (!is.null(recipe)) {
-    message("Applying provided recipe to new data")
+    message("Prepping data based on provided recipe")
     recipe <- check_rec_obj(recipe)
     # Look for variables that weren't present in training, add them to ignored
     newvars <- setdiff(names(d), c(recipe$var_info$variable,

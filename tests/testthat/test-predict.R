@@ -8,8 +8,6 @@ swiss <-
   tibble::rownames_to_column("province") %>%
   dplyr::mutate(Catholic = ifelse(Catholic > 80, "Y", "N")) %>%
   tibble::as_tibble()
-# Temp: add bogus category column so prep_data doesn't freak out
-swiss$bogus <- sample(c("a", "b"), nrow(swiss), TRUE)
 part <- caret::createDataPartition(swiss$Catholic, .8)[[1]]
 tr <- swiss[part, ]
 te <- swiss[-part, ]
@@ -19,8 +17,7 @@ te <- swiss[-part, ]
 # Format: m - r = reg, c = class - p = prepped, n = not
 mcp <-
   tr %>%
-  prep_data(province, Catholic, dummies = TRUE) %>%
-  dplyr::select(-province) %>%
+  prep_data(province, outcome = Catholic, make_dummies = TRUE) %>%
   tune_models(Catholic)
 mcn <-
   tr %>%
@@ -29,8 +26,7 @@ mcn <-
 suppressWarnings({  # Warning when RF can't find a good cut # nolint
   mrp <-
     tr %>%
-    prep_data(province, Fertility, dummies = TRUE) %>%
-    dplyr::select(-province) %>%
+    prep_data(province, outcome = Fertility, make_dummies = TRUE) %>%
     tune_models(Fertility)
   mrn <-
     tr %>%
@@ -38,17 +34,35 @@ suppressWarnings({  # Warning when RF can't find a good cut # nolint
     tune_models(Fertility)
 })
 # And prepped newdata to go with them
-te_reg_prep <- prep_data(te, rec_obj = mrp)
-te_class_prep <- prep_data(te, rec_obj = mcp)
+te_reg_prep <- prep_data(te, recipe = mrp)
+te_class_prep <- prep_data(te, recipe = mcp)
 
 # Output. Format: m - r = reg, c = class - n = not prepped training, p = prepped training - n = not prepped test, p = prepped test  # nolint
-prpn <- predict(mrp, te)
 prpp <- predict(mrp, te_reg_prep)
-prnn <- predict(mrn, te)
-
-pcpn <- predict(mcp, te)
 pcpp <- predict(mcp, te_class_prep)
+
+prnn <- predict(mrn, te)
 pcnn <- predict(mcn, te)
+
+prpn <- predict(mrp, te)
+suppressWarnings(pcpn <- predict(mcp, te))
+
+# Test for some messages and warnings when whether to prep before predict is unclear:
+# Here, should get a warning because all predictors are numeric, so they appear
+# to have been prepped even when they haven't, which triggers warning.
+suppressWarnings({
+  pcpn_message <- capture_message( predict(mcp, te) )
+})
+prpn_message <- capture_message( predict(mrp, te) )
+pcpn_warning <- capture_warning( predict(mcp, te) )
+
+test_that("When training data is prepped but test isn't, it gets prepped", {
+  expect_true(grepl("Prepping", prpn_message))
+  expect_true(grepl("Prepping", pcpn_message))
+})
+test_that("When training data hasn't been prepped but has all the same columns as prepped training, get warning", {
+  expect_true(grepl("Warning", pcpn_warning))
+})
 
 test_that("predict regression returns a tibble", {
   expect_s3_class(prpn, "tbl_df")
@@ -63,8 +77,8 @@ test_that("predict classification returns a tibble", {
 })
 
 test_that("prepping data inside or before predict produces same output", {
-  expect_true(all.equal(prpn$predicted_Fertility, prpp$predicted_Fertility, prnn$predicted_Fertility))
-  expect_true(all.equal(pcpn$predicted_Catholic, pcpp$predicted_Catholic, pcnn$predicted_Catholic))
+  expect_true(all.equal(prpn$predicted_Fertility, prpp$predicted_Fertility))
+  expect_true(all.equal(pcpn$predicted_Catholic, pcpp$predicted_Catholic))
 })
 
 test_that("predictions are better than chance", {

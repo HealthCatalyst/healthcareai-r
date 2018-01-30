@@ -52,9 +52,9 @@ train_rows <- caret::createDataPartition(small_data$skinfold, p = .8)[[1]]
 training <- slice(small_data, train_rows)
 testing <- slice(small_data, -train_rows)
 # Prepare the training data by centering and scaling numeric variables
-# and one-hot encoding categorical variables
+# and making dummies from categorical variables
 prepped_training <- prep_data(training, skinfold, patient_id,
-                              center = TRUE, scale = TRUE, dummies = TRUE)
+                              center = TRUE, scale = TRUE, make_dummies = TRUE)
 # Tune models. Because patient_id was ignored it has to be removed
 models <- tune_models(select(prepped_training, -patient_id), skinfold)
 predictions <- predict(models, testing)
