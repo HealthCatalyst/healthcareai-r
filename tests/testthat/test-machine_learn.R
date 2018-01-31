@@ -14,3 +14,12 @@ test_that("Can predict on output of machine_learn", {
   expect_s3_class(preds, "hcai_predicted_df")
   expect_true(all(c("am", "predicted_am") %in% names(preds)))
 })
+
+test_that("Get an informative error message for missing / wrong-class args", {
+  expect_error(machine_learn(), "missing")
+  expect_error(machine_learn(1), "data frame")
+  expect_error(machine_learn(training_data), "outcome")
+  expect_error(machine_learn(training_data, outcome = 1), "outcome")
+  expect_error(machine_learn(training_data, outcome = am, not_there),
+               "were passed to the ... argument")
+})
