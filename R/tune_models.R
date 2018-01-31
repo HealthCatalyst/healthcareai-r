@@ -82,7 +82,11 @@ tune_models <- function(d,
                         verbose = FALSE) {
   # Organize arguments and defaults
   outcome <- rlang::enquo(outcome)
+  if (rlang::quo_is_missing(outcome))
+    stop("You must provide an outcome variable to tune_models.")
   outcome_chr <- rlang::quo_name(outcome)
+  if (!outcome_chr %in% names(d))
+    stop(outcome_chr, " isn't a column in d.")
   models <- tolower(models)
 
   # tibbles upset some algorithms, plus handles matrices, maybe
@@ -111,9 +115,6 @@ tune_models <- function(d,
            outcome_chr, ") are different. They need to be the same.")
   }
 
-  # Is outcome present?
-  if (!outcome_chr %in% names(d))
-    stop(outcome_chr, " isn't a column in d.")
   # Make sure outcome's class works with model_class, or infer it
   outcome_class <- class(dplyr::pull(d, !!outcome))
   looks_categorical <- outcome_class %in% c("character", "factor")
@@ -199,6 +200,13 @@ tune_models <- function(d,
     train_control$summaryFunction <- twoClassSummary  # nolint
     train_control$classProbs <- TRUE  # nolint
   }
+
+  n_mod <- n_folds * tune_depth * length(models)
+  obs <- nrow(d)
+  if ((nrow(d) > 1000 && n_mod > 10) || (nrow(d) > 100 && n_mod > 100))
+    message("You've chosen to tune ", n_mod, " models (n_folds x tune_depth x ",
+            "length(models)) on a ", format(nrow(d), big.mark = ","), " row dataset. ",
+            "This may take a while...")
 
   # Loop over models, tuning each
   train_list <-

@@ -158,3 +158,7 @@ test_that("If a column was ignored in prep_data it's ignored in tune", {
   capture_warnings(mods <- tune_models(pd, x2))
   expect_false("x3" %in% names(mods[[1]]$trainingData))
 })
+
+test_that("Missing outcome variable error points user to what's missing", {
+  expect_error(tune_models(test_df), "outcome")
+})

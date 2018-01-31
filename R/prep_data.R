@@ -106,7 +106,7 @@ prep_data <- function(d,
                       factor_outcome = TRUE) {
   # Check to make sure that d is a dframe
   if (!is.data.frame(d)) {
-    stop("\"d\" must be a tibble or dataframe.")
+    stop("\"d\" must be a data frame.")
   }
   # Deal with "..." columns to be ignored
   ignore_columns <- rlang::quos(...)
