@@ -14,34 +14,26 @@ tune_models(d, outcome, model_class, models = c("rf", "knn"), n_folds = 5,
 
 \item{outcome}{Name of the column to predict}
 
-\item{model_class}{One of "regression", "classification", "multiclass", or
-"unsupervised", but only regression and classification are currently
-supported.}
+\item{model_class}{"regression" or "classification". If not provided, this
+will be determined by the class of `outcome` with the determination
+displayed in a message.}
 
-\item{models}{Names of models to try, by default for regression and
-classification "rf" for random forest and "knn" for k-nearest neighbors.
-See \code{\link{supported_models}} for available models.}
+\item{models}{Names of models to try, by default "rf" for random forest and
+"knn" for k-nearest neighbors. See \code{\link{supported_models}} for
+available models.}
 
 \item{n_folds}{How many folds to use in cross-validation? Default = 5.}
 
 \item{tune_depth}{How many hyperparameter combinations to try? Defualt = 10.}
 
-\item{tune_method}{How to search hyperparameter space? Only "random" is
-currently supported. Eventually, "random" (default) or "grid".}
+\item{tune_method}{How to search hyperparameter space? Default = "random".}
 
 \item{metric}{What metric to use to assess model performance? Options for
 regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
 error), or "Rsquared." For classification: "ROC" (area under the receiver
 operating characteristic curve).}
 
-\item{hyperparameters}{Currently not supported. Optional. A list of
-hyperparameter values to tune over. Overrides \code{tune_depth}. A list of
-lists. The names of the outer-list must match \code{models}. The names of
-each inner-list must match the hyperparameters available to tune over for
-the respective model. Entries in each inner-list are the values of the
-hyperparameter to try. These will be expanded to run a full grid search
-over every combination of values. For details on support models and
-hyperparameters see \code{\link{supported_models}}.}
+\item{hyperparameters}{Currently not supported.}
 
 \item{verbose}{Logical, defaults to FALSE. Get additional info via messages?}
 }
