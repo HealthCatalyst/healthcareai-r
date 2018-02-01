@@ -22,9 +22,9 @@ missing_check <- function(d, col_name) {
 #' Used for SQL Server related tests, since we don't know if the environment will be
 #' present. These tests are are run on Appveyor.
 #'
-#' @export
+#' @noRd
 #' @references \url{http://healthcareai-r.readthedocs.io}
-skip_on_not_appveyor = function() {
+skip_on_not_appveyor <- function() {
     if (identical(Sys.getenv("APPVEYOR"), "True")) {
         return()
     }

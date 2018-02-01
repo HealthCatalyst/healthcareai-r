@@ -4,7 +4,7 @@
 \alias{plot.model_list}
 \title{Plot performance of models}
 \usage{
-plot.model_list(mlist, print = TRUE)
+\method{plot}{model_list}(mlist, print = TRUE)
 }
 \arguments{
 \item{mlist}{modellist object as returned by \code{\link{tune}}}

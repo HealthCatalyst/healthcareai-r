@@ -101,7 +101,7 @@ tune_models <- function(d,
                 paste(ignored, collapse = ", "))
     }
     # If an outcome was specified in prep_data make sure it's the same here
-    prep_outcome <-recipe$var_info$variable[recipe$var_info$role == "outcome"]
+    prep_outcome <-recipe$var_info$variable[recipe$var_info$role == "outcome"] # nolint
     if (length(prep_outcome) && prep_outcome != outcome_chr)
       stop("outcome in prep_data (", prep_outcome, ") and outcome in tune models (",
            outcome_chr, ") are different. They need to be the same.")
@@ -194,9 +194,9 @@ tune_models <- function(d,
 
   n_mod <- n_folds * tune_depth * length(models)
   obs <- nrow(d)
-  if ((nrow(d) > 1000 && n_mod > 10) || (nrow(d) > 100 && n_mod > 100))
+  if ( (obs > 1000 && n_mod > 10) || (obs > 100 && n_mod > 100) )
     message("You've chosen to tune ", n_mod, " models (n_folds x tune_depth x ",
-            "length(models)) on a ", format(nrow(d), big.mark = ","), " row dataset. ",
+            "length(models)) on a ", format(obs, big.mark = ","), " row dataset. ",
             "This may take a while...")
 
   # Loop over models, tuning each
@@ -204,6 +204,7 @@ tune_models <- function(d,
     lapply(models, function(model) {
       message("Running cross validation for ",
               caret::getModelInfo(model)[[1]]$label)
+      # nolint start
       # Hack to reduce kmax for kknn from nrow/3 to log(nrow)*3
       if (model == "kknn") {
         kn <- caret::getModelInfo("kknn")$kknn
@@ -226,6 +227,7 @@ tune_models <- function(d,
         }
         model <- kn
       }
+      # nolint end
       # Train models
       suppressPackageStartupMessages(
         caret::train(x = dplyr::select(d, -!!outcome),

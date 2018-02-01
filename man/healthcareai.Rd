@@ -4,106 +4,56 @@
 \name{healthcareai}
 \alias{healthcareai}
 \alias{healthcareai-package}
-\title{healthcareai: a streamlined way to develop and deploy models}
+\title{healthcareai: Streamlined Machine Learning}
 \description{
-healthcareai provides a clean interface to create and compare multiple
+healthcare-ai provides a clean interface to create and compare multiple
 models on your data and then deploy the model that is most accurate. healthcareai
 also includes functions for data exploration, data cleaning, and model evaluation.
 }
 \details{
-This is done in a three-step process: First, loading, profiling, and feature 
-engineering. Second, developing a model. Third, deploying and monitoring the
-model.
+Modeling is done in a three-step process: First, loading, understanding, and
+preparing the data. Second, tuning and selecting a best model. Third, making
+predictions, deploying the model, and monitoring over time.
 
 \enumerate{
-\item{\strong{Load and profile data}}{\cr
-\itemize{
-\item{Loading Data:}
-\itemize{
-\item Use \code{\link{selectData}} to pull data directly from a SQL 
+\item{\strong{Load data}}{\cr
+\item \code{\link{selectData}} to pull data directly from a SQL
 database}
-\item{Profiling and Analyzing Data - One can get quite far in healthcare data
-analysis without ever going beyond this step:}
-\itemize{
-\item \code{\link{featureAvailabilityProfiler}} will find how much data is 
-present in each variable over time.
-\item \code{\link{countMissingData}} finds the proportion of missing data in 
-each variable.
-\item \code{\link{findVariation}} and \code{\link{variationAcrossGroups}} are
- used to find variation across/between subgroups of data.
-\item \code{\link{findTrends}} finds trends that are six months or longer.
-\item \code{\link{RiskAdjustedComparisons}} compares groups in a risk
-adjusted fashion. See 
-\href{http://www.jointcommission.org/assets/1/18/RA_Guide_Risk_Model.pdf}{RiskAdjustement}
-for a general introduction.
-\item \code{\link{calculateTargetedCorrelations}} will calculate correlations
- for all numeric columns and a specified variable of interest.
-\item \code{\link{returnColsWithMoreThanFiftyCategories}} shows which
-categorical columns have more than 50 categories.
-\item \code{\link{KmeansClustering}} used to cluster data with or without an
-outcome variable}
-\item{Feature Engineering:}
-\itemize{
-\item \code{\link{convertDateTimeColToDummies}} will convert a date variable
-into dummy columns of day, hour, etc. For seasonal pattern modeling.
-\item \code{\link{countDaysSinceFirstDate}} shows days since first day in 
-input column.
-\item \code{\link{groupedLOCF}} carries last observed value forward. This is
-an imputation method for longitudinal data.
-}}
+\item{\strong{Profile data}}{\cr
+\item \code{\link{control_chart}} to plot data over time.
+\item \code{\link{pivot}} if you multiple rows for each observation you want
+a prediction on (e.g. multiple lab values for patients on separate rows), pivot
+can help reshape the data.
 }
-
-\item{\strong{Develop a machine learning model}}{\cr
-\itemize{
-\item{Models:}
-\itemize{
-\item \code{\link{LassoDevelopment}}: Used for regression or classification 
-and does an especially good job with a lot of variables.
-\item \code{\link{RandomForestDevelopment}}: Used for regression or 
-classification and is well suited to non-linear data.
-\item \code{\link{XGBoostDevelopment}}: Used for multi-class classification
-(problems where there are more than 2 classes). Well suited to non-linear 
-data.
-\item \code{\link{LinearMixedModelDevelopment}}: Best suited for longitudinal
-data and datasets with less than 100k rows and 50 variables. Can do
-classification or regression.
+\item{\strong{Prepare data for modeling}}{\cr
+\item \code{\link{missingness}} to examine how much of each variable is missing.
+\item \code{\link{impute}} to impute missing values, or...
+\item \code{\link{prep_data}} to impute and perform additional data
+manipulation to get data ready for machine learning.
+\item \code{\link{split_train_test}} to split data into one data frame for
+developing a model and another for evaluating the model.
 }
-\item{Performance of Trained Models:}
-\itemize{
-\item Area under the ROC curve or area under the precision-recall curve are 
- used to evaluate the performance of classification models.
-\item The mean squared error (MSE) and root mean squared error (RMSE) are 
-used to evaluate the performance of regression problems.
+\item{\strong{Tune machine learning models}}{\cr
+\item \code{\link{machine_learn}} does all the work for you, from imputing
+missing values to finding optimal models via cross validation. If you want to
+keep the guts under the hood (apologies for the mixed metaphor!),
+this is the function for you!
+\item \code{\link{tune_models}} gives you more control over how models are trained.
 }
+\item{\strong{Assess models}}{\cr
+\item \code{\link{machine_learn}} and code{\link{tune_models}} both return
+\code{model_list} objects. You can get high level information about your models by simply
+printing the model_list object (i.e. type the name of the variable holding the models).
+\item \code{summary(model_list)} provides even more information about model tuning.
+\item \code{plot(model_list)} plots model performance over hyperparameter space.
 }
-Note: models are saved in the working directory after creation.
-}
-
-\item{\strong{Deploy and Monitor the Machine Learning Model}}{\cr
-\itemize{
-\item{Deploy the Model:}
-\itemize{
-\item Use \code{\link{LassoDeployment}}, 
-\code{\link{LinearMixedModelDeployment}}, 
-\code{\link{RandomForestDeployment}}, or \code{\link{XGBoostDeployment}} to 
-load the model from development and predict against test data. The 
-deployments can be tested locally, but eventually live on the production 
-server.
-\item Use \code{\link{writeData}} to push the predicted values into a SQL 
-environment.}
-\item{Monitoring the model:}
-\itemize{
-\item \code{\link{generateAUC}} is used to monitor performance over time. 
-This should happen after the predictions can be validated with the result. If
-you're predicting 30-day readmissions, you can't validate until 30 days have 
-passed since the predictions.
-}
-}
-}
+\item{\strong{Make predictions and deploy the model}}{\cr
+\item \code{\link{predict.model_list}} generates predictions
+\item \code{\link{writeData}} to push the predicted values into a SQL environment.}
 }
 }
 \references{
-\url{http://healthcareai-r.readthedocs.io}
+\url{https://github.com/HealthCatalyst/healthcareai-r/}
 
 \url{http://healthcare.ai}
 }

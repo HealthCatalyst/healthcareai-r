@@ -146,8 +146,7 @@ test_that("Ignored columns are not imputed but are returned.", {
 })
 
 test_that("Columns have the same order after", {
-  capture_output(res <- impute(d = d_train,
-                               animal_id, kitty,))
+  capture_output(res <- impute(d = d_train, animal_id, kitty))
   expect_equal(names(d_train), names(res))
 })
 

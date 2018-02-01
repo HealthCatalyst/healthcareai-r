@@ -63,7 +63,7 @@ predict.model_list <- function(models, newdata, prepdata) {
       been_prepped <- inherits(newdata, "hcai_prepped_df")
       # If going to prep; check if it looks like it has been and warn if so
       if (needs_prep && !been_prepped) {
-        trainvars <- get_classes_sorted(dplyr::select(best_models$trainingData, -.outcome))
+        trainvars <- get_classes_sorted(dplyr::select(best_models$trainingData, -.outcome)) # nolint
         predvars <- get_classes_sorted(dplyr::select(newdata, -which(names(newdata) == mi$target)))
         in_both <- intersect(names(predvars), names(trainvars))
         if (isTRUE(all.equal(trainvars, predvars[in_both])))
@@ -72,7 +72,9 @@ predict.model_list <- function(models, newdata, prepdata) {
                   "predictions. If you already prepped it, set ",
                   "`predict(prepdata = FALSE)`.")
         TRUE
-      } else { FALSE }
+      } else {
+        FALSE
+      }
     }
 
   # If classification, want probabilities. If regression, raw's the only option
