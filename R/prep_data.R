@@ -148,7 +148,7 @@ prep_data <- function(d,
   } else {
 
     # Initialize a new recipe
-    message("Training new recipe")
+    message("Training new data prep recipe")
     ## Start by making all variables predictors...
     recipe <- recipes::recipe(d, ~ .)
     ## Then deal with outcome if present

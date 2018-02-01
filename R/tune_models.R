@@ -131,8 +131,7 @@ tune_models <- function(d,
       model_class <- "regression"
       # User provided model_class, so check it
     }
-    if (verbose)
-      message(mes)
+    message(mes)
   } else {
     # Check user-provided model_class
     supported_classes <- c("regression", "classification")
