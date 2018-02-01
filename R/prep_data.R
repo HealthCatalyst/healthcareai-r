@@ -159,6 +159,10 @@ prep_data <- function(d,
         stop(paste(outcome_name, " not found in d."))
       # Check if there are NAs in the target
       outcome_vec <- dplyr::pull(d, !!outcome)
+      # Currently can't deal with logical outcomes
+      if (is.logical(outcome_vec) || any(c("TRUE", "FALSE") %in% outcome_vec))
+        stop("outcome looks logical. Please convert the outcome to character",
+             " with values other than TRUE and FALSE.")
       if (any(is.na(outcome_vec)))
         stop("Found NA values in the outcome column. Clean your data or ",
              "remove these rows before training a model.")

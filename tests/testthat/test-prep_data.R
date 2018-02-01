@@ -409,3 +409,10 @@ test_that("add_levels doesn't add levels to outcome", {
   pd <- prep_data(d, outcome = x, make_dummies = FALSE, add_levels = FALSE)
   expect_false(any(c("other", "hcai_missing") %in% levels(pd$x)))
 })
+
+test_that("If outcome to prep_data is or looks like logical, get informative error", {
+  d_train <- d_train %>% mutate(is_ween = is_ween == "Y")
+  expect_error(prep_data(d_train, outcome = is_ween), "logical")
+  d_train <- d_train %>% mutate(is_ween = as.character(is_ween == "Y"))
+  expect_error(prep_data(d_train, outcome = is_ween), "logical")
+})
