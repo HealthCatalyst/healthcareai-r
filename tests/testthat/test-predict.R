@@ -104,3 +104,16 @@ test_that("If newdata isn't provided, make predictions on training data", {
   expect_s3_class(pr, "hcai_predicted_df")
   expect_true(all(c("Fertility", "predicted_Fertility") %in% names(pr)))
 })
+
+test_that("predict can handle binary character non Y/N columns", {
+  tr %>%
+    dplyr::mutate(Catholic = ifelse(Catholic == "Y", "yes", "no")) %>%
+    machine_learn(Catholic) %>%
+    predict() %>%
+    expect_s3_class("data.frame")
+  tr %>%
+    dplyr::mutate(Catholic = factor(ifelse(Catholic == "Y", "cath", "other"))) %>%
+    machine_learn(Catholic) %>%
+    predict() %>%
+    expect_s3_class("data.frame")
+})

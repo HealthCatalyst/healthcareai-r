@@ -89,8 +89,9 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
       newdata %>%
         caret::predict.train(best_models, ., type = type)
     }
+  # Probs get returned for no and yes. Take just positive class in 2nd column
   if (is.data.frame(preds))
-    preds <- dplyr::pull(preds, Y)  # nolint
+    preds <- preds[, 2]
   pred_name <- paste0("predicted_", mi$target)
   newdata[[pred_name]] <- preds
   newdata <- tibble::as_tibble(newdata)
