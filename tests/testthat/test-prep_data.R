@@ -74,10 +74,8 @@ d_reprep2 <- prep_data(d_test, outcome = is_ween, song_id,
 
 # Tests ------------------------------------------------------------------------
 test_that("Bad data throws an error", {
-  expect_error(prep_data(),
-               regexp = "\"d\" is missing")
-  expect_error(prep_data(d = "yeah hi!"),
-               regexp = "\"d\" must be a tibble")
+  expect_error(prep_data(), regexp = "missing")
+  expect_error(prep_data(d = "yeah hi!"), regexp = "data frame")
 })
 
 test_that("Bad outcome columns throws an error", {
