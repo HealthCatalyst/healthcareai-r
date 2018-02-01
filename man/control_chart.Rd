@@ -50,8 +50,8 @@ Create a control chart, aka Shewhart chart:
 \url{https://en.wikipedia.org/wiki/Control_chart}.
 }
 \examples{
+\dontrun{
 # Create a data frame to plot
-
 d <-
   tibble::data_frame(
     day = sample(c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"),
@@ -79,5 +79,5 @@ my_chart +
   ylab("Number of Adverse Events") +
   scale_x_date(name = "Week of", date_breaks = "week") +
   theme(axis.text.x = element_text(angle = -90, vjust = 0.5, hjust=1))
-
+}
 }
