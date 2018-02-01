@@ -51,3 +51,7 @@ Does `install.packages('healthcareai')` or `library(healthcareai)` fail? If you 
 4. *Try again.* Run `install.packages('healthcareai')` and `library(healthcareai)` again and all should be well! 
 
 If that doesn't work, please contact us through Github or at the website linked above.
+
+#### Looking for an older version of the package? 
+
+Version 1 of healthcare-ai has been retired, but if you want to to continue to use its functionality, you can still install it from github: `devtools::install_github("HealthCatalyst/healthcareai-r", ref = "V1")`.
