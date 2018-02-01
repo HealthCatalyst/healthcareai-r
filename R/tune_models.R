@@ -227,12 +227,14 @@ tune_models <- function(d,
         model <- kn
       }
       # Train models
-      caret::train(x = dplyr::select(d, -!!outcome),
-                   y = dplyr::pull(d, !!outcome),
-                   method = model,
-                   metric = metric,
-                   trControl = train_control,
-                   tuneLength = tune_depth
+      suppressPackageStartupMessages(
+        caret::train(x = dplyr::select(d, -!!outcome),
+                     y = dplyr::pull(d, !!outcome),
+                     method = model,
+                     metric = metric,
+                     trControl = train_control,
+                     tuneLength = tune_depth
+        )
       )
     })
   # Add model names
