@@ -2,16 +2,15 @@ language: R
 sudo: false
 cache: packages
 
-os: 
-- linux
-- osx
-
-r:
-- release
-- devel
-
-allow_failures:
-  - r: devel
+matrix:
+  os:
+    - linux
+    - osx
+  r:
+    - release
+    - devel
+  allow_failures:
+    - r: devel
 
 after_success:
   - Rscript -e 'covr::codecov()'
