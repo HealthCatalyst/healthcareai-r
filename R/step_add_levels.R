@@ -4,6 +4,7 @@
 #' @param ... One or more selector functions
 #' @param role Ought to be nominal
 #' @param trained Has the recipe been prepped?
+#' @param cols columns to be prepped
 #' @param levels Factor levels to add to variables. Default = c("other",
 #'   "hcai_missing")
 #'
@@ -11,6 +12,7 @@
 #' @export
 #'
 #' @examples
+#' library(recipes)
 #' d <- data.frame(num = 1:30,
 #'                 has_missing = c(rep(NA, 10), rep('b', 20)),
 #'                 has_rare = c("rare", rep("common", 29)),

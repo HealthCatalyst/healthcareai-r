@@ -1,12 +1,12 @@
 #' print method for model_list
 #'
-#' @param mlist model_list
+#' @param x model_list
 #'
 #' @export
 #' @noRd
-print.model_list <- function(mlist) {
-  if (length(mlist)) {
-    rinfo <- extract_model_info(mlist)
+print.model_list <- function(x, ...) {
+  if (length(x)) {
+    rinfo <- extract_model_info(x)
     out <- paste0(
       "Target: ", rinfo$target,
       "\nClass: ", rinfo$m_class,
@@ -20,34 +20,34 @@ print.model_list <- function(mlist) {
       "\nHyperparameter values:", "\n  ", format_tune(rinfo$best_model_tune)
     )
   } else {
-    out <- paste("Empty", class(mlist)[1], "object.")
+    out <- paste("Empty", class(x)[1], "object.")
   }
   cat(out, "\n")
-  return(invisible(mlist))
+  return(invisible(x))
 }
 
 #' summary method for model_list
 #'
-#' @param mlist model_list
+#' @param x model_list
 #' @return list of tuning performance data frames, invisibly
 #' @importFrom dplyr %>%
 #'
 #' @export
 #' @noRd
-summary.model_list <- function(mlist) {
-  if (!length(mlist))
-    stop("mlist is empty.")
-  rinfo <- extract_model_info(mlist)
+summary.model_list <- function(object, ...) {
+  if (!length(object))
+    stop("object is empty.")
+  rinfo <- extract_model_info(object)
   out <- paste0("Best performance: ", rinfo$metric, " = ",
                 round(rinfo$best_model_perf, 2), "\n",
                 rinfo$best_model_name, " with hyperparameters:\n  ",
                 format_tune(rinfo$best_model_tune))
   cat(out)
   cat("\n\nOut-of-fold performance of all trained models:\n\n")
-  perf <- lapply(mlist, function(x) {
-    ord <- order(x$results[[rinfo$metric]])
-    if (mlist[[1]]$maximize) ord <- rev(ord)
-    structure(x$results[ord, ], row.names = seq_len(nrow(x$results)))
+  perf <- lapply(object, function(xx) {
+    ord <- order(xx$results[[rinfo$metric]])
+    if (object[[1]]$maximize) ord <- rev(ord)
+    structure(xx$results[ord, ], row.names = seq_len(nrow(xx$results)))
   })
   names(perf) <- rinfo$algs
   print(perf)
@@ -56,8 +56,10 @@ summary.model_list <- function(mlist) {
 
 #' Plot performance of models
 #'
-#' @param mlist modellist object as returned by \code{\link{tune}}
+#' @param x modellist object as returned by \code{\link{tune_models}} or
+#'   \code{\link{machine_learn}}
 #' @param print If TRUE (default) plot is printed
+#' @param ... generic compatability
 #'
 #' @return Plot of model performance as a function of algorithm and
 #'   hyperparameter values tuned over. Generally called for the side effect of
@@ -68,17 +70,17 @@ summary.model_list <- function(mlist) {
 #' @export
 #' @examples
 #' plot(tune_models(mtcars, mpg))
-plot.model_list <- function(mlist, print = TRUE) {
-  if (!length(mlist))
-    stop("mlist is empty.")
-  if (!inherits(mlist, "model_list"))
-    stop("mlist is class ", class(mlist)[1],
+plot.model_list <- function(x, print = TRUE, ...) {
+  if (!length(x))
+    stop("x is empty.")
+  if (!inherits(x, "model_list"))
+    stop("x is class ", class(x)[1],
          ", but needs to be model_list")
-  bounds <- purrr::map_df(mlist, function(m) range(m$results[[m$metric]]))
+  bounds <- purrr::map_df(x, function(m) range(m$results[[m$metric]]))
   y_range <- c(min(bounds[1, ]), max(bounds[2, ]))
-  nrows <- ceiling(length(mlist) / 2)
+  nrows <- ceiling(length(x) / 2)
   gg_list <-
-    lapply(mlist, function(mod) {
+    lapply(x, function(mod) {
       # optimum is min or max depending on metric
       optimum <- if (mod$maximize) max else min
       best_metric <- round(optimum(mod$results[[mod$metric]]), 2)
@@ -96,36 +98,36 @@ plot.model_list <- function(mlist, print = TRUE) {
 if (FALSE) {
   # This is tricky because finalModel is a ranger (or whatever) class object,
   # not a train object.
-  evaluate.model_list <- function(mlist) {
-    f <- if (mlist[[1]]$maximize) max else min
-    each_best <- purrr::map_dbl(mlist, ~ f(.x$results[[.x$metric]]))
+  evaluate.model_list <- function(x) {
+    f <- if (x[[1]]$maximize) max else min
+    each_best <- purrr::map_dbl(x, ~ f(.x$results[[.x$metric]]))
     which_best <- which(f(each_best) == each_best)[1]
     message("Returning the best model, a ", names(which_best))
-    out <- mlist[[which_best]]$finalModel
+    out <- x[[which_best]]$finalModel
     return(out)
   }
 }
 
 #' Get info from a model_list
 #'
-#' @param mlist model_list
+#' @param x model_list
 #' @importFrom purrr map_chr
 #' @return list of statistics
 #' @noRd
-extract_model_info <- function(mlist) {
+extract_model_info <- function(x) {
   # optimum is min or max depending on metric
-  optimum <- if (mlist[[1]]$maximize) max else min
-  metric <- mlist[[1]]$metric
-  best_metrics <- purrr::map_dbl(mlist, ~ optimum(.x$results[[metric]]))
+  optimum <- if (x[[1]]$maximize) max else min
+  metric <- x[[1]]$metric
+  best_metrics <- purrr::map_dbl(x, ~ optimum(.x$results[[metric]]))
   best_model <- which(best_metrics == optimum(best_metrics))[1] # 1 in case tie
-  algs <- purrr::map_chr(mlist, ~ .x$modelInfo$label)
-  m_class <- mlist[[1]]$modelType
-  target <- attr(mlist, "target")
-  ddim <- dim(mlist[[1]]$trainingData)
+  algs <- purrr::map_chr(x, ~ .x$modelInfo$label)
+  m_class <- x[[1]]$modelType
+  target <- attr(x, "target")
+  ddim <- dim(x[[1]]$trainingData)
   best_model_name <- algs[[best_model]]
   best_model_perf <- best_metrics[[best_model]]
   best_model_tune <-
-    mlist[[best_model]]$bestTune
+    x[[best_model]]$bestTune
   list(
     m_class = m_class,
     algs = algs,

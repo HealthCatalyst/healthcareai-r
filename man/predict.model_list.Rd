@@ -4,10 +4,10 @@
 \alias{predict.model_list}
 \title{Make predictions using the best-performing model from tuning}
 \usage{
-\method{predict}{model_list}(models, newdata, prepdata)
+\method{predict}{model_list}(object, newdata, prepdata, ...)
 }
 \arguments{
-\item{models}{model_list object, as from `tune_models`}
+\item{object}{model_list object, as from `tune_models`}
 
 \item{newdata}{data on which to make predictions. If missing, predictions
 will be made on the training data. Should have the same structure as the
@@ -21,6 +21,8 @@ should rarely be needed.}
 predictions are made. Set this to TRUE to force already-prepped data
 through `prep_data` again, or set to FALSE to prevent `newdata` from being
 sent through `prep_data`.}
+
+\item{...}{Unused.}
 }
 \value{
 A tibble data frame: newdata with an additional column for the
@@ -45,7 +47,7 @@ models <- machine_learn(pima_diabetes[1:50, ], diabetes)
 # Make prediction on the next 20 rows. This uses the best-performing model from
 # tuning cross validation, and it also prepares the new data in the same way as
 # the training data was prepared.
-predictions <- predict(models, newdata = slice(pima_diabetes, 51:70))
+predictions <- predict(models, newdata = pima_diabetes[51:70, ])
 predictions
 ggplot(predictions, aes(x = predicted_diabetes, fill = diabetes)) +
   geom_density(alpha = .5)

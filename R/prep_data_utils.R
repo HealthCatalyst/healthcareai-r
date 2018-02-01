@@ -23,6 +23,8 @@ find_mostly_missing_cols <- function(d, percent_missing_threshold = 80) {
 
 #' Returns names of date columns. Looks for both date classes and "DTS" in the
 #' column names.
+#' @importFrom lubridate is.Date
+#' @importFrom lubridate is.POSIXt
 #' @noRd
 find_date_cols <- function(d) {
   by_class <-

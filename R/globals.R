@@ -1,2 +1,3 @@
 #' @import utils
-utils::globalVariables(c("outside", "percent_missing", "variable", ".outcome"))
+utils::globalVariables(c("outside", "percent_missing", "variable", ".outcome",
+                         ".", "Y", "twoClassSummary"))

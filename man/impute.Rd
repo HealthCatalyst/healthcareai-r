@@ -59,7 +59,7 @@ d_test <- d[701:768, ]
 # Train imputer
 train_imputed <- impute(d = d_train, patient_id, diabetes)
 # Apply to new data
-impute(d = d_test, patient_id, diabetes, train_imputed)
+impute(d = d_test, patient_id, diabetes, recipe = train_imputed)
 # Specify methods:
 impute(d = d_train, patient_id, diabetes, numeric_method = "bagimpute",
 nominal_method = "new_category")

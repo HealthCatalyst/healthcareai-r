@@ -188,8 +188,8 @@ tune_models <- function(d,
 
   # trainControl defaults are good for regression. Change for other model_class:
   if (model_class == "classification") {
-    train_control$summaryFunction <- twoClassSummary  # nolint
-    train_control$classProbs <- TRUE  # nolint
+    train_control$summaryFunction <- caret::twoClassSummary
+    train_control$classProbs <- TRUE
   }
 
   n_mod <- n_folds * tune_depth * length(models)
@@ -220,7 +220,7 @@ tune_models <- function(d,
             # Editted line:
             out <- data.frame(kmax = sample(seq(1, floor(log(nrow(x)) * 3), by = by_val),
                                             size = len, replace = TRUE),
-                              distance = runif(len, min = 0, max = 3),
+                              distance = stats::runif(len, min = 0, max = 3),
                               kernel = sample(kerns, size = len, replace = TRUE))
           }
           out

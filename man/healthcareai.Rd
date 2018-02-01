@@ -41,7 +41,7 @@ this is the function for you!
 \item \code{\link{tune_models}} gives you more control over how models are trained.
 }
 \item{\strong{Assess models}}{\cr
-\item \code{\link{machine_learn}} and code{\link{tune_models}} both return
+\item \code{machine_learn} and \code{tune_models} both return
 \code{model_list} objects. You can get high level information about your models by simply
 printing the model_list object (i.e. type the name of the variable holding the models).
 \item \code{summary(model_list)} provides even more information about model tuning.

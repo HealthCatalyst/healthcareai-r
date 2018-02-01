@@ -20,10 +20,10 @@ row indices will be used (quoted)}
 
 \item{group2}{Optional grouping variable to be panelled vertically (quoted)}
 
-\item{center_line}{Function used to calculate central tendency. 
+\item{center_line}{Function used to calculate central tendency.
 Defaults to mean}
 
-\item{sigmas}{Number of standard deviations above and below the central 
+\item{sigmas}{Number of standard deviations above and below the central
 tendency to call a point influenced by "special cause variation."
 Defaults to 3}
 
@@ -42,7 +42,7 @@ will be printed on screen}
 }
 \value{
 Generally called for the side effect of printing the control chart
-or writing the control chart to file, depending on whether save_to is 
+or writing the control chart to file, depending on whether save_to is
 specified. Invisibly, returns a ggplot object for further customization.
 }
 \description{
@@ -52,9 +52,9 @@ Create a control chart, aka Shewhart chart:
 \examples{
 # Create a data frame to plot
 
-d <- 
+d <-
   tibble::data_frame(
-    day = sample(c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"), 
+    day = sample(c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"),
                  100, TRUE),
     person = sample(c("Tom", "Jane", "Alex"), 100, TRUE),
     count = rbinom(100, 20, ifelse(day == "Friday", .5, .2)),
@@ -75,8 +75,8 @@ control_chart(d, "count", group1 = "day", group2 = "person")
 
 library(ggplot2)
 my_chart <- control_chart(d, "count", "date")
-my_chart + 
-  ylab("Number of Adverse Events") + 
+my_chart +
+  ylab("Number of Adverse Events") +
   scale_x_date(name = "Week of", date_breaks = "week") +
   theme(axis.text.x = element_text(angle = -90, vjust = 0.5, hjust=1))
 

@@ -19,6 +19,8 @@ step_add_levels(recipe, ..., role = NA, trained = FALSE, cols = NULL,
 
 \item{trained}{Has the recipe been prepped?}
 
+\item{cols}{columns to be prepped}
+
 \item{levels}{Factor levels to add to variables. Default = c("other",
 "hcai_missing")}
 
@@ -31,6 +33,7 @@ Recipe with the new step
 Add levels to nominal variables
 }
 \examples{
+library(recipes)
 d <- data.frame(num = 1:30,
                 has_missing = c(rep(NA, 10), rep('b', 20)),
                 has_rare = c("rare", rep("common", 29)),

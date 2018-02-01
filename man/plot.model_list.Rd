@@ -4,12 +4,15 @@
 \alias{plot.model_list}
 \title{Plot performance of models}
 \usage{
-\method{plot}{model_list}(mlist, print = TRUE)
+\method{plot}{model_list}(x, print = TRUE, ...)
 }
 \arguments{
-\item{mlist}{modellist object as returned by \code{\link{tune}}}
+\item{x}{modellist object as returned by \code{\link{tune_models}} or
+\code{\link{machine_learn}}}
 
 \item{print}{If TRUE (default) plot is printed}
+
+\item{...}{generic compatability}
 }
 \value{
 Plot of model performance as a function of algorithm and

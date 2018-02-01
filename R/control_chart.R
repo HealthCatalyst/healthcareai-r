@@ -1,7 +1,7 @@
 #' Create a control chart
-#' 
+#'
 #' Create a control chart, aka Shewhart chart:
-#' \url{https://en.wikipedia.org/wiki/Control_chart}. 
+#' \url{https://en.wikipedia.org/wiki/Control_chart}.
 #'
 #' @param d data frame or a path to a csv file that will be read in
 #' @param measure variable of interest mapped to y-axis (quoted, ie as a string)
@@ -9,9 +9,9 @@
 #' row indices will be used (quoted)
 #' @param group1 Optional grouping variable to be panelled horizontally (quoted)
 #' @param group2 Optional grouping variable to be panelled vertically (quoted)
-#' @param center_line Function used to calculate central tendency. 
+#' @param center_line Function used to calculate central tendency.
 #' Defaults to mean
-#' @param sigmas Number of standard deviations above and below the central 
+#' @param sigmas Number of standard deviations above and below the central
 #' tendency to call a point influenced by "special cause variation."
 #' Defaults to 3
 #' @param save_to Optional file path to save chart. If not provided, the chart
@@ -23,7 +23,7 @@
 #' @param plot_font_size Base font size; text elements will be scaled to this
 #'
 #' @return Generally called for the side effect of printing the control chart
-#' or writing the control chart to file, depending on whether save_to is 
+#' or writing the control chart to file, depending on whether save_to is
 #' specified. Invisibly, returns a ggplot object for further customization.
 #' @export
 #' @import ggplot2
@@ -33,10 +33,10 @@
 #'
 #' @examples
 #' # Create a data frame to plot
-#' 
-#' d <- 
+#'
+#' d <-
 #'   tibble::data_frame(
-#'     day = sample(c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"), 
+#'     day = sample(c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"),
 #'                  100, TRUE),
 #'     person = sample(c("Tom", "Jane", "Alex"), 100, TRUE),
 #'     count = rbinom(100, 20, ifelse(day == "Friday", .5, .2)),
@@ -44,24 +44,24 @@
 #'
 #' # Minimal arguments are the data and the column to put on the y-axis.
 #' # If x is not provided, observations will be plotted in order of the rows
-#' 
+#'
 #' control_chart(d, "count")
-#' 
+#'
 #' # Specify categorical variables for group1 and/or group2 to get a separate
 #' # panel for each category
-#' 
+#'
 #' control_chart(d, "count", group1 = "day", group2 = "person")
-#' 
+#'
 #' # In addition to printing or writing the plot to file, control_chart
 #' # returns the plot as a ggplot2 obejct, which you can then further customize
-#' 
+#'
 #' library(ggplot2)
 #' my_chart <- control_chart(d, "count", "date")
-#' my_chart + 
-#'   ylab("Number of Adverse Events") + 
+#' my_chart +
+#'   ylab("Number of Adverse Events") +
 #'   scale_x_date(name = "Week of", date_breaks = "week") +
 #'   theme(axis.text.x = element_text(angle = -90, vjust = 0.5, hjust=1))
-#' 
+#'
 control_chart <- function(d, measure, x, group1, group2,
                           center_line = mean, sigmas = 3,
                           save_to, plot_width = 8, plot_height = 4,
@@ -144,17 +144,11 @@ control_chart <- function(d, measure, x, group1, group2,
 }
 
 #' Calculate lower, middle, and upper lines for control_chart
-#'
-#' @param d 
-#' @param measure 
-#' @param center_line 
-#' @param sigmas
-#'
 #' @return Named vector of three
 #' @noRd
 calculate_bounds <- function(d, measure, center_line, sigmas) {
   mid <- center_line(d[[measure]])
-  sd3 <- sigmas * sd(d[[measure]])
+  sd3 <- sigmas * stats::sd(d[[measure]])
   upper <- mid + sd3
   lower <- mid - sd3
   return(c(lower = lower, mid = mid, upper = upper))
