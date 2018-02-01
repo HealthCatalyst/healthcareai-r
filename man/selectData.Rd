@@ -27,7 +27,7 @@ a data frame.
 }
 \examples{
 
-\donttest{
+\dontrun{
 # This example is specific to SQL Server
 
 # To instead pull data from Oracle see here

@@ -33,7 +33,7 @@ Write data frame to database table via ODBC connection
 }
 \examples{
 
-\donttest{
+\dontrun{
 # This example is specific to SQL Server.
 
 # To instead pull data from Oracle see here
@@ -63,9 +63,8 @@ df <- data.frame(a=c(1,2,3),
 writeData(MSSQLConnectionString = connectionString,
           df = df,
           tableName = 'HCRWriteData')
-}
 
-\dontrun{
+#This example shows the RODBC way of writing to a non-default schema while
 #This example shows the RODBC way of writing to a non-default schema while
 #ODBC is being fixed. Here is a link to the non-default issue in ODBC:
 #https://github.com/rstats-db/odbc/issues/91

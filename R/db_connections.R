@@ -38,7 +38,7 @@ addSAMUtilityCols <- function(df) {
 #' @seealso \code{\link{writeData}}
 #' @examples
 #'
-#' \donttest{
+#' \dontrun{
 #' # This example is specific to SQL Server
 #'
 #' # To instead pull data from Oracle see here
@@ -139,7 +139,7 @@ selectData <- function(MSSQLConnectionString = NULL,
 #' @seealso \code{\link{selectData}}
 #' @examples
 #'
-#' \donttest{
+#' \dontrun{
 #' # This example is specific to SQL Server.
 #'
 #' # To instead pull data from Oracle see here
@@ -169,9 +169,8 @@ selectData <- function(MSSQLConnectionString = NULL,
 #' writeData(MSSQLConnectionString = connectionString,
 #'           df = df,
 #'           tableName = 'HCRWriteData')
-#' }
 #'
-#' \dontrun{
+#' #This example shows the RODBC way of writing to a non-default schema while
 #' #This example shows the RODBC way of writing to a non-default schema while
 #' #ODBC is being fixed. Here is a link to the non-default issue in ODBC:
 #' #https://github.com/rstats-db/odbc/issues/91
