@@ -40,16 +40,9 @@ The model and hyperparameter values with the best out-of-fold
   returning your predictions with the newdata in its original format.
 }
 \examples{
-library(dplyr)
-models <-
-  pima_diabetes \%>\%
-  # Use only the first 50 rows to keep computation fast
-  slice(1:50) \%>\%
-  # Prep data with patient_id being ignored and diabetes as the outcome
-  prep_data(patient_id, outcome = diabetes) \%>\%
-  # Tune models based on parameters passed to prep_data
-  tune_models(diabetes)
-# Make prediction on the next 50 rows. This uses the best-performing model in
+# Tune models using only the first 50 rows to keep computation fast
+models <- machine_learn(pima_diabetes[1:50, ], diabetes)
+# Make prediction on the next 20 rows. This uses the best-performing model from
 # tuning cross validation, and it also prepares the new data in the same way as
 # the training data was prepared.
 predictions <- predict(models, newdata = slice(pima_diabetes, 51:70))

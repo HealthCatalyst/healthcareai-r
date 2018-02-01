@@ -29,16 +29,9 @@
 #'   returning your predictions with the newdata in its original format.
 #'
 #' @examples
-#' library(dplyr)
-#' models <-
-#'   pima_diabetes %>%
-#'   # Use only the first 50 rows to keep computation fast
-#'   slice(1:50) %>%
-#'   # Prep data with patient_id being ignored and diabetes as the outcome
-#'   prep_data(patient_id, outcome = diabetes) %>%
-#'   # Tune models based on parameters passed to prep_data
-#'   tune_models(diabetes)
-#' # Make prediction on the next 50 rows. This uses the best-performing model in
+#' # Tune models using only the first 50 rows to keep computation fast
+#' models <- machine_learn(pima_diabetes[1:50, ], diabetes)
+#' # Make prediction on the next 20 rows. This uses the best-performing model from
 #' # tuning cross validation, and it also prepares the new data in the same way as
 #' # the training data was prepared.
 #' predictions <- predict(models, newdata = slice(pima_diabetes, 51:70))
@@ -93,9 +86,15 @@ predict.model_list <- function(models, newdata, prepdata) {
       newdata %>%
         caret::predict.train(best_models, ., type = type)
     }
-  if (is.data.frame(preds)) preds <- dplyr::pull(preds, Y)  # nolint
-  newdata[[paste0("predicted_", mi$target)]] <- preds
+  if (is.data.frame(preds))
+    preds <- dplyr::pull(preds, Y)  # nolint
+  pred_name <- paste0("predicted_", mi$target)
+  newdata[[pred_name]] <- preds
   newdata <- tibble::as_tibble(newdata)
+  # Put predictions and, if present, the outcome at left of newdata
+  newdata <- dplyr::select(newdata, pred_name, dplyr::everything())
+  if (mi$target %in% names(newdata))
+      newdata <- dplyr::select(newdata, mi$target, dplyr::everything())
   class(newdata) <- c("hcai_predicted_df", class(newdata))
   attr(newdata, "model_info") <-
     list(target = mi$target,
