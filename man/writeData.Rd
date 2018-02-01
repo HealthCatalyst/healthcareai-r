@@ -8,12 +8,12 @@ writeData(MSSQLConnectionString = NULL, df, SQLiteFileName = NULL,
   tableName, addSAMUtilityColumns = FALSE, connectionString = NULL)
 }
 \arguments{
-\item{MSSQLConnectionString}{A string specifying the driver, server, 
+\item{MSSQLConnectionString}{A string specifying the driver, server,
 database, and whether Windows Authentication will be used.}
 
 \item{df}{Dataframe that hold the tabular data}
 
-\item{SQLiteFileName}{A string. If dbtype is SQLite, here one specifies the 
+\item{SQLiteFileName}{A string. If dbtype is SQLite, here one specifies the
 database file to query from}
 
 \item{tableName}{String. Name of the table that receives the new rows}
@@ -21,8 +21,8 @@ database file to query from}
 \item{addSAMUtilityColumns}{Boolean. Whether to add Health Catalyst-related
 date-time stamp, BindingID, and BindingNM to df before saving to db.}
 
-\item{connectionString}{Deprecated. A string specifying the driver, server, 
-database, and whether Windows Authentication will be used. See 
+\item{connectionString}{Deprecated. A string specifying the driver, server,
+database, and whether Windows Authentication will be used. See
 ?MSSQLConnectionString instead.}
 }
 \value{
@@ -36,12 +36,12 @@ Write data frame to database table via ODBC connection
 \donttest{
 # This example is specific to SQL Server.
 
-# To instead pull data from Oracle see here 
+# To instead pull data from Oracle see here
 # https://cran.r-project.org/web/packages/ROracle/ROracle.pdf
-# To pull data from MySQL see here 
+# To pull data from MySQL see here
 # https://cran.r-project.org/web/packages/RMySQL/RMySQL.pdf
-# To pull data from Postgres see here 
-# https://cran.r-project.org/web/packages/RPostgreSQL/RPostgreSQL.pdf 
+# To pull data from Postgres see here
+# https://cran.r-project.org/web/packages/RPostgreSQL/RPostgreSQL.pdf
 
 # Before running this example, create the table in SQL Server via
 # CREATE TABLE [dbo].[HCRWriteData](
@@ -60,26 +60,26 @@ df <- data.frame(a=c(1,2,3),
                  b=c(2,4,6),
                  c=c('one','two','three'))
 
-writeData(MSSQLConnectionString = connectionString, 
-          df = df, 
+writeData(MSSQLConnectionString = connectionString,
+          df = df,
           tableName = 'HCRWriteData')
 }
 
 \dontrun{
-#This example shows the RODBC way of writing to a non-default schema while 
-#ODBC is being fixed. Here is a link to the non-default issue in ODBC: 
+#This example shows the RODBC way of writing to a non-default schema while
+#ODBC is being fixed. Here is a link to the non-default issue in ODBC:
 #https://github.com/rstats-db/odbc/issues/91
 
-#First, create this table in SQL Server using a non-default schema. The 
-#example creates this table in the SAM database on localhost. You will also 
-#need to create a new schema(Cardiovascular) in SSMS for this specific 
+#First, create this table in SQL Server using a non-default schema. The
+#example creates this table in the SAM database on localhost. You will also
+#need to create a new schema(Cardiovascular) in SSMS for this specific
 #example to work.
 #CREATE TABLE [Cardiovascular].[TestTable](
 #[a] [float] NULL,
 #[b] [float] NULL,
 #[c] [varchar](255) NULL)
 
-# Install the RODBC pacakge onto your machine. You only need to do this one 
+# Install the RODBC pacakge onto your machine. You only need to do this one
 # time.
 #install.packages("RODBC")
 
@@ -97,12 +97,12 @@ df <- data.frame(a = c(10, 20, 30),
                  b = c(20, 40, 60),
                  c = c("oneT", "twoT", "threeT"))
 
-# Write the df to the SQL table                 
-RODBC::sqlSave(con, df, "Cardiovascular.TestTable", append = TRUE, 
+# Write the df to the SQL table
+RODBC::sqlSave(con, df, "Cardiovascular.TestTable", append = TRUE,
                rownames = FALSE)
 
-# Verify that the table was written to 
-confirmDf <- RODBC::sqlQuery(con, 'select * from Cardiovascular.TestTable') 
+# Verify that the table was written to
+confirmDf <- RODBC::sqlQuery(con, 'select * from Cardiovascular.TestTable')
 head(confirmDf)
 }
 }

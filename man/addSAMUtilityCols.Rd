@@ -13,7 +13,7 @@ addSAMUtilityCols(df)
 A dataframe with three additional columns
 }
 \description{
-When working in a Health Catalyst Source Area Mart (SAM), 
+When working in a Health Catalyst Source Area Mart (SAM),
 utility columns are added automatically when running a non-R binding
 }
 \examples{
