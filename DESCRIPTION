@@ -1,8 +1,8 @@
 Package: healthcareai
 Type: Package
 Title: Tools for Healthcare Machine Learning
-Version: 1.2.0
-Date: 2017-10-25
+Version: 2.0.0
+Date: 2018-02-01
 Authors@R: c(
     person("Levi", "Thatcher", email = "levi.thatcher@healthcatalyst.com", role = "aut"),
     person("Michael", "Levy", email = "michael.levy@healthcatalyst.com", role = c("aut", "cre")),
@@ -16,25 +16,31 @@ Description: A machine learning toolbox tailored to healthcare data.
 License: MIT + file LICENSE
 LazyData: TRUE
 Depends:
-    R (>= 3.2.3)
+    R (>= 3.4)
 Imports:
-    caret,
-    data.table,
+    broom,
+    caret (>= 6.0.78),
+    cowplot,
     DBI,
-    doParallel,
     dplyr,
     e1071,
+    ggplot2,
     grpreg,
+    kknn,
     lme4,
+    lubridate,
     odbc,
-    pROC,
-    R6,
-    ranger,
-    ROCR,
+    purrr,
+    ranger (>= 0.8.0),
+    readr,
+    recipes (>= 0.1.2),
+    rlang,
     RSQLite,
-    xgboost
+    tibble,
+    tidyr,
 RoxygenNote: 6.0.1
 Suggests:
-    testthat
+    testthat,
+    lintr
 URL: http://healthcareai-r.readthedocs.io
 BugReports: https://github.com/HealthCatalyst/healthcareai-r/issues

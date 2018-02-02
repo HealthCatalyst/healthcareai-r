@@ -13,8 +13,8 @@
 # RStudio files
 .Rproj.user/
 .Ruserdata
-# Saved objects
-*.rda
+# Saved objects. Needed now for built in datasets. Don't want those in tests
+tests/testthat/*.rda
 # Genered plots from tests
 tests/testthat/Rplots.pdf
 .Rproj.user
@@ -25,6 +25,12 @@ Rplot.png
 inst/extdata/unit-test.sqlite
 # Dropbox tracking files
 *.DS_Store
+.env
+env
 .credentials.R
-*.txt
-predictionMetadata*
+# txt files anywhere
+**/*.txt
+# html files in home directory; preserve in docs/
+/*.html
+# Not certain that we don't need these, but I'm not sure why pkgdown is causing their generation:
+docs/reference/*.pdf
