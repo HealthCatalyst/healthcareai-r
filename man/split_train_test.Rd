@@ -4,7 +4,7 @@
 \alias{split_train_test}
 \title{Split data into training and test data frames}
 \usage{
-split_train_test(d, outcome, p, seed)
+split_train_test(d, outcome, p = 0.8, seed)
 }
 \arguments{
 \item{d}{Data frame}
@@ -12,7 +12,7 @@ split_train_test(d, outcome, p, seed)
 \item{outcome}{Target column, unquoted. Split will be stratified across this
 variable}
 
-\item{p}{Proportion of rows in d to put into training}
+\item{p}{Proportion of rows in d to put into training. Default is 0.8}
 
 \item{seed}{Optional, if provided the function will return the same split
 each time it is called}
@@ -27,5 +27,5 @@ Split data into training and test data frames
 This function wraps `caret::createDataPartition`.
 }
 \examples{
-split_train_test(mtcars, am, .8)
+split_train_test(mtcars, am, .9)
 }
