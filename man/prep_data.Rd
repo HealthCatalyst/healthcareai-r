@@ -45,7 +45,7 @@ removed. If a character vector, it is passed to the `features` argument of
 using mean (numeric), and new category (nominal). If FALSE, data will not
 be imputed. If this is a list, it must be named, with possible entries for
 `numeric_method`, `nominal_method`, `numeric_params`, `nominal_params`,
-which are passed to `hcai_impute`.}
+which are passed to \code{\link{hcai_impute}}.}
 
 \item{collapse_rare_factors}{Logical or numeric. If TRUE (default), factor
 levels representing less than 3 percent of observations will be collapsed

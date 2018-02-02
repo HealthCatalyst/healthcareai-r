@@ -45,7 +45,7 @@
 #'   using mean (numeric), and new category (nominal). If FALSE, data will not
 #'   be imputed. If this is a list, it must be named, with possible entries for
 #'   `numeric_method`, `nominal_method`, `numeric_params`, `nominal_params`,
-#'   which are passed to `hcai_impute`.
+#'   which are passed to \code{\link{hcai_impute}}.
 #' @param collapse_rare_factors Logical or numeric. If TRUE (default), factor
 #'   levels representing less than 3 percent of observations will be collapsed
 #'   into a new category, `other`. If numeric, must be in {0, 1}, and is the
