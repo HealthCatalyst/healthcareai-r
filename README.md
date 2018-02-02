@@ -8,6 +8,17 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/HealthCatalystSLC/healthcareai-r/blob/master/LICENSE)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.999334.svg)](https://doi.org/10.5281/zenodo.999334)
 
+Machine learning as easy as...
+
+```r
+library(healthcareai)
+models <- machine_learn(d = pima_diabetes, outcome = diabetes)
+predict(models)
+```
+
+**Please note that the package is currently in transition** from an R6 architecture to a tidy, S3 architecture. The code above is the new version, which is in beta and can be acquired via `devtools::install_github("HealthCatalyst/healthcareai-r")`. Beta testing of the new version, pre-CRAN, is very welcome; please file issues for any bugs, unclear docs, or feature suggestions here. `install.packages("healthcareai")` will get you the old version from CRAN, which will remain available via `devtools::install_github("HealthCatalyst/healthcareai-r@v1.2.3")`.
+
+
 The aim of `healthcareai` is to make machine learning on healthcare data easy. The package does that by providing functions to:
 
 - Easily develop a high performance machine-learning model tuned to your data. 
