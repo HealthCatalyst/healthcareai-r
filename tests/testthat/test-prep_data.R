@@ -416,3 +416,8 @@ test_that("If outcome to prep_data is or looks like logical, get informative err
   d_train <- d_train %>% mutate(is_ween = as.character(is_ween == "Y"))
   expect_error(prep_data(d_train, outcome = is_ween), "logical")
 })
+
+test_that("prep_data leaves newly created dummies as 0/1", {
+  d <- data.frame(x = 1:10, y = rep(letters[1:2], len = 10))
+  expect_true(all(prep_data(d, center = TRUE, scale = TRUE)[["y_b"]] %in% 0:1))
+})
