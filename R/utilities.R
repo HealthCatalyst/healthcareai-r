@@ -10,7 +10,7 @@ missing_check <- function(d, col_name) {
   if (!any(is.na(dplyr::pull(d, !!col_name)))) {
     return(TRUE)
   } else {
-    stop("Fill in missingness in ", rlang::get_expr(col_name),
+    stop("Please fill in missingness in ", rlang::get_expr(col_name),
          " before calling ", match.call())
   }
 }
