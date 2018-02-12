@@ -421,3 +421,10 @@ test_that("prep_data leaves newly created dummies as 0/1", {
   d <- data.frame(x = 1:10, y = rep(letters[1:2], len = 10))
   expect_true(all(prep_data(d, center = TRUE, scale = TRUE)[["y_b"]] %in% 0:1))
 })
+
+test_that("If recipe provided but no outcome column, NA-outcome column isn't created", {
+  expect_false("is_ween" %in% names(
+    prep_data(dplyr::select(d_test, -is_ween), song_id, recipe = attr(d_prep, "recipe"))
+  ))
+
+})
