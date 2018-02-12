@@ -427,3 +427,22 @@ test_that("If recipe provided but no outcome column, NA-outcome column isn't cre
     prep_data(dplyr::select(d_test, -is_ween), song_id, recipe = attr(d_prep, "recipe"))
   ))
 })
+
+test_that("No missingness in deploy if missingness in training", {
+  training_data <- pima_diabetes[11:100, ]
+  pd_miss <- prep_data(training_data, outcome = diabetes)
+  pd <- prep_data(na.omit(training_data), outcome = diabetes)
+    to_pred <- expand.grid(
+    weight_class = c("normal", "notInTraining"),
+    age = 20:80,
+    patient_id = "xxx",
+    pregnancies = 0,
+    plasma_glucose = 100,
+    diastolic_bp = 80,
+    skinfold = 25,
+    insulin = 100,
+    pedigree = .2
+  )
+  expect_true(all(missingness(prep_data(to_pred, recipe = pd), return_df = FALSE) == 0))
+  expect_true(all(missingness(prep_data(to_pred, recipe = pd_miss), return_df = FALSE) == 0))
+})
