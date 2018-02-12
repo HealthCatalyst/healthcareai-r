@@ -120,10 +120,10 @@ test_that("tune supports various loss functions in classification", {
   #               metric = "mnLogLoss", models = "knn", n_folds = 2,
   #               tune_depth = 2)
   #   , regexp = NA)
-  # expect_warning(
-  #   tune_models(d = test_df, outcome = x1, model_class = "classification",
-  #               metric = "PR", models = "knn", n_folds = 2, tune_depth = 2)
-  #   , regexp = NA)
+  expect_warning(
+    tune_models(d = test_df, outcome = x1, model_class = "classification",
+                metric = "PR", models = "knn", n_folds = 2, tune_depth = 2)
+    , regexp = NA)
   # expect_warning(
   #   tune_models(d = test_df, outcome = x1, model_class = "classification",
   #               metric = "accuracy", models = "knn", n_folds = 2,
