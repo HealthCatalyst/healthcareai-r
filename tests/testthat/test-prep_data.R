@@ -426,5 +426,4 @@ test_that("If recipe provided but no outcome column, NA-outcome column isn't cre
   expect_false("is_ween" %in% names(
     prep_data(dplyr::select(d_test, -is_ween), song_id, recipe = attr(d_prep, "recipe"))
   ))
-
 })
