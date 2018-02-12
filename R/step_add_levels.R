@@ -57,21 +57,25 @@ bake.step_add_levels <- function(object, newdata, ...) {
   tibble::as_tibble(newdata)
 }
 
+#' @importFrom utils getFromNamespace
 #' @export
 print.step_add_levels <- function(x, width = max(20, options()$width - 30), ...) {
   cat("Adding levels to: ", sep = "")
-  recipes:::printer(x$levels, x$terms, x$trained, width = width)
+  printer <- getFromNamespace("printer", "recipes")
+  printer(x$levels, x$terms, x$trained, width = width)
   invisible(x)
 }
 
 #' @rdname step_add_levels
 #' @param x A `step_add_levels` object.
+#' @importFrom utils getFromNamespace
 #' @export
 tidy.step_add_levels <- function(x, ...) {
   res <- if (x$trained) {
     tibble::tibble(terms = x$cols, value = paste(x$levels, collapse = ", "))
   } else {
-    tibble::tibble(terms = recipes:::sel2char(x$terms), value = NA_character_)
+    sel2char <- getFromNamespace("sel2char", "recipes")
+    tibble::tibble(terms = sel2char(x$terms), value = NA_character_)
   }
   return(res)
 }
