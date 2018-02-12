@@ -126,6 +126,7 @@ test_that("predict can handle binary character non Y/N columns", {
 
 test_that("predict handles new levels on model_list from prep_data", {
   expect_s3_class(predict(mrp, te_newlevel), "hcai_predicted_df")
+  prep_data(te_newlevel, recipe = te_reg_prep)
 })
 
 test_that("predict handles missingness where unobserved in training prep_data", {
@@ -140,4 +141,8 @@ test_that(paste0("predict errors informatively when new levels are observed in",
 test_that(paste0("predict errors informatively when missingness on newdata and",
                  "training data was unprepped"), {
   expect_error(predict(mrn, te_new_missing), regexp = "missing")
+})
+
+test_that("predict errors if prepdata TRUE but no recipe there", {
+  expect_error(predict(mrn, te_newlevel, prepdata = T), regexp = "prep")
 })

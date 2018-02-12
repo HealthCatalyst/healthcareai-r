@@ -83,7 +83,10 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
   # This bit of repition avoids copying newdata if it's not being prepped
   preds <-
     if (prep) {
-      prep_data(newdata, recipe = attr(object, "recipe")) %>%
+      recipe <- attr(object, "recipe")
+      if (is.null(recipe))
+        stop("Can't prep data in prediction without a recipe from training data.")
+      prep_data(newdata, recipe = recipe) %>%
         caret::predict.train(best_models, ., type = type)
     } else {
       newdata %>%
