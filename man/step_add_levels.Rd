@@ -6,7 +6,7 @@
 \title{Add levels to nominal variables}
 \usage{
 step_add_levels(recipe, ..., role = NA, trained = FALSE, cols = NULL,
-  levels = c("other", "hcai_missing"))
+  levels = c("other", "hcai_missing"), observed_levels = NULL)
 
 \method{tidy}{step_add_levels}(x, ...)
 }
@@ -22,7 +22,9 @@ step_add_levels(recipe, ..., role = NA, trained = FALSE, cols = NULL,
 \item{cols}{columns to be prepped}
 
 \item{levels}{Factor levels to add to variables. Default = c("other",
-"hcai_missing")}
+"hcai_missing"). If new values are observed in baking vs. prep, they will
+be replaced with the first value of this argument (i.e. "other" by
+default).}
 
 \item{x}{A `step_add_levels` object.}
 }
@@ -30,7 +32,11 @@ step_add_levels(recipe, ..., role = NA, trained = FALSE, cols = NULL,
 Recipe with the new step
 }
 \description{
-Add levels to nominal variables
+Adds levels to factor variables. If baking data contains factor
+  levels unobserved in prep, they will be converted to the first value in the
+  "levels" arguement ("other" by default). This provides protection against
+  the common problem of factor levels in prediction that were unobserved in
+  training.
 }
 \examples{
 library(recipes)
