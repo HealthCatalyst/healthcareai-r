@@ -6,7 +6,7 @@
 \title{Add levels to nominal variables}
 \usage{
 step_add_levels(recipe, ..., role = NA, trained = FALSE, cols = NULL,
-  levels = c("other", "hcai_missing"), observed_levels = NULL)
+  levels = c("other", "hcai_missing"))
 
 \method{tidy}{step_add_levels}(x, ...)
 }

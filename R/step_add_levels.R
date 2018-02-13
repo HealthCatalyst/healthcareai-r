@@ -33,15 +33,14 @@
 #' lapply(d[, sapply(d, is.factor)], levels)
 #' lapply(baked[, sapply(baked, is.factor)], levels)
 step_add_levels <- function(recipe, ..., role = NA, trained = FALSE,
-                            cols = NULL, levels = c("other", "hcai_missing"),
-                            observed_levels = NULL) {
+                            cols = NULL, levels = c("other", "hcai_missing")) {
   terms <- rlang::quos(...)
   if (length(terms) == 0)
     stop("Please supply at least one variable specification. See ?selections.")
   add_step(recipe,
            step_add_levels_new(terms = terms, trained = trained, role = role,
                                levels = levels,
-                               observed_levels = observed_levels))
+                               observed_levels = NULL))
 }
 
 step_add_levels_new <- function(terms = NULL, role = NA, trained = FALSE,
