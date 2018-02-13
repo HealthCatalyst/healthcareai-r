@@ -30,7 +30,8 @@ mcn <-
   tr %>%
   dplyr::select(-province) %>%
   tune_models(Catholic)
-suppressWarnings({  # Warning when RF can't find a good cut
+# Warning when RF can't find a good cut
+suppressWarnings({
   mrp <-
     tr %>%
     prep_data(province, outcome = Fertility, make_dummies = TRUE) %>%
@@ -126,7 +127,6 @@ test_that("predict can handle binary character non Y/N columns", {
 
 test_that("predict handles new levels on model_list from prep_data", {
   expect_s3_class(predict(mrp, te_newlevel), "hcai_predicted_df")
-  prep_data(te_newlevel, recipe = te_reg_prep)
 })
 
 test_that("predict handles missingness where unobserved in training prep_data", {
