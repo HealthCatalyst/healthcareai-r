@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.4] - 2018-02-14
+
+### Added
+- Startup message about coming breaking changes to the package.
+
+### Removed
+- Tests that wrote to a sqlite file.
+
 ## [1.2.3] - 2017-12-20
 
 ### Added
