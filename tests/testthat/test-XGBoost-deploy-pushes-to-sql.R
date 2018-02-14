@@ -68,28 +68,3 @@ test_that("XGBoost deploy pushes values to SQL Server", {
                           tableName = 'dermatologyDeployClassificationBASE'),
                 "20 rows were inserted into the SQL Server table dermatologyDeployClassificationBASE")
 })
-
-
-test_that("XGBoost deploy pushes values to SQLite", {
-  
-  capture.output(ignoreSpecWarn(code = boost <- XGBoostDevelopment$new(p),
-                                wRegexps = warningText))
-  capture.output(suppressWarnings(boost$run()))
-  
-  p2 <- SupervisedModelDeploymentParams$new()
-  p2$type <- "multiclass"
-  p2$df <- dfDeploy
-  p2$grainCol <- "PatientID"
-  p2$predictedCol <- "target"
-  p2$impute <- TRUE
-  p2$debug <- FALSE
-  
-  capture.output(boostD <- XGBoostDeployment$new(p2))
-  capture.output(boostD$deploy())
-  capture.output(outDf <- boostD$getOutDf())
-  
-  expect_output(writeData(SQLiteFileName = sqliteFile,
-                          df = outDf,
-                          tableName = 'dermatologyDeployMulticlassBASE'),
-                "20 rows were inserted into the SQLite table dermatologyDeployMulticlassBASE")
-})
