@@ -136,7 +136,7 @@ test_that("tune supports various loss functions in regression", {
     tune_models(d = test_df, outcome = x2, model_class = "regression",
          metric = "MAE", models = "knn", n_folds = 2, tune_depth = 2)
     , regexp = NA)
-  expect_warning(
+  # expect_warning(
     # tune_models(d = test_df, outcome = x2, model_class = "regression",
     #      metric = "Rsquared", models = "knn", n_folds = 2,
     #      tune_depth = 2)
