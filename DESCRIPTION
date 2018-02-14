@@ -41,6 +41,7 @@ Imports:
 RoxygenNote: 6.0.1
 Suggests:
     testthat,
-    lintr
+    lintr,
+    codecov
 URL: http://healthcareai-r.readthedocs.io
 BugReports: https://github.com/HealthCatalyst/healthcareai-r/issues
