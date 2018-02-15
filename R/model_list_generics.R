@@ -11,12 +11,12 @@ print.model_list <- function(x, ...) {
       "Target: ", rinfo$target,
       "\nClass: ", rinfo$m_class,
       "\nAlgorithms Tuned: ", paste(rinfo$algs, collapse = ", "),
-      "\nPerformance Metric: ", rinfo$metric,
+      "\nPerformance Metric: ", rinfo$print_metric,
       "\nNumber of Observations: ", rinfo$ddim[1],
       "\nNumber of Features: ", rinfo$ddim[2] - 1L,
 
       "\n\nBest model: ", rinfo$best_model_name,
-      "\n", rinfo$metric, " = ", round(rinfo$best_model_perf, 2),
+      "\n", rinfo$print_metric, " = ", round(rinfo$best_model_perf, 2),
       "\nHyperparameter values:", "\n  ", format_tune(rinfo$best_model_tune)
     )
   } else {
@@ -38,7 +38,7 @@ summary.model_list <- function(object, ...) {
   if (!length(object))
     stop("object is empty.")
   rinfo <- extract_model_info(object)
-  out <- paste0("Best performance: ", rinfo$metric, " = ",
+  out <- paste0("Best performance: ", rinfo$print_metric, " = ",
                 round(rinfo$best_model_perf, 2), "\n",
                 rinfo$best_model_name, " with hyperparameters:\n  ",
                 format_tune(rinfo$best_model_tune))
@@ -49,6 +49,13 @@ summary.model_list <- function(object, ...) {
     if (object[[1]]$maximize) ord <- rev(ord)
     structure(xx$results[ord, ], row.names = seq_len(nrow(xx$results)))
   })
+  # Rename column for PR
+  if (rinfo$print_metric == "PR") {
+    perf <- purrr::map(perf, function(x) {
+      names(x)[names(x) == "AUC"] <- "PR"
+      return(x)
+    })
+  }
   names(perf) <- rinfo$algs
   print(perf)
   return(invisible(perf))
@@ -87,7 +94,7 @@ plot.model_list <- function(x, print = TRUE, ...) {
       ggplot(mod) +
         ylim(y_range) +
         labs(title = mod$modelInfo$label,
-             caption = paste("Best ", mod$metric, ": ", best_metric))
+             caption = paste("Best ", mod$print_metric, ": ", best_metric))
     })
   gg <- cowplot::plot_grid(plotlist = gg_list, nrow = nrows)
   if (print)
@@ -118,6 +125,12 @@ extract_model_info <- function(x) {
   # optimum is min or max depending on metric
   optimum <- if (x[[1]]$maximize) max else min
   metric <- x[[1]]$metric
+  # AUC is caret internal for PR. We like PR better for printing.
+  if (metric == "AUC") {
+    print_metric <- "PR"
+  } else {
+    print_metric <- metric
+  }
   best_metrics <- purrr::map_dbl(x, ~ optimum(.x$results[[metric]]))
   best_model <- which(best_metrics == optimum(best_metrics))[1] # 1 in case tie
   algs <- purrr::map_chr(x, ~ .x$modelInfo$label)
@@ -133,6 +146,7 @@ extract_model_info <- function(x) {
     algs = algs,
     target = target,
     metric = metric,
+    print_metric = print_metric,
     best_model_name = best_model_name,
     best_model_perf = best_model_perf,
     best_model_tune = best_model_tune,

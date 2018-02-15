@@ -190,7 +190,8 @@ tune_models <- function(d,
   # trainControl defaults are good for regression. Change for other model_class:
   if (model_class == "classification") {
     if (metric == "PR") {
-      train_control$summaryFunction <- pr_summary
+      train_control$summaryFunction <- caret::prSummary
+      metric <- "AUC" # For caret internal function
     } else {
       train_control$summaryFunction <- caret::twoClassSummary
     }
