@@ -76,41 +76,20 @@ plot.model_list <- function(x, print = TRUE, ...) {
   if (!inherits(x, "model_list"))
     stop("x is class ", class(x)[1],
          ", but needs to be model_list")
-  params <- purrr::map(x, ~ as.character(.x$modelInfo$parameters$parameter))
   bounds <- purrr::map_df(x, function(m) range(m$results[[m$metric]]))
   y_range <- c(min(bounds[1, ]), max(bounds[2, ]))
   nrows <- ceiling(length(x) / 2)
   gg_list <-
-    lapply(x, function(mod) {  # Loop over algorithms
+    lapply(x, function(mod) {
       # optimum is min or max depending on metric
       optimum <- if (mod$maximize) max else min
-      mod$results$best <- mod$results[[mod$metric]] == optimum(mod$results[[mod$metric]])
-      hps <- as.character(mod$modelInfo$parameters$parameter)
-      plots <-
-        purrr::map(hps, ~ {  # Loop over hyperparameters
-          to_plot <- mod$results[, which(names(mod$results) %in% c(.x, mod$metric, "best"))]
-          to_plot$id <- as.character(seq_len(nrow(to_plot)))
-          if (!is.numeric(to_plot[[.x]]))
-            to_plot[[.x]] <- reorder(to_plot[[.x]], to_plot[[mod$metric]], FUN = optimum)
-          p <-
-            ggplot(to_plot, aes_string(x = .x, y = mod$metric,
-                                     color = "id", size = "best")) +
-            geom_point() +
-            coord_flip() +
-            scale_y_continuous(limits = y_range) +
-            scale_color_discrete(guide = FALSE) +
-            scale_size_manual(values = c("TRUE" = 3, "FALSE" = 1.5), guide = FALSE)
-          if (.x != hps[length(hps)])
-            p <- p + theme(axis.title.x = element_blank(),
-                           axis.text.x = element_blank(),
-                           axis.ticks.x = element_blank())
-          return(p)
-        })
-      title <- cowplot::ggdraw() + cowplot::draw_label(mod$modelInfo$label, fontface='bold')
-      plot_grid(title, cowplot::plot_grid(plotlist = plots, ncol = 1, align = "v"),
-                ncol=1, rel_heights=c(0.1, 2))
+      best_metric <- round(optimum(mod$results[[mod$metric]]), 2)
+      ggplot(mod) +
+        ylim(y_range) +
+        labs(title = mod$modelInfo$label,
+             caption = paste("Best ", mod$metric, ": ", best_metric))
     })
-  gg <- cowplot::plot_grid(plotlist = gg_list)
+  gg <- cowplot::plot_grid(plotlist = gg_list, nrow = nrows)
   if (print)
     print(gg)
   return(invisible(gg))
