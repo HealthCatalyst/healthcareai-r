@@ -187,11 +187,14 @@ tune_models <- function(d,
          " but you supplied tune_method = \"", tune_method, "\"")
   }
 
+  # Keep track of PR for after caret internal is done. Expects AUC when PR.
+  pr_flag <- FALSE
   # trainControl defaults are good for regression. Change for other model_class:
   if (model_class == "classification") {
     if (metric == "PR") {
       train_control$summaryFunction <- caret::prSummary
       metric <- "AUC" # For caret internal function
+      pr_flag <- TRUE
     } else {
       train_control$summaryFunction <- caret::twoClassSummary
     }
@@ -247,6 +250,15 @@ tune_models <- function(d,
     })
   # Add model names
   names(train_list) <- provided_models
+
+  # Rename metric if PR
+  if (pr_flag) {
+    train_list <- purrr::map(train_list, function(x) {
+      x$metric <- "PR"
+      names(x$results)[names(x$results) == "AUC"] <- "PR"
+      return(x)
+    })
+  }
 
   # Add classes
   train_list <- as.model_list(listed_models = train_list,

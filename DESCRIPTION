@@ -29,7 +29,6 @@ Imports:
     kknn,
     lme4,
     lubridate,
-    MLmetrics,
     odbc,
     purrr,
     ranger (>= 0.8.0),
