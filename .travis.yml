@@ -23,6 +23,9 @@ matrix:
   allow_failures:
     - r: devel
 
+r_packages:
+  - covr
+
 after_success:
   - Rscript -e 'covr::codecov()'
   - Rscript -e 'lintr::lint_package()'
