@@ -13,7 +13,7 @@
 will be made on the training data. Should have the same structure as the
 input to `prep_data`,`tune_models` or `train_models`. `predict` will try to
 figure out if the data need to be sent through `prep_data` before making
-predictions; this can be overriden by setting `prepdata = FALSE``, but this
+predictions; this can be overriden by setting `prepdata = FALSE`, but this
 should rarely be needed.}
 
 \item{prepdata}{Logical, rarely needs to be set by the user. By default, if
