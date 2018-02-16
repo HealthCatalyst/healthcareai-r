@@ -6,6 +6,7 @@
 #' @noRd
 print.model_list <- function(x, ...) {
   if (length(x)) {
+    x <- change_pr_metric(x)
     rinfo <- extract_model_info(x)
     out <- paste0(
       "Target: ", rinfo$target,
@@ -37,6 +38,7 @@ print.model_list <- function(x, ...) {
 summary.model_list <- function(object, ...) {
   if (!length(object))
     stop("object is empty.")
+  object <- change_pr_metric(object)
   rinfo <- extract_model_info(object)
   out <- paste0("Best performance: ", rinfo$metric, " = ",
                 round(rinfo$best_model_perf, 2), "\n",
@@ -167,3 +169,20 @@ is.classification_list <- function(x) "classification_list" %in% class(x)
 #' @return logical
 #' @export
 is.regression_list <- function(x) "regression_list" %in% class(x)
+
+#' Modify model object if PR. Otherwise, return as is.
+#' @param m model_list
+#' @return model_list
+#' @noRd
+change_pr_metric <- function(m) {
+  if (m[[1]]$metric == "AUC") { # PR was used
+    m <- purrr::map(m, function(x) {
+      x$metric <- "PR"
+      names(x$results)[names(x$results) == "AUC"] <- "PR"
+      return(x)
+    })
+    return(m)
+  } else {
+    return(m)
+  }
+}
