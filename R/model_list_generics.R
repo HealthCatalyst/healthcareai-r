@@ -71,13 +71,16 @@ summary.model_list <- function(object, ...) {
 #' @importFrom purrr map_df
 #' @export
 #' @examples
-#' plot(tune_models(mtcars, mpg))
+#' models <- tune_models(mtcars, mpg)
+#' plot(models)
+#' plot(as.model_list(models$`Random Forest`))
 plot.model_list <- function(x, print = TRUE, ...) {
   if (!length(x))
     stop("x is empty.")
   if (!inherits(x, "model_list"))
     stop("x is class ", class(x)[1],
          ", but needs to be model_list")
+  x <- change_pr_metric(x)
   params <- purrr::map(x, ~ as.character(.x$modelInfo$parameters$parameter))
   bounds <- purrr::map_df(x, function(m) range(m$results[[m$metric]]))
   y_range <- c(min(bounds[1, ]), max(bounds[2, ]))
@@ -86,14 +89,14 @@ plot.model_list <- function(x, print = TRUE, ...) {
     lapply(x, function(mod) {
       # optimum is min or max depending on metric
       optimum <- if (mod$maximize) max else min
+      mod$results$id <- as.character(sample(nrow(mod$results)))
       mod$results$best <- mod$results[[mod$metric]] == optimum(mod$results[[mod$metric]])
       hps <- as.character(mod$modelInfo$parameters$parameter)
       plots <-
         # Loop over hyperparameters
         purrr::map(hps, ~ {
-          to_plot <- mod$results[, which(names(mod$results) %in% c(.x, mod$metric, "best"))]
+          to_plot <- mod$results[, which(names(mod$results) %in% c(.x, mod$metric, "best", "id"))]
           # Add column with a unique identifier for each row to color by
-          to_plot$id <- as.character(sample(nrow(to_plot)))
           if (!is.numeric(to_plot[[.x]]))
             to_plot[[.x]] <- reorder(to_plot[[.x]], to_plot[[mod$metric]], FUN = optimum)
           p <-
@@ -120,7 +123,7 @@ plot.model_list <- function(x, print = TRUE, ...) {
         cowplot::ggdraw() +
         cowplot::draw_label(mod$modelInfo$label, fontface = "bold")
       plot_grid(title, cowplot::plot_grid(plotlist = plots, ncol = 1, align = "v"),
-                ncol = 1, rel_heights = c(0.1, 2.5))
+                ncol = 1, rel_heights = c(0.1, 1.9))
     })
   gg <- cowplot::plot_grid(plotlist = gg_list)
   if (print)
@@ -206,7 +209,8 @@ is.regression_list <- function(x) "regression_list" %in% class(x)
 #' @return model_list
 #' @noRd
 change_pr_metric <- function(m) {
-  if (m[[1]]$metric == "AUC") { # PR was used
+  # PR was used
+  if (m[[1]]$metric == "AUC") {
     m <- purrr::map(m, function(x) {
       x$metric <- "PR"
       names(x$results)[names(x$results) == "AUC"] <- "PR"

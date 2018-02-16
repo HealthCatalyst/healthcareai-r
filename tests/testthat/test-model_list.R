@@ -13,6 +13,7 @@ kn <- caret::train(x = dplyr::select(mtcars, -am),
 )
 r_models <- tune_models(mtcars, mpg)
 c_models <- tune_models(mtcars, am)
+c_pr <- tune_models(mtcars, am, metric = "PR")
 single_model_as <- as.model_list(rf)
 single_model_tune <- tune_models(mtcars, am, models = "rf")
 double_model_as <- as.model_list(rf, kn)
@@ -94,7 +95,7 @@ test_that("as.model_list returns correct model names (from modelInfo$label)", {
 
 context("Checking model_list generics") # --------------------------------------
 
-test_that("plot.model_list works on regression_list", {
+test_that("el_list works on regression_list", {
   expect_equal(class(plot(r_models, print = FALSE)),
                c("gg", "ggplot"))
   expect_equal(class(plot.model_list(r_models, print = FALSE)),
@@ -109,6 +110,8 @@ test_that("plot.model_list works on classification_list", {
   expect_equal(class(plot(c_models, print = FALSE)),
                c("gg", "ggplot"))
   expect_equal(class(plot.model_list(c_models, print = FALSE)),
+               c("gg", "ggplot"))
+  expect_equal(class(plot(c_pr, print = FALSE)),
                c("gg", "ggplot"))
   expect_error(plot.model_list(ranger::ranger(am ~ ., mtcars), print = FALSE),
                regexp = "model_list")
