@@ -83,10 +83,33 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
   # This bit of repition avoids copying newdata if it's not being prepped
   preds <-
     if (prep) {
-      prep_data(newdata, recipe = attr(object, "recipe")) %>%
+      recipe <- attr(object, "recipe")
+      if (is.null(recipe))
+        stop("Can't prep data in prediction without a recipe from training data.")
+      prep_data(newdata, recipe = recipe) %>%
         caret::predict.train(best_models, ., type = type)
     } else {
-      newdata %>%
+      # Select variables to be used in prediction:
+      td <- dplyr::select(best_models$trainingData, -.outcome)
+      # Pull off columns not used in prediction, but leave newdata alone for return
+      to_pred <- newdata[, names(newdata) %in% names(td), drop = FALSE]
+      # Check for no missingness
+      has_missing <- missingness(to_pred, FALSE) > 0
+      if (any(has_missing))
+        stop("The following variables have missingness that needs to be ",
+             "addressed before making predictions. ",
+             "Consider using prep_data to address this.\n\t",
+             paste(names(has_missing)[has_missing], collapse = ", "))
+      # Check for no new levels in factors
+      missing_levels <-
+        find_new_levels(to_pred, best_models$trainingData) %>%
+        format_new_levels()
+      if (length(missing_levels))
+        stop("The following variable(s) had the following value(s) ",
+             "in predict that were not observed in training. ",
+             "Consider using prep_data to address this.", missing_levels)
+      # Make predictions
+      to_pred %>%
         caret::predict.train(best_models, ., type = type)
     }
   # Probs get returned for no and yes. Take just positive class in 2nd column
