@@ -286,6 +286,10 @@ prep_data <- function(d,
                               threshold = fac_thresh)
       }
 
+      # Re-add protective levels if hcai_missing dropped by step_other
+      if (add_levels)
+        recipe <- step_add_levels(recipe, all_nominal(), - all_outcomes())
+
       # make_dummies -----------------------------------------------------------
       if (make_dummies) {
         recipe <- recipe %>%
@@ -315,7 +319,6 @@ prep_data <- function(d,
   d <- tibble::as_tibble(d)
   class(d) <- c("hcai_prepped_df", class(d))
 
-  # TODO: Remove unused factor levels with droplevels. (MAYBE)
   return(d)
 }
 
