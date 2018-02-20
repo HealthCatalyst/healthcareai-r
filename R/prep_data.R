@@ -264,6 +264,11 @@ prep_data <- function(d,
 
     # If there are nominal predictors, apply nominal transformations
     if (any(var_info$type == "nominal" & var_info$role == "predictor")) {
+
+      # Add protective levels --------------------------------------------------
+      if (add_levels)
+        recipe <- step_add_levels(recipe, all_nominal(), - all_outcomes())
+
       # Collapse rare factors into "other" --------------------------------------
       if (!is.logical(collapse_rare_factors)) {
         if (!is.numeric(collapse_rare_factors))
@@ -280,10 +285,6 @@ prep_data <- function(d,
           recipes::step_other(all_nominal(), - all_outcomes(),
                               threshold = fac_thresh)
       }
-
-      # Add protective levels --------------------------------------------------
-      if (add_levels)
-        recipe <- step_add_levels(recipe, all_nominal(), - all_outcomes())
 
       # make_dummies -----------------------------------------------------------
       if (make_dummies) {
