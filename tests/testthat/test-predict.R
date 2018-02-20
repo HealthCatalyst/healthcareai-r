@@ -12,6 +12,12 @@ swiss <-
 part <- caret::createDataPartition(swiss$Catholic, .8)[[1]]
 tr <- swiss[part, ]
 te <- swiss[-part, ]
+te_newlevel <- te
+te_newlevel$Catholic[c(3, 7, 16)] <- "unobserved in training"
+te_newlevel$Catholic[5] <- "another new level"
+te_new_missing <- te
+te_new_missing$Agriculture[1:3] <- NA
+te_new_missing$Catholic[6:7] <- NA
 # Need to test combos of:
 # reg/class x d from prep_data/not x newdata from prep_data/not
 ## Except training data not prepped and newdata prepped; that shouldn't work
@@ -24,7 +30,8 @@ mcn <-
   tr %>%
   dplyr::select(-province) %>%
   tune_models(Catholic)
-suppressWarnings({  # Warning when RF can't find a good cut # nolint
+# Warning when RF can't find a good cut
+suppressWarnings({
   mrp <-
     tr %>%
     prep_data(province, outcome = Fertility, make_dummies = TRUE) %>%
@@ -116,4 +123,19 @@ test_that("predict can handle binary character non Y/N columns", {
     machine_learn(Catholic) %>%
     predict() %>%
     expect_s3_class("data.frame")
+})
+
+test_that(paste0("predict errors informatively when new levels are observed in",
+                 "newdata and training data was unprepped"), {
+  expect_error(predict(mrn, te_newlevel), regexp = "Catholic")
+})
+
+test_that(paste0("predict errors informatively when missingness on newdata and",
+                 "training data was unprepped"), {
+  expect_error(predict(mrn, te_new_missing),
+               regexp = "Catholic, Agriculture")
+})
+
+test_that("predict errors if prepdata TRUE but no recipe there", {
+  expect_error(predict(mrn, te_newlevel, prepdata = T), regexp = "prep")
 })
