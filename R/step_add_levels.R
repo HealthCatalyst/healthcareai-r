@@ -7,6 +7,8 @@
 #' @param cols columns to be prepped
 #' @param levels Factor levels to add to variables. Default = c("other",
 #'   "hcai_missing")
+#' @param skip A logical. Should the step be skipped when the
+#'  recipe is baked?
 #'
 #' @return Recipe with the new step
 #' @export
@@ -25,19 +27,20 @@
 #' lapply(d[, sapply(d, is.factor)], levels)
 #' lapply(baked[, sapply(baked, is.factor)], levels)
 step_add_levels <- function(recipe, ..., role = NA, trained = FALSE,
-                            cols = NULL, levels = c("other", "hcai_missing")) {
+                            cols = NULL, levels = c("other", "hcai_missing"),
+                            skip = FALSE) {
   terms <- rlang::quos(...)
   if (length(terms) == 0)
     stop("Please supply at least one variable specification. See ?selections.")
   add_step(recipe,
            step_add_levels_new(terms = terms, trained = trained, role = role,
-                               levels = levels))
+                               levels = levels, skip = skip))
 }
 
 step_add_levels_new <- function(terms = NULL, role = NA, trained = FALSE,
-                                cols = NULL, levels = NULL) {
+                                cols = NULL, levels = NULL, skip = FALSE) {
   step(subclass = "add_levels", terms = terms, role = role, trained = trained,
-       cols = cols, levels = levels)
+       cols = cols, levels = levels, skip = skip)
 }
 
 #' @export
@@ -46,7 +49,7 @@ prep.step_add_levels <- function(x, training, info) {
   if (any(info$type[info$variable %in% col_names] != "nominal"))
     stop("step_add_levels is only appropriate for nominal variables")
   step_add_levels_new(terms = x$terms, role = x$role, trained = TRUE,
-                      cols = col_names, levels = x$levels)
+                      cols = col_names, levels = x$levels, skip = x$skip)
 }
 
 #' @export
