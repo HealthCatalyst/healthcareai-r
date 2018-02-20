@@ -1,12 +1,20 @@
 #' Add levels to nominal variables
 #'
+#' @description Adds levels to factor variables. If baking data contains factor
+#'   levels unobserved in prep, they will be converted to the first value in the
+#'   "levels" arguement ("other" by default). This provides protection against
+#'   the common problem of factor levels in prediction that were unobserved in
+#'   training.
+#'
 #' @param recipe recipe object. This step will be added
 #' @param ... One or more selector functions
 #' @param role Ought to be nominal
 #' @param trained Has the recipe been prepped?
 #' @param cols columns to be prepped
 #' @param levels Factor levels to add to variables. Default = c("other",
-#'   "hcai_missing")
+#'   "hcai_missing"). If new values are observed in baking vs. prep, they will
+#'   be replaced with the first value of this argument (i.e. "other" by
+#'   default).
 #'
 #' @return Recipe with the new step
 #' @export
@@ -31,13 +39,15 @@ step_add_levels <- function(recipe, ..., role = NA, trained = FALSE,
     stop("Please supply at least one variable specification. See ?selections.")
   add_step(recipe,
            step_add_levels_new(terms = terms, trained = trained, role = role,
-                               levels = levels))
+                               levels = levels,
+                               observed_levels = NULL))
 }
 
 step_add_levels_new <- function(terms = NULL, role = NA, trained = FALSE,
-                                cols = NULL, levels = NULL) {
+                                cols = NULL, levels = NULL,
+                                observed_levels = NULL) {
   step(subclass = "add_levels", terms = terms, role = role, trained = trained,
-       cols = cols, levels = levels)
+       cols = cols, levels = levels, observed_levels = observed_levels)
 }
 
 #' @export
@@ -45,14 +55,24 @@ prep.step_add_levels <- function(x, training, info) {
   col_names <- recipes::terms_select(terms = x$terms, info = info)
   if (any(info$type[info$variable %in% col_names] != "nominal"))
     stop("step_add_levels is only appropriate for nominal variables")
+  observed_levels <- purrr::map(training[, col_names, drop = FALSE], ~ levels(.x))
   step_add_levels_new(terms = x$terms, role = x$role, trained = TRUE,
-                      cols = col_names, levels = x$levels)
+                      cols = col_names, levels = x$levels,
+                      observed_levels = observed_levels)
 }
 
 #' @export
 bake.step_add_levels <- function(object, newdata, ...) {
   for (column in object$cols) {
     levels(newdata[[column]]) <- union(levels(newdata[[column]]), object$levels)
+    # NA can't be a level, and %in% says NA %in% x is FALSE, so record NAs here
+    # and replace them after substituting "other"
+    nas <- is.na(newdata[[column]])
+    new_values <- !newdata[[column]] %in% object$observed_levels[[column]]
+    if (any(new_values & !nas)) {
+      newdata[[column]][new_values] <- object$levels[1]
+      newdata[[column]][nas] <- NA
+    }
   }
   tibble::as_tibble(newdata)
 }

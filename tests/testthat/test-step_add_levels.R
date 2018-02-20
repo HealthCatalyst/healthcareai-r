@@ -12,6 +12,12 @@ stepped <- step_add_levels(init, all_nominal())
 prepped <- prep(stepped, training = d)
 baked <- bake(prepped, d)
 
+# Add some levels not seen in prep to be baked into "other"
+dd <- d %>% mutate_if(is.factor, as.character)
+dd$has_neither[1] <- "cat44"
+dd$has_missing[1] <- "never_seen_before"
+dd_baked <- bake(prepped, dd) %>% mutate_if(is.factor, as.character)
+
 # Tests ------------------------------------------------------------------------
 test_that("Recipe object is updated with step", {
   expect_s3_class(stepped$steps[[1]], "step_add_levels")
@@ -52,4 +58,17 @@ test_that("tidy method prints correctly", {
   expect_s3_class(tidy_prep, "tbl_df")
   expect_true(all.equal(names(tidy_prep), c("terms", "value")))
   expect_true(all.equal(tidy_prep$terms, names(d)[purrr::map_lgl(d, is.factor)]))
+})
+
+
+test_that("new factor levels in bake are converted to other", {
+  expect_equal(dd_baked$has_neither[1], "other")
+  expect_equal(dd_baked$has_missing[1], "other")
+})
+
+test_that("NAs are preserved", {
+  missingness(dd_baked) %>%
+    filter(percent_missing > 0) %>%
+    nrow() %>%
+    expect_equal(., 2)
 })
