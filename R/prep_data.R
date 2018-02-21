@@ -316,7 +316,7 @@ prep_data <- function(d,
             paste(nzv_removed, collapse = ", "))
 
   # Remove outcome if recipe was provided but outcome not present
-  if (remove_outcome)
+  if (remove_outcome && outcome_var %in% names(d))
     d <- d[, -which(names(d) == outcome_var), drop = FALSE]
   # Add ignore columns back in and attach as attribute to recipe
   d <- dplyr::bind_cols(d_ignore, d)

@@ -427,3 +427,10 @@ test_that("If recipe provided but no outcome column, NA-outcome column isn't cre
     prep_data(dplyr::select(d_test, -is_ween), song_id, recipe = attr(d_prep, "recipe"))
   ))
 })
+
+test_that("predict regression with prep doesn't choke without outcome", {
+  prep_data(pima_diabetes[1:50, ], outcome = age) %>%
+    tune_models(age, models = "rf") %>%
+    predict(dplyr::select(pima_diabetes[51:55, ], -age)) %>%
+    expect_s3_class("hcai_predicted_df")
+})
