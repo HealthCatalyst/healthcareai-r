@@ -115,17 +115,32 @@ test_that("plot.model_list works on classification_list", {
                c("gg", "ggplot"))
   expect_error(plot.model_list(ranger::ranger(am ~ ., mtcars), print = FALSE),
                regexp = "model_list")
+
+  # With PR as the metric
+  expect_equal(class(plot(c_pr, print = FALSE)),
+               c("gg", "ggplot"))
+  expect_equal(class(plot.model_list(c_pr, print = FALSE)),
+               c("gg", "ggplot"))
+  expect_equal(class(plot(c_pr, print = FALSE)),
+               c("gg", "ggplot"))
 })
 
 test_that("print.model_list works", {
   empty_print <- capture_output(as.model_list(model_class = "regression"), TRUE)
   expect_true(nchar(empty_print) > 0)
+
   rprint <- capture_output(r_models, TRUE)
   expect_true(nchar(rprint) > 0)
   expect_true(grepl("regression", rprint, ignore.case = TRUE))
+
   cprint <- capture_output(c_models, TRUE)
   expect_true(nchar(cprint) > 0)
   expect_true(grepl("classification", cprint, ignore.case = TRUE))
+
+  # With PR as the metric
+  cprint <- capture_output(c_pr, TRUE)
+  expect_true(nchar(cprint) > 0)
+  expect_true(grepl("PR", cprint, ignore.case = TRUE))
 })
 
 test_that("summary.model_list works", {
@@ -138,6 +153,13 @@ test_that("summary.model_list works", {
   csumout <- capture_output(csum <- summary(c_models), TRUE)
   expect_true(nchar(csumout) > 0)
   expect_true(grepl("hyperparameters", csumout, ignore.case = TRUE))
+  expect_true(is.list(csum))
+  expect_true(rlang::is_named(csum))
+
+  # With PR as the metric
+  csumout <- capture_output(csum <- summary(c_pr), TRUE)
+  expect_true(nchar(csumout) > 0)
+  expect_true(grepl("Precision", csumout, ignore.case = TRUE))
   expect_true(is.list(csum))
   expect_true(rlang::is_named(csum))
 })
