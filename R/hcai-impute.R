@@ -120,7 +120,7 @@ hcai_impute <- function(recipe,
   # Numerics
   if (!all_nominal) {
     if (numeric_method == "mean") {
-      recipe <- step_meanimpute(recipe, all_numeric())
+      recipe <- step_meanimpute(recipe, all_numeric(), - all_outcomes())
     } else if (numeric_method == "bagimpute") {
       recipe <- step_bagimpute(
         recipe,
