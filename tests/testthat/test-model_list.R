@@ -95,7 +95,7 @@ test_that("as.model_list returns correct model names (from modelInfo$label)", {
 
 context("Checking model_list generics") # --------------------------------------
 
-test_that("el_list works on regression_list", {
+test_that("plot.model_list works on regression_list", {
   expect_equal(class(plot(r_models, print = FALSE)),
                c("gg", "ggplot"))
   expect_equal(class(plot.model_list(r_models, print = FALSE)),
