@@ -110,6 +110,8 @@ prep_data <- function(d,
   if (!is.data.frame(d)) {
     stop("\"d\" must be a data frame.")
   }
+  outcome <- rlang::enquo(outcome)
+  remove_outcome <- FALSE
   # Deal with "..." columns to be ignored
   ignore_columns <- rlang::quos(...)
   ignored <- purrr::map_chr(ignore_columns, rlang::quo_name)
@@ -147,6 +149,13 @@ prep_data <- function(d,
     if (length(missing_vars))
       stop("These variables were present in training but are missing or ignored here: ",
            paste(missing_vars, collapse = ", "))
+    # Outcome gets added as all NAs; set a flag to remove it at end
+    if (rlang::quo_is_missing(outcome)) {
+      outcome_var <- recipe$var_info$variable[recipe$var_info$role == "outcome"]
+      if (length(outcome_var))
+        remove_outcome <- TRUE
+    }
+
   } else {
 
     # Initialize a new recipe
@@ -154,7 +163,6 @@ prep_data <- function(d,
     ## Start by making all variables predictors...
     recipe <- recipes::recipe(d, ~ .)
     ## Then deal with outcome if present
-    outcome <- rlang::enquo(outcome)
     if (!rlang::quo_is_missing(outcome)) {
       outcome_name <- rlang::quo_name(outcome)
       if (!outcome_name %in% names(d))
@@ -314,6 +322,9 @@ prep_data <- function(d,
     warning("Removing these near-zero variance columns: ",
             paste(nzv_removed, collapse = ", "))
 
+  # Remove outcome if recipe was provided but outcome not present
+  if (remove_outcome && outcome_var %in% names(d))
+    d <- d[, -which(names(d) == outcome_var), drop = FALSE]
   # Add ignore columns back in and attach as attribute to recipe
   d <- dplyr::bind_cols(d_ignore, d)
   attr(recipe, "ignored_columns") <- unname(ignored)
