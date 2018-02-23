@@ -36,3 +36,7 @@ test_that("separate_drgs returns a tibble", {
 test_that("every base_msdrg is in the original drg", {
   expect_true(all(stringr::str_detect(out$msdrg, stringr::fixed(out$base_msdrg))))
 })
+
+test_that("the input vector is returned unchanged", {
+  expect_true(all.equal(out$msdrg, MSDRGs))
+})

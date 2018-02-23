@@ -39,8 +39,7 @@ separate_drgs <- function(drgs) {
       return(i)
     })
   complications <- c("complication", "major complication", "complication", "absent complication")[complications]
-  ref_table <- tibble::tibble(msdrg = drgs,
-                              base_msdrg = bases,
-                              msdrg_complication = complications)
-  dplyr::left_join(tibble::tibble(msdrg = drgs), ref_table, by = "msdrg")
+  tibble::tibble(msdrg = drgs,
+                 base_msdrg = bases,
+                 msdrg_complication = complications)
 }
