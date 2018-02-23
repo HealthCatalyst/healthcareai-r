@@ -153,5 +153,22 @@ summary.hcai_predicted_df <- function(object, ...) {
 #' @noRd
 get_classes_sorted <- function(d) {
   classes <- purrr::map_lgl(d, is.numeric)
-  return(classes[order(names(classes))])
+  broom::tidy(classes) %>%
+    setNames(c("variable", "is_numeric")) %>%
+    dplyr::arrange(variable)
+}
+
+#' compare_dfs
+#' @noRd
+#' @return list of variables in both, only in training, and only in predicting.
+#'   Variables of the same name but different type (is/is-not numeric) will
+#'   appear in both.
+compare_dfs <- function(training, predicting) {
+  t_vars <- get_classes_sorted(training)
+  p_vars <- get_classes_sorted(predicting)
+  list(
+    both = dplyr::inner_join(t_vars, p_vars, by = c("variable", "is_numeric"))[["variable"]],
+    training_only = dplyr::anti_join(t_vars, p_vars, by = c("variable", "is_numeric"))[["variable"]],
+    predicting_only = dplyr::anti_join(p_vars, t_vars, by = c("variable", "is_numeric"))[["variable"]]
+  )
 }

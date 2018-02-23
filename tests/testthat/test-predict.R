@@ -139,3 +139,14 @@ test_that(paste0("predict errors informatively when missingness on newdata and",
 test_that("predict errors if prepdata TRUE but no recipe there", {
   expect_error(predict(mrn, te_newlevel, prepdata = T), regexp = "prep")
 })
+
+
+test_that("compare_dfs works", {
+  d1 <- data.frame(x = 1L, y = "a", z = 2)
+  d2 <- tibble::tibble(x = 3.4, y = "cat", alpha = 42, beta = 43)
+  out <- compare_dfs(d1, d2)
+  expect_true(all(c("x", "y") %in% out$both))
+  expect_equal(length(out$both), 2)
+  expect_equal(out$training_only, "z")
+  expect_equal(out$predicting_only, c("alpha", "beta"))
+})
