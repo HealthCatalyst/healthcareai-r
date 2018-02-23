@@ -66,8 +66,8 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
       if (needs_prep && !been_prepped) {
         trainvars <- get_classes_sorted(dplyr::select(best_models$trainingData, -.outcome)) # nolint
         predvars <- get_classes_sorted(dplyr::select(newdata, -which(names(newdata) == mi$target)))
-        in_both <- intersect(names(predvars), names(trainvars))
-        if (isTRUE(all.equal(trainvars, predvars[in_both])))
+        joined <- dplyr::left_join(trainvars, predvars, by = "variable")
+        if (isTRUE(all.equal(joined$is_numeric.x, joined$is_numeric.y)))
           warning("newdata looks like it may have been prepped, but I'm not ",
                   "sure, so I will try passing it to prep_data before making ",
                   "predictions. If you already prepped it, set ",
