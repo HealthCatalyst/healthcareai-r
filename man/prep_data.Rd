@@ -65,9 +65,9 @@ for categorical variables.}
 \item{add_levels}{Logical. If TRUE (defaults), "other" and "hcai_missing"
 will be added to all nominal columns. This is protective in deployment: new
 levels found in deployment will become "other" and missingness in
-deployment can become "hcai_missing". If FALSE, these levels may be added
-to some columns depending on details of imputation and
-collapse_rare_factors.}
+deployment can become "hcai_missing" if the nominal imputation method is
+"new_category". If FALSE, these levels may be added to some columns
+depending on details of imputation and collapse_rare_factors.}
 
 \item{factor_outcome}{Logical. If TRUE (default) and if all entries in
 outcome are 0 or 1 they will be converted to factor with levels N and Y for

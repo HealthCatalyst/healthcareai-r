@@ -10,59 +10,58 @@ swiss <-
   dplyr::mutate(Catholic = ifelse(Catholic > 80, "Y", "N")) %>%
   tibble::as_tibble()
 part <- caret::createDataPartition(swiss$Catholic, .8)[[1]]
-tr <- swiss[part, ]
-te <- swiss[-part, ]
-te_newlevel <- te
-te_newlevel$Catholic[c(3, 7, 16)] <- "unobserved in training"
-te_newlevel$Catholic[5] <- "another new level"
-te_new_missing <- te
-te_new_missing$Agriculture[1:3] <- NA
-te_new_missing$Catholic[6:7] <- NA
+training_data <- swiss[part, ]
+test_data <- swiss[-part, ]
+test_data_newlevel <- test_data
+test_data_newlevel$Catholic[c(3, 7, 16)] <- "unobserved in training"
+test_data_newlevel$Catholic[5] <- "another new level"
+test_data_new_missing <- test_data
+test_data_new_missing$Agriculture[1:3] <- NA
+test_data_new_missing$Catholic[6:7] <- NA
 # Need to test combos of:
 # reg/class x d from prep_data/not x newdata from prep_data/not
 ## Except training data not prepped and newdata prepped; that shouldn't work
-# Format: m - r = reg, c = class - p = prepped, n = not
-mcp <-
-  tr %>%
+model_classify_prepped <-
+  training_data %>%
   prep_data(province, outcome = Catholic, make_dummies = TRUE) %>%
   tune_models(Catholic)
-mcn <-
-  tr %>%
+model_classify_not_prepped <-
+  training_data %>%
   dplyr::select(-province) %>%
   tune_models(Catholic)
 # Warning when RF can't find a good cut
 suppressWarnings({
-  mrp <-
-    tr %>%
+  model_regression_prepped <-
+    training_data %>%
     prep_data(province, outcome = Fertility, make_dummies = TRUE) %>%
     tune_models(Fertility)
-  mrn <-
-    tr %>%
+  model_regression_not_prepped <-
+    training_data %>%
     dplyr::select(-province) %>%
     tune_models(Fertility)
 })
 # And prepped newdata to go with them
-te_reg_prep <- prep_data(te, recipe = mrp)
-te_class_prep <- prep_data(te, recipe = mcp)
+test_data_reg_prep <- prep_data(test_data, recipe = model_regression_prepped)
+test_data_class_prep <- prep_data(test_data, recipe = model_classify_prepped)
 
 # Output. Format: m - r = reg, c = class - n = not prepped training, p = prepped training - n = not prepped test, p = prepped test  # nolint
-prpp <- predict(mrp, te_reg_prep)
-pcpp <- predict(mcp, te_class_prep)
+prpp <- predict(model_regression_prepped, test_data_reg_prep)
+pcpp <- predict(model_classify_prepped, test_data_class_prep)
 
-prnn <- predict(mrn, te)
-pcnn <- predict(mcn, te)
+prnn <- predict(model_regression_not_prepped, test_data)
+pcnn <- predict(model_classify_not_prepped, test_data)
 
-prpn <- predict(mrp, te)
-suppressWarnings(pcpn <- predict(mcp, te))
+prpn <- predict(model_regression_prepped, test_data)
+suppressWarnings(pcpn <- predict(model_classify_prepped, test_data))
 
 # Test for some messages and warnings when whether to prep before predict is unclear:
 # Here, should get a warning because all predictors are numeric, so they appear
 # to have been prepped even when they haven't, which triggers warning.
 suppressWarnings({
-  pcpn_message <- capture_message( predict(mcp, te) )
+  pcpn_message <- capture_message( predict(model_classify_prepped, test_data) )
 })
-prpn_message <- capture_message( predict(mrp, te) )
-pcpn_warning <- capture_warning( predict(mcp, te) )
+prpn_message <- capture_message( predict(model_regression_prepped, test_data) )
+pcpn_warning <- capture_warning( predict(model_classify_prepped, test_data) )
 
 test_that("When training data is prepped but test isn't, it gets prepped", {
   expect_true(grepl("Prepping", prpn_message))
@@ -104,21 +103,21 @@ test_that("predictions are better than chance", {
 })
 
 test_that("If newdata isn't provided, make predictions on training data", {
-  pc <- predict(mcp)
+  pc <- predict(model_classify_prepped)
   expect_s3_class(pc, "hcai_predicted_df")
   expect_true(all(c("Catholic", "predicted_Catholic") %in% names(pc)))
-  pr <- predict(mrn)
+  pr <- predict(model_regression_not_prepped)
   expect_s3_class(pr, "hcai_predicted_df")
   expect_true(all(c("Fertility", "predicted_Fertility") %in% names(pr)))
 })
 
 test_that("predict can handle binary character non Y/N columns", {
-  tr %>%
+  training_data %>%
     dplyr::mutate(Catholic = ifelse(Catholic == "Y", "yes", "no")) %>%
     machine_learn(Catholic) %>%
     predict() %>%
     expect_s3_class("data.frame")
-  tr %>%
+  training_data %>%
     dplyr::mutate(Catholic = factor(ifelse(Catholic == "Y", "cath", "other"))) %>%
     machine_learn(Catholic) %>%
     predict() %>%
@@ -126,9 +125,9 @@ test_that("predict can handle binary character non Y/N columns", {
 })
 
 test_that("predict handles new levels on model_list from prep_data", {
-  expect_s3_class(predict(mrp, te_newlevel), "hcai_predicted_df")
+  expect_s3_class(predict(model_regression_prepped, test_data_newlevel), "hcai_predicted_df")
 })
 
 test_that("predict handles missingness where unobserved in training prep_data", {
-  expect_s3_class(predict(mrp, te_new_missing), "hcai_predicted_df")
+  expect_s3_class(predict(model_regression_prepped, test_data_new_missing), "hcai_predicted_df")
 })
