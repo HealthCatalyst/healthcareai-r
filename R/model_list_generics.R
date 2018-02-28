@@ -216,8 +216,6 @@ change_pr_metric <- function(m) {
       names(x$results)[names(x$results) == "AUC"] <- "PR"
       return(x)
     })
-    return(m)
-  } else {
-    return(m)
   }
+  return(m)
 }
