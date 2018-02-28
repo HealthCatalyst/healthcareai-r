@@ -95,7 +95,7 @@ test_that("as.model_list returns correct model names (from modelInfo$label)", {
 
 context("Checking model_list generics") # --------------------------------------
 
-test_that("el_list works on regression_list", {
+test_that("plot.model_list works on regression_list", {
   expect_equal(class(plot(r_models, print = FALSE)),
                c("gg", "ggplot"))
   expect_equal(class(plot.model_list(r_models, print = FALSE)),
@@ -162,4 +162,30 @@ test_that("summary.model_list works", {
   expect_true(grepl("Precision", csumout, ignore.case = TRUE))
   expect_true(is.list(csum))
   expect_true(rlang::is_named(csum))
+})
+
+
+context("Testing model list utilities") # --------------------------------------
+test_that("Change PR metric changes all models to PR", {
+  m <- healthcareai:::change_pr_metric(c_pr)
+
+  expect_true(
+    all(c("PR", "Precision", "Recall") %in% names(
+      m$`Random Forest`$results)))
+
+  expect_true(
+    all(c("PR", "Precision", "Recall") %in% names(
+      m$`k-Nearest Neighbors`$results)))
+})
+
+test_that("Change PR metric doesn't change ROC", {
+  m <- change_pr_metric(c_models)
+
+  expect_true(
+    all(c("ROC", "Sens", "Spec") %in% names(
+      m$`Random Forest`$results)))
+
+  expect_true(
+    all(c("ROC", "Sens", "Spec") %in% names(
+      m$`k-Nearest Neighbors`$results)))
 })
