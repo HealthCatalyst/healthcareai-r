@@ -9,7 +9,7 @@
 #'
 #' @return A variable containing the names of the categorical columns with
 #' all unique values
-#' @export
+#' @export find_unique_columns
 #' @import dplyr
 #' @importFrom dplyr select_if
 #'
@@ -23,20 +23,27 @@
 #' find_unique_columns(d)
 
 find_unique_columns <- function(data) {
-
   unique_columns <-
     data %>%
-    select_if(function(col) is.numeric(col) == FALSE &&
-                length(unique(col)) == nrow(data)) %>%
+    select_if(function(col)
+      is.numeric(col) == FALSE &&
+        length(unique(col)) == nrow(data)) %>%
     names()
 
-  if(length(unique_columns) > 0) {
-    warning("These variables had completely unique values
-            (consistent with an ID column) ", "and will be ignored: ",
-            paste(unique_columns, collapse = ", "))
+  if (length(unique_columns) > 0) {
+    warning(
+      "These variables had completely unique values
+      (consistent with an ID column) ",
+      "and will be ignored: ",
+      paste(unique_columns, collapse = ", ")
+    )
   }
 
-  if(length(unique_columns) > 0) {
+  if (length(unique_columns) > 0) {
     return(unique_columns)
+  }
+  else
+  {
+    return(NA)
   }
 }
