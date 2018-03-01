@@ -39,6 +39,8 @@ find_unique_columns <- function(data) {
     )
   }
 
+
+
   if (length(unique_columns) > 0) {
     return(unique_columns)
   }
