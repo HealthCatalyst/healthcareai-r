@@ -29,14 +29,14 @@ test_that("trusted false throws error with no uid", {
                "or provide a user_id")
 })
 
-# test_that("connection can be made using built string", {
-#   skip_on_not_appveyor()
-#   cs <- build_connection_string(server = "localhost",
-#                                 database = "SAM")
-#   con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs)
-#   expect_equal(class(con), "Microsoft SQL Server")
-#   DBI::dbDisconnect()
-# })
+test_that("connection can be made using built string", {
+  # skip_on_not_appveyor()
+  cs <- build_connection_string(server = "localhost",
+                                database = "SAM")
+  con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs)
+  expect_equal(class(con), "Microsoft SQL Server")
+  DBI::dbDisconnect()
+})
 
 # Read Data ----------------------------
 
