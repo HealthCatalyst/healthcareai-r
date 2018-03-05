@@ -1,4 +1,6 @@
+# Build connection string ---------------------------
 context("Checking that build connection string works")
+
 test_that("empty requests a server name", {
   expect_error(build_connection_string(server = 004),
                "provide a quoted server")
@@ -27,16 +29,18 @@ test_that("trusted false throws error with no uid", {
                "or provide a user_id")
 })
 
-test_that("connection can be made using built string", {
-  skip_on_not_appveyor()
-  cs <- build_connection_string(server = "localhost",
-                                database = "SAM")
-  con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs)
-  expect_equal(class(con), "Microsoft SQL Server")
-  DBI::dbDisconnect()
-})
+# test_that("connection can be made using built string", {
+#   skip_on_not_appveyor()
+#   cs <- build_connection_string(server = "localhost",
+#                                 database = "SAM")
+#   con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs)
+#   expect_equal(class(con), "Microsoft SQL Server")
+#   DBI::dbDisconnect()
+# })
 
+# Read Data ----------------------------
 
+# Write Data ---------------------------
 
 
 #
