@@ -32,7 +32,7 @@ build_connection_string <- function(server,
                                     password = NA) {
   # Error checks
   if (!is.character(server)) {
-    stop("You must provide a server name")
+    stop("You must provide a quoted server name")
   }
 
   # Change trusted to false if user/pass are provided
