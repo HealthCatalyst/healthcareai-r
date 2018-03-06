@@ -36,7 +36,8 @@ test_that("connection can be made using built string", {
                                 user_id = "sa",
                                 password = "Password12!")
   con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs)
-  expect_equal(class(con), "Microsoft SQL Server")
+  expect_equal(print(cs), "string")
+  expect_equal(print(con), "Microsoft SQL Server")
   DBI::dbDisconnect(con)
 })
 
