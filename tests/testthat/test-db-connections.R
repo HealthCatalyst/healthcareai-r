@@ -1,6 +1,6 @@
 # Build connection string ---------------------------
 context("Checking that build connection string works")
-library(magrittr)
+library(dplyr)
 
 test_that("empty requests a server name", {
   expect_error(build_connection_string(server = 004),
@@ -54,7 +54,7 @@ test_that("connection can be made using built string and dbplyr", {
   expect_equal(names(dd)[1], "id")
   expect_equal(names(dd)[2], "word_of_day")
   expect_equal(dd$word_of_day[1], "bagel")
-  expect_equal(class(con), "Microsoft SQL Server")
+  # expect_equal(class(con), "Microsoft SQL Server")
   DBI::dbDisconnect(con)
 })
 # Read Data ----------------------------
