@@ -1,4 +1,4 @@
-Invoke-Sqlcmd -ServerInstance 'localhost' -Query "
+sqlcmd -S "(localhost)\SQL2012SP1" -Q "
 CREATE DATABASE testSAM
 
 CREATE TABLE testSAM.dbo.hcai_unit_tests(
