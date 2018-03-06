@@ -16,6 +16,7 @@ cache:
 # Adapt as necessary starting from here
 
 build_script:
+  - ps: iex .\inst\CIDatabase\CIBuild_DBCreate.ps1
   - travis-tool.sh install_deps
 
 test_script:
