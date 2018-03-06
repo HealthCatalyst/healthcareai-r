@@ -39,7 +39,7 @@ csmanual = '
   database=testSAM;
   trusted_connection=true'
 
-  con <- DBI::dbConnect(odbc::odbc(), .connection_string = csmanual)
+  con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs)
   dd <- DBI::dbGetQuery(con, "select * from testSAM.dbo.hcai_unit_tests")
   expect_equal(names(dd)[1], "id")
   expect_equal(names(dd)[2], "word_of_day")
