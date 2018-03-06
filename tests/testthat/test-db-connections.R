@@ -32,9 +32,15 @@ test_that("trusted false throws error with no uid", {
 test_that("connection can be made using built string", {
   # skip_on_not_appveyor()
   cs <- build_connection_string(server = "localhost", database = "testSAM")
-  con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs)
-  dd <- dplyr::tbl(con, sql("select * from testSAM.dbo.hcai_unit_tests
-                     ")) %>% collect()
+
+csmanual = '
+  driver={SQL Server};
+  server=localhost;
+  database=testSAM;
+  trusted_connection=true'
+
+  con <- DBI::dbConnect(odbc::odbc(), .connection_string = csmanual)
+  dd <- DBI::dbGetQuery(con, "select * from testSAM.dbo.hcai_unit_tests")
   expect_equal(names(dd)[1], "id")
   expect_equal(names(dd)[2], "word_of_day")
   # expect_equal(print(class(con)), "Microsoft SQL Server")
