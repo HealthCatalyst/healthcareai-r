@@ -36,11 +36,11 @@ test_that("connection can be made using built string", {
                                 user_id = "sa",
                                 password = "Password12!")
   con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs)
-  print(cs)
-  print(con)
-  message(cs)
-  message(con)
-  expect_equal(class(con), "Microsoft SQL Server")
+  dd <- tbl(con, sql("select * from testSAM.dbo.hcai_unit_tests
+                     ")) %>% collect()
+  expect_equal(names(dd)[1], "id")
+  expect_equal(names(dd)[2], "word_of_day")
+  # expect_equal(print(class(con)), "Microsoft SQL Server")
   DBI::dbDisconnect(con)
 })
 
