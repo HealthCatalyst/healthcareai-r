@@ -33,7 +33,7 @@ test_that("connection can be made using built string", {
   # skip_on_not_appveyor()
   cs <- build_connection_string(server = "localhost", database = "testSAM")
   con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs)
-  dd <- tbl(con, sql("select * from testSAM.dbo.hcai_unit_tests
+  dd <- dplyr::tbl(con, sql("select * from testSAM.dbo.hcai_unit_tests
                      ")) %>% collect()
   expect_equal(names(dd)[1], "id")
   expect_equal(names(dd)[2], "word_of_day")
