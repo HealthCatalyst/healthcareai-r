@@ -32,7 +32,9 @@ test_that("trusted false throws error with no uid", {
 test_that("connection can be made using built string", {
   # skip_on_not_appveyor()
   cs <- build_connection_string(server = "(local)\\SQL2012SP1",
-                                database = "testSAM")
+                                database = "testSAM",
+                                user_id = "sa",
+                                password = "Password12!")
   con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs)
   expect_equal(class(con), "Microsoft SQL Server")
   DBI::dbDisconnect(con)
