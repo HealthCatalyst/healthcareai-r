@@ -1,7 +1,7 @@
 #' @title
 #' Build a connection string for use with MSSQL and dbConnect
 #' @description Handy utility to build a connection string to pass into
-#' DBI::dbConnect. Accepts trusted connections or username/password.
+#' \code{DBI::dbConnect}. Accepts trusted connections or username/password.
 #' @param server Character, required. The name of the server you are trying to
 #' connect to. Quoted.
 #' @param driver Character, optional. Defaults to "SQL Server"
@@ -14,16 +14,15 @@
 #' @return A connection string
 #' @export
 #' @examples
-#' my_con <- build_connection_string(server = "HCS-GM0004")
+#' my_con <- build_connection_string(server = "localhost")
 #' # con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con)
 #'
 #' # with username and password
-#' my_con <- build_connection_string(server = "HCS-GM0004",
-#'                                   user_id = "j.winnfield",
+#' my_con <- build_connection_string(server = "localhost",
+#'                                   user_id = "jules.winnfield",
 #'                                   password = "pathoftherighteous")
 #' # con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con)
 #'
-
 build_connection_string <- function(server,
                                     driver = "SQL Server",
                                     database = NA,
