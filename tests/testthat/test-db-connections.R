@@ -43,6 +43,8 @@ csmanual = '
   dd <- DBI::dbGetQuery(con, "select * from testSAM.dbo.hcai_unit_tests")
   expect_equal(names(dd)[1], "id")
   expect_equal(names(dd)[2], "word_of_day")
+  expect_equal(dd$word_of_day[1], "bagel")
+  stop(paste("class msg is:", class(con)))
   # expect_equal(print(class(con)), "Microsoft SQL Server")
   DBI::dbDisconnect(con)
 })
