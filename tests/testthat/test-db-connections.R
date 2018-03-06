@@ -1,5 +1,6 @@
 # Build connection string ---------------------------
 context("Checking that build connection string works")
+library(magrittr)
 
 test_that("empty requests a server name", {
   expect_error(build_connection_string(server = 004),
@@ -29,11 +30,12 @@ test_that("trusted false throws error with no uid", {
                "or provide a user_id")
 })
 
-test_that("connection can be made using built string", {
-  # skip_on_not_appveyor()
+test_that("connection can be made using built string and DBI", {
+  skip_on_not_appveyor()
   cs <- build_connection_string(server = "localhost", database = "testSAM")
   con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs)
   dd <- DBI::dbGetQuery(con, "select * from testSAM.dbo.hcai_unit_tests")
+
   expect_equal(names(dd)[1], "id")
   expect_equal(names(dd)[2], "word_of_day")
   expect_equal(dd$word_of_day[1], "bagel")
@@ -41,6 +43,20 @@ test_that("connection can be made using built string", {
   DBI::dbDisconnect(con)
 })
 
+test_that("connection can be made using built string and dbplyr", {
+  skip_on_not_appveyor()
+  cs <- build_connection_string(server = "localhost", database = "testSAM")
+  con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs)
+  dd <- dplyr::tbl(con,
+                   dplyr::sql("select * from testSAM.dbo.hcai_unit_tests")) %>%
+    collect()
+
+  expect_equal(names(dd)[1], "id")
+  expect_equal(names(dd)[2], "word_of_day")
+  expect_equal(dd$word_of_day[1], "bagel")
+  expect_equal(print(class(con)), "Microsoft SQL Server")
+  DBI::dbDisconnect(con)
+})
 # Read Data ----------------------------
 
 # Write Data ---------------------------
