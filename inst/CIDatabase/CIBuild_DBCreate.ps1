@@ -26,7 +26,7 @@ CREATE SCHEMA test_schema
 	)
 GO
 
-INSERT INTO testSAM.test_schema2.hcai_unit_tests VALUES
+INSERT INTO testSAM.test_schema.hcai_unit_tests VALUES
 	(4, 'lentil'),
 	(5, 'automobile'),
 	(6, 'towel')
