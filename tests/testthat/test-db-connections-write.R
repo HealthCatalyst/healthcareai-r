@@ -1,6 +1,7 @@
 # Write to Database ---------------------------
 context("Checking that write to database works")
 library(dplyr)
+library(RODBC)
 
 my_con <- build_connection_string(server = "localhost",
                                   database = "testSAM")
@@ -20,15 +21,22 @@ test_that("not RODBC connection throws error", {
                "RODBC")
 })
 
-test_that("connection without database throws error", {
+test_that("connection with RODBC works", {
   skip_on_not_appveyor()
-  d <- data.frame(id = 12, word_of_day = "sprinkler")
-  my_con <- build_connection_string(server = "localhost")
   rcon <- RODBC::odbcDriverConnect(my_con)
-  expect_error(db_write(d, rcon, "hcai_unit_tests"),
-               "database")
+  expect_equal(class(rcon), "RODBC")
   RODBC::odbcClose(rcon)
 })
+
+# test_that("connection without database throws error", {
+#   skip_on_not_appveyor()
+#   d <- data.frame(id = 12, word_of_day = "sprinkler")
+#   my_con <- build_connection_string(server = "localhost")
+#   rcon <- RODBC::odbcDriverConnect(my_con)
+#   expect_error(db_write(d, rcon, "hcai_unit_tests"),
+#                "database")
+#   RODBC::odbcClose(rcon)
+# })
 #
 # test_that("data appends to default schema", {
 #   skip_on_not_appveyor()
