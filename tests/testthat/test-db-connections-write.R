@@ -66,7 +66,7 @@ test_that("data overwrites to specified schema", {
   out <- db_write(d, rcon,
                   table_name = "hcai_unit_tests",
                   schema = "test_schema",
-                  overwrites = TRUE)
+                  overwrite = TRUE)
   expect_equal(out, "1 rows successfully written.")
   RODBC::odbcClose(rcon)
 })
@@ -74,7 +74,7 @@ test_that("data overwrites to specified schema", {
 test_that("fails elegantly when table doesn't exist", {
   skip_on_not_appveyor()
   d <- data.frame(id = 17, word_of_day = "blue")
-  rcon <- RODBC::odbcDriverConnect(cs)
+  rcon <- RODBC::odbcDriverConnect(my_con)
   expect_error(db_write(d, rcon,
                   table_name = "junk"),
                "doesn't exist")
@@ -84,7 +84,7 @@ test_that("fails elegantly when table doesn't exist", {
 test_that("fails elegantly when schema doesn't exist", {
   skip_on_not_appveyor()
   d <- data.frame(id = 18, word_of_day = "noodle")
-  rcon <- RODBC::odbcDriverConnect(cs)
+  rcon <- RODBC::odbcDriverConnect(my_con)
   expect_error(db_write(d, rcon,
                         table_name = "hcai_unit_tests",
                         schema = "junk"),
