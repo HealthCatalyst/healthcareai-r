@@ -37,6 +37,7 @@ Imports:
     readr,
     recipes (>= 0.1.2),
     rlang,
+    RODBC,
     RSQLite,
     stringr,
     tibble,
