@@ -40,7 +40,7 @@ db_write <- function(d,
     stop("You must use an RODBC connection for this function")
   }
 
-  if (!stringr::str_detect(attr(rcon, "connection.string"), "DATABASE")) {
+  if (!stringr::str_detect(attr(con, "connection.string"), "DATABASE")) {
     stop("You must specify a database in the connection string.")
   }
 

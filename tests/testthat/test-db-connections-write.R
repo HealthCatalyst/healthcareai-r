@@ -37,66 +37,66 @@ test_that("connection without database throws error", {
                "database")
   RODBC::odbcClose(rcon)
 })
-#
-# test_that("data appends to default schema", {
-#   skip_on_not_appveyor()
-#   d <- data.frame(id = 13, word_of_day = "help")
-#   rcon <- RODBC::odbcDriverConnect(my_con)
-#   out <- db_write(d, rcon, "hcai_unit_tests")
-#   expect_equal(out, "1 rows successfully appended.")
-#   RODBC::odbcClose(rcon)
-# })
-#
-# test_that("data overwrites to default schema", {
-#   skip_on_not_appveyor()
-#   d <- data.frame(id = 14, word_of_day = "pickle")
-#   rcon <- RODBC::odbcDriverConnect(my_con)
-#   out <- db_write(d, rcon, "hcai_unit_tests", overwrite = TRUE)
-#   expect_equal(out, "1 rows successfully written.")
-#   RODBC::odbcClose(rcon)
-# })
-#
-# test_that("data appends to specified schema", {
-#   skip_on_not_appveyor()
-#   d <- data.frame(id = 15, word_of_day = "trombone")
-#   rcon <- RODBC::odbcDriverConnect(my_con)
-#   out <- db_write(d, rcon,
-#                   table_name = "hcai_unit_tests",
-#                   schema = "test_schema")
-#   expect_equal(out, "1 rows successfully appended.")
-#   RODBC::odbcClose(rcon)
-# })
-#
-# test_that("data overwrites to specified schema", {
-#   skip_on_not_appveyor()
-#   d <- data.frame(id = 16, word_of_day = "key")
-#   rcon <- RODBC::odbcDriverConnect(my_con)
-#   out <- db_write(d, rcon,
-#                   table_name = "hcai_unit_tests",
-#                   schema = "test_schema",
-#                   overwrite = TRUE)
-#   expect_equal(out, "1 rows successfully written.")
-#   RODBC::odbcClose(rcon)
-# })
-#
-# test_that("fails elegantly when table doesn't exist", {
-#   skip_on_not_appveyor()
-#   d <- data.frame(id = 17, word_of_day = "blue")
-#   rcon <- RODBC::odbcDriverConnect(my_con)
-#   expect_error(db_write(d, rcon,
-#                   table_name = "junk"),
-#                "doesn't exist")
-#   RODBC::odbcClose(rcon)
-# })
-#
-# test_that("fails elegantly when schema doesn't exist", {
-#   skip_on_not_appveyor()
-#   d <- data.frame(id = 18, word_of_day = "noodle")
-#   rcon <- RODBC::odbcDriverConnect(my_con)
-#   expect_error(db_write(d, rcon,
-#                         table_name = "hcai_unit_tests",
-#                         schema = "junk"),
-#                "doesn't exist")
-#   RODBC::odbcClose(rcon)
-# })
+
+test_that("data appends to default schema", {
+  skip_on_not_appveyor()
+  d <- data.frame(id = 13, word_of_day = "help")
+  rcon <- RODBC::odbcDriverConnect(my_con)
+  out <- db_write(d, rcon, "hcai_unit_tests")
+  expect_equal(out, "1 rows successfully appended.")
+  RODBC::odbcClose(rcon)
+})
+
+test_that("data overwrites to default schema", {
+  skip_on_not_appveyor()
+  d <- data.frame(id = 14, word_of_day = "pickle")
+  rcon <- RODBC::odbcDriverConnect(my_con)
+  out <- db_write(d, rcon, "hcai_unit_tests", overwrite = TRUE)
+  expect_equal(out, "1 rows successfully written.")
+  RODBC::odbcClose(rcon)
+})
+
+test_that("data appends to specified schema", {
+  skip_on_not_appveyor()
+  d <- data.frame(id = 15, word_of_day = "trombone")
+  rcon <- RODBC::odbcDriverConnect(my_con)
+  out <- db_write(d, rcon,
+                  table_name = "hcai_unit_tests",
+                  schema = "test_schema")
+  expect_equal(out, "1 rows successfully appended.")
+  RODBC::odbcClose(rcon)
+})
+
+test_that("data overwrites to specified schema", {
+  skip_on_not_appveyor()
+  d <- data.frame(id = 16, word_of_day = "key")
+  rcon <- RODBC::odbcDriverConnect(my_con)
+  out <- db_write(d, rcon,
+                  table_name = "hcai_unit_tests",
+                  schema = "test_schema",
+                  overwrite = TRUE)
+  expect_equal(out, "1 rows successfully written.")
+  RODBC::odbcClose(rcon)
+})
+
+test_that("fails elegantly when table doesn't exist", {
+  skip_on_not_appveyor()
+  d <- data.frame(id = 17, word_of_day = "blue")
+  rcon <- RODBC::odbcDriverConnect(my_con)
+  expect_error(db_write(d, rcon,
+                  table_name = "junk"),
+               "doesn't exist")
+  RODBC::odbcClose(rcon)
+})
+
+test_that("fails elegantly when schema doesn't exist", {
+  skip_on_not_appveyor()
+  d <- data.frame(id = 18, word_of_day = "noodle")
+  rcon <- RODBC::odbcDriverConnect(my_con)
+  expect_error(db_write(d, rcon,
+                        table_name = "hcai_unit_tests",
+                        schema = "junk"),
+               "doesn't exist")
+  RODBC::odbcClose(rcon)
+})
 
