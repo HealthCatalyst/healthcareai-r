@@ -7,7 +7,7 @@
 db_write(d, con, table_name, schema = "dbo", overwrite = FALSE)
 }
 \arguments{
-\item{d}{A dataframe or tibble to write to the database. Required.}
+\item{d}{A dataframe to write to the database. Required.}
 
 \item{con}{An RODBC database connection. Can be made using
 \code{RODBC::odbcDriverConnect}. Required.}
@@ -36,6 +36,8 @@ my_con <- build_connection_string(server = "localhost",
                                   database = "myDB")
 rcon <- RODBC::odbcDriverConnect(my_con)
 
-db_write(conn)
+db_write(sdfs)
+
+DBI::dbDisconnect(rcon)
 }
 }

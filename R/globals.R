@@ -5,3 +5,5 @@ utils::globalVariables(c("outside", "percent_missing", "variable", ".outcome",
 printer <- utils::getFromNamespace("printer", "recipes")
 
 sel2char <- utils::getFromNamespace("sel2char", "recipes")
+
+odbcTableExists <- utils::getFromNamespace("odbcTableExists", "RODBC")
