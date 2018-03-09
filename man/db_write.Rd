@@ -12,18 +12,20 @@ db_write(d, con, table_name, schema = "dbo", overwrite = FALSE)
 \item{con}{An RODBC database connection. Can be made using
 \code{RODBC::odbcDriverConnect}. Required.}
 
-\item{table_name}{Character, required.}
+\item{table_name}{A string, quoted, required.}
 
-\item{schema}{Character, optional. Defaults to "dbo".}
+\item{schema}{A string, quoted, optional. Defaults to "dbo".}
 
-\item{overwrite}{Logical, optional, defaults to FALSE.}
+\item{overwrite}{Logical, optional, defaults to FALSE and appends to the
+table. If TRUE, table will be overwritten. If your table is empty, you must
+append.}
 }
 \value{
-Silently returns number of rows written to new table.
+Silently returns number of rows written to the table.
 }
 \description{
-Use a database connection to write to a table in a specified
-schema.
+Use a database connection to write to an existing table in a
+specified schema.
 }
 \details{
 This function currently requires an RODBC connection to a specific
@@ -39,11 +41,14 @@ rcon <- RODBC::odbcDriverConnect(my_con)
 d = data.frame(id = 1:3, name = c("john", "jane", "stu"))
 
 # Default schema and append
-db_write(d = d, con = rcon)
+db_write(d = d, con = rcon, table_name = "my_table")
 
 # Specify schema and overwrite
-db_write(d = d, con = rcon, schema = "my_schema", overwrite = TRUE)
+db_write(d = d, con = rcon, table_name = "my_table",
+         schema = "my_schema",
+         overwrite = TRUE)
 
-DBI::dbDisconnect(rcon)
+RODBC::odbcClose(rcon)
 }
+
 }

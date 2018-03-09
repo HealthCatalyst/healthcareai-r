@@ -8,20 +8,22 @@ build_connection_string(server, driver = "SQL Server", database = NA,
   trusted = TRUE, user_id = NA, password = NA)
 }
 \arguments{
-\item{server}{Character, required. The name of the server you are trying to
-connect to. Quoted.}
+\item{server}{A string, quoted, required. The name of the server you are
+trying to connect to.}
 
-\item{driver}{Character, optional. Defaults to "SQL Server"}
+\item{driver}{A string, quoted, optional. Defaults to "SQL Server", but use
+any driver you like.}
 
-\item{database}{Character, optional. If provided, connection string will
-include a specific database. If NA (default), it will connect to master and
-you'll have to specify the database when running a query.}
+\item{database}{A string, quoted, optional. If provided, connection string
+will include a specific database. If NA (default), it will connect to master
+and you'll have to specify the database when running a query.}
 
-\item{trusted}{Logical, optional, defaults to TRUE.}
+\item{trusted}{Logical, optional, defaults to TRUE. If FALSE, you must use a
+user_id and password.}
 
-\item{user_id}{Character, optional. Leave blank if using trusted.}
+\item{user_id}{A string, quoted, optional. Don't include if using trusted.}
 
-\item{password}{Character, optional. Leave blank if using trusted.}
+\item{password}{A string, quoted, optional. Don't include if using trusted.}
 }
 \value{
 A connection string
@@ -32,12 +34,12 @@ Handy utility to build a connection string to pass into
 }
 \examples{
 my_con <- build_connection_string(server = "localhost")
-# con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con)
+# con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con) # nolint
 
 # with username and password
 my_con <- build_connection_string(server = "localhost",
                                   user_id = "jules.winnfield",
                                   password = "pathoftherighteous")
-# con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con)
+# con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con) #nolint
 
 }

@@ -1,17 +1,19 @@
 #' @title
 #' Write to an MSSQL database table
-#' @description Use a database connection to write to a table in a specified
-#' schema.
+#' @description Use a database connection to write to an existing table in a
+#' specified schema.
 #' @param d A dataframe to write to the database. Required.
 #' @param con An RODBC database connection. Can be made using
 #' \code{RODBC::odbcDriverConnect}. Required.
-#' @param table_name Character, required.
-#' @param schema Character, optional. Defaults to "dbo".
-#' @param overwrite Logical, optional, defaults to FALSE.
+#' @param table_name A string, quoted, required.
+#' @param schema A string, quoted, optional. Defaults to "dbo".
+#' @param overwrite Logical, optional, defaults to FALSE and appends to the
+#' table. If TRUE, table will be overwritten. If your table is empty, you must
+#' append.
 #' @details This function currently requires an RODBC connection to a specific
 #' database. See examples for how to generate one. Column names and types in d
 #' must match those in destination table.
-#' @return Silently returns number of rows written to new table.
+#' @return Silently returns number of rows written to the table.
 #' @export
 #' @examples
 #' \dontrun{
@@ -22,18 +24,22 @@
 #' d = data.frame(id = 1:3, name = c("john", "jane", "stu"))
 #'
 #' # Default schema and append
-#' db_write(d = d, con = rcon)
+#' db_write(d = d, con = rcon, table_name = "my_table")
 #'
 #' # Specify schema and overwrite
-#' db_write(d = d, con = rcon, schema = "my_schema", overwrite = TRUE)
+#' db_write(d = d, con = rcon, table_name = "my_table",
+#'          schema = "my_schema",
+#'          overwrite = TRUE)
 #'
-#' DBI::dbDisconnect(rcon)
+#' RODBC::odbcClose(rcon)
 #' }
+#'
 db_write <- function(d,
                      con,
                      table_name,
                      schema = "dbo",
                      overwrite = FALSE) {
+
   # TODO: Do we we want to create the table if it doesn't exist?
   # TODO: currently fails with ugly error if column names don't match
   # TODO: fails if data types dont match and can't be coerced

@@ -7,15 +7,11 @@ my_con <- build_connection_string(server = "localhost",
                                   database = "testSAM")
 
 test_that("not dataframe throws error", {
-  skip_on_not_appveyor()
-  rcon <- RODBC::odbcDriverConnect(my_con)
-  expect_error(db_write("hi", rcon, "hcai_unit_tests"),
+  expect_error(db_write("hi", "fake_conn", "hcai_unit_tests"),
                "be a data frame")
-  RODBC::odbcClose(rcon)
 })
 
 test_that("not RODBC connection throws error", {
-  skip_on_not_appveyor()
   d <- data.frame(id = 11, word_of_day = "force")
   expect_error(db_write(d, "string", "hcai_unit_tests"),
                "RODBC")
