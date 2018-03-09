@@ -19,7 +19,13 @@
 #'                                   database = "myDB")
 #' rcon <- RODBC::odbcDriverConnect(my_con)
 #'
-#' db_write(sdfs)
+#' d = data.frame(id = 1:3, name = c("john", "jane", "stu"))
+#'
+#' # Default schema and append
+#' db_write(d = d, con = rcon)
+#'
+#' # Specify schema and overwrite
+#' db_write(d = d, con = rcon, schema = "my_schema", overwrite = TRUE)
 #'
 #' DBI::dbDisconnect(rcon)
 #' }
