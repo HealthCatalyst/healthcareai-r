@@ -65,7 +65,8 @@ summary.model_list <- function(object, ...) {
 #'
 #' @return Plot of model performance as a function of algorithm and
 #'   hyperparameter values tuned over. Generally called for the side effect of
-#'   printing a plot, but the plot is also invisibly returned.
+#'   printing a plot, but the plot is also invisibly returned. The
+#'   best-performing model within each algorithm will be plotted as a triangle.
 #'
 #' @importFrom cowplot plot_grid
 #' @importFrom purrr map_df
@@ -101,12 +102,12 @@ plot.model_list <- function(x, print = TRUE, ...) {
             to_plot[[.x]] <- reorder(to_plot[[.x]], to_plot[[mod$metric]], FUN = optimum)
           p <-
             ggplot(to_plot, aes_string(x = .x, y = mod$metric,
-                                     color = "id", size = "best")) +
+                                     color = "id", shape = "best")) +
             geom_point() +
             coord_flip() +
             scale_y_continuous(limits = y_range) +
             scale_color_discrete(guide = FALSE) +
-            scale_size_manual(values = c("TRUE" = 3, "FALSE" = 1.5), guide = FALSE) +
+            scale_shape_manual(values = c("TRUE" = 17, "FALSE" = 16), guide = FALSE) +
             xlab(NULL) +
             labs(title = .x)
           p <-

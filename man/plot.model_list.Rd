@@ -17,7 +17,8 @@
 \value{
 Plot of model performance as a function of algorithm and
   hyperparameter values tuned over. Generally called for the side effect of
-  printing a plot, but the plot is also invisibly returned.
+  printing a plot, but the plot is also invisibly returned. The
+  best-performing model within each algorithm will be plotted as a triangle.
 }
 \description{
 Plot performance of models
