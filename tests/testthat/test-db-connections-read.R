@@ -2,7 +2,7 @@
 context("Checking that write to database works")
 library(dplyr)
 
-my_con <- build_connection_string(server = "localhost",
+cs <- build_connection_string(server = "localhost",
                                   database = "testSAM")
 con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs)
 
