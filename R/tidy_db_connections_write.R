@@ -76,11 +76,12 @@ db_write <- function(d,
                         safer = safer,
                         rownames = FALSE)
 
-
-  if (isTRUE(overwrite)) {
-    res <- paste(nrow(d), "rows successfully written.")
-  } else {
-    res <- paste(nrow(d), "rows successfully appended.")
+  if (out == 1) {
+    if (isTRUE(overwrite)) {
+      res <- paste(nrow(d), "rows successfully written.")
+    } else {
+      res <- paste(nrow(d), "rows successfully appended.")
+    }
+    return(invisible(res))
   }
-  return(invisible(res))
 }
