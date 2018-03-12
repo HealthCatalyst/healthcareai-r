@@ -95,4 +95,3 @@ test_that("fails elegantly when schema doesn't exist", {
                "doesn't exist")
   RODBC::odbcClose(rcon)
 })
-
