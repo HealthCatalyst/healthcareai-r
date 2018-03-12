@@ -37,6 +37,7 @@ Imports:
     recipes (>= 0.1.2),
     rlang,
     RSQLite,
+    stringr,
     tibble,
     tidyr,
 RoxygenNote: 6.0.1
