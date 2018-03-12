@@ -19,7 +19,7 @@ test_that("data reads using sql string", {
   exp <- tibble::tibble(id = 1:3,
                         word_of_day = c("bagel", "box", "toaster"))
   expect_equal(res, exp)
-  DBI::dbDisconnect()
+  DBI::dbDisconnect(con)
 })
 
 test_that("data reads special schema using sql string", {
@@ -29,7 +29,7 @@ test_that("data reads special schema using sql string", {
   exp <- tibble::tibble(id = 4:6,
                         word_of_day = c("lentil", "automobile", "towel"))
   expect_equal(res, exp)
-  DBI::dbDisconnect()
+  DBI::dbDisconnect(con)
 })
 
 test_that("data reads a pointer if not collected", {
@@ -43,7 +43,7 @@ test_that("data reads a pointer if not collected", {
                         word_of_day = c("bagel", "box", "toaster"))
   expect_equal(class(pt)[1], "tbl_dbi")
   expect_equal(res, exp)
-  DBI::dbDisconnect()
+  DBI::dbDisconnect(con)
 })
 
 test_that("data reads a pointer from special schema if not collected", {
@@ -57,5 +57,5 @@ test_that("data reads a pointer from special schema if not collected", {
                         word_of_day = c("lentil", "automobile", "towel"))
   expect_equal(class(pt)[1], "tbl_dbi")
   expect_equal(res, exp)
-  DBI::dbDisconnect()
+  DBI::dbDisconnect(con)
 })
