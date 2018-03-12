@@ -17,7 +17,7 @@ test_that("data reads using sql string", {
   skip_on_not_appveyor()
   res <- db_read(con, "SELECT * FROM testSAM.dbo.hcai_unit_tests")
   exp <- tibble::tibble(id = 1:3,
-                        word_of_day = c("bagel", "howitzer", "banana"))
+                        word_of_day = c("bagel", "box", "toaster"))
   expect_equal(res, exp)
 })
 
@@ -36,7 +36,7 @@ test_that("data reads a pointer if not collected", {
                  pull_into_memory = FALSE)
   res <- pt %>% collect()
   exp <- tibble::tibble(id = 1:3,
-                        word_of_day = c("bagel", "howitzer", "banana"))
+                        word_of_day = c("bagel", "box", "toaster"))
   expect_equal(class(pt)[1], "tbl_dbi")
   expect_equal(res, exp)
 })
