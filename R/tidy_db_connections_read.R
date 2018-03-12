@@ -36,7 +36,7 @@ db_read <- function(con,
     stop("con needs to be a Microsoft SQL Server database connection.")
   }
   # Pull pointer to data using dplyr
-  d <- tbl(con, sql(query))
+  d <- dplyr::tbl(con, dplyr::sql(query))
 
   if (pull_into_memory) {
     d <- d %>% collect()
