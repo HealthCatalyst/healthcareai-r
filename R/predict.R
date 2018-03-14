@@ -7,8 +7,8 @@
 #'   figure out if the data need to be sent through `prep_data` before making
 #'   predictions; this can be overriden by setting `prepdata = FALSE`, but this
 #'   should rarely be needed.
-#' @param prepdata Logical, rarely needs to be set by the user. By default, if
-#'   `newdata` hasn't been prepped, it will be prepped by `prep_data` before
+#' @param prepdata Logical, this should rarely be set by the user. By default,
+#'   if `newdata` hasn't been prepped, it will be prepped by `prep_data` before
 #'   predictions are made. Set this to TRUE to force already-prepped data
 #'   through `prep_data` again, or set to FALSE to prevent `newdata` from being
 #'   sent through `prep_data`.

@@ -5,7 +5,7 @@
 \title{Clean NA values from categorical/nominal variables}
 \usage{
 step_hcai_missing(recipe, ..., role = NA, trained = FALSE,
-  na_percentage = NULL)
+  na_percentage = NULL, skip = FALSE)
 }
 \arguments{
 \item{recipe}{A recipe object. The step will be added to the sequence of
@@ -21,6 +21,9 @@ counted in preprocessing.}
 
 \item{na_percentage}{A named numeric vector of NA percentages. This
 is \code{NULL} until computed by \code{prep.recipe()}.}
+
+\item{skip}{A logical. Should the step be skipped when the
+recipe is baked?}
 }
 \value{
 An updated version of \code{recipe} with the new step
