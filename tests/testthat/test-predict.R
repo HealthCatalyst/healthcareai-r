@@ -142,3 +142,33 @@ test_that("predict handles missingness where unobserved in training prep_data", 
   expect_s3_class(predict(model_regression_prepped, test_data_new_missing),
                   "hcai_predicted_df")
 })
+
+test_that("prepped and predicted data frame gets printed as predicted and not prepped df", {
+  mes <- capture_messages(print(predictions_regression_prepped_prepped))
+  expect_false(stringr::str_detect(mes, "prepped"))
+  expect_true(stringr::str_detect(mes, "predicted"))
+
+  mes <- capture_messages(print(predictions_classification_prepped_prepped))
+  expect_false(stringr::str_detect(mes, "prepped"))
+  expect_true(stringr::str_detect(mes, "predicted"))
+})
+
+test_that("printing predicted df prints the data frame", {
+  out <- capture_output(print(predictions_regression_prepped_not))
+  expect_true(stringr::str_detect(out, "tibble"))
+})
+
+test_that("printing classification df gets ROC/PR metric right", {
+  roc <-
+    training_data %>%
+    prep_data(province, outcome = Catholic, make_dummies = TRUE) %>%
+    tune_models(Catholic, models = "RF", metric = "ROC", tune_depth = 2) %>%
+    predict()
+  pr <-
+    training_data %>%
+    prep_data(province, outcome = Catholic, make_dummies = TRUE) %>%
+    tune_models(Catholic, models = "RF", metric = "PR", tune_depth = 2) %>%
+    predict()
+  expect_true(stringr::str_detect(capture_message(print(roc)), "ROC"))
+  expect_true(stringr::str_detect(capture_message(print(pr)), "PR"))
+})
