@@ -132,3 +132,19 @@ get_classes_sorted <- function(d) {
   classes <- purrr::map_lgl(d, is.numeric)
   return(classes[order(names(classes))])
 }
+
+# print method for predicted data frame
+#' @export
+print.hcai_predicted_df <- function(x, ...) {
+  mi <- attributes(x)$model_info
+  mes <- paste0("healthcareai-predicted data. Column \"predicted_",
+                mi$target, "\" predicted by ",
+                mi$algorithm, " tuned on ", mi$metric,
+                ". Performance in training: ", mi$metric, " = ",
+                round(mi$performance, 2), ".\n")
+  message(mes)
+  # Avoid dispatching print.hcai_prepped_df:
+  y <- structure(x, class = class(x)[!stringr::str_detect(class(x), "^hcai")])
+  print(y)
+  return(invisible(x))
+}
