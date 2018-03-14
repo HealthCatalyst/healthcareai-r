@@ -36,7 +36,8 @@ skip_on_not_appveyor <- function() {
 #' @noRd
 change_pr_metric <- function(object) {
   if (is.model_list(object)) {
-    if (object[[1]]$metric == "AUC") {  # PR was used
+    # AUC is caret's code for PR
+    if (object[[1]]$metric == "AUC") {
       object <-
         purrr::map(object, function(x) {
           x$metric <- "PR"

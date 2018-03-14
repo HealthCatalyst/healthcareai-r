@@ -45,19 +45,19 @@ test_data_reg_prep <- prep_data(test_data, recipe = model_regression_prepped)
 test_data_class_prep <- prep_data(test_data, recipe = model_classify_prepped)
 
 # Output
-predictions_regression_prepped_prepped <-
+regression_prepped_prepped <-
   predict(model_regression_prepped, test_data_reg_prep)
-predictions_classification_prepped_prepped <-
+classification_prepped_prepped <-
   predict(model_classify_prepped, test_data_class_prep)
 
-predictions_regression_not_not <-
+regression_not_not <-
   predict(model_regression_not_prepped, test_data)
-predictions_classification_not_not <-
+classification_not_not <-
   predict(model_classify_not_prepped, test_data)
 
-predictions_regression_prepped_not <-
+regression_prepped_not <-
   predict(model_regression_prepped, test_data)
-suppressWarnings(predictions_classification_prepped_not <-
+suppressWarnings(classification_prepped_not <-
                    predict(model_classify_prepped, test_data))
 
 # Test for some messages and warnings when whether to prep before predict is unclear:
@@ -78,34 +78,34 @@ test_that("When training data hasn't been prepped but has all the same columns a
 })
 
 test_that("predict regression returns a tibble", {
-  expect_s3_class(predictions_regression_prepped_not, "tbl_df")
-  expect_s3_class(predictions_regression_prepped_prepped, "tbl_df")
-  expect_s3_class(predictions_regression_not_not, "tbl_df")
+  expect_s3_class(regression_prepped_not, "tbl_df")
+  expect_s3_class(regression_prepped_prepped, "tbl_df")
+  expect_s3_class(regression_not_not, "tbl_df")
 })
 
 test_that("predict classification returns a tibble", {
-  expect_s3_class(predictions_classification_prepped_not, "tbl_df")
-  expect_s3_class(predictions_classification_prepped_prepped, "tbl_df")
-  expect_s3_class(predictions_classification_not_not, "tbl_df")
+  expect_s3_class(classification_prepped_not, "tbl_df")
+  expect_s3_class(classification_prepped_prepped, "tbl_df")
+  expect_s3_class(classification_not_not, "tbl_df")
 })
 
 test_that("prepping data inside or before predict produces same output", {
-  expect_true(all.equal(predictions_regression_prepped_not$predicted_Fertility,
-                        predictions_regression_prepped_prepped$predicted_Fertility))
-  expect_true(all.equal(predictions_classification_prepped_not$predicted_Catholic,
-                        predictions_classification_prepped_prepped$predicted_Catholic))
+  expect_true(all.equal(regression_prepped_not$predicted_Fertility,
+                        regression_prepped_prepped$predicted_Fertility))
+  expect_true(all.equal(classification_prepped_not$predicted_Catholic,
+                        classification_prepped_prepped$predicted_Catholic))
 })
 
 test_that("predictions are better than chance", {
   # Classification: predicted probs for actual Ys are greater than for actual Ns
-  predictions_classification_prepped_not %>%
+  classification_prepped_not %>%
     dplyr::group_by(Catholic) %>%
     dplyr::summarize(mean_predicted_prob = mean(predicted_Catholic)) %>%
     with(., mean_predicted_prob[Catholic == "Y"] >
            mean_predicted_prob[Catholic == "N"]) %>%
     expect_true()
   # Regression: residuals are less than mean prediction
-  with(predictions_regression_prepped_not,
+  with(regression_prepped_not,
        mean(abs(predicted_Fertility - Fertility)) < mean(abs(mean(Fertility) - Fertility))
   ) %>%
     expect_true()
@@ -144,17 +144,17 @@ test_that("predict handles missingness where unobserved in training prep_data", 
 })
 
 test_that("prepped and predicted data frame gets printed as predicted and not prepped df", {
-  capture_output(mes <- capture_messages(print(predictions_regression_prepped_prepped)))
+  capture_output(mes <- capture_messages(print(regression_prepped_prepped)))
   expect_false(stringr::str_detect(mes, "prepped"))
   expect_true(stringr::str_detect(mes, "predicted"))
 
-  capture_output(mes <- capture_messages(print(predictions_classification_prepped_prepped)))
+  capture_output(mes <- capture_messages(print(classification_prepped_prepped)))
   expect_false(stringr::str_detect(mes, "prepped"))
   expect_true(stringr::str_detect(mes, "predicted"))
 })
 
 test_that("printing predicted df prints the data frame", {
-  out <- capture_output(print(predictions_regression_prepped_not))
+  out <- capture_output(print(regression_prepped_not))
   expect_true(stringr::str_detect(out, "tibble"))
 })
 
