@@ -136,7 +136,8 @@ get_classes_sorted <- function(d) {
 # print method for predicted data frame
 #' @export
 print.hcai_predicted_df <- function(x, ...) {
-  mi <- attributes(x)$model_info
+  x <- change_pr_metric(x)
+  mi <- attr(object, "model_info")
   mes <- paste0("healthcareai-predicted data. Column \"predicted_",
                 mi$target, "\" predicted by ",
                 mi$algorithm, " tuned on ", mi$metric,
