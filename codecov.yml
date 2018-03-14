@@ -19,5 +19,4 @@ comment:
   require_head: yes
 
 ignore:
-  - "R/tidy_db_connections_read.R"
-  - "R/tidy_db_connections_write.R"
+  - "R/db_connections.R"
