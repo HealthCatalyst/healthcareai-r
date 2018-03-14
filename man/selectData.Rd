@@ -4,8 +4,7 @@
 \alias{selectData}
 \title{Depreciated. See \code{\link{db_read}}}
 \usage{
-selectData(MSSQLConnectionString = NULL, query, SQLiteFileName = NULL,
-  randomize = FALSE)
+selectData()
 }
 \description{
 Removed in v2.0.0

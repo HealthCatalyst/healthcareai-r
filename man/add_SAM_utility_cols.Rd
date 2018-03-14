@@ -19,8 +19,6 @@ utility columns are added automatically when running a non-R binding
 \examples{
 d <- data.frame(a = c(1,2,NA,NA),
                  b = c(100,300,200,150))
-head(d)
-df <- add_SAM_utility_cols(d)
-head(d)
+d <- add_SAM_utility_cols(d)
 
 }

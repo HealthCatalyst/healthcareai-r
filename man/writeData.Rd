@@ -4,8 +4,7 @@
 \alias{writeData}
 \title{Depreciated.}
 \usage{
-writeData(MSSQLConnectionString = NULL, df, SQLiteFileName = NULL,
-  tableName, addSAMUtilityColumns = FALSE, connectionString = NULL)
+writeData()
 }
 \description{
 Removed in v2.0.0
