@@ -12,6 +12,8 @@
 #'  counted in preprocessing.
 #' @param na_percentage A named numeric vector of NA percentages. This
 #'  is \code{NULL} until computed by \code{prep.recipe()}.
+#' @param skip A logical. Should the step be skipped when the
+#'  recipe is baked?
 #' @return An updated version of \code{recipe} with the new step
 #'  added to the sequence of existing steps (if any). For the
 #'  \code{tidy} method, a tibble with columns \code{terms} (the
@@ -55,7 +57,8 @@ step_hcai_missing <- function(recipe,
                               ...,
                               role = NA,
                               trained = FALSE,
-                              na_percentage = NULL) {
+                              na_percentage = NULL,
+                              skip = FALSE) {
   terms <- quos(...)
   if (length(terms) == 0)
     stop("Please supply at least one variable specification. See ?selections.")
@@ -65,7 +68,8 @@ step_hcai_missing <- function(recipe,
       terms = terms,
       role = role,
       trained = trained,
-      na_percentage = na_percentage
+      na_percentage = na_percentage,
+      skip = skip
     )
   )
 }
@@ -74,13 +78,15 @@ step_hcai_missing <- function(recipe,
 step_hcai_missing_new <- function(terms = NULL,
                                   role = NA,
                                   trained = FALSE,
-                                  na_percentage = NULL) {
+                                  na_percentage = NULL,
+                                  skip = FALSE) {
   step(
     subclass = "hcai_missing",
     terms = terms,
     role = role,
     trained = trained,
-    na_percentage = na_percentage
+    na_percentage = na_percentage,
+    skip = skip
   )
 }
 
@@ -106,7 +112,8 @@ prep.step_hcai_missing <- function(x, training, info = NULL, ...) {
     terms = x$terms,
     role = x$role,
     trained = TRUE,
-    na_percentage = na_percentage
+    na_percentage = na_percentage,
+    skip = x$skip
   )
 }
 
