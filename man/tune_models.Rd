@@ -31,7 +31,8 @@ available models.}
 \item{metric}{What metric to use to assess model performance? Options for
 regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
 error), or "Rsquared." For classification: "ROC" (area under the receiver
-operating characteristic curve).}
+operating characteristic curve), or "PR" (area under the precision-recall
+curve).}
 
 \item{hyperparameters}{Currently not supported.}
 

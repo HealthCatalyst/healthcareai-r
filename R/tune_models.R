@@ -15,7 +15,8 @@
 #' @param metric What metric to use to assess model performance? Options for
 #'   regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
 #'   error), or "Rsquared." For classification: "ROC" (area under the receiver
-#'   operating characteristic curve).
+#'   operating characteristic curve), or "PR" (area under the precision-recall
+#'   curve).
 #' @param hyperparameters Currently not supported.
 #' @param verbose Logical, defaults to FALSE. Get additional info via messages?
 #'
@@ -188,7 +189,12 @@ tune_models <- function(d,
 
   # trainControl defaults are good for regression. Change for other model_class:
   if (model_class == "classification") {
-    train_control$summaryFunction <- caret::twoClassSummary
+    if (metric == "PR") {
+      train_control$summaryFunction <- caret::prSummary
+      metric <- "AUC" # For caret internal function
+    } else {
+      train_control$summaryFunction <- caret::twoClassSummary
+    }
     train_control$classProbs <- TRUE
   }
 

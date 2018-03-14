@@ -142,11 +142,9 @@ bake.step_hcai_missing <- function(object, newdata, ...) {
     replace_na(replacement_list)
 }
 
-#' @importFrom utils getFromNamespace
 #' @export
 print.step_hcai_missing <-
   function(x, width = max(20, options()$width - 30), ...) {
-    printer <- getFromNamespace("printer", "recipes")
     cat("Filling NA with hcai_missing for ", sep = "")
     printer(names(x$na_percentage), x$terms, x$trained, width = width)
     invisible(x)
@@ -160,7 +158,7 @@ tidy.step_hcai_missing <- function(x, ...) {
     res <- tibble(terms = names(x$na_percentage),
                   value = round(x$na_percentage, 2))
   } else {
-    term_names <- recipes:::sel2char(x$terms)
+    term_names <- sel2char(x$terms)
     res <- tibble(terms = term_names, value = NA_real_)
   }
   res

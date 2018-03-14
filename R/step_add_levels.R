@@ -63,7 +63,7 @@ bake.step_add_levels <- function(object, newdata, ...) {
 #' @export
 print.step_add_levels <- function(x, width = max(20, options()$width - 30), ...) {
   cat("Adding levels to: ", sep = "")
-  recipes:::printer(x$levels, x$terms, x$trained, width = width)
+  printer(x$levels, x$terms, x$trained, width = width)
   invisible(x)
 }
 
@@ -74,7 +74,7 @@ tidy.step_add_levels <- function(x, ...) {
   res <- if (x$trained) {
     tibble::tibble(terms = x$cols, value = paste(x$levels, collapse = ", "))
   } else {
-    tibble::tibble(terms = recipes:::sel2char(x$terms), value = NA_character_)
+    tibble::tibble(terms = sel2char(x$terms), value = NA_character_)
   }
   return(res)
 }
