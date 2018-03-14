@@ -44,15 +44,21 @@ suppressWarnings({
 test_data_reg_prep <- prep_data(test_data, recipe = model_regression_prepped)
 test_data_class_prep <- prep_data(test_data, recipe = model_classify_prepped)
 
-# Output. Format: m - r = reg, c = class - n = not prepped training, p = prepped training - n = not prepped test, p = prepped test  # nolint
-prpp <- predict(model_regression_prepped, test_data_reg_prep)
-pcpp <- predict(model_classify_prepped, test_data_class_prep)
+# Output
+predictions_regression_prepped_prepped <-
+  predict(model_regression_prepped, test_data_reg_prep)
+predictions_classification_prepped_prepped <-
+  predict(model_classify_prepped, test_data_class_prep)
 
-prnn <- predict(model_regression_not_prepped, test_data)
-pcnn <- predict(model_classify_not_prepped, test_data)
+predictions_regression_not_not <-
+  predict(model_regression_not_prepped, test_data)
+predictions_classification_not_not <-
+  predict(model_classify_not_prepped, test_data)
 
-prpn <- predict(model_regression_prepped, test_data)
-suppressWarnings(pcpn <- predict(model_classify_prepped, test_data))
+predictions_regression_prepped_not <-
+  predict(model_regression_prepped, test_data)
+suppressWarnings(predictions_classification_prepped_not <-
+                   predict(model_classify_prepped, test_data))
 
 # Test for some messages and warnings when whether to prep before predict is unclear:
 # Here, should get a warning because all predictors are numeric, so they appear
@@ -72,33 +78,36 @@ test_that("When training data hasn't been prepped but has all the same columns a
 })
 
 test_that("predict regression returns a tibble", {
-  expect_s3_class(prpn, "tbl_df")
-  expect_s3_class(prpp, "tbl_df")
-  expect_s3_class(prnn, "tbl_df")
+  expect_s3_class(predictions_regression_prepped_not, "tbl_df")
+  expect_s3_class(predictions_regression_prepped_prepped, "tbl_df")
+  expect_s3_class(predictions_regression_not_not, "tbl_df")
 })
 
 test_that("predict classification returns a tibble", {
-  expect_s3_class(pcpn, "tbl_df")
-  expect_s3_class(pcpp, "tbl_df")
-  expect_s3_class(pcnn, "tbl_df")
+  expect_s3_class(predictions_classification_prepped_not, "tbl_df")
+  expect_s3_class(predictions_classification_prepped_prepped, "tbl_df")
+  expect_s3_class(predictions_classification_not_not, "tbl_df")
 })
 
 test_that("prepping data inside or before predict produces same output", {
-  expect_true(all.equal(prpn$predicted_Fertility, prpp$predicted_Fertility))
-  expect_true(all.equal(pcpn$predicted_Catholic, pcpp$predicted_Catholic))
+  expect_true(all.equal(predictions_regression_prepped_not$predicted_Fertility,
+                        predictions_regression_prepped_prepped$predicted_Fertility))
+  expect_true(all.equal(predictions_classification_prepped_not$predicted_Catholic,
+                        predictions_classification_prepped_prepped$predicted_Catholic))
 })
 
 test_that("predictions are better than chance", {
   # Classification: predicted probs for actual Ys are greater than for actual Ns
-  pcpn %>%
+  predictions_classification_prepped_not %>%
     dplyr::group_by(Catholic) %>%
     dplyr::summarize(mean_predicted_prob = mean(predicted_Catholic)) %>%
     with(., mean_predicted_prob[Catholic == "Y"] >
            mean_predicted_prob[Catholic == "N"]) %>%
     expect_true()
   # Regression: residuals are less than mean prediction
-  with(prpn, mean(abs(predicted_Fertility - Fertility)) <
-         mean(abs(mean(Fertility) - Fertility))) %>%
+  with(predictions_regression_prepped_not,
+       mean(abs(predicted_Fertility - Fertility)) < mean(abs(mean(Fertility) - Fertility))
+  ) %>%
     expect_true()
 })
 
@@ -125,9 +134,11 @@ test_that("predict can handle binary character non Y/N columns", {
 })
 
 test_that("predict handles new levels on model_list from prep_data", {
-  expect_s3_class(predict(model_regression_prepped, test_data_newlevel), "hcai_predicted_df")
+  expect_s3_class(predict(model_regression_prepped, test_data_newlevel),
+                  "hcai_predicted_df")
 })
 
 test_that("predict handles missingness where unobserved in training prep_data", {
-  expect_s3_class(predict(model_regression_prepped, test_data_new_missing), "hcai_predicted_df")
+  expect_s3_class(predict(model_regression_prepped, test_data_new_missing),
+                  "hcai_predicted_df")
 })
