@@ -118,19 +118,18 @@ db_read <- function(con,
 #' utility columns are added automatically when running a non-R binding
 #' @param d A dataframe
 #' @return A dataframe with three additional columns
+#' @import dplyr
 #' @export
 #' @examples
 #' d <- data.frame(a = c(1,2,NA,NA),
 #'                  b = c(100,300,200,150))
-#' head(d)
-#' df <- add_SAM_utility_cols(d)
-#' head(d)
+#' d <- add_SAM_utility_cols(d)
 #'
 add_SAM_utility_cols <- function(d) {
-  d <- cbind(BindingID = 0,
-              BindingNM = 'R',
-              LastLoadDTS = Sys.time(),
-              df)
+  d <- d %>%
+    mutate(BindingID = 0,
+           BindingNM = 'R',
+           LastLoadDTS = Sys.time())
   return(d)
 }
 
@@ -144,10 +143,7 @@ add_SAM_utility_cols <- function(d) {
 #' @description Removed in v2.0.0
 #' @export
 #'
-selectData <- function(MSSQLConnectionString = NULL,
-                       query,
-                       SQLiteFileName = NULL,
-                       randomize = FALSE) {
+selectData <- function() {
   stop("This function was depreciated.")
 }
 
@@ -156,11 +152,6 @@ selectData <- function(MSSQLConnectionString = NULL,
 #' @description Removed in v2.0.0
 #' @export
 #'
-writeData <- function(MSSQLConnectionString = NULL,
-                      df,
-                      SQLiteFileName = NULL,
-                      tableName,
-                      addSAMUtilityColumns = FALSE,
-                      connectionString = NULL) {
+writeData <- function() {
   stop("This function was depreciated.")
 }
