@@ -144,11 +144,11 @@ test_that("predict handles missingness where unobserved in training prep_data", 
 })
 
 test_that("prepped and predicted data frame gets printed as predicted and not prepped df", {
-  mes <- capture_messages(print(predictions_regression_prepped_prepped))
+  capture_output(mes <- capture_messages(print(predictions_regression_prepped_prepped)))
   expect_false(stringr::str_detect(mes, "prepped"))
   expect_true(stringr::str_detect(mes, "predicted"))
 
-  mes <- capture_messages(print(predictions_classification_prepped_prepped))
+  capture_output(mes <- capture_messages(print(predictions_classification_prepped_prepped)))
   expect_false(stringr::str_detect(mes, "prepped"))
   expect_true(stringr::str_detect(mes, "predicted"))
 })
