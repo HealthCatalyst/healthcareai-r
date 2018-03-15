@@ -16,8 +16,8 @@ figure out if the data need to be sent through `prep_data` before making
 predictions; this can be overriden by setting `prepdata = FALSE`, but this
 should rarely be needed.}
 
-\item{prepdata}{Logical, rarely needs to be set by the user. By default, if
-`newdata` hasn't been prepped, it will be prepped by `prep_data` before
+\item{prepdata}{Logical, this should rarely be set by the user. By default,
+if `newdata` hasn't been prepped, it will be prepped by `prep_data` before
 predictions are made. Set this to TRUE to force already-prepped data
 through `prep_data` again, or set to FALSE to prevent `newdata` from being
 sent through `prep_data`.}
@@ -43,7 +43,7 @@ The model and hyperparameter values with the best out-of-fold
 }
 \examples{
 # Tune models using only the first 50 rows to keep computation fast
-models <- machine_learn(pima_diabetes[1:50, ], diabetes)
+models <- machine_learn(pima_diabetes[1:50, ], outcome = diabetes)
 # Make prediction on the next 20 rows. This uses the best-performing model from
 # tuning cross validation, and it also prepares the new data in the same way as
 # the training data was prepared.
