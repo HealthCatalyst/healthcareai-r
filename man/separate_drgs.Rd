@@ -10,13 +10,15 @@ separate_drgs(drgs)
 \item{drgs}{character vector of MSDRG descriptions, e.g. MSDRGDSC}
 }
 \value{
-a tibble with three columns: msdrg: the input vector, base_msdrg, and msdrg_complication
+a tibble with three columns: msdrg: the input vector, base_msdrg, and
+  msdrg_complication
 }
 \description{
 Convert MSDRGs in a "base group" and a complication level
 }
 \examples{
-MSDRGs <- c("ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W CC", "ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W MCC",
-"ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W/O CC/MCC")
+MSDRGs <- c("ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W CC",
+            "ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W MCC",
+            "ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W/O CC/MCC")
 separate_drgs(MSDRGs)
 }
