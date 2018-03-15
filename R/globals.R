@@ -1,6 +1,7 @@
 #' @import utils
 utils::globalVariables(c("outside", "percent_missing", "variable", ".outcome",
-                         ".", "Y", "twoClassSummary"))
+                         ".", "Y", "twoClassSummary",
+                         "w_cc", "w_ccmcc"))
 
 printer <- utils::getFromNamespace("printer", "recipes")
 

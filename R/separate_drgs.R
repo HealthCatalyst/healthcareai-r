@@ -2,12 +2,14 @@
 #'
 #' @param drgs character vector of MSDRG descriptions, e.g. MSDRGDSC
 #'
-#' @return a tibble with three columns: msdrg: the input vector, base_msdrg, and msdrg_complication
+#' @return a tibble with three columns: msdrg: the input vector, base_msdrg, and
+#'   msdrg_complication
 #' @export
 #'
 #' @examples
-#' MSDRGs <- c("ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W CC", "ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W MCC",
-#' "ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W/O CC/MCC")
+#' MSDRGs <- c("ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W CC",
+#'             "ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W MCC",
+#'             "ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W/O CC/MCC")
 #' separate_drgs(MSDRGs)
 separate_drgs <- function(drgs) {
   cc_pos <- tibble::tibble(
