@@ -42,16 +42,14 @@ NA values are counted when the recipe is trained using
 the new data.
 }
 \examples{
-library(healthcareai)
-library(tibble)
 library(recipes)
 n = 100
-d <- tibble(encounter_id = 1:n,
-            patient_id = sample(1:20, size = n, replace = TRUE),
-            hemoglobin_count = rnorm(n, mean = 15, sd = 1),
-            hemoglobin_category = sample(c("Low", "Normal", "High", NA),
-                                         size = n, replace = TRUE),
-            disease = ifelse(hemoglobin_count < 15, "Yes", "No")
+d <- tibble::tibble(encounter_id = 1:n,
+                    patient_id = sample(1:20, size = n, replace = TRUE),
+                    hemoglobin_count = rnorm(n, mean = 15, sd = 1),
+                    hemoglobin_category = sample(c("Low", "Normal", "High", NA),
+                                                 size = n, replace = TRUE),
+                    disease = ifelse(hemoglobin_count < 15, "Yes", "No")
 )
 
 # Initialize
@@ -67,5 +65,4 @@ trained_recipe <- prep(my_recipe, training = d)
 
 # Apply recipe
 data_modified <- bake(trained_recipe, newdata = d)
-
 }
