@@ -21,8 +21,6 @@ matrix:
   r:
     - release
     - devel
-  allow_failures:
-    - r: devel
 
 r_packages:
   - covr
