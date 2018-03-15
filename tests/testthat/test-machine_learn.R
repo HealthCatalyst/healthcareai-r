@@ -2,7 +2,7 @@ context("Test machine_learn")
 
 test_data <- mtcars[1:5, ]
 training_data <- mtcars[6:32, ]
-models <- machine_learn(training_data, am)
+models <- machine_learn(training_data, outcome = am)
 
 test_that("machine_learn produces a model_list", {
   expect_s3_class(models, "model_list")
@@ -22,4 +22,8 @@ test_that("Get an informative error message for missing / wrong-class args", {
   expect_error(machine_learn(training_data, outcome = 1), "outcome")
   expect_error(machine_learn(training_data, outcome = am, not_there),
                "were passed to the ... argument")
+})
+
+test_that("Machine learn points the user to naming outcome if unprovided", {
+  expect_error(machine_learn(training_data, am), "outcome = ")
 })

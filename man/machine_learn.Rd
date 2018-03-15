@@ -4,15 +4,16 @@
 \alias{machine_learn}
 \title{Machine Learn}
 \usage{
-machine_learn(d, outcome, ..., models = c("rf", "knn"), impute = TRUE)
+machine_learn(d, ..., outcome, models = c("rf", "knn"), impute = TRUE)
 }
 \arguments{
 \item{d}{A data frame}
 
-\item{outcome}{Name of the target column, i.e. what you want to predict.
-Unquoted.}
+\item{...}{Columns to be ignored in model training, e.g. ID columns,
+unquoted.}
 
-\item{...}{Identifier columns not to be used in model training, unquoted}
+\item{outcome}{Name of the target column, i.e. what you want to predict.
+Unquoted. Must be named, i.e. you must specify \code{outcome = }}
 
 \item{models}{Models to be trained, k-nearest neighbors and random forest by
 default. See \code{\link{supported_models}} for details.}
@@ -40,7 +41,7 @@ training_data <- pima_diabetes[11:100, ]
 ### Classification ###
 
 # Clean and prep the data, tune algorithms over hyperparameter values to predict diabetes
-models <- machine_learn(training_data, diabetes)
+models <- machine_learn(training_data, outcome = diabetes)
 
 # Make predictions (predicted probability of diabetes) on test data
 predict(models, test_data)
@@ -48,7 +49,7 @@ predict(models, test_data)
 ### Regression ###
 
 # Predict numeric outcomes simply by specifying the name of the outcome variable
-age_model <- machine_learn(training_data, age)
+age_model <- machine_learn(training_data, outcome = age)
 
 # If new data isn't specifed, get predictions on training data
 predict(age_model)
