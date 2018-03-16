@@ -124,8 +124,8 @@ test_that("data reads a pointer from special schema if not collected", {
 
 # Utils -----------------------
 test_that("SAM utility columns are added.", {
-d <- data.frame(a = c(1,2,NA,NA),
-                b = c(100,300,200,150))
+d <- data.frame(a = c(1, 2, NA, NA),
+                b = c(100, 300, 200, 150))
 d <- add_SAM_utility_cols(d)
 expect_equal(ncol(d), 5)
 expect_true(all(c("LastLoadDTS", "BindingNM", "BindingID") %in% names(d)))

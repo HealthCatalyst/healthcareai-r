@@ -128,7 +128,7 @@ db_read <- function(con,
 add_SAM_utility_cols <- function(d) {
   d <- d %>%
     mutate(BindingID = 0,
-           BindingNM = 'R',
+           BindingNM = "R",
            LastLoadDTS = Sys.time())
   return(d)
 }
