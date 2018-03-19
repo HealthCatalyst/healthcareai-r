@@ -68,10 +68,13 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
         predvars <- get_classes_sorted(dplyr::select(newdata, -which(names(newdata) == mi$target)))
         joined <- dplyr::left_join(trainvars, predvars, by = "variable")
         if (isTRUE(all.equal(joined$is_numeric.x, joined$is_numeric.y)))
-          warning("newdata looks like it may have been prepped, but I'm not ",
-                  "sure, so I will try passing it to prep_data before making ",
-                  "predictions. If you already prepped it, set ",
-                  "`predict(prepdata = FALSE)`.")
+          warning("The data used in model training was prepped using `prep_data`. ",
+                  "Therefore, the data you want to make predictions on must also be prepped. ",
+                  "It looks like you might have done that by passing `newdata` ",
+                  "through `prep_data` before passing it to `predict`, but I can't be sure, ",
+                  "so it will be prepped now before making predictions. ",
+                  "If you passed the prediction data through `prep_data` before ",
+                  "`predict`, set `predict(prepdata = FALSE)`.")
         TRUE
       } else {
         FALSE
