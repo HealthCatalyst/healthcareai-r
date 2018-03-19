@@ -18,13 +18,19 @@
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  <link href="../extra.css" rel="stylesheet">
-  
+<meta property="og:title" content="Sets console logging to a file in the working directory. — start_prod_logs" />
+
+<meta property="og:description" content="Logs all console messages and output to a timestamped file
+called, "deployConsoleLog..." in the working directory. This is meant to be
+used in production to monitor console output on ETL servers." />
+<meta name="twitter:card" content="summary" />
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -88,11 +94,12 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Sets console logging to a file in the working directory.</h1>
+    
     </div>
 
     
-    <p>Logs all console messages and output to a timestamped file 
-called, "deployConsoleLog..." in the working directory. This is meant to be 
+    <p>Logs all console messages and output to a timestamped file
+called, "deployConsoleLog..." in the working directory. This is meant to be
 used in production to monitor console output on ETL servers.</p>
     
 
@@ -104,9 +111,9 @@ used in production to monitor console output on ETL servers.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='co'># NOT RUN {</span>
-<span class='co'># Object Attribute Base should contain a script like this:</span>
-<span class='co'># Move to working directory </span>
+    <pre class="examples"><div class='input'># Object Attribute Base should contain a script like this:
+# Move to working directory
+</div><span class='co'># NOT RUN {</span>
 <span class='co'># setwd("Prod Server/Machine Learning/MyProject")</span>
 
 <span class='co'># Start console logging</span>
@@ -141,7 +148,7 @@ used in production to monitor console output on ETL servers.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
@@ -149,3 +156,4 @@ used in production to monitor console output on ETL servers.</p>
 
   </body>
 </html>
+

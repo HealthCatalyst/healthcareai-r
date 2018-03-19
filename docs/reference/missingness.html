@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Add SAM utility columns to table — addSAMUtilityCols • healthcareai</title>
+<title>Percent of entries in each column that are missing — missingness • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,10 +25,10 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Add SAM utility columns to table — addSAMUtilityCols" />
+<meta property="og:title" content="Percent of entries in each column that are missing — missingness" />
 
-<meta property="og:description" content="When working in a Health Catalyst Source Area Mart (SAM),
-utility columns are added automatically when running a non-R binding" />
+<meta property="og:description" content="Finds the percent of NAs in a vector or in each column of a dataframe or
+matrix or in a vector. Possible mis-coded missing values are searched for and a warning issued if they are found." />
 <meta name="twitter:card" content="summary" />
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
@@ -92,52 +92,48 @@ utility columns are added automatically when running a non-R binding" />
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Add SAM utility columns to table</h1>
+    <h1>Percent of entries in each column that are missing</h1>
     
     </div>
 
     
-    <p>When working in a Health Catalyst Source Area Mart (SAM),
-utility columns are added automatically when running a non-R binding</p>
+    <p>Finds the percent of NAs in a vector or in each column of a dataframe or
+matrix or in a vector. Possible mis-coded missing values are searched for and a warning issued if they are found.</p>
     
 
-    <pre class="usage"><span class='fu'>addSAMUtilityCols</span>(<span class='no'>df</span>)</pre>
+    <pre class="usage"><span class='fu'>missingness</span>(<span class='no'>d</span>, <span class='kw'>return_df</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>to_search</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"NA"</span>, <span class='st'>"NAs"</span>, <span class='st'>"na"</span>, <span class='st'>"NaN"</span>,
+  <span class='st'>"?"</span>, <span class='st'>"??"</span>, <span class='st'>"nil"</span>, <span class='st'>"NULL"</span>, <span class='st'>" "</span>, <span class='st'>""</span>))</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>df</th>
-      <td><p>A dataframe</p></td>
+      <th>d</th>
+      <td><p>A data frame or matrix</p></td>
+    </tr>
+    <tr>
+      <th>return_df</th>
+      <td><p>If TRUE (default) a data frame is returned, which generally makes reading the output easier. If variable names are so long that the data frame gets wrapped poorly, set this to FALSE.</p></td>
+    </tr>
+    <tr>
+      <th>to_search</th>
+      <td><p>A vector of strings that might represent missingness. If found in <code>d</code>, a warning is issued.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A dataframe with three additional columns</p>
-    
-    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
-
-    <p><a href='http://healthcareai-r.readthedocs.io'>http://healthcareai-r.readthedocs.io</a></p>
-    
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <p><code><a href='healthcareai.html'>healthcareai</a></code></p>
+    <p>A data frame with two columns: variable names in <code>d</code> and the percent of entries in each variable that are missing.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>data.frame</span>(<span class='kw'>a</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>1</span>,<span class='fl'>2</span>,<span class='fl'>NA</span>,<span class='fl'>NA</span>),
-                 <span class='kw'>b</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>100</span>,<span class='fl'>300</span>,<span class='fl'>200</span>,<span class='fl'>150</span>))
-<span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;    a   b
-#&gt; 1  1 100
-#&gt; 2  2 300
-#&gt; 3 NA 200
-#&gt; 4 NA 150</div><div class='input'><span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>addSAMUtilityCols</span>(<span class='no'>df</span>)
-<span class='fu'>head</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt;   BindingID BindingNM         LastLoadDTS  a   b
-#&gt; 1         0         R 2018-03-19 13:48:21  1 100
-#&gt; 2         0         R 2018-03-19 13:48:21  2 300
-#&gt; 3         0         R 2018-03-19 13:48:21 NA 200
-#&gt; 4         0         R 2018-03-19 13:48:21 NA 150</div></pre>
+    <pre class="examples"><div class='input'><span class='no'>d</span> <span class='kw'>&lt;-</span> <span class='fu'>data.frame</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"a"</span>, <span class='st'>"nil"</span>, <span class='st'>"b"</span>),
+                <span class='kw'>y</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>1</span>, <span class='fl'>NaN</span>, <span class='fl'>3</span>),
+                <span class='kw'>z</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>1</span>:<span class='fl'>2</span>, <span class='fl'>NA</span>))
+<span class='fu'>missingness</span>(<span class='no'>d</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Found these strings that may represent missing values: "nil". If they do represent missingness, replace them with NA.</span></div><div class='output co'>#&gt;   variable percent_missing
+#&gt; 1        x             0.0
+#&gt; 2        y            33.3
+#&gt; 3        z            33.3</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -145,10 +141,6 @@ utility columns are added automatically when running a non-R binding</p>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-
-      <li><a href="#references">References</a></li>
-
-      <li><a href="#see-also">See also</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>

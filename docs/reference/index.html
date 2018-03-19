@@ -18,13 +18,14 @@
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  <link href="../extra.css" rel="stylesheet">
-  
+<meta property="og:title" content="Function reference" />
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -89,7 +90,7 @@
     <div class="page-header">
       <h1>
         Reference
-        <small>version&nbsp;1.2.0</small>
+        <small>version&nbsp;2.0.0</small>
       </h1>
     </div>
 
@@ -104,111 +105,61 @@
       <tbody>
         <tr>
           <th colspan="2">
-            <h2 id="section-model-development" class="hasAnchor"><a href="#section-model-development" class="anchor"></a>Model Development</h2>
+            <h2 id="section-model-training" class="hasAnchor"><a href="#section-model-training" class="anchor"></a>Model training</h2>
             <p class="section-desc"><p>Train machine learning models</p></p>
           </th>
         </tr>
         <tr>
           <!--  -->
           <td>
-            <p><code><a href="LassoDevelopment.html">LassoDevelopment</a></code> </p>
+            <p><code><a href="tune_models.html">tune_models()</a></code> </p>
           </td>
-          <td><p>Compare predictive models, created on your data</p></td>
+          <td><p>Identify the best performing model by tuning hyperparameters via
+cross-validation</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="LinearMixedModelDevelopment.html">LinearMixedModelDevelopment</a></code> </p>
+            <p><code><a href="machine_learn.html">machine_learn()</a></code> </p>
           </td>
-          <td><p>Compare predictive models, created on your data</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="RandomForestDevelopment.html">RandomForestDevelopment</a></code> </p>
-          </td>
-          <td><p>Compare predictive models, created on your data</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="SupervisedModelDevelopment.html">SupervisedModelDevelopment</a></code> </p>
-          </td>
-          <td><p>Compare predictive models, created on your data</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="SupervisedModelDevelopmentParams.html">SupervisedModelDevelopmentParams</a></code> </p>
-          </td>
-          <td><p>SupervisedModelDevelopmentParams class to set up parameters required to build SupervisedModel classes</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="XGBoostDevelopment.html">XGBoostDevelopment</a></code> </p>
-          </td>
-          <td><p>Compare predictive models, created on your data</p></td>
+          <td><p>Machine Learn</p></td>
         </tr>
       </tbody><tbody>
         <tr>
           <th colspan="2">
-            <h2 id="section-model-deployment" class="hasAnchor"><a href="#section-model-deployment" class="anchor"></a>Model Deployment</h2>
-            <p class="section-desc"><p>Put a model into production</p></p>
+            <h2 id="section-model-list-generics" class="hasAnchor"><a href="#section-model-list-generics" class="anchor"></a>model_list generics</h2>
+            <p class="section-desc"><p>Work with model_list objects</p></p>
           </th>
         </tr>
         <tr>
           <!--  -->
           <td>
-            <p><code><a href="LassoDeployment.html">LassoDeployment</a></code> </p>
+            <p><code><a href="as.model_list.html">as.model_list()</a></code> </p>
           </td>
-          <td><p>Deploy a production-ready predictive Lasso model</p></td>
+          <td><p>Make models into model_list object</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="LinearMixedModelDeployment.html">LinearMixedModelDeployment</a></code> </p>
+            <p><code><a href="is.model_list.html">is.model_list()</a></code> </p>
           </td>
-          <td><p>Deploy a production-ready predictive Linear Mixed Model model</p></td>
+          <td><p>Class check</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="RandomForestDeployment.html">RandomForestDeployment</a></code> </p>
+            <p><code><a href="model_list.html">model_list()</a></code> </p>
           </td>
-          <td><p>Deploy a production-ready predictive RandomForest model</p></td>
+          <td><p>Constructor function for class model_list</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="SupervisedModelDeployment.html">SupervisedModelDeployment</a></code> </p>
+            <p><code><a href="plot.model_list.html">plot(<i>&lt;model_list&gt;</i>)</a></code> </p>
           </td>
-          <td><p>Deploy predictive models, created on your data</p></td>
+          <td><p>Plot performance of models</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="SupervisedModelDeploymentParams.html">SupervisedModelDeploymentParams</a></code> </p>
+            <p><code><a href="predict.model_list.html">predict(<i>&lt;model_list&gt;</i>)</a></code> </p>
           </td>
-          <td><p>SupervisedModelDeploymentParams class to set up parameters required to build
-SupervisedModelDeployment class</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="XGBoostDeployment.html">XGBoostDeployment</a></code> </p>
-          </td>
-          <td><p>Deploy a production-ready predictive XGBoost model</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-sql-helpers" class="hasAnchor"><a href="#section-sql-helpers" class="anchor"></a>SQL helpers</h2>
-            <p class="section-desc"><p>Interface with a database</p></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="selectData.html">selectData</a></code> </p>
-          </td>
-          <td><p>Pull data into R via an ODBC connection</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="writeData.html">writeData</a></code> </p>
-          </td>
-          <td><p>Write data to database</p></td>
+          <td><p>Make predictions using the best-performing model from tuning</p></td>
         </tr>
       </tbody><tbody>
         <tr>
@@ -226,9 +177,8 @@ SupervisedModelDeployment class</p></td>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#section-model-development">Model Development</a></li>
-      <li><a href="#section-model-deployment">Model Deployment</a></li>
-      <li><a href="#section-sql-helpers">SQL helpers</a></li>
+      <li><a href="#section-model-training">Model training</a></li>
+      <li><a href="#section-model-list-generics">model_list generics</a></li>
       <li><a href="#section-everything-else">Everything Else</a></li>
     </ul>
   </div>
@@ -240,7 +190,7 @@ SupervisedModelDeployment class</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
@@ -248,3 +198,4 @@ SupervisedModelDeployment class</p></td>
 
   </body>
 </html>
+

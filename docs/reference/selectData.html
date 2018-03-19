@@ -18,13 +18,18 @@
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  <link href="../extra.css" rel="stylesheet">
-  
+<meta property="og:title" content="Pull data into R via an ODBC connection — selectData" />
+
+<meta property="og:description" content="Select data from an ODBC database and return the results as
+a data frame." />
+<meta name="twitter:card" content="summary" />
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -88,6 +93,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Pull data into R via an ODBC connection</h1>
+    
     </div>
 
     
@@ -103,7 +109,7 @@ a data frame.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>MSSQLConnectionString</th>
-      <td><p>A string specifying the driver, server, 
+      <td><p>A string specifying the driver, server,
 database, and whether Windows Authentication will be used.</p></td>
     </tr>
     <tr>
@@ -112,7 +118,7 @@ database, and whether Windows Authentication will be used.</p></td>
     </tr>
     <tr>
       <th>SQLiteFileName</th>
-      <td><p>A string. If dbtype is SQLite, here one specifies the 
+      <td><p>A string. If dbtype is SQLite, here one specifies the
 database file to query from</p></td>
     </tr>
     <tr>
@@ -131,21 +137,20 @@ database file to query from</p></td>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <p><code><a href='healthcareai.html'>healthcareai</a></code>
-    <code><a href='writeData.html'>writeData</a></code></p>
+    <p><code><a href='healthcareai.html'>healthcareai</a></code></p>
+<p><code><a href='writeData.html'>writeData</a></code></p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"># NOT RUN {
-# }
-<span class='co'># NOT RUN {</span>
+    <pre class="examples"><div class='input'>
+</div><span class='co'># NOT RUN {</span>
 <span class='co'># This example is specific to SQL Server</span>
 
-<span class='co'># To instead pull data from Oracle see here </span>
+<span class='co'># To instead pull data from Oracle see here</span>
 <span class='co'># https://cran.r-project.org/web/packages/ROracle/ROracle.pdf</span>
-<span class='co'># To pull data from MySQL see here </span>
+<span class='co'># To pull data from MySQL see here</span>
 <span class='co'># https://cran.r-project.org/web/packages/RMySQL/RMySQL.pdf</span>
-<span class='co'># To pull data from Postgres see here </span>
+<span class='co'># To pull data from Postgres see here</span>
 <span class='co'># https://cran.r-project.org/web/packages/RPostgreSQL/RPostgreSQL.pdf</span>
 
 <span class='no'>connectionString</span> <span class='kw'>&lt;-</span> <span class='st'>'
@@ -188,7 +193,7 @@ database file to query from</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
@@ -196,3 +201,4 @@ database file to query from</p></td>
 
   </body>
 </html>
+

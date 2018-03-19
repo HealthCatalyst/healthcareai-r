@@ -6,11 +6,11 @@ output: html_document
 
 # Hello!
 
-This is our pkgdown homepage, which is now distinct from our readme (by default README.md would be used here.)
+This is our pkgdown homepage. If there is an index.Rmd file like this one, it will only be used as our pkgdown homepage, otherwise readme.Rmd will serve as both our readme and homepage. 
 
 This was auto-generated from an R Markdown file (`index.Rmd`), so we can include code and its outcomes.
 
-```{r}
+```{r, message = FALSE}
 library(healthcareai)
 models <- machine_learn(pima_diabetes[1:100, ], outcome = diabetes)
 plot(models)
