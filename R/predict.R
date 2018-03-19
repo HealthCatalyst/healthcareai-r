@@ -5,10 +5,10 @@
 #'   will be made on the training data. Should have the same structure as the
 #'   input to `prep_data`,`tune_models` or `train_models`. `predict` will try to
 #'   figure out if the data need to be sent through `prep_data` before making
-#'   predictions; this can be overriden by setting `prepdata = FALSE``, but this
+#'   predictions; this can be overriden by setting `prepdata = FALSE`, but this
 #'   should rarely be needed.
-#' @param prepdata Logical, rarely needs to be set by the user. By default, if
-#'   `newdata` hasn't been prepped, it will be prepped by `prep_data` before
+#' @param prepdata Logical, this should rarely be set by the user. By default,
+#'   if `newdata` hasn't been prepped, it will be prepped by `prep_data` before
 #'   predictions are made. Set this to TRUE to force already-prepped data
 #'   through `prep_data` again, or set to FALSE to prevent `newdata` from being
 #'   sent through `prep_data`.
@@ -31,7 +31,7 @@
 #'
 #' @examples
 #' # Tune models using only the first 50 rows to keep computation fast
-#' models <- machine_learn(pima_diabetes[1:50, ], diabetes)
+#' models <- machine_learn(pima_diabetes[1:50, ], outcome = diabetes)
 #' # Make prediction on the next 20 rows. This uses the best-performing model from
 #' # tuning cross validation, and it also prepares the new data in the same way as
 #' # the training data was prepared.

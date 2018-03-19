@@ -60,7 +60,9 @@
 #' @param add_levels Logical. If TRUE (defaults), "other" and "hcai_missing"
 #'   will be added to all nominal columns. This is protective in deployment: new
 #'   levels found in deployment will become "other" and missingness in
-#'   deployment can become "hcai_missing".
+#'   deployment can become "hcai_missing" if the nominal imputation method is
+#'   "new_category". If FALSE, these levels may be added to some columns
+#'   depending on details of imputation and collapse_rare_factors.
 #' @param factor_outcome Logical. If TRUE (default) and if all entries in
 #'   outcome are 0 or 1 they will be converted to factor with levels N and Y for
 #'   classification.
@@ -108,6 +110,8 @@ prep_data <- function(d,
   if (!is.data.frame(d)) {
     stop("\"d\" must be a data frame.")
   }
+  outcome <- rlang::enquo(outcome)
+  remove_outcome <- FALSE
   # Deal with "..." columns to be ignored
   ignore_columns <- rlang::quos(...)
   ignored <- purrr::map_chr(ignore_columns, rlang::quo_name)
@@ -145,6 +149,13 @@ prep_data <- function(d,
     if (length(missing_vars))
       stop("These variables were present in training but are missing or ignored here: ",
            paste(missing_vars, collapse = ", "))
+    # Outcome gets added as all NAs; set a flag to remove it at end
+    if (rlang::quo_is_missing(outcome)) {
+      outcome_var <- recipe$var_info$variable[recipe$var_info$role == "outcome"]
+      if (length(outcome_var))
+        remove_outcome <- TRUE
+    }
+
   } else {
 
     # Initialize a new recipe
@@ -152,7 +163,6 @@ prep_data <- function(d,
     ## Start by making all variables predictors...
     recipe <- recipes::recipe(d, ~ .)
     ## Then deal with outcome if present
-    outcome <- rlang::enquo(outcome)
     if (!rlang::quo_is_missing(outcome)) {
       outcome_name <- rlang::quo_name(outcome)
       if (!outcome_name %in% names(d))
@@ -264,6 +274,11 @@ prep_data <- function(d,
 
     # If there are nominal predictors, apply nominal transformations
     if (any(var_info$type == "nominal" & var_info$role == "predictor")) {
+
+      # Add protective levels --------------------------------------------------
+      if (add_levels)
+        recipe <- step_add_levels(recipe, all_nominal(), - all_outcomes())
+
       # Collapse rare factors into "other" --------------------------------------
       if (!is.logical(collapse_rare_factors)) {
         if (!is.numeric(collapse_rare_factors))
@@ -281,7 +296,7 @@ prep_data <- function(d,
                               threshold = fac_thresh)
       }
 
-      # Add protective levels --------------------------------------------------
+      # Re-add protective levels if hcai_missing dropped by step_other
       if (add_levels)
         recipe <- step_add_levels(recipe, all_nominal(), - all_outcomes())
 
@@ -307,6 +322,9 @@ prep_data <- function(d,
     warning("Removing these near-zero variance columns: ",
             paste(nzv_removed, collapse = ", "))
 
+  # Remove outcome if recipe was provided but outcome not present
+  if (remove_outcome && outcome_var %in% names(d))
+    d <- d[, -which(names(d) == outcome_var), drop = FALSE]
   # Add ignore columns back in and attach as attribute to recipe
   d <- dplyr::bind_cols(d_ignore, d)
   attr(recipe, "ignored_columns") <- unname(ignored)
@@ -314,7 +332,6 @@ prep_data <- function(d,
   d <- tibble::as_tibble(d)
   class(d) <- c("hcai_prepped_df", class(d))
 
-  # TODO: Remove unused factor levels with droplevels. (MAYBE)
   return(d)
 }
 

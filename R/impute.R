@@ -38,9 +38,7 @@
 #' @importFrom purrr map_chr
 #'
 #' @examples
-#' library(recipes)
 #' d <- pima_diabetes
-#'
 #' d_train <- d[1:700, ]
 #' d_test <- d[701:768, ]
 #' # Train imputer

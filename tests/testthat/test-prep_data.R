@@ -410,6 +410,12 @@ test_that("add_levels doesn't add levels to outcome", {
   expect_false(any(c("other", "hcai_missing") %in% levels(pd$x)))
 })
 
+test_that("prep_data respects add_levels = FALSE", {
+  d <- data.frame(x = c("A", "B"), y = 1:2)
+  pd <- prep_data(d, add_levels = FALSE, make_dummies = FALSE, impute = FALSE)
+  expect_false(any(c("other", "hcai_missing") %in% levels(pd$x)))
+})
+
 test_that("If outcome to prep_data is or looks like logical, get informative error", {
   d_train <- d_train %>% mutate(is_ween = is_ween == "Y")
   expect_error(prep_data(d_train, outcome = is_ween), "logical")
@@ -420,4 +426,24 @@ test_that("If outcome to prep_data is or looks like logical, get informative err
 test_that("prep_data leaves newly created dummies as 0/1", {
   d <- data.frame(x = 1:10, y = rep(letters[1:2], len = 10))
   expect_true(all(prep_data(d, center = TRUE, scale = TRUE)[["y_b"]] %in% 0:1))
+})
+
+test_that("If recipe provided but no outcome column, NA-outcome column isn't created", {
+  expect_false("is_ween" %in% names(
+    prep_data(dplyr::select(d_test, -is_ween), song_id, recipe = attr(d_prep, "recipe"))
+  ))
+})
+
+test_that("predict regression with prep doesn't choke without outcome", {
+  prep_data(pima_diabetes[1:50, ], outcome = age) %>%
+    tune_models(age, models = "rf") %>%
+    predict(dplyr::select(pima_diabetes[51:55, ], -age)) %>%
+    expect_s3_class("hcai_predicted_df")
+})
+
+test_that("predict classification with prep doesn't choke without outcome", {
+  prep_data(pima_diabetes[1:50, ], outcome = diabetes) %>%
+    tune_models(diabetes, models = "rf") %>%
+    predict(dplyr::select(pima_diabetes[51:55, ], -diabetes)) %>%
+    expect_s3_class("hcai_predicted_df")
 })
