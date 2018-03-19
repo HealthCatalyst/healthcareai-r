@@ -60,7 +60,7 @@ test_that("connection can be made using built string and dbplyr", {
 
 
 # Read from Database ---------------------------
-context("Checking that write to database works")
+context("Checking that read to database works")
 library(dplyr)
 
 cs <- build_connection_string(server = "localhost",

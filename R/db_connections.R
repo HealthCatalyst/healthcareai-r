@@ -28,17 +28,19 @@
 #'
 build_connection_string <- function(server,
                                     driver = "SQL Server",
-                                    database = NA,
+                                    database,
                                     trusted=TRUE,
-                                    user_id = NA,
-                                    password = NA) {
+                                    user_id,
+                                    password) {
   # Error checks
   if (!is.character(server)) {
     stop("You must provide a quoted server name")
   }
 
+  if (missing(database)) database = NA
+
   # Change trusted to false if user/pass are provided
-  if (!is.na(user_id) & !is.na(password)) {
+  if (!missing(user_id) & !missing(password)) {
     trusted <- FALSE
   }
 
@@ -54,7 +56,7 @@ build_connection_string <- function(server,
   if (rlang::is_true(trusted)) {
     con_str <- paste0(con_str,
                       "trusted_connection=true;")
-  } else if (!is.na(user_id) & !is.na(password)) {
+  } else if (!missing(user_id) & !missing(password)) {
     con_str <- paste0(con_str,
                       "uid=", user_id, ";",
                       "pwd=", password, ";")
@@ -74,7 +76,7 @@ build_connection_string <- function(server,
 #' against the database you are connected to.
 #' @param pull_into_memory Logical, optional, defaults to TRUE. If FALSE,
 #' \code{db_read} will create a reference to the queried data rather than
-#' pulling into memory.
+#' pulling into memory. Set to FALSE for very large tables.
 #' @details Use \code{pull_into_memory} when working with large tables.
 #' Rather than returning the data into memory, this
 #' function will return a reference to the specified query. It will be executed
@@ -85,13 +87,15 @@ build_connection_string <- function(server,
 #' @export
 #' @examples
 #' \dontrun{
-#' my_con <- build_connection_string(server = "localhost",
-#'                                   database = "myDB")
-#' con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs)
-#' d <- db_read(con, "SELECT * FROM my_table)
+#' my_con <- build_connection_string(server = "HPHI-EDWDEV")
+#' con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con)
+#' d <- db_read(con,
+#'              "SELECT TOP 10 * FROM [Shared].[Cost].[FacilityAccountCost]")
 #'
-#' # Get a reference and collect later # nolint
-#' ref <- db_read(con, "SELECT * FROM my_table, pull_into_memory = FALSE)
+#' # Get a reference and collect later
+#' ref <- db_read(con,
+#'                "SELECT TOP 10 * FROM [Shared].[Cost].[FacilityAccountCost]",
+#'                pull_into_memory = FALSE)
 #' d <- collect(ref)
 #' }
 #'
@@ -141,17 +145,19 @@ add_SAM_utility_cols <- function(d) {
 #' @title
 #' Depreciated. See \code{\link{db_read}}
 #' @description Removed in v2.0.0
+#' @param ... Garbage collector
 #' @export
 #'
-selectData <- function() {
-  stop("This function was depreciated.")
+selectData <- function(...) {
+  stop("This function was depreciated. Use db_read")
 }
 
 #' @title
 #' Depreciated.
 #' @description Removed in v2.0.0
+#' @param ... Garbage collector
 #' @export
 #'
-writeData <- function() {
-  stop("This function was depreciated.")
+writeData <- function(...) {
+  stop("This function was depreciated. See vignettes for use of DBI or RODBC.")
 }

@@ -4,7 +4,10 @@
 \alias{selectData}
 \title{Depreciated. See \code{\link{db_read}}}
 \usage{
-selectData()
+selectData(...)
+}
+\arguments{
+\item{...}{Garbage collector}
 }
 \description{
 Removed in v2.0.0

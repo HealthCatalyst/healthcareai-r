@@ -4,7 +4,10 @@
 \alias{writeData}
 \title{Depreciated.}
 \usage{
-writeData()
+writeData(...)
+}
+\arguments{
+\item{...}{Garbage collector}
 }
 \description{
 Removed in v2.0.0
