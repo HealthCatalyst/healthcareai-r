@@ -5,7 +5,7 @@
 \title{Clean NA values from categorical/nominal variables}
 \usage{
 step_hcai_missing(recipe, ..., role = NA, trained = FALSE,
-  na_percentage = NULL)
+  na_percentage = NULL, skip = FALSE)
 }
 \arguments{
 \item{recipe}{A recipe object. The step will be added to the sequence of
@@ -21,6 +21,9 @@ counted in preprocessing.}
 
 \item{na_percentage}{A named numeric vector of NA percentages. This
 is \code{NULL} until computed by \code{prep.recipe()}.}
+
+\item{skip}{A logical. Should the step be skipped when the
+recipe is baked?}
 }
 \value{
 An updated version of \code{recipe} with the new step
@@ -39,16 +42,14 @@ NA values are counted when the recipe is trained using
 the new data.
 }
 \examples{
-library(healthcareai)
-library(tibble)
 library(recipes)
 n = 100
-d <- tibble(encounter_id = 1:n,
-            patient_id = sample(1:20, size = n, replace = TRUE),
-            hemoglobin_count = rnorm(n, mean = 15, sd = 1),
-            hemoglobin_category = sample(c("Low", "Normal", "High", NA),
-                                         size = n, replace = TRUE),
-            disease = ifelse(hemoglobin_count < 15, "Yes", "No")
+d <- tibble::tibble(encounter_id = 1:n,
+                    patient_id = sample(1:20, size = n, replace = TRUE),
+                    hemoglobin_count = rnorm(n, mean = 15, sd = 1),
+                    hemoglobin_category = sample(c("Low", "Normal", "High", NA),
+                                                 size = n, replace = TRUE),
+                    disease = ifelse(hemoglobin_count < 15, "Yes", "No")
 )
 
 # Initialize
@@ -64,5 +65,4 @@ trained_recipe <- prep(my_recipe, training = d)
 
 # Apply recipe
 data_modified <- bake(trained_recipe, newdata = d)
-
 }

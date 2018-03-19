@@ -3,9 +3,10 @@
 #' @description Prepare data and train machine learning models.
 #'
 #' @param d A data frame
+#' @param ... Columns to be ignored in model training, e.g. ID columns,
+#'   unquoted.
 #' @param outcome Name of the target column, i.e. what you want to predict.
-#'   Unquoted.
-#' @param ... Identifier columns not to be used in model training, unquoted
+#'   Unquoted. Must be named, i.e. you must specify \code{outcome = }
 #' @param models Models to be trained, k-nearest neighbors and random forest by
 #'   default. See \code{\link{supported_models}} for details.
 #' @param impute Logical, if TRUE (default) missing values will be filled by
@@ -27,7 +28,7 @@
 #' ### Classification ###
 #'
 #' # Clean and prep the data, tune algorithms over hyperparameter values to predict diabetes
-#' models <- machine_learn(training_data, diabetes)
+#' models <- machine_learn(training_data, outcome = diabetes)
 #'
 #' # Make predictions (predicted probability of diabetes) on test data
 #' predict(models, test_data)
@@ -35,20 +36,15 @@
 #' ### Regression ###
 #'
 #' # Predict numeric outcomes simply by specifying the name of the outcome variable
-#' age_model <- machine_learn(training_data, age)
+#' age_model <- machine_learn(training_data, outcome = age)
 #'
 #' # If new data isn't specifed, get predictions on training data
 #' predict(age_model)
-machine_learn <- function(d, outcome, ..., models = c("rf", "knn"), impute = TRUE) {
+machine_learn <- function(d, ..., outcome, models = c("rf", "knn"), impute = TRUE) {
+
   if (!is.data.frame(d))
     stop("\"d\" must be a data frame.")
-  outcome <- rlang::enquo(outcome)
-  if (rlang::quo_is_missing(outcome))
-    stop("You must provide an outcome variable to machine_learn.")
-  outcome_chr <- rlang::quo_name(outcome)
-  if (!outcome_chr %in% names(d))
-    stop("You passed ", outcome_chr, " to the outcome argument of machine_learn,",
-         "but that isn't a column in d.")
+
   dots <- rlang::quos(...)
   ignored <- map_chr(dots, rlang::quo_name)
   if (length(ignored)) {
@@ -58,6 +54,18 @@ machine_learn <- function(d, outcome, ..., models = c("rf", "knn"), impute = TRU
            " but are not the names of columns in the data frame: ",
            paste(not_there, collapse = ", "))
   }
+
+  outcome <- rlang::enquo(outcome)
+  if (rlang::quo_is_missing(outcome)) {
+    mes <- "You must provide an outcome variable to machine_learn."
+    if (length(ignored))
+      mes <- paste(mes, "Did you forget to specify `outcome = `?")
+    stop(mes)
+  }
+  outcome_chr <- rlang::quo_name(outcome)
+  if (!outcome_chr %in% names(d))
+    stop("You passed ", outcome_chr, " to the outcome argument of machine_learn,",
+         "but that isn't a column in d.")
 
   d %>%
     prep_data(!!!dots, outcome = !!outcome, impute = impute) %>%
