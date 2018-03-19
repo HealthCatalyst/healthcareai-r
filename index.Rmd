@@ -1,0 +1,18 @@
+---
+title: "healthcare.ai"
+author: "seems to be ignored"
+output: html_document
+---
+
+# Hello!
+
+This is our pkgdown homepage, which is now distinct from our readme (by default README.md would be used here.)
+
+This was auto-generated from an R Markdown file (`index.Rmd`), so we can include code and its outcomes.
+
+```{r}
+library(healthcareai)
+models <- machine_learn(pima_diabetes[1:100, ], outcome = diabetes)
+plot(models)
+```
+
