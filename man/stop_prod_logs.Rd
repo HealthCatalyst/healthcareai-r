@@ -7,7 +7,7 @@
 stop_prod_logs()
 }
 \description{
-Stops all console logging. This is meant to be used in 
+Stops all console logging. This is meant to be used in
 production to monitor console output on ETL servers.
 }
 \seealso{

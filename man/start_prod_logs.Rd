@@ -7,13 +7,14 @@
 start_prod_logs()
 }
 \description{
-Logs all console messages and output to a timestamped file 
-called, "deployConsoleLog..." in the working directory. This is meant to be 
+Logs all console messages and output to a timestamped file
+called, "deployConsoleLog..." in the working directory. This is meant to be
 used in production to monitor console output on ETL servers.
 }
 \examples{
 # Object Attribute Base should contain a script like this:
-# Move to working directory 
+# Move to working directory
+\dontrun{
 # setwd("Prod Server/Machine Learning/MyProject")
 
 # Start console logging
@@ -28,6 +29,7 @@ catalyst_test_deploy_in_prod()
 
 # Stop console logging
 stop_prod_logs()
+}
 }
 \seealso{
 \code{\link{stop_prod_logs}}
