@@ -103,15 +103,19 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
       # Check for missingness not present in training and warn if present
       missing_train <- missingness(recipe$template, return_df = FALSE) %>% .[. > 0] %>% names()
       missing_now <- missingness(newdata, return_df = FALSE) %>% .[. > 0] %>% names()
-      # Don't care about missingness in the outcome
+        # Don't care about missingness in the outcome
       new_missing <- dplyr::setdiff(missing_now, c(missing_train, mi$target))
       if (length(new_missing))
         warning("The following variables have missingness that was not present in model training: ",
                 paste(new_missing, collapse = ", "))
-
       # Check for new levels in factors not present in training and warn if present
-
-
+      new_levels <-
+        find_new_levels(newdata, recipe$template) %>%
+        format_new_levels()
+      if (length(new_levels))
+        warning("The following variables(s) had the following value(s) in ",
+                "predict that were not observed in training. ", new_levels)
+      # Make predictions
       prep_data(newdata, recipe = recipe) %>%
         caret::predict.train(best_models, ., type = type)
     } else {
@@ -120,7 +124,6 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
       # Pull off columns not used in prediction, but leave newdata alone for return
       to_pred <- newdata[, names(newdata) %in% names(td), drop = FALSE]
       # Check for no missingness
-
       has_missing <- missingness(to_pred, FALSE) > 0
       if (any(has_missing))
         stop("The following variables have missingness that needs to be ",
