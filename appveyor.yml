@@ -14,8 +14,11 @@ cache:
   - C:\RLibrary
 
 # Adapt as necessary starting from here
+services:
+  - mssql2012sp1
 
 build_script:
+  - ps: iex .\inst\CIDatabase\CIBuild_DBCreate.ps1
   - travis-tool.sh install_deps
 
 test_script:

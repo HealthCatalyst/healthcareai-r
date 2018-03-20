@@ -1,2 +1,2 @@
 linters: with_defaults(camel_case_linter = NULL, line_length_linter = NULL, object_usage_linter = NULL)
-exclusions: list("R/db_connections.R", "R/limone.R", "R/logging.R", "tests/testthat/test-write-data.r", "tests/testthat/test-select-data.r")
+exclusions: list("R/limone.R", "R/logging.R")
