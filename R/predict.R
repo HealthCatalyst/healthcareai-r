@@ -42,6 +42,8 @@
 predict.model_list <- function(object, newdata, prepdata, ...) {
   mi <- extract_model_info(object)
   best_models <- object[[mi$best_model_name]]
+
+  # If newdata not provided, pull training data from object and prepare it
   if (missing(newdata)) {
     newdata <-
       best_models$trainingData %>%
@@ -54,15 +56,20 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
   }
   if (!inherits(newdata, "data.frame"))
     stop("newdata must be a data frame")
+
   # If prepdata provided by user; follow that. Else, prep if newdata hasn't been
   # and the variables used to tune models aren't present.
   prep <-
     if (!missing(prepdata)) {
       prepdata
     } else {
+      # If there's a recipe, it looks like prep is needed
       needs_prep <- "recipe" %in% names(attributes(object))
+      # If newdata has prepped signature, then prepping definitely isn't needed
       been_prepped <- inherits(newdata, "hcai_prepped_df")
-      # If going to prep; check if it looks like it has been and warn if so
+      # If data was prepped in training and newdata doesn't appear to have been prepped,
+      # then we will prep, but check to see if it looks like newdata has already been
+      # and issue a warning if so
       if (needs_prep && !been_prepped) {
         trainvars <- get_classes_sorted(dplyr::select(best_models$trainingData, -.outcome)) # nolint
         predvars <- get_classes_sorted(dplyr::select(newdata, -which(names(newdata) == mi$target)))
