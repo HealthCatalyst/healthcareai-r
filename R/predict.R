@@ -40,6 +40,8 @@
 #' ggplot(predictions, aes(x = predicted_diabetes, fill = diabetes)) +
 #'   geom_density(alpha = .5)
 predict.model_list <- function(object, newdata, prepdata, ...) {
+
+  # Pull info
   mi <- extract_model_info(object)
   best_models <- object[[mi$best_model_name]]
 
@@ -58,7 +60,7 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
     stop("newdata must be a data frame")
 
   # If prepdata provided by user; follow that. Else, prep if newdata hasn't been
-  # and the variables used to tune models aren't present.
+  # prepped and the variables used to tune models aren't present.
   prep <-
     if (!missing(prepdata)) {
       prepdata
@@ -90,12 +92,26 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
 
   # If classification, want probabilities. If regression, raw's the only option
   type <- if (is.classification_list(object)) "prob" else "raw"
+
   # This bit of repition avoids copying newdata if it's not being prepped
   preds <-
     if (prep) {
       recipe <- attr(object, "recipe")
       if (is.null(recipe))
         stop("Can't prep data in prediction without a recipe from training data.")
+
+      # Check for missingness not present in training and warn if present
+      missing_train <- missingness(recipe$template, return_df = FALSE) %>% .[. > 0] %>% names()
+      missing_now <- missingness(newdata, return_df = FALSE) %>% .[. > 0] %>% names()
+      # Don't care about missingness in the outcome
+      new_missing <- dplyr::setdiff(missing_now, c(missing_train, mi$target))
+      if (length(new_missing))
+        warning("The following variables have missingness that was not present in model training: ",
+                paste(new_missing, collapse = ", "))
+
+      # Check for new levels in factors not present in training and warn if present
+
+
       prep_data(newdata, recipe = recipe) %>%
         caret::predict.train(best_models, ., type = type)
     } else {
@@ -104,6 +120,7 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
       # Pull off columns not used in prediction, but leave newdata alone for return
       to_pred <- newdata[, names(newdata) %in% names(td), drop = FALSE]
       # Check for no missingness
+
       has_missing <- missingness(to_pred, FALSE) > 0
       if (any(has_missing))
         stop("The following variables have missingness that needs to be ",
@@ -122,7 +139,8 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
       to_pred %>%
         caret::predict.train(best_models, ., type = type)
     }
-  # Probs get returned for no and yes. Take just positive class in 2nd column
+
+  # Probs get returned for no and yes. Take just positive class from 2nd column
   if (is.data.frame(preds))
     preds <- preds[, 2]
   pred_name <- paste0("predicted_", mi$target)
@@ -132,6 +150,7 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
   newdata <- dplyr::select(newdata, pred_name, dplyr::everything())
   if (mi$target %in% names(newdata))
       newdata <- dplyr::select(newdata, mi$target, dplyr::everything())
+  # Add class and attributes to data frame
   class(newdata) <- c("hcai_predicted_df", class(newdata))
   attr(newdata, "model_info") <-
     list(target = mi$target,
