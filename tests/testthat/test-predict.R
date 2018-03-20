@@ -129,10 +129,13 @@ test_that("predict handles new levels on model_list from prep_data", {
 })
 
 test_that("predict handles missingness where unobserved in training prep_data", {
-  expect_s3_class(predict(model_regression_prepped, test_data_new_missing), "hcai_predicted_df")
+  expect_warning(preds <- predict(model_regression_prepped, test_data_new_missing))
+  expect_s3_class(preds, "hcai_predicted_df")
 })
 
 test_that("predict doesn't need columns ignored in training", {
+  # expect_warning just catches an expected warning. The real test here is that
+  # the code doesn't error.
   expect_warning(predict(model_classify_prepped,
                          dplyr::select(test_data, -province)))
 })
@@ -148,3 +151,5 @@ test_that("Warnings are issued if there is new missingness in predict", {
   expect_warning(predict(model_regression_prepped, test_data_new_missing),
                  "Agriculture")
 })
+
+# What about ID columns?
