@@ -33,16 +33,15 @@ build_connection_string <- function(server,
                                     user_id,
                                     password) {
   # Error checks
-  if (!is.character(server)) {
+  if (!is.character(server))
     stop("You must provide a quoted server name")
-  }
 
-  if (missing(database)) database = NA
+  if (missing(database))
+    database = NA
 
   # Change trusted to false if user/pass are provided
-  if (!missing(user_id) & !missing(password)) {
+  if (!missing(user_id) & !missing(password))
     trusted <- FALSE
-  }
 
   # Build connection string
   con_str <- paste0("driver={", driver, "};",
