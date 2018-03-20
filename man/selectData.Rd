@@ -2,63 +2,13 @@
 % Please edit documentation in R/db_connections.R
 \name{selectData}
 \alias{selectData}
-\title{Pull data into R via an ODBC connection}
+\title{Depreciated. See \code{\link{db_read}}}
 \usage{
-selectData(MSSQLConnectionString = NULL, query, SQLiteFileName = NULL,
-  randomize = FALSE)
+selectData(...)
 }
 \arguments{
-\item{MSSQLConnectionString}{A string specifying the driver, server,
-database, and whether Windows Authentication will be used.}
-
-\item{query}{The SQL query (in ticks or quotes)}
-
-\item{SQLiteFileName}{A string. If dbtype is SQLite, here one specifies the
-database file to query from}
-
-\item{randomize}{Boolean that dictates whether returned rows are randomized}
-}
-\value{
-df A data frame containing the selected rows
+\item{...}{Garbage collector}
 }
 \description{
-Select data from an ODBC database and return the results as
-a data frame.
-}
-\examples{
-
-\dontrun{
-# This example is specific to SQL Server
-
-# To instead pull data from Oracle see here
-# https://cran.r-project.org/web/packages/ROracle/ROracle.pdf
-# To pull data from MySQL see here
-# https://cran.r-project.org/web/packages/RMySQL/RMySQL.pdf
-# To pull data from Postgres see here
-# https://cran.r-project.org/web/packages/RPostgreSQL/RPostgreSQL.pdf
-
-connectionString <- '
-  driver={SQL Server};
-  server=localhost;
-  database=SAM;
-  trustedConnection=true
-  '
-
-query <- '
-  SELECT
-    A1CNBR
-  FROM SAM.dbo.HCRDiabetesClinical
-  '
-
-df <- selectData(connectionString, query)
-head(df)
-}
-}
-\references{
-\url{http://healthcareai-r.readthedocs.io}
-}
-\seealso{
-\code{\link{healthcareai}}
-
-\code{\link{writeData}}
+Removed in v2.0.0
 }
