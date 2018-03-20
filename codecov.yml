@@ -9,7 +9,7 @@ coverage:
     changes: off
 
 comment:
-  layout: "header, diff"
+  layout: "header, diff, grid"
   behavior: default
   require_changes: false
 
