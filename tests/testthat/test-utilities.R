@@ -36,3 +36,9 @@ test_that("find_new_levels finds NAs", {
   expect_equal(1, sum(is.na(find_new_levels(dd, ddd)$z)))
   expect_false(any(is.na(find_new_levels(ddd, dd)$z)))
 })
+
+test_that("new columns are ignored by find_new_levels", {
+  d1 <- data.frame(x = c("a", "b"))
+  d2 <- data.frame(x = c("a", "b"), y = c("c", "d"))
+  expect_false("y" %in% names(find_new_levels(d2, d1)))
+})

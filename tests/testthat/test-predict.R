@@ -125,7 +125,8 @@ test_that("predict can handle binary character non Y/N columns", {
 })
 
 test_that("predict handles new levels on model_list from prep_data", {
-  expect_s3_class(predict(model_regression_prepped, test_data_newlevel), "hcai_predicted_df")
+  expect_warning(preds <- predict(model_regression_prepped, test_data_newlevel))
+  expect_s3_class(preds, "hcai_predicted_df")
 })
 
 test_that("predict handles missingness where unobserved in training prep_data", {
@@ -145,11 +146,14 @@ test_that("Warnings are issued if new factor levels are present in prediction", 
                  "another new level")
 })
 
+test_that("Warnings are not issued for new levels in ignored columns", {
+  warnings <- capture_warnings(predict(model_classify_prepped, test_data))
+  expect_false(any(purrr::map_lgl(warnings, ~ grepl("province", .x))))
+})
+
 test_that("Warnings are issued if there is new missingness in predict", {
   expect_warning(predict(model_classify_prepped, test_data_new_missing),
                  "Agriculture")
   expect_warning(predict(model_regression_prepped, test_data_new_missing),
                  "Agriculture")
 })
-
-# What about ID columns?

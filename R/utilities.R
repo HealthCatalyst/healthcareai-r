@@ -35,8 +35,10 @@ skip_on_not_appveyor <- function() {
 #' @return A list, of length zero if all observed character values/factor levels
 #'   in new_df were observed in ref_df, otherwise with names of variable names
 #'   and character vectors of previously unobserved values.
+#'   Variables in new_df not present in ref_df are ignored.
 #' @noRd
 find_new_levels <- function(new_df, ref_df) {
+  new_df <- new_df[, names(new_df) %in% names(ref_df), drop = FALSE]
   levs <-
     dplyr::select_if(new_df, ~ !is.numeric(.x)) %>%
     purrr::map(~ unique(.x))
