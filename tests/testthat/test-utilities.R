@@ -21,3 +21,8 @@ test_that("missing_check returns TRUE if no missingness in quo'd var", {
 test_that("missing_check returns TRUE if there isn't missingness in str var", {
   expect_true(missing_check(dd, "x"))
 })
+
+test_that("skip_on_not_appveyor returns false when not on appveyor", {
+  skip_on_appveyor()
+  expect_error(skip_on_not_appveyor())
+})
