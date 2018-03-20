@@ -37,7 +37,7 @@ build_connection_string <- function(server,
     stop("You must provide a quoted server name")
 
   if (missing(database))
-    database = NA
+    database <- NA
 
   # Change trusted to false if user/pass are provided
   if (!missing(user_id) & !missing(password))
