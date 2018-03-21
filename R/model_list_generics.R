@@ -204,19 +204,3 @@ is.classification_list <- function(x) "classification_list" %in% class(x)
 #' @return logical
 #' @export
 is.regression_list <- function(x) "regression_list" %in% class(x)
-
-#' Modify model object if PR. Otherwise, return as is.
-#' @param m model_list
-#' @return model_list
-#' @noRd
-change_pr_metric <- function(m) {
-  # PR was used
-  if (m[[1]]$metric == "AUC") {
-    m <- purrr::map(m, function(x) {
-      x$metric <- "PR"
-      names(x$results)[names(x$results) == "AUC"] <- "PR"
-      return(x)
-    })
-  }
-  return(m)
-}
