@@ -106,9 +106,9 @@ ready_with_prep <- function(object, newdata, mi = extract_model_info(object)) {
 
   # Check for new levels in factors not present in training and warn if present
   new_levels <- find_new_levels(newdata, attr(recipe, "factor_levels"))
-  # Don't check ignored columns
+  # Don't check ignored columns. NAs are checked in prep_data
   new_levels <- new_levels[!names(new_levels) %in% attr(recipe, "ignored_columns")] %>%
-    format_new_levels()
+    format_new_levels(remove_nas = TRUE)
   if (length(new_levels))
     warning("The following variables(s) had the following value(s) in ",
             "predict that were not observed in training. ",

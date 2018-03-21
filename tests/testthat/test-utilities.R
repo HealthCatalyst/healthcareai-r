@@ -50,3 +50,9 @@ test_that("find_new_levels works with list of levels from get_factor_levels", {
   expect_equal(a, b)
   expect_equal(a, c)
 })
+
+test_that("format_new_levels respects remove_nas", {
+  with_na <- find_new_levels(dd, ddd)
+  expect_true(grepl("NA", format_new_levels(with_na, remove_nas = FALSE)))
+  expect_false(grepl("NA", format_new_levels(with_na, remove_nas = TRUE)))
+})

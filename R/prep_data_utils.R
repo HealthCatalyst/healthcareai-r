@@ -64,4 +64,3 @@ find_new_missingness <- function(d, recipe) {
   new_missing <- dplyr::setdiff(missing_now, missing_then)
   return(dplyr::intersect(new_missing, predictors))
 }
-

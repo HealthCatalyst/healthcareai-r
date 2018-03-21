@@ -42,14 +42,19 @@ get_factor_levels <- function(d) {
 }
 
 #' Take list of character vectors as from find_new_levels and format for
-#' printing
+#' printing. Removes length-0 items from the list, and optionally removes NAs
+#' from character vectors.
 #'
 #' @return character vector
 #' @noRd
-format_new_levels <- function(new_levels) {
+format_new_levels <- function(new_levels, remove_nas = FALSE) {
   purrr::map(names(new_levels), ~ {
-    if (!length(new_levels[[.x]])) return(NULL) else
-      paste0("\n\t", .x, ": ", paste(new_levels[[.x]], collapse = ", "))
+    if (!length(new_levels[[.x]])) return(NULL) else {
+      levs <- new_levels[[.x]]
+      if (remove_nas)
+        levs <- levs[!is.na(levs)]
+      paste0("\n\t", .x, ": ", paste(levs, collapse = ", "))
+    }
   }) %>%
     purrr::flatten()
 }
