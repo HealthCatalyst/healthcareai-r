@@ -64,3 +64,11 @@ find_new_missingness <- function(d, recipe) {
   new_missing <- dplyr::setdiff(missing_now, missing_then)
   return(dplyr::intersect(new_missing, predictors))
 }
+
+#' ID factors as not-numeric and not-date. Find unique values in them.
+#' @noRd
+get_factor_levels <- function(d) {
+  not_factors <- dplyr::union(names(d)[purrr::map_lgl(d, ~ is.numeric(.x))], find_date_cols(d))
+  d <- d[, !names(d) %in% not_factors, drop = FALSE]
+  lapply(d, function(x) na.omit(as.character(unique(x))))
+}

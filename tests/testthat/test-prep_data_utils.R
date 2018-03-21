@@ -66,3 +66,18 @@ test_that("find_new_missingness doesn't return ignore or outcome columns", {
   d$song_id <- NULL
   expect_equal(0, length(find_new_missingness(d, attr(pd, "recipe"))))
 })
+
+test_that("get_factor_levels works when just one factor", {
+  fl <- get_factor_levels(d)
+  expect_equal("list", class(fl))
+  expect_equal("reaction", names(fl))
+  expect_setequal(as.character(d$reaction), sort(fl$reaction))
+})
+
+test_that("get_factor_levels works on character and factors", {
+  pfl <- get_factor_levels(pima_diabetes)
+  expect_equal("list", class(pfl))
+  expect_equal(c("weight_class", "diabetes"), names(pfl))
+  expect_setequal(as.character(pima_diabetes$weight_class), pfl$weight_class)
+  expect_setequal(as.character(pima_diabetes$diabetes), pfl$diabetes)
+})
