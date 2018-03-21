@@ -59,3 +59,25 @@ format_new_levels <- function(new_levels) {
   }) %>%
     purrr::flatten()
 }
+
+#' Modify model object or predicted DF if PR. Otherwise, return as is.
+#' @param object model_list
+#' @return model_list
+#' @noRd
+change_pr_metric <- function(object) {
+  if (is.model_list(object)) {
+    # AUC is caret's code for PR
+    if (object[[1]]$metric == "AUC") {
+      object <-
+        purrr::map(object, function(x) {
+          x$metric <- "PR"
+          names(x$results)[names(x$results) == "AUC"] <- "PR"
+          return(x)
+        })
+    }
+  } else if (is.hcai_predicted_df(object)) {
+    if (attr(object, "model_info")$metric == "AUC")
+      attr(object, "model_info")$metric <- "PR"
+  }
+  return(object)
+}

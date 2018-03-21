@@ -165,6 +165,12 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
   return(newdata)
 }
 
+#' Class check
+#' @param x object
+#' @return logical
+#' @export
+is.hcai_predicted_df <- function(x) "hcai_predicted_df" %in% class(x)
+
 #' Summary method for predicted data frame
 #' @export
 #' @param d data frame from `predict.model_list`
@@ -203,4 +209,21 @@ compare_dfs <- function(training, predicting) {
     training_only = dplyr::anti_join(t_vars, p_vars, by = c("variable", "is_numeric"))[["variable"]],
     predicting_only = dplyr::anti_join(p_vars, t_vars, by = c("variable", "is_numeric"))[["variable"]]
   )
+}
+
+# print method for predicted data frame
+#' @export
+print.hcai_predicted_df <- function(x, ...) {
+  x <- change_pr_metric(x)
+  mi <- attr(x, "model_info")
+  mes <- paste0("healthcareai-predicted data. Column \"predicted_",
+                mi$target, "\" predicted by ",
+                mi$algorithm, " tuned on ", mi$metric,
+                ". Performance in training: ", mi$metric, " = ",
+                round(mi$performance, 2), ".\n")
+  message(mes)
+  # Avoid dispatching print.hcai_prepped_df:
+  y <- structure(x, class = class(x)[!stringr::str_detect(class(x), "^hcai")])
+  print(y)
+  return(invisible(x))
 }
