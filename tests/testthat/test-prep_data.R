@@ -400,7 +400,7 @@ test_that("hcai_missing and other are added to all nominal columns", {
                           has_rare = c(rep(NA, 10), rep("b", 20)),
                           has_both = c("rare", rep("common", 29)),
                           has_neither = c("rare", NA, rep("common", 28)))
-  scrambled_prep <- prep_data(scrambled, recipe = attr(pd, "recipe"))
+  suppressWarnings(scrambled_prep <- prep_data(scrambled, recipe = attr(pd, "recipe")))
   expect_true(all(purrr::map_lgl(scrambled_prep, ~ all(c("other", "hcai_missing") %in% levels(.x)))))
 })
 
@@ -446,4 +446,15 @@ test_that("predict classification with prep doesn't choke without outcome", {
     tune_models(diabetes, models = "rf") %>%
     predict(dplyr::select(pima_diabetes[51:55, ], -diabetes)) %>%
     expect_s3_class("hcai_predicted_df")
+})
+
+test_that("prep_data attaches missingness to recipe as attribute", {
+  expect_true("missingness" %in% names(attributes(attr(d_prep, "recipe"))))
+  expect_equal(attr(attr(d_prep, "recipe"), "missingness"),
+               missingness(d_train, return_df = FALSE))
+})
+
+test_that("prep_data warns when there's missingness in a column that didn't have missingness in training", {
+  d_test$guitar_flag[1] <- NA
+  expect_warning(prep_data(d_test, recipe = d_prep), "guitar_flag")
 })
