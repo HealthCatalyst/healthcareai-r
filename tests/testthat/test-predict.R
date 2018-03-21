@@ -223,3 +223,48 @@ test_that("determine_prep warns when hcai_prepped_df class stripped from newdata
   expect_warning(need_prep <- determine_prep(model_regression_prepped, test_data_reg_prep), "prep")
   expect_true(need_prep)
 })
+
+test_that("ready_no_prep preps appropriately", {
+  prepped <- ready_no_prep(model_regression_not_prepped[[1]]$trainingData, test_data)
+  expect_s3_class(prepped, "data.frame")
+  tr_names <- setdiff(names(model_regression_not_prepped[[1]]$trainingData), ".outcome")
+  expect_setequal(names(prepped), tr_names)
+})
+
+test_that("ready_no_prep stops for missingness but not in outcome", {
+  test_data$Fertility[1] <- NA
+  expect_s3_class(ready_no_prep(model_regression_not_prepped[[1]]$trainingData, test_data),
+                  "data.frame")
+  test_data$Agriculture[1] <- NA
+  expect_error(ready_no_prep(model_regression_not_prepped[[1]]$trainingData, test_data),
+               "missing")
+})
+
+test_that("ready_no_prep stops informatively for new factor levels", {
+  test_data$Catholic[1] <- "that's weird"
+  expect_error(ready_no_prep(model_regression_not_prepped[[1]]$trainingData, test_data),
+               "Catholic: that's weird")
+})
+
+test_that("ready_with_prep preps appropriately", {
+  prepped <- ready_with_prep(model_regression_prepped, test_data)
+  expect_s3_class(prepped, "data.frame")
+  predictors <-
+    model_regression_prepped$`Random Forest`$trainingData %>%
+    names() %>%
+    .[. != ".outcome"]
+  expect_setequal(names(prepped), predictors)
+})
+
+test_that("ready_with_prep warns for new missingness but not in outcome", {
+  test_data$Fertility[1] <- NA
+  expect_s3_class(ready_with_prep(model_regression_prepped, test_data), "data.frame")
+  test_data$Agriculture[1] <- NA
+  expect_warning(ready_with_prep(model_regression_prepped, test_data), "missing")
+})
+
+test_that("ready_with_prep warns for new factor levels (via prep_data)", {
+  test_data$Catholic[1] <- "that's weird"
+  expect_warning(ready_with_prep(model_regression_prepped, test_data),
+                 "Catholic: that's weird")
+})

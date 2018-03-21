@@ -72,3 +72,47 @@ determine_prep <- function(object, newdata, mi = extract_model_info(object)) {
     return(TRUE)
   }
 }
+
+#' When not prepping in predict, check that prediction will work
+#' @noRd
+ready_no_prep <- function(training_data, newdata) {
+  # Select variables to be used in prediction:
+  training_data <- dplyr::select(training_data, -.outcome)
+  to_pred <- newdata[, names(newdata) %in% names(training_data), drop = FALSE]
+  # Check for no missingness
+  has_missing <- missingness(to_pred, FALSE) > 0
+  if (any(has_missing))
+    stop("The following variables have missingness that needs to be ",
+         "addressed before making predictions. ",
+         "Consider using prep_data to address this.\n\t",
+         paste(names(has_missing)[has_missing], collapse = ", "))
+  # Check for no new levels in factors
+  missing_levels <-
+    find_new_levels(to_pred, training_data) %>%
+    format_new_levels()
+  if (length(missing_levels))
+    stop("The following variable(s) had the following value(s) ",
+         "in predict that were not observed in training. ",
+         "Consider using prep_data to address this.", missing_levels)
+  return(to_pred)
+}
+
+#' check for new factor levels and send new data to prep_data before predicting
+#' @noRd
+ready_with_prep <- function(object, newdata, mi = extract_model_info(object)) {
+  recipe <- attr(object, "recipe")
+  if (is.null(recipe))
+    stop("Can't prep data in prediction without a recipe from training data.")
+
+  # Check for new levels in factors not present in training and warn if present
+  new_levels <- find_new_levels(newdata, attr(recipe, "factor_levels"))
+  # Don't check ignored columns
+  new_levels <- new_levels[!names(new_levels) %in% attr(recipe, "ignored_columns")] %>%
+    format_new_levels()
+  if (length(new_levels))
+    warning("The following variables(s) had the following value(s) in ",
+            "predict that were not observed in training. ",
+            new_levels)
+  prep_data(newdata, recipe = recipe) %>%
+    return()
+}
