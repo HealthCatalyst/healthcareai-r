@@ -53,3 +53,17 @@ check_rec_obj <- function(recipe) {
   }
   return(recipe)
 }
+
+#' Find predictors with missingness that didn't have missingness in recipe
+#' training
+#' @noRd
+find_new_missingness <- function(d, recipe) {
+  outcome <- recipe[["var_info"]]$variable[recipe[["var_info"]]$role == "outcome"]
+  missing_then <- attr(recipe, "missingness") %>% .[. > 0] %>% names()
+  missing_now <- missingness(d, return_df = FALSE) %>% .[. > 0] %>% names()
+  # Don't care about missingness in the outcome or ignored columns
+  new_missing <- dplyr::setdiff(missing_now, c(missing_then,
+                                               outcome,
+                                               attr(recipe, "ignored_columns")))
+  return(new_missing)
+}
