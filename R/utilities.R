@@ -1,4 +1,4 @@
-#' Check column in data frame for any missingness
+#' Check column in data frame for any missingness and error if found
 #'
 #' @param d data frame
 #' @param col_name a column in d; either as a quosure'd variable, as captured by
@@ -13,21 +13,6 @@ missing_check <- function(d, col_name) {
     stop("Fill in missingness in ", rlang::get_expr(col_name),
          " before calling ", match.call())
   }
-}
-
-#' Function to skip specific tests if they are not being run on Appveyor.
-#'
-#' @description This function will skip a test if it's not being run on
-#'   Appveyor. Used for SQL Server related tests, since we don't know if the
-#'   environment will be present. These tests are are run on Appveyor.
-#'
-#' @noRd
-#' @references \url{http://healthcareai-r.readthedocs.io}
-skip_on_not_appveyor <- function() {
-    if (identical(Sys.getenv("APPVEYOR"), "True")) {
-        return()
-    }
-    testthat::skip("Not on Appveyor")
 }
 
 #' find_new_levels
@@ -60,6 +45,31 @@ format_new_levels <- function(new_levels) {
     purrr::flatten()
 }
 
+#' compare_dfs
+#' @noRd
+#' @return list of variables in both, only in training, and only in predicting.
+#'   Variables of the same name but different type (is/is-not numeric) will
+#'   appear in both.
+compare_dfs <- function(training, predicting) {
+  t_vars <- get_classes_sorted(training)
+  p_vars <- get_classes_sorted(predicting)
+  list(
+    both = dplyr::inner_join(t_vars, p_vars, by = c("variable", "is_numeric"))[["variable"]],
+    training_only = dplyr::anti_join(t_vars, p_vars, by = c("variable", "is_numeric"))[["variable"]],
+    predicting_only = dplyr::anti_join(p_vars, t_vars, by = c("variable", "is_numeric"))[["variable"]]
+  )
+}
+
+#' get_classes_sorted - Utility for compare_dfs
+#' @noRd
+get_classes_sorted <- function(d) {
+  classes <- purrr::map_lgl(d, is.numeric)
+  broom::tidy(classes) %>%
+    setNames(c("variable", "is_numeric")) %>%
+    dplyr::arrange(variable)
+}
+
+
 #' Modify model object or predicted DF if PR. Otherwise, return as is.
 #' @param object model_list
 #' @return model_list
@@ -80,4 +90,19 @@ change_pr_metric <- function(object) {
       attr(object, "model_info")$metric <- "PR"
   }
   return(object)
+}
+
+#' Function to skip specific tests if they are not being run on Appveyor.
+#'
+#' @description This function will skip a test if it's not being run on
+#'   Appveyor. Used for SQL Server related tests, since we don't know if the
+#'   environment will be present. These tests are are run on Appveyor.
+#'
+#' @noRd
+#' @references \url{http://healthcareai-r.readthedocs.io}
+skip_on_not_appveyor <- function() {
+    if (identical(Sys.getenv("APPVEYOR"), "True")) {
+        return()
+    }
+    testthat::skip("Not on Appveyor")
 }
