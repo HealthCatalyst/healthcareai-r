@@ -16,20 +16,29 @@ missing_check <- function(d, col_name) {
 }
 
 #' find_new_levels
-#'
-#' @return A list, of length zero if all observed character values/factor levels
-#'   in new_df were observed in ref_df, otherwise with names of variable names
-#'   and character vectors of previously unobserved values.
-#'   Variables in new_df not present in ref_df are ignored.
+#' @details new and ref can either be data frames of lists as returned by
+#'   get_factor_levels.
+#' @return A list, of length zero if all observed character
+#'   values/factor levels in new were observed in ref, otherwise with
+#'   names of variable names and character vectors of previously unobserved
+#'   values. Variables in new not present in ref are ignored.
 #' @noRd
-find_new_levels <- function(new_df, ref_df) {
-  new_df <- new_df[, names(new_df) %in% names(ref_df), drop = FALSE]
-  levs <-
-    dplyr::select_if(new_df, ~ !is.numeric(.x)) %>%
-    purrr::map(~ unique(.x))
-  purrr::map(names(levs), ~
-    as.character(levs[[.x]][!levs[[.x]] %in% unique(ref_df[[.x]])])) %>%
-    setNames(names(levs))
+find_new_levels <- function(new, ref) {
+  if (is.data.frame(new))
+    new <- get_factor_levels(new)
+  if (is.data.frame(ref))
+    ref <- get_factor_levels(ref)
+  lapply(names(ref), function(v) dplyr::setdiff(new[[v]], ref[[v]])) %>%
+    setNames(names(ref))
+}
+
+#' ID factors as not-numeric and not-date. Find unique values in them.
+#' @noRd
+get_factor_levels <- function(d) {
+  not_factors <- dplyr::union(names(d)[purrr::map_lgl(d, ~ is.numeric(.x))],
+                              find_date_cols(d))
+  d <- d[, !names(d) %in% not_factors, drop = FALSE]
+  lapply(d, function(x) as.character(unique(x)))
 }
 
 #' Take list of character vectors as from find_new_levels and format for

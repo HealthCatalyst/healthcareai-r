@@ -42,3 +42,11 @@ test_that("new columns are ignored by find_new_levels", {
   d2 <- data.frame(x = c("a", "b"), y = c("c", "d"))
   expect_false("y" %in% names(find_new_levels(d2, d1)))
 })
+
+test_that("find_new_levels works with list of levels from get_factor_levels", {
+  a <- find_new_levels(dd, ddd)
+  b <- find_new_levels(get_factor_levels(dd), ddd)
+  c <- find_new_levels(dd, get_factor_levels(ddd))
+  expect_equal(a, b)
+  expect_equal(a, c)
+})
