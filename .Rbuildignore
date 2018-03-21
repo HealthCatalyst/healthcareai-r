@@ -28,3 +28,4 @@ html$
 ^refactor_outline\.md$
 ^decisions\.md$
 ^vignettes/site_only$
+codecov.yml

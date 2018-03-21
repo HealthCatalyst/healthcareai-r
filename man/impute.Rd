@@ -51,9 +51,7 @@ for both nominal and numeric data. Currently supports mean (numeric only),
 new_category (categorical only), bagged trees, or knn.
 }
 \examples{
-library(recipes)
 d <- pima_diabetes
-
 d_train <- d[1:700, ]
 d_test <- d[701:768, ]
 # Train imputer
