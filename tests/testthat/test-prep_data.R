@@ -458,3 +458,9 @@ test_that("prep_data warns when there's missingness in a column that didn't have
   d_test$guitar_flag[1] <- NA
   expect_warning(prep_data(d_test, recipe = d_prep), "guitar_flag")
 })
+
+test_that("prep_data doesn't warn for new missingness in ID or outcome columns", {
+  d_test$is_ween[1:5] <- NA
+  d_test$song_id[1:5] <- NA
+  expect_warning(prep_data(d_test, recipe = d_prep), NA)
+})
