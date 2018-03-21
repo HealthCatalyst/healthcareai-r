@@ -61,41 +61,15 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
 
   # If prepdata provided by user; follow that. Else, prep if newdata hasn't been
   # prepped and the variables used to tune models aren't present.
-  prep <-
-    if (!missing(prepdata)) {
-      prepdata
-    } else {
-      # If there's a recipe, it looks like prep is needed
-      needs_prep <- "recipe" %in% names(attributes(object))
-      # If newdata has prepped signature, then prepping definitely isn't needed
-      been_prepped <- inherits(newdata, "hcai_prepped_df")
-      # If data was prepped in training and newdata doesn't appear to have been prepped,
-      # then we will prep, but check to see if it looks like newdata has already been
-      # and issue a warning if so
-      if (needs_prep && !been_prepped) {
-        trainvars <- get_classes_sorted(dplyr::select(best_models$trainingData, -.outcome)) # nolint
-        predvars <- get_classes_sorted(dplyr::select(newdata, -which(names(newdata) == mi$target)))
-        joined <- dplyr::left_join(trainvars, predvars, by = "variable")
-        if (isTRUE(all.equal(joined$is_numeric.x, joined$is_numeric.y)))
-          warning("The data used in model training was prepped using `prep_data`. ",
-                  "Therefore, the data you want to make predictions on must also be prepped. ",
-                  "It looks like you might have done that by passing `newdata` ",
-                  "through `prep_data` before passing it to `predict`, but I can't be sure, ",
-                  "so it will be prepped now before making predictions. ",
-                  "If you passed the prediction data through `prep_data` before ",
-                  "`predict`, set `predict(prepdata = FALSE)`.")
-        TRUE
-      } else {
-        FALSE
-      }
-    }
+  if (missing(prepdata))
+    prepdata <- determine_prep(object, newdata, mi)
 
   # If classification, want probabilities. If regression, raw's the only option
   type <- if (is.classification_list(object)) "prob" else "raw"
 
   # This bit of repition avoids copying newdata if it's not being prepped
   preds <-
-    if (prep) {
+    if (prepdata) {
       recipe <- attr(object, "recipe")
       if (is.null(recipe))
         stop("Can't prep data in prediction without a recipe from training data.")
@@ -103,7 +77,7 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
       # Check for missingness not present in training and warn if present
       missing_train <- missingness(recipe$template, return_df = FALSE) %>% .[. > 0] %>% names()
       missing_now <- missingness(newdata, return_df = FALSE) %>% .[. > 0] %>% names()
-        # Don't care about missingness in the outcome
+      # Don't care about missingness in the outcome
       new_missing <- dplyr::setdiff(missing_now, c(missing_train, mi$target))
       if (length(new_missing))
         warning("The following variables have missingness that was not present in model training: ",
@@ -154,7 +128,7 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
   # Put predictions and, if present, the outcome at left of newdata
   newdata <- dplyr::select(newdata, pred_name, dplyr::everything())
   if (mi$target %in% names(newdata))
-      newdata <- dplyr::select(newdata, mi$target, dplyr::everything())
+    newdata <- dplyr::select(newdata, mi$target, dplyr::everything())
   # Add class and attributes to data frame
   class(newdata) <- c("hcai_predicted_df", class(newdata))
   attr(newdata, "model_info") <-

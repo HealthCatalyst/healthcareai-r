@@ -202,3 +202,24 @@ test_that("printing classification df gets ROC/PR metric right", {
   expect_true(stringr::str_detect(capture_message(print(roc)), "ROC"))
   expect_true(stringr::str_detect(capture_message(print(pr)), "PR"))
 })
+
+test_that("determine_prep FALSE when no recipe on model", {
+  determine_prep(model_regression_not_prepped, test_data) %>%
+  expect_false()
+})
+
+test_that("determine_prep FALSE when newdata has been prepped", {
+  determine_prep(model_regression_prepped, test_data_reg_prep) %>%
+  expect_false()
+})
+
+test_that("determine_prep TRUE w/o warning when prep needed and vars changed in prep", {
+  expect_warning(need_prep <- determine_prep(model_regression_prepped, test_data), NA)
+  expect_true(need_prep)
+})
+
+test_that("determine_prep warns when hcai_prepped_df class stripped from newdata", {
+  class(test_data_reg_prep) <- "data.frame"
+  expect_warning(need_prep <- determine_prep(model_regression_prepped, test_data_reg_prep), "prep")
+  expect_true(need_prep)
+})

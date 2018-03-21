@@ -1,3 +1,7 @@
+#########################################
+### S3 generics for hcai_predicted_df ###
+#########################################
+
 #' Class check
 #' @param x object
 #' @return logical
@@ -37,3 +41,34 @@ summary.hcai_predicted_df <- function(object, ...) {
   return(invisible(mi))
 }
 
+################################################
+### Utility functions for predict.model_list ###
+################################################
+
+#' Determine whether to prep_data before making predictions
+#' @noRd
+determine_prep <- function(object, newdata, mi = extract_model_info(object)) {
+  # If there's a recipe, it looks like prep is needed
+  needs_prep <- "recipe" %in% names(attributes(object))
+  # If newdata has prepped signature, then prepping definitely isn't needed
+  been_prepped <- inherits(newdata, "hcai_prepped_df")
+  if (!needs_prep || been_prepped)  {
+    return(FALSE)
+  } else {
+    # If data was prepped in training and newdata doesn't appear to have been prepped,
+    # then we will prep, but check to see if it looks like newdata has already been
+    # and issue a warning if so
+    trainvars <- get_classes_sorted(dplyr::select(object[[1]]$trainingData, -.outcome))
+    predvars <- get_classes_sorted(dplyr::select(newdata, -which(names(newdata) == mi$target)))
+    joined <- dplyr::left_join(trainvars, predvars, by = "variable")
+    if (isTRUE(all.equal(joined$is_numeric.x, joined$is_numeric.y)))
+      warning("The data used in model training was prepped using `prep_data`. ",
+              "Therefore, the data you want to make predictions on must also be prepped. ",
+              "It looks like you might have done that by passing `newdata` ",
+              "through `prep_data` before passing it to `predict`, but I can't be sure, ",
+              "so it will be prepped now before making predictions. ",
+              "If you passed the prediction data through `prep_data` before ",
+              "`predict`, set `predict(prepdata = FALSE)`.")
+    return(TRUE)
+  }
+}
