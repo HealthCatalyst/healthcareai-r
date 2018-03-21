@@ -44,11 +44,12 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
   # Pull info
   mi <- extract_model_info(object)
   best_models <- object[[mi$best_model_name]]
+  training_data <- best_models$trainingData
 
-  # If newdata not provided, pull training data from object and prepare it
+  # If newdata not provided, pull training data from object
   if (missing(newdata)) {
     newdata <-
-      best_models$trainingData %>%
+      training_data %>%
       dplyr::mutate(!!mi$target := .outcome) %>%
       dplyr::select(- .outcome)
     # caret::train strips hcai_prepped_df class from newdata. So,
@@ -59,67 +60,22 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
   if (!inherits(newdata, "data.frame"))
     stop("newdata must be a data frame")
 
-  # If prepdata provided by user; follow that. Else, prep if newdata hasn't been
-  # prepped and the variables used to tune models aren't present.
+  # Decide whether data needs to be prepped, check data, and prep if appropriate
   if (missing(prepdata))
     prepdata <- determine_prep(object, newdata, mi)
-
-  # If classification, want probabilities. If regression, raw's the only option
-  type <- if (is.classification_list(object)) "prob" else "raw"
-
-  # This bit of repition avoids copying newdata if it's not being prepped
-  preds <-
+  to_pred <-
     if (prepdata) {
-      recipe <- attr(object, "recipe")
-      if (is.null(recipe))
-        stop("Can't prep data in prediction without a recipe from training data.")
-
-      # Check for missingness not present in training and warn if present
-      missing_train <- missingness(recipe$template, return_df = FALSE) %>% .[. > 0] %>% names()
-      missing_now <- missingness(newdata, return_df = FALSE) %>% .[. > 0] %>% names()
-      # Don't care about missingness in the outcome
-      new_missing <- dplyr::setdiff(missing_now, c(missing_train, mi$target))
-      if (length(new_missing))
-        warning("The following variables have missingness that was not present in model training: ",
-                paste(new_missing, collapse = ", "))
-      # Check for new levels in factors not present in training and warn if present
-      new_levels <-
-        find_new_levels(newdata,
-                        # Remove outcome if present because don't care if missingness there:
-                        recipe$template[, which(!names(recipe$template) %in% mi$target), drop = FALSE]) %>%
-        format_new_levels()
-      if (length(new_levels))
-        warning("The following variables(s) had the following value(s) in ",
-                "predict that were not observed in training. ", new_levels)
-      # Make predictions
-      prep_data(newdata, recipe = recipe) %>%
-        caret::predict.train(best_models, ., type = type)
+      ready_with_prep(object, newdata, mi)
     } else {
-      # Select variables to be used in prediction:
-      td <- dplyr::select(best_models$trainingData, -.outcome)
-      # Pull off columns not used in prediction, but leave newdata alone for return
-      to_pred <- newdata[, names(newdata) %in% names(td), drop = FALSE]
-      # Check for no missingness
-      has_missing <- missingness(to_pred, FALSE) > 0
-      if (any(has_missing))
-        stop("The following variables have missingness that needs to be ",
-             "addressed before making predictions. ",
-             "Consider using prep_data to address this.\n\t",
-             paste(names(has_missing)[has_missing], collapse = ", "))
-      # Check for no new levels in factors
-      missing_levels <-
-        find_new_levels(to_pred, best_models$trainingData) %>%
-        format_new_levels()
-      if (length(missing_levels))
-        stop("The following variable(s) had the following value(s) ",
-             "in predict that were not observed in training. ",
-             "Consider using prep_data to address this.", missing_levels)
-      # Make predictions
-      to_pred %>%
-        caret::predict.train(best_models, ., type = type)
+      ready_no_prep(training_data, newdata)
     }
 
-  # Probs get returned for no and yes. Take just positive class from 2nd column
+  # Make predictions
+  # If classification, want probabilities. If regression, raw's the only option
+  type <- if (is.classification_list(object)) "prob" else "raw"
+  preds <- caret::predict.train(best_models, to_pred, type = type)
+
+  # Probs get returned for no and yes. Take positive class from 2nd column
   if (is.data.frame(preds))
     preds <- preds[, 2]
   pred_name <- paste0("predicted_", mi$target)
