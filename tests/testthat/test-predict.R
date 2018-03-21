@@ -163,10 +163,14 @@ test_that("Warnings are not issued for new levels in ignored columns", {
 test_that("Warnings are issued if there is new missingness in predict", {
   expect_warning(predict(model_classify_prepped, test_data_new_missing),
                  "Agriculture")
-  expect_warning(predict(model_regression_prepped, test_data_new_missing),
+  expect_warning(preds <- predict(model_regression_prepped, test_data_new_missing),
                  "Agriculture")
-  expect_s3_class(predict(model_regression_prepped, test_data_new_missing),
-                  "hcai_predicted_df")
+  expect_s3_class(preds, "hcai_predicted_df")
+})
+
+test_that("Missing values don't generate new factor level warning", {
+  w <- capture_warnings(predict(model_classify_prepped, test_data_new_missing))
+  expect_false(any(stringr::str_detect(w, "Catholic: NA")))
 })
 
 test_that("prepped and predicted data frame gets printed as predicted and not prepped df", {

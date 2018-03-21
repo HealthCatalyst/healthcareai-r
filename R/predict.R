@@ -110,7 +110,9 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
                 paste(new_missing, collapse = ", "))
       # Check for new levels in factors not present in training and warn if present
       new_levels <-
-        find_new_levels(newdata, recipe$template) %>%
+        find_new_levels(newdata,
+                        # Remove outcome if present because don't care if missingness there:
+                        recipe$template[, which(!names(recipe$template) %in% mi$target), drop = FALSE]) %>%
         format_new_levels()
       if (length(new_levels))
         warning("The following variables(s) had the following value(s) in ",
