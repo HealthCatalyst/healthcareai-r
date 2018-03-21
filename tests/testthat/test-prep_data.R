@@ -464,3 +464,9 @@ test_that("prep_data doesn't warn for new missingness in ID or outcome columns",
   d_test$song_id[1:5] <- NA
   expect_warning(prep_data(d_test, recipe = d_prep), NA)
 })
+
+test_that("prep_data attaches factor levels to recipe as attribute", {
+  rec <- attr(d_prep, "recipe")
+  expect_true("factor_levels" %in% names(attributes(rec)))
+  expect_setequal(names(attr(rec, "factor_levels")), c("genre", "reaction", "state", "is_ween"))
+})

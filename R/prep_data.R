@@ -112,6 +112,8 @@ prep_data <- function(d,
   }
   # Capture pre-modification missingness
   d_missing <- missingness(d, return_df = FALSE)
+  # Capture factor levels
+  d_levels <- get_factor_levels(d)
 
   outcome <- rlang::enquo(outcome)
   remove_outcome <- FALSE
@@ -319,8 +321,9 @@ prep_data <- function(d,
     # Prep the newly built recipe ---------------------------------------------
     recipe <- recipes::prep(recipe, training = d)
 
-    # Attach missingness in the original data to the recipe
+    # Attach missingness and factor-levels in the original data to the recipe
     attr(recipe, "missingness") <- d_missing
+    attr(recipe, "factor_levels") <- d_levels
   }
 
   # Bake either the newly built or passed-in recipe

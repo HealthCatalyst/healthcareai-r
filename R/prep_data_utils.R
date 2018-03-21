@@ -70,5 +70,6 @@ find_new_missingness <- function(d, recipe) {
 get_factor_levels <- function(d) {
   not_factors <- dplyr::union(names(d)[purrr::map_lgl(d, ~ is.numeric(.x))], find_date_cols(d))
   d <- d[, !names(d) %in% not_factors, drop = FALSE]
-  lapply(d, function(x) na.omit(as.character(unique(x))))
+  unique_non_na <- function(x) as.character(unique(x[!is.na(x)]))
+  lapply(d, unique_non_na)
 }
