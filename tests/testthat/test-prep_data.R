@@ -68,9 +68,9 @@ d_train$genre[3] <- d_test$genre[3] <- NA
 
 d_prep <- prep_data(d = d_train, outcome = is_ween, song_id)
 d_reprep <- prep_data(d_test, outcome = is_ween, song_id,
-                          recipe = attr(d_prep, "recipe"))
+                      recipe = attr(d_prep, "recipe"))
 d_reprep2 <- prep_data(d_test, outcome = is_ween, song_id,
-                           recipe = d_prep)
+                       recipe = d_prep)
 
 # Tests ------------------------------------------------------------------------
 test_that("Bad data throws an error", {
@@ -342,13 +342,13 @@ test_that("All nominal variables aren't a problem", {
 })
 
 test_that("remove_near_zero_variance is respected, works, and warns", {
-  d_train <- mutate(d_train,
-                    a_nzv_col = c("rare", rep("common", nrow(d_train) - 1)))
+  d_train <- dplyr::mutate(d_train,
+                           a_nzv_col = c("rare", rep("common", nrow(d_train) - 1)))
   expect_warning(def <- prep_data(d_train), regexp = "a_nzv_col")
   expect_false("a_nzv_col" %in% names(def))
   # nzv_col should be removed in deployement even if it has variance
-  d_test <- mutate(d_test,
-                   a_nzv_col = sample(letters, nrow(d_test), replace = TRUE))
+  d_test <- dplyr::mutate(d_test,
+                          a_nzv_col = sample(letters, nrow(d_test), replace = TRUE))
   expect_warning(pd <- prep_data(d_test, recipe = def), regexp = "a_nzv_col")
   expect_false("a_nzv_col" %in% names(def))
   stay <- prep_data(d_train, remove_near_zero_variance = FALSE, make_dummies = FALSE)
@@ -356,7 +356,7 @@ test_that("remove_near_zero_variance is respected, works, and warns", {
 })
 
 test_that("collapse_rare_factors works", {
-  d_train <- mutate(d_train, imbal = c(letters, rep("common", nrow(d_train) - 26)))
+  d_train <- dplyr::mutate(d_train, imbal = c(letters, rep("common", nrow(d_train) - 26)))
   pd <- prep_data(d_train,
                   collapse_rare_factors = FALSE,
                   make_dummies = FALSE)
@@ -367,8 +367,8 @@ test_that("collapse_rare_factors works", {
 
 test_that("collapse_rare_factors respects threshold", {
   # 1% < a < 2%
-  d_train <- mutate(d_train, imbal = c(rep("a", 4),
-                                       rep("common", nrow(d_train) - 4)))
+  d_train <- dplyr::mutate(d_train, imbal = c(rep("a", 4),
+                                              rep("common", nrow(d_train) - 4)))
   def <- prep_data(d_train, remove_near_zero_variance = FALSE,
                    make_dummies = FALSE)
   below_thresh <- prep_data(d_train, remove_near_zero_variance = FALSE,
@@ -376,7 +376,7 @@ test_that("collapse_rare_factors respects threshold", {
   above_thresh <- prep_data(d_train, remove_near_zero_variance = FALSE,
                             make_dummies = FALSE, collapse_rare_factors = .01)
   never <- prep_data(d_train, remove_near_zero_variance = FALSE,
-                   make_dummies = FALSE, collapse_rare_factors = FALSE)
+                     make_dummies = FALSE, collapse_rare_factors = FALSE)
   expect_false("a" %in% def$imbal)
   expect_false("a" %in% below_thresh$imbal)
   expect_true("a" %in% above_thresh$imbal)
@@ -417,9 +417,9 @@ test_that("prep_data respects add_levels = FALSE", {
 })
 
 test_that("If outcome to prep_data is or looks like logical, get informative error", {
-  d_train <- d_train %>% mutate(is_ween = is_ween == "Y")
+  d_train <- d_train %>% dplyr::mutate(is_ween = is_ween == "Y")
   expect_error(prep_data(d_train, outcome = is_ween), "logical")
-  d_train <- d_train %>% mutate(is_ween = as.character(is_ween == "Y"))
+  d_train <- d_train %>% dplyr::mutate(is_ween = as.character(is_ween == "Y"))
   expect_error(prep_data(d_train, outcome = is_ween), "logical")
 })
 
@@ -432,6 +432,12 @@ test_that("If recipe provided but no outcome column, NA-outcome column isn't cre
   expect_false("is_ween" %in% names(
     prep_data(dplyr::select(d_test, -is_ween), song_id, recipe = attr(d_prep, "recipe"))
   ))
+})
+
+test_that("prep_data doesn't remove outcome variable specified in recipe", {
+  d <- data.frame(x = 1:5, y = 6:10)
+  pd <- prep_data(d, outcome = y)
+  expect_true("y" %in% names(prep_data(data.frame(x = 1, y = 2), recipe = pd)))
 })
 
 test_that("predict regression with prep doesn't choke without outcome", {
