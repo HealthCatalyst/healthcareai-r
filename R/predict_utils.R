@@ -58,10 +58,8 @@ determine_prep <- function(object, newdata, mi = extract_model_info(object)) {
     # If data was prepped in training and newdata doesn't appear to have been prepped,
     # then we will prep, but check to see if it looks like newdata has already been
     # and issue a warning if so
-    trainvars <- get_classes_sorted(dplyr::select(object[[1]]$trainingData, -.outcome))
-    predvars <- get_classes_sorted(dplyr::select(newdata, -which(names(newdata) == mi$target)))
-    joined <- dplyr::left_join(trainvars, predvars, by = "variable")
-    if (isTRUE(all.equal(joined$is_numeric.x, joined$is_numeric.y)))
+    if (dfs_compatible(dplyr::select(object[[1]]$trainingData, -.outcome),
+                       dplyr::select(newdata, -which(names(newdata) == mi$target))))
       warning("The data used in model training was prepped using `prep_data`. ",
               "Therefore, the data you want to make predictions on must also be prepped. ",
               "It looks like you might have done that by passing `newdata` ",

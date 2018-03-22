@@ -59,19 +59,16 @@ format_new_levels <- function(new_levels, remove_nas = FALSE) {
     purrr::flatten()
 }
 
-#' compare_dfs
+#' Test whether all variables in a training dataframe are present and of the
+#' same type in a prediction data frame
 #' @noRd
-#' @return list of variables in both, only in training, and only in predicting.
-#'   Variables of the same name but different type (is/is-not numeric) will
-#'   appear in both.
-compare_dfs <- function(training, predicting) {
+#' @return Logical
+dfs_compatible <- function(training, predicting) {
   t_vars <- get_classes_sorted(training)
   p_vars <- get_classes_sorted(predicting)
-  list(
-    both = dplyr::inner_join(t_vars, p_vars, by = c("variable", "is_numeric"))[["variable"]],
-    training_only = dplyr::anti_join(t_vars, p_vars, by = c("variable", "is_numeric"))[["variable"]],
-    predicting_only = dplyr::anti_join(p_vars, t_vars, by = c("variable", "is_numeric"))[["variable"]]
-  )
+  joined <- dplyr::left_join(t_vars, p_vars, by = "variable")
+  look_same <- isTRUE(all.equal(joined$is_numeric.x, joined$is_numeric.y))
+  return(look_same)
 }
 
 #' get_classes_sorted - Utility for compare_dfs
@@ -82,7 +79,6 @@ get_classes_sorted <- function(d) {
     setNames(c("variable", "is_numeric")) %>%
     dplyr::arrange(variable)
 }
-
 
 #' Modify model object or predicted DF if PR. Otherwise, return as is.
 #' @param object model_list

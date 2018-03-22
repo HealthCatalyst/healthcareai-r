@@ -56,3 +56,13 @@ test_that("format_new_levels respects remove_nas", {
   expect_true(grepl("NA", format_new_levels(with_na, remove_nas = FALSE)))
   expect_false(grepl("NA", format_new_levels(with_na, remove_nas = TRUE)))
 })
+
+test_that("dfs_compatible works", {
+  expect_true(dfs_compatible(dd, ddd))
+  d1 <- dd %>% dplyr::mutate(x = sample(letters, nrow(dd)))
+  expect_false(dfs_compatible(d1, ddd))
+  expect_false(dfs_compatible(ddd, d1))
+  d2 <- dd %>% dplyr::select(x, y)
+  expect_false(dfs_compatible(ddd, d2))
+  expect_true(dfs_compatible(d2, ddd))
+})
