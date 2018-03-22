@@ -201,8 +201,9 @@ tune_models <- function(d,
   n_mod <- n_folds * tune_depth * length(models)
   obs <- nrow(d)
   if ( (obs > 1000 && n_mod > 10) || (obs > 100 && n_mod > 100) )
-    message("You've chosen to tune ", n_mod, " models (n_folds x tune_depth x ",
-            "length(models)) on a ", format(obs, big.mark = ","), " row dataset. ",
+    message("You've chosen to tune ", n_mod, " models (n_folds = ", n_folds,
+            " x tune_depth = ", tune_depth, " x ", "length(models) = ",
+            length(models), ") on a ", format(obs, big.mark = ","), " row dataset. ",
             "This may take a while...")
 
   # Loop over models, tuning each
