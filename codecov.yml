@@ -8,7 +8,7 @@ coverage:
 
 comment:
   layout: "header, diff, grid"
-  behavior: default
+  behavior: new
   require_changes: false
 
 ignore:
