@@ -48,16 +48,9 @@ summary.hcai_predicted_df <- function(object, ...) {
 #' Determine whether to prep_data before making predictions
 #' @noRd
 determine_prep <- function(object, newdata, mi = extract_model_info(object)) {
-  # If there's a recipe, it looks like prep is needed
-  needs_prep <- "recipe" %in% names(attributes(object))
-  # If newdata has prepped signature, then prepping definitely isn't needed
-  been_prepped <- inherits(newdata, "hcai_prepped_df")
-  if (!needs_prep || been_prepped)  {
-    return(FALSE)
-  } else {
-    # If data was prepped in training and newdata doesn't appear to have been prepped,
-    # then we will prep, but check to see if it looks like newdata has already been
-    # and issue a warning if so
+  if ("recipe" %in% names(attributes(object)) && !inherits(newdata, "hcai_prepped_df")) {
+    # There is a recipe and newdata doesn't have prepped class.
+    # Check to see if it looks like newdata may have prepped, warn if so, then prep
     if (dfs_compatible(dplyr::select(object[[1]]$trainingData, -.outcome),
                        dplyr::select(newdata, -which(names(newdata) == mi$target))))
       warning("The data used in model training was prepped using `prep_data`. ",
@@ -68,6 +61,9 @@ determine_prep <- function(object, newdata, mi = extract_model_info(object)) {
               "If you passed the prediction data through `prep_data` before ",
               "`predict`, set `predict(prepdata = FALSE)`.")
     return(TRUE)
+  } else {
+    # There's either no recipe on model_list or newdata has been prepped, so don't prep
+    return(FALSE)
   }
 }
 
