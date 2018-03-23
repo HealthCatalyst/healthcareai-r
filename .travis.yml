@@ -19,9 +19,6 @@ r:
   - oldrel
   - release
   - devel
-matrix:
-  allow_failures:
-  - r: devel
 
 r_packages:
   - covr
