@@ -1,4 +1,5 @@
 #' @import utils
+#' @import methods
 utils::globalVariables(c("outside", "percent_missing", "variable", ".outcome",
                          ".", "Y", "twoClassSummary",
                          "w_cc", "w_ccmcc",
