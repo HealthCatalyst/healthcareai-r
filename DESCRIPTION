@@ -13,11 +13,12 @@ Description: A machine learning toolbox tailored to healthcare data.
 License: MIT + file LICENSE
 LazyData: TRUE
 Depends:
-    R (>= 3.4)
+    R (>= 3.3)
 Imports:
     broom,
     caret (>= 6.0.78),
     cowplot,
+    data.table,
     DBI,
     dplyr,
     dbplyr,
