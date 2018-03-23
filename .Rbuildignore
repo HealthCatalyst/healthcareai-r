@@ -29,3 +29,4 @@ html$
 ^decisions\.md$
 ^vignettes/site_only$
 codecov.yml
+index.Rmd

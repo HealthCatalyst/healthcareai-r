@@ -176,7 +176,7 @@ aggregate_rows <- function(d, grain, spread, fill, fun) {
 #' @noRd
 pivot_maker <- function(d, grain, spread, fill, missing_fill) {
   d <- data.table::as.data.table(d)
-  f <- formula(paste(rlang::quo_name(grain), "~", rlang::quo_name(spread)))
+  f <- stats::formula(paste(rlang::quo_name(grain), "~", rlang::quo_name(spread)))
   d <- data.table::dcast.data.table(data = d,
                                     formula = f,
                                     fill = missing_fill,
