@@ -88,7 +88,8 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
   # Add class and attributes to data frame
   class(newdata) <- c("hcai_predicted_df", class(newdata))
   attr(newdata, "model_info") <-
-    list(target = mi$target,
+    list(type = mi$m_class,
+         target = mi$target,
          algorithm = mi$best_model_name,
          metric = mi$metric,
          performance = mi$best_model_perf,
