@@ -154,18 +154,17 @@ prep_data <- function(d,
     if (length(missing_vars))
       stop("These variables were present in training but are missing or ignored here: ",
            paste(missing_vars, collapse = ", "))
+
     # If imputing, look for variables with missingness now that didn't have any in training
     newly_missing <- find_new_missingness(d, recipe)
     if (length(newly_missing))
       warning("The following variable(s) have missingness that was not present when recipe was trained: ",
               paste(newly_missing, collapse = ", "))
 
-    # Outcome gets added as all NAs; set a flag to remove it at end
-    if (rlang::quo_is_missing(outcome)) {
-      outcome_var <- recipe$var_info$variable[recipe$var_info$role == "outcome"]
-      if (length(outcome_var))
+    # Outcome gets added as all NAs; set a flag to remove it at end if not in provided DF
+    outcome_var <- recipe$var_info$variable[recipe$var_info$role == "outcome"]
+    if (length(outcome_var) && !outcome_var %in% names(d))
         remove_outcome <- TRUE
-    }
 
   } else {
 

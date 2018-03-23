@@ -22,11 +22,11 @@ environment:
     WARNINGS_ARE_ERRORS: 1
 
   matrix:
-  - R_VERSION: devel
+  - R_VERSION: stable
     R_ARCH: x64
     GCC_PATH: mingw_32
 
-  - R_VERSION: stable
+  - R_VERSION: oldrel
     R_ARCH: x64
     GCC_PATH: mingw_32
 
@@ -59,3 +59,9 @@ artifacts:
 
   - path: '\*_*.zip'
     name: Bits
+
+notifications:
+    - provider: GitHubPullRequest
+      on_build_success: false
+      on_build_failure: false
+      on_build_status_changed: false

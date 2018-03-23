@@ -249,11 +249,12 @@ test_that("ready_no_prep stops informatively for new factor levels", {
 test_that("ready_with_prep preps appropriately", {
   prepped <- ready_with_prep(model_regression_prepped, test_data)
   expect_s3_class(prepped, "data.frame")
+  prepped_predictors <- setdiff(names(prepped), attr(model_regression_prepped, "target"))
   predictors <-
     model_regression_prepped$`Random Forest`$trainingData %>%
     names() %>%
     .[. != ".outcome"]
-  expect_setequal(names(prepped), predictors)
+  expect_setequal(prepped_predictors, predictors)
 })
 
 test_that("ready_with_prep warns for new missingness but not in outcome", {
