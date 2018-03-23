@@ -26,5 +26,10 @@ matrix:
 r_packages:
   - covr
 
+addons:
+  apt:
+    packages:
+      - libnlopt-dev
+
 after_success:
   - Rscript -e 'covr::codecov()'
