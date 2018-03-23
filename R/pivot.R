@@ -127,45 +127,33 @@ pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
 }
 
 do_aggregate <- function(d, grain, spread, fill, fun, default_fun) {
-  # Check if there are any grain-spread pairs that have more than one entry...
-  need_aggregate <- any(duplicated(dplyr::select(d, !!grain, !!spread)))
 
-  # Aggregation not needed. Return d, with a message if fun was provided
-  if (!need_aggregate) {
-    if (!default_fun) {
-      message("You provided a function to 'fun', but there aren't any rows
-              that need to be aggregated, so it will be ignored.")
-    }
-    return(d)
-  }
+  start_rows <- nrow(d)
+  # Define "safe" version of aggregate_rows for error handling
+  ar <- purrr::safely(aggregate_rows)
+  d <- ar(d, grain, spread, fill, fun)
 
-  # Aggregation is needed
-    # If the user didn't provide fun, warn that we'll use sum
-    if (default_fun) {
+  # If aggregate_rows didn't error, return result
+  if (is.null(d$error)) {
+    # If the user didn't provide fun, and aggregation happened warn that we'll use sum
+    if (default_fun && nrow(d$result) < start_rows) {
       message("There are rows that contain the same values of both ",
               rlang::get_expr(grain), " and ", rlang::get_expr(spread),
               " but you didn't provide a function to 'fun' for their ",
               "aggregation. Proceeding with the default: fun = sum.")
     }
-
-  # Define "safe" version of aggregate_rows for error handling
-    ar <- purrr::safely(aggregate_rows)
-    d <- ar(d, grain, spread, fill, fun)
-    # If aggregate_rows didn't error, return result
-    if (is.null(d$error)) {
-      return(d$result)
-      # Otherwise print informative message if aggregation failed
+    return(d$result)
+    # Otherwise print informative message if aggregation failed
+  } else {
+    err <- d$error[[1]]
+    if (grepl("must be length 1", err)) {
+      stop("Aggregation with 'fun' produced more than one value for some",
+           " grain-by-spread combinations. Make sure fun is an aggregating",
+           " function.")
     } else {
-      err <- d$error[[1]]
-      if (grepl("must be length 1", err)) {
-        stop("Aggregation with 'fun' produced more than one value for some",
-             " grain-by-spread combinations. Make sure fun is an aggregating",
-             " function.")
-      } else {
-        stop(err)
-      }
-
+      stop(err)
     }
+  }
 }
 
 #' Aggregate rows

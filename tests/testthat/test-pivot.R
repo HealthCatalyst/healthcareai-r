@@ -90,14 +90,6 @@ test_that("do_aggregate produces messages appropriately", {
                  default_fun = FALSE),
     regexp = NA
   )
-  expect_message(
-    do_aggregate(d = dd[1:2, ],
-                 grain = rlang::quo(person),
-                 spread = rlang::quo(day),
-                 fill = rlang::quo(count),
-                 fun = sum,
-                 default_fun = FALSE),
-    regexp = "You provided")
 })
 
 test_that("do_aggregate produces informative error if aggregation failed", {
