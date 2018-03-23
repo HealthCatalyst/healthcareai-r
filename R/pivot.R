@@ -182,44 +182,19 @@ aggregate_rows <- function(d, grain, spread, fill, fun) {
 
 #' Make pivoted table
 #' @details All variables come through from pivot
+#' @importFrom data.table dcast.data.table
+#' @importFrom data.table as.data.table
 #' @return Pivoted tibble. One row for each grain; one column for each spread
 #' @noRd
 pivot_maker <- function(d, grain, spread, fill, missing_fill) {
-  # Create a data frame of missing_fill, to be replaced where appropriate.
-  # Critically, columns are arranged by the integer representation of spread,
-  # which allows us to index the entries by those integers.
-
-  # Pull factor levels to use as row deliniators and column names
-  to_rows <- levels(dplyr::pull(d, !!grain))
-  to_cols <- levels(dplyr::pull(d, !!spread))
-
-  pivoted <-
-    matrix(missing_fill,
-           nrow = length(to_rows), ncol = length(to_cols),
-           dimnames = list(NULL, to_cols)) %>%
-    tibble::as_tibble() %>%
-    dplyr::mutate(!!rlang::quo_name(grain) := to_rows)
-
-  pivoted <-
-    # Loop over each entry in grain
-    purrr::map_df(to_rows,  ~ {
-      # Pull the relevant row of interest
-      keep <- dplyr::filter(pivoted, (!!grain) == .x)
-      # Inside-out:
-      # i IDs rows in original dataframe that we want in this row of output
-      # Subsetting d$spread by those rows gives us factor levels to fill in.
-      # Converting them to integers gives the indices to fill in.
-      i <- which(dplyr::pull(d, !!grain) == .x)
-      keep[as.integer(dplyr::pull(d, !!spread)[i])] <- dplyr::pull(d, !!fill)[i]
-      return(keep)
-    })
-
-  # Arrange and rename columns
-  ## Put the grain column first
-  pivoted <- pivoted[, c(ncol(pivoted), 1:(ncol(pivoted) - 1))]
+  d <- data.table::as.data.table(d)
+  f <- formula(paste(rlang::quo_name(grain), "~", rlang::quo_name(spread)))
+  d <- data.table::dcast.data.table(data = d,
+                                    formula = f,
+                                    fill = missing_fill,
+                                    value.var = rlang::quo_name(fill))
+  d <- as.tbl(d)
   ## Add spread as prefix to nonID columns
-  names(pivoted)[2:ncol(pivoted)] <-
-    paste0(rlang::quo_name(spread), "_", names(pivoted)[2:ncol(pivoted)])
-
-  return(pivoted)
+  names(d)[2:ncol(d)] <- paste0(rlang::quo_name(spread), "_", names(d)[2:ncol(d)])
+  return(d)
 }

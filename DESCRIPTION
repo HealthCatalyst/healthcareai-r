@@ -21,6 +21,7 @@ Imports:
     broom,
     caret (>= 6.0.78),
     cowplot,
+    data.table,
     DBI,
     dplyr,
     dbplyr,
