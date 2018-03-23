@@ -2,7 +2,7 @@
 % Please edit documentation in R/limone.R
 \name{permute_process_variables}
 \alias{permute_process_variables}
-\title{Take a dataframe and build a larger dataframe by permuting the 
+\title{Take a dataframe and build a larger dataframe by permuting the
 values in certain columns.}
 \usage{
 permute_process_variables(dataframe, modifiable_variable_levels)
@@ -10,15 +10,15 @@ permute_process_variables(dataframe, modifiable_variable_levels)
 \arguments{
 \item{dataframe}{A dataframe.}
 
-\item{modifiable_variable_levels}{A list indexed by the modifiable 
+\item{modifiable_variable_levels}{A list indexed by the modifiable
 process variables and containing the factor levels of each such variable.}
 }
 \value{
-A large dataframe where the values in the modifiable variable 
+A large dataframe where the values in the modifiable variable
 columns have been permuted.
 }
 \description{
-Take a dataframe and build a larger dataframe by permuting the 
+Take a dataframe and build a larger dataframe by permuting the
 values in the columns corresponding to \code{modifiable_variable_levels}.
 }
 \keyword{internal}
