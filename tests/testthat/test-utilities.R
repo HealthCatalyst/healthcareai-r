@@ -1,7 +1,8 @@
-context("Checking utility functions")
+context("Checking test-utilities.R")
 
 # Setup ------------------------------------------------------------------------
 dd <- tibble::tibble(x = 1:10, y = c(NA, 9:1), z = c(letters[1:9], NA))
+ddd <- tibble::tibble(x = 15:24, y = 0, z = c("a", rep("b", 9)))
 
 # Test missing_check -----------------------------------------------------------
 test_that("missing_check stops if there's missingness in quo'd variable", {
@@ -22,7 +23,46 @@ test_that("missing_check returns TRUE if there isn't missingness in str var", {
   expect_true(missing_check(dd, "x"))
 })
 
-test_that("skip_on_not_appveyor returns false when not on appveyor", {
-  skip_on_appveyor()
-  expect_error(skip_on_not_appveyor())
+# Test find_new_levels ---------------------------------------------------------
+test_that("find_new_levels works as expected", {
+  dd <- tidyr::replace_na(dd, list(y = 0, z = "a"))
+  expect_true(is.list(find_new_levels(dd, ddd)))
+  expect_equal(1, length(find_new_levels(dd, ddd)))
+  expect_equal(0, length(find_new_levels(ddd, dd)$z))
+  expect_equal(letters[3:9], find_new_levels(dd, ddd)$z)
+})
+
+test_that("find_new_levels finds NAs", {
+  expect_equal(1, sum(is.na(find_new_levels(dd, ddd)$z)))
+  expect_false(any(is.na(find_new_levels(ddd, dd)$z)))
+})
+
+test_that("new columns are ignored by find_new_levels", {
+  d1 <- data.frame(x = c("a", "b"))
+  d2 <- data.frame(x = c("a", "b"), y = c("c", "d"))
+  expect_false("y" %in% names(find_new_levels(d2, d1)))
+})
+
+test_that("find_new_levels works with list of levels from get_factor_levels", {
+  a <- find_new_levels(dd, ddd)
+  b <- find_new_levels(get_factor_levels(dd), ddd)
+  c <- find_new_levels(dd, get_factor_levels(ddd))
+  expect_equal(a, b)
+  expect_equal(a, c)
+})
+
+test_that("format_new_levels respects remove_nas", {
+  with_na <- find_new_levels(dd, ddd)
+  expect_true(grepl("NA", format_new_levels(with_na, remove_nas = FALSE)))
+  expect_false(grepl("NA", format_new_levels(with_na, remove_nas = TRUE)))
+})
+
+test_that("dfs_compatible works", {
+  expect_true(dfs_compatible(dd, ddd))
+  d1 <- dd %>% dplyr::mutate(x = sample(letters, nrow(dd)))
+  expect_false(dfs_compatible(d1, ddd))
+  expect_false(dfs_compatible(ddd, d1))
+  d2 <- dd %>% dplyr::select(x, y)
+  expect_false(dfs_compatible(ddd, d2))
+  expect_true(dfs_compatible(d2, ddd))
 })
