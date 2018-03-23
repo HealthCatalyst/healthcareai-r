@@ -281,7 +281,7 @@ classification.</p></td>
 #&gt; Adding levels to: other, hcai_missing [trained]
 #&gt; Collapsing factor levels for weight_class [trained]
 #&gt; Adding levels to: other, hcai_missing [trained]
-#&gt; Dummy variables from weight_class [trained]</div><div class='output co'>#&gt; <span class='message'>Current data:</span></div><div class='output co'>#&gt; # A tibble: 68 x 12
+#&gt; Dummy variables from weight_class [trained]</div><div class='output co'>#&gt; <span class='message'>Current data:</span></div><div class='output co'>#&gt; # A tibble: 68 x 13
 #&gt;    pregnancies plasma_glucose diastolic_bp skinfold insulin pedigree   age
 #&gt;          &lt;int&gt;          &lt;int&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;
 #&gt;  1           2            122         76.0     27.0     200    0.483    26
@@ -294,9 +294,10 @@ classification.</p></td>
 #&gt;  8           2            127         46.0     21.0     335    0.176    22
 #&gt;  9           9            164         78.0     29.1     154    0.148    45
 #&gt; 10           2             93         64.0     32.0     160    0.674    23
-#&gt; # ... with 58 more rows, and 5 more variables: weight_class_normal &lt;dbl&gt;,
-#&gt; #   weight_class_obese &lt;dbl&gt;, weight_class_overweight &lt;dbl&gt;,
-#&gt; #   weight_class_other &lt;dbl&gt;, weight_class_hcai_missing &lt;dbl&gt;</div><div class='input'>
+#&gt; # ... with 58 more rows, and 6 more variables: diabetes &lt;fct&gt;,
+#&gt; #   weight_class_normal &lt;dbl&gt;, weight_class_obese &lt;dbl&gt;,
+#&gt; #   weight_class_overweight &lt;dbl&gt;, weight_class_other &lt;dbl&gt;,
+#&gt; #   weight_class_hcai_missing &lt;dbl&gt;</div><div class='input'>
 <span class='co'># Customize preparations:</span>
 <span class='fu'>prep_data</span>(<span class='kw'>d</span> <span class='kw'>=</span> <span class='no'>d_train</span>, <span class='no'>patient_id</span>, <span class='no'>diabetes</span>,
           <span class='kw'>impute</span> <span class='kw'>=</span> <span class='fu'>list</span>(<span class='kw'>numeric_method</span> <span class='kw'>=</span> <span class='st'>"bagimpute"</span>,

@@ -9,21 +9,21 @@ build_process_variables_df(list_of_dataframes, repeated_factors = FALSE,
   number_of_factors = 3)
 }
 \arguments{
-\item{list_of_dataframes}{A list of dataframes built using 
+\item{list_of_dataframes}{A list of dataframes built using
 \code{build_process_variable_df_list}.}
 
-\item{repeated_factors}{A boolean determining whether or not a single 
+\item{repeated_factors}{A boolean determining whether or not a single
 modifiable factor can be listed several times.}
 
-\item{number_of_factors}{The number of modifiable process variables to 
+\item{number_of_factors}{The number of modifiable process variables to
 include in each row.}
 }
 \value{
 A dataframe.
 }
 \description{
-Takes a list of dataframes built using 
-\code{build_process_variable_df_list} and returns a single dataframe listing 
+Takes a list of dataframes built using
+\code{build_process_variable_df_list} and returns a single dataframe listing
 the best modifiable process variables to modify.
 }
 \keyword{internal}

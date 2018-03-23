@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Build a list of dataframes with new predictions for each modifiable variable. — build_process_variable_df_list • healthcareai</title>
+<title>Read from a SQL Server database table — db_read • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,11 +25,10 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Build a list of dataframes with new predictions for each modifiable variable. — build_process_variable_df_list" />
+<meta property="og:title" content="Read from a SQL Server database table — db_read" />
 
-<meta property="og:description" content="Builds a list consisting of one dataframe per row in
-dataframe which shows how the predictions for that row change as
-each of the mofifiable variables are altered" />
+<meta property="og:description" content="Use a database connection to read from an existing SQL Server
+table with a SQL query." />
 <meta name="twitter:card" content="summary" />
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
@@ -93,53 +92,69 @@ each of the mofifiable variables are altered" />
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Build a list of dataframes with new predictions for each modifiable variable.</h1>
+    <h1>Read from a SQL Server database table</h1>
     
     </div>
 
     
-    <p>Builds a list consisting of one dataframe per row in
-<code>dataframe</code> which shows how the predictions for that row change as
-each of the mofifiable variables are altered</p>
+    <p>Use a database connection to read from an existing SQL Server
+table with a SQL query.</p>
     
 
-    <pre class="usage"><span class='fu'>build_process_variable_df_list</span>(<span class='no'>dataframe</span>, <span class='no'>grain_column_values</span>,
-  <span class='no'>modifiable_variable_levels</span>, <span class='no'>predict_function</span>, <span class='no'>smaller_better</span>)</pre>
+    <pre class="usage"><span class='fu'>db_read</span>(<span class='no'>con</span>, <span class='no'>query</span>, <span class='kw'>pull_into_memory</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>dataframe</th>
-      <td><p>A dataframe consisting of deployment data.</p></td>
+      <th>con</th>
+      <td><p>An odbc database connection. Can be made using
+<code>build_connection_string</code>. Required.</p></td>
     </tr>
     <tr>
-      <th>grain_column_values</th>
-      <td><p>The grain column (values, not just the name) of
-the deployment data.</p></td>
+      <th>query</th>
+      <td><p>A string, quoted, required. This sql query will be executed
+against the database you are connected to.</p></td>
     </tr>
     <tr>
-      <th>modifiable_variable_levels</th>
-      <td><p>A list indexed by the modifiable
-process variables and containing the factor levels of each such variable.</p></td>
-    </tr>
-    <tr>
-      <th>predict_function</th>
-      <td><p>A function with which to make new predictions on the
-data.</p></td>
-    </tr>
-    <tr>
-      <th>smaller_better</th>
-      <td><p>A boolean indicating whether the goal is to
-increase or decrease the predictions/predicted probabilities.</p></td>
+      <th>pull_into_memory</th>
+      <td><p>Logical, optional, defaults to TRUE. If FALSE,
+<code>db_read</code> will create a reference to the queried data rather than
+pulling into memory. Set to FALSE for very large tables.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A list of dataframes.</p>
+    <p>A tibble of data or reference to the table.</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Use <code>pull_into_memory</code> when working with large tables.
+Rather than returning the data into memory, this
+function will return a reference to the specified query. It will be executed
+only when needed, in a "lazy" style. Or, you can execute using the
+<code>collect()</code> function.</p>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <p><code><a href='build_connection_string.html'>build_connection_string</a></code></p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='no'>my_con</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='build_connection_string.html'>build_connection_string</a></span>(<span class='kw'>server</span> <span class='kw'>=</span> <span class='st'>"HPHI-EDWDEV"</span>)
+<span class='no'>con</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>DBI</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/DBI/topics/dbConnect'>dbConnect</a></span>(<span class='kw pkg'>odbc</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/odbc/topics/odbc'>odbc</a></span>(), <span class='kw'>.connection_string</span> <span class='kw'>=</span> <span class='no'>my_con</span>)
+<span class='no'>d</span> <span class='kw'>&lt;-</span> <span class='fu'>db_read</span>(<span class='no'>con</span>,
+             <span class='st'>"SELECT TOP 10 * FROM [Shared].[Cost].[FacilityAccountCost]"</span>)
+
+<span class='co'># Get a reference and collect later</span>
+<span class='no'>ref</span> <span class='kw'>&lt;-</span> <span class='fu'>db_read</span>(<span class='no'>con</span>,
+               <span class='st'>"SELECT TOP 10 * FROM [Shared].[Cost].[FacilityAccountCost]"</span>,
+               <span class='kw'>pull_into_memory</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+<span class='no'>d</span> <span class='kw'>&lt;-</span> <span class='fu'>collect</span>(<span class='no'>ref</span>)
+<span class='co'># }</span><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -147,7 +162,13 @@ increase or decrease the predictions/predicted probabilities.</p></td>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-          </ul>
+
+      <li><a href="#details">Details</a></li>
+
+      <li><a href="#see-also">See also</a></li>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

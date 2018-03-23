@@ -110,6 +110,11 @@ prep_data <- function(d,
   if (!is.data.frame(d)) {
     stop("\"d\" must be a data frame.")
   }
+  # Capture pre-modification missingness
+  d_missing <- missingness(d, return_df = FALSE)
+  # Capture factor levels
+  d_levels <- get_factor_levels(d)
+
   outcome <- rlang::enquo(outcome)
   remove_outcome <- FALSE
   # Deal with "..." columns to be ignored
@@ -149,10 +154,16 @@ prep_data <- function(d,
     if (length(missing_vars))
       stop("These variables were present in training but are missing or ignored here: ",
            paste(missing_vars, collapse = ", "))
+
+    # If imputing, look for variables with missingness now that didn't have any in training
+    newly_missing <- find_new_missingness(d, recipe)
+    if (length(newly_missing))
+      warning("The following variable(s) have missingness that was not present when recipe was trained: ",
+              paste(newly_missing, collapse = ", "))
+
     # Outcome gets added as all NAs; set a flag to remove it at end if not in provided DF
     outcome_var <- recipe$var_info$variable[recipe$var_info$role == "outcome"]
     if (length(outcome_var) && !outcome_var %in% names(d))
-      ## The recipe has an outcome variable. If it's not in d, flag for removal
         remove_outcome <- TRUE
 
   } else {
@@ -308,6 +319,10 @@ prep_data <- function(d,
 
     # Prep the newly built recipe ---------------------------------------------
     recipe <- recipes::prep(recipe, training = d)
+
+    # Attach missingness and factor-levels in the original data to the recipe
+    attr(recipe, "missingness") <- d_missing
+    attr(recipe, "factor_levels") <- d_levels
   }
 
   # Bake either the newly built or passed-in recipe

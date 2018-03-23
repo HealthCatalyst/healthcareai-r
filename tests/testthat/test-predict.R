@@ -134,13 +134,43 @@ test_that("predict can handle binary character non Y/N columns", {
 })
 
 test_that("predict handles new levels on model_list from prep_data", {
-  expect_s3_class(predict(model_regression_prepped, test_data_newlevel),
-                  "hcai_predicted_df")
+  expect_warning(preds <- predict(model_regression_prepped, test_data_newlevel))
+  expect_s3_class(preds, "hcai_predicted_df")
 })
 
 test_that("predict handles missingness where unobserved in training prep_data", {
-  expect_s3_class(predict(model_regression_prepped, test_data_new_missing),
-                  "hcai_predicted_df")
+  expect_warning(preds <- predict(model_regression_prepped, test_data_new_missing))
+  expect_s3_class(preds, "hcai_predicted_df")
+})
+
+test_that("predict doesn't need columns ignored in training", {
+  # expect_warning just catches an expected warning. The real test here is that
+  # the code doesn't error.
+  expect_warning(predict(model_classify_prepped,
+                         dplyr::select(test_data, -province)))
+})
+
+test_that("Warnings are issued if new factor levels are present in prediction", {
+  expect_warning(predict(model_regression_prepped, test_data_newlevel),
+                 "another new level")
+})
+
+test_that("Warnings are not issued for new levels in ignored columns", {
+  warnings <- capture_warnings(predict(model_classify_prepped, test_data))
+  expect_false(any(purrr::map_lgl(warnings, ~ grepl("province", .x))))
+})
+
+test_that("Warnings are issued if there is new missingness in predict", {
+  expect_warning(predict(model_classify_prepped, test_data_new_missing),
+                 "Agriculture")
+  expect_warning(preds <- predict(model_regression_prepped, test_data_new_missing),
+                 "Agriculture")
+  expect_s3_class(preds, "hcai_predicted_df")
+})
+
+test_that("Missing values don't generate new factor level warning", {
+  w <- capture_warnings(predict(model_classify_prepped, test_data_new_missing))
+  expect_false(any(stringr::str_detect(w, "Catholic: NA")))
 })
 
 test_that("prepped and predicted data frame gets printed as predicted and not prepped df", {
@@ -171,4 +201,71 @@ test_that("printing classification df gets ROC/PR metric right", {
     predict()
   expect_true(stringr::str_detect(capture_message(print(roc)), "ROC"))
   expect_true(stringr::str_detect(capture_message(print(pr)), "PR"))
+})
+
+test_that("determine_prep FALSE when no recipe on model", {
+  determine_prep(model_regression_not_prepped, test_data) %>%
+  expect_false()
+})
+
+test_that("determine_prep FALSE when newdata has been prepped", {
+  determine_prep(model_regression_prepped, test_data_reg_prep) %>%
+  expect_false()
+})
+
+test_that("determine_prep TRUE w/o warning when prep needed and vars changed in prep", {
+  expect_warning(need_prep <- determine_prep(model_regression_prepped, test_data), NA)
+  expect_true(need_prep)
+})
+
+test_that("determine_prep warns when hcai_prepped_df class stripped from newdata", {
+  class(test_data_reg_prep) <- "data.frame"
+  expect_warning(need_prep <- determine_prep(model_regression_prepped, test_data_reg_prep), "prep")
+  expect_true(need_prep)
+})
+
+test_that("ready_no_prep preps appropriately", {
+  prepped <- ready_no_prep(model_regression_not_prepped[[1]]$trainingData, test_data)
+  expect_s3_class(prepped, "data.frame")
+  tr_names <- setdiff(names(model_regression_not_prepped[[1]]$trainingData), ".outcome")
+  expect_setequal(names(prepped), tr_names)
+})
+
+test_that("ready_no_prep stops for missingness but not in outcome", {
+  test_data$Fertility[1] <- NA
+  expect_s3_class(ready_no_prep(model_regression_not_prepped[[1]]$trainingData, test_data),
+                  "data.frame")
+  test_data$Agriculture[1] <- NA
+  expect_error(ready_no_prep(model_regression_not_prepped[[1]]$trainingData, test_data),
+               "missing")
+})
+
+test_that("ready_no_prep stops informatively for new factor levels", {
+  test_data$Catholic[1] <- "that's weird"
+  expect_error(ready_no_prep(model_regression_not_prepped[[1]]$trainingData, test_data),
+               "Catholic: that's weird")
+})
+
+test_that("ready_with_prep preps appropriately", {
+  prepped <- ready_with_prep(model_regression_prepped, test_data)
+  expect_s3_class(prepped, "data.frame")
+  prepped_predictors <- setdiff(names(prepped), attr(model_regression_prepped, "target"))
+  predictors <-
+    model_regression_prepped$`Random Forest`$trainingData %>%
+    names() %>%
+    .[. != ".outcome"]
+  expect_setequal(prepped_predictors, predictors)
+})
+
+test_that("ready_with_prep warns for new missingness but not in outcome", {
+  test_data$Fertility[1] <- NA
+  expect_s3_class(ready_with_prep(model_regression_prepped, test_data), "data.frame")
+  test_data$Agriculture[1] <- NA
+  expect_warning(ready_with_prep(model_regression_prepped, test_data), "missing")
+})
+
+test_that("ready_with_prep warns for new factor levels (via prep_data)", {
+  test_data$Catholic[1] <- "that's weird"
+  expect_warning(ready_with_prep(model_regression_prepped, test_data),
+                 "Catholic: that's weird")
 })

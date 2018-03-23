@@ -111,10 +111,10 @@ used in production to monitor console output on ETL servers.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'># Object Attribute Base should contain a script like this:
-# Move to working directory
-</div><span class='co'># NOT RUN {</span>
-<span class='co'># setwd("Prod Server/Machine Learning/MyProject")</span>
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='co'># Object Attribute Base should contain a script like this:</span>
+<span class='co'># Move to working directory</span>
+<span class='fu'>setwd</span>(<span class='st'>"Prod Server/Machine Learning/MyProject"</span>)
 
 <span class='co'># Start console logging</span>
 <span class='fu'>start_prod_logs</span>()
@@ -124,7 +124,7 @@ used in production to monitor console output on ETL servers.</p>
 <span class='fu'><a href='catalyst_test_deploy_in_prod.html'>catalyst_test_deploy_in_prod</a></span>()
 
 <span class='co'># Deploy model</span>
-<span class='co'># source("myDeployScript.R")</span>
+<span class='fu'>source</span>(<span class='st'>"myDeployScript.R"</span>)
 
 <span class='co'># Stop console logging</span>
 <span class='fu'><a href='stop_prod_logs.html'>stop_prod_logs</a></span>()

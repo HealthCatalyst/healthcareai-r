@@ -3,7 +3,7 @@ coverage:
 
   status:
     project: on
-    patch: off
+    patch: on
     changes: off
 
 comment:

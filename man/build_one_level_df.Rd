@@ -18,7 +18,7 @@ change}
 A dataframe
 }
 \description{
-Takes a dataframe and replaces all the values in the 
+Takes a dataframe and replaces all the values in the
 \code{modifiable_variable} column with the value \code{level}. Columns
 tracking which variable and level were used are also added to the dataframe.
 }

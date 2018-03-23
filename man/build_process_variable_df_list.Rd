@@ -10,10 +10,10 @@ build_process_variable_df_list(dataframe, grain_column_values,
 \arguments{
 \item{dataframe}{A dataframe consisting of deployment data.}
 
-\item{grain_column_values}{The grain column (values, not just the name) of 
+\item{grain_column_values}{The grain column (values, not just the name) of
 the deployment data.}
 
-\item{modifiable_variable_levels}{A list indexed by the modifiable 
+\item{modifiable_variable_levels}{A list indexed by the modifiable
 process variables and containing the factor levels of each such variable.}
 
 \item{predict_function}{A function with which to make new predictions on the

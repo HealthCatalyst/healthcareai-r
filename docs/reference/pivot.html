@@ -183,7 +183,7 @@ default, the count of instances for each patient will be used.</p>
   <span class='kw'>missing_fill</span> <span class='kw'>=</span> <span class='fl'>0</span>
 )</div><div class='output co'>#&gt; # A tibble: 2 x 4
 #&gt;   patient_id medication_asprin medication_lipitor medication_zoloft
-#&gt;   &lt;chr&gt;                  &lt;dbl&gt;              &lt;dbl&gt;             &lt;dbl&gt;
+#&gt;   &lt;fct&gt;                  &lt;dbl&gt;              &lt;dbl&gt;             &lt;dbl&gt;
 #&gt; 1 A                       8.00               2.00              1.00
 #&gt; 2 B                       4.00               0                 0   </div><div class='input'>
 <span class='no'>bills</span> <span class='kw'>&lt;-</span>
@@ -196,24 +196,24 @@ default, the count of instances for each patient will be used.</p>
 <span class='no'>bills</span></div><div class='output co'>#&gt; # A tibble: 8 x 4
 #&gt;   patient_id dept_id charge date      
 #&gt;   &lt;chr&gt;      &lt;chr&gt;    &lt;dbl&gt; &lt;date&gt;    
-#&gt; 1 A          ED        9887 2018-03-18
-#&gt; 2 A          ICU       3458 2018-03-17
-#&gt; 3 A          ED        6643 2018-03-19
-#&gt; 4 A          ICU       6857 2018-03-17
-#&gt; 5 B          ED        1082 2018-03-19
-#&gt; 6 B          ICU       8207 2018-03-19
-#&gt; 7 B          ED        4997 2018-03-17
-#&gt; 8 B          ICU       8821 2018-03-17</div><div class='input'>
+#&gt; 1 A          ED        9887 2018-03-22
+#&gt; 2 A          ICU       3458 2018-03-21
+#&gt; 3 A          ED        6643 2018-03-23
+#&gt; 4 A          ICU       6857 2018-03-21
+#&gt; 5 B          ED        1082 2018-03-23
+#&gt; 6 B          ICU       8207 2018-03-23
+#&gt; 7 B          ED        4997 2018-03-21
+#&gt; 8 B          ICU       8821 2018-03-21</div><div class='input'>
 <span class='co'># Total charges per patient x department:</span>
 <span class='fu'>pivot</span>(<span class='no'>bills</span>, <span class='no'>patient_id</span>, <span class='no'>dept_id</span>, <span class='no'>charge</span>, <span class='no'>sum</span>)</div><div class='output co'>#&gt; # A tibble: 2 x 3
 #&gt;   patient_id dept_id_ED dept_id_ICU
-#&gt;   &lt;chr&gt;           &lt;dbl&gt;       &lt;dbl&gt;
+#&gt;   &lt;fct&gt;           &lt;dbl&gt;       &lt;dbl&gt;
 #&gt; 1 A               16530       10315
 #&gt; 2 B                6079       17028</div><div class='input'>
 <span class='co'># Count of charges per patient x day:</span>
 <span class='fu'>pivot</span>(<span class='no'>bills</span>, <span class='no'>patient_id</span>, <span class='no'>date</span>)</div><div class='output co'>#&gt; <span class='message'>No fill column was provided, so using "1" for present entities</span></div><div class='output co'>#&gt; <span class='message'>There are rows that contain the same values of both patient_id and date but you didn't provide a function to 'fun' for their aggregation. Proceeding with the default: fun = sum.</span></div><div class='output co'>#&gt; # A tibble: 2 x 4
-#&gt;   patient_id `date_2018-03-17` `date_2018-03-18` `date_2018-03-19`
-#&gt;   &lt;chr&gt;                  &lt;int&gt;             &lt;int&gt;             &lt;int&gt;
+#&gt;   patient_id `date_2018-03-21` `date_2018-03-22` `date_2018-03-23`
+#&gt;   &lt;fct&gt;                  &lt;int&gt;             &lt;int&gt;             &lt;int&gt;
 #&gt; 1 A                          2                 1                 1
 #&gt; 2 B                          2                NA                 2</div><div class='input'>
 <span class='co'># Can provide a custom function to fun, which will take fill as input.</span>
@@ -226,7 +226,7 @@ default, the count of instances for each patient will be used.</p>
       <span class='kw'>fun</span> <span class='kw'>=</span> <span class='kw'>function</span>(<span class='no'>x</span>) <span class='fu'>paste0</span>(<span class='st'>"$"</span>, <span class='fu'>round</span>(<span class='fu'>max</span>(<span class='no'>x</span>) - <span class='fu'>min</span>(<span class='no'>x</span>), <span class='fl'>2</span>))
 )</div><div class='output co'>#&gt; # A tibble: 2 x 3
 #&gt;   patient_id dept_id_ED dept_id_ICU
-#&gt;   &lt;chr&gt;      &lt;chr&gt;      &lt;chr&gt;      
+#&gt;   &lt;fct&gt;      &lt;chr&gt;      &lt;chr&gt;      
 #&gt; 1 A          $3244.46   $3399.56   
 #&gt; 2 B          $3914.61   $614.51    </div></pre>
   </div>
