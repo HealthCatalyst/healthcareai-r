@@ -7,10 +7,10 @@
 #' @export
 #' @seealso \code{\link{stop_prod_logs}}
 #' @examples
+#' \dontrun{
 #' # Object Attribute Base should contain a script like this:
 #' # Move to working directory
-#' \dontrun{
-#' # setwd("Prod Server/Machine Learning/MyProject")
+#' setwd("Prod Server/Machine Learning/MyProject")
 #'
 #' # Start console logging
 #' start_prod_logs()
@@ -20,17 +20,17 @@
 #' catalyst_test_deploy_in_prod()
 #'
 #' # Deploy model
-#' # source("myDeployScript.R")
+#' source("myDeployScript.R")
 #'
 #' # Stop console logging
 #' stop_prod_logs()
 #' }
-start_prod_logs = function() {
+start_prod_logs <- function() {
   # Create file name and open connection
   file_name <- paste0("deployConsoleLog",
-    "_",
-    format(Sys.time(), paste("%Y-%m-%d_%H.%M.%OS", 3, sep = "")),
-    ".txt")
+                      "_",
+                      format(Sys.time(), paste("%Y-%m-%d_%H.%M.%OS", 3, sep = "")),
+                      ".txt")
   closeAllConnections() # clean up connections before creating a new one.
   file_connection <- file(description = file_name, open = "wt")
 
@@ -50,7 +50,7 @@ start_prod_logs = function() {
 #' production to monitor console output on ETL servers.
 #' @export
 #' @seealso \code{\link{start_prod_logs}}
-stop_prod_logs = function() {
+stop_prod_logs <- function() {
   # Stop writing to the file
   sink(type = "message")
   sink()
@@ -64,7 +64,7 @@ stop_prod_logs = function() {
 #' @export
 #' @seealso \code{\link{start_prod_logs}}
 #' @seealso \code{\link{stop_prod_logs}}
-catalyst_test_deploy_in_prod = function() {
+catalyst_test_deploy_in_prod <- function() {
   print("If you're reading this in the log file,
     deployment is ready to go in prod.")
   library(healthcareai)

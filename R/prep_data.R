@@ -149,12 +149,11 @@ prep_data <- function(d,
     if (length(missing_vars))
       stop("These variables were present in training but are missing or ignored here: ",
            paste(missing_vars, collapse = ", "))
-    # Outcome gets added as all NAs; set a flag to remove it at end
-    if (rlang::quo_is_missing(outcome)) {
-      outcome_var <- recipe$var_info$variable[recipe$var_info$role == "outcome"]
-      if (length(outcome_var))
+    # Outcome gets added as all NAs; set a flag to remove it at end if not in provided DF
+    outcome_var <- recipe$var_info$variable[recipe$var_info$role == "outcome"]
+    if (length(outcome_var) && !outcome_var %in% names(d))
+      ## The recipe has an outcome variable. If it's not in d, flag for removal
         remove_outcome <- TRUE
-    }
 
   } else {
 

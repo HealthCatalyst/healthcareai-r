@@ -65,4 +65,4 @@ If that doesn't work, please contact us through Github or at the website linked 
 
 #### Looking for an older version of the package? 
 
-Version 1 of healthcare-ai has been retired, but if you want to to continue to use its functionality, you can still install it from github: `devtools::install_github("HealthCatalyst/healthcareai-r@v1.2.3")`.
+Version 1 of healthcare-ai has been retired, but if you want to to continue to use its functionality, you can still install it from github: `devtools::install_github("HealthCatalyst/healthcareai-r@v1.2.4")`.
