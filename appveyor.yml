@@ -34,10 +34,6 @@ environment:
     R_ARCH: x64
     GCC_PATH: mingw_32
 
-  allow_failures:
-    - R_VERSION: devel
- 
-
 build_script:
   - ps: iex .\inst\CIDatabase\CIBuild_DBCreate.ps1
   - travis-tool.sh install_deps
