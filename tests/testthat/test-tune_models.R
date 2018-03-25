@@ -10,10 +10,10 @@ test_that("tune errors if tune_method isn't 'random'", {
 })
 
 test_that("Error informatively if outcome class doesn't match model_class", {
-  expect_error(tune_models(test_df, diabetes, "regression"), class(test_df$diabetes))
+  expect_error(tune_models(test_df, diabetes, "regression"), "categorical")
   test_df$diabetes <- factor(test_df$diabetes)
-  expect_error(tune_models(test_df, diabetes, "regression"), class(test_df$diabetes))
-  expect_error(tune_models(test_df, plasma_glucose, "classification"), class(test_df$plasma_glucose))
+  expect_error(tune_models(test_df, diabetes, "regression"), "categorical")
+  expect_error(tune_models(test_df, plasma_glucose, "classification"), "numeric")
 })
 
 # No error for each algorithm x response-class type

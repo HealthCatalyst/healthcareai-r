@@ -77,28 +77,22 @@ tune_models <- function(d,
   outcome <- check_outcome(rlang::enquo(outcome), names(d))
   outcome_chr <- rlang::quo_name(outcome)
 
-  # tibbles upset some algorithms, plus handles matrices, maybe
+  # tibbles upset some algorithms, so make it a data frame
   d <- as.data.frame(d)
-
+  # Convert all character variables to factors. kknn sometimes chokes on chars
+  d <- dplyr::mutate_if(d, is.character, as.factor)
+  # Make `models` case insensitive
   models <- tolower(models)
 
   if (n_folds <= 1)
     stop("n_folds must be greater than 1.")
 
-  # Grab data prep recipe object to add to model_list at end
-  recipe <-
-    if ("recipe" %in% names(attributes(d))) attr(d, "recipe") else NULL
+  # Grab data prep recipe object (NULL if not used)
+  recipe <- attr(d, "recipe")
+
   if (!is.null(recipe)) {
-    # Pull columns ignored in prep_data out of d
-    ignored <- attr(recipe, "ignored_columns")
-    # Only ignored columns that are present now
-    ignored <- ignored[ignored %in% names(d)]
-    if (!is.null(ignored) && length(ignored)) {
-      d <- dplyr::select(d, -dplyr::one_of(ignored))
-      if (verbose)
-        message("Variable(s) ignored in prep_data won't be used to tune models: ",
-                paste(ignored, collapse = ", "))
-    }
+    d <- remove_ignored(d, recipe, verbose)
+
     # If an outcome was specified in prep_data make sure it's the same here
     prep_outcome <-recipe$var_info$variable[recipe$var_info$role == "outcome"] # nolint
     if (length(prep_outcome) && prep_outcome != outcome_chr)
@@ -139,16 +133,12 @@ tune_models <- function(d,
            paste(supported_classes, collapse = ", "),
            ". You supplied this unsupported class: ", model_class)
     if (looks_categorical && model_class == "regression") {
-      stop(outcome_chr, " is ", outcome_class, " but you're ",
-           "trying to train a regression model.")
+      stop(outcome_chr, " looks categorical but you're trying to train a regression model.")
     } else if (looks_numeric && model_class == "classification") {
-      stop(outcome_chr, " is ", outcome_class, " but you're ",
-           "trying to train a classification model. If that's what you want ",
-           "convert it explicitly with as.factor().")
+      stop(outcome_chr, " looks numeric but you're trying to train a classification ",
+           "model. If that's what you want convert it explicitly with as.factor().")
     }
   }
-  # Convert all character variables to factors. kknn sometimes chokes on chars
-  d <- dplyr::mutate_if(d, is.character, as.factor)
 
   # Choose metric if not provided
   if (missing(metric)) {
@@ -244,4 +234,18 @@ check_outcome <- function(outcome, d_names) {
   if (!outcome_chr %in% d_names)
     stop(outcome_chr, " isn't a column in d.")
   return(outcome)
+}
+
+remove_ignored <- function(d, recipe, verbose) {
+  # Pull columns ignored in prep_data out of d
+  ignored <- attr(recipe, "ignored_columns")
+  # Only ignored columns that are present now
+  ignored <- ignored[ignored %in% names(d)]
+  if (!is.null(ignored) && length(ignored)) {
+    d <- dplyr::select(d, -dplyr::one_of(ignored))
+    if (verbose)
+      message("Variable(s) ignored in prep_data won't be used to tune models: ",
+              paste(ignored, collapse = ", "))
+  }
+  return(d)
 }
