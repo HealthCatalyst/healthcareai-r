@@ -72,21 +72,24 @@ tune_models <- function(d,
                         metric,
                         hyperparameters) {
 
+  if (n_folds <= 1)
+    stop("n_folds must be greater than 1.")
+
+  # Get recipe and remove columns to be ignored in training
   recipe <- attr(d, "recipe")
   if (!is.null(recipe))
     d <- remove_ignored(d, recipe)
 
+  # Check outcome provided, agrees with outcome in prep_data, present in d
   outcome <- check_outcome(rlang::enquo(outcome), names(d), recipe)
   outcome_chr <- rlang::quo_name(outcome)
 
   # tibbles upset some algorithms, so make it a data frame
   d <- as.data.frame(d)
-  # Convert all character variables to factors. kknn sometimes chokes on chars
+  # kknn can choke on characters so convert all character variables to factors.
   d <- dplyr::mutate_if(d, is.character, as.factor)
   # Make `models` case insensitive
   models <- tolower(models)
-  if (n_folds <= 1)
-    stop("n_folds must be greater than 1.")
 
   # Make sure outcome's class works with model_class, or infer it
   model_class <- set_model_class(model_class, class(dplyr::pull(d, !!outcome)), outcome_chr)
@@ -110,7 +113,7 @@ tune_models <- function(d,
   if (metric == "PR")
     metric <- "AUC" # For caret internal function
 
-  # Crude check for training that will take a while
+  # Rough check for training that will take a while, message if so
   n_mod <- n_folds * tune_depth * length(models)
   obs <- nrow(d)
   if ( (obs > 1000 && n_mod > 10) || (obs > 100 && n_mod > 100) )
@@ -139,7 +142,7 @@ tune_models <- function(d,
       )
     })
 
-  # Add classes
+  # Add class
   train_list <- as.model_list(listed_models = train_list, target = outcome_chr)
 
   # Add recipe object if one came in on d
