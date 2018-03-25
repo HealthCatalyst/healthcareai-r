@@ -75,41 +75,13 @@ tune_models <- function(d,
   if (n_folds <= 1)
     stop("n_folds must be greater than 1.")
 
-  # Get recipe and remove columns to be ignored in training
-  recipe <- attr(d, "recipe")
-  if (!is.null(recipe))
-    d <- remove_ignored(d, recipe)
-
-  # Check outcome provided, agrees with outcome in prep_data, present in d
-  outcome <- check_outcome(rlang::enquo(outcome), names(d), recipe)
-  outcome_chr <- rlang::quo_name(outcome)
-
-  # tibbles upset some algorithms, so make it a data frame
-  d <- as.data.frame(d)
-  # kknn can choke on characters so convert all character variables to factors.
-  d <- dplyr::mutate_if(d, is.character, as.factor)
-  # Make `models` case insensitive
-  models <- tolower(models)
-
-  # Make sure outcome's class works with model_class, or infer it
-  model_class <- set_model_class(model_class, class(dplyr::pull(d, !!outcome)), outcome_chr)
-
-  # Some algorithms need the response to be factor instead of char or lgl
-  # Get rid of unused levels if they're present
-  if (model_class == "classification")
-    d <- dplyr::mutate(d,
-                       !!outcome_chr := as.factor(!!outcome),
-                       !!outcome_chr := droplevels(!!outcome))
-
-  # Choose metric if not provided
-  if (missing(metric))
-    metric <- set_default_metric(model_class)
-
-  # Make sure models are supported
-  models <- setup_models(models)
+  model_args <- setup_training(d, rlang::enquo(outcome), model_class, models, metric)
+  # Pull each item out of "model_args" list and assign in this environment
+  for (arg in names(model_args))
+    assign(arg, model_args[[arg]])
 
   # Set up cross validation details
-  train_control <- setup_training(tune_method, n_folds, model_class, metric)
+  train_control <- setup_train_control(tune_method, n_folds, model_class, metric)
   if (metric == "PR")
     metric <- "AUC" # For caret internal function
 
@@ -143,12 +115,52 @@ tune_models <- function(d,
     })
 
   # Add class
-  train_list <- as.model_list(listed_models = train_list, target = outcome_chr)
+  train_list <- as.model_list(listed_models = train_list,
+                              target = rlang::quo_name(outcome))
 
   # Add recipe object if one came in on d
-  attr(train_list, "recipe") <- recipe
+  attr(train_list, "recipe") <- attr(d, "recipe")
 
   return(train_list)
+}
+
+setup_training <- function(d, outcome, model_class, models, metric) {
+
+  # Get recipe and remove columns to be ignored in training
+  recipe <- attr(d, "recipe")
+  if (!is.null(recipe))
+    d <- remove_ignored(d, recipe)
+
+  # Check outcome provided, agrees with outcome in prep_data, present in d
+  outcome <- check_outcome(outcome, names(d), recipe)
+  outcome_chr <- rlang::quo_name(outcome)
+
+  # tibbles upset some algorithms, so make it a data frame
+  d <- as.data.frame(d)
+  # kknn can choke on characters so convert all character variables to factors.
+  d <- dplyr::mutate_if(d, is.character, as.factor)
+  # Make `models` case insensitive
+  models <- tolower(models)
+
+  # Make sure outcome's class works with model_class, or infer it
+  model_class <- set_model_class(model_class, class(dplyr::pull(d, !!outcome)), outcome_chr)
+
+  # Some algorithms need the response to be factor instead of char or lgl
+  # Get rid of unused levels if they're present
+  if (model_class == "classification")
+    d <- dplyr::mutate(d,
+                       !!outcome_chr := as.factor(!!outcome),
+                       !!outcome_chr := droplevels(!!outcome))
+
+  # Choose metric if not provided
+  if (missing(metric))
+    metric <- set_default_metric(model_class)
+
+  # Make sure models are supported
+  models <- setup_models(models)
+
+  return(list(d = d, outcome = outcome, model_class = model_class,
+              models = models, metric = metric))
 }
 
 check_outcome <- function(outcome, d_names, recipe) {
@@ -240,7 +252,7 @@ set_default_metric <- function(model_class) {
 }
 
 
-setup_training <- function(tune_method, n_folds, model_class, metric) {
+setup_train_control <- function(tune_method, n_folds, model_class, metric) {
   if (tune_method == "random") {
     train_control <-caret::trainControl(method = "cv",
                                         number = n_folds,
