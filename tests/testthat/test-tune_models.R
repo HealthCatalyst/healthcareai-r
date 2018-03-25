@@ -132,20 +132,28 @@ test_that("tune supports various loss functions in regression", {
 
 test_that("tune handles character outcome", {
   test_df$diabetes <- as.character(test_df$diabetes)
-  expect_s3_class(tune_models(test_df, diabetes, "classification"), "classification_list")
+  expect_s3_class(tune_models(test_df, diabetes, "classification", tune_depth = 2,
+                              n_folds = 2, models = "rf"),
+                  "classification_list")
 })
 
 test_that("tune handles tibble input", {
-  expect_s3_class(tune_models(tibble::as_tibble(test_df), diabetes, "classification"),
+  expect_s3_class(tune_models(tibble::as_tibble(test_df), diabetes, "classification",
+                              tune_depth = 2, n_folds = 2, models = "knn"),
                   "classification_list")
 })
 
 test_that("If a column was ignored in prep_data it's ignored in tune", {
-  pd <- prep_data(test_df, plasma_glucose)
-  capture_warnings(mods <- tune_models(pd, age))
+  pd <- prep_data(test_df, plasma_glucose, outcome = age)
+  capture_warnings(mods <- tune_models(pd, age, tune_depth = 2, n_folds = 2, models = "knn"))
   expect_false("plasma_glucose" %in% names(mods[[1]]$trainingData))
 })
 
 test_that("Missing outcome variable error points user to what's missing", {
   expect_error(tune_models(test_df), "outcome")
+})
+
+test_that("outcome specified in prep_data gets carried over to tune_models", {
+  pd <- prep_data(test_df, plasma_glucose, outcome = age)
+  expect_error(tune_models(pd, tune_depth = 2, n_folds = 2, models = "knn"), NA)
 })
