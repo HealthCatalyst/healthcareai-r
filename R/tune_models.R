@@ -74,7 +74,11 @@ tune_models <- function(d,
                         hyperparameters,
                         verbose = FALSE) {
 
-  outcome <- check_outcome(rlang::enquo(outcome), names(d))
+  recipe <- attr(d, "recipe")
+  if (!is.null(recipe))
+    d <- remove_ignored(d, recipe, verbose)
+
+  outcome <- check_outcome(rlang::enquo(outcome), names(d), recipe)
   outcome_chr <- rlang::quo_name(outcome)
 
   # tibbles upset some algorithms, so make it a data frame
@@ -83,62 +87,18 @@ tune_models <- function(d,
   d <- dplyr::mutate_if(d, is.character, as.factor)
   # Make `models` case insensitive
   models <- tolower(models)
-
   if (n_folds <= 1)
     stop("n_folds must be greater than 1.")
 
-  # Grab data prep recipe object (NULL if not used)
-  recipe <- attr(d, "recipe")
-
-  if (!is.null(recipe)) {
-    d <- remove_ignored(d, recipe, verbose)
-
-    # If an outcome was specified in prep_data make sure it's the same here
-    prep_outcome <-recipe$var_info$variable[recipe$var_info$role == "outcome"] # nolint
-    if (length(prep_outcome) && prep_outcome != outcome_chr)
-      stop("outcome in prep_data (", prep_outcome, ") and outcome in tune models (",
-           outcome_chr, ") are different. They need to be the same.")
-  }
-
   # Make sure outcome's class works with model_class, or infer it
-  outcome_class <- class(dplyr::pull(d, !!outcome))
-  looks_categorical <- outcome_class %in% c("character", "factor")
+  model_class <- set_model_class(model_class, class(dplyr::pull(d, !!outcome)), outcome_chr)
+
   # Some algorithms need the response to be factor instead of char or lgl
   # Get rid of unused levels if they're present
-  if (looks_categorical)
+  if (model_class == "classification")
     d <- dplyr::mutate(d,
                        !!outcome_chr := as.factor(!!outcome),
                        !!outcome_chr := droplevels(!!outcome))
-  looks_numeric <- is.numeric(dplyr::pull(d, !!outcome))
-  if (!looks_categorical && !looks_numeric) {
-    # outcome is weird class
-    stop(outcome_chr, " is ", class(dplyr::pull(d, !!outcome)),
-         ", and tune_models doesn't know what to do with that.")
-  } else if (missing(model_class)) {
-    # Need to infer model_class
-    if (looks_categorical) {
-      mes <- paste0(outcome_chr, " looks categorical, so training classification algorithms.")
-      model_class <- "classification"
-    } else {
-      mes <- paste0(outcome_chr, " looks numeric, so training regression algorithms.")
-      model_class <- "regression"
-      # User provided model_class, so check it
-    }
-    message(mes)
-  } else {
-    # Check user-provided model_class
-    supported_classes <- c("regression", "classification")
-    if (!model_class %in% supported_classes)
-      stop("Supported model classes are: ",
-           paste(supported_classes, collapse = ", "),
-           ". You supplied this unsupported class: ", model_class)
-    if (looks_categorical && model_class == "regression") {
-      stop(outcome_chr, " looks categorical but you're trying to train a regression model.")
-    } else if (looks_numeric && model_class == "classification") {
-      stop(outcome_chr, " looks numeric but you're trying to train a classification ",
-           "model. If that's what you want convert it explicitly with as.factor().")
-    }
-  }
 
   # Choose metric if not provided
   if (missing(metric)) {
@@ -226,13 +186,18 @@ tune_models <- function(d,
   return(train_list)
 }
 
-check_outcome <- function(outcome, d_names) {
-  # Organize arguments and defaults
+check_outcome <- function(outcome, d_names, recipe) {
   if (rlang::quo_is_missing(outcome))
     stop("You must provide an outcome variable to tune_models.")
   outcome_chr <- rlang::quo_name(outcome)
   if (!outcome_chr %in% d_names)
     stop(outcome_chr, " isn't a column in d.")
+  if (!is.null(recipe)) {
+    prep_outcome <- recipe$var_info$variable[recipe$var_info$role == "outcome"]
+    if (length(prep_outcome) && prep_outcome != outcome_chr)
+      stop("outcome in prep_data (", prep_outcome, ") and outcome in tune models (",
+           outcome_chr, ") are different. They need to be the same.")
+  }
   return(outcome)
 }
 
@@ -248,4 +213,40 @@ remove_ignored <- function(d, recipe, verbose) {
               paste(ignored, collapse = ", "))
   }
   return(d)
+}
+
+
+set_model_class <- function(model_class, outcome_class, outcome_chr) {
+  looks_categorical <- outcome_class %in% c("character", "factor")
+  looks_numeric <- outcome_class %in% c("integer", "double")
+  if (!looks_categorical && !looks_numeric) {
+    # outcome is weird class such as list
+    stop(outcome_chr, " is ", outcome_class,
+         ", and tune_models doesn't know what to do with that.")
+  } else if (missing(model_class)) {
+    # Need to infer model_class
+    if (looks_categorical) {
+      mes <- paste0(outcome_chr, " looks categorical, so training classification algorithms.")
+      model_class <- "classification"
+    } else {
+      mes <- paste0(outcome_chr, " looks numeric, so training regression algorithms.")
+      model_class <- "regression"
+      # User provided model_class, so check it
+    }
+    message(mes)
+  } else {
+    # Check user-provided model_class
+    supported_classes <- get_supported_model_classes()
+    if (!model_class %in% supported_classes)
+      stop("Supported model classes are: ",
+           paste(supported_classes, collapse = ", "),
+           ". You supplied this unsupported class: ", model_class)
+    if (looks_categorical && model_class == "regression") {
+      stop(outcome_chr, " looks categorical but you're trying to train a regression model.")
+    } else if (looks_numeric && model_class == "classification") {
+      stop(outcome_chr, " looks numeric but you're trying to train a classification ",
+           "model. If that's what you want convert it explicitly with as.factor().")
+    }
+  }
+  return(model_class)
 }

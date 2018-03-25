@@ -152,8 +152,3 @@ test_that("If a column was ignored in prep_data it's ignored in tune", {
 test_that("Missing outcome variable error points user to what's missing", {
   expect_error(tune_models(test_df), "outcome")
 })
-
-test_that("outcome specified in prep_data gets carried over to tune_models", {
-  pd <- prep_data(test_df, plasma_glucose, outcome = age)
-  expect_error(tune_models(pd, tune_depth = 2, n_folds = 2, models = "knn"), NA)
-})

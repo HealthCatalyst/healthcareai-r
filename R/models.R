@@ -28,6 +28,13 @@
 NULL
 
 
+#' get_supported_model_classes
+#' @noRd
+#' @details Vector of currently-supported model classes.
+get_supported_model_classes <- function() {
+  return(c("regression", "classification"))
+}
+
 #############################################
 ##### Adjustments to stock caret models #####
 #############################################
