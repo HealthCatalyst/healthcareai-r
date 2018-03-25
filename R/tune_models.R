@@ -18,7 +18,6 @@
 #'   operating characteristic curve), or "PR" (area under the precision-recall
 #'   curve).
 #' @param hyperparameters Currently not supported.
-#' @param verbose Logical, defaults to FALSE. Get additional info via messages?
 #'
 #' @export
 #' @importFrom kknn kknn
@@ -71,12 +70,11 @@ tune_models <- function(d,
                         tune_depth = 10,
                         tune_method = "random",
                         metric,
-                        hyperparameters,
-                        verbose = FALSE) {
+                        hyperparameters) {
 
   recipe <- attr(d, "recipe")
   if (!is.null(recipe))
-    d <- remove_ignored(d, recipe, verbose)
+    d <- remove_ignored(d, recipe)
 
   outcome <- check_outcome(rlang::enquo(outcome), names(d), recipe)
   outcome_chr <- rlang::quo_name(outcome)
@@ -126,7 +124,7 @@ tune_models <- function(d,
     lapply(models, function(model) {
       message("Running cross validation for ",
               caret::getModelInfo(model)[[1]]$label)
-      # Hack to reduce kmax for kknn from nrow/3 to log(nrow)*3
+      # Reduce kmax for kknn
       if (model == "kknn")
         model <- adjust_knn()
       # Train models
@@ -142,8 +140,7 @@ tune_models <- function(d,
     })
 
   # Add classes
-  train_list <- as.model_list(listed_models = train_list,
-                              target = outcome_chr)
+  train_list <- as.model_list(listed_models = train_list, target = outcome_chr)
 
   # Add recipe object if one came in on d
   attr(train_list, "recipe") <- recipe
@@ -166,16 +163,15 @@ check_outcome <- function(outcome, d_names, recipe) {
   return(outcome)
 }
 
-remove_ignored <- function(d, recipe, verbose) {
+remove_ignored <- function(d, recipe) {
   # Pull columns ignored in prep_data out of d
   ignored <- attr(recipe, "ignored_columns")
   # Only ignored columns that are present now
   ignored <- ignored[ignored %in% names(d)]
   if (!is.null(ignored) && length(ignored)) {
     d <- dplyr::select(d, -dplyr::one_of(ignored))
-    if (verbose)
-      message("Variable(s) ignored in prep_data won't be used to tune models: ",
-              paste(ignored, collapse = ", "))
+    message("Variable(s) ignored in prep_data won't be used to tune models: ",
+            paste(ignored, collapse = ", "))
   }
   return(d)
 }
