@@ -61,10 +61,13 @@ get_hyperparameter_defaults <- function(models = get_supported_models()) {
   defaults[models]
 }
 
-#' Translate user provided model specifications to caret's expectation
+#' Translate user provided model specifications to caret's expectation or
+#' vice-versa (which way to go is automatic)
 #' @noRd
 translate_model_names <- function(models) {
   key <- c(rf = "ranger", knn = "kknn")
+  if (all(models %in% key))
+    key <- structure(names(key), names = key)
   return(unname(key[models]))
 }
 
