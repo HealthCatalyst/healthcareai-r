@@ -73,17 +73,15 @@ tune_models <- function(d,
                         metric,
                         hyperparameters,
                         verbose = FALSE) {
-  # Organize arguments and defaults
-  outcome <- rlang::enquo(outcome)
-  if (rlang::quo_is_missing(outcome))
-    stop("You must provide an outcome variable to tune_models.")
+
+  outcome <- check_outcome(rlang::enquo(outcome), names(d))
   outcome_chr <- rlang::quo_name(outcome)
-  if (!outcome_chr %in% names(d))
-    stop(outcome_chr, " isn't a column in d.")
-  models <- tolower(models)
 
   # tibbles upset some algorithms, plus handles matrices, maybe
   d <- as.data.frame(d)
+
+  models <- tolower(models)
+
   if (n_folds <= 1)
     stop("n_folds must be greater than 1.")
 
@@ -236,4 +234,14 @@ tune_models <- function(d,
   attr(train_list, "recipe") <- recipe
 
   return(train_list)
+}
+
+check_outcome <- function(outcome, d_names) {
+  # Organize arguments and defaults
+  if (rlang::quo_is_missing(outcome))
+    stop("You must provide an outcome variable to tune_models.")
+  outcome_chr <- rlang::quo_name(outcome)
+  if (!outcome_chr %in% d_names)
+    stop(outcome_chr, " isn't a column in d.")
+  return(outcome)
 }
