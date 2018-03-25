@@ -108,29 +108,11 @@ tune_models <- function(d,
   models <- setup_models(models)
 
   # Set up cross validation details
-  if (tune_method == "random") {
-    train_control <-
-      caret::trainControl(method = "cv",
-                          number = n_folds,
-                          search = "random",
-                          savePredictions = "final"
-      )
-  } else {
-    stop("Currently tune_method = \"random\" is the only supported method",
-         " but you supplied tune_method = \"", tune_method, "\"")
-  }
+  train_control <- setup_training(tune_method, n_folds, model_class, metric)
+  if (metric == "PR")
+    metric <- "AUC" # For caret internal function
 
-  # trainControl defaults are good for regression. Change for other model_class:
-  if (model_class == "classification") {
-    if (metric == "PR") {
-      train_control$summaryFunction <- caret::prSummary
-      metric <- "AUC" # For caret internal function
-    } else {
-      train_control$summaryFunction <- caret::twoClassSummary
-    }
-    train_control$classProbs <- TRUE
-  }
-
+  # Crude check for training that will take a while
   n_mod <- n_folds * tune_depth * length(models)
   obs <- nrow(d)
   if ( (obs > 1000 && n_mod > 10) || (obs > 100 && n_mod > 100) )
@@ -256,4 +238,28 @@ set_default_metric <- function(model_class) {
   } else {
     stop("Don't have default metric for model class", model_class)
   }
+}
+
+
+setup_training <- function(tune_method, n_folds, model_class, metric) {
+  if (tune_method == "random") {
+    train_control <-caret::trainControl(method = "cv",
+                                        number = n_folds,
+                                        search = "random",
+                                        savePredictions = "final"
+    )
+  } else {
+    stop("Currently tune_method = \"random\" is the only supported method",
+         " but you supplied tune_method = \"", tune_method, "\"")
+  }
+  # trainControl defaults are good for regression. Change for classification
+  if (model_class == "classification") {
+    if (metric == "PR") {
+      train_control$summaryFunction <- caret::prSummary
+    } else {
+      train_control$summaryFunction <- caret::twoClassSummary
+    }
+    train_control$classProbs <- TRUE
+  }
+  return(train_control)
 }
