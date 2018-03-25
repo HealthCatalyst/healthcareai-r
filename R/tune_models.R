@@ -101,16 +101,12 @@ tune_models <- function(d,
                        !!outcome_chr := droplevels(!!outcome))
 
   # Choose metric if not provided
-  if (missing(metric)) {
-    metric <-
-      if (model_class == "regression") {
-        "RMSE"
-      } else if (model_class == "classification") {
-        "ROC"
-      }
-  }
+  if (missing(metric))
+    metric <- set_default_metric(model_class)
+
   # Make sure models are supported
-  available <- c("rf", "knn")
+  available <- get_supported_models()
+
   unsupported <- models[!models %in% available]
   if (length(unsupported))
     stop("Currently supported algorithms are: ",
@@ -118,7 +114,6 @@ tune_models <- function(d,
          ". You supplied these unsupported algorithms: ",
          paste(unsupported, collapse = ", "))
   # We use kknn and ranger, but user input is "knn" and "rf"
-  provided_models <- models  # Keep user names to name model_list
   models[models == "knn"] <- "kknn"
   models[models == "rf"] <- "ranger"
 
@@ -173,8 +168,6 @@ tune_models <- function(d,
         )
       )
     })
-  # Add model names
-  names(train_list) <- provided_models
 
   # Add classes
   train_list <- as.model_list(listed_models = train_list,
@@ -215,10 +208,9 @@ remove_ignored <- function(d, recipe, verbose) {
   return(d)
 }
 
-
 set_model_class <- function(model_class, outcome_class, outcome_chr) {
   looks_categorical <- outcome_class %in% c("character", "factor")
-  looks_numeric <- outcome_class %in% c("integer", "double")
+  looks_numeric <- outcome_class %in% c("integer", "numeric")
   if (!looks_categorical && !looks_numeric) {
     # outcome is weird class such as list
     stop(outcome_chr, " is ", outcome_class,
@@ -249,4 +241,14 @@ set_model_class <- function(model_class, outcome_class, outcome_chr) {
     }
   }
   return(model_class)
+}
+
+set_default_metric <- function(model_class) {
+  if (model_class == "regression") {
+    return("RMSE")
+  } else if (model_class == "classification") {
+    return("ROC")
+  } else {
+    stop("Don't have default metric for model class", model_class)
+  }
 }

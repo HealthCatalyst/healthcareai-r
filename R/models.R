@@ -27,6 +27,12 @@
 #' @aliases models models_supported
 NULL
 
+#' get_supported_models
+#' @noRd
+#' @details Vector of currently-supported algorithms.
+get_supported_models <- function() {
+    return(c("rf", "knn"))
+}
 
 #' get_supported_model_classes
 #' @noRd

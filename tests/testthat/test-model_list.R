@@ -1,3 +1,5 @@
+context("model_list tests setup")
+
 # Setup ------------------------------------------------------------------------
 data(mtcars)
 mtcars$am <- as.factor(c("automatic", "manual")[mtcars$am + 1])
