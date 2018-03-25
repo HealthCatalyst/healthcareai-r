@@ -45,6 +45,8 @@ get_supported_model_classes <- function() {
 ##### Adjustments to stock caret models #####
 #############################################
 
+# nolint start
+
 #' adjust_knn
 #' @noRd
 #' @return grid for kknn
@@ -72,3 +74,5 @@ adjust_knn <- function() {
   }
   return(kn)
 }
+
+# nolint end
