@@ -105,17 +105,7 @@ tune_models <- function(d,
     metric <- set_default_metric(model_class)
 
   # Make sure models are supported
-  available <- get_supported_models()
-
-  unsupported <- models[!models %in% available]
-  if (length(unsupported))
-    stop("Currently supported algorithms are: ",
-         paste(available, collapse = ", "),
-         ". You supplied these unsupported algorithms: ",
-         paste(unsupported, collapse = ", "))
-  # We use kknn and ranger, but user input is "knn" and "rf"
-  models[models == "knn"] <- "kknn"
-  models[models == "rf"] <- "ranger"
+  models <- setup_models(models)
 
   # Set up cross validation details
   if (tune_method == "random") {
@@ -241,6 +231,21 @@ set_model_class <- function(model_class, outcome_class, outcome_chr) {
     }
   }
   return(model_class)
+}
+
+
+setup_models <- function(models) {
+  available <- get_supported_models()
+  unsupported <- models[!models %in% available]
+  if (length(unsupported))
+    stop("Currently supported algorithms are: ",
+         paste(available, collapse = ", "),
+         ". You supplied these unsupported algorithms: ",
+         paste(unsupported, collapse = ", "))
+  # We use kknn and ranger, but user input is "knn" and "rf"
+  models[models == "knn"] <- "kknn"
+  models[models == "rf"] <- "ranger"
+  return(models)
 }
 
 set_default_metric <- function(model_class) {
