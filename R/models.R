@@ -41,6 +41,33 @@ get_supported_model_classes <- function() {
   return(c("regression", "classification"))
 }
 
+#' get_hyperparameter_defaults
+#' @noRd
+#' @details Get default hyperparameters to use, e.g. in flash_models. list
+#'   (algorithms) of lists (hyperparameters).
+get_hyperparameter_defaults <- function(models = get_supported_models()) {
+  defaults <-
+    list(
+      rf = list(
+        mtry = 5,
+        splitrule = "extratrees",
+        min.node.size = 10),
+      knn = list(
+        kmax = 10,
+        distance = 2,
+        kernal = "gaussian"
+      )
+    )
+  defaults[models]
+}
+
+#' Translate user provided model specifications to caret's expectation
+#' @noRd
+translate_model_names <- function(models) {
+  key <- c(rf = "ranger", knn = "kknn")
+  return(unname(key[models]))
+}
+
 #############################################
 ##### Adjustments to stock caret models #####
 #############################################

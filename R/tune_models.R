@@ -81,7 +81,7 @@ tune_models <- function(d,
     assign(arg, model_args[[arg]])
 
   # Set up cross validation details
-  train_control <- setup_train_control(tune_method, n_folds, model_class, metric)
+  train_control <- setup_train_control(tune_method, model_class, metric, n_folds)
   if (metric == "PR")
     metric <- "AUC" # For caret internal function
 
@@ -236,8 +236,7 @@ setup_models <- function(models) {
          ". You supplied these unsupported algorithms: ",
          paste(unsupported, collapse = ", "))
   # We use kknn and ranger, but user input is "knn" and "rf"
-  models[models == "knn"] <- "kknn"
-  models[models == "rf"] <- "ranger"
+  models <- translate_model_names(models)
   return(models)
 }
 
@@ -252,13 +251,15 @@ set_default_metric <- function(model_class) {
 }
 
 
-setup_train_control <- function(tune_method, n_folds, model_class, metric) {
+setup_train_control <- function(tune_method, model_class, metric, n_folds) {
   if (tune_method == "random") {
     train_control <-caret::trainControl(method = "cv",
                                         number = n_folds,
                                         search = "random",
-                                        savePredictions = "final"
-    )
+                                        savePredictions = "final")
+  } else if (tune_method == "none") {
+    train_control <-caret::trainControl(method = "none",
+                                        savePredictions = "final")
   } else {
     stop("Currently tune_method = \"random\" is the only supported method",
          " but you supplied tune_method = \"", tune_method, "\"")
