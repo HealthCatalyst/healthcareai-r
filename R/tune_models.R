@@ -65,7 +65,7 @@
 tune_models <- function(d,
                         outcome,
                         model_class,
-                        models = c("rf", "knn"),
+                        models,
                         n_folds = 5,
                         tune_depth = 10,
                         tune_method = "random",
@@ -119,7 +119,7 @@ tune_models <- function(d,
                               target = rlang::quo_name(outcome))
 
   # Add recipe object if one came in on d
-  attr(train_list, "recipe") <- attr(d, "recipe")
+  attr(train_list, "recipe") <- recipe
 
   return(train_list)
 }
@@ -139,8 +139,13 @@ setup_training <- function(d, outcome, model_class, models, metric) {
   d <- as.data.frame(d)
   # kknn can choke on characters so convert all character variables to factors.
   d <- dplyr::mutate_if(d, is.character, as.factor)
-  # Make `models` case insensitive
-  models <- tolower(models)
+
+  if (missing(models)) {
+    models <- get_supported_models()
+  } else {
+    # Make `models` case insensitive
+    models <- tolower(models)
+  }
 
   # Make sure outcome's class works with model_class, or infer it
   model_class <- set_model_class(model_class, class(dplyr::pull(d, !!outcome)), outcome_chr)
@@ -160,7 +165,7 @@ setup_training <- function(d, outcome, model_class, models, metric) {
   models <- setup_models(models)
 
   return(list(d = d, outcome = outcome, model_class = model_class,
-              models = models, metric = metric))
+              models = models, metric = metric, recipe = recipe))
 }
 
 check_outcome <- function(outcome, d_names, recipe) {
@@ -253,12 +258,12 @@ set_default_metric <- function(model_class) {
 
 setup_train_control <- function(tune_method, model_class, metric, n_folds) {
   if (tune_method == "random") {
-    train_control <-caret::trainControl(method = "cv",
+    train_control <- caret::trainControl(method = "cv",
                                         number = n_folds,
                                         search = "random",
                                         savePredictions = "final")
   } else if (tune_method == "none") {
-    train_control <-caret::trainControl(method = "none",
+    train_control <- caret::trainControl(method = "none",
                                         savePredictions = "final")
   } else {
     stop("Currently tune_method = \"random\" is the only supported method",

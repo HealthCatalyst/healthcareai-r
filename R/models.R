@@ -23,13 +23,8 @@
 #'   "gaussian", "rank", or "optimal".}
 #' }
 #'
-#' @name supported_models
-#' @aliases models models_supported
-NULL
-
-#' get_supported_models
-#' @noRd
-#' @details Vector of currently-supported algorithms.
+#' @return Vector of currently-supported algorithms.
+#' @aliases supported_models models models_supported
 get_supported_models <- function() {
     return(c("rf", "knn"))
 }
@@ -55,7 +50,7 @@ get_hyperparameter_defaults <- function(models = get_supported_models()) {
       knn = list(
         kmax = 10,
         distance = 2,
-        kernal = "gaussian"
+        kernel = "gaussian"
       )
     )
   defaults[models]

@@ -6,11 +6,12 @@ models <- machine_learn(training_data, outcome = am)
 
 test_that("machine_learn produces a model_list", {
   expect_s3_class(models, "model_list")
-  expect_true("recipe" %in% names(attributes(models)))
 })
 
 test_that("Can predict on output of machine_learn", {
-  suppressWarnings(expect_message(preds <- predict(models, test_data)))
+  suppressWarnings({
+    preds <- predict(models, test_data)
+  })
   expect_s3_class(preds, "hcai_predicted_df")
   expect_true(all(c("am", "predicted_am") %in% names(preds)))
 })

@@ -5,8 +5,8 @@
 \title{Identify the best performing model by tuning hyperparameters via
 cross-validation}
 \usage{
-tune_models(d, outcome, model_class, models = c("rf", "knn"), n_folds = 5,
-  tune_depth = 10, tune_method = "random", metric, hyperparameters)
+tune_models(d, outcome, model_class, models, n_folds = 5, tune_depth = 10,
+  tune_method = "random", metric, hyperparameters)
 }
 \arguments{
 \item{d}{A data frame}

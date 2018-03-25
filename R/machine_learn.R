@@ -40,7 +40,7 @@
 #'
 #' # If new data isn't specifed, get predictions on training data
 #' predict(age_model)
-machine_learn <- function(d, ..., outcome, models = c("rf", "knn"), impute = TRUE) {
+machine_learn <- function(d, ..., outcome, models, impute = TRUE) {
 
   if (!is.data.frame(d))
     stop("\"d\" must be a data frame.")
@@ -66,6 +66,9 @@ machine_learn <- function(d, ..., outcome, models = c("rf", "knn"), impute = TRU
   if (!outcome_chr %in% names(d))
     stop("You passed ", outcome_chr, " to the outcome argument of machine_learn,",
          "but that isn't a column in d.")
+
+  if (missing(models))
+    models <- get_supported_models()
 
   d %>%
     prep_data(!!!dots, outcome = !!outcome, impute = impute) %>%
