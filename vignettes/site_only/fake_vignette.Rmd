@@ -7,9 +7,9 @@ output: html_document
 
 # Greetings, Earthlings
 
-I am a vignette. Because I'm in the `vignettes/site_only` directory, I will show up in the pkgdown site, but not be bundled with the R package, which is good since I'd only take up precious space there.
+I am a vignette. My source is a .Rmd file that lives in `vignettes/`. Vignettes that go in `vignettes/site_only/` will have a page in the pkgdown site, but will not be bundled with the R package
 
-Note that I'm an R Markdown document:
+I can execute and display the results of R code:
 
 ```{r}
 plot(density(rnorm(1000)))

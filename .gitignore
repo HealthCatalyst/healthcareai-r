@@ -32,5 +32,5 @@ env
 **/*.txt
 # html files in home directory; preserve in docs/
 /*.html
-# Not certain that we don't need these, but I'm not sure why pkgdown is causing their generation:
-docs/reference/*.pdf
+# pkgdown files:
+docs/
