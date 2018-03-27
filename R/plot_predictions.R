@@ -37,7 +37,7 @@ plot.hcai_predicted_df <- function(x, outcomes = NULL, print = TRUE, ...) {
     x[[target]] <- outcomes
   } else {
     if (!target %in% names(x))
-      stop(target, " is not present in `x`, so you must pass a vector of outcomes to `outcomes`.")
+      stop("Outcome column \"", target, "\" is not present in `x`, so you must pass a vector of outcomes to `outcomes`.")
   }
 
   # Check outcome type and dispatch the plotting function for the model type

@@ -16,8 +16,7 @@ test_that("plot.hcai_predicted_df stops if outcome vector is wrong length or cla
   expect_error(plot(dplyr::select(reg_preds_self, -age), outcomes = 1:5),
                "length")
   expect_error(plot(dplyr::select(reg_preds_self, -age),
-                    outcomes = sample(letters, nrow(reg_preds_self), TRUE),
-                    print = FALSE),
+                    outcomes = sample(letters, nrow(reg_preds_self), TRUE)),
                "class")
 })
 
@@ -27,8 +26,8 @@ test_that("plot.hcai_predicted_df warns but works if outcomes present in df and 
 })
 
 test_that("plot_regression_predictions handles defaults", {
-  expect_s3_class(plot(reg_preds_new), "gg")
-  expect_s3_class(plot(reg_preds_self), "gg")
+  expect_s3_class(plot(reg_preds_new, print = FALSE), "gg")
+  expect_s3_class(plot(reg_preds_self, print = FALSE), "gg")
 })
 
 test_that("plot_regression_predictions handles separately supplied outcomes", {
