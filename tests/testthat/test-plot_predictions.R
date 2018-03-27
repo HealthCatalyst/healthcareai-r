@@ -66,3 +66,24 @@ test_that("plot_classification_predictions handles separately supplied outcomes"
                        print = FALSE),
                   "gg")
 })
+
+
+test_that("Arguments to plot.hcai_predicted_df get passed to plot_regression_predictions", {
+  my_title <- "this is my title"
+  p <- plot(reg_preds_self, title = my_title, point_size = 2,
+             point_alpha = .5, font_size = 18)
+  expect_s3_class(p, "gg")
+  expect_equal(ggplot_build(p)$plot$labels$title, my_title)
+})
+
+test_that("Arguments to plot.hcai_predicted_df get passed to plot_classification_predictions", {
+  my_title <- "this is my title"
+  p <- plot(class_preds_self,
+            title = my_title,
+            fill_colors = c(Y = "green", N = "red"),
+            fill_alpha = .2,
+            curve_flex = .3,
+            font_size = 18)
+  expect_s3_class(p, "gg")
+  expect_equal(ggplot_build(p)$plot$labels$title, my_title)
+})
