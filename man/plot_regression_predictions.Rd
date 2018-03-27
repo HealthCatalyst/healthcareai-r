@@ -16,7 +16,7 @@ plot_regression_predictions(x, title = NULL, point_size = 1,
 
 \item{point_alpha}{Number in [0, 1] giving point opacity}
 
-\item{font_size}{Relative size of all font in plot}
+\item{font_size}{Number: Relative size of all font in plot, default = 11}
 
 \item{target}{outcome column name}
 }

@@ -67,7 +67,7 @@ plot.hcai_predicted_df <- function(x, outcomes = NULL, print = TRUE, ...) {
 #' @param title Character: Plot title
 #' @param point_size Number: Point size, relative to 1
 #' @param point_alpha Number in [0, 1] giving point opacity
-#' @param font_size Relative size of all font in plot
+#' @param font_size Number: Relative size of all font in plot, default = 11
 #' @param target outcome column name
 #'
 #' @return ggplot object
@@ -105,6 +105,8 @@ plot_regression_predictions <- function(x,
 #' @param curve_flex Numeric. Kernal adjustment for density curves. Default is 1.
 #'   Less than 1 makes curves more flexible, analogous to smaller bins in a
 #'   histogram; greater than 1 makes curves more rigid.
+#' @param font_size Number: Relative size of all font in plot, default = 11
+#' @param target outcome column name
 #'
 #' @return ggplot object
 #'
@@ -116,6 +118,7 @@ plot_classification_predictions <- function(x,
                                             fill_colors = c("firebrick", "steelblue"),
                                             fill_alpha = .7,
                                             curve_flex = 1,
+                                            font_size = 11,
                                             target) {
   preds <- paste0("predicted_", target)
   p <-
@@ -123,6 +126,8 @@ plot_classification_predictions <- function(x,
     geom_density(alpha = fill_alpha, adjust = curve_flex) +
     scale_x_continuous(name = paste("Predicted Probability of", target),
                        limits = c(0, 1)) +
-    scale_fill_manual(name = paste0("Actual\n", target), values = fill_colors)
+    scale_fill_manual(name = paste0("Actual\n", target), values = fill_colors) +
+    ggtitle(title) +
+    theme_gray(base_size = font_size)
   return(p)
 }

@@ -5,8 +5,8 @@
 \title{Plot predictions from a classification model}
 \usage{
 plot_classification_predictions(x, title = NULL,
-  fill_colors = c("firebrick", "steelblue"), fill_alpha = 0.7, adjust = 1,
-  target)
+  fill_colors = c("firebrick", "steelblue"), fill_alpha = 0.7,
+  curve_flex = 1, font_size = 11, target)
 }
 \arguments{
 \item{x}{hcai_predicted_df from plot.hcai_predicted_df}
@@ -22,6 +22,10 @@ curves. Default is c("firebrick", "steelblue"). If named, names must match
 \item{curve_flex}{Numeric. Kernal adjustment for density curves. Default is 1.
 Less than 1 makes curves more flexible, analogous to smaller bins in a
 histogram; greater than 1 makes curves more rigid.}
+
+\item{font_size}{Number: Relative size of all font in plot, default = 11}
+
+\item{target}{outcome column name}
 }
 \value{
 ggplot object
