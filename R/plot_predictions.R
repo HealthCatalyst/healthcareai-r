@@ -93,3 +93,36 @@ plot_regression_predictions <- function(x,
     theme_gray(base_size = font_size)
   return(p)
 }
+
+#' Plot predictions from a classification model
+#'
+#' @param x hcai_predicted_df from plot.hcai_predicted_df
+#' @param title Character: Plot title, default NULL produces no title.
+#' @param fill_colors Length-2 character vector: colors to fill density
+#'   curves. Default is c("firebrick", "steelblue"). If named, names must match
+#'   \code{unique(x[[target]])}, in any order.
+#' @param fill_alpha Number in [0, 1] giving opacity of fill colors.
+#' @param curve_flex Numeric. Kernal adjustment for density curves. Default is 1.
+#'   Less than 1 makes curves more flexible, analogous to smaller bins in a
+#'   histogram; greater than 1 makes curves more rigid.
+#'
+#' @return ggplot object
+#'
+#' @details This function is not meant to be called directly. Use
+#'   \code{plot(predictions)} instead. You can pass arguments to this function
+#'   (e.g. a plot title) through \code{plot}.
+plot_classification_predictions <- function(x,
+                                            title = NULL,
+                                            fill_colors = c("firebrick", "steelblue"),
+                                            fill_alpha = .7,
+                                            curve_flex = 1,
+                                            target) {
+  preds <- paste0("predicted_", target)
+  p <-
+    ggplot(x, aes_string(x = preds, fill = target)) +
+    geom_density(alpha = fill_alpha, adjust = curve_flex) +
+    scale_x_continuous(name = paste("Predicted Probability of", target),
+                       limits = c(0, 1)) +
+    scale_fill_manual(name = paste0("Actual\n", target), values = fill_colors)
+  return(p)
+}
