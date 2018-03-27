@@ -14,7 +14,6 @@
 #'   \code{\link{plot_regression_predictions}} and
 #'   \code{\link{plot_classification_predictions}}
 #'
-#'
 #' @examples
 #' models <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = plasma_glucose)
 #' predictions <- predict(models)
@@ -31,7 +30,7 @@ plot.hcai_predicted_df <- function(x, outcomes = NULL, print = TRUE, ...) {
     if (target %in% names(x))
       warning(target, " is present in `x`, but you passed values to `outcomes`. ",
               "The values in x will be ignored.")
-    if(length(outcomes) != nrow(x))
+    if (length(outcomes) != nrow(x))
       stop("There are ", nrow(x), " rows in `x` but ", length(outcomes), " values in `outcomes`. ",
            "These must be the same length.")
     x[[target]] <- outcomes
