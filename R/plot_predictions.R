@@ -10,9 +10,11 @@
 #' @return A ggplot object
 #' @export
 #'
-#' @details See additional arguments that can be passed through in
-#'   \code{\link{plot_regression_predictions}} and
-#'   \code{\link{plot_classification_predictions}}
+#' @details The following arguments can be provided to customize the plot: For
+#'   regression: title, point_size, point_alpha, font_size. For
+#'   classification: title, fill_colors, fill_alpha, curve_flex, font_size. For
+#'   details on how to use them, see \code{\link{plot_regression_predictions}}
+#'   or \code{\link{plot_classification_predictions}}.
 #'
 #' @examples
 #' models <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = plasma_glucose)
