@@ -152,3 +152,8 @@ test_that("If a column was ignored in prep_data it's ignored in tune", {
 test_that("Missing outcome variable error points user to what's missing", {
   expect_error(tune_models(test_df), "outcome")
 })
+
+test_that("Get informative error from setup_training if you forgot to name outcome arg in prep_data", {
+  pd <- prep_data(pima_diabetes, patient_id, diabetes)
+  expect_error(tune_models(pd, diabetes), "outcome")
+})

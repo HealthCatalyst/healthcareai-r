@@ -476,3 +476,7 @@ test_that("prep_data attaches factor levels to recipe as attribute", {
   expect_true("factor_levels" %in% names(attributes(rec)))
   expect_setequal(names(attr(rec, "factor_levels")), c("genre", "reaction", "state", "is_ween"))
 })
+
+test_that("prep_data tells you if you forgot to name your outcome argument", {
+  expect_message(prep_data(d_train, song_id, is_ween), "outcome")
+})

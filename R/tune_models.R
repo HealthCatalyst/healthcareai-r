@@ -128,8 +128,14 @@ setup_training <- function(d, outcome, model_class, models, metric) {
 
   # Get recipe and remove columns to be ignored in training
   recipe <- attr(d, "recipe")
-  if (!is.null(recipe))
+  if (!is.null(recipe)) {
+    outcome_chr <- rlang::quo_name(outcome)
+    if (outcome_chr %in% attr(recipe, "ignored_columns"))
+      stop("You specified ", outcome_chr, " as your outcome variable, but ",
+           "the recipe you used to prep your data says to ignore it. ",
+           "Did you forget to specify `outcome = ` in prep_data?")
     d <- remove_ignored(d, recipe)
+  }
 
   # Check outcome provided, agrees with outcome in prep_data, present in d
   outcome <- check_outcome(outcome, names(d), recipe)

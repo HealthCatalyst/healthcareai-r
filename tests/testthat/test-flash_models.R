@@ -24,6 +24,11 @@ test_that("flash_models errors informatively if hyperparameters and models don't
                "rf")
 })
 
+test_that("flash_models works on prepped data", {
+  pd <- prep_data(pima_diabetes, patient_id, outcome = diabetes)
+  m <- flash_models(pd, diabetes)
+})
+
 test_that("can predict on flash models", {
   predict(cl)
   predict(reg, dd[10:1, ])
