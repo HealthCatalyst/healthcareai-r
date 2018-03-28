@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>healthcareai: a streamlined way to develop and deploy models — healthcareai • healthcareai</title>
+<title>healthcareai: Streamlined Machine Learning — healthcareai • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -18,13 +18,21 @@
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  <link href="../extra.css" rel="stylesheet">
-  
+<meta property="og:title" content="healthcareai: Streamlined Machine Learning — healthcareai" />
+
+<meta property="og:description" content="healthcare-ai provides a clean interface to create and compare multiple
+models on your data and then deploy the model that is most accurate. healthcareai
+also includes functions for data exploration, data cleaning, and model evaluation." />
+<meta name="twitter:card" content="summary" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -47,8 +55,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">healthcareai</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">healthcareai</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -87,11 +99,12 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>healthcareai: a streamlined way to develop and deploy models</h1>
+    <h1>healthcareai: Streamlined Machine Learning</h1>
+    
     </div>
 
     
-    <p>healthcareai provides a clean interface to create and compare multiple
+    <p>healthcare-ai provides a clean interface to create and compare multiple
 models on your data and then deploy the model that is most accurate. healthcareai
 also includes functions for data exploration, data cleaning, and model evaluation.</p>
     
@@ -99,91 +112,46 @@ also includes functions for data exploration, data cleaning, and model evaluatio
         
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>This is done in a three-step process: First, loading, profiling, and feature 
-engineering. Second, developing a model. Third, deploying and monitoring the
-model.</p><ol>
-<li><p><strong>Load and profile data</strong>
-<ul>
-<li><p>Loading Data:</p><ul>
-<li><p>Use <code><a href='selectData.html'>selectData</a></code> to pull data directly from a SQL 
+    <p>Modeling is done in a three-step process: First, loading, understanding, and
+preparing the data. Second, tuning and selecting a best model. Third, making
+predictions, deploying the model, and monitoring over time.</p>
+<ol>
+<li><p><strong>Load data</strong><br />
+ <code><a href='selectData.html'>selectData</a></code> to pull data directly from a SQL
 database</p></li>
-</ul></li>
-<li><p>Profiling and Analyzing Data - One can get quite far in healthcare data
-analysis without ever going beyond this step:</p><ul>
-<li><p><code><a href='featureAvailabilityProfiler.html'>featureAvailabilityProfiler</a></code> will find how much data is 
-present in each variable over time.</p></li>
-<li><p><code><a href='countMissingData.html'>countMissingData</a></code> finds the proportion of missing data in 
-each variable.</p></li>
-<li><p><code><a href='findVariation.html'>findVariation</a></code> and <code><a href='variationAcrossGroups.html'>variationAcrossGroups</a></code> are
- used to find variation across/between subgroups of data.</p></li>
-<li><p><code><a href='findTrends.html'>findTrends</a></code> finds trends that are six months or longer.</p></li>
-<li><p><code><a href='RiskAdjustedComparisons.html'>RiskAdjustedComparisons</a></code> compares groups in a risk
-adjusted fashion. See 
-<a href='http://www.jointcommission.org/assets/1/18/RA_Guide_Risk_Model.pdf'>RiskAdjustement</a>
-for a general introduction.</p></li>
-<li><p><code><a href='calculateTargetedCorrelations.html'>calculateTargetedCorrelations</a></code> will calculate correlations
- for all numeric columns and a specified variable of interest.</p></li>
-<li><p><code><a href='returnColsWithMoreThanFiftyCategories.html'>returnColsWithMoreThanFiftyCategories</a></code> shows which
-categorical columns have more than 50 categories.</p></li>
-<li><p><code><a href='KmeansClustering.html'>KmeansClustering</a></code> used to cluster data with or without an
-outcome variable</p></li>
-</ul></li>
-<li><p>Feature Engineering:</p><ul>
-<li><p><code><a href='convertDateTimeColToDummies.html'>convertDateTimeColToDummies</a></code> will convert a date variable
-into dummy columns of day, hour, etc. For seasonal pattern modeling.</p></li>
-<li><p><code><a href='countDaysSinceFirstDate.html'>countDaysSinceFirstDate</a></code> shows days since first day in 
-input column.</p></li>
-<li><p><code><a href='groupedLOCF.html'>groupedLOCF</a></code> carries last observed value forward. This is
-an imputation method for longitudinal data.</p></li>
-</ul></li>
-</ul></p></li>
-<li><p><strong>Develop a machine learning model</strong>
-<ul>
-<li><p>Models:</p><ul>
-<li><p><code><a href='LassoDevelopment.html'>LassoDevelopment</a></code>: Used for regression or classification 
-and does an especially good job with a lot of variables.</p></li>
-<li><p><code><a href='RandomForestDevelopment.html'>RandomForestDevelopment</a></code>: Used for regression or 
-classification and is well suited to non-linear data.</p></li>
-<li><p><code><a href='XGBoostDevelopment.html'>XGBoostDevelopment</a></code>: Used for multi-class classification
-(problems where there are more than 2 classes). Well suited to non-linear 
-data.</p></li>
-<li><p><code><a href='LinearMixedModelDevelopment.html'>LinearMixedModelDevelopment</a></code>: Best suited for longitudinal
-data and datasets with less than 100k rows and 50 variables. Can do
-classification or regression.</p></li>
-</ul></li>
-<li><p>Performance of Trained Models:</p><ul>
-<li><p>Area under the ROC curve or area under the precision-recall curve are 
- used to evaluate the performance of classification models.</p></li>
-<li><p>The mean squared error (MSE) and root mean squared error (RMSE) are 
-used to evaluate the performance of regression problems.</p></li>
-</ul></li>
-</ul>
-Note: models are saved in the working directory after creation.</p></li>
-<li><p><strong>Deploy and Monitor the Machine Learning Model</strong>
-<ul>
-<li><p>Deploy the Model:</p><ul>
-<li><p>Use <code><a href='LassoDeployment.html'>LassoDeployment</a></code>, 
-<code><a href='LinearMixedModelDeployment.html'>LinearMixedModelDeployment</a></code>, 
-<code><a href='RandomForestDeployment.html'>RandomForestDeployment</a></code>, or <code><a href='XGBoostDeployment.html'>XGBoostDeployment</a></code> to 
-load the model from development and predict against test data. The 
-deployments can be tested locally, but eventually live on the production 
-server.</p></li>
-<li><p>Use <code><a href='writeData.html'>writeData</a></code> to push the predicted values into a SQL 
-environment.</p></li>
-</ul></li>
-<li><p>Monitoring the model:</p><ul>
-<li><p><code><a href='generateAUC.html'>generateAUC</a></code> is used to monitor performance over time. 
-This should happen after the predictions can be validated with the result. If
-you're predicting 30-day readmissions, you can't validate until 30 days have 
-passed since the predictions.</p></li>
-</ul></li>
-</ul></p></li>
+<li><p><strong>Profile data</strong><br />
+ <code><a href='control_chart.html'>control_chart</a></code> to plot data over time.
+ <code><a href='pivot.html'>pivot</a></code> if you multiple rows for each observation you want
+a prediction on (e.g. multiple lab values for patients on separate rows), pivot
+can help reshape the data.</p></li>
+<li><p><strong>Prepare data for modeling</strong><br />
+ <code><a href='missingness.html'>missingness</a></code> to examine how much of each variable is missing.
+ <code><a href='impute.html'>impute</a></code> to impute missing values, or...
+ <code><a href='prep_data.html'>prep_data</a></code> to impute and perform additional data
+manipulation to get data ready for machine learning.
+ <code><a href='split_train_test.html'>split_train_test</a></code> to split data into one data frame for
+developing a model and another for evaluating the model.</p></li>
+<li><p><strong>Tune machine learning models</strong><br />
+ <code><a href='machine_learn.html'>machine_learn</a></code> does all the work for you, from imputing
+missing values to finding optimal models via cross validation. If you want to
+keep the guts under the hood (apologies for the mixed metaphor!),
+this is the function for you!
+ <code><a href='tune_models.html'>tune_models</a></code> gives you more control over how models are trained.</p></li>
+<li><p><strong>Assess models</strong><br />
+ <code>machine_learn</code> and <code>tune_models</code> both return
+<code>model_list</code> objects. You can get high level information about your models by simply
+printing the model_list object (i.e. type the name of the variable holding the models).
+ <code>summary(model_list)</code> provides even more information about model tuning.
+ <code>plot(model_list)</code> plots model performance over hyperparameter space.</p></li>
+<li><p><strong>Make predictions and deploy the model</strong><br />
+ <code><a href='predict.model_list.html'>predict.model_list</a></code> generates predictions
+ <code><a href='writeData.html'>writeData</a></code> to push the predicted values into a SQL environment.</p></li>
 </ol>
     
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
-    <p><a href='http://healthcareai-r.readthedocs.io'>http://healthcareai-r.readthedocs.io</a>
-    <a href='http://healthcare.ai'>http://healthcare.ai</a></p>
+    <p><a href='https://github.com/HealthCatalyst/healthcareai-r/'>https://github.com/HealthCatalyst/healthcareai-r/</a></p>
+<p><a href='http://healthcare.ai'>http://healthcare.ai</a></p>
     
 
   </div>
@@ -205,7 +173,7 @@ passed since the predictions.</p></li>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
@@ -213,3 +181,4 @@ passed since the predictions.</p></li>
 
   </body>
 </html>
+

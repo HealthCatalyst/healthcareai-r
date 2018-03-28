@@ -1,3 +1,5 @@
+title: healthcareai
+
 reference:
   - title: Model Development
     desc: Train machine learning models
@@ -14,4 +16,4 @@ reference:
     - writeData
   - title: Everything Else
     desc: Is still to be added. Possibly [automatically](https://stackoverflow.com/questions/45886789/include-all-other-functions-in-a-pkgdown-reference-yaml)
-    contents: 
+    contents:

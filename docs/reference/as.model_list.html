@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function to find proportion of NAs in each column of a dataframe or matrix — countMissingData • healthcareai</title>
+<title>Make models into model_list object — as.model_list • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,9 +25,9 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Function to find proportion of NAs in each column of a dataframe or matrix — countMissingData" />
+<meta property="og:title" content="Make models into model_list object — as.model_list" />
 
-<meta property="og:description" content="DEPRICATED. Use missingness instead." />
+<meta property="og:description" content="Make models into model_list object" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -97,28 +97,40 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Function to find proportion of NAs in each column of a dataframe or matrix</h1>
+    <h1>Make models into model_list object</h1>
     
     </div>
 
     
-    <p>DEPRICATED. Use <code><a href='missingness.html'>missingness</a></code> instead.</p>
+    <p>Make models into model_list object</p>
     
 
-    <pre class="usage"><span class='fu'>countMissingData</span>(<span class='no'>x</span>, <span class='kw'>userNAs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>as.model_list</span>(<span class='no'>...</span>, <span class='kw'>listed_models</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>target</span> <span class='kw'>=</span> <span class='st'>".outcome"</span>, <span class='no'>model_class</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
-      <td><p>A data frame or matrix</p></td>
+      <th>...</th>
+      <td><p><code>caret</code>-trained models to put into a model list</p></td>
     </tr>
     <tr>
-      <th>userNAs</th>
-      <td><p>A vector of user defined NA values.</p></td>
+      <th>listed_models</th>
+      <td><p>Use this if your models are already in a list</p></td>
+    </tr>
+    <tr>
+      <th>target</th>
+      <td><p>Quoted name of response variable</p></td>
+    </tr>
+    <tr>
+      <th>model_class</th>
+      <td><p>"classification" or "regression"</p></td>
     </tr>
     </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A model_list with child class type_list</p>
     
 
   </div>
@@ -126,7 +138,9 @@
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+      
+      <li><a href="#value">Value</a></li>
+          </ul>
 
   </div>
 </div>

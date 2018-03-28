@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function to find proportion of NAs in each column of a dataframe or matrix — countMissingData • healthcareai</title>
+<title>Patient diabetes dataset — pima_diabetes • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,9 +25,13 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Function to find proportion of NAs in each column of a dataframe or matrix — countMissingData" />
+<meta property="og:title" content="Patient diabetes dataset — pima_diabetes" />
 
-<meta property="og:description" content="DEPRICATED. Use missingness instead." />
+<meta property="og:description" content="A dataset containing diabetes status and other health-related variables for
+768 females, at least 21 years old, of Pima Indian heritage. As pointed out
+(see source URL below), the source data had some biologically impossible zero
+values. We have replaced zero values in every variable except
+Pregnancies with NA." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -97,36 +101,50 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Function to find proportion of NAs in each column of a dataframe or matrix</h1>
+    <h1>Patient diabetes dataset</h1>
     
     </div>
 
     
-    <p>DEPRICATED. Use <code><a href='missingness.html'>missingness</a></code> instead.</p>
+    <p>A dataset containing diabetes status and other health-related variables for
+768 females, at least 21 years old, of Pima Indian heritage. As pointed out
+(see source URL below), the source data had some biologically impossible zero
+values. We have replaced zero values in every variable except
+<code>Pregnancies</code> with NA.</p>
     
 
-    <pre class="usage"><span class='fu'>countMissingData</span>(<span class='no'>x</span>, <span class='kw'>userNAs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='no'>pima_diabetes</span></pre>
+        
+    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
+
+    <p>A tibble data frame with 768 rows and 10 variables:</p><dl class='dl-horizontal'>
+  <dt>patient_id</dt><dd><p>unique identifier</p></dd>
+  <dt>pregnancies</dt><dd><p>Number of times pregnant</p></dd>
+  <dt>plasma_glucose</dt><dd><p>Plasma glucose concentration 2 hours in an oral
+  glucose tolerance test</p></dd>
+  <dt>diastolic_bp</dt><dd><p>Diastolic blood pressure (mm Hg)</p></dd>
+  <dt>skinfold</dt><dd><p>Triceps skin fold thickness (mm)</p></dd>
+  <dt>insulin</dt><dd><p>2-Hour serum insulin (mu U/ml)</p></dd>
+  <dt>weight_class</dt><dd><p>Derived from BMI</p></dd>
+  <dt>pedigree</dt><dd><p>Diabetes pedigree function</p></dd>
+  <dt>age</dt><dd><p>Age (years)</p></dd>
+  <dt>diabetes</dt><dd><p>Y/N diagnosis per WHO criteria</p></dd>
+</dl>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>x</th>
-      <td><p>A data frame or matrix</p></td>
-    </tr>
-    <tr>
-      <th>userNAs</th>
-      <td><p>A vector of user defined NA values.</p></td>
-    </tr>
-    </table>
+    <h2 class="hasAnchor" id="source"><a class="anchor" href="#source"></a>Source</h2>
+
+    <p><a href='https://archive.ics.uci.edu/ml/datasets/pima+indians+diabetes'>https://archive.ics.uci.edu/ml/datasets/pima+indians+diabetes</a></p>
     
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-                </ul>
+      
+      <li><a href="#format">Format</a></li>
+
+      <li><a href="#source">Source</a></li>
+          </ul>
 
   </div>
 </div>

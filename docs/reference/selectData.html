@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Pull data into R via an ODBC connection — selectData • healthcareai</title>
+<title>Depreciated. See <code><a href='db_read.html'>db_read</a></code> — selectData • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -18,13 +18,19 @@
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  <link href="../extra.css" rel="stylesheet">
-  
+<meta property="og:title" content="Depreciated. See <code><a href='db_read.html'>db_read</a></code> — selectData" />
+
+<meta property="og:description" content="Removed in v2.0.0" />
+<meta name="twitter:card" content="summary" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -47,8 +53,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">healthcareai</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">healthcareai</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -87,97 +97,32 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Pull data into R via an ODBC connection</h1>
+    <h1>Depreciated. See <code><a href='db_read.html'>db_read</a></code></h1>
+    
     </div>
 
     
-    <p>Select data from an ODBC database and return the results as
-a data frame.</p>
+    <p>Removed in v2.0.0</p>
     
 
-    <pre class="usage"><span class='fu'>selectData</span>(<span class='kw'>MSSQLConnectionString</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>query</span>, <span class='kw'>SQLiteFileName</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>randomize</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>selectData</span>(<span class='no'>...</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>MSSQLConnectionString</th>
-      <td><p>A string specifying the driver, server, 
-database, and whether Windows Authentication will be used.</p></td>
-    </tr>
-    <tr>
-      <th>query</th>
-      <td><p>The SQL query (in ticks or quotes)</p></td>
-    </tr>
-    <tr>
-      <th>SQLiteFileName</th>
-      <td><p>A string. If dbtype is SQLite, here one specifies the 
-database file to query from</p></td>
-    </tr>
-    <tr>
-      <th>randomize</th>
-      <td><p>Boolean that dictates whether returned rows are randomized</p></td>
+      <th>...</th>
+      <td><p>Garbage collector</p></td>
     </tr>
     </table>
     
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>df A data frame containing the selected rows</p>
-    
-    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
-
-    <p><a href='http://healthcareai-r.readthedocs.io'>http://healthcareai-r.readthedocs.io</a></p>
-    
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <p><code><a href='healthcareai.html'>healthcareai</a></code>
-    <code><a href='writeData.html'>writeData</a></code></p>
-    
-
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"># NOT RUN {
-# }
-<span class='co'># NOT RUN {</span>
-<span class='co'># This example is specific to SQL Server</span>
-
-<span class='co'># To instead pull data from Oracle see here </span>
-<span class='co'># https://cran.r-project.org/web/packages/ROracle/ROracle.pdf</span>
-<span class='co'># To pull data from MySQL see here </span>
-<span class='co'># https://cran.r-project.org/web/packages/RMySQL/RMySQL.pdf</span>
-<span class='co'># To pull data from Postgres see here </span>
-<span class='co'># https://cran.r-project.org/web/packages/RPostgreSQL/RPostgreSQL.pdf</span>
-
-<span class='no'>connectionString</span> <span class='kw'>&lt;-</span> <span class='st'>'
-  driver={SQL Server};
-  server=localhost;
-  database=SAM;
-  trustedConnection=true
-  '</span>
-
-<span class='no'>query</span> <span class='kw'>&lt;-</span> <span class='st'>'
-  SELECT
-    A1CNBR
-  FROM SAM.dbo.HCRDiabetesClinical
-  '</span>
-
-<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>selectData</span>(<span class='no'>connectionString</span>, <span class='no'>query</span>)
-<span class='fu'>head</span>(<span class='no'>df</span>)
-<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
-      <li><a href="#value">Value</a></li>
-
-      <li><a href="#references">References</a></li>
-
-      <li><a href="#see-also">See also</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
+                </ul>
 
   </div>
 </div>
@@ -188,7 +133,7 @@ database file to query from</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
@@ -196,3 +141,4 @@ database file to query from</p></td>
 
   </body>
 </html>
+
