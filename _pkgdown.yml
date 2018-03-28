@@ -1,4 +1,15 @@
-title: healthcareai
+url: https://docs.healthcare.ai
+
+development:
+  mode: devel
+
+home:
+  links:
+  - text: Browse source code
+    href: https://github.com/HealthCatalyst/healthcareai-r
+
+  - text: healthcare.ai home
+    href: https://healthcare.ai
 
 reference:
   - title: Model Development
