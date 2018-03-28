@@ -17,7 +17,8 @@ test_that("flash_models let's user select model", {
 })
 
 test_that("flash_models errors informatively if hyperparameters and models don't match", {
-  expect_error(flash_models(dd, diabetes, hyperparameters = get_hyperparameter_defaults("knn")),
+  expect_error(flash_models(dd, diabetes,
+                            hyperparameters = get_hyperparameter_defaults("knn")),
                "knn")
   expect_error(flash_models(dd, diabetes, models = "rf",
                             hyperparameters = get_hyperparameter_defaults("knn")),
@@ -27,6 +28,11 @@ test_that("flash_models errors informatively if hyperparameters and models don't
 test_that("flash_models works on prepped data", {
   pd <- prep_data(pima_diabetes, patient_id, outcome = diabetes)
   m <- flash_models(pd, diabetes)
+})
+
+test_that("flash_models have class untuned_model_list", {
+  expect_true("untuned_model_list" %in% class(cl))
+  expect_true(is.model_list(cl))
 })
 
 test_that("can predict on flash models", {

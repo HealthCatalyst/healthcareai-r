@@ -196,7 +196,7 @@ prep_data <- function(d,
           recipes::step_bin2factor(all_outcomes(), levels = c("Y", "N"))
       }
     } else {
-      mes <- paste(mes, " with no outcome variable specified")
+      mes <- paste0(mes, ", with no outcome variable specified")
     }
     message(mes)
 

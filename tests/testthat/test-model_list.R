@@ -95,6 +95,11 @@ test_that("as.model_list returns correct model names (from modelInfo$label)", {
   )
 })
 
+test_that("as.model_list tuned-argument works", {
+  expect_false("untuned_model_list" %in% class(as.model_list(rf)))
+  expect_true("untuned_model_list" %in% class(as.model_list(rf, tuned = FALSE)))
+})
+
 context("Checking model_list generics") # --------------------------------------
 
 test_that("plot.model_list works on regression_list", {

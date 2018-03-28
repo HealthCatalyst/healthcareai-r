@@ -69,6 +69,7 @@ flash_models <- function(d,
 
   # Add class
   train_list <- as.model_list(listed_models = train_list,
+                              tuned = FALSE,
                               target = rlang::quo_name(outcome))
 
   # Add recipe object if one came in on d
