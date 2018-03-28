@@ -30,18 +30,12 @@ test_that("flash_models works on prepped data", {
   m <- flash_models(pd, diabetes)
 })
 
-test_that("flash_models have class untuned_model_list", {
-  expect_true("untuned_model_list" %in% class(cl))
+test_that("flash_models are model_lists with attr tuned = FALSE", {
+  expect_false(attr(cl, "tuned"))
   expect_true(is.model_list(cl))
 })
 
 test_that("can predict on flash models", {
-  predict(cl)
-  predict(reg, dd[10:1, ])
-})
-
-test_that("model_list generics work with flash models", {
-  expect_message(print(cl), "Best model")
-  expect_message(summary(cl), "Best performance")
-  expect_s3_class(plot(cl, print = FALSE), "gg")
+  expect_s3_class(predict(cl), "hcai_predicted_df")
+  expect_s3_class(predict(reg, dd[10:1, ]), "hcai_predicted_df")
 })

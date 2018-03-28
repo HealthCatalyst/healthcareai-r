@@ -98,8 +98,8 @@ test_that("as.model_list returns correct model names (from modelInfo$label)", {
 })
 
 test_that("as.model_list tuned-argument works", {
-  expect_false("untuned_model_list" %in% class(as.model_list(rf)))
-  expect_true("untuned_model_list" %in% class(as.model_list(rf, tuned = FALSE)))
+  expect_true(attr(as.model_list(rf), "tuned"))
+  expect_false(attr(as.model_list(rf, tuned = FALSE), "tuned"))
 })
 
 context("Checking model_list generics") # --------------------------------------
@@ -173,11 +173,11 @@ test_that("summary.model_list works", {
   expect_true(rlang::is_named(csum))
 })
 
-context("Checking model_list generics on untuned_model_lists") #----------------
+context("Checking model_list generics on untuned model_lists") #----------------
 
 test_that("print.model_list work with untuned_model_lists", {
-  expect_warning(flash_r_print <- captue_output(print(r_flash)), NA)
-  expect_warning(flash_c_print <- captue_output(print(c_flash)), NA)
+  expect_warning(flash_r_print <- capture_output(print(r_flash)), NA)
+  expect_warning(flash_c_print <- capture_output(print(c_flash)), NA)
   expect_false(grepl("Inf", flash_r_print))
   expect_false(grepl("Inf", flash_c_print))
   expect_true(grepl("Target: mpg", flash_r_print))
@@ -190,13 +190,14 @@ test_that("summary.model_list work with untuned_model_lists", {
   expect_false(grepl("Inf", flash_r_summary))
   expect_false(grepl("Inf", flash_c_summary))
   expect_false(grepl("0 rows", flash_r_summary))
-  expect_true(grepl("performance", flash_r_summary))
-  expect_true(grepl("Target: am", flash_c_summary))
+  expect_true(grepl("Best performance:", flash_r_summary))
+  expect_true(grepl("Best performance:", flash_c_summary))
 })
 
-test_that("plot.model_list work with untuned_model_lists", {
+test_that("plot.model_list works with message untuned_model_lists", {
   expect_warning(flash_r_plot <- plot(r_flash, print = FALSE), NA)
   expect_warning(flash_c_plot <- plot(c_flash, print = FALSE), NA)
+  expect_message(plot(c_flash, print = FALSE), "not much to plot")
   expect_s3_class(flash_r_plot, "gg")
   expect_s3_class(flash_c_plot, "gg")
 })

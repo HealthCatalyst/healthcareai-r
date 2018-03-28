@@ -269,8 +269,11 @@ setup_train_control <- function(tune_method, model_class, metric, n_folds) {
                                         search = "random",
                                         savePredictions = "final")
   } else if (tune_method == "none") {
-    train_control <- caret::trainControl(method = "none",
-                                        savePredictions = "final")
+    # Use grid CV if not tuning (e.g. via flash_models)
+    train_control <- caret::trainControl(method = "cv",
+                                         number = n_folds,
+                                         search = "grid",
+                                         savePredictions = "final")
   } else {
     stop("Currently tune_method = \"random\" is the only supported method",
          " but you supplied tune_method = \"", tune_method, "\"")

@@ -8,6 +8,9 @@
 #' @param models Names of models to try, by default "rf" for random forest and
 #'   "knn" for k-nearest neighbors. See \code{\link{supported_models}} for
 #'   available models.
+#' @param n_folds How many folds to train the model on. Default = 5, minimum =
+#'   2. Whie flash_models doesn't use cross validation to tune hyperparameters,
+#'   it trains \code{n_folds} models to evaluate performance out of fold.
 #' @param hyperparameters Optional list of hyperparameters to use. If missing,
 #'   default values will be used. If provided, must be a named list of named
 #'   lists where the outer list contains models and the inner lists contain
@@ -35,6 +38,7 @@ flash_models <- function(d,
                          outcome,
                          model_class,
                          models = c("rf", "knn"),
+                         n_folds = 5,
                          hyperparameters,
                          metric) {
 
@@ -50,7 +54,7 @@ flash_models <- function(d,
   for (arg in names(model_args))
     assign(arg, model_args[[arg]])
 
-  train_control <- setup_train_control(tune_method = "none", model_class, metric)
+  train_control <- setup_train_control(tune_method = "none", model_class, metric, n_folds)
   if (metric == "PR")
     metric <- "AUC"
 

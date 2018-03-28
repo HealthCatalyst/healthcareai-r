@@ -53,8 +53,7 @@ as.model_list <- function(..., listed_models = NULL, target = ".outcome",
   class(listed_models) <- c(paste0(model_class, "_list"),
                             "model_list",
                             class(listed_models))
-  if (!tuned)
-    class(listed_models) <- c("untuned_model_list", class(listed_models))
+  attr(listed_models, "tuned") <- tuned
   attr(listed_models, "target") <- target
   return(listed_models)
 }

@@ -79,8 +79,10 @@ plot.model_list <- function(x, print = TRUE, ...) {
   if (!length(x))
     stop("x is empty.")
   if (!inherits(x, "model_list"))
-    stop("x is class ", class(x)[1],
-         ", but needs to be model_list")
+    stop("x is class ", class(x)[1], ", but needs to be model_list")
+  if (!attr(x, "tuned"))
+    message("No tuning was done, so there's not much to plot. Use `tune_models` tune hyperparameters, ",
+            "or use `plot(predict(x))` to plot predictions on training data.")
   x <- change_pr_metric(x)
   params <- purrr::map(x, ~ as.character(.x$modelInfo$parameters$parameter))
   bounds <- purrr::map_df(x, function(m) range(m$results[[m$metric]]))
