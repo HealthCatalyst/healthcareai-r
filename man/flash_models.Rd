@@ -4,7 +4,7 @@
 \alias{flash_models}
 \title{Train models without tuning for performance}
 \usage{
-flash_models(d, outcome, model_class, models = c("rf", "knn"),
+flash_models(d, outcome, model_class, models = c("rf", "knn"), n_folds = 5,
   hyperparameters, metric)
 }
 \arguments{
@@ -19,6 +19,10 @@ displayed in a message.}
 \item{models}{Names of models to try, by default "rf" for random forest and
 "knn" for k-nearest neighbors. See \code{\link{supported_models}} for
 available models.}
+
+\item{n_folds}{How many folds to train the model on. Default = 5, minimum =
+2. Whie flash_models doesn't use cross validation to tune hyperparameters,
+it trains \code{n_folds} models to evaluate performance out of fold.}
 
 \item{hyperparameters}{Optional list of hyperparameters to use. If missing,
 default values will be used. If provided, must be a named list of named

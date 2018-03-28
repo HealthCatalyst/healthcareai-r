@@ -4,7 +4,8 @@
 \alias{as.model_list}
 \title{Make models into model_list object}
 \usage{
-as.model_list(..., listed_models = NULL, target = ".outcome", model_class)
+as.model_list(..., listed_models = NULL, target = ".outcome", model_class,
+  tuned = TRUE)
 }
 \arguments{
 \item{...}{\code{caret}-trained models to put into a model list}
@@ -14,6 +15,8 @@ as.model_list(..., listed_models = NULL, target = ".outcome", model_class)
 \item{target}{Quoted name of response variable}
 
 \item{model_class}{"classification" or "regression"}
+
+\item{tuned}{Logical; if FALSE, will have super-class untuned_models}
 }
 \value{
 A model_list with child class type_list

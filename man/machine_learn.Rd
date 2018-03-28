@@ -4,7 +4,7 @@
 \alias{machine_learn}
 \title{Machine Learn}
 \usage{
-machine_learn(d, ..., outcome, models = c("rf", "knn"), impute = TRUE)
+machine_learn(d, ..., outcome, models, impute = TRUE)
 }
 \arguments{
 \item{d}{A data frame}
