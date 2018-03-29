@@ -1,3 +1,16 @@
+url: https://docs.healthcare.ai
+
+development:
+  mode: devel
+
+home:
+  links:
+  - text: Browse source code
+    href: https://github.com/HealthCatalyst/healthcareai-r
+
+  - text: healthcare.ai home
+    href: https://healthcare.ai
+
 reference:
   - title: Model Development
     desc: Train machine learning models
@@ -14,4 +27,4 @@ reference:
     - writeData
   - title: Everything Else
     desc: Is still to be added. Possibly [automatically](https://stackoverflow.com/questions/45886789/include-all-other-functions-in-a-pkgdown-reference-yaml)
-    contents: 
+    contents:

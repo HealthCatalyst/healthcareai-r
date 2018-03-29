@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Take a dataframe and build a larger dataframe by permuting the 
+<title>Take a dataframe and build a larger dataframe by permuting the
 values in certain columns. — permute_process_variables • healthcareai</title>
 
 <!-- jquery -->
@@ -19,13 +19,21 @@ values in certain columns. — permute_process_variables • healthcareai</title
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  <link href="../extra.css" rel="stylesheet">
-  
+<meta property="og:title" content="Take a dataframe and build a larger dataframe by permuting the
+values in certain columns. — permute_process_variables" />
+
+<meta property="og:description" content="Take a dataframe and build a larger dataframe by permuting the
+values in the columns corresponding to modifiable_variable_levels." />
+<meta name="twitter:card" content="summary" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -48,8 +56,12 @@ values in certain columns. — permute_process_variables • healthcareai</title
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">healthcareai</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">healthcareai</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -88,18 +100,19 @@ values in certain columns. — permute_process_variables • healthcareai</title
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Take a dataframe and build a larger dataframe by permuting the 
+    <h1>Take a dataframe and build a larger dataframe by permuting the
 values in certain columns.</h1>
+    
     </div>
 
     
-    <p>Take a dataframe and build a larger dataframe by permuting the 
+    <p>Take a dataframe and build a larger dataframe by permuting the
 values in the columns corresponding to <code>modifiable_variable_levels</code>.</p>
     
 
     <pre class="usage"><span class='fu'>permute_process_variables</span>(<span class='no'>dataframe</span>, <span class='no'>modifiable_variable_levels</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -108,14 +121,14 @@ values in the columns corresponding to <code>modifiable_variable_levels</code>.<
     </tr>
     <tr>
       <th>modifiable_variable_levels</th>
-      <td><p>A list indexed by the modifiable 
+      <td><p>A list indexed by the modifiable
 process variables and containing the factor levels of each such variable.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A large dataframe where the values in the modifiable variable 
+    <p>A large dataframe where the values in the modifiable variable
 columns have been permuted.</p>
     
 
@@ -137,7 +150,7 @@ columns have been permuted.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
@@ -145,3 +158,4 @@ columns have been permuted.</p>
 
   </body>
 </html>
+

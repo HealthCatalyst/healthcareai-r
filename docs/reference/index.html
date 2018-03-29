@@ -18,13 +18,16 @@
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  <link href="../extra.css" rel="stylesheet">
-  
+<meta property="og:title" content="Function reference" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -47,8 +50,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">healthcareai</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">healthcareai</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -87,10 +94,7 @@
       <div class="row">
   <div class="col-md-9">
     <div class="page-header">
-      <h1>
-        Reference
-        <small>version&nbsp;1.2.0</small>
-      </h1>
+      <h1>Reference</h1>
     </div>
 
     <div class="contents">
@@ -111,39 +115,196 @@
         <tr>
           <!--  -->
           <td>
-            <p><code><a href="LassoDevelopment.html">LassoDevelopment</a></code> </p>
+            <p><code><a href="add_SAM_utility_cols.html">add_SAM_utility_cols()</a></code> </p>
           </td>
-          <td><p>Compare predictive models, created on your data</p></td>
+          <td><p>Add SAM utility columns to table</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="LinearMixedModelDevelopment.html">LinearMixedModelDevelopment</a></code> </p>
+            <p><code><a href="as.model_list.html">as.model_list()</a></code> </p>
           </td>
-          <td><p>Compare predictive models, created on your data</p></td>
+          <td><p>Make models into model_list object</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="RandomForestDevelopment.html">RandomForestDevelopment</a></code> </p>
+            <p><code><a href="build_connection_string.html">build_connection_string()</a></code> </p>
           </td>
-          <td><p>Compare predictive models, created on your data</p></td>
+          <td><p>Build a connection string for use with MSSQL and dbConnect</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="SupervisedModelDevelopment.html">SupervisedModelDevelopment</a></code> </p>
+            <p><code><a href="catalyst_test_deploy_in_prod.html">catalyst_test_deploy_in_prod()</a></code> </p>
           </td>
-          <td><p>Compare predictive models, created on your data</p></td>
+          <td><p>Test function to check that the production environment is active.</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="SupervisedModelDevelopmentParams.html">SupervisedModelDevelopmentParams</a></code> </p>
+            <p><code><a href="control_chart.html">control_chart()</a></code> </p>
           </td>
-          <td><p>SupervisedModelDevelopmentParams class to set up parameters required to build SupervisedModel classes</p></td>
+          <td><p>Create a control chart</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="XGBoostDevelopment.html">XGBoostDevelopment</a></code> </p>
+            <p><code><a href="countMissingData.html">countMissingData()</a></code> </p>
           </td>
-          <td><p>Compare predictive models, created on your data</p></td>
+          <td><p>Function to find proportion of NAs in each column of a dataframe or matrix</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="db_read.html">db_read()</a></code> </p>
+          </td>
+          <td><p>Read from a SQL Server database table</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="hcai_impute.html">hcai_impute()</a></code> </p>
+          </td>
+          <td><p>Specify imputation methods for an existing recipe</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="healthcareai.html">healthcareai</a></code> </p>
+          </td>
+          <td><p>healthcareai: Streamlined Machine Learning</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="impute.html">impute()</a></code> </p>
+          </td>
+          <td><p>Impute data and return a reusable recipe.</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="is.classification_list.html">is.classification_list()</a></code> </p>
+          </td>
+          <td><p>Class check</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="is.hcai_predicted_df.html">is.hcai_predicted_df()</a></code> </p>
+          </td>
+          <td><p>Class check</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="is.model_list.html">is.model_list()</a></code> </p>
+          </td>
+          <td><p>Class check</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="is.regression_list.html">is.regression_list()</a></code> </p>
+          </td>
+          <td><p>Class check</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="machine_learn.html">machine_learn()</a></code> </p>
+          </td>
+          <td><p>Machine Learn</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="missingness.html">missingness()</a></code> </p>
+          </td>
+          <td><p>Percent of entries in each column that are missing</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="model_list.html">model_list()</a></code> </p>
+          </td>
+          <td><p>Constructor function for class model_list</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="pima_diabetes.html">pima_diabetes</a></code> </p>
+          </td>
+          <td><p>Patient diabetes dataset</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="pivot.html">pivot()</a></code> </p>
+          </td>
+          <td><p>Pivot from a long data frame to a wide data frame</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="plot.model_list.html">plot(<i>&lt;model_list&gt;</i>)</a></code> </p>
+          </td>
+          <td><p>Plot performance of models</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="predict.model_list.html">predict(<i>&lt;model_list&gt;</i>)</a></code> </p>
+          </td>
+          <td><p>Make predictions using the best-performing model from tuning</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="prep_data.html">prep_data()</a></code> </p>
+          </td>
+          <td><p>Prepare data for machine learning</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="selectData.html">selectData()</a></code> </p>
+          </td>
+          <td><p>Depreciated. See <code>db_read</code></p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="separate_drgs.html">separate_drgs()</a></code> </p>
+          </td>
+          <td><p>Convert MSDRGs in a "base group" and a complication level</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="split_train_test.html">split_train_test()</a></code> </p>
+          </td>
+          <td><p>Split data into training and test data frames</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="start_prod_logs.html">start_prod_logs()</a></code> </p>
+          </td>
+          <td><p>Sets console logging to a file in the working directory.</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="step_add_levels.html">step_add_levels()</a></code> <code><a href="step_add_levels.html">tidy(<i>&lt;step_add_levels&gt;</i>)</a></code> </p>
+          </td>
+          <td><p>Add levels to nominal variables</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="step_hcai_missing.html">step_hcai_missing()</a></code> </p>
+          </td>
+          <td><p>Clean NA values from categorical/nominal variables</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="stop_prod_logs.html">stop_prod_logs()</a></code> </p>
+          </td>
+          <td><p>Stops all console logging.</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="supported_models.html">supported_models</a></code> </p>
+          </td>
+          <td><p>Supported models and their hyperparameters</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="tune_models.html">tune_models()</a></code> </p>
+          </td>
+          <td><p>Identify the best performing model by tuning hyperparameters via
+cross-validation</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="writeData.html">writeData()</a></code> </p>
+          </td>
+          <td><p>Depreciated.</p></td>
         </tr>
       </tbody><tbody>
         <tr>
@@ -155,40 +316,196 @@
         <tr>
           <!--  -->
           <td>
-            <p><code><a href="LassoDeployment.html">LassoDeployment</a></code> </p>
+            <p><code><a href="add_SAM_utility_cols.html">add_SAM_utility_cols()</a></code> </p>
           </td>
-          <td><p>Deploy a production-ready predictive Lasso model</p></td>
+          <td><p>Add SAM utility columns to table</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="LinearMixedModelDeployment.html">LinearMixedModelDeployment</a></code> </p>
+            <p><code><a href="as.model_list.html">as.model_list()</a></code> </p>
           </td>
-          <td><p>Deploy a production-ready predictive Linear Mixed Model model</p></td>
+          <td><p>Make models into model_list object</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="RandomForestDeployment.html">RandomForestDeployment</a></code> </p>
+            <p><code><a href="build_connection_string.html">build_connection_string()</a></code> </p>
           </td>
-          <td><p>Deploy a production-ready predictive RandomForest model</p></td>
+          <td><p>Build a connection string for use with MSSQL and dbConnect</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="SupervisedModelDeployment.html">SupervisedModelDeployment</a></code> </p>
+            <p><code><a href="catalyst_test_deploy_in_prod.html">catalyst_test_deploy_in_prod()</a></code> </p>
           </td>
-          <td><p>Deploy predictive models, created on your data</p></td>
+          <td><p>Test function to check that the production environment is active.</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="SupervisedModelDeploymentParams.html">SupervisedModelDeploymentParams</a></code> </p>
+            <p><code><a href="control_chart.html">control_chart()</a></code> </p>
           </td>
-          <td><p>SupervisedModelDeploymentParams class to set up parameters required to build
-SupervisedModelDeployment class</p></td>
+          <td><p>Create a control chart</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="XGBoostDeployment.html">XGBoostDeployment</a></code> </p>
+            <p><code><a href="countMissingData.html">countMissingData()</a></code> </p>
           </td>
-          <td><p>Deploy a production-ready predictive XGBoost model</p></td>
+          <td><p>Function to find proportion of NAs in each column of a dataframe or matrix</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="db_read.html">db_read()</a></code> </p>
+          </td>
+          <td><p>Read from a SQL Server database table</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="hcai_impute.html">hcai_impute()</a></code> </p>
+          </td>
+          <td><p>Specify imputation methods for an existing recipe</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="healthcareai.html">healthcareai</a></code> </p>
+          </td>
+          <td><p>healthcareai: Streamlined Machine Learning</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="impute.html">impute()</a></code> </p>
+          </td>
+          <td><p>Impute data and return a reusable recipe.</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="is.classification_list.html">is.classification_list()</a></code> </p>
+          </td>
+          <td><p>Class check</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="is.hcai_predicted_df.html">is.hcai_predicted_df()</a></code> </p>
+          </td>
+          <td><p>Class check</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="is.model_list.html">is.model_list()</a></code> </p>
+          </td>
+          <td><p>Class check</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="is.regression_list.html">is.regression_list()</a></code> </p>
+          </td>
+          <td><p>Class check</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="machine_learn.html">machine_learn()</a></code> </p>
+          </td>
+          <td><p>Machine Learn</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="missingness.html">missingness()</a></code> </p>
+          </td>
+          <td><p>Percent of entries in each column that are missing</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="model_list.html">model_list()</a></code> </p>
+          </td>
+          <td><p>Constructor function for class model_list</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="pima_diabetes.html">pima_diabetes</a></code> </p>
+          </td>
+          <td><p>Patient diabetes dataset</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="pivot.html">pivot()</a></code> </p>
+          </td>
+          <td><p>Pivot from a long data frame to a wide data frame</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="plot.model_list.html">plot(<i>&lt;model_list&gt;</i>)</a></code> </p>
+          </td>
+          <td><p>Plot performance of models</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="predict.model_list.html">predict(<i>&lt;model_list&gt;</i>)</a></code> </p>
+          </td>
+          <td><p>Make predictions using the best-performing model from tuning</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="prep_data.html">prep_data()</a></code> </p>
+          </td>
+          <td><p>Prepare data for machine learning</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="selectData.html">selectData()</a></code> </p>
+          </td>
+          <td><p>Depreciated. See <code>db_read</code></p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="separate_drgs.html">separate_drgs()</a></code> </p>
+          </td>
+          <td><p>Convert MSDRGs in a "base group" and a complication level</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="split_train_test.html">split_train_test()</a></code> </p>
+          </td>
+          <td><p>Split data into training and test data frames</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="start_prod_logs.html">start_prod_logs()</a></code> </p>
+          </td>
+          <td><p>Sets console logging to a file in the working directory.</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="step_add_levels.html">step_add_levels()</a></code> <code><a href="step_add_levels.html">tidy(<i>&lt;step_add_levels&gt;</i>)</a></code> </p>
+          </td>
+          <td><p>Add levels to nominal variables</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="step_hcai_missing.html">step_hcai_missing()</a></code> </p>
+          </td>
+          <td><p>Clean NA values from categorical/nominal variables</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="stop_prod_logs.html">stop_prod_logs()</a></code> </p>
+          </td>
+          <td><p>Stops all console logging.</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="supported_models.html">supported_models</a></code> </p>
+          </td>
+          <td><p>Supported models and their hyperparameters</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="tune_models.html">tune_models()</a></code> </p>
+          </td>
+          <td><p>Identify the best performing model by tuning hyperparameters via
+cross-validation</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="writeData.html">writeData()</a></code> </p>
+          </td>
+          <td><p>Depreciated.</p></td>
         </tr>
       </tbody><tbody>
         <tr>
@@ -200,15 +517,15 @@ SupervisedModelDeployment class</p></td>
         <tr>
           <!--  -->
           <td>
-            <p><code><a href="selectData.html">selectData</a></code> </p>
+            <p><code><a href="selectData.html">selectData()</a></code> </p>
           </td>
-          <td><p>Pull data into R via an ODBC connection</p></td>
+          <td><p>Depreciated. See <code>db_read</code></p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="writeData.html">writeData</a></code> </p>
+            <p><code><a href="writeData.html">writeData()</a></code> </p>
           </td>
-          <td><p>Write data to database</p></td>
+          <td><p>Depreciated.</p></td>
         </tr>
       </tbody><tbody>
         <tr>
@@ -240,7 +557,7 @@ SupervisedModelDeployment class</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
@@ -248,3 +565,4 @@ SupervisedModelDeployment class</p></td>
 
   </body>
 </html>
+
