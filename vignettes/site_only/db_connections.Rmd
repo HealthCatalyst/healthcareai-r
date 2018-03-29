@@ -56,7 +56,7 @@ d <- db_read(con, query)
 This query counts admits by year. If you don't want to pull the results into
 memory, as might the be the case with large tables, set the `pull_into_memory`
 flag to FALSE. This will create a pointer to the database that can be 
-executed "lazily". In other words R will wait until the last moment to execute 
+executed "lazily." In other words R will wait until the last moment to execute 
 the statement.
 
 #### Using dplyr Code
@@ -80,7 +80,7 @@ d <- encounter %>%
 # Writing Data
 As of 4/1/2018, there are two ways to write to a database: 
 
-1. The latest version of `odbc`, which is the back end to `DBI`, 
+1. The latest version of `odbc`, and `DBI`, 
 installed from Github. The CRAN version does not support database schemas.
 2. `RODBC`
 
@@ -90,29 +90,34 @@ table's column names and data types.
 #### Writing with DBI
 
 DBI requires that you set up the table as an object before trying to write to
-it. Assuming there was a table called `SAM.Sepsis.Predictions` with columns
-patient_id (int) and predicted_probability (float).
+it. Assuming there was a table called `SAM.Sepsis.Predictions` with columns:
+
+- BindingID
+- BindingNM
+- LastLoadDTS
+- patient_id (int)
+- predicted_probability (float).
 ```{r, eval=FALSE}
+library(DBI)
 devtools::install_github("r-dbi/odbc")
 
 predictions <- data.frame(patient_id = c(1,2,3),
-                          predicted_probability = c(0.7, 0.2, 0.4))
+                          predicted_readmission = c(0.7, 0.2, 0.4)) %>%
+  add_SAM_utility_cols()
 
-table_id <- DBI::Id(name = "Predictions", 
-                    schema = "Sepsis", 
-                    catalog = "SAM")
+table_id <- Id(schema = "Sepsis", 
+                    name = "Predictions")
 
-res <- DBI::dbWriteTable(conn = my_con,
+res <- dbWriteTable(conn = my_con,
                          name = table_id,
                          value = predictions,
                          append = TRUE)
-
 dbDisconnect(con)
 ```
 
-####Writing with RODBC
+#### Writing with RODBC
 
-RODBC is not the preferred way to interact with a database becuase it doesn't
+RODBC is not the preferred way to interact with a database because it doesn't
 work with RStudio's connections pane. However, the package is available on CRAN
 and does support schemas. To use it, you must set up an RODBC connection to the 
 database, as a DBI connection won't work.
@@ -121,18 +126,18 @@ library(RODBC)
 # Make a connection
 my_con <- build_connection_string(server = "HCS-GM0004",
                                   database = "SAM")
-con <- odbcDriverConnect(connection = con)
+con <- odbcDriverConnect(connection = my_con)
 
-# Write data 
+# Write data (normally this would come from predict)
 predictions <- data.frame(patient_id = c(1,2,3),
-                          predicted_probability = c(0.7, 0.2, 0.4))
+                          predicted_readmission = c(0.7, 0.2, 0.4)) %>%
+  add_SAM_utility_cols()
 
 sqlSave(con, 
         predictions, 
         "Sepsis.Predictions", 
         append = TRUE, 
         rownames = FALSE)
-
 odbcClose(con)
 ```
 
@@ -140,5 +145,39 @@ odbcClose(con)
 
 
 # Example Code Snippet
-Copy-Pasta
+
+If you're confused, this is all explained above.
+```{r, eval=FALSE}
+library(DBI)
+library(healthcareai)
+
+# Connection string
+my_con <- build_connection_string(server = "HCS-GM0004",
+                                  database = "SAM")
+# Reading
+con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con)
+query <- "SELECT
+          ,COUNT(*),
+          ,year(AdmitDT) as AdmitYear
+          FROM [SAM].[Encounter].[PatientEncounterBASE]
+          WHERE AdmitYear >= 2013
+          GROUP BY AdmitYear
+          ORDER BY AdmitYear"
+
+d <- db_read(con, query)
+
+# Writing
+predictions <- data.frame(patient_id = c(1,2,3),
+                          predicted_readmission = c(0.7, 0.2, 0.4)) %>%
+  add_SAM_utility_cols()
+
+table_id <- Id(schema = "Sepsis", 
+                    name = "Predictions")
+
+res <- dbWriteTable(conn = my_con,
+                         name = table_id,
+                         value = predictions,
+                         append = TRUE)
+dbDisconnect(con)
+```
 
