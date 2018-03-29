@@ -88,12 +88,10 @@ change_pr_metric <- function(object) {
   if (is.model_list(object)) {
     # AUC is caret's code for PR
     if (object[[1]]$metric == "AUC") {
-      object <-
-        purrr::map(object, function(x) {
-          x$metric <- "PR"
-          names(x$results)[names(x$results) == "AUC"] <- "PR"
-          return(x)
-        })
+      for (i in seq_along(object)) {
+        object[[i]]$metric <- "PR"
+        names(object[[i]]$results)[names(object[[i]]$results) == "AUC"] <- "PR"
+      }
     }
   } else if (is.hcai_predicted_df(object)) {
     if (attr(object, "model_info")$metric == "AUC")

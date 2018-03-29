@@ -4,7 +4,8 @@
 \alias{machine_learn}
 \title{Machine Learn}
 \usage{
-machine_learn(d, ..., outcome, models = c("rf", "knn"), impute = TRUE)
+machine_learn(d, ..., outcome, models, tune = TRUE, n_folds = 5,
+  tune_depth = 10, impute = TRUE)
 }
 \arguments{
 \item{d}{A data frame}
@@ -17,6 +18,18 @@ Unquoted. Must be named, i.e. you must specify \code{outcome = }}
 
 \item{models}{Models to be trained, k-nearest neighbors and random forest by
 default. See \code{\link{supported_models}} for details.}
+
+\item{tune}{If TRUE (default) models will be tuned via
+\code{\link{tune_models}}. If FALSE, models will be trained via
+\code{\link{flash_models}} which is substantially faster but produces
+less-predictively powerful models.}
+
+\item{n_folds}{How many folds to use to assess out-of-fold accuracy? Default
+= 5. Models are evaluated on out-of-fold predictions whether tune is TRUE
+or FALSE.}
+
+\item{tune_depth}{How many hyperparameter combinations to try? Defualt = 10.
+Ignored if tune is FALSE.}
 
 \item{impute}{Logical, if TRUE (default) missing values will be filled by
 \code{\link{hcai_impute}}}
@@ -53,4 +66,10 @@ age_model <- machine_learn(training_data, outcome = age)
 
 # If new data isn't specifed, get predictions on training data
 predict(age_model)
+
+### Faster model training without tuning hyperparameters ###
+
+# Train models at set hyperparameter values by setting tune to FALSE.
+# This will be faster, but produce models with less predictive accuracy.
+machine_learn(training_data, outcome = diabetes, tune = FALSE)
 }

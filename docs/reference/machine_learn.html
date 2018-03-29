@@ -29,8 +29,6 @@
 
 <meta property="og:description" content="Prepare data and train machine learning models." />
 <meta name="twitter:card" content="summary" />
-
-
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -53,12 +51,8 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
-      </span>
+      <a class="navbar-brand" href="../index.html">healthcareai</a>
     </div>
-
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -105,9 +99,10 @@
     <p>Prepare data and train machine learning models.</p>
     
 
-    <pre class="usage"><span class='fu'>machine_learn</span>(<span class='no'>d</span>, <span class='no'>...</span>, <span class='no'>outcome</span>, <span class='kw'>models</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"rf"</span>, <span class='st'>"knn"</span>), <span class='kw'>impute</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+    <pre class="usage"><span class='fu'>machine_learn</span>(<span class='no'>d</span>, <span class='no'>...</span>, <span class='no'>outcome</span>, <span class='no'>models</span>, <span class='kw'>tune</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>n_folds</span> <span class='kw'>=</span> <span class='fl'>5</span>,
+  <span class='kw'>tune_depth</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>impute</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -127,7 +122,25 @@ Unquoted. Must be named, i.e. you must specify <code>outcome = </code></p></td>
     <tr>
       <th>models</th>
       <td><p>Models to be trained, k-nearest neighbors and random forest by
-default. See <code><a href='supported_models.html'>supported_models</a></code> for details.</p></td>
+default. See <code><a href='get_supported_models.html'>supported_models</a></code> for details.</p></td>
+    </tr>
+    <tr>
+      <th>tune</th>
+      <td><p>If TRUE (default) models will be tuned via
+<code><a href='tune_models.html'>tune_models</a></code>. If FALSE, models will be trained via
+<code><a href='flash_models.html'>flash_models</a></code> which is substantially faster but produces
+less-predictively powerful models.</p></td>
+    </tr>
+    <tr>
+      <th>n_folds</th>
+      <td><p>How many folds to use to assess out-of-fold accuracy? Default
+= 5. Models are evaluated on out-of-fold predictions whether tune is TRUE
+or FALSE.</p></td>
+    </tr>
+    <tr>
+      <th>tune_depth</th>
+      <td><p>How many hyperparameter combinations to try? Defualt = 10.
+Ignored if tune is FALSE.</p></td>
     </tr>
     <tr>
       <th>impute</th>
@@ -195,7 +208,25 @@ default. See <code><a href='supported_models.html'>supported_models</a></code> f
 #&gt; #   pedigree &lt;dbl&gt;, weight_class_normal &lt;dbl&gt;, weight_class_obese &lt;dbl&gt;,
 #&gt; #   weight_class_overweight &lt;dbl&gt;, weight_class_hcai_missing &lt;dbl&gt;,
 #&gt; #   weight_class_other &lt;dbl&gt;, diabetes_Y &lt;dbl&gt;, diabetes_other &lt;dbl&gt;,
-#&gt; #   diabetes_hcai_missing &lt;dbl&gt;</div></pre>
+#&gt; #   diabetes_hcai_missing &lt;dbl&gt;</div><div class='input'>
+<span class='co'>### Faster model training without tuning hyperparameters ###</span>
+
+<span class='co'># Train models at set hyperparameter values by setting tune to FALSE.</span>
+<span class='co'># This will be faster, but produce models with less predictive accuracy.</span>
+<span class='fu'>machine_learn</span>(<span class='no'>training_data</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>, <span class='kw'>tune</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; Target: diabetes
+#&gt; Class: Classification
+#&gt; Algorithms Trained: Random Forest, k-Nearest Neighbors
+#&gt; Performance Metric: ROC
+#&gt; Number of Observations: 90
+#&gt; Number of Features: 13 
+#&gt; 
+#&gt; Models have not been tuned. Performance estimated via 5-fold cross validation at fixed hyperparameter values.
+#&gt; Best model: Random Forest
+#&gt; ROC = 0.77
+#&gt; User-selected hyperparameter values:
+#&gt;   mtry = 5
+#&gt;   splitrule = extratrees
+#&gt;   min.node.size = 10 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

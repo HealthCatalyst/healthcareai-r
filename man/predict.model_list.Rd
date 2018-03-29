@@ -49,9 +49,9 @@ models <- machine_learn(pima_diabetes[1:50, ], outcome = diabetes)
 # the training data was prepared.
 predictions <- predict(models, newdata = pima_diabetes[51:70, ])
 predictions
-ggplot(predictions, aes(x = predicted_diabetes, fill = diabetes)) +
-  geom_density(alpha = .5)
+plot(predictions)
 }
 \seealso{
-\code{\link{tune_models}}, \code{\link{prep_data}}
+\code{\link{plot.hcai_predicted_df}}, \code{\link{tune_models}},
+  \code{\link{prep_data}}
 }

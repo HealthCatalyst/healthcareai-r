@@ -14,8 +14,6 @@ $(function() {
     offset: 60
   });
 
-  $('[data-toggle="tooltip"]').tooltip();
-
   var cur_path = paths(location.pathname);
   $("#navbar ul li a").each(function(index, value) {
     if (value.text == "Home")

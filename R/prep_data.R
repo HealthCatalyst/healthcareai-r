@@ -136,6 +136,16 @@ prep_data <- function(d,
               paste(m$variable, collapse = ", "))
   }
 
+  # Check global options for factor handling
+  opt <- options("contrasts")[[1]][[1]]
+  if (opt != "contr.treatment"){
+    w <- paste0("Your unordered-factor contrasts option is set to ", opt,
+                ". This may produce unexpected behavior, particularly in step_dummy in prep_data. ",
+                "Consider resetting it by restarting R, or with: ",
+                "options(contrasts = c(\"contr.treatment\", \"contr.poly\"))")
+    warning(w)
+  }
+
   # If there's a recipe in recipe, use that
   if (!is.null(recipe)) {
     message("Prepping data based on provided recipe")
@@ -164,12 +174,12 @@ prep_data <- function(d,
     # Outcome gets added as all NAs; set a flag to remove it at end if not in provided DF
     outcome_var <- recipe$var_info$variable[recipe$var_info$role == "outcome"]
     if (length(outcome_var) && !outcome_var %in% names(d))
-        remove_outcome <- TRUE
+      remove_outcome <- TRUE
 
   } else {
 
     # Initialize a new recipe
-    message("Training new data prep recipe")
+    mes <- "Training new data prep recipe"
     ## Start by making all variables predictors...
     recipe <- recipes::recipe(d, ~ .)
     ## Then deal with outcome if present
@@ -190,13 +200,15 @@ prep_data <- function(d,
       suppressWarnings({
         recipe <- recipes::add_role(recipe, !!outcome, new_role = "outcome")
       })
-
       # If outcome is binary 0/1, convert to N/Y -----------------------------
       if (factor_outcome && all(outcome_vec %in% 0:1)) {
         recipe <- recipe %>%
           recipes::step_bin2factor(all_outcomes(), levels = c("Y", "N"))
       }
+    } else {
+      mes <- paste0(mes, ", with no outcome variable specified")
     }
+    message(mes)
 
     # Build recipe step-by-step:
 

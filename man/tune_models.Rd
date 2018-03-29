@@ -5,9 +5,8 @@
 \title{Identify the best performing model by tuning hyperparameters via
 cross-validation}
 \usage{
-tune_models(d, outcome, model_class, models = c("rf", "knn"), n_folds = 5,
-  tune_depth = 10, tune_method = "random", metric, hyperparameters,
-  verbose = FALSE)
+tune_models(d, outcome, model_class, models, n_folds = 5, tune_depth = 10,
+  tune_method = "random", metric, hyperparameters)
 }
 \arguments{
 \item{d}{A data frame}
@@ -35,8 +34,6 @@ operating characteristic curve), or "PR" (area under the precision-recall
 curve).}
 
 \item{hyperparameters}{Currently not supported.}
-
-\item{verbose}{Logical, defaults to FALSE. Get additional info via messages?}
 }
 \value{
 A model_list object

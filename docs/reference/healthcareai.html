@@ -31,8 +31,6 @@
 models on your data and then deploy the model that is most accurate. healthcareai
 also includes functions for data exploration, data cleaning, and model evaluation." />
 <meta name="twitter:card" content="summary" />
-
-
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -55,12 +53,8 @@ also includes functions for data exploration, data cleaning, and model evaluatio
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
-      </span>
+      <a class="navbar-brand" href="../index.html">healthcareai</a>
     </div>
-
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -116,34 +110,34 @@ also includes functions for data exploration, data cleaning, and model evaluatio
 preparing the data. Second, tuning and selecting a best model. Third, making
 predictions, deploying the model, and monitoring over time.</p>
 <ol>
-<li><p><strong>Load data</strong><br />
+<li><p><strong>Load data</strong>
  <code><a href='selectData.html'>selectData</a></code> to pull data directly from a SQL
 database</p></li>
-<li><p><strong>Profile data</strong><br />
+<li><p><strong>Profile data</strong>
  <code><a href='control_chart.html'>control_chart</a></code> to plot data over time.
  <code><a href='pivot.html'>pivot</a></code> if you multiple rows for each observation you want
 a prediction on (e.g. multiple lab values for patients on separate rows), pivot
 can help reshape the data.</p></li>
-<li><p><strong>Prepare data for modeling</strong><br />
+<li><p><strong>Prepare data for modeling</strong>
  <code><a href='missingness.html'>missingness</a></code> to examine how much of each variable is missing.
  <code><a href='impute.html'>impute</a></code> to impute missing values, or...
  <code><a href='prep_data.html'>prep_data</a></code> to impute and perform additional data
 manipulation to get data ready for machine learning.
  <code><a href='split_train_test.html'>split_train_test</a></code> to split data into one data frame for
 developing a model and another for evaluating the model.</p></li>
-<li><p><strong>Tune machine learning models</strong><br />
+<li><p><strong>Tune machine learning models</strong>
  <code><a href='machine_learn.html'>machine_learn</a></code> does all the work for you, from imputing
 missing values to finding optimal models via cross validation. If you want to
 keep the guts under the hood (apologies for the mixed metaphor!),
 this is the function for you!
  <code><a href='tune_models.html'>tune_models</a></code> gives you more control over how models are trained.</p></li>
-<li><p><strong>Assess models</strong><br />
+<li><p><strong>Assess models</strong>
  <code>machine_learn</code> and <code>tune_models</code> both return
 <code>model_list</code> objects. You can get high level information about your models by simply
 printing the model_list object (i.e. type the name of the variable holding the models).
  <code>summary(model_list)</code> provides even more information about model tuning.
  <code>plot(model_list)</code> plots model performance over hyperparameter space.</p></li>
-<li><p><strong>Make predictions and deploy the model</strong><br />
+<li><p><strong>Make predictions and deploy the model</strong>
  <code><a href='predict.model_list.html'>predict.model_list</a></code> generates predictions
  <code><a href='writeData.html'>writeData</a></code> to push the predicted values into a SQL environment.</p></li>
 </ol>
