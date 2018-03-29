@@ -54,10 +54,20 @@ summary.model_list <- function(object, ...) {
     stop("object is empty.")
   object <- change_pr_metric(object)
   rinfo <- extract_model_info(object)
-  out <- paste0("Best performance: ", rinfo$metric, " = ",
-                round(rinfo$best_model_perf, 2), "\n",
-                rinfo$best_model_name, " with hyperparameters:\n  ",
-                format_tune(rinfo$best_model_tune))
+  out <-
+    if (rinfo$tuned) {
+      paste0("\n\nModels tuned via ", object[[1]]$control$number, "-fold cross validation ",
+             "over ", nrow(object[[1]]$results), " combinations of hyperparameter values.",
+             "\nBest performance: ", rinfo$metric, " = ",
+             round(rinfo$best_model_perf, 2), "\n",
+             rinfo$best_model_name, " with hyperparameters:\n  ",
+             format_tune(rinfo$best_model_tune))
+    } else {
+      paste0("\n\nModels have not been tuned. Performance estimated via ",
+             object[[1]]$control$number, "-fold cross validation at fixed hyperparameter values.",
+             "\nBest algorithm: ", rinfo$best_model_name, " with performance: ",
+             rinfo$metric, " = ", round(rinfo$best_model_perf, 2), "\n")
+    }
   cat(out)
   cat("\n\nOut-of-fold performance of all trained models:\n\n")
   perf <- lapply(object, function(xx) {

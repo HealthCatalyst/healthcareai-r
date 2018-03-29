@@ -193,8 +193,8 @@ test_that("summary.model_list works with untuned_model_lists", {
   expect_false(grepl("Inf", flash_r_summary))
   expect_false(grepl("Inf", flash_c_summary))
   expect_false(grepl("0 rows", flash_r_summary))
-  expect_true(grepl("Best performance:", flash_r_summary))
-  expect_true(grepl("Best performance:", flash_c_summary))
+  expect_false(grepl("Best performance:", flash_r_summary))
+  expect_true(grepl("with performance:", flash_c_summary))
 })
 
 test_that("plot.model_list works with message untuned_model_lists", {
