@@ -26,8 +26,6 @@
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
 <meta property="og:title" content="Function reference" />
-
-
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -50,12 +48,8 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
-      </span>
+      <a class="navbar-brand" href="../index.html">healthcareai</a>
     </div>
-
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -94,7 +88,10 @@
       <div class="row">
   <div class="col-md-9">
     <div class="page-header">
-      <h1>Reference</h1>
+      <h1>
+        Reference
+        <small>version&nbsp;2.0.0</small>
+      </h1>
     </div>
 
     <div class="contents">
@@ -154,6 +151,18 @@
             <p><code><a href="db_read.html">db_read()</a></code> </p>
           </td>
           <td><p>Read from a SQL Server database table</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="flash_models.html">flash_models()</a></code> </p>
+          </td>
+          <td><p>Train models without tuning for performance</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="get_supported_models.html">get_supported_models()</a></code> </p>
+          </td>
+          <td><p>Supported models and their hyperparameters</p></td>
         </tr><tr>
           <!--  -->
           <td>
@@ -229,9 +238,27 @@
         </tr><tr>
           <!--  -->
           <td>
+            <p><code><a href="plot.hcai_predicted_df.html">plot(<i>&lt;hcai_predicted_df&gt;</i>)</a></code> </p>
+          </td>
+          <td><p>Plot model predictions vs observed outcomes</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
             <p><code><a href="plot.model_list.html">plot(<i>&lt;model_list&gt;</i>)</a></code> </p>
           </td>
           <td><p>Plot performance of models</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="plot_classification_predictions.html">plot_classification_predictions()</a></code> </p>
+          </td>
+          <td><p>Plot predictions from a classification model</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="plot_regression_predictions.html">plot_regression_predictions()</a></code> </p>
+          </td>
+          <td><p>Plot predictions from a regression model</p></td>
         </tr><tr>
           <!--  -->
           <td>
@@ -249,7 +276,7 @@
           <td>
             <p><code><a href="selectData.html">selectData()</a></code> </p>
           </td>
-          <td><p>Depreciated. See <code>db_read</code></p></td>
+          <td><p>Depreciated. See <code><a href='reference/db_read.html'>db_read</a></code></p></td>
         </tr><tr>
           <!--  -->
           <td>
@@ -286,12 +313,6 @@
             <p><code><a href="stop_prod_logs.html">stop_prod_logs()</a></code> </p>
           </td>
           <td><p>Stops all console logging.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="supported_models.html">supported_models</a></code> </p>
-          </td>
-          <td><p>Supported models and their hyperparameters</p></td>
         </tr><tr>
           <!--  -->
           <td>
@@ -358,6 +379,18 @@ cross-validation</p></td>
         </tr><tr>
           <!--  -->
           <td>
+            <p><code><a href="flash_models.html">flash_models()</a></code> </p>
+          </td>
+          <td><p>Train models without tuning for performance</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="get_supported_models.html">get_supported_models()</a></code> </p>
+          </td>
+          <td><p>Supported models and their hyperparameters</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
             <p><code><a href="hcai_impute.html">hcai_impute()</a></code> </p>
           </td>
           <td><p>Specify imputation methods for an existing recipe</p></td>
@@ -430,9 +463,27 @@ cross-validation</p></td>
         </tr><tr>
           <!--  -->
           <td>
+            <p><code><a href="plot.hcai_predicted_df.html">plot(<i>&lt;hcai_predicted_df&gt;</i>)</a></code> </p>
+          </td>
+          <td><p>Plot model predictions vs observed outcomes</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
             <p><code><a href="plot.model_list.html">plot(<i>&lt;model_list&gt;</i>)</a></code> </p>
           </td>
           <td><p>Plot performance of models</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="plot_classification_predictions.html">plot_classification_predictions()</a></code> </p>
+          </td>
+          <td><p>Plot predictions from a classification model</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="plot_regression_predictions.html">plot_regression_predictions()</a></code> </p>
+          </td>
+          <td><p>Plot predictions from a regression model</p></td>
         </tr><tr>
           <!--  -->
           <td>
@@ -450,7 +501,7 @@ cross-validation</p></td>
           <td>
             <p><code><a href="selectData.html">selectData()</a></code> </p>
           </td>
-          <td><p>Depreciated. See <code>db_read</code></p></td>
+          <td><p>Depreciated. See <code><a href='reference/db_read.html'>db_read</a></code></p></td>
         </tr><tr>
           <!--  -->
           <td>
@@ -490,12 +541,6 @@ cross-validation</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="supported_models.html">supported_models</a></code> </p>
-          </td>
-          <td><p>Supported models and their hyperparameters</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
             <p><code><a href="tune_models.html">tune_models()</a></code> </p>
           </td>
           <td><p>Identify the best performing model by tuning hyperparameters via
@@ -519,7 +564,7 @@ cross-validation</p></td>
           <td>
             <p><code><a href="selectData.html">selectData()</a></code> </p>
           </td>
-          <td><p>Depreciated. See <code>db_read</code></p></td>
+          <td><p>Depreciated. See <code><a href='reference/db_read.html'>db_read</a></code></p></td>
         </tr><tr>
           <!--  -->
           <td>

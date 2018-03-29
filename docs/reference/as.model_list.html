@@ -29,8 +29,6 @@
 
 <meta property="og:description" content="Make models into model_list object" />
 <meta name="twitter:card" content="summary" />
-
-
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -53,12 +51,8 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
-      </span>
+      <a class="navbar-brand" href="../index.html">healthcareai</a>
     </div>
-
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -105,9 +99,10 @@
     <p>Make models into model_list object</p>
     
 
-    <pre class="usage"><span class='fu'>as.model_list</span>(<span class='no'>...</span>, <span class='kw'>listed_models</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>target</span> <span class='kw'>=</span> <span class='st'>".outcome"</span>, <span class='no'>model_class</span>)</pre>
+    <pre class="usage"><span class='fu'>as.model_list</span>(<span class='no'>...</span>, <span class='kw'>listed_models</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>target</span> <span class='kw'>=</span> <span class='st'>".outcome"</span>, <span class='no'>model_class</span>,
+  <span class='kw'>tuned</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -125,6 +120,10 @@
     <tr>
       <th>model_class</th>
       <td><p>"classification" or "regression"</p></td>
+    </tr>
+    <tr>
+      <th>tuned</th>
+      <td><p>Logical; if FALSE, will have super-class untuned_models</p></td>
     </tr>
     </table>
     
