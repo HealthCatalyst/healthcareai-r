@@ -49,6 +49,44 @@ This function has two major differences from
   hyperparameter values for predictive performance.} \item{It is much
   faster.}}
 }
+\examples{
+# Prepare data
+prepped_data <- prep_data(pima_diabetes, patient_id, outcome = diabetes)
+
+# Simplest use. Get models quickly at default hyperparameter values
+flash_models(prepped_data, diabetes)
+
+# Set non-default hyperparameter values by passing a list of lists to \\code{hyperparameters}
+models <-
+  flash_models(d = prepped_data,
+               outcome = diabetes,
+               hyperparameters = list(
+                 rf = list(
+                   mtry = 3,
+                   splitrule = "gini",
+                   min.node.size = 1
+                 ),
+                 knn = list(
+                   kmax = 3,
+                   distance = 2,
+                   kernel = "gaussian"
+                 )
+               )
+  )
+summary(models)
+
+# Speed comparison of no tuning with flash_models vs. tuning with tune_models:
+\dontrun{
+  # ~40 seconds:
+  system.time(
+    tune_models(prepped_data, diabetes)
+  )
+  # ~6 seconds:
+  system.time(
+    flash_models(prepped_data, diabetes)
+  )
+}
+}
 \seealso{
 \code{\link{tune_models}}, \code{\link{prep_data}},
   \code{\link{predict.model_list}}, \code{\link{supported_models}}

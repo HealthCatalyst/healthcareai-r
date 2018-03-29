@@ -49,6 +49,12 @@
 #'
 #' # If new data isn't specifed, get predictions on training data
 #' predict(age_model)
+#'
+#' ### Faster model training without tuning hyperparameters ###
+#'
+#' # Train models at set hyperparameter values by setting tune to FALSE.
+#' # This will be faster, but produce models with less predictive accuracy.
+#' machine_learn(training_data, outcome = diabetes, tune = FALSE)
 machine_learn <- function(d, ..., outcome, models,
                           tune = TRUE, n_folds = 5, tune_depth = 10,
                           impute = TRUE) {
