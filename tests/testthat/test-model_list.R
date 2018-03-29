@@ -50,9 +50,8 @@ test_that("as.model_list works same with different argument specs", {
                as.model_list(rf, model_class = "classification"))
 })
 
-test_that("model lists have target attribute", {
-  expect_equal(attr(model_list(model_class = "classification"), "target"),
-               ".outcome")
+test_that("model lists have target attribute if not empty; null if empty", {
+  expect_null(attr(model_list(model_class = "classification"), "target"))
   expect_equal(attr(r_models, "target"), "mpg")
   expect_equal(attr(c_models, "target"), "am")
 })
@@ -235,4 +234,19 @@ test_that("Change PR metric doesn't change object class", {
   expect_setequal(class(change_pr_metric(c_models)), class(c_models))
   preds <- predict(c_models)
   expect_setequal(class(change_pr_metric(preds)), class(preds))
+})
+
+test_that("model_lists have time model trained attribute", {
+  check_timestamp <- function(m) expect_true(lubridate::is.POSIXt(attr(m, "timestamp")))
+  check_timestamp(r_models)
+  check_timestamp(c_models)
+  check_timestamp(c_pr)
+  check_timestamp(single_model_as)
+  check_timestamp(r_flash)
+  check_timestamp(c_flash)
+})
+
+test_that("empty model_lists have null for timestamp attr", {
+  expect_null(attr(r_empty, "timestamp"))
+  expect_null(attr(c_empty, "timestamp"))
 })
