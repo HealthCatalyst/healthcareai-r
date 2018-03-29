@@ -22,7 +22,8 @@
 #'   make predictions.
 #' @export
 #' @importFrom caret predict.train
-#' @seealso \code{\link{tune_models}}, \code{\link{prep_data}}
+#' @seealso \code{\link{plot.hcai_predicted_df}}, \code{\link{tune_models}},
+#'   \code{\link{prep_data}}
 #'
 #' @details The model and hyperparameter values with the best out-of-fold
 #'   performance in model training according to the selected metric is used to
@@ -37,8 +38,7 @@
 #' # the training data was prepared.
 #' predictions <- predict(models, newdata = pima_diabetes[51:70, ])
 #' predictions
-#' ggplot(predictions, aes(x = predicted_diabetes, fill = diabetes)) +
-#'   geom_density(alpha = .5)
+#' plot(predictions)
 predict.model_list <- function(object, newdata, prepdata, ...) {
 
   # Pull info
@@ -88,7 +88,8 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
   # Add class and attributes to data frame
   class(newdata) <- c("hcai_predicted_df", class(newdata))
   attr(newdata, "model_info") <-
-    list(target = mi$target,
+    list(type = mi$m_class,
+         target = mi$target,
          algorithm = mi$best_model_name,
          metric = mi$metric,
          performance = mi$best_model_perf,
