@@ -11,14 +11,28 @@ print.model_list <- function(x, ...) {
     out <- paste0(
       "Target: ", rinfo$target,
       "\nClass: ", rinfo$m_class,
-      "\nAlgorithms Tuned: ", paste(rinfo$algs, collapse = ", "),
+      "\nAlgorithms Trained: ", paste(rinfo$algs, collapse = ", "),
       "\nPerformance Metric: ", rinfo$metric,
       "\nNumber of Observations: ", rinfo$ddim[1],
-      "\nNumber of Features: ", rinfo$ddim[2] - 1L,
-
-      "\n\nBest model: ", rinfo$best_model_name,
-      "\n", rinfo$metric, " = ", round(rinfo$best_model_perf, 2),
-      "\nHyperparameter values:", "\n  ", format_tune(rinfo$best_model_tune)
+      "\nNumber of Features: ", rinfo$ddim[2] - 1L
+    )
+    out <- paste(
+      out,
+      if (rinfo$tuned) {
+        paste0("\n\nModels tuned via ", x[[1]]$control$number, "-fold cross validation ",
+               "over ", nrow(x[[1]]$results), " combinations of hyperparameter values.",
+               "\nBest model: ", rinfo$best_model_name,
+               "\n", rinfo$metric, " = ", round(rinfo$best_model_perf, 2),
+               "\nOptimal hyperparameter values:", "\n  ", format_tune(rinfo$best_model_tune)
+        )
+      } else {
+        paste0("\n\nModels have not been tuned. Performance estimated via ",
+               x[[1]]$control$number, "-fold cross validation at fixed hyperparameter values.",
+               "\nBest model: ", rinfo$best_model_name,
+               "\n", rinfo$metric, " = ", round(rinfo$best_model_perf, 2),
+               "\nUser-selected hyperparameter values:", "\n  ", format_tune(rinfo$best_model_tune)
+        )
+      }
     )
   } else {
     out <- paste("Empty", class(x)[1], "object.")
@@ -175,7 +189,8 @@ extract_model_info <- function(x) {
     best_model_name = best_model_name,
     best_model_perf = best_model_perf,
     best_model_tune = best_model_tune,
-    ddim = ddim
+    ddim = ddim,
+    tuned = attr(x, "tuned")
   )
 }
 

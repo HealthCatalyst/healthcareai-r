@@ -3,6 +3,7 @@ context("model_list tests setup")
 # Setup ------------------------------------------------------------------------
 data(mtcars)
 mtcars$am <- as.factor(c("automatic", "manual")[mtcars$am + 1])
+set.seed(257056)
 rf <- caret::train(x = dplyr::select(mtcars, -am),
                    y = mtcars$am,
                    method = "ranger",
@@ -175,16 +176,18 @@ test_that("summary.model_list works", {
 
 context("Checking model_list generics on untuned model_lists") #----------------
 
-test_that("print.model_list work with untuned_model_lists", {
+test_that("print.model_list works with untuned_model_lists", {
   expect_warning(flash_r_print <- capture_output(print(r_flash)), NA)
   expect_warning(flash_c_print <- capture_output(print(c_flash)), NA)
   expect_false(grepl("Inf", flash_r_print))
   expect_false(grepl("Inf", flash_c_print))
   expect_true(grepl("Target: mpg", flash_r_print))
   expect_true(grepl("Target: am", flash_c_print))
+  expect_true(grepl("Models have not been tuned", flash_r_print))
+  expect_true(grepl("selected hyperparameter values", flash_c_print))
 })
 
-test_that("summary.model_list work with untuned_model_lists", {
+test_that("summary.model_list works with untuned_model_lists", {
   expect_warning(flash_r_summary <- capture_output(summary(r_flash)), NA)
   expect_warning(flash_c_summary <- capture_output(summary(c_flash)), NA)
   expect_false(grepl("Inf", flash_r_summary))
@@ -204,7 +207,7 @@ test_that("plot.model_list works with message untuned_model_lists", {
 
 context("Testing model list utilities") # --------------------------------------
 test_that("Change PR metric changes all models to PR", {
-  m <- healthcareai:::change_pr_metric(c_pr)
+  m <- change_pr_metric(c_pr)
 
   expect_true(
     all(c("PR", "Precision", "Recall") %in% names(
@@ -225,4 +228,11 @@ test_that("Change PR metric doesn't change ROC", {
   expect_true(
     all(c("ROC", "Sens", "Spec") %in% names(
       m$`k-Nearest Neighbors`$results)))
+})
+
+test_that("Change PR metric doesn't change object class", {
+  expect_setequal(class(change_pr_metric(c_pr)), class(c_pr))
+  expect_setequal(class(change_pr_metric(c_models)), class(c_models))
+  preds <- predict(c_models)
+  expect_setequal(class(change_pr_metric(preds)), class(preds))
 })
