@@ -23,12 +23,13 @@ model_list <- function(model_class, ...) {
 #' @param listed_models Use this if your models are already in a list
 #' @param model_class "classification" or "regression"
 #' @param target Quoted name of response variable
+#' @param tuned Logical; if FALSE, will have super-class untuned_models
 #'
 #' @importFrom purrr map_chr
 #' @return A model_list with child class type_list
 #' @export
 as.model_list <- function(..., listed_models = NULL, target = ".outcome",
-                          model_class) {
+                          model_class, tuned = TRUE) {
   listed_models <- c(
     structure(list(...),
               names = purrr::map_chr(as.list(match.call(expand.dots = FALSE)$...), deparse)),  # nolint
@@ -52,6 +53,7 @@ as.model_list <- function(..., listed_models = NULL, target = ".outcome",
   class(listed_models) <- c(paste0(model_class, "_list"),
                             "model_list",
                             class(listed_models))
+  attr(listed_models, "tuned") <- tuned
   attr(listed_models, "target") <- target
   return(listed_models)
 }

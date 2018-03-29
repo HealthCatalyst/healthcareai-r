@@ -18,7 +18,6 @@
 #'   operating characteristic curve), or "PR" (area under the precision-recall
 #'   curve).
 #' @param hyperparameters Currently not supported.
-#' @param verbose Logical, defaults to FALSE. Get additional info via messages?
 #'
 #' @export
 #' @importFrom kknn kknn
@@ -66,61 +65,149 @@
 tune_models <- function(d,
                         outcome,
                         model_class,
-                        models = c("rf", "knn"),
+                        models,
                         n_folds = 5,
                         tune_depth = 10,
                         tune_method = "random",
                         metric,
-                        hyperparameters,
-                        verbose = FALSE) {
-  # Organize arguments and defaults
-  outcome <- rlang::enquo(outcome)
-  if (rlang::quo_is_missing(outcome))
-    stop("You must provide an outcome variable to tune_models.")
-  outcome_chr <- rlang::quo_name(outcome)
-  if (!outcome_chr %in% names(d))
-    stop(outcome_chr, " isn't a column in d.")
-  models <- tolower(models)
+                        hyperparameters) {
 
-  # tibbles upset some algorithms, plus handles matrices, maybe
-  d <- as.data.frame(d)
   if (n_folds <= 1)
     stop("n_folds must be greater than 1.")
 
-  # Grab data prep recipe object to add to model_list at end
-  recipe <-
-    if ("recipe" %in% names(attributes(d))) attr(d, "recipe") else NULL
+  model_args <- setup_training(d, rlang::enquo(outcome), model_class, models, metric)
+  # Pull each item out of "model_args" list and assign in this environment
+  for (arg in names(model_args))
+    assign(arg, model_args[[arg]])
+
+  # Set up cross validation details
+  train_control <- setup_train_control(tune_method, model_class, metric, n_folds)
+  if (metric == "PR")
+    metric <- "AUC" # For caret internal function
+
+  # Rough check for training that will take a while, message if so
+  n_mod <- n_folds * tune_depth * length(models)
+  obs <- nrow(d)
+  if ( (obs > 1000 && n_mod > 10) || (obs > 100 && n_mod > 100) )
+    message("You've chosen to tune ", n_mod, " models (n_folds = ", n_folds,
+            " x tune_depth = ", tune_depth, " x ", "length(models) = ",
+            length(models), ") on a ", format(obs, big.mark = ","), " row dataset. ",
+            "This may take a while...")
+
+  # Loop over models, tuning each
+  train_list <-
+    lapply(models, function(model) {
+      message("Running cross validation for ",
+              caret::getModelInfo(model)[[1]]$label)
+      # Reduce kmax for kknn
+      if (model == "kknn")
+        model <- adjust_knn()
+      # Train models
+      suppressPackageStartupMessages(
+        caret::train(x = dplyr::select(d, -!!outcome),
+                     y = dplyr::pull(d, !!outcome),
+                     method = model,
+                     metric = metric,
+                     trControl = train_control,
+                     tuneLength = tune_depth
+        )
+      )
+    })
+
+  # Add class
+  train_list <- as.model_list(listed_models = train_list,
+                              target = rlang::quo_name(outcome))
+
+  # Add recipe object if one came in on d
+  attr(train_list, "recipe") <- recipe
+
+  return(train_list)
+}
+
+setup_training <- function(d, outcome, model_class, models, metric) {
+
+  # Get recipe and remove columns to be ignored in training
+  recipe <- attr(d, "recipe")
   if (!is.null(recipe)) {
-    # Pull columns ignored in prep_data out of d
-    ignored <- attr(recipe, "ignored_columns")
-    # Only ignored columns that are present now
-    ignored <- ignored[ignored %in% names(d)]
-    if (!is.null(ignored) && length(ignored)) {
-      d <- dplyr::select(d, -dplyr::one_of(ignored))
-      if (verbose)
-        message("Variable(s) ignored in prep_data won't be used to tune models: ",
-                paste(ignored, collapse = ", "))
-    }
-    # If an outcome was specified in prep_data make sure it's the same here
-    prep_outcome <-recipe$var_info$variable[recipe$var_info$role == "outcome"] # nolint
+    outcome_chr <- rlang::quo_name(outcome)
+    if (outcome_chr %in% attr(recipe, "ignored_columns"))
+      stop("You specified ", outcome_chr, " as your outcome variable, but ",
+           "the recipe you used to prep your data says to ignore it. ",
+           "Did you forget to specify `outcome = ` in prep_data?")
+    d <- remove_ignored(d, recipe)
+  }
+
+  # Check outcome provided, agrees with outcome in prep_data, present in d
+  outcome <- check_outcome(outcome, names(d), recipe)
+  outcome_chr <- rlang::quo_name(outcome)
+
+  # tibbles upset some algorithms, so make it a data frame
+  d <- as.data.frame(d)
+  # kknn can choke on characters so convert all character variables to factors.
+  d <- dplyr::mutate_if(d, is.character, as.factor)
+
+  if (missing(models)) {
+    models <- get_supported_models()
+  } else {
+    # Make `models` case insensitive
+    models <- tolower(models)
+  }
+
+  # Make sure outcome's class works with model_class, or infer it
+  model_class <- set_model_class(model_class, class(dplyr::pull(d, !!outcome)), outcome_chr)
+
+  # Some algorithms need the response to be factor instead of char or lgl
+  # Get rid of unused levels if they're present
+  if (model_class == "classification")
+    d <- dplyr::mutate(d,
+                       !!outcome_chr := as.factor(!!outcome),
+                       !!outcome_chr := droplevels(!!outcome))
+
+  # Choose metric if not provided
+  if (missing(metric))
+    metric <- set_default_metric(model_class)
+
+  # Make sure models are supported
+  models <- setup_models(models)
+
+  return(list(d = d, outcome = outcome, model_class = model_class,
+              models = models, metric = metric, recipe = recipe))
+}
+
+check_outcome <- function(outcome, d_names, recipe) {
+  if (rlang::quo_is_missing(outcome))
+    stop("You must provide an outcome variable to tune_models.")
+  outcome_chr <- rlang::quo_name(outcome)
+  if (!outcome_chr %in% d_names)
+    stop(outcome_chr, " isn't a column in d.")
+  if (!is.null(recipe)) {
+    prep_outcome <- recipe$var_info$variable[recipe$var_info$role == "outcome"]
     if (length(prep_outcome) && prep_outcome != outcome_chr)
       stop("outcome in prep_data (", prep_outcome, ") and outcome in tune models (",
            outcome_chr, ") are different. They need to be the same.")
   }
+  return(outcome)
+}
 
-  # Make sure outcome's class works with model_class, or infer it
-  outcome_class <- class(dplyr::pull(d, !!outcome))
+remove_ignored <- function(d, recipe) {
+  # Pull columns ignored in prep_data out of d
+  ignored <- attr(recipe, "ignored_columns")
+  # Only ignored columns that are present now
+  ignored <- ignored[ignored %in% names(d)]
+  if (!is.null(ignored) && length(ignored)) {
+    d <- dplyr::select(d, -dplyr::one_of(ignored))
+    message("Variable(s) ignored in prep_data won't be used to tune models: ",
+            paste(ignored, collapse = ", "))
+  }
+  return(d)
+}
+
+set_model_class <- function(model_class, outcome_class, outcome_chr) {
   looks_categorical <- outcome_class %in% c("character", "factor")
-  # Some algorithms need the response to be factor instead of char or lgl
-  # Get rid of unused levels if they're present
-  if (looks_categorical)
-    d <- dplyr::mutate(d,
-                       !!outcome_chr := as.factor(!!outcome),
-                       !!outcome_chr := droplevels(!!outcome))
-  looks_numeric <- is.numeric(dplyr::pull(d, !!outcome))
+  looks_numeric <- outcome_class %in% c("integer", "numeric")
   if (!looks_categorical && !looks_numeric) {
-    # outcome is weird class
-    stop(outcome_chr, " is ", class(dplyr::pull(d, !!outcome)),
+    # outcome is weird class such as list
+    stop(outcome_chr, " is ", outcome_class,
          ", and tune_models doesn't know what to do with that.")
   } else if (missing(model_class)) {
     # Need to infer model_class
@@ -135,34 +222,24 @@ tune_models <- function(d,
     message(mes)
   } else {
     # Check user-provided model_class
-    supported_classes <- c("regression", "classification")
+    supported_classes <- get_supported_model_classes()
     if (!model_class %in% supported_classes)
       stop("Supported model classes are: ",
            paste(supported_classes, collapse = ", "),
            ". You supplied this unsupported class: ", model_class)
     if (looks_categorical && model_class == "regression") {
-      stop(outcome_chr, " is ", outcome_class, " but you're ",
-           "trying to train a regression model.")
+      stop(outcome_chr, " looks categorical but you're trying to train a regression model.")
     } else if (looks_numeric && model_class == "classification") {
-      stop(outcome_chr, " is ", outcome_class, " but you're ",
-           "trying to train a classification model. If that's what you want ",
-           "convert it explicitly with as.factor().")
+      stop(outcome_chr, " looks numeric but you're trying to train a classification ",
+           "model. If that's what you want convert it explicitly with as.factor().")
     }
   }
-  # Convert all character variables to factors. kknn sometimes chokes on chars
-  d <- dplyr::mutate_if(d, is.character, as.factor)
+  return(model_class)
+}
 
-  # Choose metric if not provided
-  if (missing(metric)) {
-    metric <-
-      if (model_class == "regression") {
-        "RMSE"
-      } else if (model_class == "classification") {
-        "ROC"
-      }
-  }
-  # Make sure models are supported
-  available <- c("rf", "knn")
+
+setup_models <- function(models) {
+  available <- get_supported_models()
   unsupported <- models[!models %in% available]
   if (length(unsupported))
     stop("Currently supported algorithms are: ",
@@ -170,91 +247,45 @@ tune_models <- function(d,
          ". You supplied these unsupported algorithms: ",
          paste(unsupported, collapse = ", "))
   # We use kknn and ranger, but user input is "knn" and "rf"
-  provided_models <- models  # Keep user names to name model_list
-  models[models == "knn"] <- "kknn"
-  models[models == "rf"] <- "ranger"
+  models <- translate_model_names(models)
+  return(models)
+}
 
-  # Set up cross validation details
+set_default_metric <- function(model_class) {
+  if (model_class == "regression") {
+    return("RMSE")
+  } else if (model_class == "classification") {
+    return("ROC")
+  } else {
+    stop("Don't have default metric for model class", model_class)
+  }
+}
+
+
+setup_train_control <- function(tune_method, model_class, metric, n_folds) {
   if (tune_method == "random") {
-    train_control <-
-      caret::trainControl(method = "cv",
-                          number = n_folds,
-                          search = "random",
-                          savePredictions = "final"
-      )
+    train_control <- caret::trainControl(method = "cv",
+                                        number = n_folds,
+                                        search = "random",
+                                        savePredictions = "final")
+  } else if (tune_method == "none") {
+    # Use grid CV if not tuning (e.g. via flash_models)
+    train_control <- caret::trainControl(method = "cv",
+                                         number = n_folds,
+                                         search = "grid",
+                                         savePredictions = "final")
   } else {
     stop("Currently tune_method = \"random\" is the only supported method",
          " but you supplied tune_method = \"", tune_method, "\"")
   }
-
-  # trainControl defaults are good for regression. Change for other model_class:
+  # trainControl defaults are good for regression. Change for classification
   if (model_class == "classification") {
     if (metric == "PR") {
       train_control$summaryFunction <- caret::prSummary
-      metric <- "AUC" # For caret internal function
     } else {
       train_control$summaryFunction <- caret::twoClassSummary
     }
     train_control$classProbs <- TRUE
   }
-
-  n_mod <- n_folds * tune_depth * length(models)
-  obs <- nrow(d)
-  if ( (obs > 1000 && n_mod > 10) || (obs > 100 && n_mod > 100) )
-    message("You've chosen to tune ", n_mod, " models (n_folds = ", n_folds,
-            " x tune_depth = ", tune_depth, " x ", "length(models) = ",
-            length(models), ") on a ", format(obs, big.mark = ","), " row dataset. ",
-            "This may take a while...")
-
-  # Loop over models, tuning each
-  train_list <-
-    lapply(models, function(model) {
-      message("Running cross validation for ",
-              caret::getModelInfo(model)[[1]]$label)
-      # nolint start
-      # Hack to reduce kmax for kknn from nrow/3 to log(nrow)*3
-      if (model == "kknn") {
-        kn <- caret::getModelInfo("kknn")$kknn
-        kn$grid <- function(x, y, len = NULL, search = "grid") {
-          if(search == "grid") {
-            out <- data.frame(kmax = (5:((2 * len)+4))[(5:((2 * len)+4))%%2 > 0],
-                              distance = 2,
-                              kernel = "optimal")
-          } else {
-            by_val <- if(is.factor(y)) length(levels(y)) else 1
-            kerns <- c("rectangular", "triangular", "epanechnikov", "biweight", "triweight",
-                       "cos", "inv", "gaussian")
-            # Editted line:
-            out <- data.frame(kmax = sample(seq(1, floor(log(nrow(x)) * 3), by = by_val),
-                                            size = len, replace = TRUE),
-                              distance = stats::runif(len, min = 0, max = 3),
-                              kernel = sample(kerns, size = len, replace = TRUE))
-          }
-          out
-        }
-        model <- kn
-      }
-      # nolint end
-      # Train models
-      suppressPackageStartupMessages(
-        caret::train(x = dplyr::select(d, -!!outcome),
-                     y = dplyr::pull(d, !!outcome),
-                     method = model,
-                     metric = metric,
-                     trControl = train_control,
-                     tuneLength = tune_depth
-        )
-      )
-    })
-  # Add model names
-  names(train_list) <- provided_models
-
-  # Add classes
-  train_list <- as.model_list(listed_models = train_list,
-                              target = outcome_chr)
-
-  # Add recipe object if one came in on d
-  attr(train_list, "recipe") <- recipe
-
-  return(train_list)
+  return(train_control)
 }

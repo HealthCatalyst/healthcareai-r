@@ -51,8 +51,6 @@ While preparing your data, a recipe will be generated for
   the same transformations in model testing and deployment. The new data must
   be identical in structure to the data that the recipe was prepared with." />
 <meta name="twitter:card" content="summary" />
-
-
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -75,12 +73,8 @@ While preparing your data, a recipe will be generated for
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
-      </span>
+      <a class="navbar-brand" href="../index.html">healthcareai</a>
     </div>
-
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -154,7 +148,7 @@ While preparing your data, a recipe will be generated for
   <span class='kw'>center</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>scale</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>make_dummies</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>add_levels</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>factor_outcome</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -309,7 +303,7 @@ classification.</p></td>
           <span class='kw'>impute</span> <span class='kw'>=</span> <span class='fu'>list</span>(<span class='kw'>numeric_method</span> <span class='kw'>=</span> <span class='st'>"bagimpute"</span>,
                         <span class='kw'>nominal_method</span> <span class='kw'>=</span> <span class='st'>"bagimpute"</span>),
           <span class='kw'>collapse_rare_factors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>convert_dates</span> <span class='kw'>=</span> <span class='st'>"year"</span>,
-          <span class='kw'>center</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>scale</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>make_dummies</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>healthcareai-prepped data. Recipe used to prepare data:</span></div><div class='output co'>#&gt; Data Recipe
+          <span class='kw'>center</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>scale</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>make_dummies</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe, with no outcome variable specified</span></div><div class='output co'>#&gt; <span class='message'>healthcareai-prepped data. Recipe used to prepare data:</span></div><div class='output co'>#&gt; Data Recipe
 #&gt; 
 #&gt; Inputs:
 #&gt; 
@@ -329,16 +323,16 @@ classification.</p></td>
 #&gt; Adding levels to: other, hcai_missing [trained]</div><div class='output co'>#&gt; <span class='message'>Current data:</span></div><div class='output co'>#&gt; # A tibble: 700 x 10
 #&gt;    patient_id diabetes pregnancies plasma_glucose diastolic_bp skinfold insulin
 #&gt;         &lt;int&gt; &lt;chr&gt;          &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
-#&gt;  1          1 Y              0.646          0.871      -0.0202   0.635    0.562
-#&gt;  2          2 N             -0.840         -1.19       -0.513    0.0148  -0.843
-#&gt;  3          3 Y              1.24           2.02       -0.678   -0.967    0.502
-#&gt;  4          4 N             -0.840         -1.06       -0.513   -0.605   -0.604
-#&gt;  5          5 Y             -1.14           0.511      -2.65     0.635    0.149
-#&gt;  6          6 N              0.349         -0.175       0.144   -0.334   -0.296
-#&gt;  7          7 Y             -0.246         -1.42       -1.83     0.325   -0.665
-#&gt;  8          8 N              1.83          -0.208       0.0976   0.436   -0.270
-#&gt;  9          9 Y             -0.543          2.47       -0.185    1.67     3.96 
-#&gt; 10         10 Y              1.24           0.119       1.95     0.423    0.673
+#&gt;  1          1 Y              0.646          0.871      -0.0211   0.635   0.344 
+#&gt;  2          2 N             -0.840         -1.19       -0.514    0.0152 -0.855 
+#&gt;  3          3 Y              1.24           2.02       -0.678   -0.956   0.546 
+#&gt;  4          4 N             -0.840         -1.06       -0.514   -0.605  -0.613 
+#&gt;  5          5 Y             -1.14           0.511      -2.65     0.635   0.132 
+#&gt;  6          6 N              0.349         -0.175       0.143   -0.525  -0.252 
+#&gt;  7          7 Y             -0.246         -1.42       -1.83     0.325  -0.673 
+#&gt;  8          8 N              1.83          -0.208      -0.0957   0.507  -0.0956
+#&gt;  9          9 Y             -0.543          2.47       -0.185    1.67    3.90  
+#&gt; 10         10 Y              1.24           0.119       1.95     0.477   0.837 
 #&gt; # ... with 690 more rows, and 3 more variables: weight_class &lt;fct&gt;,
 #&gt; #   pedigree &lt;dbl&gt;, age &lt;dbl&gt;</div></pre>
   </div>

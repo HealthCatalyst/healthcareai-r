@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Add SAM utility columns to table — add_SAM_utility_cols • healthcareai</title>
+<title>Plot predictions from a classification model — plot_classification_predictions • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,10 +25,9 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Add SAM utility columns to table — add_SAM_utility_cols" />
+<meta property="og:title" content="Plot predictions from a classification model — plot_classification_predictions" />
 
-<meta property="og:description" content="When working in a Health Catalyst Source Area Mart (SAM),
-utility columns are added automatically when running a non-R binding" />
+<meta property="og:description" content="Plot predictions from a classification model" />
 <meta name="twitter:card" content="summary" />
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
@@ -92,35 +91,66 @@ utility columns are added automatically when running a non-R binding" />
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Add SAM utility columns to table</h1>
+    <h1>Plot predictions from a classification model</h1>
     
     </div>
 
     
-    <p>When working in a Health Catalyst Source Area Mart (SAM),
-utility columns are added automatically when running a non-R binding</p>
+    <p>Plot predictions from a classification model</p>
     
 
-    <pre class="usage"><span class='fu'>add_SAM_utility_cols</span>(<span class='no'>d</span>)</pre>
+    <pre class="usage"><span class='fu'>plot_classification_predictions</span>(<span class='no'>x</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>fill_colors</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"firebrick"</span>, <span class='st'>"steelblue"</span>), <span class='kw'>fill_alpha</span> <span class='kw'>=</span> <span class='fl'>0.7</span>,
+  <span class='kw'>curve_flex</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>font_size</span> <span class='kw'>=</span> <span class='fl'>11</span>, <span class='no'>target</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>d</th>
-      <td><p>A dataframe</p></td>
+      <th>x</th>
+      <td><p>hcai_predicted_df from plot.hcai_predicted_df</p></td>
+    </tr>
+    <tr>
+      <th>title</th>
+      <td><p>Character: Plot title, default NULL produces no title.</p></td>
+    </tr>
+    <tr>
+      <th>fill_colors</th>
+      <td><p>Length-2 character vector: colors to fill density
+curves. Default is c("firebrick", "steelblue"). If named, names must match
+<code>unique(x[[target]])</code>, in any order.</p></td>
+    </tr>
+    <tr>
+      <th>fill_alpha</th>
+      <td><p>Number in [0, 1] giving opacity of fill colors.</p></td>
+    </tr>
+    <tr>
+      <th>curve_flex</th>
+      <td><p>Numeric. Kernal adjustment for density curves. Default is 1.
+Less than 1 makes curves more flexible, analogous to smaller bins in a
+histogram; greater than 1 makes curves more rigid.</p></td>
+    </tr>
+    <tr>
+      <th>font_size</th>
+      <td><p>Number: Relative size of all font in plot, default = 11</p></td>
+    </tr>
+    <tr>
+      <th>target</th>
+      <td><p>outcome column name</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A dataframe with three additional columns</p>
+    <p>ggplot object</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This function is not meant to be called directly. Use
+  <code>plot(predictions)</code> instead. You can pass arguments to this function
+  (e.g. a plot title) through <code>plot</code>.</p>
     
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>d</span> <span class='kw'>&lt;-</span> <span class='fu'>data.frame</span>(<span class='kw'>a</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>1</span>,<span class='fl'>2</span>,<span class='fl'>NA</span>,<span class='fl'>NA</span>),
-                 <span class='kw'>b</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>100</span>,<span class='fl'>300</span>,<span class='fl'>200</span>,<span class='fl'>150</span>))
-<span class='no'>d</span> <span class='kw'>&lt;-</span> <span class='fu'>add_SAM_utility_cols</span>(<span class='no'>d</span>)</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -128,9 +158,9 @@ utility columns are added automatically when running a non-R binding</p>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
+
+      <li><a href="#details">Details</a></li>
+          </ul>
 
   </div>
 </div>

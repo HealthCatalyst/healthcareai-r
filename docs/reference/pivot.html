@@ -29,8 +29,6 @@
 
 <meta property="og:description" content="Pivot from a long data frame to a wide data frame" />
 <meta name="twitter:card" content="summary" />
-
-
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -53,12 +51,8 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
-      </span>
+      <a class="navbar-brand" href="../index.html">healthcareai</a>
     </div>
-
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -107,7 +101,7 @@
 
     <pre class="usage"><span class='fu'>pivot</span>(<span class='no'>d</span>, <span class='no'>grain</span>, <span class='no'>spread</span>, <span class='no'>fill</span>, <span class='kw'>fun</span> <span class='kw'>=</span> <span class='no'>sum</span>, <span class='kw'>missing_fill</span> <span class='kw'>=</span> <span class='fl'>NA</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -202,26 +196,26 @@ default, the count of instances for each patient will be used.</p>
 <span class='no'>bills</span></div><div class='output co'>#&gt; # A tibble: 8 x 4
 #&gt;   patient_id dept_id charge date      
 #&gt;   &lt;chr&gt;      &lt;chr&gt;    &lt;dbl&gt; &lt;date&gt;    
-#&gt; 1 A          ED        9887 2018-03-27
-#&gt; 2 A          ICU       3458 2018-03-26
-#&gt; 3 A          ED        6643 2018-03-28
-#&gt; 4 A          ICU       6857 2018-03-26
-#&gt; 5 B          ED        1082 2018-03-28
-#&gt; 6 B          ICU       8207 2018-03-28
-#&gt; 7 B          ED        4997 2018-03-26
-#&gt; 8 B          ICU       8821 2018-03-26</div><div class='input'>
+#&gt; 1 A          ED        9051 2018-03-27
+#&gt; 2 A          ICU       4995 2018-03-28
+#&gt; 3 A          ED        2687 2018-03-28
+#&gt; 4 A          ICU       5475 2018-03-26
+#&gt; 5 B          ED        8745 2018-03-27
+#&gt; 6 B          ICU       9077 2018-03-26
+#&gt; 7 B          ED        3351 2018-03-26
+#&gt; 8 B          ICU       7358 2018-03-28</div><div class='input'>
 <span class='co'># Total charges per patient x department:</span>
 <span class='fu'>pivot</span>(<span class='no'>bills</span>, <span class='no'>patient_id</span>, <span class='no'>dept_id</span>, <span class='no'>charge</span>, <span class='no'>sum</span>)</div><div class='output co'>#&gt; # A tibble: 2 x 3
 #&gt;   patient_id dept_id_ED dept_id_ICU
 #&gt;   &lt;fct&gt;           &lt;dbl&gt;       &lt;dbl&gt;
-#&gt; 1 A               16530       10315
-#&gt; 2 B                6079       17028</div><div class='input'>
+#&gt; 1 A               11738       10471
+#&gt; 2 B               12096       16435</div><div class='input'>
 <span class='co'># Count of charges per patient x day:</span>
 <span class='fu'>pivot</span>(<span class='no'>bills</span>, <span class='no'>patient_id</span>, <span class='no'>date</span>)</div><div class='output co'>#&gt; <span class='message'>No fill column was provided, so using "1" for present entities</span></div><div class='output co'>#&gt; <span class='message'>There are rows that contain the same values of both patient_id and date but you didn't provide a function to 'fun' for their aggregation. Proceeding with the default: fun = sum.</span></div><div class='output co'>#&gt; # A tibble: 2 x 4
 #&gt;   patient_id `date_2018-03-26` `date_2018-03-27` `date_2018-03-28`
 #&gt;   &lt;fct&gt;                  &lt;int&gt;             &lt;int&gt;             &lt;int&gt;
-#&gt; 1 A                          2                 1                 1
-#&gt; 2 B                          2                NA                 2</div><div class='input'>
+#&gt; 1 A                          1                 1                 2
+#&gt; 2 B                          2                 1                 1</div><div class='input'>
 <span class='co'># Can provide a custom function to fun, which will take fill as input.</span>
 <span class='co'># Get the difference between the greatest and smallest charge in each</span>
 <span class='co'># department for each patient and format it as currency.</span>
@@ -233,8 +227,8 @@ default, the count of instances for each patient will be used.</p>
 )</div><div class='output co'>#&gt; # A tibble: 2 x 3
 #&gt;   patient_id dept_id_ED dept_id_ICU
 #&gt;   &lt;fct&gt;      &lt;chr&gt;      &lt;chr&gt;      
-#&gt; 1 A          $3244.46   $3399.56   
-#&gt; 2 B          $3914.61   $614.51    </div></pre>
+#&gt; 1 A          $6364.57   $479.92    
+#&gt; 2 B          $5393.72   $1718.13   </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

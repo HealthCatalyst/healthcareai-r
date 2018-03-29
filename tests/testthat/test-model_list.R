@@ -1,6 +1,9 @@
+context("model_list tests setup")
+
 # Setup ------------------------------------------------------------------------
 data(mtcars)
 mtcars$am <- as.factor(c("automatic", "manual")[mtcars$am + 1])
+set.seed(257056)
 rf <- caret::train(x = dplyr::select(mtcars, -am),
                    y = mtcars$am,
                    method = "ranger",
@@ -11,14 +14,16 @@ kn <- caret::train(x = dplyr::select(mtcars, -am),
                    method = "kknn",
                    tuneLength = 2
 )
-r_models <- tune_models(mtcars, mpg)
-c_models <- tune_models(mtcars, am)
-c_pr <- tune_models(mtcars, am, metric = "PR")
+r_models <- tune_models(mtcars, mpg, n_folds = 2, tune_depth = 2)
+c_models <- tune_models(mtcars, am, n_folds = 2, tune_depth = 2)
+c_pr <- tune_models(mtcars, am, metric = "PR", n_folds = 2, tune_depth = 2)
 single_model_as <- as.model_list(rf)
 single_model_tune <- tune_models(mtcars, am, models = "rf")
 double_model_as <- as.model_list(rf, kn)
 r_empty <- model_list(model_class = "regression")
 c_empty <- model_list(model_class = "classification")
+r_flash <- flash_models(mtcars, mpg)
+c_flash <- flash_models(mtcars, am)
 
 context("Checking model_list constructors") # ----------------------------------
 
@@ -93,6 +98,11 @@ test_that("as.model_list returns correct model names (from modelInfo$label)", {
   )
 })
 
+test_that("as.model_list tuned-argument works", {
+  expect_true(attr(as.model_list(rf), "tuned"))
+  expect_false(attr(as.model_list(rf, tuned = FALSE), "tuned"))
+})
+
 context("Checking model_list generics") # --------------------------------------
 
 test_that("plot.model_list works on regression_list", {
@@ -164,10 +174,40 @@ test_that("summary.model_list works", {
   expect_true(rlang::is_named(csum))
 })
 
+context("Checking model_list generics on untuned model_lists") #----------------
+
+test_that("print.model_list works with untuned_model_lists", {
+  expect_warning(flash_r_print <- capture_output(print(r_flash)), NA)
+  expect_warning(flash_c_print <- capture_output(print(c_flash)), NA)
+  expect_false(grepl("Inf", flash_r_print))
+  expect_false(grepl("Inf", flash_c_print))
+  expect_true(grepl("Target: mpg", flash_r_print))
+  expect_true(grepl("Target: am", flash_c_print))
+  expect_true(grepl("Models have not been tuned", flash_r_print))
+  expect_true(grepl("selected hyperparameter values", flash_c_print))
+})
+
+test_that("summary.model_list works with untuned_model_lists", {
+  expect_warning(flash_r_summary <- capture_output(summary(r_flash)), NA)
+  expect_warning(flash_c_summary <- capture_output(summary(c_flash)), NA)
+  expect_false(grepl("Inf", flash_r_summary))
+  expect_false(grepl("Inf", flash_c_summary))
+  expect_false(grepl("0 rows", flash_r_summary))
+  expect_false(grepl("Best performance:", flash_r_summary))
+  expect_true(grepl("with performance:", flash_c_summary))
+})
+
+test_that("plot.model_list works with message untuned_model_lists", {
+  expect_warning(flash_r_plot <- plot(r_flash, print = FALSE), NA)
+  expect_warning(flash_c_plot <- plot(c_flash, print = FALSE), NA)
+  expect_message(plot(c_flash, print = FALSE), "not much to plot")
+  expect_s3_class(flash_r_plot, "gg")
+  expect_s3_class(flash_c_plot, "gg")
+})
 
 context("Testing model list utilities") # --------------------------------------
 test_that("Change PR metric changes all models to PR", {
-  m <- healthcareai:::change_pr_metric(c_pr)
+  m <- change_pr_metric(c_pr)
 
   expect_true(
     all(c("PR", "Precision", "Recall") %in% names(
@@ -188,4 +228,11 @@ test_that("Change PR metric doesn't change ROC", {
   expect_true(
     all(c("ROC", "Sens", "Spec") %in% names(
       m$`k-Nearest Neighbors`$results)))
+})
+
+test_that("Change PR metric doesn't change object class", {
+  expect_setequal(class(change_pr_metric(c_pr)), class(c_pr))
+  expect_setequal(class(change_pr_metric(c_models)), class(c_models))
+  preds <- predict(c_models)
+  expect_setequal(class(change_pr_metric(preds)), class(preds))
 })
