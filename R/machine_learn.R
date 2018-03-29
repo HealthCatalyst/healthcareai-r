@@ -9,6 +9,15 @@
 #'   Unquoted. Must be named, i.e. you must specify \code{outcome = }
 #' @param models Models to be trained, k-nearest neighbors and random forest by
 #'   default. See \code{\link{supported_models}} for details.
+#' @param tune If TRUE (default) models will be tuned via
+#'   \code{\link{tune_models}}. If FALSE, models will be trained via
+#'   \code{\link{flash_models}} which is substantially faster but produces
+#'   less-predictively powerful models.
+#' @param n_folds How many folds to use to assess out-of-fold accuracy? Default
+#'   = 5. Models are evaluated on out-of-fold predictions whether tune is TRUE
+#'   or FALSE.
+#' @param tune_depth How many hyperparameter combinations to try? Defualt = 10.
+#'   Ignored if tune is FALSE.
 #' @param impute Logical, if TRUE (default) missing values will be filled by
 #'   \code{\link{hcai_impute}}
 #'
@@ -40,7 +49,9 @@
 #'
 #' # If new data isn't specifed, get predictions on training data
 #' predict(age_model)
-machine_learn <- function(d, ..., outcome, models, impute = TRUE) {
+machine_learn <- function(d, ..., outcome, models,
+                          tune = TRUE, n_folds = 5, tune_depth = 10,
+                          impute = TRUE) {
 
   if (!is.data.frame(d))
     stop("\"d\" must be a data frame.")
@@ -70,7 +81,13 @@ machine_learn <- function(d, ..., outcome, models, impute = TRUE) {
   if (missing(models))
     models <- get_supported_models()
 
-  d %>%
-    prep_data(!!!dots, outcome = !!outcome, impute = impute) %>%
-    tune_models(outcome = !!outcome, models = models)
+  pd <- prep_data(d, !!!dots, outcome = !!outcome, impute = impute)
+  m <-
+    if (tune) {
+      tune_models(pd, outcome = !!outcome, models = models,
+                  n_folds = n_folds, tune_depth = tune_depth)
+    } else {
+      flash_models(pd, outcome = !!outcome, models = models, n_folds = n_folds)
+    }
+  return(m)
 }
