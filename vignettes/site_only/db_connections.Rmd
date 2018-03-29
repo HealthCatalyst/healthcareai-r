@@ -1,11 +1,11 @@
 ---
 title: "Database Connections using healthcare.ai"
-author: "Michael Levy"
+author: "Mike Mastanduno"
 date: "4/1/2018"
 output: html_document
 ---
 
-# Database connections
+**Database connections**
 
 Let's be honest. You need to get data from a database, do some really awesome 
 stuff with `R`, and then write the results back to a database. `R` can help
@@ -16,9 +16,9 @@ for additional resources. Andiamo!
 
 If you simply want a code snippet to copy and paste, scroll to the bottom.
 
-### Reading data
+# Reading data
 
-**Connecting to a Database**
+#### Connecting to a Database
 
 Before you can do anything, you must make a connection to your database. The 
 `build_connection_string` function takes care of the syntax for you and returns
@@ -37,7 +37,7 @@ con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con)
 ```
 
 
-**Using SQL Code**
+#### Using SQL Code
 
 From here, you can read data from the database in a couple different ways. You
 can use `db_read` to execute SQL code, or you can use `dbplyr` functionaliity
@@ -59,7 +59,7 @@ flag to FALSE. This will create a pointer to the database that can be
 executed "lazily". In other words R will wait until the last moment to execute 
 the statement.
 
-**Using dplyr Code**
+#### Using dplyr Code
 
 The other option is to use dplyr code. Set up a reference to the table, then use
 it to pull data. The last line, `collect()`, is what actually pulls the data 
@@ -77,7 +77,7 @@ d <- encounter %>%
   collect()
 ```
 
-### Writing Data
+# Writing Data
 As of 4/1/2018, there are two ways to write to a database: 
 
 1. The latest version of `odbc`, which is the back end to `DBI`, 
@@ -87,7 +87,7 @@ installed from Github. The CRAN version does not support database schemas.
 In either case, the data you are trying to write must match the destination
 table's column names and data types.
 
-**Writing with DBI**
+#### Writing with DBI
 
 DBI requires that you set up the table as an object before trying to write to
 it. Assuming there was a table called `SAM.Sepsis.Predictions` with columns
@@ -110,7 +110,7 @@ res <- DBI::dbWriteTable(conn = my_con,
 dbDisconnect(con)
 ```
 
-**Writing with RODBC**
+####Writing with RODBC
 
 RODBC is not the preferred way to interact with a database becuase it doesn't
 work with RStudio's connections pane. However, the package is available on CRAN
@@ -139,6 +139,6 @@ odbcClose(con)
 
 
 
-### Example Code Snippet
+# Example Code Snippet
 Copy-Pasta
 
