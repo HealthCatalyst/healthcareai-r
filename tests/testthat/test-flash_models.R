@@ -1,8 +1,13 @@
 context("checking untuned models")
 
-dd <- na.omit(pima_diabetes)[51:100, ] %>% dplyr::select(-patient_id)
-cl <- flash_models(dd, diabetes)
-reg <- flash_models(dd, age)
+set.seed(2057)
+dd <- na.omit(pima_diabetes)[51:100, ]
+cl <- dd %>%
+  prep_data(patient_id, outcome = diabetes) %>%
+  flash_models(diabetes)
+reg <- dd %>%
+  prep_data(patient_id, outcome = age) %>%
+  flash_models(age)
 
 test_that("flash_models returns appropriate model_list", {
   expect_s3_class(cl, "model_list")
