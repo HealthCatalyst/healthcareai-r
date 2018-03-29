@@ -136,6 +136,16 @@ prep_data <- function(d,
               paste(m$variable, collapse = ", "))
   }
 
+  # Check global options for factor handling
+  opt <- options("contrasts")[[1]][[1]]
+  if (opt != "contr.treatment"){
+    w <- paste0("Your unordered-factor contrasts option is set to ", opt,
+                ". This may produce unexpected behavior, particularly in step_dummy in prep_data. ",
+                "Consider resetting it by restarting R, or with: ",
+                "options(contrasts = c(\"contr.treatment\", \"contr.poly\"))")
+    warning(w)
+  }
+
   # If there's a recipe in recipe, use that
   if (!is.null(recipe)) {
     message("Prepping data based on provided recipe")

@@ -480,3 +480,12 @@ test_that("prep_data attaches factor levels to recipe as attribute", {
 test_that("prep_data tells you if you forgot to name your outcome argument", {
   expect_message(prep_data(d_train, song_id, is_ween), "outcome")
 })
+
+test_that("prep_data warns iff factor contrast options are dummy", {
+  oc <- options("contrasts")
+  on.exit(options(contrasts = oc[[1]]))
+  options(contrasts = c("contr.dummy", "contr.poly"))
+  expect_warning(prep_data(d_train, song_id, outcome = is_ween), "contrasts")
+  options(contrasts = c("contr.treatment", "contr.poly"))
+  expect_warning(prep_data(d_train, song_id, outcome = is_ween), NA)
+})
