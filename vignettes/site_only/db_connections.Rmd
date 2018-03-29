@@ -18,7 +18,7 @@ If you simply want a code snippet to copy and paste, scroll to the bottom.
 
 ### Reading data
 
-*Connecting to a Database*
+**Connecting to a Database**
 
 Before you can do anything, you must make a connection to your database. The 
 `build_connection_string` function takes care of the syntax for you and returns
@@ -27,7 +27,7 @@ you have a valid connection, you should be able to browse the database using
 RStudio's Connections pane. If you don't have a connections pane, upgrade your 
 Rstudio. It's worth it.
 
-```{r}
+```{r, eval=FALSE}
 library(healthcareai)
 library(DBI)
 
@@ -37,18 +37,19 @@ con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con)
 ```
 
 
-*Using SQL Code*
+**Using SQL Code**
+
 From here, you can read data from the database in a couple different ways. You
 can use `db_read` to execute SQL code, or you can use `dbplyr` functionaliity
 to execute `dplyr` code directly against the database.
-```{r}
+```{r, eval=FALSE}
 query <- "SELECT
-      ,COUNT(*),
-      ,year(AdmitDT) as AdmitYear
-      FROM [SAM].[Encounter].[PatientEncounterBASE]
-      WHERE AdmitYear >= 2013
-      GROUP BY AdmitYear
-      ORDER BY AdmitYear"
+          ,COUNT(*),
+          ,year(AdmitDT) as AdmitYear
+          FROM [SAM].[Encounter].[PatientEncounterBASE]
+          WHERE AdmitYear >= 2013
+          GROUP BY AdmitYear
+          ORDER BY AdmitYear"
 
 d <- db_read(con, query)
 ```
@@ -58,11 +59,12 @@ flag to FALSE. This will create a pointer to the database that can be
 executed "lazily". In other words R will wait until the last moment to execute 
 the statement.
 
-*Using dplyr Code*
+**Using dplyr Code**
+
 The other option is to use dplyr code. Set up a reference to the table, then use
 it to pull data. The last line, `collect()`, is what actually pulls the data 
 into memory.
-```{r}
+```{r, eval=FALSE}
 library(tidyverse)
 
 encounter <- tbl(con, in_schema("Encounter", "PatientEncounterBASE"))
@@ -85,11 +87,12 @@ installed from Github. The CRAN version does not support database schemas.
 In either case, the data you are trying to write must match the destination
 table's column names and data types.
 
-*Writing with DBI*
+**Writing with DBI**
+
 DBI requires that you set up the table as an object before trying to write to
 it. Assuming there was a table called `SAM.Sepsis.Predictions` with columns
 patient_id (int) and predicted_probability (float).
-```{r}
+```{r, eval=FALSE}
 devtools::install_github("r-dbi/odbc")
 
 predictions <- data.frame(patient_id = c(1,2,3),
@@ -107,12 +110,13 @@ res <- DBI::dbWriteTable(conn = my_con,
 dbDisconnect(con)
 ```
 
-*Writing with RODBC*
+**Writing with RODBC**
+
 RODBC is not the preferred way to interact with a database becuase it doesn't
 work with RStudio's connections pane. However, the package is available on CRAN
 and does support schemas. To use it, you must set up an RODBC connection to the 
 database, as a DBI connection won't work.
-```{r}
+```{r, eval=FALSE}
 library(RODBC)
 # Make a connection
 my_con <- build_connection_string(server = "HCS-GM0004",
@@ -124,10 +128,10 @@ predictions <- data.frame(patient_id = c(1,2,3),
                           predicted_probability = c(0.7, 0.2, 0.4))
 
 sqlSave(con, 
-               predictions, 
-               "Sepsis.Predictions", 
-               append = TRUE, 
-               rownames = FALSE)
+        predictions, 
+        "Sepsis.Predictions", 
+        append = TRUE, 
+        rownames = FALSE)
 
 odbcClose(con)
 ```
