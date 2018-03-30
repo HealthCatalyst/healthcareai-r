@@ -2,7 +2,9 @@
 % Please edit documentation in R/db_connections.R
 \name{writeData}
 \alias{writeData}
-\title{Depreciated.}
+\title{Defunct. See
+\href{https://docs.healthcare.ai/articles/site_only/db_connections.html}{this
+vignette} for help writing to databases.}
 \usage{
 writeData(...)
 }

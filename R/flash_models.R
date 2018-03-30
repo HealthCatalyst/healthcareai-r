@@ -107,13 +107,9 @@ flash_models <- function(d,
       })
     })
 
-  # Add class
-  train_list <- as.model_list(listed_models = train_list,
-                              tuned = FALSE,
-                              target = rlang::quo_name(outcome))
-
-  # Add recipe object if one came in on d
-  attr(train_list, "recipe") <- attr(d, "recipe")
-
+  train_list <- add_model_attrs(models = train_list,
+                                recipe = attr(d, "recipe"),
+                                tuned = FALSE,
+                                target = rlang::quo_name(outcome))
   return(train_list)
 }

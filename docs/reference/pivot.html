@@ -196,14 +196,14 @@ default, the count of instances for each patient will be used.</p>
 <span class='no'>bills</span></div><div class='output co'>#&gt; # A tibble: 8 x 4
 #&gt;   patient_id dept_id charge date      
 #&gt;   &lt;chr&gt;      &lt;chr&gt;    &lt;dbl&gt; &lt;date&gt;    
-#&gt; 1 A          ED        9051 2018-03-27
-#&gt; 2 A          ICU       4995 2018-03-28
-#&gt; 3 A          ED        2687 2018-03-28
-#&gt; 4 A          ICU       5475 2018-03-26
-#&gt; 5 B          ED        8745 2018-03-27
-#&gt; 6 B          ICU       9077 2018-03-26
-#&gt; 7 B          ED        3351 2018-03-26
-#&gt; 8 B          ICU       7358 2018-03-28</div><div class='input'>
+#&gt; 1 A          ED        9051 2018-03-28
+#&gt; 2 A          ICU       4995 2018-03-29
+#&gt; 3 A          ED        2687 2018-03-29
+#&gt; 4 A          ICU       5475 2018-03-27
+#&gt; 5 B          ED        8745 2018-03-28
+#&gt; 6 B          ICU       9077 2018-03-27
+#&gt; 7 B          ED        3351 2018-03-27
+#&gt; 8 B          ICU       7358 2018-03-29</div><div class='input'>
 <span class='co'># Total charges per patient x department:</span>
 <span class='fu'>pivot</span>(<span class='no'>bills</span>, <span class='no'>patient_id</span>, <span class='no'>dept_id</span>, <span class='no'>charge</span>, <span class='no'>sum</span>)</div><div class='output co'>#&gt; # A tibble: 2 x 3
 #&gt;   patient_id dept_id_ED dept_id_ICU
@@ -212,7 +212,7 @@ default, the count of instances for each patient will be used.</p>
 #&gt; 2 B               12096       16435</div><div class='input'>
 <span class='co'># Count of charges per patient x day:</span>
 <span class='fu'>pivot</span>(<span class='no'>bills</span>, <span class='no'>patient_id</span>, <span class='no'>date</span>)</div><div class='output co'>#&gt; <span class='message'>No fill column was provided, so using "1" for present entities</span></div><div class='output co'>#&gt; <span class='message'>There are rows that contain the same values of both patient_id and date but you didn't provide a function to 'fun' for their aggregation. Proceeding with the default: fun = sum.</span></div><div class='output co'>#&gt; # A tibble: 2 x 4
-#&gt;   patient_id `date_2018-03-26` `date_2018-03-27` `date_2018-03-28`
+#&gt;   patient_id `date_2018-03-27` `date_2018-03-28` `date_2018-03-29`
 #&gt;   &lt;fct&gt;                  &lt;int&gt;             &lt;int&gt;             &lt;int&gt;
 #&gt; 1 A                          1                 1                 2
 #&gt; 2 B                          2                 1                 1</div><div class='input'>

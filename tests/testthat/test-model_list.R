@@ -44,15 +44,14 @@ test_that("model_list succeeds without model input", {
 })
 
 test_that("as.model_list works same with different argument specs", {
-  expect_equal(as.model_list(rf),
-               as.model_list(listed_models = list(rf)))
-  expect_equal(as.model_list(rf),
-               as.model_list(rf, model_class = "classification"))
+  expect_equivalent(as.model_list(rf),
+                    as.model_list(listed_models = list(rf)))
+  expect_equivalent(as.model_list(rf),
+                    as.model_list(rf, model_class = "classification"))
 })
 
-test_that("model lists have target attribute", {
-  expect_equal(attr(model_list(model_class = "classification"), "target"),
-               ".outcome")
+test_that("model lists have target attribute if not empty; null if empty", {
+  expect_null(attr(model_list(model_class = "classification"), "target"))
   expect_equal(attr(r_models, "target"), "mpg")
   expect_equal(attr(c_models, "target"), "am")
 })
@@ -194,7 +193,7 @@ test_that("summary.model_list works with untuned_model_lists", {
   expect_false(grepl("Inf", flash_c_summary))
   expect_false(grepl("0 rows", flash_r_summary))
   expect_false(grepl("Best performance:", flash_r_summary))
-  expect_true(grepl("with performance:", flash_c_summary))
+  expect_true(grepl("Best algorithm:", flash_c_summary))
 })
 
 test_that("plot.model_list works with message untuned_model_lists", {
@@ -235,4 +234,19 @@ test_that("Change PR metric doesn't change object class", {
   expect_setequal(class(change_pr_metric(c_models)), class(c_models))
   preds <- predict(c_models)
   expect_setequal(class(change_pr_metric(preds)), class(preds))
+})
+
+test_that("model_lists have time model trained attribute", {
+  check_timestamp <- function(m) expect_true(lubridate::is.POSIXt(attr(m, "timestamp")))
+  check_timestamp(r_models)
+  check_timestamp(c_models)
+  check_timestamp(c_pr)
+  check_timestamp(single_model_as)
+  check_timestamp(r_flash)
+  check_timestamp(c_flash)
+})
+
+test_that("empty model_lists have null for timestamp attr", {
+  expect_null(attr(r_empty, "timestamp"))
+  expect_null(attr(c_empty, "timestamp"))
 })

@@ -48,23 +48,23 @@ This is a high-level wrapper function. For finer control of data
 }
 \examples{
 # Split data into training and test sets using a subset of the data for speed
-test_data <- pima_diabetes[1:10, ]
-training_data <- pima_diabetes[11:100, ]
+training_data <- pima_diabetes[1:50, ]
+test_data <- pima_diabetes[51:60, ]
 
 ### Classification ###
 
 # Clean and prep the data, tune algorithms over hyperparameter values to predict diabetes
-models <- machine_learn(training_data, outcome = diabetes)
+diabetes_models <- machine_learn(training_data, outcome = diabetes)
 
 # Make predictions (predicted probability of diabetes) on test data
-predict(models, test_data)
+predict(diabetes_models, test_data)
 
 ### Regression ###
 
 # Predict numeric outcomes simply by specifying the name of the outcome variable
 age_model <- machine_learn(training_data, outcome = age)
 
-# If new data isn't specifed, get predictions on training data
+# If new data isn't specifed, get predictions on training data. Plot predictions
 predict(age_model)
 
 ### Faster model training without tuning hyperparameters ###
