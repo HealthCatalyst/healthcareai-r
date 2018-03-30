@@ -27,7 +27,7 @@ str(pima_diabetes)
 
 # Quick Machine Learning
 
-If you don't want to fuss with details any more than necessary, `machine_learn` is the function for you. It makes it as easy as possible to implement machine learning models by putting all the detais in the background so that you don't *have to* worry about them. Of course it might be wise to worry about them, and we'll get to how to do that further down, but for now, you can automatically take care of problems in the data, do basic feature engineering, and tune multiple machine learning models using cross validation with `machine_learn`.
+If you don't want to fuss with details any more than necessary, `machine_learn` is the function for you. It makes it as easy as possible to implement machine learning models by putting all the detais in the background so that you don't have to worry about them. Of course it might be wise to worry about them, and we'll get to how to do that further down, but for now, you can automatically take care of problems in the data, do basic feature engineering, and tune multiple machine learning models using cross validation with `machine_learn`.
 
 `machine_learn` always gets the name of the data frame, then any columns that should not be used by the model (uninformative columns, such as IDs), then the variable to be predicted with `outcome =`.
 
@@ -66,7 +66,7 @@ It is always a good idea to be aware of where there are missing values in data. 
 missingness(pima_diabetes)
 ```
 
-It's good that we don't have any missingness in our ID or outcome columns. We'll see how missingness in predictors variables is addressed further down.
+It's good that we don't have any missingness in our ID or outcome columns. We'll see how missingness in predictors is addressed further down.
 
 # Data Preparation
 
