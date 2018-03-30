@@ -1,5 +1,5 @@
 ---
-title: "Database Connections using healthcare.ai"
+title: "Database Connections"
 author: "Mike Mastanduno"
 date: "4/1/2018"
 output: html_document
@@ -8,17 +8,15 @@ output: html_document
 **Database connections**
 
 Let's be honest. You need to get data from a database, do some really awesome 
-stuff with `R`, and then write the results back to a database. `R` can help
-with that. There are lots of different databases, but this document will focus
-on Microsoft SQL Server. R supports most databases, and 
-I'd encourage you to look at their [help pages](https://db.rstudio.com/) 
+stuff with `R`, and then write the results back to a database. Rstudio (and R) 
+can help with that. There are lots of different databases, but this document 
+will focus on Microsoft SQL Server. Rstudio supports most databases, and 
+I'd encourage you to look at the [db help pages](https://db.rstudio.com/) 
 for additional resources. Andiamo!
 
 If you simply want a code snippet to copy and paste, scroll to the bottom.
 
-# Reading data
-
-#### Connecting to a Database
+# Connecting to a Database
 
 Before you can do anything, you must make a connection to your database. The 
 `build_connection_string` function takes care of the syntax for you and returns
@@ -27,22 +25,27 @@ you have a valid connection, you should be able to browse the database using
 RStudio's Connections pane. If you don't have a connections pane, upgrade your 
 Rstudio. It's worth it.
 
-```{r, eval=FALSE}
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+```{r}
 library(healthcareai)
 library(DBI)
 
 my_con <- build_connection_string(server = "HCS-GM0004",
                                   database = "SAM")
-con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con)
+con <- dbConnect(odbc::odbc(), .connection_string = my_con)
 ```
 
+# Reading data
 
 #### Using SQL Code
 
 From here, you can read data from the database in a couple different ways. You
 can use `db_read` to execute SQL code, or you can use `dbplyr` functionaliity
 to execute `dplyr` code directly against the database.
-```{r, eval=FALSE}
+```{r}
 query <- "SELECT
           ,COUNT(*),
           ,year(AdmitDT) as AdmitYear
@@ -64,7 +67,7 @@ the statement.
 The other option is to use dplyr code. Set up a reference to the table, then use
 it to pull data. The last line, `collect()`, is what actually pulls the data 
 into memory.
-```{r, eval=FALSE}
+```{r}
 library(tidyverse)
 
 encounter <- tbl(con, in_schema("Encounter", "PatientEncounterBASE"))
@@ -97,7 +100,7 @@ it. Assuming there was a table called `SAM.Sepsis.Predictions` with columns:
 - LastLoadDTS
 - patient_id (int)
 - predicted_probability (float).
-```{r, eval=FALSE}
+```{r}
 library(DBI)
 devtools::install_github("r-dbi/odbc")
 
@@ -121,7 +124,7 @@ RODBC is not the preferred way to interact with a database because it doesn't
 work with RStudio's connections pane. However, the package is available on CRAN
 and does support schemas. To use it, you must set up an RODBC connection to the 
 database, as a DBI connection won't work.
-```{r, eval=FALSE}
+```{r}
 library(RODBC)
 # Make a connection
 my_con <- build_connection_string(server = "HCS-GM0004",
@@ -147,7 +150,7 @@ odbcClose(con)
 # Example Code Snippet
 
 If you're confused, this is all explained above.
-```{r, eval=FALSE}
+```{r}
 library(DBI)
 library(healthcareai)
 
@@ -155,7 +158,7 @@ library(healthcareai)
 my_con <- build_connection_string(server = "HCS-GM0004",
                                   database = "SAM")
 # Reading
-con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con)
+con <- dbConnect(odbc::odbc(), .connection_string = my_con)
 query <- "SELECT
           ,COUNT(*),
           ,year(AdmitDT) as AdmitYear
@@ -172,12 +175,12 @@ predictions <- data.frame(patient_id = c(1,2,3),
   add_SAM_utility_cols()
 
 table_id <- Id(schema = "Sepsis", 
-                    name = "Predictions")
+               name = "Predictions")
 
 res <- dbWriteTable(conn = my_con,
-                         name = table_id,
-                         value = predictions,
-                         append = TRUE)
+                    name = table_id,
+                    value = predictions,
+                    append = TRUE)
 dbDisconnect(con)
 ```
 
