@@ -114,13 +114,10 @@ tune_models <- function(d,
       )
     })
 
-  # Add class
-  train_list <- as.model_list(listed_models = train_list,
-                              target = rlang::quo_name(outcome))
-
-  # Add recipe object if one came in on d
-  attr(train_list, "recipe") <- recipe
-
+  train_list <- add_model_attrs(models = train_list,
+                                recipe = recipe,
+                                tuned = TRUE,
+                                target = rlang::quo_name(outcome))
   return(train_list)
 }
 
@@ -261,7 +258,6 @@ set_default_metric <- function(model_class) {
   }
 }
 
-
 setup_train_control <- function(tune_method, model_class, metric, n_folds) {
   if (tune_method == "random") {
     train_control <- caret::trainControl(method = "cv",
@@ -288,4 +284,13 @@ setup_train_control <- function(tune_method, model_class, metric, n_folds) {
     train_control$classProbs <- TRUE
   }
   return(train_control)
+}
+
+#' Add model attributes and class
+#' @noRd
+add_model_attrs <- function(models, recipe, tuned, target) {
+  train_list <- as.model_list(listed_models = models,
+                              tuned = tuned,
+                              target = target)
+  structure(train_list, recipe = recipe)
 }

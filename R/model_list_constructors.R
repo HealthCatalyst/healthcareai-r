@@ -1,20 +1,15 @@
-#' Constructor function for class model_list
+#' Constructor function for empty model_list
 #'
 #' @param model_class Every model_list object has a child class that specifies
 #'   the model_class. Currently classification and regression are supported.
-#' @param ... Models to become a model_list, but you should use as.model_list
 #'
 #' @return An empty list with classes list, model_list, and type_list
-#' @export
 #' @importFrom purrr map_lgl
-#'
-#' @examples
-#' model_list("regression")
-model_list <- function(model_class, ...) {
+#' @noRd
+model_list <- function(model_class) {
   check_model_class(model_class = model_class)
-  empty_list <- as.model_list(listed_models = list(...),
-                              model_class = model_class)
-  return(empty_list)
+  structure(list(),
+            class = c(paste0(model_class, "_list"), "model_list", "list"))
 }
 
 #' Make models into model_list object
@@ -32,7 +27,7 @@ as.model_list <- function(..., listed_models = NULL, target = ".outcome",
                           model_class, tuned = TRUE) {
   listed_models <- c(
     structure(list(...),
-              names = purrr::map_chr(as.list(match.call(expand.dots = FALSE)$...), deparse)),  # nolint
+              names = purrr::map_chr(as.list(match.call(expand.dots = FALSE)$...), deparse)),
     listed_models
   )
   if (length(listed_models)) {
@@ -50,12 +45,11 @@ as.model_list <- function(..., listed_models = NULL, target = ".outcome",
     names(listed_models) <- purrr::map_chr(listed_models, ~ .x$modelInfo$label)
   }
   check_model_class(model_class)
-  class(listed_models) <- c(paste0(model_class, "_list"),
-                            "model_list",
-                            class(listed_models))
-  attr(listed_models, "tuned") <- tuned
-  attr(listed_models, "target") <- target
-  return(listed_models)
+  structure(listed_models,
+            class = c(paste0(model_class, "_list"), "model_list", class(listed_models)),
+            tuned = tuned,
+            target = target,
+            timestamp = Sys.time())
 }
 
 #' Check that the model class is supported
