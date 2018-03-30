@@ -86,6 +86,9 @@
     <li>
       <a href="../articles/site_only/fake_vignette.html">fake vignette</a>
     </li>
+    <li>
+      <a href="../articles/site_only/healthcareai.html">Healthcare.ai Fundamentals</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -172,7 +175,7 @@ sent through `prep_data`.</p></td>
 <span class='no'>models</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='machine_learn.html'>machine_learn</a></span>(<span class='no'>pima_diabetes</span>[<span class='fl'>1</span>:<span class='fl'>50</span>, ], <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Running cross validation for Random Forest</span></div><div class='output co'>#&gt; <span class='message'>Running cross validation for k-Nearest Neighbors</span></div><div class='input'><span class='co'># Make prediction on the next 20 rows. This uses the best-performing model from</span>
 <span class='co'># tuning cross validation, and it also prepares the new data in the same way as</span>
 <span class='co'># the training data was prepared.</span>
-<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>51</span>:<span class='fl'>70</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-03-29 23:56:04</span>
+<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>51</span>:<span class='fl'>70</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-03-30 08:15:44</span>
 #&gt; <span class='message'>Performance in training: ROC = 0.73</span></div><div class='output co'>#&gt; # A tibble: 20 x 11
 #&gt;    diabetes predicted_diabe… patient_id pregnancies plasma_glucose diastolic_bp
 #&gt;  * &lt;chr&gt;               &lt;dbl&gt;      &lt;int&gt;       &lt;int&gt;          &lt;int&gt;        &lt;int&gt;
