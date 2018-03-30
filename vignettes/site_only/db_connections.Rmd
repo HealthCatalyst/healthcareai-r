@@ -38,6 +38,18 @@ my_con <- build_connection_string(server = "HCS-GM0004",
 con <- dbConnect(odbc::odbc(), .connection_string = my_con)
 ```
 
+Your database connection is now stored in the object, `con`. You can use it in 
+database functions that require a connection. `dbConnect` will create a 
+persistent connection, meaning that it's available until you disconnect. If you
+have a recent version of Rstudio, you'll see the connections pane has updated as
+well.
+
+![Connections Pane](figures/conn_pane.png)
+
+Each database, schema, and table is available as a drop down menu for 
+exploration. Clicking the button in the far right column next to a table will
+bring up a preview of the top 1000 rows of the table.
+
 # Reading data
 
 #### Using SQL Code
@@ -65,8 +77,11 @@ the statement.
 #### Using dplyr Code
 
 The other option is to use dplyr code. Set up a reference to the table, then use
-it to pull data. The last line, `collect()`, is what actually pulls the data 
-into memory.
+it to pull data. Here, `tbl` is creating a reference and storing it in the 
+`encounter` object. R will treat that object like a dataframe and can
+filter, aggregate, join, etc using R or dplyr code. The last line, `collect()`, 
+is what actually pulls the data into memory.
+
 ```{r}
 library(tidyverse)
 
@@ -79,6 +94,9 @@ d <- encounter %>%
   tally() %>%
   collect()
 ```
+
+See [here](https://stackoverflow.com/questions/26611717/can-dplyr-join-on-multiple-columns-or-composite-key) 
+for help with joins using dplyr.
 
 # Writing Data
 As of 4/1/2018, there are two ways to write to a database: 
@@ -151,7 +169,7 @@ odbcClose(con)
 
 If you're confused, this is all explained above.
 ```{r}
-library(DBI)
+library(DBI) # Must be installed from github for writing to work.
 library(healthcareai)
 
 # Connection string
