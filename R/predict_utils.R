@@ -13,11 +13,10 @@ is.hcai_predicted_df <- function(x) "hcai_predicted_df" %in% class(x)
 print.hcai_predicted_df <- function(x, ...) {
   x <- change_pr_metric(x)
   mi <- attr(x, "model_info")
-  mes <- paste0("healthcareai-predicted data. Column \"predicted_",
-                mi$target, "\" predicted by ",
-                mi$algorithm, " tuned on ", mi$metric,
-                ". Performance in training: ", mi$metric, " = ",
-                round(mi$performance, 2), ".\n")
+  mes <- paste0("\"predicted_", mi$target, "\" predicted by ",
+                mi$algorithm, " last trained: ", mi$timestamp,
+                "\nPerformance in training: ", mi$metric, " = ",
+                round(mi$performance, 2), "\n")
   message(mes)
   # Avoid dispatching print.hcai_prepped_df:
   y <- structure(x, class = class(x)[!stringr::str_detect(class(x), "^hcai")])

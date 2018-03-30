@@ -93,6 +93,7 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
          algorithm = mi$best_model_name,
          metric = mi$metric,
          performance = mi$best_model_perf,
+         timestamp = mi$timestamp,
          hyperparameters = structure(mi$best_model_tune,
                                      "row.names" = "optimal:"))
   return(newdata)
