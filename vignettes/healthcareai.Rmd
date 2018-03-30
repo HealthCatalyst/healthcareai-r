@@ -23,7 +23,6 @@ library(healthcareai)
 
 ```{r}
 str(pima_diabetes)
-
 ```
 
 # Quick Machine Learning
@@ -34,24 +33,21 @@ If you don't want to fuss with details any more than necessary, `machine_learn` 
 
 ```{r}
 quick_models <- machine_learn(pima_diabetes, patient_id, outcome = diabetes)
-
 ```
 
 `machine_learn` has told us that it has created a recipe for data preparation (this allows us to do exactly the same data cleaning and feature engineering when you want predictions on a new dataset), is ignoring `patient_id` when tuning models as we told it to, is training classification algorithms because the outcome variable `diabetes` is categorical, and has executed cross validation for two machine learning models: random forests, and k-nearest neighbors. Let's see what the models look like.
 
 ```{r}
 quick_models
-
 ```
 
-Everything looks as expected, and the best model is is a random forest that achives performance of AUROC = 0.85. Not bad for one line of code.
+Everything looks as expected, and the best model is is a random forest that achives performance of AUROC = `r round(max(quick_models[[1]]$results$ROC), 2)`. Not bad for one line of code.
 
 Now that we have our models, we can make predictions using the `predict` function. If you provide a new data frame to `predict` it will make predictions on the new data; otherwise, it will make predictions on the training data.
 
 ```{r}
 predictions <- predict(quick_models)
 predictions
-
 ```
 
 We get a message about when the model was trained and how well it preformed in training, and we get back a data frame that looks sort of like the original, but has a new column `predited_diabetes` that contains the model-generated probability each individual has diabetes, and contains changes that were made preparing the data for model training, e.g. missingness has been filled in and `weight_class` has been split into a series of "dummy" variables.
