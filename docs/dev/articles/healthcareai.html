@@ -107,7 +107,7 @@
 <a class="sourceLine" id="cb4-5" data-line-number="5">## Performance Metric: ROC</a>
 <a class="sourceLine" id="cb4-6" data-line-number="6">## Number of Observations: 768</a>
 <a class="sourceLine" id="cb4-7" data-line-number="7">## Number of Features: 12</a>
-<a class="sourceLine" id="cb4-8" data-line-number="8">## Models Trained: 2018-03-30 14:46:31 </a>
+<a class="sourceLine" id="cb4-8" data-line-number="8">## Models Trained: 2018-03-30 16:22:57 </a>
 <a class="sourceLine" id="cb4-9" data-line-number="9">## </a>
 <a class="sourceLine" id="cb4-10" data-line-number="10">## Models tuned via 5-fold cross validation over 9 combinations of hyperparameter values.</a>
 <a class="sourceLine" id="cb4-11" data-line-number="11">## Best model: Random Forest</a>
@@ -120,7 +120,7 @@
 <p>Now that we have our models, we can make predictions using the <code>predict</code> function. If you provide a new data frame to <code>predict</code> it will make predictions on the new data; otherwise, it will make predictions on the training data.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(quick_models)</a>
 <a class="sourceLine" id="cb5-2" data-line-number="2">predictions</a>
-<a class="sourceLine" id="cb5-3" data-line-number="3">## "predicted_diabetes" predicted by Random Forest last trained: 2018-03-30 14:46:31</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3">## "predicted_diabetes" predicted by Random Forest last trained: 2018-03-30 16:22:57</a>
 <a class="sourceLine" id="cb5-4" data-line-number="4">## Performance in training: ROC = 0.84</a>
 <a class="sourceLine" id="cb5-5" data-line-number="5">## # A tibble: 768 x 14</a>
 <a class="sourceLine" id="cb5-6" data-line-number="6">##    diabetes predicted_diabetes pregnancies plasma_glucose diastolic_bp</a>
@@ -219,7 +219,7 @@
 <a class="sourceLine" id="cb12-15" data-line-number="15">## Performance Metric: PR</a>
 <a class="sourceLine" id="cb12-16" data-line-number="16">## Number of Observations: 692</a>
 <a class="sourceLine" id="cb12-17" data-line-number="17">## Number of Features: 13</a>
-<a class="sourceLine" id="cb12-18" data-line-number="18">## Models Trained: 2018-03-30 14:47:08 </a>
+<a class="sourceLine" id="cb12-18" data-line-number="18">## Models Trained: 2018-03-30 16:23:38 </a>
 <a class="sourceLine" id="cb12-19" data-line-number="19">## </a>
 <a class="sourceLine" id="cb12-20" data-line-number="20">## Models have not been tuned. Performance estimated via 5-fold cross validation at fixed hyperparameter values.</a>
 <a class="sourceLine" id="cb12-21" data-line-number="21">## Best model: Random Forest</a>
@@ -235,7 +235,7 @@
 <a href="#prediction" class="anchor"></a>Prediction</h1>
 <p>We can easily get predictions on our original dataset. <code>predict</code> will automatically use the best-performing model from training (evaluated out-of-fold in cross validation). The predicted probabilities appear in the <code>predicted_diabetes</code> column.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw">predict</span>(models)</a>
-<a class="sourceLine" id="cb13-2" data-line-number="2">## "predicted_diabetes" predicted by Random Forest last trained: 2018-03-30 14:47:06</a>
+<a class="sourceLine" id="cb13-2" data-line-number="2">## "predicted_diabetes" predicted by Random Forest last trained: 2018-03-30 16:23:35</a>
 <a class="sourceLine" id="cb13-3" data-line-number="3">## Performance in training: PR = 0.9</a>
 <a class="sourceLine" id="cb13-4" data-line-number="4">## # A tibble: 692 x 15</a>
 <a class="sourceLine" id="cb13-5" data-line-number="5">##    diabetes predicted_diabetes pregnancies plasma_glucose diastolic_bp</a>
@@ -272,7 +272,7 @@
 <a class="sourceLine" id="cb15-5" data-line-number="5">## Running cross validation for Random Forest</a>
 <a class="sourceLine" id="cb15-6" data-line-number="6">## Running cross validation for k-Nearest Neighbors</a>
 <a class="sourceLine" id="cb15-7" data-line-number="7"><span class="kw">summary</span>(regression_models)</a>
-<a class="sourceLine" id="cb15-8" data-line-number="8">## Models trained: 2018-03-30 14:47:22</a>
+<a class="sourceLine" id="cb15-8" data-line-number="8">## Models trained: 2018-03-30 16:23:53</a>
 <a class="sourceLine" id="cb15-9" data-line-number="9">## </a>
 <a class="sourceLine" id="cb15-10" data-line-number="10">## Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.</a>
 <a class="sourceLine" id="cb15-11" data-line-number="11">## Best performance: RMSE = 9.09</a>
@@ -344,7 +344,7 @@
 <a class="sourceLine" id="cb16-11" data-line-number="11">## Warning in ready_with_prep(object, newdata, mi): The following variables(s) had the following value(s) in predict that were not observed in training. </a>
 <a class="sourceLine" id="cb16-12" data-line-number="12">##  weight_class: ???</a>
 <a class="sourceLine" id="cb16-13" data-line-number="13">## Prepping data based on provided recipe</a>
-<a class="sourceLine" id="cb16-14" data-line-number="14">## "predicted_age" predicted by Random Forest last trained: 2018-03-30 14:47:22</a>
+<a class="sourceLine" id="cb16-14" data-line-number="14">## "predicted_age" predicted by Random Forest last trained: 2018-03-30 16:23:53</a>
 <a class="sourceLine" id="cb16-15" data-line-number="15">## Performance in training: RMSE = 9.09</a>
 <a class="sourceLine" id="cb16-16" data-line-number="16">## # A tibble: 1 x 9</a>
 <a class="sourceLine" id="cb16-17" data-line-number="17">##   predicted_age pregnancies plasma_glucose diastolic_bp skinfold insulin</a>

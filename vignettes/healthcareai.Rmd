@@ -1,16 +1,16 @@
 ---
-title: "Getting Started with healthcare.ai"
-date: "Last Updated: `r Sys.Date()`"
-author: "Michael Levy"
+title: "Getting Started with healthcareai"
 output: rmarkdown::html_vignette
 vignette: >
+  %\VignetteIndexEntry{Getting Started with healthcareai}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
 set.seed(43170)
-knitr::opts_chunk$set(echo = TRUE, results = "hold", collapse = TRUE)
+knitr::opts_chunk$set(echo = TRUE, results = "hold", collapse = TRUE, 
+                      comment = "#>")
 ```
 
 First we attach the healthcareai R package to make its functions available. If your package version is less than 2.0, none of the code here will work. You can check the package version with `packageVersion("healthcareai")`, and you can get the latest, cutting-edge development version with `install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r")`.
@@ -19,7 +19,7 @@ First we attach the healthcareai R package to make its functions available. If y
 library(healthcareai)
 ```
 
-`healthcareai` comes with a built in dataset documenting diabetes among adult Pima females. Once you attach the package, the dataset is available in the variable `pima_diabetes`. Let's take a look at the data. There are 768 records in 10 variables including one identifier column, several categories, and substantial missingness (represented in R by `NA`).
+`healthcareai` comes with a built in dataset documenting diabetes among adult Pima females. Once you attach the package, the dataset is available in the variable `pima_diabetes`. Let's take a look at the data with the `str` function. There are 768 records in 10 variables including one identifier column, several nominal variables, and substantial missingness (represented in R by `NA`).
 
 ```{r}
 str(pima_diabetes)

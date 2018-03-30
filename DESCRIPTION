@@ -43,6 +43,9 @@ RoxygenNote: 6.0.1
 Suggests:
     testthat,
     lintr,
-    covr
+    covr,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
 URL: http://docs.healthcare.ai
 BugReports: https://github.com/HealthCatalyst/healthcareai-r/issues
