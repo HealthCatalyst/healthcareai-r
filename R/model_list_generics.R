@@ -9,12 +9,13 @@ print.model_list <- function(x, ...) {
     x <- change_pr_metric(x)
     rinfo <- extract_model_info(x)
     out <- paste0(
-      "Target: ", rinfo$target,
+      "Algorithms Trained: ", paste(rinfo$algs, collapse = ", "),
+      "\nTarget: ", rinfo$target,
       "\nClass: ", rinfo$m_class,
-      "\nAlgorithms Trained: ", paste(rinfo$algs, collapse = ", "),
       "\nPerformance Metric: ", rinfo$metric,
       "\nNumber of Observations: ", rinfo$ddim[1],
-      "\nNumber of Features: ", rinfo$ddim[2] - 1L
+      "\nNumber of Features: ", rinfo$ddim[2] - 1L,
+      "\nModels Trained: ", rinfo$timestamp
     )
     out <- paste(
       out,
@@ -56,17 +57,18 @@ summary.model_list <- function(object, ...) {
   rinfo <- extract_model_info(object)
   out <-
     if (rinfo$tuned) {
-      paste0("\n\nModels tuned via ", object[[1]]$control$number, "-fold cross validation ",
+      paste0("Models trained: ", rinfo$timestamp,
+             "\n\nModels tuned via ", object[[1]]$control$number, "-fold cross validation ",
              "over ", nrow(object[[1]]$results), " combinations of hyperparameter values.",
-             "\nBest performance: ", rinfo$metric, " = ",
-             round(rinfo$best_model_perf, 2), "\n",
-             rinfo$best_model_name, " with hyperparameters:\n  ",
+             "\nBest performance: ", rinfo$metric, " = ", round(rinfo$best_model_perf, 2),
+             "\nBy ", rinfo$best_model_name, " with hyperparameters:\n  ",
              format_tune(rinfo$best_model_tune))
     } else {
-      paste0("\n\nModels have not been tuned. Performance estimated via ",
+      paste0("Models trained: ", rinfo$timestamp,
+             "\n\nModels have not been tuned. Performance estimated via ",
              object[[1]]$control$number, "-fold cross validation at fixed hyperparameter values.",
-             "\nBest algorithm: ", rinfo$best_model_name, " with performance: ",
-             rinfo$metric, " = ", round(rinfo$best_model_perf, 2), "\n")
+             "\nBest algorithm: ", rinfo$best_model_name, " with ",
+             rinfo$metric, " = ", round(rinfo$best_model_perf, 2))
     }
   cat(out)
   cat("\n\nOut-of-fold performance of all trained models:\n\n")
@@ -200,7 +202,8 @@ extract_model_info <- function(x) {
     best_model_perf = best_model_perf,
     best_model_tune = best_model_tune,
     ddim = ddim,
-    tuned = attr(x, "tuned")
+    tuned = attr(x, "tuned"),
+    timestamp = attr(x, "timestamp")
   )
 }
 

@@ -27,7 +27,7 @@ as.model_list <- function(..., listed_models = NULL, target = ".outcome",
                           model_class, tuned = TRUE) {
   listed_models <- c(
     structure(list(...),
-              names = purrr::map_chr(as.list(match.call(expand.dots = FALSE)$...), deparse)),  # nolint
+              names = purrr::map_chr(as.list(match.call(expand.dots = FALSE)$...), deparse)),
     listed_models
   )
   if (length(listed_models)) {
