@@ -222,6 +222,18 @@ prep_data <- function(d,
         recipes::step_nzv(all_predictors())
     }
 
+    # Check if there are any nominal predictors that won't be removed; stop if not.
+    prep_check <- recipes::prep(recipe, training = d)
+    removing <- prep_check$steps[[1]]$removals
+    vi <- recipe$var_info
+    nom_preds <- vi$variable[vi$role == "predictor" & vi$type == "nominal"]
+    if (length(nom_preds) && all(nom_preds %in% removing))
+      stop("All your categorical columns will be removed because they have ",
+           "near-zero variance, which will break prep_data. ",
+           "We're working on a fix; in the meantime, either remove these ",
+           "NZV columns before prep_data or set remove_near_zero_variance = FALSE:\n",
+           paste(removing, collapse = ", "))
+
     # Convert date columns to useful features and remove original. ------------
     if (!is.logical(convert_dates)) {
       if (!is.character(convert_dates))  #  || is.null(names(convert_date))
@@ -245,11 +257,6 @@ prep_data <- function(d,
       if (!purrr::is_empty(cols))
         recipe <- recipes::step_rm(recipe, cols)
     }
-
-    # Check if there are any numeric and nominal predictors that won't be removed
-    prep_check <- recipes::prep(recipe, training = d)
-    browser()
-
 
     # Impute ------------------------------------------------------------------
     if (isTRUE(impute)) {
