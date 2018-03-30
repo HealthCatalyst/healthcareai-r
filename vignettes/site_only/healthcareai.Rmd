@@ -82,18 +82,40 @@ split_data <- split_train_test(d = pima_diabetes,
 
 ## `prep_data`
 
-One of the major workhorse functions in `healthcareai` is `prep_data`. It is called under-the-hood by `machine_learn`, so you don't have to worry about these details if you don't want to, but eventually you'll want to customize how your data is prepared; this is where you do that. The helpfile `?prep_data` describes what the function does and how it can be customized. Here, let's customize preparation to use sophisticated imputation to fill in missing values (at the expense of it taking longer than the default imputation methods) and to avoid collapsing rare factor levels into "other".
+One of the major workhorse functions in `healthcareai` is `prep_data`. It is called under-the-hood by `machine_learn`, so you don't have to worry about these details if you don't want to, but eventually you'll want to customize how your data is prepared; this is where you do that. The helpfile `?prep_data` describes what the function does and how it can be customized. Here, let's customize preparation to scale and center numeric variables and avoid collapsing rare factor levels into "other".
 
 The first arguments to `prep_data` are the same as those to `machine_learn`: data frame, ignored columns, and the outcome column. Then we can specify prep details.
 
 ```{r}
-prepped_training_data <- 
-  prep_data(split_data$train, patient_id, outcome = diabetes, 
-            impute = list(numeric_method = "bagimpute",
-                          nominal_method = "bagimpute"),
-            collapse_rare_factors = FALSE)
+prepped_training_data <- prep_data(split_data$train, patient_id, outcome = diabetes,
+                                   center = TRUE, scale = TRUE,
+                                   collapse_rare_factors = FALSE)
 ```
 
 The "recipe" that the above message refers to is a set of instructions for how to transform a dataset the way we just transformed our training data. Any machine learning that we do (within `healthcareai`) on `prepped_training_data` will retain that recipe and apply it before making predictions on new data. That means that when you have models making predictions in production, you don't have to figure out how to transform the data or worry about encountering missing data or new category levels. 
 
+# Model training
 
+`machine_learn` takes care of data preparation and model training for you, but if you want more precise control, `tune_models` and `flash_models` are the model-training function you're looking for. They differ in that `tune_models` searches over hyperparameters to optimize model performance, while `flash_models` trains models at set hyperparameter values. So, `tune_models` produces better models, but takes longer (approaching 10x longer at default settings). 
+
+Let's specify to tune just random forests (by default, the functions train random forests and k-nearest neighbors), and to try to really optimize model performance, let's crank up `tune_depth`. That will tune the model over more combinations of hyperparameter values in the search for the best model. 
+
+Let's also select "PR" as our model metric. That optimizes for area under the precision-recall curve rather than the default of area under the receiver operating characteristic curve ("ROC"). This is usually a good idea when one outcome category is much more common than the other category.
+
+```{r}
+models <- tune_models(d = prepped_training_data, 
+                      outcome = diabetes,
+                      models = "RF", 
+                      tune_depth = 25,
+                      metric = "PR")
+```
+
+We get a message saying the training may take a while because we're training so many models, but in this case it takes less than a minute.
+
+We can examine how the model performs across hyperparameters by simply plotting the model object.
+
+```{r}
+plot(models)
+```
+
+Suppose our data actually consisted of millions of observations, rather than hundreds. It might take a very long time to train so many models, and while there's no guarantee that a model trained on all those observations will be optimal at the same hyperparameter values as a model trained on a subset of the observations, it could be useful to tune models on smaller datasets and 
