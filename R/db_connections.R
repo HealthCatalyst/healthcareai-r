@@ -142,21 +142,22 @@ add_SAM_utility_cols <- function(d) {
 # Old functions ------------------
 
 #' @title
-#' Depreciated. See \code{\link{db_read}}
+#' Defunct. See \code{\link{db_read}}
 #' @description Removed in v2.0.0
 #' @param ... Garbage collector
 #' @export
 #'
 selectData <- function(...) {
-  stop("This function was depreciated. Use db_read")
+  .Defunct("db_read")
 }
 
-#' @title
-#' Depreciated.
+#' @title Defunct. See
+#' \href{https://docs.healthcare.ai/articles/site_only/db_connections.html}{this
+#' vignette} for help writing to databases.
 #' @description Removed in v2.0.0
 #' @param ... Garbage collector
 #' @export
 #'
 writeData <- function(...) {
-  stop("This function was depreciated. See vignettes for use of DBI or RODBC.")
+  .Defunct("db_write")
 }
