@@ -1,7 +1,7 @@
 url: https://docs.healthcare.ai
 
 development:
-  mode: development
+  mode: devel
 
 home:
   links:
@@ -10,6 +10,9 @@ home:
 
   - text: healthcare.ai home
     href: https://healthcare.ai
+
+navbar:
+  title: healthcare.ai
 
 reference:
   - title: Model Training
