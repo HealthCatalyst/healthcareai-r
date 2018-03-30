@@ -44,10 +44,10 @@ test_that("model_list succeeds without model input", {
 })
 
 test_that("as.model_list works same with different argument specs", {
-  expect_equal(as.model_list(rf),
-               as.model_list(listed_models = list(rf)))
-  expect_equal(as.model_list(rf),
-               as.model_list(rf, model_class = "classification"))
+  expect_equivalent(as.model_list(rf),
+                    as.model_list(listed_models = list(rf)))
+  expect_equivalent(as.model_list(rf),
+                    as.model_list(rf, model_class = "classification"))
 })
 
 test_that("model lists have target attribute if not empty; null if empty", {
