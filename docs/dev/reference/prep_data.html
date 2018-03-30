@@ -96,22 +96,10 @@ While preparing your data, a recipe will be generated for
   </a>
 </li>
 <li>
-  <a href="../reference/index.html">Reference</a>
+  <a href="../articles/healthcareai.html">Get started</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="../articles/site_only/fake_vignette.html">fake vignette</a>
-    </li>
-    <li>
-      <a href="../articles/site_only/healthcareai.html">Healthcare.ai Fundamentals</a>
-    </li>
-  </ul>
+<li>
+  <a href="../reference/index.html">Reference</a>
 </li>
       </ul>
       
@@ -315,15 +303,16 @@ classification.</p></td>
 #&gt; #   weight_class_overweight &lt;dbl&gt;, weight_class_other &lt;dbl&gt;,
 #&gt; #   weight_class_hcai_missing &lt;dbl&gt;</div><div class='input'>
 <span class='co'># Customize preparations:</span>
-<span class='fu'>prep_data</span>(<span class='kw'>d</span> <span class='kw'>=</span> <span class='no'>d_train</span>, <span class='no'>patient_id</span>, <span class='no'>diabetes</span>,
+<span class='fu'>prep_data</span>(<span class='kw'>d</span> <span class='kw'>=</span> <span class='no'>d_train</span>, <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>,
           <span class='kw'>impute</span> <span class='kw'>=</span> <span class='fu'>list</span>(<span class='kw'>numeric_method</span> <span class='kw'>=</span> <span class='st'>"bagimpute"</span>,
                         <span class='kw'>nominal_method</span> <span class='kw'>=</span> <span class='st'>"bagimpute"</span>),
           <span class='kw'>collapse_rare_factors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>convert_dates</span> <span class='kw'>=</span> <span class='st'>"year"</span>,
-          <span class='kw'>center</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>scale</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>make_dummies</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe, with no outcome variable specified</span></div><div class='output co'>#&gt; <span class='message'>healthcareai-prepped data. Recipe used to prepare data:</span></div><div class='output co'>#&gt; Data Recipe
+          <span class='kw'>center</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>scale</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>make_dummies</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>healthcareai-prepped data. Recipe used to prepare data:</span></div><div class='output co'>#&gt; Data Recipe
 #&gt; 
 #&gt; Inputs:
 #&gt; 
 #&gt;       role #variables
+#&gt;    outcome          1
 #&gt;  predictor          8
 #&gt; 
 #&gt; Training data contained 700 data points and 340 incomplete rows. 
@@ -337,20 +326,20 @@ classification.</p></td>
 #&gt; Scaling for pregnancies, plasma_glucose, ... [trained]
 #&gt; Adding levels to: other, hcai_missing [trained]
 #&gt; Adding levels to: other, hcai_missing [trained]</div><div class='output co'>#&gt; <span class='message'>Current data:</span></div><div class='output co'>#&gt; # A tibble: 700 x 10
-#&gt;    patient_id diabetes pregnancies plasma_glucose diastolic_bp skinfold insulin
-#&gt;         &lt;int&gt; &lt;chr&gt;          &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
-#&gt;  1          1 Y              0.646          0.871      -0.0211   0.635   0.344 
-#&gt;  2          2 N             -0.840         -1.19       -0.514    0.0152 -0.855 
-#&gt;  3          3 Y              1.24           2.02       -0.678   -0.956   0.546 
-#&gt;  4          4 N             -0.840         -1.06       -0.514   -0.605  -0.613 
-#&gt;  5          5 Y             -1.14           0.511      -2.65     0.635   0.132 
-#&gt;  6          6 N              0.349         -0.175       0.143   -0.525  -0.252 
-#&gt;  7          7 Y             -0.246         -1.42       -1.83     0.325  -0.673 
-#&gt;  8          8 N              1.83          -0.208      -0.0957   0.507  -0.0956
-#&gt;  9          9 Y             -0.543          2.47       -0.185    1.67    3.90  
-#&gt; 10         10 Y              1.24           0.119       1.95     0.477   0.837 
-#&gt; # ... with 690 more rows, and 3 more variables: weight_class &lt;fct&gt;,
-#&gt; #   pedigree &lt;dbl&gt;, age &lt;dbl&gt;</div></pre>
+#&gt;    patient_id pregnancies plasma_glucose diastolic_bp skinfold insulin
+#&gt;         &lt;int&gt;       &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
+#&gt;  1          1       0.646          0.871      -0.0211   0.635   0.344 
+#&gt;  2          2      -0.840         -1.19       -0.514    0.0152 -0.855 
+#&gt;  3          3       1.24           2.02       -0.678   -0.956   0.546 
+#&gt;  4          4      -0.840         -1.06       -0.514   -0.605  -0.613 
+#&gt;  5          5      -1.14           0.511      -2.65     0.635   0.132 
+#&gt;  6          6       0.349         -0.175       0.143   -0.525  -0.252 
+#&gt;  7          7      -0.246         -1.42       -1.83     0.325  -0.673 
+#&gt;  8          8       1.83          -0.208      -0.0957   0.507  -0.0956
+#&gt;  9          9      -0.543          2.47       -0.185    1.67    3.90  
+#&gt; 10         10       1.24           0.119       1.95     0.477   0.837 
+#&gt; # ... with 690 more rows, and 4 more variables: weight_class &lt;fct&gt;,
+#&gt; #   pedigree &lt;dbl&gt;, age &lt;dbl&gt;, diabetes &lt;fct&gt;</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

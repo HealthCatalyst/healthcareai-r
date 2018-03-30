@@ -30,13 +30,16 @@ reference:
     contents:
     - prep_data
     - pivot
+    - split_train_test
   - title: Data Profiling
     contents:
     - missingness
   - title: Connect to Databases
     contents:
     - build_connection_string
-    - db_connect
-  - title: Everything Else
-    desc: Is still to be added. Possibly [automatically](https://stackoverflow.com/questions/45886789/include-all-other-functions-in-a-pkgdown-reference-yaml)
-    contents:
+    - db_read
+
+figures:
+  fig.asp: NULL
+  fig.height: 4
+  fig.width: 6

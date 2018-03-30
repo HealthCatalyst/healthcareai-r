@@ -80,8 +80,10 @@ flash_models <- function(d,
 
   if (missing(hyperparameters))
     hyperparameters <- get_hyperparameter_defaults(models)
+  models <- tolower(models)
+  names(hyperparameters) <- tolower(names(hyperparameters))
   if (!dplyr::setequal(names(hyperparameters), models))
-      stop("`models` and names of the list passed to `hyperparameters` must match. ",
+      stop("`models` and names of the list passed to `hyperparameters` must match (case-insensitive).",
            "You provided:\nmodels: ", paste(models, collapse = ", "),
            "\nhyperparameter names:", paste(names(hyperparameters), collapse = ", "))
 
