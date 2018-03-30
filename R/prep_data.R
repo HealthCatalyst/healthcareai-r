@@ -88,7 +88,7 @@
 #' d_test_prepped
 #'
 #' # Customize preparations:
-#' prep_data(d = d_train, patient_id, diabetes,
+#' prep_data(d = d_train, patient_id, outcome = diabetes,
 #'           impute = list(numeric_method = "bagimpute",
 #'                         nominal_method = "bagimpute"),
 #'           collapse_rare_factors = FALSE, convert_dates = "year",
@@ -221,6 +221,18 @@ prep_data <- function(d,
       recipe <- recipe %>%
         recipes::step_nzv(all_predictors())
     }
+
+    # Check if there are any nominal predictors that won't be removed; stop if not.
+    prep_check <- recipes::prep(recipe, training = d)
+    removing <- prep_check$steps[[1]]$removals
+    vi <- recipe$var_info
+    nom_preds <- vi$variable[vi$role == "predictor" & vi$type == "nominal"]
+    if (length(nom_preds) && all(nom_preds %in% removing))
+      stop("All your categorical columns will be removed because they have ",
+           "near-zero variance, which will break prep_data. ",
+           "We're working on a fix; in the meantime, either remove these ",
+           "NZV columns before prep_data or set remove_near_zero_variance = FALSE:\n",
+           paste(removing, collapse = ", "))
 
     # Convert date columns to useful features and remove original. ------------
     if (!is.logical(convert_dates)) {
