@@ -88,7 +88,7 @@
 #' d_test_prepped
 #'
 #' # Customize preparations:
-#' prep_data(d = d_train, patient_id, diabetes,
+#' prep_data(d = d_train, patient_id, outcome = diabetes,
 #'           impute = list(numeric_method = "bagimpute",
 #'                         nominal_method = "bagimpute"),
 #'           collapse_rare_factors = FALSE, convert_dates = "year",

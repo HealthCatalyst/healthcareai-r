@@ -70,6 +70,6 @@ predict(age_model)
 ### Faster model training without tuning hyperparameters ###
 
 # Train models at set hyperparameter values by setting tune to FALSE.
-# This will be faster, but produce models with less predictive accuracy.
+# This is faster (especially on larger datasets), but produces models with less predictive accuracy.
 machine_learn(training_data, outcome = diabetes, tune = FALSE)
 }
