@@ -2,7 +2,7 @@
 % Please edit documentation in R/db_connections.R
 \name{selectData}
 \alias{selectData}
-\title{Depreciated. See \code{\link{db_read}}}
+\title{Defunct. See \code{\link{db_read}}}
 \usage{
 selectData(...)
 }
