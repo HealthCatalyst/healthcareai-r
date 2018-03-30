@@ -353,6 +353,8 @@ test_that("remove_near_zero_variance is respected, works, and warns", {
   expect_false("a_nzv_col" %in% names(def))
   stay <- prep_data(d_train, remove_near_zero_variance = FALSE, make_dummies = FALSE)
   expect_true("a_nzv_col" %in% names(stay))
+  expect_error(prep_data(dplyr::select(d_train, a_nzv_col, is_ween), outcome = is_ween),
+               NA)
 })
 
 test_that("collapse_rare_factors works", {

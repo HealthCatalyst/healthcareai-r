@@ -246,6 +246,11 @@ prep_data <- function(d,
         recipe <- recipes::step_rm(recipe, cols)
     }
 
+    # Check if there are any numeric and nominal predictors that won't be removed
+    prep_check <- recipes::prep(recipe, training = d)
+    browser()
+
+
     # Impute ------------------------------------------------------------------
     if (isTRUE(impute)) {
       recipe <- recipe %>%
