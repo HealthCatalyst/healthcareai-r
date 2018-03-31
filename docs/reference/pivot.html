@@ -28,6 +28,8 @@
 <meta property="og:title" content="Pivot from a long data frame to a wide data frame — pivot" />
 
 <meta property="og:description" content="Pivot from a long data frame to a wide data frame" />
+
+<meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
@@ -51,7 +53,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">healthcareai</a>
+      <a class="navbar-brand" href="../index.html">healthcare.ai</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
@@ -191,19 +193,19 @@ default, the count of instances for each patient will be used.</p>
     <span class='kw'>patient_id</span> <span class='kw'>=</span> <span class='fu'>rep</span>(<span class='fu'>c</span>(<span class='st'>"A"</span>, <span class='st'>"B"</span>), <span class='kw'>each</span> <span class='kw'>=</span> <span class='fl'>4</span>),
     <span class='kw'>dept_id</span> <span class='kw'>=</span> <span class='fu'>rep</span>(<span class='fu'>c</span>(<span class='st'>"ED"</span>, <span class='st'>"ICU"</span>), <span class='kw'>times</span> <span class='kw'>=</span> <span class='fl'>4</span>),
     <span class='kw'>charge</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='fl'>8</span>, <span class='fl'>0</span>, <span class='fl'>1e4</span>),
-    <span class='kw'>date</span> <span class='kw'>=</span> <span class='fu'>Sys.Date</span>() - <span class='fu'>sample</span>(<span class='fl'>0</span>:<span class='fl'>2</span>, <span class='fl'>8</span>, <span class='fl'>TRUE</span>)
+    <span class='kw'>date</span> <span class='kw'>=</span> <span class='fu'>as.Date</span>(<span class='st'>"2024-12-25"</span>) - <span class='fu'>sample</span>(<span class='fl'>0</span>:<span class='fl'>2</span>, <span class='fl'>8</span>, <span class='fl'>TRUE</span>)
   )
 <span class='no'>bills</span></div><div class='output co'>#&gt; # A tibble: 8 x 4
 #&gt;   patient_id dept_id charge date      
 #&gt;   &lt;chr&gt;      &lt;chr&gt;    &lt;dbl&gt; &lt;date&gt;    
-#&gt; 1 A          ED        9051 2018-03-28
-#&gt; 2 A          ICU       4995 2018-03-29
-#&gt; 3 A          ED        2687 2018-03-29
-#&gt; 4 A          ICU       5475 2018-03-27
-#&gt; 5 B          ED        8745 2018-03-28
-#&gt; 6 B          ICU       9077 2018-03-27
-#&gt; 7 B          ED        3351 2018-03-27
-#&gt; 8 B          ICU       7358 2018-03-29</div><div class='input'>
+#&gt; 1 A          ED        9051 2024-12-24
+#&gt; 2 A          ICU       4995 2024-12-25
+#&gt; 3 A          ED        2687 2024-12-25
+#&gt; 4 A          ICU       5475 2024-12-23
+#&gt; 5 B          ED        8745 2024-12-24
+#&gt; 6 B          ICU       9077 2024-12-23
+#&gt; 7 B          ED        3351 2024-12-23
+#&gt; 8 B          ICU       7358 2024-12-25</div><div class='input'>
 <span class='co'># Total charges per patient x department:</span>
 <span class='fu'>pivot</span>(<span class='no'>bills</span>, <span class='no'>patient_id</span>, <span class='no'>dept_id</span>, <span class='no'>charge</span>, <span class='no'>sum</span>)</div><div class='output co'>#&gt; # A tibble: 2 x 3
 #&gt;   patient_id dept_id_ED dept_id_ICU
@@ -212,7 +214,7 @@ default, the count of instances for each patient will be used.</p>
 #&gt; 2 B               12096       16435</div><div class='input'>
 <span class='co'># Count of charges per patient x day:</span>
 <span class='fu'>pivot</span>(<span class='no'>bills</span>, <span class='no'>patient_id</span>, <span class='no'>date</span>)</div><div class='output co'>#&gt; <span class='message'>No fill column was provided, so using "1" for present entities</span></div><div class='output co'>#&gt; <span class='message'>There are rows that contain the same values of both patient_id and date but you didn't provide a function to 'fun' for their aggregation. Proceeding with the default: fun = sum.</span></div><div class='output co'>#&gt; # A tibble: 2 x 4
-#&gt;   patient_id `date_2018-03-27` `date_2018-03-28` `date_2018-03-29`
+#&gt;   patient_id `date_2024-12-23` `date_2024-12-24` `date_2024-12-25`
 #&gt;   &lt;fct&gt;                  &lt;int&gt;             &lt;int&gt;             &lt;int&gt;
 #&gt; 1 A                          1                 1                 2
 #&gt; 2 B                          2                 1                 1</div><div class='input'>

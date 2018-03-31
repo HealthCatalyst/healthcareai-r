@@ -28,6 +28,8 @@
 <meta property="og:title" content="Pivot from a long data frame to a wide data frame — pivot" />
 
 <meta property="og:description" content="Pivot from a long data frame to a wide data frame" />
+
+<meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 <meta name="robots" content="noindex">
@@ -40,6 +42,8 @@
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
+
+
 
 
   </head>
@@ -70,25 +74,17 @@
   </a>
 </li>
 <li>
-  <a href="../reference/index.html">Reference</a>
+  <a href="../articles/healthcareai.html">Get started</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="../articles/site_only/fake_vignette.html">fake vignette</a>
-    </li>
-  </ul>
+<li>
+  <a href="../reference/index.html">Reference</a>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
         
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -96,7 +92,7 @@
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Pivot from a long data frame to a wide data frame</h1>
@@ -178,10 +174,10 @@ default, the count of instances for each patient will be used.</p>
 <span class='no'>meds</span></div><div class='output co'>#&gt; # A tibble: 4 x 3
 #&gt;   patient_id medication pills_per_day
 #&gt;   &lt;chr&gt;      &lt;chr&gt;              &lt;dbl&gt;
-#&gt; 1 A          zoloft              1.00
-#&gt; 2 A          asprin              8.00
-#&gt; 3 A          lipitor             2.00
-#&gt; 4 B          asprin              4.00</div><div class='input'>
+#&gt; 1 A          zoloft                1.
+#&gt; 2 A          asprin                8.
+#&gt; 3 A          lipitor               2.
+#&gt; 4 B          asprin                4.</div><div class='input'>
 <span class='co'># Number of pills of each medication each patient gets:</span>
 <span class='fu'>pivot</span>(
   <span class='kw'>d</span> <span class='kw'>=</span> <span class='no'>meds</span>,
@@ -192,38 +188,38 @@ default, the count of instances for each patient will be used.</p>
 )</div><div class='output co'>#&gt; # A tibble: 2 x 4
 #&gt;   patient_id medication_asprin medication_lipitor medication_zoloft
 #&gt;   &lt;fct&gt;                  &lt;dbl&gt;              &lt;dbl&gt;             &lt;dbl&gt;
-#&gt; 1 A                       8.00               2.00              1.00
-#&gt; 2 B                       4.00               0                 0   </div><div class='input'>
+#&gt; 1 A                         8.                 2.                1.
+#&gt; 2 B                         4.                 0.                0.</div><div class='input'>
 <span class='no'>bills</span> <span class='kw'>&lt;-</span>
   <span class='kw pkg'>tibble</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/tibble/topics/tibble'>tibble</a></span>(
     <span class='kw'>patient_id</span> <span class='kw'>=</span> <span class='fu'>rep</span>(<span class='fu'>c</span>(<span class='st'>"A"</span>, <span class='st'>"B"</span>), <span class='kw'>each</span> <span class='kw'>=</span> <span class='fl'>4</span>),
     <span class='kw'>dept_id</span> <span class='kw'>=</span> <span class='fu'>rep</span>(<span class='fu'>c</span>(<span class='st'>"ED"</span>, <span class='st'>"ICU"</span>), <span class='kw'>times</span> <span class='kw'>=</span> <span class='fl'>4</span>),
     <span class='kw'>charge</span> <span class='kw'>=</span> <span class='fu'>runif</span>(<span class='fl'>8</span>, <span class='fl'>0</span>, <span class='fl'>1e4</span>),
-    <span class='kw'>date</span> <span class='kw'>=</span> <span class='fu'>Sys.Date</span>() - <span class='fu'>sample</span>(<span class='fl'>0</span>:<span class='fl'>2</span>, <span class='fl'>8</span>, <span class='fl'>TRUE</span>)
+    <span class='kw'>date</span> <span class='kw'>=</span> <span class='fu'>as.Date</span>(<span class='st'>"2024-12-25"</span>) - <span class='fu'>sample</span>(<span class='fl'>0</span>:<span class='fl'>2</span>, <span class='fl'>8</span>, <span class='fl'>TRUE</span>)
   )
 <span class='no'>bills</span></div><div class='output co'>#&gt; # A tibble: 8 x 4
 #&gt;   patient_id dept_id charge date      
 #&gt;   &lt;chr&gt;      &lt;chr&gt;    &lt;dbl&gt; &lt;date&gt;    
-#&gt; 1 A          ED        9887 2018-03-27
-#&gt; 2 A          ICU       3458 2018-03-26
-#&gt; 3 A          ED        6643 2018-03-28
-#&gt; 4 A          ICU       6857 2018-03-26
-#&gt; 5 B          ED        1082 2018-03-28
-#&gt; 6 B          ICU       8207 2018-03-28
-#&gt; 7 B          ED        4997 2018-03-26
-#&gt; 8 B          ICU       8821 2018-03-26</div><div class='input'>
+#&gt; 1 A          ED       9051. 2024-12-24
+#&gt; 2 A          ICU      4995. 2024-12-25
+#&gt; 3 A          ED       2687. 2024-12-25
+#&gt; 4 A          ICU      5475. 2024-12-23
+#&gt; 5 B          ED       8745. 2024-12-24
+#&gt; 6 B          ICU      9077. 2024-12-23
+#&gt; 7 B          ED       3351. 2024-12-23
+#&gt; 8 B          ICU      7358. 2024-12-25</div><div class='input'>
 <span class='co'># Total charges per patient x department:</span>
 <span class='fu'>pivot</span>(<span class='no'>bills</span>, <span class='no'>patient_id</span>, <span class='no'>dept_id</span>, <span class='no'>charge</span>, <span class='no'>sum</span>)</div><div class='output co'>#&gt; # A tibble: 2 x 3
 #&gt;   patient_id dept_id_ED dept_id_ICU
 #&gt;   &lt;fct&gt;           &lt;dbl&gt;       &lt;dbl&gt;
-#&gt; 1 A               16530       10315
-#&gt; 2 B                6079       17028</div><div class='input'>
+#&gt; 1 A              11738.      10471.
+#&gt; 2 B              12096.      16435.</div><div class='input'>
 <span class='co'># Count of charges per patient x day:</span>
 <span class='fu'>pivot</span>(<span class='no'>bills</span>, <span class='no'>patient_id</span>, <span class='no'>date</span>)</div><div class='output co'>#&gt; <span class='message'>No fill column was provided, so using "1" for present entities</span></div><div class='output co'>#&gt; <span class='message'>There are rows that contain the same values of both patient_id and date but you didn't provide a function to 'fun' for their aggregation. Proceeding with the default: fun = sum.</span></div><div class='output co'>#&gt; # A tibble: 2 x 4
-#&gt;   patient_id `date_2018-03-26` `date_2018-03-27` `date_2018-03-28`
+#&gt;   patient_id `date_2024-12-23` `date_2024-12-24` `date_2024-12-25`
 #&gt;   &lt;fct&gt;                  &lt;int&gt;             &lt;int&gt;             &lt;int&gt;
-#&gt; 1 A                          2                 1                 1
-#&gt; 2 B                          2                NA                 2</div><div class='input'>
+#&gt; 1 A                          1                 1                 2
+#&gt; 2 B                          2                 1                 1</div><div class='input'>
 <span class='co'># Can provide a custom function to fun, which will take fill as input.</span>
 <span class='co'># Get the difference between the greatest and smallest charge in each</span>
 <span class='co'># department for each patient and format it as currency.</span>
@@ -235,8 +231,8 @@ default, the count of instances for each patient will be used.</p>
 )</div><div class='output co'>#&gt; # A tibble: 2 x 3
 #&gt;   patient_id dept_id_ED dept_id_ICU
 #&gt;   &lt;fct&gt;      &lt;chr&gt;      &lt;chr&gt;      
-#&gt; 1 A          $3244.46   $3399.56   
-#&gt; 2 B          $3914.61   $614.51    </div></pre>
+#&gt; 1 A          $6364.57   $479.92    
+#&gt; 2 B          $5393.72   $1718.13   </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -264,6 +260,8 @@ default, the count of instances for each patient will be used.</p>
 
       </footer>
    </div>
+
+  
 
   </body>
 </html>

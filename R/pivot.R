@@ -59,7 +59,7 @@
 #'     patient_id = rep(c("A", "B"), each = 4),
 #'     dept_id = rep(c("ED", "ICU"), times = 4),
 #'     charge = runif(8, 0, 1e4),
-#'     date = Sys.Date() - sample(0:2, 8, TRUE)
+#'     date = as.Date("2024-12-25") - sample(0:2, 8, TRUE)
 #'   )
 #' bills
 #'
