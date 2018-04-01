@@ -89,7 +89,7 @@ ready_with_prep <- function(object, newdata, mi = extract_model_info(object)) {
   if (length(new_levels))
     warning("The following variables(s) had the following value(s) in ",
             "predict that were not observed in training. ",
-            new_levels)
+            new_levels, "\n")
   prep_data(newdata, recipe = recipe) %>%
     return()
 }

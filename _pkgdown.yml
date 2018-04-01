@@ -11,20 +11,35 @@ home:
   - text: healthcare.ai home
     href: https://healthcare.ai
 
+navbar:
+  title: healthcare.ai
+
 reference:
-  - title: Model Development
+  - title: Model Training
     desc: Train machine learning models
     contents:
-    - contains("Development")
-  - title: Model Deployment
-    desc: Put a model into production
+    - machine_learn
+    - tune_models
+    - flash_models
+    - plot.model_list
+  - title: Make predictions
     contents:
-    - contains("Deployment")
-  - title: SQL helpers
-    desc: Interface with a database
+    - predict.model_list
+    - plot.hcai_predicted_df
+  - title: Data Preparation
     contents:
-    - selectData
-    - writeData
-  - title: Everything Else
-    desc: Is still to be added. Possibly [automatically](https://stackoverflow.com/questions/45886789/include-all-other-functions-in-a-pkgdown-reference-yaml)
+    - prep_data
+    - pivot
+    - split_train_test
+  - title: Data Profiling
     contents:
+    - missingness
+  - title: Connect to Databases
+    contents:
+    - build_connection_string
+    - db_read
+
+figures:
+  fig.asp: NULL
+  fig.height: 4
+  fig.width: 6
