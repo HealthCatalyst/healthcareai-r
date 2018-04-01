@@ -1,9 +1,17 @@
 ---
 title: "Database Connections"
-author: "Mike Mastanduno"
-date: "4/1/2018"
-output: html_document
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with healthcareai}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
+
+```{r setup, include=FALSE}
+set.seed(43170)
+knitr::opts_chunk$set(echo = TRUE, results = "hold", collapse = TRUE, 
+                      comment = "#>")
+```
 
 **Database connections**
 
@@ -24,10 +32,6 @@ a connection string that's ready to be passed into `DBI::dbConnect`. After
 you have a valid connection, you should be able to browse the database using 
 RStudio's Connections pane. If you don't have a connections pane, upgrade your 
 Rstudio. It's worth it.
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(eval = FALSE)
-```
 
 ```{r}
 library(healthcareai)
