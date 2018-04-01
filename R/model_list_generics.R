@@ -75,7 +75,8 @@ summary.model_list <- function(object, ...) {
   perf <- lapply(object, function(xx) {
     ord <- order(xx$results[[rinfo$metric]])
     if (object[[1]]$maximize) ord <- rev(ord)
-    structure(xx$results[ord, ], row.names = seq_len(nrow(xx$results)))
+    # structure(xx$results[ord, ], row.names = seq_len(nrow(xx$results)))
+    tibble::as_tibble(xx$results[ord, ])
   })
   names(perf) <- rinfo$algs
   print(perf)
