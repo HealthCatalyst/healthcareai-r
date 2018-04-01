@@ -77,6 +77,18 @@
 <li>
   <a href="reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="articles/site_only/db_connections.html">Database Connections</a>
+    </li>
+  </ul>
+</li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
@@ -166,9 +178,9 @@
 <ul>
 <li>Piped lines of code should start with a line that is just the name of the data frame. Assignment should go on its own line. E.g.</li>
 </ul>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">df &lt;-</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="st">  </span>df <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="st">    </span><span class="kw">filter</span>(<span class="op">!</span><span class="kw">is.na</span>(var))</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df &lt;-
+<span class="st">  </span>df <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">filter</span>(<span class="op">!</span><span class="kw">is.na</span>(var))</code></pre></div>
 <ul>
 <li><p>To extract a vector from a data frame at the end of a piped sequence, use <code><a href="http://dplyr.tidyverse.org/reference/pull.html">dplyr::pull(var)</a></code> rather than <code>.[[var]]</code> or <code>.$var</code>.</p></li>
 <li><p>For programming with dplyr, e.g. <code>filter(df, columnFromUser &gt; 0)</code>, run <code>dplyr</code>’s <code>vignette("programming")</code></p></li>
@@ -209,8 +221,7 @@
 <ul>
 <li>Fork the repo (look for the link in the top right corner <a href="https://github.com/HealthCatalyst/healthcareai-r">here</a>). This copies the repo from our organization onto your personal account, so you can modify it.</li>
 <li>Click the green ‘Clone or download’ button and click, “Open in Desktop.” This will take you to github desktop, where you can select a folder for your local copy of the repo.</li>
-<li>Open RStudio
-<ul>
+<li>Open RStudio</li>
 <li>Install package prerequisites <code>install.packages(c('caret','data.table','DBI','doParallel','e1071','grpreg','lme4','odbc','pROC','R6','ranger','ROCR','RSQLite','tidyverse','xgboost'),repos = "https://cran.cnr.berkeley.edu/")</code>
 </li>
 <li>Install development requirments <code>install.packages(c('devtools','evaluate','roxygen2','testthat')</code>
@@ -221,8 +232,6 @@
 <li>Click <code>From Existing Directory</code>
 </li>
 <li>Navigate to the folder you selected above for your local copy of the repository.</li>
-</ul>
-</li>
 <li>Note that a git tab now appears in RStudio</li>
 </ul>
 </div>
@@ -238,27 +247,18 @@
 <h2 class="hasAnchor">
 <a href="#rstudio-configuration" class="anchor"></a>RStudio Configuration</h2>
 <ul>
-<li>In RStudio, if you don’t see healthcareai-r in the top right corner
-<ul>
+<li>In RStudio, if you don’t see healthcareai-r in the top right corner</li>
 <li>Click the project tab in the top-right -&gt; Open Project</li>
 <li>Select the healthcareai-r.Rproj file (that’s at the top-level of the repo you downloaded)</li>
-</ul>
-</li>
-<li>Click on Tools (at top menu of RStudio) -&gt; Project Options -&gt; Build Tools
-<ul>
+<li>Click on Tools (at top menu of RStudio) -&gt; Project Options -&gt; Build Tools</li>
 <li>Check ’Use devtools package functions if available</li>
 <li>Check ‘Generate documentation with Roxygen’ If you don’t see this option, you must install Roxygen2 by entering the following into the command line: install.packages(“roxygen2”)</li>
 <li>Click on ‘Configure’ Button -&gt; Check all boxes</li>
 <li>Click OK twice</li>
-</ul>
-</li>
-<li>Click again on Tools -&gt; Global Options
-<ul>
+<li>Click again on Tools -&gt; Global Options</li>
 <li>Under Code -&gt; Editing, check ‘Always save R scripts before sourcing’</li>
 <li>Under Code -&gt; Display, check check ‘Show margin’ and set to 80 characters</li>
 <li>Under Code -&gt; Diagnostics, check all boxes</li>
-</ul>
-</li>
 </ul>
 </div>
 <div id="set-up-environment-for-r-develeopment" class="section level2">
@@ -269,14 +269,11 @@
 <a href="#windows" class="anchor"></a>Windows</h3>
 <ul>
 <li>
-<a href="https://cran.r-project.org/bin/windows/Rtools/">Download</a> and install RTools
-<ul>
+<a href="https://cran.r-project.org/bin/windows/Rtools/">Download</a> and install RTools</li>
 <li>Note: this installs a C++ compiler (called <a href="https://gcc.gnu.org/onlinedocs/gcc-3.3.6/gcc/G_002b_002b-and-GCC.html">g++</a>)</li>
 <li>Can accept defaults on <code>Select Destination Location</code> and <code>Select Components</code> screens</li>
 <li>On <code>Select Additional Tasks</code> step, check the PATH box</li>
 <li>If you ever see issues related to Rtools, see <a href="https://github.com/stan-dev/rstan/wiki/Install-Rtools-for-Windows">here</a>
-</li>
-</ul>
 </li>
 </ul>
 </div>
@@ -292,33 +289,36 @@
 <h2 class="hasAnchor">
 <a href="#verify-you-can-build-the-healthcareai-package" class="anchor"></a>Verify you can build the healthcareai package</h2>
 <ol>
-<li>In RStudio, if you don’t see healthcareai-r in the top right corner
+<li>In RStudio, if you don’t see healthcareai-r in the top right corner</li>
+</ol>
 <ul>
 <li>Click the project tab in the top right -&gt; Open Project</li>
 </ul>
-</li>
+<ol>
 <li>Click on the build tab in the top right corner</li>
-<li>Click Build and verify that you can build successfully (without errors)
+<li>Click Build and verify that you can build successfully (without errors)</li>
+</ol>
 <ul>
 <li>Note that you may see warnings about versioning, which is fine</li>
 </ul>
-</li>
-<li>Run tests via <code><a href="http://www.rdocumentation.org/packages/devtools/topics/test">devtools::test()</a></code> or CTRL+SHIFT+D or Build dropdown -&gt; Test Package
+<ol>
+<li>Run tests via <code><a href="http://www.rdocumentation.org/packages/devtools/topics/test">devtools::test()</a></code> or CTRL+SHIFT+D or Build dropdown -&gt; Test Package</li>
+</ol>
 <ul>
 <li>Verify that these pass without seeing errors</li>
 </ul>
-</li>
-<li>Run the roxygen2 examples via <code><a href="http://www.rdocumentation.org/packages/devtools/topics/run_examples">devtools::run_examples()</a></code>. Verify that these finish without errors
+<ol>
+<li>Run the roxygen2 examples via <code><a href="http://www.rdocumentation.org/packages/devtools/topics/run_examples">devtools::run_examples()</a></code>. Verify that these finish without errors</li>
+</ol>
 <ul>
 <li>Verify that these pass without seeing errors</li>
 </ul>
-</li>
-<li>Under the build tab, run ‘Check’
+<ol>
+<li>Under the build tab, run ‘Check’</li>
+</ol>
 <ul>
 <li>Verify that no errors/warnings arise</li>
 </ul>
-</li>
-</ol>
 </div>
 </div>
 <div id="contribution-workflow" class="section level1">
@@ -344,15 +344,12 @@
 <p>5) Create a <a href="https://yangsu.github.io/pull-request-tutorial/">pull request</a></p>
 <ul>
 <li>Early is best! That way, our team can discuss the changes that you’re making. Conversation is good.</li>
-<li>Using the <code>Build</code> tab in Rstudio:
-<ul>
+<li>Using the <code>Build</code> tab in Rstudio:</li>
 <li>Build the package. This checks for errors and indexes all the functions.</li>
 <li>Build the documentation.</li>
 <li>Check the package and look for errors, warnings, and notes.</li>
 <li>If you run into problems, check the <a href="CONTRIBUTING.md#RStudio-Tips">RStudio Tips</a> section below.</li>
 <li>If your changes are ready, comment (with an <code>@team_member</code>) in the pull request to let us know is ready. Again, please <em>don’t</em> do tons of work and <em>then</em> start a PR. Early is good.</li>
-</ul>
-</li>
 </ul>
 <p>6) Address your review changes</p>
 <ul>
