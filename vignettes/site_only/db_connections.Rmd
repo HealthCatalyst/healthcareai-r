@@ -10,7 +10,7 @@ vignette: >
 ```{r setup, include=FALSE}
 set.seed(43170)
 knitr::opts_chunk$set(echo = TRUE, results = "hold", collapse = TRUE, 
-                      comment = "#>")
+                      comment = "#>", eval = FALSE)
 ```
 
 **Database connections**
@@ -48,7 +48,9 @@ persistent connection, meaning that it's available until you disconnect. If you
 have a recent version of Rstudio, you'll see the connections pane has updated as
 well.
 
-![Connections Pane](figures/conn_pane.png)
+```{r, out.width = "500px", eval = TRUE}
+knitr::include_graphics("figures/conn_pane.png")
+```
 
 Each database, schema, and table is available as a drop down menu for 
 exploration. Clicking the button in the far right column next to a table will
@@ -131,12 +133,12 @@ predictions <- data.frame(patient_id = c(1,2,3),
   add_SAM_utility_cols()
 
 table_id <- Id(schema = "Sepsis", 
-                    name = "Predictions")
+               name = "Predictions")
 
 res <- dbWriteTable(conn = my_con,
-                         name = table_id,
-                         value = predictions,
-                         append = TRUE)
+                    name = table_id,
+                    value = predictions,
+                    append = TRUE)
 dbDisconnect(con)
 ```
 
@@ -179,8 +181,9 @@ library(healthcareai)
 # Connection string
 my_con <- build_connection_string(server = "HCS-GM0004",
                                   database = "SAM")
-# Reading
 con <- dbConnect(odbc::odbc(), .connection_string = my_con)
+
+# Reading
 query <- "SELECT
           ,COUNT(*),
           ,year(AdmitDT) as AdmitYear
