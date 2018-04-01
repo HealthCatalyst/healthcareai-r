@@ -119,7 +119,9 @@ plot(models)
 
 ## Faster Model Training
 
-Suppose our data actually consisted of millions of observations, rather than hundreds. It might take a very long time to train so many models, and while there's no guarantee that a model trained on all those observations will be optimal at the same hyperparameter values as a model trained on a subset of the observations, it could be useful to tune models on a smaller dataset and use the optimal settings on a larger dataset. You can do that by passing hyperparameter values to `flash_models`. Arguments to `flash_models` are very similar to `tune_models`
+Suppose our data actually consisted of millions of observations, rather than hundreds. It might take a very long time to train so many models, and while there's no guarantee that a model trained on all those observations will be optimal at the same hyperparameter values as a model trained on a subset of the observations, it could be useful to tune models on a smaller dataset and use the optimal settings on a larger dataset. You can do that by passing hyperparameter values to `flash_models`. If you don't pass hyperparameters to `flash_models` it will use sensible defaults; run `get_hyperparameter_defaults()` see the default values and get a list you can modify to customize.
+
+Arguments to `flash_models` are otherwise very similar to `tune_models`.
 
 ```{r}
 flash_models(d = prepped_training_data,
