@@ -1,7 +1,8 @@
 ## ----setup, include=FALSE------------------------------------------------
 set.seed(43170)
 knitr::opts_chunk$set(echo = TRUE, results = "hold", collapse = TRUE, 
-                      comment = "#>")
+                      comment = "# >")
+options(tibble.print_min = 5, tibble.print_max = 5)
 
 ## ------------------------------------------------------------------------
 library(healthcareai)
@@ -40,7 +41,7 @@ prepped_training_data <- prep_data(split_data$train, patient_id, outcome = diabe
 models <- tune_models(d = prepped_training_data,
                       outcome = diabetes,
                       models = "RF",
-                      tune_depth = 50,
+                      tune_depth = 25,
                       metric = "PR")
 
 ## ---- fig.height = 7-----------------------------------------------------

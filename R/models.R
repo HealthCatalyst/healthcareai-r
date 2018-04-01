@@ -39,7 +39,7 @@ get_supported_model_classes <- function() {
 #' get_hyperparameter_defaults
 #' @param models Character vector of algorithms for which hyperparameters are
 #'   desired.
-#' @value List of named lists that can be passed to \code{\link{flash_models}
+#' @return List of named lists that can be passed to \code{\link{flash_models}}
 #' @export
 #' @details Get default hyperparameters to use, e.g. in flash_models. list
 #'   (algorithms) of lists (hyperparameters).

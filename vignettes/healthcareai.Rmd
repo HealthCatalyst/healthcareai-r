@@ -10,7 +10,8 @@ vignette: >
 ```{r setup, include=FALSE}
 set.seed(43170)
 knitr::opts_chunk$set(echo = TRUE, results = "hold", collapse = TRUE, 
-                      comment = "#>")
+                      comment = "# >")
+options(tibble.print_min = 5, tibble.print_max = 5)
 ```
 
 First we attach the healthcareai R package to make its functions available. If your package version is less than 2.0, none of the code here will work. You can check the package version with `packageVersion("healthcareai")`, and you can get the latest, cutting-edge development version with `install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r")`.
@@ -97,7 +98,7 @@ The "recipe" that the above message refers to is a set of instructions for how t
 
 `machine_learn` takes care of data preparation and model training for you, but if you want more precise control, `tune_models` and `flash_models` are the model-training function you're looking for. They differ in that `tune_models` searches over hyperparameters to optimize model performance, while `flash_models` trains models at set hyperparameter values. So, `tune_models` produces better models, but takes longer (approaching 10x longer at default settings).
 
-Let's just tune random forests (default also trains k-nearest neighbors), and to try to really optimize model performance, let's crank up `tune_depth`. That will tune the models over more combinations of hyperparameter values in the search for the best model.
+Let's just tune random forests (default also trains k-nearest neighbors), and to try to really optimize model performance, let's crank `tune_depth` up a little from its default value of ten. That will tune the models over more combinations of hyperparameter values in the search for the best model.
 
 Let's also select "PR" as our model metric. That optimizes for area under the precision-recall curve rather than the default of area under the receiver operating characteristic curve ("ROC"). This is usually a good idea when one outcome category is much more common than the other category.
 
@@ -105,11 +106,11 @@ Let's also select "PR" as our model metric. That optimizes for area under the pr
 models <- tune_models(d = prepped_training_data,
                       outcome = diabetes,
                       models = "RF",
-                      tune_depth = 50,
+                      tune_depth = 25,
                       metric = "PR")
 ```
 
-We get a message saying the training may take a while because we're training so many models, but in this case it takes just a couple minutes to train all those models.
+We get a message saying the training may take a while because we're training so many models, but in this case it takes just about 20 seconds to train all those models.
 
 We can examine how the model performs across hyperparameters by simply plotting the model object. It looks like extratrees is a superior split rule for this model, and larger values of minimum node size tend to do better.
 

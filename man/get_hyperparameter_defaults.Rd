@@ -10,6 +10,9 @@ get_hyperparameter_defaults(models = get_supported_models())
 \item{models}{Character vector of algorithms for which hyperparameters are
 desired.}
 }
+\value{
+List of named lists that can be passed to \code{\link{flash_models}}
+}
 \description{
 get_hyperparameter_defaults
 }
