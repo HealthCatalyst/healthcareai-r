@@ -297,7 +297,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb2-12" data-line-number="12"><span class="co">#&gt;  $ diabetes      : chr  &quot;Y&quot; &quot;N&quot; &quot;Y&quot; &quot;N&quot; ...</span></a></code></pre></div>
 <div id="quick-machine-learning" class="section level1">
 <h1>Quick Machine Learning</h1>
-<p>If you don’t want to fuss with details any more than necessary, <code>machine_learn</code> is the function for you. It makes it as easy as possible to implement machine learning models by putting all the detais in the background so that you don’t <em>have to</em> worry about them. Of course it might be wise to worry about them, and we’ll get to how to do that further down, but for now, you can automatically take care of problems in the data, do basic feature engineering, and tune multiple machine learning models using cross validation with <code>machine_learn</code>.</p>
+<p>If you don’t want to fuss with details any more than necessary, <code>machine_learn</code> is the function for you. It makes it as easy as possible to implement machine learning models by putting all the detais in the background so that you don’t have to worry about them. Of course it might be wise to worry about them, and we’ll get to how to do that further down, but for now, you can automatically take care of problems in the data, do basic feature engineering, and tune multiple machine learning models using cross validation with <code>machine_learn</code>.</p>
 <p><code>machine_learn</code> always gets the name of the data frame, then any columns that should not be used by the model (uninformative columns, such as IDs), then the variable to be predicted with <code>outcome =</code>.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">quick_models &lt;-<span class="st"> </span><span class="kw">machine_learn</span>(pima_diabetes, patient_id, <span class="dt">outcome =</span> diabetes)</a>
 <a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co">#&gt; Training new data prep recipe</span></a>
@@ -313,7 +313,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb4-5" data-line-number="5"><span class="co">#&gt; Performance Metric: ROC</span></a>
 <a class="sourceLine" id="cb4-6" data-line-number="6"><span class="co">#&gt; Number of Observations: 768</span></a>
 <a class="sourceLine" id="cb4-7" data-line-number="7"><span class="co">#&gt; Number of Features: 12</span></a>
-<a class="sourceLine" id="cb4-8" data-line-number="8"><span class="co">#&gt; Models Trained: 2018-03-30 16:34:06 </span></a>
+<a class="sourceLine" id="cb4-8" data-line-number="8"><span class="co">#&gt; Models Trained: 2018-04-01 11:45:12 </span></a>
 <a class="sourceLine" id="cb4-9" data-line-number="9"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb4-10" data-line-number="10"><span class="co">#&gt; Models tuned via 5-fold cross validation over 9 combinations of hyperparameter values.</span></a>
 <a class="sourceLine" id="cb4-11" data-line-number="11"><span class="co">#&gt; Best model: Random Forest</span></a>
@@ -326,7 +326,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <p>Now that we have our models, we can make predictions using the <code>predict</code> function. If you provide a new data frame to <code>predict</code> it will make predictions on the new data; otherwise, it will make predictions on the training data.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(quick_models)</a>
 <a class="sourceLine" id="cb5-2" data-line-number="2">predictions</a>
-<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="co">#&gt; &quot;predicted_diabetes&quot; predicted by Random Forest last trained: 2018-03-30 16:34:06</span></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="co">#&gt; &quot;predicted_diabetes&quot; predicted by Random Forest last trained: 2018-04-01 11:45:12</span></a>
 <a class="sourceLine" id="cb5-4" data-line-number="4"><span class="co">#&gt; Performance in training: ROC = 0.84</span></a>
 <a class="sourceLine" id="cb5-5" data-line-number="5"><span class="co">#&gt; # A tibble: 768 x 14</span></a>
 <a class="sourceLine" id="cb5-6" data-line-number="6"><span class="co">#&gt;    diabetes predicted_diabetes pregnancies plasma_glucose diastolic_bp</span></a>
@@ -365,7 +365,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb7-10" data-line-number="10"><span class="co">#&gt; 8    diastolic_bp             4.6</span></a>
 <a class="sourceLine" id="cb7-11" data-line-number="11"><span class="co">#&gt; 9        skinfold            29.6</span></a>
 <a class="sourceLine" id="cb7-12" data-line-number="12"><span class="co">#&gt; 10        insulin            48.7</span></a></code></pre></div>
-<p>It’s good that we don’t have any missingness in our ID or outcome columns. We’ll see how missingness in predictors variables is addressed further down.</p>
+<p>It’s good that we don’t have any missingness in our ID or outcome columns. We’ll see how missingness in predictors is addressed further down.</p>
 </div>
 <div id="data-preparation" class="section level1">
 <h1>Data Preparation</h1>
@@ -421,7 +421,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb12-15" data-line-number="15"><span class="co">#&gt; Performance Metric: PR</span></a>
 <a class="sourceLine" id="cb12-16" data-line-number="16"><span class="co">#&gt; Number of Observations: 692</span></a>
 <a class="sourceLine" id="cb12-17" data-line-number="17"><span class="co">#&gt; Number of Features: 13</span></a>
-<a class="sourceLine" id="cb12-18" data-line-number="18"><span class="co">#&gt; Models Trained: 2018-03-30 16:34:45 </span></a>
+<a class="sourceLine" id="cb12-18" data-line-number="18"><span class="co">#&gt; Models Trained: 2018-04-01 11:45:56 </span></a>
 <a class="sourceLine" id="cb12-19" data-line-number="19"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb12-20" data-line-number="20"><span class="co">#&gt; Models have not been tuned. Performance estimated via 5-fold cross validation at fixed hyperparameter values.</span></a>
 <a class="sourceLine" id="cb12-21" data-line-number="21"><span class="co">#&gt; Best model: Random Forest</span></a>
@@ -436,7 +436,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <h1>Prediction</h1>
 <p>We can easily get predictions on our original dataset. <code>predict</code> will automatically use the best-performing model from training (evaluated out-of-fold in cross validation). The predicted probabilities appear in the <code>predicted_diabetes</code> column.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw">predict</span>(models)</a>
-<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="co">#&gt; &quot;predicted_diabetes&quot; predicted by Random Forest last trained: 2018-03-30 16:34:43</span></a>
+<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="co">#&gt; &quot;predicted_diabetes&quot; predicted by Random Forest last trained: 2018-04-01 11:45:53</span></a>
 <a class="sourceLine" id="cb13-3" data-line-number="3"><span class="co">#&gt; Performance in training: PR = 0.9</span></a>
 <a class="sourceLine" id="cb13-4" data-line-number="4"><span class="co">#&gt; # A tibble: 692 x 15</span></a>
 <a class="sourceLine" id="cb13-5" data-line-number="5"><span class="co">#&gt;    diabetes predicted_diabetes pregnancies plasma_glucose diastolic_bp</span></a>
@@ -472,7 +472,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb15-5" data-line-number="5"><span class="co">#&gt; Running cross validation for Random Forest</span></a>
 <a class="sourceLine" id="cb15-6" data-line-number="6"><span class="co">#&gt; Running cross validation for k-Nearest Neighbors</span></a>
 <a class="sourceLine" id="cb15-7" data-line-number="7"><span class="kw">summary</span>(regression_models)</a>
-<a class="sourceLine" id="cb15-8" data-line-number="8"><span class="co">#&gt; Models trained: 2018-03-30 16:34:59</span></a>
+<a class="sourceLine" id="cb15-8" data-line-number="8"><span class="co">#&gt; Models trained: 2018-04-01 11:46:12</span></a>
 <a class="sourceLine" id="cb15-9" data-line-number="9"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb15-10" data-line-number="10"><span class="co">#&gt; Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.</span></a>
 <a class="sourceLine" id="cb15-11" data-line-number="11"><span class="co">#&gt; Best performance: RMSE = 9.09</span></a>
@@ -484,52 +484,35 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb15-17" data-line-number="17"><span class="co">#&gt; Out-of-fold performance of all trained models:</span></a>
 <a class="sourceLine" id="cb15-18" data-line-number="18"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb15-19" data-line-number="19"><span class="co">#&gt; $`Random Forest`</span></a>
-<a class="sourceLine" id="cb15-20" data-line-number="20"><span class="co">#&gt;    min.node.size mtry  splitrule     RMSE  Rsquared      MAE    RMSESD</span></a>
-<a class="sourceLine" id="cb15-21" data-line-number="21"><span class="co">#&gt; 1             15   11    maxstat 9.093512 0.4112721 6.349664 0.8258078</span></a>
-<a class="sourceLine" id="cb15-22" data-line-number="22"><span class="co">#&gt; 2              4    5 extratrees 9.115685 0.4081649 6.565583 0.8447432</span></a>
-<a class="sourceLine" id="cb15-23" data-line-number="23"><span class="co">#&gt; 3              4   10 extratrees 9.134814 0.4043884 6.520167 0.7160025</span></a>
-<a class="sourceLine" id="cb15-24" data-line-number="24"><span class="co">#&gt; 4              5    5    maxstat 9.149180 0.4089403 6.580711 0.8576665</span></a>
-<a class="sourceLine" id="cb15-25" data-line-number="25"><span class="co">#&gt; 5             19    6   variance 9.189574 0.3972286 6.565200 0.8820250</span></a>
-<a class="sourceLine" id="cb15-26" data-line-number="26"><span class="co">#&gt; 6              9    7   variance 9.258772 0.3886216 6.607621 0.8696303</span></a>
-<a class="sourceLine" id="cb15-27" data-line-number="27"><span class="co">#&gt; 7              2    7   variance 9.274850 0.3885180 6.637636 0.8940430</span></a>
-<a class="sourceLine" id="cb15-28" data-line-number="28"><span class="co">#&gt; 8              3    8   variance 9.324272 0.3830455 6.654339 0.8729081</span></a>
-<a class="sourceLine" id="cb15-29" data-line-number="29"><span class="co">#&gt; 9             14   12   variance 9.364982 0.3779572 6.655466 0.8681391</span></a>
-<a class="sourceLine" id="cb15-30" data-line-number="30"><span class="co">#&gt; 10             7    2    maxstat 9.908033 0.3844234 7.640032 0.8495423</span></a>
-<a class="sourceLine" id="cb15-31" data-line-number="31"><span class="co">#&gt;    RsquaredSD     MAESD</span></a>
-<a class="sourceLine" id="cb15-32" data-line-number="32"><span class="co">#&gt; 1  0.09753113 0.5363972</span></a>
-<a class="sourceLine" id="cb15-33" data-line-number="33"><span class="co">#&gt; 2  0.08092561 0.5593608</span></a>
-<a class="sourceLine" id="cb15-34" data-line-number="34"><span class="co">#&gt; 3  0.08113579 0.5036721</span></a>
-<a class="sourceLine" id="cb15-35" data-line-number="35"><span class="co">#&gt; 4  0.09671304 0.5280566</span></a>
-<a class="sourceLine" id="cb15-36" data-line-number="36"><span class="co">#&gt; 5  0.08653970 0.5922222</span></a>
-<a class="sourceLine" id="cb15-37" data-line-number="37"><span class="co">#&gt; 6  0.08583067 0.5974139</span></a>
-<a class="sourceLine" id="cb15-38" data-line-number="38"><span class="co">#&gt; 7  0.08662198 0.6174840</span></a>
-<a class="sourceLine" id="cb15-39" data-line-number="39"><span class="co">#&gt; 8  0.08510754 0.5915479</span></a>
-<a class="sourceLine" id="cb15-40" data-line-number="40"><span class="co">#&gt; 9  0.08547741 0.5619348</span></a>
-<a class="sourceLine" id="cb15-41" data-line-number="41"><span class="co">#&gt; 10 0.08077625 0.4600067</span></a>
-<a class="sourceLine" id="cb15-42" data-line-number="42"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb15-43" data-line-number="43"><span class="co">#&gt; $`k-Nearest Neighbors`</span></a>
-<a class="sourceLine" id="cb15-44" data-line-number="44"><span class="co">#&gt;    kmax   distance       kernel      RMSE  Rsquared      MAE    RMSESD</span></a>
-<a class="sourceLine" id="cb15-45" data-line-number="45"><span class="co">#&gt; 1    19 1.06226194          cos  9.396079 0.3674011 6.657814 0.4477103</span></a>
-<a class="sourceLine" id="cb15-46" data-line-number="46"><span class="co">#&gt; 2    15 1.04307164  rectangular  9.444334 0.3608610 6.732217 0.4242792</span></a>
-<a class="sourceLine" id="cb15-47" data-line-number="47"><span class="co">#&gt; 3    10 1.84458975     gaussian  9.514898 0.3523755 6.704684 0.4539452</span></a>
-<a class="sourceLine" id="cb15-48" data-line-number="48"><span class="co">#&gt; 4     8 2.17812821  rectangular  9.592242 0.3418362 6.739681 0.3657218</span></a>
-<a class="sourceLine" id="cb15-49" data-line-number="49"><span class="co">#&gt; 5    17 2.17275132     biweight  9.635044 0.3389783 6.720230 0.4226280</span></a>
-<a class="sourceLine" id="cb15-50" data-line-number="50"><span class="co">#&gt; 6     8 1.75731631 epanechnikov  9.752532 0.3307924 6.759921 0.3992769</span></a>
-<a class="sourceLine" id="cb15-51" data-line-number="51"><span class="co">#&gt; 7    12 0.02967168  rectangular  9.791405 0.3125104 7.156385 0.4463737</span></a>
-<a class="sourceLine" id="cb15-52" data-line-number="52"><span class="co">#&gt; 8    18 2.50301146    triweight  9.856149 0.3177965 6.840958 0.4655554</span></a>
-<a class="sourceLine" id="cb15-53" data-line-number="53"><span class="co">#&gt; 9     5 1.22499990          cos 10.041628 0.3079105 6.935256 0.4923743</span></a>
-<a class="sourceLine" id="cb15-54" data-line-number="54"><span class="co">#&gt; 10    2 2.59578731     biweight 11.716267 0.2027090 7.948853 0.6850256</span></a>
-<a class="sourceLine" id="cb15-55" data-line-number="55"><span class="co">#&gt;    RsquaredSD     MAESD</span></a>
-<a class="sourceLine" id="cb15-56" data-line-number="56"><span class="co">#&gt; 1  0.05000030 0.2964383</span></a>
-<a class="sourceLine" id="cb15-57" data-line-number="57"><span class="co">#&gt; 2  0.04158776 0.3505766</span></a>
-<a class="sourceLine" id="cb15-58" data-line-number="58"><span class="co">#&gt; 3  0.04927793 0.3455117</span></a>
-<a class="sourceLine" id="cb15-59" data-line-number="59"><span class="co">#&gt; 4  0.03622635 0.3380895</span></a>
-<a class="sourceLine" id="cb15-60" data-line-number="60"><span class="co">#&gt; 5  0.05028118 0.2611267</span></a>
-<a class="sourceLine" id="cb15-61" data-line-number="61"><span class="co">#&gt; 6  0.04700720 0.2165771</span></a>
-<a class="sourceLine" id="cb15-62" data-line-number="62"><span class="co">#&gt; 7  0.04834838 0.2770217</span></a>
-<a class="sourceLine" id="cb15-63" data-line-number="63"><span class="co">#&gt; 8  0.05211776 0.2853970</span></a>
-<a class="sourceLine" id="cb15-64" data-line-number="64"><span class="co">#&gt; 9  0.05218410 0.3595383</span></a>
-<a class="sourceLine" id="cb15-65" data-line-number="65"><span class="co">#&gt; 10 0.05589109 0.5164355</span></a></code></pre></div>
+<a class="sourceLine" id="cb15-20" data-line-number="20"><span class="co">#&gt; # A tibble: 10 x 9</span></a>
+<a class="sourceLine" id="cb15-21" data-line-number="21"><span class="co">#&gt;    min.node.size  mtry splitrule   RMSE Rsquared   MAE RMSESD RsquaredSD</span></a>
+<a class="sourceLine" id="cb15-22" data-line-number="22"><span class="co">#&gt;  *         &lt;int&gt; &lt;int&gt; &lt;fct&gt;      &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;      &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb15-23" data-line-number="23"><span class="co">#&gt;  1            15    11 maxstat     9.09    0.411  6.35  0.826     0.0975</span></a>
+<a class="sourceLine" id="cb15-24" data-line-number="24"><span class="co">#&gt;  2             4     5 extratrees  9.12    0.408  6.57  0.845     0.0809</span></a>
+<a class="sourceLine" id="cb15-25" data-line-number="25"><span class="co">#&gt;  3             4    10 extratrees  9.13    0.404  6.52  0.716     0.0811</span></a>
+<a class="sourceLine" id="cb15-26" data-line-number="26"><span class="co">#&gt;  4             5     5 maxstat     9.15    0.409  6.58  0.858     0.0967</span></a>
+<a class="sourceLine" id="cb15-27" data-line-number="27"><span class="co">#&gt;  5            19     6 variance    9.19    0.397  6.57  0.882     0.0865</span></a>
+<a class="sourceLine" id="cb15-28" data-line-number="28"><span class="co">#&gt;  6             9     7 variance    9.26    0.389  6.61  0.870     0.0858</span></a>
+<a class="sourceLine" id="cb15-29" data-line-number="29"><span class="co">#&gt;  7             2     7 variance    9.27    0.389  6.64  0.894     0.0866</span></a>
+<a class="sourceLine" id="cb15-30" data-line-number="30"><span class="co">#&gt;  8             3     8 variance    9.32    0.383  6.65  0.873     0.0851</span></a>
+<a class="sourceLine" id="cb15-31" data-line-number="31"><span class="co">#&gt;  9            14    12 variance    9.36    0.378  6.66  0.868     0.0855</span></a>
+<a class="sourceLine" id="cb15-32" data-line-number="32"><span class="co">#&gt; 10             7     2 maxstat     9.91    0.384  7.64  0.850     0.0808</span></a>
+<a class="sourceLine" id="cb15-33" data-line-number="33"><span class="co">#&gt; # ... with 1 more variable: MAESD &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb15-34" data-line-number="34"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb15-35" data-line-number="35"><span class="co">#&gt; $`k-Nearest Neighbors`</span></a>
+<a class="sourceLine" id="cb15-36" data-line-number="36"><span class="co">#&gt; # A tibble: 10 x 9</span></a>
+<a class="sourceLine" id="cb15-37" data-line-number="37"><span class="co">#&gt;     kmax distance kernel       RMSE Rsquared   MAE RMSESD RsquaredSD MAESD</span></a>
+<a class="sourceLine" id="cb15-38" data-line-number="38"><span class="co">#&gt;  * &lt;dbl&gt;    &lt;dbl&gt; &lt;fct&gt;       &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;      &lt;dbl&gt; &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb15-39" data-line-number="39"><span class="co">#&gt;  1   19.   1.06   cos          9.40    0.367  6.66  0.448     0.0500 0.296</span></a>
+<a class="sourceLine" id="cb15-40" data-line-number="40"><span class="co">#&gt;  2   15.   1.04   rectangular  9.44    0.361  6.73  0.424     0.0416 0.351</span></a>
+<a class="sourceLine" id="cb15-41" data-line-number="41"><span class="co">#&gt;  3   10.   1.84   gaussian     9.51    0.352  6.70  0.454     0.0493 0.346</span></a>
+<a class="sourceLine" id="cb15-42" data-line-number="42"><span class="co">#&gt;  4    8.   2.18   rectangular  9.59    0.342  6.74  0.366     0.0362 0.338</span></a>
+<a class="sourceLine" id="cb15-43" data-line-number="43"><span class="co">#&gt;  5   17.   2.17   biweight     9.64    0.339  6.72  0.423     0.0503 0.261</span></a>
+<a class="sourceLine" id="cb15-44" data-line-number="44"><span class="co">#&gt;  6    8.   1.76   epanechnik…  9.75    0.331  6.76  0.399     0.0470 0.217</span></a>
+<a class="sourceLine" id="cb15-45" data-line-number="45"><span class="co">#&gt;  7   12.   0.0297 rectangular  9.79    0.313  7.16  0.446     0.0483 0.277</span></a>
+<a class="sourceLine" id="cb15-46" data-line-number="46"><span class="co">#&gt;  8   18.   2.50   triweight    9.86    0.318  6.84  0.466     0.0521 0.285</span></a>
+<a class="sourceLine" id="cb15-47" data-line-number="47"><span class="co">#&gt;  9    5.   1.22   cos         10.0     0.308  6.94  0.492     0.0522 0.360</span></a>
+<a class="sourceLine" id="cb15-48" data-line-number="48"><span class="co">#&gt; 10    2.   2.60   biweight    11.7     0.203  7.95  0.685     0.0559 0.516</span></a></code></pre></div>
 <p>Let’s make a prediction on a hypothetical new patient. Note that the model handles missingness in <code>insulin</code> and a new category level in <code>weight_class</code> without a problem (but warns about it).</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">new_patient &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</a>
 <a class="sourceLine" id="cb16-2" data-line-number="2">  <span class="dt">pregnancies =</span> <span class="dv">0</span>,</a>
@@ -544,7 +527,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb16-11" data-line-number="11"><span class="co">#&gt; Warning in ready_with_prep(object, newdata, mi): The following variables(s) had the following value(s) in predict that were not observed in training. </span></a>
 <a class="sourceLine" id="cb16-12" data-line-number="12"><span class="co">#&gt;  weight_class: ???</span></a>
 <a class="sourceLine" id="cb16-13" data-line-number="13"><span class="co">#&gt; Prepping data based on provided recipe</span></a>
-<a class="sourceLine" id="cb16-14" data-line-number="14"><span class="co">#&gt; &quot;predicted_age&quot; predicted by Random Forest last trained: 2018-03-30 16:34:59</span></a>
+<a class="sourceLine" id="cb16-14" data-line-number="14"><span class="co">#&gt; &quot;predicted_age&quot; predicted by Random Forest last trained: 2018-04-01 11:46:12</span></a>
 <a class="sourceLine" id="cb16-15" data-line-number="15"><span class="co">#&gt; Performance in training: RMSE = 9.09</span></a>
 <a class="sourceLine" id="cb16-16" data-line-number="16"><span class="co">#&gt; # A tibble: 1 x 9</span></a>
 <a class="sourceLine" id="cb16-17" data-line-number="17"><span class="co">#&gt;   predicted_age pregnancies plasma_glucose diastolic_bp skinfold insulin</span></a>

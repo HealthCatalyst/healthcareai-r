@@ -2,6 +2,7 @@
 set.seed(43170)
 knitr::opts_chunk$set(echo = TRUE, results = "hold", collapse = TRUE, 
                       comment = "#>")
+options(tibble.print_max = 5)
 
 ## ------------------------------------------------------------------------
 library(healthcareai)

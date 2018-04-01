@@ -79,9 +79,9 @@
 
 <p><a href="https://cran.r-project.org/package=healthcareai"><img src="https://www.r-pkg.org/badges/version-last-release/healthcareai" alt="CRAN_Status_Badge"></a> <a href="https://github.com/HealthCatalystSLC/healthcareai-r/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a> <a href="https://doi.org/10.5281/zenodo.999334"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.999334.svg" alt="DOI"></a></p>
 <p>Machine learning as easy as…</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(healthcareai)
-models &lt;-<span class="st"> </span><span class="kw"><a href="reference/machine_learn.html">machine_learn</a></span>(<span class="dt">d =</span> pima_diabetes, <span class="dt">outcome =</span> diabetes)
-<span class="kw">predict</span>(models)</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(healthcareai)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2">models &lt;-<span class="st"> </span><span class="kw"><a href="reference/machine_learn.html">machine_learn</a></span>(<span class="dt">d =</span> pima_diabetes, <span class="dt">outcome =</span> diabetes)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw">predict</span>(models)</a></code></pre></div>
 <p><strong>Please note that the package is currently in transition</strong> from an R6 architecture to a tidy, S3 architecture. The code above is the new version, which is in beta and can be acquired via <code><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">devtools::install_github("HealthCatalyst/healthcareai-r")</a></code>. Beta testing of the new version, pre-CRAN, is very welcome; please file issues for any bugs, unclear docs, or feature suggestions here. <code>install.packages("healthcareai")</code> will get you the old version from CRAN, which will remain available via <code><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">devtools::install_github("HealthCatalyst/healthcareai-r@v1.2.3")</a></code>.</p>
 <p>The aim of <code>healthcareai</code> is to make machine learning on healthcare data easy. The package does that by providing functions to:</p>
 <ul>
@@ -116,10 +116,13 @@ models &lt;-<span class="st"> </span><span class="kw"><a href="reference/machine
 <h2 class="hasAnchor">
 <a href="#for-issues" class="anchor"></a>For issues</h2>
 <ul>
-<li>If you’re having trouble getting code to work, the <a href="https://healthcare-ai.slack.com/">healthcare-ai Slack community</a> is a great place to ask question. If you think something may be broken, you can file a <a href="https://github.com/HealthCatalyst/healthcareai-r/issues">Github issue</a> or submit a question on <a href="http://stackoverflow.com/">Stack Overflow</a> using the healthcare-ai tag. Please provide:</li>
+<li>If you’re having trouble getting code to work, the <a href="https://healthcare-ai.slack.com/">healthcare-ai Slack community</a> is a great place to ask question. If you think something may be broken, you can file a <a href="https://github.com/HealthCatalyst/healthcareai-r/issues">Github issue</a> or submit a question on <a href="http://stackoverflow.com/">Stack Overflow</a> using the healthcare-ai tag. Please provide:
+<ul>
 <li>Details on your environment. The output <code><a href="http://www.rdocumentation.org/packages/devtools/topics/session_info">devtools::session_info()</a></code> is great for this.</li>
 <li>A concise discussion of what are you trying to accomplish.</li>
 <li>A <a href="https://github.com/tidyverse/reprex">reproducible example</a> of the error.</li>
+</ul>
+</li>
 </ul>
 </div>
 <div id="contributing" class="section level2">

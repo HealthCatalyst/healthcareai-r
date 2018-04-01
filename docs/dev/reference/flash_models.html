@@ -193,7 +193,7 @@ curve).</p></td>
 #&gt; Performance Metric: ROC
 #&gt; Number of Observations: 768
 #&gt; Number of Features: 12
-#&gt; Models Trained: 2018-04-01 09:16:38 
+#&gt; Models Trained: 2018-04-01 11:45:41 
 #&gt; 
 #&gt; Models have not been tuned. Performance estimated via 5-fold cross validation at fixed hyperparameter values.
 #&gt; Best model: Random Forest
@@ -218,7 +218,7 @@ curve).</p></td>
                    <span class='kw'>kernel</span> <span class='kw'>=</span> <span class='st'>"gaussian"</span>
                  )
                )
-  )</div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='input'><span class='fu'>summary</span>(<span class='no'>models</span>)</div><div class='output co'>#&gt; Models trained: 2018-04-01 09:16:40
+  )</div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='input'><span class='fu'>summary</span>(<span class='no'>models</span>)</div><div class='output co'>#&gt; Models trained: 2018-04-01 11:45:45
 #&gt; 
 #&gt; Models have not been tuned. Performance estimated via 5-fold cross validation at fixed hyperparameter values.
 #&gt; Best algorithm: Random Forest with ROC = 0.84
@@ -226,16 +226,16 @@ curve).</p></td>
 #&gt; Out-of-fold performance of all trained models:
 #&gt; 
 #&gt; $`Random Forest`
-#&gt;   mtry splitrule min.node.size       ROC  Sens      Spec      ROCSD     SensSD
-#&gt; 1    3      gini             1 0.8358218 0.868 0.5895178 0.03131845 0.04658326
-#&gt;       SpecSD
-#&gt; 1 0.06015438
+#&gt; # A tibble: 1 x 9
+#&gt;    mtry splitrule min.node.size   ROC  Sens  Spec  ROCSD SensSD SpecSD
+#&gt; * &lt;dbl&gt; &lt;fct&gt;             &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+#&gt; 1    3. gini                 1. 0.836 0.868 0.590 0.0313 0.0466 0.0602
 #&gt; 
 #&gt; $`k-Nearest Neighbors`
-#&gt;   kmax distance   kernel       ROC  Sens      Spec      ROCSD     SensSD
-#&gt; 1    3        2 gaussian 0.7835238 0.828 0.5934312 0.01653328 0.02863564
-#&gt;       SpecSD
-#&gt; 1 0.05642804
+#&gt; # A tibble: 1 x 9
+#&gt;    kmax distance kernel     ROC  Sens  Spec  ROCSD SensSD SpecSD
+#&gt; * &lt;dbl&gt;    &lt;dbl&gt; &lt;fct&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+#&gt; 1    3.       2. gaussian 0.784 0.828 0.593 0.0165 0.0286 0.0564
 #&gt; </div><div class='input'>
 # Speed comparison of no tuning with flash_models vs. tuning with tune_models:
 </div><span class='co'># NOT RUN {</span>
