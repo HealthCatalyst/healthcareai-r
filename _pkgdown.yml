@@ -1,5 +1,9 @@
 url: https://docs.healthcare.ai
 
+template:
+  params:
+    bootswatch: cerulean
+
 development:
   mode: devel
 
