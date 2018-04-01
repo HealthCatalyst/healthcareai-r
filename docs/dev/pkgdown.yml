@@ -3,6 +3,7 @@ pkgdown: 0.1.0.9000
 pkgdown_sha: 7d8b4882c4eb650f0f869a618f5c445c657313f0
 articles:
   healthcareai: healthcareai.html
+  db_connections: site_only/db_connections.html
 urls:
   reference: https://docs.healthcare.ai/reference
   article: https://docs.healthcare.ai/articles

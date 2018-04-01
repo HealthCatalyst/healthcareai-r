@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Class check — is.hcai_predicted_df • healthcareai</title>
+<title>get_hyperparameter_defaults — get_hyperparameter_defaults • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,9 +25,9 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Class check — is.hcai_predicted_df" />
+<meta property="og:title" content="get_hyperparameter_defaults — get_hyperparameter_defaults" />
 
-<meta property="og:description" content="Class check" />
+<meta property="og:description" content="get_hyperparameter_defaults" />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -107,28 +107,30 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Class check</h1>
+    <h1>get_hyperparameter_defaults</h1>
     
     </div>
 
     
-    <p>Class check</p>
+    <p>get_hyperparameter_defaults</p>
     
 
-    <pre class="usage"><span class='fu'>is.hcai_predicted_df</span>(<span class='no'>x</span>)</pre>
+    <pre class="usage"><span class='fu'>get_hyperparameter_defaults</span>(<span class='kw'>models</span> <span class='kw'>=</span> <span class='fu'><a href='get_supported_models.html'>get_supported_models</a></span>())</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
-      <td><p>object</p></td>
+      <th>models</th>
+      <td><p>Character vector of algorithms for which hyperparameters are
+desired.</p></td>
     </tr>
     </table>
     
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>logical</p>
+    <p>Get default hyperparameters to use, e.g. in flash_models. list
+  (algorithms) of lists (hyperparameters).</p>
     
 
   </div>
@@ -137,7 +139,7 @@
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#value">Value</a></li>
+      <li><a href="#details">Details</a></li>
           </ul>
 
   </div>
