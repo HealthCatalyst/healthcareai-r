@@ -5,8 +5,10 @@ output: github_document
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, include = FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "# >")
+knitr::opts_chunk$set(collapse = TRUE, comment = "# >",
+                      fig.height = 4, fig.width = 6)
 options(tibble.print_max = 5)
+library(healthcareai)
 ```
 
 # healthcareai <img src="man/figures/logo.png" align="right" />
@@ -55,5 +57,5 @@ Examine predictive performance:
 plot(predictions)
 ```
 
-
+For details on what's happening under the hood here and for options to customize data preparation and model training, see `vignette("healthcareai")` as well as the helpfiles for individual functions such as `?machine_learn`, `prep_data`, and `tune_models`.
 
