@@ -2,7 +2,7 @@ url: https://docs.healthcare.ai
 
 template:
   params:
-    bootswatch: cerulean
+    bootswatch: yeti
 
 development:
   mode: devel
