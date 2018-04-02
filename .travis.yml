@@ -1,6 +1,7 @@
 language: r
 sudo: false
-cache: packages
+cache:
+  packages: true
 dist: trusty
 
 notifications:
