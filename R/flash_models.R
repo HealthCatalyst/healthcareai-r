@@ -78,9 +78,9 @@ flash_models <- function(d,
                          hyperparameters,
                          metric) {
 
+  models <- tolower(models)
   if (missing(hyperparameters))
     hyperparameters <- get_hyperparameter_defaults(models)
-  models <- tolower(models)
   names(hyperparameters) <- tolower(names(hyperparameters))
   if (!dplyr::setequal(names(hyperparameters), models))
       stop("`models` and names of the list passed to `hyperparameters` must match (case-insensitive).",
