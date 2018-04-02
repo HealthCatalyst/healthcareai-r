@@ -16,7 +16,6 @@ library(healthcareai)
 [![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/0xrpe233o9a16l4l/branch/master?svg=true)](https://ci.appveyor.com/project/CatalystAdmin/healthcareai-r/) 
 [![Travis-CI Build Status](https://travis-ci.org/HealthCatalyst/healthcareai-r.svg?branch=master)](https://travis-ci.org/HealthCatalyst/healthcareai-r) 
 [![codecov badge](https://codecov.io/gh/HealthCatalyst/healthcareai-r/branch/master/graph/badge.svg)](https://codecov.io/gh/HealthCatalyst/healthcareai-r) 
-
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version-last-release/healthcareai)](https://cran.r-project.org/package=healthcareai)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/HealthCatalystSLC/healthcareai-r/blob/master/LICENSE)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.999334.svg)](https://doi.org/10.5281/zenodo.999334)
@@ -29,7 +28,11 @@ The aim of `healthcareai` is to make machine learning in healthcare as easy as p
 - Easily make and evaluate predictions and push them to a database or flat file
 - Provide tools related to data cleaning, manipulation, imputation, and visualization
 
-**Please note that the package is currently in transition** from an R6 architecture to a tidy, S3 architecture. The code below is the new version, which is in beta and can be acquired via `install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r")`. Beta testing of the new version, pre-CRAN, is very welcome; please file issues for any bugs, unclear docs, or feature suggestions [here](https://github.com/HealthCatalyst/healthcareai-r/issues). `install.packages("healthcareai")` will get you the old version from CRAN, which will remain available via `remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")`.
+### Version 1 -> Version 2 Transition
+
+As of early 2018, the package is in transition from an R6 architecture (v1) to a tidy, S3 architecture (v2). Everything on this website is written from the perspective of the new version of the package. While the new version is in beta testing (until late April), the old version remains on CRAN and can be installed with `install.packages("healthcareai")`; the stable link to install the old version of the package is `install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")`.
+
+You can install the beta version of v2 with `install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r")`. As always, but especially while v2 is in beta, your feedback is appreciated. Please file issues for any bugs, unclear docs, or feature suggestions [here](https://github.com/HealthCatalyst/healthcareai-r/issues).
 
 ## Usage
 
