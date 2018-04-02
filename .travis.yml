@@ -42,5 +42,6 @@ script:
   - Rscript -e 'pkgdown::build_site()'
 
 after_success:
+  - provider: script
   - netlify deploy -t $NETLIFY_PAT
   - Rscript -e 'covr::codecov()'
