@@ -162,14 +162,15 @@ plot_classification_predictions</p></td>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>The following arguments can be provided to customize the plot: For
-  regression: title, point_size, point_alpha, font_size. For
-  classification: title, fill_colors, fill_alpha, curve_flex, font_size. For
-  details on how to use them, see <code><a href='plot_regression_predictions.html'>plot_regression_predictions</a></code>
-  or <code><a href='plot_classification_predictions.html'>plot_classification_predictions</a></code>.</p>
+  regression: title, point_size, point_alpha, font_size. For classification:
+  title, fill_colors, fill_alpha, curve_flex, font_size. For details on how
+  to use them, see <code><a href='plot_regression_predictions.html'>plot_regression_predictions</a></code> or
+  <code><a href='plot_classification_predictions.html'>plot_classification_predictions</a></code>.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>models</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='machine_learn.html'>machine_learn</a></span>(<span class='no'>pima_diabetes</span>[<span class='fl'>1</span>:<span class='fl'>50</span>, ], <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>plasma_glucose</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>plasma_glucose looks numeric, so training regression algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Running cross validation for Random Forest</span></div><div class='output co'>#&gt; <span class='message'>Running cross validation for k-Nearest Neighbors</span></div><div class='input'><span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>)
+    <pre class="examples"><div class='input'><span class='no'>models</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='machine_learn.html'>machine_learn</a></span>(<span class='no'>pima_diabetes</span>[<span class='fl'>1</span>:<span class='fl'>50</span>, ], <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>plasma_glucose</span>,
+                        <span class='kw'>models</span> <span class='kw'>=</span> <span class='st'>"rf"</span>, <span class='kw'>tune</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>plasma_glucose looks numeric, so training regression algorithms.</span></div><div class='input'><span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>)
 <span class='fu'>plot</span>(<span class='no'>predictions</span>)</div><div class='img'><img src='plot.hcai_predicted_df-1.png' alt='' width='576' height='288' /></div><div class='input'><span class='fu'>plot</span>(<span class='no'>predictions</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>"This model's predictions regress to the mean"</span>,
      <span class='kw'>point_size</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>point_alpha</span> <span class='kw'>=</span> <span class='fl'>.7</span>, <span class='kw'>font_size</span> <span class='kw'>=</span> <span class='fl'>14</span>)</div><div class='img'><img src='plot.hcai_predicted_df-2.png' alt='' width='576' height='288' /></div></pre>
   </div>
