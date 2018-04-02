@@ -46,7 +46,7 @@ models
 
 Make predictions and examine predictive performance:
 
-```{r plot predictions, fig.height = 3}
+```{r plot_predictions, fig.height = 3}
 predictions <- predict(models)
 plot(predictions)
 ```

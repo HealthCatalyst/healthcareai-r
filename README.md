@@ -58,15 +58,15 @@ models
 # > Performance Metric: ROC
 # > Number of Observations: 768
 # > Number of Features: 12
-# > Models Trained: 2018-04-02 11:45:57 
+# > Models Trained: 2018-04-02 15:57:38 
 # > 
 # > Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.
 # > Best model: Random Forest
 # > ROC = 0.85
 # > Optimal hyperparameter values:
-# >   mtry = 4
+# >   mtry = 6
 # >   splitrule = extratrees
-# >   min.node.size = 18
+# >   min.node.size = 13
 ```
 
 Make predictions and examine predictive performance:
@@ -76,7 +76,7 @@ predictions <- predict(models)
 plot(predictions)
 ```
 
-![](man/figures/README-plot%20predictions-1.png)<!-- -->
+![](man/figures/README-plot_predictions-1.png)<!-- -->
 
 ## Learn More
 
