@@ -2,7 +2,7 @@
 % Please edit documentation in R/missingness.R
 \name{missingness}
 \alias{missingness}
-\title{Percent of entries in each column that are missing}
+\title{Find missingness in each column and search for strings that might represent missing values}
 \usage{
 missingness(d, return_df = TRUE, to_search = c("NA", "NAs", "na", "NaN",
   "?", "??", "nil", "NULL", " ", ""))

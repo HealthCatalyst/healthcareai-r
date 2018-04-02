@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tools for Healthcare Machine Learning • healthcareai</title>
-<!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="jquery.sticky-kit.min.js"></script><script src="pkgdown.js"></script><meta property="og:title" content="Tools for Healthcare Machine Learning">
@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">healthcareai</a>
-        <span class="label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development package">2.0.0</span>
+        <span class="label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development package">2.0.0.9000</span>
       </span>
     </div>
 
@@ -61,8 +61,24 @@
     </li>
   </ul>
 </li>
+<li>
+  <a href="news/index.html">Changelog</a>
+</li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/HealthCatalyst/healthcareai-r">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://healthcare-ai.slack.com/">
+    <span class="fa fa-users"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -83,7 +99,6 @@
 <a href="#healthcareai" class="anchor"></a>healthcareai <img src="reference/figures/logo.png" align="right">
 </h1></div>
 
-<p><a href="https://cran.r-project.org/package=healthcareai"><img src="https://www.r-pkg.org/badges/version-last-release/healthcareai" alt="CRAN_Status_Badge"></a> <a href="https://github.com/HealthCatalystSLC/healthcareai-r/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a> <a href="https://doi.org/10.5281/zenodo.999334"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.999334.svg" alt="DOI"></a></p>
 <div id="overview" class="section level2">
 <h2 class="hasAnchor">
 <a href="#overview" class="anchor"></a>Overview</h2>
@@ -93,7 +108,12 @@
 <li>Easily make and evaluate predictions and push them to a database or flat file</li>
 <li>Provide tools related to data cleaning, manipulation, imputation, and visualization</li>
 </ul>
-<p><strong>Please note that the package is currently in transition</strong> from an R6 architecture to a tidy, S3 architecture. The code below is the new version, which is in beta and can be acquired via <code>install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r")</code>. Beta testing of the new version, pre-CRAN, is very welcome; please file issues for any bugs, unclear docs, or feature suggestions <a href="https://github.com/HealthCatalyst/healthcareai-r/issues">here</a>. <code>install.packages("healthcareai")</code> will get you the old version from CRAN, which will remain available via <code><a href="http://www.rdocumentation.org/packages/remotes/topics/install_github">remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")</a></code>.</p>
+<div id="version-1---version-2-transition" class="section level3">
+<h3 class="hasAnchor">
+<a href="#version-1---version-2-transition" class="anchor"></a>Version 1 -&gt; Version 2 Transition</h3>
+<p>As of early 2018, the package is in transition from an R6 architecture (v1) to a tidy, S3 architecture (v2). Everything on this website is written from the perspective of the new version of the package. While the new version is in beta testing (until late April), the old version remains on CRAN and can be installed with <code>install.packages("healthcareai")</code>; the stable link to install the old version of the package is <code>install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")</code>.</p>
+<p>You can install the beta version of v2 with <code>install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r")</code>. As always, but especially while v2 is in beta, your feedback is appreciated. Please file issues for any bugs, unclear docs, or feature suggestions <a href="https://github.com/HealthCatalyst/healthcareai-r/issues">here</a>.</p>
+</div>
 </div>
 <div id="usage" class="section level2">
 <h2 class="hasAnchor">
@@ -107,15 +127,15 @@
 <a class="sourceLine" id="cb1-6" data-line-number="6"><span class="co"># &gt; Performance Metric: ROC</span></a>
 <a class="sourceLine" id="cb1-7" data-line-number="7"><span class="co"># &gt; Number of Observations: 768</span></a>
 <a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co"># &gt; Number of Features: 12</span></a>
-<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="co"># &gt; Models Trained: 2018-04-01 14:20:10 </span></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="co"># &gt; Models Trained: 2018-04-02 07:02:33 </span></a>
 <a class="sourceLine" id="cb1-10" data-line-number="10"><span class="co"># &gt; </span></a>
 <a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co"># &gt; Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.</span></a>
 <a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co"># &gt; Best model: Random Forest</span></a>
-<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co"># &gt; ROC = 0.84</span></a>
+<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co"># &gt; ROC = 0.85</span></a>
 <a class="sourceLine" id="cb1-14" data-line-number="14"><span class="co"># &gt; Optimal hyperparameter values:</span></a>
-<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co"># &gt;   mtry = 6</span></a>
+<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co"># &gt;   mtry = 5</span></a>
 <a class="sourceLine" id="cb1-16" data-line-number="16"><span class="co"># &gt;   splitrule = extratrees</span></a>
-<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co"># &gt;   min.node.size = 18</span></a></code></pre></div>
+<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co"># &gt;   min.node.size = 20</span></a></code></pre></div>
 <p>Make predictions and examine predictive performance:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(models)</a>
 <a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw">plot</span>(predictions)</a></code></pre></div>
@@ -193,6 +213,9 @@
 <li><a href="https://ci.appveyor.com/project/CatalystAdmin/healthcareai-r/"><img src="https://ci.appveyor.com/api/projects/status/0xrpe233o9a16l4l/branch/master?svg=true" alt="Appveyor Build Status"></a></li>
 <li><a href="https://travis-ci.org/HealthCatalyst/healthcareai-r"><img src="https://travis-ci.org/HealthCatalyst/healthcareai-r.svg?branch=master" alt="Travis-CI Build Status"></a></li>
 <li><a href="https://codecov.io/gh/HealthCatalyst/healthcareai-r"><img src="https://codecov.io/gh/HealthCatalyst/healthcareai-r/branch/master/graph/badge.svg" alt="codecov badge"></a></li>
+<li><a href="https://cran.r-project.org/package=healthcareai"><img src="https://www.r-pkg.org/badges/version-last-release/healthcareai" alt="CRAN_Status_Badge"></a></li>
+<li><a href="https://github.com/HealthCatalystSLC/healthcareai-r/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a></li>
+<li><a href="https://doi.org/10.5281/zenodo.999334"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.999334.svg" alt="DOI"></a></li>
 </ul>
 </div>
 </div>

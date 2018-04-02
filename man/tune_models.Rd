@@ -2,8 +2,8 @@
 % Please edit documentation in R/tune_models.R
 \name{tune_models}
 \alias{tune_models}
-\title{Identify the best performing model by tuning hyperparameters via
-cross-validation}
+\title{Tune multiple machine learning models using cross validation to optimize
+performance}
 \usage{
 tune_models(d, outcome, model_class, models, n_folds = 5, tune_depth = 10,
   tune_method = "random", metric, hyperparameters)
@@ -39,8 +39,8 @@ curve).}
 A model_list object
 }
 \description{
-Identify the best performing model by tuning hyperparameters via
-cross-validation
+Tune multiple machine learning models using cross validation to optimize
+performance
 }
 \details{
 Note that this function is training a lot of models (100 by default)

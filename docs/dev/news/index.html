@@ -6,12 +6,12 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Change Log • healthcareai</title>
+<title>Changelog • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
-<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
@@ -22,10 +22,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
-<link href="pkgdown.css" rel="stylesheet">
-<script src="jquery.sticky-kit.min.js"></script>
-<script src="pkgdown.js"></script>
-<meta property="og:title" content="Change Log" />
+<link href="../pkgdown.css" rel="stylesheet">
+<script src="../jquery.sticky-kit.min.js"></script>
+<script src="../pkgdown.js"></script>
+<meta property="og:title" content="Changelog" />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -47,7 +47,7 @@
   </head>
 
   <body>
-    <div class="container template-title-body">
+    <div class="container template-news">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -58,24 +58,24 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="index.html">healthcareai</a>
-        <span class="label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development package">2.0.0</span>
+        <a class="navbar-link" href="../index.html">healthcareai</a>
+        <span class="label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development package">2.0.0.9000</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="index.html">
+  <a href="../index.html">
     <span class="fa fa-home fa-lg"></span>
      
   </a>
 </li>
 <li>
-  <a href="articles/healthcareai.html">Get started</a>
+  <a href="../articles/healthcareai.html">Get started</a>
 </li>
 <li>
-  <a href="reference/index.html">Reference</a>
+  <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -85,9 +85,12 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="articles/site_only/db_connections.html">Database Connections</a>
+      <a href="../articles/site_only/db_connections.html">Database Connections</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       
@@ -114,26 +117,37 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Change Log</h1>
+      <h1>Changelog <small></small></h1>
+      
     </div>
 
-<div id="change-log" class="section level1">
-
-<p>All notable changes to this project will be documented in this file.</p>
-<p>The format is based on <a href="http://keepachangelog.com/">Keep a Changelog</a> and this project adheres to <a href="http://semver.org/">Semantic Versioning</a>.</p>
-<div id="section" class="section level2">
-<h2 class="hasAnchor">
-<a href="#section" class="anchor"></a>[2.0.0] - 2018-02-01</h2>
+    <div id="healthcareai-2-0-0-9000---2018-04-02" class="section level1">
+<h1 class="page-header">
+<a href="#healthcareai-2-0-0-9000---2018-04-02" class="anchor"></a>healthcareai 2.0.0.9000 - 2018-04-02<small> Unreleased </small>
+</h1>
 <p>Major, breaking changes. R6 is out; S3 is in.</p>
 </div>
-<div id="section-1" class="section level2">
-<h2 class="hasAnchor">
-<a href="#section-1" class="anchor"></a>[1.2.0] - 2017-10-19</h2>
-<div id="added" class="section level3">
-<h3 class="hasAnchor">
-<a href="#added" class="anchor"></a>Added</h3>
+    <div id="healthcareai-1-2-4" class="section level1">
+<h1 class="page-header">
+<a href="#healthcareai-1-2-4" class="anchor"></a>healthcareai 1.2.4<small> 2018-02-14 </small>
+</h1>
+<ul>
+<li>Patch to conform to CRAN policy of not writing to inst/</li>
+<li>Patch to maintain compatibility with <code>ranger</code> and <code>caret</code>
+</li>
+<li>Import <code>methods</code> to maintain functionality across environments</li>
+<li>Clean up of variation-exploration functions</li>
+</ul>
+</div>
+    <div id="healthcareai-1-2-0" class="section level1">
+<h1 class="page-header">
+<a href="#healthcareai-1-2-0" class="anchor"></a>healthcareai 1.2.0<small> 2017-10-27 </small>
+</h1>
+<div id="added" class="section level4">
+<h4 class="hasAnchor">
+<a href="#added" class="anchor"></a>Added</h4>
 <ul>
 <li>
 <em>Limone</em> – a <a href="https://www.oreilly.com/learning/introduction-to-local-interpretable-model-agnostic-explanations-lime">lime</a>-like model interpretation tool.
@@ -146,40 +160,42 @@
 </ul>
 </div>
 </div>
-<div id="section-2" class="section level2">
-<h2 class="hasAnchor">
-<a href="#section-2" class="anchor"></a>[1.1.0] - 2017-10-11</h2>
-<div id="added-1" class="section level3">
-<h3 class="hasAnchor">
-<a href="#added-1" class="anchor"></a>Added</h3>
+    <div id="healthcareai-1-1-0" class="section level1">
+<h1 class="page-header">
+<a href="#healthcareai-1-1-0" class="anchor"></a>healthcareai 1.1.0<small> Unreleased </small>
+</h1>
+<div id="added-1" class="section level4">
+<h4 class="hasAnchor">
+<a href="#added-1" class="anchor"></a>Added</h4>
 <ul>
 <li>Deploy now saves information about the model and deployment as an attribute of the output dataframe. This information is written to a log file in the working directory.</li>
 <li>
 <code>skip_on_not_appveyor</code> will skip a unit test unless it’s being run on Appveyor.</li>
 </ul>
 </div>
-<div id="changed" class="section level3">
-<h3 class="hasAnchor">
-<a href="#changed" class="anchor"></a>Changed</h3>
+<div id="changed" class="section level4">
+<h4 class="hasAnchor">
+<a href="#changed" class="anchor"></a>Changed</h4>
 <ul>
 <li>Unit tests involving MSSQL now only run on Appveyor.</li>
 </ul>
 </div>
-<div id="removed" class="section level3">
-<h3 class="hasAnchor">
-<a href="#removed" class="anchor"></a>Removed</h3>
+<div id="removed" class="section level4">
+<h4 class="hasAnchor">
+<a href="#removed" class="anchor"></a>Removed</h4>
 <ul>
 <li>
 <code>skip_if_no_mssql</code> isn’t needed as a test utility anymore.</li>
 </ul>
 </div>
 </div>
-<div id="section-3" class="section level2">
-<h2 class="hasAnchor">
-<a href="#section-3" class="anchor"></a>[1.0.0] - 2017-08-02</h2>
-<div id="added-2" class="section level3">
-<h3 class="hasAnchor">
-<a href="#added-2" class="anchor"></a>Added</h3>
+    <div id="healthcareai-1-0-0" class="section level1">
+<h1 class="page-header">
+<a href="#healthcareai-1-0-0" class="anchor"></a>healthcareai 1.0.0<small> 2017-09-11 </small>
+</h1>
+<div id="added-2" class="section level4">
+<h4 class="hasAnchor">
+<a href="#added-2" class="anchor"></a>Added</h4>
 <ul>
 <li>Multiclass functionality with XGBoost is supported using <code>XGBoostDevelopment</code> and <code>XGBoostDeployment</code>.</li>
 <li>K-means clustering is supported using <code>KmeansClustering</code>.</li>
@@ -189,9 +205,9 @@
 <code>variationAcrossGroups</code> will plot a boxplot of variation between groups for a chosen target measure.</li>
 </ul>
 </div>
-<div id="changed-1" class="section level3">
-<h3 class="hasAnchor">
-<a href="#changed-1" class="anchor"></a>Changed</h3>
+<div id="changed-1" class="section level4">
+<h4 class="hasAnchor">
+<a href="#changed-1" class="anchor"></a>Changed</h4>
 <ul>
 <li>
 <code>SupervisedModelDevelopment</code> now saves the model after training</li>
@@ -205,9 +221,9 @@
 <li>Model file documentation files now accurately reflect the available methods.</li>
 </ul>
 </div>
-<div id="removed-1" class="section level3">
-<h3 class="hasAnchor">
-<a href="#removed-1" class="anchor"></a>Removed</h3>
+<div id="removed-1" class="section level4">
+<h4 class="hasAnchor">
+<a href="#removed-1" class="anchor"></a>Removed</h4>
 <ul>
 <li>
 <code>testWindowCol</code> is no longer a param in <code>SupervisedModelDeployment</code> or used in the algorithms.</li>
@@ -218,12 +234,13 @@
 </ul>
 </div>
 </div>
-<div id="section-4" class="section level2">
-<h2 class="hasAnchor">
-<a href="#section-4" class="anchor"></a>[0.1.12] - 2017-05-08</h2>
-<div id="added-3" class="section level3">
-<h3 class="hasAnchor">
-<a href="#added-3" class="anchor"></a>Added</h3>
+    <div id="healthcareai-0-1-12" class="section level1">
+<h1 class="page-header">
+<a href="#healthcareai-0-1-12" class="anchor"></a>healthcareai 0.1.12<small> 2017-05-05 </small>
+</h1>
+<div id="added-3" class="section level4">
+<h4 class="hasAnchor">
+<a href="#added-3" class="anchor"></a>Added</h4>
 <ul>
 <li>Added getters for predictions <code>getPredictions()</code> in development (lasso, random forest, linear mixed model)</li>
 <li>Added getOutDf to each algorithm deploy file so predictions can go to CSV</li>
@@ -231,32 +248,33 @@
 <li>Added featureAvailabilityProfiler</li>
 </ul>
 </div>
-<div id="changed-2" class="section level3">
-<h3 class="hasAnchor">
-<a href="#changed-2" class="anchor"></a>Changed</h3>
+<div id="changed-2" class="section level4">
+<h4 class="hasAnchor">
+<a href="#changed-2" class="anchor"></a>Changed</h4>
 <ul>
 <li>TimeStamp column predictive output is now local time (not GMT)</li>
 </ul>
 </div>
-<div id="fixed" class="section level3">
-<h3 class="hasAnchor">
-<a href="#fixed" class="anchor"></a>Fixed</h3>
+<div id="fixed" class="section level4">
+<h4 class="hasAnchor">
+<a href="#fixed" class="anchor"></a>Fixed</h4>
 </div>
 </div>
-<div id="section-5" class="section level2">
-<h2 class="hasAnchor">
-<a href="#section-5" class="anchor"></a><a href="https://github.com/HealthCatalystSLC/healthcareai-r/releases/tag/v0.1.11-beta">0.1.11</a> - 2017-03-02</h2>
-<div id="added-4" class="section level3">
-<h3 class="hasAnchor">
-<a href="#added-4" class="anchor"></a>Added</h3>
+    <div id="healthcareai-0-1-11" class="section level1">
+<h1 class="page-header">
+<a href="#healthcareai-0-1-11" class="anchor"></a>healthcareai 0.1.11<small> 2017-02-13 </small>
+</h1>
+<div id="added-4" class="section level4">
+<h4 class="hasAnchor">
+<a href="#added-4" class="anchor"></a>Added</h4>
 <ul>
 <li>Added changelog</li>
 <li>Added travis.yml to prepare for CRAN release</li>
 </ul>
 </div>
-<div id="changed-3" class="section level3">
-<h3 class="hasAnchor">
-<a href="#changed-3" class="anchor"></a>Changed</h3>
+<div id="changed-3" class="section level4">
+<h4 class="hasAnchor">
+<a href="#changed-3" class="anchor"></a>Changed</h4>
 <ul>
 <li>generateAUC now calls getCutOffs to give guidance on ideal cutoffs.</li>
 <li>getCutOffs now generates list of cutoffs and suggests ideal ones.</li>
@@ -264,20 +282,32 @@
 <li>calculatePerformance (model class method) now calls generateAUC</li>
 </ul>
 </div>
-<div id="fixed-1" class="section level3">
-<h3 class="hasAnchor">
-<a href="#fixed-1" class="anchor"></a>Fixed</h3>
+<div id="fixed-1" class="section level4">
+<h4 class="hasAnchor">
+<a href="#fixed-1" class="anchor"></a>Fixed</h4>
 <ul>
 <li>Bug fixes in example files concerning reproducability</li>
 </ul>
 </div>
 </div>
-</div>
+  </div>
 
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+    <div id="tocnav">
+      <h2>Contents</h2>
+      <ul class="nav nav-pills nav-stacked">
+        <li><a href="#healthcareai-2-0-0-9000---2018-04-02">2.0.0.9000</a></li>
+        <li><a href="#healthcareai-1-2-4">1.2.4</a></li>
+        <li><a href="#healthcareai-1-2-0">1.2.0</a></li>
+        <li><a href="#healthcareai-1-1-0">1.1.0</a></li>
+        <li><a href="#healthcareai-1-0-0">1.0.0</a></li>
+        <li><a href="#healthcareai-0-1-12">0.1.12</a></li>
+        <li><a href="#healthcareai-0-1-11">0.1.11</a></li>
+      </ul>
+    </div>
   </div>
 
 </div>
-
 
       <footer>
       <div class="copyright">

@@ -2,7 +2,7 @@
 % Please edit documentation in R/impute.R
 \name{impute}
 \alias{impute}
-\title{Impute data and return a reusable recipe.}
+\title{Impute data and return a reusable recipe}
 \usage{
 impute(d = NULL, ..., recipe = NULL, numeric_method = "mean",
   nominal_method = "new_category", numeric_params = NULL,

@@ -1,10 +1,15 @@
-#' Convert MSDRGs in a "base group" and a complication level
+#' Convert MSDRGs into a "base DRG" and complication level
 #'
 #' @param drgs character vector of MSDRG descriptions, e.g. MSDRGDSC
 #'
 #' @return a tibble with three columns: msdrg: the input vector, base_msdrg, and
 #'   msdrg_complication
 #' @export
+#'
+#' @details This function is not robust to different codings of complication in
+#'   DRG descriptions. If you have a coding other than "W CC" / "W MCC" / "W
+#'   CC/MCC" / "W/O CC" / "W/O MCC", please file an issue on Github and we'll
+#'   try to add support for your coding.
 #'
 #' @examples
 #' MSDRGs <- c("ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W CC",

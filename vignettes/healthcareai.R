@@ -1,7 +1,7 @@
 ## ----setup, include=FALSE------------------------------------------------
 set.seed(43170)
 knitr::opts_chunk$set(echo = TRUE, results = "hold", collapse = TRUE, 
-                      comment = "# >")
+                      comment = "#> ")
 options(tibble.print_min = 5, tibble.print_max = 5)
 
 ## ------------------------------------------------------------------------
@@ -44,19 +44,14 @@ models <- tune_models(d = prepped_training_data,
                       tune_depth = 25,
                       metric = "PR")
 
-## ---- fig.height = 7-----------------------------------------------------
+## ---- fig.height = 6-----------------------------------------------------
 plot(models)
 
 ## ------------------------------------------------------------------------
 flash_models(d = prepped_training_data,
              outcome = diabetes,
              models = "RF",
-             metric = "PR",
-             hyperparameters = list(
-               RF = list(
-                 mtry = 10,
-                 splitrule = "extratrees",
-                 min.node.size = 20)))
+             metric = "PR")
 
 ## ------------------------------------------------------------------------
 predict(models)

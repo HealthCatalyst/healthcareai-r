@@ -6,14 +6,14 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Identify the best performing model by tuning hyperparameters via
-cross-validation — tune_models • healthcareai</title>
+<title>Tune multiple machine learning models using cross validation to optimize
+performance — tune_models • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
+<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
@@ -26,11 +26,11 @@ cross-validation — tune_models • healthcareai</title>
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Identify the best performing model by tuning hyperparameters via
-cross-validation — tune_models" />
+<meta property="og:title" content="Tune multiple machine learning models using cross validation to optimize
+performance — tune_models" />
 
-<meta property="og:description" content="Identify the best performing model by tuning hyperparameters via
-cross-validation" />
+<meta property="og:description" content="Tune multiple machine learning models using cross validation to optimize
+performance" />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -64,7 +64,7 @@ cross-validation" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development package">2.0.0</span>
+        <span class="label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development package">2.0.0.9000</span>
       </span>
     </div>
 
@@ -94,10 +94,24 @@ cross-validation" />
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">Changelog</a>
+</li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/HealthCatalyst/healthcareai-r">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://healthcare-ai.slack.com/">
+    <span class="fa fa-users"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -110,14 +124,14 @@ cross-validation" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Identify the best performing model by tuning hyperparameters via
-cross-validation</h1>
+    <h1>Tune multiple machine learning models using cross validation to optimize
+performance</h1>
     
     </div>
 
     
-    <p>Identify the best performing model by tuning hyperparameters via
-cross-validation</p>
+    <p>Tune multiple machine learning models using cross validation to optimize
+performance</p>
     
 
     <pre class="usage"><span class='fu'>tune_models</span>(<span class='no'>d</span>, <span class='no'>outcome</span>, <span class='no'>model_class</span>, <span class='no'>models</span>, <span class='kw'>n_folds</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>tune_depth</span> <span class='kw'>=</span> <span class='fl'>10</span>,
