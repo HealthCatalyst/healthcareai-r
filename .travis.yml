@@ -38,10 +38,6 @@ addons:
 before_install:
   - npm install netlify-cli -g
 
-install:
-  ## For installing all CRAN dependencies using rpack's DESCRIPTION
-  - ./travis-tool.sh install_r pkgdown
-
 script:
   - Rscript -e 'pkgdown::build_site()'
 
