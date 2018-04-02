@@ -2,7 +2,7 @@
 % Please edit documentation in R/machine_learn.R
 \name{machine_learn}
 \alias{machine_learn}
-\title{Machine Learn}
+\title{Machine learning made easy}
 \usage{
 machine_learn(d, ..., outcome, models, tune = TRUE, n_folds = 5,
   tune_depth = 10, impute = TRUE)

@@ -89,6 +89,9 @@
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">Changelog</a>
+</li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
@@ -138,14 +141,14 @@
         <td>
           <p><code><a href="machine_learn.html">machine_learn()</a></code> </p>
         </td>
-        <td><p>Machine Learn</p></td>
+        <td><p>Machine learning made easy</p></td>
       </tr><tr>
         <!--  -->
         <td>
           <p><code><a href="tune_models.html">tune_models()</a></code> </p>
         </td>
-        <td><p>Identify the best performing model by tuning hyperparameters via
-cross-validation</p></td>
+        <td><p>Tune multiple machine learning models using cross validation to optimize
+performance</p></td>
       </tr><tr>
         <!--  -->
         <td>
@@ -162,8 +165,8 @@ cross-validation</p></td>
     </tbody><tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-make-predictions" class="hasAnchor"><a href="#section-make-predictions" class="anchor"></a>Make predictions</h2>
-          <p class="section-desc"></p>
+          <h2 id="section-prediction" class="hasAnchor"><a href="#section-prediction" class="anchor"></a>Prediction</h2>
+          <p class="section-desc"><p>Make predictions from a trained model</p></p>
         </th>
       </tr>
       <tr>
@@ -183,7 +186,7 @@ cross-validation</p></td>
       <tr>
         <th colspan="2">
           <h2 id="section-data-preparation" class="hasAnchor"><a href="#section-data-preparation" class="anchor"></a>Data Preparation</h2>
-          <p class="section-desc"></p>
+          <p class="section-desc"><p>Get data ready for machine learning</p></p>
         </th>
       </tr>
       <tr>
@@ -195,15 +198,41 @@ cross-validation</p></td>
       </tr><tr>
         <!--  -->
         <td>
-          <p><code><a href="pivot.html">pivot()</a></code> </p>
+          <p><code><a href="impute.html">impute()</a></code> </p>
         </td>
-        <td><p>Pivot from a long data frame to a wide data frame</p></td>
+        <td><p>Impute data and return a reusable recipe</p></td>
       </tr><tr>
         <!--  -->
         <td>
           <p><code><a href="split_train_test.html">split_train_test()</a></code> </p>
         </td>
         <td><p>Split data into training and test data frames</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-data-manipulation" class="hasAnchor"><a href="#section-data-manipulation" class="anchor"></a>Data Manipulation</h2>
+          <p class="section-desc"><p>Reshape data</p></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="pivot.html">pivot()</a></code> </p>
+        </td>
+        <td><p>Pivot multiple rows per observation to one row with multiple columns</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="separate_drgs.html">separate_drgs()</a></code> </p>
+        </td>
+        <td><p>Convert MSDRGs in a "base group" and a complication level</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="add_SAM_utility_cols.html">add_SAM_utility_cols()</a></code> </p>
+        </td>
+        <td><p>Add SAM utility columns to table</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -239,6 +268,84 @@ cross-validation</p></td>
         </td>
         <td><p>Read from a SQL Server database table</p></td>
       </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-visualization" class="hasAnchor"><a href="#section-visualization" class="anchor"></a>Visualization</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="plot.hcai_predicted_df.html">plot(<i>&lt;hcai_predicted_df&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Plot model predictions vs observed outcomes</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="plot.model_list.html">plot(<i>&lt;model_list&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Plot performance of models</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="plot_classification_predictions.html">plot_classification_predictions()</a></code> </p>
+        </td>
+        <td><p>Plot predictions from a classification model</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="plot_regression_predictions.html">plot_regression_predictions()</a></code> </p>
+        </td>
+        <td><p>Plot predictions from a regression model</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="control_chart.html">control_chart()</a></code> </p>
+        </td>
+        <td><p>Create a control chart</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-logging" class="hasAnchor"><a href="#section-logging" class="anchor"></a>Logging</h2>
+          <p class="section-desc"><p>Record model activity in production</p></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="start_prod_logs.html">start_prod_logs()</a></code> </p>
+        </td>
+        <td><p>Sets console logging to a file in the working directory.</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="stop_prod_logs.html">stop_prod_logs()</a></code> </p>
+        </td>
+        <td><p>Stops all console logging.</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="catalyst_test_deploy_in_prod.html">catalyst_test_deploy_in_prod()</a></code> </p>
+        </td>
+        <td><p>Test function to check that the production environment is active.</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-data" class="hasAnchor"><a href="#section-data" class="anchor"></a>Data</h2>
+          <p class="section-desc"><p>Supplied datasets</p></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="pima_diabetes.html">pima_diabetes</a></code> </p>
+        </td>
+        <td><p>Patient diabetes dataset</p></td>
+      </tr>
     </tbody>
     </table>
   </div>
@@ -247,10 +354,14 @@ cross-validation</p></td>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#section-model-training">Model Training</a></li>
-      <li><a href="#section-make-predictions">Make predictions</a></li>
+      <li><a href="#section-prediction">Prediction</a></li>
       <li><a href="#section-data-preparation">Data Preparation</a></li>
+      <li><a href="#section-data-manipulation">Data Manipulation</a></li>
       <li><a href="#section-data-profiling">Data Profiling</a></li>
       <li><a href="#section-connect-to-databases">Connect to Databases</a></li>
+      <li><a href="#section-visualization">Visualization</a></li>
+      <li><a href="#section-logging">Logging</a></li>
+      <li><a href="#section-data">Data</a></li>
     </ul>
   </div>
 </div>

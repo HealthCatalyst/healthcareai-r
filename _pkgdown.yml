@@ -11,7 +11,6 @@ home:
   links:
   - text: Browse source code
     href: https://github.com/HealthCatalyst/healthcareai-r
-
   - text: healthcare.ai home
     href: https://healthcare.ai
 
@@ -31,15 +30,23 @@ reference:
     - tune_models
     - flash_models
     - plot.model_list
-  - title: Make predictions
+  - title: Prediction
+    desc: Make predictions from a trained model
     contents:
     - predict.model_list
     - plot.hcai_predicted_df
   - title: Data Preparation
+    desc: Get data ready for machine learning
     contents:
     - prep_data
-    - pivot
+    - impute
     - split_train_test
+  - title: Data Manipulation
+    desc: Reshape data
+    contents:
+    - pivot
+    - separate_drgs
+    - add_SAM_utility_cols
   - title: Data Profiling
     contents:
     - missingness
@@ -47,6 +54,20 @@ reference:
     contents:
     - build_connection_string
     - db_read
+  - title: Visualization
+    contents:
+    - starts_with("plot")
+    - control_chart
+  - title: Logging
+    desc: Record model activity in production
+    contents:
+    - start_prod_logs
+    - stop_prod_logs
+    - catalyst_test_deploy_in_prod
+  - title: Data
+    desc: Supplied datasets
+    contents:
+    - pima_diabetes
 
 figures:
   fig.asp: NULL
