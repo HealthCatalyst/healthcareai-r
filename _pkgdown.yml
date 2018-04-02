@@ -17,6 +17,11 @@ home:
 
 navbar:
   title: healthcare.ai
+  right:
+   - icon: fa-github
+     href: https://github.com/HealthCatalyst/healthcareai-r
+   - icon: fa-users
+     href: https://healthcare-ai.slack.com/
 
 reference:
   - title: Model Training
