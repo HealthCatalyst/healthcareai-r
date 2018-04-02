@@ -47,29 +47,35 @@ This is a high-level wrapper function. For finer control of data
   wraps. For finer control of model tuning use \code{\link{tune_models}}.
 }
 \examples{
-# Split data into training and test sets using a subset of the data for speed
-training_data <- pima_diabetes[1:50, ]
-test_data <- pima_diabetes[51:60, ]
+# Split the data into training and test sets. Use only 20 rows for speed
+d <- split_train_test(d = pima_diabetes[1:20, ],
+                      outcome = diabetes,
+                      percent_train = .9)
 
 ### Classification ###
 
-# Clean and prep the data, tune algorithms over hyperparameter values to predict diabetes
-diabetes_models <- machine_learn(training_data, outcome = diabetes)
+# Clean and prep the training data, specifying that patient_id is an ID column,
+# and tune algorithms over hyperparameter values to predict diabetes
+diabetes_models <- machine_learn(d$train, patient_id, outcome = diabetes)
+
+# Inspect model specification and performance
+diabetes_models
 
 # Make predictions (predicted probability of diabetes) on test data
-predict(diabetes_models, test_data)
+predict(diabetes_models, d$test)
 
 ### Regression ###
 
-# Predict numeric outcomes simply by specifying the name of the outcome variable
-age_model <- machine_learn(training_data, outcome = age)
+# If the outcome variable is numeric, regression models will be trained
+age_model <- machine_learn(d$train, patient_id, outcome = age)
 
-# If new data isn't specifed, get predictions on training data. Plot predictions
+# If new data isn't specifed, get predictions on training data
 predict(age_model)
 
 ### Faster model training without tuning hyperparameters ###
 
-# Train models at set hyperparameter values by setting tune to FALSE.
-# This is faster (especially on larger datasets), but produces models with less predictive accuracy.
-machine_learn(training_data, outcome = diabetes, tune = FALSE)
+# Train models at set hyperparameter values by setting tune to FALSE. This is
+# faster (especially on larger datasets), but produces models with less
+# predictive accuracy.
+machine_learn(d$train, patient_id, outcome = diabetes, tune = FALSE)
 }

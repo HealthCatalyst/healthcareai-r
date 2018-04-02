@@ -98,9 +98,8 @@ summary.model_list <- function(object, ...) {
 #' @importFrom purrr map_df
 #' @export
 #' @examples
-#' models <- tune_models(mtcars, mpg)
+#' models <- tune_models(mtcars, mpg, models = "knn", tune_depth = 5)
 #' plot(models)
-#' plot(as.model_list(models$`Random Forest`))
 plot.model_list <- function(x, print = TRUE, ...) {
   if (!length(x))
     stop("x is empty.")

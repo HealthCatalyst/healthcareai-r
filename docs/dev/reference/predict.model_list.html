@@ -189,30 +189,30 @@ sent through `prep_data`.</p></td>
 <span class='no'>models</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='machine_learn.html'>machine_learn</a></span>(<span class='no'>pima_diabetes</span>[<span class='fl'>1</span>:<span class='fl'>50</span>, ], <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Running cross validation for Random Forest</span></div><div class='output co'>#&gt; <span class='message'>Running cross validation for k-Nearest Neighbors</span></div><div class='input'><span class='co'># Make prediction on the next 20 rows. This uses the best-performing model from</span>
 <span class='co'># tuning cross validation, and it also prepares the new data in the same way as</span>
 <span class='co'># the training data was prepared.</span>
-<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>51</span>:<span class='fl'>70</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-04-02 10:59:38</span>
-#&gt; <span class='message'>Performance in training: ROC = 0.73</span></div><div class='output co'>#&gt; # A tibble: 20 x 11
+<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>51</span>:<span class='fl'>70</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-04-02 16:27:23</span>
+#&gt; <span class='message'>Performance in training: ROC = 0.7</span></div><div class='output co'>#&gt; # A tibble: 20 x 11
 #&gt;    diabetes predicted_diabe… patient_id pregnancies plasma_glucose diastolic_bp
 #&gt;  * &lt;chr&gt;               &lt;dbl&gt;      &lt;int&gt;       &lt;int&gt;          &lt;int&gt;        &lt;int&gt;
-#&gt;  1 N                   0.131         51           1            103           80
-#&gt;  2 N                   0.160         52           1            101           50
-#&gt;  3 N                   0.114         53           5             88           66
-#&gt;  4 Y                   0.743         54           8            176           90
-#&gt;  5 N                   0.816         55           7            150           66
-#&gt;  6 N                   0.108         56           1             73           50
-#&gt;  7 Y                   0.814         57           7            187           68
-#&gt;  8 N                   0.638         58           0            100           88
-#&gt;  9 N                   0.360         59           0            146           82
-#&gt; 10 N                   0.540         60           0            105           64
-#&gt; 11 N                   0.114         61           2             84           NA
-#&gt; 12 Y                   0.334         62           8            133           72
-#&gt; 13 N                   0.170         63           5             44           62
-#&gt; 14 N                   0.439         64           2            141           58
-#&gt; 15 Y                   0.366         65           7            114           66
-#&gt; 16 N                   0.139         66           5             99           74
-#&gt; 17 Y                   0.316         67           0            109           88
-#&gt; 18 N                   0.274         68           2            109           92
-#&gt; 19 N                   0.113         69           1             95           66
-#&gt; 20 N                   0.137         70           4            146           85
+#&gt;  1 N                  0.120          51           1            103           80
+#&gt;  2 N                  0.149          52           1            101           50
+#&gt;  3 N                  0.114          53           5             88           66
+#&gt;  4 Y                  0.742          54           8            176           90
+#&gt;  5 N                  0.832          55           7            150           66
+#&gt;  6 N                  0.132          56           1             73           50
+#&gt;  7 Y                  0.810          57           7            187           68
+#&gt;  8 N                  0.623          58           0            100           88
+#&gt;  9 N                  0.414          59           0            146           82
+#&gt; 10 N                  0.459          60           0            105           64
+#&gt; 11 N                  0.134          61           2             84           NA
+#&gt; 12 Y                  0.441          62           8            133           72
+#&gt; 13 N                  0.210          63           5             44           62
+#&gt; 14 N                  0.385          64           2            141           58
+#&gt; 15 Y                  0.498          65           7            114           66
+#&gt; 16 N                  0.191          66           5             99           74
+#&gt; 17 Y                  0.382          67           0            109           88
+#&gt; 18 N                  0.276          68           2            109           92
+#&gt; 19 N                  0.0970         69           1             95           66
+#&gt; 20 N                  0.177          70           4            146           85
 #&gt; # ... with 5 more variables: skinfold &lt;int&gt;, insulin &lt;int&gt;, weight_class &lt;chr&gt;,
 #&gt; #   pedigree &lt;dbl&gt;, age &lt;int&gt;</div><div class='input'><span class='fu'>plot</span>(<span class='no'>predictions</span>)</div><div class='img'><img src='predict.model_list-1.png' alt='' width='576' height='288' /></div></pre>
   </div>

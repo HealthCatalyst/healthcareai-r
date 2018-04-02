@@ -1,7 +1,7 @@
 ## ----setup, include=FALSE------------------------------------------------
 set.seed(43170)
 knitr::opts_chunk$set(echo = TRUE, results = "hold", collapse = TRUE, 
-                      comment = "#> ")
+                      comment = "# >")
 options(tibble.print_min = 5, tibble.print_max = 5)
 
 ## ------------------------------------------------------------------------

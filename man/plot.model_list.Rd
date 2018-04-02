@@ -24,7 +24,6 @@ Plot of model performance as a function of algorithm and
 Plot performance of models
 }
 \examples{
-models <- tune_models(mtcars, mpg)
+models <- tune_models(mtcars, mpg, models = "knn", tune_depth = 5)
 plot(models)
-plot(as.model_list(models$`Random Forest`))
 }

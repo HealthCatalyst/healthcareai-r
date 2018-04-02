@@ -34,6 +34,7 @@
 #'   faster.}}
 #'
 #' @examples
+#' \dontrun{
 #' # Prepare data
 #' prepped_data <- prep_data(pima_diabetes, patient_id, outcome = diabetes)
 #'
@@ -60,15 +61,14 @@
 #' summary(models)
 #'
 #' # Speed comparison of no tuning with flash_models vs. tuning with tune_models:
-#' \dontrun{
-#'   # ~40 seconds:
-#'   system.time(
-#'     tune_models(prepped_data, diabetes)
-#'   )
-#'   # ~6 seconds:
-#'   system.time(
-#'     flash_models(prepped_data, diabetes)
-#'   )
+#' # ~40 seconds:
+#' system.time(
+#'   tune_models(prepped_data, diabetes)
+#' )
+#' # ~6 seconds:
+#' system.time(
+#'   flash_models(prepped_data, diabetes)
+#' )
 #' }
 flash_models <- function(d,
                          outcome,
