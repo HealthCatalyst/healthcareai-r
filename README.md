@@ -9,7 +9,6 @@ Status](https://ci.appveyor.com/api/projects/status/0xrpe233o9a16l4l/branch/mast
 Status](https://travis-ci.org/HealthCatalyst/healthcareai-r.svg?branch=master)](https://travis-ci.org/HealthCatalyst/healthcareai-r)
 [![codecov
 badge](https://codecov.io/gh/HealthCatalyst/healthcareai-r/branch/master/graph/badge.svg)](https://codecov.io/gh/HealthCatalyst/healthcareai-r)
-
 [![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version-last-release/healthcareai)](https://cran.r-project.org/package=healthcareai)
 [![License:
 MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/HealthCatalystSLC/healthcareai-r/blob/master/LICENSE)
@@ -27,43 +26,112 @@ easy as possible. It does that by providing functions to:
   - Provide tools related to data cleaning, manipulation, imputation,
     and visualization
 
-**Please note that the package is currently in transition** from an R6
-architecture to a tidy, S3 architecture. The code below is the new
-version, which is in beta and can be acquired via
-`remotes::install_github("HealthCatalyst/healthcareai-r")`. Beta testing
-of the new version, pre-CRAN, is very welcome; please file issues for
-any bugs, unclear docs, or feature suggestions here.
-`install.packages("healthcareai")` will get you the old version from
-CRAN, which will remain available via
-`remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")`.
+### Version 1 -\> Version 2 Transition
 
-## Example
+As of early 2018, the package is in transition from an R6 architecture
+(v1) to a tidy, S3 architecture (v2). Everything on this website is
+written from the perspective of the new version of the package. While
+the new version is in beta testing (until late April), the old version
+remains on CRAN and can be installed with
+`install.packages("healthcareai")`; the stable link to install the old
+version of the package is `install.packages("remotes");
+remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")`.
+
+You can install the beta version of v2 with
+`install.packages("remotes");
+remotes::install_github("HealthCatalyst/healthcareai-r")`. As always,
+but especially while v2 is in beta, your feedback is appreciated. Please
+file issues for any bugs, unclear docs, or feature suggestions
+[here](https://github.com/HealthCatalyst/healthcareai-r/issues).
+
+## Usage
 
 `healthcareai` can take you from messy data to an optimized model in one
 line of code:
 
 ``` r
 models <- machine_learn(pima_diabetes, patient_id, outcome = diabetes)
+models
+# > Algorithms Trained: Random Forest, k-Nearest Neighbors
+# > Target: diabetes
+# > Class: Classification
+# > Performance Metric: ROC
+# > Number of Observations: 768
+# > Number of Features: 12
+# > Models Trained: 2018-04-02 11:02:25 
+# > 
+# > Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.
+# > Best model: Random Forest
+# > ROC = 0.85
+# > Optimal hyperparameter values:
+# >   mtry = 3
+# >   splitrule = extratrees
+# >   min.node.size = 19
 ```
 
-Visually inspect the perforance of models:
+Make predictions and examine predictive performance:
 
 ``` r
-plot(models)
+predictions <- predict(models)
+plot(predictions)
 ```
 
 ![](readme_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
-Make predictions:
+## Learn More
 
-``` r
-predictions <- predict(models)
-```
+For details on what’s happening under the hood and for options to
+customize data preparation and model training, see
+`vignette("healthcareai")` as well as the helpfiles for individual
+functions such as `?machine_learn`, `?prep_data`, and `?tune_models`.
 
-Examine predictive performance:
+Documentation of all functions as well as vignettes on various uses of
+the package are available at the package website:
+<https://docs.healthcare.ai/>.
 
-``` r
-plot(predictions)
-```
+Also, be sure to read our [blog](http://healthcare.ai/blog/) and watch
+our
+[broadcasts](https://www.youtube.com/channel/UCGZUobs_x712KbcL6RSzfnQ)
+to learn more about what’s new in healthcare machine learning and how we
+are using this toolkit to put machine learning to work in real
+healthcare systems.
 
-![](readme_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+## Get Involved
+
+We have a [Slack community](https://healthcare-ai.slack.com/) that is a
+great place to introduce yourself, share what you’re doing with the
+package, ask questions, and troubleshoot your code.
+
+### Contributing
+
+If you are interested in contributing the package (great\!), please read
+the
+[contributing](https://github.com/HealthCatalyst/healthcareai-r/blob/master/CONTRIBUTING.md)
+guide, and look for [issues with the “help wanted”
+tag](https://github.com/HealthCatalyst/healthcareai-r/labels/help%20wanted).
+Feel free to tackle any issue that interests you; those are a few issues
+that we feel would make a good place to start.
+
+### Feedback
+
+Your feedback is hugely appreciated. It is makes the package work well
+and helps us make it more useful to the community.
+
+Both feature requests and bug reports should be submitted as [Github
+issues](https://github.com/HealthCatalyst/healthcareai-r/issues).
+
+**Bug reports** should be filed with a [minimal reproducable
+example](https://gist.github.com/hadley/270442). The [reprex
+package](https://github.com/tidyverse/reprex) is extraordinarily helpful
+for this. Please also include the output of `sessionInfo()` or better
+yet, `devtools::session_info()`.
+
+## Legacy
+
+Version 1 of healthcare-ai is being retired. You can continue to use it,
+but we will no longer be maintain it and its compatibility with the R
+ecosystem. You should always be able to install it from github with:
+`remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")`.
+
+For an example of how to adapt your v1 models to the v2 API, check out
+the [Transitioning vignettes](https://docs.healthcare.ai/articles/).
