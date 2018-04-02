@@ -6,12 +6,12 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Development guidelines for the S3 Refactor • healthcareai</title>
+<title>Contributing Guidelines • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
-<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
@@ -25,7 +25,7 @@
 <link href="pkgdown.css" rel="stylesheet">
 <script src="jquery.sticky-kit.min.js"></script>
 <script src="pkgdown.js"></script>
-<meta property="og:title" content="Development guidelines for the S3 Refactor" />
+<meta property="og:title" content="Contributing Guidelines" />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -59,7 +59,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">healthcareai</a>
-        <span class="label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development package">2.0.0.9</span>
+        <span class="label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development package">2.0.0.9000</span>
       </span>
     </div>
 
@@ -119,329 +119,55 @@
 <div class="row">
   <div class="contents col-md-9">
     <div class="page-header">
-      <h1>Development guidelines for the S3 Refactor</h1>
+      <h1>Contributing Guidelines</h1>
     </div>
 
+<div id="contributing-guidelines" class="section level1">
 
-<div id="development-guidelines-for-the-s3-refactor" class="section level1">
-
-<div id="organization" class="section level2">
+<p>Want to help make <code>healthcareai</code> better? Great! Here are some ideas and guidelines for how you can get involved.</p>
+<div id="feature-requests-and-bug-reports" class="section level2">
 <h2 class="hasAnchor">
-<a href="#organization" class="anchor"></a>Organization</h2>
-<ul>
-<li><p>All work on the refactor should be done in branches off of, and PRs should be to, <code>refactorS3</code>.</p></li>
-<li>In general, each function should get its own file with the filename matching the function name.
-<ul>
-<li>Verb function names are good, e.g. <code>find_correlations</code>, <code>predict</code>
-</li>
-<li>Exceptions to one-function-per-file:
-<ul>
-<li>Class definition files should be called <code>class.R</code> and contain <code>class()</code> and <code>as.class()</code> constructor functions and a <code>is.class</code> test function.</li>
-<li>Short, non-exported utility functions can go in the <code>utilities.R</code> file.
-<ul>
-<li>Use the <code>@noRd</code> tag in the roxygen documentation of these functions and be sure not to <code>@export</code> them.</li>
-</ul>
-</li>
-<li>Non-exported functions that will likely only be called by one exported function can go below the calling function in its file. This is useful to keep individual functions from getting too long.</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>When you write a new function:
-<ul>
-<li>Place the old function in the <code>R/deprecated.R</code> file.</li>
-<li>Use <a href="https://stackoverflow.com/a/10145627/2565816"><code>.Deprecated</code> or <code>.Defunct</code></a> to point the user to the new function.</li>
-<li>Delete the old function’s tests and be sure your new function is tested.</li>
-</ul>
-</li>
-</ul>
+<a href="#feature-requests-and-bug-reports" class="anchor"></a>Feature Requests and Bug Reports</h2>
+<p>The easiest way to contribute to making <code>healthcareai</code> better is to provide feedback about what you want the package to do and what it isn’t doing well.</p>
+<p>Both feature requests and bug reports should be submitted as <a href="https://github.com/HealthCatalyst/healthcareai-r/issues">Github issues</a>.</p>
+<p><strong>Bug reports</strong> should be filed with a <a href="https://gist.github.com/hadley/270442">minimal reproducable example</a>. The <a href="https://github.com/tidyverse/reprex">reprex package</a> is extraordinarily helpful for this. Please also include the output of <code>sessionInfo()</code> or better yet, <code><a href="http://www.rdocumentation.org/packages/devtools/topics/session_info">devtools::session_info()</a></code>.</p>
+</div>
+<div id="writing-code-and-documentation" class="section level2">
+<h2 class="hasAnchor">
+<a href="#writing-code-and-documentation" class="anchor"></a>Writing Code and Documentation</h2>
+<p>We welcome contributions from within and beyond the Health Catalyst community. To get involved, <a href="https://help.github.com/articles/fork-a-repo/">fork the repository</a>, create a topic branch, make changes, and submit a <a href="https://github.com/HealthCatalyst/healthcareai-r/pulls">pull request</a>.</p>
+<div id="getting-started-contributing" class="section level4">
+<h4 class="hasAnchor">
+<a href="#getting-started-contributing" class="anchor"></a>Getting Started Contributing</h4>
+<p>It’s best to start small and work your way into deeper issues as you gain familiarity with the process. Improvements to documentation are a great place to start. We also tag issues that we think make good opportunities for contributions with the <a href="https://github.com/HealthCatalyst/healthcareai-r/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22">“help wanted” tag</a>.</p>
+</div>
+</div>
+<div id="repository-structure" class="section level2">
+<h2 class="hasAnchor">
+<a href="#repository-structure" class="anchor"></a>Repository structure</h2>
+<p>This repository is structured as a standard R package. Hadley’s <a href="http://r-pkgs.had.co.nz/">R Packages</a> is an excellent resource on package authoring details and conventions.</p>
+<p>All code is found in <code>R/</code>, and documentation is written via <a href="https://github.com/klutometis/roxygen">roxygen2</a> with the function definition. Exported functions generally get their own file, and helper functions go below the function that calls them or in <code>R/utilities.R</code> if they are called by multiple functions. Tests are in <code>tests/testthat/</code>.</p>
 </div>
 <div id="documentation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#documentation" class="anchor"></a>Documentation</h2>
-<ul>
-<li><p>Document using <code>roxygen2</code>. Be sure to read the <a href="http://style.tidyverse.org/code-documentation.html">documentation section</a> of the style guide.</p></li>
-<li><p>Keep examples succinct. In general, one example showing the minimal use of the function (with defaults) and one example showing a customized use should be adequate. Longer examples can be vignettes.</p></li>
-</ul>
+<p>All of the function documentation is generated automatically. Do not edit any files in <code>man/</code>, <code>docs/</code>, or <code>NAMESPACE</code>. Instead, construct the appropriate <a href="http://r-pkgs.had.co.nz/man.html">roxygen2</a> documentation in the function files in <code>R/</code> themselves. Documentation should be generated before issuing a pull request by running <code><a href="http://www.rdocumentation.org/packages/devtools/topics/document">devtools::document()</a></code> (shift-command-R in R Studio).</p>
 </div>
 <div id="testing" class="section level2">
 <h2 class="hasAnchor">
 <a href="#testing" class="anchor"></a>Testing</h2>
-<ul>
-<li><p>We use <code>testthat</code> for testing. Write tests before you write function code. Read the <a href="http://r-pkgs.had.co.nz/tests.html">testing chapter in Hadley’s R packages</a> about how to write good tests.</p></li>
-<li><p>At the end of any test file that creates data or log files, cleanup the files with <code>file.remove</code>.</p></li>
-</ul>
+<p>Any new code should include a unit-test demonstrating the change. We subscribe to <a href="http://butunclebob.com/ArticleS.UncleBob.TheThreeRulesOfTdd">test-driven development</a>, which suggests starting by writing a now-failing test that describes the functionality or bug fix you want to implement.</p>
+<p>Tests are implemented via <code>testthat</code> and are located in <code>tests/testthat/</code>. All tests must pass before a pull request can be merged; you can check that this is the case by running <code><a href="http://www.rdocumentation.org/packages/devtools/topics/test">devtools::test()</a></code>. This will also check your package for code style.</p>
+<p>The package uses <a href="https://codecov.io/">codecov.io</a> to measure test coverage. Try to avoid decreasing coverage by writing unit tests for any contributed code. codecov.io will flag PRs that decrease coverage.</p>
 </div>
 <div id="code-style" class="section level2">
 <h2 class="hasAnchor">
 <a href="#code-style" class="anchor"></a>Code Style</h2>
-<p>We abide by the <a href="http://style.tidyverse.org/">tidyverse style guide</a>. Additional style details below.</p>
-<ul>
-<li>We use <code>lintr</code> to check code style. You can check your style with <code>lint_package()</code> or an individual file with <code>lint("path/to/file.R")</code>. It will also be checked on <code><a href="http://www.rdocumentation.org/packages/devtools/topics/test">devtools::test()</a></code> and on travis.
-<ul>
-<li>Should you need to violate <code>lintr</code> rules, put <code># nolint</code> at the end of the violating line.</li>
-<li>There is a Sublime integration for lintr, <a href="https://github.com/jimhester/lintr#sublime-text-3">here</a>.</li>
-</ul>
-</li>
-<li><p>Commits that edit existing code should either make substantive or stylistic changes. Try to avoid mixing the two as it makes the substantive changes harder to find.</p></li>
-<li><p>We use <code>strict</code> to enforce betteR practices, but RStudio <a href="https://github.com/hadley/strict/issues/5">currently breaks</a> if we try to load the package automatically at startup, so for now, run <code>library(strict)</code> whenever you’re developing.</p></li>
-</ul>
-<div id="additional-dplyr-details" class="section level4">
-<h4 class="hasAnchor">
-<a href="#additional-dplyr-details" class="anchor"></a>Additional <code>dplyr</code> Details</h4>
-<ul>
-<li>Piped lines of code should start with a line that is just the name of the data frame. Assignment should go on its own line. E.g.</li>
-</ul>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">df &lt;-</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="st">  </span>df <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="st">    </span><span class="kw">filter</span>(<span class="op">!</span><span class="kw">is.na</span>(var))</a></code></pre></div>
-<ul>
-<li><p>To extract a vector from a data frame at the end of a piped sequence, use <code><a href="http://dplyr.tidyverse.org/reference/pull.html">dplyr::pull(var)</a></code> rather than <code>.[[var]]</code> or <code>.$var</code>.</p></li>
-<li><p>For programming with dplyr, e.g. <code>filter(df, columnFromUser &gt; 0)</code>, run <code>dplyr</code>’s <code>vignette("programming")</code></p></li>
-</ul>
-</div>
-</div>
-<div id="package-management" class="section level2">
-<h2 class="hasAnchor">
-<a href="#package-management" class="anchor"></a>Package Management</h2>
-<p>We’re staying current with other R packages, so it’s a good idea to develop with updated versions of R and packages. Update R from <a href="https://cran.r-project.org/">CRAN</a> and then update packages with <code>update.packages(ask = FALSE)</code>. Updating packages will take a few minutes if you haven’t done it recently.</p>
-</div>
-<div id="tbd" class="section level2">
-<h2 class="hasAnchor">
-<a href="#tbd" class="anchor"></a>TBD</h2>
-<p><a href="https://github.com/WinVector/vtreat/"><code>vtreat</code></a> implements impact coding and deals with a bunch of common problems we often run into. We should use it. It would be great to bake it into the recipes pipeline.</p>
+<p>Code should conform to the <a href="http://style.tidyverse.org/">tidyverse style guide</a>. Code style will be checked in your pull request by <a href="https://github.com/jimhester/lintr">lintr</a>, and tests will fail on Travis if there are lints. You can check conformation with the style guide by running <code><a href="http://www.rdocumentation.org/packages/lintr/topics/lint_package">lintr::lint_package()</a></code> locally.</p>
 <hr>
-<p><em>The following is the old CONTRIBUTING doc, which should be cleaned-up and restored with the above integrated post refactor</em></p>
+<p>Thanks to the well-organized rOpenSci <a href="https://github.com/ropensci/codemetar">codemetar</a> and <a href="https://github.com/ropensci/drake">drake</a> packages, which were drawn on heavily in the creation of this document.</p>
 </div>
 </div>
-<div id="setting-up-your-development-environment-to-enable-contributions" class="section level1">
-<h1 class="hasAnchor">
-<a href="#setting-up-your-development-environment-to-enable-contributions" class="anchor"></a>Setting up your development environment (to enable contributions)</h1>
-<div id="set-up-r-rstudio-and-healthcare-ai" class="section level2">
-<h2 class="hasAnchor">
-<a href="#set-up-r-rstudio-and-healthcare-ai" class="anchor"></a>Set up R, RStudio, and healthcare.ai</h2>
-<ol>
-<li>
-<a href="http://cran.us.r-project.org/">Download</a> latest R and install</li>
-<li>
-<a href="https://www.rstudio.com/products/rstudio/download3/">Download</a> RStudio and install</li>
-<li>
-<a href="https://desktop.github.com/">Download</a> Github desktop and install</li>
-</ol>
-</div>
-<div id="fork-healthcareai-r-repo" class="section level2">
-<h2 class="hasAnchor">
-<a href="#fork-healthcareai-r-repo" class="anchor"></a>Fork healthcareai-r repo</h2>
-<ul>
-<li>Fork the repo (look for the link in the top right corner <a href="https://github.com/HealthCatalyst/healthcareai-r">here</a>). This copies the repo from our organization onto your personal account, so you can modify it.</li>
-<li>Click the green ‘Clone or download’ button and click, “Open in Desktop.” This will take you to github desktop, where you can select a folder for your local copy of the repo.</li>
-<li>Open RStudio
-<ul>
-<li>Install package prerequisites <code>install.packages(c('caret','data.table','DBI','doParallel','e1071','grpreg','lme4','odbc','pROC','R6','ranger','ROCR','RSQLite','tidyverse','xgboost'),repos = "https://cran.cnr.berkeley.edu/")</code>
-</li>
-<li>Install development requirments <code>install.packages(c('devtools','evaluate','roxygen2','testthat')</code>
-</li>
-<li>Look for Project dropdown (top right corner)</li>
-<li>Click <code>New Project</code>
-</li>
-<li>Click <code>From Existing Directory</code>
-</li>
-<li>Navigate to the folder you selected above for your local copy of the repository.</li>
-</ul>
-</li>
-<li>Note that a git tab now appears in RStudio</li>
-</ul>
-</div>
-<div id="create-a-topic-branch-that-you-can-work-in" class="section level2">
-<h2 class="hasAnchor">
-<a href="#create-a-topic-branch-that-you-can-work-in" class="anchor"></a>Create a topic branch that you can work in</h2>
-<ul>
-<li>In github desktop, go to the <code>Branch</code> menu and select, <code>New Branch</code>.</li>
-<li>Title your new branch with your name, the issue number, and the purpose, like, <code>mike_678_bugfix</code>.</li>
-</ul>
-</div>
-<div id="rstudio-configuration" class="section level2">
-<h2 class="hasAnchor">
-<a href="#rstudio-configuration" class="anchor"></a>RStudio Configuration</h2>
-<ul>
-<li>In RStudio, if you don’t see healthcareai-r in the top right corner
-<ul>
-<li>Click the project tab in the top-right -&gt; Open Project</li>
-<li>Select the healthcareai-r.Rproj file (that’s at the top-level of the repo you downloaded)</li>
-</ul>
-</li>
-<li>Click on Tools (at top menu of RStudio) -&gt; Project Options -&gt; Build Tools
-<ul>
-<li>Check ’Use devtools package functions if available</li>
-<li>Check ‘Generate documentation with Roxygen’ If you don’t see this option, you must install Roxygen2 by entering the following into the command line: install.packages(“roxygen2”)</li>
-<li>Click on ‘Configure’ Button -&gt; Check all boxes</li>
-<li>Click OK twice</li>
-</ul>
-</li>
-<li>Click again on Tools -&gt; Global Options
-<ul>
-<li>Under Code -&gt; Editing, check ‘Always save R scripts before sourcing’</li>
-<li>Under Code -&gt; Display, check check ‘Show margin’ and set to 80 characters</li>
-<li>Under Code -&gt; Diagnostics, check all boxes</li>
-</ul>
-</li>
-</ul>
-</div>
-<div id="set-up-environment-for-r-develeopment" class="section level2">
-<h2 class="hasAnchor">
-<a href="#set-up-environment-for-r-develeopment" class="anchor"></a>Set up environment for R develeopment</h2>
-<div id="windows" class="section level3">
-<h3 class="hasAnchor">
-<a href="#windows" class="anchor"></a>Windows</h3>
-<ul>
-<li>
-<a href="https://cran.r-project.org/bin/windows/Rtools/">Download</a> and install RTools
-<ul>
-<li>Note: this installs a C++ compiler (called <a href="https://gcc.gnu.org/onlinedocs/gcc-3.3.6/gcc/G_002b_002b-and-GCC.html">g++</a>)</li>
-<li>Can accept defaults on <code>Select Destination Location</code> and <code>Select Components</code> screens</li>
-<li>On <code>Select Additional Tasks</code> step, check the PATH box</li>
-<li>If you ever see issues related to Rtools, see <a href="https://github.com/stan-dev/rstan/wiki/Install-Rtools-for-Windows">here</a>
-</li>
-</ul>
-</li>
-</ul>
-</div>
-<div id="macos" class="section level3">
-<h3 class="hasAnchor">
-<a href="#macos" class="anchor"></a>macOS</h3>
-<ul>
-<li>install <a href="https://developer.apple.com/xcode/">Xcode</a> if you haven’t already</li>
-</ul>
-</div>
-</div>
-<div id="verify-you-can-build-the-healthcareai-package" class="section level2">
-<h2 class="hasAnchor">
-<a href="#verify-you-can-build-the-healthcareai-package" class="anchor"></a>Verify you can build the healthcareai package</h2>
-<ol>
-<li>In RStudio, if you don’t see healthcareai-r in the top right corner
-<ul>
-<li>Click the project tab in the top right -&gt; Open Project</li>
-</ul>
-</li>
-<li>Click on the build tab in the top right corner</li>
-<li>Click Build and verify that you can build successfully (without errors)
-<ul>
-<li>Note that you may see warnings about versioning, which is fine</li>
-</ul>
-</li>
-<li>Run tests via <code><a href="http://www.rdocumentation.org/packages/devtools/topics/test">devtools::test()</a></code> or CTRL+SHIFT+D or Build dropdown -&gt; Test Package
-<ul>
-<li>Verify that these pass without seeing errors</li>
-</ul>
-</li>
-<li>Run the roxygen2 examples via <code><a href="http://www.rdocumentation.org/packages/devtools/topics/run_examples">devtools::run_examples()</a></code>. Verify that these finish without errors
-<ul>
-<li>Verify that these pass without seeing errors</li>
-</ul>
-</li>
-<li>Under the build tab, run ‘Check’
-<ul>
-<li>Verify that no errors/warnings arise</li>
-</ul>
-</li>
-</ol>
-</div>
-</div>
-<div id="contribution-workflow" class="section level1">
-<h1 class="hasAnchor">
-<a href="#contribution-workflow" class="anchor"></a>Contribution Workflow</h1>
-<p>1) Identify an issue that suits your skill level <a href="https://github.com/HealthCatalyst/healthcareai-r/issues">here</a></p>
-<ul>
-<li>Only look for issues in the Backlog category</li>
-<li>If you’re new to open source, please look for issues with the <code>bug low</code>, <code>help wanted</code>, or <code>docs</code> tags</li>
-<li>Please reach out with questions on details and where to start</li>
-</ul>
-<p>2) Create a topic branch to work in, as described <a href="CONTRIBUTING.md#create-a-topic-branch-that-you-can-work-in">here</a></p>
-<p>3) To test the new functionality you’ve created, use a new throw-away file on the Desktop (or somewhere outside the repo), perhaps based on a package example</p>
-<p>4) As you make changes in the code:</p>
-<ul>
-<li>Use <code>Ctrl+Shift+L</code> to load your changes as you test them iteratively.</li>
-<li>Make small commits after getting a small piece working.</li>
-<li>Push often so your changes are backed up to the remote. See <a href="https://gist.github.com/blackfalcon/8428401#push-your-branch">here</a> for more</li>
-<li>Document any new functions, methods, etc via <a href="http://r-pkgs.had.co.nz/man.html">roxygen2</a>
-</li>
-<li>Merge the master branch into your topic branch (so that you have the latest changes from master) using the <code>Sync</code> button in github desktop.</li>
-</ul>
-<p>5) Create a <a href="https://yangsu.github.io/pull-request-tutorial/">pull request</a></p>
-<ul>
-<li>Early is best! That way, our team can discuss the changes that you’re making. Conversation is good.</li>
-<li>Using the <code>Build</code> tab in Rstudio:
-<ul>
-<li>Build the package. This checks for errors and indexes all the functions.</li>
-<li>Build the documentation.</li>
-<li>Check the package and look for errors, warnings, and notes.</li>
-<li>If you run into problems, check the <a href="CONTRIBUTING.md#RStudio-Tips">RStudio Tips</a> section below.</li>
-<li>If your changes are ready, comment (with an <code>@team_member</code>) in the pull request to let us know is ready. Again, please <em>don’t</em> do tons of work and <em>then</em> start a PR. Early is good.</li>
-</ul>
-</li>
-</ul>
-<p>6) Address your review changes</p>
-<ul>
-<li>Fix whatever we comment on.</li>
-<li>As you make fixes, new pushes will go to the same pull request automatically.</li>
-<li>When everyone is happy with the code, we’ll merge it into the package. Nice job!</li>
-</ul>
-</div>
-<div id="rstudio-tips" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rstudio-tips" class="anchor"></a>RStudio Tips</h1>
-<ul>
-<li>Navigate to file/function
-<ul>
-<li><strong>CTRL-.</strong></li>
-</ul>
-</li>
-<li>All Keyboard Shortcuts
-<ul>
-<li><strong>ALT-SHIFT-K</strong></li>
-</ul>
-</li>
-<li>How to load a project
-<ul>
-<li>The menu on the upper right of Rstudio contains the projects.</li>
-</ul>
-</li>
-<li>How to load (instead of build) to use your new function
-<ul>
-<li><strong>CTRL-SHIFT-L</strong></li>
-</ul>
-</li>
-<li>How to document functions via roxygen
-<ul>
-<li><strong>CTRL-SHIFT-D</strong></li>
-</ul>
-</li>
-<li>How to build
-<ul>
-<li><strong>CTRL-SHIFT-B</strong></li>
-</ul>
-</li>
-<li>How to run unit tests
-<ul>
-<li><strong>CTRL-SHIFT-T</strong></li>
-<li>
-<code><a href="http://www.rdocumentation.org/packages/devtools/topics/test">devtools::test(filter = "filename")</a></code> runs a single test file</li>
-</ul>
-</li>
-<li>How to run examples <code><a href="http://www.rdocumentation.org/packages/devtools/topics/run_examples">devtools::run_examples()</a></code>
-</li>
-<li>How (and why) to Check
-<ul>
-<li><strong>CTRL-SHIFT-E</strong></li>
-<li>runs build and reload</li>
-<li>runs unit test</li>
-<li>runs examples</li>
-</ul>
-</li>
-<li>The <a href="https://www.rstudio.com/resources/cheatsheets/">RStudio Cheatsheets</a> are chock full of helpful hints.</li>
-</ul>
-</div>
-
 
   </div>
 

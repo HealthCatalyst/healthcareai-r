@@ -53,7 +53,7 @@ predictions
 
 We get a message about when the model was trained and how well it preformed in training, and we get back a data frame that looks sort of like the original, but has a new column `predited_diabetes` that contains the model-generated probability each individual has diabetes, and contains changes that were made preparing the data for model training, e.g. missingness has been filled in and `weight_class` has been split into a series of "dummy" variables.
 
-We can plot how effectively the model is able to separate diabetic from non-diabetic individuals by simply calling the `plot` function on the output of `predict`.
+We can plot how effectively the model is able to separate diabetic from non-diabetic individuals by calling the `plot` function on the output of `predict`.
 
 ```{r}
 plot(predictions)
@@ -61,7 +61,7 @@ plot(predictions)
 
 # Data Profiling
 
-It is always a good idea to be aware of where there are missing values in data. The `missingness` function makes it easy to do that. In addition to looking for values R sees as missing, it looks for other values that might represent missing, such as `"NULL"`, and issues a warning if it finds any.
+It is always a good idea to be aware of where there are missing values in data. The `missingness` function helps with that. In addition to looking for values R sees as missing, it looks for other values that might represent missing, such as `"NULL"`, and issues a warning if it finds any.
 
 ```{r}
 missingness(pima_diabetes)
@@ -71,7 +71,7 @@ It's good that we don't have any missingness in our ID or outcome columns. We'll
 
 # Data Preparation
 
-To get an honest picture of how well a model performs (and an accurate estimate of how well it will perform on yet-unseen data), it is wise to hide a small portion of observations from model training and assess model performance on this "validation" or "test" dataset. In fact, `healthcareai` does this automatically and repeatedly under the hood, so it's not strictly necessary, but it's still a good idea. The `split_train_test` function makes this easy, and it ensures the test dataset has proportionally similar characteristics to the training dataset. By default, 80% of observations are used for training; that proportion can be adjusted with the `p` parameter. The `seed` parameter controls randomness so that you can get the same split every time you run the code if you want strict reproducability.
+To get an honest picture of how well a model performs (and an accurate estimate of how well it will perform on yet-unseen data), it is wise to hide a small portion of observations from model training and assess model performance on this "validation" or "test" dataset. In fact, `healthcareai` does this automatically and repeatedly under the hood, so it's not strictly necessary, but it's still a good idea. The `split_train_test` function simplifies this, and it ensures the test dataset has proportionally similar characteristics to the training dataset. By default, 80% of observations are used for training; that proportion can be adjusted with the `p` parameter. The `seed` parameter controls randomness so that you can get the same split every time you run the code if you want strict reproducability.
 
 ```{r}
 split_data <- split_train_test(d = pima_diabetes,
@@ -98,7 +98,7 @@ The "recipe" that the above message refers to is a set of instructions for how t
 
 `machine_learn` takes care of data preparation and model training for you, but if you want more precise control, `tune_models` and `flash_models` are the model-training function you're looking for. They differ in that `tune_models` searches over hyperparameters to optimize model performance, while `flash_models` trains models at set hyperparameter values. So, `tune_models` produces better models, but takes longer (approaching 10x longer at default settings).
 
-Let's just tune random forests (default also trains k-nearest neighbors), and to try to really optimize model performance, let's crank `tune_depth` up a little from its default value of ten. That will tune the models over more combinations of hyperparameter values in the search for the best model.
+Let's tune only random forests (by default, k-nearest neighbors is also tuned), and to try to really optimize model performance, let's crank `tune_depth` up a little from its default value of ten. That will tune the models over more combinations of hyperparameter values in the search for the best model.
 
 Let's also select "PR" as our model metric. That optimizes for area under the precision-recall curve rather than the default of area under the receiver operating characteristic curve ("ROC"). This is usually a good idea when one outcome category is much more common than the other category.
 
@@ -112,7 +112,7 @@ models <- tune_models(d = prepped_training_data,
 
 We get a message saying the training may take a while because we're training so many models, but in this case it takes just about 20 seconds to train all those models.
 
-We can examine how the model performs across hyperparameters by simply plotting the model object. It looks like extratrees is a superior split rule for this model, and larger values of minimum node size tend to do better.
+We can examine how the model performs across hyperparameters by plotting the model object. It looks like extratrees is a superior split rule for this model, and larger values of minimum node size tend to do better.
 
 ```{r, fig.height = 6}
 plot(models)
@@ -135,13 +135,13 @@ In this case we sacrificed just 0.01 AUPR versus tuning the models. In our exper
 
 # Prediction
 
-We can easily get predictions on our original dataset. `predict` will automatically use the best-performing model from training (evaluated out-of-fold in cross validation). The predicted probabilities appear in the `predicted_diabetes` column.
+`predict` will automatically use the best-performing model from training (evaluated out-of-fold in cross validation). If no new data is passed to `predict` it will make predictions on the training dataset. The predicted probabilities appear in the `predicted_diabetes` column.
 
 ```{r}
 predict(models)
 ```
 
-To get predictions on a new dataset, simply pass the new data to `predict`, and it will automatically be prepared based on the recipe generated on the training data. We can plot the predictions to see how well our model is doing, and we see that it's separating diabetic from non-diabetic individuals pretty well, although there a fair number of non-diabetics with high predicted probabilities of diabetes. This may be due to optimizing for precision recall, or may indicate pre-diabetic patients.
+To get predictions on a new dataset, pass the new data to `predict`, and it will automatically be prepared based on the recipe generated on the training data. We can plot the predictions to see how well our model is doing, and we see that it's separating diabetic from non-diabetic individuals pretty well, although there a fair number of non-diabetics with high predicted probabilities of diabetes. This may be due to optimizing for precision recall, or may indicate pre-diabetic patients.
 
 ```{r}
 test_predictions <- predict(models, split_data$test)
