@@ -1,4 +1,4 @@
-#' Pivot from a long data frame to a wide data frame
+#' Pivot multiple rows per observation to one row with multiple columns
 #'
 #' @param d data frame
 #' @param grain Column that defines rows. Unquoted.

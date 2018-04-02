@@ -1,4 +1,4 @@
-#' Machine Learn
+#' Machine learning made easy
 #'
 #' @description Prepare data and train machine learning models.
 #'

@@ -61,7 +61,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development package">2.0.0</span>
+        <span class="label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development package">2.0.0.9</span>
       </span>
     </div>
 
@@ -201,7 +201,7 @@ Ignored if tune is FALSE.</p></td>
 <span class='co'># Clean and prep the data, tune algorithms over hyperparameter values to predict diabetes</span>
 <span class='no'>diabetes_models</span> <span class='kw'>&lt;-</span> <span class='fu'>machine_learn</span>(<span class='no'>training_data</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Running cross validation for Random Forest</span></div><div class='output co'>#&gt; <span class='message'>Running cross validation for k-Nearest Neighbors</span></div><div class='input'>
 <span class='co'># Make predictions (predicted probability of diabetes) on test data</span>
-<span class='fu'>predict</span>(<span class='no'>diabetes_models</span>, <span class='no'>test_data</span>)</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-04-01 22:24:29</span>
+<span class='fu'>predict</span>(<span class='no'>diabetes_models</span>, <span class='no'>test_data</span>)</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-04-01 22:46:48</span>
 #&gt; <span class='message'>Performance in training: ROC = 0.75</span></div><div class='output co'>#&gt; # A tibble: 10 x 11
 #&gt;    diabetes predicted_diabe… patient_id pregnancies plasma_glucose diastolic_bp
 #&gt;  * &lt;chr&gt;               &lt;dbl&gt;      &lt;int&gt;       &lt;int&gt;          &lt;int&gt;        &lt;int&gt;
@@ -222,7 +222,7 @@ Ignored if tune is FALSE.</p></td>
 <span class='co'># Predict numeric outcomes simply by specifying the name of the outcome variable</span>
 <span class='no'>age_model</span> <span class='kw'>&lt;-</span> <span class='fu'>machine_learn</span>(<span class='no'>training_data</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>age</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>age looks numeric, so training regression algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Running cross validation for Random Forest</span></div><div class='output co'>#&gt; <span class='message'>Running cross validation for k-Nearest Neighbors</span></div><div class='input'>
 <span class='co'># If new data isn't specifed, get predictions on training data. Plot predictions</span>
-<span class='fu'>predict</span>(<span class='no'>age_model</span>)</div><div class='output co'>#&gt; <span class='message'>"predicted_age" predicted by Random Forest last trained: 2018-04-01 22:24:33</span>
+<span class='fu'>predict</span>(<span class='no'>age_model</span>)</div><div class='output co'>#&gt; <span class='message'>"predicted_age" predicted by Random Forest last trained: 2018-04-01 22:46:51</span>
 #&gt; <span class='message'>Performance in training: RMSE = 9.88</span></div><div class='output co'>#&gt; # A tibble: 50 x 17
 #&gt;      age predicted_age patient_id pregnancies plasma_glucose diastolic_bp
 #&gt;  * &lt;int&gt;         &lt;dbl&gt;      &lt;int&gt;       &lt;int&gt;          &lt;int&gt;        &lt;dbl&gt;
@@ -251,7 +251,7 @@ Ignored if tune is FALSE.</p></td>
 #&gt; Performance Metric: ROC
 #&gt; Number of Observations: 50
 #&gt; Number of Features: 13
-#&gt; Models Trained: 2018-04-01 22:24:34 
+#&gt; Models Trained: 2018-04-01 22:46:52 
 #&gt; 
 #&gt; Models have not been tuned. Performance estimated via 5-fold cross validation at fixed hyperparameter values.
 #&gt; Best model: Random Forest

@@ -1,5 +1,5 @@
-#' Identify the best performing model by tuning hyperparameters via
-#' cross-validation
+#' Tune multiple machine learning models using cross validation to optimize
+#' performance
 #'
 #' @param d A data frame
 #' @param outcome Name of the column to predict
