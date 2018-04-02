@@ -20,7 +20,7 @@
 <![endif]-->
 </head>
 <body>
-    <div class="container template-home">
+    <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
@@ -72,90 +72,89 @@
 
       
       </header><div class="row">
-  <div class="contents col-md-9">
-    <div id="healthcareai" class="section level1">
+  <div class="col-md-9 contents">
+    
+
+    
+    
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+<div id="healthcareai" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
-<a href="#healthcareai" class="anchor"></a>healthcareai</h1></div>
+<a href="#healthcareai" class="anchor"></a>healthcareai <img src="reference/figures/logo.png" align="right">
+</h1></div>
 
 <p><a href="https://cran.r-project.org/package=healthcareai"><img src="https://www.r-pkg.org/badges/version-last-release/healthcareai" alt="CRAN_Status_Badge"></a> <a href="https://github.com/HealthCatalystSLC/healthcareai-r/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a> <a href="https://doi.org/10.5281/zenodo.999334"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.999334.svg" alt="DOI"></a></p>
-<p>Machine learning as easy as…</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(healthcareai)</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2">models &lt;-<span class="st"> </span><span class="kw"><a href="reference/machine_learn.html">machine_learn</a></span>(<span class="dt">d =</span> pima_diabetes, <span class="dt">outcome =</span> diabetes)</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw">predict</span>(models)</a></code></pre></div>
-<p><strong>Please note that the package is currently in transition</strong> from an R6 architecture to a tidy, S3 architecture. The code above is the new version, which is in beta and can be acquired via <code><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">devtools::install_github("HealthCatalyst/healthcareai-r")</a></code>. Beta testing of the new version, pre-CRAN, is very welcome; please file issues for any bugs, unclear docs, or feature suggestions here. <code>install.packages("healthcareai")</code> will get you the old version from CRAN, which will remain available via <code><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">devtools::install_github("HealthCatalyst/healthcareai-r@v1.2.3")</a></code>.</p>
-<p>The aim of <code>healthcareai</code> is to make machine learning on healthcare data easy. The package does that by providing functions to:</p>
-<ul>
-<li>Easily develop a high performance machine-learning model tuned to your data.</li>
-<li>Make predictions based on that model and push them to a database or flat file.</li>
-<li>Provide tools related to data cleaning, manipulation, imputation, and visualization.</li>
-</ul>
-<div id="getting-started" class="section level2">
+<div id="overview" class="section level2">
 <h2 class="hasAnchor">
-<a href="#getting-started" class="anchor"></a>Getting started</h2>
+<a href="#overview" class="anchor"></a>Overview</h2>
+<p>The aim of <code>healthcareai</code> is to make machine learning in healthcare as easy as possible. It does that by providing functions to:</p>
 <ul>
-<li>If you haven’t, install <a href="https://CRAN.r-project.org/">R</a> and <a href="https://www.rstudio.com/products/rstudio/download">RStudio</a>
-<ul>
-<li>Note: if you’re setting up R on an ETL server, don’t download RStudio–simply open up RGui or work in the terminal.</li>
+<li>Develop customized, reliable, high-performance machine learning models with minimal code</li>
+<li>Easily make and evaluate predictions and push them to a database or flat file</li>
+<li>Provide tools related to data cleaning, manipulation, imputation, and visualization</li>
 </ul>
-</li>
-<li>Open RStudio and install the package by entering this in the console: <code>install.packages('healthcareai')</code>
-</li>
-</ul>
-<div id="website-examples" class="section level4">
-<h4 class="hasAnchor">
-<a href="#website-examples" class="anchor"></a>Website examples</h4>
-<p>See our <a href="http://healthcareai-r.readthedocs.io">docs website</a>.</p>
+<p><strong>Please note that the package is currently in transition</strong> from an R6 architecture to a tidy, S3 architecture. The code below is the new version, which is in beta and can be acquired via <code>install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r")</code>. Beta testing of the new version, pre-CRAN, is very welcome; please file issues for any bugs, unclear docs, or feature suggestions <a href="https://github.com/HealthCatalyst/healthcareai-r/issues">here</a>. <code>install.packages("healthcareai")</code> will get you the old version from CRAN, which will remain available via <code><a href="http://www.rdocumentation.org/packages/remotes/topics/install_github">remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")</a></code>.</p>
 </div>
-<div id="join-the-community" class="section level4">
-<h4 class="hasAnchor">
-<a href="#join-the-community" class="anchor"></a>Join the community</h4>
-<p>Read the <a href="http://healthcare.ai/blog/">blog</a>, check out our machine learning <a href="https://www.youtube.com/channel/UCGZUobs_x712KbcL6RSzfnQ">broadcasts</a>, and join the <a href="https://healthcare-ai.slack.com/">Slack group</a>.</p>
-</div>
-</div>
-<div id="for-issues" class="section level2">
+<div id="usage" class="section level2">
 <h2 class="hasAnchor">
-<a href="#for-issues" class="anchor"></a>For issues</h2>
-<ul>
-<li>If you’re having trouble getting code to work, the <a href="https://healthcare-ai.slack.com/">healthcare-ai Slack community</a> is a great place to ask question. If you think something may be broken, you can file a <a href="https://github.com/HealthCatalyst/healthcareai-r/issues">Github issue</a> or submit a question on <a href="http://stackoverflow.com/">Stack Overflow</a> using the healthcare-ai tag. Please provide:
-<ul>
-<li>Details on your environment. The output <code><a href="http://www.rdocumentation.org/packages/devtools/topics/session_info">devtools::session_info()</a></code> is great for this.</li>
-<li>A concise discussion of what are you trying to accomplish.</li>
-<li>A <a href="https://github.com/tidyverse/reprex">reproducible example</a> of the error.</li>
-</ul>
-</li>
-</ul>
+<a href="#usage" class="anchor"></a>Usage</h2>
+<p><code>healthcareai</code> can take you from messy data to an optimized model in one line of code:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">models &lt;-<span class="st"> </span><span class="kw"><a href="reference/machine_learn.html">machine_learn</a></span>(pima_diabetes, patient_id, <span class="dt">outcome =</span> diabetes)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2">models</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="co"># &gt; Algorithms Trained: Random Forest, k-Nearest Neighbors</span></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="co"># &gt; Target: diabetes</span></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="co"># &gt; Class: Classification</span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="co"># &gt; Performance Metric: ROC</span></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="co"># &gt; Number of Observations: 768</span></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co"># &gt; Number of Features: 12</span></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="co"># &gt; Models Trained: 2018-04-01 21:18:46 </span></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10"><span class="co"># &gt; </span></a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co"># &gt; Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.</span></a>
+<a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co"># &gt; Best model: Random Forest</span></a>
+<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co"># &gt; ROC = 0.85</span></a>
+<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="co"># &gt; Optimal hyperparameter values:</span></a>
+<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co"># &gt;   mtry = 5</span></a>
+<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="co"># &gt;   splitrule = extratrees</span></a>
+<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co"># &gt;   min.node.size = 15</span></a></code></pre></div>
+<p>Make predictions and examine predictive performance:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(models)</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw">plot</span>(predictions)</a></code></pre></div>
+<p><img src="index_files/figure-html/unnamed-chunk-3-1.png" width="576"></p>
 </div>
-<div id="contributing" class="section level2">
+<div id="learn-more" class="section level2">
 <h2 class="hasAnchor">
-<a href="#contributing" class="anchor"></a>Contributing</h2>
-<p>You want to help? Woohoo! We welcome that and are willing to help newbies get started.</p>
-<p>First, see <a href="CONTRIBUTING.html">here</a> for instructions on setting up your development environment and how to contribute. You’ll want to install the development version of the package via ‘devtools::install_github(repo=’HealthCatalyst/healthcareai-r’)`.</p>
+<a href="#learn-more" class="anchor"></a>Learn More</h2>
+<p>For details on what’s happening under the hood and for options to customize data preparation and model training, see <code><a href="articles/healthcareai.html">vignette("healthcareai")</a></code> as well as the helpfiles for individual functions such as <code><a href="reference/machine_learn.html">?machine_learn</a></code>, <code><a href="reference/prep_data.html">?prep_data</a></code>, and <code><a href="reference/tune_models.html">?tune_models</a></code>.</p>
+<p>Documentation of all functions as well as vignettes on various uses of the package are available at the package website: <a href="https://docs.healthcare.ai/" class="uri">https://docs.healthcare.ai/</a>.</p>
+<p>Also, be sure to read our <a href="http://healthcare.ai/blog/">blog</a> and watch our <a href="https://www.youtube.com/channel/UCGZUobs_x712KbcL6RSzfnQ">broadcasts</a> to learn more about what’s new in healthcare machine learning and how we are using this toolkit to put machine learning to work in real healthcare systems.</p>
 </div>
-<div id="troubleshooting" class="section level2">
+<div id="get-involved" class="section level2">
 <h2 class="hasAnchor">
-<a href="#troubleshooting" class="anchor"></a>Troubleshooting</h2>
-<p>Does <code>install.packages('healthcareai')</code> or <code>library(healthcareai)</code> fail? If you don’t have admin rights on the machine you are working on, you may need to set a custom location for your R libraries. Here’s how to do that:</p>
-<ol>
-<li>
-<em>Create a folder to hold your R packages.</em> You’ll generally have write access to your <code>Documents</code> folder, so you might create a new directory: <code>C:\Users\your.name\Documents\R\R_library</code>. Shift-right click on that folder and copy its path.</li>
-<li>
-<em>Define a system variable with that folder location.</em> Open the Control Panel and click through User Accounts -&gt; User Accounts -&gt; Change my environment variables, and add a variable called <code>R_LIBS_USER</code>, and paste the folder path (<code>C:\Users\your.name\Documents\R\R_library</code>) into the value field. Make sure the path is not surrounded by <code>"</code>s.</li>
-<li>
-<em>Tell R to use that location.</em> Restart R Studio, run <code>install.packages('healthcareai')</code>, and if asked whether you want to use a custom library location choose yes, which may be sufficient. If not, click into the Console in R Studio, type <code>.libPaths()</code>, paste the path to your new library folder inside the <code>()</code>, and change the <code>\</code>s to <code>/</code>. You should end up with a line that looks like: <code>.libPaths("C:/Users/your.name/Documents/R/R_library")</code>. Press enter to run that.</li>
-<li>
-<em>Try again.</em> Run <code>install.packages('healthcareai')</code> and <code>library(healthcareai)</code> again and all should be well!</li>
-</ol>
-<p>If that doesn’t work, please contact us through Github or at the website linked above.</p>
-<div id="looking-for-an-older-version-of-the-package" class="section level4">
-<h4 class="hasAnchor">
-<a href="#looking-for-an-older-version-of-the-package" class="anchor"></a>Looking for an older version of the package?</h4>
-<p>Version 1 of healthcare-ai has been retired, but if you want to to continue to use its functionality, you can still install it from github: <code><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">devtools::install_github("HealthCatalyst/healthcareai-r@v1.2.4")</a></code>.</p>
+<a href="#get-involved" class="anchor"></a>Get Involved</h2>
+<p>We have a <a href="https://healthcare-ai.slack.com/">Slack community</a> that is a great place to introduce yourself, share what you’re doing with the package, ask questions, and troubleshoot your code.</p>
+<div id="contributing" class="section level3">
+<h3 class="hasAnchor">
+<a href="#contributing" class="anchor"></a>Contributing</h3>
+<p>If you are interested in contributing the package (great!), please read the <a href="https://github.com/HealthCatalyst/healthcareai-r/blob/master/CONTRIBUTING.html">contributing</a> guide, and look for <a href="https://github.com/HealthCatalyst/healthcareai-r/labels/help%20wanted">issues with the “help wanted” tag</a>. Feel free to tackle any issue that interests you; those are a few issues that we feel would make a good place to start.</p>
 </div>
+<div id="feedback" class="section level3">
+<h3 class="hasAnchor">
+<a href="#feedback" class="anchor"></a>Feedback</h3>
+<p>Your feedback is hugely appreciated. It is makes the package work well and helps us make it more useful to the community.</p>
+<p>Both feature requests and bug reports should be submitted as <a href="https://github.com/HealthCatalyst/healthcareai-r/issues">Github issues</a>.</p>
+<p><strong>Bug reports</strong> should be filed with a <a href="https://gist.github.com/hadley/270442">minimal reproducable example</a>. The <a href="https://github.com/tidyverse/reprex">reprex package</a> is extraordinarily helpful for this. Please also include the output of <code>sessionInfo()</code> or better yet, <code><a href="http://www.rdocumentation.org/packages/devtools/topics/session_info">devtools::session_info()</a></code>.</p>
+</div>
+</div>
+<div id="legacy" class="section level2">
+<h2 class="hasAnchor">
+<a href="#legacy" class="anchor"></a>Legacy</h2>
+<p>Version 1 of healthcare-ai is being retired. You can continue to use it, but we will no longer be maintain it and its compatibility with the R ecosystem. You should always be able to install it from github with: <code><a href="http://www.rdocumentation.org/packages/remotes/topics/install_github">remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")</a></code>.</p>
+<p>For an example of how to adapt your v1 models to the v2 API, check out the <a href="https://docs.healthcare.ai/articles/">Transitioning vignettes</a>.</p>
 </div>
 </div>
   </div>
 
-  <div class="col-md-3" id="sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <div class="links">
 <h2>Links</h2>
 <ul class="list-unstyled">
@@ -188,7 +187,7 @@
 </ul>
 </div>
 
-  <div class="dev-status">
+      <div class="dev-status">
 <h2>Dev status</h2>
 <ul class="list-unstyled">
 <li><a href="https://ci.appveyor.com/project/CatalystAdmin/healthcareai-r/"><img src="https://ci.appveyor.com/api/projects/status/0xrpe233o9a16l4l/branch/master?svg=true" alt="Appveyor Build Status"></a></li>
@@ -197,6 +196,7 @@
 </ul>
 </div>
 </div>
+
 </div>
 
 
