@@ -3,6 +3,7 @@ url: https://docs.healthcare.ai
 template:
   params:
     bootswatch: yeti
+    ganalytics: UA-85609357-1
 
 development:
   mode: devel
