@@ -1,6 +1,6 @@
-# healthcareai 2.0.0.9000 - 2018-04-02
+# healthcareai 2.0.0.9000
 
-Major, breaking changes. R6 is out; S3 is in.
+This is a beta version of a new tidy, S3 package architecture. Feedback is greatly appreciated.
 
 # healthcareai 1.2.4
 

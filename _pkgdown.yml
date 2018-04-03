@@ -24,6 +24,11 @@ navbar:
         href: articles/site_only/healthcareai.html
       - text: Database Connections
         href: articles/site_only/db_connections.html
+   - text: "Functions"
+     href: reference/index.html
+   - text: "News"
+     href: news/index.html
+
   right:
    - icon: fa-github
      href: https://github.com/HealthCatalyst/healthcareai-r
