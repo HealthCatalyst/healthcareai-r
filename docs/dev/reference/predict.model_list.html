@@ -44,6 +44,18 @@
 <![endif]-->
 
 
+<!-- Google analytics -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-85609357-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
 
 
   </head>
@@ -74,9 +86,6 @@
   </a>
 </li>
 <li>
-  <a href="../articles/healthcareai.html">Get started</a>
-</li>
-<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
@@ -88,6 +97,9 @@
   <ul class="dropdown-menu" role="menu">
     <li>
       <a href="../articles/site_only/db_connections.html">Database Connections</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/healthcareai.html">Getting Started with healthcareai</a>
     </li>
   </ul>
 </li>
@@ -192,7 +204,7 @@ sent through `prep_data`.</p></td>
 <span class='co'># tuning cross validation, and it also prepares the new data in the same way as</span>
 <span class='co'># the training data was prepared.</span>
 
-<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>21</span>:<span class='fl'>25</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-04-02 18:36:45</span>
+<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>21</span>:<span class='fl'>25</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-04-02 22:04:24</span>
 #&gt; <span class='message'>Performance in training: ROC = 0.8</span></div><div class='output co'>#&gt; # A tibble: 5 x 11
 #&gt;   diabetes predicted_diabet… patient_id pregnancies plasma_glucose diastolic_bp
 #&gt; * &lt;chr&gt;                &lt;dbl&gt;      &lt;int&gt;       &lt;int&gt;          &lt;int&gt;        &lt;int&gt;

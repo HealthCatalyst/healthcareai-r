@@ -16,7 +16,14 @@ home:
     href: https://healthcare.ai
 
 navbar:
-  title: healthcare.ai
+  title: "healthcare.ai"
+  left:
+   - text: Vignettes
+     menu: 
+      - text: Getting Started with healthcareai 
+        href: articles/site_only/healthcareai.html
+      - text: Database Connections
+        href: articles/site_only/db_connections.html
   right:
    - icon: fa-github
      href: https://github.com/HealthCatalyst/healthcareai-r
