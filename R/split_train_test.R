@@ -3,7 +3,7 @@
 #' @param d Data frame
 #' @param outcome Target column, unquoted. Split will be stratified across this
 #'   variable
-#' @param p Proportion of rows in d to put into training. Default is 0.8
+#' @param percent_train Proportion of rows in d to put into training. Default is 0.8
 #' @param seed Optional, if provided the function will return the same split
 #'   each time it is called
 #'
@@ -14,7 +14,7 @@
 #'
 #' @examples
 #' split_train_test(mtcars, am, .9)
-split_train_test <- function(d, outcome, p = .8, seed) {
+split_train_test <- function(d, outcome, percent_train = .8, seed) {
   outcome <- rlang::enquo(outcome)
   if (rlang::quo_is_missing(outcome))
     stop("You must provide an outcome variable to tune_models.")
@@ -23,6 +23,7 @@ split_train_test <- function(d, outcome, p = .8, seed) {
     stop(outcome_chr, " isn't a column in d.")
   if (!missing(seed))
     set.seed(seed)
-  train_rows <- caret::createDataPartition(dplyr::pull(d, !!outcome), p = p)[[1]]
+  train_rows <- caret::createDataPartition(dplyr::pull(d, !!outcome),
+                                           p = percent_train)[[1]]
   list(train = d[train_rows, ], test = d[-train_rows, ])
 }

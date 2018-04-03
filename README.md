@@ -1,5 +1,5 @@
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+<!-- README.md is generated from README.Rmd. Please edit the .Rmd and knit it to generate the .md. -->
 
 # healthcareai <img src="man/figures/logo.png" align="right" />
 
@@ -58,15 +58,15 @@ models
 # > Performance Metric: ROC
 # > Number of Observations: 768
 # > Number of Features: 12
-# > Models Trained: 2018-04-02 11:02:25 
+# > Models Trained: 2018-04-02 16:57:26 
 # > 
 # > Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.
 # > Best model: Random Forest
 # > ROC = 0.85
 # > Optimal hyperparameter values:
-# >   mtry = 3
+# >   mtry = 5
 # >   splitrule = extratrees
-# >   min.node.size = 19
+# >   min.node.size = 11
 ```
 
 Make predictions and examine predictive performance:
@@ -76,7 +76,7 @@ predictions <- predict(models)
 plot(predictions)
 ```
 
-![](readme_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](man/figures/README-plot_predictions-1.png)<!-- -->
 
 ## Learn More
 

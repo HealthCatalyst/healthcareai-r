@@ -2,11 +2,12 @@
 output: github_document
 ---
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+<!-- README.md is generated from README.Rmd. Please edit the .Rmd and knit it to generate the .md. -->
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "# >",
-                      fig.height = 4, fig.width = 6)
+                      fig.height = 4, fig.width = 6,
+                      fig.path = "man/figures/README-")
 options(tibble.print_max = 5)
 library(healthcareai)
 ```
@@ -45,7 +46,7 @@ models
 
 Make predictions and examine predictive performance:
 
-```{r, fig.height = 3}
+```{r plot_predictions, fig.height = 3}
 predictions <- predict(models)
 plot(predictions)
 ```

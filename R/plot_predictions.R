@@ -11,13 +11,14 @@
 #' @export
 #'
 #' @details The following arguments can be provided to customize the plot: For
-#'   regression: title, point_size, point_alpha, font_size. For
-#'   classification: title, fill_colors, fill_alpha, curve_flex, font_size. For
-#'   details on how to use them, see \code{\link{plot_regression_predictions}}
-#'   or \code{\link{plot_classification_predictions}}.
+#'   regression: title, point_size, point_alpha, font_size. For classification:
+#'   title, fill_colors, fill_alpha, curve_flex, font_size. For details on how
+#'   to use them, see \code{\link{plot_regression_predictions}} or
+#'   \code{\link{plot_classification_predictions}}.
 #'
 #' @examples
-#' models <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = plasma_glucose)
+#' models <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = plasma_glucose,
+#'                         models = "rf", tune = FALSE)
 #' predictions <- predict(models)
 #' plot(predictions)
 #' plot(predictions, title = "This model's predictions regress to the mean",
