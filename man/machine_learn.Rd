@@ -47,8 +47,8 @@ This is a high-level wrapper function. For finer control of data
   wraps. For finer control of model tuning use \code{\link{tune_models}}.
 }
 \examples{
-# Split the data into training and test sets
-d <- split_train_test(d = pima_diabetes,
+# Split the data into training and test sets, using just 100 rows for speed
+d <- split_train_test(d = pima_diabetes[1:100, ],
                       outcome = diabetes,
                       percent_train = .9)
 

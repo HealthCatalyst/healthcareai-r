@@ -226,26 +226,26 @@ default, the count of instances for each patient will be used.</p>
 <span class='no'>bills</span></div><div class='output co'>#&gt; # A tibble: 8 x 4
 #&gt;   patient_id dept_id charge date      
 #&gt;   &lt;chr&gt;      &lt;chr&gt;    &lt;dbl&gt; &lt;date&gt;    
-#&gt; 1 A          ED       5642. 2024-12-25
-#&gt; 2 A          ICU      6766. 2024-12-24
-#&gt; 3 A          ED       4100. 2024-12-24
-#&gt; 4 A          ICU       826. 2024-12-23
-#&gt; 5 B          ED       8096. 2024-12-24
-#&gt; 6 B          ICU      5430. 2024-12-25
-#&gt; 7 B          ED       1097. 2024-12-25
-#&gt; 8 B          ICU      3855. 2024-12-25</div><div class='input'>
+#&gt; 1 A          ED       2410. 2024-12-23
+#&gt; 2 A          ICU      9265. 2024-12-24
+#&gt; 3 A          ED        118. 2024-12-24
+#&gt; 4 A          ICU      1650. 2024-12-24
+#&gt; 5 B          ED       3184. 2024-12-25
+#&gt; 6 B          ICU      4829. 2024-12-24
+#&gt; 7 B          ED        196. 2024-12-23
+#&gt; 8 B          ICU      2433. 2024-12-25</div><div class='input'>
 <span class='co'># Total charges per patient x department:</span>
 <span class='fu'>pivot</span>(<span class='no'>bills</span>, <span class='no'>patient_id</span>, <span class='no'>dept_id</span>, <span class='no'>charge</span>, <span class='no'>sum</span>)</div><div class='output co'>#&gt; # A tibble: 2 x 3
 #&gt;   patient_id dept_id_ED dept_id_ICU
 #&gt;   &lt;fct&gt;           &lt;dbl&gt;       &lt;dbl&gt;
-#&gt; 1 A               9741.       7592.
-#&gt; 2 B               9193.       9285.</div><div class='input'>
+#&gt; 1 A               2528.      10915.
+#&gt; 2 B               3381.       7262.</div><div class='input'>
 <span class='co'># Count of charges per patient x day:</span>
 <span class='fu'>pivot</span>(<span class='no'>bills</span>, <span class='no'>patient_id</span>, <span class='no'>date</span>)</div><div class='output co'>#&gt; <span class='message'>No fill column was provided, so using "1" for present entities</span></div><div class='output co'>#&gt; <span class='message'>There are rows that contain the same values of both patient_id and date but you didn't provide a function to 'fun' for their aggregation. Proceeding with the default: fun = sum.</span></div><div class='output co'>#&gt; # A tibble: 2 x 4
 #&gt;   patient_id `date_2024-12-23` `date_2024-12-24` `date_2024-12-25`
 #&gt;   &lt;fct&gt;                  &lt;int&gt;             &lt;int&gt;             &lt;int&gt;
-#&gt; 1 A                          1                 2                 1
-#&gt; 2 B                         NA                 1                 3</div><div class='input'>
+#&gt; 1 A                          1                 3                NA
+#&gt; 2 B                          1                 1                 2</div><div class='input'>
 <span class='co'># Can provide a custom function to fun, which will take fill as input.</span>
 <span class='co'># Get the difference between the greatest and smallest charge in each</span>
 <span class='co'># department for each patient and format it as currency.</span>
@@ -257,8 +257,8 @@ default, the count of instances for each patient will be used.</p>
 )</div><div class='output co'>#&gt; # A tibble: 2 x 3
 #&gt;   patient_id dept_id_ED dept_id_ICU
 #&gt;   &lt;fct&gt;      &lt;chr&gt;      &lt;chr&gt;      
-#&gt; 1 A          $1541.9    $5939.53   
-#&gt; 2 B          $6998.77   $1574.71   </div></pre>
+#&gt; 1 A          $2292.21   $7614.78   
+#&gt; 2 B          $2987.89   $2395.96   </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
