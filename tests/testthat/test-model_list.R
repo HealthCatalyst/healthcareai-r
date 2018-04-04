@@ -250,3 +250,15 @@ test_that("empty model_lists have null for timestamp attr", {
   expect_null(attr(r_empty, "timestamp"))
   expect_null(attr(c_empty, "timestamp"))
 })
+
+test_that("model_lists only carry one copy of training data", {
+  expect_s3_class(r_models[[1]]$trainingData, "data.frame")
+  expect_s3_class(c_models[[1]]$trainingData, "data.frame")
+  expect_s3_class(double_model_as[[1]]$trainingData, "data.frame")
+  expect_s3_class(single_model_as[[1]]$trainingData, "data.frame")
+  expect_s3_class(single_model_tune[[1]]$trainingData, "data.frame")
+
+  expect_null(r_models[[2]]$trainingData)
+  expect_null(c_models[[2]]$trainingData)
+  expect_null(double_model_as[[2]]$trainingData)
+})
