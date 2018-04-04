@@ -20,7 +20,7 @@ Throughout this vignette, commented code is the v1 code that is being updated in
 
 ## Install and load the package
 
-First, check the package version with `packageVersion("healthcareai")`. If the first digit isn't 2, you need to update. You should be able to install v2 by running `install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r")`. If that doesn't work, try `remotes::install_url("https://github.com/HealthCatalyst/healthcareai-r/releases/download/v2.0.0.9000/healthcareai_2.0.0.9000.tar.gz")`. If that doesn't work either, [download the package file](https://github.com/HealthCatalyst/healthcareai-r/releases/download/v2.0.0.9000/healthcareai_2.0.0.9000.tar.gz), then in RStudio, choose Tools -> Install Pacakges..., select Install from "Package archive file", and browse to select the downloaded `.tar.gz` file. 
+First, check the package version with `packageVersion("healthcareai")`. If the first digit isn't 2, you need to update. You should be able to install v2 by running `install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r")`. If that doesn't work, try `remotes::install_url("https://github.com/HealthCatalyst/healthcareai-r/releases/download/v2.0.0.9000/healthcareai_2.0.0.9000.tar.gz")`. If that doesn't work either, [download the package file](https://github.com/HealthCatalyst/healthcareai-r/releases/download/v2.0.0.9000/healthcareai_2.0.0.9000.tar.gz), then in R Studio, choose Tools -> Install Packages..., select Install from "Package archive file", and browse to select the downloaded `.tar.gz` file. 
 
 Then, load the package.
 
@@ -48,13 +48,15 @@ df <- read.csv("https://raw.githubusercontent.com/HealthCatalyst/healthcareai-r/
 str(df)
 ```
 
-There are missing values in the outcome variable, `ThirtyDayReadmitFLG`, in this dataset, and v2 of the package intentionally does not allow missing values in the outcome, so here we will discard those rows. On the other hand, missingness in predictors is automatically taken care of and a variety of impuation methods [are supported](https://docs.healthcare.ai/reference/index.html#section-data-preparation).
+There are missing values in the outcome variable `ThirtyDayReadmitFLG`, and v2 of the package intentionally does not allow missing values in the outcome, so we will discard those rows. Missingness in predictors is automatically taken care of and a variety of imputation methods [are supported](https://docs.healthcare.ai/reference/index.html#section-data-preparation).
 
 ```{r}
 df <- dplyr::filter(df, !is.na(ThirtyDayReadmitFLG))
 ```
 
 ## Reserve Validation Set
+
+This is an optional step. Withholding some data from model training and evaluating model performance on that data provides a rigorously honest estimation of how well the model will perform on new data. `healthcareai` v2 actually does this repeatedly under the hood in model training (through cross validation), so the performance reported on training data should be consistent with performance on new data; however, validation on a test dataset can still be useful, so we demonstrate how to do it here.
 
 `split_train_test` returns two data frames, `train` and `test`, ensuring equal representation of the outcome in each. The following code puts 95% of rows in `train` and 5% of rows in `test`. The latter won't be used in model training, and instead will be used to make predictions to see how well the model performs on data it has never seen.
 
@@ -94,20 +96,20 @@ models <- machine_learn(d$train,
 As with other objects in R, you can save an object to disk like this:
 
 ```{r, eval = FALSE}
-save(models, "data/my_random_forests.RDA")
+save(models, file = "my_random_forests.RDA")
 ```
 
-That will write the `models` object to the `my_random_forests.RDA` file in the `data\` directory. (You can find out where `data\` is by running `getwd()`.)
+That will write the `models` object to the `my_random_forests.RDA` file in the working directory. You can find out where that is by running `getwd()`.
 
-Loading the models with the following line will reestablish the `models` object in a new R session. That means you can move the `my_random_forests.RDA` file to another directory or another computer, and get your models there with this line.
+Loading the models with the following line will reestablish the `models` object in a new R session. That means you can move the `my_random_forests.RDA` file to another directory or another computer, and get your models there with this line. If the RDA file is in a different directory than your R script (or project if you use RStudio's Projects), you'll need to point to that location relative to the current working directory, e.g. `load("../data/trained_models/my_random_forests.RDA")`. Here is some [recommended reading](http://stat545.com/block002_hello-r-workspace-wd-project.html#working-directory) on working directories and filepaths if you need help loading saved models.
 
 ```{r, eval = FALSE}
-load("data/my_random_forests.RDA")
+load("my_random_forests.RDA")
 ```
 
 ## Make Predictions
 
-To make predictions on the training dataset, pass only the model object to `predict`. To make predictions on new data, pass the data frame to `predict` after the models.
+To make predictions on the training dataset, simply pass the model object to `predict`. To make predictions on new data, pass the data frame to `predict` after the model object.
 
 ```{r}
 # p2 <- SupervisedModelDeploymentParams$new()

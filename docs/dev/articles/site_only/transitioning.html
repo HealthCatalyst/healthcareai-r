@@ -110,7 +110,7 @@
 <div id="install-and-load-the-package" class="section level2">
 <h2 class="hasAnchor">
 <a href="#install-and-load-the-package" class="anchor"></a>Install and load the package</h2>
-<p>First, check the package version with <code>packageVersion("healthcareai")</code>. If the first digit isn’t 2, you need to update. You should be able to install v2 by running <code>install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r")</code>. If that doesn’t work, try <code><a href="http://www.rdocumentation.org/packages/remotes/topics/install_url">remotes::install_url("https://github.com/HealthCatalyst/healthcareai-r/releases/download/v2.0.0.9000/healthcareai_2.0.0.9000.tar.gz")</a></code>. If that doesn’t work either, <a href="https://github.com/HealthCatalyst/healthcareai-r/releases/download/v2.0.0.9000/healthcareai_2.0.0.9000.tar.gz">download the package file</a>, then in RStudio, choose Tools -&gt; Install Pacakges…, select Install from “Package archive file”, and browse to select the downloaded <code>.tar.gz</code> file.</p>
+<p>First, check the package version with <code>packageVersion("healthcareai")</code>. If the first digit isn’t 2, you need to update. You should be able to install v2 by running <code>install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r")</code>. If that doesn’t work, try <code><a href="http://www.rdocumentation.org/packages/remotes/topics/install_url">remotes::install_url("https://github.com/HealthCatalyst/healthcareai-r/releases/download/v2.0.0.9000/healthcareai_2.0.0.9000.tar.gz")</a></code>. If that doesn’t work either, <a href="https://github.com/HealthCatalyst/healthcareai-r/releases/download/v2.0.0.9000/healthcareai_2.0.0.9000.tar.gz">download the package file</a>, then in R Studio, choose Tools -&gt; Install Packages…, select Install from “Package archive file”, and browse to select the downloaded <code>.tar.gz</code> file.</p>
 <p>Then, load the package.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(healthcareai)</a></code></pre></div>
 </div>
@@ -139,12 +139,13 @@
 <a class="sourceLine" id="cb2-19" data-line-number="19"><span class="co"># &gt;  $ A1CNBR             : num  4.2 5 4 4.4 4.3 5 4 5 6.6 8 ...</span></a>
 <a class="sourceLine" id="cb2-20" data-line-number="20"><span class="co"># &gt;  $ GenderFLG          : Factor w/ 2 levels "F","M": 2 2 2 2 2 2 2 2 2 2 ...</span></a>
 <a class="sourceLine" id="cb2-21" data-line-number="21"><span class="co"># &gt;  $ ThirtyDayReadmitFLG: Factor w/ 2 levels "N","Y": 1 1 1 1 1 1 1 1 1 2 ...</span></a></code></pre></div>
-<p>There are missing values in the outcome variable, <code>ThirtyDayReadmitFLG</code>, in this dataset, and v2 of the package intentionally does not allow missing values in the outcome, so here we will discard those rows. On the other hand, missingness in predictors is automatically taken care of and a variety of impuation methods <a href="https://docs.healthcare.ai/reference/index.html#section-data-preparation">are supported</a>.</p>
+<p>There are missing values in the outcome variable <code>ThirtyDayReadmitFLG</code>, and v2 of the package intentionally does not allow missing values in the outcome, so we will discard those rows. Missingness in predictors is automatically taken care of and a variety of imputation methods <a href="https://docs.healthcare.ai/reference/index.html#section-data-preparation">are supported</a>.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">df &lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(df, <span class="op">!</span><span class="kw">is.na</span>(ThirtyDayReadmitFLG))</a></code></pre></div>
 </div>
 <div id="reserve-validation-set" class="section level2">
 <h2 class="hasAnchor">
 <a href="#reserve-validation-set" class="anchor"></a>Reserve Validation Set</h2>
+<p>This is an optional step. Withholding some data from model training and evaluating model performance on that data provides a rigorously honest estimation of how well the model will perform on new data. <code>healthcareai</code> v2 actually does this repeatedly under the hood in model training (through cross validation), so the performance reported on training data should be consistent with performance on new data; however, validation on a test dataset can still be useful, so we demonstrate how to do it here.</p>
 <p><code>split_train_test</code> returns two data frames, <code>train</code> and <code>test</code>, ensuring equal representation of the outcome in each. The following code puts 95% of rows in <code>train</code> and 5% of rows in <code>test</code>. The latter won’t be used in model training, and instead will be used to make predictions to see how well the model performs on data it has never seen.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co"># dfDeploy &lt;- df[951:1000,]</span></a>
 <a class="sourceLine" id="cb4-2" data-line-number="2">d &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/split_train_test.html">split_train_test</a></span>(df, <span class="dt">outcome =</span> ThirtyDayReadmitFLG, <span class="dt">percent_train =</span> <span class="fl">.95</span>)</a></code></pre></div>
@@ -180,15 +181,15 @@
 <a href="#save-and-load-models" class="anchor"></a>Save and Load Models</h2>
 <p><code>healthcareai</code> v1 automatically saved models in the working directory, and automatically loaded them from the working directory. v2 requires you to manage model files if you want to use the models in a different R session than the one in which you trained the models.</p>
 <p>As with other objects in R, you can save an object to disk like this:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw">save</span>(models, <span class="st">"data/my_random_forests.RDA"</span>)</a></code></pre></div>
-<p>That will write the <code>models</code> object to the <code>my_random_forests.RDA</code> file in the <code>data\</code> directory. (You can find out where <code>data\</code> is by running <code>getwd()</code>.)</p>
-<p>Loading the models with the following line will reestablish the <code>models</code> object in a new R session. That means you can move the <code>my_random_forests.RDA</code> file to another directory or another computer, and get your models there with this line.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw">load</span>(<span class="st">"data/my_random_forests.RDA"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw">save</span>(models, <span class="dt">file =</span> <span class="st">"my_random_forests.RDA"</span>)</a></code></pre></div>
+<p>That will write the <code>models</code> object to the <code>my_random_forests.RDA</code> file in the working directory. You can find out where that is by running <code>getwd()</code>.</p>
+<p>Loading the models with the following line will reestablish the <code>models</code> object in a new R session. That means you can move the <code>my_random_forests.RDA</code> file to another directory or another computer, and get your models there with this line. If the RDA file is in a different directory than your R script (or project if you use RStudio’s Projects), you’ll need to point to that location relative to the current working directory, e.g. <code>load("../data/trained_models/my_random_forests.RDA")</code>. Here is some <a href="http://stat545.com/block002_hello-r-workspace-wd-project.html#working-directory">recommended reading</a> on working directories and filepaths if you need help loading saved models.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw">load</span>(<span class="st">"my_random_forests.RDA"</span>)</a></code></pre></div>
 </div>
 <div id="make-predictions" class="section level2">
 <h2 class="hasAnchor">
 <a href="#make-predictions" class="anchor"></a>Make Predictions</h2>
-<p>To make predictions on the training dataset, pass only the model object to <code>predict</code>. To make predictions on new data, pass the data frame to <code>predict</code> after the models.</p>
+<p>To make predictions on the training dataset, simply pass the model object to <code>predict</code>. To make predictions on new data, pass the data frame to <code>predict</code> after the model object.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="co"># p2 &lt;- SupervisedModelDeploymentParams$new()</span></a>
 <a class="sourceLine" id="cb8-2" data-line-number="2"><span class="co"># p2$type &lt;- "classification"</span></a>
 <a class="sourceLine" id="cb8-3" data-line-number="3"><span class="co"># p2$df &lt;- dfDeploy</span></a>
@@ -206,7 +207,7 @@
 <a class="sourceLine" id="cb8-15" data-line-number="15"></a>
 <a class="sourceLine" id="cb8-16" data-line-number="16"><span class="kw">predict</span>(models, d<span class="op">$</span>test)</a>
 <a class="sourceLine" id="cb8-17" data-line-number="17"><span class="co"># &gt; Prepping data based on provided recipe</span></a>
-<a class="sourceLine" id="cb8-18" data-line-number="18"><span class="co"># &gt; "predicted_ThirtyDayReadmitFLG" predicted by Random Forest last trained: 2018-04-04 14:28:57</span></a>
+<a class="sourceLine" id="cb8-18" data-line-number="18"><span class="co"># &gt; "predicted_ThirtyDayReadmitFLG" predicted by Random Forest last trained: 2018-04-04 16:03:27</span></a>
 <a class="sourceLine" id="cb8-19" data-line-number="19"><span class="co"># &gt; Performance in training: ROC = 0.85</span></a>
 <a class="sourceLine" id="cb8-20" data-line-number="20"><span class="co"># &gt; # A tibble: 48 x 8</span></a>
 <a class="sourceLine" id="cb8-21" data-line-number="21"><span class="co"># &gt;   ThirtyDayReadmitF… predicted_ThirtyDayReadm… PatientEncounter… PatientID</span></a>
