@@ -30,18 +30,25 @@ easy as possible. It does that by providing functions to:
 
 As of early 2018, the package is in transition from an R6 architecture
 (v1) to a tidy, S3 architecture (v2). Everything on this website is
-written from the perspective of the new version of the package. While
-the new version is in beta testing (until late April), the old version
-remains on CRAN and can be installed with
-`install.packages("healthcareai")`; the stable link to install the old
-version of the package is `install.packages("remotes");
+written from the perspective of the new version of the package.
+
+While the new version is in beta testing, the old version remains on
+CRAN and can be installed with `install.packages("healthcareai")`. The
+stable link to install the old version of the package is
+`install.packages("remotes");
 remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")`.
 
 You can install the beta version of v2 with
 `install.packages("remotes");
-remotes::install_github("HealthCatalyst/healthcareai-r")`. As always,
-but especially while v2 is in beta, your feedback is appreciated. Please
-file issues for any bugs, unclear docs, or feature suggestions
+remotes::install_github("HealthCatalyst/healthcareai-r")`. If that
+doesn’t work, check out the [vignette on
+transitioning](https://docs.healthcare.ai/articles/site_only/transitioning.html)
+for backup install methods and a walkthrough of how to convert v1 code
+to v2.
+
+As always, but especially while v2 is in beta, your feedback is
+appreciated. Please file issues for any bugs, unclear docs, or feature
+suggestions
 [here](https://github.com/HealthCatalyst/healthcareai-r/issues).
 
 ## Usage
@@ -58,13 +65,13 @@ models
 # > Performance Metric: ROC
 # > Number of Observations: 768
 # > Number of Features: 12
-# > Models Trained: 2018-04-02 16:57:26 
+# > Models Trained: 2018-04-04 12:55:09 
 # > 
 # > Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.
 # > Best model: Random Forest
-# > ROC = 0.85
+# > ROC = 0.84
 # > Optimal hyperparameter values:
-# >   mtry = 5
+# >   mtry = 7
 # >   splitrule = extratrees
 # >   min.node.size = 11
 ```
@@ -81,9 +88,10 @@ plot(predictions)
 ## Learn More
 
 For details on what’s happening under the hood and for options to
-customize data preparation and model training, see
-`vignette("healthcareai")` as well as the helpfiles for individual
-functions such as `?machine_learn`, `?prep_data`, and `?tune_models`.
+customize data preparation and model training, see [Getting Started with
+healthcareai](https://docs.healthcare.ai/articles/site_only/healthcareai.html)
+as well as the helpfiles for individual functions such as
+`?machine_learn`, `?prep_data`, and `?tune_models`.
 
 Documentation of all functions as well as vignettes on various uses of
 the package are available at the package website:
