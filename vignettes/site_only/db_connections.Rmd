@@ -16,9 +16,9 @@ knitr::opts_chunk$set(echo = TRUE, results = "hold", collapse = TRUE,
 **Database connections**
 
 Let's be honest. You need to get data from a database, do some really awesome 
-stuff with `R`, and then write the results back to a database. Rstudio (and R) 
+stuff with `R`, and then write the results back to a database. RStudio (and R) 
 can help with that. There are lots of different databases, but this document 
-will focus on Microsoft SQL Server. Rstudio supports most databases, and 
+will focus on Microsoft SQL Server. RStudio supports most databases, and 
 I'd encourage you to look at the [db help pages](https://db.rstudio.com/) 
 for additional resources. Andiamo!
 
@@ -31,7 +31,7 @@ Before you can do anything, you must make a connection to your database. The
 a connection string that's ready to be passed into `DBI::dbConnect`. After
 you have a valid connection, you should be able to browse the database using 
 RStudio's Connections pane. If you don't have a connections pane, upgrade your 
-Rstudio. It's worth it.
+RStudio. It's worth it.
 
 ```{r}
 library(healthcareai)
@@ -45,7 +45,7 @@ con <- dbConnect(odbc::odbc(), .connection_string = my_con)
 Your database connection is now stored in the object, `con`. You can use it in 
 database functions that require a connection. `dbConnect` will create a 
 persistent connection, meaning that it's available until you disconnect. If you
-have a recent version of Rstudio, you'll see the connections pane has updated as
+have a recent version of RStudio, you'll see the connections pane has updated as
 well.
 
 ```{r, out.width = "500px", eval = TRUE}
@@ -61,7 +61,7 @@ bring up a preview of the top 1000 rows of the table.
 #### Using SQL Code
 
 From here, you can read data from the database in a couple different ways. You
-can use `db_read` to execute SQL code, or you can use `dbplyr` functionaliity
+can use `db_read` to execute SQL code, or you can use `dbplyr` functionality
 to execute `dplyr` code directly against the database.
 ```{r}
 query <- "SELECT
@@ -84,7 +84,7 @@ the statement.
 
 The other option is to use dplyr code. Set up a reference to the table, then use
 it to pull data. Here, `tbl` is creating a reference and storing it in the 
-`encounter` object. R will treat that object like a dataframe and can
+`encounter` object. R will treat that object like a data frame and can
 filter, aggregate, join, etc using R or dplyr code. The last line, `collect()`, 
 is what actually pulls the data into memory.
 

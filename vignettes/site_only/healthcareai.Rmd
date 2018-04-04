@@ -28,7 +28,7 @@ str(pima_diabetes)
 
 # Easy Machine Learning
 
-If you don't want to fuss with details any more than necessary, `machine_learn` is the function for you. It makes it as easy as possible to implement machine learning models by putting all the detais in the background so that you don't have to worry about them. Of course it might be wise to worry about them, and we'll get to how to do that further down, but for now, you can automatically take care of problems in the data, do basic feature engineering, and tune multiple machine learning models using cross validation with `machine_learn`.
+If you don't want to fuss with details any more than necessary, `machine_learn` is the function for you. It makes it as easy as possible to implement machine learning models by putting all the detains in the background so that you don't have to worry about them. Of course it might be wise to worry about them, and we'll get to how to do that further down, but for now, you can automatically take care of problems in the data, do basic feature engineering, and tune multiple machine learning models using cross validation with `machine_learn`.
 
 `machine_learn` always gets the name of the data frame, then any columns that should not be used by the model (uninformative columns, such as IDs), then the variable to be predicted with `outcome =`. If you want `machine_learn` to run faster, you can have that---at the expense of a bit of predictive power---by setting its `tune` argument to `FALSE`.
 
@@ -42,7 +42,7 @@ quick_models <- machine_learn(pima_diabetes, patient_id, outcome = diabetes)
 quick_models
 ```
 
-Everything looks as expected, and the best model is is a random forest that achives performance of AUROC = `r round(max(quick_models[[1]]$results$ROC), 2)`. Not bad for one line of code.
+Everything looks as expected, and the best model is is a random forest that achieves performance of AUROC = `r round(max(quick_models[[1]]$results$ROC), 2)`. Not bad for one line of code.
 
 Now that we have our models, we can make predictions using the `predict` function. If you provide a new data frame to `predict` it will make predictions on the new data; otherwise, it will make predictions on the training data.
 
