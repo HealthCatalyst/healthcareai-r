@@ -284,6 +284,10 @@ test_that("recipe attr is a recipe class object", {
   expect_s3_class(attr(dd, "recipe"), "recipe")
 })
 
+test_that("only the first few rows of training data are stored in the recipe", {
+  expect_true(nrow(attr(d_prep, "recipe")$template) <= 10)
+})
+
 test_that("warning is given when ignored columns have missingness", {
   expect_warning(
     prep_data(d_train, reaction, length),
