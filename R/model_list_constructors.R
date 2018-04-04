@@ -43,6 +43,10 @@ as.model_list <- function(..., listed_models = NULL, target = ".outcome",
       stop("model_class doesn't match the model(s).")
     model_class <- types
     names(listed_models) <- purrr::map_chr(listed_models, ~ .x$modelInfo$label)
+    # Remove training data from all but the first model
+    for (i in setdiff(seq_along(listed_models), 1)) {
+      listed_models[[i]]$trainingData <- NULL
+    }
   }
   check_model_class(model_class)
   structure(listed_models,
