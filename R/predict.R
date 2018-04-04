@@ -47,7 +47,7 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
   # Pull info
   mi <- extract_model_info(object)
   best_models <- object[[mi$best_model_name]]
-  training_data <- best_models$trainingData
+  training_data <- object[[1]]$trainingData
 
   # If newdata not provided, pull training data from object
   if (missing(newdata)) {
