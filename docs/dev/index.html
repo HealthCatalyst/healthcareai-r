@@ -59,6 +59,9 @@
     <li>
       <a href="articles/site_only/db_connections.html">Database Connections</a>
     </li>
+    <li>
+      <a href="articles/site_only/transitioning.html">Transition from Version 1</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -114,8 +117,10 @@
 <div id="version-1---version-2-transition" class="section level3">
 <h3 class="hasAnchor">
 <a href="#version-1---version-2-transition" class="anchor"></a>Version 1 -&gt; Version 2 Transition</h3>
-<p>As of early 2018, the package is in transition from an R6 architecture (v1) to a tidy, S3 architecture (v2). Everything on this website is written from the perspective of the new version of the package. While the new version is in beta testing (until late April), the old version remains on CRAN and can be installed with <code>install.packages("healthcareai")</code>; the stable link to install the old version of the package is <code>install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")</code>.</p>
-<p>You can install the beta version of v2 with <code>install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r")</code>. As always, but especially while v2 is in beta, your feedback is appreciated. Please file issues for any bugs, unclear docs, or feature suggestions <a href="https://github.com/HealthCatalyst/healthcareai-r/issues">here</a>.</p>
+<p>As of early 2018, the package is in transition from an R6 architecture (v1) to a tidy, S3 architecture (v2). Everything on this website is written from the perspective of the new version of the package.</p>
+<p>While the new version is in beta testing, the old version remains on CRAN and can be installed with <code>install.packages("healthcareai")</code>. The stable link to install the old version of the package is <code>install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")</code>.</p>
+<p>You can install the beta version of v2 with <code>install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r")</code>. If that doesn’t work, check out the <a href="https://docs.healthcare.ai/articles/site_only/transitioning.html">vignette on transitioning</a> for backup install methods and a walkthrough of how to convert v1 code to v2.</p>
+<p>As always, but especially while v2 is in beta, your feedback is appreciated. Please file issues for any bugs, unclear docs, or feature suggestions <a href="https://github.com/HealthCatalyst/healthcareai-r/issues">here</a>.</p>
 </div>
 </div>
 <div id="usage" class="section level2">
@@ -130,15 +135,15 @@
 <a class="sourceLine" id="cb1-6" data-line-number="6"><span class="co"># &gt; Performance Metric: ROC</span></a>
 <a class="sourceLine" id="cb1-7" data-line-number="7"><span class="co"># &gt; Number of Observations: 768</span></a>
 <a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co"># &gt; Number of Features: 12</span></a>
-<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="co"># &gt; Models Trained: 2018-04-02 22:17:43 </span></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="co"># &gt; Models Trained: 2018-04-04 14:28:42 </span></a>
 <a class="sourceLine" id="cb1-10" data-line-number="10"><span class="co"># &gt; </span></a>
 <a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co"># &gt; Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.</span></a>
 <a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co"># &gt; Best model: Random Forest</span></a>
-<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co"># &gt; ROC = 0.84</span></a>
+<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co"># &gt; ROC = 0.85</span></a>
 <a class="sourceLine" id="cb1-14" data-line-number="14"><span class="co"># &gt; Optimal hyperparameter values:</span></a>
 <a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co"># &gt;   mtry = 5</span></a>
 <a class="sourceLine" id="cb1-16" data-line-number="16"><span class="co"># &gt;   splitrule = extratrees</span></a>
-<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co"># &gt;   min.node.size = 11</span></a></code></pre></div>
+<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co"># &gt;   min.node.size = 20</span></a></code></pre></div>
 <p>Make predictions and examine predictive performance:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(models)</a>
 <a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw">plot</span>(predictions)</a></code></pre></div>
@@ -147,7 +152,7 @@
 <div id="learn-more" class="section level2">
 <h2 class="hasAnchor">
 <a href="#learn-more" class="anchor"></a>Learn More</h2>
-<p>For details on what’s happening under the hood and for options to customize data preparation and model training, see <code><a href="articles/site_only/healthcareai.html">vignette("healthcareai")</a></code> as well as the helpfiles for individual functions such as <code><a href="reference/machine_learn.html">?machine_learn</a></code>, <code><a href="reference/prep_data.html">?prep_data</a></code>, and <code><a href="reference/tune_models.html">?tune_models</a></code>.</p>
+<p>For details on what’s happening under the hood and for options to customize data preparation and model training, see <a href="https://docs.healthcare.ai/articles/site_only/healthcareai.html">Getting Started with healthcareai</a> as well as the helpfiles for individual functions such as <code><a href="reference/machine_learn.html">?machine_learn</a></code>, <code><a href="reference/prep_data.html">?prep_data</a></code>, and <code><a href="reference/tune_models.html">?tune_models</a></code>.</p>
 <p>Documentation of all functions as well as vignettes on various uses of the package are available at the package website: <a href="https://docs.healthcare.ai/" class="uri">https://docs.healthcare.ai/</a>.</p>
 <p>Also, be sure to read our <a href="http://healthcare.ai/blog/">blog</a> and watch our <a href="https://www.youtube.com/channel/UCGZUobs_x712KbcL6RSzfnQ">broadcasts</a> to learn more about what’s new in healthcare machine learning and how we are using this toolkit to put machine learning to work in real healthcare systems.</p>
 </div>

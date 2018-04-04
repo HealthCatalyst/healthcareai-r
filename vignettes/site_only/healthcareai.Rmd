@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE, results = "hold", collapse = TRUE,
 options(tibble.print_min = 5, tibble.print_max = 5)
 ```
 
-First we attach the healthcareai R package to make its functions available. If your package version is less than 2.0, none of the code here will work. You can check the package version with `packageVersion("healthcareai")`, and you can get the latest, cutting-edge development version with `install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r")`.
+First we attach the healthcareai R package to make its functions available. If your package version is less than 2.0, none of the code here will work. You can check the package version with `packageVersion("healthcareai")`, and you can get the latest, cutting-edge development version with `install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r")`. If that doesn't work, check out the [Transitioning vignette](transitioning.html) for backup install methods.
 
 ```{r}
 library(healthcareai)

@@ -24,6 +24,8 @@ navbar:
         href: articles/site_only/healthcareai.html
       - text: Database Connections
         href: articles/site_only/db_connections.html
+      - text: Transition from Version 1
+        href: articles/site_only/transitioning.html
    - text: "Functions"
      href: reference/index.html
    - text: "News"
