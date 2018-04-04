@@ -59,6 +59,9 @@
     <li>
       <a href="../../articles/site_only/db_connections.html">Database Connections</a>
     </li>
+    <li>
+      <a href="../../articles/site_only/transitioning.html">Transition from Version 1</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -102,7 +105,7 @@
 
     
     
-<p>First we attach the healthcareai R package to make its functions available. If your package version is less than 2.0, none of the code here will work. You can check the package version with <code>packageVersion("healthcareai")</code>, and you can get the latest, cutting-edge development version with <code>install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r")</code>.</p>
+<p>First we attach the healthcareai R package to make its functions available. If your package version is less than 2.0, none of the code here will work. You can check the package version with <code>packageVersion("healthcareai")</code>, and you can get the latest, cutting-edge development version with <code>install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r")</code>. If that doesn’t work, check out the <a href="transitioning.html">Transitioning vignette</a> for backup install methods.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(healthcareai)</a></code></pre></div>
 <p><code>healthcareai</code> comes with a built in dataset documenting diabetes among adult Pima females. Once you attach the package, the dataset is available in the variable <code>pima_diabetes</code>. Let’s take a look at the data with the <code>str</code> function. There are 768 records in 10 variables including one identifier column, several nominal variables, and substantial missingness (represented in R by <code>NA</code>).</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">str</span>(pima_diabetes)</a>
@@ -120,7 +123,7 @@
 <div id="easy-machine-learning" class="section level1">
 <h1 class="hasAnchor">
 <a href="#easy-machine-learning" class="anchor"></a>Easy Machine Learning</h1>
-<p>If you don’t want to fuss with details any more than necessary, <code>machine_learn</code> is the function for you. It makes it as easy as possible to implement machine learning models by putting all the detais in the background so that you don’t have to worry about them. Of course it might be wise to worry about them, and we’ll get to how to do that further down, but for now, you can automatically take care of problems in the data, do basic feature engineering, and tune multiple machine learning models using cross validation with <code>machine_learn</code>.</p>
+<p>If you don’t want to fuss with details any more than necessary, <code>machine_learn</code> is the function for you. It makes it as easy as possible to implement machine learning models by putting all the detains in the background so that you don’t have to worry about them. Of course it might be wise to worry about them, and we’ll get to how to do that further down, but for now, you can automatically take care of problems in the data, do basic feature engineering, and tune multiple machine learning models using cross validation with <code>machine_learn</code>.</p>
 <p><code>machine_learn</code> always gets the name of the data frame, then any columns that should not be used by the model (uninformative columns, such as IDs), then the variable to be predicted with <code>outcome =</code>. If you want <code>machine_learn</code> to run faster, you can have that—at the expense of a bit of predictive power—by setting its <code>tune</code> argument to <code>FALSE</code>.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">quick_models &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/machine_learn.html">machine_learn</a></span>(pima_diabetes, patient_id, <span class="dt">outcome =</span> diabetes)</a>
 <a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co"># &gt; Training new data prep recipe</span></a>
@@ -136,7 +139,7 @@
 <a class="sourceLine" id="cb4-5" data-line-number="5"><span class="co"># &gt; Performance Metric: ROC</span></a>
 <a class="sourceLine" id="cb4-6" data-line-number="6"><span class="co"># &gt; Number of Observations: 768</span></a>
 <a class="sourceLine" id="cb4-7" data-line-number="7"><span class="co"># &gt; Number of Features: 12</span></a>
-<a class="sourceLine" id="cb4-8" data-line-number="8"><span class="co"># &gt; Models Trained: 2018-04-02 22:18:48 </span></a>
+<a class="sourceLine" id="cb4-8" data-line-number="8"><span class="co"># &gt; Models Trained: 2018-04-04 16:02:36 </span></a>
 <a class="sourceLine" id="cb4-9" data-line-number="9"><span class="co"># &gt; </span></a>
 <a class="sourceLine" id="cb4-10" data-line-number="10"><span class="co"># &gt; Models tuned via 5-fold cross validation over 9 combinations of hyperparameter values.</span></a>
 <a class="sourceLine" id="cb4-11" data-line-number="11"><span class="co"># &gt; Best model: Random Forest</span></a>
@@ -145,11 +148,11 @@
 <a class="sourceLine" id="cb4-14" data-line-number="14"><span class="co"># &gt;   mtry = 5</span></a>
 <a class="sourceLine" id="cb4-15" data-line-number="15"><span class="co"># &gt;   splitrule = extratrees</span></a>
 <a class="sourceLine" id="cb4-16" data-line-number="16"><span class="co"># &gt;   min.node.size = 12</span></a></code></pre></div>
-<p>Everything looks as expected, and the best model is is a random forest that achives performance of AUROC = 0.84. Not bad for one line of code.</p>
+<p>Everything looks as expected, and the best model is is a random forest that achieves performance of AUROC = 0.84. Not bad for one line of code.</p>
 <p>Now that we have our models, we can make predictions using the <code>predict</code> function. If you provide a new data frame to <code>predict</code> it will make predictions on the new data; otherwise, it will make predictions on the training data.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(quick_models)</a>
 <a class="sourceLine" id="cb5-2" data-line-number="2">predictions</a>
-<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="co"># &gt; "predicted_diabetes" predicted by Random Forest last trained: 2018-04-02 22:18:48</span></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="co"># &gt; "predicted_diabetes" predicted by Random Forest last trained: 2018-04-04 16:02:36</span></a>
 <a class="sourceLine" id="cb5-4" data-line-number="4"><span class="co"># &gt; Performance in training: ROC = 0.84</span></a>
 <a class="sourceLine" id="cb5-5" data-line-number="5"><span class="co"># &gt; # A tibble: 768 x 14</span></a>
 <a class="sourceLine" id="cb5-6" data-line-number="6"><span class="co"># &gt;   diabetes predicted_diabetes pregnancies plasma_glucose diastolic_bp</span></a>
@@ -239,7 +242,7 @@
 <a class="sourceLine" id="cb12-10" data-line-number="10"><span class="co"># &gt; Performance Metric: PR</span></a>
 <a class="sourceLine" id="cb12-11" data-line-number="11"><span class="co"># &gt; Number of Observations: 692</span></a>
 <a class="sourceLine" id="cb12-12" data-line-number="12"><span class="co"># &gt; Number of Features: 13</span></a>
-<a class="sourceLine" id="cb12-13" data-line-number="13"><span class="co"># &gt; Models Trained: 2018-04-02 22:19:13 </span></a>
+<a class="sourceLine" id="cb12-13" data-line-number="13"><span class="co"># &gt; Models Trained: 2018-04-04 16:03:00 </span></a>
 <a class="sourceLine" id="cb12-14" data-line-number="14"><span class="co"># &gt; </span></a>
 <a class="sourceLine" id="cb12-15" data-line-number="15"><span class="co"># &gt; Models have not been tuned. Performance estimated via 5-fold cross validation at fixed hyperparameter values.</span></a>
 <a class="sourceLine" id="cb12-16" data-line-number="16"><span class="co"># &gt; Best model: Random Forest</span></a>
@@ -256,7 +259,7 @@
 <a href="#prediction" class="anchor"></a>Prediction</h1>
 <p><code>predict</code> will automatically use the best-performing model from training (evaluated out-of-fold in cross validation). If no new data is passed to <code>predict</code> it will make predictions on the training dataset. The predicted probabilities appear in the <code>predicted_diabetes</code> column.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw">predict</span>(models)</a>
-<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="co"># &gt; "predicted_diabetes" predicted by Random Forest last trained: 2018-04-02 22:19:10</span></a>
+<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="co"># &gt; "predicted_diabetes" predicted by Random Forest last trained: 2018-04-04 16:02:58</span></a>
 <a class="sourceLine" id="cb13-3" data-line-number="3"><span class="co"># &gt; Performance in training: PR = 0.9</span></a>
 <a class="sourceLine" id="cb13-4" data-line-number="4"><span class="co"># &gt; # A tibble: 692 x 15</span></a>
 <a class="sourceLine" id="cb13-5" data-line-number="5"><span class="co"># &gt;   diabetes predicted_diabetes pregnancies plasma_glucose diastolic_bp</span></a>
@@ -288,7 +291,7 @@
 <a class="sourceLine" id="cb15-5" data-line-number="5"><span class="co"># &gt; Running cross validation for Random Forest</span></a>
 <a class="sourceLine" id="cb15-6" data-line-number="6"><span class="co"># &gt; Running cross validation for k-Nearest Neighbors</span></a>
 <a class="sourceLine" id="cb15-7" data-line-number="7"><span class="kw">summary</span>(regression_models)</a>
-<a class="sourceLine" id="cb15-8" data-line-number="8"><span class="co"># &gt; Models trained: 2018-04-02 22:19:26</span></a>
+<a class="sourceLine" id="cb15-8" data-line-number="8"><span class="co"># &gt; Models trained: 2018-04-04 16:03:13</span></a>
 <a class="sourceLine" id="cb15-9" data-line-number="9"><span class="co"># &gt; </span></a>
 <a class="sourceLine" id="cb15-10" data-line-number="10"><span class="co"># &gt; Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.</span></a>
 <a class="sourceLine" id="cb15-11" data-line-number="11"><span class="co"># &gt; Best performance: RMSE = 9.07</span></a>
@@ -334,7 +337,7 @@
 <a class="sourceLine" id="cb16-11" data-line-number="11"><span class="co"># &gt; Warning in ready_with_prep(object, newdata, mi): The following variables(s) had the following value(s) in predict that were not observed in training. </span></a>
 <a class="sourceLine" id="cb16-12" data-line-number="12"><span class="co"># &gt;     weight_class: ???</span></a>
 <a class="sourceLine" id="cb16-13" data-line-number="13"><span class="co"># &gt; Prepping data based on provided recipe</span></a>
-<a class="sourceLine" id="cb16-14" data-line-number="14"><span class="co"># &gt; "predicted_age" predicted by Random Forest last trained: 2018-04-02 22:19:26</span></a>
+<a class="sourceLine" id="cb16-14" data-line-number="14"><span class="co"># &gt; "predicted_age" predicted by Random Forest last trained: 2018-04-04 16:03:13</span></a>
 <a class="sourceLine" id="cb16-15" data-line-number="15"><span class="co"># &gt; Performance in training: RMSE = 9.07</span></a>
 <a class="sourceLine" id="cb16-16" data-line-number="16"><span class="co"># &gt; # A tibble: 1 x 9</span></a>
 <a class="sourceLine" id="cb16-17" data-line-number="17"><span class="co"># &gt;   predicted_age pregnancies plasma_glucose diastolic_bp skinfold insulin</span></a>

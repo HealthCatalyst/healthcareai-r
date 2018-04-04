@@ -27,7 +27,7 @@ All code is found in `R/`, and documentation is written via [roxygen2](https://g
 ## Documentation
 
 All of the function documentation is generated automatically. Do not edit any files in `man/`, `docs/`, or `NAMESPACE`. Instead, construct the appropriate [roxygen2](http://r-pkgs.had.co.nz/man.html) documentation in the
-function files in `R/` themselves. Documentation should be generated before issuing a pull request by running `devtools::document()` (shift-command-R in R Studio).
+function files in `R/` themselves. Documentation should be generated before issuing a pull request by running `devtools::document()` (shift-command-R in RStudio).
 
 ## Testing
 
