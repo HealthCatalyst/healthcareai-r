@@ -1,10 +1,6 @@
 language: r
 sudo: false
-cache:
-  packages: true
-  directories:
-  - _bookdown_files
-  - $HOME/.npm
+cache: packages
 dist: trusty
 
 notifications:
@@ -37,6 +33,7 @@ addons:
 
 before_install:
   - npm install netlify-cli -g
+
 script:
   - Rscript -e 'pkgdown::build_site()'
 
