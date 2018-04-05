@@ -42,6 +42,18 @@
 <![endif]-->
 
 
+<!-- Google analytics -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-85609357-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
 
 
   </head>
@@ -65,32 +77,29 @@
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li>
-  <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
-  <a href="../articles/healthcareai.html">Get started</a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li class="dropdown">
+        <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Vignettes
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="../articles/site_only/healthcareai.html">Getting Started with healthcareai</a>
+    </li>
+    <li>
       <a href="../articles/site_only/db_connections.html">Database Connections</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
     </li>
   </ul>
 </li>
 <li>
-  <a href="../news/index.html">Changelog</a>
+  <a href="../reference/index.html">Functions</a>
+</li>
+<li>
+  <a href="../news/index.html">News</a>
 </li>
       </ul>
       
@@ -123,11 +132,11 @@
       
     </div>
 
-    <div id="healthcareai-2-0-0-9000---2018-04-02" class="section level1">
+    <div id="healthcareai-2-0-0-9000" class="section level1">
 <h1 class="page-header">
-<a href="#healthcareai-2-0-0-9000---2018-04-02" class="anchor"></a>healthcareai 2.0.0.9000 - 2018-04-02<small> Unreleased </small>
+<a href="#healthcareai-2-0-0-9000" class="anchor"></a>healthcareai 2.0.0.9000<small> Unreleased </small>
 </h1>
-<p>Major, breaking changes. R6 is out; S3 is in.</p>
+<p>This is a beta version of a new tidy, S3 package architecture. Feedback is greatly appreciated.</p>
 </div>
     <div id="healthcareai-1-2-4" class="section level1">
 <h1 class="page-header">
@@ -296,7 +305,7 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-        <li><a href="#healthcareai-2-0-0-9000---2018-04-02">2.0.0.9000</a></li>
+        <li><a href="#healthcareai-2-0-0-9000">2.0.0.9000</a></li>
         <li><a href="#healthcareai-1-2-4">1.2.4</a></li>
         <li><a href="#healthcareai-1-2-0">1.2.0</a></li>
         <li><a href="#healthcareai-1-1-0">1.1.0</a></li>

@@ -44,12 +44,12 @@ Train models without tuning for performance
 }
 \details{
 This function has two major differences from
-  \code{\link{tune_models}}: \enumerate{\item{It uses default hyperparameter
-  values to train models instead of using cross-validation to optimize
-  hyperparameter values for predictive performance.} \item{It is much
-  faster.}}
+  \code{\link{tune_models}}: 1. It uses fixed hyperparameter values to train
+  models instead of using cross-validation to optimize hyperparameter values
+  for predictive performance, and, as a result, 2. It is much faster.
 }
 \examples{
+\dontrun{
 # Prepare data
 prepped_data <- prep_data(pima_diabetes, patient_id, outcome = diabetes)
 
@@ -76,15 +76,14 @@ models <-
 summary(models)
 
 # Speed comparison of no tuning with flash_models vs. tuning with tune_models:
-\dontrun{
-  # ~40 seconds:
-  system.time(
-    tune_models(prepped_data, diabetes)
-  )
-  # ~6 seconds:
-  system.time(
-    flash_models(prepped_data, diabetes)
-  )
+# ~40 seconds:
+system.time(
+  tune_models(prepped_data, diabetes)
+)
+# ~6 seconds:
+system.time(
+  flash_models(prepped_data, diabetes)
+)
 }
 }
 \seealso{

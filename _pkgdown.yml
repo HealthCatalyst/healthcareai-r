@@ -3,6 +3,7 @@ url: https://docs.healthcare.ai
 template:
   params:
     bootswatch: yeti
+    ganalytics: UA-85609357-1
 
 development:
   mode: devel
@@ -15,7 +16,21 @@ home:
     href: https://healthcare.ai
 
 navbar:
-  title: healthcare.ai
+  title: "healthcare.ai"
+  left:
+   - text: Vignettes
+     menu: 
+      - text: Getting Started
+        href: articles/site_only/healthcareai.html
+      - text: Database Connections
+        href: articles/site_only/db_connections.html
+      - text: Transition from Version 1
+        href: articles/site_only/transitioning.html
+   - text: "Functions"
+     href: reference/index.html
+   - text: "News"
+     href: news/index.html
+
   right:
    - icon: fa-github
      href: https://github.com/HealthCatalyst/healthcareai-r

@@ -31,12 +31,15 @@
 #'   returning your predictions with the newdata in its original format.
 #'
 #' @examples
-#' # Tune models using only the first 50 rows to keep computation fast
-#' models <- machine_learn(pima_diabetes[1:50, ], outcome = diabetes)
-#' # Make prediction on the next 20 rows. This uses the best-performing model from
+#' # Tune models using only the first 20 rows to keep computation fast
+#'
+#' models <- machine_learn(pima_diabetes[1:20, ], patient_id, outcome = diabetes)
+#'
+#' # Make prediction on the next 5 rows. This uses the best-performing model from
 #' # tuning cross validation, and it also prepares the new data in the same way as
 #' # the training data was prepared.
-#' predictions <- predict(models, newdata = pima_diabetes[51:70, ])
+#'
+#' predictions <- predict(models, newdata = pima_diabetes[21:25, ])
 #' predictions
 #' plot(predictions)
 predict.model_list <- function(object, newdata, prepdata, ...) {
@@ -44,7 +47,7 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
   # Pull info
   mi <- extract_model_info(object)
   best_models <- object[[mi$best_model_name]]
-  training_data <- best_models$trainingData
+  training_data <- object[[1]]$trainingData
 
   # If newdata not provided, pull training data from object
   if (missing(newdata)) {

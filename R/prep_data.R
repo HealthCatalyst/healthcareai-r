@@ -181,7 +181,9 @@ prep_data <- function(d,
     # Initialize a new recipe
     mes <- "Training new data prep recipe"
     ## Start by making all variables predictors...
-    recipe <- recipes::recipe(d, ~ .)
+    ## Only pass head of d here because it's carried around with the recipe
+    ## and we don't want to pass around big datasets
+    recipe <- recipes::recipe(head(d), ~ .)
     ## Then deal with outcome if present
     if (!rlang::quo_is_missing(outcome)) {
       outcome_name <- rlang::quo_name(outcome)

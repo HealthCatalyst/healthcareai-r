@@ -44,6 +44,18 @@
 <![endif]-->
 
 
+<!-- Google analytics -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-85609357-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
 
 
   </head>
@@ -67,32 +79,29 @@
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li>
-  <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
-  <a href="../articles/healthcareai.html">Get started</a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li class="dropdown">
+        <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Vignettes
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="../articles/site_only/healthcareai.html">Getting Started with healthcareai</a>
+    </li>
+    <li>
       <a href="../articles/site_only/db_connections.html">Database Connections</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
     </li>
   </ul>
 </li>
 <li>
-  <a href="../news/index.html">Changelog</a>
+  <a href="../reference/index.html">Functions</a>
+</li>
+<li>
+  <a href="../news/index.html">News</a>
 </li>
       </ul>
       
@@ -226,26 +235,26 @@ default, the count of instances for each patient will be used.</p>
 <span class='no'>bills</span></div><div class='output co'>#&gt; # A tibble: 8 x 4
 #&gt;   patient_id dept_id charge date      
 #&gt;   &lt;chr&gt;      &lt;chr&gt;    &lt;dbl&gt; &lt;date&gt;    
-#&gt; 1 A          ED       9051. 2024-12-24
-#&gt; 2 A          ICU      4995. 2024-12-25
-#&gt; 3 A          ED       2687. 2024-12-25
-#&gt; 4 A          ICU      5475. 2024-12-23
-#&gt; 5 B          ED       8745. 2024-12-24
-#&gt; 6 B          ICU      9077. 2024-12-23
-#&gt; 7 B          ED       3351. 2024-12-23
-#&gt; 8 B          ICU      7358. 2024-12-25</div><div class='input'>
+#&gt; 1 A          ED       2410. 2024-12-23
+#&gt; 2 A          ICU      9265. 2024-12-24
+#&gt; 3 A          ED        118. 2024-12-24
+#&gt; 4 A          ICU      1650. 2024-12-24
+#&gt; 5 B          ED       3184. 2024-12-25
+#&gt; 6 B          ICU      4829. 2024-12-24
+#&gt; 7 B          ED        196. 2024-12-23
+#&gt; 8 B          ICU      2433. 2024-12-25</div><div class='input'>
 <span class='co'># Total charges per patient x department:</span>
 <span class='fu'>pivot</span>(<span class='no'>bills</span>, <span class='no'>patient_id</span>, <span class='no'>dept_id</span>, <span class='no'>charge</span>, <span class='no'>sum</span>)</div><div class='output co'>#&gt; # A tibble: 2 x 3
 #&gt;   patient_id dept_id_ED dept_id_ICU
 #&gt;   &lt;fct&gt;           &lt;dbl&gt;       &lt;dbl&gt;
-#&gt; 1 A              11738.      10471.
-#&gt; 2 B              12096.      16435.</div><div class='input'>
+#&gt; 1 A               2528.      10915.
+#&gt; 2 B               3381.       7262.</div><div class='input'>
 <span class='co'># Count of charges per patient x day:</span>
 <span class='fu'>pivot</span>(<span class='no'>bills</span>, <span class='no'>patient_id</span>, <span class='no'>date</span>)</div><div class='output co'>#&gt; <span class='message'>No fill column was provided, so using "1" for present entities</span></div><div class='output co'>#&gt; <span class='message'>There are rows that contain the same values of both patient_id and date but you didn't provide a function to 'fun' for their aggregation. Proceeding with the default: fun = sum.</span></div><div class='output co'>#&gt; # A tibble: 2 x 4
 #&gt;   patient_id `date_2024-12-23` `date_2024-12-24` `date_2024-12-25`
 #&gt;   &lt;fct&gt;                  &lt;int&gt;             &lt;int&gt;             &lt;int&gt;
-#&gt; 1 A                          1                 1                 2
-#&gt; 2 B                          2                 1                 1</div><div class='input'>
+#&gt; 1 A                          1                 3                NA
+#&gt; 2 B                          1                 1                 2</div><div class='input'>
 <span class='co'># Can provide a custom function to fun, which will take fill as input.</span>
 <span class='co'># Get the difference between the greatest and smallest charge in each</span>
 <span class='co'># department for each patient and format it as currency.</span>
@@ -257,8 +266,8 @@ default, the count of instances for each patient will be used.</p>
 )</div><div class='output co'>#&gt; # A tibble: 2 x 3
 #&gt;   patient_id dept_id_ED dept_id_ICU
 #&gt;   &lt;fct&gt;      &lt;chr&gt;      &lt;chr&gt;      
-#&gt; 1 A          $6364.57   $479.92    
-#&gt; 2 B          $5393.72   $1718.13   </div></pre>
+#&gt; 1 A          $2292.21   $7614.78   
+#&gt; 2 B          $2987.89   $2395.96   </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
