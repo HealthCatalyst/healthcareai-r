@@ -35,7 +35,7 @@ before_install:
   - npm install netlify-cli -g
 
 before_script:
-  - Rscript -e 'pkgdown::build_site("README.Rmd")'
+  - Rscript -e 'library(pkgdown); pkgdown::build_site("README.Rmd")'
 
 after_success:
   - netlify deploy -t $NETLIFY_PAT
