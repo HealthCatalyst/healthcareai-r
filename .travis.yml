@@ -34,10 +34,7 @@ addons:
 before_install:
   - npm install netlify-cli -g
 
-script:
-  - Rscript -e 'pkgdown::build_site()'
-
 after_success:
-  - provider: script
+  - Rscript -e 'pkgdown::build_site()'
   - netlify deploy -t $NETLIFY_PAT
   - Rscript -e 'covr::codecov()'
