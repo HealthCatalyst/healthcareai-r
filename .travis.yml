@@ -34,7 +34,9 @@ addons:
 before_install:
   - npm install netlify-cli -g
 
+before_script:
+  - Rscript -e 'pkgdown::build_site("README.Rmd")'
+
 after_success:
-  - Rscript -e 'pkgdown::build_site()'
   - netlify deploy -t $NETLIFY_PAT
   - Rscript -e 'covr::codecov()'
