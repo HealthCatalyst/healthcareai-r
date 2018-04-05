@@ -37,7 +37,7 @@ addons:
 
 before_install:
   - npm install netlify-cli -g
-  - before_install: R -q -e 'install.packages("remotes"); remotes::install_github("r-lib/pkgdown");
+  - before_install: R -q -e 'install.packages("remotes"); remotes::install_github("r-lib/pkgdown");'
 script:
   - Rscript -e 'pkgdown::build_site()'
 
