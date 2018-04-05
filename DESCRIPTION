@@ -47,6 +47,7 @@ Suggests:
     knitr,
     rmarkdown,
     pkgdown
+Remotes: r-lib/pkgdown
 VignetteBuilder: knitr
 URL: https://docs.healthcare.ai
 BugReports: https://github.com/HealthCatalyst/healthcareai-r/issues
