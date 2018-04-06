@@ -88,7 +88,7 @@ DBI::dbConnect. Accepts trusted connections or username/password." />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/site_only/healthcareai.html">Getting Started with healthcareai</a>
+      <a href="../articles/site_only/healthcareai.html">Getting Started</a>
     </li>
     <li>
       <a href="../articles/site_only/db_connections.html">Database Connections</a>
@@ -187,14 +187,16 @@ user_id and password.</p></td>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>my_con</span> <span class='kw'>&lt;-</span> <span class='fu'>build_connection_string</span>(<span class='kw'>server</span> <span class='kw'>=</span> <span class='st'>"localhost"</span>)
-<span class='co'># con &lt;- DBI::dbConnect(odbc::odbc(), .connection_string = my_con) # nolint</span>
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='no'>my_con</span> <span class='kw'>&lt;-</span> <span class='fu'>build_connection_string</span>(<span class='kw'>server</span> <span class='kw'>=</span> <span class='st'>"localhost"</span>)
+<span class='no'>con</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>DBI</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/DBI/topics/dbConnect'>dbConnect</a></span>(<span class='kw pkg'>odbc</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/odbc/topics/odbc'>odbc</a></span>(), <span class='kw'>.connection_string</span> <span class='kw'>=</span> <span class='no'>my_con</span>)
 
 <span class='co'># with username and password</span>
 <span class='no'>my_con</span> <span class='kw'>&lt;-</span> <span class='fu'>build_connection_string</span>(<span class='kw'>server</span> <span class='kw'>=</span> <span class='st'>"localhost"</span>,
                                   <span class='kw'>user_id</span> <span class='kw'>=</span> <span class='st'>"jules.winnfield"</span>,
                                   <span class='kw'>password</span> <span class='kw'>=</span> <span class='st'>"pathoftherighteous"</span>)
-<span class='co'># con &lt;- DBI::dbConnect(odbc::odbc(), .connection_string = my_con) #nolint</span></div></pre>
+<span class='no'>con</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>DBI</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/DBI/topics/dbConnect'>dbConnect</a></span>(<span class='kw pkg'>odbc</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/odbc/topics/odbc'>odbc</a></span>(), <span class='kw'>.connection_string</span> <span class='kw'>=</span> <span class='no'>my_con</span>)
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
