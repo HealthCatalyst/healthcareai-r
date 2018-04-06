@@ -7,6 +7,10 @@
 #'   figure out if the data need to be sent through `prep_data` before making
 #'   predictions; this can be overriden by setting `prepdata = FALSE`, but this
 #'   should rarely be needed.
+#' @param positive_class For classification only, which outcome level is the
+#'   "yes" case, i.e. is associated with high probabilities? Defaults to
+#'   the second level of the outcome variable (second alphabetically if the
+#'   training data outcome was not already a factor).
 #' @param prepdata Logical, this should rarely be set by the user. By default,
 #'   if `newdata` hasn't been prepped, it will be prepped by `prep_data` before
 #'   predictions are made. Set this to TRUE to force already-prepped data
@@ -31,18 +35,18 @@
 #'   returning your predictions with the newdata in its original format.
 #'
 #' @examples
-#' # Tune models using only the first 20 rows to keep computation fast
+#' # Tune models using only the first 40 rows to keep computation fast
 #'
-#' models <- machine_learn(pima_diabetes[1:20, ], patient_id, outcome = diabetes)
+#' models <- machine_learn(pima_diabetes[1:40, ], patient_id, outcome = diabetes)
 #'
-#' # Make prediction on the next 5 rows. This uses the best-performing model from
+#' # Make prediction on the next 10 rows. This uses the best-performing model from
 #' # tuning cross validation, and it also prepares the new data in the same way as
 #' # the training data was prepared.
 #'
-#' predictions <- predict(models, newdata = pima_diabetes[21:25, ])
+#' predictions <- predict(models, newdata = pima_diabetes[41:50, ])
 #' predictions
 #' plot(predictions)
-predict.model_list <- function(object, newdata, prepdata, ...) {
+predict.model_list <- function(object, newdata, prepdata, positive_class, ...) {
 
   # Pull info
   mi <- extract_model_info(object)
@@ -78,9 +82,20 @@ predict.model_list <- function(object, newdata, prepdata, ...) {
   type <- if (is.classification_list(object)) "prob" else "raw"
   preds <- caret::predict.train(best_models, to_pred, type = type)
 
-  # Probs get returned for no and yes. Take positive class from 2nd column
-  if (is.data.frame(preds))
-    preds <- preds[, 2]
+  # Set positive class if missing and check if present in outcome
+  if (is.classification_list(object)) {
+    outcome_levels <- levels(training_data[[".outcome"]])
+    if (missing(positive_class)) {
+      positive_class <- outcome_levels[2]
+    } else {
+      if (!positive_class %in% outcome_levels)
+        stop(positive_class, " not found in ", mi$target, ". ", mi$target,
+             " has values ", paste(outcome_levels, collapse = " and "))
+    }
+    # Probs get returned for no and yes. Keep only positive class
+    preds <- preds[[positive_class]]
+  }
+
   pred_name <- paste0("predicted_", mi$target)
   newdata[[pred_name]] <- preds
   newdata <- tibble::as_tibble(newdata)

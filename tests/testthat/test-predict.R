@@ -269,3 +269,23 @@ test_that("ready_with_prep warns for new factor levels (via prep_data)", {
   expect_warning(ready_with_prep(model_regression_prepped, test_data),
                  "Catholic: that's weird")
 })
+
+test_that("predict handles positive class specified in training", {
+  d <- tibble(y = rbinom(50, 1, .5),
+              x1 = rnorm(50, mean = y, sd = .1),
+              x2 = rnorm(50, mean = y, sd = .1))
+  pd <- prep_data(d, outcome = y)
+  preds <- list(
+    tm_rf = pd %>% tune_models(y, tune_depth = 2, models = "rf") %>% predict(positive_class = "Y"),
+    tm_knn = pd %>% tune_models(y, tune_depth = 2, models = "knn") %>% predict(positive_class = "Y"),
+    ml = machine_learn(d, outcome = y, models = "rf", tune_depth = 2) %>% predict(positive_class = "Y")
+  )
+  expect_true(all(map_lgl(preds, ~ {
+    mean(.x$predicted_y[.x$y == "Y"]) > mean(.x$predicted_y[.x$y == "N"])
+  })))
+})
+
+test_that("get informative error if positive class isn't in outcome", {
+  expect_error(predict(model_classify_prepped, positive_class = "typo"),
+               regexp = "Catholic")
+})
