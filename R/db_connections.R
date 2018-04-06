@@ -17,15 +17,16 @@
 #' @seealso \code{\link{db_read}}
 #' @export
 #' @examples
+#' \dontrun{
 #' my_con <- build_connection_string(server = "localhost")
-#' # con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con) # nolint
+#' con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con)
 #'
 #' # with username and password
 #' my_con <- build_connection_string(server = "localhost",
 #'                                   user_id = "jules.winnfield",
 #'                                   password = "pathoftherighteous")
-#' # con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con) #nolint
-#'
+#' con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con)
+#' }
 build_connection_string <- function(server,
                                     driver = "SQL Server",
                                     database,
