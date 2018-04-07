@@ -1,6 +1,7 @@
 #' Convert MSDRGs into a "base DRG" and complication level
 #'
 #' @param drgs character vector of MSDRG descriptions, e.g. MSDRGDSC
+#' @param remove_age logical; if TRUE will remove age descriptions
 #'
 #' @return a tibble with three columns: msdrg: the input vector, base_msdrg, and
 #'   msdrg_complication
@@ -14,9 +15,11 @@
 #' @examples
 #' MSDRGs <- c("ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W CC",
 #'             "ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W MCC",
-#'             "ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W/O CC/MCC")
-#' separate_drgs(MSDRGs)
-separate_drgs <- function(drgs) {
+#'             "ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W/O CC/MCC",
+#'             "SIMPLE PNEUMONIA & PLEURISY",
+#'             "SIMPLE PNEUMONIA & PLEURISY AGE 0-17")
+#' separate_drgs(MSDRGs, remove_age = TRUE)
+separate_drgs <- function(drgs, remove_age = FALSE) {
   cc_pos <- tibble::tibble(
     w_cc = stringr::str_locate(drgs, stringr::coll("W CC"))[, 1],
     w_mcc = stringr::str_locate(drgs, stringr::coll("W MCC"))[, 1],
@@ -46,6 +49,11 @@ separate_drgs <- function(drgs) {
       return(i)
     })
   complications <- c("complication", "major complication", "complication", "absent complication")[complications]
+  if (remove_age) {
+    age_loc <- stringr::str_locate(bases, stringr::coll(" AGE"))[, "start"] - 1L
+    age_loc[is.na(age_loc)] <- -1L
+    bases <- stringr::str_sub(bases, 0, age_loc)
+  }
   tibble::tibble(msdrg = drgs,
                  base_msdrg = bases,
                  msdrg_complication = complications)
