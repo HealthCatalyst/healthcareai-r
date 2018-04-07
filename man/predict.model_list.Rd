@@ -4,7 +4,7 @@
 \alias{predict.model_list}
 \title{Make predictions using the best-performing model from tuning}
 \usage{
-\method{predict}{model_list}(object, newdata, prepdata, ...)
+\method{predict}{model_list}(object, newdata, prepdata, positive_class, ...)
 }
 \arguments{
 \item{object}{model_list object, as from `tune_models`}
@@ -21,6 +21,11 @@ if `newdata` hasn't been prepped, it will be prepped by `prep_data` before
 predictions are made. Set this to TRUE to force already-prepped data
 through `prep_data` again, or set to FALSE to prevent `newdata` from being
 sent through `prep_data`.}
+
+\item{positive_class}{For classification only, which outcome level is the
+"yes" case, i.e. is associated with high probabilities? Defaults to
+the second level of the outcome variable (second alphabetically if the
+training data outcome was not already a factor).}
 
 \item{...}{Unused.}
 }
@@ -42,15 +47,15 @@ The model and hyperparameter values with the best out-of-fold
   returning your predictions with the newdata in its original format.
 }
 \examples{
-# Tune models using only the first 20 rows to keep computation fast
+# Tune models using only the first 40 rows to keep computation fast
 
-models <- machine_learn(pima_diabetes[1:20, ], patient_id, outcome = diabetes)
+models <- machine_learn(pima_diabetes[1:40, ], patient_id, outcome = diabetes)
 
-# Make prediction on the next 5 rows. This uses the best-performing model from
+# Make prediction on the next 10 rows. This uses the best-performing model from
 # tuning cross validation, and it also prepares the new data in the same way as
 # the training data was prepared.
 
-predictions <- predict(models, newdata = pima_diabetes[21:25, ])
+predictions <- predict(models, newdata = pima_diabetes[41:50, ])
 predictions
 plot(predictions)
 }

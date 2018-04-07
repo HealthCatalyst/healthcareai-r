@@ -218,7 +218,13 @@ Ignored if tune is FALSE.</p></td>
 #&gt; Performance Metric: ROC
 #&gt; Number of Observations: 91
 #&gt; Number of Features: 12
+<<<<<<< HEAD
 #&gt; Models Trained: 2018-04-06 20:06:37 
+||||||| merged common ancestors
+#&gt; Models Trained: 2018-04-06 10:14:48 
+=======
+#&gt; Models Trained: 2018-04-06 16:31:29 
+>>>>>>> master
 #&gt; 
 #&gt; Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.
 #&gt; Best model: Random Forest
@@ -228,7 +234,13 @@ Ignored if tune is FALSE.</p></td>
 #&gt;   splitrule = gini
 #&gt;   min.node.size = 9 </div><div class='input'>
 <span class='co'># Make predictions (predicted probability of diabetes) on test data</span>
+<<<<<<< HEAD
 <span class='fu'>predict</span>(<span class='no'>diabetes_models</span>, <span class='no'>d</span>$<span class='no'>test</span>)</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-04-06 20:06:37</span>
+||||||| merged common ancestors
+<span class='fu'>predict</span>(<span class='no'>diabetes_models</span>, <span class='no'>d</span>$<span class='no'>test</span>)</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-04-06 10:14:48</span>
+=======
+<span class='fu'>predict</span>(<span class='no'>diabetes_models</span>, <span class='no'>d</span>$<span class='no'>test</span>)</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-04-06 16:31:29</span>
+>>>>>>> master
 #&gt; <span class='message'>Performance in training: ROC = 0.77</span></div><div class='output co'>#&gt; # A tibble: 9 x 11
 #&gt;   diabetes predicted_diabet… patient_id pregnancies plasma_glucose diastolic_bp
 #&gt; * &lt;chr&gt;                &lt;dbl&gt;      &lt;int&gt;       &lt;int&gt;          &lt;int&gt;        &lt;int&gt;
@@ -248,7 +260,13 @@ Ignored if tune is FALSE.</p></td>
 <span class='co'># If the outcome variable is numeric, regression models will be trained</span>
 <span class='no'>age_model</span> <span class='kw'>&lt;-</span> <span class='fu'>machine_learn</span>(<span class='no'>d</span>$<span class='no'>train</span>, <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>age</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>age looks numeric, so training regression algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Running cross validation for Random Forest</span></div><div class='output co'>#&gt; <span class='message'>Running cross validation for k-Nearest Neighbors</span></div><div class='input'>
 <span class='co'># If new data isn't specifed, get predictions on training data</span>
+<<<<<<< HEAD
 <span class='fu'>predict</span>(<span class='no'>age_model</span>)</div><div class='output co'>#&gt; <span class='message'>"predicted_age" predicted by Random Forest last trained: 2018-04-06 20:06:40</span>
+||||||| merged common ancestors
+<span class='fu'>predict</span>(<span class='no'>age_model</span>)</div><div class='output co'>#&gt; <span class='message'>"predicted_age" predicted by Random Forest last trained: 2018-04-06 10:14:52</span>
+=======
+<span class='fu'>predict</span>(<span class='no'>age_model</span>)</div><div class='output co'>#&gt; <span class='message'>"predicted_age" predicted by Random Forest last trained: 2018-04-06 16:31:33</span>
+>>>>>>> master
 #&gt; <span class='message'>Performance in training: RMSE = 8.84</span></div><div class='output co'>#&gt; # A tibble: 91 x 16
 #&gt;      age predicted_age pregnancies plasma_glucose diastolic_bp skinfold insulin
 #&gt;  * &lt;int&gt;         &lt;dbl&gt;       &lt;int&gt;          &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
@@ -278,7 +296,13 @@ Ignored if tune is FALSE.</p></td>
 #&gt; Performance Metric: ROC
 #&gt; Number of Observations: 91
 #&gt; Number of Features: 12
+<<<<<<< HEAD
 #&gt; Models Trained: 2018-04-06 20:06:42 
+||||||| merged common ancestors
+#&gt; Models Trained: 2018-04-06 10:14:54 
+=======
+#&gt; Models Trained: 2018-04-06 16:31:35 
+>>>>>>> master
 #&gt; 
 #&gt; Models have not been tuned. Performance estimated via 5-fold cross validation at fixed hyperparameter values.
 #&gt; Best model: Random Forest
