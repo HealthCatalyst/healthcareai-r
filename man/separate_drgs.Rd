@@ -4,10 +4,12 @@
 \alias{separate_drgs}
 \title{Convert MSDRGs into a "base DRG" and complication level}
 \usage{
-separate_drgs(drgs)
+separate_drgs(drgs, remove_age = FALSE)
 }
 \arguments{
 \item{drgs}{character vector of MSDRG descriptions, e.g. MSDRGDSC}
+
+\item{remove_age}{logical; if TRUE will remove age descriptions}
 }
 \value{
 a tibble with three columns: msdrg: the input vector, base_msdrg, and
@@ -25,6 +27,8 @@ This function is not robust to different codings of complication in
 \examples{
 MSDRGs <- c("ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W CC",
             "ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W MCC",
-            "ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W/O CC/MCC")
-separate_drgs(MSDRGs)
+            "ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W/O CC/MCC",
+            "SIMPLE PNEUMONIA & PLEURISY",
+            "SIMPLE PNEUMONIA & PLEURISY AGE 0-17")
+separate_drgs(MSDRGs, remove_age = TRUE)
 }
