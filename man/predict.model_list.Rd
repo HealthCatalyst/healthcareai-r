@@ -9,10 +9,14 @@
 \arguments{
 \item{object}{model_list object, as from `tune_models`}
 
-\item{newdata}{data on which to make predictions. If missing, predictions
-will be made on the training data. Should have the same structure as the
-input to `prep_data`,`tune_models` or `train_models`. `predict` will try to
-figure out if the data need to be sent through `prep_data` before making
+\item{newdata}{data on which to make predictions. If missing, out-of-fold
+predictions from training will be returned If you want new predictions on
+training data using the final model, pass the training data to this
+argument, but know that you're getting over-fit predictions that very
+likely overestimate model performance relative to what will be achieved on
+new data. Should have the same structure as the input to
+`prep_data`,`tune_models` or `train_models`. `predict` will try to figure
+out if the data need to be sent through `prep_data` before making
 predictions; this can be overriden by setting `prepdata = FALSE`, but this
 should rarely be needed.}
 
@@ -23,9 +27,9 @@ through `prep_data` again, or set to FALSE to prevent `newdata` from being
 sent through `prep_data`.}
 
 \item{positive_class}{For classification only, which outcome level is the
-"yes" case, i.e. is associated with high probabilities? Defaults to
-the second level of the outcome variable (second alphabetically if the
-training data outcome was not already a factor).}
+"yes" case, i.e. is associated with high probabilities? Defaults to the
+second level of the outcome variable (second alphabetically if the training
+data outcome was not already a factor).}
 
 \item{...}{Unused.}
 }

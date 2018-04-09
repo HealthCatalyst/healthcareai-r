@@ -150,10 +150,14 @@
     </tr>
     <tr>
       <th>newdata</th>
-      <td><p>data on which to make predictions. If missing, predictions
-will be made on the training data. Should have the same structure as the
-input to `prep_data`,`tune_models` or `train_models`. `predict` will try to
-figure out if the data need to be sent through `prep_data` before making
+      <td><p>data on which to make predictions. If missing, out-of-fold
+predictions from training will be returned If you want new predictions on
+training data using the final model, pass the training data to this
+argument, but know that you're getting over-fit predictions that very
+likely overestimate model performance relative to what will be achieved on
+new data. Should have the same structure as the input to
+`prep_data`,`tune_models` or `train_models`. `predict` will try to figure
+out if the data need to be sent through `prep_data` before making
 predictions; this can be overriden by setting `prepdata = FALSE`, but this
 should rarely be needed.</p></td>
     </tr>
@@ -168,9 +172,9 @@ sent through `prep_data`.</p></td>
     <tr>
       <th>positive_class</th>
       <td><p>For classification only, which outcome level is the
-"yes" case, i.e. is associated with high probabilities? Defaults to
-the second level of the outcome variable (second alphabetically if the
-training data outcome was not already a factor).</p></td>
+"yes" case, i.e. is associated with high probabilities? Defaults to the
+second level of the outcome variable (second alphabetically if the training
+data outcome was not already a factor).</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -208,42 +212,20 @@ training data outcome was not already a factor).</p></td>
 <span class='co'># tuning cross validation, and it also prepares the new data in the same way as</span>
 <span class='co'># the training data was prepared.</span>
 
-<<<<<<< HEAD
-<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>21</span>:<span class='fl'>25</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-04-06 20:06:51</span>
-#&gt; <span class='message'>Performance in training: ROC = 0.8</span></div><div class='output co'>#&gt; # A tibble: 5 x 11
-#&gt;   diabetes predicted_diabet… patient_id pregnancies plasma_glucose diastolic_bp
-#&gt; * &lt;chr&gt;                &lt;dbl&gt;      &lt;int&gt;       &lt;int&gt;          &lt;int&gt;        &lt;int&gt;
-#&gt; 1 N                    0.727         21           3            126           88
-#&gt; 2 N                    0.781         22           8             99           84
-#&gt; 3 Y                    0.932         23           7            196           90
-#&gt; 4 Y                    0.522         24           9            119           80
-#&gt; 5 Y                    0.769         25          11            143           94
-||||||| merged common ancestors
-<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>21</span>:<span class='fl'>25</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-04-06 10:15:02</span>
-#&gt; <span class='message'>Performance in training: ROC = 0.8</span></div><div class='output co'>#&gt; # A tibble: 5 x 11
-#&gt;   diabetes predicted_diabet… patient_id pregnancies plasma_glucose diastolic_bp
-#&gt; * &lt;chr&gt;                &lt;dbl&gt;      &lt;int&gt;       &lt;int&gt;          &lt;int&gt;        &lt;int&gt;
-#&gt; 1 N                    0.727         21           3            126           88
-#&gt; 2 N                    0.781         22           8             99           84
-#&gt; 3 Y                    0.932         23           7            196           90
-#&gt; 4 Y                    0.522         24           9            119           80
-#&gt; 5 Y                    0.769         25          11            143           94
-=======
-<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>41</span>:<span class='fl'>50</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-04-06 16:31:44</span>
-#&gt; <span class='message'>Performance in training: ROC = 0.68</span></div><div class='output co'>#&gt; # A tibble: 10 x 11
+<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>41</span>:<span class='fl'>50</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-04-09 16:28:54</span>
+#&gt; <span class='message'>Performance in training: AUROC = 0.72</span></div><div class='output co'>#&gt; # A tibble: 10 x 11
 #&gt;    diabetes predicted_diabe… patient_id pregnancies plasma_glucose diastolic_bp
 #&gt;  * &lt;chr&gt;               &lt;dbl&gt;      &lt;int&gt;       &lt;int&gt;          &lt;int&gt;        &lt;int&gt;
-#&gt;  1 N                   0.773         41           3            180           64
-#&gt;  2 N                   0.530         42           7            133           84
-#&gt;  3 N                   0.230         43           7            106           92
-#&gt;  4 Y                   0.693         44           9            171          110
-#&gt;  5 N                   0.621         45           7            159           64
-#&gt;  6 Y                   0.726         46           0            180           66
-#&gt;  7 N                   0.532         47           1            146           56
-#&gt;  8 N                   0.359         48           2             71           70
-#&gt;  9 Y                   0.601         49           7            103           66
-#&gt; 10 N                   0.498         50           7            105           NA
->>>>>>> master
+#&gt;  1 N                   0.838         41           3            180           64
+#&gt;  2 N                   0.588         42           7            133           84
+#&gt;  3 N                   0.199         43           7            106           92
+#&gt;  4 Y                   0.727         44           9            171          110
+#&gt;  5 N                   0.656         45           7            159           64
+#&gt;  6 Y                   0.832         46           0            180           66
+#&gt;  7 N                   0.503         47           1            146           56
+#&gt;  8 N                   0.296         48           2             71           70
+#&gt;  9 Y                   0.674         49           7            103           66
+#&gt; 10 N                   0.633         50           7            105           NA
 #&gt; # ... with 5 more variables: skinfold &lt;int&gt;, insulin &lt;int&gt;, weight_class &lt;chr&gt;,
 #&gt; #   pedigree &lt;dbl&gt;, age &lt;int&gt;</div><div class='input'><span class='fu'>plot</span>(<span class='no'>predictions</span>)</div><div class='img'><img src='predict.model_list-1.png' alt='' width='576' height='288' /></div></pre>
   </div>
