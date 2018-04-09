@@ -85,17 +85,17 @@ get_classes_sorted <- function(d) {
 #' @return model_list
 #' @noRd
 change_metric_names <- function(object) {
+  metrics <- get_metric_names()
   if (is.model_list(object)) {
-    # AUC is caret's code for PR
-    if (object[[1]]$metric == "AUC") {
       for (i in seq_along(object)) {
-        object[[i]]$metric <- "PR"
-        names(object[[i]]$results)[names(object[[i]]$results) == "AUC"] <- "PR"
+        switch_row <- which(metrics$caret == object[[i]]$metric)
+        object[[i]]$metric <- metrics$ours[switch_row]
+        names(object[[i]]$results)[names(object[[i]]$results) == metrics$caret[switch_row]] <-
+          metrics$ours[switch_row]
       }
-    }
   } else if (is.hcai_predicted_df(object)) {
-    if (attr(object, "model_info")$metric == "AUC")
-      attr(object, "model_info")$metric <- "PR"
+    attr(object, "model_info")$metric <-
+      metrics$ours[metrics$caret == attr(object, "model_info")$metric]
   }
   return(object)
 }
