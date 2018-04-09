@@ -2,7 +2,7 @@
 % Please edit documentation in R/evaluate.R
 \name{evaluate_classification}
 \alias{evaluate_classification}
-\title{Get performance metrics for classification models}
+\title{Get performance metrics for classification predictions}
 \usage{
 evaluate_classification(predicted, actual)
 }
@@ -15,5 +15,8 @@ evaluate_classification(predicted, actual)
 Numeric vector of scores with metric as names
 }
 \description{
-Get performance metrics for classification models
+Get performance metrics for classification predictions
+}
+\examples{
+evaluate_classification(c(.7, .1, .6, .9, .4), c(1, 0, 0, 1, 1))
 }
