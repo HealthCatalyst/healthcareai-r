@@ -109,7 +109,7 @@ flash_models <- function(d,
     })
 
   train_list <- add_model_attrs(models = train_list,
-                                recipe = attr(d, "recipe"),
+                                recipe = recipe,
                                 tuned = FALSE,
                                 target = rlang::quo_name(outcome))
   return(train_list)
