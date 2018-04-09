@@ -94,6 +94,10 @@ predict.model_list <- function(object, newdata, prepdata, positive_class, ...) {
     }
     # Probs get returned for no and yes. Keep only positive class
     preds <- preds[[positive_class]]
+  } else {
+    if (!missing(positive_class))
+      warning("positive_class is only for classification models. Will be ignored.")
+    positive_class <- NULL
   }
 
   pred_name <- paste0("predicted_", mi$target)
@@ -114,5 +118,6 @@ predict.model_list <- function(object, newdata, prepdata, positive_class, ...) {
          timestamp = mi$timestamp,
          hyperparameters = structure(mi$best_model_tune,
                                      "row.names" = "optimal:"))
+  attr(newdata, "positive_class") <- positive_class
   return(newdata)
 }

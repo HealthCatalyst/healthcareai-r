@@ -297,3 +297,16 @@ test_that("can predict on untuned classification model with new data", {
   c_preds_test <- predict(c_models, dtest)
   expect_s3_class(c_preds_test, "hcai_predicted_df")
 })
+
+test_that("positive class is attached to predictions as attributes", {
+  expect_true("positive_class" %in% names(attributes(classification_prepped_prepped)))
+  pp <- predict(model_classify_prepped, positive_class = "Y")
+  expect_equal("Y", attr(pp, "positive_class"))
+})
+
+test_that("positive class is null for regression and gives warning if provided", {
+  expect_warning({
+    pp <- predict(model_regression_prepped, test_data_reg_prep, positive_class = "Y")
+  })
+  expect_null(attr(pp, "positive_class"))
+})
