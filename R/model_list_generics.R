@@ -6,7 +6,7 @@
 #' @noRd
 print.model_list <- function(x, ...) {
   if (length(x)) {
-    x <- change_pr_metric(x)
+    x <- change_metric_names(x)
     rinfo <- extract_model_info(x)
     out <- paste0(
       "Algorithms Trained: ", paste(rinfo$algs, collapse = ", "),
@@ -53,7 +53,7 @@ print.model_list <- function(x, ...) {
 summary.model_list <- function(object, ...) {
   if (!length(object))
     stop("object is empty.")
-  object <- change_pr_metric(object)
+  object <- change_metric_names(object)
   rinfo <- extract_model_info(object)
   out <-
     if (rinfo$tuned) {
@@ -108,7 +108,7 @@ plot.model_list <- function(x, print = TRUE, ...) {
   if (!attr(x, "tuned"))
     message("No tuning was done, so there's not much to plot. Use `tune_models` tune hyperparameters, ",
             "or use `plot(predict(x))` to plot predictions on training data.")
-  x <- change_pr_metric(x)
+  x <- change_metric_names(x)
   params <- purrr::map(x, ~ as.character(.x$modelInfo$parameters$parameter))
   bounds <- purrr::map_df(x, function(m) range(m$results[[m$metric]]))
   y_range <- c(min(bounds[1, ]), max(bounds[2, ]))

@@ -11,7 +11,7 @@ is.hcai_predicted_df <- function(x) "hcai_predicted_df" %in% class(x)
 # print method for predicted data frame
 #' @export
 print.hcai_predicted_df <- function(x, ...) {
-  x <- change_pr_metric(x)
+  x <- change_metric_names(x)
   mi <- attr(x, "model_info")
   mes <- paste0("\"predicted_", mi$target, "\" predicted by ",
                 mi$algorithm, " last trained: ", mi$timestamp,

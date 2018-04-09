@@ -84,7 +84,7 @@ get_classes_sorted <- function(d) {
 #' @param object model_list
 #' @return model_list
 #' @noRd
-change_pr_metric <- function(object) {
+change_metric_names <- function(object) {
   if (is.model_list(object)) {
     # AUC is caret's code for PR
     if (object[[1]]$metric == "AUC") {
