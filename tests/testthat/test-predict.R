@@ -289,3 +289,11 @@ test_that("get informative error if positive class isn't in outcome", {
   expect_error(predict(model_classify_prepped, positive_class = "typo"),
                regexp = "Catholic")
 })
+
+test_that("can predict on untuned classification model with new data", {
+  d <- na.omit(pima_diabetes)[1:100, ]
+  dtest <- na.omit(pima_diabetes)[101:110, ]
+  c_models <- machine_learn(d, patient_id, outcome = diabetes, tune = FALSE, n_folds = 2)
+  c_preds_test <- predict(c_models, dtest)
+  expect_s3_class(c_preds_test, "hcai_predicted_df")
+})
