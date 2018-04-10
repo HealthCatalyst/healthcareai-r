@@ -8,10 +8,12 @@ dtest <- na.omit(pima_diabetes)[101:110, ]
 r_models <- machine_learn(d, patient_id, outcome = plasma_glucose, tune = FALSE, n_folds = 2)
 c_models <- machine_learn(d, patient_id, outcome = diabetes, tune = FALSE, n_folds = 2)
 
-r_preds_training <- predict(r_models) %>% evaluate()
-c_preds_training <- predict(c_models) %>% evaluate()
-r_preds_test <- predict(r_models, dtest) %>% evaluate()
-c_preds_test <- predict(c_models, dtest) %>% evaluate()
+r_preds_training <- predict(r_models)
+r_preds_training_eval <- evaluate(r_preds_training)
+c_preds_training <- predict(c_models)
+c_preds_training_eval <- evaluate(c_preds_training)
+r_preds_test_eval <- predict(r_models, dtest) %>% evaluate()
+c_preds_test_eval <- predict(c_models, dtest) %>% evaluate()
 all_preds <- list(r_preds_training, r_preds_test, c_preds_training, c_preds_test)
 
 # Test
@@ -48,14 +50,21 @@ test_that("evaluate returns numeric vector", {
 })
 
 test_that("evalutes returns appropriate metrics", {
-  expect_setequal(names(r_preds_training), c("RMSE", "MAE", "Rsquared"))
-  expect_setequal(names(r_preds_test), c("RMSE", "MAE", "Rsquared"))
-  expect_setequal(names(c_preds_training), c("AUPR", "AUROC"))
-  expect_setequal(names(c_preds_test), c("AUPR", "AUROC"))
+  expect_setequal(names(r_preds_training_eval), c("RMSE", "MAE", "Rsquared"))
+  expect_setequal(names(r_preds_test_eval), c("RMSE", "MAE", "Rsquared"))
+  expect_setequal(names(c_preds_training_eval), c("AUPR", "AUROC"))
+  expect_setequal(names(c_preds_test_eval), c("AUPR", "AUROC"))
 })
 
 test_that("All AUx metrics are in [0, 1]", {
-  map_lgl(c_preds_test, ~ .x <= 1 && .x >= 0) %>%
+  map_lgl(c_preds_test_eval, ~ .x <= 1 && .x >= 0) %>%
     all() %>%
     expect_true()
+})
+
+test_that("evaluate metrics match caret's", {
+  expect_equal(attributes(r_preds_training)$model_info$performance,
+               r_preds_training_eval["RMSE"])
+  expect_equal(attributes(c_preds_training)$model_info$performance,
+               c_preds_training_eval["AUROC"])
 })

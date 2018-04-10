@@ -316,5 +316,5 @@ test_that("performance in training matches metric; ie we really are returning OO
   evaluate(predict(model_classify_prepped))
   preds <- predict(model_classify_prepped)$predicted_Catholic
   oofpreds <- dplyr::arrange(model_classify_prepped$`Random Forest`$pred, rowIndex)$Y
-  all.equal(preds, oofpreds)
+  expect_true(all.equal(preds, oofpreds))
 })
