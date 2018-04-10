@@ -310,3 +310,11 @@ test_that("positive class is null for regression and gives warning if provided",
   })
   expect_null(attr(pp, "positive_class"))
 })
+
+test_that("performance in training matches metric; ie we really are returning OOF predictions", {
+  model_classify_prepped
+  evaluate(predict(model_classify_prepped))
+  preds <- predict(model_classify_prepped)$predicted_Catholic
+  oofpreds <- dplyr::arrange(model_classify_prepped$`Random Forest`$pred, rowIndex)$Y
+  all.equal(preds, oofpreds)
+})
