@@ -4,8 +4,8 @@
 \alias{flash_models}
 \title{Train models without tuning for performance}
 \usage{
-flash_models(d, outcome, models = c("rf", "knn"), metric, n_folds = 5,
-  hyperparameters, model_class)
+flash_models(d, outcome, models = c("rf", "knn"), metric, positive_class,
+  n_folds = 5, hyperparameters, model_class)
 }
 \arguments{
 \item{d}{A data frame}
@@ -21,6 +21,12 @@ regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
 error), or "Rsquared." For classification: "ROC" (area under the receiver
 operating characteristic curve), or "PR" (area under the precision-recall
 curve).}
+
+\item{positive_class}{For classification only, which outcome level is the
+"yes" case, i.e. should be associated with high probabilities? Defaults to
+"Y" or "yes" if present, otherwise is the first level of the outcome
+variable (first alphabetically if the training data outcome was not already
+a factor).}
 
 \item{n_folds}{How many folds to train the model on. Default = 5, minimum =
 2. Whie flash_models doesn't use cross validation to tune hyperparameters,

@@ -5,8 +5,8 @@
 \title{Tune multiple machine learning models using cross validation to optimize
 performance}
 \usage{
-tune_models(d, outcome, models, metric, n_folds = 5, tune_depth = 10,
-  tune_method = "random", hyperparameters, model_class)
+tune_models(d, outcome, models, metric, positive_class, n_folds = 5,
+  tune_depth = 10, tune_method = "random", hyperparameters, model_class)
 }
 \arguments{
 \item{d}{A data frame}
@@ -22,6 +22,12 @@ regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
 error), or "Rsquared." For classification: "ROC" (area under the receiver
 operating characteristic curve), or "PR" (area under the precision-recall
 curve).}
+
+\item{positive_class}{For classification only, which outcome level is the
+"yes" case, i.e. should be associated with high probabilities? Defaults to
+"Y" or "yes" if present, otherwise is the first level of the outcome
+variable (first alphabetically if the training data outcome was not already
+a factor).}
 
 \item{n_folds}{How many folds to use in cross-validation? Default = 5.}
 

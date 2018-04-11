@@ -4,7 +4,7 @@
 \alias{predict.model_list}
 \title{Make predictions using the best-performing model from tuning}
 \usage{
-\method{predict}{model_list}(object, newdata, prepdata, positive_class, ...)
+\method{predict}{model_list}(object, newdata, prepdata, ...)
 }
 \arguments{
 \item{object}{model_list object, as from `tune_models`}
@@ -25,11 +25,6 @@ if `newdata` hasn't been prepped, it will be prepped by `prep_data` before
 predictions are made. Set this to TRUE to force already-prepped data
 through `prep_data` again, or set to FALSE to prevent `newdata` from being
 sent through `prep_data`.}
-
-\item{positive_class}{For classification only, which outcome level is the
-"yes" case, i.e. is associated with high probabilities? Defaults to the
-second level of the outcome variable (second alphabetically if the training
-data outcome was not already a factor).}
 
 \item{...}{Unused.}
 }
