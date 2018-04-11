@@ -1,17 +1,3 @@
-#' Constructor function for empty model_list
-#'
-#' @param model_class Every model_list object has a child class that specifies
-#'   the model_class. Currently classification and regression are supported.
-#'
-#' @return An empty list with classes list, model_list, and type_list
-#' @importFrom purrr map_lgl
-#' @noRd
-model_list <- function(model_class) {
-  check_model_class(model_class = model_class)
-  structure(list(),
-            class = c(paste0(model_class, "_list"), "model_list", "list"))
-}
-
 #' Make models into model_list object
 #'
 #' @param ... \code{caret}-trained models to put into a model list

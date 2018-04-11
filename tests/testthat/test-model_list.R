@@ -20,40 +20,16 @@ c_pr <- tune_models(mtcars, am, metric = "PR", n_folds = 2, tune_depth = 2)
 single_model_as <- as.model_list(rf)
 single_model_tune <- tune_models(mtcars, am, models = "rf")
 double_model_as <- as.model_list(rf, kn)
-r_empty <- model_list(model_class = "regression")
-c_empty <- model_list(model_class = "classification")
 r_flash <- flash_models(mtcars, mpg)
 c_flash <- flash_models(mtcars, am)
 
 context("Checking model_list constructors") # ----------------------------------
-
-test_that("model_list fails if model_class is unsupported", {
-  expect_error(model_list(model_class = "what am i even?"))
-  # Update once supported:
-  expect_error(model_list(model_class = "unsupervised"))
-  expect_error(model_list(model_class = "multiclass"))
-})
-
-test_that("model_list succeeds without model input", {
-  empty_reg <- model_list("regression")
-  expect_s3_class(empty_reg, "regression_list")
-  expect_s3_class(empty_reg, "model_list")
-  empty_class <- model_list("classification")
-  expect_s3_class(empty_class, "classification_list")
-  expect_s3_class(empty_class, "model_list")
-})
 
 test_that("as.model_list works same with different argument specs", {
   expect_equivalent(as.model_list(rf),
                     as.model_list(listed_models = list(rf)))
   expect_equivalent(as.model_list(rf),
                     as.model_list(rf, model_class = "classification"))
-})
-
-test_that("model lists have target attribute if not empty; null if empty", {
-  expect_null(attr(model_list(model_class = "classification"), "target"))
-  expect_equal(attr(r_models, "target"), "mpg")
-  expect_equal(attr(c_models, "target"), "am")
 })
 
 test_that("as.model_list fails if model_class is unsupported", {
@@ -244,11 +220,6 @@ test_that("model_lists have time model trained attribute", {
   check_timestamp(single_model_as)
   check_timestamp(r_flash)
   check_timestamp(c_flash)
-})
-
-test_that("empty model_lists have null for timestamp attr", {
-  expect_null(attr(r_empty, "timestamp"))
-  expect_null(attr(c_empty, "timestamp"))
 })
 
 test_that("model_lists only carry one copy of training data", {
