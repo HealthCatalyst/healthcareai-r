@@ -116,10 +116,11 @@ flash_models <- function(d,
       })
     })
 
-  train_list <- add_model_attrs(models = train_list,
-                                recipe = recipe,
-                                tuned = FALSE,
-                                target = rlang::quo_name(outcome),
-                                positive_class = levels(y)[1])
+  train_list <- as.model_list(listed_models = train_list,
+                              tuned = FALSE,
+                              target = rlang::quo_name(outcome),
+                              recipe = recipe,
+                              positive_class = levels(y)[1]) %>%
+    structure(timestamp = Sys.time())
   return(train_list)
 }

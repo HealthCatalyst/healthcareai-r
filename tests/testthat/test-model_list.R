@@ -4,15 +4,17 @@ context("model_list tests setup")
 data(mtcars)
 mtcars$am <- as.factor(c("automatic", "manual")[mtcars$am + 1])
 set.seed(257056)
-rf <- caret::train(x = dplyr::select(mtcars, -am),
-                   y = mtcars$am,
+rf <- caret::train(x = dplyr::select(mtcars, -mpg),
+                   y = mtcars$mpg,
                    method = "ranger",
-                   tuneLength = 2
+                   tuneLength = 2,
+                   trControl = caret::trainControl(savePredictions = "final")
 )
-kn <- caret::train(x = dplyr::select(mtcars, -am),
-                   y = mtcars$am,
+kn <- caret::train(x = dplyr::select(mtcars, -mpg),
+                   y = mtcars$mpg,
                    method = "kknn",
-                   tuneLength = 2
+                   tuneLength = 2,
+                   trControl = caret::trainControl(savePredictions = "final")
 )
 r_models <- tune_models(mtcars, mpg, n_folds = 2, tune_depth = 2)
 c_models <- tune_models(mtcars, am, n_folds = 2, tune_depth = 2)
@@ -29,7 +31,7 @@ test_that("as.model_list works same with different argument specs", {
   expect_equivalent(as.model_list(rf),
                     as.model_list(listed_models = list(rf)))
   expect_equivalent(as.model_list(rf),
-                    as.model_list(rf, model_class = "classification"))
+                    as.model_list(rf, model_class = "regression"))
 })
 
 test_that("as.model_list fails if model_class is unsupported", {
@@ -42,19 +44,12 @@ test_that("as.model_list errors if input isn't a caret model", {
   expect_error(as.model_list(ranger::ranger(mpg ~ ., mtcars)))
 })
 
-test_that("as.model_list succeeds with empty input", {
-  expect_s3_class(as.model_list(model_class = "regression"),
-                  "regression_list")
-  expect_s3_class(as.model_list(model_class = "classification"),
-                  "classification_list")
-})
-
 test_that("as.model_list succeeds with one or more models as input", {
-  expect_s3_class(as.model_list(rf, model_class = "classification"),
+  expect_s3_class(as.model_list(rf, model_class = "regression"),
                   "model_list")
   expect_s3_class(as.model_list(rf, kn), "model_list")
   expect_s3_class(
-    as.model_list(listed_models = list(rf, kn), model_class = "classification"),
+    as.model_list(listed_models = list(rf, kn), model_class = "regression"),
     "model_list"
   )
   expect_s3_class(as.model_list(listed_models = list(rf)), "model_list")
@@ -111,9 +106,6 @@ test_that("plot.model_list works on classification_list", {
 })
 
 test_that("print.model_list works", {
-  empty_print <- capture_output(as.model_list(model_class = "regression"), TRUE)
-  expect_true(nchar(empty_print) > 0)
-
   rprint <- capture_output(r_models, TRUE)
   expect_true(nchar(rprint) > 0)
   expect_true(grepl("regression", rprint, ignore.case = TRUE))
@@ -217,7 +209,6 @@ test_that("model_lists have time model trained attribute", {
   check_timestamp(r_models)
   check_timestamp(c_models)
   check_timestamp(c_pr)
-  check_timestamp(single_model_as)
   check_timestamp(r_flash)
   check_timestamp(c_flash)
 })
