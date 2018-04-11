@@ -69,6 +69,19 @@ translate_model_names <- function(models) {
   return(unname(key[models]))
 }
 
+#' Get dataframe to translate caret's metric names to ours. Used in change_metric_names.
+#' @noRd
+get_metric_names <- function() {
+  tibble::tribble(
+    ~ caret,    ~ ours,
+      "ROC",      "AUROC",
+      "AUC",      "AUPR",
+      "RMSE",     "RMSE",
+      "MAE",      "MAE",
+      "Rsquared", "Rsquared"
+  )
+}
+
 #############################################
 ##### Adjustments to stock caret models #####
 #############################################

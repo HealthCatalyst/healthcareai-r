@@ -4,21 +4,29 @@
 \alias{flash_models}
 \title{Train models without tuning for performance}
 \usage{
-flash_models(d, outcome, model_class, models = c("rf", "knn"), n_folds = 5,
-  hyperparameters, metric)
+flash_models(d, outcome, models = c("rf", "knn"), metric, positive_class,
+  n_folds = 5, hyperparameters, model_class)
 }
 \arguments{
 \item{d}{A data frame}
 
 \item{outcome}{Name of the column to predict}
 
-\item{model_class}{"regression" or "classification". If not provided, this
-will be determined by the class of `outcome` with the determination
-displayed in a message.}
-
 \item{models}{Names of models to try, by default "rf" for random forest and
 "knn" for k-nearest neighbors. See \code{\link{supported_models}} for
 available models.}
+
+\item{metric}{What metric to use to assess model performance? Options for
+regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
+error), or "Rsquared." For classification: "ROC" (area under the receiver
+operating characteristic curve), or "PR" (area under the precision-recall
+curve).}
+
+\item{positive_class}{For classification only, which outcome level is the
+"yes" case, i.e. should be associated with high probabilities? Defaults to
+"Y" or "yes" if present, otherwise is the first level of the outcome
+variable (first alphabetically if the training data outcome was not already
+a factor).}
 
 \item{n_folds}{How many folds to train the model on. Default = 5, minimum =
 2. Whie flash_models doesn't use cross validation to tune hyperparameters,
@@ -30,11 +38,9 @@ lists where the outer list contains models and the inner lists contain
 hyperparameter values. See
 \code{healthcareai:::get_hyperparameter_defaults()} for a template.}
 
-\item{metric}{What metric to use to assess model performance? Options for
-regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
-error), or "Rsquared." For classification: "ROC" (area under the receiver
-operating characteristic curve), or "PR" (area under the precision-recall
-curve).}
+\item{model_class}{"regression" or "classification". If not provided, this
+will be determined by the class of `outcome` with the determination
+displayed in a message.}
 }
 \value{
 A model_list object

@@ -226,7 +226,7 @@ See step_bagimpute or step_knnimpute for details.</p></td>
 #&gt; Operations:
 #&gt; 
 #&gt; Mean Imputation for all_numeric(), -all_outcomes()
-#&gt; Filling NA with hcai_missing for all_nominal(), -all_outcomes()</div><div class='input'>
+#&gt; Filling NA with missing for all_nominal(), -all_outcomes()</div><div class='input'>
 <span class='co'># Train recipe</span>
 <span class='no'>trained_recipe</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://www.rdocumentation.org/packages/recipes/topics/prep'>prep</a></span>(<span class='no'>my_recipe</span>, <span class='kw'>training</span> <span class='kw'>=</span> <span class='no'>d</span>)
 
@@ -254,9 +254,9 @@ See step_bagimpute or step_knnimpute for details.</p></td>
 #&gt; Operations:
 #&gt; 
 #&gt; Mean Imputation for all_numeric(), -all_outcomes()
-#&gt; Filling NA with hcai_missing for all_nominal(), -all_outcomes()
+#&gt; Filling NA with missing for all_nominal(), -all_outcomes()
 #&gt; Bagged tree imputation for all_numeric(), -all_outcomes()
-#&gt; Filling NA with hcai_missing for all_nominal(), -all_outcomes()</div><div class='input'>
+#&gt; Filling NA with missing for all_nominal(), -all_outcomes()</div><div class='input'>
 <span class='co'># Specify methods and params:</span>
 <span class='no'>my_recipe</span> <span class='kw'>&lt;-</span> <span class='no'>my_recipe</span> <span class='kw'>%&gt;%</span>
   <span class='fu'>hcai_impute</span>(<span class='kw'>numeric_method</span> <span class='kw'>=</span> <span class='st'>"knnimpute"</span>,
@@ -272,11 +272,11 @@ See step_bagimpute or step_knnimpute for details.</p></td>
 #&gt; Operations:
 #&gt; 
 #&gt; Mean Imputation for all_numeric(), -all_outcomes()
-#&gt; Filling NA with hcai_missing for all_nominal(), -all_outcomes()
+#&gt; Filling NA with missing for all_nominal(), -all_outcomes()
 #&gt; Bagged tree imputation for all_numeric(), -all_outcomes()
-#&gt; Filling NA with hcai_missing for all_nominal(), -all_outcomes()
+#&gt; Filling NA with missing for all_nominal(), -all_outcomes()
 #&gt; 4-nearest neighbor imputation for all_numeric(), -all_outcomes()
-#&gt; Filling NA with hcai_missing for all_nominal(), -all_outcomes()</div></pre>
+#&gt; Filling NA with missing for all_nominal(), -all_outcomes()</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Add levels to nominal variables — step_add_levels • healthcareai</title>
+<title>Class check — is.predicted_df • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,9 +25,9 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Add levels to nominal variables — step_add_levels" />
+<meta property="og:title" content="Class check — is.predicted_df" />
 
-<meta property="og:description" content="Add levels to nominal variables" />
+<meta property="og:description" content="Class check" />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -130,98 +130,30 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Add levels to nominal variables</h1>
+    <h1>Class check</h1>
     
     </div>
 
     
-    <p>Add levels to nominal variables</p>
+    <p>Class check</p>
     
 
-    <pre class="usage"><span class='fu'>step_add_levels</span>(<span class='no'>recipe</span>, <span class='no'>...</span>, <span class='kw'>role</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>trained</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>cols</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>levels</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"other"</span>, <span class='st'>"missing"</span>), <span class='kw'>skip</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-
-<span class='co'># S3 method for step_add_levels</span>
-<span class='fu'>tidy</span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>is.predicted_df</span>(<span class='no'>x</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>recipe</th>
-      <td><p>recipe object. This step will be added</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>One or more selector functions</p></td>
-    </tr>
-    <tr>
-      <th>role</th>
-      <td><p>Ought to be nominal</p></td>
-    </tr>
-    <tr>
-      <th>trained</th>
-      <td><p>Has the recipe been prepped?</p></td>
-    </tr>
-    <tr>
-      <th>cols</th>
-      <td><p>columns to be prepped</p></td>
-    </tr>
-    <tr>
-      <th>levels</th>
-      <td><p>Factor levels to add to variables. Default = c("other",
-"missing")</p></td>
-    </tr>
-    <tr>
-      <th>skip</th>
-      <td><p>A logical. Should the step be skipped when the
-recipe is baked?</p></td>
-    </tr>
-    <tr>
       <th>x</th>
-      <td><p>A `step_add_levels` object.</p></td>
+      <td><p>object</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Recipe with the new step</p>
+    <p>logical</p>
     
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>library</span>(<span class='no'>recipes</span>)
-<span class='no'>d</span> <span class='kw'>&lt;-</span> <span class='fu'>data.frame</span>(<span class='kw'>num</span> <span class='kw'>=</span> <span class='fl'>1</span>:<span class='fl'>30</span>,
-                <span class='kw'>has_missing</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fu'>rep</span>(<span class='fl'>NA</span>, <span class='fl'>10</span>), <span class='fu'>rep</span>(<span class='st'>'b'</span>, <span class='fl'>20</span>)),
-                <span class='kw'>has_rare</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"rare"</span>, <span class='fu'>rep</span>(<span class='st'>"common"</span>, <span class='fl'>29</span>)),
-                <span class='kw'>has_both</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"rare"</span>, <span class='fl'>NA</span>, <span class='fu'>rep</span>(<span class='st'>"common"</span>, <span class='fl'>28</span>)),
-                <span class='kw'>has_neither</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fu'>rep</span>(<span class='st'>"cat1"</span>, <span class='fl'>15</span>), <span class='fu'>rep</span>(<span class='st'>"cat2"</span>, <span class='fl'>15</span>)))
-<span class='no'>rec</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://www.rdocumentation.org/packages/recipes/topics/recipe'>recipe</a></span>( ~ <span class='no'>.</span>, <span class='no'>d</span>) <span class='kw'>%&gt;%</span>
-  <span class='fu'>step_add_levels</span>(<span class='fu'><a href='http://www.rdocumentation.org/packages/recipes/topics/has_role'>all_nominal</a></span>()) <span class='kw'>%&gt;%</span>
-  <span class='fu'><a href='http://www.rdocumentation.org/packages/recipes/topics/prep'>prep</a></span>(<span class='kw'>training</span> <span class='kw'>=</span> <span class='no'>d</span>)
-<span class='no'>baked</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://www.rdocumentation.org/packages/recipes/topics/bake'>bake</a></span>(<span class='no'>rec</span>, <span class='no'>d</span>)
-<span class='fu'>lapply</span>(<span class='no'>d</span>[, <span class='fu'>sapply</span>(<span class='no'>d</span>, <span class='no'>is.factor</span>)], <span class='no'>levels</span>)</div><div class='output co'>#&gt; $has_missing
-#&gt; [1] "b"
-#&gt; 
-#&gt; $has_rare
-#&gt; [1] "common" "rare"  
-#&gt; 
-#&gt; $has_both
-#&gt; [1] "common" "rare"  
-#&gt; 
-#&gt; $has_neither
-#&gt; [1] "cat1" "cat2"
-#&gt; </div><div class='input'><span class='fu'>lapply</span>(<span class='no'>baked</span>[, <span class='fu'>sapply</span>(<span class='no'>baked</span>, <span class='no'>is.factor</span>)], <span class='no'>levels</span>)</div><div class='output co'>#&gt; $has_missing
-#&gt; [1] "b"       "other"   "missing"
-#&gt; 
-#&gt; $has_rare
-#&gt; [1] "common"  "rare"    "other"   "missing"
-#&gt; 
-#&gt; $has_both
-#&gt; [1] "common"  "rare"    "other"   "missing"
-#&gt; 
-#&gt; $has_neither
-#&gt; [1] "cat1"    "cat2"    "other"   "missing"
-#&gt; </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -229,9 +161,7 @@ recipe is baked?</p></td>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
+          </ul>
 
   </div>
 </div>

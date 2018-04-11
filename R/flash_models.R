@@ -2,12 +2,19 @@
 #'
 #' @param d A data frame
 #' @param outcome Name of the column to predict
-#' @param model_class "regression" or "classification". If not provided, this
-#'   will be determined by the class of `outcome` with the determination
-#'   displayed in a message.
 #' @param models Names of models to try, by default "rf" for random forest and
 #'   "knn" for k-nearest neighbors. See \code{\link{supported_models}} for
 #'   available models.
+#' @param metric What metric to use to assess model performance? Options for
+#'   regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
+#'   error), or "Rsquared." For classification: "ROC" (area under the receiver
+#'   operating characteristic curve), or "PR" (area under the precision-recall
+#'   curve).
+#' @param positive_class For classification only, which outcome level is the
+#'   "yes" case, i.e. should be associated with high probabilities? Defaults to
+#'   "Y" or "yes" if present, otherwise is the first level of the outcome
+#'   variable (first alphabetically if the training data outcome was not already
+#'   a factor).
 #' @param n_folds How many folds to train the model on. Default = 5, minimum =
 #'   2. Whie flash_models doesn't use cross validation to tune hyperparameters,
 #'   it trains \code{n_folds} models to evaluate performance out of fold.
@@ -16,11 +23,9 @@
 #'   lists where the outer list contains models and the inner lists contain
 #'   hyperparameter values. See
 #'   \code{healthcareai:::get_hyperparameter_defaults()} for a template.
-#' @param metric What metric to use to assess model performance? Options for
-#'   regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
-#'   error), or "Rsquared." For classification: "ROC" (area under the receiver
-#'   operating characteristic curve), or "PR" (area under the precision-recall
-#'   curve).
+#' @param model_class "regression" or "classification". If not provided, this
+#'   will be determined by the class of `outcome` with the determination
+#'   displayed in a message.
 #'
 #' @export
 #' @seealso \code{\link{tune_models}}, \code{\link{prep_data}},
@@ -71,11 +76,12 @@
 #' }
 flash_models <- function(d,
                          outcome,
-                         model_class,
                          models = c("rf", "knn"),
+                         metric,
+                         positive_class,
                          n_folds = 5,
                          hyperparameters,
-                         metric) {
+                         model_class) {
 
   models <- tolower(models)
   if (missing(hyperparameters))
@@ -95,12 +101,14 @@ flash_models <- function(d,
   if (metric == "PR")
     metric <- "AUC"
 
+  y <- dplyr::pull(d, !!outcome)
+  d <- dplyr::select(d, -!!outcome)
   train_list <-
     lapply(models, function(model) {
       suppressPackageStartupMessages({
         tune_grid <- as.data.frame(hyperparameters[[translate_model_names(model)]])
-        caret::train(x = dplyr::select(d, -!!outcome),
-                     y = dplyr::pull(d, !!outcome),
+        caret::train(x = d,
+                     y = y,
                      method = model,
                      metric = metric,
                      trControl = train_control,
@@ -109,8 +117,9 @@ flash_models <- function(d,
     })
 
   train_list <- add_model_attrs(models = train_list,
-                                recipe = attr(d, "recipe"),
+                                recipe = recipe,
                                 tuned = FALSE,
-                                target = rlang::quo_name(outcome))
+                                target = rlang::quo_name(outcome),
+                                positive_class = levels(y)[1])
   return(train_list)
 }

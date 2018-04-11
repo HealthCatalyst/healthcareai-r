@@ -113,10 +113,10 @@ test_that("predictions are better than chance", {
 
 test_that("If newdata isn't provided, make predictions on training data", {
   pc <- predict(model_classify_prepped)
-  expect_s3_class(pc, "hcai_predicted_df")
+  expect_s3_class(pc, "predicted_df")
   expect_true(all(c("Catholic", "predicted_Catholic") %in% names(pc)))
   pr <- predict(model_regression_not_prepped)
-  expect_s3_class(pr, "hcai_predicted_df")
+  expect_s3_class(pr, "predicted_df")
   expect_true(all(c("Fertility", "predicted_Fertility") %in% names(pr)))
 })
 
@@ -135,12 +135,12 @@ test_that("predict can handle binary character non Y/N columns", {
 
 test_that("predict handles new levels on model_list from prep_data", {
   expect_warning(preds <- predict(model_regression_prepped, test_data_newlevel))
-  expect_s3_class(preds, "hcai_predicted_df")
+  expect_s3_class(preds, "predicted_df")
 })
 
 test_that("predict handles missingness where unobserved in training prep_data", {
   expect_warning(preds <- predict(model_regression_prepped, test_data_new_missing))
-  expect_s3_class(preds, "hcai_predicted_df")
+  expect_s3_class(preds, "predicted_df")
 })
 
 test_that("predict doesn't need columns ignored in training", {
@@ -165,7 +165,7 @@ test_that("Warnings are issued if there is new missingness in predict", {
                  "Agriculture")
   expect_warning(preds <- predict(model_regression_prepped, test_data_new_missing),
                  "Agriculture")
-  expect_s3_class(preds, "hcai_predicted_df")
+  expect_s3_class(preds, "predicted_df")
 })
 
 test_that("Missing values don't generate new factor level warning", {
@@ -189,18 +189,20 @@ test_that("printing predicted df prints the data frame", {
 })
 
 test_that("printing classification df gets ROC/PR metric right", {
-  roc <-
-    training_data %>%
-    prep_data(province, outcome = Catholic, make_dummies = TRUE) %>%
-    tune_models(Catholic, models = "RF", metric = "ROC", tune_depth = 2) %>%
-    predict()
-  pr <-
-    training_data %>%
-    prep_data(province, outcome = Catholic, make_dummies = TRUE) %>%
-    tune_models(Catholic, models = "RF", metric = "PR", tune_depth = 2) %>%
-    predict()
-  expect_true(stringr::str_detect(capture_message(print(roc)), "ROC"))
-  expect_true(stringr::str_detect(capture_message(print(pr)), "PR"))
+  suppressWarnings({
+    roc <-
+      training_data %>%
+      prep_data(province, outcome = Catholic, make_dummies = TRUE) %>%
+      tune_models(Catholic, models = "RF", metric = "ROC", tune_depth = 2, n_folds = 2) %>%
+      predict()
+    pr <-
+      training_data %>%
+      prep_data(province, outcome = Catholic, make_dummies = TRUE) %>%
+      tune_models(Catholic, models = "RF", metric = "PR", tune_depth = 2, n_folds = 2) %>%
+      predict()
+  })
+  expect_false(stringr::str_detect(capture_message(print(roc)), "PR"))
+  expect_false(stringr::str_detect(capture_message(print(pr)), "ROC"))
 })
 
 test_that("determine_prep FALSE when no recipe on model", {
@@ -218,7 +220,7 @@ test_that("determine_prep TRUE w/o warning when prep needed and vars changed in 
   expect_true(need_prep)
 })
 
-test_that("determine_prep warns when hcai_prepped_df class stripped from newdata", {
+test_that("determine_prep warns when prepped_df class stripped from newdata", {
   class(test_data_reg_prep) <- "data.frame"
   expect_warning(need_prep <- determine_prep(model_regression_prepped, test_data_reg_prep), "prep")
   expect_true(need_prep)
@@ -275,17 +277,42 @@ test_that("predict handles positive class specified in training", {
               x1 = rnorm(50, mean = y, sd = .1),
               x2 = rnorm(50, mean = y, sd = .1))
   pd <- prep_data(d, outcome = y)
-  preds <- list(
-    tm_rf = pd %>% tune_models(y, tune_depth = 2, models = "rf") %>% predict(positive_class = "Y"),
-    tm_knn = pd %>% tune_models(y, tune_depth = 2, models = "knn") %>% predict(positive_class = "Y"),
-    ml = machine_learn(d, outcome = y, models = "rf", tune_depth = 2) %>% predict(positive_class = "Y")
+  # Default Y is positive
+    preds <- list(
+    tm_rf = pd %>% tune_models(y, tune_depth = 2, models = "rf") %>% predict(),
+    tm_knn = pd %>% tune_models(y, tune_depth = 2, models = "knn") %>% predict(),
+    ml = machine_learn(d, outcome = y, models = "rf", tune_depth = 2) %>% predict()
   )
   expect_true(all(map_lgl(preds, ~ {
     mean(.x$predicted_y[.x$y == "Y"]) > mean(.x$predicted_y[.x$y == "N"])
   })))
+  # Set N as positive
+  preds <- list(
+    tm_rf = pd %>% tune_models(y, tune_depth = 2, models = "rf", positive_class = "N") %>% predict(),
+    tm_knn = pd %>% tune_models(y, tune_depth = 2, models = "knn", positive_class = "N") %>% predict(),
+    ml = machine_learn(d, outcome = y, models = "rf", tune_depth = 2, positive_class = "N") %>% predict()
+  )
+  expect_true(all(map_lgl(preds, ~ {
+    mean(.x$predicted_y[.x$y == "Y"]) < mean(.x$predicted_y[.x$y == "N"])
+  })))
 })
 
-test_that("get informative error if positive class isn't in outcome", {
-  expect_error(predict(model_classify_prepped, positive_class = "typo"),
-               regexp = "Catholic")
+test_that("can predict on untuned classification model with new data", {
+  d <- na.omit(pima_diabetes)[1:100, ]
+  dtest <- na.omit(pima_diabetes)[101:110, ]
+  c_models <- machine_learn(d, patient_id, outcome = diabetes, tune = FALSE, n_folds = 2)
+  c_preds_test <- predict(c_models, dtest)
+  expect_s3_class(c_preds_test, "predicted_df")
+})
+
+test_that("predict without new data returns out of fold predictions from training", {
+  preds <- predict(model_classify_prepped)$predicted_Catholic
+  oofpreds <- dplyr::arrange(model_classify_prepped$`Random Forest`$pred, rowIndex)$Y
+  expect_true(all.equal(preds, oofpreds))
+})
+
+test_that("get_oof_predictions seems to work", {
+  expect_true(is.numeric(get_oof_predictions(model_regression_prepped)))
+  expect_true(is.numeric(get_oof_predictions(model_classify_prepped)))
+  expect_true(is.numeric(get_oof_predictions(model_regression_not_prepped)))
 })

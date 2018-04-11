@@ -41,6 +41,6 @@ test_that("flash_models are model_lists with attr tuned = FALSE", {
 })
 
 test_that("can predict on flash models", {
-  expect_s3_class(predict(cl), "hcai_predicted_df")
-  expect_s3_class(predict(reg, dd[10:1, ]), "hcai_predicted_df")
+  expect_s3_class(predict(cl), "predicted_df")
+  expect_s3_class(predict(reg, dd[10:1, ]), "predicted_df")
 })

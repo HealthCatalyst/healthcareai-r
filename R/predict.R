@@ -1,16 +1,16 @@
 #' Make predictions using the best-performing model from tuning
 #'
 #' @param object model_list object, as from `tune_models`
-#' @param newdata data on which to make predictions. If missing, predictions
-#'   will be made on the training data. Should have the same structure as the
-#'   input to `prep_data`,`tune_models` or `train_models`. `predict` will try to
-#'   figure out if the data need to be sent through `prep_data` before making
+#' @param newdata data on which to make predictions. If missing, out-of-fold
+#'   predictions from training will be returned If you want new predictions on
+#'   training data using the final model, pass the training data to this
+#'   argument, but know that you're getting over-fit predictions that very
+#'   likely overestimate model performance relative to what will be achieved on
+#'   new data. Should have the same structure as the input to
+#'   `prep_data`,`tune_models` or `train_models`. `predict` will try to figure
+#'   out if the data need to be sent through `prep_data` before making
 #'   predictions; this can be overriden by setting `prepdata = FALSE`, but this
 #'   should rarely be needed.
-#' @param positive_class For classification only, which outcome level is the
-#'   "yes" case, i.e. is associated with high probabilities? Defaults to
-#'   the second level of the outcome variable (second alphabetically if the
-#'   training data outcome was not already a factor).
 #' @param prepdata Logical, this should rarely be set by the user. By default,
 #'   if `newdata` hasn't been prepped, it will be prepped by `prep_data` before
 #'   predictions are made. Set this to TRUE to force already-prepped data
@@ -21,12 +21,12 @@
 #' @return A tibble data frame: newdata with an additional column for the
 #'   predictions in "predicted_TARGET" where TARGET is the name of the variable
 #'   being predicted. If classification, the new column will contain predicted
-#'   probabilities. The tibble will have child class "hcai_predicted_df" and
+#'   probabilities. The tibble will have child class "predicted_df" and
 #'   attribute "model_info" that contains information about the model used to
 #'   make predictions.
 #' @export
 #' @importFrom caret predict.train
-#' @seealso \code{\link{plot.hcai_predicted_df}}, \code{\link{tune_models}},
+#' @seealso \code{\link{plot.predicted_df}}, \code{\link{tune_models}},
 #'   \code{\link{prep_data}}
 #'
 #' @details The model and hyperparameter values with the best out-of-fold
@@ -46,7 +46,10 @@
 #' predictions <- predict(models, newdata = pima_diabetes[41:50, ])
 #' predictions
 #' plot(predictions)
-predict.model_list <- function(object, newdata, prepdata, positive_class, ...) {
+predict.model_list <- function(object,
+                               newdata,
+                               prepdata,
+                               ...) {
 
   # Pull info
   mi <- extract_model_info(object)
@@ -59,10 +62,13 @@ predict.model_list <- function(object, newdata, prepdata, positive_class, ...) {
       training_data %>%
       dplyr::mutate(!!mi$target := .outcome) %>%
       dplyr::select(- .outcome)
-    # caret::train strips hcai_prepped_df class from newdata. So,
+    # caret::train strips prepped_df class from newdata. So,
     # check recipe attr to see if it was prepped and if so convert.
     if ("recipe" %in% names(attributes(object)))
-      class(newdata) <- c("hcai_prepped_df", class(newdata))
+      class(newdata) <- c("prepped_df", class(newdata))
+    using_training_data <- TRUE
+  } else {
+    using_training_data <- FALSE
   }
   if (!inherits(newdata, "data.frame"))
     stop("newdata must be a data frame")
@@ -77,23 +83,16 @@ predict.model_list <- function(object, newdata, prepdata, positive_class, ...) {
       ready_no_prep(training_data, newdata)
     }
 
-  # Make predictions
-  # If classification, want probabilities. If regression, raw's the only option
-  type <- if (is.classification_list(object)) "prob" else "raw"
-  preds <- caret::predict.train(best_models, to_pred, type = type)
-
-  # Set positive class if missing and check if present in outcome
-  if (is.classification_list(object)) {
-    outcome_levels <- levels(training_data[[".outcome"]])
-    if (missing(positive_class)) {
-      positive_class <- outcome_levels[2]
-    } else {
-      if (!positive_class %in% outcome_levels)
-        stop(positive_class, " not found in ", mi$target, ". ", mi$target,
-             " has values ", paste(outcome_levels, collapse = " and "))
-    }
-    # Probs get returned for no and yes. Keep only positive class
-    preds <- preds[[positive_class]]
+  # If predicting on training, use out-of-fold; else make predictions
+  if (using_training_data) {
+    preds <- get_oof_predictions(object, mi)
+  } else {
+    # If classification, want probabilities. If regression, raw's the only option
+    type <- if (is.classification_list(object)) "prob" else "raw"
+    preds <- caret::predict.train(best_models, to_pred, type = type)
+    # Probs get returned for no and yes. Keep only positive class as set in training
+    if (is.classification_list(object))
+      preds <- preds[[mi$positive_class]]
   }
 
   pred_name <- paste0("predicted_", mi$target)
@@ -104,10 +103,11 @@ predict.model_list <- function(object, newdata, prepdata, positive_class, ...) {
   if (mi$target %in% names(newdata))
     newdata <- dplyr::select(newdata, mi$target, dplyr::everything())
   # Add class and attributes to data frame
-  class(newdata) <- c("hcai_predicted_df", class(newdata))
+  class(newdata) <- c("predicted_df", class(newdata))
   attr(newdata, "model_info") <-
     list(type = mi$m_class,
          target = mi$target,
+         positive_class = mi$positive_class,
          algorithm = mi$best_model_name,
          metric = mi$metric,
          performance = mi$best_model_perf,
@@ -115,4 +115,14 @@ predict.model_list <- function(object, newdata, prepdata, positive_class, ...) {
          hyperparameters = structure(mi$best_model_tune,
                                      "row.names" = "optimal:"))
   return(newdata)
+}
+
+get_oof_predictions <- function(x, mi = extract_model_info(x)) {
+  mod <- mi$best_model_name
+  preds <- dplyr::arrange(x[[mod]]$pred, rowIndex)
+  if (mi$m_class == "Regression")
+    return(preds$pred)
+  if (mi$m_class == "Classification")
+    return(preds[[mi$positive_class]])
+  stop("Eh? What kind of model is that?")
 }

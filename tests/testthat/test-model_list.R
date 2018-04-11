@@ -205,35 +205,35 @@ test_that("plot.model_list works with message untuned_model_lists", {
 })
 
 context("Testing model list utilities") # --------------------------------------
-test_that("Change PR metric changes all models to PR", {
-  m <- change_pr_metric(c_pr)
+test_that("change_metric_names changes AUC to AUPR", {
+  m <- change_metric_names(c_pr)
 
   expect_true(
-    all(c("PR", "Precision", "Recall") %in% names(
+    all(c("AUPR", "Precision", "Recall") %in% names(
       m$`Random Forest`$results)))
 
   expect_true(
-    all(c("PR", "Precision", "Recall") %in% names(
+    all(c("AUPR", "Precision", "Recall") %in% names(
       m$`k-Nearest Neighbors`$results)))
 })
 
-test_that("Change PR metric doesn't change ROC", {
-  m <- change_pr_metric(c_models)
+test_that("change_metric_names changes ROC to AUROC", {
+  m <- change_metric_names(c_models)
 
   expect_true(
-    all(c("ROC", "Sens", "Spec") %in% names(
+    all(c("AUROC", "Sens", "Spec") %in% names(
       m$`Random Forest`$results)))
 
   expect_true(
-    all(c("ROC", "Sens", "Spec") %in% names(
+    all(c("AUROC", "Sens", "Spec") %in% names(
       m$`k-Nearest Neighbors`$results)))
 })
 
 test_that("Change PR metric doesn't change object class", {
-  expect_setequal(class(change_pr_metric(c_pr)), class(c_pr))
-  expect_setequal(class(change_pr_metric(c_models)), class(c_models))
+  expect_setequal(class(change_metric_names(c_pr)), class(c_pr))
+  expect_setequal(class(change_metric_names(c_models)), class(c_models))
   preds <- predict(c_models)
-  expect_setequal(class(change_pr_metric(preds)), class(preds))
+  expect_setequal(class(change_metric_names(preds)), class(preds))
 })
 
 test_that("model_lists have time model trained attribute", {

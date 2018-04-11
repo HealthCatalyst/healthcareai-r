@@ -3,21 +3,26 @@
 #'
 #' @param d A data frame
 #' @param outcome Name of the column to predict
-#' @param model_class "regression" or "classification". If not provided, this
-#'   will be determined by the class of `outcome` with the determination
-#'   displayed in a message.
 #' @param models Names of models to try, by default "rf" for random forest and
 #'   "knn" for k-nearest neighbors. See \code{\link{supported_models}} for
 #'   available models.
-#' @param n_folds How many folds to use in cross-validation? Default = 5.
-#' @param tune_depth How many hyperparameter combinations to try? Defualt = 10.
-#' @param tune_method How to search hyperparameter space? Default = "random".
 #' @param metric What metric to use to assess model performance? Options for
 #'   regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
 #'   error), or "Rsquared." For classification: "ROC" (area under the receiver
 #'   operating characteristic curve), or "PR" (area under the precision-recall
 #'   curve).
+#' @param positive_class For classification only, which outcome level is the
+#'   "yes" case, i.e. should be associated with high probabilities? Defaults to
+#'   "Y" or "yes" if present, otherwise is the first level of the outcome
+#'   variable (first alphabetically if the training data outcome was not already
+#'   a factor).
+#' @param n_folds How many folds to use in cross-validation? Default = 5.
+#' @param tune_depth How many hyperparameter combinations to try? Defualt = 10.
+#' @param tune_method How to search hyperparameter space? Default = "random".
 #' @param hyperparameters Currently not supported.
+#' @param model_class "regression" or "classification". If not provided, this
+#'   will be determined by the class of `outcome` with the determination
+#'   displayed in a message.
 #'
 #' @export
 #' @importFrom kknn kknn
@@ -64,18 +69,19 @@
 #' }
 tune_models <- function(d,
                         outcome,
-                        model_class,
                         models,
+                        metric,
+                        positive_class,
                         n_folds = 5,
                         tune_depth = 10,
                         tune_method = "random",
-                        metric,
-                        hyperparameters) {
+                        hyperparameters,
+                        model_class) {
 
   if (n_folds <= 1)
     stop("n_folds must be greater than 1.")
 
-  model_args <- setup_training(d, rlang::enquo(outcome), model_class, models, metric)
+  model_args <- setup_training(d, rlang::enquo(outcome), model_class, models, metric, positive_class)
   # Pull each item out of "model_args" list and assign in this environment
   for (arg in names(model_args))
     assign(arg, model_args[[arg]])
@@ -94,6 +100,8 @@ tune_models <- function(d,
             length(models), ") on a ", format(obs, big.mark = ","), " row dataset. ",
             "This may take a while...")
 
+  y <- dplyr::pull(d, !!outcome)
+  d <- dplyr::select(d, -!!outcome)
   # Loop over models, tuning each
   train_list <-
     lapply(models, function(model) {
@@ -104,8 +112,8 @@ tune_models <- function(d,
         model <- adjust_knn()
       # Train models
       suppressPackageStartupMessages(
-        caret::train(x = dplyr::select(d, -!!outcome),
-                     y = dplyr::pull(d, !!outcome),
+        caret::train(x = d,
+                     y = y,
                      method = model,
                      metric = metric,
                      trControl = train_control,
@@ -117,11 +125,12 @@ tune_models <- function(d,
   train_list <- add_model_attrs(models = train_list,
                                 recipe = recipe,
                                 tuned = TRUE,
-                                target = rlang::quo_name(outcome))
+                                target = rlang::quo_name(outcome),
+                                positive_class = levels(y)[1])
   return(train_list)
 }
 
-setup_training <- function(d, outcome, model_class, models, metric) {
+setup_training <- function(d, outcome, model_class, models, metric, positive_class) {
 
   # Get recipe and remove columns to be ignored in training
   recipe <- attr(d, "recipe")
@@ -155,10 +164,13 @@ setup_training <- function(d, outcome, model_class, models, metric) {
 
   # Some algorithms need the response to be factor instead of char or lgl
   # Get rid of unused levels if they're present
-  if (model_class == "classification")
+  if (model_class == "classification") {
     d <- dplyr::mutate(d,
                        !!outcome_chr := as.factor(!!outcome),
                        !!outcome_chr := droplevels(!!outcome))
+    # Set outcome positive class
+    d[[outcome_chr]] <- set_outcome_class(d[[outcome_chr]], positive_class)
+  }
 
   # Choose metric if not provided
   if (missing(metric))
@@ -184,6 +196,24 @@ check_outcome <- function(outcome, d_names, recipe) {
            outcome_chr, ") are different. They need to be the same.")
   }
   return(outcome)
+}
+
+set_outcome_class <- function(vec, positive_class) {
+  if (missing(positive_class)) {
+    positive_class <-
+      if ("Y" %in% levels(vec)) {
+        "Y"
+      } else if ("yes" %in% levels(vec)) {
+        "yes"
+      } else {
+        levels(vec)[1]
+      }
+  }
+  if (!positive_class %in% levels(vec))
+    stop("positive_class, ", positive_class, ", not found in the outcome column. ",
+         "Outcome has values ", paste(levels(vec), collapse = " and ") )
+  vec <- stats::relevel(vec, positive_class)
+  return(vec)
 }
 
 remove_ignored <- function(d, recipe) {
@@ -288,9 +318,12 @@ setup_train_control <- function(tune_method, model_class, metric, n_folds) {
 
 #' Add model attributes and class
 #' @noRd
-add_model_attrs <- function(models, recipe, tuned, target) {
+add_model_attrs <- function(models, recipe, tuned, target, positive_class) {
   train_list <- as.model_list(listed_models = models,
                               tuned = tuned,
                               target = target)
-  structure(train_list, recipe = recipe)
+  structure(train_list,
+            recipe = recipe,
+            positive_class = positive_class) %>%
+    structure(., performance = evaluate(.))
 }

@@ -266,10 +266,10 @@ for categorical variables.</p></td>
     </tr>
     <tr>
       <th>add_levels</th>
-      <td><p>Logical. If TRUE (defaults), "other" and "hcai_missing"
+      <td><p>Logical. If TRUE (defaults), "other" and "missing"
 will be added to all nominal columns. This is protective in deployment: new
 levels found in deployment will become "other" and missingness in
-deployment can become "hcai_missing" if the nominal imputation method is
+deployment can become "missing" if the nominal imputation method is
 "new_category". If FALSE, these levels may be added to some columns
 depending on details of imputation and collapse_rare_factors.</p></td>
     </tr>
@@ -316,10 +316,10 @@ classification.</p></td>
 #&gt; 
 #&gt; Sparse, unbalanced variable filter removed no terms [trained]
 #&gt; Mean Imputation for pregnancies, plasma_glucose, ... [trained]
-#&gt; Filling NA with hcai_missing for weight_class [trained]
-#&gt; Adding levels to: other, hcai_missing [trained]
+#&gt; Filling NA with missing for weight_class [trained]
+#&gt; Adding levels to: other, missing [trained]
 #&gt; Collapsing factor levels for weight_class [trained]
-#&gt; Adding levels to: other, hcai_missing [trained]
+#&gt; Adding levels to: other, missing [trained]
 #&gt; Dummy variables from weight_class [trained]</div><div class='output co'>#&gt; <span class='message'>Current data:</span></div><div class='output co'>#&gt; # A tibble: 68 x 13
 #&gt;    pregnancies plasma_glucose diastolic_bp skinfold insulin pedigree   age
 #&gt;          &lt;int&gt;          &lt;int&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;
@@ -336,7 +336,7 @@ classification.</p></td>
 #&gt; # ... with 58 more rows, and 6 more variables: diabetes &lt;fct&gt;,
 #&gt; #   weight_class_normal &lt;dbl&gt;, weight_class_obese &lt;dbl&gt;,
 #&gt; #   weight_class_overweight &lt;dbl&gt;, weight_class_other &lt;dbl&gt;,
-#&gt; #   weight_class_hcai_missing &lt;dbl&gt;</div><div class='input'>
+#&gt; #   weight_class_missing &lt;dbl&gt;</div><div class='input'>
 <span class='co'># Customize preparations:</span>
 <span class='fu'>prep_data</span>(<span class='kw'>d</span> <span class='kw'>=</span> <span class='no'>d_train</span>, <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>,
           <span class='kw'>impute</span> <span class='kw'>=</span> <span class='fu'>list</span>(<span class='kw'>numeric_method</span> <span class='kw'>=</span> <span class='st'>"bagimpute"</span>,
@@ -359,20 +359,20 @@ classification.</p></td>
 #&gt; Bagged tree imputation for weight_class [trained]
 #&gt; Centering for pregnancies, plasma_glucose, ... [trained]
 #&gt; Scaling for pregnancies, plasma_glucose, ... [trained]
-#&gt; Adding levels to: other, hcai_missing [trained]
-#&gt; Adding levels to: other, hcai_missing [trained]</div><div class='output co'>#&gt; <span class='message'>Current data:</span></div><div class='output co'>#&gt; # A tibble: 700 x 10
+#&gt; Adding levels to: other, missing [trained]
+#&gt; Adding levels to: other, missing [trained]</div><div class='output co'>#&gt; <span class='message'>Current data:</span></div><div class='output co'>#&gt; # A tibble: 700 x 10
 #&gt;    patient_id pregnancies plasma_glucose diastolic_bp skinfold insulin
 #&gt;         &lt;int&gt;       &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
-#&gt;  1          1       0.646          0.872      -0.0197   0.636    0.659
-#&gt;  2          2      -0.840         -1.19       -0.513    0.0132  -0.853
-#&gt;  3          3       1.24           2.02       -0.677   -0.889    0.724
-#&gt;  4          4      -0.840         -1.06       -0.513   -0.609   -0.608
-#&gt;  5          5      -1.14           0.512      -2.65     0.636    0.144
-#&gt;  6          6       0.349         -0.175       0.145   -0.377   -0.275
-#&gt;  7          7      -0.246         -1.42       -1.83     0.324   -0.669
-#&gt;  8          8       1.83          -0.208       0.114    0.532   -0.260
-#&gt;  9          9      -0.543          2.47       -0.184    1.67     3.95 
-#&gt; 10         10       1.24           0.119       1.95     0.347    0.581
+#&gt;  1          1       0.646          0.871      -0.0196   0.632    0.497
+#&gt;  2          2      -0.840         -1.19       -0.513    0.0105  -0.842
+#&gt;  3          3       1.24           2.02       -0.677   -0.832    0.706
+#&gt;  4          4      -0.840         -1.06       -0.513   -0.611   -0.608
+#&gt;  5          5      -1.14           0.511      -2.65     0.632    0.145
+#&gt;  6          6       0.349         -0.176       0.145   -0.366   -0.237
+#&gt;  7          7      -0.246         -1.42       -1.83     0.321   -0.670
+#&gt;  8          8       1.83          -0.208      -0.0918   0.355   -0.171
+#&gt;  9          9      -0.543          2.47       -0.184    1.67     3.97 
+#&gt; 10         10       1.24           0.119       1.95     0.394    0.702
 #&gt; # ... with 690 more rows, and 4 more variables: weight_class &lt;fct&gt;,
 #&gt; #   pedigree &lt;dbl&gt;, age &lt;dbl&gt;, diabetes &lt;fct&gt;</div></pre>
   </div>

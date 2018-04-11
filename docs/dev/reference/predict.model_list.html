@@ -139,7 +139,7 @@
     
 
     <pre class="usage"><span class='co'># S3 method for model_list</span>
-<span class='fu'>predict</span>(<span class='no'>object</span>, <span class='no'>newdata</span>, <span class='no'>prepdata</span>, <span class='no'>positive_class</span>, <span class='no'>...</span>)</pre>
+<span class='fu'>predict</span>(<span class='no'>object</span>, <span class='no'>newdata</span>, <span class='no'>prepdata</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -150,10 +150,14 @@
     </tr>
     <tr>
       <th>newdata</th>
-      <td><p>data on which to make predictions. If missing, predictions
-will be made on the training data. Should have the same structure as the
-input to `prep_data`,`tune_models` or `train_models`. `predict` will try to
-figure out if the data need to be sent through `prep_data` before making
+      <td><p>data on which to make predictions. If missing, out-of-fold
+predictions from training will be returned If you want new predictions on
+training data using the final model, pass the training data to this
+argument, but know that you're getting over-fit predictions that very
+likely overestimate model performance relative to what will be achieved on
+new data. Should have the same structure as the input to
+`prep_data`,`tune_models` or `train_models`. `predict` will try to figure
+out if the data need to be sent through `prep_data` before making
 predictions; this can be overriden by setting `prepdata = FALSE`, but this
 should rarely be needed.</p></td>
     </tr>
@@ -166,13 +170,6 @@ through `prep_data` again, or set to FALSE to prevent `newdata` from being
 sent through `prep_data`.</p></td>
     </tr>
     <tr>
-      <th>positive_class</th>
-      <td><p>For classification only, which outcome level is the
-"yes" case, i.e. is associated with high probabilities? Defaults to
-the second level of the outcome variable (second alphabetically if the
-training data outcome was not already a factor).</p></td>
-    </tr>
-    <tr>
       <th>...</th>
       <td><p>Unused.</p></td>
     </tr>
@@ -183,7 +180,7 @@ training data outcome was not already a factor).</p></td>
     <p>A tibble data frame: newdata with an additional column for the
   predictions in "predicted_TARGET" where TARGET is the name of the variable
   being predicted. If classification, the new column will contain predicted
-  probabilities. The tibble will have child class "hcai_predicted_df" and
+  probabilities. The tibble will have child class "predicted_df" and
   attribute "model_info" that contains information about the model used to
   make predictions.</p>
     
@@ -196,7 +193,7 @@ training data outcome was not already a factor).</p></td>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='plot.hcai_predicted_df.html'>plot.hcai_predicted_df</a></code>, <code><a href='tune_models.html'>tune_models</a></code>,
+    <div class='dont-index'><p><code><a href='plot.predicted_df.html'>plot.predicted_df</a></code>, <code><a href='tune_models.html'>tune_models</a></code>,
   <code><a href='prep_data.html'>prep_data</a></code></p></div>
     
 
@@ -208,20 +205,20 @@ training data outcome was not already a factor).</p></td>
 <span class='co'># tuning cross validation, and it also prepares the new data in the same way as</span>
 <span class='co'># the training data was prepared.</span>
 
-<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>41</span>:<span class='fl'>50</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-04-10 09:48:50</span>
-#&gt; <span class='message'>Performance in training: ROC = 0.68</span></div><div class='output co'>#&gt; # A tibble: 10 x 11
+<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>41</span>:<span class='fl'>50</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-04-11 07:34:50</span>
+#&gt; <span class='message'>Performance in training: AUROC = 0.68</span></div><div class='output co'>#&gt; # A tibble: 10 x 11
 #&gt;    diabetes predicted_diabe… patient_id pregnancies plasma_glucose diastolic_bp
 #&gt;  * &lt;chr&gt;               &lt;dbl&gt;      &lt;int&gt;       &lt;int&gt;          &lt;int&gt;        &lt;int&gt;
-#&gt;  1 N                   0.773         41           3            180           64
-#&gt;  2 N                   0.530         42           7            133           84
+#&gt;  1 N                   0.762         41           3            180           64
+#&gt;  2 N                   0.548         42           7            133           84
 #&gt;  3 N                   0.230         43           7            106           92
-#&gt;  4 Y                   0.693         44           9            171          110
-#&gt;  5 N                   0.621         45           7            159           64
-#&gt;  6 Y                   0.726         46           0            180           66
-#&gt;  7 N                   0.532         47           1            146           56
-#&gt;  8 N                   0.359         48           2             71           70
-#&gt;  9 Y                   0.601         49           7            103           66
-#&gt; 10 N                   0.498         50           7            105           NA
+#&gt;  4 Y                   0.675         44           9            171          110
+#&gt;  5 N                   0.592         45           7            159           64
+#&gt;  6 Y                   0.740         46           0            180           66
+#&gt;  7 N                   0.489         47           1            146           56
+#&gt;  8 N                   0.347         48           2             71           70
+#&gt;  9 Y                   0.600         49           7            103           66
+#&gt; 10 N                   0.538         50           7            105           NA
 #&gt; # ... with 5 more variables: skinfold &lt;int&gt;, insulin &lt;int&gt;, weight_class &lt;chr&gt;,
 #&gt; #   pedigree &lt;dbl&gt;, age &lt;int&gt;</div><div class='input'><span class='fu'>plot</span>(<span class='no'>predictions</span>)</div><div class='img'><img src='predict.model_list-1.png' alt='' width='576' height='288' /></div></pre>
   </div>

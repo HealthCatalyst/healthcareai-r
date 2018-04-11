@@ -12,7 +12,7 @@ test_that("Can predict on output of machine_learn", {
   suppressWarnings({
     preds <- predict(models, test_data)
   })
-  expect_s3_class(preds, "hcai_predicted_df")
+  expect_s3_class(preds, "predicted_df")
   expect_true(all(c("am", "predicted_am") %in% names(preds)))
 })
 

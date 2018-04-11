@@ -135,7 +135,7 @@ In this case we sacrificed just 0.01 AUPR versus tuning the models. In our exper
 
 # Prediction
 
-`predict` will automatically use the best-performing model from training (evaluated out-of-fold in cross validation). If no new data is passed to `predict` it will make predictions on the training dataset. The predicted probabilities appear in the `predicted_diabetes` column.
+`predict` will automatically use the best-performing model from training (evaluated out-of-fold in cross validation). If no new data is passed to `predict` it will return out-of-fold predictions from training. The predicted probabilities appear in the `predicted_diabetes` column.
 
 ```{r}
 predict(models)
