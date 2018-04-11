@@ -2,31 +2,32 @@
 % Please edit documentation in R/evaluate.R
 \name{evaluate}
 \alias{evaluate}
-\title{Get performance metrics from predictions data frame}
+\title{Get model performance metrics}
 \usage{
-evaluate(d)
+evaluate(x, ...)
 }
 \arguments{
-\item{d}{Data frame from \code{\link{predict.model_list}} containing realized
-outcomes}
-}
-\value{
-Vector of scores with metrics as names
+\item{x}{Object that should be evalutes}
+
+\item{...}{Other arguments passed to specific methods}
 }
 \description{
-Get performance metrics from predictions data frame
+Get model performance metrics
 }
 \details{
-This function is designed to work with predictions coming from
-  \code{\link{machine_learn}} / \code{\link{tune_models}} /
-  \code{\link{flash_models}} through \code{\link{predict.model_list}}. The
-  data passed to \code{predict} must contain observed outcomes. If you have
-  predictions and outcomes in a different format, use
-  \code{\link{evaluate_classification}} or \code{\link{evaluate_regression}}.
+This function is a generic that can be used to get model performance
+  on a model_list object that comes from \code{\link{machine_learn}},
+  \code{\link{tune_models}}, \code{\link{flash_models}}, or a data frame of
+  predictions from \code{\link{predict.model_list}}. For the latter, the data
+  passed to \code{predict.model_list} must contain observed outcomes. If you
+  have predictions and outcomes in a different format, see
+  \code{\link{evaluate_classification}} or \code{\link{evaluate_regression}}
+  instead.
 }
 \examples{
-models <- machine_learn(pima_diabetes[1:40, ], patient_id, outcome = diabetes,
-                        models = "rf", tune_depth = 3)
+# models <- machine_learn(pima_diabetes[1:40, ], patient_id, outcome = diabetes,
+#                       models = "rf", tune_depth = 3)
+# evaluate(models)
 predictions <- predict(models, newdata = pima_diabetes[41:50, ])
 evaluate(predictions)
 }

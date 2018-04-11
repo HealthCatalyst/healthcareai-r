@@ -68,3 +68,8 @@ test_that("evaluate metrics match caret's", {
   expect_equal(attributes(c_preds_training)$model_info$performance,
                c_preds_training_eval["AUROC"])
 })
+
+test_that("evaluate is a registered S3 generic with methods for models and predictions", {
+  expect_true("plot.hcai_predicted_df" %in% methods("evaluate"))
+  expect_true("plot.model_list" %in% methods("evaluate"))
+})
