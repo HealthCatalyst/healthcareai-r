@@ -60,7 +60,7 @@ summary.model_list <- function(object, ...) {
       paste0("Models trained: ", rinfo$timestamp,
              "\n\nModels tuned via ", object[[1]]$control$number, "-fold cross validation ",
              "over ", nrow(object[[1]]$results), " combinations of hyperparameter values.",
-             "\nBest performance: ", format_performance(attr(x, "performance")),
+             "\nBest performance: ", format_performance(attr(object, "performance")),
              "\nBy ", rinfo$best_model_name, " with hyperparameters:\n  ",
              format_tune(rinfo$best_model_tune))
     } else {
@@ -68,7 +68,7 @@ summary.model_list <- function(object, ...) {
              "\n\nModels have not been tuned. Performance estimated via ",
              object[[1]]$control$number, "-fold cross validation at fixed hyperparameter values.",
              "\nBest algorithm: ", rinfo$best_model_name, " with ",
-             format_performance(attr(x, "performance")))
+             format_performance(attr(object, "performance")))
     }
   cat(out)
   cat("\n\nOut-of-fold performance of all trained models:\n\n")

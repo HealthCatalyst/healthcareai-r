@@ -107,18 +107,14 @@ evaluate_classification <- function(predicted, actual) {
 #' @param predicted Vector of predicted values
 #' @param actual Vector of realized values
 #'
-#' @importFrom MLmetrics RMSE
-#' @importFrom MLmetrics MAE
-#' @importFrom MLmetrics R2_Score
-#'
 #' @return Numeric vector of scores with metric as names
 #' @export
 #'
 #' @examples
 #' evaluate_regression(c(2, 4, 6), c(1.5, 4.1, 6.2))
 evaluate_regression <- function(predicted, actual) {
-  c("RMSE" = MLmetrics::RMSE(y_pred = predicted, y_true = actual),
-    "MAE" = MLmetrics::MAE(y_pred = predicted, y_true = actual),
-    "Rsquared" = MLmetrics::R2_Score(y_pred = predicted, y_true = actual)
+  c("RMSE" = caret::RMSE(pred = predicted, obs = actual),
+    "MAE" = caret::MAE(pred = predicted, obs = actual),
+    "Rsquared" = caret::R2(pred = predicted, obs = actual)
   )
 }

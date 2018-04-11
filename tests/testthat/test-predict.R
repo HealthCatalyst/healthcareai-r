@@ -312,7 +312,7 @@ test_that("predict without new data returns out of fold predictions from trainin
 })
 
 test_that("get_oof_predictions seems to work", {
-  expect_true(is.numeric(get_oof_predictions(r_models)))
-  expect_true(is.numeric(get_oof_predictions(c_models)))
-  expect_true(is.numeric(get_oof_predictions(c_models)))
+  expect_true(is.numeric(get_oof_predictions(model_regression_prepped)))
+  expect_true(is.numeric(get_oof_predictions(model_classify_prepped)))
+  expect_true(is.numeric(get_oof_predictions(model_regression_not_prepped)))
 })
