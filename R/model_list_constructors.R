@@ -6,8 +6,13 @@
 #'   not provided
 #' @param target Quoted name of response variable
 #' @param tuned Logical; if FALSE, will have super-class untuned_models
+#' @param recipe recipe object from prep+_data, or NULL if the data didn't go
+#'   through prep_data
+#' @param positive_class If classification, the positive outcome class,
+#'   otherwise NULL
 #'
 #' @importFrom purrr map_chr
+#' @importFrom purrr map_lgl
 #' @return A model_list with child class type_list
 #' @export
 as.model_list <- function(...,
@@ -25,7 +30,10 @@ as.model_list <- function(...,
 
   if (any(!purrr::map_lgl(listed_models, inherits, "train")))
     stop("Those don't look like caret-trained models.")
-  if (length(unique(lapply(listed_models, function(mm) mm$trainingData))) > 1)
+  # model_lists only keep one copy of the data, so check that only where present
+  # datasets match
+  datasets <- lapply(listed_models, function(mm) mm$trainingData)
+  if (length(unique(datasets[!purrr::map_lgl(datasets, is.null)])) > 1)
     stop("Those models don't appear to have been trained on the same data.")
   metrics <- unique(purrr::map_chr(listed_models, "metric"))
   if (length(metrics) > 1)

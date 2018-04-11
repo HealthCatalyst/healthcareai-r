@@ -224,3 +224,37 @@ test_that("model_lists only carry one copy of training data", {
   expect_null(c_models[[2]]$trainingData)
   expect_null(double_model_as[[2]]$trainingData)
 })
+
+test_that("[ extracts 1 or 2 models by index", {
+  expect_s3_class(r_flash[1], "model_list")
+  expect_s3_class(r_flash[2], "model_list")
+  expect_equal(r_flash[1:2], r_flash)
+})
+
+test_that("[ extracts by name, index, or logical vector", {
+  expect_equal(double_model_as[1], double_model_as["Random Forest"])
+  expect_equal(c_models[1], c_models["Random Forest"])
+  expect_equal(double_model_as[1], double_model_as[c(TRUE, FALSE)])
+  expect_equal(double_model_as[2], double_model_as["k-Nearest Neighbors"])
+  expect_equal(double_model_as[1:2], double_model_as[c("Random Forest", "k-Nearest Neighbors")])
+  expect_equal(double_model_as, double_model_as[c(TRUE, TRUE)])
+})
+
+test_that("metrics and predict are same for extracted best model", {
+  best <- extract_model_info(c_models)$best_model_name
+  extracted <- c_models[best]
+  expect_equal(evaluate(c_models), evaluate(extracted))
+  expect_equal(predict(c_models), predict(extracted))
+})
+
+test_that("performance drops if the best model is pulled out of model_list", {
+  mi <- extract_model_info(r_models)
+  not_best <- which(!names(r_models) %in% mi$best_model_name)
+  original_rmse <- attr(r_models, "performance")[mi$metric]
+  subsetted_rmse <- attr(r_models[not_best], "performance")[mi$metric]
+  expect_true(original_rmse < subsetted_rmse)
+})
+
+test_that("extraction from model list doesn't change model-trained timestamp", {
+  expect_equal(attr(c_models, "timestamp"), attr(c_models[1], "timestamp"))
+})
