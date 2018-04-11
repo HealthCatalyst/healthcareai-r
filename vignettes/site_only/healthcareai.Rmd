@@ -148,6 +148,25 @@ test_predictions <- predict(models, split_data$test)
 plot(test_predictions)
 ```
 
+
+# Saving, Moving, and Loading Models
+
+Everything we have done above happens "in memory". It's all within one R session, so there's no need to save anything to disk or load anything back into R. Putting a machine learning model in production typically means moving the model into a production environment. To do that, save the model with `save` function. 
+
+```{r, eval = FALSE}
+save(models, file = "my_models.RDA")
+```
+
+The above code will store the `models` object with all its metadata in the `my_models.RDA` file in the working directory, which you can identify with `getwd()`. You can move that file to any other directory or machine, even across operating systems, and pull it back into R with the `load` function. 
+
+The only tricky thing here is you have to direct `load` to the directory that the model file is in. You can provide `load` an absolute path to the file, e.g. `load("C:/Users/user.name/Documents/diabetes/my_models.RDA")`, or a path relative to your working directory, which again you can find with `getwd()`, e.g. `load("data/my_models.RDA")`. If you put the models in the same directory as your R script or project, you can load the models without any file path.
+
+```{r, eval = FALSE}
+load("my_models.RDA")
+```
+
+That will reestablish the `models` object in your R session. You can confirm this by clicking on the "Environment" tab in R Studio or running `ls()` to list all objects in your R session. 
+
 # A Regression Example
 
 All the examples above have been classification tasks, predicting a yes/no outcome. Here's an example of a full regression modeling pipeline on a silly problem: predicting individuals' ages. The code is very similar to classification.
