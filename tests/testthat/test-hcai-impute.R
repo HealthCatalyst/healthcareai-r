@@ -64,7 +64,7 @@ test_that("Defaults return mean on numeric, hcai on nominal", {
     hcai_impute()
 
   expect_equal(class(rec_obj_new$steps[[1]])[1], "step_meanimpute")
-  expect_equal(class(rec_obj_new$steps[[2]])[1], "step_hcai_missing")
+  expect_equal(class(rec_obj_new$steps[[2]])[1], "step_missing")
 })
 
 test_that("Non-supported methods throw errors.", {
@@ -134,7 +134,7 @@ test_that("Default imputation methods bake expected results", {
     prep(training = d_train) %>%
     bake(newdata = d_test))
   expect_equal(d_imputed$length[13], 6.87, tolerance = 2)
-  expect_equal(as.character(d_imputed$heat[3]), "hcai_missing")
+  expect_equal(as.character(d_imputed$heat[3]), "missing")
 })
 
 test_that("knn imputation bakes expected results", {

@@ -24,7 +24,7 @@ test_that("Recipe is prepped", {
 
 test_that("Recipe is baked correctly on training data", {
   expect_true(all(purrr::map_lgl(baked[, map_lgl(baked, is.factor)], ~
-                       all(c("other", "hcai_missing") %in% levels(.x)))))
+                       all(c("other", "missing") %in% levels(.x)))))
   expect_true(all.equal(d$num, baked$num))
 })
 
@@ -32,16 +32,16 @@ test_that("Recipe is baked correctly on test data", {
   newd <- d[, sample(ncol(d))]
   newbake <- bake(prepped, newd)
   expect_true(all(purrr::map_lgl(newbake[, map_lgl(newbake, is.factor)], ~
-                       all(c("other", "hcai_missing") %in% levels(.x)))))
+                       all(c("other", "missing") %in% levels(.x)))))
 })
 
 test_that("Warning is triggered for greater than 50% NA", {
   unprepped_print <- capture_output(print(stepped))
   expect_true(any(map_lgl(unprepped_print, ~ grepl("Adding levels", .x))))
-  expect_false(any(map_lgl(unprepped_print, ~ grepl("hcai_missing", .x))))
+  expect_false(any(map_lgl(unprepped_print, ~ grepl("missing", .x))))
   prepped_print <- capture_output(print(prepped))
   expect_true(any(map_lgl(prepped_print, ~ grepl("Adding levels", .x))))
-  expect_true(any(map_lgl(prepped_print, ~ grepl("hcai_missing", .x))))
+  expect_true(any(map_lgl(prepped_print, ~ grepl("missing", .x))))
 })
 
 test_that("tidy method prints correctly", {

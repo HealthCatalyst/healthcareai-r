@@ -57,10 +57,10 @@
 #'   standard deviation of 1. Default is FALSE.
 #' @param make_dummies Logical. If TRUE (default), dummy columns will be created
 #'   for categorical variables.
-#' @param add_levels Logical. If TRUE (defaults), "other" and "hcai_missing"
+#' @param add_levels Logical. If TRUE (defaults), "other" and "missing"
 #'   will be added to all nominal columns. This is protective in deployment: new
 #'   levels found in deployment will become "other" and missingness in
-#'   deployment can become "hcai_missing" if the nominal imputation method is
+#'   deployment can become "missing" if the nominal imputation method is
 #'   "new_category". If FALSE, these levels may be added to some columns
 #'   depending on details of imputation and collapse_rare_factors.
 #' @param factor_outcome Logical. If TRUE (default) and if all entries in
@@ -332,7 +332,7 @@ prep_data <- function(d,
                               threshold = fac_thresh)
       }
 
-      # Re-add protective levels if hcai_missing dropped by step_other
+      # Re-add protective levels if missing dropped by step_other
       if (add_levels)
         recipe <- step_add_levels(recipe, all_nominal(), - all_outcomes())
 
@@ -370,14 +370,14 @@ prep_data <- function(d,
   attr(recipe, "ignored_columns") <- unname(ignored)
   attr(d, "recipe") <- recipe
   d <- tibble::as_tibble(d)
-  class(d) <- c("hcai_prepped_df", class(d))
+  class(d) <- c("prepped_df", class(d))
 
   return(d)
 }
 
 # print method for prep_data
 #' @export
-print.hcai_prepped_df <- function(x, ...) {
+print.prepped_df <- function(x, ...) {
   message("healthcareai-prepped data. Recipe used to prepare data:\n")
   print(attr(x, "recipe"))
   message("Current data:\n")

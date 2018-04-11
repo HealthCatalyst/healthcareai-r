@@ -6,7 +6,7 @@
 #' @param trained Has the recipe been prepped?
 #' @param cols columns to be prepped
 #' @param levels Factor levels to add to variables. Default = c("other",
-#'   "hcai_missing")
+#'   "missing")
 #' @param skip A logical. Should the step be skipped when the
 #'  recipe is baked?
 #'
@@ -27,7 +27,7 @@
 #' lapply(d[, sapply(d, is.factor)], levels)
 #' lapply(baked[, sapply(baked, is.factor)], levels)
 step_add_levels <- function(recipe, ..., role = NA, trained = FALSE,
-                            cols = NULL, levels = c("other", "hcai_missing"),
+                            cols = NULL, levels = c("other", "missing"),
                             skip = FALSE) {
   terms <- rlang::quos(...)
   if (length(terms) == 0)

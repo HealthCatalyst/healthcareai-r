@@ -62,10 +62,10 @@ predict.model_list <- function(object,
       training_data %>%
       dplyr::mutate(!!mi$target := .outcome) %>%
       dplyr::select(- .outcome)
-    # caret::train strips hcai_prepped_df class from newdata. So,
+    # caret::train strips prepped_df class from newdata. So,
     # check recipe attr to see if it was prepped and if so convert.
     if ("recipe" %in% names(attributes(object)))
-      class(newdata) <- c("hcai_prepped_df", class(newdata))
+      class(newdata) <- c("prepped_df", class(newdata))
     using_training_data <- TRUE
   } else {
     using_training_data <- FALSE

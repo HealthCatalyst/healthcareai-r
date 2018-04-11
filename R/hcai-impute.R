@@ -143,7 +143,7 @@ hcai_impute <- function(recipe,
   # Nominals
   if (!all_numeric) {
     if (nominal_method == "new_category") {
-      recipe <- step_hcai_missing(recipe, all_nominal(), - all_outcomes())
+      recipe <- step_missing(recipe, all_nominal(), - all_outcomes())
     } else if (nominal_method == "bagimpute") {
       recipe <- step_bagimpute(
         recipe,

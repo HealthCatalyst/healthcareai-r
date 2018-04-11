@@ -18,8 +18,8 @@ print.predicted_df <- function(x, ...) {
                 "\nPerformance in training: ", mi$metric, " = ",
                 round(mi$performance, 2), "\n")
   message(mes)
-  # Avoid dispatching print.hcai_prepped_df:
-  y <- structure(x, class = class(x)[!stringr::str_detect(class(x), "^(predicted)|(hcai)")])
+  # Avoid dispatching print.prepped_df:
+  y <- structure(x, class = class(x)[!stringr::str_detect(class(x), "^(predicted)|(prepped)")])
   print(y)
   return(invisible(x))
 }
@@ -31,7 +31,7 @@ print.predicted_df <- function(x, ...) {
 #' Determine whether to prep_data before making predictions
 #' @noRd
 determine_prep <- function(object, newdata, mi = extract_model_info(object)) {
-  if ("recipe" %in% names(attributes(object)) && !inherits(newdata, "hcai_prepped_df")) {
+  if ("recipe" %in% names(attributes(object)) && !inherits(newdata, "prepped_df")) {
     # There is a recipe and newdata doesn't have prepped class.
     # Check to see if it looks like newdata may have prepped, warn if so, then prep
     if (dfs_compatible(dplyr::select(object[[1]]$trainingData, -.outcome),

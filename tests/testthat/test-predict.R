@@ -220,7 +220,7 @@ test_that("determine_prep TRUE w/o warning when prep needed and vars changed in 
   expect_true(need_prep)
 })
 
-test_that("determine_prep warns when hcai_prepped_df class stripped from newdata", {
+test_that("determine_prep warns when prepped_df class stripped from newdata", {
   class(test_data_reg_prep) <- "data.frame"
   expect_warning(need_prep <- determine_prep(model_regression_prepped, test_data_reg_prep), "prep")
   expect_true(need_prep)

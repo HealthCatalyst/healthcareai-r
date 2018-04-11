@@ -6,7 +6,7 @@
 \title{Add levels to nominal variables}
 \usage{
 step_add_levels(recipe, ..., role = NA, trained = FALSE, cols = NULL,
-  levels = c("other", "hcai_missing"), skip = FALSE)
+  levels = c("other", "missing"), skip = FALSE)
 
 \method{tidy}{step_add_levels}(x, ...)
 }
@@ -22,7 +22,7 @@ step_add_levels(recipe, ..., role = NA, trained = FALSE, cols = NULL,
 \item{cols}{columns to be prepped}
 
 \item{levels}{Factor levels to add to variables. Default = c("other",
-"hcai_missing")}
+"missing")}
 
 \item{skip}{A logical. Should the step be skipped when the
 recipe is baked?}
