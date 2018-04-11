@@ -45,11 +45,12 @@ reference:
     - tune_models
     - flash_models
     - plot.model_list
+    - evaluate
   - title: Prediction
     desc: Make predictions from a trained model
     contents:
     - predict.model_list
-    - plot.hcai_predicted_df
+    - plot.predicted_df
   - title: Data Preparation
     desc: Get data ready for machine learning
     contents:

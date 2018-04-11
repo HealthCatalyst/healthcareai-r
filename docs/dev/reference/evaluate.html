@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get performance metrics from predictions data frame — evaluate • healthcareai</title>
+<title>Get model performance metrics — evaluate • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,9 +25,9 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Get performance metrics from predictions data frame — evaluate" />
+<meta property="og:title" content="Get model performance metrics — evaluate" />
 
-<meta property="og:description" content="Get performance metrics from predictions data frame" />
+<meta property="og:description" content="Get model performance metrics" />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -130,43 +130,61 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get performance metrics from predictions data frame</h1>
+    <h1>Get model performance metrics</h1>
     
     </div>
 
     
-    <p>Get performance metrics from predictions data frame</p>
+    <p>Get model performance metrics</p>
     
 
-    <pre class="usage"><span class='fu'>evaluate</span>(<span class='no'>d</span>)</pre>
+    <pre class="usage"><span class='fu'>evaluate</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for predicted_df</span>
+<span class='fu'>evaluate</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for model_list</span>
+<span class='fu'>evaluate</span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>d</th>
-      <td><p>Data frame from <code><a href='predict.model_list.html'>predict.model_list</a></code> containing realized
-outcomes</p></td>
+      <th>x</th>
+      <td><p>Object to be evaluted</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Not used</p></td>
     </tr>
     </table>
     
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>Vector of scores with metrics as names</p>
-    
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>This function is designed to work with predictions coming from
-  <code><a href='machine_learn.html'>machine_learn</a></code> / <code><a href='tune_models.html'>tune_models</a></code> /
-  <code><a href='flash_models.html'>flash_models</a></code> through <code><a href='predict.model_list.html'>predict.model_list</a></code>. The
-  data passed to <code>predict</code> must contain observed outcomes. If you have
-  predictions and outcomes in a different format, use
-  <code><a href='evaluate_classification.html'>evaluate_classification</a></code> or <code><a href='evaluate_regression.html'>evaluate_regression</a></code>.</p>
+    <p>This function gets model performance from a model_list object that
+  comes from <code><a href='machine_learn.html'>machine_learn</a></code>, <code><a href='tune_models.html'>tune_models</a></code>,
+  <code><a href='flash_models.html'>flash_models</a></code>, or a data frame of predictions from
+  <code><a href='predict.model_list.html'>predict.model_list</a></code>. For the latter, the data passed to
+  <code>predict.model_list</code> must contain observed outcomes. If you have
+  predictions and outcomes in a different format, see
+  <code><a href='evaluate_classification.html'>evaluate_classification</a></code> or <code><a href='evaluate_regression.html'>evaluate_regression</a></code>
+  instead.</p>
+<p>You may notice that <code>evaluate(models)</code> and
+  <code>evaluate(predict(models))</code> return slightly different performance
+  metrics, even though they are being calculated on the same (out-of-fold)
+  predictions. This is because metrics in training (returned from
+  <code>evaluate(models)</code>) are calculated within each cross-validation fold
+  and then averaged, while metrics calculated on the prediction data frame
+  (<code>evaluate(predict(models))</code>) are calculated once on all observations.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>models</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='machine_learn.html'>machine_learn</a></span>(<span class='no'>pima_diabetes</span>[<span class='fl'>1</span>:<span class='fl'>40</span>, ], <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>,
-                        <span class='kw'>models</span> <span class='kw'>=</span> <span class='st'>"rf"</span>, <span class='kw'>tune_depth</span> <span class='kw'>=</span> <span class='fl'>3</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Running cross validation for Random Forest</span></div><div class='input'><span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>41</span>:<span class='fl'>50</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='fu'>evaluate</span>(<span class='no'>predictions</span>)</div><div class='output co'>#&gt;      AUPR     AUROC 
+    <pre class="examples"><div class='input'><span class='no'>models</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='machine_learn.html'>machine_learn</a></span>(<span class='no'>pima_diabetes</span>[<span class='fl'>1</span>:<span class='fl'>40</span>, ],
+                        <span class='no'>patient_id</span>,
+                        <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>,
+                        <span class='kw'>models</span> <span class='kw'>=</span> <span class='st'>"rf"</span>,
+                        <span class='kw'>tune_depth</span> <span class='kw'>=</span> <span class='fl'>3</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Running cross validation for Random Forest</span></div><div class='input'><span class='fu'>evaluate</span>(<span class='no'>models</span>)</div><div class='output co'>#&gt;      AUPR     AUROC 
+#&gt; 0.5215278 0.6525000 </div><div class='input'><span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>41</span>:<span class='fl'>50</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='fu'>evaluate</span>(<span class='no'>predictions</span>)</div><div class='output co'>#&gt;      AUPR     AUROC 
 #&gt; 0.5138889 0.8571429 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -174,8 +192,6 @@ outcomes</p></td>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#value">Value</a></li>
-
       <li><a href="#details">Details</a></li>
       
       <li><a href="#examples">Examples</a></li>

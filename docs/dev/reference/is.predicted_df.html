@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get performance metrics for regression predictions — evaluate_regression • healthcareai</title>
+<title>Class check — is.predicted_df • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,9 +25,9 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Get performance metrics for regression predictions — evaluate_regression" />
+<meta property="og:title" content="Class check — is.predicted_df" />
 
-<meta property="og:description" content="Get performance metrics for regression predictions" />
+<meta property="og:description" content="Class check" />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -130,37 +130,30 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get performance metrics for regression predictions</h1>
+    <h1>Class check</h1>
     
     </div>
 
     
-    <p>Get performance metrics for regression predictions</p>
+    <p>Class check</p>
     
 
-    <pre class="usage"><span class='fu'>evaluate_regression</span>(<span class='no'>predicted</span>, <span class='no'>actual</span>)</pre>
+    <pre class="usage"><span class='fu'>is.predicted_df</span>(<span class='no'>x</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>predicted</th>
-      <td><p>Vector of predicted values</p></td>
-    </tr>
-    <tr>
-      <th>actual</th>
-      <td><p>Vector of realized values</p></td>
+      <th>x</th>
+      <td><p>object</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Numeric vector of scores with metric as names</p>
+    <p>logical</p>
     
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>evaluate_regression</span>(<span class='fu'>c</span>(<span class='fl'>2</span>, <span class='fl'>4</span>, <span class='fl'>6</span>), <span class='fu'>c</span>(<span class='fl'>1.5</span>, <span class='fl'>4.1</span>, <span class='fl'>6.2</span>))</div><div class='output co'>#&gt;      RMSE       MAE  Rsquared 
-#&gt; 0.3162278 0.2666667 0.9962417 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -168,9 +161,7 @@
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
+          </ul>
 
   </div>
 </div>

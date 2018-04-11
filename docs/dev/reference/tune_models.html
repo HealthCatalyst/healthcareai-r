@@ -143,8 +143,8 @@ performance</h1>
 performance</p>
     
 
-    <pre class="usage"><span class='fu'>tune_models</span>(<span class='no'>d</span>, <span class='no'>outcome</span>, <span class='no'>model_class</span>, <span class='no'>models</span>, <span class='kw'>n_folds</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>tune_depth</span> <span class='kw'>=</span> <span class='fl'>10</span>,
-  <span class='kw'>tune_method</span> <span class='kw'>=</span> <span class='st'>"random"</span>, <span class='no'>metric</span>, <span class='no'>hyperparameters</span>)</pre>
+    <pre class="usage"><span class='fu'>tune_models</span>(<span class='no'>d</span>, <span class='no'>outcome</span>, <span class='no'>models</span>, <span class='no'>metric</span>, <span class='no'>positive_class</span>, <span class='kw'>n_folds</span> <span class='kw'>=</span> <span class='fl'>5</span>,
+  <span class='kw'>tune_depth</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>tune_method</span> <span class='kw'>=</span> <span class='st'>"random"</span>, <span class='no'>hyperparameters</span>, <span class='no'>model_class</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -158,16 +158,26 @@ performance</p>
       <td><p>Name of the column to predict</p></td>
     </tr>
     <tr>
-      <th>model_class</th>
-      <td><p>"regression" or "classification". If not provided, this
-will be determined by the class of `outcome` with the determination
-displayed in a message.</p></td>
-    </tr>
-    <tr>
       <th>models</th>
       <td><p>Names of models to try, by default "rf" for random forest and
 "knn" for k-nearest neighbors. See <code><a href='get_supported_models.html'>supported_models</a></code> for
 available models.</p></td>
+    </tr>
+    <tr>
+      <th>metric</th>
+      <td><p>What metric to use to assess model performance? Options for
+regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
+error), or "Rsquared." For classification: "ROC" (area under the receiver
+operating characteristic curve), or "PR" (area under the precision-recall
+curve).</p></td>
+    </tr>
+    <tr>
+      <th>positive_class</th>
+      <td><p>For classification only, which outcome level is the
+"yes" case, i.e. should be associated with high probabilities? Defaults to
+"Y" or "yes" if present, otherwise is the first level of the outcome
+variable (first alphabetically if the training data outcome was not already
+a factor).</p></td>
     </tr>
     <tr>
       <th>n_folds</th>
@@ -182,16 +192,14 @@ available models.</p></td>
       <td><p>How to search hyperparameter space? Default = "random".</p></td>
     </tr>
     <tr>
-      <th>metric</th>
-      <td><p>What metric to use to assess model performance? Options for
-regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
-error), or "Rsquared." For classification: "ROC" (area under the receiver
-operating characteristic curve), or "PR" (area under the precision-recall
-curve).</p></td>
-    </tr>
-    <tr>
       <th>hyperparameters</th>
       <td><p>Currently not supported.</p></td>
+    </tr>
+    <tr>
+      <th>model_class</th>
+      <td><p>"regression" or "classification". If not provided, this
+will be determined by the class of `outcome` with the determination
+displayed in a message.</p></td>
     </tr>
     </table>
     

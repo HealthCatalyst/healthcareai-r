@@ -29,11 +29,11 @@
 #' p <- plot(predictions, print = FALSE)
 #' p + coord_fixed(ratio = 1) + theme_classic()
 plot.predicted_df <- function(x,
-                                   caption = TRUE,
-                                   title = NULL,
-                                   font_size = 11,
-                                   outcomes = NULL,
-                                   print = TRUE, ...) {
+                              caption = TRUE,
+                              title = NULL,
+                              font_size = 11,
+                              outcomes = NULL,
+                              print = TRUE, ...) {
   # Checks, and put outcomes in x if necessary
   mi <- attr(x, "model_info")
   target <- mi$target
