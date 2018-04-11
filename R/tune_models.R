@@ -324,5 +324,6 @@ add_model_attrs <- function(models, recipe, tuned, target, positive_class) {
                               target = target)
   structure(train_list,
             recipe = recipe,
-            positive_class = positive_class)
+            positive_class = positive_class) %>%
+    structure(., performance = evaluate(.))
 }

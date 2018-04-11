@@ -23,14 +23,14 @@ print.model_list <- function(x, ...) {
         paste0("\n\nModels tuned via ", x[[1]]$control$number, "-fold cross validation ",
                "over ", nrow(x[[1]]$results), " combinations of hyperparameter values.",
                "\nBest model: ", rinfo$best_model_name,
-               "\n", rinfo$metric, " = ", round(rinfo$best_model_perf, 2),
+               "\n", format_performance(attr(x, "performance")),
                "\nOptimal hyperparameter values:", "\n  ", format_tune(rinfo$best_model_tune)
         )
       } else {
         paste0("\n\nModels have not been tuned. Performance estimated via ",
                x[[1]]$control$number, "-fold cross validation at fixed hyperparameter values.",
                "\nBest model: ", rinfo$best_model_name,
-               "\n", rinfo$metric, " = ", round(rinfo$best_model_perf, 2),
+               "\n", format_performance(attr(x, "performance")),
                "\nUser-selected hyperparameter values:", "\n  ", format_tune(rinfo$best_model_tune)
         )
       }
@@ -60,7 +60,7 @@ summary.model_list <- function(object, ...) {
       paste0("Models trained: ", rinfo$timestamp,
              "\n\nModels tuned via ", object[[1]]$control$number, "-fold cross validation ",
              "over ", nrow(object[[1]]$results), " combinations of hyperparameter values.",
-             "\nBest performance: ", rinfo$metric, " = ", round(rinfo$best_model_perf, 2),
+             "\nBest performance: ", format_performance(attr(x, "performance")),
              "\nBy ", rinfo$best_model_name, " with hyperparameters:\n  ",
              format_tune(rinfo$best_model_tune))
     } else {
@@ -68,7 +68,7 @@ summary.model_list <- function(object, ...) {
              "\n\nModels have not been tuned. Performance estimated via ",
              object[[1]]$control$number, "-fold cross validation at fixed hyperparameter values.",
              "\nBest algorithm: ", rinfo$best_model_name, " with ",
-             rinfo$metric, " = ", round(rinfo$best_model_perf, 2))
+             format_performance(attr(x, "performance")))
     }
   cat(out)
   cat("\n\nOut-of-fold performance of all trained models:\n\n")
@@ -218,6 +218,11 @@ format_tune <- function(best_tune) {
   best_tune %>%
     purrr::map_chr(as.character) %>%
     paste(names(.), ., sep = " = ", collapse = "\n  ")
+}
+
+format_performance <- function(perf) {
+  round(perf, 2) %>%
+    paste(names(.), ., sep = " = ", collapse = ", ")
 }
 
 #' Class check
