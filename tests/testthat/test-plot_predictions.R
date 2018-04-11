@@ -35,7 +35,7 @@ test_that("plot.hcai_predicted_df stops if outcome vector is wrong length or cla
 })
 
 test_that("plot.hcai_predicted_df warns but works if outcomes present in df and passed in", {
-  expect_warning(p <- plot(reg_preds_new, 1:10, print = FALSE), "outcome")
+  expect_warning(p <- plot(reg_preds_new, outcomes = 1:10, print = FALSE), "outcome")
   expect_s3_class(p, "gg")
   expect_warning(p <- plot(class_preds_new,
                            outcomes = sample(unique(d_class$diabetes), nrow(class_preds_new), TRUE),

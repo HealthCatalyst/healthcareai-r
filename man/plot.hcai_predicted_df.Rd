@@ -4,10 +4,15 @@
 \alias{plot.hcai_predicted_df}
 \title{Plot model predictions vs observed outcomes}
 \usage{
-\method{plot}{hcai_predicted_df}(x, outcomes = NULL, print = TRUE, ...)
+\method{plot}{hcai_predicted_df}(x, caption = TRUE, outcomes = NULL,
+  print = TRUE, ...)
 }
 \arguments{
 \item{x}{data frame as returned `predict.model_list`}
+
+\item{caption}{Put model performance in plot caption? If logical TRUE
+(default) prints all available metrics, FALSE prints nothing. If character,
+caption will include only the specified metric.}
 
 \item{outcomes}{Vector of outcomes if not present in x}
 

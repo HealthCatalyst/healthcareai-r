@@ -1,6 +1,10 @@
 #' Plot model predictions vs observed outcomes
 #'
 #' @param x data frame as returned `predict.model_list`
+#' @param caption Put model performance in plot caption? TRUE (default) prints
+#'   all available metrics, FALSE prints nothing. Can also provide metric name
+#'   (e.g. "RMSE"), in which case the caption will include only that metric.
+#' @param title Character: Plot title, default NULL produces no title.
 #' @param outcomes Vector of outcomes if not present in x
 #' @param print Logical, if TRUE (default) the plot is printed on the current
 #'   graphics device. The plot is always (silently) returned.
@@ -23,8 +27,11 @@
 #' plot(predictions)
 #' plot(predictions, title = "This model's predictions regress to the mean",
 #'      point_size = 3, point_alpha = .7, font_size = 14)
-plot.hcai_predicted_df <- function(x, outcomes = NULL, print = TRUE, ...) {
-
+plot.hcai_predicted_df <- function(x,
+                                   caption = TRUE,
+                                   title = NULL,
+                                   outcomes = NULL,
+                                   print = TRUE, ...) {
   # Checks, and put outcomes in x if necessary
   mi <- attr(x, "model_info")
   target <- mi$target
@@ -57,6 +64,21 @@ plot.hcai_predicted_df <- function(x, outcomes = NULL, print = TRUE, ...) {
     stop("Plotting predictions of model type ", mi$type, "is not currently supported.")
   }
 
+  cap <-
+    if (isTRUE(caption)) {
+      format_performance(evaluate(x))
+    } else if (caption != FALSE) {
+      perf <- evaluate(x)
+      if (!caption %in% names(perf))
+        stop(caption, " not a performance metric for this model. Available metrics: ",
+             paste(names(perf), collapse = ", "))
+      format_performance(perf[caption])
+    } else {
+      NULL
+    }
+  the_plot <-
+    the_plot +
+    labs(caption = cap)
   # Print and return
   if (print)
     print(the_plot)
@@ -78,7 +100,6 @@ plot.hcai_predicted_df <- function(x, outcomes = NULL, print = TRUE, ...) {
 #'   \code{plot(predictions)} instead. You can pass arguments to this function
 #'   (e.g. a plot title) through \code{plot}.
 plot_regression_predictions <- function(x,
-                                        title = NULL,
                                         point_size = 1,
                                         point_alpha = 1,
                                         font_size = 11,
@@ -99,7 +120,6 @@ plot_regression_predictions <- function(x,
 #' Plot predictions from a classification model
 #'
 #' @param x hcai_predicted_df from plot.hcai_predicted_df
-#' @param title Character: Plot title, default NULL produces no title.
 #' @param fill_colors Length-2 character vector: colors to fill density
 #'   curves. Default is c("firebrick", "steelblue"). If named, names must match
 #'   \code{unique(x[[target]])}, in any order.
@@ -116,7 +136,6 @@ plot_regression_predictions <- function(x,
 #'   \code{plot(predictions)} instead. You can pass arguments to this function
 #'   (e.g. a plot title) through \code{plot}.
 plot_classification_predictions <- function(x,
-                                            title = NULL,
                                             fill_colors = c("firebrick", "steelblue"),
                                             fill_alpha = .7,
                                             curve_flex = 1,
