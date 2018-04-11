@@ -57,10 +57,12 @@
 #'   standard deviation of 1. Default is FALSE.
 #' @param make_dummies Logical. If TRUE (default), dummy columns will be created
 #'   for categorical variables.
-#' @param add_levels Logical. If TRUE (defaults), "other" and "hcai_missing"
+#' @param add_levels Logical. If TRUE (defaults), "other" and "missing"
 #'   will be added to all nominal columns. This is protective in deployment: new
 #'   levels found in deployment will become "other" and missingness in
-#'   deployment can become "hcai_missing".
+#'   deployment can become "missing" if the nominal imputation method is
+#'   "new_category". If FALSE, these levels may be added to some columns
+#'   depending on details of imputation and collapse_rare_factors.
 #' @param factor_outcome Logical. If TRUE (default) and if all entries in
 #'   outcome are 0 or 1 they will be converted to factor with levels N and Y for
 #'   classification.
@@ -86,7 +88,7 @@
 #' d_test_prepped
 #'
 #' # Customize preparations:
-#' prep_data(d = d_train, patient_id, diabetes,
+#' prep_data(d = d_train, patient_id, outcome = diabetes,
 #'           impute = list(numeric_method = "bagimpute",
 #'                         nominal_method = "bagimpute"),
 #'           collapse_rare_factors = FALSE, convert_dates = "year",
@@ -108,6 +110,11 @@ prep_data <- function(d,
   if (!is.data.frame(d)) {
     stop("\"d\" must be a data frame.")
   }
+  # Capture pre-modification missingness
+  d_missing <- missingness(d, return_df = FALSE)
+  # Capture factor levels
+  d_levels <- get_factor_levels(d)
+
   outcome <- rlang::enquo(outcome)
   remove_outcome <- FALSE
   # Deal with "..." columns to be ignored
@@ -129,6 +136,16 @@ prep_data <- function(d,
               paste(m$variable, collapse = ", "))
   }
 
+  # Check global options for factor handling
+  opt <- options("contrasts")[[1]][[1]]
+  if (opt != "contr.treatment"){
+    w <- paste0("Your unordered-factor contrasts option is set to ", opt,
+                ". This may produce unexpected behavior, particularly in step_dummy in prep_data. ",
+                "Consider resetting it by restarting R, or with: ",
+                "options(contrasts = c(\"contr.treatment\", \"contr.poly\"))")
+    warning(w)
+  }
+
   # If there's a recipe in recipe, use that
   if (!is.null(recipe)) {
     message("Prepping data based on provided recipe")
@@ -147,19 +164,26 @@ prep_data <- function(d,
     if (length(missing_vars))
       stop("These variables were present in training but are missing or ignored here: ",
            paste(missing_vars, collapse = ", "))
-    # Outcome gets added as all NAs; set a flag to remove it at end
-    if (rlang::quo_is_missing(outcome)) {
-      outcome_var <- recipe$var_info$variable[recipe$var_info$role == "outcome"]
-      if (length(outcome_var))
-        remove_outcome <- TRUE
-    }
+
+    # If imputing, look for variables with missingness now that didn't have any in training
+    newly_missing <- find_new_missingness(d, recipe)
+    if (length(newly_missing))
+      warning("The following variable(s) have missingness that was not present when recipe was trained: ",
+              paste(newly_missing, collapse = ", "))
+
+    # Outcome gets added as all NAs; set a flag to remove it at end if not in provided DF
+    outcome_var <- recipe$var_info$variable[recipe$var_info$role == "outcome"]
+    if (length(outcome_var) && !outcome_var %in% names(d))
+      remove_outcome <- TRUE
 
   } else {
 
     # Initialize a new recipe
-    message("Training new data prep recipe")
+    mes <- "Training new data prep recipe"
     ## Start by making all variables predictors...
-    recipe <- recipes::recipe(d, ~ .)
+    ## Only pass head of d here because it's carried around with the recipe
+    ## and we don't want to pass around big datasets
+    recipe <- recipes::recipe(head(d), ~ .)
     ## Then deal with outcome if present
     if (!rlang::quo_is_missing(outcome)) {
       outcome_name <- rlang::quo_name(outcome)
@@ -178,13 +202,15 @@ prep_data <- function(d,
       suppressWarnings({
         recipe <- recipes::add_role(recipe, !!outcome, new_role = "outcome")
       })
-
       # If outcome is binary 0/1, convert to N/Y -----------------------------
       if (factor_outcome && all(outcome_vec %in% 0:1)) {
         recipe <- recipe %>%
           recipes::step_bin2factor(all_outcomes(), levels = c("Y", "N"))
       }
+    } else {
+      mes <- paste0(mes, ", with no outcome variable specified")
     }
+    message(mes)
 
     # Build recipe step-by-step:
 
@@ -197,6 +223,18 @@ prep_data <- function(d,
       recipe <- recipe %>%
         recipes::step_nzv(all_predictors())
     }
+
+    # Check if there are any nominal predictors that won't be removed; stop if not.
+    prep_check <- recipes::prep(recipe, training = d)
+    removing <- prep_check$steps[[1]]$removals
+    vi <- recipe$var_info
+    nom_preds <- vi$variable[vi$role == "predictor" & vi$type == "nominal"]
+    if (length(nom_preds) && all(nom_preds %in% removing))
+      stop("All your categorical columns will be removed because they have ",
+           "near-zero variance, which will break prep_data. ",
+           "We're working on a fix; in the meantime, either remove these ",
+           "NZV columns before prep_data or set remove_near_zero_variance = FALSE:\n",
+           paste(removing, collapse = ", "))
 
     # Convert date columns to useful features and remove original. ------------
     if (!is.logical(convert_dates)) {
@@ -272,6 +310,11 @@ prep_data <- function(d,
 
     # If there are nominal predictors, apply nominal transformations
     if (any(var_info$type == "nominal" & var_info$role == "predictor")) {
+
+      # Add protective levels --------------------------------------------------
+      if (add_levels)
+        recipe <- step_add_levels(recipe, all_nominal(), - all_outcomes())
+
       # Collapse rare factors into "other" --------------------------------------
       if (!is.logical(collapse_rare_factors)) {
         if (!is.numeric(collapse_rare_factors))
@@ -289,7 +332,7 @@ prep_data <- function(d,
                               threshold = fac_thresh)
       }
 
-      # Add protective levels --------------------------------------------------
+      # Re-add protective levels if missing dropped by step_other
       if (add_levels)
         recipe <- step_add_levels(recipe, all_nominal(), - all_outcomes())
 
@@ -302,6 +345,10 @@ prep_data <- function(d,
 
     # Prep the newly built recipe ---------------------------------------------
     recipe <- recipes::prep(recipe, training = d)
+
+    # Attach missingness and factor-levels in the original data to the recipe
+    attr(recipe, "missingness") <- d_missing
+    attr(recipe, "factor_levels") <- d_levels
   }
 
   # Bake either the newly built or passed-in recipe
@@ -323,13 +370,14 @@ prep_data <- function(d,
   attr(recipe, "ignored_columns") <- unname(ignored)
   attr(d, "recipe") <- recipe
   d <- tibble::as_tibble(d)
-  class(d) <- c("hcai_prepped_df", class(d))
+  class(d) <- c("prepped_df", class(d))
+
   return(d)
 }
 
 # print method for prep_data
 #' @export
-print.hcai_prepped_df <- function(x, ...) {
+print.prepped_df <- function(x, ...) {
   message("healthcareai-prepped data. Recipe used to prepare data:\n")
   print(attr(x, "recipe"))
   message("Current data:\n")

@@ -1,8 +1,8 @@
 Package: healthcareai
 Type: Package
 Title: Tools for Healthcare Machine Learning
-Version: 2.0.0
-Date: 2018-02-01
+Version: 2.0.0.9000
+Date: 2018-04-02
 Authors@R: c(
     person("Levi", "Thatcher", email = "levi.thatcher@healthcatalyst.com", role = "aut"),
     person("Michael", "Levy", email = "michael.levy@healthcatalyst.com", role = c("aut", "cre")),
@@ -10,25 +10,25 @@ Authors@R: c(
     person("Taylor", "Larsen", email = "taylor.larsen@healthcatalyst.com", role = "aut"),
     person("Taylor", "Miller", email = "taylor.miller@healthcatalyst.com", role = "aut"))
 Description: A machine learning toolbox tailored to healthcare data.
-    Aids in data cleaning, model development, hyperparameter tuning, and model
-    deployment in a production 'SQL' environment. Algorithms currently supported
-    are Lasso, Random Forest, Extreme Gradient Boosting, K-means clustering, and Linear Mixed Modeling.
 License: MIT + file LICENSE
 LazyData: TRUE
 Depends:
-    R (>= 3.4)
+    R (>= 3.3)
 Imports:
     broom,
     caret (>= 6.0.78),
     cowplot,
+    data.table,
     DBI,
     dplyr,
+    dbplyr,
     e1071,
     ggplot2,
     grpreg,
     kknn,
     lme4,
     lubridate,
+    methods,
     MLmetrics,
     odbc,
     purrr,
@@ -36,7 +36,6 @@ Imports:
     readr,
     recipes (>= 0.1.2),
     rlang,
-    RSQLite,
     stringr,
     tibble,
     tidyr,
@@ -44,6 +43,9 @@ RoxygenNote: 6.0.1
 Suggests:
     testthat,
     lintr,
-    covr
-URL: http://healthcareai-r.readthedocs.io
+    covr,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+URL: http://docs.healthcare.ai
 BugReports: https://github.com/HealthCatalyst/healthcareai-r/issues

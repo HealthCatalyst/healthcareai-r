@@ -2,31 +2,20 @@
 % Please edit documentation in R/tune_models.R
 \name{tune_models}
 \alias{tune_models}
-\title{Identify the best performing model by tuning hyperparameters via
-cross-validation}
+\title{Tune multiple machine learning models using cross validation to optimize
+performance}
 \usage{
-tune_models(d, outcome, model_class, models = c("rf", "knn"), n_folds = 5,
-  tune_depth = 10, tune_method = "random", metric, hyperparameters,
-  verbose = FALSE)
+tune_models(d, outcome, models, metric, positive_class, n_folds = 5,
+  tune_depth = 10, tune_method = "random", hyperparameters, model_class)
 }
 \arguments{
 \item{d}{A data frame}
 
 \item{outcome}{Name of the column to predict}
 
-\item{model_class}{"regression" or "classification". If not provided, this
-will be determined by the class of `outcome` with the determination
-displayed in a message.}
-
 \item{models}{Names of models to try, by default "rf" for random forest and
 "knn" for k-nearest neighbors. See \code{\link{supported_models}} for
 available models.}
-
-\item{n_folds}{How many folds to use in cross-validation? Default = 5.}
-
-\item{tune_depth}{How many hyperparameter combinations to try? Defualt = 10.}
-
-\item{tune_method}{How to search hyperparameter space? Default = "random".}
 
 \item{metric}{What metric to use to assess model performance? Options for
 regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
@@ -34,16 +23,30 @@ error), or "Rsquared." For classification: "ROC" (area under the receiver
 operating characteristic curve), or "PR" (area under the precision-recall
 curve).}
 
+\item{positive_class}{For classification only, which outcome level is the
+"yes" case, i.e. should be associated with high probabilities? Defaults to
+"Y" or "yes" if present, otherwise is the first level of the outcome
+variable (first alphabetically if the training data outcome was not already
+a factor).}
+
+\item{n_folds}{How many folds to use in cross-validation? Default = 5.}
+
+\item{tune_depth}{How many hyperparameter combinations to try? Defualt = 10.}
+
+\item{tune_method}{How to search hyperparameter space? Default = "random".}
+
 \item{hyperparameters}{Currently not supported.}
 
-\item{verbose}{Logical, defaults to FALSE. Get additional info via messages?}
+\item{model_class}{"regression" or "classification". If not provided, this
+will be determined by the class of `outcome` with the determination
+displayed in a message.}
 }
 \value{
 A model_list object
 }
 \description{
-Identify the best performing model by tuning hyperparameters via
-cross-validation
+Tune multiple machine learning models using cross validation to optimize
+performance
 }
 \details{
 Note that this function is training a lot of models (100 by default)

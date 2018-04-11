@@ -14,8 +14,24 @@ cache:
   - C:\RLibrary
 
 # Adapt as necessary starting from here
+services:
+  - mssql2012sp1
+
+environment:
+  global:
+    WARNINGS_ARE_ERRORS: 1
+
+  matrix:
+  - R_VERSION: stable
+    R_ARCH: x64
+    GCC_PATH: mingw_32
+
+  - R_VERSION: oldrel
+    R_ARCH: x64
+    GCC_PATH: mingw_32
 
 build_script:
+  - ps: iex .\inst\CIDatabase\CIBuild_DBCreate.ps1
   - travis-tool.sh install_deps
 
 test_script:
@@ -43,3 +59,9 @@ artifacts:
 
   - path: '\*_*.zip'
     name: Bits
+
+notifications:
+    - provider: GitHubPullRequest
+      on_build_success: false
+      on_build_failure: false
+      on_build_status_changed: false

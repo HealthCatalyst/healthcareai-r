@@ -19,13 +19,22 @@ of dataframes. — build_process_variables_df • healthcareai</title>
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  <link href="../extra.css" rel="stylesheet">
-  
+<meta property="og:title" content="Build a the output dataframe for modifiable process variables from a list
+of dataframes. — build_process_variables_df" />
+
+<meta property="og:description" content="Takes a list of dataframes built using
+build_process_variable_df_list and returns a single dataframe listing
+the best modifiable process variables to modify." />
+
+<meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
+<meta name="twitter:card" content="summary" />
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -48,7 +57,7 @@ of dataframes. — build_process_variables_df • healthcareai</title>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">healthcareai</a>
+      <a class="navbar-brand" href="../index.html">healthcare.ai</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
@@ -90,11 +99,12 @@ of dataframes. — build_process_variables_df • healthcareai</title>
     <div class="page-header">
     <h1>Build a the output dataframe for modifiable process variables from a list
 of dataframes.</h1>
+    
     </div>
 
     
-    <p>Takes a list of dataframes built using 
-<code>build_process_variable_df_list</code> and returns a single dataframe listing 
+    <p>Takes a list of dataframes built using
+<code>build_process_variable_df_list</code> and returns a single dataframe listing
 the best modifiable process variables to modify.</p>
     
 
@@ -106,17 +116,17 @@ the best modifiable process variables to modify.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>list_of_dataframes</th>
-      <td><p>A list of dataframes built using 
+      <td><p>A list of dataframes built using
 <code>build_process_variable_df_list</code>.</p></td>
     </tr>
     <tr>
       <th>repeated_factors</th>
-      <td><p>A boolean determining whether or not a single 
+      <td><p>A boolean determining whether or not a single
 modifiable factor can be listed several times.</p></td>
     </tr>
     <tr>
       <th>number_of_factors</th>
-      <td><p>The number of modifiable process variables to 
+      <td><p>The number of modifiable process variables to
 include in each row.</p></td>
     </tr>
     </table>
@@ -144,7 +154,7 @@ include in each row.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
@@ -152,3 +162,4 @@ include in each row.</p></td>
 
   </body>
 </html>
+

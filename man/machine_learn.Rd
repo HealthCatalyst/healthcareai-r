@@ -2,20 +2,40 @@
 % Please edit documentation in R/machine_learn.R
 \name{machine_learn}
 \alias{machine_learn}
-\title{Machine Learn}
+\title{Machine learning made easy}
 \usage{
-machine_learn(d, outcome, ..., models = c("rf", "knn"), impute = TRUE)
+machine_learn(d, ..., outcome, models, tune = TRUE, positive_class,
+  n_folds = 5, tune_depth = 10, impute = TRUE)
 }
 \arguments{
 \item{d}{A data frame}
 
-\item{outcome}{Name of the target column, i.e. what you want to predict.
-Unquoted.}
+\item{...}{Columns to be ignored in model training, e.g. ID columns,
+unquoted.}
 
-\item{...}{Identifier columns not to be used in model training, unquoted}
+\item{outcome}{Name of the target column, i.e. what you want to predict.
+Unquoted. Must be named, i.e. you must specify \code{outcome = }}
 
 \item{models}{Models to be trained, k-nearest neighbors and random forest by
 default. See \code{\link{supported_models}} for details.}
+
+\item{tune}{If TRUE (default) models will be tuned via
+\code{\link{tune_models}}. If FALSE, models will be trained via
+\code{\link{flash_models}} which is substantially faster but produces
+less-predictively powerful models.}
+
+\item{positive_class}{For classification only, which outcome level is the
+"yes" case, i.e. should be associated with high probabilities? Defaults to
+"Y" or "yes" if present, otherwise is the first level of the outcome
+variable (first alphabetically if the training data outcome was not already
+a factor).}
+
+\item{n_folds}{How many folds to use to assess out-of-fold accuracy? Default
+= 5. Models are evaluated on out-of-fold predictions whether tune is TRUE
+or FALSE.}
+
+\item{tune_depth}{How many hyperparameter combinations to try? Defualt = 10.
+Ignored if tune is FALSE.}
 
 \item{impute}{Logical, if TRUE (default) missing values will be filled by
 \code{\link{hcai_impute}}}
@@ -33,23 +53,35 @@ This is a high-level wrapper function. For finer control of data
   wraps. For finer control of model tuning use \code{\link{tune_models}}.
 }
 \examples{
-# Split data into training and test sets using a subset of the data for speed
-test_data <- pima_diabetes[1:10, ]
-training_data <- pima_diabetes[11:100, ]
+# Split the data into training and test sets, using just 100 rows for speed
+d <- split_train_test(d = pima_diabetes[1:100, ],
+                      outcome = diabetes,
+                      percent_train = .9)
 
 ### Classification ###
 
-# Clean and prep the data, tune algorithms over hyperparameter values to predict diabetes
-models <- machine_learn(training_data, diabetes)
+# Clean and prep the training data, specifying that patient_id is an ID column,
+# and tune algorithms over hyperparameter values to predict diabetes
+diabetes_models <- machine_learn(d$train, patient_id, outcome = diabetes)
+
+# Inspect model specification and performance
+diabetes_models
 
 # Make predictions (predicted probability of diabetes) on test data
-predict(models, test_data)
+predict(diabetes_models, d$test)
 
 ### Regression ###
 
-# Predict numeric outcomes simply by specifying the name of the outcome variable
-age_model <- machine_learn(training_data, age)
+# If the outcome variable is numeric, regression models will be trained
+age_model <- machine_learn(d$train, patient_id, outcome = age)
 
 # If new data isn't specifed, get predictions on training data
 predict(age_model)
+
+### Faster model training without tuning hyperparameters ###
+
+# Train models at set hyperparameter values by setting tune to FALSE. This is
+# faster (especially on larger datasets), but produces models with less
+# predictive accuracy.
+machine_learn(d$train, patient_id, outcome = diabetes, tune = FALSE)
 }

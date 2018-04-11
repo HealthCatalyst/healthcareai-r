@@ -6,19 +6,34 @@
 #' @noRd
 print.model_list <- function(x, ...) {
   if (length(x)) {
-    x <- change_pr_metric(x)
+    x <- change_metric_names(x)
     rinfo <- extract_model_info(x)
     out <- paste0(
-      "Target: ", rinfo$target,
+      "Algorithms Trained: ", paste(rinfo$algs, collapse = ", "),
+      "\nTarget: ", rinfo$target,
       "\nClass: ", rinfo$m_class,
-      "\nAlgorithms Tuned: ", paste(rinfo$algs, collapse = ", "),
       "\nPerformance Metric: ", rinfo$metric,
       "\nNumber of Observations: ", rinfo$ddim[1],
       "\nNumber of Features: ", rinfo$ddim[2] - 1L,
-
-      "\n\nBest model: ", rinfo$best_model_name,
-      "\n", rinfo$metric, " = ", round(rinfo$best_model_perf, 2),
-      "\nHyperparameter values:", "\n  ", format_tune(rinfo$best_model_tune)
+      "\nModels Trained: ", rinfo$timestamp
+    )
+    out <- paste(
+      out,
+      if (rinfo$tuned) {
+        paste0("\n\nModels tuned via ", x[[1]]$control$number, "-fold cross validation ",
+               "over ", nrow(x[[1]]$results), " combinations of hyperparameter values.",
+               "\nBest model: ", rinfo$best_model_name,
+               "\n", format_performance(attr(x, "performance")),
+               "\nOptimal hyperparameter values:", "\n  ", format_tune(rinfo$best_model_tune)
+        )
+      } else {
+        paste0("\n\nModels have not been tuned. Performance estimated via ",
+               x[[1]]$control$number, "-fold cross validation at fixed hyperparameter values.",
+               "\nBest model: ", rinfo$best_model_name,
+               "\n", format_performance(attr(x, "performance")),
+               "\nUser-selected hyperparameter values:", "\n  ", format_tune(rinfo$best_model_tune)
+        )
+      }
     )
   } else {
     out <- paste("Empty", class(x)[1], "object.")
@@ -38,18 +53,29 @@ print.model_list <- function(x, ...) {
 summary.model_list <- function(object, ...) {
   if (!length(object))
     stop("object is empty.")
-  object <- change_pr_metric(object)
+  object <- change_metric_names(object)
   rinfo <- extract_model_info(object)
-  out <- paste0("Best performance: ", rinfo$metric, " = ",
-                round(rinfo$best_model_perf, 2), "\n",
-                rinfo$best_model_name, " with hyperparameters:\n  ",
-                format_tune(rinfo$best_model_tune))
+  out <-
+    if (rinfo$tuned) {
+      paste0("Models trained: ", rinfo$timestamp,
+             "\n\nModels tuned via ", object[[1]]$control$number, "-fold cross validation ",
+             "over ", nrow(object[[1]]$results), " combinations of hyperparameter values.",
+             "\nBest performance: ", format_performance(attr(object, "performance")),
+             "\nBy ", rinfo$best_model_name, " with hyperparameters:\n  ",
+             format_tune(rinfo$best_model_tune))
+    } else {
+      paste0("Models trained: ", rinfo$timestamp,
+             "\n\nModels have not been tuned. Performance estimated via ",
+             object[[1]]$control$number, "-fold cross validation at fixed hyperparameter values.",
+             "\nBest algorithm: ", rinfo$best_model_name, " with ",
+             format_performance(attr(object, "performance")))
+    }
   cat(out)
   cat("\n\nOut-of-fold performance of all trained models:\n\n")
   perf <- lapply(object, function(xx) {
     ord <- order(xx$results[[rinfo$metric]])
     if (object[[1]]$maximize) ord <- rev(ord)
-    structure(xx$results[ord, ], row.names = seq_len(nrow(xx$results)))
+    tibble::as_tibble(xx$results[ord, ])
   })
   names(perf) <- rinfo$algs
   print(perf)
@@ -65,22 +91,24 @@ summary.model_list <- function(object, ...) {
 #'
 #' @return Plot of model performance as a function of algorithm and
 #'   hyperparameter values tuned over. Generally called for the side effect of
-#'   printing a plot, but the plot is also invisibly returned.
+#'   printing a plot, but the plot is also invisibly returned. The
+#'   best-performing model within each algorithm will be plotted as a triangle.
 #'
 #' @importFrom cowplot plot_grid
 #' @importFrom purrr map_df
 #' @export
 #' @examples
-#' models <- tune_models(mtcars, mpg)
+#' models <- tune_models(mtcars, mpg, models = "knn", tune_depth = 5)
 #' plot(models)
-#' plot(as.model_list(models$`Random Forest`))
 plot.model_list <- function(x, print = TRUE, ...) {
   if (!length(x))
     stop("x is empty.")
   if (!inherits(x, "model_list"))
-    stop("x is class ", class(x)[1],
-         ", but needs to be model_list")
-  x <- change_pr_metric(x)
+    stop("x is class ", class(x)[1], ", but needs to be model_list")
+  if (!attr(x, "tuned"))
+    message("No tuning was done, so there's not much to plot. Use `tune_models` tune hyperparameters, ",
+            "or use `plot(predict(x))` to plot predictions on training data.")
+  x <- change_metric_names(x)
   params <- purrr::map(x, ~ as.character(.x$modelInfo$parameters$parameter))
   bounds <- purrr::map_df(x, function(m) range(m$results[[m$metric]]))
   y_range <- c(min(bounds[1, ]), max(bounds[2, ]))
@@ -101,12 +129,12 @@ plot.model_list <- function(x, print = TRUE, ...) {
             to_plot[[.x]] <- reorder(to_plot[[.x]], to_plot[[mod$metric]], FUN = optimum)
           p <-
             ggplot(to_plot, aes_string(x = .x, y = mod$metric,
-                                     color = "id", size = "best")) +
+                                     color = "id", shape = "best")) +
             geom_point() +
             coord_flip() +
             scale_y_continuous(limits = y_range) +
             scale_color_discrete(guide = FALSE) +
-            scale_size_manual(values = c("TRUE" = 3, "FALSE" = 1.5), guide = FALSE) +
+            scale_shape_manual(values = c("TRUE" = 17, "FALSE" = 16), guide = FALSE) +
             xlab(NULL) +
             labs(title = .x)
           p <-
@@ -164,15 +192,19 @@ extract_model_info <- function(x) {
   best_model_perf <- best_metrics[[best_model]]
   best_model_tune <-
     x[[best_model]]$bestTune
+  positive_class <- attr(x, "positive_class")
   list(
     m_class = m_class,
     algs = algs,
     target = target,
+    positive_class = positive_class,
     metric = metric,
     best_model_name = best_model_name,
     best_model_perf = best_model_perf,
     best_model_tune = best_model_tune,
-    ddim = ddim
+    ddim = ddim,
+    tuned = attr(x, "tuned"),
+    timestamp = attr(x, "timestamp")
   )
 }
 
@@ -186,6 +218,11 @@ format_tune <- function(best_tune) {
   best_tune %>%
     purrr::map_chr(as.character) %>%
     paste(names(.), ., sep = " = ", collapse = "\n  ")
+}
+
+format_performance <- function(perf) {
+  round(perf, 2) %>%
+    paste(names(.), ., sep = " = ", collapse = ", ")
 }
 
 #' Class check
@@ -203,19 +240,3 @@ is.classification_list <- function(x) "classification_list" %in% class(x)
 #' @return logical
 #' @export
 is.regression_list <- function(x) "regression_list" %in% class(x)
-
-#' Modify model object if PR. Otherwise, return as is.
-#' @param m model_list
-#' @return model_list
-#' @noRd
-change_pr_metric <- function(m) {
-  # PR was used
-  if (m[[1]]$metric == "AUC") {
-    m <- purrr::map(m, function(x) {
-      x$metric <- "PR"
-      names(x$results)[names(x$results) == "AUC"] <- "PR"
-      return(x)
-    })
-  }
-  return(m)
-}

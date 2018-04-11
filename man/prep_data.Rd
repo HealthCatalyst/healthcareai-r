@@ -62,10 +62,12 @@ standard deviation of 1. Default is FALSE.}
 \item{make_dummies}{Logical. If TRUE (default), dummy columns will be created
 for categorical variables.}
 
-\item{add_levels}{Logical. If TRUE (defaults), "other" and "hcai_missing"
+\item{add_levels}{Logical. If TRUE (defaults), "other" and "missing"
 will be added to all nominal columns. This is protective in deployment: new
 levels found in deployment will become "other" and missingness in
-deployment can become "hcai_missing".}
+deployment can become "missing" if the nominal imputation method is
+"new_category". If FALSE, these levels may be added to some columns
+depending on details of imputation and collapse_rare_factors.}
 
 \item{factor_outcome}{Logical. If TRUE (default) and if all entries in
 outcome are 0 or 1 they will be converted to factor with levels N and Y for
@@ -107,7 +109,7 @@ d_test_prepped <- prep_data(d_test, recipe = d_train_prepped)
 d_test_prepped
 
 # Customize preparations:
-prep_data(d = d_train, patient_id, diabetes,
+prep_data(d = d_train, patient_id, outcome = diabetes,
           impute = list(numeric_method = "bagimpute",
                         nominal_method = "bagimpute"),
           collapse_rare_factors = FALSE, convert_dates = "year",

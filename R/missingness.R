@@ -1,4 +1,4 @@
-#' Percent of entries in each column that are missing
+#' Find missingness in each column and search for strings that might represent missing values
 #'
 #' @description Finds the percent of NAs in a vector or in each column of a dataframe or
 #' matrix or in a vector. Possible mis-coded missing values are searched for and a warning issued if they are found.
@@ -63,7 +63,7 @@ missingness <- function(d,
 #' @param x A data frame or matrix
 #' @param userNAs A vector of user defined NA values.
 #' @export
-countMissingData <- function(x, userNAs = NULL) {  # nolint
+countMissingData <- function(x, userNAs = NULL) {
 
   .Deprecated("missingness", "healthcareai")
   missingness(x)

@@ -1,4 +1,4 @@
-#' @title Impute data and return a reusable recipe.
+#' @title Impute data and return a reusable recipe
 #'
 #' @description \code{impute} will impute your data using a variety of methods
 #' for both nominal and numeric data. Currently supports mean (numeric only),
@@ -38,9 +38,7 @@
 #' @importFrom purrr map_chr
 #'
 #' @examples
-#' library(recipes)
 #' d <- pima_diabetes
-#'
 #' d_train <- d[1:700, ]
 #' d_test <- d[701:768, ]
 #' # Train imputer

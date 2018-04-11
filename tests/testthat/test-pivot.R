@@ -40,7 +40,7 @@ test_that("pivot fills in NAs where no instances present, and only there", {
 test_that("pivot returns expected data frame summing column", {
   expect_equal(
     tibble::tibble(
-      person = c("Jack", "Jane"),
+      person = factor(c("Jack", "Jane")),
       day_1 = c(9L, 27L),
       day_2 = c(12L, 30L)
     ),
@@ -51,7 +51,7 @@ test_that("pivot returns expected data frame summing column", {
 test_that("pivot returns expected data frame with no fill column", {
   expect_equal(
     tibble::tibble(
-      person = c("Jack", "Jane"),
+      person = factor(c("Jack", "Jane")),
       day_1 = c(3L, 3L),
       day_2 = c(3L, 3L)
     ),
@@ -62,7 +62,7 @@ test_that("pivot returns expected data frame with no fill column", {
 test_that("pivot returns expected data frame with custom function", {
   expect_equal(
     tibble::tibble(
-      person = c("Jack", "Jane"),
+      person = factor(c("Jack", "Jane")),
       day_1 = c(6L, 4L),
       day_2 = c(6L, 4L)
     ),
@@ -90,14 +90,6 @@ test_that("do_aggregate produces messages appropriately", {
                  default_fun = FALSE),
     regexp = NA
   )
-  expect_message(
-    do_aggregate(d = dd[1:2, ],
-                 grain = rlang::quo(person),
-                 spread = rlang::quo(day),
-                 fill = rlang::quo(count),
-                 fun = sum,
-                 default_fun = FALSE),
-    regexp = "You provided")
 })
 
 test_that("do_aggregate produces informative error if aggregation failed", {
@@ -177,13 +169,13 @@ to_pivot <-
   )
 num_pivot <-
   tibble::tibble(
-    rows = c("a", "b"),
+    rows = factor(c("a", "b")),
     cols_1 = c(1L, 3L),
     cols_2 = c(2L, NA)
   )
 char_pivot <-
   tibble::tibble(
-    rows = c("a", "b"),
+    rows = factor(c("a", "b")),
     cols_1 = c("one", "three"),
     cols_2 = c(NA_character_, NA_character_)
   )
@@ -217,4 +209,11 @@ test_that("pivot_maker respects missing_fill", {
                 missing_fill = 0L),
     num_pivot
   )
+})
+
+test_that("pivot works with numeric grain column", {
+  d <- data.frame(id = rep(1:3, 2),
+                  to_col = rep(letters[1:2], each = 3),
+                  vals = rnorm(6))
+  expect_setequal(pivot(d, id, to_col, vals)$id, factor(d$id))
 })

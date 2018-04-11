@@ -1,8 +1,8 @@
 #' @title
 #' Clean NA values from categorical/nominal variables
 #'
-#' @description \code{step_hcai_missing} creates a specification of a recipe that
-#'  will replace NA values with a new factor level, \code{hcai_missing}.
+#' @description \code{step_missing} creates a specification of a recipe that
+#'  will replace NA values with a new factor level, \code{missing}.
 #' @param recipe A recipe object. The step will be added to the sequence of
 #'  operations for this recipe.
 #' @param ... One or more selector functions to choose which variables are
@@ -12,6 +12,8 @@
 #'  counted in preprocessing.
 #' @param na_percentage A named numeric vector of NA percentages. This
 #'  is \code{NULL} until computed by \code{prep.recipe()}.
+#' @param skip A logical. Should the step be skipped when the
+#'  recipe is baked?
 #' @return An updated version of \code{recipe} with the new step
 #'  added to the sequence of existing steps (if any). For the
 #'  \code{tidy} method, a tibble with columns \code{terms} (the
@@ -25,16 +27,14 @@
 #' \code{prep.recipe}. \code{bake.recipe} then fills in the missing values for
 #' the new data.
 #' @examples
-#' library(healthcareai)
-#' library(tibble)
 #' library(recipes)
 #' n = 100
-#' d <- tibble(encounter_id = 1:n,
-#'             patient_id = sample(1:20, size = n, replace = TRUE),
-#'             hemoglobin_count = rnorm(n, mean = 15, sd = 1),
-#'             hemoglobin_category = sample(c("Low", "Normal", "High", NA),
-#'                                          size = n, replace = TRUE),
-#'             disease = ifelse(hemoglobin_count < 15, "Yes", "No")
+#' d <- tibble::tibble(encounter_id = 1:n,
+#'                     patient_id = sample(1:20, size = n, replace = TRUE),
+#'                     hemoglobin_count = rnorm(n, mean = 15, sd = 1),
+#'                     hemoglobin_category = sample(c("Low", "Normal", "High", NA),
+#'                                                  size = n, replace = TRUE),
+#'                     disease = ifelse(hemoglobin_count < 15, "Yes", "No")
 #' )
 #'
 #' # Initialize
@@ -42,7 +42,7 @@
 #'
 #' # Create recipe
 #' my_recipe <- my_recipe %>%
-#'   step_hcai_missing(all_nominal())
+#'   step_missing(all_nominal())
 #' my_recipe
 #'
 #' # Train recipe
@@ -50,42 +50,45 @@
 #'
 #' # Apply recipe
 #' data_modified <- bake(trained_recipe, newdata = d)
-#'
-step_hcai_missing <- function(recipe,
+step_missing <- function(recipe,
                               ...,
                               role = NA,
                               trained = FALSE,
-                              na_percentage = NULL) {
+                              na_percentage = NULL,
+                              skip = FALSE) {
   terms <- quos(...)
   if (length(terms) == 0)
     stop("Please supply at least one variable specification. See ?selections.")
   add_step(
     recipe,
-    step_hcai_missing_new(
+    step_missing_new(
       terms = terms,
       role = role,
       trained = trained,
-      na_percentage = na_percentage
+      na_percentage = na_percentage,
+      skip = skip
     )
   )
 }
 
 # Initialze a new object
-step_hcai_missing_new <- function(terms = NULL,
+step_missing_new <- function(terms = NULL,
                                   role = NA,
                                   trained = FALSE,
-                                  na_percentage = NULL) {
+                                  na_percentage = NULL,
+                                  skip = FALSE) {
   step(
-    subclass = "hcai_missing",
+    subclass = "missing",
     terms = terms,
     role = role,
     trained = trained,
-    na_percentage = na_percentage
+    na_percentage = na_percentage,
+    skip = skip
   )
 }
 
 #' @export
-prep.step_hcai_missing <- function(x, training, info = NULL, ...) {
+prep.step_missing <- function(x, training, info = NULL, ...) {
   col_names <- recipes::terms_select(terms = x$terms, info = info)
   na_percentage <- sapply(training[, col_names], function(x) {
     100 * sum(is.na(x)) / length(x)
@@ -98,22 +101,23 @@ prep.step_hcai_missing <- function(x, training, info = NULL, ...) {
       paste0(names(na_percentage[na_percentage > 50]), ": ",
             round(na_percentage[na_percentage > 50], 0), "%", collapse = "\n")
     warning("The following categorical columns have greater than 50% missing ",
-            "values and will be filled with the category 'hcai_missing':\n",
+            "values and will be filled with the category 'missing':\n",
             warn_deets)
   }
 
-  step_hcai_missing_new(
+  step_missing_new(
     terms = x$terms,
     role = x$role,
     trained = TRUE,
-    na_percentage = na_percentage
+    na_percentage = na_percentage,
+    skip = x$skip
   )
 }
 
 #' @importFrom tidyr replace_na
 #' @importFrom stats setNames
 #' @export
-bake.step_hcai_missing <- function(object, newdata, ...) {
+bake.step_missing <- function(object, newdata, ...) {
 
   # If no columns to be imputed, return the input data
   if (is.null(object$na_percentage))
@@ -122,13 +126,13 @@ bake.step_hcai_missing <- function(object, newdata, ...) {
   vars <- names(object$na_percentage)
   # Add new level to all factors
   newdata[vars] <- lapply(newdata[vars], function(x){
-    levels(x) <- c(levels(x), "hcai_missing")
+    levels(x) <- c(levels(x), "missing")
     x
   })
 
   # Replace NAs
   replacement_list <-
-    rep("hcai_missing", length(vars)) %>%
+    rep("missing", length(vars)) %>%
     as.list %>%
     setNames(vars)
   newdata %>%
@@ -136,9 +140,9 @@ bake.step_hcai_missing <- function(object, newdata, ...) {
 }
 
 #' @export
-print.step_hcai_missing <-
+print.step_missing <-
   function(x, width = max(20, options()$width - 30), ...) {
-    cat("Filling NA with hcai_missing for ", sep = "")
+    cat("Filling NA with missing for ", sep = "")
     printer(names(x$na_percentage), x$terms, x$trained, width = width)
     invisible(x)
   }
@@ -146,7 +150,7 @@ print.step_hcai_missing <-
 #' @importFrom tibble tibble
 #' @importFrom broom tidy
 #' @export
-tidy.step_hcai_missing <- function(x, ...) {
+tidy.step_missing <- function(x, ...) {
   if (x$trained == TRUE) {
     res <- tibble(terms = names(x$na_percentage),
                   value = round(x$na_percentage, 2))

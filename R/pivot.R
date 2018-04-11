@@ -1,4 +1,4 @@
-#' Pivot from a long data frame to a wide data frame
+#' Pivot multiple rows per observation to one row with multiple columns
 #'
 #' @param d data frame
 #' @param grain Column that defines rows. Unquoted.
@@ -59,7 +59,7 @@
 #'     patient_id = rep(c("A", "B"), each = 4),
 #'     dept_id = rep(c("ED", "ICU"), times = 4),
 #'     charge = runif(8, 0, 1e4),
-#'     date = Sys.Date() - sample(0:2, 8, TRUE)
+#'     date = as.Date("2024-12-25") - sample(0:2, 8, TRUE)
 #'   )
 #' bills
 #'
@@ -127,45 +127,33 @@ pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
 }
 
 do_aggregate <- function(d, grain, spread, fill, fun, default_fun) {
-  # Check if there are any grain-spread pairs that have more than one entry...
-  need_aggregate <- any(duplicated(dplyr::select(d, !!grain, !!spread)))
 
-  # Aggregation not needed. Return d, with a message if fun was provided
-  if (!need_aggregate) {
-    if (!default_fun) {
-      message("You provided a function to 'fun', but there aren't any rows
-              that need to be aggregated, so it will be ignored.")
-    }
-    return(d)
-  }
+  start_rows <- nrow(d)
+  # Define "safe" version of aggregate_rows for error handling
+  ar <- purrr::safely(aggregate_rows)
+  d <- ar(d, grain, spread, fill, fun)
 
-  # Aggregation is needed
-    # If the user didn't provide fun, warn that we'll use sum
-    if (default_fun) {
+  # If aggregate_rows didn't error, return result
+  if (is.null(d$error)) {
+    # If the user didn't provide fun, and aggregation happened warn that we'll use sum
+    if (default_fun && nrow(d$result) < start_rows) {
       message("There are rows that contain the same values of both ",
               rlang::get_expr(grain), " and ", rlang::get_expr(spread),
               " but you didn't provide a function to 'fun' for their ",
               "aggregation. Proceeding with the default: fun = sum.")
     }
-
-  # Define "safe" version of aggregate_rows for error handling
-    ar <- purrr::safely(aggregate_rows)
-    d <- ar(d, grain, spread, fill, fun)
-    # If aggregate_rows didn't error, return result
-    if (is.null(d$error)) {
-      return(d$result)
-      # Otherwise print informative message if aggregation failed
+    return(d$result)
+    # Otherwise print informative message if aggregation failed
+  } else {
+    err <- d$error[[1]]
+    if (grepl("must be length 1", err)) {
+      stop("Aggregation with 'fun' produced more than one value for some",
+           " grain-by-spread combinations. Make sure fun is an aggregating",
+           " function.")
     } else {
-      err <- d$error[[1]]
-      if (grepl("must be length 1", err)) {
-        stop("Aggregation with 'fun' produced more than one value for some",
-             " grain-by-spread combinations. Make sure fun is an aggregating",
-             " function.")
-      } else {
-        stop(err)
-      }
-
+      stop(err)
     }
+  }
 }
 
 #' Aggregate rows
@@ -182,44 +170,19 @@ aggregate_rows <- function(d, grain, spread, fill, fun) {
 
 #' Make pivoted table
 #' @details All variables come through from pivot
+#' @importFrom data.table dcast.data.table
+#' @importFrom data.table as.data.table
 #' @return Pivoted tibble. One row for each grain; one column for each spread
 #' @noRd
 pivot_maker <- function(d, grain, spread, fill, missing_fill) {
-  # Create a data frame of missing_fill, to be replaced where appropriate.
-  # Critically, columns are arranged by the integer representation of spread,
-  # which allows us to index the entries by those integers.
-
-  # Pull factor levels to use as row deliniators and column names
-  to_rows <- levels(dplyr::pull(d, !!grain))
-  to_cols <- levels(dplyr::pull(d, !!spread))
-
-  pivoted <-
-    matrix(missing_fill,
-           nrow = length(to_rows), ncol = length(to_cols),
-           dimnames = list(NULL, to_cols)) %>%
-    tibble::as_tibble() %>%
-    dplyr::mutate(!!rlang::quo_name(grain) := to_rows)
-
-  pivoted <-
-    # Loop over each entry in grain
-    purrr::map_df(to_rows,  ~ {
-      # Pull the relevant row of interest
-      keep <- dplyr::filter(pivoted, (!!grain) == .x)
-      # Inside-out:
-      # i IDs rows in original dataframe that we want in this row of output
-      # Subsetting d$spread by those rows gives us factor levels to fill in.
-      # Converting them to integers gives the indices to fill in.
-      i <- which(dplyr::pull(d, !!grain) == .x)
-      keep[as.integer(dplyr::pull(d, !!spread)[i])] <- dplyr::pull(d, !!fill)[i]
-      return(keep)
-    })
-
-  # Arrange and rename columns
-  ## Put the grain column first
-  pivoted <- pivoted[, c(ncol(pivoted), 1:(ncol(pivoted) - 1))]
+  d <- data.table::as.data.table(d)
+  f <- stats::formula(paste(rlang::quo_name(grain), "~", rlang::quo_name(spread)))
+  d <- data.table::dcast.data.table(data = d,
+                                    formula = f,
+                                    fill = missing_fill,
+                                    value.var = rlang::quo_name(fill))
+  d <- as.tbl(d)
   ## Add spread as prefix to nonID columns
-  names(pivoted)[2:ncol(pivoted)] <-
-    paste0(rlang::quo_name(spread), "_", names(pivoted)[2:ncol(pivoted)])
-
-  return(pivoted)
+  names(d)[2:ncol(d)] <- paste0(rlang::quo_name(spread), "_", names(d)[2:ncol(d)])
+  return(d)
 }

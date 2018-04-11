@@ -1,0 +1,9 @@
+pandoc: 2.1.1
+pkgdown: 0.1.0.9000
+pkgdown_sha: 9fcc3acd70db8ea9ccb2d55efe7cd573eecbbb4b
+articles:
+  fake_vignette: site_only/fake_vignette.html
+urls:
+  reference: https://docs.healthcare.ai/reference
+  article: https://docs.healthcare.ai/articles
+

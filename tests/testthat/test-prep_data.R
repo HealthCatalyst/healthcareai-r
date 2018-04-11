@@ -68,9 +68,9 @@ d_train$genre[3] <- d_test$genre[3] <- NA
 
 d_prep <- prep_data(d = d_train, outcome = is_ween, song_id)
 d_reprep <- prep_data(d_test, outcome = is_ween, song_id,
-                          recipe = attr(d_prep, "recipe"))
+                      recipe = attr(d_prep, "recipe"))
 d_reprep2 <- prep_data(d_test, outcome = is_ween, song_id,
-                           recipe = d_prep)
+                       recipe = d_prep)
 
 # Tests ------------------------------------------------------------------------
 test_that("Bad data throws an error", {
@@ -99,7 +99,7 @@ test_that("prep_data works with just param d", {
                mean(d_train$weirdness, na.rm = TRUE))
   expect_true(all.equal(droplevels(d_clean$genre[!is.na(d_train$genre)]),
                         d_train$genre[!is.na(d_train$genre)]))
-  expect_true(all(d_clean$genre[is.na(d_train$genre)] == "hcai_missing"))
+  expect_true(all(d_clean$genre[is.na(d_train$genre)] == "missing"))
 })
 
 test_that("prep_data works with defaults and no ignore columns", {
@@ -108,7 +108,7 @@ test_that("prep_data works with defaults and no ignore columns", {
                mean(d_train$weirdness, na.rm = TRUE))
   expect_true(all.equal(droplevels(d_clean$genre[!is.na(d_train$genre)]),
                         d_train$genre[!is.na(d_train$genre)]))
-  expect_true(all(d_clean$genre[is.na(d_train$genre)] == "hcai_missing"))
+  expect_true(all(d_clean$genre[is.na(d_train$genre)] == "missing"))
 })
 
 test_that("prep_data works with defaults and one ignore column", {
@@ -118,7 +118,7 @@ test_that("prep_data works with defaults and one ignore column", {
                mean(d_train$weirdness, na.rm = TRUE))
   expect_true(all.equal(droplevels(d_clean$genre[!is.na(d_train$genre)]),
                         d_train$genre[!is.na(d_train$genre)]))
-  expect_true(all(d_clean$genre[is.na(d_train$genre)] == "hcai_missing"))
+  expect_true(all(d_clean$genre[is.na(d_train$genre)] == "missing"))
 })
 
 test_that("prep_data works with defaults and two ignore columns", {
@@ -128,7 +128,7 @@ test_that("prep_data works with defaults and two ignore columns", {
                mean(d_train$weirdness, na.rm = TRUE))
   expect_true(all.equal(droplevels(d_clean$genre[!is.na(d_train$genre)]),
                         d_train$genre[!is.na(d_train$genre)]))
-  expect_true(all(d_clean$genre[is.na(d_train$genre)] == "hcai_missing"))
+  expect_true(all(d_clean$genre[is.na(d_train$genre)] == "missing"))
 })
 
 test_that("0/1 outcome is converted to N/Y", {
@@ -182,7 +182,7 @@ test_that("prep_data works when certain column types are missing", {
                mean(d2$weirdness, na.rm = TRUE))
   expect_true(all.equal(droplevels(d_clean$genre[!is.na(d2$genre)]),
                         d2$genre[!is.na(d2$genre)]))
-  expect_true(all(d_clean$genre[is.na(d2$genre)] == "hcai_missing"))
+  expect_true(all(d_clean$genre[is.na(d2$genre)] == "missing"))
 })
 
 test_that("impute gives warning when column has 50% or more NA", {
@@ -200,7 +200,7 @@ test_that("impute works with params", {
                        make_dummies = FALSE)
   expect_true(is.numeric(d_clean$weirdness))
   expect_false(any(is.na(d_clean$weirdness)))
-  expect_true("hcai_missing" %in% levels(d_clean$genre))
+  expect_true("missing" %in% levels(d_clean$genre))
 })
 
 test_that("impute works with partial/extra params", {
@@ -224,7 +224,7 @@ test_that("rare factors go to other by default", {
                length(exp) - 1)
   d_clean <- prep_data(d = d_train, outcome = is_ween, song_id, make_dummies = FALSE)
   expect_true(all(exp %in% levels(d_clean$state)))
-  exp <- c("Dislike", "Huh", "Love", "Mixed", "hcai_missing")
+  exp <- c("Dislike", "Huh", "Love", "Mixed", "missing")
   expect_true(all(exp %in% levels(d_clean$reaction)))
 })
 
@@ -232,7 +232,7 @@ test_that("rare factors unchanged when FALSE", {
   d_clean <- prep_data(d = d_train, outcome = is_ween, song_id,
                        collapse_rare_factors = FALSE, make_dummies = FALSE,
                        add_levels = FALSE)
-  exp <- c("CA", "CT", "MA", "NH", "NY", "VT", "hcai_missing")
+  exp <- c("CA", "CT", "MA", "NH", "NY", "VT", "missing")
   expect_equal(levels(d_clean$state), exp)
 })
 
@@ -263,11 +263,11 @@ test_that("dummy columns are created as expected", {
   d_clean <- prep_data(d = d_train, outcome = is_ween, song_id,
                        convert_dates = FALSE, make_dummies = TRUE,
                        add_levels = FALSE)
-  exp <- c("genre_Jazz", "genre_Rock", "genre_hcai_missing")
+  exp <- c("genre_Jazz", "genre_Rock", "genre_missing")
   n <- names(dplyr::select(d_clean, dplyr::starts_with("genre")))
   expect_true(all(exp %in% n))
   exp <- c("reaction_Huh", "reaction_Love", "reaction_Mixed",
-           "reaction_hcai_missing" )
+           "reaction_missing" )
   n <- names(dplyr::select(d_clean, dplyr::starts_with("reaction")))
   expect_true(all(n == exp))
 })
@@ -282,6 +282,10 @@ test_that("recipe attr is a recipe class object", {
   dd <- prep_data(d_train)
   expect_true("recipe" %in% names(attributes(dd)))
   expect_s3_class(attr(dd, "recipe"), "recipe")
+})
+
+test_that("only the first few rows of training data are stored in the recipe", {
+  expect_true(nrow(attr(d_prep, "recipe")$template) <= 10)
 })
 
 test_that("warning is given when ignored columns have missingness", {
@@ -313,13 +317,13 @@ test_that("prep_data applies recipe from training on test data", {
   expect_equal(d_reprep, d_reprep2)
   expect_equal(unique(d_reprep$weirdness[is.na(d_test$weirdness)]),
                mean(d_train$weirdness, na.rm = TRUE))
-  expect_true(all(d_reprep$genre_hcai_missing[is.na(d_test$genre)] == 1))
+  expect_true(all(d_reprep$genre_missing[is.na(d_test$genre)] == 1))
 })
 
 test_that("Unignored variables present in training but not deployment error", {
   expect_error(prep_data(dplyr::select(d_test, -length), recipe = d_prep))
   expect_s3_class(prep_data(dplyr::select(d_test, -song_id), recipe = d_prep),
-                  "hcai_prepped_df")
+                  "prepped_df")
 })
 
 test_that("New variables present in deployment get ignored with a warning", {
@@ -331,32 +335,34 @@ test_that("New variables present in deployment get ignored with a warning", {
 
 test_that("All numeric variables aren't a problem", {
   d <- data.frame(x = 1:5, y = 5:1, id_var = letters[1:5])
-  expect_s3_class(prep_data(d, id_var), "hcai_prepped_df")
-  expect_s3_class(prep_data(d, outcome = "id_var"), "hcai_prepped_df")
+  expect_s3_class(prep_data(d, id_var), "prepped_df")
+  expect_s3_class(prep_data(d, outcome = "id_var"), "prepped_df")
 })
 
 test_that("All nominal variables aren't a problem", {
   d <- data.frame(x = letters, y = rev(letters), id_var = 1:26)
-  expect_s3_class(prep_data(d, id_var), "hcai_prepped_df")
-  expect_s3_class(prep_data(d, outcome = id_var), "hcai_prepped_df")
+  expect_s3_class(prep_data(d, id_var), "prepped_df")
+  expect_s3_class(prep_data(d, outcome = id_var), "prepped_df")
 })
 
 test_that("remove_near_zero_variance is respected, works, and warns", {
-  d_train <- mutate(d_train,
-                    a_nzv_col = c("rare", rep("common", nrow(d_train) - 1)))
+  d_train <- dplyr::mutate(d_train,
+                           a_nzv_col = c("rare", rep("common", nrow(d_train) - 1)))
   expect_warning(def <- prep_data(d_train), regexp = "a_nzv_col")
   expect_false("a_nzv_col" %in% names(def))
   # nzv_col should be removed in deployement even if it has variance
-  d_test <- mutate(d_test,
-                   a_nzv_col = sample(letters, nrow(d_test), replace = TRUE))
+  d_test <- dplyr::mutate(d_test,
+                          a_nzv_col = sample(letters, nrow(d_test), replace = TRUE))
   expect_warning(pd <- prep_data(d_test, recipe = def), regexp = "a_nzv_col")
   expect_false("a_nzv_col" %in% names(def))
   stay <- prep_data(d_train, remove_near_zero_variance = FALSE, make_dummies = FALSE)
   expect_true("a_nzv_col" %in% names(stay))
+  expect_error(prep_data(dplyr::select(d_train, a_nzv_col, is_ween), outcome = is_ween),
+                 "working on a fix")
 })
 
 test_that("collapse_rare_factors works", {
-  d_train <- mutate(d_train, imbal = c(letters, rep("common", nrow(d_train) - 26)))
+  d_train <- dplyr::mutate(d_train, imbal = c(letters, rep("common", nrow(d_train) - 26)))
   pd <- prep_data(d_train,
                   collapse_rare_factors = FALSE,
                   make_dummies = FALSE)
@@ -367,8 +373,8 @@ test_that("collapse_rare_factors works", {
 
 test_that("collapse_rare_factors respects threshold", {
   # 1% < a < 2%
-  d_train <- mutate(d_train, imbal = c(rep("a", 4),
-                                       rep("common", nrow(d_train) - 4)))
+  d_train <- dplyr::mutate(d_train, imbal = c(rep("a", 4),
+                                              rep("common", nrow(d_train) - 4)))
   def <- prep_data(d_train, remove_near_zero_variance = FALSE,
                    make_dummies = FALSE)
   below_thresh <- prep_data(d_train, remove_near_zero_variance = FALSE,
@@ -376,7 +382,7 @@ test_that("collapse_rare_factors respects threshold", {
   above_thresh <- prep_data(d_train, remove_near_zero_variance = FALSE,
                             make_dummies = FALSE, collapse_rare_factors = .01)
   never <- prep_data(d_train, remove_near_zero_variance = FALSE,
-                   make_dummies = FALSE, collapse_rare_factors = FALSE)
+                     make_dummies = FALSE, collapse_rare_factors = FALSE)
   expect_false("a" %in% def$imbal)
   expect_false("a" %in% below_thresh$imbal)
   expect_true("a" %in% above_thresh$imbal)
@@ -387,33 +393,39 @@ test_that("collapse_rare_factors respects threshold", {
   expect_false("other" %in% never$imbal)
 })
 
-test_that("hcai_missing and other are added to all nominal columns", {
+test_that("missing and other are added to all nominal columns", {
   d <- data.frame(has_missing = c(rep(NA, 10), rep("b", 20)),
                   has_rare = c("rare", rep("common", 29)),
                   has_both = c("rare", NA, rep("common", 28)),
                   has_neither = c(rep("cat1", 15), rep("cat2", 15)))
   pd <- prep_data(d, make_dummies = FALSE, remove_near_zero_variance = FALSE,
                   collapse_rare_factors = .05)
-  expect_true(all(purrr::map_lgl(pd, ~ all(c("other", "hcai_missing") %in% levels(.x)))))
+  expect_true(all(purrr::map_lgl(pd, ~ all(c("other", "missing") %in% levels(.x)))))
 
   scrambled <- data.frame(has_missing = c(rep("cat1", 15), rep("cat2", 15)),
                           has_rare = c(rep(NA, 10), rep("b", 20)),
                           has_both = c("rare", rep("common", 29)),
                           has_neither = c("rare", NA, rep("common", 28)))
-  scrambled_prep <- prep_data(scrambled, recipe = attr(pd, "recipe"))
-  expect_true(all(purrr::map_lgl(scrambled_prep, ~ all(c("other", "hcai_missing") %in% levels(.x)))))
+  suppressWarnings(scrambled_prep <- prep_data(scrambled, recipe = attr(pd, "recipe")))
+  expect_true(all(purrr::map_lgl(scrambled_prep, ~ all(c("other", "missing") %in% levels(.x)))))
 })
 
 test_that("add_levels doesn't add levels to outcome", {
   d <- data.frame(x = c("A", "B"), y = 1:2)
   pd <- prep_data(d, outcome = x, make_dummies = FALSE, add_levels = FALSE)
-  expect_false(any(c("other", "hcai_missing") %in% levels(pd$x)))
+  expect_false(any(c("other", "missing") %in% levels(pd$x)))
+})
+
+test_that("prep_data respects add_levels = FALSE", {
+  d <- data.frame(x = c("A", "B"), y = 1:2)
+  pd <- prep_data(d, add_levels = FALSE, make_dummies = FALSE, impute = FALSE)
+  expect_false(any(c("other", "missing") %in% levels(pd$x)))
 })
 
 test_that("If outcome to prep_data is or looks like logical, get informative error", {
-  d_train <- d_train %>% mutate(is_ween = is_ween == "Y")
+  d_train <- d_train %>% dplyr::mutate(is_ween = is_ween == "Y")
   expect_error(prep_data(d_train, outcome = is_ween), "logical")
-  d_train <- d_train %>% mutate(is_ween = as.character(is_ween == "Y"))
+  d_train <- d_train %>% dplyr::mutate(is_ween = as.character(is_ween == "Y"))
   expect_error(prep_data(d_train, outcome = is_ween), "logical")
 })
 
@@ -428,16 +440,58 @@ test_that("If recipe provided but no outcome column, NA-outcome column isn't cre
   ))
 })
 
+test_that("prep_data doesn't remove outcome variable specified in recipe", {
+  d <- data.frame(x = 1:5, y = 6:10)
+  pd <- prep_data(d, outcome = y)
+  expect_true("y" %in% names(prep_data(data.frame(x = 1, y = 2), recipe = pd)))
+})
+
 test_that("predict regression with prep doesn't choke without outcome", {
   prep_data(pima_diabetes[1:50, ], outcome = age) %>%
     tune_models(age, models = "rf") %>%
     predict(dplyr::select(pima_diabetes[51:55, ], -age)) %>%
-    expect_s3_class("hcai_predicted_df")
+    expect_s3_class("predicted_df")
 })
 
 test_that("predict classification with prep doesn't choke without outcome", {
   prep_data(pima_diabetes[1:50, ], outcome = diabetes) %>%
     tune_models(diabetes, models = "rf") %>%
     predict(dplyr::select(pima_diabetes[51:55, ], -diabetes)) %>%
-    expect_s3_class("hcai_predicted_df")
+    expect_s3_class("predicted_df")
+})
+
+test_that("prep_data attaches missingness to recipe as attribute", {
+  expect_true("missingness" %in% names(attributes(attr(d_prep, "recipe"))))
+  expect_equal(attr(attr(d_prep, "recipe"), "missingness"),
+               missingness(d_train, return_df = FALSE))
+})
+
+test_that("prep_data warns when there's missingness in a column that didn't have missingness in training", {
+  d_test$guitar_flag[1] <- NA
+  expect_warning(prep_data(d_test, recipe = d_prep), "guitar_flag")
+})
+
+test_that("prep_data doesn't warn for new missingness in ID or outcome columns", {
+  d_test$is_ween[1:5] <- NA
+  d_test$song_id[1:5] <- NA
+  expect_warning(prep_data(d_test, recipe = d_prep), NA)
+})
+
+test_that("prep_data attaches factor levels to recipe as attribute", {
+  rec <- attr(d_prep, "recipe")
+  expect_true("factor_levels" %in% names(attributes(rec)))
+  expect_setequal(names(attr(rec, "factor_levels")), c("genre", "reaction", "state", "is_ween"))
+})
+
+test_that("prep_data tells you if you forgot to name your outcome argument", {
+  expect_message(prep_data(d_train, song_id, is_ween), "outcome")
+})
+
+test_that("prep_data warns iff factor contrast options are dummy", {
+  oc <- options("contrasts")
+  on.exit(options(contrasts = oc[[1]]))
+  options(contrasts = c("contr.dummy", "contr.poly"))
+  expect_warning(prep_data(d_train, song_id, outcome = is_ween), "contrasts")
+  options(contrasts = c("contr.treatment", "contr.poly"))
+  expect_warning(prep_data(d_train, song_id, outcome = is_ween), NA)
 })

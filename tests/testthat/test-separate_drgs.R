@@ -40,3 +40,13 @@ test_that("every base_msdrg is in the original drg", {
 test_that("the input vector is returned unchanged", {
   expect_true(all.equal(out$msdrg, MSDRGs))
 })
+
+with_age <- c("OTHER KIDNEY & URINARY TRACT DIAGNOSES AGE 0-17",
+              "OTHER DIGESTIVE SYSTEM DIAGNOSES AGE >17",
+              "CRANIOTOMY & ENDOVASCULAR INTRACRANIAL PROCEDURES AGE >17")
+
+test_that("separate_drgs can remove ages", {
+  out <- separate_drgs(with_age, remove_age = TRUE)
+  expect_false(any(grepl("age", out$base_msdrg, ignore.case = TRUE)))
+  expect_equal("OTHER KIDNEY & URINARY TRACT DIAGNOSES", out$base_msdrg[1])
+})

@@ -1,263 +1,164 @@
 #' @title
+#' Build a connection string for use with MSSQL and dbConnect
+#' @description Handy utility to build a connection string to pass into
+#' \code{DBI::dbConnect}. Accepts trusted connections or username/password.
+#' @param server A string, quoted, required. The name of the server you are
+#' trying to connect to.
+#' @param driver A string, quoted, optional. Defaults to "SQL Server", but use
+#' any driver you like.
+#' @param database A string, quoted, optional. If provided, connection string
+#' will include a specific database. If NA (default), it will connect to master
+#' and you'll have to specify the database when running a query.
+#' @param trusted Logical, optional, defaults to TRUE. If FALSE, you must use a
+#' user_id and password.
+#' @param user_id A string, quoted, optional. Don't include if using trusted.
+#' @param password A string, quoted, optional. Don't include if using trusted.
+#' @return A connection string
+#' @seealso \code{\link{db_read}}
+#' @export
+#' @examples
+#' \dontrun{
+#' my_con <- build_connection_string(server = "localhost")
+#' con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con)
+#'
+#' # with username and password
+#' my_con <- build_connection_string(server = "localhost",
+#'                                   user_id = "jules.winnfield",
+#'                                   password = "pathoftherighteous")
+#' con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con)
+#' }
+build_connection_string <- function(server,
+                                    driver = "SQL Server",
+                                    database,
+                                    trusted=TRUE,
+                                    user_id,
+                                    password) {
+  # Error checks
+  if (!is.character(server))
+    stop("You must provide a quoted server name")
+
+  if (missing(database))
+    database <- NA
+
+  # Change trusted to false if user/pass are provided
+  if (!missing(user_id) & !missing(password))
+    trusted <- FALSE
+
+  # Build connection string
+  con_str <- paste0("driver={", driver, "};",
+                    "server={", server, "};")
+
+  if (is.character(database)) {
+    con_str <- paste0(con_str,
+                      "database=", database, ";")
+  }
+
+  if (rlang::is_true(trusted)) {
+    con_str <- paste0(con_str,
+                      "trusted_connection=true;")
+  } else if (!missing(user_id) & !missing(password)) {
+    con_str <- paste0(con_str,
+                      "uid=", user_id, ";",
+                      "pwd=", password, ";")
+  } else {
+    stop("You must use trusted=TRUE or provide a user_id and password.")
+  }
+  return(con_str)
+}
+
+#' @title
+#' Read from a SQL Server database table
+#' @description Use a database connection to read from an existing SQL Server
+#' table with a SQL query.
+#' @param con An odbc database connection. Can be made using
+#' \code{build_connection_string}. Required.
+#' @param query A string, quoted, required. This sql query will be executed
+#' against the database you are connected to.
+#' @param pull_into_memory Logical, optional, defaults to TRUE. If FALSE,
+#' \code{db_read} will create a reference to the queried data rather than
+#' pulling into memory. Set to FALSE for very large tables.
+#' @details Use \code{pull_into_memory} when working with large tables.
+#' Rather than returning the data into memory, this
+#' function will return a reference to the specified query. It will be executed
+#' only when needed, in a "lazy" style. Or, you can execute using the
+#' \code{collect()} function.
+#' @return A tibble of data or reference to the table.
+#' @seealso \code{\link{build_connection_string}}
+#' @export
+#' @examples
+#' \dontrun{
+#' my_con <- build_connection_string(server = "HPHI-EDWDEV")
+#' con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con)
+#' d <- db_read(con,
+#'              "SELECT TOP 10 * FROM [Shared].[Cost].[FacilityAccountCost]")
+#'
+#' # Get a reference and collect later
+#' ref <- db_read(con,
+#'                "SELECT TOP 10 * FROM [Shared].[Cost].[FacilityAccountCost]",
+#'                pull_into_memory = FALSE)
+#' d <- collect(ref)
+#' }
+#'
+db_read <- function(con,
+                    query,
+                    pull_into_memory = TRUE) {
+
+  if (class(con)[1] != "Microsoft SQL Server") {
+    stop("con needs to be a Microsoft SQL Server database connection.")
+  }
+  # Pull pointer to data using dplyr
+  d <- dplyr::tbl(con, dplyr::sql(query))
+
+  if (pull_into_memory) {
+    d <- d %>% collect()
+  }
+
+  return(d)
+}
+
+#' @title
 #' Add SAM utility columns to table
 #' @description When working in a Health Catalyst Source Area Mart (SAM),
 #' utility columns are added automatically when running a non-R binding
-#' @param df A dataframe
+#' @param d A dataframe
 #' @return A dataframe with three additional columns
+#' @import dplyr
 #' @export
-#' @references \url{http://healthcareai-r.readthedocs.io}
-#' @seealso \code{\link{healthcareai}}
 #' @examples
-#' df <- data.frame(a = c(1,2,NA,NA),
+#' d <- data.frame(a = c(1,2,NA,NA),
 #'                  b = c(100,300,200,150))
-#' head(df)
-#' df <- addSAMUtilityCols(df)
-#' head(df)
-addSAMUtilityCols <- function(df) {
-  df <- cbind(BindingID = 0,
-              BindingNM = 'R',
-              LastLoadDTS = Sys.time(),
-              df)
-  df
+#' d <- add_SAM_utility_cols(d)
+#'
+add_SAM_utility_cols <- function(d) {
+  d <- d %>%
+    mutate(BindingID = 0,
+           BindingNM = "R",
+           LastLoadDTS = Sys.time())
+  return(d)
 }
 
+
+
+
+# Old functions ------------------
+
 #' @title
-#' Pull data into R via an ODBC connection
-#' @description Select data from an ODBC database and return the results as
-#' a data frame.
-#' @param MSSQLConnectionString A string specifying the driver, server,
-#' database, and whether Windows Authentication will be used.
-#' @param query The SQL query (in ticks or quotes)
-#' @param SQLiteFileName A string. If dbtype is SQLite, here one specifies the
-#' database file to query from
-#' @param randomize Boolean that dictates whether returned rows are randomized
-#' @return df A data frame containing the selected rows
+#' Defunct. See \code{\link{db_read}}
+#' @description Removed in v2.0.0
+#' @param ... Garbage collector
 #' @export
-#' @references \url{http://healthcareai-r.readthedocs.io}
-#' @seealso \code{\link{healthcareai}}
-#' @seealso \code{\link{writeData}}
-#' @examples
 #'
-#' \dontrun{
-#' # This example is specific to SQL Server
-#'
-#' # To instead pull data from Oracle see here
-#' # https://cran.r-project.org/web/packages/ROracle/ROracle.pdf
-#' # To pull data from MySQL see here
-#' # https://cran.r-project.org/web/packages/RMySQL/RMySQL.pdf
-#' # To pull data from Postgres see here
-#' # https://cran.r-project.org/web/packages/RPostgreSQL/RPostgreSQL.pdf
-#'
-#' connectionString <- '
-#'   driver={SQL Server};
-#'   server=localhost;
-#'   database=SAM;
-#'   trustedConnection=true
-#'   '
-#'
-#' query <- '
-#'   SELECT
-#'     A1CNBR
-#'   FROM SAM.dbo.HCRDiabetesClinical
-#'   '
-#'
-#' df <- selectData(connectionString, query)
-#' head(df)
-#' }
-selectData <- function(MSSQLConnectionString = NULL,
-                       query,
-                       SQLiteFileName = NULL,
-                       randomize = FALSE) {
-
-  if ((is.null(MSSQLConnectionString)) && (is.null(SQLiteFileName))) {
-    stop('You must specify a either a MSSQLConnectionString for SQL Server or a SQLiteFileName for SQLite')
-  }
-
-  if (isTRUE(randomize)) {
-    orderPres <- grep("order", tolower(query))
-
-    if (length(orderPres == 0)) {
-      stop("You cannot randomize while using the SQL order keyword.")
-    }
-    query <- paste0(query, " ORDER BY NEWID()")
-  }
-
-
-  # Close connection however the function is returned from
-  on.exit(DBI::dbDisconnect(con))
-
-  # TODO: if debug: time this operation and print time spent to pull data.
-  if (!is.null(MSSQLConnectionString)) {
-    con <- DBI::dbConnect(odbc::odbc(),
-                          .connection_string = MSSQLConnectionString)
-  } else if (!is.null(SQLiteFileName)) {
-    con <- DBI::dbConnect(RSQLite::SQLite(), dbname = SQLiteFileName)
-  }
-
-  tryCatch(df <- DBI::dbGetQuery(con, query),
-           error = function(e) {
-             e$message <- "Your SQL likely contains an error."
-             stop(e)
-           })
-
-  # For SQLite, convert DTS cols from char to POSIX - SQLite as no date type
-  if (!is.null(SQLiteFileName)) {
-    colNumsDTS <- grep("DTS", names(df))
-    df[colNumsDTS] <- lapply(df[colNumsDTS], as.POSIXct)
-  }
-
-  # Make sure there are enough rows to actually do something useful.
-  if (is.null(nrow(df))) {
-    cat(df)  # Print the SQL error, which is contained in df.
-    stop("Your SQL contains an error.")
-  }
-  if (nrow(df) == 0) {
-    warning("Zero rows returned from SQL. ",
-            "Adjust your query to return more data!")
-  }
-  df  # Return the selected data.
+selectData <- function(...) {
+  .Defunct("db_read")
 }
 
-#' @title
-#' Write data to database
-#' @description Write data frame to database table via ODBC connection
-#' @param MSSQLConnectionString A string specifying the driver, server,
-#' database, and whether Windows Authentication will be used.
-#' @param df Dataframe that hold the tabular data
-#' @param SQLiteFileName A string. If dbtype is SQLite, here one specifies the
-#' database file to query from
-#' @param tableName String. Name of the table that receives the new rows
-#' @param addSAMUtilityColumns Boolean. Whether to add Health Catalyst-related
-#' date-time stamp, BindingID, and BindingNM to df before saving to db.
-#' @param connectionString Deprecated. A string specifying the driver, server,
-#' database, and whether Windows Authentication will be used. See
-#' ?MSSQLConnectionString instead.
-#' @return Nothing
+#' @title Defunct. See
+#' \href{https://docs.healthcare.ai/articles/site_only/db_connections.html}{this
+#' vignette} for help writing to databases.
+#' @description Removed in v2.0.0
+#' @param ... Garbage collector
 #' @export
-#' @references \url{http://healthcareai-r.readthedocs.io}
-#' @seealso \code{\link{healthcareai}}
-#' @seealso \code{\link{selectData}}
-#' @examples
 #'
-#' \dontrun{
-#' # This example is specific to SQL Server.
-#'
-#' # To instead pull data from Oracle see here
-#' # https://cran.r-project.org/web/packages/ROracle/ROracle.pdf
-#' # To pull data from MySQL see here
-#' # https://cran.r-project.org/web/packages/RMySQL/RMySQL.pdf
-#' # To pull data from Postgres see here
-#' # https://cran.r-project.org/web/packages/RPostgreSQL/RPostgreSQL.pdf
-#'
-#' # Before running this example, create the table in SQL Server via
-#' # CREATE TABLE [dbo].[HCRWriteData](
-#' # [a] [float] NULL,
-#' # [b] [float] NULL,
-#' # [c] [varchar](255) NULL)
-#'
-#' connectionString <- '
-#'   driver={SQL Server};
-#'   server=localhost;
-#'   database=SAM;
-#'   trustedConnection=true
-#'   '
-#'
-#' df <- data.frame(a=c(1,2,3),
-#'                  b=c(2,4,6),
-#'                  c=c('one','two','three'))
-#'
-#' writeData(MSSQLConnectionString = connectionString,
-#'           df = df,
-#'           tableName = 'HCRWriteData')
-#'
-#' #This example shows the RODBC way of writing to a non-default schema while
-#' #This example shows the RODBC way of writing to a non-default schema while
-#' #ODBC is being fixed. Here is a link to the non-default issue in ODBC:
-#' #https://github.com/rstats-db/odbc/issues/91
-#'
-#' #First, create this table in SQL Server using a non-default schema. The
-#' #example creates this table in the SAM database on localhost. You will also
-#' #need to create a new schema(Cardiovascular) in SSMS for this specific
-#' #example to work.
-#' #CREATE TABLE [Cardiovascular].[TestTable](
-#' #[a] [float] NULL,
-#' #[b] [float] NULL,
-#' #[c] [varchar](255) NULL)
-#'
-#' # Install the RODBC pacakge onto your machine. You only need to do this one
-#' # time.
-#' #install.packages("RODBC")
-#'
-#' # Load the package
-#' library(RODBC)
-#'
-#' # Create a connection to work with
-#' con <- RODBC::odbcDriverConnect('driver={SQL Server};
-#'                                 server=localhost;
-#'                                 database=SAM;
-#'                                 trusted_connection=true')
-#'
-#' # Df write to SQL Server. df columns names must match the SQL table in SSMS.
-#' df <- data.frame(a = c(10, 20, 30),
-#'                  b = c(20, 40, 60),
-#'                  c = c("oneT", "twoT", "threeT"))
-#'
-#' # Write the df to the SQL table
-#' RODBC::sqlSave(con, df, "Cardiovascular.TestTable", append = TRUE,
-#'                rownames = FALSE)
-#'
-#' # Verify that the table was written to
-#' confirmDf <- RODBC::sqlQuery(con, 'select * from Cardiovascular.TestTable')
-#' head(confirmDf)
-#' }
-writeData <- function(MSSQLConnectionString = NULL,
-                      df,
-                      SQLiteFileName = NULL,
-                      tableName,
-                      addSAMUtilityColumns = FALSE,
-                      connectionString = NULL) {
-
-  if (!is.null(connectionString)) {
-    stop(paste0('The connectionString parameter has been deprecated. ',
-                'Use MSSQLConnectionString instead'))
-  }
-
-  # TODO: if debug: time this operation and print time spent to pull data.
-  if ((is.null(MSSQLConnectionString)) && (is.null(SQLiteFileName))) {
-    stop(paste0('You must specify a either a MSSQLConnectionString for ',
-                'SQL Server or a SQLiteFileName for SQLite'))
-  }
-
-  # Close connection however the function is returned from
-  on.exit(DBI::dbDisconnect(con))
-
-  if (!is.null(MSSQLConnectionString)) {
-    con <- DBI::dbConnect(odbc::odbc(),
-                          .connection_string = MSSQLConnectionString)
-  } else if (!is.null(SQLiteFileName)) {
-    con <- DBI::dbConnect(RSQLite::SQLite(), dbname = SQLiteFileName)
-  }
-
-  if (isTRUE(addSAMUtilityColumns)) {
-    df <- healthcareai::addSAMUtilityCols(df)
-  }
-
-  # For SQLite, convert DTS cols from POSIX to char - SQLite as no date type
-  if (!is.null(SQLiteFileName)) {
-    colNumsDTS <- grep("DTS", names(df))
-    df[colNumsDTS] <- lapply(df[colNumsDTS], as.character)
-  }
-
-  DBI::dbWriteTable(conn = con,
-                    name = tableName,
-                    value = df,
-                    append = TRUE)
-
-  # TODO: get success and # of inserted rows from dbWriteTable function
-  if (is.null(MSSQLConnectionString)) {
-    cat(nrow(df), "rows were inserted into the SQLite table", tableName)
-  } else {
-    cat(nrow(df), "rows were inserted into the SQL Server table", tableName)
-
-  }
+writeData <- function(...) {
+  .Defunct("db_write")
 }

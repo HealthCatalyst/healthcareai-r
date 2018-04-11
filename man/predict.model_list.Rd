@@ -9,15 +9,19 @@
 \arguments{
 \item{object}{model_list object, as from `tune_models`}
 
-\item{newdata}{data on which to make predictions. If missing, predictions
-will be made on the training data. Should have the same structure as the
-input to `prep_data`,`tune_models` or `train_models`. `predict` will try to
-figure out if the data need to be sent through `prep_data` before making
+\item{newdata}{data on which to make predictions. If missing, out-of-fold
+predictions from training will be returned If you want new predictions on
+training data using the final model, pass the training data to this
+argument, but know that you're getting over-fit predictions that very
+likely overestimate model performance relative to what will be achieved on
+new data. Should have the same structure as the input to
+`prep_data`,`tune_models` or `train_models`. `predict` will try to figure
+out if the data need to be sent through `prep_data` before making
 predictions; this can be overriden by setting `prepdata = FALSE`, but this
 should rarely be needed.}
 
-\item{prepdata}{Logical, rarely needs to be set by the user. By default, if
-`newdata` hasn't been prepped, it will be prepped by `prep_data` before
+\item{prepdata}{Logical, this should rarely be set by the user. By default,
+if `newdata` hasn't been prepped, it will be prepped by `prep_data` before
 predictions are made. Set this to TRUE to force already-prepped data
 through `prep_data` again, or set to FALSE to prevent `newdata` from being
 sent through `prep_data`.}
@@ -28,7 +32,7 @@ sent through `prep_data`.}
 A tibble data frame: newdata with an additional column for the
   predictions in "predicted_TARGET" where TARGET is the name of the variable
   being predicted. If classification, the new column will contain predicted
-  probabilities. The tibble will have child class "hcai_predicted_df" and
+  probabilities. The tibble will have child class "predicted_df" and
   attribute "model_info" that contains information about the model used to
   make predictions.
 }
@@ -42,16 +46,19 @@ The model and hyperparameter values with the best out-of-fold
   returning your predictions with the newdata in its original format.
 }
 \examples{
-# Tune models using only the first 50 rows to keep computation fast
-models <- machine_learn(pima_diabetes[1:50, ], diabetes)
-# Make prediction on the next 20 rows. This uses the best-performing model from
+# Tune models using only the first 40 rows to keep computation fast
+
+models <- machine_learn(pima_diabetes[1:40, ], patient_id, outcome = diabetes)
+
+# Make prediction on the next 10 rows. This uses the best-performing model from
 # tuning cross validation, and it also prepares the new data in the same way as
 # the training data was prepared.
-predictions <- predict(models, newdata = pima_diabetes[51:70, ])
+
+predictions <- predict(models, newdata = pima_diabetes[41:50, ])
 predictions
-ggplot(predictions, aes(x = predicted_diabetes, fill = diabetes)) +
-  geom_density(alpha = .5)
+plot(predictions)
 }
 \seealso{
-\code{\link{tune_models}}, \code{\link{prep_data}}
+\code{\link{plot.predicted_df}}, \code{\link{tune_models}},
+  \code{\link{prep_data}}
 }

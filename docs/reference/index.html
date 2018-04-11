@@ -18,13 +18,17 @@
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  <link href="../extra.css" rel="stylesheet">
-  
+<meta property="og:title" content="Function reference" />
+
+<meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
+<meta name="twitter:card" content="summary" />
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -47,7 +51,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">healthcareai</a>
+      <a class="navbar-brand" href="../index.html">healthcare.ai</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
@@ -89,7 +93,7 @@
     <div class="page-header">
       <h1>
         Reference
-        <small>version&nbsp;1.2.0</small>
+        <small>version&nbsp;2.0.0</small>
       </h1>
     </div>
 
@@ -104,111 +108,103 @@
       <tbody>
         <tr>
           <th colspan="2">
-            <h2 id="section-model-development" class="hasAnchor"><a href="#section-model-development" class="anchor"></a>Model Development</h2>
+            <h2 id="section-model-training" class="hasAnchor"><a href="#section-model-training" class="anchor"></a>Model Training</h2>
             <p class="section-desc"><p>Train machine learning models</p></p>
           </th>
         </tr>
         <tr>
           <!--  -->
           <td>
-            <p><code><a href="LassoDevelopment.html">LassoDevelopment</a></code> </p>
+            <p><code><a href="machine_learn.html">machine_learn()</a></code> </p>
           </td>
-          <td><p>Compare predictive models, created on your data</p></td>
+          <td><p>Machine Learn</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="LinearMixedModelDevelopment.html">LinearMixedModelDevelopment</a></code> </p>
+            <p><code><a href="tune_models.html">tune_models()</a></code> </p>
           </td>
-          <td><p>Compare predictive models, created on your data</p></td>
+          <td><p>Identify the best performing model by tuning hyperparameters via
+cross-validation</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="RandomForestDevelopment.html">RandomForestDevelopment</a></code> </p>
+            <p><code><a href="flash_models.html">flash_models()</a></code> </p>
           </td>
-          <td><p>Compare predictive models, created on your data</p></td>
+          <td><p>Train models without tuning for performance</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="SupervisedModelDevelopment.html">SupervisedModelDevelopment</a></code> </p>
+            <p><code><a href="plot.model_list.html">plot(<i>&lt;model_list&gt;</i>)</a></code> </p>
           </td>
-          <td><p>Compare predictive models, created on your data</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="SupervisedModelDevelopmentParams.html">SupervisedModelDevelopmentParams</a></code> </p>
-          </td>
-          <td><p>SupervisedModelDevelopmentParams class to set up parameters required to build SupervisedModel classes</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="XGBoostDevelopment.html">XGBoostDevelopment</a></code> </p>
-          </td>
-          <td><p>Compare predictive models, created on your data</p></td>
+          <td><p>Plot performance of models</p></td>
         </tr>
       </tbody><tbody>
         <tr>
           <th colspan="2">
-            <h2 id="section-model-deployment" class="hasAnchor"><a href="#section-model-deployment" class="anchor"></a>Model Deployment</h2>
-            <p class="section-desc"><p>Put a model into production</p></p>
+            <h2 id="section-make-predictions" class="hasAnchor"><a href="#section-make-predictions" class="anchor"></a>Make predictions</h2>
+            <p class="section-desc"></p>
           </th>
         </tr>
         <tr>
           <!--  -->
           <td>
-            <p><code><a href="LassoDeployment.html">LassoDeployment</a></code> </p>
+            <p><code><a href="predict.model_list.html">predict(<i>&lt;model_list&gt;</i>)</a></code> </p>
           </td>
-          <td><p>Deploy a production-ready predictive Lasso model</p></td>
+          <td><p>Make predictions using the best-performing model from tuning</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="LinearMixedModelDeployment.html">LinearMixedModelDeployment</a></code> </p>
+            <p><code><a href="plot.hcai_predicted_df.html">plot(<i>&lt;hcai_predicted_df&gt;</i>)</a></code> </p>
           </td>
-          <td><p>Deploy a production-ready predictive Linear Mixed Model model</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="RandomForestDeployment.html">RandomForestDeployment</a></code> </p>
-          </td>
-          <td><p>Deploy a production-ready predictive RandomForest model</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="SupervisedModelDeployment.html">SupervisedModelDeployment</a></code> </p>
-          </td>
-          <td><p>Deploy predictive models, created on your data</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="SupervisedModelDeploymentParams.html">SupervisedModelDeploymentParams</a></code> </p>
-          </td>
-          <td><p>SupervisedModelDeploymentParams class to set up parameters required to build
-SupervisedModelDeployment class</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="XGBoostDeployment.html">XGBoostDeployment</a></code> </p>
-          </td>
-          <td><p>Deploy a production-ready predictive XGBoost model</p></td>
+          <td><p>Plot model predictions vs observed outcomes</p></td>
         </tr>
       </tbody><tbody>
         <tr>
           <th colspan="2">
-            <h2 id="section-sql-helpers" class="hasAnchor"><a href="#section-sql-helpers" class="anchor"></a>SQL helpers</h2>
-            <p class="section-desc"><p>Interface with a database</p></p>
+            <h2 id="section-data-preparation" class="hasAnchor"><a href="#section-data-preparation" class="anchor"></a>Data Preparation</h2>
+            <p class="section-desc"></p>
           </th>
         </tr>
         <tr>
           <!--  -->
           <td>
-            <p><code><a href="selectData.html">selectData</a></code> </p>
+            <p><code><a href="prep_data.html">prep_data()</a></code> </p>
           </td>
-          <td><p>Pull data into R via an ODBC connection</p></td>
+          <td><p>Prepare data for machine learning</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="writeData.html">writeData</a></code> </p>
+            <p><code><a href="pivot.html">pivot()</a></code> </p>
           </td>
-          <td><p>Write data to database</p></td>
+          <td><p>Pivot from a long data frame to a wide data frame</p></td>
+        </tr>
+      </tbody><tbody>
+        <tr>
+          <th colspan="2">
+            <h2 id="section-data-profiling" class="hasAnchor"><a href="#section-data-profiling" class="anchor"></a>Data Profiling</h2>
+            <p class="section-desc"></p>
+          </th>
+        </tr>
+        <tr>
+          <!--  -->
+          <td>
+            <p><code><a href="missingness.html">missingness()</a></code> </p>
+          </td>
+          <td><p>Percent of entries in each column that are missing</p></td>
+        </tr>
+      </tbody><tbody>
+        <tr>
+          <th colspan="2">
+            <h2 id="section-connect-to-databases" class="hasAnchor"><a href="#section-connect-to-databases" class="anchor"></a>Connect to Databases</h2>
+            <p class="section-desc"></p>
+          </th>
+        </tr>
+        <tr>
+          <!--  -->
+          <td>
+            <p><code><a href="build_connection_string.html">build_connection_string()</a></code> </p>
+          </td>
+          <td><p>Build a connection string for use with MSSQL and dbConnect</p></td>
         </tr>
       </tbody><tbody>
         <tr>
@@ -226,9 +222,11 @@ SupervisedModelDeployment class</p></td>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#section-model-development">Model Development</a></li>
-      <li><a href="#section-model-deployment">Model Deployment</a></li>
-      <li><a href="#section-sql-helpers">SQL helpers</a></li>
+      <li><a href="#section-model-training">Model Training</a></li>
+      <li><a href="#section-make-predictions">Make predictions</a></li>
+      <li><a href="#section-data-preparation">Data Preparation</a></li>
+      <li><a href="#section-data-profiling">Data Profiling</a></li>
+      <li><a href="#section-connect-to-databases">Connect to Databases</a></li>
       <li><a href="#section-everything-else">Everything Else</a></li>
     </ul>
   </div>
@@ -240,7 +238,7 @@ SupervisedModelDeployment class</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
@@ -248,3 +246,4 @@ SupervisedModelDeployment class</p></td>
 
   </body>
 </html>
+

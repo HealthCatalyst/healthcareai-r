@@ -1,17 +1,91 @@
+url: https://docs.healthcare.ai
+
+template:
+  params:
+    bootswatch: yeti
+    ganalytics: UA-85609357-1
+
+development:
+  mode: devel
+
+home:
+  links:
+  - text: Browse source code
+    href: https://github.com/HealthCatalyst/healthcareai-r
+  - text: healthcare.ai home
+    href: https://healthcare.ai
+
+navbar:
+  title: "healthcare.ai"
+  left:
+   - text: Vignettes
+     menu: 
+      - text: Getting Started
+        href: articles/site_only/healthcareai.html
+      - text: Database Connections
+        href: articles/site_only/db_connections.html
+      - text: Transition from Version 1
+        href: articles/site_only/transitioning.html
+   - text: "Functions"
+     href: reference/index.html
+   - text: "News"
+     href: news/index.html
+
+  right:
+   - icon: fa-github
+     href: https://github.com/HealthCatalyst/healthcareai-r
+   - icon: fa-users
+     href: https://healthcare-ai.slack.com/
+
 reference:
-  - title: Model Development
+  - title: Model Training
     desc: Train machine learning models
     contents:
-    - contains("Development")
-  - title: Model Deployment
-    desc: Put a model into production
+    - machine_learn
+    - tune_models
+    - flash_models
+    - plot.model_list
+    - evaluate
+  - title: Prediction
+    desc: Make predictions from a trained model
     contents:
-    - contains("Deployment")
-  - title: SQL helpers
-    desc: Interface with a database
+    - predict.model_list
+    - plot.predicted_df
+  - title: Data Preparation
+    desc: Get data ready for machine learning
     contents:
-    - selectData
-    - writeData
-  - title: Everything Else
-    desc: Is still to be added. Possibly [automatically](https://stackoverflow.com/questions/45886789/include-all-other-functions-in-a-pkgdown-reference-yaml)
-    contents: 
+    - prep_data
+    - impute
+    - split_train_test
+  - title: Data Manipulation
+    desc: Reshape data
+    contents:
+    - pivot
+    - separate_drgs
+    - add_SAM_utility_cols
+  - title: Data Profiling
+    contents:
+    - missingness
+  - title: Connect to Databases
+    contents:
+    - build_connection_string
+    - db_read
+  - title: Visualization
+    contents:
+    - starts_with("plot")
+    - control_chart
+  - title: Logging
+    desc: Record model activity in production
+    contents:
+    - start_prod_logs
+    - stop_prod_logs
+    - catalyst_test_deploy_in_prod
+  - title: Data
+    desc: Supplied datasets
+    contents:
+    - pima_diabetes
+
+figures:
+  fig.asp: NULL
+  fig.height: 3
+  fig.width: 6

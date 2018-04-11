@@ -2,7 +2,7 @@
 % Please edit documentation in R/pivot.R
 \name{pivot}
 \alias{pivot}
-\title{Pivot from a long data frame to a wide data frame}
+\title{Pivot multiple rows per observation to one row with multiple columns}
 \usage{
 pivot(d, grain, spread, fill, fun = sum, missing_fill = NA)
 }
@@ -35,7 +35,7 @@ in with \code{missing_fill}. If there are \code{grain} x \code{spread} pairs
 that appear more than once in d, they will be aggregated by \code{fun}.
 }
 \description{
-Pivot from a long data frame to a wide data frame
+Pivot multiple rows per observation to one row with multiple columns
 }
 \details{
 \code{pivot} is useful when you want to change the grain of your
@@ -73,7 +73,7 @@ bills <-
     patient_id = rep(c("A", "B"), each = 4),
     dept_id = rep(c("ED", "ICU"), times = 4),
     charge = runif(8, 0, 1e4),
-    date = Sys.Date() - sample(0:2, 8, TRUE)
+    date = as.Date("2024-12-25") - sample(0:2, 8, TRUE)
   )
 bills
 

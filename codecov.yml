@@ -1,0 +1,15 @@
+coverage:
+  precision: 1
+
+  status:
+    project: on
+    patch: on
+    changes: off
+
+comment:
+  layout: "header, diff"
+  behavior: new
+  require_changes: false
+
+ignore:
+  - "R/db_connections.R"
