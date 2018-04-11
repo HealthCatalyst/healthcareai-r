@@ -1,24 +1,32 @@
 #' Get model performance metrics
 #'
-#' @param x Object that should be evalutes
-#' @param ... Other arguments passed to specific methods
+#' @param x Object to be evaluted
+#' @param ... Not used
 #'
 #' @export
 #' @rdname evaluate
 #'
-#' @details This function is a generic that can be used to get model performance
-#'   on a model_list object that comes from \code{\link{machine_learn}},
-#'   \code{\link{tune_models}}, \code{\link{flash_models}}, or a data frame of
-#'   predictions from \code{\link{predict.model_list}}. For the latter, the data
-#'   passed to \code{predict.model_list} must contain observed outcomes. If you
-#'   have predictions and outcomes in a different format, see
+#' @details This function gets model performance from a model_list object that
+#'   comes from \code{\link{machine_learn}}, \code{\link{tune_models}},
+#'   \code{\link{flash_models}}, or a data frame of predictions from
+#'   \code{\link{predict.model_list}}. For the latter, the data passed to
+#'   \code{predict.model_list} must contain observed outcomes. If you have
+#'   predictions and outcomes in a different format, see
 #'   \code{\link{evaluate_classification}} or \code{\link{evaluate_regression}}
 #'   instead.
+#'
+#'   You may notice that \code{evaluate(models)} and
+#'   \code{evaluate(predict(models))} return slightly different performance
+#'   metrics, even though they are being calculated on the same (out-of-fold)
+#'   predictions. This is because metrics in training (returned from
+#'   \code{evaluate(models)}) are calculated within each cross-validation fold
+#'   and then averaged, while metrics calculated on the prediction data frame
+#'   (\code{evaluate(predict(models))}) are calculated once on all observations.
 #'
 #' @examples
 #' models <- machine_learn(pima_diabetes[1:40, ], patient_id, outcome = diabetes,
 #'                         models = "rf", tune_depth = 3)
-#' # evaluate(models)
+#' evaluate(models)
 #' predictions <- predict(models, newdata = pima_diabetes[41:50, ])
 #' evaluate(predictions)
 evaluate <- function(x, ...) {
@@ -41,7 +49,7 @@ evaluate.hcai_predicted_df <- function(x, ...) {
   if (attr(x, "model_info")[["type"]] == "Regression") {
     scores <- evaluate_regression(predicted = pred, actual = obs)
   } else if (attr(x, "model_info")[["type"]] == "Classification") {
-    obs <- ifelse(obs == attr(x, "positive_class"), 1L, 0L)
+    obs <- ifelse(obs == attr(x, "model_info")$positive_class, 1L, 0L)
     scores <- evaluate_classification(predicted = pred, actual = obs)
   } else {
     stop("Somthing's gone wrong. I don't know how to deal with model type ",
@@ -56,10 +64,20 @@ evaluate.model_list <- function(x, ...) {
   if (!length(x))
     stop("Can't evaluate an empty model_list")
   x <- change_metric_names(x)
-  rinfo <- extract_model_info(x)
-  x[[rinfo$best_model_name]]$pred
-
-
+  mi <- extract_model_info(x)
+  mod <- mi$best_model_name
+  if (mi$m_class == "Regression") {
+    f <- evaluate_regression
+    pred_col <- "pred"
+  } else if (mi$m_class == "Classification") {
+    f <- evaluate_classification
+    pred_col <- mi$positive_class
+    x[[mod]]$pred$obs <- ifelse(x[[mod]]$pred$obs == mi$positive_class, 1L, 0L)
+  }
+  split(x[[mod]]$pred, x[[mod]]$pred$Resample) %>%
+    purrr::map_df(~ f(predicted = .x[[pred_col]], actual = .x$obs) %>%
+                    dplyr::bind_rows()) %>%
+    colMeans()
 }
 
 #' Get performance metrics for classification predictions
