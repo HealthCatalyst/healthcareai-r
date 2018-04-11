@@ -85,22 +85,16 @@ predict.model_list <- function(object,
 
   # If predicting on training, use out-of-fold; else make predictions
   if (using_training_data) {
-    preds <- dplyr::arrange(object[[mi$best_model_name]]$pred, rowIndex)
-    preds <-
-      if (is.classification_list(object)) {
-        preds[, levels(preds$obs)]
-      } else {
-        preds[["pred"]]
-      }
+    preds <- get_oof_predictions(object, mi)
   } else {
     # If classification, want probabilities. If regression, raw's the only option
     type <- if (is.classification_list(object)) "prob" else "raw"
     preds <- caret::predict.train(best_models, to_pred, type = type)
+    # Probs get returned for no and yes. Keep only positive class as set in training
+    if (is.classification_list(object))
+      preds <- preds[[mi$positive_class]]
   }
 
-  # Probs get returned for no and yes. Keep only positive class as set in training
-  if (is.classification_list(object))
-    preds <- preds[[mi$positive_class]]
   pred_name <- paste0("predicted_", mi$target)
   newdata[[pred_name]] <- preds
   newdata <- tibble::as_tibble(newdata)
@@ -121,4 +115,14 @@ predict.model_list <- function(object,
          hyperparameters = structure(mi$best_model_tune,
                                      "row.names" = "optimal:"))
   return(newdata)
+}
+
+get_oof_predictions <- function(x, mi = extract_model_info(x)) {
+  mod <- mi$best_model_name
+  preds <- dplyr::arrange(x[[mod]]$pred, rowIndex)
+  if (mi$m_class == "Regression")
+    return(preds$pred)
+  if (mi$m_class == "Classification")
+    return(preds[[mi$positive_class]])
+  stop("Eh? What kind of model is that?")
 }

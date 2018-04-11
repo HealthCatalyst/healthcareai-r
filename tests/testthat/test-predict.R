@@ -189,16 +189,18 @@ test_that("printing predicted df prints the data frame", {
 })
 
 test_that("printing classification df gets ROC/PR metric right", {
-  roc <-
-    training_data %>%
-    prep_data(province, outcome = Catholic, make_dummies = TRUE) %>%
-    tune_models(Catholic, models = "RF", metric = "ROC", tune_depth = 2, n_folds = 2) %>%
-    predict()
-  pr <-
-    training_data %>%
-    prep_data(province, outcome = Catholic, make_dummies = TRUE) %>%
-    tune_models(Catholic, models = "RF", metric = "PR", tune_depth = 2, n_folds = 2) %>%
-    predict()
+  suppressWarnings({
+    roc <-
+      training_data %>%
+      prep_data(province, outcome = Catholic, make_dummies = TRUE) %>%
+      tune_models(Catholic, models = "RF", metric = "ROC", tune_depth = 2, n_folds = 2) %>%
+      predict()
+    pr <-
+      training_data %>%
+      prep_data(province, outcome = Catholic, make_dummies = TRUE) %>%
+      tune_models(Catholic, models = "RF", metric = "PR", tune_depth = 2, n_folds = 2) %>%
+      predict()
+  })
   expect_false(stringr::str_detect(capture_message(print(roc)), "PR"))
   expect_false(stringr::str_detect(capture_message(print(pr)), "ROC"))
 })
@@ -303,10 +305,14 @@ test_that("can predict on untuned classification model with new data", {
   expect_s3_class(c_preds_test, "hcai_predicted_df")
 })
 
-test_that("performance in training matches metric; ie we really are returning OOF predictions", {
-  model_classify_prepped
-  evaluate(predict(model_classify_prepped))
+test_that("predict without new data returns out of fold predictions from training", {
   preds <- predict(model_classify_prepped)$predicted_Catholic
   oofpreds <- dplyr::arrange(model_classify_prepped$`Random Forest`$pred, rowIndex)$Y
   expect_true(all.equal(preds, oofpreds))
+})
+
+test_that("get_oof_predictions seems to work", {
+  expect_true(is.numeric(get_oof_predictions(r_models)))
+  expect_true(is.numeric(get_oof_predictions(c_models)))
+  expect_true(is.numeric(get_oof_predictions(c_models)))
 })
