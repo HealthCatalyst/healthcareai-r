@@ -192,10 +192,12 @@ extract_model_info <- function(x) {
   best_model_perf <- best_metrics[[best_model]]
   best_model_tune <-
     x[[best_model]]$bestTune
+  positive_class <- attr(x, "positive_class")
   list(
     m_class = m_class,
     algs = algs,
     target = target,
+    positive_class = positive_class,
     metric = metric,
     best_model_name = best_model_name,
     best_model_perf = best_model_perf,

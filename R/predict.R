@@ -11,10 +11,6 @@
 #'   out if the data need to be sent through `prep_data` before making
 #'   predictions; this can be overriden by setting `prepdata = FALSE`, but this
 #'   should rarely be needed.
-#' @param positive_class For classification only, which outcome level is the
-#'   "yes" case, i.e. is associated with high probabilities? Defaults to the
-#'   second level of the outcome variable (second alphabetically if the training
-#'   data outcome was not already a factor).
 #' @param prepdata Logical, this should rarely be set by the user. By default,
 #'   if `newdata` hasn't been prepped, it will be prepped by `prep_data` before
 #'   predictions are made. Set this to TRUE to force already-prepped data
@@ -53,7 +49,6 @@
 predict.model_list <- function(object,
                                newdata,
                                prepdata,
-                               positive_class,
                                ...) {
 
   # Pull info
@@ -103,23 +98,9 @@ predict.model_list <- function(object,
     preds <- caret::predict.train(best_models, to_pred, type = type)
   }
 
-  # Set positive class if missing and check if present in outcome
-  if (is.classification_list(object)) {
-    outcome_levels <- levels(training_data[[".outcome"]])
-    if (missing(positive_class)) {
-      positive_class <- outcome_levels[2]
-    } else {
-      if (!positive_class %in% outcome_levels)
-        stop(positive_class, " not found in ", mi$target, ". ", mi$target,
-             " has values ", paste(outcome_levels, collapse = " and "))
-    }
-    # Probs get returned for no and yes. Keep only positive class
-    preds <- preds[[positive_class]]
-  } else {
-    if (!missing(positive_class))
-      warning("positive_class is only for classification models. Will be ignored.")
-    positive_class <- NULL
-  }
+  # Probs get returned for no and yes. Keep only positive class as set in training
+  if (is.classification_list(object))
+    preds <- preds[[mi$positive_class]]
   pred_name <- paste0("predicted_", mi$target)
   newdata[[pred_name]] <- preds
   newdata <- tibble::as_tibble(newdata)
@@ -132,12 +113,12 @@ predict.model_list <- function(object,
   attr(newdata, "model_info") <-
     list(type = mi$m_class,
          target = mi$target,
+         positive_class = mi$positive_class,
          algorithm = mi$best_model_name,
          metric = mi$metric,
          performance = mi$best_model_perf,
          timestamp = mi$timestamp,
          hyperparameters = structure(mi$best_model_tune,
                                      "row.names" = "optimal:"))
-  attr(newdata, "positive_class") <- positive_class
   return(newdata)
 }

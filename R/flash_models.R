@@ -10,6 +10,11 @@
 #'   error), or "Rsquared." For classification: "ROC" (area under the receiver
 #'   operating characteristic curve), or "PR" (area under the precision-recall
 #'   curve).
+#' @param positive_class For classification only, which outcome level is the
+#'   "yes" case, i.e. should be associated with high probabilities? Defaults to
+#'   "Y" or "yes" if present, otherwise is the first level of the outcome
+#'   variable (first alphabetically if the training data outcome was not already
+#'   a factor).
 #' @param n_folds How many folds to train the model on. Default = 5, minimum =
 #'   2. Whie flash_models doesn't use cross validation to tune hyperparameters,
 #'   it trains \code{n_folds} models to evaluate performance out of fold.
@@ -73,6 +78,7 @@ flash_models <- function(d,
                          outcome,
                          models = c("rf", "knn"),
                          metric,
+                         positive_class,
                          n_folds = 5,
                          hyperparameters,
                          model_class) {
@@ -95,12 +101,14 @@ flash_models <- function(d,
   if (metric == "PR")
     metric <- "AUC"
 
+  y <- dplyr::pull(d, !!outcome)
+  d <- dplyr::select(d, -!!outcome)
   train_list <-
     lapply(models, function(model) {
       suppressPackageStartupMessages({
         tune_grid <- as.data.frame(hyperparameters[[translate_model_names(model)]])
-        caret::train(x = dplyr::select(d, -!!outcome),
-                     y = dplyr::pull(d, !!outcome),
+        caret::train(x = d,
+                     y = y,
                      method = model,
                      metric = metric,
                      trControl = train_control,
@@ -111,6 +119,7 @@ flash_models <- function(d,
   train_list <- add_model_attrs(models = train_list,
                                 recipe = recipe,
                                 tuned = FALSE,
-                                target = rlang::quo_name(outcome))
+                                target = rlang::quo_name(outcome),
+                                positive_class = levels(y)[1])
   return(train_list)
 }

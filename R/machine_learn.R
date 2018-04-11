@@ -13,6 +13,11 @@
 #'   \code{\link{tune_models}}. If FALSE, models will be trained via
 #'   \code{\link{flash_models}} which is substantially faster but produces
 #'   less-predictively powerful models.
+#' @param positive_class For classification only, which outcome level is the
+#'   "yes" case, i.e. should be associated with high probabilities? Defaults to
+#'   "Y" or "yes" if present, otherwise is the first level of the outcome
+#'   variable (first alphabetically if the training data outcome was not already
+#'   a factor).
 #' @param n_folds How many folds to use to assess out-of-fold accuracy? Default
 #'   = 5. Models are evaluated on out-of-fold predictions whether tune is TRUE
 #'   or FALSE.
@@ -61,9 +66,8 @@
 #' # faster (especially on larger datasets), but produces models with less
 #' # predictive accuracy.
 #' machine_learn(d$train, patient_id, outcome = diabetes, tune = FALSE)
-machine_learn <- function(d, ..., outcome, models,
-                          tune = TRUE, n_folds = 5, tune_depth = 10,
-                          impute = TRUE) {
+machine_learn <- function(d, ..., outcome, models, tune = TRUE, positive_class,
+                          n_folds = 5, tune_depth = 10, impute = TRUE) {
 
   if (!is.data.frame(d))
     stop("\"d\" must be a data frame.")
@@ -97,9 +101,11 @@ machine_learn <- function(d, ..., outcome, models,
   m <-
     if (tune) {
       tune_models(pd, outcome = !!outcome, models = models,
+                  positive_class = positive_class,
                   n_folds = n_folds, tune_depth = tune_depth)
     } else {
-      flash_models(pd, outcome = !!outcome, models = models, n_folds = n_folds)
+      flash_models(pd, outcome = !!outcome, models = models,
+                   positive_class = positive_class, n_folds = n_folds)
     }
   return(m)
 }

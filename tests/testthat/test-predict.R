@@ -192,15 +192,15 @@ test_that("printing classification df gets ROC/PR metric right", {
   roc <-
     training_data %>%
     prep_data(province, outcome = Catholic, make_dummies = TRUE) %>%
-    tune_models(Catholic, models = "RF", metric = "ROC", tune_depth = 2) %>%
+    tune_models(Catholic, models = "RF", metric = "ROC", tune_depth = 2, n_folds = 2) %>%
     predict()
   pr <-
     training_data %>%
     prep_data(province, outcome = Catholic, make_dummies = TRUE) %>%
-    tune_models(Catholic, models = "RF", metric = "PR", tune_depth = 2) %>%
+    tune_models(Catholic, models = "RF", metric = "PR", tune_depth = 2, n_folds = 2) %>%
     predict()
-  expect_true(stringr::str_detect(capture_message(print(roc)), "ROC"))
-  expect_true(stringr::str_detect(capture_message(print(pr)), "PR"))
+  expect_false(stringr::str_detect(capture_message(print(roc)), "PR"))
+  expect_false(stringr::str_detect(capture_message(print(pr)), "ROC"))
 })
 
 test_that("determine_prep FALSE when no recipe on model", {
@@ -275,19 +275,24 @@ test_that("predict handles positive class specified in training", {
               x1 = rnorm(50, mean = y, sd = .1),
               x2 = rnorm(50, mean = y, sd = .1))
   pd <- prep_data(d, outcome = y)
-  preds <- list(
-    tm_rf = pd %>% tune_models(y, tune_depth = 2, models = "rf") %>% predict(positive_class = "Y"),
-    tm_knn = pd %>% tune_models(y, tune_depth = 2, models = "knn") %>% predict(positive_class = "Y"),
-    ml = machine_learn(d, outcome = y, models = "rf", tune_depth = 2) %>% predict(positive_class = "Y")
+  # Default Y is positive
+    preds <- list(
+    tm_rf = pd %>% tune_models(y, tune_depth = 2, models = "rf") %>% predict(),
+    tm_knn = pd %>% tune_models(y, tune_depth = 2, models = "knn") %>% predict(),
+    ml = machine_learn(d, outcome = y, models = "rf", tune_depth = 2) %>% predict()
   )
   expect_true(all(map_lgl(preds, ~ {
     mean(.x$predicted_y[.x$y == "Y"]) > mean(.x$predicted_y[.x$y == "N"])
   })))
-})
-
-test_that("get informative error if positive class isn't in outcome", {
-  expect_error(predict(model_classify_prepped, positive_class = "typo"),
-               regexp = "Catholic")
+  # Set N as positive
+  preds <- list(
+    tm_rf = pd %>% tune_models(y, tune_depth = 2, models = "rf", positive_class = "N") %>% predict(),
+    tm_knn = pd %>% tune_models(y, tune_depth = 2, models = "knn", positive_class = "N") %>% predict(),
+    ml = machine_learn(d, outcome = y, models = "rf", tune_depth = 2, positive_class = "N") %>% predict()
+  )
+  expect_true(all(map_lgl(preds, ~ {
+    mean(.x$predicted_y[.x$y == "Y"]) < mean(.x$predicted_y[.x$y == "N"])
+  })))
 })
 
 test_that("can predict on untuned classification model with new data", {
@@ -296,19 +301,6 @@ test_that("can predict on untuned classification model with new data", {
   c_models <- machine_learn(d, patient_id, outcome = diabetes, tune = FALSE, n_folds = 2)
   c_preds_test <- predict(c_models, dtest)
   expect_s3_class(c_preds_test, "hcai_predicted_df")
-})
-
-test_that("positive class is attached to predictions as attributes", {
-  expect_true("positive_class" %in% names(attributes(classification_prepped_prepped)))
-  pp <- predict(model_classify_prepped, positive_class = "Y")
-  expect_equal("Y", attr(pp, "positive_class"))
-})
-
-test_that("positive class is null for regression and gives warning if provided", {
-  expect_warning({
-    pp <- predict(model_regression_prepped, test_data_reg_prep, positive_class = "Y")
-  })
-  expect_null(attr(pp, "positive_class"))
 })
 
 test_that("performance in training matches metric; ie we really are returning OOF predictions", {

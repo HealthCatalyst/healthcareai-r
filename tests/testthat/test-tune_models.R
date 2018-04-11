@@ -2,6 +2,7 @@ context("test-tune_models")
 
 # Setup ------------------------------------------------------------------------
 test_df <- na.omit(pima_diabetes)[1:200, ]
+tm <- tune_models(test_df, diabetes)
 
 ## Temporary test until grid search is implemented
 test_that("tune errors if tune_method isn't 'random'", {
@@ -156,4 +157,51 @@ test_that("Missing outcome variable error points user to what's missing", {
 test_that("Get informative error from setup_training if you forgot to name outcome arg in prep_data", {
   pd <- prep_data(pima_diabetes, patient_id, diabetes)
   expect_error(tune_models(pd, diabetes), "outcome")
+})
+
+test_that("tune_models attaches positive class to model_list", {
+  expect_true("positive_class" %in% names(attributes(tm)))
+})
+
+test_that("By default Y is chosen as positive class for N/Y character outcome", {
+  expect_equal("Y", attr(tm, "positive_class"))
+})
+
+test_that("tune_models picks Y and yes as positive class even if N/no is first", {
+  test_df$diabetes <- factor(test_df$diabetes, levels = c("N", "Y"))
+  m <- tune_models(test_df, diabetes, "rf")
+  expect_equal("Y", attr(m, "positive_class"))
+  p <- predict(m)
+  expect_true(mean(p$predicted_diabetes[p$diabetes == "Y"]) > mean(p$predicted_diabetes[p$diabetes == "N"]))
+
+  test_df$diabetes <- factor(ifelse(test_df$diabetes == "Y", "yes", "no"),
+                             levels = c("no", "yes"))
+  m <- tune_models(test_df, diabetes, "rf")
+  expect_equal("yes", attr(m, "positive_class"))
+  p <- predict(m)
+  expect_true(mean(p$predicted_diabetes[p$diabetes == "yes"]) > mean(p$predicted_diabetes[p$diabetes == "no"]))
+})
+
+test_that("tune_models and predict respect positive class declaration", {
+  test_df$diabetes <- factor(test_df$diabetes, levels = c("Y", "N"))
+  n_ref <- tune_models(test_df, diabetes, "rf", positive_class = "N")
+  expect_equal(attr(n_ref, "positive_class"), "N")
+  p <- predict(n_ref)
+  expect_true(mean(p$predicted_diabetes[p$diabetes == "N"]) > mean(p$predicted_diabetes[p$diabetes == "Y"]))
+})
+
+test_that("set_outcome_class errors informatively if value not in vector", {
+  expect_error(set_outcome_class(factor(letters[1:2]), "nope"), "a and b")
+})
+
+test_that("set_outcome_class sets levels as expected", {
+  yn <- factor(c("Y", "N"))
+  expect_equal(levels(set_outcome_class(yn))[1], "Y")
+  expect_equal(levels(set_outcome_class(yn, "N"))[1], "N")
+  yesno <- factor(c("yes", "no"))
+  expect_equal(levels(set_outcome_class(yesno))[1], "yes")
+  expect_equal(levels(set_outcome_class(yesno, "no"))[1], "no")
+  other <- factor(c("admit", "nonadmit"))
+  expect_equal(levels(set_outcome_class(other))[1], "admit")
+  expect_equal(levels(set_outcome_class(other, "nonadmit"))[1], "nonadmit")
 })
