@@ -266,10 +266,10 @@ for categorical variables.</p></td>
     </tr>
     <tr>
       <th>add_levels</th>
-      <td><p>Logical. If TRUE (defaults), "other" and "hcai_missing"
+      <td><p>Logical. If TRUE (defaults), "other" and "missing"
 will be added to all nominal columns. This is protective in deployment: new
 levels found in deployment will become "other" and missingness in
-deployment can become "hcai_missing" if the nominal imputation method is
+deployment can become "missing" if the nominal imputation method is
 "new_category". If FALSE, these levels may be added to some columns
 depending on details of imputation and collapse_rare_factors.</p></td>
     </tr>
@@ -316,10 +316,10 @@ classification.</p></td>
 #&gt; 
 #&gt; Sparse, unbalanced variable filter removed no terms [trained]
 #&gt; Mean Imputation for pregnancies, plasma_glucose, ... [trained]
-#&gt; Filling NA with hcai_missing for weight_class [trained]
-#&gt; Adding levels to: other, hcai_missing [trained]
+#&gt; Filling NA with missing for weight_class [trained]
+#&gt; Adding levels to: other, missing [trained]
 #&gt; Collapsing factor levels for weight_class [trained]
-#&gt; Adding levels to: other, hcai_missing [trained]
+#&gt; Adding levels to: other, missing [trained]
 #&gt; Dummy variables from weight_class [trained]</div><div class='output co'>#&gt; <span class='message'>Current data:</span></div><div class='output co'>#&gt; # A tibble: 68 x 13
 #&gt;    pregnancies plasma_glucose diastolic_bp skinfold insulin pedigree   age
 #&gt;          &lt;int&gt;          &lt;int&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;
@@ -336,7 +336,7 @@ classification.</p></td>
 #&gt; # ... with 58 more rows, and 6 more variables: diabetes &lt;fct&gt;,
 #&gt; #   weight_class_normal &lt;dbl&gt;, weight_class_obese &lt;dbl&gt;,
 #&gt; #   weight_class_overweight &lt;dbl&gt;, weight_class_other &lt;dbl&gt;,
-#&gt; #   weight_class_hcai_missing &lt;dbl&gt;</div><div class='input'>
+#&gt; #   weight_class_missing &lt;dbl&gt;</div><div class='input'>
 <span class='co'># Customize preparations:</span>
 <span class='fu'>prep_data</span>(<span class='kw'>d</span> <span class='kw'>=</span> <span class='no'>d_train</span>, <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>,
           <span class='kw'>impute</span> <span class='kw'>=</span> <span class='fu'>list</span>(<span class='kw'>numeric_method</span> <span class='kw'>=</span> <span class='st'>"bagimpute"</span>,
@@ -359,8 +359,8 @@ classification.</p></td>
 #&gt; Bagged tree imputation for weight_class [trained]
 #&gt; Centering for pregnancies, plasma_glucose, ... [trained]
 #&gt; Scaling for pregnancies, plasma_glucose, ... [trained]
-#&gt; Adding levels to: other, hcai_missing [trained]
-#&gt; Adding levels to: other, hcai_missing [trained]</div><div class='output co'>#&gt; <span class='message'>Current data:</span></div><div class='output co'>#&gt; # A tibble: 700 x 10
+#&gt; Adding levels to: other, missing [trained]
+#&gt; Adding levels to: other, missing [trained]</div><div class='output co'>#&gt; <span class='message'>Current data:</span></div><div class='output co'>#&gt; # A tibble: 700 x 10
 #&gt;    patient_id pregnancies plasma_glucose diastolic_bp skinfold insulin
 #&gt;         &lt;int&gt;       &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
 #&gt;  1          1       0.646          0.871      -0.0196   0.632    0.497
