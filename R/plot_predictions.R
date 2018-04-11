@@ -28,7 +28,7 @@
 #'      point_size = 3, point_alpha = .7, font_size = 14)
 #' p <- plot(predictions, print = FALSE)
 #' p + coord_fixed(ratio = 1) + theme_classic()
-plot.hcai_predicted_df <- function(x,
+plot.predicted_df <- function(x,
                                    caption = TRUE,
                                    title = NULL,
                                    font_size = 11,
@@ -92,7 +92,7 @@ plot.hcai_predicted_df <- function(x,
 #' @param point_alpha Number in [0, 1] giving point opacity
 #' @param target Not meant to be set by user. outcome column name
 #'
-#' @rdname plot.hcai_predicted_df
+#' @rdname plot.predicted_df
 plot_regression_predictions <- function(x,
                                         point_size = 1,
                                         point_alpha = 1,
@@ -116,7 +116,7 @@ plot_regression_predictions <- function(x,
 #'   Less than 1 makes curves more flexible, analogous to smaller bins in a
 #'   histogram; greater than 1 makes curves more rigid.
 #'
-#' @rdname plot.hcai_predicted_df
+#' @rdname plot.predicted_df
 plot_classification_predictions <- function(x,
                                             fill_colors = c("firebrick", "steelblue"),
                                             fill_alpha = .7,

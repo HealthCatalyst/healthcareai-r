@@ -32,7 +32,7 @@ sent through `prep_data`.}
 A tibble data frame: newdata with an additional column for the
   predictions in "predicted_TARGET" where TARGET is the name of the variable
   being predicted. If classification, the new column will contain predicted
-  probabilities. The tibble will have child class "hcai_predicted_df" and
+  probabilities. The tibble will have child class "predicted_df" and
   attribute "model_info" that contains information about the model used to
   make predictions.
 }
@@ -59,6 +59,6 @@ predictions
 plot(predictions)
 }
 \seealso{
-\code{\link{plot.hcai_predicted_df}}, \code{\link{tune_models}},
+\code{\link{plot.predicted_df}}, \code{\link{tune_models}},
   \code{\link{prep_data}}
 }

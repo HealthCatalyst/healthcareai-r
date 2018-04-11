@@ -113,10 +113,10 @@ test_that("predictions are better than chance", {
 
 test_that("If newdata isn't provided, make predictions on training data", {
   pc <- predict(model_classify_prepped)
-  expect_s3_class(pc, "hcai_predicted_df")
+  expect_s3_class(pc, "predicted_df")
   expect_true(all(c("Catholic", "predicted_Catholic") %in% names(pc)))
   pr <- predict(model_regression_not_prepped)
-  expect_s3_class(pr, "hcai_predicted_df")
+  expect_s3_class(pr, "predicted_df")
   expect_true(all(c("Fertility", "predicted_Fertility") %in% names(pr)))
 })
 
@@ -135,12 +135,12 @@ test_that("predict can handle binary character non Y/N columns", {
 
 test_that("predict handles new levels on model_list from prep_data", {
   expect_warning(preds <- predict(model_regression_prepped, test_data_newlevel))
-  expect_s3_class(preds, "hcai_predicted_df")
+  expect_s3_class(preds, "predicted_df")
 })
 
 test_that("predict handles missingness where unobserved in training prep_data", {
   expect_warning(preds <- predict(model_regression_prepped, test_data_new_missing))
-  expect_s3_class(preds, "hcai_predicted_df")
+  expect_s3_class(preds, "predicted_df")
 })
 
 test_that("predict doesn't need columns ignored in training", {
@@ -165,7 +165,7 @@ test_that("Warnings are issued if there is new missingness in predict", {
                  "Agriculture")
   expect_warning(preds <- predict(model_regression_prepped, test_data_new_missing),
                  "Agriculture")
-  expect_s3_class(preds, "hcai_predicted_df")
+  expect_s3_class(preds, "predicted_df")
 })
 
 test_that("Missing values don't generate new factor level warning", {
@@ -302,7 +302,7 @@ test_that("can predict on untuned classification model with new data", {
   dtest <- na.omit(pima_diabetes)[101:110, ]
   c_models <- machine_learn(d, patient_id, outcome = diabetes, tune = FALSE, n_folds = 2)
   c_preds_test <- predict(c_models, dtest)
-  expect_s3_class(c_preds_test, "hcai_predicted_df")
+  expect_s3_class(c_preds_test, "predicted_df")
 })
 
 test_that("predict without new data returns out of fold predictions from training", {

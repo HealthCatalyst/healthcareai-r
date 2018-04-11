@@ -38,7 +38,7 @@ evaluate <- function(x, ...) {
 
 #' @export
 #' @rdname evaluate
-evaluate.hcai_predicted_df <- function(x, ...) {
+evaluate.predicted_df <- function(x, ...) {
   outcome <- attr(x, "model_info")[["target"]]
   if (!outcome %in% names(x))
     stop("Outcome variable: ", outcome, " not found in d. You must have actual outcomes in ",

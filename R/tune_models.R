@@ -212,7 +212,7 @@ set_outcome_class <- function(vec, positive_class) {
   if (!positive_class %in% levels(vec))
     stop("positive_class, ", positive_class, ", not found in the outcome column. ",
          "Outcome has values ", paste(levels(vec), collapse = " and ") )
-  vec <- relevel(vec, positive_class)
+  vec <- stats::relevel(vec, positive_class)
   return(vec)
 }
 

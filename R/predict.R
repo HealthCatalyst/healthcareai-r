@@ -21,12 +21,12 @@
 #' @return A tibble data frame: newdata with an additional column for the
 #'   predictions in "predicted_TARGET" where TARGET is the name of the variable
 #'   being predicted. If classification, the new column will contain predicted
-#'   probabilities. The tibble will have child class "hcai_predicted_df" and
+#'   probabilities. The tibble will have child class "predicted_df" and
 #'   attribute "model_info" that contains information about the model used to
 #'   make predictions.
 #' @export
 #' @importFrom caret predict.train
-#' @seealso \code{\link{plot.hcai_predicted_df}}, \code{\link{tune_models}},
+#' @seealso \code{\link{plot.predicted_df}}, \code{\link{tune_models}},
 #'   \code{\link{prep_data}}
 #'
 #' @details The model and hyperparameter values with the best out-of-fold
@@ -103,7 +103,7 @@ predict.model_list <- function(object,
   if (mi$target %in% names(newdata))
     newdata <- dplyr::select(newdata, mi$target, dplyr::everything())
   # Add class and attributes to data frame
-  class(newdata) <- c("hcai_predicted_df", class(newdata))
+  class(newdata) <- c("predicted_df", class(newdata))
   attr(newdata, "model_info") <-
     list(type = mi$m_class,
          target = mi$target,

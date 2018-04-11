@@ -35,7 +35,7 @@ test_that("evalute_regression returns numeric with names being metrics", {
 })
 
 test_that("evaluate is a registered S3 generic with methods for models and predictions", {
-  expect_true("evaluate.hcai_predicted_df" %in% methods("evaluate"))
+  expect_true("evaluate.predicted_df" %in% methods("evaluate"))
   expect_true("evaluate.model_list" %in% methods("evaluate"))
 })
 

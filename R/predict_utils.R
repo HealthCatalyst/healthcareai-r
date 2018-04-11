@@ -1,16 +1,16 @@
 #########################################
-### S3 generics for hcai_predicted_df ###
+### S3 generics for predicted_df ###
 #########################################
 
 #' Class check
 #' @param x object
 #' @return logical
 #' @export
-is.hcai_predicted_df <- function(x) "hcai_predicted_df" %in% class(x)
+is.predicted_df <- function(x) "predicted_df" %in% class(x)
 
 # print method for predicted data frame
 #' @export
-print.hcai_predicted_df <- function(x, ...) {
+print.predicted_df <- function(x, ...) {
   x <- change_metric_names(x)
   mi <- attr(x, "model_info")
   mes <- paste0("\"predicted_", mi$target, "\" predicted by ",
@@ -19,7 +19,7 @@ print.hcai_predicted_df <- function(x, ...) {
                 round(mi$performance, 2), "\n")
   message(mes)
   # Avoid dispatching print.hcai_prepped_df:
-  y <- structure(x, class = class(x)[!stringr::str_detect(class(x), "^hcai")])
+  y <- structure(x, class = class(x)[!stringr::str_detect(class(x), "^(predicted)|(hcai)")])
   print(y)
   return(invisible(x))
 }

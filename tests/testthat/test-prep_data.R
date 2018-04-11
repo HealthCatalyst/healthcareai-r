@@ -450,14 +450,14 @@ test_that("predict regression with prep doesn't choke without outcome", {
   prep_data(pima_diabetes[1:50, ], outcome = age) %>%
     tune_models(age, models = "rf") %>%
     predict(dplyr::select(pima_diabetes[51:55, ], -age)) %>%
-    expect_s3_class("hcai_predicted_df")
+    expect_s3_class("predicted_df")
 })
 
 test_that("predict classification with prep doesn't choke without outcome", {
   prep_data(pima_diabetes[1:50, ], outcome = diabetes) %>%
     tune_models(diabetes, models = "rf") %>%
     predict(dplyr::select(pima_diabetes[51:55, ], -diabetes)) %>%
-    expect_s3_class("hcai_predicted_df")
+    expect_s3_class("predicted_df")
 })
 
 test_that("prep_data attaches missingness to recipe as attribute", {

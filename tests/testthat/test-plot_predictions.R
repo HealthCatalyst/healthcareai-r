@@ -12,14 +12,14 @@ class_preds_self <- predict(m_class)
 class_preds_new <- predict(m_class, pima_diabetes[101:110, ])
 
 ### Tests
-test_that("plot.hcai_predicted_df stops if there's no outcome", {
+test_that("plot.predicted_df stops if there's no outcome", {
   expect_error(plot(dplyr::select(reg_preds_self, -age)), "outcome")
   expect_error(plot(dplyr::select(reg_preds_new, -age)), "outcome")
   expect_error(plot(dplyr::select(class_preds_self, -diabetes)), "outcome")
   expect_error(plot(dplyr::select(class_preds_new, -diabetes)), "outcome")
 })
 
-test_that("plot.hcai_predicted_df stops if outcome vector is wrong length or class", {
+test_that("plot.predicted_df stops if outcome vector is wrong length or class", {
   expect_error(plot(dplyr::select(reg_preds_self, -age),
                     outcomes = 1:5),
                "length")
@@ -34,7 +34,7 @@ test_that("plot.hcai_predicted_df stops if outcome vector is wrong length or cla
                "class")
 })
 
-test_that("plot.hcai_predicted_df warns but works if outcomes present in df and passed in", {
+test_that("plot.predicted_df warns but works if outcomes present in df and passed in", {
   expect_warning(p <- plot(reg_preds_new, outcomes = 1:10, print = FALSE), "outcome")
   expect_s3_class(p, "gg")
   expect_warning(p <- plot(class_preds_new,
@@ -68,7 +68,7 @@ test_that("plot_classification_predictions handles separately supplied outcomes"
 })
 
 
-test_that("Arguments to plot.hcai_predicted_df get passed to plot_regression_predictions", {
+test_that("Arguments to plot.predicted_df get passed to plot_regression_predictions", {
   my_title <- "this is my title"
   p <- plot(reg_preds_self, title = my_title, point_size = 2,
              point_alpha = .5, font_size = 18, print = FALSE)
@@ -76,7 +76,7 @@ test_that("Arguments to plot.hcai_predicted_df get passed to plot_regression_pre
   expect_equal(ggplot_build(p)$plot$labels$title, my_title)
 })
 
-test_that("Arguments to plot.hcai_predicted_df get passed to plot_classification_predictions", {
+test_that("Arguments to plot.predicted_df get passed to plot_classification_predictions", {
   my_title <- "this is my title"
   p <- plot(class_preds_self,
             title = my_title,

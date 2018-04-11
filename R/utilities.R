@@ -93,7 +93,7 @@ change_metric_names <- function(object) {
         names(object[[i]]$results)[names(object[[i]]$results) == metrics$caret[switch_row]] <-
           metrics$ours[switch_row]
       }
-  } else if (is.hcai_predicted_df(object)) {
+  } else if (is.predicted_df(object)) {
     attr(object, "model_info")$metric <-
       metrics$ours[metrics$caret == attr(object, "model_info")$metric]
   }
