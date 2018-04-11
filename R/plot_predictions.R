@@ -5,31 +5,33 @@
 #'   all available metrics, FALSE prints nothing. Can also provide metric name
 #'   (e.g. "RMSE"), in which case the caption will include only that metric.
 #' @param title Character: Plot title, default NULL produces no title.
+#' @param font_size Number: Relative size of all font in plot, default = 11
 #' @param outcomes Vector of outcomes if not present in x
 #' @param print Logical, if TRUE (default) the plot is printed on the current
 #'   graphics device. The plot is always (silently) returned.
-#' @param ... Parameters to pass to plot_regression_predictions or
-#'   plot_classification_predictions
+#' @param ... Parameters specific to plot_regression_predictions or
+#'   plot_classification_predictions; listed below. These must be named.
 #'
 #' @return A ggplot object
 #' @export
 #'
-#' @details The following arguments can be provided to customize the plot: For
-#'   regression: title, point_size, point_alpha, font_size. For classification:
-#'   title, fill_colors, fill_alpha, curve_flex, font_size. For details on how
-#'   to use them, see \code{\link{plot_regression_predictions}} or
-#'   \code{\link{plot_classification_predictions}}.
+#' @details Note that a ggplot object is returned, so you can do additional
+#'   customization of the plot. See the third example.
 #'
 #' @examples
 #' models <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = plasma_glucose,
 #'                         models = "rf", tune = FALSE)
 #' predictions <- predict(models)
 #' plot(predictions)
-#' plot(predictions, title = "This model's predictions regress to the mean",
+#' plot(predictions, caption = "Rsquared",
+#'      title = "This model's predictions regress to the mean",
 #'      point_size = 3, point_alpha = .7, font_size = 14)
+#' p <- plot(predictions, print = FALSE)
+#' p + coord_fixed(ratio = 1) + theme_classic()
 plot.hcai_predicted_df <- function(x,
                                    caption = TRUE,
                                    title = NULL,
+                                   font_size = 11,
                                    outcomes = NULL,
                                    print = TRUE, ...) {
   # Checks, and put outcomes in x if necessary
@@ -78,31 +80,22 @@ plot.hcai_predicted_df <- function(x,
     }
   the_plot <-
     the_plot +
-    labs(caption = cap)
+    labs(caption = cap, title = title) +
+    theme_gray(base_size = font_size)
   # Print and return
   if (print)
     print(the_plot)
   return(invisible(the_plot))
 }
 
-#' Plot predictions from a regression model
-#'
-#' @param x hcai_predicted_df from plot.hcai_predicted_df
-#' @param title Character: Plot title
 #' @param point_size Number: Point size, relative to 1
 #' @param point_alpha Number in [0, 1] giving point opacity
-#' @param font_size Number: Relative size of all font in plot, default = 11
-#' @param target outcome column name
+#' @param target Not meant to be set by user. outcome column name
 #'
-#' @return ggplot object
-#'
-#' @details This function is not meant to be called directly. Use
-#'   \code{plot(predictions)} instead. You can pass arguments to this function
-#'   (e.g. a plot title) through \code{plot}.
+#' @rdname plot.hcai_predicted_df
 plot_regression_predictions <- function(x,
                                         point_size = 1,
                                         point_alpha = 1,
-                                        font_size = 11,
                                         target) {
   preds <- paste0("predicted_", target)
   limits <- range(c(x[[target]]), x[[preds]])
@@ -111,15 +104,10 @@ plot_regression_predictions <- function(x,
     geom_abline(linetype = "dashed", alpha = .6)  +
     geom_point(size = point_size, alpha = point_alpha) +
     scale_x_continuous(name = paste("Actual ", target), limits = limits) +
-    scale_y_continuous(name = paste("Predicted ", target), limits = limits) +
-    ggtitle(title) +
-    theme_gray(base_size = font_size)
+    scale_y_continuous(name = paste("Predicted ", target), limits = limits)
   return(p)
 }
 
-#' Plot predictions from a classification model
-#'
-#' @param x hcai_predicted_df from plot.hcai_predicted_df
 #' @param fill_colors Length-2 character vector: colors to fill density
 #'   curves. Default is c("firebrick", "steelblue"). If named, names must match
 #'   \code{unique(x[[target]])}, in any order.
@@ -127,19 +115,12 @@ plot_regression_predictions <- function(x,
 #' @param curve_flex Numeric. Kernal adjustment for density curves. Default is 1.
 #'   Less than 1 makes curves more flexible, analogous to smaller bins in a
 #'   histogram; greater than 1 makes curves more rigid.
-#' @param font_size Number: Relative size of all font in plot, default = 11
-#' @param target outcome column name
 #'
-#' @return ggplot object
-#'
-#' @details This function is not meant to be called directly. Use
-#'   \code{plot(predictions)} instead. You can pass arguments to this function
-#'   (e.g. a plot title) through \code{plot}.
+#' @rdname plot.hcai_predicted_df
 plot_classification_predictions <- function(x,
                                             fill_colors = c("firebrick", "steelblue"),
                                             fill_alpha = .7,
                                             curve_flex = 1,
-                                            font_size = 11,
                                             target) {
   preds <- paste0("predicted_", target)
   p <-
@@ -147,8 +128,6 @@ plot_classification_predictions <- function(x,
     geom_density(alpha = fill_alpha, adjust = curve_flex) +
     scale_x_continuous(name = paste("Predicted Probability of", target),
                        limits = c(0, 1)) +
-    scale_fill_manual(name = paste0("Actual\n", target), values = fill_colors) +
-    ggtitle(title) +
-    theme_gray(base_size = font_size)
+    scale_fill_manual(name = paste0("Actual\n", target), values = fill_colors)
   return(p)
 }
