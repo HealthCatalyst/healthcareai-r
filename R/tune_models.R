@@ -3,21 +3,21 @@
 #'
 #' @param d A data frame
 #' @param outcome Name of the column to predict
-#' @param model_class "regression" or "classification". If not provided, this
-#'   will be determined by the class of `outcome` with the determination
-#'   displayed in a message.
 #' @param models Names of models to try, by default "rf" for random forest and
 #'   "knn" for k-nearest neighbors. See \code{\link{supported_models}} for
 #'   available models.
-#' @param n_folds How many folds to use in cross-validation? Default = 5.
-#' @param tune_depth How many hyperparameter combinations to try? Defualt = 10.
-#' @param tune_method How to search hyperparameter space? Default = "random".
 #' @param metric What metric to use to assess model performance? Options for
 #'   regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
 #'   error), or "Rsquared." For classification: "ROC" (area under the receiver
 #'   operating characteristic curve), or "PR" (area under the precision-recall
 #'   curve).
+#' @param n_folds How many folds to use in cross-validation? Default = 5.
+#' @param tune_depth How many hyperparameter combinations to try? Defualt = 10.
+#' @param tune_method How to search hyperparameter space? Default = "random".
 #' @param hyperparameters Currently not supported.
+#' @param model_class "regression" or "classification". If not provided, this
+#'   will be determined by the class of `outcome` with the determination
+#'   displayed in a message.
 #'
 #' @export
 #' @importFrom kknn kknn
@@ -64,13 +64,13 @@
 #' }
 tune_models <- function(d,
                         outcome,
-                        model_class,
                         models,
+                        metric,
                         n_folds = 5,
                         tune_depth = 10,
                         tune_method = "random",
-                        metric,
-                        hyperparameters) {
+                        hyperparameters,
+                        model_class) {
 
   if (n_folds <= 1)
     stop("n_folds must be greater than 1.")

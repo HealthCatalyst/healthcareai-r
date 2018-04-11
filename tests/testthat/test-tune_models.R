@@ -5,15 +5,15 @@ test_df <- na.omit(pima_diabetes)[1:200, ]
 
 ## Temporary test until grid search is implemented
 test_that("tune errors if tune_method isn't 'random'", {
-  expect_error(tune_models(test_df, plasma_glucose, "regression", tune_method = "grid"),
+  expect_error(tune_models(test_df, plasma_glucose, tune_method = "grid"),
                "random")
 })
 
 test_that("Error informatively if outcome class doesn't match model_class", {
-  expect_error(tune_models(test_df, diabetes, "regression"), "categorical")
+  expect_error(tune_models(test_df, diabetes, model_class = "regression"), "categorical")
   test_df$diabetes <- factor(test_df$diabetes)
-  expect_error(tune_models(test_df, diabetes, "regression"), "categorical")
-  expect_error(tune_models(test_df, plasma_glucose, "classification"), "numeric")
+  expect_error(tune_models(test_df, diabetes, model_class = "regression"), "categorical")
+  expect_error(tune_models(test_df, plasma_glucose, model_class = "classification"), "numeric")
 })
 
 # No error for each algorithm x response-class type
@@ -132,13 +132,13 @@ test_that("tune supports various loss functions in regression", {
 
 test_that("tune handles character outcome", {
   test_df$diabetes <- as.character(test_df$diabetes)
-  expect_s3_class(tune_models(test_df, diabetes, "classification", tune_depth = 2,
+  expect_s3_class(tune_models(test_df, diabetes, tune_depth = 2,
                               n_folds = 2, models = "rf"),
                   "classification_list")
 })
 
 test_that("tune handles tibble input", {
-  expect_s3_class(tune_models(tibble::as_tibble(test_df), diabetes, "classification",
+  expect_s3_class(tune_models(tibble::as_tibble(test_df), diabetes,
                               tune_depth = 2, n_folds = 2, models = "knn"),
                   "classification_list")
 })

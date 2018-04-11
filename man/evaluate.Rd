@@ -2,9 +2,15 @@
 % Please edit documentation in R/evaluate.R
 \name{evaluate}
 \alias{evaluate}
+\alias{evaluate.hcai_predicted_df}
+\alias{evaluate.model_list}
 \title{Get model performance metrics}
 \usage{
 evaluate(x, ...)
+
+\method{evaluate}{hcai_predicted_df}(x, ...)
+
+\method{evaluate}{model_list}(x, ...)
 }
 \arguments{
 \item{x}{Object that should be evalutes}
@@ -25,8 +31,8 @@ This function is a generic that can be used to get model performance
   instead.
 }
 \examples{
-# models <- machine_learn(pima_diabetes[1:40, ], patient_id, outcome = diabetes,
-#                       models = "rf", tune_depth = 3)
+models <- machine_learn(pima_diabetes[1:40, ], patient_id, outcome = diabetes,
+                        models = "rf", tune_depth = 3)
 # evaluate(models)
 predictions <- predict(models, newdata = pima_diabetes[41:50, ])
 evaluate(predictions)

@@ -3,6 +3,7 @@
 S3method(bake,step_add_levels)
 S3method(bake,step_hcai_missing)
 S3method(evaluate,hcai_predicted_df)
+S3method(evaluate,model_list)
 S3method(plot,hcai_predicted_df)
 S3method(plot,model_list)
 S3method(predict,model_list)
