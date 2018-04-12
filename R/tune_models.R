@@ -100,33 +100,13 @@ tune_models <- function(d,
             length(models), ") on a ", format(obs, big.mark = ","), " row dataset. ",
             "This may take a while...")
 
-  y <- dplyr::pull(d, !!outcome)
-  d <- dplyr::select(d, -!!outcome)
-  # Loop over models, tuning each
-  train_list <-
-    lapply(models, function(model) {
-      message("Running cross validation for ",
-              caret::getModelInfo(model)[[1]]$label)
-      # Reduce kmax for kknn
-      if (model == "kknn")
-        model <- adjust_knn()
-      # Train models
-      suppressPackageStartupMessages(
-        caret::train(x = d,
-                     y = y,
-                     method = model,
-                     metric = metric,
-                     trControl = train_control,
-                     tuneLength = tune_depth
-        )
-      )
-    })
-
+  train_list <- train_models(d, outcome, models, metric, train_control,
+                             tune = TRUE, tune_depth = tune_depth)
   train_list <- as.model_list(listed_models = train_list,
                               tuned = TRUE,
                               target = rlang::quo_name(outcome),
                               recipe = recipe,
-                              positive_class = levels(y)[1]) %>%
+                              positive_class = attr(train_list, "positive_class")) %>%
     structure(timestamp = Sys.time())
   return(train_list)
 }
