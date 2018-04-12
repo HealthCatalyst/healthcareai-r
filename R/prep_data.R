@@ -232,8 +232,10 @@ prep_data <- function(d,
     if (length(nom_preds) && all(nom_preds %in% removing))
       stop("All your categorical columns will be removed because they have ",
            "near-zero variance, which will break prep_data. ",
-           "We're working on a fix; in the meantime, either remove these ",
-           "NZV columns before prep_data or set remove_near_zero_variance = FALSE:\n",
+           "Please let us know that you've encountered this error ",
+           "here - https://github.com/HealthCatalyst/healthcareai-r/issues/new - ",
+           "and we will work on a fix. In the meantime, either remove these ",
+           "NZV columns before prep_data or set remove_near_zero_variance = FALSE.\n  ",
            paste(removing, collapse = ", "))
 
     # Convert date columns to useful features and remove original. ------------
@@ -359,7 +361,9 @@ prep_data <- function(d,
   ## near zero variance
   if ("step_nzv" %in% steps &&
       length(nzv_removed <- recipe$steps[[which(steps == "step_nzv")]]$removals))
-    warning("Removing these near-zero variance columns: ",
+    message("Removing the following ", length(nzv_removed), " near-zero variance column(s). ",
+            "If you don't want to remove them, call prep_data with ",
+            "remove_near_zero_variance = FALSE.\n  ",
             paste(nzv_removed, collapse = ", "))
 
   # Remove outcome if recipe was provided but outcome not present
