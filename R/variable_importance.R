@@ -76,4 +76,4 @@ get_variable_importance <- function(x) {
     structure(model = names(x)[use])
 }
 
-safe_imp <- purrr::safely(~ caret::varImp(.x, useModel = FALSE))
+safe_imp <- purrr::safely(~ caret::varImp(.x))

@@ -13,23 +13,30 @@ train_models <- function(d, outcome, models, metric, train_control, tune, ...) {
   train_list <-
     lapply(models, function(model) {
       message(mes, caret::getModelInfo(model)[[1]]$label)
+      # Start list of arguments to train
       train_args <- list(x = d,
                          y = y,
                          method = model,
                          metric = metric,
                          trControl = train_control)
+
+      # Add arguments specific to models
+      if (model == "ranger")
+        train_args$importance <- "impurity"
+
+      # Add arguments specific to whether tuning or not
       if (tune) {
         train_args$tuneLength <- dots$tune_depth
-        # Reduce kmax for kknn
+        # Reduce kmax for kknn. train either takes a string or a list like what's returned here
         if (model == "kknn")
           model <- adjust_knn()
       } else {
         tune_grid <- as.data.frame(dots$hyperparameters[[translate_model_names(model)]])
         train_args$tuneGrid  <- tune_grid
       }
-      suppressPackageStartupMessages({
-        do.call(caret::train, train_args)
-      })
+
+      suppressPackageStartupMessages(
+        do.call(caret::train, train_args))
     })
   structure(train_list, positive_class = levels(y)[1])
 }
