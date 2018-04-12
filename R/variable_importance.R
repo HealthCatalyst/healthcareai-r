@@ -14,7 +14,7 @@
 #' @importFrom stats reorder
 #'
 #' @examples
-#' m <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = diabetes)
+#' m <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = diabetes, tune = FALSE)
 #' plot_variable_importance(m)
 plot_variable_importance <- function(x,
                                      caption = "model",
@@ -57,7 +57,7 @@ plot_variable_importance <- function(x,
 #' @export
 #'
 #' @examples
-#' m <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = diabetes)
+#' m <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = diabetes, tune = FALSE)
 #' get_variable_importance(m)
 get_variable_importance <- function(x) {
   importances <- lapply(x, safe_imp)

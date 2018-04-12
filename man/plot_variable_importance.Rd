@@ -28,6 +28,6 @@ ggplot object, invisibly
 Plot variable importance
 }
 \examples{
-m <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = diabetes)
+m <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = diabetes, tune = FALSE)
 plot_variable_importance(m)
 }

@@ -16,6 +16,6 @@ Data frame of variables and importance scores
 Get variable importance
 }
 \examples{
-m <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = diabetes)
+m <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = diabetes, tune = FALSE)
 get_variable_importance(m)
 }

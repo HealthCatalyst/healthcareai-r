@@ -2,8 +2,8 @@ context("Checking variable importance")
 
 data(mtcars)
 mtcars$am <- factor(ifelse(mtcars$am, "Y", "N"))
-cl <- machine_learn(mtcars, outcome = am)
-reg <- machine_learn(mtcars, outcome = mpg, models = "rf")
+cl <- machine_learn(mtcars, outcome = am, tune = FALSE)
+reg <- machine_learn(mtcars, outcome = mpg, models = "rf", tune = FALSE)
 
 test_that("rank_models gets it right", {
   ci <- extract_model_info(cl)
