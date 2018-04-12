@@ -23,13 +23,14 @@ train_models <- function(d, outcome, models, metric, train_control, tune, ...) {
       # Add arguments specific to models
       if (model == "ranger")
         train_args$importance <- "impurity"
+      # Reduce kmax for kknn. train either takes a string or a list like what's returned here
+      # If not tuning, the piece that adjust_knn edits isn't called
+      if (model == "kknn")
+        train_args$method <- adjust_knn()
 
       # Add arguments specific to whether tuning or not
       if (tune) {
         train_args$tuneLength <- dots$tune_depth
-        # Reduce kmax for kknn. train either takes a string or a list like what's returned here
-        if (model == "kknn")
-          model <- adjust_knn()
       } else {
         tune_grid <- as.data.frame(dots$hyperparameters[[translate_model_names(model)]])
         train_args$tuneGrid  <- tune_grid
