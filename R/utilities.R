@@ -10,8 +10,8 @@ missing_check <- function(d, col_name) {
   if (!any(is.na(dplyr::pull(d, !!col_name)))) {
     return(TRUE)
   } else {
-    stop("Fill in missingness in ", rlang::get_expr(col_name),
-         " before calling ", match.call())
+    stop("There is missingness in ", rlang::get_expr(col_name),
+         " that must be filled in. Consider using `impute()`.")
   }
 }
 
