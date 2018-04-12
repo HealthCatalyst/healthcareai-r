@@ -159,17 +159,25 @@ plot.model_list <- function(x, print = TRUE, ...) {
   return(invisible(gg))
 }
 
-if (FALSE) {
-  # This is tricky because finalModel is a ranger (or whatever) class object,
-  # not a train object.
-  evaluate.model_list <- function(x) {
-    f <- if (x[[1]]$maximize) max else min
-    each_best <- purrr::map_dbl(x, ~ f(.x$results[[.x$metric]]))
-    which_best <- which(f(each_best) == each_best)[1]
-    message("Returning the best model, a ", names(which_best))
-    out <- x[[which_best]]$finalModel
-    return(out)
+#' @export
+`[.model_list` <- function(x, i) {
+  attrs <- attributes(x)
+  if (is.logical(i)) {
+    i <- which(i)
+  } else if (is.character(i)) {
+    i <- which(names(x) %in% i)
   }
+  # Training data is held in first model only; move it there if it's not staying
+  if (!1 %in% i)
+    x[[min(i)]]$trainingData <- x[[1]]$trainingData
+  # Rebuild the model_list, keeping the old timestamp
+  x <-
+    as.model_list(listed_models = .subset(x, i),
+                  target = attrs$target,
+                  tuned = attrs$tuned,
+                  positive_class = attrs$positive_class) %>%
+    structure(timestamp = attrs$timestamp)
+  return(x)
 }
 
 #' Get info from a model_list
