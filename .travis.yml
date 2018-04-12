@@ -25,11 +25,15 @@ matrix:
 
 r_packages:
   - covr
+  - lintr
 
 addons:
   apt:
     packages:
       - libnlopt-dev
+
+before_script:
+  - R -e 'lintr::lint_package()'
 
 after_success:
   - Rscript -e 'covr::codecov()'
