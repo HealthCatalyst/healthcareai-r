@@ -3,7 +3,7 @@ context("Checking variable importance")
 data(mtcars)
 mtcars$am <- factor(ifelse(mtcars$am, "Y", "N"))
 cl <- machine_learn(mtcars, outcome = am)
-reg <- machine_learn(mtcars, outcome = mpg)
+reg <- machine_learn(mtcars, outcome = mpg, models = "rf")
 
 test_that("rank_models gets it right", {
   ci <- extract_model_info(cl)
@@ -15,4 +15,12 @@ test_that("rank_models gets it right", {
 test_that("get_variable_importance returns a tibble", {
   expect_s3_class(get_variable_importance(cl), "tbl_df")
   expect_s3_class(get_variable_importance(reg), "tbl_df")
+})
+
+test_that("plot_variable_importance returns a ggplot", {
+  expect_s3_class(plot_variable_importance(cl, print = FALSE), "gg")
+  expect_s3_class(plot_variable_importance(reg, print = FALSE), "gg")
+  expect_s3_class(plot_variable_importance(get_variable_importance(cl), print = FALSE), "gg")
+  expect_s3_class(plot_variable_importance(get_variable_importance(reg), print = FALSE), "gg")
+  expect_s3_class(plot_variable_importance(reg, caption = "none", title = "VI", font_size = 16, print = FALSE), "gg")
 })
