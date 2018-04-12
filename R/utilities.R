@@ -100,6 +100,17 @@ change_metric_names <- function(object) {
   return(object)
 }
 
+#' Returns the order of performance of models in m, with 1 being best
+#' @noRd
+rank_models <- function(m) {
+  mi <- extract_model_info(m)
+  metric <-
+    get_metric_names() %>%
+    dplyr::filter(caret == mi$metric)
+  perf <- do.call(rbind, purrr::map(names(m), ~ evaluate(m[.x])))
+  order(perf[, metric$ours], decreasing = m[[1]]$maximize)
+}
+
 #' Function to skip specific tests if they are not being run on Appveyor.
 #'
 #' @description This function will skip a test if it's not being run on

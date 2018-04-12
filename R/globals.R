@@ -2,7 +2,7 @@
 #' @import methods
 utils::globalVariables(c("outside", "percent_missing", "variable", ".outcome",
                          ".", "Y", "twoClassSummary", "rowIndex",
-                         "w_cc", "w_ccmcc",
+                         "importance", "caret", "w_cc", "w_ccmcc",
                          "fill_ones"))
 
 printer <- utils::getFromNamespace("printer", "recipes")
