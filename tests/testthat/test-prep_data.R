@@ -495,3 +495,10 @@ test_that("prep_data warns iff factor contrast options are dummy", {
   options(contrasts = c("contr.treatment", "contr.poly"))
   expect_warning(prep_data(d_train, song_id, outcome = is_ween), NA)
 })
+
+test_that("prep_data errors informatively 0/1 factor outcomes", {
+  dd <- data.frame(y = factor(rep(0:1, 10)),
+                   x1 = sample(letters, 20),
+                   x2 = rnorm(20))
+  expect_error(prep_data(dd, outcome = y), "character")
+})
