@@ -14,6 +14,20 @@ Both feature requests and bug reports should be submitted as [Github issues](htt
 
 We welcome contributions from within and beyond the Health Catalyst community. To get involved, [fork the repository](https://help.github.com/articles/fork-a-repo/), create a topic branch, make changes, and submit a [pull request](https://github.com/HealthCatalyst/healthcareai-r/pulls).
 
+#### Pull Request Checklist
+
+When submitting a pull request, here's what you need to check. Some of these things will be tested by continuous integration, others will not, so please be sure to run through this list.
+
+- [ ] Pull the current remote master branch and ensure your branch is up to date.
+- [ ] Generate package documentation: `devtools::document()`
+- [ ] Build package: `devtools::build()`
+- [ ] Generate package website: `pkgdown::build_site()`
+- [ ] Generate README.md: `rmarkdown::render("README.Rmd")`
+- [ ] Ensure code passes all CRAN checks without warnings or notes: `devtools::check()` 
+    - [ ] Ensure code passes all tests: `devtools::test()`. This will be tested by `check`, but it's faster to use this for checking. 
+- [ ] Ensure code is lint free: `lintr::lint_package()`
+- [ ] Ensure any code you've added is well tested. A coverage report will automatically be added to the PR. You can get a sense of coverage by running `covr::report()`
+
 #### Getting Started Contributing
 
 It's best to start small and work your way into deeper issues as you gain familiarity with the process. Improvements to documentation are a great place to start. We also tag issues that we think make good opportunities for contributions with the ["help wanted" tag](https://github.com/HealthCatalyst/healthcareai-r/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22).
