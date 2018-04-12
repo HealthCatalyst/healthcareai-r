@@ -10,8 +10,8 @@ missing_check <- function(d, col_name) {
   if (!any(is.na(dplyr::pull(d, !!col_name)))) {
     return(TRUE)
   } else {
-    stop("Fill in missingness in ", rlang::get_expr(col_name),
-         " before calling ", match.call())
+    stop("There is missingness in ", rlang::get_expr(col_name),
+         " that must be filled in. Consider using `impute()`.")
   }
 }
 
@@ -98,6 +98,17 @@ change_metric_names <- function(object) {
       metrics$ours[metrics$caret == attr(object, "model_info")$metric]
   }
   return(object)
+}
+
+#' Returns the order of performance of models in m, with 1 being best
+#' @noRd
+rank_models <- function(m) {
+  mi <- extract_model_info(m)
+  metric <-
+    get_metric_names() %>%
+    dplyr::filter(caret == mi$metric)
+  perf <- do.call(rbind, purrr::map(names(m), ~ evaluate(m[.x])))
+  order(perf[, metric$ours], decreasing = m[[1]]$maximize)
 }
 
 #' Function to skip specific tests if they are not being run on Appveyor.

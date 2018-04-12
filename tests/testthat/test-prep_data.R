@@ -345,20 +345,20 @@ test_that("All nominal variables aren't a problem", {
   expect_s3_class(prep_data(d, outcome = id_var), "prepped_df")
 })
 
-test_that("remove_near_zero_variance is respected, works, and warns", {
+test_that("remove_near_zero_variance is respected, works, and messages", {
   d_train <- dplyr::mutate(d_train,
                            a_nzv_col = c("rare", rep("common", nrow(d_train) - 1)))
-  expect_warning(def <- prep_data(d_train), regexp = "a_nzv_col")
+  expect_message(def <- prep_data(d_train), regexp = "a_nzv_col")
   expect_false("a_nzv_col" %in% names(def))
   # nzv_col should be removed in deployement even if it has variance
   d_test <- dplyr::mutate(d_test,
                           a_nzv_col = sample(letters, nrow(d_test), replace = TRUE))
-  expect_warning(pd <- prep_data(d_test, recipe = def), regexp = "a_nzv_col")
+  expect_message(pd <- prep_data(d_test, recipe = def), regexp = "a_nzv_col")
   expect_false("a_nzv_col" %in% names(def))
   stay <- prep_data(d_train, remove_near_zero_variance = FALSE, make_dummies = FALSE)
   expect_true("a_nzv_col" %in% names(stay))
   expect_error(prep_data(dplyr::select(d_train, a_nzv_col, is_ween), outcome = is_ween),
-                 "working on a fix")
+               "github.com")
 })
 
 test_that("collapse_rare_factors works", {

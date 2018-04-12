@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Make models into model_list object — as.model_list • healthcareai</title>
+<title>Plot variable importance — plot_variable_importance • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,9 +25,9 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Make models into model_list object — as.model_list" />
+<meta property="og:title" content="Plot variable importance — plot_variable_importance" />
 
-<meta property="og:description" content="Make models into model_list object" />
+<meta property="og:description" content="Plot variable importance" />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -130,58 +130,52 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Make models into model_list object</h1>
+    <h1>Plot variable importance</h1>
     
     </div>
 
     
-    <p>Make models into model_list object</p>
+    <p>Plot variable importance</p>
     
 
-    <pre class="usage"><span class='fu'>as.model_list</span>(<span class='no'>...</span>, <span class='kw'>listed_models</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>target</span> <span class='kw'>=</span> <span class='st'>".outcome"</span>, <span class='no'>model_class</span>,
-  <span class='kw'>tuned</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>recipe</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>positive_class</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>plot_variable_importance</span>(<span class='no'>x</span>, <span class='kw'>caption</span> <span class='kw'>=</span> <span class='st'>"model"</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>font_size</span> <span class='kw'>=</span> <span class='fl'>11</span>, <span class='kw'>print</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>...</th>
-      <td><p><code>caret</code>-trained models to put into a model list</p></td>
+      <th>x</th>
+      <td><p>Either a model_list object or a data frame from
+<code><a href='get_variable_importance.html'>get_variable_importance</a></code></p></td>
     </tr>
     <tr>
-      <th>listed_models</th>
-      <td><p>Use this if your models are already in a list</p></td>
+      <th>caption</th>
+      <td><p>Either "model", "none", or a string to be used as the plot
+caption. "model" puts the name of the best-performing model, on which
+variable importances are generated, in the caption.</p></td>
     </tr>
     <tr>
-      <th>target</th>
-      <td><p>Quoted name of response variable</p></td>
+      <th>title</th>
+      <td><p>Plot title</p></td>
     </tr>
     <tr>
-      <th>model_class</th>
-      <td><p>"classification" or "regression". Will be determined if
-not provided</p></td>
+      <th>font_size</th>
+      <td><p>Relative size for all fonts, default = 11</p></td>
     </tr>
     <tr>
-      <th>tuned</th>
-      <td><p>Logical; if FALSE, will have super-class untuned_models</p></td>
-    </tr>
-    <tr>
-      <th>recipe</th>
-      <td><p>recipe object from prep+_data, or NULL if the data didn't go
-through prep_data</p></td>
-    </tr>
-    <tr>
-      <th>positive_class</th>
-      <td><p>If classification, the positive outcome class,
-otherwise NULL</p></td>
+      <th>print</th>
+      <td><p>Print the plot?</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A model_list with child class type_list</p>
+    <p>ggplot object, invisibly</p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='no'>m</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='machine_learn.html'>machine_learn</a></span>(<span class='no'>pima_diabetes</span>[<span class='fl'>1</span>:<span class='fl'>50</span>, ], <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Running cross validation for Random Forest</span></div><div class='output co'>#&gt; <span class='message'>Running cross validation for k-Nearest Neighbors</span></div><div class='input'><span class='fu'>plot_variable_importance</span>(<span class='no'>m</span>)</div><div class='img'><img src='plot_variable_importance-1.png' alt='' width='576' height='288' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -189,7 +183,9 @@ otherwise NULL</p></td>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

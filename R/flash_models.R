@@ -101,25 +101,13 @@ flash_models <- function(d,
   if (metric == "PR")
     metric <- "AUC"
 
-  y <- dplyr::pull(d, !!outcome)
-  d <- dplyr::select(d, -!!outcome)
-  train_list <-
-    lapply(models, function(model) {
-      suppressPackageStartupMessages({
-        tune_grid <- as.data.frame(hyperparameters[[translate_model_names(model)]])
-        caret::train(x = d,
-                     y = y,
-                     method = model,
-                     metric = metric,
-                     trControl = train_control,
-                     tuneGrid = tune_grid)
-      })
-    })
-
-  train_list <- add_model_attrs(models = train_list,
-                                recipe = recipe,
-                                tuned = FALSE,
-                                target = rlang::quo_name(outcome),
-                                positive_class = levels(y)[1])
+  train_list <- train_models(d, outcome, models, metric, train_control,
+                             tune = FALSE, hyperparameters = hyperparameters)
+  train_list <- as.model_list(listed_models = train_list,
+                              tuned = FALSE,
+                              target = rlang::quo_name(outcome),
+                              recipe = recipe,
+                              positive_class = attr(train_list, "positive_class")) %>%
+    structure(timestamp = Sys.time())
   return(train_list)
 }
