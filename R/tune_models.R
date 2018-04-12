@@ -122,11 +122,12 @@ tune_models <- function(d,
       )
     })
 
-  train_list <- add_model_attrs(models = train_list,
-                                recipe = recipe,
-                                tuned = TRUE,
-                                target = rlang::quo_name(outcome),
-                                positive_class = levels(y)[1])
+  train_list <- as.model_list(listed_models = train_list,
+                              tuned = TRUE,
+                              target = rlang::quo_name(outcome),
+                              recipe = recipe,
+                              positive_class = levels(y)[1]) %>%
+    structure(timestamp = Sys.time())
   return(train_list)
 }
 
@@ -314,16 +315,4 @@ setup_train_control <- function(tune_method, model_class, metric, n_folds) {
     train_control$classProbs <- TRUE
   }
   return(train_control)
-}
-
-#' Add model attributes and class
-#' @noRd
-add_model_attrs <- function(models, recipe, tuned, target, positive_class) {
-  train_list <- as.model_list(listed_models = models,
-                              tuned = tuned,
-                              target = target)
-  structure(train_list,
-            recipe = recipe,
-            positive_class = positive_class) %>%
-    structure(., performance = evaluate(.))
 }

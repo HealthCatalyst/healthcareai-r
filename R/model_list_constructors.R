@@ -1,59 +1,71 @@
-#' Constructor function for empty model_list
-#'
-#' @param model_class Every model_list object has a child class that specifies
-#'   the model_class. Currently classification and regression are supported.
-#'
-#' @return An empty list with classes list, model_list, and type_list
-#' @importFrom purrr map_lgl
-#' @noRd
-model_list <- function(model_class) {
-  check_model_class(model_class = model_class)
-  structure(list(),
-            class = c(paste0(model_class, "_list"), "model_list", "list"))
-}
-
 #' Make models into model_list object
 #'
 #' @param ... \code{caret}-trained models to put into a model list
 #' @param listed_models Use this if your models are already in a list
-#' @param model_class "classification" or "regression"
+#' @param model_class "classification" or "regression". Will be determined if
+#'   not provided
 #' @param target Quoted name of response variable
 #' @param tuned Logical; if FALSE, will have super-class untuned_models
+#' @param recipe recipe object from prep+_data, or NULL if the data didn't go
+#'   through prep_data
+#' @param positive_class If classification, the positive outcome class,
+#'   otherwise NULL
 #'
 #' @importFrom purrr map_chr
+#' @importFrom purrr map_lgl
 #' @return A model_list with child class type_list
 #' @export
-as.model_list <- function(..., listed_models = NULL, target = ".outcome",
-                          model_class, tuned = TRUE) {
+as.model_list <- function(...,
+                          listed_models = NULL,
+                          target = ".outcome",
+                          model_class,
+                          tuned = TRUE,
+                          recipe = NULL,
+                          positive_class = NULL) {
   listed_models <- c(
     structure(list(...),
               names = purrr::map_chr(as.list(match.call(expand.dots = FALSE)$...), deparse)),
     listed_models
   )
-  if (length(listed_models)) {
-    if (any(!purrr::map_lgl(listed_models, inherits, "train")))
-      stop("Those don't look like caret-trained models.")
-    if (length(unique(lapply(listed_models, function(mm) mm$trainingData))) > 1)
-      stop("Those models don't appear to have been trained on the same data.")
-    types <- unique(tolower(purrr::map_chr(listed_models, ~ .x$modelType)))
-    if (length(types) > 1L)
-      stop("All model_class elements need to be the same. Yours: ",
-           paste(types, collapse = ", "))
-    if (!missing(model_class) && model_class != types)
-      stop("model_class doesn't match the model(s).")
-    model_class <- types
-    names(listed_models) <- purrr::map_chr(listed_models, ~ .x$modelInfo$label)
-    # Remove training data from all but the first model
-    for (i in setdiff(seq_along(listed_models), 1)) {
-      listed_models[[i]]$trainingData <- NULL
-    }
+
+  if (any(!purrr::map_lgl(listed_models, inherits, "train")))
+    stop("Those don't look like caret-trained models.")
+  # model_lists only keep one copy of the data, so check that only where present
+  # datasets match
+  datasets <- lapply(listed_models, function(mm) mm$trainingData)
+  if (length(unique(datasets[!purrr::map_lgl(datasets, is.null)])) > 1)
+    stop("Those models don't appear to have been trained on the same data.")
+  metrics <- unique(purrr::map_chr(listed_models, "metric"))
+  if (length(metrics) > 1)
+    stop("All models must be trained on the same evaluation metric. ",
+         "Those models were trained on ", paste(metrics, collapse = ", "))
+  if (!metrics %in% get_metric_names()$caret)
+    stop(metrics, " is not a healthcareai supported metric. ",
+         "Tune your models on one of: ", paste(get_metric_names()$caret, collapse = ", "))
+  if (any(purrr::map_lgl(listed_models, ~ is.null(.x$pred))))
+    stop("as.model_list requires training predictions to be saved. ",
+         "Use `trControl = trainControl(savePredictions = \"final\")` in `train`")
+  types <- unique(tolower(purrr::map_chr(listed_models, ~ .x$modelType)))
+  if (length(types) > 1L)
+    stop("All model_class elements need to be the same. Yours: ",
+         paste(types, collapse = ", "))
+  if (!missing(model_class) && model_class != types)
+    stop("model_class doesn't match the model(s).")
+  model_class <- types
+  names(listed_models) <- purrr::map_chr(listed_models, ~ .x$modelInfo$label)
+  # Remove training data from all but the first model
+  for (i in setdiff(seq_along(listed_models), 1)) {
+    listed_models[[i]]$trainingData <- NULL
   }
+
   check_model_class(model_class)
   structure(listed_models,
             class = c(paste0(model_class, "_list"), "model_list", class(listed_models)),
             tuned = tuned,
             target = target,
-            timestamp = Sys.time())
+            recipe = recipe,
+            positive_class = positive_class) %>%
+    structure(., performance = evaluate(.))
 }
 
 #' Check that the model class is supported

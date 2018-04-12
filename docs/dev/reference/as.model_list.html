@@ -139,7 +139,7 @@
     
 
     <pre class="usage"><span class='fu'>as.model_list</span>(<span class='no'>...</span>, <span class='kw'>listed_models</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>target</span> <span class='kw'>=</span> <span class='st'>".outcome"</span>, <span class='no'>model_class</span>,
-  <span class='kw'>tuned</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+  <span class='kw'>tuned</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>recipe</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>positive_class</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -158,11 +158,22 @@
     </tr>
     <tr>
       <th>model_class</th>
-      <td><p>"classification" or "regression"</p></td>
+      <td><p>"classification" or "regression". Will be determined if
+not provided</p></td>
     </tr>
     <tr>
       <th>tuned</th>
       <td><p>Logical; if FALSE, will have super-class untuned_models</p></td>
+    </tr>
+    <tr>
+      <th>recipe</th>
+      <td><p>recipe object from prep+_data, or NULL if the data didn't go
+through prep_data</p></td>
+    </tr>
+    <tr>
+      <th>positive_class</th>
+      <td><p>If classification, the positive outcome class,
+otherwise NULL</p></td>
     </tr>
     </table>
     

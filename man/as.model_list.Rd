@@ -5,7 +5,7 @@
 \title{Make models into model_list object}
 \usage{
 as.model_list(..., listed_models = NULL, target = ".outcome", model_class,
-  tuned = TRUE)
+  tuned = TRUE, recipe = NULL, positive_class = NULL)
 }
 \arguments{
 \item{...}{\code{caret}-trained models to put into a model list}
@@ -14,9 +14,16 @@ as.model_list(..., listed_models = NULL, target = ".outcome", model_class,
 
 \item{target}{Quoted name of response variable}
 
-\item{model_class}{"classification" or "regression"}
+\item{model_class}{"classification" or "regression". Will be determined if
+not provided}
 
 \item{tuned}{Logical; if FALSE, will have super-class untuned_models}
+
+\item{recipe}{recipe object from prep+_data, or NULL if the data didn't go
+through prep_data}
+
+\item{positive_class}{If classification, the positive outcome class,
+otherwise NULL}
 }
 \value{
 A model_list with child class type_list
