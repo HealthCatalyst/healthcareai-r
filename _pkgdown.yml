@@ -44,13 +44,18 @@ reference:
     - machine_learn
     - tune_models
     - flash_models
-    - plot.model_list
-    - evaluate
   - title: Prediction
-    desc: Make predictions from a trained model
+    desc: Make predictions from trained models
     contents:
     - predict.model_list
     - plot.predicted_df
+  - title: Model Interpretation
+    desc: Understand models
+    contents:
+    - evaluate
+    - plot.model_list
+    - get_variable_importance
+    - plot_variable_importance
   - title: Data Preparation
     desc: Get data ready for machine learning
     contents:

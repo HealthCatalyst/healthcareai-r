@@ -11,6 +11,7 @@
 #'
 #' @return ggplot object, invisibly
 #' @export
+#' @importFrom stats reorder
 #'
 #' @examples
 #' m <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = diabetes)
@@ -22,7 +23,7 @@ plot_variable_importance <- function(x,
                                      print = TRUE) {
   if (is.model_list(x))
     x <- get_variable_importance(x)
-  if ((is.data.frame(x) && names(x) != c("variable", "importance")) ||
+  if ( (is.data.frame(x) && names(x) != c("variable", "importance") ) ||
       !is.data.frame(x))
     stop("x must be a model_list or a data frame from get_variable_importance")
 
@@ -76,4 +77,3 @@ get_variable_importance <- function(x) {
 }
 
 safe_imp <- purrr::safely(~ caret::varImp(.x, useModel = FALSE))
-
