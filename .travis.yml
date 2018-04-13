@@ -34,6 +34,8 @@ addons:
 before_install:
   - npm install netlify-cli -g
 
+# install healthcareai and dependencies
+
 before_script:
   - Rscript -e 'pkgdown::build_site("README.Rmd")'
 
