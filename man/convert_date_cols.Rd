@@ -2,7 +2,7 @@
 % Please edit documentation in R/prep_data_utils.R
 \name{convert_date_cols}
 \alias{convert_date_cols}
-\title{Prepare data for machine learning}
+\title{Convert character date columns to dates}
 \usage{
 convert_date_cols(d)
 }
@@ -10,24 +10,21 @@ convert_date_cols(d)
 \item{d}{A dataframe or tibble containing data to try to convert to dates.}
 }
 \value{
-Prepared data frame with reusable recipe object for future data
-  preparation in attribute "recipe". Attribute recipe contains the names of
-  ignored columns (those passed to ...) in attribute "ignored_columns".
+A tibble containing the converted date columns. If no columns
+needed conversion, the original data will be returned.
 }
 \description{
-in the `recipe`
-  attribute of the output data frame. If a recipe object is passed to
-  `prep_data` via the `recipe` argument, that recipe will be applied to the
-  data. This allows you to transform data in model training and apply exactly
-  the same transformations in model testing and deployment. The new data must
-  be identical in structure to the data that the recipe was prepared with.
+I try to convert columns ending in "DTS" to type Date. I'll take
+my best guess at the format and return a more standard one if I can. Times
+will be removed.
 }
 \examples{
-d_train <- pima_diabetes[1:700, ]
-d_test <- pima_diabetes[701:768, ]
+d <- tibble::tibble(a_DTS = c("2018-3-25", "2018-3-25"),
+b_nums = c(2, 4),
+c_DTS = c("03-25-2018", "03-25-2018"),
+d_chars = c("a", "b"),
+e_date = lubridate::mdy(c("3-25-2018", "3-25-2018")))
 
-}
-\seealso{
-\code{\link{hcai_impute}}, \code{\link{tune_models}},
-  \code{\link{predict.model_list}}
+d <- convert_date_cols(d)
+
 }

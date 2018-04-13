@@ -1,4 +1,4 @@
-context("Testing convert_dates")
+context("Testing convert_date_cols")
 
 # Setup ------------------------------------------------------------------------
 d <- data.frame(a_DTS = c("2018-3-25", "2018-3-25"),
@@ -66,25 +66,6 @@ test_that("Mixed tibble converts all date columns", {
                c("Date", "numeric", "Date", "character", "Date"))
 })
 
-test_that("columns are returned in the same order", {
-
-})
-
-test_that("convert dates returns same shape as input", {
-
-})
-
-test_that("convert dates returns same shape as input", {
-
-})
-
-test_that("convert dates returns same shape as input", {
-
-})
-
-test_that("convert dates returns same shape as input", {
-
-})
 
 
 
