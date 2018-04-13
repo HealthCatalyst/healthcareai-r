@@ -86,11 +86,11 @@ test_that("Bad outcome columns throws an error", {
                regexp = "NA values")
 })
 
-test_that("Bad ignored columns throws an error", {
-  expect_error(prep_data(d = d_train, cowbell),
-               regexp = "not found in d")
-  expect_error(prep_data(d = d_train, cowbell, spoons),
-               regexp = "not found in d")
+test_that("Bad ignored columns throws a warning", {
+  expect_warning(prep_data(d = d_train, cowbell),
+                 regexp = "not found in d")
+  expect_warning(prep_data(d = d_train, cowbell, spoons),
+                 regexp = "not found in d")
 })
 
 test_that("prep_data works with just param d", {
@@ -286,12 +286,6 @@ test_that("recipe attr is a recipe class object", {
 
 test_that("only the first few rows of training data are stored in the recipe", {
   expect_true(nrow(attr(d_prep, "recipe")$template) <= 10)
-})
-
-test_that("warning is given when ignored columns have missingness", {
-  expect_warning(
-    prep_data(d_train, reaction, length),
-    regexp = "reaction, length")
 })
 
 test_that("names of ignored columns get attached as attribute to recipe", {
@@ -494,4 +488,11 @@ test_that("prep_data warns iff factor contrast options are dummy", {
   expect_warning(prep_data(d_train, song_id, outcome = is_ween), "contrasts")
   options(contrasts = c("contr.treatment", "contr.poly"))
   expect_warning(prep_data(d_train, song_id, outcome = is_ween), NA)
+})
+
+test_that("data prepped on existing recipe returns ID columns", {
+  # Only difference in the prep here is the ID col isn't specified,
+  # but that's remembered in the recipe.
+  setdiff(names(d_reprep),
+          names(prep_data(d_test, recipe = attr(d_prep, "recipe"))))
 })

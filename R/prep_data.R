@@ -118,23 +118,20 @@ prep_data <- function(d,
   outcome <- rlang::enquo(outcome)
   remove_outcome <- FALSE
   # Deal with "..." columns to be ignored
-  ignore_columns <- rlang::quos(...)
-  ignored <- purrr::map_chr(ignore_columns, rlang::quo_name)
-  d_ignore <- NULL
-  if (length(ignore_columns)) {
-    present <- ignored %in% names(d)
-    if (any(!present))
-      stop(paste(ignored[!present], collapse = ", "), " not found in d.")
-    # Separate data into ignored and not
-    d_ignore <- dplyr::select(d, !!ignored)
-    d <- dplyr::select(d, -dplyr::one_of(ignored))
-    # Warn if ignored columns have missingness
-    m <- missingness(d_ignore) %>%
-      dplyr::filter(percent_missing > 0)
-    if (!purrr::is_empty(m$variable))
-      warning("These ignored variables have missingness: ",
-              paste(m$variable, collapse = ", "))
+  ignored <- purrr::map_chr(rlang::quos(...), rlang::quo_name)
+  if (!is.null(recipe))
+    ignored <- unique(c(ignored, attr(recipe, "ignored_columns")))
+  # Separate data into ignored and not
+  ignored_present <- dplyr::intersect(names(d), ignored)
+  ignored_not_present <- setdiff(ignored, names(d))
+  if (length(ignored_not_present))
+    warning(paste(ignored_not_present, collapse = ", "), " not found in d.")
+  if (length(ignored_present)) {
+    d_ignore <- d[, ignored_present, drop = FALSE]
+  } else {
+    d_ignore <- NULL
   }
+  d <- d[, setdiff(names(d), ignored), drop = FALSE]
 
   # Check global options for factor handling
   opt <- options("contrasts")[[1]][[1]]
