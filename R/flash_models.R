@@ -80,29 +80,25 @@ flash_models <- function(d,
                          metric,
                          positive_class,
                          n_folds = 5,
-                         hyperparameters,
+                         hyperparameters = NULL,
                          model_class) {
 
   models <- tolower(models)
-  if (missing(hyperparameters))
-    hyperparameters <- get_hyperparameter_defaults(models)
-  names(hyperparameters) <- tolower(names(hyperparameters))
-  if (!dplyr::setequal(names(hyperparameters), models))
-      stop("`models` and names of the list passed to `hyperparameters` must match (case-insensitive).",
-           "You provided:\nmodels: ", paste(models, collapse = ", "),
-           "\nhyperparameter names:", paste(names(hyperparameters), collapse = ", "))
-
   model_args <- setup_training(d, rlang::enquo(outcome), model_class, models, metric)
   # Pull each item out of "model_args" list and assign in this environment
   for (arg in names(model_args))
     assign(arg, model_args[[arg]])
 
-  train_control <- setup_train_control(tune_method = "none", model_class, metric, n_folds)
+  train_control <- setup_train_control(model_class, metric, n_folds)
   if (metric == "PR")
     metric <- "AUC"
 
+  # Don't train models where hyperparameters weren't provided, if any were provided
+  if (!is.null(hyperparameters))
+      models <- align_models_hyperparameters(models, hyperparameters)
+
   train_list <- train_models(d, outcome, models, metric, train_control,
-                             tune = FALSE, hyperparameters = hyperparameters)
+                             tune_method = "none", hyperparameters = hyperparameters)
   train_list <- as.model_list(listed_models = train_list,
                               tuned = FALSE,
                               target = rlang::quo_name(outcome),
@@ -110,4 +106,8 @@ flash_models <- function(d,
                               positive_class = attr(train_list, "positive_class")) %>%
     structure(timestamp = Sys.time())
   return(train_list)
+}
+
+align_models_hyperparameters <- function(models, hyperparameters) {
+  check_models(names(hyperparameters))
 }

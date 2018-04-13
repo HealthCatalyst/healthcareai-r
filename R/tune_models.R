@@ -87,7 +87,7 @@ tune_models <- function(d,
     assign(arg, model_args[[arg]])
 
   # Set up cross validation details
-  train_control <- setup_train_control(tune_method, model_class, metric, n_folds)
+  train_control <- setup_train_control(model_class, metric, n_folds)
   if (metric == "PR")
     metric <- "AUC" # For caret internal function
 
@@ -101,7 +101,8 @@ tune_models <- function(d,
             "This may take a while...")
 
   train_list <- train_models(d, outcome, models, metric, train_control,
-                             tune = TRUE, tune_depth = tune_depth)
+                             tune_depth = tune_depth, tune_method = tune_method,
+                             hyperparameters = NULL)
   train_list <- as.model_list(listed_models = train_list,
                               tuned = TRUE,
                               target = rlang::quo_name(outcome),

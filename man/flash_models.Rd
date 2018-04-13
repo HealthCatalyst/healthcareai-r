@@ -5,7 +5,7 @@
 \title{Train models without tuning for performance}
 \usage{
 flash_models(d, outcome, models = c("rf", "knn"), metric, positive_class,
-  n_folds = 5, hyperparameters, model_class)
+  n_folds = 5, hyperparameters = NULL, model_class)
 }
 \arguments{
 \item{d}{A data frame}

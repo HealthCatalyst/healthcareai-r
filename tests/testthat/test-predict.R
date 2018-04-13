@@ -275,12 +275,12 @@ test_that("ready_with_prep warns for new factor levels (via prep_data)", {
 })
 
 test_that("predict handles positive class specified in training", {
-  d <- tibble(y = rbinom(50, 1, .5),
-              x1 = rnorm(50, mean = y, sd = .1),
-              x2 = rnorm(50, mean = y, sd = .1))
+  d <- tibble::tibble(y = rbinom(50, 1, .5),
+                      x1 = rnorm(50, mean = y, sd = .1),
+                      x2 = rnorm(50, mean = y, sd = .1))
   pd <- prep_data(d, outcome = y)
   # Default Y is positive
-    preds <- list(
+  preds <- list(
     tm_rf = pd %>% tune_models(y, tune_depth = 2, models = "rf") %>% predict(),
     tm_knn = pd %>% tune_models(y, tune_depth = 2, models = "knn") %>% predict(),
     ml = machine_learn(d, outcome = y, models = "rf", tune_depth = 2) %>% predict()
