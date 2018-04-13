@@ -15,8 +15,9 @@ d <- data.frame(song_id = 1:n,
        posixct_col = lubridate::ymd("2004-03-04") + lubridate::days(1:10),
        col_DTS = lubridate::ymd("2006-03-04") + lubridate::days(1:10),
        missing82 = sample(1:10, n, replace = TRUE),
-       missing64 = sample(100:300, n, replace = TRUE)
-)
+       missing64 = sample(100:300, n, replace = TRUE),
+       stringsAsFactors = FALSE)
+
 d$posixct_col <- as.POSIXct(d$posixct_col)
 d$col_DTS <- as.character(d$col_DTS)
 d$missing82[sample(1:n, 82, replace = FALSE)] <- NA

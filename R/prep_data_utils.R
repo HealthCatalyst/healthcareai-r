@@ -79,6 +79,8 @@ find_new_missingness <- function(d, recipe) {
 #' @return Prepared data frame with reusable recipe object for future data
 #'   preparation in attribute "recipe". Attribute recipe contains the names of
 #'   ignored columns (those passed to ...) in attribute "ignored_columns".
+#' @import purrr
+#' @importFrom lubridate guess_formats date
 #' @export
 #' @seealso \code{\link{hcai_impute}}, \code{\link{tune_models}},
 #'   \code{\link{predict.model_list}}
@@ -88,12 +90,16 @@ find_new_missingness <- function(d, recipe) {
 #' d_test <- pima_diabetes[701:768, ]
 #'
 convert_date_cols <- function(d) {
-  date_formats <- map(slice(d, 1),
+
+  # Extract date columns only
+  dd <- d[1, find_date_cols(d)]
+
+  date_formats <- map(dd,
                       guess_formats,
                       orders = c("ymd", "mdy", "ymd HMS", "mdy HMS"))
 
   # Find working formats
-  valid_formats <- map2(slice(d, 1), date_formats, function(x,y) {
+  valid_formats <- map2(dd, date_formats, function(x,y) {
     temp <- map2(x, y, function(x,y) {
       as.POSIXct(x = x, format = y)})
     # Can't use is.POSIXct here because NA has class POSIXct. wtf.
@@ -106,8 +112,14 @@ convert_date_cols <- function(d) {
   })
   bad_date_cols <- names(valid_formats[is.na(valid_formats)])
 
+  if (length(bad_date_cols)) {
+    stop(paste("Unable to convert the following columns to dates. Convert",
+         "them to ymd, mdy, ymd hms, or mdy hms format. See lubridate::as_date",
+         "or as.POSIXct for more info. \n"), paste(bad_date_cols, collapse = ", "))
+  }
+
   # Remove formats that don't work
-  d <- d %>% select(-one_of(bad_date_cols))
+  dd <- dd %>% select(-one_of(bad_date_cols))
   date_formats <- date_formats[!is.na(valid_formats)]
   valid_formats <- valid_formats[!is.na(valid_formats)]
 
@@ -115,9 +127,12 @@ convert_date_cols <- function(d) {
   use_formats <- map2_chr(date_formats, valid_formats, `[[`)
 
   # Convert dates
-  d <- map2_df(d, use_formats, function(x,y) {
-    as.POSIXct(x = x, format = y)
+  dd <- map2_df(dd, use_formats, function(x,y) {
+    date(as.POSIXct(x = x, format = y))
   })
 
-  return(d)
+  # Replace and reorder original dataframe
+  d[names(dd)] <- dd
+
+  return(tibble::as_tibble(d))
 }
