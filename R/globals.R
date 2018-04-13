@@ -8,3 +8,5 @@ utils::globalVariables(c("outside", "percent_missing", "variable", ".outcome",
 printer <- utils::getFromNamespace("printer", "recipes")
 
 sel2char <- utils::getFromNamespace("sel2char", "recipes")
+
+ellipse_check <- utils::getFromNamespace("ellipse_check", "recipes")

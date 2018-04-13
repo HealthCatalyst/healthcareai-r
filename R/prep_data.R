@@ -248,9 +248,8 @@ prep_data <- function(d,
         sdf <- c("dow", "month", "year")
       cols <- find_date_cols(d)
       if (!purrr::is_empty(cols)) {
-
         recipe <-
-          do.call(recipes::step_date,
+          do.call(step_date_hcai,
                   list(recipe = recipe, cols, features = sdf)) %>%
           recipes::step_rm(cols)
       }

@@ -129,6 +129,7 @@ convert_date_cols <- function(d) {
   use_formats <- map2_chr(date_formats, valid_formats, `[[`)
 
   # Convert dates
+  dd <- d[, find_date_cols(d)]
   dd <- map2_df(dd, use_formats, function(x, y) {
     date(as.POSIXct(x = x, format = y))
   })

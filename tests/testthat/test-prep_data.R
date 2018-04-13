@@ -5,6 +5,8 @@ context("Testing prep_data")
 set.seed(7)
 # build data set to predict whether or not animal_id is a is_ween
 n <- 300
+sample_days <- c("03-23-2008", "04-13-2008", "10-10-2008", "12-19-2008",
+                 "05-27-2008", "07-20-2008", "09-22-2008", "01-13-2008")
 df <- data.frame(
   song_id = 1:n,
   length = rnorm(n, mean = 4, sd = 1),
@@ -15,14 +17,16 @@ df <- data.frame(
   guitar_flag = sample(c(0, 1), size = n, replace = T),
   drum_flag = sample(c(0, 1, NA), size = n, replace = T,
                      prob = c(0.45, 0.45, 0.1)),
-  date_col = lubridate::ymd("2002-03-04") + lubridate::days(sample(1000, n)),
-  posixct_col = lubridate::ymd("2004-03-04") + lubridate::days(sample(1000, n)),
-  col_DTS = lubridate::ymd("2006-03-04") + lubridate::days(sample(1000, n)),
+  date_col = lubridate::ymd("2002-03-04") + lubridate::days(sample(1:1000, n)),
+  posixct_col = lubridate::ymd("2004-03-04") + lubridate::days(sample(1:1000, n)),
+  col_DTS = lubridate::ymd("2006-03-01") + lubridate::days(sample(1:1000, n)),
+  char_DTS = sample(sample_days, n, replace = TRUE),
   missing82 = sample(1:10, n, replace = TRUE),
   missing64 = sample(100:300, n, replace = TRUE),
   state = sample(c("NY", "MA", "CT", "CA", "VT", "NH"), size = n, replace = T,
                  prob = c(0.18, 0.1, 0.1, 0.6, 0.01, 0.01))
 )
+df$char_DTS <- as.character(df$char_DTS)
 
 # give is_ween likeliness score
 df["is_ween"] <- df["length"] - 1 * df["weirdness"] + 2
