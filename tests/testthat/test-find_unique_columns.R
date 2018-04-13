@@ -1,12 +1,8 @@
-library(testthat)
-library(healthcareai)
-
 context("Testing find_unique_columns")
 
 
 # Setup ------------------------------------------------------------------------
-dirty_data_frame <- function()
-{
+dirty_data_frame <- function() {
   return(
     data.frame(
       id_field = c("A", "B", "C", "D"),
@@ -14,56 +10,41 @@ dirty_data_frame <- function()
       test2_field = c(100, 200, 300, 300),
       test3_field = c("A1", "B1", "B1", "D1"),
       test4_field = c("AA", "BB", "CC", "DD")
-    )
-  )
-}
+    ))
+  }
 
-clean_data_frame <- function()
-{
+clean_data_frame <- function() {
   return(data.frame(
     id_field = c("A", "A", "B", "B"),
     test1_field = c(1, 2, 1, 2)
   ))
-}
+  }
 
-empty_data_frame <- function()
-{
+empty_data_frame <- function() {
   return(data.frame())
-}
+  }
 
 
 # Tests ------------------------------------------------------------------------
 test_that("Data frame that contains no columns or rows returns nothing", {
-  expect_equal(NA, find_unique_columns(empty_data_frame()))
-})
+  expect_equal("", find_unique_columns(empty_data_frame()))
+  })
 
-test_that("Data frame with no columns containing entirely unique values should return nothing",
-          {
-            expect_equal(NA, find_unique_columns(clean_data_frame()))
-          })
+test_that("Data frame with no columns containing entirely unique values
+          should return nothing", {
+            expect_equal("", find_unique_columns(clean_data_frame()))
+            })
 
 test_that(
-  "Data frame with two non-numeric columns containing entirely unique values should return the column names of the columns with entirely unique values",
-  {
+  "Data frame with two non-numeric columns containing entirely unique values
+  should return the column names of the columns with entirely unique values", {
     expect_equal(c("id_field", "test4_field"),
                  find_unique_columns(dirty_data_frame()))
-  }
-)
+  })
 
 test_that(
-  "Data frame with two non-numeric columns containing entirely unique values should return the column names of the columns with entirely unique values",
-  {
+  "Data frame with two non-numeric columns containing entirely unique values
+  should return the column names of the columns with entirely unique values", {
     expect_equal(c("id_field", "test4_field"),
                  find_unique_columns(dirty_data_frame()))
-  }
-)
-
-test_that(
-  "Data frame with two non-numeric columns containing entirely unique values should warn the user indicating which columns were entirely unique",
-  {
-    expect_warning(
-      find_unique_columns(dirty_data_frame()),
-      "These variables had completely unique values"
-    )
-  }
-)
+  })
