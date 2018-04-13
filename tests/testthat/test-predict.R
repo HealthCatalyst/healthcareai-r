@@ -251,9 +251,7 @@ test_that("ready_no_prep stops informatively for new factor levels", {
 test_that("ready_with_prep preps appropriately", {
   prepped <- ready_with_prep(model_regression_prepped, test_data)
   expect_s3_class(prepped, "data.frame")
-  prepped_predictors <- setdiff(names(prepped),
-                                c(attr(model_regression_prepped, "target"),
-                                  attr(attr(model_regression_prepped, "recipe"), "ignored_columns")))
+  prepped_predictors <- setdiff(names(prepped), attr(model_regression_prepped, "target"))
   predictors <-
     model_regression_prepped$`Random Forest`$trainingData %>%
     names() %>%
