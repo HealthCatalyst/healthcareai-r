@@ -98,11 +98,14 @@ convert_date_cols <- function(d) {
                       orders = c("ymd", "mdy", "ymd HMS", "mdy HMS"))
 
   # Find working formats
-  valid_formats <- map2(dd, date_formats, function(x,y) {
-    temp <- map2(x, y, function(x,y) {
-      as.POSIXct(x = x, format = y)})
+  valid_formats <- map2(dd, date_formats, function(x, y) {
+    temp <- map2(x, y, function(x, y) {
+      as.POSIXct(x = x, format = y)
+    })
     # Can't use is.POSIXct here because NA has class POSIXct. wtf.
-    unlist(map(temp, function(x) {!is.na(x)}))
+    unlist(map(temp, function(x) {
+      !is.na(x)
+    }))
   })
 
   # Collapse to one format and find columns with no valid format
@@ -126,7 +129,7 @@ convert_date_cols <- function(d) {
   use_formats <- map2_chr(date_formats, valid_formats, `[[`)
 
   # Convert dates
-  dd <- map2_df(dd, use_formats, function(x,y) {
+  dd <- map2_df(dd, use_formats, function(x, y) {
     date(as.POSIXct(x = x, format = y))
   })
 

@@ -65,13 +65,3 @@ test_that("Mixed tibble converts all date columns", {
   expect_equal(as.character(purrr::map_chr(out, class)),
                c("Date", "numeric", "Date", "character", "Date"))
 })
-
-
-
-
-
-
-
-
-
-
