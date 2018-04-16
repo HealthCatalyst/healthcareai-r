@@ -167,7 +167,7 @@ get_date_features <-
            abbr = TRUE,
            label = TRUE,
            ord = FALSE) {
-    ## pre-allocate values
+    # Pre-allocate values
     res <- matrix(NA, nrow = length(dt), ncol = length(feats))
     res <- as_tibble(res)
     colnames(res) <- feats

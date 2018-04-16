@@ -90,8 +90,10 @@ find_new_missingness <- function(d, recipe) {
 #'
 convert_date_cols <- function(d) {
 
-  # Extract date columns only
+  # Extract character date columns only
   dd <- d[1, find_date_cols(d)]
+  col_names <- names(dd[!(map_lgl(dd, is.Date))])
+  dd <- dd[1, col_names]
 
   date_formats <- map(dd,
                       guess_formats,
@@ -121,7 +123,6 @@ convert_date_cols <- function(d) {
   }
 
   # Remove formats that don't work
-  dd <- dd %>% select(-one_of(bad_date_cols))
   date_formats <- date_formats[!is.na(valid_formats)]
   valid_formats <- valid_formats[!is.na(valid_formats)]
 
@@ -129,7 +130,7 @@ convert_date_cols <- function(d) {
   use_formats <- map2_chr(date_formats, valid_formats, `[[`)
 
   # Convert dates
-  dd <- d[, find_date_cols(d)]
+  dd <- d[, col_names]
   dd <- map2_df(dd, use_formats, function(x, y) {
     date(as.POSIXct(x = x, format = y))
   })
