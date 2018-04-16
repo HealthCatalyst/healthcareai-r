@@ -201,6 +201,10 @@ prep_data <- function(d,
       })
       # If outcome is binary 0/1, convert to N/Y -----------------------------
       if (factor_outcome && all(outcome_vec %in% 0:1)) {
+        if (!is.numeric(outcome_vec))
+          stop("factor_outcome is TRUE, but ", outcome_name, " is a character",
+               "-type variable with 0s and 1s. Consider making it numeric with ",
+               "`as.numeric(as.character())")
         recipe <- recipe %>%
           recipes::step_bin2factor(all_outcomes(), levels = c("Y", "N"))
       }

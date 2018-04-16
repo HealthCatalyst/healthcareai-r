@@ -494,6 +494,13 @@ test_that("prep_data warns iff factor contrast options are dummy", {
   expect_warning(prep_data(d_train, song_id, outcome = is_ween), NA)
 })
 
+test_that("prep_data errors informatively 0/1 factor outcomes", {
+  dd <- data.frame(y = factor(rep(0:1, 10)),
+                   x1 = sample(letters, 20),
+                   x2 = rnorm(20))
+  expect_error(prep_data(dd, outcome = y), "character")
+})
+
 test_that("data prepped on existing recipe returns ID columns", {
   # Only difference in the prep here is the ID col isn't specified,
   # but that's remembered in the recipe.
