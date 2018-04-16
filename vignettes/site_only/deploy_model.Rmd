@@ -1,0 +1,20 @@
+---
+title: "Deploying a model"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with healthcareai}
+%\VignetteEngine{knitr::rmarkdown}
+%\VignetteEncoding{UTF-8}
+---
+
+  ```{r setup, include=FALSE}
+set.seed(43170)
+knitr::opts_chunk$set(echo = TRUE, results = "hold", collapse = TRUE,
+                      comment = "#>", eval = FALSE)
+```
+
+**Deploying a model**
+
+Now that you've put in the work of building a model and feel like it's performing well on historical data, congratulations! It's time to think about how to set it up to make reoccurring predictions. At this point, you have:
+
+- 
