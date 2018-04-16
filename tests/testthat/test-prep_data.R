@@ -5,8 +5,8 @@ context("Testing prep_data")
 set.seed(7)
 # build data set to predict whether or not animal_id is a is_ween
 n <- 300
-sample_days <- c("03-23-2008", "04-13-2008", "10-10-2008", "12-19-2008",
-                 "05-27-2008", "07-20-2008", "09-22-2008", "01-13-2008")
+sample_days <- c("03-23-2008", "04-13-2008", "10-10-2009", "12-19-2009",
+                 "05-27-2010", "07-20-2010", "09-22-2011", "01-13-2011")
 df <- data.frame(
   song_id = 1:n,
   length = rnorm(n, mean = 4, sd = 1),
