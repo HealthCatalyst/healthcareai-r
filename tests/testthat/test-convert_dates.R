@@ -84,14 +84,14 @@ test_that("step_date_hcai produces same results as step_date", {
     recipes::step_rm(cols = cols)
   date_rec <- recipes::prep(date_rec, training = d)
   d_hcai <- recipes::bake(date_rec, newdata = d)
-  d_hcai <- select(d_hcai, contains("date"))[,1:3]
+  d_hcai <- select(d_hcai, contains("date"))[, 1:3]
 
   date_rec <- recipes::recipe(head(d), ~ .)
   date_rec <- recipes::step_date(date_rec, cols = cols, features = sdf) %>%
     recipes::step_rm(cols = cols)
   date_rec <- recipes::prep(date_rec, training = d)
   d_recipes <- recipes::bake(date_rec, newdata = d)
-  d_recipes <- select(d_recipes, contains("date"))[,1:3]
+  d_recipes <- select(d_recipes, contains("date"))[, 1:3]
 
   expect_equal(d_hcai, d_recipes)
 })
