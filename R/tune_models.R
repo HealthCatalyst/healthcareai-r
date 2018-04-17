@@ -18,8 +18,15 @@
 #'   a factor).
 #' @param n_folds How many folds to use in cross-validation? Default = 5.
 #' @param tune_depth How many hyperparameter combinations to try? Defualt = 10.
-#' @param tune_method How to search hyperparameter space? Default = "random".
-#' @param hyperparameters Currently not supported.
+#' @param hyperparameters Optional, a list of data frames containing
+#'   hyperparameter values to tune over. If NULL (default) a random,
+#'   \code{tune_depth}-deep search of the hyperparameter space will be
+#'   performed. If provided, this overrides tune_depth. Should be a named list
+#'   of data frames where the names of the list correspond to models (e.g. "rf")
+#'   and each column in the data frame contains hyperparameter values. See
+#'   \code{healthcareai:::get_random_hyperparameters()} for a template. If only
+#'   one model is specified to the \code{models} argument, the data frame can be
+#'   provided bare to this argument.
 #' @param model_class "regression" or "classification". If not provided, this
 #'   will be determined by the class of `outcome` with the determination
 #'   displayed in a message.
@@ -59,13 +66,21 @@
 #' # Plot performance over hyperparameter values for each algorithm
 #' plot(m)
 #'
-#' # Extract confusion matrix for random forest (the model with best-performing
-#' # hyperparameter values is used)
-#' caret::confusionMatrix(m$`Random Forest`, norm = "none")
-#'
-#' # Compare performance of algorithms at best hyperparameter values
-#' rs <- resamples(m)
-#' dotplot(rs)
+#' # To specify hyperparameter values to tune over, pass a data frame
+#' # of hyperparameter values to the hyperparameters argument:
+#' rf_hyperparameters <-
+#'   expand.grid(
+#'     mtry = 1:5,
+#'     splitrule = c("gini", "extratrees"),
+#'     min.node.size = 1
+#'   )
+#' grid_search_models <-
+#'   tune_models(d = d,
+#'               outcome = diabetes,
+#'               models = "rf",
+#'               hyperparameters = list(rf = rf_hyperparameters)
+#'   )
+#' plot(grid_search_models)
 #' }
 tune_models <- function(d,
                         outcome,
@@ -74,8 +89,7 @@ tune_models <- function(d,
                         positive_class,
                         n_folds = 5,
                         tune_depth = 10,
-                        tune_method = "random",
-                        hyperparameters,
+                        hyperparameters = NULL,
                         model_class) {
 
   if (n_folds <= 1)
@@ -88,6 +102,25 @@ tune_models <- function(d,
 
   # Set up cross validation details
   train_control <- setup_train_control(model_class, metric, n_folds)
+  hyperparameters <-
+    if (!is.null(hyperparameters)) {
+      # If only tuning one model and hyperparameters aren't in a list, put them in one
+      if (is.data.frame(hyperparameters)) {
+        if (length(models) == 1) {
+          hyperparameters <- structure(list(hyperparameters), names = models)
+        } else {
+          stop("You passed a data frame to hyperparameters. Either put it in a list ",
+               "with names matching models or specify the one model you want to tune via the `models` argument.")
+        }
+      }
+      tuned <- max(purrr::map_int(hyperparameters, nrow)) > 1
+      hyperparameters
+    } else {
+      tuned <- tune_depth > 1
+      get_random_hyperparameters(models = models, n = nrow(d), k = ncol(d) - 1,
+                                 tune_depth = tune_depth, model_class = model_class)
+    }
+
   if (metric == "PR")
     metric <- "AUC" # For caret internal function
 
@@ -100,11 +133,9 @@ tune_models <- function(d,
             length(models), ") on a ", format(obs, big.mark = ","), " row dataset. ",
             "This may take a while...")
 
-  train_list <- train_models(d, outcome, models, metric, train_control,
-                             tune_depth = tune_depth, tune_method = tune_method,
-                             hyperparameters = NULL)
+  train_list <- train_models(d, outcome, models, metric, train_control, hyperparameters, tuned)
   train_list <- as.model_list(listed_models = train_list,
-                              tuned = TRUE,
+                              tuned = tuned,
                               target = rlang::quo_name(outcome),
                               recipe = recipe,
                               positive_class = attr(train_list, "positive_class")) %>%

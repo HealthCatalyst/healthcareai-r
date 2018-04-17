@@ -1,27 +1,16 @@
-make_tune_grids <- function(models, tune_method, n, k, tune_depth, model_class) {
-  tune_grid <-
-    if (tune_method == "none") {
-      get_hyperparameter_defaults(models, n, k, model_class)
-    } else if (tune_method == "random") {
-      get_random_hyperparameters(models, n, k, tune_depth, model_class)
-    } else {
-      stop("Currently tune_method = \"random\" is the only supported method",
-           " but you supplied tune_method = \"", tune_method, "\"")
-    }
-  return(tune_grid)
-}
-
 #' Get default hyperparameter lists that can be passed to flash_models
 #'
-#' @param model which algorithms?
+#' @param models which algorithms?
 #' @param n Number observations
 #' @param k Number features
 #' @param model_class "classification" or "regression"
 #'
-#' @return List of named lists that can be passed to \code{\link{flash_models}}
+#' @return List of named data frames that can be passed to
+#'   \code{\link{flash_models}}
 #' @export
-#' @details Get default hyperparameters to use, e.g. in flash_models. list
-#'   (algorithms) of lists (hyperparameters).
+#' @details Get default hyperparameters to use, e.g. in flash_models. Each data
+#'   frame in the list corresponds to an algorithm, and each column in each data
+#'   fram corresponds to a hyperparameter for that algorithm.
 #'
 #'   k-NN defaults are from the kknn package: kmax = 7, distance = 2
 #'   (Minkowski's exponent, i.e. Euclidean distance), kernal = "optimal"
@@ -29,14 +18,17 @@ make_tune_grids <- function(models, tune_method, n, k, tune_depth, model_class) 
 #'   Random forest defaults are from Intro to Statistical Learning and caret:
 #'   mtry = sqrt(k), splitrule = "extratrees", min.node.size = 1 for
 #'   classification, 5 for regression
-get_hyperparameter_defaults <- function(models, n, k, model_class) {
+get_hyperparameter_defaults <- function(models = get_supported_models(),
+                                        n = 100,
+                                        k = 10,
+                                        model_class = "classification") {
   defaults <-
     list(
-      rf = list(
+      rf = tibble::tibble(
         mtry = floor(sqrt(k)),
         splitrule = "extratrees",
         min.node.size = if (model_class == "classification") 1L else 5L),
-      knn = list(
+      knn = data.frame(
         kmax = 7,
         distance = 2,
         kernel = "optimal"
@@ -47,15 +39,20 @@ get_hyperparameter_defaults <- function(models, n, k, model_class) {
 
 #' Get grids of random combos of hyperparameters for train
 #'
-#' @param model which algorithms?
+#' @param models which algorithms?
 #' @param n Number observations
 #' @param k Number features
 #' @param tune_depth How many combinations of hyperparameter values?
 #' @param model_class "classification" or "regression"
 #'
+#' @importFrom stats runif
 #' @return List of named data frames
 #' @noRd
-get_random_hyperparameters <- function(models, n, k, tune_depth, model_class) {
+get_random_hyperparameters <- function(models = get_supported_models(),
+                                       n = 100,
+                                       k = 10,
+                                       tune_depth = 5,
+                                       model_class = "classification") {
   replace_ks <- k < tune_depth
   grids <- list()
   if ("rf" %in% models) {
