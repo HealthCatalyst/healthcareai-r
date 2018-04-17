@@ -2,8 +2,8 @@
 #' columns to ignore.
 #'
 #' @description \code{find_unique_columns} will find categorical columns in
-#' your data that have all uniuqe values and then return a warning about those
-#' columns and will add those columns to a list of columns to ignore.
+#' your data that have all uniuqe values and then returns a character
+#' vector with zero or more columns to ignore.
 #'
 #' @param data A dataframe or tibble containing data to find unique columns.
 #'
@@ -27,11 +27,5 @@ find_unique_columns <- function(data) {
       is.numeric(col) == FALSE &&
         length(unique(col)) == nrow(data)) %>%
     names()
-
-if (length(unique_columns) > 0) {
-    return(unique_columns)
+  return(unique_columns)
   }
-  else {
-    return("")
-  }
-}

@@ -24,15 +24,21 @@ empty_data_frame <- function() {
   return(data.frame())
   }
 
+character_factor_data_frame <- function() {
+  return(data.frame(
+    character_field = letters,
+    factor_field = factor(letters)
+  ))
+  }
 
 # Tests ------------------------------------------------------------------------
 test_that("Data frame that contains no columns or rows returns nothing", {
-  expect_equal("", find_unique_columns(empty_data_frame()))
+  expect_equal(character(), find_unique_columns(empty_data_frame()))
   })
 
 test_that("Data frame with no columns containing entirely unique values
           should return nothing", {
-            expect_equal("", find_unique_columns(clean_data_frame()))
+            expect_equal(character(), find_unique_columns(clean_data_frame()))
             })
 
 test_that(
@@ -47,4 +53,10 @@ test_that(
   should return the column names of the columns with entirely unique values", {
     expect_equal(c("id_field", "test4_field"),
                  find_unique_columns(dirty_data_frame()))
+  })
+
+test_that(
+  "Data frame with factors or characters should work the same with both", {
+    expect_equal(c("character_field", "factor_field"),
+                 find_unique_columns(character_factor_data_frame()))
   })
