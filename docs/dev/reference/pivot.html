@@ -235,26 +235,26 @@ default, the count of instances for each patient will be used.</p>
 <span class='no'>bills</span></div><div class='output co'>#&gt; # A tibble: 8 x 4
 #&gt;   patient_id dept_id charge date      
 #&gt;   &lt;chr&gt;      &lt;chr&gt;    &lt;dbl&gt; &lt;date&gt;    
-#&gt; 1 A          ED       5423. 2024-12-24
-#&gt; 2 A          ICU      5313. 2024-12-23
-#&gt; 3 A          ED       2754. 2024-12-25
-#&gt; 4 A          ICU       264. 2024-12-25
-#&gt; 5 B          ED       3161. 2024-12-25
-#&gt; 6 B          ICU      7232. 2024-12-23
-#&gt; 7 B          ED       4566. 2024-12-23
-#&gt; 8 B          ICU      9472. 2024-12-24</div><div class='input'>
+#&gt; 1 A          ED       9920. 2024-12-24
+#&gt; 2 A          ICU      5410. 2024-12-24
+#&gt; 3 A          ED        230. 2024-12-24
+#&gt; 4 A          ICU      3790. 2024-12-24
+#&gt; 5 B          ED       8749. 2024-12-23
+#&gt; 6 B          ICU      9647. 2024-12-24
+#&gt; 7 B          ED       3280. 2024-12-23
+#&gt; 8 B          ICU      8227. 2024-12-24</div><div class='input'>
 <span class='co'># Total charges per patient x department:</span>
 <span class='fu'>pivot</span>(<span class='no'>bills</span>, <span class='no'>patient_id</span>, <span class='no'>dept_id</span>, <span class='no'>charge</span>, <span class='no'>sum</span>)</div><div class='output co'>#&gt; # A tibble: 2 x 3
 #&gt;   patient_id dept_id_ED dept_id_ICU
 #&gt;   &lt;fct&gt;           &lt;dbl&gt;       &lt;dbl&gt;
-#&gt; 1 A               8177.       5577.
-#&gt; 2 B               7727.      16704.</div><div class='input'>
+#&gt; 1 A              10150.       9200.
+#&gt; 2 B              12029.      17874.</div><div class='input'>
 <span class='co'># Count of charges per patient x day:</span>
-<span class='fu'>pivot</span>(<span class='no'>bills</span>, <span class='no'>patient_id</span>, <span class='no'>date</span>)</div><div class='output co'>#&gt; <span class='message'>No fill column was provided, so using "1" for present entities</span></div><div class='output co'>#&gt; <span class='message'>There are rows that contain the same values of both patient_id and date but you didn't provide a function to 'fun' for their aggregation. Proceeding with the default: fun = sum.</span></div><div class='output co'>#&gt; # A tibble: 2 x 4
-#&gt;   patient_id `date_2024-12-23` `date_2024-12-24` `date_2024-12-25`
-#&gt;   &lt;fct&gt;                  &lt;int&gt;             &lt;int&gt;             &lt;int&gt;
-#&gt; 1 A                          1                 1                 2
-#&gt; 2 B                          2                 1                 1</div><div class='input'>
+<span class='fu'>pivot</span>(<span class='no'>bills</span>, <span class='no'>patient_id</span>, <span class='no'>date</span>)</div><div class='output co'>#&gt; <span class='message'>No fill column was provided, so using "1" for present entities</span></div><div class='output co'>#&gt; <span class='message'>There are rows that contain the same values of both patient_id and date but you didn't provide a function to 'fun' for their aggregation. Proceeding with the default: fun = sum.</span></div><div class='output co'>#&gt; # A tibble: 2 x 3
+#&gt;   patient_id `date_2024-12-23` `date_2024-12-24`
+#&gt;   &lt;fct&gt;                  &lt;int&gt;             &lt;int&gt;
+#&gt; 1 A                         NA                 4
+#&gt; 2 B                          2                 2</div><div class='input'>
 <span class='co'># Can provide a custom function to fun, which will take fill as input.</span>
 <span class='co'># Get the difference between the greatest and smallest charge in each</span>
 <span class='co'># department for each patient and format it as currency.</span>
@@ -266,8 +266,8 @@ default, the count of instances for each patient will be used.</p>
 )</div><div class='output co'>#&gt; # A tibble: 2 x 3
 #&gt;   patient_id dept_id_ED dept_id_ICU
 #&gt;   &lt;fct&gt;      &lt;chr&gt;      &lt;chr&gt;      
-#&gt; 1 A          $2668.43   $5048.34   
-#&gt; 2 B          $1405.82   $2239.23   </div></pre>
+#&gt; 1 A          $9690.54   $1619.99   
+#&gt; 2 B          $5468.86   $1420.17   </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
