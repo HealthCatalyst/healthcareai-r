@@ -239,7 +239,7 @@ bake.step_date_hcai <- function(object, newdata, ...) {
   newdata
 }
 
-
+#' @export
 print.step_date_hcai <-
   function(x, width = max(20, options()$width - 29), ...) {
     cat("Date features from ")
@@ -249,6 +249,7 @@ print.step_date_hcai <-
 
 #' @rdname step_date_hcai
 #' @param x A `step_date_hcai` object.
+#' @export
 tidy.step_date_hcai <- function(x, ...) {
   if (x$trained == TRUE) {
     res <- expand.grid(

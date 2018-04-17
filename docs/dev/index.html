@@ -136,15 +136,15 @@ models
 <span class="co"># &gt; Performance Metric: AUROC</span>
 <span class="co"># &gt; Number of Observations: 768</span>
 <span class="co"># &gt; Number of Features: 12</span>
-<span class="co"># &gt; Models Trained: 2018-04-16 13:35:03 </span>
+<span class="co"># &gt; Models Trained: 2018-04-17 09:55:42 </span>
 <span class="co"># &gt; </span>
 <span class="co"># &gt; Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.</span>
 <span class="co"># &gt; Best model: Random Forest</span>
-<span class="co"># &gt; AUPR = 0.71, AUROC = 0.84</span>
+<span class="co"># &gt; AUPR = 0.73, AUROC = 0.85</span>
 <span class="co"># &gt; Optimal hyperparameter values:</span>
-<span class="co"># &gt;   mtry = 8</span>
+<span class="co"># &gt;   mtry = 5</span>
 <span class="co"># &gt;   splitrule = extratrees</span>
-<span class="co"># &gt;   min.node.size = 16</span></code></pre></div>
+<span class="co"># &gt;   min.node.size = 9</span></code></pre></div>
 <p>Make predictions and examine predictive performance:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(models)
 <span class="kw">plot</span>(predictions)</code></pre></div>

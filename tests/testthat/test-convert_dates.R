@@ -95,3 +95,37 @@ test_that("step_date_hcai produces same results as step_date", {
 
   expect_equal(d_hcai, d_recipes)
 })
+
+test_that("Print method works correctly", {
+  d <- d %>% dplyr::select(e_date, b_nums, d_chars)
+  cols <- find_date_cols(d)
+  sdf <- c("dow", "month", "year")
+
+  date_rec <- recipes::recipe(head(d), ~ .)
+  date_rec <- step_date_hcai(date_rec, cols = cols, features = sdf)
+  date_rec <- recipes::prep(date_rec, training = d)
+
+  expect_output(
+    print(date_rec),
+    regexp = "Date features from e_date"
+  )
+})
+
+test_that("tidy method prints correctly", {
+  d <- d %>% dplyr::select(e_date, b_nums, d_chars)
+  cols <- find_date_cols(d)
+  sdf <- c("dow", "month", "year")
+
+  date_rec <- recipes::recipe(head(d), ~ .)
+  date_rec <- step_date_hcai(date_rec, cols = cols, features = sdf)
+  date_rec <- recipes::prep(date_rec, training = d)
+
+  exp <- tibble::as_tibble(
+    data.frame(terms = "e_date",
+               value = c("dow", "month", "year"),
+               ordinal = FALSE))
+  expect_equal(
+    exp,
+    broom::tidy(date_rec$steps[[1]]))
+  expect_s3_class(broom::tidy(date_rec$steps[[1]]), "tbl_df")
+})
