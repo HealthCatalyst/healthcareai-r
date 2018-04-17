@@ -100,6 +100,7 @@
             
       
       
+      <div class="hidden name"><code>healthcareai.Rmd</code></div>
 
     </div>
 
@@ -129,8 +130,8 @@
 <a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co"># &gt; Training new data prep recipe</span></a>
 <a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co"># &gt; Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></a>
 <a class="sourceLine" id="cb3-4" data-line-number="4"><span class="co"># &gt; diabetes looks categorical, so training classification algorithms.</span></a>
-<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co"># &gt; Running cross validation for Random Forest</span></a>
-<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co"># &gt; Running cross validation for k-Nearest Neighbors</span></a></code></pre></div>
+<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co"># &gt; Training with cross validation: Random Forest</span></a>
+<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co"># &gt; Training with cross validation: k-Nearest Neighbors</span></a></code></pre></div>
 <p><code>machine_learn</code> has told us that it has created a recipe for data preparation (this allows us to do exactly the same data cleaning and feature engineering when you want predictions on a new dataset), is ignoring <code>patient_id</code> when tuning models as we told it to, is training classification algorithms because the outcome variable <code>diabetes</code> is categorical, and has executed cross validation for two machine learning models: random forests, and k-nearest neighbors. Let’s see what the models look like.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">quick_models</a>
 <a class="sourceLine" id="cb4-2" data-line-number="2"><span class="co"># &gt; Algorithms Trained: Random Forest, k-Nearest Neighbors</span></a>
@@ -139,7 +140,7 @@
 <a class="sourceLine" id="cb4-5" data-line-number="5"><span class="co"># &gt; Performance Metric: AUROC</span></a>
 <a class="sourceLine" id="cb4-6" data-line-number="6"><span class="co"># &gt; Number of Observations: 768</span></a>
 <a class="sourceLine" id="cb4-7" data-line-number="7"><span class="co"># &gt; Number of Features: 12</span></a>
-<a class="sourceLine" id="cb4-8" data-line-number="8"><span class="co"># &gt; Models Trained: 2018-04-12 00:17:03 </span></a>
+<a class="sourceLine" id="cb4-8" data-line-number="8"><span class="co"># &gt; Models Trained: 2018-04-17 13:53:36 </span></a>
 <a class="sourceLine" id="cb4-9" data-line-number="9"><span class="co"># &gt; </span></a>
 <a class="sourceLine" id="cb4-10" data-line-number="10"><span class="co"># &gt; Models tuned via 5-fold cross validation over 9 combinations of hyperparameter values.</span></a>
 <a class="sourceLine" id="cb4-11" data-line-number="11"><span class="co"># &gt; Best model: Random Forest</span></a>
@@ -152,16 +153,16 @@
 <p>Now that we have our models, we can make predictions using the <code>predict</code> function. If you provide a new data frame to <code>predict</code> it will make predictions on the new data; otherwise, it will make predictions on the training data.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(quick_models)</a>
 <a class="sourceLine" id="cb5-2" data-line-number="2">predictions</a>
-<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="co"># &gt; "predicted_diabetes" predicted by Random Forest last trained: 2018-04-12 00:17:03</span></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="co"># &gt; "predicted_diabetes" predicted by Random Forest last trained: 2018-04-17 13:53:36</span></a>
 <a class="sourceLine" id="cb5-4" data-line-number="4"><span class="co"># &gt; Performance in training: AUROC = 0.84</span></a>
 <a class="sourceLine" id="cb5-5" data-line-number="5"><span class="co"># &gt; # A tibble: 768 x 14</span></a>
 <a class="sourceLine" id="cb5-6" data-line-number="6"><span class="co"># &gt;   diabetes predicted_diabetes pregnancies plasma_glucose diastolic_bp</span></a>
 <a class="sourceLine" id="cb5-7" data-line-number="7"><span class="co"># &gt; * &lt;fct&gt;                 &lt;dbl&gt;       &lt;int&gt;          &lt;dbl&gt;        &lt;dbl&gt;</span></a>
-<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="co"># &gt; 1 Y                    0.730            6           148.          72.</span></a>
-<a class="sourceLine" id="cb5-9" data-line-number="9"><span class="co"># &gt; 2 N                    0.114            1            85.          66.</span></a>
-<a class="sourceLine" id="cb5-10" data-line-number="10"><span class="co"># &gt; 3 Y                    0.479            8           183.          64.</span></a>
-<a class="sourceLine" id="cb5-11" data-line-number="11"><span class="co"># &gt; 4 N                    0.0121           1            89.          66.</span></a>
-<a class="sourceLine" id="cb5-12" data-line-number="12"><span class="co"># &gt; 5 Y                    0.527            0           137.          40.</span></a>
+<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="co"># &gt; 1 Y                   0.704             6           148.          72.</span></a>
+<a class="sourceLine" id="cb5-9" data-line-number="9"><span class="co"># &gt; 2 N                   0.0962            1            85.          66.</span></a>
+<a class="sourceLine" id="cb5-10" data-line-number="10"><span class="co"># &gt; 3 Y                   0.464             8           183.          64.</span></a>
+<a class="sourceLine" id="cb5-11" data-line-number="11"><span class="co"># &gt; 4 N                   0.00870           1            89.          66.</span></a>
+<a class="sourceLine" id="cb5-12" data-line-number="12"><span class="co"># &gt; 5 Y                   0.513             0           137.          40.</span></a>
 <a class="sourceLine" id="cb5-13" data-line-number="13"><span class="co"># &gt; # ... with 763 more rows, and 9 more variables: skinfold &lt;dbl&gt;,</span></a>
 <a class="sourceLine" id="cb5-14" data-line-number="14"><span class="co"># &gt; #   insulin &lt;dbl&gt;, pedigree &lt;dbl&gt;, age &lt;int&gt;, weight_class_normal &lt;dbl&gt;,</span></a>
 <a class="sourceLine" id="cb5-15" data-line-number="15"><span class="co"># &gt; #   weight_class_obese &lt;dbl&gt;, weight_class_overweight &lt;dbl&gt;,</span></a>
@@ -220,9 +221,7 @@
 <a class="sourceLine" id="cb10-6" data-line-number="6"><span class="co"># &gt; Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></a>
 <a class="sourceLine" id="cb10-7" data-line-number="7"><span class="co"># &gt; diabetes looks categorical, so training classification algorithms.</span></a>
 <a class="sourceLine" id="cb10-8" data-line-number="8"><span class="co"># &gt; You've chosen to tune 125 models (n_folds = 5 x tune_depth = 25 x length(models) = 1) on a 692 row dataset. This may take a while...</span></a>
-<a class="sourceLine" id="cb10-9" data-line-number="9"><span class="co"># &gt; Running cross validation for Random Forest</span></a>
-<a class="sourceLine" id="cb10-10" data-line-number="10"><span class="co"># &gt; Warning in nominalTrainWorkflow(x = x, y = y, wts = weights, info =</span></a>
-<a class="sourceLine" id="cb10-11" data-line-number="11"><span class="co"># &gt; trainInfo, : There were missing values in resampled performance measures.</span></a></code></pre></div>
+<a class="sourceLine" id="cb10-9" data-line-number="9"><span class="co"># &gt; Training with cross validation: Random Forest</span></a></code></pre></div>
 <p>We get a message saying the training may take a while because we’re training so many models, but in this case it takes just about 20 seconds to train all those models.</p>
 <p>We can examine how the model performs across hyperparameters by plotting the model object. It looks like extratrees is a superior split rule for this model, and larger values of minimum node size tend to do better.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw">plot</span>(models)</a></code></pre></div>
@@ -238,21 +237,22 @@
 <a class="sourceLine" id="cb12-4" data-line-number="4">             <span class="dt">metric =</span> <span class="st">"PR"</span>)</a>
 <a class="sourceLine" id="cb12-5" data-line-number="5"><span class="co"># &gt; Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></a>
 <a class="sourceLine" id="cb12-6" data-line-number="6"><span class="co"># &gt; diabetes looks categorical, so training classification algorithms.</span></a>
-<a class="sourceLine" id="cb12-7" data-line-number="7"><span class="co"># &gt; Algorithms Trained: Random Forest</span></a>
-<a class="sourceLine" id="cb12-8" data-line-number="8"><span class="co"># &gt; Target: diabetes</span></a>
-<a class="sourceLine" id="cb12-9" data-line-number="9"><span class="co"># &gt; Class: Classification</span></a>
-<a class="sourceLine" id="cb12-10" data-line-number="10"><span class="co"># &gt; Performance Metric: AUPR</span></a>
-<a class="sourceLine" id="cb12-11" data-line-number="11"><span class="co"># &gt; Number of Observations: 692</span></a>
-<a class="sourceLine" id="cb12-12" data-line-number="12"><span class="co"># &gt; Number of Features: 13</span></a>
-<a class="sourceLine" id="cb12-13" data-line-number="13"><span class="co"># &gt; Models Trained: 2018-04-12 00:17:27 </span></a>
-<a class="sourceLine" id="cb12-14" data-line-number="14"><span class="co"># &gt; </span></a>
-<a class="sourceLine" id="cb12-15" data-line-number="15"><span class="co"># &gt; Models have not been tuned. Performance estimated via 5-fold cross validation at fixed hyperparameter values.</span></a>
-<a class="sourceLine" id="cb12-16" data-line-number="16"><span class="co"># &gt; Best model: Random Forest</span></a>
-<a class="sourceLine" id="cb12-17" data-line-number="17"><span class="co"># &gt; AUPR = 0.7, AUROC = 0.84</span></a>
-<a class="sourceLine" id="cb12-18" data-line-number="18"><span class="co"># &gt; User-selected hyperparameter values:</span></a>
-<a class="sourceLine" id="cb12-19" data-line-number="19"><span class="co"># &gt;   mtry = 5</span></a>
-<a class="sourceLine" id="cb12-20" data-line-number="20"><span class="co"># &gt;   splitrule = extratrees</span></a>
-<a class="sourceLine" id="cb12-21" data-line-number="21"><span class="co"># &gt;   min.node.size = 10</span></a></code></pre></div>
+<a class="sourceLine" id="cb12-7" data-line-number="7"><span class="co"># &gt; Training at fixed values: Random Forest</span></a>
+<a class="sourceLine" id="cb12-8" data-line-number="8"><span class="co"># &gt; Algorithms Trained: Random Forest</span></a>
+<a class="sourceLine" id="cb12-9" data-line-number="9"><span class="co"># &gt; Target: diabetes</span></a>
+<a class="sourceLine" id="cb12-10" data-line-number="10"><span class="co"># &gt; Class: Classification</span></a>
+<a class="sourceLine" id="cb12-11" data-line-number="11"><span class="co"># &gt; Performance Metric: AUPR</span></a>
+<a class="sourceLine" id="cb12-12" data-line-number="12"><span class="co"># &gt; Number of Observations: 692</span></a>
+<a class="sourceLine" id="cb12-13" data-line-number="13"><span class="co"># &gt; Number of Features: 13</span></a>
+<a class="sourceLine" id="cb12-14" data-line-number="14"><span class="co"># &gt; Models Trained: 2018-04-17 13:54:48 </span></a>
+<a class="sourceLine" id="cb12-15" data-line-number="15"><span class="co"># &gt; </span></a>
+<a class="sourceLine" id="cb12-16" data-line-number="16"><span class="co"># &gt; Models have not been tuned. Performance estimated via 5-fold cross validation at fixed hyperparameter values.</span></a>
+<a class="sourceLine" id="cb12-17" data-line-number="17"><span class="co"># &gt; Best model: Random Forest</span></a>
+<a class="sourceLine" id="cb12-18" data-line-number="18"><span class="co"># &gt; AUPR = 0.7, AUROC = 0.84</span></a>
+<a class="sourceLine" id="cb12-19" data-line-number="19"><span class="co"># &gt; User-selected hyperparameter values:</span></a>
+<a class="sourceLine" id="cb12-20" data-line-number="20"><span class="co"># &gt;   mtry = 5</span></a>
+<a class="sourceLine" id="cb12-21" data-line-number="21"><span class="co"># &gt;   splitrule = extratrees</span></a>
+<a class="sourceLine" id="cb12-22" data-line-number="22"><span class="co"># &gt;   min.node.size = 10</span></a></code></pre></div>
 <p>In this case we sacrificed just 0.01 AUPR versus tuning the models. In our experience, that’s on the small side of typical. A good workflow is often to do all of your development using <code>flash_models</code>, and as a final step before putting a model into production, retrain the model using <code>tune_models</code>.</p>
 </div>
 </div>
@@ -268,16 +268,16 @@
 <a href="#prediction" class="anchor"></a>Prediction</h1>
 <p><code>predict</code> will automatically use the best-performing model from training (evaluated out-of-fold in cross validation). If no new data is passed to <code>predict</code> it will return out-of-fold predictions from training. The predicted probabilities appear in the <code>predicted_diabetes</code> column.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw">predict</span>(models)</a>
-<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="co"># &gt; "predicted_diabetes" predicted by Random Forest last trained: 2018-04-12 00:17:24</span></a>
+<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="co"># &gt; "predicted_diabetes" predicted by Random Forest last trained: 2018-04-17 13:54:37</span></a>
 <a class="sourceLine" id="cb14-3" data-line-number="3"><span class="co"># &gt; Performance in training: AUPR = 0.7</span></a>
 <a class="sourceLine" id="cb14-4" data-line-number="4"><span class="co"># &gt; # A tibble: 692 x 15</span></a>
 <a class="sourceLine" id="cb14-5" data-line-number="5"><span class="co"># &gt;   diabetes predicted_diabetes pregnancies plasma_glucose diastolic_bp</span></a>
 <a class="sourceLine" id="cb14-6" data-line-number="6"><span class="co"># &gt; * &lt;fct&gt;                 &lt;dbl&gt;       &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;</span></a>
-<a class="sourceLine" id="cb14-7" data-line-number="7"><span class="co"># &gt; 1 N                   0.0698       -0.843         -1.19        -0.521</span></a>
-<a class="sourceLine" id="cb14-8" data-line-number="8"><span class="co"># &gt; 2 Y                   0.469         1.22           2.01        -0.686</span></a>
-<a class="sourceLine" id="cb14-9" data-line-number="9"><span class="co"># &gt; 3 N                   0.00733      -0.843         -1.05        -0.521</span></a>
-<a class="sourceLine" id="cb14-10" data-line-number="10"><span class="co"># &gt; 4 Y                   0.542        -1.14           0.509       -2.66 </span></a>
-<a class="sourceLine" id="cb14-11" data-line-number="11"><span class="co"># &gt; 5 N                   0.415         0.338         -0.175        0.138</span></a>
+<a class="sourceLine" id="cb14-7" data-line-number="7"><span class="co"># &gt; 1 N                   0.0657       -0.843         -1.19        -0.521</span></a>
+<a class="sourceLine" id="cb14-8" data-line-number="8"><span class="co"># &gt; 2 Y                   0.491         1.22           2.01        -0.686</span></a>
+<a class="sourceLine" id="cb14-9" data-line-number="9"><span class="co"># &gt; 3 N                   0.00700      -0.843         -1.05        -0.521</span></a>
+<a class="sourceLine" id="cb14-10" data-line-number="10"><span class="co"># &gt; 4 Y                   0.566        -1.14           0.509       -2.66 </span></a>
+<a class="sourceLine" id="cb14-11" data-line-number="11"><span class="co"># &gt; 5 N                   0.445         0.338         -0.175        0.138</span></a>
 <a class="sourceLine" id="cb14-12" data-line-number="12"><span class="co"># &gt; # ... with 687 more rows, and 10 more variables: skinfold &lt;dbl&gt;,</span></a>
 <a class="sourceLine" id="cb14-13" data-line-number="13"><span class="co"># &gt; #   insulin &lt;dbl&gt;, pedigree &lt;dbl&gt;, age &lt;dbl&gt;, weight_class_normal &lt;dbl&gt;,</span></a>
 <a class="sourceLine" id="cb14-14" data-line-number="14"><span class="co"># &gt; #   weight_class_obese &lt;dbl&gt;, weight_class_overweight &lt;dbl&gt;,</span></a>
@@ -307,17 +307,17 @@
 <a class="sourceLine" id="cb18-2" data-line-number="2"><span class="co"># &gt; Training new data prep recipe</span></a>
 <a class="sourceLine" id="cb18-3" data-line-number="3"><span class="co"># &gt; Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></a>
 <a class="sourceLine" id="cb18-4" data-line-number="4"><span class="co"># &gt; age looks numeric, so training regression algorithms.</span></a>
-<a class="sourceLine" id="cb18-5" data-line-number="5"><span class="co"># &gt; Running cross validation for Random Forest</span></a>
-<a class="sourceLine" id="cb18-6" data-line-number="6"><span class="co"># &gt; Running cross validation for k-Nearest Neighbors</span></a>
+<a class="sourceLine" id="cb18-5" data-line-number="5"><span class="co"># &gt; Training with cross validation: Random Forest</span></a>
+<a class="sourceLine" id="cb18-6" data-line-number="6"><span class="co"># &gt; Training with cross validation: k-Nearest Neighbors</span></a>
 <a class="sourceLine" id="cb18-7" data-line-number="7"><span class="kw">summary</span>(regression_models)</a>
-<a class="sourceLine" id="cb18-8" data-line-number="8"><span class="co"># &gt; Models trained: 2018-04-12 00:17:41</span></a>
+<a class="sourceLine" id="cb18-8" data-line-number="8"><span class="co"># &gt; Models trained: 2018-04-17 13:55:39</span></a>
 <a class="sourceLine" id="cb18-9" data-line-number="9"><span class="co"># &gt; </span></a>
 <a class="sourceLine" id="cb18-10" data-line-number="10"><span class="co"># &gt; Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.</span></a>
-<a class="sourceLine" id="cb18-11" data-line-number="11"><span class="co"># &gt; Best performance: RMSE = 9.02, MAE = 6.37, Rsquared = 0.41</span></a>
+<a class="sourceLine" id="cb18-11" data-line-number="11"><span class="co"># &gt; Best performance: RMSE = 9.06, MAE = 6.4, Rsquared = 0.41</span></a>
 <a class="sourceLine" id="cb18-12" data-line-number="12"><span class="co"># &gt; By Random Forest with hyperparameters:</span></a>
-<a class="sourceLine" id="cb18-13" data-line-number="13"><span class="co"># &gt;   mtry = 11</span></a>
+<a class="sourceLine" id="cb18-13" data-line-number="13"><span class="co"># &gt;   mtry = 10</span></a>
 <a class="sourceLine" id="cb18-14" data-line-number="14"><span class="co"># &gt;   splitrule = extratrees</span></a>
-<a class="sourceLine" id="cb18-15" data-line-number="15"><span class="co"># &gt;   min.node.size = 8</span></a>
+<a class="sourceLine" id="cb18-15" data-line-number="15"><span class="co"># &gt;   min.node.size = 10</span></a>
 <a class="sourceLine" id="cb18-16" data-line-number="16"><span class="co"># &gt; </span></a>
 <a class="sourceLine" id="cb18-17" data-line-number="17"><span class="co"># &gt; Out-of-fold performance of all trained models:</span></a>
 <a class="sourceLine" id="cb18-18" data-line-number="18"><span class="co"># &gt; </span></a>
@@ -325,11 +325,11 @@
 <a class="sourceLine" id="cb18-20" data-line-number="20"><span class="co"># &gt; # A tibble: 10 x 9</span></a>
 <a class="sourceLine" id="cb18-21" data-line-number="21"><span class="co"># &gt;   min.node.size  mtry splitrule   RMSE Rsquared   MAE RMSESD RsquaredSD</span></a>
 <a class="sourceLine" id="cb18-22" data-line-number="22"><span class="co"># &gt; *         &lt;int&gt; &lt;int&gt; &lt;fct&gt;      &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;      &lt;dbl&gt;</span></a>
-<a class="sourceLine" id="cb18-23" data-line-number="23"><span class="co"># &gt; 1             8    11 extratrees  9.02    0.412  6.37  0.357     0.0575</span></a>
-<a class="sourceLine" id="cb18-24" data-line-number="24"><span class="co"># &gt; 2            10    10 extratrees  9.07    0.405  6.40  0.378     0.0620</span></a>
-<a class="sourceLine" id="cb18-25" data-line-number="25"><span class="co"># &gt; 3            12     5 extratrees  9.11    0.414  6.53  0.354     0.0682</span></a>
-<a class="sourceLine" id="cb18-26" data-line-number="26"><span class="co"># &gt; 4             7    10 variance    9.27    0.382  6.53  0.328     0.0508</span></a>
-<a class="sourceLine" id="cb18-27" data-line-number="27"><span class="co"># &gt; 5            10    13 variance    9.30    0.377  6.52  0.391     0.0589</span></a>
+<a class="sourceLine" id="cb18-23" data-line-number="23"><span class="co"># &gt; 1            10    10 extratrees  9.06    0.408  6.40  0.396     0.0624</span></a>
+<a class="sourceLine" id="cb18-24" data-line-number="24"><span class="co"># &gt; 2             8    11 extratrees  9.08    0.404  6.40  0.354     0.0589</span></a>
+<a class="sourceLine" id="cb18-25" data-line-number="25"><span class="co"># &gt; 3            12     5 extratrees  9.12    0.411  6.53  0.336     0.0654</span></a>
+<a class="sourceLine" id="cb18-26" data-line-number="26"><span class="co"># &gt; 4             7    10 variance    9.26    0.382  6.54  0.317     0.0510</span></a>
+<a class="sourceLine" id="cb18-27" data-line-number="27"><span class="co"># &gt; 5             3    12 variance    9.29    0.380  6.56  0.319     0.0513</span></a>
 <a class="sourceLine" id="cb18-28" data-line-number="28"><span class="co"># &gt; # ... with 5 more rows, and 1 more variable: MAESD &lt;dbl&gt;</span></a>
 <a class="sourceLine" id="cb18-29" data-line-number="29"><span class="co"># &gt; </span></a>
 <a class="sourceLine" id="cb18-30" data-line-number="30"><span class="co"># &gt; $`k-Nearest Neighbors`</span></a>
@@ -356,12 +356,12 @@
 <a class="sourceLine" id="cb19-11" data-line-number="11"><span class="co"># &gt; Warning in ready_with_prep(object, newdata, mi): The following variables(s) had the following value(s) in predict that were not observed in training. </span></a>
 <a class="sourceLine" id="cb19-12" data-line-number="12"><span class="co"># &gt;     weight_class: ???</span></a>
 <a class="sourceLine" id="cb19-13" data-line-number="13"><span class="co"># &gt; Prepping data based on provided recipe</span></a>
-<a class="sourceLine" id="cb19-14" data-line-number="14"><span class="co"># &gt; "predicted_age" predicted by Random Forest last trained: 2018-04-12 00:17:41</span></a>
-<a class="sourceLine" id="cb19-15" data-line-number="15"><span class="co"># &gt; Performance in training: RMSE = 9.02</span></a>
+<a class="sourceLine" id="cb19-14" data-line-number="14"><span class="co"># &gt; "predicted_age" predicted by Random Forest last trained: 2018-04-17 13:55:39</span></a>
+<a class="sourceLine" id="cb19-15" data-line-number="15"><span class="co"># &gt; Performance in training: RMSE = 9.06</span></a>
 <a class="sourceLine" id="cb19-16" data-line-number="16"><span class="co"># &gt; # A tibble: 1 x 9</span></a>
 <a class="sourceLine" id="cb19-17" data-line-number="17"><span class="co"># &gt;   predicted_age pregnancies plasma_glucose diastolic_bp skinfold insulin</span></a>
 <a class="sourceLine" id="cb19-18" data-line-number="18"><span class="co"># &gt; *         &lt;dbl&gt;       &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt; &lt;lgl&gt;  </span></a>
-<a class="sourceLine" id="cb19-19" data-line-number="19"><span class="co"># &gt; 1          23.9          0.            80.          55.      24. NA     </span></a>
+<a class="sourceLine" id="cb19-19" data-line-number="19"><span class="co"># &gt; 1          23.7          0.            80.          55.      24. NA     </span></a>
 <a class="sourceLine" id="cb19-20" data-line-number="20"><span class="co"># &gt; # ... with 3 more variables: weight_class &lt;fct&gt;, pedigree &lt;dbl&gt;,</span></a>
 <a class="sourceLine" id="cb19-21" data-line-number="21"><span class="co"># &gt; #   diabetes &lt;fct&gt;</span></a></code></pre></div>
 </div>

@@ -62,18 +62,18 @@ models
 # > Algorithms Trained: Random Forest, k-Nearest Neighbors
 # > Target: diabetes
 # > Class: Classification
-# > Performance Metric: ROC
+# > Performance Metric: AUROC
 # > Number of Observations: 768
 # > Number of Features: 12
-# > Models Trained: 2018-04-04 12:55:09 
+# > Models Trained: 2018-04-17 13:57:08 
 # > 
 # > Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.
 # > Best model: Random Forest
-# > ROC = 0.84
+# > AUPR = 0.71, AUROC = 0.84
 # > Optimal hyperparameter values:
-# >   mtry = 7
+# >   mtry = 9
 # >   splitrule = extratrees
-# >   min.node.size = 11
+# >   min.node.size = 17
 ```
 
 Make predictions and examine predictive performance:
