@@ -3,11 +3,11 @@ title: "Deploying a model"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Getting Started with healthcareai}
-%\VignetteEngine{knitr::rmarkdown}
-%\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
-  ```{r setup, include=FALSE}
+```{r setup, include=FALSE}
 set.seed(43170)
 knitr::opts_chunk$set(echo = TRUE, results = "hold", collapse = TRUE,
                       comment = "#>", eval = FALSE)
@@ -15,6 +15,132 @@ knitr::opts_chunk$set(echo = TRUE, results = "hold", collapse = TRUE,
 
 **Deploying a model**
 
-Now that you've put in the work of building a model and feel like it's performing well on historical data, congratulations! It's time to think about how to set it up to make reoccurring predictions. At this point, you have:
+Now that you've put in the work of building a model and it's performing well on historical data, congratulations! It's time to think about how to set it up to make reoccurring predictions. At this point, you have:
 
-- 
+- Decided on an algorithm
+- Decided on your feature (i.e., input variable) list
+- A model that meets performance requirements
+
+# Saving a model
+
+In order to work with models in a production environment, first you must be able to have a saved model on disk. Here's how that's done--pay attention to line 
+
+```{r}
+library(healthcareai)
+library(DBI)
+library(tidyverse)
+my_con <- build_connection_string(driver = "FreeTDS",
+                                  server = "HCS-GM0004,1433",
+                                  database = "SAM",
+                                  user_id ="HQCATALYST\\levi.thatcher",
+                                  password = rstudioapi::askForPassword("Database password"))
+con <- dbConnect(odbc::odbc(), .connection_string = my_con)
+
+train_query <- "SELECT [FacilityAccountID]
+                ,[AdmitAgeNBR]
+                ,[GenderCD]
+                ,[EthnicGroupDSC]
+                ,[MaritalStatusDSC]
+                ,[Readmit30FLG]
+  FROM [SAM].[SSISTest].[SummaryVisitBASE]"
+
+d <- db_read(con, train_query)
+
+models <- machine_learn(d = d, 
+                       FacilityAccountID,
+                       models = "rf",
+                       outcome = Readmit30FLG)
+
+# Save my model
+save(models, file = "readmit_models.RDA")
+```
+
+# Pushing predictions to a table
+
+While the frequency may vary depending on the use case, new patients or patient encounters (i.e., rows) will need predictions on a reoccurring basis. In healthcare, _daily_ batch predictions are common. To create predictions, these new rows are run against the model that lives in the RDA file. 
+
+Instead of slimply creating predictions in R, however, in a production scenario you'll be pushing these predictions to a database. Typically we append to the same table each night, such that a person will get an updated risk score for each day they're in the hospital (for example).
+
+# Creating predictions
+
+Now we focus on the code that will run each night to create predictions. Note a couple of things:
+
+- The query is different from the development step--here you're only querying patients that need a prediction
+- We read the model from disk; if needed, a web service could be involved
+
+
+```{r}
+prod_query <- "SELECT [FacilityAccountID]
+                ,[AdmitAgeNBR]
+                ,[GenderCD]
+                ,[EthnicGroupDSC]
+                ,[MaritalStatusDSC]
+                ,[Readmit30FLG]
+FROM [SAM].[SSISTest].[SummaryVisitBASE]"
+
+d_out <- db_read(con, prod_query)
+
+load("readmit_models.RDA")
+
+predictions <- predict(models, d_out)
+```
+
+# Create the output table
+
+Before we create the output table, let's see what our predictions look like:
+
+```{r}
+glimpse(predictions)
+```
+
+You might want push fewer columns to a table each night. Here's how you slim this down:
+
+```{r}
+predictions <- predictions %>% 
+  select(FacilityAccountID, predicted_Readmit30FLG) %>% # Grab just two columns
+  rename(PredictedProbability = predicted_Readmit30FLG) # Change col name
+```
+
+Now that we have only the columns necessary, let's and populate the output table
+
+## For folks outside of a Health Catalyst environment
+
+Use a tool like SQL Server Management Studio and a `CREATE` statement
+
+## For folks in a Health Catalyst environment
+
+1. Append a few utility columns to your output
+
+```{r}
+predictions <- predictions %>%
+  add_SAM_utility_cols
+```
+
+2. Use Source Area Mart Designer (SAMD) to create the table (since this creates metadata)
+  - This binding requires a query that not only has the column structure, but also `WHERE 0 = 1`, such that only R is populating the output table
+
+# Push predictions to the table
+
+Here we use the `odbc` package, which can be installed via `install.packages("remotes"); remotes::install_github("r-dbi/odbc")`
+
+```{r}
+library(DBI)
+library(odbc)
+table_id <- Id(schema = "SSISTest", 
+               name = "MLOutput")
+
+res <- dbWriteTable(conn = my_con, # Grabbing my_con from above
+                    name = table_id,
+                    value = predictions,
+                    append = TRUE)
+
+dbDisconnect(my_con)
+```
+
+
+
+
+# Testing in production
+
+
+Note: for those working in a Health Catalyst environment, proceed with the ML-Prod document in Spark
