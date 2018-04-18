@@ -13,8 +13,6 @@ knitr::opts_chunk$set(echo = TRUE, results = "hold", collapse = TRUE,
                       comment = "#>", eval = FALSE)
 ```
 
-**Deploying a model**
-
 Now that you've put in the work of building a model and it's performing well on historical data, congratulations! It's time to think about how to set it up to make reoccurring predictions. At this point, you have
 
 - Decided on an algorithm
@@ -23,7 +21,7 @@ Now that you've put in the work of building a model and it's performing well on 
 
 # Saving a model
 
-In order to work with models in a production environment, first you must be able to have a saved model on disk. Here's how that's done very simple--pay attention to last line. *Note, install tidyverse via `install.packages('tidyverse')`*
+In order to work with models in a production environment, first you must be able to have a saved model on disk. Here's how that's done--pay attention to last line. *Note, install tidyverse via* `install.packages('tidyverse')`
 
 ```{r}
 library(healthcareai)
@@ -35,20 +33,22 @@ my_con <- build_connection_string(server = "HCS-GM0004",
 
 con <- dbConnect(odbc::odbc(), .connection_string = my_con)
 
-train_query <- "SELECT [FacilityAccountID]
+train_query <- "SELECT 
+                 [FacilityAccountID]
                 ,[AdmitAgeNBR]
                 ,[GenderCD]
                 ,[EthnicGroupDSC]
                 ,[MaritalStatusDSC]
                 ,[Readmit30FLG]
-  FROM [SAM].[SSISTest].[SummaryVisitBASE]"
+  FROM [SAM].[Schema].[SummaryVisitBASE]
+  WHERE InpatientFLG = 'F'"
 
 d <- db_read(con, train_query)
 
 models <- machine_learn(d = d, 
-                       FacilityAccountID,
-                       models = "rf",
-                       outcome = Readmit30FLG)
+                        FacilityAccountID,
+                        models = "rf",
+                        outcome = Readmit30FLG)
 
 # Save my model
 save(models, file = "readmit_models.RDA")
@@ -56,7 +56,7 @@ save(models, file = "readmit_models.RDA")
 
 # Pushing predictions to a database
 
-While the frequency may vary depending on the use case, new patients or patient encounters (i.e., rows) will need predictions on a reoccurring basis. In healthcare, _daily_ batch predictions are common. To create predictions, these new rows are run against the model that lives in the RDA file. 
+While the frequency will vary depending on the use case, for most healthcare ML scenarios you'll need predictions on a reoccurring basis. Daily batch predictions are common. To create predictions, new rows (representing patients or patient encounters) are run against the model that lives in the RDA file. 
 
 Instead of slimply creating predictions in R, however, in a production scenario you'll be pushing these predictions to a database. Typically we append to the same table each night, such that a person will get an updated risk score for each day they're in the hospital (for example).
 
@@ -69,13 +69,15 @@ Now we focus on the code that will run each night to create predictions. Note a 
 
 
 ```{r}
-prod_query <- "SELECT [FacilityAccountID]
+prod_query <- "SELECT 
+                 [FacilityAccountID]
                 ,[AdmitAgeNBR]
                 ,[GenderCD]
                 ,[EthnicGroupDSC]
                 ,[MaritalStatusDSC]
                 ,[Readmit30FLG]
-FROM [SAM].[SSISTest].[SummaryVisitBASE]"
+  FROM [SAM].[Schema].[SummaryVisitBASE]
+  WHERE InpatientFLG = 'T'"
 
 d_out <- db_read(con, prod_query)
 
@@ -86,7 +88,7 @@ predictions <- predict(models, d_out)
 
 ## Create the output table
 
-Before we create the output table, look at the format of your output by typing `predictions` in the console.
+Before we create the output table, look at the format of your output by typing `glimpse(predictions)`
 
 You might want push fewer columns to a table each night. Here's how you slim this down:
 
@@ -100,7 +102,7 @@ Now that we have only the columns necessary, let's and populate the output table
 
 ### Outside of a Health Catalyst environment
 
-Use a tool like SQL Server Management Studio and a `CREATE` statement
+Use a tool like SQL Server Management Studio and a `CREATE TABLE` statement
 
 ### Inside a Health Catalyst environment
 
@@ -125,7 +127,7 @@ con <- odbcDriverConnect(connection = my_con)
 
 sqlSave(con, 
         predictions, 
-        "TestSchema.TestTable", 
+        "Schema.MLOutputTable", 
         append = TRUE, 
         rownames = FALSE)
 
@@ -136,12 +138,52 @@ If your predictions arrive in the database, congrats! You're now ready to work w
 
 # Testing in production
 
-Before users start consuming your awesome ML work, first it's imperative that you verify that your model's accuracy holds up in production. Performance on retrospective data isn't the same as performance on incoming production data. Sometimes issues like [data leakage](https://healthcare.ai/data-leakage-in-healthcare-machine-learning) or other issues cause the performance to drop.
+Before users start consuming your awesome ML work, it's imperative that you verify that the model's accuracy holds up in production. Performance on retrospective data isn't the same as performance on incoming production data. Sometimes issues like [data leakage](https://healthcare.ai/data-leakage-in-healthcare-machine-learning) or other issues cause the performance to drop.
 
 Effectively, if you're creating CLABSI predictions, you should wait a few weeks until a large number of the patients who have received risk predictions have left the hospital. Alternatively, if you're predicting 30-day readmissions, you need to wait ~45 days until you have enough data to verify if you accurately predicted who did or didn't return to the hospital. This can be done [via healthcare.ai](https://docs.healthcare.ai/reference/evaluate_classification.html):
 
 ```{r}
 evaluate_classification(predicted, actual)
+```
+
+# Full and simplest deployment code
+
+```{r}
+library(healthcareai)
+library(DBI)
+library(RODBC)
+library(tidyverse)
+
+my_con <- build_connection_string(server = "HCS-GM0004",
+                                  database = "SAM")
+
+con <- dbConnect(odbc::odbc(), .connection_string = my_con)
+
+prod_query <- "SELECT 
+                 [FacilityAccountID]
+                ,[AdmitAgeNBR]
+                ,[GenderCD]
+                ,[EthnicGroupDSC]
+                ,[MaritalStatusDSC]
+                ,[Readmit30FLG]
+  FROM [SAM].[Schema].[SummaryVisitBASE]
+  WHERE InpatientFLG = 'T'"
+
+d_out <- db_read(con, prod_query)
+
+load("readmit_models.RDA")
+
+predictions <- predict(models, d_out)
+
+con <- odbcDriverConnect(connection = my_con)
+
+sqlSave(con, 
+        predictions, 
+        "Schema.MLOutputTable", 
+        append = TRUE, 
+        rownames = FALSE)
+
+odbcClose(con)
 ```
 
 *Note: for those working in a Health Catalyst environment, proceed with the ML-Prod document in Spark
