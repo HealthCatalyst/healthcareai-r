@@ -245,3 +245,12 @@ test_that("If only tuning one model, can provide hyperparameter grid outside lis
   expect_s3_class(m, "classification_list")
   expect_true(nrow(m$`Random Forest`$results) == 4)
 })
+
+test_that("tune_ and flash_ issues informative errors if missingness in predictor", {
+  # First 50 row indices with missingness in any predictor:
+  i <- which(!complete.cases(pima_diabetes[, -which(names(pima_diabetes) == "diabetes")]))[1:50]
+  with_miss <- pima_diabetes[i, -1]
+  expect_error(tune_models(with_miss, diabetes), "impute")
+  expect_error(flash_models(with_miss, age), "impute")
+  expect_error(machine_learn(with_miss, outcome = diabetes), NA)
+})

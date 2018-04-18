@@ -47,6 +47,14 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
   # Make sure models are supported
   models <- check_models(models)
 
+  # Make sure there's no missingness in predictors
+  miss <- missingness(dplyr::select(d, -!!outcome), return_df = FALSE)
+  if (any(miss > 0))
+    stop("There is missingness in the following predictors. You can impute values to fill in ",
+         "the missingness by calling `prep_data` before tuning models, or using `machine_learn` ",
+         "to prep the data and train models.\n",
+         paste0(names(miss)[miss > 0], collapse = ", "))
+
   return(list(d = d, outcome = outcome, model_class = model_class,
               models = models, metric = metric, recipe = recipe))
 }
