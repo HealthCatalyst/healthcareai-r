@@ -146,7 +146,7 @@ Effectively, if you're creating CLABSI predictions, you should wait a few weeks 
 evaluate_classification(predicted, actual)
 ```
 
-# Full and simplest deployment code
+# Full and simplest example code
 
 ```{r}
 library(healthcareai)
