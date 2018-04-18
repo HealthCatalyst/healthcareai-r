@@ -109,16 +109,18 @@
     
     
 <div class="contents">
-<p>Now that you’ve put in the work of building a model and it’s performing well on historical data, congratulations! It’s time to think about how to set it up to make reoccurring predictions. At this point, you have</p>
+<p>Now that you’ve put in the work of building a model and it’s performing well on historical data, congratulations! It’s now time to prepare it to make reoccurring predictions. <strong>This document focuses on the requirements needed <em>before</em> you actually talk to the DBA/ETL team about creating the reoccurring schedule.</strong> At this point, you have</p>
 <ul>
-<li>Decided on an algorithm</li>
-<li>Decided on your feature (i.e., input variable) list</li>
-<li>A model that meets performance requirements</li>
+<li>Chosen a use case and an outcome to predict</li>
+<li>Gathered your feature (i.e., input variable) list to make predictions</li>
+<li>Trained a model that meets your performance requirements</li>
 </ul>
-<div id="saving-a-model" class="section level1">
+<p>If you’ve done those, push on below!</p>
+<div id="creating-and-saving-a-model" class="section level1">
 <h1 class="hasAnchor">
-<a href="#saving-a-model" class="anchor"></a>Saving a model</h1>
-<p>In order to work with models in a production environment, first you must be able to have a saved model on disk. Here’s how that’s done–pay attention to last line. <em>Note, install tidyverse via</em> <code>install.packages('tidyverse')</code></p>
+<a href="#creating-and-saving-a-model" class="anchor"></a>Creating and saving a model</h1>
+<p>In order to work with models in a production environment, first you must be able to have a saved model on disk. While we keep this section minimal, you can find out more about model training in our <a href="https://docs.healthcare.ai/articles/site_only/healthcareai.html">Getting Started vignette</a>. If curious, you can find more about database connections <a href="https://docs.healthcare.ai/articles/site_only/db_connections.html">here</a></p>
+<p><em>Note, install tidyverse via</em> <code>install.packages('tidyverse')</code></p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(healthcareai)</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">library</span>(DBI)</a>
 <a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw">library</span>(tidyverse)</a>
@@ -152,13 +154,18 @@
 <h1 class="hasAnchor">
 <a href="#pushing-predictions-to-a-database" class="anchor"></a>Pushing predictions to a database</h1>
 <p>While the frequency will vary depending on the use case, for most healthcare ML scenarios you’ll need predictions on a reoccurring basis. Daily batch predictions are common. To create predictions, new rows (representing patients or patient encounters) are run against the model that lives in the RDA file.</p>
-<p>Instead of slimply creating predictions in R, however, in a production scenario you’ll be pushing these predictions to a database. Typically we append to the same table each night, such that a person will get an updated risk score for each day they’re in the hospital (for example).</p>
+<p>Instead of simply creating predictions in R, however, in a production scenario you’ll be pushing these predictions to a database. Typically we append to the same table each night, such that a person will get an updated risk score for each day they’re in the hospital (for example).</p>
 <div id="creating-predictions" class="section level2">
 <h2 class="hasAnchor">
 <a href="#creating-predictions" class="anchor"></a>Creating predictions</h2>
 <p>Now we focus on the code that will run each night to create predictions. Note a couple of things:</p>
 <ul>
-<li>The query is different from the development step–here you’re only querying patients that need a prediction</li>
+<li>The query is different from the development step
+<ul>
+<li>Here you’re only querying patients that need a prediction</li>
+<li>Here you won’t have the label (i.e., outcome) column in your query</li>
+</ul>
+</li>
 <li>We read the model from disk; if needed, a web service could be involved</li>
 </ul>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">prod_query &lt;-<span class="st"> "SELECT </span></a>
@@ -167,61 +174,68 @@
 <a class="sourceLine" id="cb2-4" data-line-number="4"><span class="st">                ,[GenderCD]</span></a>
 <a class="sourceLine" id="cb2-5" data-line-number="5"><span class="st">                ,[EthnicGroupDSC]</span></a>
 <a class="sourceLine" id="cb2-6" data-line-number="6"><span class="st">                ,[MaritalStatusDSC]</span></a>
-<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="st">                ,[Readmit30FLG]</span></a>
-<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="st">  FROM [SAM].[Schema].[SummaryVisitBASE]</span></a>
-<a class="sourceLine" id="cb2-9" data-line-number="9"><span class="st">  WHERE InpatientFLG = 'T'"</span></a>
-<a class="sourceLine" id="cb2-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb2-11" data-line-number="11">d_out &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/db_read.html">db_read</a></span>(con, prod_query)</a>
-<a class="sourceLine" id="cb2-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb2-13" data-line-number="13"><span class="kw">load</span>(<span class="st">"readmit_models.RDA"</span>)</a>
-<a class="sourceLine" id="cb2-14" data-line-number="14"></a>
-<a class="sourceLine" id="cb2-15" data-line-number="15">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(models, d_out)</a></code></pre></div>
+<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="st">  FROM [SAM].[Schema].[SummaryVisitBASE]</span></a>
+<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="st">  WHERE InpatientFLG = 'T'"</span></a>
+<a class="sourceLine" id="cb2-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb2-10" data-line-number="10">d_out &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/db_read.html">db_read</a></span>(con, prod_query)</a>
+<a class="sourceLine" id="cb2-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb2-12" data-line-number="12"><span class="kw">load</span>(<span class="st">"readmit_models.RDA"</span>)</a>
+<a class="sourceLine" id="cb2-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb2-14" data-line-number="14">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(models, d_out)</a></code></pre></div>
 </div>
 <div id="create-the-output-table" class="section level2">
 <h2 class="hasAnchor">
 <a href="#create-the-output-table" class="anchor"></a>Create the output table</h2>
-<p>Before we create the output table, look at the format of your output by typing <code>glimpse(predictions)</code></p>
-<p>You might want push fewer columns to a table each night. Here’s how you slim this down:</p>
+<p>Before we worry about pushing rows to the database, look at the format of your output by typing <code>glimpse(predictions)</code></p>
+<p>You might want push fewer columns than that to a table each night. Here’s how you slim this down:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">predictions &lt;-<span class="st"> </span>predictions <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb3-2" data-line-number="2"><span class="st">  </span><span class="kw">select</span>(FacilityAccountID, predicted_Readmit30FLG) <span class="op">%&gt;%</span><span class="st"> </span><span class="co"># Grab just two columns</span></a>
-<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="st">  </span><span class="kw">rename</span>(<span class="dt">PredictedProbability =</span> predicted_Readmit30FLG) <span class="co"># Change col name</span></a></code></pre></div>
-<p>Now that we have only the columns necessary, let’s and populate the output table</p>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="st">  </span><span class="kw">rename</span>(<span class="dt">PredictedProbabilityNBR =</span> predicted_Readmit30FLG) <span class="co"># Change col name</span></a></code></pre></div>
+<p>Now that we have only the columns necessary, let’s shift to the database table.</p>
 <div id="outside-of-a-health-catalyst-environment" class="section level3">
 <h3 class="hasAnchor">
 <a href="#outside-of-a-health-catalyst-environment" class="anchor"></a>Outside of a Health Catalyst environment</h3>
-<p>Use a tool like SQL Server Management Studio and a <code>CREATE TABLE</code> statement</p>
+<p>Use a tool like SQL Server Management Studio and a <code>CREATE TABLE</code> statement.</p>
 </div>
 <div id="inside-a-health-catalyst-environment" class="section level3">
 <h3 class="hasAnchor">
 <a href="#inside-a-health-catalyst-environment" class="anchor"></a>Inside a Health Catalyst environment</h3>
 <ol style="list-style-type: decimal">
-<li>Append a few utility columns to your output</li>
+<li>Append a few utility columns to your output, so that it matches the typical structure of tables generated by Subject Area Mart Designer (SAMD):</li>
 </ol>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">predictions &lt;-<span class="st"> </span>predictions <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb4-2" data-line-number="2"><span class="st">  </span>add_SAM_utility_cols</a></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
-<li>Use Source Area Mart Designer (SAMD) to create the table (since this creates metadata)</li>
+<li>Use SAMD to create the table (since this creates metadata)</li>
 </ol>
 <ul>
-<li>This binding requires a query that not only has the column structure, but also <code>WHERE 0 = 1</code>, such that only R is populating the output table</li>
+<li>This binding requires a query that not only has the column structure, but also <code>WHERE 0 = 1</code>, such that only R is populating the output table.</li>
+</ul>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sql"><code class="sourceCode sql"><a class="sourceLine" id="cb5-1" data-line-number="1">   <span class="kw">SELECT</span> </a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">    <span class="st">''</span> <span class="kw">AS</span> FacilityAccountID</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3">   ,<span class="st">''</span> <span class="kw">AS</span> PredictedProbNBR</a>
+<a class="sourceLine" id="cb5-4" data-line-number="4">   <span class="kw">FROM</span> SAM.Schema.SummaryVisitBASE <span class="kw">where</span> <span class="dv">1</span>=<span class="dv">0</span></a></code></pre></div>
+<ul>
+<li>Edit the column types, name the binding something like ReadmitMLOutputTable, and ensure that’s it generated as expected.</li>
+<li>Set the binding to <code>Incremental</code>, such that the table isn’t dropped and reloaded each night.</li>
 </ul>
 </div>
 </div>
 <div id="writing-predictions-to-the-table" class="section level2">
 <h2 class="hasAnchor">
 <a href="#writing-predictions-to-the-table" class="anchor"></a>Writing predictions to the table</h2>
-<p>Here we use the <code>RODBC</code> package, which can be installed via <code>install.packages('RODBC')</code></p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">library</span>(RODBC)</a>
-<a class="sourceLine" id="cb5-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb5-3" data-line-number="3">con &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/RODBC/topics/odbcConnect">odbcDriverConnect</a></span>(<span class="dt">connection =</span> my_con)</a>
-<a class="sourceLine" id="cb5-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="kw"><a href="http://www.rdocumentation.org/packages/RODBC/topics/sqlSave">sqlSave</a></span>(con, </a>
-<a class="sourceLine" id="cb5-6" data-line-number="6">        predictions, </a>
-<a class="sourceLine" id="cb5-7" data-line-number="7">        <span class="st">"Schema.MLOutputTable"</span>, </a>
-<a class="sourceLine" id="cb5-8" data-line-number="8">        <span class="dt">append =</span> <span class="ot">TRUE</span>, </a>
-<a class="sourceLine" id="cb5-9" data-line-number="9">        <span class="dt">rownames =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb5-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb5-11" data-line-number="11"><span class="kw"><a href="http://www.rdocumentation.org/packages/RODBC/topics/odbcClose">odbcClose</a></span>(con)</a></code></pre></div>
+<p>Here we use the <code>RODBC</code> package, which can be installed via <code>install.packages('RODBC')</code>. Note that the database isn’t specified here, since it was defined above.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw">library</span>(RODBC)</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb6-3" data-line-number="3">con &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/RODBC/topics/odbcConnect">odbcDriverConnect</a></span>(<span class="dt">connection =</span> my_con)</a>
+<a class="sourceLine" id="cb6-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="kw"><a href="http://www.rdocumentation.org/packages/RODBC/topics/sqlSave">sqlSave</a></span>(con, </a>
+<a class="sourceLine" id="cb6-6" data-line-number="6">        predictions, </a>
+<a class="sourceLine" id="cb6-7" data-line-number="7">        <span class="st">"Schema.ReadmitMLOutputTable"</span>, </a>
+<a class="sourceLine" id="cb6-8" data-line-number="8">        <span class="dt">append =</span> <span class="ot">TRUE</span>, </a>
+<a class="sourceLine" id="cb6-9" data-line-number="9">        <span class="dt">rownames =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb6-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb6-11" data-line-number="11"><span class="kw"><a href="http://www.rdocumentation.org/packages/RODBC/topics/odbcClose">odbcClose</a></span>(con)</a></code></pre></div>
 <p>If your predictions arrive in the database, congrats! You’re now ready to work with the DBA/ETL* team to schedule this reoccurring job, such that it runs in a manner that’s dependency-aware.</p>
 </div>
 </div>
@@ -229,47 +243,47 @@
 <h1 class="hasAnchor">
 <a href="#testing-in-production" class="anchor"></a>Testing in production</h1>
 <p>Before users start consuming your awesome ML work, it’s imperative that you verify that the model’s accuracy holds up in production. Performance on retrospective data isn’t the same as performance on incoming production data. Sometimes issues like <a href="https://healthcare.ai/data-leakage-in-healthcare-machine-learning">data leakage</a> or other issues cause the performance to drop.</p>
-<p>Effectively, if you’re creating CLABSI predictions, you should wait a few weeks until a large number of the patients who have received risk predictions have left the hospital. Alternatively, if you’re predicting 30-day readmissions, you need to wait ~45 days until you have enough data to verify if you accurately predicted who did or didn’t return to the hospital. This can be done <a href="https://docs.healthcare.ai/reference/evaluate_classification.html">via healthcare.ai</a>:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw"><a href="../../reference/evaluate_classification.html">evaluate_classification</a></span>(predicted, actual)</a></code></pre></div>
+<p>Effectively, if you’re creating CLABSI predictions, you should wait a few weeks until a large number of the patients who have received risk predictions have left the hospital and had an outcome (CLABSI = Y/N) recorded so you can compare predictions to actual outcomes. Similarly, if you’re predicting 30-day readmissions, you need to wait ~45 days until you have enough data to verify if you accurately predicted who did or didn’t return to the hospital. This can be done <a href="https://docs.healthcare.ai/reference/evaluate_classification.html">via healthcare.ai</a>:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw"><a href="../../reference/evaluate_classification.html">evaluate_classification</a></span>(predicted, actual)</a></code></pre></div>
 </div>
 <div id="full-and-simplest-deployment-code" class="section level1">
 <h1 class="hasAnchor">
 <a href="#full-and-simplest-deployment-code" class="anchor"></a>Full and simplest deployment code</h1>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw">library</span>(healthcareai)</a>
-<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="kw">library</span>(DBI)</a>
-<a class="sourceLine" id="cb7-3" data-line-number="3"><span class="kw">library</span>(RODBC)</a>
-<a class="sourceLine" id="cb7-4" data-line-number="4"><span class="kw">library</span>(tidyverse)</a>
-<a class="sourceLine" id="cb7-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb7-6" data-line-number="6">my_con &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/build_connection_string.html">build_connection_string</a></span>(<span class="dt">server =</span> <span class="st">"HCS-GM0004"</span>,</a>
-<a class="sourceLine" id="cb7-7" data-line-number="7">                                  <span class="dt">database =</span> <span class="st">"SAM"</span>)</a>
-<a class="sourceLine" id="cb7-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb7-9" data-line-number="9">con &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/DBI/topics/dbConnect">dbConnect</a></span>(odbc<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/odbc/topics/odbc">odbc</a></span>(), <span class="dt">.connection_string =</span> my_con)</a>
-<a class="sourceLine" id="cb7-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb7-11" data-line-number="11">prod_query &lt;-<span class="st"> "SELECT </span></a>
-<a class="sourceLine" id="cb7-12" data-line-number="12"><span class="st">                 [FacilityAccountID]</span></a>
-<a class="sourceLine" id="cb7-13" data-line-number="13"><span class="st">                ,[AdmitAgeNBR]</span></a>
-<a class="sourceLine" id="cb7-14" data-line-number="14"><span class="st">                ,[GenderCD]</span></a>
-<a class="sourceLine" id="cb7-15" data-line-number="15"><span class="st">                ,[EthnicGroupDSC]</span></a>
-<a class="sourceLine" id="cb7-16" data-line-number="16"><span class="st">                ,[MaritalStatusDSC]</span></a>
-<a class="sourceLine" id="cb7-17" data-line-number="17"><span class="st">                ,[Readmit30FLG]</span></a>
-<a class="sourceLine" id="cb7-18" data-line-number="18"><span class="st">  FROM [SAM].[Schema].[SummaryVisitBASE]</span></a>
-<a class="sourceLine" id="cb7-19" data-line-number="19"><span class="st">  WHERE InpatientFLG = 'T'"</span></a>
-<a class="sourceLine" id="cb7-20" data-line-number="20"></a>
-<a class="sourceLine" id="cb7-21" data-line-number="21">d_out &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/db_read.html">db_read</a></span>(con, prod_query)</a>
-<a class="sourceLine" id="cb7-22" data-line-number="22"></a>
-<a class="sourceLine" id="cb7-23" data-line-number="23"><span class="kw">load</span>(<span class="st">"readmit_models.RDA"</span>)</a>
-<a class="sourceLine" id="cb7-24" data-line-number="24"></a>
-<a class="sourceLine" id="cb7-25" data-line-number="25">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(models, d_out)</a>
-<a class="sourceLine" id="cb7-26" data-line-number="26"></a>
-<a class="sourceLine" id="cb7-27" data-line-number="27">con &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/RODBC/topics/odbcConnect">odbcDriverConnect</a></span>(<span class="dt">connection =</span> my_con)</a>
-<a class="sourceLine" id="cb7-28" data-line-number="28"></a>
-<a class="sourceLine" id="cb7-29" data-line-number="29"><span class="kw"><a href="http://www.rdocumentation.org/packages/RODBC/topics/sqlSave">sqlSave</a></span>(con, </a>
-<a class="sourceLine" id="cb7-30" data-line-number="30">        predictions, </a>
-<a class="sourceLine" id="cb7-31" data-line-number="31">        <span class="st">"Schema.MLOutputTable"</span>, </a>
-<a class="sourceLine" id="cb7-32" data-line-number="32">        <span class="dt">append =</span> <span class="ot">TRUE</span>, </a>
-<a class="sourceLine" id="cb7-33" data-line-number="33">        <span class="dt">rownames =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb7-34" data-line-number="34"></a>
-<a class="sourceLine" id="cb7-35" data-line-number="35"><span class="kw"><a href="http://www.rdocumentation.org/packages/RODBC/topics/odbcClose">odbcClose</a></span>(con)</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw">library</span>(healthcareai)</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="kw">library</span>(DBI)</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="kw">library</span>(RODBC)</a>
+<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="kw">library</span>(tidyverse)</a>
+<a class="sourceLine" id="cb8-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb8-6" data-line-number="6">my_con &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/build_connection_string.html">build_connection_string</a></span>(<span class="dt">server =</span> <span class="st">"HCS-GM0004"</span>,</a>
+<a class="sourceLine" id="cb8-7" data-line-number="7">                                  <span class="dt">database =</span> <span class="st">"SAM"</span>)</a>
+<a class="sourceLine" id="cb8-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb8-9" data-line-number="9">con &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/DBI/topics/dbConnect">dbConnect</a></span>(odbc<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/odbc/topics/odbc">odbc</a></span>(), <span class="dt">.connection_string =</span> my_con)</a>
+<a class="sourceLine" id="cb8-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb8-11" data-line-number="11">prod_query &lt;-<span class="st"> "SELECT </span></a>
+<a class="sourceLine" id="cb8-12" data-line-number="12"><span class="st">                 [FacilityAccountID]</span></a>
+<a class="sourceLine" id="cb8-13" data-line-number="13"><span class="st">                ,[AdmitAgeNBR]</span></a>
+<a class="sourceLine" id="cb8-14" data-line-number="14"><span class="st">                ,[GenderCD]</span></a>
+<a class="sourceLine" id="cb8-15" data-line-number="15"><span class="st">                ,[EthnicGroupDSC]</span></a>
+<a class="sourceLine" id="cb8-16" data-line-number="16"><span class="st">                ,[MaritalStatusDSC]</span></a>
+<a class="sourceLine" id="cb8-17" data-line-number="17"><span class="st">                ,[Readmit30FLG]</span></a>
+<a class="sourceLine" id="cb8-18" data-line-number="18"><span class="st">  FROM [SAM].[Schema].[SummaryVisitBASE]</span></a>
+<a class="sourceLine" id="cb8-19" data-line-number="19"><span class="st">  WHERE InpatientFLG = 'T'"</span></a>
+<a class="sourceLine" id="cb8-20" data-line-number="20"></a>
+<a class="sourceLine" id="cb8-21" data-line-number="21">d_out &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/db_read.html">db_read</a></span>(con, prod_query)</a>
+<a class="sourceLine" id="cb8-22" data-line-number="22"></a>
+<a class="sourceLine" id="cb8-23" data-line-number="23"><span class="kw">load</span>(<span class="st">"readmit_models.RDA"</span>)</a>
+<a class="sourceLine" id="cb8-24" data-line-number="24"></a>
+<a class="sourceLine" id="cb8-25" data-line-number="25">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(models, d_out)</a>
+<a class="sourceLine" id="cb8-26" data-line-number="26"></a>
+<a class="sourceLine" id="cb8-27" data-line-number="27">con &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/RODBC/topics/odbcConnect">odbcDriverConnect</a></span>(<span class="dt">connection =</span> my_con)</a>
+<a class="sourceLine" id="cb8-28" data-line-number="28"></a>
+<a class="sourceLine" id="cb8-29" data-line-number="29"><span class="kw"><a href="http://www.rdocumentation.org/packages/RODBC/topics/sqlSave">sqlSave</a></span>(con, </a>
+<a class="sourceLine" id="cb8-30" data-line-number="30">        predictions, </a>
+<a class="sourceLine" id="cb8-31" data-line-number="31">        <span class="st">"Schema.ReadmitMLOutputTableBASE"</span>, </a>
+<a class="sourceLine" id="cb8-32" data-line-number="32">        <span class="dt">append =</span> <span class="ot">TRUE</span>, </a>
+<a class="sourceLine" id="cb8-33" data-line-number="33">        <span class="dt">rownames =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb8-34" data-line-number="34"></a>
+<a class="sourceLine" id="cb8-35" data-line-number="35"><span class="kw"><a href="http://www.rdocumentation.org/packages/RODBC/topics/odbcClose">odbcClose</a></span>(con)</a></code></pre></div>
 <p>*Note: for those working in a Health Catalyst environment, proceed with the ML-Prod document in Spark</p>
 </div>
 </div>
@@ -280,7 +294,7 @@
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#saving-a-model">Saving a model</a></li>
+<li><a href="#creating-and-saving-a-model">Creating and saving a model</a></li>
       <li>
 <a href="#pushing-predictions-to-a-database">Pushing predictions to a database</a><ul class="nav nav-pills nav-stacked">
 <li><a href="#creating-predictions">Creating predictions</a></li>
