@@ -1,4 +1,4 @@
-#' Save models to disk and read models from disk
+#' Save models to disk and load models from disk
 #'
 #' @description Note that model objects contain training data, except columns
 #'   ignored (patient_id in the example below). Therefore, if there is PHI in
@@ -30,10 +30,12 @@ save_models <- function(x, filename) {
                     initialfile = "models.RDS",
                     defaultextension = ".RDS") %>%
       tclvalue()
-    message("Saving models to ", filename, "\n")
+    mes <- paste0("Saving models. You could automate this with `save_models(",
+                  deparse(substitute(x)), ", ", filename, ")`")
+    message(mes)
   }
   saveRDS(x, filename)
-  message("You are saving a model object that contains the training data minus ignored ID columns.\n",
+  message("The model object being saved contains training data, minus ignored ID columns.\n",
           "If there was PHI in training data, normal PHI protocols apply to the RDA file.")
   return(invisible(NULL))
 }
@@ -43,7 +45,9 @@ save_models <- function(x, filename) {
 load_models <- function(filename) {
   if (missing(filename)) {
     filename <- file.choose()
-    message("Reading models from ", filename)
+    mes <- paste0("Loading models. You could automate this with `load_models(",
+                  filename, ")`")
+    message(mes)
   }
   x <- readRDS(filename)
   return(x)
