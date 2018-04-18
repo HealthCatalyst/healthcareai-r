@@ -56,7 +56,7 @@ bring up a preview of the top 1000 rows of the table.
 
 # Reading data
 
-## Using SQL Code
+### Using SQL Code
 
 From here, you can read data from the database in a couple different ways. You
 can use `db_read` to execute SQL code, or you can use `dbplyr` functionality
@@ -78,7 +78,7 @@ flag to FALSE. This will create a pointer to the database that can be
 executed "lazily." In other words R will wait until the last moment to execute 
 the statement.
 
-## Using dplyr Code
+### Using dplyr Code
 
 The other option is to use dplyr code. Set up a reference to the table, then use
 it to pull data. Here, `tbl` is creating a reference and storing it in the 
@@ -120,7 +120,7 @@ This code assumes there is a table called `SAM.Sepsis.Predictions` with columns:
 - patient_id (int)
 - predicted_probability (float).
 
-## ~~Writing with DBI~~
+### ~~Writing with DBI~~
 
 **Note: as of April 18th, DBI is not working for writing to a database**
 
@@ -141,7 +141,7 @@ res <- dbWriteTable(conn = con,
 dbDisconnect(con)
 ```
 
-## Writing with RODBC
+### Writing with RODBC
 
 While it's the route that works (as of April 18th), RODBC won't be the preferred way to interact with a database long-term because it doesn't work with RStudio's connections pane. However, the package is available on CRAN and does support schemas.
 ```{r}
