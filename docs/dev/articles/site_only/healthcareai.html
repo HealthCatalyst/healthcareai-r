@@ -49,7 +49,7 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Vignettes
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -78,13 +78,13 @@
 <li>
   <a href="https://github.com/HealthCatalyst/healthcareai-r">
     <span class="fa fa-github"></span>
-     
+
   </a>
 </li>
 <li>
   <a href="https://healthcare-ai.slack.com/">
     <span class="fa fa-users"></span>
-     
+
   </a>
 </li>
       </ul>
@@ -95,19 +95,19 @@
 </div>
 <!--/.navbar -->
 
-      
+
       </header><div class="row">
   <div class="col-md-9">
     <div class="page-header toc-ignore">
       <h1>Getting Started with healthcareai</h1>
-            
-      
-      
+
+
+
 
     </div>
 
-    
-    
+
+
 <div class="contents">
 <p>First we attach the healthcareai R package to make its functions available. If your package version is less than 2.0, none of the code here will work. You can check the package version with <code>packageVersion("healthcareai")</code>, and you can get the latest, cutting-edge development version with <code>install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r")</code>. If that doesn’t work, check out the <a href="transitioning.html">Transitioning vignette</a> for backup install methods.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(healthcareai)</a>
@@ -135,10 +135,8 @@
 <a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co"># &gt; Training new data prep recipe</span></a>
 <a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co"># &gt; Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></a>
 <a class="sourceLine" id="cb3-4" data-line-number="4"><span class="co"># &gt; diabetes looks categorical, so training classification algorithms.</span></a>
-<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co"># &gt; Warning: package 'bindrcpp' was built under R version 3.4.4</span></a>
-<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co"># &gt; Training with cross validation: Random Forest</span></a>
-<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="co"># &gt; Warning: package 'caret' was built under R version 3.4.4</span></a>
-<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="co"># &gt; Training with cross validation: k-Nearest Neighbors</span></a></code></pre></div>
+<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co"># &gt; Training with cross validation: Random Forest</span></a>
+<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co"># &gt; Training with cross validation: k-Nearest Neighbors</span></a></code></pre></div>
 <p><code>machine_learn</code> has told us that it has created a recipe for data preparation (this allows us to do exactly the same data cleaning and feature engineering when you want predictions on a new dataset), is ignoring <code>patient_id</code> when tuning models as we told it to, is training classification algorithms because the outcome variable <code>diabetes</code> is categorical, and has executed cross validation for two machine learning models: random forests, and k-nearest neighbors. Let’s see what the models look like.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">quick_models</a>
 <a class="sourceLine" id="cb4-2" data-line-number="2"><span class="co"># &gt; Algorithms Trained: Random Forest, k-Nearest Neighbors</span></a>
@@ -253,7 +251,11 @@
 <a class="sourceLine" id="cb12-11" data-line-number="11"><span class="co"># &gt; Performance Metric: AUPR</span></a>
 <a class="sourceLine" id="cb12-12" data-line-number="12"><span class="co"># &gt; Number of Observations: 692</span></a>
 <a class="sourceLine" id="cb12-13" data-line-number="13"><span class="co"># &gt; Number of Features: 13</span></a>
+<<<<<<< HEAD
 <a class="sourceLine" id="cb12-14" data-line-number="14"><span class="co"># &gt; Models Trained: 2018-04-18 20:01:59 </span></a>
+=======
+<a class="sourceLine" id="cb12-14" data-line-number="14"><span class="co"># &gt; Models Trained: 2018-04-18 10:28:50 </span></a>
+>>>>>>> master
 <a class="sourceLine" id="cb12-15" data-line-number="15"><span class="co"># &gt; </span></a>
 <a class="sourceLine" id="cb12-16" data-line-number="16"><span class="co"># &gt; Models have not been tuned. Performance estimated via 5-fold cross validation at fixed hyperparameter values.</span></a>
 <a class="sourceLine" id="cb12-17" data-line-number="17"><span class="co"># &gt; Best model: Random Forest</span></a>
@@ -277,7 +279,11 @@
 <a href="#prediction" class="anchor"></a>Prediction</h1>
 <p><code>predict</code> will automatically use the best-performing model from training (evaluated out-of-fold in cross validation). If no new data is passed to <code>predict</code> it will return out-of-fold predictions from training. The predicted probabilities appear in the <code>predicted_diabetes</code> column.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw">predict</span>(models)</a>
+<<<<<<< HEAD
 <a class="sourceLine" id="cb14-2" data-line-number="2"><span class="co"># &gt; "predicted_diabetes" predicted by Random Forest last trained: 2018-04-18 20:01:56</span></a>
+=======
+<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="co"># &gt; "predicted_diabetes" predicted by Random Forest last trained: 2018-04-18 10:28:46</span></a>
+>>>>>>> master
 <a class="sourceLine" id="cb14-3" data-line-number="3"><span class="co"># &gt; Performance in training: AUPR = 0.7</span></a>
 <a class="sourceLine" id="cb14-4" data-line-number="4"><span class="co"># &gt; # A tibble: 692 x 15</span></a>
 <a class="sourceLine" id="cb14-5" data-line-number="5"><span class="co"># &gt;   diabetes predicted_diabetes pregnancies plasma_glucose diastolic_bp</span></a>
@@ -319,7 +325,11 @@
 <a class="sourceLine" id="cb18-5" data-line-number="5"><span class="co"># &gt; Training with cross validation: Random Forest</span></a>
 <a class="sourceLine" id="cb18-6" data-line-number="6"><span class="co"># &gt; Training with cross validation: k-Nearest Neighbors</span></a>
 <a class="sourceLine" id="cb18-7" data-line-number="7"><span class="kw">summary</span>(regression_models)</a>
+<<<<<<< HEAD
 <a class="sourceLine" id="cb18-8" data-line-number="8"><span class="co"># &gt; Models trained: 2018-04-18 20:02:12</span></a>
+=======
+<a class="sourceLine" id="cb18-8" data-line-number="8"><span class="co"># &gt; Models trained: 2018-04-18 10:29:05</span></a>
+>>>>>>> master
 <a class="sourceLine" id="cb18-9" data-line-number="9"><span class="co"># &gt; </span></a>
 <a class="sourceLine" id="cb18-10" data-line-number="10"><span class="co"># &gt; Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.</span></a>
 <a class="sourceLine" id="cb18-11" data-line-number="11"><span class="co"># &gt; Best performance: RMSE = 9.02, MAE = 6.37, Rsquared = 0.41</span></a>
@@ -364,6 +374,7 @@
 <a class="sourceLine" id="cb19-10" data-line-number="10"><span class="kw">predict</span>(regression_models, new_patient)</a>
 <a class="sourceLine" id="cb19-11" data-line-number="11"><span class="co"># &gt; Warning in ready_with_prep(object, newdata, mi): The following variables(s) had the following value(s) in predict that were not observed in training. </span></a>
 <a class="sourceLine" id="cb19-12" data-line-number="12"><span class="co"># &gt;     weight_class: ???</span></a>
+<<<<<<< HEAD
 <a class="sourceLine" id="cb19-13" data-line-number="13"><span class="co"># &gt; Warning in prep_data(newdata, recipe = recipe): patient_id not found in d.</span></a>
 <a class="sourceLine" id="cb19-14" data-line-number="14"><span class="co"># &gt; Prepping data based on provided recipe</span></a>
 <a class="sourceLine" id="cb19-15" data-line-number="15"><span class="co"># &gt; "predicted_age" predicted by Random Forest last trained: 2018-04-18 20:02:12</span></a>
@@ -375,6 +386,17 @@
 <a class="sourceLine" id="cb19-21" data-line-number="21"><span class="co"># &gt; # ... with 3 more variables: weight_class &lt;fct&gt;, pedigree &lt;dbl&gt;,</span></a>
 <a class="sourceLine" id="cb19-22" data-line-number="22"><span class="co"># &gt; #   diabetes &lt;fct&gt;</span></a></code></pre></div>
 </div>
+=======
+<a class="sourceLine" id="cb19-13" data-line-number="13"><span class="co"># &gt; Prepping data based on provided recipe</span></a>
+<a class="sourceLine" id="cb19-14" data-line-number="14"><span class="co"># &gt; "predicted_age" predicted by Random Forest last trained: 2018-04-18 10:29:05</span></a>
+<a class="sourceLine" id="cb19-15" data-line-number="15"><span class="co"># &gt; Performance in training: RMSE = 9.02</span></a>
+<a class="sourceLine" id="cb19-16" data-line-number="16"><span class="co"># &gt; # A tibble: 1 x 9</span></a>
+<a class="sourceLine" id="cb19-17" data-line-number="17"><span class="co"># &gt;   predicted_age pregnancies plasma_glucose diastolic_bp skinfold insulin</span></a>
+<a class="sourceLine" id="cb19-18" data-line-number="18"><span class="co"># &gt; *         &lt;dbl&gt;       &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt; &lt;lgl&gt;  </span></a>
+<a class="sourceLine" id="cb19-19" data-line-number="19"><span class="co"># &gt; 1          23.9          0.            80.          55.      24. NA     </span></a>
+<a class="sourceLine" id="cb19-20" data-line-number="20"><span class="co"># &gt; # ... with 3 more variables: weight_class &lt;fct&gt;, pedigree &lt;dbl&gt;,</span></a>
+<a class="sourceLine" id="cb19-21" data-line-number="21"><span class="co"># &gt; #   diabetes &lt;fct&gt;</span></a></code></pre></div>
+>>>>>>> master
 </div>
   </div>
 

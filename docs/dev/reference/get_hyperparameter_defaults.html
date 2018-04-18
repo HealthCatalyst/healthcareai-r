@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>get_hyperparameter_defaults — get_hyperparameter_defaults • healthcareai</title>
+<title>Get default hyperparameter lists that can be passed to flash_models — get_hyperparameter_defaults • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,9 +25,9 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="get_hyperparameter_defaults — get_hyperparameter_defaults" />
+<meta property="og:title" content="Get default hyperparameter lists that can be passed to flash_models — get_hyperparameter_defaults" />
 
-<meta property="og:description" content="get_hyperparameter_defaults" />
+<meta property="og:description" content="Get default hyperparameter lists that can be passed to flash_models" />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -130,34 +130,53 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>get_hyperparameter_defaults</h1>
+    <h1>Get default hyperparameter lists that can be passed to flash_models</h1>
     
     </div>
 
     
-    <p>get_hyperparameter_defaults</p>
+    <p>Get default hyperparameter lists that can be passed to flash_models</p>
     
 
-    <pre class="usage"><span class='fu'>get_hyperparameter_defaults</span>(<span class='kw'>models</span> <span class='kw'>=</span> <span class='fu'><a href='get_supported_models.html'>get_supported_models</a></span>())</pre>
+    <pre class="usage"><span class='fu'>get_hyperparameter_defaults</span>(<span class='kw'>models</span> <span class='kw'>=</span> <span class='fu'><a href='get_supported_models.html'>get_supported_models</a></span>(), <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>100</span>,
+  <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>model_class</span> <span class='kw'>=</span> <span class='st'>"classification"</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>models</th>
-      <td><p>Character vector of algorithms for which hyperparameters are
-desired.</p></td>
+      <td><p>which algorithms?</p></td>
+    </tr>
+    <tr>
+      <th>n</th>
+      <td><p>Number observations</p></td>
+    </tr>
+    <tr>
+      <th>k</th>
+      <td><p>Number features</p></td>
+    </tr>
+    <tr>
+      <th>model_class</th>
+      <td><p>"classification" or "regression"</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>List of named lists that can be passed to <code><a href='flash_models.html'>flash_models</a></code></p>
+    <p>List of named data frames that can be passed to
+  <code><a href='flash_models.html'>flash_models</a></code></p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Get default hyperparameters to use, e.g. in flash_models. list
-  (algorithms) of lists (hyperparameters).</p>
+    <p>Get default hyperparameters to use, e.g. in flash_models. Each data
+  frame in the list corresponds to an algorithm, and each column in each data
+  fram corresponds to a hyperparameter for that algorithm.</p>
+<p>k-NN defaults are from the kknn package: kmax = 7, distance = 2
+  (Minkowski's exponent, i.e. Euclidean distance), kernal = "optimal"</p>
+<p>Random forest defaults are from Intro to Statistical Learning and caret:
+  mtry = sqrt(k), splitrule = "extratrees", min.node.size = 1 for
+  classification, 5 for regression</p>
     
 
   </div>

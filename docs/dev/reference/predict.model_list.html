@@ -80,7 +80,7 @@
         <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Vignettes
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -105,18 +105,18 @@
   <a href="../news/index.html">News</a>
 </li>
       </ul>
-      
+
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/HealthCatalyst/healthcareai-r">
     <span class="fa fa-github"></span>
-     
+
   </a>
 </li>
 <li>
   <a href="https://healthcare-ai.slack.com/">
     <span class="fa fa-users"></span>
-     
+
   </a>
 </li>
       </ul>
@@ -124,23 +124,23 @@
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
       </header>
 
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Make predictions using the best-performing model from tuning</h1>
-    
+
     </div>
 
-    
+
     <p>Make predictions using the best-performing model from tuning</p>
-    
+
 
     <pre class="usage"><span class='co'># S3 method for model_list</span>
 <span class='fu'>predict</span>(<span class='no'>object</span>, <span class='no'>newdata</span>, <span class='no'>prepdata</span>, <span class='no'>...</span>)</pre>
-    
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -174,7 +174,7 @@ sent through `prep_data`.</p></td>
       <td><p>Unused.</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A tibble data frame: newdata with an additional column for the
@@ -183,19 +183,19 @@ sent through `prep_data`.</p></td>
   probabilities. The tibble will have child class "predicted_df" and
   attribute "model_info" that contains information about the model used to
   make predictions.</p>
-    
+
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>The model and hyperparameter values with the best out-of-fold
   performance in model training according to the selected metric is used to
   make predictions. Prepping data inside `predict` has the advantage of
   returning your predictions with the newdata in its original format.</p>
-    
+
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <p><code><a href='plot.predicted_df.html'>plot.predicted_df</a></code>, <code><a href='tune_models.html'>tune_models</a></code>,
   <code><a href='prep_data.html'>prep_data</a></code></p>
-    
+
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Tune models using only the first 40 rows to keep computation fast</span>
@@ -226,13 +226,13 @@ sent through `prep_data`.</p></td>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
+
       <li><a href="#value">Value</a></li>
 
       <li><a href="#details">Details</a></li>
 
       <li><a href="#see-also">See also</a></li>
-      
+
       <li><a href="#examples">Examples</a></li>
     </ul>
 
