@@ -112,11 +112,11 @@ convert_date_cols <- function(d) {
                     has_guesses = !(map_lgl(guessed_formats, is.null)))
 
   # Remove rows with no guessed formats, save the names, and unnest
-  bad_date_cols = d_dates %>%
+  bad_date_cols <- d_dates %>%
     filter(has_guesses == FALSE) %>%
     pull(names)
 
-  d_dates = d_dates %>%
+  d_dates <- d_dates %>%
     filter(has_guesses == TRUE) %>%
     tidyr::unnest()
 
