@@ -245,3 +245,12 @@ test_that("If only tuning one model, can provide hyperparameter grid outside lis
   expect_s3_class(m, "classification_list")
   expect_true(nrow(m$`Random Forest`$results) == 4)
 })
+
+test_that("tune_models, flash_models, and machine_learn issue PHI cautions", {
+  tune_messages <- capture_messages(tune_models(test_df, diabetes))
+  flash_messages <- capture_messages(flash_models(test_df, diabetes))
+  ml_messages <- capture_messages(machine_learn(test_df, outcome = diabetes))
+  expect_true(stringr::str_detect(tune_messages), stringr::fixed("PHI"))
+  expect_true(stringr::str_detect(flash_messages), stringr::fixed("PHI"))
+  expect_true(stringr::str_detect(ml_messages), stringr::fixed("PHI"))
+})
