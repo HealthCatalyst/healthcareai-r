@@ -5,7 +5,7 @@
 \alias{load_models}
 \title{Save models to disk and load models from disk}
 \usage{
-save_models(x, filename)
+save_models(x, filename = "models.RDS")
 
 load_models(filename)
 }
@@ -13,12 +13,14 @@ load_models(filename)
 \item{x}{model_list object}
 
 \item{filename}{File path to save model to or read model from, e.g.
-"models/my_models.RDS". If not given, a dialog box to choose file location
-will be provided.}
+"models/my_models.RDS". Default for \code{save_models} is "models.RDS" in
+the working directory (\code{getwd()}). Default for \code{load_models} is
+to open a dialog box from which a file can be selected, in which case a
+message will issued with code to load the same file without interactivity.}
 }
 \value{
-load_models returns the model_list which can be assigned to any
-  variable name
+\code{load_models} returns the model_list which can be assigned to
+  any variable name
 }
 \description{
 Note that model objects contain training data, except columns

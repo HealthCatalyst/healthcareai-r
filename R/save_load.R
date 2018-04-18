@@ -7,13 +7,14 @@
 #'
 #' @param x model_list object
 #' @param filename File path to save model to or read model from, e.g.
-#'   "models/my_models.RDS". If not given, a dialog box to choose file location
-#'   will be provided.
-#' @return load_models returns the model_list which can be assigned to any
-#'   variable name
+#'   "models/my_models.RDS". Default for \code{save_models} is "models.RDS" in
+#'   the working directory (\code{getwd()}). Default for \code{load_models} is
+#'   to open a dialog box from which a file can be selected, in which case a
+#'   message will issued with code to load the same file without interactivity.
+#' @return \code{load_models} returns the model_list which can be assigned to
+#'   any variable name
 #'
 #' @export
-#' @importFrom tcltk tclvalue tkgetSaveFile
 #'
 #' @examples
 #' \dontrun{
@@ -23,17 +24,7 @@
 #' m2 <- load_models("diabetes_models.RDS")
 #' all.equal(m, m2)
 #' }
-save_models <- function(x, filename) {
-  if (missing(filename)) {
-    filename <-
-      tkgetSaveFile(title = "Save models...",
-                    initialfile = "models.RDS",
-                    defaultextension = ".RDS") %>%
-      tclvalue()
-    mes <- paste0("Saving models. You could automate this with `save_models(",
-                  deparse(substitute(x)), ", ", filename, ")`")
-    message(mes)
-  }
+save_models <- function(x, filename = "models.RDS") {
   saveRDS(x, filename)
   message("The model object being saved contains training data, minus ignored ID columns.\n",
           "If there was PHI in training data, normal PHI protocols apply to the RDA file.")

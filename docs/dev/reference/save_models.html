@@ -144,7 +144,7 @@
   <code>save_models</code> issues a message saying as much.</p>
     
 
-    <pre class="usage"><span class='fu'>save_models</span>(<span class='no'>x</span>, <span class='no'>filename</span>)
+    <pre class="usage"><span class='fu'>save_models</span>(<span class='no'>x</span>, <span class='kw'>filename</span> <span class='kw'>=</span> <span class='st'>"models.RDS"</span>)
 
 <span class='fu'>load_models</span>(<span class='no'>filename</span>)</pre>
     
@@ -158,15 +158,17 @@
     <tr>
       <th>filename</th>
       <td><p>File path to save model to or read model from, e.g.
-"models/my_models.RDS". If not given, a dialog box to choose file location
-will be provided.</p></td>
+"models/my_models.RDS". Default for <code>save_models</code> is "models.RDS" in
+the working directory (<code>getwd()</code>). Default for <code>load_models</code> is
+to open a dialog box from which a file can be selected, in which case a
+message will issued with code to load the same file without interactivity.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>load_models returns the model_list which can be assigned to any
-  variable name</p>
+    <p><code>load_models</code> returns the model_list which can be assigned to
+  any variable name</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
