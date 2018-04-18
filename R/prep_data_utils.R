@@ -89,50 +89,70 @@ find_new_missingness <- function(d, recipe) {
 #' d <- convert_date_cols(d)
 #'
 convert_date_cols <- function(d) {
-
   # Extract character date columns only
-  dd <- d[1, find_date_cols(d)]
-  col_names <- names(dd[!(map_lgl(dd, is.Date))])
-  dd <- dd[1, col_names]
+  col_names <- names(d)[map_lgl(names(d), ~ grepl("DTS$", .x))]
+  dates <- map_lgl(d[, col_names], ~ lubridate::is.Date(.x) || lubridate::is.POSIXt(.x))
+  col_names <- col_names[!dates]
+  dd <- tibble::as_tibble(d[1, col_names, drop = FALSE])
 
+  # Nothing to convert
+  if (!length(dd))
+    return(d)
+
+  # Guess formats for each column
   date_formats <- map(dd,
                       guess_formats,
                       orders = c("ymd", "mdy", "ymd HMS", "mdy HMS"))
 
-  # Find working formats
-  valid_formats <- map2(dd, date_formats, function(x, y) {
-    temp <- map2(x, y, function(x, y) {
-      as.POSIXct(x = x, format = y)
-    })
-    # Can't use is.POSIXct here because NA has class POSIXct. wtf.
-    unlist(map(temp, function(x) {
-      !is.na(x)
-    }))
-  })
+  # Build tibble with name, first entry in date columns, and guessed formats
+  d_dates <- tibble(names = col_names,
+                    first_entry = as.character(
+                      slice(dd, 1) %>% unlist(., use.names = FALSE)),
+                    guessed_formats = date_formats,
+                    has_guesses = !(map_lgl(guessed_formats, is.null)))
 
-  # Collapse to one format and find columns with no valid format
-  valid_formats <- map_int(valid_formats, function(x) {
-    x <- match(TRUE, x)
-  })
-  bad_date_cols <- names(valid_formats[is.na(valid_formats)])
+  # Remove rows with no guessed formats, save the names, and unnest
+  bad_date_cols = d_dates %>%
+    filter(has_guesses == FALSE) %>%
+    pull(names)
 
+  d_dates = d_dates %>%
+    filter(has_guesses == TRUE) %>%
+    tidyr::unnest()
+
+  # Try to convert each row using the format, then group by name
+  d_dates <- d_dates %>%
+    mutate(converted_date = as.POSIXct(
+      x = first_entry, format = guessed_formats),
+      is_valid = !(is.na(converted_date))) %>%
+    group_by(names)
+
+  # Remove names that have only non-working formats
+  more_bad <- d_dates %>%
+    summarize(any_valid = any(is_valid)) %>%
+    filter(any_valid == FALSE) %>%
+    pull(names)
+
+  # Error for no guessed formats or no working guessed formats
+  bad_date_cols <- c(bad_date_cols, more_bad)
   if (length(bad_date_cols)) {
     stop(paste("Unable to convert the following columns to dates. Convert",
          "them to ymd, mdy, ymd hms, or mdy hms format. See lubridate::as_date",
          "or as.POSIXct for more info. \n"), paste(bad_date_cols, collapse = ", "))
   }
 
-  # Remove formats that don't work
-  date_formats <- date_formats[!is.na(valid_formats)]
-  valid_formats <- valid_formats[!is.na(valid_formats)]
+  # Collect working formats
+  d_dates <- d_dates %>%
+    summarize(converted_date = last(converted_date),
+              working_format = last(guessed_formats)) %>%
+    arrange(names)
 
-  # Working formats
-  use_formats <- map2_chr(date_formats, valid_formats, `[[`)
+  # Ensure format order and column order is the same.
+  dd <- d[, col_names[order(col_names)]]
 
-  # Convert dates
-  dd <- d[, col_names]
-  dd <- map2_df(dd, use_formats, function(x, y) {
-    date(as.POSIXct(x = x, format = y))
+  # Convert dates in original data
+  dd <- map2_df(dd, d_dates$working_format, function(x, y) {
+    out <- date(as.POSIXct(x = x, format = y))
   })
 
   # Replace and reorder original dataframe

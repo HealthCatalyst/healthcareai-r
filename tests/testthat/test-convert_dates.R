@@ -46,11 +46,11 @@ test_that("all common formats are converted in tibble", {
 })
 
 # Setup ------------------------------------------------------------------------
-d <- data.frame(a_DTS = c("2018-3-25", "2018-3-26", "2019-6-5"),
+d <- data.frame(z_DTS = c("2018-3-5", "2018-3-26", "2019-6-5"),
                 b_nums = c(2, 4, 6),
-                c_DTS = c("03-25-2018", "03-26-2018", "06-05-2019"),
+                c_DTS = c("03-05-2018", "03-26-2018", "06-05-2019"),
                 d_chars = c("a", "b", "d"),
-                e_date = lubridate::mdy(c("3-25-2018", "3-26-2018",
+                e_date = lubridate::mdy(c("3-05-2018", "3-26-2018",
                                           "06-05-2019")),
                 stringsAsFactors = FALSE)
 
@@ -59,12 +59,12 @@ test_that("Mixed data frame converts all date columns", {
   out <- convert_date_cols(d)
   expect_equal(as.character(purrr::map_chr(out, class)),
                c("Date", "numeric", "Date", "character", "Date"))
-  expect_equal(as.character(out$a_DTS),
-               c("2018-03-25", "2018-03-26", "2019-06-05"))
+  expect_equal(as.character(out$z_DTS),
+               c("2018-03-05", "2018-03-26", "2019-06-05"))
   expect_equal(as.character(out$c_DTS),
-               c("2018-03-25", "2018-03-26", "2019-06-05"))
+               c("2018-03-05", "2018-03-26", "2019-06-05"))
   expect_equal(as.character(out$e_date),
-               c("2018-03-25", "2018-03-26", "2019-06-05"))
+               c("2018-03-05", "2018-03-26", "2019-06-05"))
 })
 
 test_that("Mixed tibble converts all date columns", {
