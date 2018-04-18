@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE, results = "hold", collapse = TRUE,
 
 **Deploying a model**
 
-Now that you've put in the work of building a model and it's performing well on historical data, congratulations! It's time to think about how to set it up to make reoccurring predictions. At this point, you have:
+Now that you've put in the work of building a model and it's performing well on historical data, congratulations! It's time to think about how to set it up to make reoccurring predictions. At this point, you have
 
 - Decided on an algorithm
 - Decided on your feature (i.e., input variable) list
@@ -23,15 +23,16 @@ Now that you've put in the work of building a model and it's performing well on 
 
 # Saving a model
 
-In order to work with models in a production environment, first you must be able to have a saved model on disk. Here's how that's done--pay attention to line 
+In order to work with models in a production environment, first you must be able to have a saved model on disk. Here's how that's done very simple--pay attention to last line. *Note, install tidyverse via `install.packages('tidyverse')`*
 
 ```{r}
 library(healthcareai)
 library(DBI)
 library(tidyverse)
+
 my_con <- build_connection_string(server = "HCS-GM0004",
-                                  database = "SAM",
-                                  trusted = TRUE)
+                                  database = "SAM")
+
 con <- dbConnect(odbc::odbc(), .connection_string = my_con)
 
 train_query <- "SELECT [FacilityAccountID]
@@ -53,13 +54,13 @@ models <- machine_learn(d = d,
 save(models, file = "readmit_models.RDA")
 ```
 
-# Pushing predictions to a table
+# Pushing predictions to a database
 
 While the frequency may vary depending on the use case, new patients or patient encounters (i.e., rows) will need predictions on a reoccurring basis. In healthcare, _daily_ batch predictions are common. To create predictions, these new rows are run against the model that lives in the RDA file. 
 
 Instead of slimply creating predictions in R, however, in a production scenario you'll be pushing these predictions to a database. Typically we append to the same table each night, such that a person will get an updated risk score for each day they're in the hospital (for example).
 
-# Creating predictions
+## Creating predictions
 
 Now we focus on the code that will run each night to create predictions. Note a couple of things:
 
@@ -83,13 +84,9 @@ load("readmit_models.RDA")
 predictions <- predict(models, d_out)
 ```
 
-# Create the output table
+## Create the output table
 
-Before we create the output table, let's see what our predictions look like:
-
-```{r}
-glimpse(predictions)
-```
+Before we create the output table, look at the format of your output by typing `predictions` in the console.
 
 You might want push fewer columns to a table each night. Here's how you slim this down:
 
@@ -101,11 +98,11 @@ predictions <- predictions %>%
 
 Now that we have only the columns necessary, let's and populate the output table
 
-## For folks outside of a Health Catalyst environment
+### Outside of a Health Catalyst environment
 
 Use a tool like SQL Server Management Studio and a `CREATE` statement
 
-## For folks in a Health Catalyst environment
+### Inside a Health Catalyst environment
 
 1. Append a few utility columns to your output
 
@@ -117,12 +114,14 @@ predictions <- predictions %>%
 2. Use Source Area Mart Designer (SAMD) to create the table (since this creates metadata)
   - This binding requires a query that not only has the column structure, but also `WHERE 0 = 1`, such that only R is populating the output table
 
-# Push predictions to the table
+## Writing predictions to the table
 
 Here we use the `RODBC` package, which can be installed via `install.packages('RODBC')`
 
 ```{r}
 library(RODBC)
+
+con <- odbcDriverConnect(connection = my_con)
 
 sqlSave(con, 
         predictions, 
@@ -133,10 +132,16 @@ sqlSave(con,
 odbcClose(con)
 ```
 
-
-
+If your predictions arrive in the database, congrats! You're now ready to work with the DBA/ETL* team to schedule this reoccurring job, such that it runs in a manner that's dependency-aware.
 
 # Testing in production
 
+Before users start consuming your awesome ML work, first it's imperative that you verify that your model's accuracy holds up in production. Performance on retrospective data isn't the same as performance on incoming production data. Sometimes issues like [data leakage](https://healthcare.ai/data-leakage-in-healthcare-machine-learning) or other issues cause the performance to drop.
 
-Note: for those working in a Health Catalyst environment, proceed with the ML-Prod document in Spark
+Effectively, if you're creating CLABSI predictions, you should wait a few weeks until a large number of the patients who have received risk predictions have left the hospital. Alternatively, if you're predicting 30-day readmissions, you need to wait ~45 days until you have enough data to verify if you accurately predicted who did or didn't return to the hospital. This can be done [via healthcare.ai](https://docs.healthcare.ai/reference/evaluate_classification.html):
+
+```{r}
+evaluate_classification(predicted, actual)
+```
+
+*Note: for those working in a Health Catalyst environment, proceed with the ML-Prod document in Spark
