@@ -1,7 +1,7 @@
 context("test-tune_models")
 
 # Setup ------------------------------------------------------------------------
-test_df <- na.omit(pima_diabetes)[1:200, ]
+test_df <- na.omit(pima_diabetes)[1:100, ]
 tm <- tune_models(test_df, diabetes)
 
 test_that("Error informatively if outcome class doesn't match model_class", {
@@ -247,10 +247,14 @@ test_that("If only tuning one model, can provide hyperparameter grid outside lis
 })
 
 test_that("tune_models, flash_models, and machine_learn issue PHI cautions", {
+  phi_present <- function(messages)
+    any(purrr::map_lgl(messages, stringr::str_detect, "PHI"))
+
   tune_messages <- capture_messages(tune_models(test_df, diabetes))
   flash_messages <- capture_messages(flash_models(test_df, diabetes))
   ml_messages <- capture_messages(machine_learn(test_df, outcome = diabetes))
-  expect_true(stringr::str_detect(tune_messages), stringr::fixed("PHI"))
-  expect_true(stringr::str_detect(flash_messages), stringr::fixed("PHI"))
-  expect_true(stringr::str_detect(ml_messages), stringr::fixed("PHI"))
+
+  expect_true(phi_present(tune_messages))
+  expect_true(phi_present(flash_messages))
+  expect_true(phi_present(ml_messages))
 })
