@@ -27,7 +27,8 @@ empty_data_frame <- function() {
 character_factor_data_frame <- function() {
   return(data.frame(
     character_field = letters,
-    factor_field = factor(letters)
+    factor_field = factor(letters),
+    stringsAsFactors = FALSE
   ))
   }
 
