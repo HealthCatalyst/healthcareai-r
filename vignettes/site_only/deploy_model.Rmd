@@ -29,11 +29,9 @@ In order to work with models in a production environment, first you must be able
 library(healthcareai)
 library(DBI)
 library(tidyverse)
-my_con <- build_connection_string(driver = "FreeTDS",
-                                  server = "HCS-GM0004,1433",
+my_con <- build_connection_string(server = "HCS-GM0004",
                                   database = "SAM",
-                                  user_id ="HQCATALYST\\levi.thatcher",
-                                  password = rstudioapi::askForPassword("Database password"))
+                                  trusted = TRUE)
 con <- dbConnect(odbc::odbc(), .connection_string = my_con)
 
 train_query <- "SELECT [FacilityAccountID]
@@ -121,20 +119,18 @@ predictions <- predictions %>%
 
 # Push predictions to the table
 
-Here we use the `odbc` package, which can be installed via `install.packages("remotes"); remotes::install_github("r-dbi/odbc")`
+Here we use the `RODBC` package, which can be installed via `install.packages('RODBC')`
 
 ```{r}
-library(DBI)
-library(odbc)
-table_id <- Id(schema = "SSISTest", 
-               name = "MLOutput")
+library(RODBC)
 
-res <- dbWriteTable(conn = my_con, # Grabbing my_con from above
-                    name = table_id,
-                    value = predictions,
-                    append = TRUE)
+sqlSave(con, 
+        predictions, 
+        "TestSchema.TestTable", 
+        append = TRUE, 
+        rownames = FALSE)
 
-dbDisconnect(my_con)
+odbcClose(con)
 ```
 
 
