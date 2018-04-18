@@ -3,7 +3,7 @@
 \name{save_models}
 \alias{save_models}
 \alias{load_models}
-\title{Save models to disk and read models from disk}
+\title{Save models to disk and load models from disk}
 \usage{
 save_models(x, filename)
 
