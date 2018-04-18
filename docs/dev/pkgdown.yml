@@ -1,6 +1,6 @@
-pandoc: 2.1.1
+pandoc: 2.1.3
 pkgdown: 0.1.0.9000
-pkgdown_sha: 7d8b4882c4eb650f0f869a618f5c445c657313f0
+pkgdown_sha: a7aa75eeb866e0e0c891785d8d7bc0c0d2294c36
 articles:
   db_connections: site_only/db_connections.html
   healthcareai: site_only/healthcareai.html

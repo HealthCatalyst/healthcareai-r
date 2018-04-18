@@ -100,6 +100,7 @@
             
       
       
+      <div class="hidden name"><code>transitioning.Rmd</code></div>
 
     </div>
 
@@ -110,7 +111,7 @@
 <div id="install-and-load-the-package" class="section level2">
 <h2 class="hasAnchor">
 <a href="#install-and-load-the-package" class="anchor"></a>Install and load the package</h2>
-<p>First, check the package version with <code>packageVersion("healthcareai")</code>. If the first digit isn’t 2, you need to update. You should be able to install v2 by running <code>install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r")</code>. If that doesn’t work, try <code><a href="http://www.rdocumentation.org/packages/remotes/topics/install_url">remotes::install_url("https://github.com/HealthCatalyst/healthcareai-r/releases/download/v2.0.0.9000/healthcareai_2.0.0.9000.tar.gz")</a></code>. If that doesn’t work either, <a href="https://github.com/HealthCatalyst/healthcareai-r/releases/download/v2.0.0.9000/healthcareai_2.0.0.9000.tar.gz">download the package file</a>, then in R Studio, choose Tools -&gt; Install Packages…, select Install from “Package archive file”, and browse to select the downloaded <code>.tar.gz</code> file.</p>
+<p>First, check the package version with <code>packageVersion("healthcareai")</code>. If the first digit isn’t 2, you need to update. You should be able to install v2 by running <code>install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r")</code>. If that doesn’t work, try <code>remotes::install_url("https://github.com/HealthCatalyst/healthcareai-r/releases/download/v2.0.0.9000/healthcareai_2.0.0.9000.tar.gz")</code>. If that doesn’t work either, <a href="https://github.com/HealthCatalyst/healthcareai-r/releases/download/v2.0.0.9000/healthcareai_2.0.0.9000.tar.gz">download the package file</a>, then in R Studio, choose Tools -&gt; Install Packages…, select Install from “Package archive file”, and browse to select the downloaded <code>.tar.gz</code> file.</p>
 <p>Then, load the package.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(healthcareai)</a></code></pre></div>
 </div>
@@ -174,7 +175,7 @@
 <a class="sourceLine" id="cb5-18" data-line-number="18"><span class="co"># &gt; Training new data prep recipe</span></a>
 <a class="sourceLine" id="cb5-19" data-line-number="19"><span class="co"># &gt; Variable(s) ignored in prep_data won't be used to tune models: PatientEncounterID, PatientID</span></a>
 <a class="sourceLine" id="cb5-20" data-line-number="20"><span class="co"># &gt; ThirtyDayReadmitFLG looks categorical, so training classification algorithms.</span></a>
-<a class="sourceLine" id="cb5-21" data-line-number="21"><span class="co"># &gt; Running cross validation for Random Forest</span></a></code></pre></div>
+<a class="sourceLine" id="cb5-21" data-line-number="21"><span class="co"># &gt; Training with cross validation: Random Forest</span></a></code></pre></div>
 </div>
 <div id="save-and-load-models" class="section level2">
 <h2 class="hasAnchor">
@@ -207,16 +208,16 @@
 <a class="sourceLine" id="cb8-15" data-line-number="15"></a>
 <a class="sourceLine" id="cb8-16" data-line-number="16"><span class="kw">predict</span>(models, d<span class="op">$</span>test)</a>
 <a class="sourceLine" id="cb8-17" data-line-number="17"><span class="co"># &gt; Prepping data based on provided recipe</span></a>
-<a class="sourceLine" id="cb8-18" data-line-number="18"><span class="co"># &gt; "predicted_ThirtyDayReadmitFLG" predicted by Random Forest last trained: 2018-04-12 00:17:55</span></a>
+<a class="sourceLine" id="cb8-18" data-line-number="18"><span class="co"># &gt; "predicted_ThirtyDayReadmitFLG" predicted by Random Forest last trained: 2018-04-17 13:56:01</span></a>
 <a class="sourceLine" id="cb8-19" data-line-number="19"><span class="co"># &gt; Performance in training: AUROC = 0.85</span></a>
 <a class="sourceLine" id="cb8-20" data-line-number="20"><span class="co"># &gt; # A tibble: 48 x 8</span></a>
-<a class="sourceLine" id="cb8-21" data-line-number="21"><span class="co"># &gt;   ThirtyDayReadmitF… predicted_ThirtyDayReadm… PatientEncounter… PatientID</span></a>
+<a class="sourceLine" id="cb8-21" data-line-number="21"><span class="co"># &gt;   ThirtyDayReadmitF~ predicted_ThirtyDayReadm~ PatientEncounter~ PatientID</span></a>
 <a class="sourceLine" id="cb8-22" data-line-number="22"><span class="co"># &gt; * &lt;fct&gt;                                  &lt;dbl&gt;             &lt;int&gt;     &lt;int&gt;</span></a>
-<a class="sourceLine" id="cb8-23" data-line-number="23"><span class="co"># &gt; 1 N                                    0.164                  22     10004</span></a>
-<a class="sourceLine" id="cb8-24" data-line-number="24"><span class="co"># &gt; 2 N                                    0.00267                24     10005</span></a>
-<a class="sourceLine" id="cb8-25" data-line-number="25"><span class="co"># &gt; 3 N                                    0.00200                25     10005</span></a>
-<a class="sourceLine" id="cb8-26" data-line-number="26"><span class="co"># &gt; 4 N                                    0.0510                 79     10014</span></a>
-<a class="sourceLine" id="cb8-27" data-line-number="27"><span class="co"># &gt; 5 N                                    0.0292                135     10024</span></a>
+<a class="sourceLine" id="cb8-23" data-line-number="23"><span class="co"># &gt; 1 N                                    0.138                  22     10004</span></a>
+<a class="sourceLine" id="cb8-24" data-line-number="24"><span class="co"># &gt; 2 N                                    0.00167                24     10005</span></a>
+<a class="sourceLine" id="cb8-25" data-line-number="25"><span class="co"># &gt; 3 N                                    0.00167                25     10005</span></a>
+<a class="sourceLine" id="cb8-26" data-line-number="26"><span class="co"># &gt; 4 N                                    0.0602                 79     10014</span></a>
+<a class="sourceLine" id="cb8-27" data-line-number="27"><span class="co"># &gt; 5 N                                    0.0320                135     10024</span></a>
 <a class="sourceLine" id="cb8-28" data-line-number="28"><span class="co"># &gt; # ... with 43 more rows, and 4 more variables: SystolicBPNBR &lt;int&gt;,</span></a>
 <a class="sourceLine" id="cb8-29" data-line-number="29"><span class="co"># &gt; #   LDLNBR &lt;int&gt;, A1CNBR &lt;dbl&gt;, GenderFLG &lt;fct&gt;</span></a></code></pre></div>
 </div>
