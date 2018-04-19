@@ -148,7 +148,7 @@
 <a class="sourceLine" id="cb1-25" data-line-number="25">                        <span class="dt">outcome =</span> Readmit30FLG)</a>
 <a class="sourceLine" id="cb1-26" data-line-number="26"></a>
 <a class="sourceLine" id="cb1-27" data-line-number="27"><span class="co"># Save my model</span></a>
-<a class="sourceLine" id="cb1-28" data-line-number="28">healthcareai<span class="op">::</span><span class="kw">save_models</span>(models, <span class="st">"readmit_models.RDS"</span>)</a></code></pre></div>
+<a class="sourceLine" id="cb1-28" data-line-number="28">healthcareai<span class="op">::</span><span class="kw"><a href="https://docs.healthcare.ai/reference/save_models.html">save_models</a></span>(models, <span class="st">"readmit_models.RDS"</span>)</a></code></pre></div>
 </div>
 <div id="pushing-predictions-to-a-database" class="section level1">
 <h1 class="hasAnchor">
@@ -179,7 +179,7 @@
 <a class="sourceLine" id="cb2-9" data-line-number="9"></a>
 <a class="sourceLine" id="cb2-10" data-line-number="10">d_out &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/db_read.html">db_read</a></span>(con, prod_query)</a>
 <a class="sourceLine" id="cb2-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb2-12" data-line-number="12">models &lt;-<span class="st"> </span>healthcareai<span class="op">::</span><span class="kw">load_models</span>(<span class="st">"readmit_models.RDS"</span>)</a>
+<a class="sourceLine" id="cb2-12" data-line-number="12">models &lt;-<span class="st"> </span>healthcareai<span class="op">::</span><span class="kw"><a href="https://docs.healthcare.ai/reference/save_models.html">load_models</a></span>(<span class="st">"readmit_models.RDS"</span>)</a>
 <a class="sourceLine" id="cb2-13" data-line-number="13"></a>
 <a class="sourceLine" id="cb2-14" data-line-number="14">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(models, d_out)</a></code></pre></div>
 </div>
@@ -246,9 +246,9 @@
 <p>Effectively, if you’re creating CLABSI predictions, you should wait a few weeks until a large number of the patients who have received risk predictions have left the hospital and had an outcome (CLABSI = Y/N) recorded so you can compare predictions to actual outcomes. Similarly, if you’re predicting 30-day readmissions, you need to wait ~45 days until you have enough data to verify if you accurately predicted who did or didn’t return to the hospital. If you have a heavy class imbalance (with rare CLABSIs, etc), you’ll need to wait longer. This evaluation can be done <a href="https://docs.healthcare.ai/reference/evaluate_classification.html">via healthcare.ai</a>:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw"><a href="../../reference/evaluate_classification.html">evaluate_classification</a></span>(predicted, actual)</a></code></pre></div>
 </div>
-<div id="full-and-simplest-deployment-code" class="section level1">
+<div id="full-and-simplest-example-code" class="section level1">
 <h1 class="hasAnchor">
-<a href="#full-and-simplest-deployment-code" class="anchor"></a>Full and simplest deployment code</h1>
+<a href="#full-and-simplest-example-code" class="anchor"></a>Full and simplest example code</h1>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw">library</span>(healthcareai)</a>
 <a class="sourceLine" id="cb8-2" data-line-number="2"><span class="kw">library</span>(DBI)</a>
 <a class="sourceLine" id="cb8-3" data-line-number="3"><span class="kw">library</span>(RODBC)</a>
@@ -271,7 +271,7 @@
 <a class="sourceLine" id="cb8-20" data-line-number="20"></a>
 <a class="sourceLine" id="cb8-21" data-line-number="21">d_out &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/db_read.html">db_read</a></span>(con, prod_query)</a>
 <a class="sourceLine" id="cb8-22" data-line-number="22"></a>
-<a class="sourceLine" id="cb8-23" data-line-number="23">models &lt;-<span class="st"> </span>healthcareai<span class="op">::</span><span class="kw">load_models</span>(<span class="st">"readmit_models.RDS"</span>)</a>
+<a class="sourceLine" id="cb8-23" data-line-number="23">models &lt;-<span class="st"> </span>healthcareai<span class="op">::</span><span class="kw"><a href="https://docs.healthcare.ai/reference/save_models.html">load_models</a></span>(<span class="st">"readmit_models.RDS"</span>)</a>
 <a class="sourceLine" id="cb8-24" data-line-number="24"></a>
 <a class="sourceLine" id="cb8-25" data-line-number="25">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(models, d_out)</a>
 <a class="sourceLine" id="cb8-26" data-line-number="26"></a>
@@ -303,7 +303,7 @@
       </ul>
 </li>
       <li><a href="#testing-in-production">Testing in production</a></li>
-      <li><a href="#full-and-simplest-deployment-code">Full and simplest deployment code</a></li>
+      <li><a href="#full-and-simplest-example-code">Full and simplest example code</a></li>
       </ul>
 </div>
       </div>
