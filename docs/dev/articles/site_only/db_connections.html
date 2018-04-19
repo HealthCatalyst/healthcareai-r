@@ -29,7 +29,7 @@
 </script>
 </head>
 <body>
-    <div class="container template-article">
+    <div class="container template-vignette">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
@@ -58,6 +58,9 @@
     </li>
     <li>
       <a href="../../articles/site_only/db_connections.html">Database Connections</a>
+    </li>
+    <li>
+      <a href="../../articles/site_only/deploy_model.html">Deploying a model</a>
     </li>
     <li>
       <a href="../../articles/site_only/transitioning.html">Transition from Version 1</a>
@@ -94,7 +97,7 @@
 
       
       </header><div class="row">
-  <div class="col-md-9 contents">
+  <div class="col-md-9">
     <div class="page-header toc-ignore">
       <h1>Database Connections</h1>
             
@@ -105,6 +108,7 @@
 
     
     
+<div class="contents">
 <p><strong>Database connections</strong></p>
 <p>Let’s be honest. You need to get data from a database, do some really awesome stuff with <code>R</code>, and then write the results back to a database. RStudio (and R) can help with that. There are lots of different databases, but this document will focus on Microsoft SQL Server. RStudio supports most databases, and I’d encourage you to look at the <a href="https://db.rstudio.com/">db help pages</a> for additional resources. Andiamo!</p>
 <p>If you simply want a code snippet to copy and paste, scroll to the bottom.</p>
@@ -253,6 +257,7 @@
 <a class="sourceLine" id="cb6-31" data-line-number="31">                    <span class="dt">append =</span> <span class="ot">TRUE</span>)</a>
 <a class="sourceLine" id="cb6-32" data-line-number="32"><span class="kw"><a href="http://www.rdocumentation.org/packages/DBI/topics/dbDisconnect">dbDisconnect</a></span>(con)</a></code></pre></div>
 </div>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -281,8 +286,6 @@
 
       </footer>
 </div>
-
-  
 
   </body>
 </html>

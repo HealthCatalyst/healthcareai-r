@@ -54,8 +54,6 @@
 
 </script>
 
-
-
   </head>
 
   <body>
@@ -91,6 +89,9 @@
       <a href="articles/site_only/db_connections.html">Database Connections</a>
     </li>
     <li>
+      <a href="articles/site_only/deploy_model.html">Deploying a model</a>
+    </li>
+    <li>
       <a href="articles/site_only/transitioning.html">Transition from Version 1</a>
     </li>
   </ul>
@@ -117,7 +118,6 @@
   </a>
 </li>
       </ul>
-      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -125,7 +125,7 @@
       
       </header>
 
-<div class="row">
+      <div class="row">
   <div class="contents col-md-9">
     <div class="page-header">
       <h1>Contributing Guidelines</h1>
@@ -157,9 +157,9 @@
 </li>
 <li>[ ] Generate package website: <code><a href="http://pkgdown.r-lib.org/reference/build_site.html">pkgdown::build_site()</a></code>
 </li>
-<li>[ ] Ensure any code you’ve added is well tested. A coverage report will automatically be added to the PR. You can get a sense of coverage by running <code><a href="http://www.rdocumentation.org/packages/covr/topics/report">covr::report()</a></code>
+<li>[ ] Ensure any code you’ve added is well tested. A coverage report will automatically be added to the PR. You can get a sense of coverage by running <code>covr::report()</code>
 </li>
-<li>[ ] Ensure code is lint free: <code><a href="http://www.rdocumentation.org/packages/lintr/topics/lint_package">lintr::lint_package()</a></code>. This will also be checked in tests…</li>
+<li>[ ] Ensure code is lint free: <code>lintr::lint_package()</code>. This will also be checked in tests…</li>
 <li>[ ] Ensure code passes all tests: <code><a href="http://www.rdocumentation.org/packages/devtools/topics/test">devtools::test()</a></code>. This will also be checked in check…</li>
 <li>[ ] Ensure code passes all CRAN checks without warnings or notes: <code><a href="http://www.rdocumentation.org/packages/devtools/topics/check">devtools::check()</a></code>
 </li>
@@ -192,7 +192,7 @@
 <div id="code-style" class="section level2">
 <h2 class="hasAnchor">
 <a href="#code-style" class="anchor"></a>Code Style</h2>
-<p>Code should conform to the <a href="http://style.tidyverse.org/">tidyverse style guide</a>. Code style will be checked in your pull request by <a href="https://github.com/jimhester/lintr">lintr</a>, and tests will fail on Travis if there are lints. You can check conformation with the style guide by running <code><a href="http://www.rdocumentation.org/packages/lintr/topics/lint_package">lintr::lint_package()</a></code> locally.</p>
+<p>Code should conform to the <a href="http://style.tidyverse.org/">tidyverse style guide</a>. Code style will be checked in your pull request by <a href="https://github.com/jimhester/lintr">lintr</a>, and tests will fail on Travis if there are lints. You can check conformation with the style guide by running <code>lintr::lint_package()</code> locally.</p>
 <hr>
 <p>Thanks to the well-organized rOpenSci <a href="https://github.com/ropensci/codemetar">codemetar</a> and <a href="https://github.com/ropensci/drake">drake</a> packages, which were drawn on heavily in the creation of this document.</p>
 </div>
@@ -214,8 +214,6 @@
 
       </footer>
    </div>
-
-  
 
   </body>
 </html>
