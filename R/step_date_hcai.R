@@ -135,9 +135,6 @@ step_date_hcai_new <-
 prep.step_date_hcai <- function(x, training, info = NULL, ...) {
   col_names <- terms_select(x$terms, info = info)
   date_data <- info[info$variable %in% col_names, ]
-  # if (any(date_data$type != "date"))
-  #   stop("All variables for `step_date_hcai` should be either `Date` or",
-  #        "`POSIXct` classes.", call. = FALSE)
 
   step_date_hcai_new(
     terms = x$terms,
