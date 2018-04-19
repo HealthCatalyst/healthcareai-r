@@ -29,7 +29,7 @@
 </script>
 </head>
 <body>
-    <div class="container template-article">
+    <div class="container template-vignette">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
@@ -58,6 +58,9 @@
     </li>
     <li>
       <a href="../../articles/site_only/db_connections.html">Database Connections</a>
+    </li>
+    <li>
+      <a href="../../articles/site_only/deploy_model.html">Deploying a model</a>
     </li>
     <li>
       <a href="../../articles/site_only/transitioning.html">Transition from Version 1</a>
@@ -94,7 +97,7 @@
 
       
       </header><div class="row">
-  <div class="col-md-9 contents">
+  <div class="col-md-9">
     <div class="page-header toc-ignore">
       <h1>Database Connections</h1>
             
@@ -105,13 +108,13 @@
 
     
     
-<p><strong>Database connections</strong></p>
+<div class="contents">
 <p>Let’s be honest. You need to get data from a database, do some really awesome stuff with <code>R</code>, and then write the results back to a database. RStudio (and R) can help with that. There are lots of different databases, but this document will focus on Microsoft SQL Server. RStudio supports most databases, and I’d encourage you to look at the <a href="https://db.rstudio.com/">db help pages</a> for additional resources. Andiamo!</p>
 <p>If you simply want a code snippet to copy and paste, scroll to the bottom.</p>
 <div id="connecting-to-a-database" class="section level1">
 <h1 class="hasAnchor">
 <a href="#connecting-to-a-database" class="anchor"></a>Connecting to a Database</h1>
-<p>Before you can do anything, you must make a connection to your database. The <code>build_connection_string</code> function takes care of the syntax for you and returns a connection string that’s ready to be passed into <code><a href="http://www.rdocumentation.org/packages/DBI/topics/dbConnect">DBI::dbConnect</a></code>. After you have a valid connection, you should be able to browse the database using RStudio’s Connections pane. If you don’t have a connections pane, upgrade your RStudio. It’s worth it.</p>
+<p>Before you can do anything, you must make a connection to your database. The <code>build_connection_string</code> function takes care of the syntax for you and returns a connection string that’s ready to be passed into <code>dbConnect</code>. After you have a valid connection, you should be able to browse the database using RStudio’s Connections pane. If you don’t have a connections pane, upgrade your RStudio. It’s worth it.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(healthcareai)</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">library</span>(DBI)</a>
 <a class="sourceLine" id="cb1-3" data-line-number="3"></a>
@@ -125,9 +128,9 @@
 <div id="reading-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#reading-data" class="anchor"></a>Reading data</h1>
-<div id="using-sql-code" class="section level4">
-<h4 class="hasAnchor">
-<a href="#using-sql-code" class="anchor"></a>Using SQL Code</h4>
+<div id="using-sql-code" class="section level3">
+<h3 class="hasAnchor">
+<a href="#using-sql-code" class="anchor"></a>Using SQL Code</h3>
 <p>From here, you can read data from the database in a couple different ways. You can use <code>db_read</code> to execute SQL code, or you can use <code>dbplyr</code> functionality to execute <code>dplyr</code> code directly against the database.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">query &lt;-<span class="st"> "SELECT</span></a>
 <a class="sourceLine" id="cb2-2" data-line-number="2"><span class="st">          ,COUNT(*),</span></a>
@@ -140,10 +143,10 @@
 <a class="sourceLine" id="cb2-9" data-line-number="9">d &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/db_read.html">db_read</a></span>(con, query)</a></code></pre></div>
 <p>This query counts admits by year. If you don’t want to pull the results into memory, as might the be the case with large tables, set the <code>pull_into_memory</code> flag to FALSE. This will create a pointer to the database that can be executed “lazily.” In other words R will wait until the last moment to execute the statement.</p>
 </div>
-<div id="using-dplyr-code" class="section level4">
-<h4 class="hasAnchor">
-<a href="#using-dplyr-code" class="anchor"></a>Using dplyr Code</h4>
-<p>The other option is to use dplyr code. Set up a reference to the table, then use it to pull data. Here, <code>tbl</code> is creating a reference and storing it in the <code>encounter</code> object. R will treat that object like a data frame and can filter, aggregate, join, etc using R or dplyr code. The last line, <code>collect()</code>, is what actually pulls the data into memory.</p>
+<div id="using-dplyr-code" class="section level3">
+<h3 class="hasAnchor">
+<a href="#using-dplyr-code" class="anchor"></a>Using dplyr Code</h3>
+<p>The other option is to use dplyr code. Set up a reference to the table, then use it to pull data. Here, <code>tbl</code> is creating a reference and storing it in the <code>encounter</code> object. R will treat that object like a data frame and can filter, aggregate, join, etc using R or dplyr code. The last line, <code>collect()</code>, is what actually pulls the data into memory. Be sure to first <code>install.packages('tidyverse')</code></p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">library</span>(tidyverse)</a>
 <a class="sourceLine" id="cb3-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb3-3" data-line-number="3">encounter &lt;-<span class="st"> </span><span class="kw">tbl</span>(con, <span class="kw">in_schema</span>(<span class="st">"Encounter"</span>, <span class="st">"PatientEncounterBASE"</span>))</a>
@@ -160,98 +163,85 @@
 <div id="writing-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#writing-data" class="anchor"></a>Writing Data</h1>
-<p>As of 4/1/2018, there are two ways to write to a database:</p>
+<p>Note: the odbc/DBI route doesn’t work as of 4/18</p>
+<p><del>As of 4/1/2018, there are two ways to write to a database:</del></p>
 <ol style="list-style-type: decimal">
-<li>The latest version of <code>odbc</code>, and <code>DBI</code>, installed from Github. The CRAN version does not support database schemas.</li>
-<li><code>RODBC</code></li>
+<li><p><del>The latest version of <code>odbc</code>, and <code>DBI</code>, installed from Github. The CRAN version does not support database schemas.</del></p></li>
+<li><p><code>RODBC</code></p></li>
 </ol>
-<p>In either case, the data you are trying to write must match the destination table’s column names and data types.</p>
-<div id="writing-with-dbi" class="section level4">
-<h4 class="hasAnchor">
-<a href="#writing-with-dbi" class="anchor"></a>Writing with DBI</h4>
-<p>DBI requires that you set up the table as an object before trying to write to it. Assuming there was a table called <code>SAM.Sepsis.Predictions</code> with columns:</p>
+<p>In either case, the data you are trying to write must match the destination table’s column names and data types. To create the table, you use a <code>CREATE TABLE</code> statement in a tool like SSMS (or SAMD, if in the Health Catalyst environment).</p>
+<p>This code assumes there is a table called <code>SAM.Sepsis.Predictions</code> with columns:</p>
 <ul>
-<li>BindingID</li>
-<li>BindingNM</li>
-<li>LastLoadDTS</li>
 <li>patient_id (int)</li>
 <li>predicted_probability (float).</li>
 </ul>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw">library</span>(DBI)</a>
-<a class="sourceLine" id="cb4-2" data-line-number="2">devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"r-dbi/odbc"</span>)</a>
-<a class="sourceLine" id="cb4-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb4-4" data-line-number="4">predictions &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">patient_id =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>),</a>
-<a class="sourceLine" id="cb4-5" data-line-number="5">                          <span class="dt">predicted_readmission =</span> <span class="kw">c</span>(<span class="fl">0.7</span>, <span class="fl">0.2</span>, <span class="fl">0.4</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb4-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="../../reference/add_SAM_utility_cols.html">add_SAM_utility_cols</a></span>()</a>
-<a class="sourceLine" id="cb4-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb4-8" data-line-number="8">table_id &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/DBI/topics/Id">Id</a></span>(<span class="dt">schema =</span> <span class="st">"Sepsis"</span>, </a>
-<a class="sourceLine" id="cb4-9" data-line-number="9">               <span class="dt">name =</span> <span class="st">"Predictions"</span>)</a>
-<a class="sourceLine" id="cb4-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb4-11" data-line-number="11">res &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/DBI/topics/dbWriteTable">dbWriteTable</a></span>(<span class="dt">conn =</span> my_con,</a>
-<a class="sourceLine" id="cb4-12" data-line-number="12">                    <span class="dt">name =</span> table_id,</a>
-<a class="sourceLine" id="cb4-13" data-line-number="13">                    <span class="dt">value =</span> predictions,</a>
-<a class="sourceLine" id="cb4-14" data-line-number="14">                    <span class="dt">append =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb4-15" data-line-number="15"><span class="kw"><a href="http://www.rdocumentation.org/packages/DBI/topics/dbDisconnect">dbDisconnect</a></span>(con)</a></code></pre></div>
+<div id="writing-with-dbi" class="section level3">
+<h3 class="hasAnchor">
+<a href="#writing-with-dbi" class="anchor"></a><del>Writing with DBI</del>
+</h3>
+<p><strong>Note: as of April 18th, DBI is not working for writing to a database</strong></p>
 </div>
-<div id="writing-with-rodbc" class="section level4">
-<h4 class="hasAnchor">
-<a href="#writing-with-rodbc" class="anchor"></a>Writing with RODBC</h4>
-<p>RODBC is not the preferred way to interact with a database because it doesn’t work with RStudio’s connections pane. However, the package is available on CRAN and does support schemas. To use it, you must set up an RODBC connection to the database, as a DBI connection won’t work.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">library</span>(RODBC)</a>
-<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="co"># Make a connection</span></a>
-<a class="sourceLine" id="cb5-3" data-line-number="3">my_con &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/build_connection_string.html">build_connection_string</a></span>(<span class="dt">server =</span> <span class="st">"HCS-GM0004"</span>,</a>
-<a class="sourceLine" id="cb5-4" data-line-number="4">                                  <span class="dt">database =</span> <span class="st">"SAM"</span>)</a>
-<a class="sourceLine" id="cb5-5" data-line-number="5">con &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/RODBC/topics/odbcConnect">odbcDriverConnect</a></span>(<span class="dt">connection =</span> my_con)</a>
-<a class="sourceLine" id="cb5-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb5-7" data-line-number="7"><span class="co"># Write data (normally this would come from predict)</span></a>
-<a class="sourceLine" id="cb5-8" data-line-number="8">predictions &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">patient_id =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>),</a>
-<a class="sourceLine" id="cb5-9" data-line-number="9">                          <span class="dt">predicted_readmission =</span> <span class="kw">c</span>(<span class="fl">0.7</span>, <span class="fl">0.2</span>, <span class="fl">0.4</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb5-10" data-line-number="10"><span class="st">  </span><span class="kw"><a href="../../reference/add_SAM_utility_cols.html">add_SAM_utility_cols</a></span>()</a>
-<a class="sourceLine" id="cb5-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb5-12" data-line-number="12"><span class="kw"><a href="http://www.rdocumentation.org/packages/RODBC/topics/sqlSave">sqlSave</a></span>(con, </a>
-<a class="sourceLine" id="cb5-13" data-line-number="13">        predictions, </a>
-<a class="sourceLine" id="cb5-14" data-line-number="14">        <span class="st">"Sepsis.Predictions"</span>, </a>
-<a class="sourceLine" id="cb5-15" data-line-number="15">        <span class="dt">append =</span> <span class="ot">TRUE</span>, </a>
-<a class="sourceLine" id="cb5-16" data-line-number="16">        <span class="dt">rownames =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb5-17" data-line-number="17"><span class="kw"><a href="http://www.rdocumentation.org/packages/RODBC/topics/odbcClose">odbcClose</a></span>(con)</a></code></pre></div>
+<div id="writing-with-rodbc" class="section level3">
+<h3 class="hasAnchor">
+<a href="#writing-with-rodbc" class="anchor"></a>Writing with RODBC</h3>
+<p>While it’s the route that works (as of April 18th), RODBC won’t be the preferred way to interact with a database long-term because it doesn’t work with RStudio’s connections pane. However, the package is available on CRAN and does support schemas.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw">library</span>(RODBC)</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="co"># Make a connection</span></a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">my_con &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/build_connection_string.html">build_connection_string</a></span>(<span class="dt">server =</span> <span class="st">"HCS-GM0004"</span>,</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">                                  <span class="dt">database =</span> <span class="st">"SAM"</span>)</a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">con &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/RODBC/topics/odbcConnect">odbcDriverConnect</a></span>(<span class="dt">connection =</span> my_con)</a>
+<a class="sourceLine" id="cb4-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb4-7" data-line-number="7"><span class="co"># Write data (normally this would come from predict)</span></a>
+<a class="sourceLine" id="cb4-8" data-line-number="8">predictions &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">patient_id =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>),</a>
+<a class="sourceLine" id="cb4-9" data-line-number="9">                          <span class="dt">predicted_readmission =</span> <span class="kw">c</span>(<span class="fl">0.7</span>, <span class="fl">0.2</span>, <span class="fl">0.4</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb4-10" data-line-number="10"><span class="st">  </span><span class="kw"><a href="../../reference/add_SAM_utility_cols.html">add_SAM_utility_cols</a></span>() <span class="co"># if in Health Catalyst environment</span></a>
+<a class="sourceLine" id="cb4-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb4-12" data-line-number="12"><span class="kw"><a href="http://www.rdocumentation.org/packages/RODBC/topics/sqlSave">sqlSave</a></span>(con, </a>
+<a class="sourceLine" id="cb4-13" data-line-number="13">        predictions, </a>
+<a class="sourceLine" id="cb4-14" data-line-number="14">        <span class="st">"Sepsis.Predictions"</span>, </a>
+<a class="sourceLine" id="cb4-15" data-line-number="15">        <span class="dt">append =</span> <span class="ot">TRUE</span>, </a>
+<a class="sourceLine" id="cb4-16" data-line-number="16">        <span class="dt">rownames =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb4-17" data-line-number="17"><span class="kw"><a href="http://www.rdocumentation.org/packages/RODBC/topics/odbcClose">odbcClose</a></span>(con)</a></code></pre></div>
 </div>
 </div>
-<div id="example-code-snippet" class="section level1">
+<div id="full-and-simplest-example-code" class="section level1">
 <h1 class="hasAnchor">
-<a href="#example-code-snippet" class="anchor"></a>Example Code Snippet</h1>
+<a href="#full-and-simplest-example-code" class="anchor"></a>Full and simplest example code</h1>
 <p>If you’re confused, this is all explained above.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw">library</span>(DBI) <span class="co"># Must be installed from github for writing to work.</span></a>
-<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="kw">library</span>(healthcareai)</a>
-<a class="sourceLine" id="cb6-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb6-4" data-line-number="4"><span class="co"># Connection string</span></a>
-<a class="sourceLine" id="cb6-5" data-line-number="5">my_con &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/build_connection_string.html">build_connection_string</a></span>(<span class="dt">server =</span> <span class="st">"HCS-GM0004"</span>,</a>
-<a class="sourceLine" id="cb6-6" data-line-number="6">                                  <span class="dt">database =</span> <span class="st">"SAM"</span>)</a>
-<a class="sourceLine" id="cb6-7" data-line-number="7">con &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/DBI/topics/dbConnect">dbConnect</a></span>(odbc<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/odbc/topics/odbc">odbc</a></span>(), <span class="dt">.connection_string =</span> my_con)</a>
-<a class="sourceLine" id="cb6-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb6-9" data-line-number="9"><span class="co"># Reading</span></a>
-<a class="sourceLine" id="cb6-10" data-line-number="10">query &lt;-<span class="st"> "SELECT</span></a>
-<a class="sourceLine" id="cb6-11" data-line-number="11"><span class="st">          ,COUNT(*),</span></a>
-<a class="sourceLine" id="cb6-12" data-line-number="12"><span class="st">          ,year(AdmitDT) as AdmitYear</span></a>
-<a class="sourceLine" id="cb6-13" data-line-number="13"><span class="st">          FROM [SAM].[Encounter].[PatientEncounterBASE]</span></a>
-<a class="sourceLine" id="cb6-14" data-line-number="14"><span class="st">          WHERE AdmitYear &gt;= 2013</span></a>
-<a class="sourceLine" id="cb6-15" data-line-number="15"><span class="st">          GROUP BY AdmitYear</span></a>
-<a class="sourceLine" id="cb6-16" data-line-number="16"><span class="st">          ORDER BY AdmitYear"</span></a>
-<a class="sourceLine" id="cb6-17" data-line-number="17"></a>
-<a class="sourceLine" id="cb6-18" data-line-number="18">d &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/db_read.html">db_read</a></span>(con, query)</a>
-<a class="sourceLine" id="cb6-19" data-line-number="19"></a>
-<a class="sourceLine" id="cb6-20" data-line-number="20"><span class="co"># Writing</span></a>
-<a class="sourceLine" id="cb6-21" data-line-number="21">predictions &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">patient_id =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>),</a>
-<a class="sourceLine" id="cb6-22" data-line-number="22">                          <span class="dt">predicted_readmission =</span> <span class="kw">c</span>(<span class="fl">0.7</span>, <span class="fl">0.2</span>, <span class="fl">0.4</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb6-23" data-line-number="23"><span class="st">  </span><span class="kw"><a href="../../reference/add_SAM_utility_cols.html">add_SAM_utility_cols</a></span>()</a>
-<a class="sourceLine" id="cb6-24" data-line-number="24"></a>
-<a class="sourceLine" id="cb6-25" data-line-number="25">table_id &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/DBI/topics/Id">Id</a></span>(<span class="dt">schema =</span> <span class="st">"Sepsis"</span>, </a>
-<a class="sourceLine" id="cb6-26" data-line-number="26">               <span class="dt">name =</span> <span class="st">"Predictions"</span>)</a>
-<a class="sourceLine" id="cb6-27" data-line-number="27"></a>
-<a class="sourceLine" id="cb6-28" data-line-number="28">res &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/DBI/topics/dbWriteTable">dbWriteTable</a></span>(<span class="dt">conn =</span> my_con,</a>
-<a class="sourceLine" id="cb6-29" data-line-number="29">                    <span class="dt">name =</span> table_id,</a>
-<a class="sourceLine" id="cb6-30" data-line-number="30">                    <span class="dt">value =</span> predictions,</a>
-<a class="sourceLine" id="cb6-31" data-line-number="31">                    <span class="dt">append =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb6-32" data-line-number="32"><span class="kw"><a href="http://www.rdocumentation.org/packages/DBI/topics/dbDisconnect">dbDisconnect</a></span>(con)</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">library</span>(healthcareai)</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="kw">library</span>(DBI)</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="kw">library</span>(RODBC)</a>
+<a class="sourceLine" id="cb5-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="co"># Connection string</span></a>
+<a class="sourceLine" id="cb5-6" data-line-number="6">my_con &lt;-<span class="st"> </span>healthcareai<span class="op">::</span><span class="kw"><a href="https://docs.healthcare.ai/reference/build_connection_string.html">build_connection_string</a></span>(<span class="dt">server =</span> <span class="st">"HCS-GM0004"</span>,</a>
+<a class="sourceLine" id="cb5-7" data-line-number="7">                                                <span class="dt">database =</span> <span class="st">"SAM"</span>)</a>
+<a class="sourceLine" id="cb5-8" data-line-number="8">con_in &lt;-<span class="st"> </span>DBI<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/DBI/topics/dbConnect">dbConnect</a></span>(odbc<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/odbc/topics/odbc">odbc</a></span>(), <span class="dt">.connection_string =</span> my_con)</a>
+<a class="sourceLine" id="cb5-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb5-10" data-line-number="10"><span class="co"># Reading</span></a>
+<a class="sourceLine" id="cb5-11" data-line-number="11">query &lt;-<span class="st"> "SELECT</span></a>
+<a class="sourceLine" id="cb5-12" data-line-number="12"><span class="st">          ,COUNT(*),</span></a>
+<a class="sourceLine" id="cb5-13" data-line-number="13"><span class="st">          ,year(AdmitDT) as AdmitYear</span></a>
+<a class="sourceLine" id="cb5-14" data-line-number="14"><span class="st">          FROM [SAM].[Encounter].[PatientEncounterBASE]</span></a>
+<a class="sourceLine" id="cb5-15" data-line-number="15"><span class="st">          WHERE AdmitYear &gt;= 2013</span></a>
+<a class="sourceLine" id="cb5-16" data-line-number="16"><span class="st">          GROUP BY AdmitYear</span></a>
+<a class="sourceLine" id="cb5-17" data-line-number="17"><span class="st">          ORDER BY AdmitYear"</span></a>
+<a class="sourceLine" id="cb5-18" data-line-number="18"></a>
+<a class="sourceLine" id="cb5-19" data-line-number="19">d &lt;-<span class="st"> </span>healthcareai<span class="op">::</span><span class="kw"><a href="https://docs.healthcare.ai/reference/db_read.html">db_read</a></span>(con_in, query)</a>
+<a class="sourceLine" id="cb5-20" data-line-number="20"></a>
+<a class="sourceLine" id="cb5-21" data-line-number="21"><span class="co"># Writing</span></a>
+<a class="sourceLine" id="cb5-22" data-line-number="22">predictions &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">patient_id =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>),</a>
+<a class="sourceLine" id="cb5-23" data-line-number="23">                          <span class="dt">predicted_readmission =</span> <span class="kw">c</span>(<span class="fl">0.7</span>, <span class="fl">0.2</span>, <span class="fl">0.4</span>))</a>
+<a class="sourceLine" id="cb5-24" data-line-number="24"></a>
+<a class="sourceLine" id="cb5-25" data-line-number="25">con_out &lt;-<span class="st"> </span>RODBC<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/RODBC/topics/odbcConnect">odbcDriverConnect</a></span>(<span class="dt">connection =</span> my_con)</a>
+<a class="sourceLine" id="cb5-26" data-line-number="26"></a>
+<a class="sourceLine" id="cb5-27" data-line-number="27">RODBC<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/RODBC/topics/sqlSave">sqlSave</a></span>(con_out, </a>
+<a class="sourceLine" id="cb5-28" data-line-number="28">               predictions, </a>
+<a class="sourceLine" id="cb5-29" data-line-number="29">               <span class="st">"Sepsis.Predictions"</span>, </a>
+<a class="sourceLine" id="cb5-30" data-line-number="30">               <span class="dt">append =</span> <span class="ot">TRUE</span>, </a>
+<a class="sourceLine" id="cb5-31" data-line-number="31">               <span class="dt">rownames =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb5-32" data-line-number="32">DBI<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/DBI/topics/dbDisconnect">dbDisconnect</a></span>(con_in)</a>
+<a class="sourceLine" id="cb5-33" data-line-number="33">RODBC<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/RODBC/topics/odbcClose">odbcClose</a></span>(con_out)</a></code></pre></div>
+</div>
 </div>
   </div>
 
@@ -263,7 +253,7 @@
 <li><a href="#connecting-to-a-database">Connecting to a Database</a></li>
       <li><a href="#reading-data">Reading data</a></li>
       <li><a href="#writing-data">Writing Data</a></li>
-      <li><a href="#example-code-snippet">Example Code Snippet</a></li>
+      <li><a href="#full-and-simplest-example-code">Full and simplest example code</a></li>
       </ul>
 </div>
       </div>
@@ -281,8 +271,6 @@
 
       </footer>
 </div>
-
-  
 
   </body>
 </html>

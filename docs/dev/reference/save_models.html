@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Find missingness in each column and search for strings that might represent missing values — missingness • healthcareai</title>
+<title>Save models to disk and load models from disk — save_models • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,10 +25,12 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Find missingness in each column and search for strings that might represent missing values — missingness" />
+<meta property="og:title" content="Save models to disk and load models from disk — save_models" />
 
-<meta property="og:description" content="Finds the percent of NAs in a vector or in each column of a dataframe or
-matrix or in a vector. Possible mis-coded missing values are searched for and a warning issued if they are found." />
+<meta property="og:description" content="Note that model objects contain training data, except columns
+  ignored (patient_id in the example below). Therefore, if there is PHI in
+  the training data, the saved model object must be treated as PHI.
+  save_models issues a message saying as much." />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -131,48 +133,52 @@ matrix or in a vector. Possible mis-coded missing values are searched for and a 
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Find missingness in each column and search for strings that might represent missing values</h1>
+    <h1>Save models to disk and load models from disk</h1>
     
     </div>
 
     
-    <p>Finds the percent of NAs in a vector or in each column of a dataframe or
-matrix or in a vector. Possible mis-coded missing values are searched for and a warning issued if they are found.</p>
+    <p>Note that model objects contain training data, except columns
+  ignored (patient_id in the example below). Therefore, if there is PHI in
+  the training data, the saved model object must be treated as PHI.
+  <code>save_models</code> issues a message saying as much.</p>
     
 
-    <pre class="usage"><span class='fu'>missingness</span>(<span class='no'>d</span>, <span class='kw'>return_df</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>to_search</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"NA"</span>, <span class='st'>"NAs"</span>, <span class='st'>"na"</span>, <span class='st'>"NaN"</span>,
-  <span class='st'>"?"</span>, <span class='st'>"??"</span>, <span class='st'>"nil"</span>, <span class='st'>"NULL"</span>, <span class='st'>" "</span>, <span class='st'>""</span>))</pre>
+    <pre class="usage"><span class='fu'>save_models</span>(<span class='no'>x</span>, <span class='kw'>filename</span> <span class='kw'>=</span> <span class='st'>"models.RDS"</span>)
+
+<span class='fu'>load_models</span>(<span class='no'>filename</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>d</th>
-      <td><p>A data frame or matrix</p></td>
+      <th>x</th>
+      <td><p>model_list object</p></td>
     </tr>
     <tr>
-      <th>return_df</th>
-      <td><p>If TRUE (default) a data frame is returned, which generally makes reading the output easier. If variable names are so long that the data frame gets wrapped poorly, set this to FALSE.</p></td>
-    </tr>
-    <tr>
-      <th>to_search</th>
-      <td><p>A vector of strings that might represent missingness. If found in <code>d</code>, a warning is issued.</p></td>
+      <th>filename</th>
+      <td><p>File path to save model to or read model from, e.g.
+"models/my_models.RDS". Default for <code>save_models</code> is "models.RDS" in
+the working directory (<code>getwd()</code>). Default for <code>load_models</code> is
+to open a dialog box from which a file can be selected, in which case a
+message will issued with code to load the same file without interactivity.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A data frame with two columns: variable names in <code>d</code> and the percent of entries in each variable that are missing.</p>
+    <p><code>load_models</code> returns the model_list which can be assigned to
+  any variable name</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>d</span> <span class='kw'>&lt;-</span> <span class='fu'>data.frame</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"a"</span>, <span class='st'>"nil"</span>, <span class='st'>"b"</span>),
-                <span class='kw'>y</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>1</span>, <span class='fl'>NaN</span>, <span class='fl'>3</span>),
-                <span class='kw'>z</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>1</span>:<span class='fl'>2</span>, <span class='fl'>NA</span>))
-<span class='fu'>missingness</span>(<span class='no'>d</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Found these strings that may represent missing values: "nil". If they do represent missingness, replace them with NA.</span></div><div class='output co'>#&gt;   variable percent_missing
-#&gt; 1        x             0.0
-#&gt; 2        y            33.3
-#&gt; 3        z            33.3</div></pre>
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='no'>m</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='machine_learn.html'>machine_learn</a></span>(<span class='no'>pima_diabetes</span>, <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>)
+<span class='fu'>save_models</span>(<span class='no'>m</span>, <span class='st'>"diabetes_models.RDS"</span>)
+<span class='co'># Restart R, move RDS file to another computer, etc.</span>
+<span class='no'>m2</span> <span class='kw'>&lt;-</span> <span class='fu'>load_models</span>(<span class='st'>"diabetes_models.RDS"</span>)
+<span class='fu'>all.equal</span>(<span class='no'>m</span>, <span class='no'>m2</span>)
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

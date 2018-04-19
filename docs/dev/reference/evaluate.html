@@ -56,8 +56,6 @@
 
 </script>
 
-
-
   </head>
 
   <body>
@@ -93,6 +91,9 @@
       <a href="../articles/site_only/db_connections.html">Database Connections</a>
     </li>
     <li>
+      <a href="../articles/site_only/deploy_model.html">Deploying a model</a>
+    </li>
+    <li>
       <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
     </li>
   </ul>
@@ -119,7 +120,6 @@
   </a>
 </li>
       </ul>
-      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -127,7 +127,7 @@
       
       </header>
 
-<div class="row">
+      <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Get model performance metrics</h1>
@@ -183,7 +183,9 @@
                         <span class='no'>patient_id</span>,
                         <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>,
                         <span class='kw'>models</span> <span class='kw'>=</span> <span class='st'>"rf"</span>,
-                        <span class='kw'>tune_depth</span> <span class='kw'>=</span> <span class='fl'>3</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Training with cross validation: Random Forest</span></div><div class='input'><span class='fu'>evaluate</span>(<span class='no'>models</span>)</div><div class='output co'>#&gt;      AUPR     AUROC 
+                        <span class='kw'>tune_depth</span> <span class='kw'>=</span> <span class='fl'>3</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Training with cross validation: Random Forest</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>*** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
+#&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='input'><span class='fu'>evaluate</span>(<span class='no'>models</span>)</div><div class='output co'>#&gt;      AUPR     AUROC 
 #&gt; 0.5626548 0.6691667 </div><div class='input'><span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>41</span>:<span class='fl'>50</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='fu'>evaluate</span>(<span class='no'>predictions</span>)</div><div class='output co'>#&gt;      AUPR     AUROC 
 #&gt; 0.4305556 0.9047619 </div></pre>
   </div>
@@ -211,8 +213,6 @@
 
       </footer>
    </div>
-
-  
 
   </body>
 </html>

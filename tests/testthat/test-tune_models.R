@@ -1,7 +1,7 @@
 context("test-tune_models")
 
 # Setup ------------------------------------------------------------------------
-test_df <- na.omit(pima_diabetes)[1:200, ]
+test_df <- na.omit(pima_diabetes)[1:100, ]
 tm <- tune_models(test_df, diabetes)
 
 test_that("Error informatively if outcome class doesn't match model_class", {
@@ -244,4 +244,50 @@ test_that("If only tuning one model, can provide hyperparameter grid outside lis
   m <- tune_models(test_df, diabetes, models = "rf", hyperparameters = hp)
   expect_s3_class(m, "classification_list")
   expect_true(nrow(m$`Random Forest`$results) == 4)
+})
+
+test_that("tune_ and flash_ issues informative errors if missingness in predictor", {
+  # First 50 row indices with missingness in any predictor:
+  i <- which(!complete.cases(pima_diabetes[, -which(names(pima_diabetes) == "diabetes")]))[1:50]
+  with_miss <- pima_diabetes[i, -1]
+  expect_error(tune_models(with_miss, diabetes), "impute")
+  expect_error(flash_models(with_miss, age), "impute")
+  expect_error(machine_learn(with_miss, outcome = diabetes), NA)
+})
+
+test_that("outcome can be provided quoted", {
+  expect_s3_class(m <- tune_models(test_df, "diabetes"), "model_list")
+  expect_s3_class(predict(m), "predicted_df")
+})
+
+test_that("tune_models, flash_models, and machine_learn issue PHI cautions", {
+  phi_present <- function(messages)
+    any(purrr::map_lgl(messages, stringr::str_detect, "PHI"))
+
+  tune_messages <- capture_messages(tune_models(test_df, diabetes))
+  flash_messages <- capture_messages(flash_models(test_df, diabetes))
+  ml_messages <- capture_messages(machine_learn(test_df, outcome = diabetes))
+
+  expect_true(phi_present(tune_messages))
+  expect_true(phi_present(flash_messages))
+  expect_true(phi_present(ml_messages))
+})
+
+test_that("tune_ and flash_ models add all-unique char/factor columns to ignored", {
+  # Warnings by design here and are tested in test-find_unique_columns
+  suppressWarnings({
+    test_df$patient_id <- paste0("A", test_df$patient_id)
+    tm <- tune_models(test_df, diabetes)
+
+    expect_false("patient_id" %in% names(tm$`Random Forest`$trainingData))
+    test_df$ignore2 <- paste0("a", seq_len(nrow(test_df)))
+    tm2 <- tune_models(test_df, age, models = "rf")
+    expect_false(any(c("patient_id", "ignore2") %in% names(tm2$`Random Forest`$trainingData)))
+    fm <- tune_models(test_df, diabetes, models = "knn")
+    expect_false(any(c("patient_id", "ignore2") %in% names(fm[[1]]$trainingData)))
+
+    test_df$patient_id <- factor(test_df$patient_id)
+    tm <- tune_models(test_df, diabetes, models = "rf")
+    expect_false("patient_id" %in% names(tm$`Random Forest`$trainingData))
+  })
 })

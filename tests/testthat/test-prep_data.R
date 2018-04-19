@@ -340,7 +340,7 @@ test_that("All numeric variables aren't a problem", {
 })
 
 test_that("All nominal variables aren't a problem", {
-  d <- data.frame(x = letters, y = rev(letters), id_var = 1:26)
+  d <- data.frame(x = rep(letters[1:5], 5), y = rep(letters[5:1], 5), id_var = 1:25)
   expect_s3_class(prep_data(d, id_var), "prepped_df")
   expect_s3_class(prep_data(d, outcome = id_var), "prepped_df")
 })
@@ -417,7 +417,7 @@ test_that("add_levels doesn't add levels to outcome", {
 })
 
 test_that("prep_data respects add_levels = FALSE", {
-  d <- data.frame(x = c("A", "B"), y = 1:2)
+  d <- data.frame(x = c("A", "B", "B"), y = 1:3)
   pd <- prep_data(d, add_levels = FALSE, make_dummies = FALSE, impute = FALSE)
   expect_false(any(c("other", "missing") %in% levels(pd$x)))
 })
@@ -498,7 +498,7 @@ test_that("prep_data warns iff factor contrast options are dummy", {
 
 test_that("prep_data errors informatively 0/1 factor outcomes", {
   dd <- data.frame(y = factor(rep(0:1, 10)),
-                   x1 = sample(letters, 20),
+                   x1 = sample(letters[1:10], 20, replace = TRUE),
                    x2 = rnorm(20))
   expect_error(prep_data(dd, outcome = y), "character")
 })
@@ -508,4 +508,17 @@ test_that("data prepped on existing recipe returns ID columns", {
   # but that's remembered in the recipe.
   setdiff(names(d_reprep),
           names(prep_data(d_test, recipe = attr(d_prep, "recipe"))))
+})
+
+test_that("prep_data outcome or ignored columns can be provided quoted", {
+  std <- prep_data(d_train, song_id, state, outcome = is_ween)
+  expect_equal(prep_data(d_train, song_id, state, outcome = "is_ween"), std)
+  expect_equal(prep_data(d_train, song_id, "state", outcome = is_ween), std)
+  expect_equal(prep_data(d_train, "song_id", "state", outcome = "is_ween"), std)
+})
+
+test_that("prep_data warns for all unique character columns and adds the to ignored", {
+  d_test$id <- paste0("a", seq_len(nrow(d_test)))
+  expect_warning(pp <- prep_data(d_test, song_id), "id")
+  expect_setequal(attributes(attr(pp, "recipe"))$ignored_columns, c("song_id", "id"))
 })

@@ -15,6 +15,10 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
   outcome <- check_outcome(outcome, names(d), recipe)
   outcome_chr <- rlang::quo_name(outcome)
 
+  # Remove all-unique charactor/factor columns with a warning
+  to_ignore <- find_columns_to_ignore(d, already_ignored = outcome_chr)
+  d <- d[, !names(d) %in% to_ignore, drop = FALSE]
+
   # tibbles upset some algorithms, so make it a data frame
   d <- as.data.frame(d)
   # kknn can choke on characters so convert all character variables to factors.
@@ -33,10 +37,7 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
   # Some algorithms need the response to be factor instead of char or lgl
   # Get rid of unused levels if they're present
   if (model_class == "classification") {
-    d <- dplyr::mutate(d,
-                       !!outcome_chr := as.factor(!!outcome),
-                       !!outcome_chr := droplevels(!!outcome))
-    # Set outcome positive class
+    d[[outcome_chr]] <- droplevels(as.factor(d[[outcome_chr]]))
     d[[outcome_chr]] <- set_outcome_class(d[[outcome_chr]], positive_class)
   }
 
@@ -46,6 +47,14 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
 
   # Make sure models are supported
   models <- check_models(models)
+
+  # Make sure there's no missingness in predictors
+  miss <- missingness(select_not(d, outcome_chr), return_df = FALSE)
+  if (any(miss > 0))
+    stop("There is missingness in the following predictors. You can impute values to fill in ",
+         "the missingness by calling `prep_data` before tuning models, or using `machine_learn` ",
+         "to prep the data and train models.\n",
+         paste0(names(miss)[miss > 0], collapse = ", "))
 
   return(list(d = d, outcome = outcome, model_class = model_class,
               models = models, metric = metric, recipe = recipe))
@@ -171,3 +180,6 @@ setup_train_control <- function(model_class, metric, n_folds) {
   }
   return(train_control)
 }
+
+character_in_quo <- function(x)
+  is.character(purrr::safely(rlang::eval_tidy)(x)$result)

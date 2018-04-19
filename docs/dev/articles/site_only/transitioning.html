@@ -29,7 +29,7 @@
 </script>
 </head>
 <body>
-    <div class="container template-article">
+    <div class="container template-vignette">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
@@ -58,6 +58,9 @@
     </li>
     <li>
       <a href="../../articles/site_only/db_connections.html">Database Connections</a>
+    </li>
+    <li>
+      <a href="../../articles/site_only/deploy_model.html">Deploying a model</a>
     </li>
     <li>
       <a href="../../articles/site_only/transitioning.html">Transition from Version 1</a>
@@ -94,7 +97,7 @@
 
       
       </header><div class="row">
-  <div class="col-md-9 contents">
+  <div class="col-md-9">
     <div class="page-header toc-ignore">
       <h1>Transitioning from healthcareai v1 to v2</h1>
             
@@ -105,6 +108,7 @@
 
     
     
+<div class="contents">
 <p>This vignette demonstrates how to translate <code>healthcareai</code> v1 code into v2 code by translating the example from the old <code>RandomForestDeployment</code> help page.</p>
 <p>Throughout this vignette, commented code is the v1 code that is being updated in each chunk.</p>
 <div id="install-and-load-the-package" class="section level2">
@@ -112,7 +116,9 @@
 <a href="#install-and-load-the-package" class="anchor"></a>Install and load the package</h2>
 <p>First, check the package version with <code>packageVersion("healthcareai")</code>. If the first digit isn’t 2, you need to update. You should be able to install v2 by running <code>install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r")</code>. If that doesn’t work, try <code><a href="http://www.rdocumentation.org/packages/remotes/topics/install_url">remotes::install_url("https://github.com/HealthCatalyst/healthcareai-r/releases/download/v2.0.0.9000/healthcareai_2.0.0.9000.tar.gz")</a></code>. If that doesn’t work either, <a href="https://github.com/HealthCatalyst/healthcareai-r/releases/download/v2.0.0.9000/healthcareai_2.0.0.9000.tar.gz">download the package file</a>, then in R Studio, choose Tools -&gt; Install Packages…, select Install from “Package archive file”, and browse to select the downloaded <code>.tar.gz</code> file.</p>
 <p>Then, load the package.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(healthcareai)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(healthcareai)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="co"># &gt; Warning in as.POSIXlt.POSIXct(Sys.time()): unknown timezone 'zone/tz/2018c.</span></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="co"># &gt; 1.0/zoneinfo/America/Denver'</span></a></code></pre></div>
 </div>
 <div id="load-data" class="section level2">
 <h2 class="hasAnchor">
@@ -140,7 +146,8 @@
 <a class="sourceLine" id="cb2-20" data-line-number="20"><span class="co"># &gt;  $ GenderFLG          : Factor w/ 2 levels "F","M": 2 2 2 2 2 2 2 2 2 2 ...</span></a>
 <a class="sourceLine" id="cb2-21" data-line-number="21"><span class="co"># &gt;  $ ThirtyDayReadmitFLG: Factor w/ 2 levels "N","Y": 1 1 1 1 1 1 1 1 1 2 ...</span></a></code></pre></div>
 <p>There are missing values in the outcome variable <code>ThirtyDayReadmitFLG</code>, and v2 of the package intentionally does not allow missing values in the outcome, so we will discard those rows. Missingness in predictors is automatically taken care of and a variety of imputation methods <a href="https://docs.healthcare.ai/reference/index.html#section-data-preparation">are supported</a>.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">df &lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(df, <span class="op">!</span><span class="kw">is.na</span>(ThirtyDayReadmitFLG))</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">df &lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(df, <span class="op">!</span><span class="kw">is.na</span>(ThirtyDayReadmitFLG))</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co"># &gt; Warning: package 'bindrcpp' was built under R version 3.4.4</span></a></code></pre></div>
 </div>
 <div id="reserve-validation-set" class="section level2">
 <h2 class="hasAnchor">
@@ -174,7 +181,11 @@
 <a class="sourceLine" id="cb5-18" data-line-number="18"><span class="co"># &gt; Training new data prep recipe</span></a>
 <a class="sourceLine" id="cb5-19" data-line-number="19"><span class="co"># &gt; Variable(s) ignored in prep_data won't be used to tune models: PatientEncounterID, PatientID</span></a>
 <a class="sourceLine" id="cb5-20" data-line-number="20"><span class="co"># &gt; ThirtyDayReadmitFLG looks categorical, so training classification algorithms.</span></a>
-<a class="sourceLine" id="cb5-21" data-line-number="21"><span class="co"># &gt; Training with cross validation: Random Forest</span></a></code></pre></div>
+<a class="sourceLine" id="cb5-21" data-line-number="21"><span class="co"># &gt; Training with cross validation: Random Forest</span></a>
+<a class="sourceLine" id="cb5-22" data-line-number="22"><span class="co"># &gt; Warning: package 'caret' was built under R version 3.4.4</span></a>
+<a class="sourceLine" id="cb5-23" data-line-number="23"><span class="co"># &gt; </span></a>
+<a class="sourceLine" id="cb5-24" data-line-number="24"><span class="co"># &gt; *** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span></a>
+<a class="sourceLine" id="cb5-25" data-line-number="25"><span class="co"># &gt; *** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></a></code></pre></div>
 </div>
 <div id="save-and-load-models" class="section level2">
 <h2 class="hasAnchor">
@@ -207,16 +218,16 @@
 <a class="sourceLine" id="cb8-15" data-line-number="15"></a>
 <a class="sourceLine" id="cb8-16" data-line-number="16"><span class="kw">predict</span>(models, d<span class="op">$</span>test)</a>
 <a class="sourceLine" id="cb8-17" data-line-number="17"><span class="co"># &gt; Prepping data based on provided recipe</span></a>
-<a class="sourceLine" id="cb8-18" data-line-number="18"><span class="co"># &gt; "predicted_ThirtyDayReadmitFLG" predicted by Random Forest last trained: 2018-04-18 10:29:20</span></a>
-<a class="sourceLine" id="cb8-19" data-line-number="19"><span class="co"># &gt; Performance in training: AUROC = 0.85</span></a>
+<a class="sourceLine" id="cb8-18" data-line-number="18"><span class="co"># &gt; "predicted_ThirtyDayReadmitFLG" predicted by Random Forest last trained: 2018-04-19 13:18:44</span></a>
+<a class="sourceLine" id="cb8-19" data-line-number="19"><span class="co"># &gt; Performance in training: AUROC = 0.88</span></a>
 <a class="sourceLine" id="cb8-20" data-line-number="20"><span class="co"># &gt; # A tibble: 48 x 8</span></a>
 <a class="sourceLine" id="cb8-21" data-line-number="21"><span class="co"># &gt;   ThirtyDayReadmitF… predicted_ThirtyDayReadm… PatientEncounter… PatientID</span></a>
 <a class="sourceLine" id="cb8-22" data-line-number="22"><span class="co"># &gt; * &lt;fct&gt;                                  &lt;dbl&gt;             &lt;int&gt;     &lt;int&gt;</span></a>
-<a class="sourceLine" id="cb8-23" data-line-number="23"><span class="co"># &gt; 1 N                                    0.164                  22     10004</span></a>
-<a class="sourceLine" id="cb8-24" data-line-number="24"><span class="co"># &gt; 2 N                                    0.00267                24     10005</span></a>
-<a class="sourceLine" id="cb8-25" data-line-number="25"><span class="co"># &gt; 3 N                                    0.00200                25     10005</span></a>
-<a class="sourceLine" id="cb8-26" data-line-number="26"><span class="co"># &gt; 4 N                                    0.0510                 79     10014</span></a>
-<a class="sourceLine" id="cb8-27" data-line-number="27"><span class="co"># &gt; 5 N                                    0.0292                135     10024</span></a>
+<a class="sourceLine" id="cb8-23" data-line-number="23"><span class="co"># &gt; 1 N                                    0.238                  22     10004</span></a>
+<a class="sourceLine" id="cb8-24" data-line-number="24"><span class="co"># &gt; 2 N                                    0.00697                24     10005</span></a>
+<a class="sourceLine" id="cb8-25" data-line-number="25"><span class="co"># &gt; 3 N                                    0.00349                25     10005</span></a>
+<a class="sourceLine" id="cb8-26" data-line-number="26"><span class="co"># &gt; 4 N                                    0.117                  79     10014</span></a>
+<a class="sourceLine" id="cb8-27" data-line-number="27"><span class="co"># &gt; 5 N                                    0.0758                135     10024</span></a>
 <a class="sourceLine" id="cb8-28" data-line-number="28"><span class="co"># &gt; # ... with 43 more rows, and 4 more variables: SystolicBPNBR &lt;int&gt;,</span></a>
 <a class="sourceLine" id="cb8-29" data-line-number="29"><span class="co"># &gt; #   LDLNBR &lt;int&gt;, A1CNBR &lt;dbl&gt;, GenderFLG &lt;fct&gt;</span></a></code></pre></div>
 </div>
@@ -224,6 +235,7 @@
 <h2 class="hasAnchor">
 <a href="#further-reading" class="anchor"></a>Further Reading</h2>
 <p>For more detail on using v2 or about what’s happening under the hood, see <a href="https://docs.healthcare.ai/articles/site_only/healthcareai.html">Getting Started</a> or the <a href="https://docs.healthcare.ai/reference/index.html">function reference page</a>. To see how to connect to a database, see <a href="https://docs.healthcare.ai/articles/site_only/db_connections.html">Database Connections</a>.</p>
+</div>
 </div>
   </div>
 
@@ -256,8 +268,6 @@
 
       </footer>
 </div>
-
-  
 
   </body>
 </html>
