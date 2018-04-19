@@ -123,12 +123,12 @@ test_that("If newdata isn't provided, make predictions on training data", {
 test_that("predict can handle binary character non Y/N columns", {
   training_data %>%
     dplyr::mutate(Catholic = ifelse(Catholic == "Y", "yes", "no")) %>%
-    machine_learn(outcome = Catholic) %>%
+    machine_learn(province, outcome = Catholic) %>%
     predict() %>%
     expect_s3_class("data.frame")
   training_data %>%
     dplyr::mutate(Catholic = factor(ifelse(Catholic == "Y", "cath", "other"))) %>%
-    machine_learn(outcome = Catholic) %>%
+    machine_learn(province, outcome = Catholic) %>%
     predict() %>%
     expect_s3_class("data.frame")
 })

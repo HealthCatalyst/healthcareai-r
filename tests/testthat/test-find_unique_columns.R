@@ -30,7 +30,7 @@ character_factor_data_frame <- function() {
     factor_field = factor(letters),
     stringsAsFactors = FALSE
   ))
-  }
+}
 
 # Tests ------------------------------------------------------------------------
 test_that("Data frame that contains no columns or rows returns nothing", {
@@ -61,3 +61,24 @@ test_that(
     expect_equal(c("character_field", "factor_field"),
                  find_unique_columns(character_factor_data_frame()))
   })
+
+test_that("date columns aren't captured by find_unique_columns", {
+  d <- tibble::tibble(adate = as.Date("2018-01-01"), chr = "A")
+  expect_equal("chr", find_unique_columns(d))
+})
+
+test_that("find_columns_to_ignore works right", {
+  expect_warning(t1 <- find_columns_to_ignore(dirty_data_frame()),
+                 regexp = "will be ignored")
+  expect_setequal(c("id_field", "test4_field"), t1)
+  expect_warning(t2 <- find_columns_to_ignore(dirty_data_frame(), "id_field"),
+                 regexp = "test4_field")
+  expect_equal(t2, "test4_field")
+  expect_warning(t3 <- find_columns_to_ignore(dirty_data_frame(),
+                                              c("id_field", "test4_field")),
+                 regexp = NA)
+  expect_equal(t3, character())
+  expect_warning(t4 <- find_columns_to_ignore(clean_data_frame()),
+                 regexp = NA)
+  expect_equal(t4, character())
+})
