@@ -27,7 +27,7 @@
 save_models <- function(x, filename = "models.RDS") {
   saveRDS(x, filename)
   message("The model object being saved contains training data, minus ignored ID columns.\n",
-          "If there was PHI in training data, normal PHI protocols apply to the RDA file.")
+          "If there was PHI in training data, normal PHI protocols apply to the RDS file.")
   return(invisible(NULL))
 }
 

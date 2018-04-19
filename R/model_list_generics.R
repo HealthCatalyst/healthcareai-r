@@ -190,7 +190,7 @@ extract_model_info <- function(x) {
   # optimum is min or max depending on metric
   optimum <- if (x[[1]]$maximize) max else min
   metric <- x[[1]]$metric
-  best_metrics <- purrr::map_dbl(x, ~ optimum(.x$results[[metric]]))
+  best_metrics <- purrr::map_dbl(x, ~ optimum(.x$results[[metric]], na.rm = TRUE))
   best_model <- which(best_metrics == optimum(best_metrics))[1] # 1 in case tie
   algs <- purrr::map_chr(x, ~ .x$modelInfo$label)
   m_class <- x[[1]]$modelType

@@ -15,6 +15,10 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
   outcome <- check_outcome(outcome, names(d), recipe)
   outcome_chr <- rlang::quo_name(outcome)
 
+  # Remove all-unique charactor/factor columns with a warning
+  to_ignore <- find_columns_to_ignore(d, already_ignored = outcome_chr)
+  d <- d[, !names(d) %in% to_ignore, drop = FALSE]
+
   # tibbles upset some algorithms, so make it a data frame
   d <- as.data.frame(d)
   # kknn can choke on characters so convert all character variables to factors.

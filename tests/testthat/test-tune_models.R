@@ -272,3 +272,22 @@ test_that("tune_models, flash_models, and machine_learn issue PHI cautions", {
   expect_true(phi_present(flash_messages))
   expect_true(phi_present(ml_messages))
 })
+
+test_that("tune_ and flash_ models add all-unique char/factor columns to ignored", {
+  # Warnings by design here and are tested in test-find_unique_columns
+  suppressWarnings({
+    test_df$patient_id <- paste0("A", test_df$patient_id)
+    tm <- tune_models(test_df, diabetes)
+
+    expect_false("patient_id" %in% names(tm$`Random Forest`$trainingData))
+    test_df$ignore2 <- paste0("a", seq_len(nrow(test_df)))
+    tm2 <- tune_models(test_df, age, models = "rf")
+    expect_false(any(c("patient_id", "ignore2") %in% names(tm2$`Random Forest`$trainingData)))
+    fm <- tune_models(test_df, diabetes, models = "knn")
+    expect_false(any(c("patient_id", "ignore2") %in% names(fm[[1]]$trainingData)))
+
+    test_df$patient_id <- factor(test_df$patient_id)
+    tm <- tune_models(test_df, diabetes, models = "rf")
+    expect_false("patient_id" %in% names(tm$`Random Forest`$trainingData))
+  })
+})

@@ -1,3 +1,16 @@
+#' Given character vector of already ignored (or outcome) columns, find other
+#' all-unique character columns, warn about and return them. Returns empty
+#' character vector if there are none.
+#' @noRd
+find_columns_to_ignore <- function(d, already_ignored = character()) {
+  all_unique_chars <- setdiff(find_unique_columns(d), already_ignored)
+  if (length(all_unique_chars)) {
+    warning("The following column(s) have a unique value for every row so will be ignored: ",
+            paste0(all_unique_chars, collapse = ", "))
+  }
+  return(all_unique_chars)
+}
+
 #' @title Find categorical columns with all unique values
 #'
 #' @description \code{find_unique_columns} will find categorical columns in your
@@ -24,8 +37,8 @@ find_unique_columns <- function(data) {
   unique_columns <-
     data %>%
     dplyr::select_if(function(col)
-      is.numeric(col) == FALSE &&
+      (is.character(col) || is.factor(col)) &&
         length(unique(col)) == nrow(data)) %>%
     names()
   return(unique_columns)
-  }
+}
