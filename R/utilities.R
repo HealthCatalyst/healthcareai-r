@@ -118,10 +118,17 @@ rank_models <- function(m) {
 #'   environment will be present. These tests are are run on Appveyor.
 #'
 #' @noRd
-#' @references \url{http://healthcareai-r.readthedocs.io}
 skip_on_not_appveyor <- function() {
     if (identical(Sys.getenv("APPVEYOR"), "True")) {
         return()
     }
     testthat::skip("Not on Appveyor")
+}
+
+#' Whether var is quo or character returns d without it
+#' @noRd
+select_not <- function(d, var) {
+  if (rlang::is_quosure(var))
+    var <- rlang::quo_name(var)
+  d[, -which(names(d) %in% var), drop = FALSE]
 }

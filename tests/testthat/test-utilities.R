@@ -66,3 +66,12 @@ test_that("dfs_compatible works", {
   expect_false(dfs_compatible(ddd, d2))
   expect_true(dfs_compatible(d2, ddd))
 })
+
+test_that("select_not works and returns a data frame in all cases", {
+  d <- data.frame(x = 1:5, y = rnorm(5), z = letters[1:5])
+  expect_setequal(names(select_not(d, "x")), c("y", "z"))
+  expect_equal(select_not(d, "y"), select_not(d, rlang::quo(y)))
+  d <- select_not(d, "x")
+  expect_s3_class(d <- select_not(d, rlang::quo(y)), "data.frame")
+  expect_s3_class(select_not(d, "z"), "data.frame")
+})

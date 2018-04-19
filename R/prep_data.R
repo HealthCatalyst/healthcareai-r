@@ -120,11 +120,23 @@ prep_data <- function(d,
   # Deal with "..." columns to be ignored
   ignore_columns <- rlang::quos(...)
   ignored <- purrr::map_chr(ignore_columns, rlang::quo_name)
+  # Find all-unique character columns not specified to be ignored here, in
+  # previous prep, or that are outcomes and add to ignore
+  already_ignored <- c(rlang::quo_name(outcome), ignored)
+  if (!is.null(recipe)) {
+    recipe <- check_rec_obj(recipe)
+    already_ignored <- c(already_ignored, attr(recipe, "ignored_columns"))
+  }
+  ignored <-
+    find_columns_to_ignore(d, already_ignored) %>%
+    c(ignored, .)
   d_ignore <- NULL
-  if (length(ignore_columns)) {
+  if (length(ignored)) {
     present <- ignored %in% names(d)
     if (any(!present))
       stop(paste(ignored[!present], collapse = ", "), " not found in d.")
+    if (length(ignored) >= ncol(d))
+      stop("You only have ignored columns. Try again.")
     # Separate data into ignored and not
     d_ignore <- dplyr::select(d, !!ignored)
     d <- dplyr::select(d, -dplyr::one_of(ignored))
@@ -149,7 +161,6 @@ prep_data <- function(d,
   # If there's a recipe in recipe, use that
   if (!is.null(recipe)) {
     message("Prepping data based on provided recipe")
-    recipe <- check_rec_obj(recipe)
     # Look for variables that weren't present in training, add them to ignored
     newvars <- setdiff(names(d), c(recipe$var_info$variable,
                                    attr(recipe, "ignored_columns")))
@@ -372,7 +383,7 @@ prep_data <- function(d,
 
   # Remove outcome if recipe was provided but outcome not present
   if (remove_outcome && outcome_var %in% names(d))
-    d <- d[, -which(names(d) == outcome_var), drop = FALSE]
+    d <- select_not(d, outcome_var)
   # Add ignore columns back in and attach as attribute to recipe
   d <- dplyr::bind_cols(d_ignore, d)
   attr(recipe, "ignored_columns") <- unname(ignored)
