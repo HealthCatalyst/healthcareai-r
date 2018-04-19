@@ -54,7 +54,7 @@ models <- machine_learn(d = d,
                         models = "rf",
                         outcome = Readmit30FLG)
 
-# Save my model (via a GUI)
+# Save my model
 healthcareai::save_models(models, "readmit_models.RDS")
 ```
 
@@ -184,7 +184,7 @@ prod_query <- "SELECT
 
 d_out <- db_read(con, prod_query)
 
-load("readmit_models.RDA")
+models <- healthcareai::load_models("readmit_models.RDS")
 
 predictions <- predict(models, d_out)
 
