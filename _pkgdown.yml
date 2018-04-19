@@ -85,6 +85,9 @@ reference:
     - start_prod_logs
     - stop_prod_logs
     - catalyst_test_deploy_in_prod
+  - title: Saving and Loading Models
+    contents:
+    - save_models
   - title: Data
     desc: Supplied datasets
     contents:
