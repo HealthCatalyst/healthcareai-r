@@ -21,15 +21,6 @@ test_that("flash_models let's user select model", {
   expect_error(flash_models(dd, diabetes, models = "knn"), NA)
 })
 
-test_that("flash_models errors informatively if hyperparameters and models don't match", {
-  expect_error(flash_models(dd, diabetes,
-                            hyperparameters = get_hyperparameter_defaults("knn")),
-               "knn")
-  expect_error(flash_models(dd, diabetes, models = "rf",
-                            hyperparameters = get_hyperparameter_defaults("knn")),
-               "rf")
-})
-
 test_that("flash_models works on prepped data", {
   pd <- prep_data(pima_diabetes, patient_id, outcome = diabetes)
   m <- flash_models(pd, diabetes)
@@ -41,6 +32,6 @@ test_that("flash_models are model_lists with attr tuned = FALSE", {
 })
 
 test_that("can predict on flash models", {
-  expect_s3_class(predict(cl), "hcai_predicted_df")
-  expect_s3_class(predict(reg, dd[10:1, ]), "hcai_predicted_df")
+  expect_s3_class(predict(cl), "predicted_df")
+  expect_s3_class(predict(reg, dd[10:1, ]), "predicted_df")
 })

@@ -62,18 +62,18 @@ models
 # > Algorithms Trained: Random Forest, k-Nearest Neighbors
 # > Target: diabetes
 # > Class: Classification
-# > Performance Metric: ROC
+# > Performance Metric: AUROC
 # > Number of Observations: 768
 # > Number of Features: 12
-# > Models Trained: 2018-04-04 12:55:09 
+# > Models Trained: 2018-04-18 10:33:55 
 # > 
 # > Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.
 # > Best model: Random Forest
-# > ROC = 0.84
+# > AUPR = 0.71, AUROC = 0.85
 # > Optimal hyperparameter values:
-# >   mtry = 7
+# >   mtry = 5
 # >   splitrule = extratrees
-# >   min.node.size = 11
+# >   min.node.size = 17
 ```
 
 Make predictions and examine predictive performance:
@@ -114,7 +114,7 @@ package, ask questions, and troubleshoot your code.
 
 If you are interested in contributing the package (great\!), please read
 the
-[contributing](https://github.com/HealthCatalyst/healthcareai-r/blob/master/CONTRIBUTING.md)
+[contributing](file:///Users/michael.levy/Dropbox/healthcareai-r/docs/dev/CONTRIBUTING.html)
 guide, and look for [issues with the “help wanted”
 tag](https://github.com/HealthCatalyst/healthcareai-r/labels/help%20wanted).
 Feel free to tackle any issue that interests you; those are a few issues

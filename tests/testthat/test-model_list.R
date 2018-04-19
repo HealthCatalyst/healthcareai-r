@@ -4,15 +4,17 @@ context("model_list tests setup")
 data(mtcars)
 mtcars$am <- as.factor(c("automatic", "manual")[mtcars$am + 1])
 set.seed(257056)
-rf <- caret::train(x = dplyr::select(mtcars, -am),
-                   y = mtcars$am,
+rf <- caret::train(x = dplyr::select(mtcars, -mpg),
+                   y = mtcars$mpg,
                    method = "ranger",
-                   tuneLength = 2
+                   tuneLength = 2,
+                   trControl = caret::trainControl(savePredictions = "final")
 )
-kn <- caret::train(x = dplyr::select(mtcars, -am),
-                   y = mtcars$am,
+kn <- caret::train(x = dplyr::select(mtcars, -mpg),
+                   y = mtcars$mpg,
                    method = "kknn",
-                   tuneLength = 2
+                   tuneLength = 2,
+                   trControl = caret::trainControl(savePredictions = "final")
 )
 r_models <- tune_models(mtcars, mpg, n_folds = 2, tune_depth = 2)
 c_models <- tune_models(mtcars, am, n_folds = 2, tune_depth = 2)
@@ -20,40 +22,16 @@ c_pr <- tune_models(mtcars, am, metric = "PR", n_folds = 2, tune_depth = 2)
 single_model_as <- as.model_list(rf)
 single_model_tune <- tune_models(mtcars, am, models = "rf")
 double_model_as <- as.model_list(rf, kn)
-r_empty <- model_list(model_class = "regression")
-c_empty <- model_list(model_class = "classification")
 r_flash <- flash_models(mtcars, mpg)
 c_flash <- flash_models(mtcars, am)
 
 context("Checking model_list constructors") # ----------------------------------
 
-test_that("model_list fails if model_class is unsupported", {
-  expect_error(model_list(model_class = "what am i even?"))
-  # Update once supported:
-  expect_error(model_list(model_class = "unsupervised"))
-  expect_error(model_list(model_class = "multiclass"))
-})
-
-test_that("model_list succeeds without model input", {
-  empty_reg <- model_list("regression")
-  expect_s3_class(empty_reg, "regression_list")
-  expect_s3_class(empty_reg, "model_list")
-  empty_class <- model_list("classification")
-  expect_s3_class(empty_class, "classification_list")
-  expect_s3_class(empty_class, "model_list")
-})
-
 test_that("as.model_list works same with different argument specs", {
   expect_equivalent(as.model_list(rf),
                     as.model_list(listed_models = list(rf)))
   expect_equivalent(as.model_list(rf),
-                    as.model_list(rf, model_class = "classification"))
-})
-
-test_that("model lists have target attribute if not empty; null if empty", {
-  expect_null(attr(model_list(model_class = "classification"), "target"))
-  expect_equal(attr(r_models, "target"), "mpg")
-  expect_equal(attr(c_models, "target"), "am")
+                    as.model_list(rf, model_class = "regression"))
 })
 
 test_that("as.model_list fails if model_class is unsupported", {
@@ -66,19 +44,12 @@ test_that("as.model_list errors if input isn't a caret model", {
   expect_error(as.model_list(ranger::ranger(mpg ~ ., mtcars)))
 })
 
-test_that("as.model_list succeeds with empty input", {
-  expect_s3_class(as.model_list(model_class = "regression"),
-                  "regression_list")
-  expect_s3_class(as.model_list(model_class = "classification"),
-                  "classification_list")
-})
-
 test_that("as.model_list succeeds with one or more models as input", {
-  expect_s3_class(as.model_list(rf, model_class = "classification"),
+  expect_s3_class(as.model_list(rf, model_class = "regression"),
                   "model_list")
   expect_s3_class(as.model_list(rf, kn), "model_list")
   expect_s3_class(
-    as.model_list(listed_models = list(rf, kn), model_class = "classification"),
+    as.model_list(listed_models = list(rf, kn), model_class = "regression"),
     "model_list"
   )
   expect_s3_class(as.model_list(listed_models = list(rf)), "model_list")
@@ -135,9 +106,6 @@ test_that("plot.model_list works on classification_list", {
 })
 
 test_that("print.model_list works", {
-  empty_print <- capture_output(as.model_list(model_class = "regression"), TRUE)
-  expect_true(nchar(empty_print) > 0)
-
   rprint <- capture_output(r_models, TRUE)
   expect_true(nchar(rprint) > 0)
   expect_true(grepl("regression", rprint, ignore.case = TRUE))
@@ -205,35 +173,35 @@ test_that("plot.model_list works with message untuned_model_lists", {
 })
 
 context("Testing model list utilities") # --------------------------------------
-test_that("Change PR metric changes all models to PR", {
-  m <- change_pr_metric(c_pr)
+test_that("change_metric_names changes AUC to AUPR", {
+  m <- change_metric_names(c_pr)
 
   expect_true(
-    all(c("PR", "Precision", "Recall") %in% names(
+    all(c("AUPR", "Precision", "Recall") %in% names(
       m$`Random Forest`$results)))
 
   expect_true(
-    all(c("PR", "Precision", "Recall") %in% names(
+    all(c("AUPR", "Precision", "Recall") %in% names(
       m$`k-Nearest Neighbors`$results)))
 })
 
-test_that("Change PR metric doesn't change ROC", {
-  m <- change_pr_metric(c_models)
+test_that("change_metric_names changes ROC to AUROC", {
+  m <- change_metric_names(c_models)
 
   expect_true(
-    all(c("ROC", "Sens", "Spec") %in% names(
+    all(c("AUROC", "Sens", "Spec") %in% names(
       m$`Random Forest`$results)))
 
   expect_true(
-    all(c("ROC", "Sens", "Spec") %in% names(
+    all(c("AUROC", "Sens", "Spec") %in% names(
       m$`k-Nearest Neighbors`$results)))
 })
 
 test_that("Change PR metric doesn't change object class", {
-  expect_setequal(class(change_pr_metric(c_pr)), class(c_pr))
-  expect_setequal(class(change_pr_metric(c_models)), class(c_models))
+  expect_setequal(class(change_metric_names(c_pr)), class(c_pr))
+  expect_setequal(class(change_metric_names(c_models)), class(c_models))
   preds <- predict(c_models)
-  expect_setequal(class(change_pr_metric(preds)), class(preds))
+  expect_setequal(class(change_metric_names(preds)), class(preds))
 })
 
 test_that("model_lists have time model trained attribute", {
@@ -241,14 +209,8 @@ test_that("model_lists have time model trained attribute", {
   check_timestamp(r_models)
   check_timestamp(c_models)
   check_timestamp(c_pr)
-  check_timestamp(single_model_as)
   check_timestamp(r_flash)
   check_timestamp(c_flash)
-})
-
-test_that("empty model_lists have null for timestamp attr", {
-  expect_null(attr(r_empty, "timestamp"))
-  expect_null(attr(c_empty, "timestamp"))
 })
 
 test_that("model_lists only carry one copy of training data", {
@@ -261,4 +223,38 @@ test_that("model_lists only carry one copy of training data", {
   expect_null(r_models[[2]]$trainingData)
   expect_null(c_models[[2]]$trainingData)
   expect_null(double_model_as[[2]]$trainingData)
+})
+
+test_that("[ extracts 1 or 2 models by index", {
+  expect_s3_class(r_flash[1], "model_list")
+  expect_s3_class(r_flash[2], "model_list")
+  expect_equal(r_flash[1:2], r_flash)
+})
+
+test_that("[ extracts by name, index, or logical vector", {
+  expect_equal(double_model_as[1], double_model_as["Random Forest"])
+  expect_equal(c_models[1], c_models["Random Forest"])
+  expect_equal(double_model_as[1], double_model_as[c(TRUE, FALSE)])
+  expect_equal(double_model_as[2], double_model_as["k-Nearest Neighbors"])
+  expect_equal(double_model_as[1:2], double_model_as[c("Random Forest", "k-Nearest Neighbors")])
+  expect_equal(double_model_as, double_model_as[c(TRUE, TRUE)])
+})
+
+test_that("metrics and predict are same for extracted best model", {
+  best <- extract_model_info(c_models)$best_model_name
+  extracted <- c_models[best]
+  expect_equal(evaluate(c_models), evaluate(extracted))
+  expect_equal(predict(c_models), predict(extracted))
+})
+
+test_that("performance drops if the best model is pulled out of model_list", {
+  mi <- extract_model_info(r_models)
+  not_best <- which(!names(r_models) %in% mi$best_model_name)
+  original_rmse <- attr(r_models, "performance")[mi$metric]
+  subsetted_rmse <- attr(r_models[not_best], "performance")[mi$metric]
+  expect_true(original_rmse < subsetted_rmse)
+})
+
+test_that("extraction from model list doesn't change model-trained timestamp", {
+  expect_equal(attr(c_models, "timestamp"), attr(c_models[1], "timestamp"))
 })

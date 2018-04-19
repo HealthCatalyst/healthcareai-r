@@ -56,8 +56,6 @@
 
 </script>
 
-
-
   </head>
 
   <body>
@@ -87,10 +85,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/site_only/healthcareai.html">Getting Started with healthcareai</a>
+      <a href="../articles/site_only/healthcareai.html">Getting Started</a>
     </li>
     <li>
       <a href="../articles/site_only/db_connections.html">Database Connections</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/deploy_model.html">Deploying a model</a>
     </li>
     <li>
       <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
@@ -119,7 +120,6 @@
   </a>
 </li>
       </ul>
-      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -127,7 +127,7 @@
       
       </header>
 
-<div class="row">
+      <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Add levels to nominal variables</h1>
@@ -139,7 +139,7 @@
     
 
     <pre class="usage"><span class='fu'>step_add_levels</span>(<span class='no'>recipe</span>, <span class='no'>...</span>, <span class='kw'>role</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>trained</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>cols</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>levels</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"other"</span>, <span class='st'>"hcai_missing"</span>), <span class='kw'>skip</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+  <span class='kw'>levels</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"other"</span>, <span class='st'>"missing"</span>), <span class='kw'>skip</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
 <span class='co'># S3 method for step_add_levels</span>
 <span class='fu'>tidy</span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
@@ -170,7 +170,7 @@
     <tr>
       <th>levels</th>
       <td><p>Factor levels to add to variables. Default = c("other",
-"hcai_missing")</p></td>
+"missing")</p></td>
     </tr>
     <tr>
       <th>skip</th>
@@ -211,16 +211,16 @@ recipe is baked?</p></td>
 #&gt; $has_neither
 #&gt; [1] "cat1" "cat2"
 #&gt; </div><div class='input'><span class='fu'>lapply</span>(<span class='no'>baked</span>[, <span class='fu'>sapply</span>(<span class='no'>baked</span>, <span class='no'>is.factor</span>)], <span class='no'>levels</span>)</div><div class='output co'>#&gt; $has_missing
-#&gt; [1] "b"            "other"        "hcai_missing"
+#&gt; [1] "b"       "other"   "missing"
 #&gt; 
 #&gt; $has_rare
-#&gt; [1] "common"       "rare"         "other"        "hcai_missing"
+#&gt; [1] "common"  "rare"    "other"   "missing"
 #&gt; 
 #&gt; $has_both
-#&gt; [1] "common"       "rare"         "other"        "hcai_missing"
+#&gt; [1] "common"  "rare"    "other"   "missing"
 #&gt; 
 #&gt; $has_neither
-#&gt; [1] "cat1"         "cat2"         "other"        "hcai_missing"
+#&gt; [1] "cat1"    "cat2"    "other"   "missing"
 #&gt; </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -247,8 +247,6 @@ recipe is baked?</p></td>
 
       </footer>
    </div>
-
-  
 
   </body>
 </html>

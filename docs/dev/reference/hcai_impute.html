@@ -58,8 +58,6 @@ only), bagged trees, or knn." />
 
 </script>
 
-
-
   </head>
 
   <body>
@@ -89,10 +87,13 @@ only), bagged trees, or knn." />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/site_only/healthcareai.html">Getting Started with healthcareai</a>
+      <a href="../articles/site_only/healthcareai.html">Getting Started</a>
     </li>
     <li>
       <a href="../articles/site_only/db_connections.html">Database Connections</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/deploy_model.html">Deploying a model</a>
     </li>
     <li>
       <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
@@ -121,7 +122,6 @@ only), bagged trees, or knn." />
   </a>
 </li>
       </ul>
-      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -129,7 +129,7 @@ only), bagged trees, or knn." />
       
       </header>
 
-<div class="row">
+      <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Specify imputation methods for an existing recipe</h1>
@@ -188,17 +188,8 @@ See step_bagimpute or step_knnimpute for details.</p></td>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>library</span>(<span class='no'>recipes</span>)</div><div class='output co'>#&gt; <span class='message'>Loading required package: dplyr</span></div><div class='output co'>#&gt; <span class='message'></span>
-#&gt; <span class='message'>Attaching package: ‘dplyr’</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from ‘package:testthat’:</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    matches</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from ‘package:stats’:</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    filter, lag</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from ‘package:base’:</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    intersect, setdiff, setequal, union</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: broom</span></div><div class='output co'>#&gt; <span class='message'></span>
-#&gt; <span class='message'>Attaching package: ‘recipes’</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from ‘package:stats’:</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    step</span></div><div class='input'>
+    <pre class="examples"><div class='input'><span class='fu'>library</span>(<span class='no'>recipes</span>)
+
 <span class='no'>n</span> <span class='kw'>=</span> <span class='fl'>100</span>
 <span class='fu'>set.seed</span>(<span class='fl'>9</span>)
 <span class='no'>d</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>tibble</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/tibble/topics/tibble'>tibble</a></span>(<span class='kw'>patient_id</span> <span class='kw'>=</span> <span class='fl'>1</span>:<span class='no'>n</span>,
@@ -226,7 +217,7 @@ See step_bagimpute or step_knnimpute for details.</p></td>
 #&gt; Operations:
 #&gt; 
 #&gt; Mean Imputation for all_numeric(), -all_outcomes()
-#&gt; Filling NA with hcai_missing for all_nominal(), -all_outcomes()</div><div class='input'>
+#&gt; Filling NA with missing for all_nominal(), -all_outcomes()</div><div class='input'>
 <span class='co'># Train recipe</span>
 <span class='no'>trained_recipe</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://www.rdocumentation.org/packages/recipes/topics/prep'>prep</a></span>(<span class='no'>my_recipe</span>, <span class='kw'>training</span> <span class='kw'>=</span> <span class='no'>d</span>)
 
@@ -254,9 +245,9 @@ See step_bagimpute or step_knnimpute for details.</p></td>
 #&gt; Operations:
 #&gt; 
 #&gt; Mean Imputation for all_numeric(), -all_outcomes()
-#&gt; Filling NA with hcai_missing for all_nominal(), -all_outcomes()
+#&gt; Filling NA with missing for all_nominal(), -all_outcomes()
 #&gt; Bagged tree imputation for all_numeric(), -all_outcomes()
-#&gt; Filling NA with hcai_missing for all_nominal(), -all_outcomes()</div><div class='input'>
+#&gt; Filling NA with missing for all_nominal(), -all_outcomes()</div><div class='input'>
 <span class='co'># Specify methods and params:</span>
 <span class='no'>my_recipe</span> <span class='kw'>&lt;-</span> <span class='no'>my_recipe</span> <span class='kw'>%&gt;%</span>
   <span class='fu'>hcai_impute</span>(<span class='kw'>numeric_method</span> <span class='kw'>=</span> <span class='st'>"knnimpute"</span>,
@@ -272,11 +263,11 @@ See step_bagimpute or step_knnimpute for details.</p></td>
 #&gt; Operations:
 #&gt; 
 #&gt; Mean Imputation for all_numeric(), -all_outcomes()
-#&gt; Filling NA with hcai_missing for all_nominal(), -all_outcomes()
+#&gt; Filling NA with missing for all_nominal(), -all_outcomes()
 #&gt; Bagged tree imputation for all_numeric(), -all_outcomes()
-#&gt; Filling NA with hcai_missing for all_nominal(), -all_outcomes()
+#&gt; Filling NA with missing for all_nominal(), -all_outcomes()
 #&gt; 4-nearest neighbor imputation for all_numeric(), -all_outcomes()
-#&gt; Filling NA with hcai_missing for all_nominal(), -all_outcomes()</div></pre>
+#&gt; Filling NA with missing for all_nominal(), -all_outcomes()</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -302,8 +293,6 @@ See step_bagimpute or step_knnimpute for details.</p></td>
 
       </footer>
    </div>
-
-  
 
   </body>
 </html>

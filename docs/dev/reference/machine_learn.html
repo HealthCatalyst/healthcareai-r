@@ -56,8 +56,6 @@
 
 </script>
 
-
-
   </head>
 
   <body>
@@ -82,15 +80,18 @@
         <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Vignettes
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/site_only/healthcareai.html">Getting Started with healthcareai</a>
+      <a href="../articles/site_only/healthcareai.html">Getting Started</a>
     </li>
     <li>
       <a href="../articles/site_only/db_connections.html">Database Connections</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/deploy_model.html">Deploying a model</a>
     </li>
     <li>
       <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
@@ -104,43 +105,42 @@
   <a href="../news/index.html">News</a>
 </li>
       </ul>
-      
+
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/HealthCatalyst/healthcareai-r">
     <span class="fa fa-github"></span>
-     
+
   </a>
 </li>
 <li>
   <a href="https://healthcare-ai.slack.com/">
     <span class="fa fa-users"></span>
-     
+
   </a>
 </li>
       </ul>
-      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
       </header>
 
-<div class="row">
+      <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Machine learning made easy</h1>
-    
+
     </div>
 
-    
-    <p>Prepare data and train machine learning models.</p>
-    
 
-    <pre class="usage"><span class='fu'>machine_learn</span>(<span class='no'>d</span>, <span class='no'>...</span>, <span class='no'>outcome</span>, <span class='no'>models</span>, <span class='kw'>tune</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>n_folds</span> <span class='kw'>=</span> <span class='fl'>5</span>,
-  <span class='kw'>tune_depth</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>impute</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
-    
+    <p>Prepare data and train machine learning models.</p>
+
+
+    <pre class="usage"><span class='fu'>machine_learn</span>(<span class='no'>d</span>, <span class='no'>...</span>, <span class='no'>outcome</span>, <span class='no'>models</span>, <span class='kw'>tune</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>positive_class</span>,
+  <span class='kw'>n_folds</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>tune_depth</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>impute</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -171,6 +171,14 @@ default. See <code><a href='get_supported_models.html'>supported_models</a></cod
 less-predictively powerful models.</p></td>
     </tr>
     <tr>
+      <th>positive_class</th>
+      <td><p>For classification only, which outcome level is the
+"yes" case, i.e. should be associated with high probabilities? Defaults to
+"Y" or "yes" if present, otherwise is the first level of the outcome
+variable (first alphabetically if the training data outcome was not already
+a factor).</p></td>
+    </tr>
+    <tr>
       <th>n_folds</th>
       <td><p>How many folds to use to assess out-of-fold accuracy? Default
 = 5. Models are evaluated on out-of-fold predictions whether tune is TRUE
@@ -187,18 +195,18 @@ Ignored if tune is FALSE.</p></td>
 <code><a href='hcai_impute.html'>hcai_impute</a></code></p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>model_list object ready to make predictions via
   <code><a href='predict.model_list.html'>predict.model_list</a></code></p>
-    
+
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This is a high-level wrapper function. For finer control of data
   cleaning and preparation use <code><a href='prep_data.html'>prep_data</a></code> or the functions it
   wraps. For finer control of model tuning use <code><a href='tune_models.html'>tune_models</a></code>.</p>
-    
+
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Split the data into training and test sets, using just 100 rows for speed</span>
@@ -210,93 +218,99 @@ Ignored if tune is FALSE.</p></td>
 
 <span class='co'># Clean and prep the training data, specifying that patient_id is an ID column,</span>
 <span class='co'># and tune algorithms over hyperparameter values to predict diabetes</span>
-<span class='no'>diabetes_models</span> <span class='kw'>&lt;-</span> <span class='fu'>machine_learn</span>(<span class='no'>d</span>$<span class='no'>train</span>, <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Running cross validation for Random Forest</span></div><div class='output co'>#&gt; <span class='message'>Running cross validation for k-Nearest Neighbors</span></div><div class='input'>
+<span class='no'>diabetes_models</span> <span class='kw'>&lt;-</span> <span class='fu'>machine_learn</span>(<span class='no'>d</span>$<span class='no'>train</span>, <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Training with cross validation: Random Forest</span></div><div class='output co'>#&gt; <span class='message'>Training with cross validation: k-Nearest Neighbors</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>*** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
+#&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='input'>
 <span class='co'># Inspect model specification and performance</span>
 <span class='no'>diabetes_models</span></div><div class='output co'>#&gt; Algorithms Trained: Random Forest, k-Nearest Neighbors
 #&gt; Target: diabetes
 #&gt; Class: Classification
-#&gt; Performance Metric: ROC
+#&gt; Performance Metric: AUROC
 #&gt; Number of Observations: 91
 #&gt; Number of Features: 12
-#&gt; Models Trained: 2018-04-04 16:01:46 
-#&gt; 
+#&gt; Models Trained: 2018-04-19 02:35:28
+#&gt;
 #&gt; Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.
 #&gt; Best model: Random Forest
-#&gt; ROC = 0.77
+#&gt; AUPR = 0.56, AUROC = 0.77
 #&gt; Optimal hyperparameter values:
-#&gt;   mtry = 4
-#&gt;   splitrule = gini
-#&gt;   min.node.size = 9 </div><div class='input'>
+#&gt;   mtry = 1
+#&gt;   splitrule = extratrees
+#&gt;   min.node.size = 19 </div><div class='input'>
 <span class='co'># Make predictions (predicted probability of diabetes) on test data</span>
-<span class='fu'>predict</span>(<span class='no'>diabetes_models</span>, <span class='no'>d</span>$<span class='no'>test</span>)</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-04-04 16:01:46</span>
-#&gt; <span class='message'>Performance in training: ROC = 0.77</span></div><div class='output co'>#&gt; # A tibble: 9 x 11
+<span class='fu'>predict</span>(<span class='no'>diabetes_models</span>, <span class='no'>d</span>$<span class='no'>test</span>)</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-04-19 02:35:28</span>
+#&gt; <span class='message'>Performance in training: AUROC = 0.77</span></div><div class='output co'>#&gt; # A tibble: 9 x 11
 #&gt;   diabetes predicted_diabet… patient_id pregnancies plasma_glucose diastolic_bp
 #&gt; * &lt;chr&gt;                &lt;dbl&gt;      &lt;int&gt;       &lt;int&gt;          &lt;int&gt;        &lt;int&gt;
-#&gt; 1 Y                    0.196          7           3             78           50
-#&gt; 2 Y                    0.567         17           0            118           84
-#&gt; 3 N                    0.581         31           5            109           75
-#&gt; 4 N                    0.478         36           4            103           60
-#&gt; 5 N                    0.335         47           1            146           56
-#&gt; 6 N                    0.189         70           4            146           85
-#&gt; 7 Y                    0.379         73          13            126           90
-#&gt; 8 N                    0.377         78           5             95           72
-#&gt; 9 N                    0.176         83           7             83           78
+#&gt; 1 Y                    0.359          7           3             78           50
+#&gt; 2 Y                    0.398         17           0            118           84
+#&gt; 3 N                    0.501         31           5            109           75
+#&gt; 4 N                    0.292         36           4            103           60
+#&gt; 5 N                    0.284         47           1            146           56
+#&gt; 6 N                    0.284         70           4            146           85
+#&gt; 7 Y                    0.397         73          13            126           90
+#&gt; 8 N                    0.422         78           5             95           72
+#&gt; 9 N                    0.279         83           7             83           78
 #&gt; # ... with 5 more variables: skinfold &lt;int&gt;, insulin &lt;int&gt;, weight_class &lt;chr&gt;,
 #&gt; #   pedigree &lt;dbl&gt;, age &lt;int&gt;</div><div class='input'>
 <span class='co'>### Regression ###</span>
 
 <span class='co'># If the outcome variable is numeric, regression models will be trained</span>
-<span class='no'>age_model</span> <span class='kw'>&lt;-</span> <span class='fu'>machine_learn</span>(<span class='no'>d</span>$<span class='no'>train</span>, <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>age</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>age looks numeric, so training regression algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Running cross validation for Random Forest</span></div><div class='output co'>#&gt; <span class='message'>Running cross validation for k-Nearest Neighbors</span></div><div class='input'>
+<span class='no'>age_model</span> <span class='kw'>&lt;-</span> <span class='fu'>machine_learn</span>(<span class='no'>d</span>$<span class='no'>train</span>, <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>age</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>age looks numeric, so training regression algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Training with cross validation: Random Forest</span></div><div class='output co'>#&gt; <span class='message'>Training with cross validation: k-Nearest Neighbors</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>*** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
+#&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='input'>
 <span class='co'># If new data isn't specifed, get predictions on training data</span>
-<span class='fu'>predict</span>(<span class='no'>age_model</span>)</div><div class='output co'>#&gt; <span class='message'>"predicted_age" predicted by Random Forest last trained: 2018-04-04 16:01:50</span>
-#&gt; <span class='message'>Performance in training: RMSE = 8.84</span></div><div class='output co'>#&gt; # A tibble: 91 x 16
+<span class='fu'>predict</span>(<span class='no'>age_model</span>)</div><div class='output co'>#&gt; <span class='message'>"predicted_age" predicted by Random Forest last trained: 2018-04-19 02:35:32</span>
+#&gt; <span class='message'>Performance in training: RMSE = 9.04</span></div><div class='output co'>#&gt; # A tibble: 91 x 16
 #&gt;      age predicted_age pregnancies plasma_glucose diastolic_bp skinfold insulin
 #&gt;  * &lt;int&gt;         &lt;dbl&gt;       &lt;int&gt;          &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
-#&gt;  1    50          43.0           6           148.         72.0     35.0   169. 
-#&gt;  2    31          25.4           1            85.         66.0     29.0   169. 
-#&gt;  3    32          41.5           8           183.         64.0     29.0   169. 
-#&gt;  4    21          24.3           1            89.         66.0     23.0    94.0
-#&gt;  5    33          33.0           0           137.         40.0     35.0   168. 
-#&gt;  6    30          31.4           5           116.         74.0     29.0   169. 
-#&gt;  7    29          37.6          10           115.         72.4     29.0   169. 
-#&gt;  8    53          47.7           2           197.         70.0     45.0   543. 
-#&gt;  9    54          45.6           8           125.         96.0     29.0   169. 
-#&gt; 10    30          33.2           4           110.         92.0     29.0   169. 
+#&gt;  1    50          40.1           6           148.         72.0     35.0   169.
+#&gt;  2    31          26.1           1            85.         66.0     29.0   169.
+#&gt;  3    32          44.8           8           183.         64.0     29.0   169.
+#&gt;  4    21          26.6           1            89.         66.0     23.0    94.0
+#&gt;  5    33          34.0           0           137.         40.0     35.0   168.
+#&gt;  6    30          33.0           5           116.         74.0     29.0   169.
+#&gt;  7    29          39.6          10           115.         72.4     29.0   169.
+#&gt;  8    53          40.0           2           197.         70.0     45.0   543.
+#&gt;  9    54          38.2           8           125.         96.0     29.0   169.
+#&gt; 10    30          34.2           4           110.         92.0     29.0   169.
 #&gt; # ... with 81 more rows, and 9 more variables: pedigree &lt;dbl&gt;,
 #&gt; #   weight_class_normal &lt;dbl&gt;, weight_class_obese &lt;dbl&gt;,
-#&gt; #   weight_class_overweight &lt;dbl&gt;, weight_class_hcai_missing &lt;dbl&gt;,
+#&gt; #   weight_class_overweight &lt;dbl&gt;, weight_class_missing &lt;dbl&gt;,
 #&gt; #   weight_class_other &lt;dbl&gt;, diabetes_Y &lt;dbl&gt;, diabetes_other &lt;dbl&gt;,
-#&gt; #   diabetes_hcai_missing &lt;dbl&gt;</div><div class='input'>
+#&gt; #   diabetes_missing &lt;dbl&gt;</div><div class='input'>
 <span class='co'>### Faster model training without tuning hyperparameters ###</span>
 
 <span class='co'># Train models at set hyperparameter values by setting tune to FALSE. This is</span>
 <span class='co'># faster (especially on larger datasets), but produces models with less</span>
 <span class='co'># predictive accuracy.</span>
-<span class='fu'>machine_learn</span>(<span class='no'>d</span>$<span class='no'>train</span>, <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>, <span class='kw'>tune</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; Algorithms Trained: Random Forest, k-Nearest Neighbors
+<span class='fu'>machine_learn</span>(<span class='no'>d</span>$<span class='no'>train</span>, <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>, <span class='kw'>tune</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: Random Forest</span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: k-Nearest Neighbors</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>*** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
+#&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='output co'>#&gt; Algorithms Trained: Random Forest, k-Nearest Neighbors
 #&gt; Target: diabetes
 #&gt; Class: Classification
-#&gt; Performance Metric: ROC
+#&gt; Performance Metric: AUROC
 #&gt; Number of Observations: 91
 #&gt; Number of Features: 12
-#&gt; Models Trained: 2018-04-04 16:01:52 
-#&gt; 
+#&gt; Models Trained: 2018-04-19 02:35:34
+#&gt;
 #&gt; Models have not been tuned. Performance estimated via 5-fold cross validation at fixed hyperparameter values.
 #&gt; Best model: Random Forest
-#&gt; ROC = 0.77
+#&gt; AUPR = 0.57, AUROC = 0.78
 #&gt; User-selected hyperparameter values:
-#&gt;   mtry = 5
+#&gt;   mtry = 3
 #&gt;   splitrule = extratrees
-#&gt;   min.node.size = 10 </div></pre>
+#&gt;   min.node.size = 1 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
+
       <li><a href="#value">Value</a></li>
 
       <li><a href="#details">Details</a></li>
-      
+
       <li><a href="#examples">Examples</a></li>
     </ul>
 
@@ -314,8 +328,6 @@ Ignored if tune is FALSE.</p></td>
 
       </footer>
    </div>
-
-  
 
   </body>
 </html>

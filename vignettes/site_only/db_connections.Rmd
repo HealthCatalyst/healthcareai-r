@@ -48,7 +48,7 @@ persistent connection, meaning that it's available until you disconnect. If you
 have a recent version of RStudio, you'll see the connections pane has updated as
 well.
 
-```{r, out.width = "500px", eval = TRUE}
+```{r, out.width = "500px", echo = FALSE, eval = TRUE}
 knitr::include_graphics("figures/conn_pane.png")
 ```
 

@@ -19,11 +19,13 @@ navbar:
   title: "healthcare.ai"
   left:
    - text: Vignettes
-     menu: 
+     menu:
       - text: Getting Started
         href: articles/site_only/healthcareai.html
       - text: Database Connections
         href: articles/site_only/db_connections.html
+      - text: Deploying a model
+        href: articles/site_only/deploy_model.html
       - text: Transition from Version 1
         href: articles/site_only/transitioning.html
    - text: "Functions"
@@ -44,12 +46,18 @@ reference:
     - machine_learn
     - tune_models
     - flash_models
-    - plot.model_list
   - title: Prediction
-    desc: Make predictions from a trained model
+    desc: Make predictions from trained models
     contents:
     - predict.model_list
-    - plot.hcai_predicted_df
+    - plot.predicted_df
+  - title: Model Interpretation
+    desc: Understand models
+    contents:
+    - evaluate
+    - plot.model_list
+    - get_variable_importance
+    - plot_variable_importance
   - title: Data Preparation
     desc: Get data ready for machine learning
     contents:
@@ -79,6 +87,9 @@ reference:
     - start_prod_logs
     - stop_prod_logs
     - catalyst_test_deploy_in_prod
+  - title: Saving and Loading Models
+    contents:
+    - save_models
   - title: Data
     desc: Supplied datasets
     contents:

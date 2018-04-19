@@ -54,8 +54,6 @@
 
 </script>
 
-
-
   </head>
 
   <body>
@@ -80,15 +78,18 @@
         <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Vignettes
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/site_only/healthcareai.html">Getting Started with healthcareai</a>
+      <a href="../articles/site_only/healthcareai.html">Getting Started</a>
     </li>
     <li>
       <a href="../articles/site_only/db_connections.html">Database Connections</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/deploy_model.html">Deploying a model</a>
     </li>
     <li>
       <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
@@ -102,61 +103,61 @@
   <a href="../news/index.html">News</a>
 </li>
       </ul>
-      
+
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/HealthCatalyst/healthcareai-r">
     <span class="fa fa-github"></span>
-     
+
   </a>
 </li>
 <li>
   <a href="https://healthcare-ai.slack.com/">
     <span class="fa fa-users"></span>
-     
+
   </a>
 </li>
       </ul>
-      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
       </header>
 
-<div class="row">
-  <div class="contents col-md-9">
+      <div class="row">
+  <div class="col-md-9">
     <div class="page-header">
       <h1>Reference</h1>
     </div>
 
-    <table class="ref-index">
+    <div class="contents">
+      <table class="ref-index">
 
-    <colgroup>
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+      <colgroup>
+        <col class="alias" />
+        <col class="title" />
+      </colgroup>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-model-training" class="hasAnchor"><a href="#section-model-training" class="anchor"></a>Model Training</h2>
-          <p class="section-desc"><p>Train machine learning models</p></p>
-        </th>
-      </tr>
-      <tr>
-        <!--  -->
-        <td>
-          <p><code><a href="machine_learn.html">machine_learn()</a></code> </p>
-        </td>
-        <td><p>Machine learning made easy</p></td>
-      </tr><tr>
-        <!--  -->
-        <td>
-          <p><code><a href="tune_models.html">tune_models()</a></code> </p>
-        </td>
-        <td><p>Tune multiple machine learning models using cross validation to optimize
+      <tbody>
+        <tr>
+          <th colspan="2">
+            <h2 id="section-model-training" class="hasAnchor"><a href="#section-model-training" class="anchor"></a>Model Training</h2>
+            <p class="section-desc"><p>Train machine learning models</p></p>
+          </th>
+        </tr>
+        <tr>
+          <!--  -->
+          <td>
+            <p><code><a href="machine_learn.html">machine_learn()</a></code> </p>
+          </td>
+          <td><p>Machine learning made easy</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="tune_models.html">tune_models()</a></code> </p>
+          </td>
+          <td><p>Tune multiple machine learning models using cross validation to optimize
 performance</p></td>
       </tr><tr>
         <!--  -->
@@ -164,18 +165,12 @@ performance</p></td>
           <p><code><a href="flash_models.html">flash_models()</a></code> </p>
         </td>
         <td><p>Train models without tuning for performance</p></td>
-      </tr><tr>
-        <!--  -->
-        <td>
-          <p><code><a href="plot.model_list.html">plot(<i>&lt;model_list&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Plot performance of models</p></td>
       </tr>
     </tbody><tbody>
       <tr>
         <th colspan="2">
           <h2 id="section-prediction" class="hasAnchor"><a href="#section-prediction" class="anchor"></a>Prediction</h2>
-          <p class="section-desc"><p>Make predictions from a trained model</p></p>
+          <p class="section-desc"><p>Make predictions from trained models</p></p>
         </th>
       </tr>
       <tr>
@@ -187,9 +182,41 @@ performance</p></td>
       </tr><tr>
         <!--  -->
         <td>
-          <p><code><a href="plot.hcai_predicted_df.html">plot(<i>&lt;hcai_predicted_df&gt;</i>)</a></code> </p>
+          <p><code><a href="plot.predicted_df.html">plot(<i>&lt;predicted_df&gt;</i>)</a></code> <code><a href="plot.predicted_df.html">plot_regression_predictions()</a></code> <code><a href="plot.predicted_df.html">plot_classification_predictions()</a></code> </p>
         </td>
         <td><p>Plot model predictions vs observed outcomes</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-model-interpretation" class="hasAnchor"><a href="#section-model-interpretation" class="anchor"></a>Model Interpretation</h2>
+          <p class="section-desc"><p>Understand models</p></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="evaluate.html">evaluate()</a></code> </p>
+        </td>
+        <td><p>Get model performance metrics</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="plot.model_list.html">plot(<i>&lt;model_list&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Plot performance of models</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="get_variable_importance.html">get_variable_importance()</a></code> </p>
+        </td>
+        <td><p>Get variable importance</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="plot_variable_importance.html">plot_variable_importance()</a></code> </p>
+        </td>
+        <td><p>Plot variable importance</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -287,27 +314,21 @@ performance</p></td>
       <tr>
         <!--  -->
         <td>
-          <p><code><a href="plot.hcai_predicted_df.html">plot(<i>&lt;hcai_predicted_df&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Plot model predictions vs observed outcomes</p></td>
-      </tr><tr>
-        <!--  -->
-        <td>
           <p><code><a href="plot.model_list.html">plot(<i>&lt;model_list&gt;</i>)</a></code> </p>
         </td>
         <td><p>Plot performance of models</p></td>
       </tr><tr>
         <!--  -->
         <td>
-          <p><code><a href="plot_classification_predictions.html">plot_classification_predictions()</a></code> </p>
+          <p><code><a href="plot.predicted_df.html">plot(<i>&lt;predicted_df&gt;</i>)</a></code> <code><a href="plot.predicted_df.html">plot_regression_predictions()</a></code> <code><a href="plot.predicted_df.html">plot_classification_predictions()</a></code> </p>
         </td>
-        <td><p>Plot predictions from a classification model</p></td>
+        <td><p>Plot model predictions vs observed outcomes</p></td>
       </tr><tr>
         <!--  -->
         <td>
-          <p><code><a href="plot_regression_predictions.html">plot_regression_predictions()</a></code> </p>
+          <p><code><a href="plot_variable_importance.html">plot_variable_importance()</a></code> </p>
         </td>
-        <td><p>Plot predictions from a regression model</p></td>
+        <td><p>Plot variable importance</p></td>
       </tr><tr>
         <!--  -->
         <td>
@@ -344,6 +365,20 @@ performance</p></td>
     </tbody><tbody>
       <tr>
         <th colspan="2">
+          <h2 id="section-saving-and-loading-models" class="hasAnchor"><a href="#section-saving-and-loading-models" class="anchor"></a>Saving and Loading Models</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="save_models.html">save_models()</a></code> <code><a href="save_models.html">load_models()</a></code> </p>
+        </td>
+        <td><p>Save models to disk and load models from disk</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
           <h2 id="section-data" class="hasAnchor"><a href="#section-data" class="anchor"></a>Data</h2>
           <p class="section-desc"><p>Supplied datasets</p></p>
         </th>
@@ -364,12 +399,14 @@ performance</p></td>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#section-model-training">Model Training</a></li>
       <li><a href="#section-prediction">Prediction</a></li>
+      <li><a href="#section-model-interpretation">Model Interpretation</a></li>
       <li><a href="#section-data-preparation">Data Preparation</a></li>
       <li><a href="#section-data-manipulation">Data Manipulation</a></li>
       <li><a href="#section-data-profiling">Data Profiling</a></li>
       <li><a href="#section-connect-to-databases">Connect to Databases</a></li>
       <li><a href="#section-visualization">Visualization</a></li>
       <li><a href="#section-logging">Logging</a></li>
+      <li><a href="#section-saving-and-loading-models">Saving and Loading Models</a></li>
       <li><a href="#section-data">Data</a></li>
     </ul>
   </div>
@@ -386,8 +423,6 @@ performance</p></td>
 
       </footer>
    </div>
-
-  
 
   </body>
 </html>

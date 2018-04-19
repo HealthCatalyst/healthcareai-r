@@ -33,15 +33,16 @@ Handy utility to build a connection string to pass into
 \code{DBI::dbConnect}. Accepts trusted connections or username/password.
 }
 \examples{
+\dontrun{
 my_con <- build_connection_string(server = "localhost")
-# con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con) # nolint
+con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con)
 
 # with username and password
 my_con <- build_connection_string(server = "localhost",
                                   user_id = "jules.winnfield",
                                   password = "pathoftherighteous")
-# con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con) #nolint
-
+con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con)
+}
 }
 \seealso{
 \code{\link{db_read}}

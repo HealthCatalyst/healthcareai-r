@@ -6,7 +6,7 @@
 #' @noRd
 print.model_list <- function(x, ...) {
   if (length(x)) {
-    x <- change_pr_metric(x)
+    x <- change_metric_names(x)
     rinfo <- extract_model_info(x)
     out <- paste0(
       "Algorithms Trained: ", paste(rinfo$algs, collapse = ", "),
@@ -23,14 +23,14 @@ print.model_list <- function(x, ...) {
         paste0("\n\nModels tuned via ", x[[1]]$control$number, "-fold cross validation ",
                "over ", nrow(x[[1]]$results), " combinations of hyperparameter values.",
                "\nBest model: ", rinfo$best_model_name,
-               "\n", rinfo$metric, " = ", round(rinfo$best_model_perf, 2),
+               "\n", format_performance(attr(x, "performance")),
                "\nOptimal hyperparameter values:", "\n  ", format_tune(rinfo$best_model_tune)
         )
       } else {
         paste0("\n\nModels have not been tuned. Performance estimated via ",
                x[[1]]$control$number, "-fold cross validation at fixed hyperparameter values.",
                "\nBest model: ", rinfo$best_model_name,
-               "\n", rinfo$metric, " = ", round(rinfo$best_model_perf, 2),
+               "\n", format_performance(attr(x, "performance")),
                "\nUser-selected hyperparameter values:", "\n  ", format_tune(rinfo$best_model_tune)
         )
       }
@@ -53,14 +53,14 @@ print.model_list <- function(x, ...) {
 summary.model_list <- function(object, ...) {
   if (!length(object))
     stop("object is empty.")
-  object <- change_pr_metric(object)
+  object <- change_metric_names(object)
   rinfo <- extract_model_info(object)
   out <-
     if (rinfo$tuned) {
       paste0("Models trained: ", rinfo$timestamp,
              "\n\nModels tuned via ", object[[1]]$control$number, "-fold cross validation ",
              "over ", nrow(object[[1]]$results), " combinations of hyperparameter values.",
-             "\nBest performance: ", rinfo$metric, " = ", round(rinfo$best_model_perf, 2),
+             "\nBest performance: ", format_performance(attr(object, "performance")),
              "\nBy ", rinfo$best_model_name, " with hyperparameters:\n  ",
              format_tune(rinfo$best_model_tune))
     } else {
@@ -68,7 +68,7 @@ summary.model_list <- function(object, ...) {
              "\n\nModels have not been tuned. Performance estimated via ",
              object[[1]]$control$number, "-fold cross validation at fixed hyperparameter values.",
              "\nBest algorithm: ", rinfo$best_model_name, " with ",
-             rinfo$metric, " = ", round(rinfo$best_model_perf, 2))
+             format_performance(attr(object, "performance")))
     }
   cat(out)
   cat("\n\nOut-of-fold performance of all trained models:\n\n")
@@ -108,7 +108,7 @@ plot.model_list <- function(x, print = TRUE, ...) {
   if (!attr(x, "tuned"))
     message("No tuning was done, so there's not much to plot. Use `tune_models` tune hyperparameters, ",
             "or use `plot(predict(x))` to plot predictions on training data.")
-  x <- change_pr_metric(x)
+  x <- change_metric_names(x)
   params <- purrr::map(x, ~ as.character(.x$modelInfo$parameters$parameter))
   bounds <- purrr::map_df(x, function(m) range(m$results[[m$metric]]))
   y_range <- c(min(bounds[1, ]), max(bounds[2, ]))
@@ -159,17 +159,25 @@ plot.model_list <- function(x, print = TRUE, ...) {
   return(invisible(gg))
 }
 
-if (FALSE) {
-  # This is tricky because finalModel is a ranger (or whatever) class object,
-  # not a train object.
-  evaluate.model_list <- function(x) {
-    f <- if (x[[1]]$maximize) max else min
-    each_best <- purrr::map_dbl(x, ~ f(.x$results[[.x$metric]]))
-    which_best <- which(f(each_best) == each_best)[1]
-    message("Returning the best model, a ", names(which_best))
-    out <- x[[which_best]]$finalModel
-    return(out)
+#' @export
+`[.model_list` <- function(x, i) {
+  attrs <- attributes(x)
+  if (is.logical(i)) {
+    i <- which(i)
+  } else if (is.character(i)) {
+    i <- which(names(x) %in% i)
   }
+  # Training data is held in first model only; move it there if it's not staying
+  if (!1 %in% i)
+    x[[min(i)]]$trainingData <- x[[1]]$trainingData
+  # Rebuild the model_list, keeping the old timestamp
+  x <-
+    as.model_list(listed_models = .subset(x, i),
+                  target = attrs$target,
+                  tuned = attrs$tuned,
+                  positive_class = attrs$positive_class) %>%
+    structure(timestamp = attrs$timestamp)
+  return(x)
 }
 
 #' Get info from a model_list
@@ -192,10 +200,12 @@ extract_model_info <- function(x) {
   best_model_perf <- best_metrics[[best_model]]
   best_model_tune <-
     x[[best_model]]$bestTune
+  positive_class <- attr(x, "positive_class")
   list(
     m_class = m_class,
     algs = algs,
     target = target,
+    positive_class = positive_class,
     metric = metric,
     best_model_name = best_model_name,
     best_model_perf = best_model_perf,
@@ -216,6 +226,11 @@ format_tune <- function(best_tune) {
   best_tune %>%
     purrr::map_chr(as.character) %>%
     paste(names(.), ., sep = " = ", collapse = "\n  ")
+}
+
+format_performance <- function(perf) {
+  round(perf, 2) %>%
+    paste(names(.), ., sep = " = ", collapse = ", ")
 }
 
 #' Class check

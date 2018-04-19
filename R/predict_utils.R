@@ -1,25 +1,25 @@
 #########################################
-### S3 generics for hcai_predicted_df ###
+### S3 generics for predicted_df ###
 #########################################
 
 #' Class check
 #' @param x object
 #' @return logical
 #' @export
-is.hcai_predicted_df <- function(x) "hcai_predicted_df" %in% class(x)
+is.predicted_df <- function(x) "predicted_df" %in% class(x)
 
 # print method for predicted data frame
 #' @export
-print.hcai_predicted_df <- function(x, ...) {
-  x <- change_pr_metric(x)
+print.predicted_df <- function(x, ...) {
+  x <- change_metric_names(x)
   mi <- attr(x, "model_info")
   mes <- paste0("\"predicted_", mi$target, "\" predicted by ",
                 mi$algorithm, " last trained: ", mi$timestamp,
                 "\nPerformance in training: ", mi$metric, " = ",
                 round(mi$performance, 2), "\n")
   message(mes)
-  # Avoid dispatching print.hcai_prepped_df:
-  y <- structure(x, class = class(x)[!stringr::str_detect(class(x), "^hcai")])
+  # Avoid dispatching print.prepped_df:
+  y <- structure(x, class = class(x)[!stringr::str_detect(class(x), "^(predicted)|(prepped)")])
   print(y)
   return(invisible(x))
 }
@@ -31,7 +31,7 @@ print.hcai_predicted_df <- function(x, ...) {
 #' Determine whether to prep_data before making predictions
 #' @noRd
 determine_prep <- function(object, newdata, mi = extract_model_info(object)) {
-  if ("recipe" %in% names(attributes(object)) && !inherits(newdata, "hcai_prepped_df")) {
+  if ("recipe" %in% names(attributes(object)) && !inherits(newdata, "prepped_df")) {
     # There is a recipe and newdata doesn't have prepped class.
     # Check to see if it looks like newdata may have prepped, warn if so, then prep
     if (dfs_compatible(dplyr::select(object[[1]]$trainingData, -.outcome),

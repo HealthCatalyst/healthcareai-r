@@ -4,8 +4,8 @@
 \alias{machine_learn}
 \title{Machine learning made easy}
 \usage{
-machine_learn(d, ..., outcome, models, tune = TRUE, n_folds = 5,
-  tune_depth = 10, impute = TRUE)
+machine_learn(d, ..., outcome, models, tune = TRUE, positive_class,
+  n_folds = 5, tune_depth = 10, impute = TRUE)
 }
 \arguments{
 \item{d}{A data frame}
@@ -23,6 +23,12 @@ default. See \code{\link{supported_models}} for details.}
 \code{\link{tune_models}}. If FALSE, models will be trained via
 \code{\link{flash_models}} which is substantially faster but produces
 less-predictively powerful models.}
+
+\item{positive_class}{For classification only, which outcome level is the
+"yes" case, i.e. should be associated with high probabilities? Defaults to
+"Y" or "yes" if present, otherwise is the first level of the outcome
+variable (first alphabetically if the training data outcome was not already
+a factor).}
 
 \item{n_folds}{How many folds to use to assess out-of-fold accuracy? Default
 = 5. Models are evaluated on out-of-fold predictions whether tune is TRUE

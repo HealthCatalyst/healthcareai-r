@@ -57,10 +57,10 @@
 #'   standard deviation of 1. Default is FALSE.
 #' @param make_dummies Logical. If TRUE (default), dummy columns will be created
 #'   for categorical variables.
-#' @param add_levels Logical. If TRUE (defaults), "other" and "hcai_missing"
+#' @param add_levels Logical. If TRUE (defaults), "other" and "missing"
 #'   will be added to all nominal columns. This is protective in deployment: new
 #'   levels found in deployment will become "other" and missingness in
-#'   deployment can become "hcai_missing" if the nominal imputation method is
+#'   deployment can become "missing" if the nominal imputation method is
 #'   "new_category". If FALSE, these levels may be added to some columns
 #'   depending on details of imputation and collapse_rare_factors.
 #' @param factor_outcome Logical. If TRUE (default) and if all entries in
@@ -204,6 +204,10 @@ prep_data <- function(d,
       })
       # If outcome is binary 0/1, convert to N/Y -----------------------------
       if (factor_outcome && all(outcome_vec %in% 0:1)) {
+        if (!is.numeric(outcome_vec))
+          stop("factor_outcome is TRUE, but ", outcome_name, " is a character",
+               "-type variable with 0s and 1s. Consider making it numeric with ",
+               "`as.numeric(as.character())")
         recipe <- recipe %>%
           recipes::step_bin2factor(all_outcomes(), levels = c("Y", "N"))
       }
@@ -232,8 +236,10 @@ prep_data <- function(d,
     if (length(nom_preds) && all(nom_preds %in% removing))
       stop("All your categorical columns will be removed because they have ",
            "near-zero variance, which will break prep_data. ",
-           "We're working on a fix; in the meantime, either remove these ",
-           "NZV columns before prep_data or set remove_near_zero_variance = FALSE:\n",
+           "Please let us know that you've encountered this error ",
+           "here - https://github.com/HealthCatalyst/healthcareai-r/issues/new - ",
+           "and we will work on a fix. In the meantime, either remove these ",
+           "NZV columns before prep_data or set remove_near_zero_variance = FALSE.\n  ",
            paste(removing, collapse = ", "))
 
     # Convert date columns to useful features and remove original. ------------
@@ -332,7 +338,7 @@ prep_data <- function(d,
                               threshold = fac_thresh)
       }
 
-      # Re-add protective levels if hcai_missing dropped by step_other
+      # Re-add protective levels if missing dropped by step_other
       if (add_levels)
         recipe <- step_add_levels(recipe, all_nominal(), - all_outcomes())
 
@@ -359,7 +365,9 @@ prep_data <- function(d,
   ## near zero variance
   if ("step_nzv" %in% steps &&
       length(nzv_removed <- recipe$steps[[which(steps == "step_nzv")]]$removals))
-    warning("Removing these near-zero variance columns: ",
+    message("Removing the following ", length(nzv_removed), " near-zero variance column(s). ",
+            "If you don't want to remove them, call prep_data with ",
+            "remove_near_zero_variance = FALSE.\n  ",
             paste(nzv_removed, collapse = ", "))
 
   # Remove outcome if recipe was provided but outcome not present
@@ -370,14 +378,14 @@ prep_data <- function(d,
   attr(recipe, "ignored_columns") <- unname(ignored)
   attr(d, "recipe") <- recipe
   d <- tibble::as_tibble(d)
-  class(d) <- c("hcai_prepped_df", class(d))
+  class(d) <- c("prepped_df", class(d))
 
   return(d)
 }
 
 # print method for prep_data
 #' @export
-print.hcai_prepped_df <- function(x, ...) {
+print.prepped_df <- function(x, ...) {
   message("healthcareai-prepped data. Recipe used to prepare data:\n")
   print(attr(x, "recipe"))
   message("Current data:\n")

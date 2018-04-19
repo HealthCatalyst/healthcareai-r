@@ -56,8 +56,6 @@
 
 </script>
 
-
-
   </head>
 
   <body>
@@ -87,10 +85,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/site_only/healthcareai.html">Getting Started with healthcareai</a>
+      <a href="../articles/site_only/healthcareai.html">Getting Started</a>
     </li>
     <li>
       <a href="../articles/site_only/db_connections.html">Database Connections</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/deploy_model.html">Deploying a model</a>
     </li>
     <li>
       <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
@@ -119,7 +120,6 @@
   </a>
 </li>
       </ul>
-      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -127,7 +127,7 @@
       
       </header>
 
-<div class="row">
+      <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Convert MSDRGs into a "base DRG" and complication level</h1>
@@ -138,7 +138,7 @@
     <p>Convert MSDRGs into a "base DRG" and complication level</p>
     
 
-    <pre class="usage"><span class='fu'>separate_drgs</span>(<span class='no'>drgs</span>)</pre>
+    <pre class="usage"><span class='fu'>separate_drgs</span>(<span class='no'>drgs</span>, <span class='kw'>remove_age</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -146,6 +146,10 @@
     <tr>
       <th>drgs</th>
       <td><p>character vector of MSDRG descriptions, e.g. MSDRGDSC</p></td>
+    </tr>
+    <tr>
+      <th>remove_age</th>
+      <td><p>logical; if TRUE will remove age descriptions</p></td>
     </tr>
     </table>
     
@@ -165,13 +169,17 @@
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='no'>MSDRGs</span> <span class='kw'>&lt;-</span> <span class='fu'>c</span>(<span class='st'>"ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W CC"</span>,
             <span class='st'>"ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W MCC"</span>,
-            <span class='st'>"ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W/O CC/MCC"</span>)
-<span class='fu'>separate_drgs</span>(<span class='no'>MSDRGs</span>)</div><div class='output co'>#&gt; # A tibble: 3 x 3
+            <span class='st'>"ACUTE LEUKEMIA W/O MAJOR O.R. PROCEDURE W/O CC/MCC"</span>,
+            <span class='st'>"SIMPLE PNEUMONIA &amp; PLEURISY"</span>,
+            <span class='st'>"SIMPLE PNEUMONIA &amp; PLEURISY AGE 0-17"</span>)
+<span class='fu'>separate_drgs</span>(<span class='no'>MSDRGs</span>, <span class='kw'>remove_age</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; # A tibble: 5 x 3
 #&gt;   msdrg                           base_msdrg                  msdrg_complicati…
 #&gt;   &lt;chr&gt;                           &lt;chr&gt;                       &lt;chr&gt;            
 #&gt; 1 ACUTE LEUKEMIA W/O MAJOR O.R. … ACUTE LEUKEMIA W/O MAJOR O… complication     
 #&gt; 2 ACUTE LEUKEMIA W/O MAJOR O.R. … ACUTE LEUKEMIA W/O MAJOR O… major complicati…
-#&gt; 3 ACUTE LEUKEMIA W/O MAJOR O.R. … ACUTE LEUKEMIA W/O MAJOR O… absent complicat…</div></pre>
+#&gt; 3 ACUTE LEUKEMIA W/O MAJOR O.R. … ACUTE LEUKEMIA W/O MAJOR O… absent complicat…
+#&gt; 4 SIMPLE PNEUMONIA &amp; PLEURISY     SIMPLE PNEUMONIA &amp; PLEURISY absent complicat…
+#&gt; 5 SIMPLE PNEUMONIA &amp; PLEURISY AG… SIMPLE PNEUMONIA &amp; PLEURISY absent complicat…</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -199,8 +207,6 @@
 
       </footer>
    </div>
-
-  
 
   </body>
 </html>

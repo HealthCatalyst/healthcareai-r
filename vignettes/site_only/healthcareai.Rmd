@@ -133,9 +133,17 @@ flash_models(d = prepped_training_data,
 
 In this case we sacrificed just 0.01 AUPR versus tuning the models. In our experience, that's on the small side of typical. A good workflow is often to do all of your development using `flash_models`, and as a final step before putting a model into production, retrain the model using `tune_models`.
 
+# Variable Importance
+
+You can see how important each "feature" (aka predictor, aka variable) was for making predictions by calling `get_variable_importance` or `plot_variable_importance` on your model object.
+
+```{r}
+plot_variable_importance(models)
+```
+
 # Prediction
 
-`predict` will automatically use the best-performing model from training (evaluated out-of-fold in cross validation). If no new data is passed to `predict` it will make predictions on the training dataset. The predicted probabilities appear in the `predicted_diabetes` column.
+`predict` will automatically use the best-performing model from training (evaluated out-of-fold in cross validation). If no new data is passed to `predict` it will return out-of-fold predictions from training. The predicted probabilities appear in the `predicted_diabetes` column.
 
 ```{r}
 predict(models)
@@ -147,6 +155,25 @@ To get predictions on a new dataset, pass the new data to `predict`, and it will
 test_predictions <- predict(models, split_data$test)
 plot(test_predictions)
 ```
+
+
+# Saving, Moving, and Loading Models
+
+Everything we have done above happens "in memory". It's all within one R session, so there's no need to save anything to disk or load anything back into R. Putting a machine learning model in production typically means moving the model into a production environment. To do that, save the model with `save_models` function. 
+
+```{r, eval = FALSE}
+save_models(models, file = "my_models.RDS")
+```
+
+The above code will store the `models` object with all its metadata in the `my_models.RDS` file in the working directory, which you can identify with `getwd()`. You can move that file to any other directory or machine, even across operating systems, and pull it back into R with the `load_models` function. 
+
+The only tricky thing here is you have to direct `load_models` to the directory that the model file is in. If you don't provide a filepath, i.e. call `load_models()`, you'll get a dialog box from which you can choose your model file. Otherwise, you can provide `load_models` an absolute path to the file, e.g. `load_models("C:/Users/user.name/Documents/diabetes/my_models.RDS")`, or a path relative to your working directory, which again you can find with `getwd()`, e.g. `load_models("data/my_models.RDS")`. If you put the models in the same directory as your R script or project, you can load the models without any file path.
+
+```{r, eval = FALSE}
+models <- load_models("my_models.RDS")
+```
+
+That will reestablish the `models` object in your R session. You can confirm this by clicking on the "Environment" tab in R Studio or running `ls()` to list all objects in your R session. 
 
 # A Regression Example
 

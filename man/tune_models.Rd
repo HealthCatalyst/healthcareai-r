@@ -5,27 +5,17 @@
 \title{Tune multiple machine learning models using cross validation to optimize
 performance}
 \usage{
-tune_models(d, outcome, model_class, models, n_folds = 5, tune_depth = 10,
-  tune_method = "random", metric, hyperparameters)
+tune_models(d, outcome, models, metric, positive_class, n_folds = 5,
+  tune_depth = 10, hyperparameters = NULL, model_class)
 }
 \arguments{
 \item{d}{A data frame}
 
 \item{outcome}{Name of the column to predict}
 
-\item{model_class}{"regression" or "classification". If not provided, this
-will be determined by the class of `outcome` with the determination
-displayed in a message.}
-
 \item{models}{Names of models to try, by default "rf" for random forest and
 "knn" for k-nearest neighbors. See \code{\link{supported_models}} for
 available models.}
-
-\item{n_folds}{How many folds to use in cross-validation? Default = 5.}
-
-\item{tune_depth}{How many hyperparameter combinations to try? Defualt = 10.}
-
-\item{tune_method}{How to search hyperparameter space? Default = "random".}
 
 \item{metric}{What metric to use to assess model performance? Options for
 regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
@@ -33,7 +23,29 @@ error), or "Rsquared." For classification: "ROC" (area under the receiver
 operating characteristic curve), or "PR" (area under the precision-recall
 curve).}
 
-\item{hyperparameters}{Currently not supported.}
+\item{positive_class}{For classification only, which outcome level is the
+"yes" case, i.e. should be associated with high probabilities? Defaults to
+"Y" or "yes" if present, otherwise is the first level of the outcome
+variable (first alphabetically if the training data outcome was not already
+a factor).}
+
+\item{n_folds}{How many folds to use in cross-validation? Default = 5.}
+
+\item{tune_depth}{How many hyperparameter combinations to try? Defualt = 10.}
+
+\item{hyperparameters}{Optional, a list of data frames containing
+hyperparameter values to tune over. If NULL (default) a random,
+\code{tune_depth}-deep search of the hyperparameter space will be
+performed. If provided, this overrides tune_depth. Should be a named list
+of data frames where the names of the list correspond to models (e.g. "rf")
+and each column in the data frame contains hyperparameter values. See
+\code{healthcareai:::get_random_hyperparameters()} for a template. If only
+one model is specified to the \code{models} argument, the data frame can be
+provided bare to this argument.}
+
+\item{model_class}{"regression" or "classification". If not provided, this
+will be determined by the class of `outcome` with the determination
+displayed in a message.}
 }
 \value{
 A model_list object
@@ -68,13 +80,21 @@ summary(m)
 # Plot performance over hyperparameter values for each algorithm
 plot(m)
 
-# Extract confusion matrix for random forest (the model with best-performing
-# hyperparameter values is used)
-caret::confusionMatrix(m$`Random Forest`, norm = "none")
-
-# Compare performance of algorithms at best hyperparameter values
-rs <- resamples(m)
-dotplot(rs)
+# To specify hyperparameter values to tune over, pass a data frame
+# of hyperparameter values to the hyperparameters argument:
+rf_hyperparameters <-
+  expand.grid(
+    mtry = 1:5,
+    splitrule = c("gini", "extratrees"),
+    min.node.size = 1
+  )
+grid_search_models <-
+  tune_models(d = d,
+              outcome = diabetes,
+              models = "rf",
+              hyperparameters = list(rf = rf_hyperparameters)
+  )
+plot(grid_search_models)
 }
 }
 \seealso{

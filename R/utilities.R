@@ -10,8 +10,8 @@ missing_check <- function(d, col_name) {
   if (!any(is.na(dplyr::pull(d, !!col_name)))) {
     return(TRUE)
   } else {
-    stop("Fill in missingness in ", rlang::get_expr(col_name),
-         " before calling ", match.call())
+    stop("There is missingness in ", rlang::get_expr(col_name),
+         " that must be filled in. Consider using `impute()`.")
   }
 }
 
@@ -84,20 +84,31 @@ get_classes_sorted <- function(d) {
 #' @param object model_list
 #' @return model_list
 #' @noRd
-change_pr_metric <- function(object) {
+change_metric_names <- function(object) {
+  metrics <- get_metric_names()
   if (is.model_list(object)) {
-    # AUC is caret's code for PR
-    if (object[[1]]$metric == "AUC") {
       for (i in seq_along(object)) {
-        object[[i]]$metric <- "PR"
-        names(object[[i]]$results)[names(object[[i]]$results) == "AUC"] <- "PR"
+        switch_row <- which(metrics$caret == object[[i]]$metric)
+        object[[i]]$metric <- metrics$ours[switch_row]
+        names(object[[i]]$results)[names(object[[i]]$results) == metrics$caret[switch_row]] <-
+          metrics$ours[switch_row]
       }
-    }
-  } else if (is.hcai_predicted_df(object)) {
-    if (attr(object, "model_info")$metric == "AUC")
-      attr(object, "model_info")$metric <- "PR"
+  } else if (is.predicted_df(object)) {
+    attr(object, "model_info")$metric <-
+      metrics$ours[metrics$caret == attr(object, "model_info")$metric]
   }
   return(object)
+}
+
+#' Returns the order of performance of models in m, with 1 being best
+#' @noRd
+rank_models <- function(m) {
+  mi <- extract_model_info(m)
+  metric <-
+    get_metric_names() %>%
+    dplyr::filter(caret == mi$metric)
+  perf <- do.call(rbind, purrr::map(names(m), ~ evaluate(m[.x])))
+  order(perf[, metric$ours], decreasing = m[[1]]$maximize)
 }
 
 #' Function to skip specific tests if they are not being run on Appveyor.
