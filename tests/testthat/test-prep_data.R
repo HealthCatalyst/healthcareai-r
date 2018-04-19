@@ -509,3 +509,10 @@ test_that("data prepped on existing recipe returns ID columns", {
   setdiff(names(d_reprep),
           names(prep_data(d_test, recipe = attr(d_prep, "recipe"))))
 })
+
+test_that("prep_data outcome or ignored columns can be provided quoted", {
+  std <- prep_data(d_train, song_id, state, outcome = is_ween)
+  expect_equal(prep_data(d_train, song_id, state, outcome = "is_ween"), std)
+  expect_equal(prep_data(d_train, song_id, "state", outcome = is_ween), std)
+  expect_equal(prep_data(d_train, "song_id", "state", outcome = "is_ween"), std)
+})

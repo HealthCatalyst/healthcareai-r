@@ -125,3 +125,10 @@ skip_on_not_appveyor <- function() {
     }
     testthat::skip("Not on Appveyor")
 }
+
+#' Whether var is quo or character returns d without it
+select_not <- function(d, var) {
+  if (rlang::is_quosure(var))
+    var <- rlang::quo_name(var)
+  d[, -which(names(d) %in% var), drop = FALSE]
+}

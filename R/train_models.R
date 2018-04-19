@@ -16,7 +16,7 @@ train_models <- function(d, outcome, models, metric, train_control, hyperparamet
       message(mes, caret::getModelInfo(model)[[1]]$label)
 
       # Make initial list of arguments to pass to train
-      train_args <- list(x = dplyr::select(d, -!!outcome),
+      train_args <- list(x = select_not(d, outcome),
                          y = dplyr::pull(d, !!outcome),
                          method = model,
                          metric = metric,

@@ -254,3 +254,8 @@ test_that("tune_ and flash_ issues informative errors if missingness in predicto
   expect_error(flash_models(with_miss, age), "impute")
   expect_error(machine_learn(with_miss, outcome = diabetes), NA)
 })
+
+test_that("outcome can be provided quoted", {
+  expect_s3_class(m <- tune_models(test_df, "diabetes"), "model_list")
+  expect_s3_class(predict(m), "predicted_df")
+})
