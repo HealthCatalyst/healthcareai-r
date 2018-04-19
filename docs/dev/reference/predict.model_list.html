@@ -56,8 +56,6 @@
 
 </script>
 
-
-
   </head>
 
   <body>
@@ -82,7 +80,7 @@
         <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Vignettes
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -91,6 +89,9 @@
     </li>
     <li>
       <a href="../articles/site_only/db_connections.html">Database Connections</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/deploy_model.html">Deploying a model</a>
     </li>
     <li>
       <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
@@ -104,43 +105,42 @@
   <a href="../news/index.html">News</a>
 </li>
       </ul>
-      
+
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/HealthCatalyst/healthcareai-r">
     <span class="fa fa-github"></span>
-     
+
   </a>
 </li>
 <li>
   <a href="https://healthcare-ai.slack.com/">
     <span class="fa fa-users"></span>
-     
+
   </a>
 </li>
       </ul>
-      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
       </header>
 
-<div class="row">
+      <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Make predictions using the best-performing model from tuning</h1>
-    
+
     </div>
 
-    
+
     <p>Make predictions using the best-performing model from tuning</p>
-    
+
 
     <pre class="usage"><span class='co'># S3 method for model_list</span>
 <span class='fu'>predict</span>(<span class='no'>object</span>, <span class='no'>newdata</span>, <span class='no'>prepdata</span>, <span class='no'>...</span>)</pre>
-    
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -174,7 +174,7 @@ sent through `prep_data`.</p></td>
       <td><p>Unused.</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A tibble data frame: newdata with an additional column for the
@@ -183,29 +183,31 @@ sent through `prep_data`.</p></td>
   probabilities. The tibble will have child class "predicted_df" and
   attribute "model_info" that contains information about the model used to
   make predictions.</p>
-    
+
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>The model and hyperparameter values with the best out-of-fold
   performance in model training according to the selected metric is used to
   make predictions. Prepping data inside `predict` has the advantage of
   returning your predictions with the newdata in its original format.</p>
-    
+
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='plot.predicted_df.html'>plot.predicted_df</a></code>, <code><a href='tune_models.html'>tune_models</a></code>,
-  <code><a href='prep_data.html'>prep_data</a></code></p></div>
-    
+    <p><code><a href='plot.predicted_df.html'>plot.predicted_df</a></code>, <code><a href='tune_models.html'>tune_models</a></code>,
+  <code><a href='prep_data.html'>prep_data</a></code></p>
+
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Tune models using only the first 40 rows to keep computation fast</span>
 
-<span class='no'>models</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='machine_learn.html'>machine_learn</a></span>(<span class='no'>pima_diabetes</span>[<span class='fl'>1</span>:<span class='fl'>40</span>, ], <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Training with cross validation: Random Forest</span></div><div class='output co'>#&gt; <span class='message'>Training with cross validation: k-Nearest Neighbors</span></div><div class='input'>
+<span class='no'>models</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='machine_learn.html'>machine_learn</a></span>(<span class='no'>pima_diabetes</span>[<span class='fl'>1</span>:<span class='fl'>40</span>, ], <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Training with cross validation: Random Forest</span></div><div class='output co'>#&gt; <span class='message'>Training with cross validation: k-Nearest Neighbors</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>*** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
+#&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='input'>
 <span class='co'># Make prediction on the next 10 rows. This uses the best-performing model from</span>
 <span class='co'># tuning cross validation, and it also prepares the new data in the same way as</span>
 <span class='co'># the training data was prepared.</span>
 
-<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>41</span>:<span class='fl'>50</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by k-Nearest Neighbors last trained: 2018-04-18 10:27:46</span>
+<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>41</span>:<span class='fl'>50</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by k-Nearest Neighbors last trained: 2018-04-19 02:35:48</span>
 #&gt; <span class='message'>Performance in training: AUROC = 0.71</span></div><div class='output co'>#&gt; # A tibble: 10 x 11
 #&gt;    diabetes predicted_diabe… patient_id pregnancies plasma_glucose diastolic_bp
 #&gt;  * &lt;chr&gt;               &lt;dbl&gt;      &lt;int&gt;       &lt;int&gt;          &lt;int&gt;        &lt;int&gt;
@@ -220,19 +222,19 @@ sent through `prep_data`.</p></td>
 #&gt;  9 Y                      1.         49           7            103           66
 #&gt; 10 N                      1.         50           7            105           NA
 #&gt; # ... with 5 more variables: skinfold &lt;int&gt;, insulin &lt;int&gt;, weight_class &lt;chr&gt;,
-#&gt; #   pedigree &lt;dbl&gt;, age &lt;int&gt;</div><div class='input'><span class='fu'>plot</span>(<span class='no'>predictions</span>)</div><div class='img'><img src='predict.model_list-1.png' alt='' width='576' height='288' /></div></pre>
+#&gt; #   pedigree &lt;dbl&gt;, age &lt;int&gt;</div><div class='input'><span class='fu'>plot</span>(<span class='no'>predictions</span>)</div><div class='img'><img src='predict.model_list-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
+
       <li><a href="#value">Value</a></li>
 
       <li><a href="#details">Details</a></li>
 
       <li><a href="#see-also">See also</a></li>
-      
+
       <li><a href="#examples">Examples</a></li>
     </ul>
 
@@ -250,8 +252,6 @@ sent through `prep_data`.</p></td>
 
       </footer>
    </div>
-
-  
 
   </body>
 </html>

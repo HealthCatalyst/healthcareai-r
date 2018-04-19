@@ -56,8 +56,6 @@
 
 </script>
 
-
-
   </head>
 
   <body>
@@ -82,7 +80,7 @@
         <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Vignettes
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -91,6 +89,9 @@
     </li>
     <li>
       <a href="../articles/site_only/db_connections.html">Database Connections</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/deploy_model.html">Deploying a model</a>
     </li>
     <li>
       <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
@@ -104,43 +105,42 @@
   <a href="../news/index.html">News</a>
 </li>
       </ul>
-      
+
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/HealthCatalyst/healthcareai-r">
     <span class="fa fa-github"></span>
-     
+
   </a>
 </li>
 <li>
   <a href="https://healthcare-ai.slack.com/">
     <span class="fa fa-users"></span>
-     
+
   </a>
 </li>
       </ul>
-      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
       </header>
 
-<div class="row">
+      <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Plot performance of models</h1>
-    
+
     </div>
 
-    
+
     <p>Plot performance of models</p>
-    
+
 
     <pre class="usage"><span class='co'># S3 method for model_list</span>
 <span class='fu'>plot</span>(<span class='no'>x</span>, <span class='kw'>print</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
-    
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -158,25 +158,27 @@
       <td><p>generic compatability</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>Plot of model performance as a function of algorithm and
   hyperparameter values tuned over. Generally called for the side effect of
   printing a plot, but the plot is also invisibly returned. The
   best-performing model within each algorithm will be plotted as a triangle.</p>
-    
+
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>models</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='tune_models.html'>tune_models</a></span>(<span class='no'>mtcars</span>, <span class='no'>mpg</span>, <span class='kw'>models</span> <span class='kw'>=</span> <span class='st'>"knn"</span>, <span class='kw'>tune_depth</span> <span class='kw'>=</span> <span class='fl'>5</span>)</div><div class='output co'>#&gt; <span class='message'>mpg looks numeric, so training regression algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Training with cross validation: k-Nearest Neighbors</span></div><div class='input'><span class='fu'>plot</span>(<span class='no'>models</span>)</div><div class='img'><img src='plot.model_list-1.png' alt='' width='576' height='288' /></div></pre>
+    <pre class="examples"><div class='input'><span class='no'>models</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='tune_models.html'>tune_models</a></span>(<span class='no'>mtcars</span>, <span class='no'>mpg</span>, <span class='kw'>models</span> <span class='kw'>=</span> <span class='st'>"knn"</span>, <span class='kw'>tune_depth</span> <span class='kw'>=</span> <span class='fl'>5</span>)</div><div class='output co'>#&gt; <span class='message'>mpg looks numeric, so training regression algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Training with cross validation: k-Nearest Neighbors</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>*** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
+#&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='input'><span class='fu'>plot</span>(<span class='no'>models</span>)</div><div class='img'><img src='plot.model_list-1.png' alt='' width='576' height='288' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
+
       <li><a href="#value">Value</a></li>
-      
+
       <li><a href="#examples">Examples</a></li>
     </ul>
 
@@ -194,8 +196,6 @@
 
       </footer>
    </div>
-
-  
 
   </body>
 </html>
