@@ -67,27 +67,26 @@ find_new_missingness <- function(d, recipe) {
 
 #' @title Convert character date columns to dates
 #'
-#' @description I try to convert columns ending in "DTS" to type Date. I'll take
-#' my best guess at the format and return a more standard one if I can. Times
-#' will be removed.
+#' @description This function is called in \code{\link{prep_data}} and so
+#'   shouldn't usually need to be called directly. It tries to convert columns
+#'   ending in "DTS" to type Date. It makes a best guess at the format and
+#'   return a more standard one if possible. Times are be removed.
 #'
 #' @param d A dataframe or tibble containing data to try to convert to dates.
 #'
-#' @return A tibble containing the converted date columns. If no columns
-#' needed conversion, the original data will be returned.
+#' @return A tibble containing the converted date columns. If no columns needed
+#'   conversion, the original data will be returned.
 #' @import purrr
 #' @importFrom lubridate guess_formats date
 #' @export
 #'
 #' @examples
 #' d <- tibble::tibble(a_DTS = c("2018-3-25", "2018-3-25"),
-#' b_nums = c(2, 4),
-#' c_DTS = c("03-25-2018", "03-25-2018"),
-#' d_chars = c("a", "b"),
-#' e_date = lubridate::mdy(c("3-25-2018", "3-25-2018")))
-#'
-#' d <- convert_date_cols(d)
-#'
+#'                     b_nums = c(2, 4),
+#'                     c_DTS = c("03-01-2018", "03-07-2018"),
+#'                     d_chars = c("a", "b"),
+#'                     e_date = lubridate::mdy(c("3-25-2018", "3-25-2018")))
+#' convert_date_cols(d)
 convert_date_cols <- function(d) {
   # Extract character date columns only
   col_names <- names(d)[map_lgl(names(d), ~ grepl("DTS$", .x))]
@@ -151,6 +150,7 @@ convert_date_cols <- function(d) {
   dd <- d[, col_names[order(col_names)]]
 
   # Convert dates in original data
+  stopifnot(all.equal(names(dd), d_dates$names))
   dd <- map2_df(dd, d_dates$working_format, function(x, y) {
     out <- date(as.POSIXct(x = x, format = y))
   })
