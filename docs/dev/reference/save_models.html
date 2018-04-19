@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Plot performance of models — plot.model_list • healthcareai</title>
+<title>Save models to disk and load models from disk — save_models • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,9 +25,12 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Plot performance of models — plot.model_list" />
+<meta property="og:title" content="Save models to disk and load models from disk — save_models" />
 
-<meta property="og:description" content="Plot performance of models" />
+<meta property="og:description" content="Note that model objects contain training data, except columns
+  ignored (patient_id in the example below). Therefore, if there is PHI in
+  the training data, the saved model object must be treated as PHI.
+  save_models issues a message saying as much." />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -56,6 +59,8 @@
 
 </script>
 
+
+
   </head>
 
   <body>
@@ -80,7 +85,7 @@
         <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Vignettes
-
+     
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -89,9 +94,6 @@
     </li>
     <li>
       <a href="../articles/site_only/db_connections.html">Database Connections</a>
-    </li>
-    <li>
-      <a href="../articles/site_only/deploy_model.html">Deploying a model</a>
     </li>
     <li>
       <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
@@ -105,80 +107,86 @@
   <a href="../news/index.html">News</a>
 </li>
       </ul>
-
+      
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/HealthCatalyst/healthcareai-r">
     <span class="fa fa-github"></span>
-
+     
   </a>
 </li>
 <li>
   <a href="https://healthcare-ai.slack.com/">
     <span class="fa fa-users"></span>
-
+     
   </a>
 </li>
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-
+      
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Plot performance of models</h1>
-
+    <h1>Save models to disk and load models from disk</h1>
+    
     </div>
 
+    
+    <p>Note that model objects contain training data, except columns
+  ignored (patient_id in the example below). Therefore, if there is PHI in
+  the training data, the saved model object must be treated as PHI.
+  <code>save_models</code> issues a message saying as much.</p>
+    
 
-    <p>Plot performance of models</p>
+    <pre class="usage"><span class='fu'>save_models</span>(<span class='no'>x</span>, <span class='kw'>filename</span> <span class='kw'>=</span> <span class='st'>"models.RDS"</span>)
 
-
-    <pre class="usage"><span class='co'># S3 method for model_list</span>
-<span class='fu'>plot</span>(<span class='no'>x</span>, <span class='kw'>print</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
-
+<span class='fu'>load_models</span>(<span class='no'>filename</span>)</pre>
+    
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>modellist object as returned by <code><a href='tune_models.html'>tune_models</a></code> or
-<code><a href='machine_learn.html'>machine_learn</a></code></p></td>
+      <td><p>model_list object</p></td>
     </tr>
     <tr>
-      <th>print</th>
-      <td><p>If TRUE (default) plot is printed</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>generic compatability</p></td>
+      <th>filename</th>
+      <td><p>File path to save model to or read model from, e.g.
+"models/my_models.RDS". Default for <code>save_models</code> is "models.RDS" in
+the working directory (<code>getwd()</code>). Default for <code>load_models</code> is
+to open a dialog box from which a file can be selected, in which case a
+message will issued with code to load the same file without interactivity.</p></td>
     </tr>
     </table>
-
+    
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Plot of model performance as a function of algorithm and
-  hyperparameter values tuned over. Generally called for the side effect of
-  printing a plot, but the plot is also invisibly returned. The
-  best-performing model within each algorithm will be plotted as a triangle.</p>
-
+    <p><code>load_models</code> returns the model_list which can be assigned to
+  any variable name</p>
+    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>models</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='tune_models.html'>tune_models</a></span>(<span class='no'>mtcars</span>, <span class='no'>mpg</span>, <span class='kw'>models</span> <span class='kw'>=</span> <span class='st'>"knn"</span>, <span class='kw'>tune_depth</span> <span class='kw'>=</span> <span class='fl'>5</span>)</div><div class='output co'>#&gt; <span class='message'>mpg looks numeric, so training regression algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Training with cross validation: k-Nearest Neighbors</span></div><div class='output co'>#&gt; <span class='message'></span>
-#&gt; <span class='message'>*** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
-#&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='input'><span class='fu'>plot</span>(<span class='no'>models</span>)</div><div class='img'><img src='plot.model_list-1.png' alt='' width='576' height='288' /></div></pre>
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='no'>m</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='machine_learn.html'>machine_learn</a></span>(<span class='no'>pima_diabetes</span>, <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>)
+<span class='fu'>save_models</span>(<span class='no'>m</span>, <span class='st'>"diabetes_models.RDS"</span>)
+<span class='co'># Restart R, move RDS file to another computer, etc.</span>
+<span class='no'>m2</span> <span class='kw'>&lt;-</span> <span class='fu'>load_models</span>(<span class='st'>"diabetes_models.RDS"</span>)
+<span class='fu'>all.equal</span>(<span class='no'>m</span>, <span class='no'>m2</span>)
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-
+      
       <li><a href="#value">Value</a></li>
-
+      
       <li><a href="#examples">Examples</a></li>
     </ul>
 
@@ -196,6 +204,8 @@
 
       </footer>
    </div>
+
+  
 
   </body>
 </html>

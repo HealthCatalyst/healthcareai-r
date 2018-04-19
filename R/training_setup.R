@@ -45,7 +45,7 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
     metric <- set_default_metric(model_class)
 
   # Make sure models are supported
-  models <- setup_models(models)
+  models <- check_models(models)
 
   return(list(d = d, outcome = outcome, model_class = model_class,
               models = models, metric = metric, recipe = recipe))
@@ -133,7 +133,7 @@ set_model_class <- function(model_class, outcome_class, outcome_chr) {
 }
 
 
-setup_models <- function(models) {
+check_models <- function(models) {
   available <- get_supported_models()
   unsupported <- models[!models %in% available]
   if (length(unsupported))
@@ -141,8 +141,6 @@ setup_models <- function(models) {
          paste(available, collapse = ", "),
          ". You supplied these unsupported algorithms: ",
          paste(unsupported, collapse = ", "))
-  # We use kknn and ranger, but user input is "knn" and "rf"
-  models <- translate_model_names(models)
   return(models)
 }
 
@@ -156,22 +154,12 @@ set_default_metric <- function(model_class) {
   }
 }
 
-setup_train_control <- function(tune_method, model_class, metric, n_folds) {
-  if (tune_method == "random") {
-    train_control <- caret::trainControl(method = "cv",
-                                        number = n_folds,
-                                        search = "random",
-                                        savePredictions = "final")
-  } else if (tune_method == "none") {
-    # Use grid CV if not tuning (e.g. via flash_models)
+setup_train_control <- function(model_class, metric, n_folds) {
+    # Always use grid. We'll make our own, one row if not tuning, in train_models
     train_control <- caret::trainControl(method = "cv",
                                          number = n_folds,
                                          search = "grid",
                                          savePredictions = "final")
-  } else {
-    stop("Currently tune_method = \"random\" is the only supported method",
-         " but you supplied tune_method = \"", tune_method, "\"")
-  }
   # trainControl defaults are good for regression. Change for classification
   if (model_class == "classification") {
     if (metric == "PR") {

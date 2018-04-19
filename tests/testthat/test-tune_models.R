@@ -1,14 +1,8 @@
 context("test-tune_models")
 
 # Setup ------------------------------------------------------------------------
-test_df <- na.omit(pima_diabetes)[1:200, ]
+test_df <- na.omit(pima_diabetes)[1:100, ]
 tm <- tune_models(test_df, diabetes)
-
-## Temporary test until grid search is implemented
-test_that("tune errors if tune_method isn't 'random'", {
-  expect_error(tune_models(test_df, plasma_glucose, tune_method = "grid"),
-               "random")
-})
 
 test_that("Error informatively if outcome class doesn't match model_class", {
   expect_error(tune_models(test_df, diabetes, model_class = "regression"), "categorical")
@@ -204,4 +198,63 @@ test_that("set_outcome_class sets levels as expected", {
   other <- factor(c("admit", "nonadmit"))
   expect_equal(levels(set_outcome_class(other))[1], "admit")
   expect_equal(levels(set_outcome_class(other, "nonadmit"))[1], "nonadmit")
+})
+
+test_that("tune models takes hyperparameter grid and tunes on it", {
+  rf_hyperparameters <-
+    expand.grid(
+      mtry = 1:5,
+      splitrule = c("gini", "extratrees"),
+      min.node.size = 1
+    )
+  grid_search_models <-
+    tune_models(d = test_df,
+                outcome = diabetes,
+                models = "rf",
+                hyperparameters = list(rf = rf_hyperparameters)
+    )
+  grid_tune <- grid_search_models$`Random Forest`$results
+
+  expect_setequal(1:5, grid_tune$mtry)
+  expect_setequal(c("gini", "extratrees"), as.character(grid_tune$splitrule))
+  expect_setequal(1, grid_tune$min.node.size)  # nolint
+})
+
+test_that("tune models takes a list of one-row data frames of hyperparameters and tunes on it", {
+  hp <-
+    list(
+      knn = data.frame(
+        kmax = 3,
+        distance = 1,
+        kernel = "cos"),
+      rf = data.frame(
+        mtry = 3,
+        splitrule = "extratrees",
+        min.node.size = 3)
+    )
+  m <- tune_models(test_df, diabetes, hyperparameters = hp)
+  expect_s3_class(m, "classification_list")
+  expect_true(all(purrr::map_int(m, ~ nrow(.x$results) == 1)))
+  expect_true(m$`Random Forest`$results$mtry == 3)
+})
+
+test_that("If only tuning one model, can provide hyperparameter grid outside list", {
+  hp <- expand.grid(mtry = c(3, 9), splitrule = "extratrees", min.node.size = c(1, 5))
+  expect_error(tune_models(test_df, diabetes, hyperparameters = hp), regexp = "data frame")
+  m <- tune_models(test_df, diabetes, models = "rf", hyperparameters = hp)
+  expect_s3_class(m, "classification_list")
+  expect_true(nrow(m$`Random Forest`$results) == 4)
+})
+
+test_that("tune_models, flash_models, and machine_learn issue PHI cautions", {
+  phi_present <- function(messages)
+    any(purrr::map_lgl(messages, stringr::str_detect, "PHI"))
+
+  tune_messages <- capture_messages(tune_models(test_df, diabetes))
+  flash_messages <- capture_messages(flash_models(test_df, diabetes))
+  ml_messages <- capture_messages(machine_learn(test_df, outcome = diabetes))
+
+  expect_true(phi_present(tune_messages))
+  expect_true(phi_present(flash_messages))
+  expect_true(phi_present(ml_messages))
 })

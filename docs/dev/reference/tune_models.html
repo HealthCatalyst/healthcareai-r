@@ -144,7 +144,7 @@ performance</p>
     
 
     <pre class="usage"><span class='fu'>tune_models</span>(<span class='no'>d</span>, <span class='no'>outcome</span>, <span class='no'>models</span>, <span class='no'>metric</span>, <span class='no'>positive_class</span>, <span class='kw'>n_folds</span> <span class='kw'>=</span> <span class='fl'>5</span>,
-  <span class='kw'>tune_depth</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>tune_method</span> <span class='kw'>=</span> <span class='st'>"random"</span>, <span class='no'>hyperparameters</span>, <span class='no'>model_class</span>)</pre>
+  <span class='kw'>tune_depth</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>hyperparameters</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>model_class</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -188,12 +188,16 @@ a factor).</p></td>
       <td><p>How many hyperparameter combinations to try? Defualt = 10.</p></td>
     </tr>
     <tr>
-      <th>tune_method</th>
-      <td><p>How to search hyperparameter space? Default = "random".</p></td>
-    </tr>
-    <tr>
       <th>hyperparameters</th>
-      <td><p>Currently not supported.</p></td>
+      <td><p>Optional, a list of data frames containing
+hyperparameter values to tune over. If NULL (default) a random,
+<code>tune_depth</code>-deep search of the hyperparameter space will be
+performed. If provided, this overrides tune_depth. Should be a named list
+of data frames where the names of the list correspond to models (e.g. "rf")
+and each column in the data frame contains hyperparameter values. See
+<code>healthcareai:::get_random_hyperparameters()</code> for a template. If only
+one model is specified to the <code>models</code> argument, the data frame can be
+provided bare to this argument.</p></td>
     </tr>
     <tr>
       <th>model_class</th>
@@ -240,13 +244,21 @@ displayed in a message.</p></td>
 <span class='co'># Plot performance over hyperparameter values for each algorithm</span>
 <span class='fu'>plot</span>(<span class='no'>m</span>)
 
-<span class='co'># Extract confusion matrix for random forest (the model with best-performing</span>
-<span class='co'># hyperparameter values is used)</span>
-<span class='kw pkg'>caret</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/caret/topics/confusionMatrix'>confusionMatrix</a></span>(<span class='no'>m</span>$<span class='no'>`Random Forest`</span>, <span class='kw'>norm</span> <span class='kw'>=</span> <span class='st'>"none"</span>)
-
-<span class='co'># Compare performance of algorithms at best hyperparameter values</span>
-<span class='no'>rs</span> <span class='kw'>&lt;-</span> <span class='fu'>resamples</span>(<span class='no'>m</span>)
-<span class='fu'>dotplot</span>(<span class='no'>rs</span>)
+<span class='co'># To specify hyperparameter values to tune over, pass a data frame</span>
+<span class='co'># of hyperparameter values to the hyperparameters argument:</span>
+<span class='no'>rf_hyperparameters</span> <span class='kw'>&lt;-</span>
+  <span class='fu'>expand.grid</span>(
+    <span class='kw'>mtry</span> <span class='kw'>=</span> <span class='fl'>1</span>:<span class='fl'>5</span>,
+    <span class='kw'>splitrule</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"gini"</span>, <span class='st'>"extratrees"</span>),
+    <span class='kw'>min.node.size</span> <span class='kw'>=</span> <span class='fl'>1</span>
+  )
+<span class='no'>grid_search_models</span> <span class='kw'>&lt;-</span>
+  <span class='fu'>tune_models</span>(<span class='kw'>d</span> <span class='kw'>=</span> <span class='no'>d</span>,
+              <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>,
+              <span class='kw'>models</span> <span class='kw'>=</span> <span class='st'>"rf"</span>,
+              <span class='kw'>hyperparameters</span> <span class='kw'>=</span> <span class='fu'>list</span>(<span class='kw'>rf</span> <span class='kw'>=</span> <span class='no'>rf_hyperparameters</span>)
+  )
+<span class='fu'>plot</span>(<span class='no'>grid_search_models</span>)
 <span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

@@ -6,7 +6,7 @@
 performance}
 \usage{
 tune_models(d, outcome, models, metric, positive_class, n_folds = 5,
-  tune_depth = 10, tune_method = "random", hyperparameters, model_class)
+  tune_depth = 10, hyperparameters = NULL, model_class)
 }
 \arguments{
 \item{d}{A data frame}
@@ -33,9 +33,15 @@ a factor).}
 
 \item{tune_depth}{How many hyperparameter combinations to try? Defualt = 10.}
 
-\item{tune_method}{How to search hyperparameter space? Default = "random".}
-
-\item{hyperparameters}{Currently not supported.}
+\item{hyperparameters}{Optional, a list of data frames containing
+hyperparameter values to tune over. If NULL (default) a random,
+\code{tune_depth}-deep search of the hyperparameter space will be
+performed. If provided, this overrides tune_depth. Should be a named list
+of data frames where the names of the list correspond to models (e.g. "rf")
+and each column in the data frame contains hyperparameter values. See
+\code{healthcareai:::get_random_hyperparameters()} for a template. If only
+one model is specified to the \code{models} argument, the data frame can be
+provided bare to this argument.}
 
 \item{model_class}{"regression" or "classification". If not provided, this
 will be determined by the class of `outcome` with the determination
@@ -74,13 +80,21 @@ summary(m)
 # Plot performance over hyperparameter values for each algorithm
 plot(m)
 
-# Extract confusion matrix for random forest (the model with best-performing
-# hyperparameter values is used)
-caret::confusionMatrix(m$`Random Forest`, norm = "none")
-
-# Compare performance of algorithms at best hyperparameter values
-rs <- resamples(m)
-dotplot(rs)
+# To specify hyperparameter values to tune over, pass a data frame
+# of hyperparameter values to the hyperparameters argument:
+rf_hyperparameters <-
+  expand.grid(
+    mtry = 1:5,
+    splitrule = c("gini", "extratrees"),
+    min.node.size = 1
+  )
+grid_search_models <-
+  tune_models(d = d,
+              outcome = diabetes,
+              models = "rf",
+              hyperparameters = list(rf = rf_hyperparameters)
+  )
+plot(grid_search_models)
 }
 }
 \seealso{

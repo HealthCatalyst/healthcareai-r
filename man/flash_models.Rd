@@ -5,7 +5,7 @@
 \title{Train models without tuning for performance}
 \usage{
 flash_models(d, outcome, models = c("rf", "knn"), metric, positive_class,
-  n_folds = 5, hyperparameters, model_class)
+  n_folds = 5, model_class)
 }
 \arguments{
 \item{d}{A data frame}
@@ -32,12 +32,6 @@ a factor).}
 2. Whie flash_models doesn't use cross validation to tune hyperparameters,
 it trains \code{n_folds} models to evaluate performance out of fold.}
 
-\item{hyperparameters}{Optional list of hyperparameters to use. If missing,
-default values will be used. If provided, must be a named list of named
-lists where the outer list contains models and the inner lists contain
-hyperparameter values. See
-\code{healthcareai:::get_hyperparameter_defaults()} for a template.}
-
 \item{model_class}{"regression" or "classification". If not provided, this
 will be determined by the class of `outcome` with the determination
 displayed in a message.}
@@ -50,36 +44,22 @@ Train models without tuning for performance
 }
 \details{
 This function has two major differences from
-  \code{\link{tune_models}}: 1. It uses fixed hyperparameter values to train
-  models instead of using cross-validation to optimize hyperparameter values
-  for predictive performance, and, as a result, 2. It is much faster.
+  \code{\link{tune_models}}: 1. It uses fixed default hyperparameter values
+  to train models instead of using cross-validation to optimize
+  hyperparameter values for predictive performance, and, as a result, 2. It
+  is much faster.
+
+  If you want to train a model at a single set of non-default hyperparameter
+  values use \code{\link{tune_models}} and pass a single-row data frame to
+  the hyperparameters arguemet.
 }
 \examples{
 \dontrun{
 # Prepare data
 prepped_data <- prep_data(pima_diabetes, patient_id, outcome = diabetes)
 
-# Simplest use. Get models quickly at default hyperparameter values
+# Get models quickly at default hyperparameter values
 flash_models(prepped_data, diabetes)
-
-# Set non-default hyperparameter values by passing a list of lists to \\code{hyperparameters}
-models <-
-  flash_models(d = prepped_data,
-               outcome = diabetes,
-               hyperparameters = list(
-                 rf = list(
-                   mtry = 3,
-                   splitrule = "gini",
-                   min.node.size = 1
-                 ),
-                 knn = list(
-                   kmax = 3,
-                   distance = 2,
-                   kernel = "gaussian"
-                 )
-               )
-  )
-summary(models)
 
 # Speed comparison of no tuning with flash_models vs. tuning with tune_models:
 # ~40 seconds:
