@@ -49,7 +49,7 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Vignettes
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -78,13 +78,13 @@
 <li>
   <a href="https://github.com/HealthCatalyst/healthcareai-r">
     <span class="fa fa-github"></span>
-     
+
   </a>
 </li>
 <li>
   <a href="https://healthcare-ai.slack.com/">
     <span class="fa fa-users"></span>
-     
+
   </a>
 </li>
       </ul>
@@ -95,19 +95,19 @@
 </div>
 <!--/.navbar -->
 
-      
+
       </header><div class="row">
   <div class="col-md-9">
     <div class="page-header toc-ignore">
       <h1>Getting Started with healthcareai</h1>
-            
-      
-      
+
+
+
 
     </div>
 
-    
-    
+
+
 <div class="contents">
 <p>First we attach the healthcareai R package to make its functions available. If your package version is less than 2.0, none of the code here will work. You can check the package version with <code>packageVersion("healthcareai")</code>, and you can get the latest, cutting-edge development version with <code>install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r")</code>. If that doesn’t work, check out the <a href="transitioning.html">Transitioning vignette</a> for backup install methods.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(healthcareai)</a>
@@ -132,13 +132,14 @@
 <p>If you don’t want to fuss with details any more than necessary, <code>machine_learn</code> is the function for you. It makes it as easy as possible to implement machine learning models by putting all the detains in the background so that you don’t have to worry about them. Of course it might be wise to worry about them, and we’ll get to how to do that further down, but for now, you can automatically take care of problems in the data, do basic feature engineering, and tune multiple machine learning models using cross validation with <code>machine_learn</code>.</p>
 <p><code>machine_learn</code> always gets the name of the data frame, then any columns that should not be used by the model (uninformative columns, such as IDs), then the variable to be predicted with <code>outcome =</code>. If you want <code>machine_learn</code> to run faster, you can have that—at the expense of a bit of predictive power—by setting its <code>tune</code> argument to <code>FALSE</code>.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">quick_models &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/machine_learn.html">machine_learn</a></span>(pima_diabetes, patient_id, <span class="dt">outcome =</span> diabetes)</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co"># &gt; Warning: package 'bindrcpp' was built under R version 3.4.4</span></a>
-<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co"># &gt; Training new data prep recipe</span></a>
-<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="co"># &gt; Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></a>
-<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co"># &gt; diabetes looks categorical, so training classification algorithms.</span></a>
-<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co"># &gt; Training with cross validation: Random Forest</span></a>
-<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="co"># &gt; Warning: package 'caret' was built under R version 3.4.4</span></a>
-<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="co"># &gt; Training with cross validation: k-Nearest Neighbors</span></a></code></pre></div>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co"># &gt; Training new data prep recipe</span></a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co"># &gt; Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></a>
+<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="co"># &gt; diabetes looks categorical, so training classification algorithms.</span></a>
+<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co"># &gt; Training with cross validation: Random Forest</span></a>
+<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co"># &gt; Training with cross validation: k-Nearest Neighbors</span></a>
+<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="co"># &gt; </span></a>
+<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="co"># &gt; *** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span></a>
+<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="co"># &gt; *** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></a></code></pre></div>
 <p><code>machine_learn</code> has told us that it has created a recipe for data preparation (this allows us to do exactly the same data cleaning and feature engineering when you want predictions on a new dataset), is ignoring <code>patient_id</code> when tuning models as we told it to, is training classification algorithms because the outcome variable <code>diabetes</code> is categorical, and has executed cross validation for two machine learning models: random forests, and k-nearest neighbors. Let’s see what the models look like.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">quick_models</a>
 <a class="sourceLine" id="cb4-2" data-line-number="2"><span class="co"># &gt; Algorithms Trained: Random Forest, k-Nearest Neighbors</span></a>
@@ -230,7 +231,10 @@
 <a class="sourceLine" id="cb10-8" data-line-number="8"><span class="co"># &gt; You've chosen to tune 125 models (n_folds = 5 x tune_depth = 25 x length(models) = 1) on a 692 row dataset. This may take a while...</span></a>
 <a class="sourceLine" id="cb10-9" data-line-number="9"><span class="co"># &gt; Training with cross validation: Random Forest</span></a>
 <a class="sourceLine" id="cb10-10" data-line-number="10"><span class="co"># &gt; Warning in nominalTrainWorkflow(x = x, y = y, wts = weights, info =</span></a>
-<a class="sourceLine" id="cb10-11" data-line-number="11"><span class="co"># &gt; trainInfo, : There were missing values in resampled performance measures.</span></a></code></pre></div>
+<a class="sourceLine" id="cb10-11" data-line-number="11"><span class="co"># &gt; trainInfo, : There were missing values in resampled performance measures.</span></a>
+<a class="sourceLine" id="cb10-12" data-line-number="12"><span class="co"># &gt; </span></a>
+<a class="sourceLine" id="cb10-13" data-line-number="13"><span class="co"># &gt; *** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span></a>
+<a class="sourceLine" id="cb10-14" data-line-number="14"><span class="co"># &gt; *** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></a></code></pre></div>
 <p>We get a message saying the training may take a while because we’re training so many models, but in this case it takes just about 20 seconds to train all those models.</p>
 <p>We can examine how the model performs across hyperparameters by plotting the model object. It looks like extratrees is a superior split rule for this model, and larger values of minimum node size tend to do better.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw">plot</span>(models)</a></code></pre></div>
@@ -262,6 +266,7 @@
 <a class="sourceLine" id="cb12-20" data-line-number="20"><span class="co"># &gt;   mtry = 3</span></a>
 <a class="sourceLine" id="cb12-21" data-line-number="21"><span class="co"># &gt;   splitrule = extratrees</span></a>
 <a class="sourceLine" id="cb12-22" data-line-number="22"><span class="co"># &gt;   min.node.size = 1</span></a></code></pre></div>
+
 <p>In this case we sacrificed just 0.01 AUPR versus tuning the models. In our experience, that’s on the small side of typical. A good workflow is often to do all of your development using <code>flash_models</code>, and as a final step before putting a model into production, retrain the model using <code>tune_models</code>.</p>
 </div>
 </div>
@@ -301,11 +306,11 @@
 <div id="saving-moving-and-loading-models" class="section level1">
 <h1 class="hasAnchor">
 <a href="#saving-moving-and-loading-models" class="anchor"></a>Saving, Moving, and Loading Models</h1>
-<p>Everything we have done above happens “in memory”. It’s all within one R session, so there’s no need to save anything to disk or load anything back into R. Putting a machine learning model in production typically means moving the model into a production environment. To do that, save the model with <code>save</code> function.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="kw">save</span>(models, <span class="dt">file =</span> <span class="st">"my_models.RDA"</span>)</a></code></pre></div>
-<p>The above code will store the <code>models</code> object with all its metadata in the <code>my_models.RDA</code> file in the working directory, which you can identify with <code>getwd()</code>. You can move that file to any other directory or machine, even across operating systems, and pull it back into R with the <code>load</code> function.</p>
-<p>The only tricky thing here is you have to direct <code>load</code> to the directory that the model file is in. You can provide <code>load</code> an absolute path to the file, e.g. <code>load("C:/Users/user.name/Documents/diabetes/my_models.RDA")</code>, or a path relative to your working directory, which again you can find with <code>getwd()</code>, e.g. <code>load("data/my_models.RDA")</code>. If you put the models in the same directory as your R script or project, you can load the models without any file path.</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="kw">load</span>(<span class="st">"my_models.RDA"</span>)</a></code></pre></div>
+<p>Everything we have done above happens “in memory”. It’s all within one R session, so there’s no need to save anything to disk or load anything back into R. Putting a machine learning model in production typically means moving the model into a production environment. To do that, save the model with <code>save_models</code> function.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="kw"><a href="../../reference/save_models.html">save_models</a></span>(models, <span class="dt">file =</span> <span class="st">"my_models.RDS"</span>)</a></code></pre></div>
+<p>The above code will store the <code>models</code> object with all its metadata in the <code>my_models.RDS</code> file in the working directory, which you can identify with <code>getwd()</code>. You can move that file to any other directory or machine, even across operating systems, and pull it back into R with the <code>load_models</code> function.</p>
+<p>The only tricky thing here is you have to direct <code>load_models</code> to the directory that the model file is in. If you don’t provide a filepath, i.e. call <code><a href="../../reference/save_models.html">load_models()</a></code>, you’ll get a dialog box from which you can choose your model file. Otherwise, you can provide <code>load_models</code> an absolute path to the file, e.g. <code><a href="../../reference/save_models.html">load_models("C:/Users/user.name/Documents/diabetes/my_models.RDS")</a></code>, or a path relative to your working directory, which again you can find with <code>getwd()</code>, e.g. <code><a href="../../reference/save_models.html">load_models("data/my_models.RDS")</a></code>. If you put the models in the same directory as your R script or project, you can load the models without any file path.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">models &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/save_models.html">load_models</a></span>(<span class="st">"my_models.RDS"</span>)</a></code></pre></div>
 <p>That will reestablish the <code>models</code> object in your R session. You can confirm this by clicking on the “Environment” tab in R Studio or running <code>ls()</code> to list all objects in your R session.</p>
 </div>
 <div id="a-regression-example" class="section level1">
