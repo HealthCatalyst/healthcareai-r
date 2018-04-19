@@ -139,7 +139,7 @@
     
 
     <pre class="usage"><span class='fu'>flash_models</span>(<span class='no'>d</span>, <span class='no'>outcome</span>, <span class='kw'>models</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"rf"</span>, <span class='st'>"knn"</span>), <span class='no'>metric</span>, <span class='no'>positive_class</span>,
-  <span class='kw'>n_folds</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='no'>hyperparameters</span>, <span class='no'>model_class</span>)</pre>
+  <span class='kw'>n_folds</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='no'>model_class</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -181,14 +181,6 @@ a factor).</p></td>
 it trains <code>n_folds</code> models to evaluate performance out of fold.</p></td>
     </tr>
     <tr>
-      <th>hyperparameters</th>
-      <td><p>Optional list of hyperparameters to use. If missing,
-default values will be used. If provided, must be a named list of named
-lists where the outer list contains models and the inner lists contain
-hyperparameter values. See
-<code>healthcareai:::get_hyperparameter_defaults()</code> for a template.</p></td>
-    </tr>
-    <tr>
       <th>model_class</th>
       <td><p>"regression" or "classification". If not provided, this
 will be determined by the class of `outcome` with the determination
@@ -203,9 +195,13 @@ displayed in a message.</p></td>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This function has two major differences from
-  <code><a href='tune_models.html'>tune_models</a></code>: 1. It uses fixed hyperparameter values to train
-  models instead of using cross-validation to optimize hyperparameter values
-  for predictive performance, and, as a result, 2. It is much faster.</p>
+  <code><a href='tune_models.html'>tune_models</a></code>: 1. It uses fixed default hyperparameter values
+  to train models instead of using cross-validation to optimize
+  hyperparameter values for predictive performance, and, as a result, 2. It
+  is much faster.</p>
+<p>If you want to train a model at a single set of non-default hyperparameter
+  values use <code><a href='tune_models.html'>tune_models</a></code> and pass a single-row data frame to
+  the hyperparameters arguemet.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -218,27 +214,8 @@ displayed in a message.</p></td>
 <span class='co'># Prepare data</span>
 <span class='no'>prepped_data</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='prep_data.html'>prep_data</a></span>(<span class='no'>pima_diabetes</span>, <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>)
 
-<span class='co'># Simplest use. Get models quickly at default hyperparameter values</span>
+<span class='co'># Get models quickly at default hyperparameter values</span>
 <span class='fu'>flash_models</span>(<span class='no'>prepped_data</span>, <span class='no'>diabetes</span>)
-
-<span class='co'># Set non-default hyperparameter values by passing a list of lists to \code{hyperparameters}</span>
-<span class='no'>models</span> <span class='kw'>&lt;-</span>
-  <span class='fu'>flash_models</span>(<span class='kw'>d</span> <span class='kw'>=</span> <span class='no'>prepped_data</span>,
-               <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>,
-               <span class='kw'>hyperparameters</span> <span class='kw'>=</span> <span class='fu'>list</span>(
-                 <span class='kw'>rf</span> <span class='kw'>=</span> <span class='fu'>list</span>(
-                   <span class='kw'>mtry</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-                   <span class='kw'>splitrule</span> <span class='kw'>=</span> <span class='st'>"gini"</span>,
-                   <span class='kw'>min.node.size</span> <span class='kw'>=</span> <span class='fl'>1</span>
-                 ),
-                 <span class='kw'>knn</span> <span class='kw'>=</span> <span class='fu'>list</span>(
-                   <span class='kw'>kmax</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-                   <span class='kw'>distance</span> <span class='kw'>=</span> <span class='fl'>2</span>,
-                   <span class='kw'>kernel</span> <span class='kw'>=</span> <span class='st'>"gaussian"</span>
-                 )
-               )
-  )
-<span class='fu'>summary</span>(<span class='no'>models</span>)
 
 <span class='co'># Speed comparison of no tuning with flash_models vs. tuning with tune_models:</span>
 <span class='co'># ~40 seconds:</span>

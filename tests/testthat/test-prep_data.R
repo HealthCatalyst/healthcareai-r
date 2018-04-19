@@ -5,8 +5,6 @@ context("Testing prep_data")
 set.seed(7)
 # build data set to predict whether or not animal_id is a is_ween
 n <- 300
-sample_days <- c("03-23-2008", "04-13-2008", "10-10-2009", "12-19-2009",
-                 "05-27-2010", "07-20-2010", "09-22-2011", "01-13-2011")
 df <- data.frame(
   song_id = 1:n,
   length = rnorm(n, mean = 4, sd = 1),
@@ -17,16 +15,14 @@ df <- data.frame(
   guitar_flag = sample(c(0, 1), size = n, replace = T),
   drum_flag = sample(c(0, 1, NA), size = n, replace = T,
                      prob = c(0.45, 0.45, 0.1)),
-  date_col = lubridate::ymd("2002-03-04") + lubridate::days(sample(1:1000, n)),
-  posixct_col = lubridate::ymd("2004-03-04") + lubridate::days(sample(1:1000, n)),
-  col_DTS = lubridate::ymd("2006-03-01") + lubridate::days(sample(1:1000, n)),
-  char_DTS = sample(sample_days, n, replace = TRUE),
+  date_col = lubridate::ymd("2002-03-04") + lubridate::days(sample(1000, n)),
+  posixct_col = lubridate::ymd("2004-03-04") + lubridate::days(sample(1000, n)),
+  col_DTS = lubridate::ymd("2006-03-04") + lubridate::days(sample(1000, n)),
   missing82 = sample(1:10, n, replace = TRUE),
   missing64 = sample(100:300, n, replace = TRUE),
   state = sample(c("NY", "MA", "CT", "CA", "VT", "NH"), size = n, replace = T,
                  prob = c(0.18, 0.1, 0.1, 0.6, 0.01, 0.01))
 )
-df$char_DTS <- as.character(df$char_DTS)
 
 # give is_ween likeliness score
 df["is_ween"] <- df["length"] - 1 * df["weirdness"] + 2
@@ -90,11 +86,11 @@ test_that("Bad outcome columns throws an error", {
                regexp = "NA values")
 })
 
-test_that("Bad ignored columns throws a warning", {
-  expect_warning(prep_data(d = d_train, cowbell),
-                 regexp = "not found in d")
-  expect_warning(prep_data(d = d_train, cowbell, spoons),
-                 regexp = "not found in d")
+test_that("Bad ignored columns throws an error", {
+  expect_error(prep_data(d = d_train, cowbell),
+               regexp = "not found in d")
+  expect_error(prep_data(d = d_train, cowbell, spoons),
+               regexp = "not found in d")
 })
 
 test_that("prep_data works with just param d", {
@@ -290,6 +286,12 @@ test_that("recipe attr is a recipe class object", {
 
 test_that("only the first few rows of training data are stored in the recipe", {
   expect_true(nrow(attr(d_prep, "recipe")$template) <= 10)
+})
+
+test_that("warning is given when ignored columns have missingness", {
+  expect_warning(
+    prep_data(d_train, reaction, length),
+    regexp = "reaction, length")
 })
 
 test_that("names of ignored columns get attached as attribute to recipe", {
