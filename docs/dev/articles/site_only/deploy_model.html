@@ -148,7 +148,7 @@
 <a class="sourceLine" id="cb1-25" data-line-number="25">                        <span class="dt">outcome =</span> Readmit30FLG)</a>
 <a class="sourceLine" id="cb1-26" data-line-number="26"></a>
 <a class="sourceLine" id="cb1-27" data-line-number="27"><span class="co"># Save my model</span></a>
-<a class="sourceLine" id="cb1-28" data-line-number="28"><span class="kw">save</span>(models, <span class="dt">file =</span> <span class="st">"readmit_models.RDA"</span>)</a></code></pre></div>
+<a class="sourceLine" id="cb1-28" data-line-number="28">healthcareai<span class="op">::</span><span class="kw">save_models</span>(models, <span class="st">"readmit_models.RDS"</span>)</a></code></pre></div>
 </div>
 <div id="pushing-predictions-to-a-database" class="section level1">
 <h1 class="hasAnchor">
@@ -162,7 +162,7 @@
 <ul>
 <li>The query is different from the development step
 <ul>
-<li>Here you’re only querying patients that need a prediction</li>
+<li>Here you’re only querying patients that need a prediction (notice <code>WHERE</code> clause)</li>
 <li>Here you won’t have the label (i.e., outcome) column in your query</li>
 </ul>
 </li>
@@ -179,7 +179,7 @@
 <a class="sourceLine" id="cb2-9" data-line-number="9"></a>
 <a class="sourceLine" id="cb2-10" data-line-number="10">d_out &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/db_read.html">db_read</a></span>(con, prod_query)</a>
 <a class="sourceLine" id="cb2-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb2-12" data-line-number="12"><span class="kw">load</span>(<span class="st">"readmit_models.RDA"</span>)</a>
+<a class="sourceLine" id="cb2-12" data-line-number="12">models &lt;-<span class="st"> </span>healthcareai<span class="op">::</span><span class="kw">load_models</span>(<span class="st">"readmit_models.RDS"</span>)</a>
 <a class="sourceLine" id="cb2-13" data-line-number="13"></a>
 <a class="sourceLine" id="cb2-14" data-line-number="14">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(models, d_out)</a></code></pre></div>
 </div>
@@ -243,7 +243,7 @@
 <h1 class="hasAnchor">
 <a href="#testing-in-production" class="anchor"></a>Testing in production</h1>
 <p>Before users start consuming your awesome ML work, it’s imperative that you verify that the model’s accuracy holds up in production. Performance on retrospective data isn’t the same as performance on incoming production data. Sometimes issues like <a href="https://healthcare.ai/data-leakage-in-healthcare-machine-learning">data leakage</a> or other issues cause the performance to drop.</p>
-<p>Effectively, if you’re creating CLABSI predictions, you should wait a few weeks until a large number of the patients who have received risk predictions have left the hospital and had an outcome (CLABSI = Y/N) recorded so you can compare predictions to actual outcomes. Similarly, if you’re predicting 30-day readmissions, you need to wait ~45 days until you have enough data to verify if you accurately predicted who did or didn’t return to the hospital. This can be done <a href="https://docs.healthcare.ai/reference/evaluate_classification.html">via healthcare.ai</a>:</p>
+<p>Effectively, if you’re creating CLABSI predictions, you should wait a few weeks until a large number of the patients who have received risk predictions have left the hospital and had an outcome (CLABSI = Y/N) recorded so you can compare predictions to actual outcomes. Similarly, if you’re predicting 30-day readmissions, you need to wait ~45 days until you have enough data to verify if you accurately predicted who did or didn’t return to the hospital. If you have a heavy class imbalance (with rare CLABSIs, etc), you’ll need to wait longer. This evaluation can be done <a href="https://docs.healthcare.ai/reference/evaluate_classification.html">via healthcare.ai</a>:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw"><a href="../../reference/evaluate_classification.html">evaluate_classification</a></span>(predicted, actual)</a></code></pre></div>
 </div>
 <div id="full-and-simplest-deployment-code" class="section level1">
@@ -271,7 +271,7 @@
 <a class="sourceLine" id="cb8-20" data-line-number="20"></a>
 <a class="sourceLine" id="cb8-21" data-line-number="21">d_out &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/db_read.html">db_read</a></span>(con, prod_query)</a>
 <a class="sourceLine" id="cb8-22" data-line-number="22"></a>
-<a class="sourceLine" id="cb8-23" data-line-number="23"><span class="kw">load</span>(<span class="st">"readmit_models.RDA"</span>)</a>
+<a class="sourceLine" id="cb8-23" data-line-number="23">models &lt;-<span class="st"> </span>healthcareai<span class="op">::</span><span class="kw">load_models</span>(<span class="st">"readmit_models.RDS"</span>)</a>
 <a class="sourceLine" id="cb8-24" data-line-number="24"></a>
 <a class="sourceLine" id="cb8-25" data-line-number="25">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(models, d_out)</a>
 <a class="sourceLine" id="cb8-26" data-line-number="26"></a>

@@ -102,7 +102,7 @@ While preparing your data, a recipe will be generated for
         <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Vignettes
-
+     
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -127,18 +127,18 @@ While preparing your data, a recipe will be generated for
   <a href="../news/index.html">News</a>
 </li>
       </ul>
-
+      
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/HealthCatalyst/healthcareai-r">
     <span class="fa fa-github"></span>
-
+     
   </a>
 </li>
 <li>
   <a href="https://healthcare-ai.slack.com/">
     <span class="fa fa-users"></span>
-
+     
   </a>
 </li>
       </ul>
@@ -146,17 +146,17 @@ While preparing your data, a recipe will be generated for
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-
+      
       </header>
 
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Prepare data for machine learning</h1>
-
+    
     </div>
 
-
+    
     <p><code>prep_data</code> will prepare your data for use with
   <code><a href='tune_models.html'>tune_models</a></code> or other machine learning packages. Data can be
   transformed in the following ways:</p><ol>
@@ -180,13 +180,13 @@ While preparing your data, a recipe will be generated for
   data. This allows you to transform data in model training and apply exactly
   the same transformations in model testing and deployment. The new data must
   be identical in structure to the data that the recipe was prepared with.</p>
-
+    
 
     <pre class="usage"><span class='fu'>prep_data</span>(<span class='no'>d</span>, <span class='no'>...</span>, <span class='no'>outcome</span>, <span class='kw'>recipe</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>remove_near_zero_variance</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>convert_dates</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>impute</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>collapse_rare_factors</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>center</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>scale</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>make_dummies</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>add_levels</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>factor_outcome</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
-
+    
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -280,18 +280,18 @@ outcome are 0 or 1 they will be converted to factor with levels N and Y for
 classification.</p></td>
     </tr>
     </table>
-
+    
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>Prepared data frame with reusable recipe object for future data
   preparation in attribute "recipe". Attribute recipe contains the names of
   ignored columns (those passed to ...) in attribute "ignored_columns".</p>
-
+    
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <p><code><a href='hcai_impute.html'>hcai_impute</a></code>, <code><a href='tune_models.html'>tune_models</a></code>,
   <code><a href='predict.model_list.html'>predict.model_list</a></code></p>
-
+    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='no'>d_train</span> <span class='kw'>&lt;-</span> <span class='no'>pima_diabetes</span>[<span class='fl'>1</span>:<span class='fl'>700</span>, ]
@@ -303,17 +303,17 @@ classification.</p></td>
 <span class='no'>d_test_prepped</span> <span class='kw'>&lt;-</span> <span class='fu'>prep_data</span>(<span class='no'>d_test</span>, <span class='kw'>recipe</span> <span class='kw'>=</span> <span class='no'>d_train_prepped</span>)</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'>
 <span class='co'># View the transformations applied and the prepped data</span>
 <span class='no'>d_test_prepped</span></div><div class='output co'>#&gt; <span class='message'>healthcareai-prepped data. Recipe used to prepare data:</span></div><div class='output co'>#&gt; Data Recipe
-#&gt;
+#&gt; 
 #&gt; Inputs:
-#&gt;
+#&gt; 
 #&gt;       role #variables
 #&gt;    outcome          1
 #&gt;  predictor          8
-#&gt;
-#&gt; Training data contained 700 data points and 340 incomplete rows.
-#&gt;
+#&gt; 
+#&gt; Training data contained 700 data points and 340 incomplete rows. 
+#&gt; 
 #&gt; Operations:
-#&gt;
+#&gt; 
 #&gt; Sparse, unbalanced variable filter removed no terms [trained]
 #&gt; Mean Imputation for pregnancies, plasma_glucose, ... [trained]
 #&gt; Filling NA with missing for weight_class [trained]
@@ -343,17 +343,17 @@ classification.</p></td>
                         <span class='kw'>nominal_method</span> <span class='kw'>=</span> <span class='st'>"bagimpute"</span>),
           <span class='kw'>collapse_rare_factors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>convert_dates</span> <span class='kw'>=</span> <span class='st'>"year"</span>,
           <span class='kw'>center</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>scale</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>make_dummies</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>healthcareai-prepped data. Recipe used to prepare data:</span></div><div class='output co'>#&gt; Data Recipe
-#&gt;
+#&gt; 
 #&gt; Inputs:
-#&gt;
+#&gt; 
 #&gt;       role #variables
 #&gt;    outcome          1
 #&gt;  predictor          8
-#&gt;
-#&gt; Training data contained 700 data points and 340 incomplete rows.
-#&gt;
+#&gt; 
+#&gt; Training data contained 700 data points and 340 incomplete rows. 
+#&gt; 
 #&gt; Operations:
-#&gt;
+#&gt; 
 #&gt; Sparse, unbalanced variable filter removed no terms [trained]
 #&gt; Bagged tree imputation for pregnancies, plasma_glucose, ... [trained]
 #&gt; Bagged tree imputation for weight_class [trained]
@@ -363,16 +363,16 @@ classification.</p></td>
 #&gt; Adding levels to: other, missing [trained]</div><div class='output co'>#&gt; <span class='message'>Current data:</span></div><div class='output co'>#&gt; # A tibble: 700 x 10
 #&gt;    patient_id pregnancies plasma_glucose diastolic_bp skinfold insulin
 #&gt;         &lt;int&gt;       &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
-#&gt;  1          1       0.646          0.871      -0.0197   0.635    0.500
-#&gt;  2          2      -0.840         -1.19       -0.513    0.0126  -0.842
-#&gt;  3          3       1.24           2.02       -0.677   -0.838    0.515
+#&gt;  1          1       0.646          0.871      -0.0205   0.636    0.473
+#&gt;  2          2      -0.840         -1.19       -0.513    0.0132  -0.837
+#&gt;  3          3       1.24           2.02       -0.678   -0.793    0.455
 #&gt;  4          4      -0.840         -1.06       -0.513   -0.610   -0.603
-#&gt;  5          5      -1.14           0.511      -2.65     0.635    0.148
-#&gt;  6          6       0.349         -0.175       0.145   -0.418   -0.268
-#&gt;  7          7      -0.246         -1.42       -1.83     0.324   -0.664
-#&gt;  8          8       1.83          -0.208       0.0386   0.461   -0.268
-#&gt;  9          9      -0.543          2.47       -0.184    1.67     3.95
-#&gt; 10         10       1.24           0.119       1.95     0.266    0.561
+#&gt;  5          5      -1.14           0.511      -2.65     0.636    0.152
+#&gt;  6          6       0.349         -0.175       0.144   -0.443   -0.250
+#&gt;  7          7      -0.246         -1.42       -1.83     0.325   -0.665
+#&gt;  8          8       1.83          -0.208      -0.0592   0.371   -0.156
+#&gt;  9          9      -0.543          2.47       -0.185    1.67     3.98 
+#&gt; 10         10       1.24           0.119       1.95     0.313    0.776
 #&gt; # ... with 690 more rows, and 4 more variables: weight_class &lt;fct&gt;,
 #&gt; #   pedigree &lt;dbl&gt;, age &lt;dbl&gt;, diabetes &lt;fct&gt;</div></pre>
   </div>
@@ -380,11 +380,11 @@ classification.</p></td>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-
+      
       <li><a href="#value">Value</a></li>
 
       <li><a href="#see-also">See also</a></li>
-
+      
       <li><a href="#examples">Examples</a></li>
     </ul>
 
