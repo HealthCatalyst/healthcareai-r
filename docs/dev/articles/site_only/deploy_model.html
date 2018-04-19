@@ -49,7 +49,7 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Vignettes
-
+     
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -78,13 +78,13 @@
 <li>
   <a href="https://github.com/HealthCatalyst/healthcareai-r">
     <span class="fa fa-github"></span>
-
+     
   </a>
 </li>
 <li>
   <a href="https://healthcare-ai.slack.com/">
     <span class="fa fa-users"></span>
-
+     
   </a>
 </li>
       </ul>
@@ -95,19 +95,19 @@
 </div>
 <!--/.navbar -->
 
-
+      
       </header><div class="row">
   <div class="col-md-9">
     <div class="page-header toc-ignore">
       <h1>Deploying a model</h1>
-
-
-
+            
+      
+      
 
     </div>
 
-
-
+    
+    
 <div class="contents">
 <p>Now that you’ve put in the work of building a model and it’s performing well on historical data, congratulations! It’s now time to prepare it to make reoccurring predictions. <strong>This document focuses on the requirements needed <em>before</em> you actually talk to the DBA/ETL team about creating the reoccurring schedule.</strong> At this point, you have</p>
 <ul>
@@ -148,7 +148,7 @@
 <a class="sourceLine" id="cb1-25" data-line-number="25">                        <span class="dt">outcome =</span> Readmit30FLG)</a>
 <a class="sourceLine" id="cb1-26" data-line-number="26"></a>
 <a class="sourceLine" id="cb1-27" data-line-number="27"><span class="co"># Save my model</span></a>
-<a class="sourceLine" id="cb1-28" data-line-number="28">healthcareai<span class="op">::</span><span class="kw">save_models</span>(models, <span class="st">"readmit_models.RDS"</span>)</a></code></pre></div>
+<a class="sourceLine" id="cb1-28" data-line-number="28">healthcareai<span class="op">::</span><span class="kw"><a href="https://docs.healthcare.ai/reference/save_models.html">save_models</a></span>(models, <span class="st">"readmit_models.RDS"</span>)</a></code></pre></div>
 </div>
 <div id="pushing-predictions-to-a-database" class="section level1">
 <h1 class="hasAnchor">
@@ -179,7 +179,7 @@
 <a class="sourceLine" id="cb2-9" data-line-number="9"></a>
 <a class="sourceLine" id="cb2-10" data-line-number="10">d_out &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/db_read.html">db_read</a></span>(con, prod_query)</a>
 <a class="sourceLine" id="cb2-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb2-12" data-line-number="12">models &lt;-<span class="st"> </span>healthcareai<span class="op">::</span><span class="kw">load_models</span>(<span class="st">"readmit_models.RDS"</span>)</a>
+<a class="sourceLine" id="cb2-12" data-line-number="12">models &lt;-<span class="st"> </span>healthcareai<span class="op">::</span><span class="kw"><a href="https://docs.healthcare.ai/reference/save_models.html">load_models</a></span>(<span class="st">"readmit_models.RDS"</span>)</a>
 <a class="sourceLine" id="cb2-13" data-line-number="13"></a>
 <a class="sourceLine" id="cb2-14" data-line-number="14">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(models, d_out)</a></code></pre></div>
 </div>
@@ -248,7 +248,7 @@
 </div>
 <div id="full-and-simplest-example-code" class="section level1">
 <h1 class="hasAnchor">
-<a href="#full-and-simplest-deployment-code" class="anchor"></a>Full and simplest deployment code</h1>
+<a href="#full-and-simplest-example-code" class="anchor"></a>Full and simplest example code</h1>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw">library</span>(healthcareai)</a>
 <a class="sourceLine" id="cb8-2" data-line-number="2"><span class="kw">library</span>(DBI)</a>
 <a class="sourceLine" id="cb8-3" data-line-number="3"><span class="kw">library</span>(RODBC)</a>
@@ -271,7 +271,7 @@
 <a class="sourceLine" id="cb8-20" data-line-number="20"></a>
 <a class="sourceLine" id="cb8-21" data-line-number="21">d_out &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/db_read.html">db_read</a></span>(con, prod_query)</a>
 <a class="sourceLine" id="cb8-22" data-line-number="22"></a>
-<a class="sourceLine" id="cb8-23" data-line-number="23">models &lt;-<span class="st"> </span>healthcareai<span class="op">::</span><span class="kw">load_models</span>(<span class="st">"readmit_models.RDS"</span>)</a>
+<a class="sourceLine" id="cb8-23" data-line-number="23">models &lt;-<span class="st"> </span>healthcareai<span class="op">::</span><span class="kw"><a href="https://docs.healthcare.ai/reference/save_models.html">load_models</a></span>(<span class="st">"readmit_models.RDS"</span>)</a>
 <a class="sourceLine" id="cb8-24" data-line-number="24"></a>
 <a class="sourceLine" id="cb8-25" data-line-number="25">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(models, d_out)</a>
 <a class="sourceLine" id="cb8-26" data-line-number="26"></a>
