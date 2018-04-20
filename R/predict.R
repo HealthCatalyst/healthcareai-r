@@ -1,4 +1,4 @@
-#' Make predictions using the best-performing model from tuning
+#' Make predictions using the best-performing model
 #'
 #' @param object model_list object, as from `tune_models`
 #' @param newdata data on which to make predictions. If missing, out-of-fold

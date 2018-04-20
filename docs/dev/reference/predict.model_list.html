@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Make predictions using the best-performing model from tuning — predict.model_list • healthcareai</title>
+<title>Make predictions using the best-performing model — predict.model_list • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,9 +25,9 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Make predictions using the best-performing model from tuning — predict.model_list" />
+<meta property="og:title" content="Make predictions using the best-performing model — predict.model_list" />
 
-<meta property="og:description" content="Make predictions using the best-performing model from tuning" />
+<meta property="og:description" content="Make predictions using the best-performing model" />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -133,12 +133,12 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Make predictions using the best-performing model from tuning</h1>
+    <h1>Make predictions using the best-performing model</h1>
     
     </div>
 
     
-    <p>Make predictions using the best-performing model from tuning</p>
+    <p>Make predictions using the best-performing model</p>
     
 
     <pre class="usage"><span class='co'># S3 method for model_list</span>
@@ -210,7 +210,7 @@ sent through `prep_data`.</p></td>
 <span class='co'># tuning cross validation, and it also prepares the new data in the same way as</span>
 <span class='co'># the training data was prepared.</span>
 
-<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>41</span>:<span class='fl'>50</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by k-Nearest Neighbors last trained: 2018-04-19 18:11:28</span>
+<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>41</span>:<span class='fl'>50</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by k-Nearest Neighbors last trained: 2018-04-19 22:27:19</span>
 #&gt; <span class='message'>Performance in training: AUROC = 0.71</span></div><div class='output co'>#&gt; # A tibble: 10 x 11
 #&gt;    diabetes predicted_diabe… patient_id pregnancies plasma_glucose diastolic_bp
 #&gt;  * &lt;chr&gt;               &lt;dbl&gt;      &lt;int&gt;       &lt;int&gt;          &lt;int&gt;        &lt;int&gt;

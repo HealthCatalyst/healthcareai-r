@@ -132,3 +132,6 @@ select_not <- function(d, var) {
     var <- rlang::quo_name(var)
   d[, -which(names(d) %in% var), drop = FALSE]
 }
+
+#' @export
+dplyr::`%>%`

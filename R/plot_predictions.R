@@ -33,7 +33,8 @@ plot.predicted_df <- function(x,
                               title = NULL,
                               font_size = 11,
                               outcomes = NULL,
-                              print = TRUE, ...) {
+                              print = TRUE,
+                              ...) {
   # Checks, and put outcomes in x if necessary
   mi <- attr(x, "model_info")
   target <- mi$target

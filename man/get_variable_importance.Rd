@@ -2,20 +2,27 @@
 % Please edit documentation in R/variable_importance.R
 \name{get_variable_importance}
 \alias{get_variable_importance}
-\title{Get variable importance}
+\title{Get variable importances}
 \usage{
-get_variable_importance(x)
+get_variable_importance(models)
 }
 \arguments{
-\item{x}{model_list}
+\item{models}{model_list object}
 }
 \value{
-Data frame of variables and importance scores
+Data frame of variables and their importance for predictive power
 }
 \description{
-Get variable importance
+Get variable importances
+}
+\details{
+Some algorithms provide variable importance, others don't. The
+  best-performing model that offers variable importance will be used.
 }
 \examples{
-m <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = diabetes, tune = FALSE)
+m <- flash_models(mtcars, outcome = mpg, models = "rf")
 get_variable_importance(m)
+}
+\seealso{
+\code{\link{plot.variable_importance}}
 }

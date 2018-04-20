@@ -144,8 +144,7 @@ https://en.wikipedia.org/wiki/Control_chart." />
     
 
     <pre class="usage"><span class='fu'>control_chart</span>(<span class='no'>d</span>, <span class='no'>measure</span>, <span class='no'>x</span>, <span class='no'>group1</span>, <span class='no'>group2</span>, <span class='kw'>center_line</span> <span class='kw'>=</span> <span class='no'>mean</span>, <span class='kw'>sigmas</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-  <span class='no'>save_to</span>, <span class='kw'>plot_width</span> <span class='kw'>=</span> <span class='fl'>8</span>, <span class='kw'>plot_height</span> <span class='kw'>=</span> <span class='fl'>4</span>, <span class='kw'>plot_title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>plot_catpion</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>plot_font_size</span> <span class='kw'>=</span> <span class='fl'>11</span>)</pre>
+  <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>catpion</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>font_size</span> <span class='kw'>=</span> <span class='fl'>11</span>, <span class='kw'>print</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -173,53 +172,43 @@ row indices will be used (quoted)</p></td>
     </tr>
     <tr>
       <th>center_line</th>
-      <td><p>Function used to calculate central tendency.
-Defaults to mean</p></td>
+      <td><p>Function used to calculate central tendency. Defaults to
+mean</p></td>
     </tr>
     <tr>
       <th>sigmas</th>
       <td><p>Number of standard deviations above and below the central
-tendency to call a point influenced by "special cause variation."
-Defaults to 3</p></td>
+tendency to call a point influenced by "special cause variation." Defaults
+to 3</p></td>
     </tr>
     <tr>
-      <th>save_to</th>
-      <td><p>Optional file path to save chart. If not provided, the chart
-will be printed on screen</p></td>
-    </tr>
-    <tr>
-      <th>plot_width</th>
-      <td><p>In inches. Only used if save_to is specified</p></td>
-    </tr>
-    <tr>
-      <th>plot_height</th>
-      <td><p>In inches. Only used if save_to is specified</p></td>
-    </tr>
-    <tr>
-      <th>plot_title</th>
+      <th>title</th>
       <td><p>Title in upper-left</p></td>
     </tr>
     <tr>
-      <th>plot_catpion</th>
+      <th>catpion</th>
       <td><p>Caption in lower-right</p></td>
     </tr>
     <tr>
-      <th>plot_font_size</th>
+      <th>font_size</th>
       <td><p>Base font size; text elements will be scaled to this</p></td>
+    </tr>
+    <tr>
+      <th>print</th>
+      <td><p>Print the plot? Default = TRUE. Set to FALSE if you want to
+assign the plot to a variable for further modification, as in the last
+example.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Generally called for the side effect of printing the control chart
-or writing the control chart to file, depending on whether save_to is
-specified. Invisibly, returns a ggplot object for further customization.</p>
+    <p>Generally called for the side effect of printing the control chart.
+  Invisibly, returns a ggplot object for further customization.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='co'># NOT RUN {</span>
-<span class='co'># Create a data frame to plot</span>
-<span class='no'>d</span> <span class='kw'>&lt;-</span>
+    <pre class="examples"><div class='input'><span class='no'>d</span> <span class='kw'>&lt;-</span>
   <span class='kw pkg'>tibble</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/tibble/topics/tibble'>data_frame</a></span>(
     <span class='kw'>day</span> <span class='kw'>=</span> <span class='fu'>sample</span>(<span class='fu'>c</span>(<span class='st'>"Monday"</span>, <span class='st'>"Tuesday"</span>, <span class='st'>"Wednesday"</span>, <span class='st'>"Thursday"</span>, <span class='st'>"Friday"</span>),
                  <span class='fl'>100</span>, <span class='fl'>TRUE</span>),
@@ -230,23 +219,19 @@ specified. Invisibly, returns a ggplot object for further customization.</p>
 <span class='co'># Minimal arguments are the data and the column to put on the y-axis.</span>
 <span class='co'># If x is not provided, observations will be plotted in order of the rows</span>
 
-<span class='fu'>control_chart</span>(<span class='no'>d</span>, <span class='st'>"count"</span>)
-
+<span class='fu'>control_chart</span>(<span class='no'>d</span>, <span class='st'>"count"</span>)</div><div class='img'><img src='control_chart-1.png' alt='' width='576' height='288' /></div><div class='input'>
 <span class='co'># Specify categorical variables for group1 and/or group2 to get a separate</span>
 <span class='co'># panel for each category</span>
 
-<span class='fu'>control_chart</span>(<span class='no'>d</span>, <span class='st'>"count"</span>, <span class='kw'>group1</span> <span class='kw'>=</span> <span class='st'>"day"</span>, <span class='kw'>group2</span> <span class='kw'>=</span> <span class='st'>"person"</span>)
-
+<span class='fu'>control_chart</span>(<span class='no'>d</span>, <span class='st'>"count"</span>, <span class='kw'>group1</span> <span class='kw'>=</span> <span class='st'>"day"</span>, <span class='kw'>group2</span> <span class='kw'>=</span> <span class='st'>"person"</span>)</div><div class='img'><img src='control_chart-2.png' alt='' width='576' height='288' /></div><div class='input'>
 <span class='co'># In addition to printing or writing the plot to file, control_chart</span>
 <span class='co'># returns the plot as a ggplot2 obejct, which you can then further customize</span>
 
 <span class='fu'>library</span>(<span class='no'>ggplot2</span>)
-<span class='no'>my_chart</span> <span class='kw'>&lt;-</span> <span class='fu'>control_chart</span>(<span class='no'>d</span>, <span class='st'>"count"</span>, <span class='st'>"date"</span>)
-<span class='no'>my_chart</span> +
+<span class='no'>my_chart</span> <span class='kw'>&lt;-</span> <span class='fu'>control_chart</span>(<span class='no'>d</span>, <span class='st'>"count"</span>, <span class='st'>"date"</span>)</div><div class='img'><img src='control_chart-3.png' alt='' width='576' height='288' /></div><div class='input'><span class='no'>my_chart</span> +
   <span class='fu'><a href='http://www.rdocumentation.org/packages/ggplot2/topics/labs'>ylab</a></span>(<span class='st'>"Number of Adverse Events"</span>) +
-  <span class='fu'><a href='http://www.rdocumentation.org/packages/ggplot2/topics/scale_date'>scale_x_date</a></span>(<span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Week of"</span>, <span class='kw'>date_breaks</span> <span class='kw'>=</span> <span class='st'>"week"</span>) +
-  <span class='fu'><a href='http://www.rdocumentation.org/packages/ggplot2/topics/theme'>theme</a></span>(<span class='kw'>axis.text.x</span> <span class='kw'>=</span> <span class='fu'><a href='http://www.rdocumentation.org/packages/ggplot2/topics/element'>element_text</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> -<span class='fl'>90</span>, <span class='kw'>vjust</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>hjust</span><span class='kw'>=</span><span class='fl'>1</span>))
-<span class='co'># }</span></pre>
+  <span class='fu'><a href='http://www.rdocumentation.org/packages/ggplot2/topics/scale_date'>scale_x_date</a></span>(<span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Week of ... "</span>, <span class='kw'>date_breaks</span> <span class='kw'>=</span> <span class='st'>"week"</span>) +
+  <span class='fu'><a href='http://www.rdocumentation.org/packages/ggplot2/topics/theme'>theme</a></span>(<span class='kw'>axis.text.x</span> <span class='kw'>=</span> <span class='fu'><a href='http://www.rdocumentation.org/packages/ggplot2/topics/element'>element_text</a></span>(<span class='kw'>angle</span> <span class='kw'>=</span> -<span class='fl'>90</span>, <span class='kw'>vjust</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>hjust</span><span class='kw'>=</span><span class='fl'>1</span>))</div><div class='img'><img src='control_chart-4.png' alt='' width='576' height='288' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

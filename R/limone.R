@@ -23,7 +23,6 @@ globalVariables(c(".data"))
 #' increase or decrease the predictions/predicted probabilities.
 #' @return A list of dataframes.
 #' @keywords internal
-#' @importFrom dplyr %>% desc
 build_process_variable_df_list <- function(dataframe,
                                            grain_column_values,
                                            modifiable_variable_levels,
