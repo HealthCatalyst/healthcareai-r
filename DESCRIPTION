@@ -19,6 +19,7 @@ Imports:
     caret (>= 6.0.78),
     cowplot,
     data.table,
+    dbplyr,
     dplyr,
     e1071,
     ggplot2,
