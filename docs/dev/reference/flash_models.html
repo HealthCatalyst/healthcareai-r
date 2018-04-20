@@ -221,11 +221,11 @@ displayed in a message.</p></td>
 <span class='fu'>flash_models</span>(<span class='no'>prepped_data</span>, <span class='no'>diabetes</span>)
 
 <span class='co'># Speed comparison of no tuning with flash_models vs. tuning with tune_models:</span>
-<span class='co'># ~40 seconds:</span>
+<span class='co'># ~15 seconds:</span>
 <span class='fu'>system.time</span>(
   <span class='fu'><a href='tune_models.html'>tune_models</a></span>(<span class='no'>prepped_data</span>, <span class='no'>diabetes</span>)
 )
-<span class='co'># ~6 seconds:</span>
+<span class='co'># ~3 seconds:</span>
 <span class='fu'>system.time</span>(
   <span class='fu'>flash_models</span>(<span class='no'>prepped_data</span>, <span class='no'>diabetes</span>)
 )

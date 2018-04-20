@@ -331,13 +331,17 @@ test_that("logging works as expected", {
   # Default
   predict(model_regression_prepped, test_data, write_log = TRUE)
   expect_true(file.exists("prediction_log.txt"))
+  first_log <- readLines("prediction_log.txt")
+  expect_true(any(stringr::str_detect(first_log, "Days since model trained")))
   # Appends same file
-
-  predict(model_regression_prepped, test_data, write_log = TRUE)
+  predict(model_regression_prepped, test_data[1, ], write_log = TRUE)
   expect_equal(length(list.files(pattern = "txt$")), 1L)
-
-
-  # Custom location
+  second_log <- readLines("prediction_log.txt")
+  expect_true(length(second_log) > length(first_log))
+  # Custom file location
+  fileloc <- tempfile(pattern = "temp-testfile-", tmpdir = ".", fileext = ".txt")
+  predict(model_regression_prepped, test_data, write_log = fileloc)
+  expect_true(file.exists(fileloc))
 })
 
 remove_logfiles()

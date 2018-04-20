@@ -121,6 +121,13 @@ predict.model_list <- function(object,
          timestamp = mi$timestamp,
          hyperparameters = structure(mi$best_model_tune,
                                      "row.names" = "optimal:"))
+  if (isTRUE(write_log))
+    write_log <- "prediction_log.txt"
+  if (is.character(write_log))
+    log_predictions(filename = write_log,
+                    target = mi$target,
+                    n_preds = nrow(newdata),
+                    trained_time = attr(object, "timestamp"))
   return(newdata)
 }
 

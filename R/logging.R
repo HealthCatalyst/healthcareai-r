@@ -1,7 +1,15 @@
-write_log <- function() {
-
+#' Create or append log files from predict
+#' @noRd
+log_predictions <- function(filename, target, n_preds, trained_time) {
+  the_log <- paste0(
+    "Model predictions made: ", Sys.time(),
+    "\n\t- Variable predicted: ", target,
+    "\n\t- Number predictions: ", n_preds,
+    "\n\t- Days since model trained: ",
+    round(difftime(Sys.time(), trained_time, units = "days"), 1), "\n"
+  )
+  write(the_log, filename, append = TRUE)
 }
-
 
 #' @title
 #' Sets console logging to a file in the working directory.
