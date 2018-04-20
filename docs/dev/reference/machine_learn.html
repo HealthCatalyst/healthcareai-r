@@ -56,6 +56,8 @@
 
 </script>
 
+
+
   </head>
 
   <body>
@@ -120,6 +122,7 @@
   </a>
 </li>
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -127,7 +130,7 @@
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Machine learning made easy</h1>
@@ -228,7 +231,7 @@ Ignored if tune is FALSE.</p></td>
 #&gt; Performance Metric: AUROC
 #&gt; Number of Observations: 91
 #&gt; Number of Features: 12
-#&gt; Models Trained: 2018-04-19 13:17:10 
+#&gt; Models Trained: 2018-04-19 17:59:26 
 #&gt; 
 #&gt; Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.
 #&gt; Best model: Random Forest
@@ -238,7 +241,7 @@ Ignored if tune is FALSE.</p></td>
 #&gt;   splitrule = extratrees
 #&gt;   min.node.size = 19 </div><div class='input'>
 <span class='co'># Make predictions (predicted probability of diabetes) on test data</span>
-<span class='fu'>predict</span>(<span class='no'>diabetes_models</span>, <span class='no'>d</span>$<span class='no'>test</span>)</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-04-19 13:17:10</span>
+<span class='fu'>predict</span>(<span class='no'>diabetes_models</span>, <span class='no'>d</span>$<span class='no'>test</span>)</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-04-19 17:59:26</span>
 #&gt; <span class='message'>Performance in training: AUROC = 0.77</span></div><div class='output co'>#&gt; # A tibble: 9 x 11
 #&gt;   diabetes predicted_diabet… patient_id pregnancies plasma_glucose diastolic_bp
 #&gt; * &lt;chr&gt;                &lt;dbl&gt;      &lt;int&gt;       &lt;int&gt;          &lt;int&gt;        &lt;int&gt;
@@ -260,7 +263,7 @@ Ignored if tune is FALSE.</p></td>
 #&gt; <span class='message'>*** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
 #&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='input'>
 <span class='co'># If new data isn't specifed, get predictions on training data</span>
-<span class='fu'>predict</span>(<span class='no'>age_model</span>)</div><div class='output co'>#&gt; <span class='message'>"predicted_age" predicted by Random Forest last trained: 2018-04-19 13:17:13</span>
+<span class='fu'>predict</span>(<span class='no'>age_model</span>)</div><div class='output co'>#&gt; <span class='message'>"predicted_age" predicted by Random Forest last trained: 2018-04-19 17:59:29</span>
 #&gt; <span class='message'>Performance in training: RMSE = 9.04</span></div><div class='output co'>#&gt; # A tibble: 91 x 16
 #&gt;      age predicted_age pregnancies plasma_glucose diastolic_bp skinfold insulin
 #&gt;  * &lt;int&gt;         &lt;dbl&gt;       &lt;int&gt;          &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
@@ -292,7 +295,7 @@ Ignored if tune is FALSE.</p></td>
 #&gt; Performance Metric: AUROC
 #&gt; Number of Observations: 91
 #&gt; Number of Features: 12
-#&gt; Models Trained: 2018-04-19 13:17:15 
+#&gt; Models Trained: 2018-04-19 17:59:31 
 #&gt; 
 #&gt; Models have not been tuned. Performance estimated via 5-fold cross validation at fixed hyperparameter values.
 #&gt; Best model: Random Forest
@@ -328,6 +331,8 @@ Ignored if tune is FALSE.</p></td>
 
       </footer>
    </div>
+
+  
 
   </body>
 </html>

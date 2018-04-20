@@ -120,16 +120,7 @@ prep_data <- function(d,
   # Deal with "..." columns to be ignored
   ignore_columns <- rlang::quos(...)
   ignored <- purrr::map_chr(ignore_columns, rlang::quo_name)
-  # Find all-unique character columns not specified to be ignored here, in
-  # previous prep, or that are outcomes and add to ignore
-  already_ignored <- c(rlang::quo_name(outcome), ignored)
-  if (!is.null(recipe)) {
-    recipe <- check_rec_obj(recipe)
-    already_ignored <- c(already_ignored, attr(recipe, "ignored_columns"))
-  }
-  ignored <-
-    find_columns_to_ignore(d, already_ignored) %>%
-    c(ignored, .)
+
   d_ignore <- NULL
   if (length(ignored)) {
     present <- ignored %in% names(d)
@@ -160,6 +151,7 @@ prep_data <- function(d,
 
   # If there's a recipe in recipe, use that
   if (!is.null(recipe)) {
+    recipe <- check_rec_obj(recipe)
     message("Prepping data based on provided recipe")
     # Look for variables that weren't present in training, add them to ignored
     newvars <- setdiff(names(d), c(recipe$var_info$variable,
@@ -188,6 +180,16 @@ prep_data <- function(d,
       remove_outcome <- TRUE
 
   } else {
+    # Look for all-unique characters columns and add them to ignored
+    undeclared_ignores <- find_columns_to_ignore(d, c(rlang::quo_name(outcome), ignored))
+    if (length(undeclared_ignores)) {
+      warning("The following variable(s) look a lot like identifiers: They are ",
+              "character-type and have a unique value on everyrow. They will ",
+              "be ignored: ", paste0(undeclared_ignores, collapse = ", "))
+      ignored <- c(ignored, undeclared_ignores)
+      d_ignore <- dplyr::bind_cols(d_ignore, d[, names(d) %in% undeclared_ignores, drop = FALSE])
+      d <- d[, !names(d) %in% undeclared_ignores, drop = FALSE]
+    }
 
     # Initialize a new recipe
     mes <- "Training new data prep recipe"

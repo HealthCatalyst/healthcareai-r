@@ -29,7 +29,7 @@
 </script>
 </head>
 <body>
-    <div class="container template-vignette">
+    <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
@@ -97,12 +97,11 @@
 
       
       </header><div class="row">
-  <div class="col-md-9">
+  <div class="col-md-9 contents">
     
 
     
     
-<div class="contents">
 <!-- README.md is generated from README.Rmd. Please edit the .Rmd and knit it to generate the .md. -->
 <div id="healthcareai" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
@@ -132,24 +131,22 @@
 <a href="#usage" class="anchor"></a>Usage</h2>
 <p><code>healthcareai</code> can take you from messy data to an optimized model in one line of code:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">models &lt;-<span class="st"> </span><span class="kw"><a href="reference/machine_learn.html">machine_learn</a></span>(pima_diabetes, patient_id, <span class="dt">outcome =</span> diabetes)</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="co"># &gt; Warning: package 'bindrcpp' was built under R version 3.4.4</span></a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="co"># &gt; Warning: package 'caret' was built under R version 3.4.4</span></a>
-<a class="sourceLine" id="cb1-4" data-line-number="4">models</a>
-<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="co"># &gt; Algorithms Trained: Random Forest, k-Nearest Neighbors</span></a>
-<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="co"># &gt; Target: diabetes</span></a>
-<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="co"># &gt; Class: Classification</span></a>
-<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co"># &gt; Performance Metric: AUROC</span></a>
-<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="co"># &gt; Number of Observations: 768</span></a>
-<a class="sourceLine" id="cb1-10" data-line-number="10"><span class="co"># &gt; Number of Features: 12</span></a>
-<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co"># &gt; Models Trained: 2018-04-19 13:16:49 </span></a>
-<a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co"># &gt; </span></a>
-<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co"># &gt; Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.</span></a>
-<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="co"># &gt; Best model: Random Forest</span></a>
-<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co"># &gt; AUPR = 0.72, AUROC = 0.84</span></a>
-<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="co"># &gt; Optimal hyperparameter values:</span></a>
-<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co"># &gt;   mtry = 12</span></a>
-<a class="sourceLine" id="cb1-18" data-line-number="18"><span class="co"># &gt;   splitrule = extratrees</span></a>
-<a class="sourceLine" id="cb1-19" data-line-number="19"><span class="co"># &gt;   min.node.size = 15</span></a></code></pre></div>
+<a class="sourceLine" id="cb1-2" data-line-number="2">models</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="co"># &gt; Algorithms Trained: Random Forest, k-Nearest Neighbors</span></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="co"># &gt; Target: diabetes</span></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="co"># &gt; Class: Classification</span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="co"># &gt; Performance Metric: AUROC</span></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="co"># &gt; Number of Observations: 768</span></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co"># &gt; Number of Features: 12</span></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="co"># &gt; Models Trained: 2018-04-19 17:59:07 </span></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10"><span class="co"># &gt; </span></a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co"># &gt; Models tuned via 5-fold cross validation over 9 combinations of hyperparameter values.</span></a>
+<a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co"># &gt; Best model: Random Forest</span></a>
+<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co"># &gt; AUPR = 0.72, AUROC = 0.85</span></a>
+<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="co"># &gt; Optimal hyperparameter values:</span></a>
+<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co"># &gt;   mtry = 3</span></a>
+<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="co"># &gt;   splitrule = extratrees</span></a>
+<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co"># &gt;   min.node.size = 15</span></a></code></pre></div>
 <p>Make predictions and examine predictive performance:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(models)</a>
 <a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw">plot</span>(predictions)</a></code></pre></div>
@@ -184,7 +181,6 @@
 <a href="#legacy" class="anchor"></a>Legacy</h2>
 <p>Version 1 of healthcare-ai is being retired. You can continue to use it, but we will no longer be maintain it and its compatibility with the R ecosystem. You should always be able to install it from github with: <code><a href="http://www.rdocumentation.org/packages/remotes/topics/install_github">remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")</a></code>.</p>
 <p>For an example of how to adapt your v1 models to the v2 API, check out the <a href="https://docs.healthcare.ai/articles/">Transitioning vignettes</a>.</p>
-</div>
 </div>
 </div>
   </div>
@@ -248,6 +244,8 @@
 
       </footer>
 </div>
+
+  
 
   </body>
 </html>

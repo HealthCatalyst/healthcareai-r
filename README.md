@@ -65,15 +65,15 @@ models
 # > Performance Metric: AUROC
 # > Number of Observations: 768
 # > Number of Features: 12
-# > Models Trained: 2018-04-18 10:33:55 
+# > Models Trained: 2018-04-19 17:51:59 
 # > 
-# > Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.
+# > Models tuned via 5-fold cross validation over 9 combinations of hyperparameter values.
 # > Best model: Random Forest
-# > AUPR = 0.71, AUROC = 0.85
+# > AUPR = 0.71, AUROC = 0.84
 # > Optimal hyperparameter values:
-# >   mtry = 5
-# >   splitrule = extratrees
-# >   min.node.size = 17
+# >   mtry = 2
+# >   splitrule = gini
+# >   min.node.size = 18
 ```
 
 Make predictions and examine predictive performance:
