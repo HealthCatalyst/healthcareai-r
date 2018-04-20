@@ -23,6 +23,7 @@
 #'   "gaussian", "rank", or "optimal".}
 #' }
 #'
+#' @seealso \code{\link{hyperparameters}} hyperparameter defaults
 #' @return Vector of currently-supported algorithms.
 #' @aliases supported_models models models_supported
 get_supported_models <- function() {

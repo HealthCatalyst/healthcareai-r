@@ -34,3 +34,6 @@ Implemented via \code{kknn}.
   "gaussian", "rank", or "optimal".}
 }
 }
+\seealso{
+\code{\link{hyperparameters}} hyperparameter defaults
+}

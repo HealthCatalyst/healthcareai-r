@@ -4,24 +4,14 @@
 \name{healthcareai}
 \alias{healthcareai}
 \alias{healthcareai-package}
-\title{healthcareai: Machine Learning Made Easy}
+\title{Machine Learning Made Easy}
 \description{
-healthcare-ai provides a clean interface to get data from a database, prepare
-the data for machine learning, optimize multiple models, and deploy the model
-with the greatest predictive power.
+healthcare.ai makes it as easy as possible to pull data from a database, get
+it ready for machine learning, optimize multiple models, and deploy
+predictions.
 }
 \details{
-To get started, check out \code{vignette("healthcareai")}. That vignette as
-well as others and full documentation of all functions are available at the
-package website, \url{https://docs.healthcare.ai/}.
-}
-\references{
-\url{https://docs.healthcare.ai/}
-
-\url{http://healthcare.ai}
-
-\url{https://github.com/HealthCatalyst/healthcareai-r/}
-}
-\seealso{
-\code{\link{machine_learn}}, \code{\link{predict.model_list}}
+The package website -- \url{https://docs.healthcare.ai/} -- contains vignettes
+that demonstrate how to use the package, as well as documentation of all the
+important functions.
 }
