@@ -49,7 +49,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' ### Takes ~20 seconds
+#' ### Examples take about 30 seconds to run
 #' # Prepare data for tuning
 #' d <- prep_data(pima_diabetes, patient_id, outcome = diabetes)
 #'

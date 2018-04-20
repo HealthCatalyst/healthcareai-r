@@ -1,4 +1,12 @@
+### WARNING: Running this script removes all .txt files from the current directory
 context("Test predict")
+
+## Cleanup log files
+remove_logfiles <- function() {
+  txt_files <- list.files(pattern = "txt$", full.names = TRUE, recursive = FALSE)
+  file.remove(txt_files)
+}
+remove_logfiles()
 
 ### Setup. Data from caret.
 set.seed(2570)
@@ -316,3 +324,24 @@ test_that("get_oof_predictions seems to work", {
   expect_true(is.numeric(get_oof_predictions(model_classify_prepped)))
   expect_true(is.numeric(get_oof_predictions(model_regression_not_prepped)))
 })
+
+test_that("logging works as expected", {
+  preds <- predict(model_regression_prepped, test_data)
+  expect_equal(length(list.files(pattern = "txt$")), 0L)
+  # Default
+  predict(model_regression_prepped, test_data, write_log = TRUE)
+  expect_true(file.exists("prediction_log.txt"))
+  first_log <- readLines("prediction_log.txt")
+  expect_true(any(stringr::str_detect(first_log, "Days since model trained")))
+  # Appends same file
+  predict(model_regression_prepped, test_data[1, ], write_log = TRUE)
+  expect_equal(length(list.files(pattern = "txt$")), 1L)
+  second_log <- readLines("prediction_log.txt")
+  expect_true(length(second_log) > length(first_log))
+  # Custom file location
+  fileloc <- tempfile(pattern = "temp-testfile-", tmpdir = ".", fileext = ".txt")
+  predict(model_regression_prepped, test_data, write_log = fileloc)
+  expect_true(file.exists(fileloc))
+})
+
+remove_logfiles()
