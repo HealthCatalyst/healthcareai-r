@@ -5,8 +5,7 @@
 \title{Create a control chart}
 \usage{
 control_chart(d, measure, x, group1, group2, center_line = mean, sigmas = 3,
-  save_to, plot_width = 8, plot_height = 4, plot_title = NULL,
-  plot_catpion = NULL, plot_font_size = 11)
+  title = NULL, catpion = NULL, font_size = 11, print = TRUE)
 }
 \arguments{
 \item{d}{data frame or a path to a csv file that will be read in}
@@ -20,38 +19,32 @@ row indices will be used (quoted)}
 
 \item{group2}{Optional grouping variable to be panelled vertically (quoted)}
 
-\item{center_line}{Function used to calculate central tendency.
-Defaults to mean}
+\item{center_line}{Function used to calculate central tendency. Defaults to
+mean}
 
 \item{sigmas}{Number of standard deviations above and below the central
-tendency to call a point influenced by "special cause variation."
-Defaults to 3}
+tendency to call a point influenced by "special cause variation." Defaults
+to 3}
 
-\item{save_to}{Optional file path to save chart. If not provided, the chart
-will be printed on screen}
+\item{title}{Title in upper-left}
 
-\item{plot_width}{In inches. Only used if save_to is specified}
+\item{catpion}{Caption in lower-right}
 
-\item{plot_height}{In inches. Only used if save_to is specified}
+\item{font_size}{Base font size; text elements will be scaled to this}
 
-\item{plot_title}{Title in upper-left}
-
-\item{plot_catpion}{Caption in lower-right}
-
-\item{plot_font_size}{Base font size; text elements will be scaled to this}
+\item{print}{Print the plot? Default = TRUE. Set to FALSE if you want to
+assign the plot to a variable for further modification, as in the last
+example.}
 }
 \value{
-Generally called for the side effect of printing the control chart
-or writing the control chart to file, depending on whether save_to is
-specified. Invisibly, returns a ggplot object for further customization.
+Generally called for the side effect of printing the control chart.
+  Invisibly, returns a ggplot object for further customization.
 }
 \description{
 Create a control chart, aka Shewhart chart:
 \url{https://en.wikipedia.org/wiki/Control_chart}.
 }
 \examples{
-\dontrun{
-# Create a data frame to plot
 d <-
   tibble::data_frame(
     day = sample(c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"),
@@ -77,7 +70,6 @@ library(ggplot2)
 my_chart <- control_chart(d, "count", "date")
 my_chart +
   ylab("Number of Adverse Events") +
-  scale_x_date(name = "Week of", date_breaks = "week") +
+  scale_x_date(name = "Week of ... ", date_breaks = "week") +
   theme(axis.text.x = element_text(angle = -90, vjust = 0.5, hjust=1))
-}
 }

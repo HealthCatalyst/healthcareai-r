@@ -1,31 +1,34 @@
 #' Plot variable importance
 #'
-#' @param x Either a model_list object or a data frame from
-#'   \code{\link{get_variable_importance}}
+#' @param x A data frame from \code{\link{get_variable_importance}}
 #' @param caption Either "model", "none", or a string to be used as the plot
 #'   caption. "model" puts the name of the best-performing model, on which
 #'   variable importances are generated, in the caption.
 #' @param title Plot title
 #' @param font_size Relative size for all fonts, default = 11
+#' @param point_size Size of dots, default = 3
 #' @param print Print the plot?
+#' @param ... Unused
 #'
-#' @return ggplot object, invisibly
+#' @return A ggplot object, invisibly.
 #' @export
 #' @importFrom stats reorder
 #'
 #' @examples
-#' m <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = diabetes, tune = FALSE)
-#' plot_variable_importance(m)
-plot_variable_importance <- function(x,
-                                     caption = "model",
-                                     title = NULL,
-                                     font_size = 11,
-                                     print = TRUE) {
-  if (is.model_list(x))
-    x <- get_variable_importance(x)
+#' machine_learn(pima_diabetes[1:50, ], patient_id, outcome = diabetes, tune = FALSE) %>%
+#'   get_variable_importance() %>%
+#'   plot()
+plot.variable_importance <- function(x,
+                         caption = "model",
+                         title = NULL,
+                         font_size = 11,
+                         point_size = 3,
+                         print = TRUE,
+                         ... ) {
+
   if ( (is.data.frame(x) && names(x) != c("variable", "importance") ) ||
-      !is.data.frame(x))
-    stop("x must be a model_list or a data frame from get_variable_importance")
+       !is.data.frame(x))
+    stop("x must be a data frame from get_variable_importance, or at least look like one!")
 
   if (caption == "model") {
     caption <- paste(attr(x, "model"), "variable importance")
@@ -37,7 +40,7 @@ plot_variable_importance <- function(x,
     x %>%
     filter(importance > 0) %>%
     ggplot(aes(x = reorder(variable, importance), y = importance)) +
-    geom_point(size = 3) +
+    geom_point(size = point_size) +
     coord_flip() +
     labs(title = title, caption = caption) +
     scale_x_discrete(name = NULL) +
@@ -49,22 +52,27 @@ plot_variable_importance <- function(x,
   return(invisible(the_plot))
 }
 
-#' Get variable importance
+#' Get variable importances
 #'
-#' @param x model_list
+#' @param models model_list object
 #'
-#' @return Data frame of variables and importance scores
+#' @return Data frame of variables and their importance for predictive power
 #' @export
 #'
+#' @details Some algorithms provide variable importance, others don't. The
+#'   best-performing model that offers variable importance will be used.
+#'
+#' @seealso \code{\link{plot.variable_importance}}
+#'
 #' @examples
-#' m <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = diabetes, tune = FALSE)
+#' m <- flash_models(mtcars, outcome = mpg, models = "rf")
 #' get_variable_importance(m)
-get_variable_importance <- function(x) {
-  importances <- lapply(x, safe_imp)
+get_variable_importance <- function(models) {
+  importances <- lapply(models, safe_imp)
   have_imp <- purrr::map_lgl(importances, ~ is.null(.x$error))
   if (!any(have_imp))
     stop("Can't get variable importance for any of these models.")
-  model_ranks <- rank_models(x)
+  model_ranks <- rank_models(models)
   # Use the best model (min rank) where we have variable importance
   use <- which.min(model_ranks[have_imp])
   # When we do multiclass, we'll want to average across cols in imp object
@@ -73,7 +81,10 @@ get_variable_importance <- function(x) {
     setNames(c("variable", "importance")) %>%
     dplyr::arrange(desc(importance)) %>%
     as_tibble() %>%
-    structure(model = names(x)[use])
+    structure(.,
+              model = names(models)[use],
+              class = c("variable_importance", class(.)))
+
 }
 
 safe_imp <- purrr::safely(~ caret::varImp(.x))

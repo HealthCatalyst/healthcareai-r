@@ -34,7 +34,6 @@
 #' @export
 #' @importFrom kknn kknn
 #' @importFrom ranger ranger
-#' @importFrom dplyr mutate
 #' @importFrom rlang quo_name
 #'
 #' @seealso \code{\link{prep_data}}, \code{\link{predict.model_list}},

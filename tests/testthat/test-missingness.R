@@ -1,12 +1,14 @@
 context("Checking missingness")
 
+dat <- data.frame(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
+                  b = c("blank", 0, "na", "None", "none", 3, 10, 4),
+                  c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
+                  d = c(1, 6, 7, 8, 9, 5, 10, 1078950492))
+suppressWarnings( out <- missingness(dat) )
+suppressWarnings( out_vec <- missingness(dat, return_df = FALSE) )
+manual <- sort(100 * sapply(dat, function(x) sum(is.na(x))) / nrow(dat))
+
 test_that("For a given dataframe, function returns expected output", {
-  dat <- data.frame(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
-                    b = c("blank", 0, "na", "None", "none", 3, 10, 4),
-                    c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
-                    d = c(1, 6, 7, 8, 9, 5, 10, 1078950492))
-  expect_warning( out <- missingness(dat) )
-  manual <- sort(100 * sapply(dat, function(x) sum(is.na(x))) / nrow(dat))
   expect_equal(
     out$percent_missing,
     unname(manual)
@@ -39,13 +41,35 @@ test_that("For a given vector, function returns expected output", {
 })
 
 test_that("Output is of right class", {
-  d3 <- data.frame(x = 1:2, y = c("a", "b"))
-  expect_true(is.data.frame(missingness(d3)))
-  expect_true(is.data.frame(missingness(d3, return_df = TRUE)))
-  expect_true(is.vector(missingness(d3, return_df = FALSE)))
+  expect_s3_class(out, "data.frame")
+  expect_s3_class(out, "missingness")
+  expect_true(is.numeric(out_vec))
+  expect_s3_class(out_vec, "missingness")
 })
 
 test_that("Variable names aren't repeated in rownames", {
   out <- missingness(data.frame(x = 1:2, y = c("a", NA)))
   expect_true(length(setdiff(rownames(out), out$variable)) > 0)
+})
+
+test_that("missingness class is attached to DF", {
+  expect_s3_class(out, "missingness")
+})
+
+test_that("plot.missingness is registered generic", {
+  expect_true("plot.missingness" %in% methods("plot"))
+})
+
+test_that("plot.missingness returns a ggplot", {
+  expect_s3_class(plot(out), "gg")
+})
+
+test_that("plot.missingness seems to respect options", {
+  def <- plot(out)
+  custom <- plot(out, filter_zero = TRUE)
+  expect_false(isTRUE(all.equal(def, custom)))
+})
+
+test_that("plot.missingness works on vector input", {
+  expect_s3_class(plot(out_vec), "gg")
 })

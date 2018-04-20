@@ -14,29 +14,12 @@ test_that("control_chart returns a ggplot object", {
   expect_true(is.ggplot(output))
   output <- control_chart(test_df, "outcome", group1 = "var1", group2 = "var2")
   expect_true(is.ggplot(output))
-  output <- control_chart(test_df, "outcome", group1 = "var1", group2 = "var2",
-                          save_to = "tmpFile.png")
-  expect_true(is.ggplot(output))
-})
-
-test_that("control_chart writes file if given a save_to path", {
-  suppressWarnings(invisible(file.remove("tmpFile.png")))
-  output <- control_chart(test_df, "outcome", save_to = "tmpFile.png")
-  expect_true(file.exists("tmpFile.png"))
-})
-
-test_that("no file written when filename isn't provided", {
-  n_files <- list.files()
-  x <- control_chart(test_df, "outcome")
-  expect_equal(n_files, list.files())
 })
 
 test_that("control_chart takes csv filepath as argumnent", {
   readr::write_csv(test_df, "tmpFile.csv")
   output <- control_chart(d = "tmpFile.csv", measure = "outcome")
   expect_true(is.ggplot(output))
-  control_chart(d = "tmpFile.csv", measure = "outcome", save_to = "tmpFile.png")
-  expect_true(file.exists("tmpFile.png"))
 })
 
 test_that("control_chart errors if it doesn't get a data frame", {
@@ -57,14 +40,6 @@ test_that("control_chart errors if measure or x column not present", {
   expect_error(control_chart(test_df, "outcome", group2 = "not_here"),
                regexp = "column")
   expect_error(control_chart(test_df, "outcome", x = "i'm not a variable"))
-})
-
-test_that("control_chart errors if save_to doesn't look like an image file", {
-  expect_error(control_chart(test_df, "outcome", save_to = "file"))
-  expect_error(control_chart(test_df, "outcome", save_to = "file.notextension"))
-  # test there isn't an error if extension is all caps
-  expect_error(control_chart(test_df, "outcome", save_to = "tmpFile.PNG"),
-               regexp = NA)
 })
 
 test_that("control_chart has correct number of panels", {
@@ -110,4 +85,4 @@ test_that("calculate_bounds returns correct values with non-defaults", {
 })
 
 # Clean up ---------------------------------------------------------------------
-invisible(file.remove(c("tmpFile.png", "tmpFile.csv")))
+invisible(file.remove("tmpFile.csv"))

@@ -2,7 +2,7 @@
 % Please edit documentation in R/predict.R
 \name{predict.model_list}
 \alias{predict.model_list}
-\title{Make predictions using the best-performing model from tuning}
+\title{Make predictions using the best-performing model}
 \usage{
 \method{predict}{model_list}(object, newdata, prepdata, ...)
 }
@@ -37,7 +37,7 @@ A tibble data frame: newdata with an additional column for the
   make predictions.
 }
 \description{
-Make predictions using the best-performing model from tuning
+Make predictions using the best-performing model
 }
 \details{
 The model and hyperparameter values with the best out-of-fold

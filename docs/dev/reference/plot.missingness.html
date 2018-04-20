@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Plot performance of models — plot.model_list • healthcareai</title>
+<title>Plot missingness — plot.missingness • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,9 +25,9 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Plot performance of models — plot.model_list" />
+<meta property="og:title" content="Plot missingness — plot.missingness" />
 
-<meta property="og:description" content="Plot performance of models" />
+<meta property="og:description" content="Plot missingness" />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -133,25 +133,33 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Plot performance of models</h1>
+    <h1>Plot missingness</h1>
     
     </div>
 
     
-    <p>Plot performance of models</p>
+    <p>Plot missingness</p>
     
 
-    <pre class="usage"><span class='co'># S3 method for model_list</span>
-<span class='fu'>plot</span>(<span class='no'>x</span>, <span class='kw'>font_size</span> <span class='kw'>=</span> <span class='fl'>11</span>, <span class='kw'>point_size</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>print</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='co'># S3 method for missingness</span>
+<span class='fu'>plot</span>(<span class='no'>x</span>, <span class='kw'>filter_zero</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>font_size</span> <span class='kw'>=</span> <span class='fl'>11</span>, <span class='kw'>point_size</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>print</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>modellist object as returned by <code><a href='tune_models.html'>tune_models</a></code> or
-<code><a href='machine_learn.html'>machine_learn</a></code></p></td>
+      <td><p>Data frame from <code><a href='missingness.html'>missingness</a></code></p></td>
+    </tr>
+    <tr>
+      <th>filter_zero</th>
+      <td><p>Remove variables with no missingness from the plot?
+Default = FALSE</p></td>
+    </tr>
+    <tr>
+      <th>title</th>
+      <td><p>Plot title</p></td>
     </tr>
     <tr>
       <th>font_size</th>
@@ -163,7 +171,7 @@
     </tr>
     <tr>
       <th>print</th>
-      <td><p>If TRUE (default) plot is printed</p></td>
+      <td><p>Print the plot? Default = TRUE</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -173,16 +181,17 @@
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Plot of model performance as a function of algorithm and
-  hyperparameter values tuned over. Generally called for the side effect of
-  printing a plot, but the plot is also invisibly returned. The
-  best-performing model within each algorithm will be plotted as a triangle.</p>
+    <p>A ggplot object, invisibly.</p>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='missingness.html'>missingness</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>models</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='tune_models.html'>tune_models</a></span>(<span class='no'>mtcars</span>, <span class='no'>mpg</span>, <span class='kw'>models</span> <span class='kw'>=</span> <span class='st'>"knn"</span>, <span class='kw'>tune_depth</span> <span class='kw'>=</span> <span class='fl'>5</span>)</div><div class='output co'>#&gt; <span class='message'>mpg looks numeric, so training regression algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Training with cross validation: k-Nearest Neighbors</span></div><div class='output co'>#&gt; <span class='message'></span>
-#&gt; <span class='message'>*** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
-#&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='input'><span class='fu'>plot</span>(<span class='no'>models</span>)</div><div class='img'><img src='plot.model_list-1.png' alt='' width='576' height='288' /></div></pre>
+    <pre class="examples"><div class='input'><span class='no'>pima_diabetes</span> <span class='kw'>%&gt;%</span>
+  <span class='fu'><a href='missingness.html'>missingness</a></span>() <span class='kw'>%&gt;%</span>
+  <span class='fu'>plot</span>()</div><div class='img'><img src='plot.missingness-1.png' alt='' width='576' height='288' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -190,6 +199,8 @@
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#see-also">See also</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>

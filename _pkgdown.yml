@@ -41,31 +41,30 @@ navbar:
 
 reference:
   - title: Model Training
-    desc: Train machine learning models
     contents:
     - machine_learn
     - tune_models
     - flash_models
   - title: Prediction
-    desc: Make predictions from trained models
     contents:
     - predict.model_list
-    - plot.predicted_df
   - title: Model Interpretation
-    desc: Understand models
     contents:
     - evaluate
-    - plot.model_list
     - get_variable_importance
-    - plot_variable_importance
+  - title: Visualization
+    contents:
+    - plot.model_list
+    - plot.predicted_df
+    - plot.variable_importance
+    - plot.missingness
+    - control_chart
   - title: Data Preparation
-    desc: Get data ready for machine learning
     contents:
     - prep_data
     - impute
     - split_train_test
   - title: Data Manipulation
-    desc: Reshape data
     contents:
     - pivot
     - separate_drgs
@@ -77,21 +76,15 @@ reference:
     contents:
     - build_connection_string
     - db_read
-  - title: Visualization
-    contents:
-    - starts_with("plot")
-    - control_chart
   - title: Logging
-    desc: Record model activity in production
     contents:
     - start_prod_logs
     - stop_prod_logs
     - catalyst_test_deploy_in_prod
-  - title: Saving and Loading Models
+  - title: Save and Load Models
     contents:
     - save_models
-  - title: Data
-    desc: Supplied datasets
+  - title: Example Data
     contents:
     - pima_diabetes
 
