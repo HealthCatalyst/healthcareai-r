@@ -64,3 +64,99 @@ find_new_missingness <- function(d, recipe) {
   new_missing <- dplyr::setdiff(missing_now, missing_then)
   return(dplyr::intersect(new_missing, predictors))
 }
+
+#' @title Convert character date columns to dates
+#'
+#' @description This function is called in \code{\link{prep_data}} and so
+#'   shouldn't usually need to be called directly. It tries to convert columns
+#'   ending in "DTS" to type Date. It makes a best guess at the format and
+#'   return a more standard one if possible. Times are be removed.
+#'
+#' @param d A dataframe or tibble containing data to try to convert to dates.
+#'
+#' @return A tibble containing the converted date columns. If no columns needed
+#'   conversion, the original data will be returned.
+#' @import purrr
+#' @importFrom lubridate guess_formats date
+#' @export
+#'
+#' @examples
+#' d <- tibble::tibble(a_DTS = c("2018-3-25", "2018-3-25"),
+#'                     b_nums = c(2, 4),
+#'                     c_DTS = c("03-01-2018", "03-07-2018"),
+#'                     d_chars = c("a", "b"),
+#'                     e_date = lubridate::mdy(c("3-25-2018", "3-25-2018")))
+#' convert_date_cols(d)
+convert_date_cols <- function(d) {
+  # Extract character date columns only
+  col_names <- names(d)[map_lgl(names(d), ~ grepl("DTS$", .x))]
+  dates <- map_lgl(d[, col_names], ~ lubridate::is.Date(.x) || lubridate::is.POSIXt(.x))
+  col_names <- col_names[!dates]
+  dd <- tibble::as_tibble(d[1, col_names, drop = FALSE])
+
+  # Nothing to convert
+  if (!length(dd))
+    return(d)
+
+  # Guess formats for each column
+  date_formats <- map(dd,
+                      guess_formats,
+                      orders = c("ymd", "mdy", "ymd HMS", "mdy HMS"))
+
+  # Build tibble with name, first entry in date columns, and guessed formats
+  d_dates <- tibble(names = col_names,
+                    first_entry = as.character(
+                      slice(dd, 1) %>% unlist(., use.names = FALSE)),
+                    guessed_formats = date_formats,
+                    has_guesses = !(map_lgl(guessed_formats, is.null)))
+
+  # Remove rows with no guessed formats, save the names, and unnest
+  bad_date_cols <- d_dates %>%
+    filter(has_guesses == FALSE) %>%
+    pull(names)
+
+  d_dates <- d_dates %>%
+    filter(has_guesses == TRUE) %>%
+    tidyr::unnest()
+
+  # Try to convert each row using the format, then group by name
+  d_dates <- d_dates %>%
+    mutate(converted_date = as.POSIXct(
+      x = first_entry, format = guessed_formats),
+      is_valid = !(is.na(converted_date))) %>%
+    group_by(names)
+
+  # Remove names that have only non-working formats
+  more_bad <- d_dates %>%
+    summarize(any_valid = any(is_valid)) %>%
+    filter(any_valid == FALSE) %>%
+    pull(names)
+
+  # Error for no guessed formats or no working guessed formats
+  bad_date_cols <- c(bad_date_cols, more_bad)
+  if (length(bad_date_cols)) {
+    stop(paste("Unable to convert the following columns to dates. Convert",
+         "them to ymd, mdy, ymd hms, or mdy hms format. See lubridate::as_date",
+         "or as.POSIXct for more info. \n"), paste(bad_date_cols, collapse = ", "))
+  }
+
+  # Collect working formats
+  d_dates <- d_dates %>%
+    summarize(converted_date = last(converted_date),
+              working_format = last(guessed_formats)) %>%
+    arrange(names)
+
+  # Ensure format order and column order is the same.
+  dd <- d[, col_names[order(col_names)]]
+
+  # Convert dates in original data
+  stopifnot(all.equal(names(dd), d_dates$names))
+  dd <- map2_df(dd, d_dates$working_format, function(x, y) {
+    out <- date(as.POSIXct(x = x, format = y))
+  })
+
+  # Replace and reorder original dataframe
+  d[names(dd)] <- dd
+
+  return(tibble::as_tibble(d))
+}

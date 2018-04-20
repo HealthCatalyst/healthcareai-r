@@ -54,7 +54,10 @@ reference:
     - get_variable_importance
   - title: Visualization
     contents:
-    - starts_with("plot")
+    - plot.model_list
+    - plot.predicted_df
+    - plot.variable_importance
+    - plot.missingness
     - control_chart
   - title: Data Preparation
     contents:
