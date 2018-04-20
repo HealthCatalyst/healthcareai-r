@@ -85,8 +85,10 @@ summary.model_list <- function(object, ...) {
 #'
 #' @param x modellist object as returned by \code{\link{tune_models}} or
 #'   \code{\link{machine_learn}}
+#' @param font_size Relative size of all fonts in plot, default = 11
+#' @param point_size Size of dots, default = 3
 #' @param print If TRUE (default) plot is printed
-#' @param ... generic compatability
+#' @param ... Unused
 #'
 #' @return Plot of model performance as a function of algorithm and
 #'   hyperparameter values tuned over. Generally called for the side effect of
@@ -99,7 +101,8 @@ summary.model_list <- function(object, ...) {
 #' @examples
 #' models <- tune_models(mtcars, mpg, models = "knn", tune_depth = 5)
 #' plot(models)
-plot.model_list <- function(x, print = TRUE, ...) {
+plot.model_list <- function(x, font_size = 11, point_size = 1,
+                            print = TRUE, ...) {
   if (!length(x))
     stop("x is empty.")
   if (!inherits(x, "model_list"))
@@ -128,22 +131,23 @@ plot.model_list <- function(x, print = TRUE, ...) {
             to_plot[[.x]] <- reorder(to_plot[[.x]], to_plot[[mod$metric]], FUN = optimum)
           p <-
             ggplot(to_plot, aes_string(x = .x, y = mod$metric,
-                                     color = "id", shape = "best")) +
-            geom_point() +
+                                       color = "id", shape = "best")) +
+            geom_point(size = point_size) +
             coord_flip() +
             scale_y_continuous(limits = y_range) +
             scale_color_discrete(guide = FALSE) +
             scale_shape_manual(values = c("TRUE" = 17, "FALSE" = 16), guide = FALSE) +
             xlab(NULL) +
-            labs(title = .x)
+            labs(title = .x) +
+            theme_gray(base_size = font_size)
           p <-
             if (.x != hps[length(hps)]) {
-            p + theme(axis.title.x = element_blank(),
-                           axis.text.x = element_blank(),
-                           axis.ticks.x = element_blank())
-          } else {
-            p + theme(axis.title.x = element_text(face = "bold"))
-          }
+              p + theme(axis.title.x = element_blank(),
+                        axis.text.x = element_blank(),
+                        axis.ticks.x = element_blank())
+            } else {
+              p + theme(axis.title.x = element_text(face = "bold"))
+            }
           return(p)
         })
       title <-

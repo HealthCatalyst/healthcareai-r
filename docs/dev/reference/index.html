@@ -54,6 +54,8 @@
 
 </script>
 
+
+
   </head>
 
   <body>
@@ -118,6 +120,7 @@
   </a>
 </li>
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -125,274 +128,261 @@
       
       </header>
 
-      <div class="row">
-  <div class="col-md-9">
+<div class="row">
+  <div class="contents col-md-9">
     <div class="page-header">
       <h1>Reference</h1>
     </div>
 
-    <div class="contents">
-      <table class="ref-index">
+    <table class="ref-index">
 
-      <colgroup>
-        <col class="alias" />
-        <col class="title" />
-      </colgroup>
+    <colgroup>
+      <col class="alias" />
+      <col class="title" />
+    </colgroup>
 
-      <tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-model-training" class="hasAnchor"><a href="#section-model-training" class="anchor"></a>Model Training</h2>
-            <p class="section-desc"><p>Train machine learning models</p></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="machine_learn.html">machine_learn()</a></code> </p>
-          </td>
-          <td><p>Machine learning made easy</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="tune_models.html">tune_models()</a></code> </p>
-          </td>
-          <td><p>Tune multiple machine learning models using cross validation to optimize
+    <tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-model-training" class="hasAnchor"><a href="#section-model-training" class="anchor"></a>Model Training</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="machine_learn.html">machine_learn()</a></code> </p>
+        </td>
+        <td><p>Machine learning made easy</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="tune_models.html">tune_models()</a></code> </p>
+        </td>
+        <td><p>Tune multiple machine learning models using cross validation to optimize
 performance</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="flash_models.html">flash_models()</a></code> </p>
-          </td>
-          <td><p>Train models without tuning for performance</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-prediction" class="hasAnchor"><a href="#section-prediction" class="anchor"></a>Prediction</h2>
-            <p class="section-desc"><p>Make predictions from trained models</p></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="predict.model_list.html">predict(<i>&lt;model_list&gt;</i>)</a></code> </p>
-          </td>
-          <td><p>Make predictions using the best-performing model from tuning</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="plot.predicted_df.html">plot(<i>&lt;predicted_df&gt;</i>)</a></code> <code><a href="plot.predicted_df.html">plot_regression_predictions()</a></code> <code><a href="plot.predicted_df.html">plot_classification_predictions()</a></code> </p>
-          </td>
-          <td><p>Plot model predictions vs observed outcomes</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-model-interpretation" class="hasAnchor"><a href="#section-model-interpretation" class="anchor"></a>Model Interpretation</h2>
-            <p class="section-desc"><p>Understand models</p></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="evaluate.html">evaluate()</a></code> </p>
-          </td>
-          <td><p>Get model performance metrics</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="plot.model_list.html">plot(<i>&lt;model_list&gt;</i>)</a></code> </p>
-          </td>
-          <td><p>Plot performance of models</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="get_variable_importance.html">get_variable_importance()</a></code> </p>
-          </td>
-          <td><p>Get variable importance</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="plot_variable_importance.html">plot_variable_importance()</a></code> </p>
-          </td>
-          <td><p>Plot variable importance</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-data-preparation" class="hasAnchor"><a href="#section-data-preparation" class="anchor"></a>Data Preparation</h2>
-            <p class="section-desc"><p>Get data ready for machine learning</p></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="prep_data.html">prep_data()</a></code> </p>
-          </td>
-          <td><p>Prepare data for machine learning</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="impute.html">impute()</a></code> </p>
-          </td>
-          <td><p>Impute data and return a reusable recipe</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="split_train_test.html">split_train_test()</a></code> </p>
-          </td>
-          <td><p>Split data into training and test data frames</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-data-manipulation" class="hasAnchor"><a href="#section-data-manipulation" class="anchor"></a>Data Manipulation</h2>
-            <p class="section-desc"><p>Reshape data</p></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="pivot.html">pivot()</a></code> </p>
-          </td>
-          <td><p>Pivot multiple rows per observation to one row with multiple columns</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="separate_drgs.html">separate_drgs()</a></code> </p>
-          </td>
-          <td><p>Convert MSDRGs into a "base DRG" and complication level</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="add_SAM_utility_cols.html">add_SAM_utility_cols()</a></code> </p>
-          </td>
-          <td><p>Add SAM utility columns to table</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-data-profiling" class="hasAnchor"><a href="#section-data-profiling" class="anchor"></a>Data Profiling</h2>
-            <p class="section-desc"></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="missingness.html">missingness()</a></code> </p>
-          </td>
-          <td><p>Find missingness in each column and search for strings that might represent missing values</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-connect-to-databases" class="hasAnchor"><a href="#section-connect-to-databases" class="anchor"></a>Connect to Databases</h2>
-            <p class="section-desc"></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="build_connection_string.html">build_connection_string()</a></code> </p>
-          </td>
-          <td><p>Build a connection string for use with MSSQL and dbConnect</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="db_read.html">db_read()</a></code> </p>
-          </td>
-          <td><p>Read from a SQL Server database table</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-visualization" class="hasAnchor"><a href="#section-visualization" class="anchor"></a>Visualization</h2>
-            <p class="section-desc"></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="plot.model_list.html">plot(<i>&lt;model_list&gt;</i>)</a></code> </p>
-          </td>
-          <td><p>Plot performance of models</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="plot.predicted_df.html">plot(<i>&lt;predicted_df&gt;</i>)</a></code> <code><a href="plot.predicted_df.html">plot_regression_predictions()</a></code> <code><a href="plot.predicted_df.html">plot_classification_predictions()</a></code> </p>
-          </td>
-          <td><p>Plot model predictions vs observed outcomes</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="plot_variable_importance.html">plot_variable_importance()</a></code> </p>
-          </td>
-          <td><p>Plot variable importance</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="control_chart.html">control_chart()</a></code> </p>
-          </td>
-          <td><p>Create a control chart</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-logging" class="hasAnchor"><a href="#section-logging" class="anchor"></a>Logging</h2>
-            <p class="section-desc"><p>Record model activity in production</p></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="start_prod_logs.html">start_prod_logs()</a></code> </p>
-          </td>
-          <td><p>Sets console logging to a file in the working directory.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="stop_prod_logs.html">stop_prod_logs()</a></code> </p>
-          </td>
-          <td><p>Stops all console logging.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="catalyst_test_deploy_in_prod.html">catalyst_test_deploy_in_prod()</a></code> </p>
-          </td>
-          <td><p>Test function to check that the production environment is active.</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-saving-and-loading-models" class="hasAnchor"><a href="#section-saving-and-loading-models" class="anchor"></a>Saving and Loading Models</h2>
-            <p class="section-desc"></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="save_models.html">save_models()</a></code> <code><a href="save_models.html">load_models()</a></code> </p>
-          </td>
-          <td><p>Save models to disk and load models from disk</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-data" class="hasAnchor"><a href="#section-data" class="anchor"></a>Data</h2>
-            <p class="section-desc"><p>Supplied datasets</p></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="pima_diabetes.html">pima_diabetes</a></code> </p>
-          </td>
-          <td><p>Patient diabetes dataset</p></td>
-        </tr>
-      </tbody>
-      </table>
-    </div>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="flash_models.html">flash_models()</a></code> </p>
+        </td>
+        <td><p>Train models without tuning for performance</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-prediction" class="hasAnchor"><a href="#section-prediction" class="anchor"></a>Prediction</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="predict.model_list.html">predict(<i>&lt;model_list&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Make predictions using the best-performing model from tuning</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-model-interpretation" class="hasAnchor"><a href="#section-model-interpretation" class="anchor"></a>Model Interpretation</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="evaluate.html">evaluate()</a></code> </p>
+        </td>
+        <td><p>Get model performance metrics</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="get_variable_importance.html">get_variable_importance()</a></code> </p>
+        </td>
+        <td><p>Get variable importances</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-visualization" class="hasAnchor"><a href="#section-visualization" class="anchor"></a>Visualization</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="plot.missingness.html">plot(<i>&lt;missingness&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Plot missingness</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="plot.model_list.html">plot(<i>&lt;model_list&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Plot performance of models</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="plot.predicted_df.html">plot(<i>&lt;predicted_df&gt;</i>)</a></code> <code><a href="plot.predicted_df.html">plot_regression_predictions()</a></code> <code><a href="plot.predicted_df.html">plot_classification_predictions()</a></code> </p>
+        </td>
+        <td><p>Plot model predictions vs observed outcomes</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="plot.variable_importance.html">plot(<i>&lt;variable_importance&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Plot variable importance</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="control_chart.html">control_chart()</a></code> </p>
+        </td>
+        <td><p>Create a control chart</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-data-preparation" class="hasAnchor"><a href="#section-data-preparation" class="anchor"></a>Data Preparation</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="prep_data.html">prep_data()</a></code> </p>
+        </td>
+        <td><p>Prepare data for machine learning</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="impute.html">impute()</a></code> </p>
+        </td>
+        <td><p>Impute data and return a reusable recipe</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="split_train_test.html">split_train_test()</a></code> </p>
+        </td>
+        <td><p>Split data into training and test data frames</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-data-manipulation" class="hasAnchor"><a href="#section-data-manipulation" class="anchor"></a>Data Manipulation</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="pivot.html">pivot()</a></code> </p>
+        </td>
+        <td><p>Pivot multiple rows per observation to one row with multiple columns</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="separate_drgs.html">separate_drgs()</a></code> </p>
+        </td>
+        <td><p>Convert MSDRGs into a "base DRG" and complication level</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="add_SAM_utility_cols.html">add_SAM_utility_cols()</a></code> </p>
+        </td>
+        <td><p>Add SAM utility columns to table</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-data-profiling" class="hasAnchor"><a href="#section-data-profiling" class="anchor"></a>Data Profiling</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="missingness.html">missingness()</a></code> </p>
+        </td>
+        <td><p>Find missingness in each column and search for strings that might represent
+missing values</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-connect-to-databases" class="hasAnchor"><a href="#section-connect-to-databases" class="anchor"></a>Connect to Databases</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="build_connection_string.html">build_connection_string()</a></code> </p>
+        </td>
+        <td><p>Build a connection string for use with MSSQL and dbConnect</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="db_read.html">db_read()</a></code> </p>
+        </td>
+        <td><p>Read from a SQL Server database table</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-logging" class="hasAnchor"><a href="#section-logging" class="anchor"></a>Logging</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="start_prod_logs.html">start_prod_logs()</a></code> </p>
+        </td>
+        <td><p>Sets console logging to a file in the working directory.</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="stop_prod_logs.html">stop_prod_logs()</a></code> </p>
+        </td>
+        <td><p>Stops all console logging.</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="catalyst_test_deploy_in_prod.html">catalyst_test_deploy_in_prod()</a></code> </p>
+        </td>
+        <td><p>Test function to check that the production environment is active.</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-save-and-load-models" class="hasAnchor"><a href="#section-save-and-load-models" class="anchor"></a>Save and Load Models</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="save_models.html">save_models()</a></code> <code><a href="save_models.html">load_models()</a></code> </p>
+        </td>
+        <td><p>Save models to disk and load models from disk</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-example-data" class="hasAnchor"><a href="#section-example-data" class="anchor"></a>Example Data</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="pima_diabetes.html">pima_diabetes</a></code> </p>
+        </td>
+        <td><p>Patient diabetes dataset</p></td>
+      </tr>
+    </tbody>
+    </table>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -401,14 +391,14 @@ performance</p></td>
       <li><a href="#section-model-training">Model Training</a></li>
       <li><a href="#section-prediction">Prediction</a></li>
       <li><a href="#section-model-interpretation">Model Interpretation</a></li>
+      <li><a href="#section-visualization">Visualization</a></li>
       <li><a href="#section-data-preparation">Data Preparation</a></li>
       <li><a href="#section-data-manipulation">Data Manipulation</a></li>
       <li><a href="#section-data-profiling">Data Profiling</a></li>
       <li><a href="#section-connect-to-databases">Connect to Databases</a></li>
-      <li><a href="#section-visualization">Visualization</a></li>
       <li><a href="#section-logging">Logging</a></li>
-      <li><a href="#section-saving-and-loading-models">Saving and Loading Models</a></li>
-      <li><a href="#section-data">Data</a></li>
+      <li><a href="#section-save-and-load-models">Save and Load Models</a></li>
+      <li><a href="#section-example-data">Example Data</a></li>
     </ul>
   </div>
 </div>
@@ -424,6 +414,8 @@ performance</p></td>
 
       </footer>
    </div>
+
+  
 
   </body>
 </html>

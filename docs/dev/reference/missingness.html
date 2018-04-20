@@ -6,7 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Find missingness in each column and search for strings that might represent missing values — missingness • healthcareai</title>
+<title>Find missingness in each column and search for strings that might represent
+missing values — missingness • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,10 +26,12 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Find missingness in each column and search for strings that might represent missing values — missingness" />
+<meta property="og:title" content="Find missingness in each column and search for strings that might represent
+missing values — missingness" />
 
-<meta property="og:description" content="Finds the percent of NAs in a vector or in each column of a dataframe or
-matrix or in a vector. Possible mis-coded missing values are searched for and a warning issued if they are found." />
+<meta property="og:description" content="Finds the percent of NAs in a vector or in each column of a
+  dataframe or matrix or in a vector. Possible mis-coded missing values are
+  searched for and a warning issued if they are found." />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -56,6 +59,8 @@ matrix or in a vector. Possible mis-coded missing values are searched for and a 
   ga('send', 'pageview');
 
 </script>
+
+
 
   </head>
 
@@ -121,6 +126,7 @@ matrix or in a vector. Possible mis-coded missing values are searched for and a 
   </a>
 </li>
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -128,16 +134,18 @@ matrix or in a vector. Possible mis-coded missing values are searched for and a 
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Find missingness in each column and search for strings that might represent missing values</h1>
+    <h1>Find missingness in each column and search for strings that might represent
+missing values</h1>
     
     </div>
 
     
-    <p>Finds the percent of NAs in a vector or in each column of a dataframe or
-matrix or in a vector. Possible mis-coded missing values are searched for and a warning issued if they are found.</p>
+    <p>Finds the percent of NAs in a vector or in each column of a
+  dataframe or matrix or in a vector. Possible mis-coded missing values are
+  searched for and a warning issued if they are found.</p>
     
 
     <pre class="usage"><span class='fu'>missingness</span>(<span class='no'>d</span>, <span class='kw'>return_df</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>to_search</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"NA"</span>, <span class='st'>"NAs"</span>, <span class='st'>"na"</span>, <span class='st'>"NaN"</span>,
@@ -152,17 +160,25 @@ matrix or in a vector. Possible mis-coded missing values are searched for and a 
     </tr>
     <tr>
       <th>return_df</th>
-      <td><p>If TRUE (default) a data frame is returned, which generally makes reading the output easier. If variable names are so long that the data frame gets wrapped poorly, set this to FALSE.</p></td>
+      <td><p>If TRUE (default) a data frame is returned, which generally
+makes reading the output easier. If variable names are so long that the
+data frame gets wrapped poorly, set this to FALSE.</p></td>
     </tr>
     <tr>
       <th>to_search</th>
-      <td><p>A vector of strings that might represent missingness. If found in <code>d</code>, a warning is issued.</p></td>
+      <td><p>A vector of strings that might represent missingness. If
+found in <code>d</code>, a warning is issued.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A data frame with two columns: variable names in <code>d</code> and the percent of entries in each variable that are missing.</p>
+    <p>A data frame with two columns: variable names in <code>d</code> and the
+  percent of entries in each variable that are missing.</p>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='plot.missingness.html'>plot.missingness</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
@@ -180,6 +196,8 @@ matrix or in a vector. Possible mis-coded missing values are searched for and a 
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#see-also">See also</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>
@@ -198,6 +216,8 @@ matrix or in a vector. Possible mis-coded missing values are searched for and a 
 
       </footer>
    </div>
+
+  
 
   </body>
 </html>
