@@ -2,10 +2,15 @@
 % Please edit documentation in R/setup_hyperparameters.R
 \name{get_hyperparameter_defaults}
 \alias{get_hyperparameter_defaults}
-\title{Get default hyperparameter lists that can be passed to flash_models}
+\alias{hyperparameters}
+\alias{get_random_hyperparameters}
+\title{Get hyperparameter values}
 \usage{
 get_hyperparameter_defaults(models = get_supported_models(), n = 100,
   k = 10, model_class = "classification")
+
+get_random_hyperparameters(models = get_supported_models(), n = 100,
+  k = 10, tune_depth = 5, model_class = "classification")
 }
 \arguments{
 \item{models}{which algorithms?}
@@ -15,23 +20,33 @@ get_hyperparameter_defaults(models = get_supported_models(), n = 100,
 \item{k}{Number features}
 
 \item{model_class}{"classification" or "regression"}
+
+\item{tune_depth}{How many combinations of hyperparameter values?}
 }
 \value{
-List of named data frames that can be passed to
-  \code{\link{flash_models}}
+Named list of data frames. Each data frame corresponds to an
+ algorithm, and each column in each data fram corresponds to a hyperparameter
+ for that algorithm. This is the same format that should be provided to
+ \code{tune_models(hyperparameters = )} to specify hyperparameter values.
 }
 \description{
-Get default hyperparameter lists that can be passed to flash_models
+Get hyperparameter values
 }
 \details{
-Get default hyperparameters to use, e.g. in flash_models. Each data
-  frame in the list corresponds to an algorithm, and each column in each data
-  fram corresponds to a hyperparameter for that algorithm.
+Get hyperparameters for model training.
+ \code{get_hyperparameter_defaults} returns a list of 1-row data frames with
+ default hyperparameter values that are used by \code{flash_models}.
+ \code{get_random_hyperparameters} returns a list of data frames with
+ combinations of random values of hyperparameters to tune over in
+ \code{tune_models}; the number of rows in the data frames is given by
+ `tune_depth`.
 
-  k-NN defaults are from the kknn package: kmax = 7, distance = 2
-  (Minkowski's exponent, i.e. Euclidean distance), kernal = "optimal"
-
-  Random forest defaults are from Intro to Statistical Learning and caret:
-  mtry = sqrt(k), splitrule = "extratrees", min.node.size = 1 for
-  classification, 5 for regression
+ For \code{get_hyperparameter_defaults} k-NN defaults are from the kknn
+ package: kmax = 7, distance = 2 (Minkowski's exponent, i.e. Euclidean
+ distance), kernal = "optimal". Random forest defaults are from Intro to
+ Statistical Learning and caret: mtry = sqrt(k), splitrule = "extratrees",
+ min.node.size = 1 for classification, 5 for regression
+}
+\seealso{
+\code{\link{models}} for model and hyperparameter details
 }

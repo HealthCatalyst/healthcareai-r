@@ -236,18 +236,17 @@ format_performance <- function(perf) {
     paste(names(.), ., sep = " = ", collapse = ", ")
 }
 
-#' Class check
-#' @param x object
-#' @return logical
+#' Type checks
 #' @export
+#' @param x Object
+#' @rdname is.model_list
+#' @return Logical
 is.model_list <- function(x) "model_list" %in% class(x)
-#' Class check
-#' @param x object
-#' @return logical
+
 #' @export
+#' @rdname is.model_list
 is.classification_list <- function(x) "classification_list" %in% class(x)
-#' Class check
-#' @param x object
-#' @return logical
+
 #' @export
+#' @rdname is.model_list
 is.regression_list <- function(x) "regression_list" %in% class(x)

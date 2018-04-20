@@ -210,20 +210,20 @@ sent through `prep_data`.</p></td>
 <span class='co'># tuning cross validation, and it also prepares the new data in the same way as</span>
 <span class='co'># the training data was prepared.</span>
 
-<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>41</span>:<span class='fl'>50</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by k-Nearest Neighbors last trained: 2018-04-19 22:27:19</span>
-#&gt; <span class='message'>Performance in training: AUROC = 0.71</span></div><div class='output co'>#&gt; # A tibble: 10 x 11
+<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>41</span>:<span class='fl'>50</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-04-19 23:19:36</span>
+#&gt; <span class='message'>Performance in training: AUROC = 0.7</span></div><div class='output co'>#&gt; # A tibble: 10 x 11
 #&gt;    diabetes predicted_diabe… patient_id pregnancies plasma_glucose diastolic_bp
 #&gt;  * &lt;chr&gt;               &lt;dbl&gt;      &lt;int&gt;       &lt;int&gt;          &lt;int&gt;        &lt;int&gt;
-#&gt;  1 N                      1.         41           3            180           64
-#&gt;  2 N                      0.         42           7            133           84
-#&gt;  3 N                      0.         43           7            106           92
-#&gt;  4 Y                      1.         44           9            171          110
-#&gt;  5 N                      0.         45           7            159           64
-#&gt;  6 Y                      1.         46           0            180           66
-#&gt;  7 N                      0.         47           1            146           56
-#&gt;  8 N                      0.         48           2             71           70
-#&gt;  9 Y                      1.         49           7            103           66
-#&gt; 10 N                      1.         50           7            105           NA
+#&gt;  1 N                   0.604         41           3            180           64
+#&gt;  2 N                   0.540         42           7            133           84
+#&gt;  3 N                   0.396         43           7            106           92
+#&gt;  4 Y                   0.568         44           9            171          110
+#&gt;  5 N                   0.531         45           7            159           64
+#&gt;  6 Y                   0.581         46           0            180           66
+#&gt;  7 N                   0.522         47           1            146           56
+#&gt;  8 N                   0.472         48           2             71           70
+#&gt;  9 Y                   0.569         49           7            103           66
+#&gt; 10 N                   0.570         50           7            105           NA
 #&gt; # ... with 5 more variables: skinfold &lt;int&gt;, insulin &lt;int&gt;, weight_class &lt;chr&gt;,
 #&gt; #   pedigree &lt;dbl&gt;, age &lt;int&gt;</div><div class='input'><span class='fu'>plot</span>(<span class='no'>predictions</span>)</div><div class='img'><img src='predict.model_list-1.png' alt='' width='576' height='288' /></div></pre>
   </div>

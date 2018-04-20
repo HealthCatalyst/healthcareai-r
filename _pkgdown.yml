@@ -87,6 +87,10 @@ reference:
   - title: Example Data
     contents:
     - pima_diabetes
+  - title: Model Details
+    contents:
+    - models
+    - hyperparameters
 
 figures:
   fig.asp: NULL

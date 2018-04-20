@@ -39,9 +39,9 @@ hyperparameter values to tune over. If NULL (default) a random,
 performed. If provided, this overrides tune_depth. Should be a named list
 of data frames where the names of the list correspond to models (e.g. "rf")
 and each column in the data frame contains hyperparameter values. See
-\code{healthcareai:::get_random_hyperparameters()} for a template. If only
-one model is specified to the \code{models} argument, the data frame can be
-provided bare to this argument.}
+\code{\link{hyperparameters}} for a template. If only one model is
+specified to the \code{models} argument, the data frame can be provided
+bare to this argument.}
 
 \item{model_class}{"regression" or "classification". If not provided, this
 will be determined by the class of `outcome` with the determination

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get default hyperparameter lists that can be passed to flash_models — get_hyperparameter_defaults • healthcareai</title>
+<title>Get hyperparameter values — get_hyperparameter_defaults • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,9 +25,9 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Get default hyperparameter lists that can be passed to flash_models — get_hyperparameter_defaults" />
+<meta property="og:title" content="Get hyperparameter values — get_hyperparameter_defaults" />
 
-<meta property="og:description" content="Get default hyperparameter lists that can be passed to flash_models" />
+<meta property="og:description" content="Get hyperparameter values" />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -133,16 +133,19 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get default hyperparameter lists that can be passed to flash_models</h1>
+    <h1>Get hyperparameter values</h1>
     
     </div>
 
     
-    <p>Get default hyperparameter lists that can be passed to flash_models</p>
+    <p>Get hyperparameter values</p>
     
 
     <pre class="usage"><span class='fu'>get_hyperparameter_defaults</span>(<span class='kw'>models</span> <span class='kw'>=</span> <span class='fu'><a href='get_supported_models.html'>get_supported_models</a></span>(), <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>100</span>,
-  <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>model_class</span> <span class='kw'>=</span> <span class='st'>"classification"</span>)</pre>
+  <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>model_class</span> <span class='kw'>=</span> <span class='st'>"classification"</span>)
+
+<span class='fu'>get_random_hyperparameters</span>(<span class='kw'>models</span> <span class='kw'>=</span> <span class='fu'><a href='get_supported_models.html'>get_supported_models</a></span>(), <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>100</span>,
+  <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>tune_depth</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>model_class</span> <span class='kw'>=</span> <span class='st'>"classification"</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -163,23 +166,37 @@
       <th>model_class</th>
       <td><p>"classification" or "regression"</p></td>
     </tr>
+    <tr>
+      <th>tune_depth</th>
+      <td><p>How many combinations of hyperparameter values?</p></td>
+    </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>List of named data frames that can be passed to
-  <code><a href='flash_models.html'>flash_models</a></code></p>
+    <p>Named list of data frames. Each data frame corresponds to an
+ algorithm, and each column in each data fram corresponds to a hyperparameter
+ for that algorithm. This is the same format that should be provided to
+ <code><a href='tune_models.html'>tune_models(hyperparameters = )</a></code> to specify hyperparameter values.</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Get default hyperparameters to use, e.g. in flash_models. Each data
-  frame in the list corresponds to an algorithm, and each column in each data
-  fram corresponds to a hyperparameter for that algorithm.</p>
-<p>k-NN defaults are from the kknn package: kmax = 7, distance = 2
-  (Minkowski's exponent, i.e. Euclidean distance), kernal = "optimal"</p>
-<p>Random forest defaults are from Intro to Statistical Learning and caret:
-  mtry = sqrt(k), splitrule = "extratrees", min.node.size = 1 for
-  classification, 5 for regression</p>
+    <p>Get hyperparameters for model training.
+ <code>get_hyperparameter_defaults</code> returns a list of 1-row data frames with
+ default hyperparameter values that are used by <code>flash_models</code>.
+ <code>get_random_hyperparameters</code> returns a list of data frames with
+ combinations of random values of hyperparameters to tune over in
+ <code>tune_models</code>; the number of rows in the data frames is given by
+ `tune_depth`.</p>
+<p>For <code>get_hyperparameter_defaults</code> k-NN defaults are from the kknn
+ package: kmax = 7, distance = 2 (Minkowski's exponent, i.e. Euclidean
+ distance), kernal = "optimal". Random forest defaults are from Intro to
+ Statistical Learning and caret: mtry = sqrt(k), splitrule = "extratrees",
+ min.node.size = 1 for classification, 5 for regression</p>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='get_supported_models.html'>models</a></code> for model and hyperparameter details</p></div>
     
 
   </div>
@@ -191,6 +208,8 @@
       <li><a href="#value">Value</a></li>
 
       <li><a href="#details">Details</a></li>
+
+      <li><a href="#see-also">See also</a></li>
           </ul>
 
   </div>
