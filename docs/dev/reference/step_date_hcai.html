@@ -253,9 +253,25 @@ used for this purpose.</p>
 <span class='no'>examples</span> <span class='kw'>&lt;-</span> <span class='fu'>data.frame</span>(<span class='kw'>Dan</span> <span class='kw'>=</span> <span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd.html'>ymd</a></span>(<span class='st'>"2002-03-04"</span>) + <span class='fu'><a href='http://lubridate.tidyverse.org/reference/period.html'>days</a></span>(<span class='fl'>1</span>:<span class='fl'>10</span>),
                        <span class='kw'>Stefan</span> <span class='kw'>=</span> <span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd.html'>ymd</a></span>(<span class='st'>"2006-01-13"</span>) + <span class='fu'><a href='http://lubridate.tidyverse.org/reference/period.html'>days</a></span>(<span class='fl'>1</span>:<span class='fl'>10</span>))
 <span class='no'>date_rec</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://www.rdocumentation.org/packages/recipes/topics/recipe'>recipe</a></span>(~ <span class='no'>Dan</span> + <span class='no'>Stefan</span>, <span class='no'>examples</span>) <span class='kw'>%&gt;%</span>
-  <span class='fu'>step_date_hcai</span>(<span class='fu'><a href='http://www.rdocumentation.org/packages/recipes/topics/has_role'>all_predictors</a></span>())</div><div class='output co'>#&gt; <span class='error'>Error in ellipse_check(...): could not find function "ellipse_check"</span></div><div class='input'>
-<span class='no'>date_rec</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://www.rdocumentation.org/packages/recipes/topics/prep'>prep</a></span>(<span class='no'>date_rec</span>, <span class='kw'>training</span> <span class='kw'>=</span> <span class='no'>examples</span>)</div><div class='output co'>#&gt; <span class='error'>Error in prep(date_rec, training = examples): object 'date_rec' not found</span></div><div class='input'>
-<span class='no'>date_values</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://www.rdocumentation.org/packages/recipes/topics/bake'>bake</a></span>(<span class='no'>date_rec</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>examples</span>)</div><div class='output co'>#&gt; <span class='error'>Error in bake(date_rec, newdata = examples): object 'date_rec' not found</span></div><div class='input'><span class='no'>date_values</span></div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'date_values' not found</span></div><div class='input'>
+  <span class='fu'>step_date_hcai</span>(<span class='fu'><a href='http://www.rdocumentation.org/packages/recipes/topics/has_role'>all_predictors</a></span>())
+
+<span class='no'>date_rec</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://www.rdocumentation.org/packages/recipes/topics/prep'>prep</a></span>(<span class='no'>date_rec</span>, <span class='kw'>training</span> <span class='kw'>=</span> <span class='no'>examples</span>)
+
+<span class='no'>date_values</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://www.rdocumentation.org/packages/recipes/topics/bake'>bake</a></span>(<span class='no'>date_rec</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>examples</span>)
+<span class='no'>date_values</span></div><div class='output co'>#&gt; # A tibble: 10 x 8
+#&gt;    Dan        Stefan     Dan_dow Dan_month Dan_year Stefan_dow Stefan_month
+#&gt;    &lt;date&gt;     &lt;date&gt;     &lt;fct&gt;   &lt;fct&gt;        &lt;dbl&gt; &lt;fct&gt;      &lt;fct&gt;       
+#&gt;  1 2002-03-05 2006-01-14 Tue     Mar          2002. Sat        Jan         
+#&gt;  2 2002-03-06 2006-01-15 Wed     Mar          2002. Sun        Jan         
+#&gt;  3 2002-03-07 2006-01-16 Thu     Mar          2002. Mon        Jan         
+#&gt;  4 2002-03-08 2006-01-17 Fri     Mar          2002. Tue        Jan         
+#&gt;  5 2002-03-09 2006-01-18 Sat     Mar          2002. Wed        Jan         
+#&gt;  6 2002-03-10 2006-01-19 Sun     Mar          2002. Thu        Jan         
+#&gt;  7 2002-03-11 2006-01-20 Mon     Mar          2002. Fri        Jan         
+#&gt;  8 2002-03-12 2006-01-21 Tue     Mar          2002. Sat        Jan         
+#&gt;  9 2002-03-13 2006-01-22 Wed     Mar          2002. Sun        Jan         
+#&gt; 10 2002-03-14 2006-01-23 Thu     Mar          2002. Mon        Jan         
+#&gt; # ... with 1 more variable: Stefan_year &lt;dbl&gt;</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

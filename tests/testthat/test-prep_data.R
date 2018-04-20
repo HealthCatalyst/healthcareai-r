@@ -522,3 +522,12 @@ test_that("prep_data warns for all unique character columns and adds the to igno
   expect_warning(pp <- prep_data(d_test, song_id), "id")
   expect_setequal(attributes(attr(pp, "recipe"))$ignored_columns, c("song_id", "id"))
 })
+
+test_that("prep_data doesn't check for all-unique columns in predict", {
+  # Additional test of this in the last code chunk of healthcareai.Rmd
+  d_prep <- prep_data(d = d_train, outcome = is_ween, song_id,
+                      convert_dates = FALSE, make_dummies = FALSE)
+  d_test$state <- c("CA", paste0("A", seq_len(nrow(d_test) - 1)))
+  expect_true("state" %in% names(pd <- prep_data(d_test, recipe = d_prep)))
+  expect_equal("CA", as.character(pd$state[1]))
+})
