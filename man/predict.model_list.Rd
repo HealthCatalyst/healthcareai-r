@@ -57,7 +57,8 @@ The model and hyperparameter values with the best out-of-fold
 \examples{
 # Tune models using only the first 40 rows to keep computation fast
 
-models <- machine_learn(pima_diabetes[1:40, ], patient_id, outcome = diabetes)
+models <- machine_learn(pima_diabetes[1:40, ], patient_id,
+                        outcome = diabetes, tune = FALSE)
 
 # Make prediction on the next 10 rows. This uses the best-performing model from
 # tuning cross validation, and it also prepares the new data in the same way as
