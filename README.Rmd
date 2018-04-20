@@ -6,7 +6,7 @@ output: github_document
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "# >",
-                      fig.height = 4, fig.width = 6,
+                      fig.height = 3, fig.width = 6, dpi = 96,
                       fig.path = "man/figures/README-")
 options(tibble.print_max = 5)
 library(healthcareai)
@@ -26,8 +26,8 @@ library(healthcareai)
 The aim of `healthcareai` is to make machine learning in healthcare as easy as possible. It does that by providing functions to:
 
 - Develop customized, reliable, high-performance machine learning models with minimal code
-- Easily make and evaluate predictions and push them to a database or flat file
-- Provide tools related to data cleaning, manipulation, imputation, and visualization
+- Easily make and evaluate predictions and push them to a database
+- Make data cleaning, manipulation, imputation, and visualization as simple as possible
 
 ## Usage
 
@@ -40,7 +40,7 @@ models
 
 Make predictions and examine predictive performance:
 
-```{r plot_predictions, fig.height = 3}
+```{r plot_predictions}
 predictions <- predict(models)
 plot(predictions)
 ```

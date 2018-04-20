@@ -21,10 +21,9 @@ easy as possible. It does that by providing functions to:
 
   - Develop customized, reliable, high-performance machine learning
     models with minimal code
-  - Easily make and evaluate predictions and push them to a database or
-    flat file
-  - Provide tools related to data cleaning, manipulation, imputation,
-    and visualization
+  - Easily make and evaluate predictions and push them to a database
+  - Make data cleaning, manipulation, imputation, and visualization as
+    simple as possible
 
 ## Usage
 
@@ -40,15 +39,15 @@ models
 # > Performance Metric: AUROC
 # > Number of Observations: 768
 # > Number of Features: 12
-# > Models Trained: 2018-04-20 12:25:41 
+# > Models Trained: 2018-04-20 17:14:18 
 # > 
 # > Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.
 # > Best model: Random Forest
 # > AUPR = 0.71, AUROC = 0.84
 # > Optimal hyperparameter values:
-# >   mtry = 2
+# >   mtry = 9
 # >   splitrule = extratrees
-# >   min.node.size = 3
+# >   min.node.size = 13
 ```
 
 Make predictions and examine predictive performance:
