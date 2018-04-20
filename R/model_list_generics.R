@@ -46,7 +46,6 @@ print.model_list <- function(x, ...) {
 #'
 #' @param x model_list
 #' @return list of tuning performance data frames, invisibly
-#' @importFrom dplyr %>%
 #'
 #' @export
 #' @noRd

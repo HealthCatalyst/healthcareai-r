@@ -33,8 +33,6 @@
 #'
 #' @export
 #' @import recipes
-#' @importFrom dplyr filter
-#' @importFrom dplyr mutate
 #' @importFrom purrr map_chr
 #'
 #' @examples
