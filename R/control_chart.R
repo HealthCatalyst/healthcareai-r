@@ -25,7 +25,6 @@
 #'   Invisibly, returns a ggplot object for further customization.
 #' @export
 #' @import ggplot2
-#' @importFrom readr read_csv
 #' @importFrom tibble data_frame
 #' @importFrom stats as.formula
 #'
@@ -67,7 +66,7 @@ control_chart <- function(d, measure, x, group1, group2,
     stop("You have to provide a data frame or a file location.")
   } else if (is.character(d)) {
     message("Attempting to read csv from ", d)
-    d <- readr::read_csv(d)
+    d <- read.csv(d)
   }
 
   if (missing(measure)) {

@@ -46,11 +46,11 @@
 #' flash_models(prepped_data, diabetes)
 #'
 #' # Speed comparison of no tuning with flash_models vs. tuning with tune_models:
-#' # ~40 seconds:
+#' # ~15 seconds:
 #' system.time(
 #'   tune_models(prepped_data, diabetes)
 #' )
-#' # ~6 seconds:
+#' # ~3 seconds:
 #' system.time(
 #'   flash_models(prepped_data, diabetes)
 #' )

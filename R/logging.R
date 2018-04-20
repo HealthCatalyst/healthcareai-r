@@ -1,3 +1,8 @@
+write_log <- function() {
+
+}
+
+
 #' @title
 #' Sets console logging to a file in the working directory.
 #'

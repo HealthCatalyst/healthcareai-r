@@ -16,6 +16,12 @@
 #'   predictions are made. Set this to TRUE to force already-prepped data
 #'   through `prep_data` again, or set to FALSE to prevent `newdata` from being
 #'   sent through `prep_data`.
+#' @param write_log Write prediction metadata to a file? Default is FALSE. If
+#'   TRUE, will create or append a file called "prediction_log.txt" in the current
+#'   directory with metadata about predictions. If a character, is the name of a
+#'   file to create or append with prediction metadata. If you want a unique log
+#'   file each time predictions are made, use something like \code{write_log =
+#'   paste0(Sys.time(), " predictions.txt")}.
 #' @param ... Unused.
 #'
 #' @return A tibble data frame: newdata with an additional column for the
@@ -49,6 +55,7 @@
 predict.model_list <- function(object,
                                newdata,
                                prepdata,
+                               write_log = FALSE,
                                ...) {
 
   # Pull info

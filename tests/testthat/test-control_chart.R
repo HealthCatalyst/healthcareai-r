@@ -17,7 +17,7 @@ test_that("control_chart returns a ggplot object", {
 })
 
 test_that("control_chart takes csv filepath as argumnent", {
-  readr::write_csv(test_df, "tmpFile.csv")
+  write.csv(test_df, "tmpFile.csv", row.names = FALSE)
   output <- control_chart(d = "tmpFile.csv", measure = "outcome")
   expect_true(is.ggplot(output))
 })
