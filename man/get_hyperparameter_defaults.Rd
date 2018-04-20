@@ -24,7 +24,10 @@ get_random_hyperparameters(models = get_supported_models(), n = 100,
 \item{tune_depth}{How many combinations of hyperparameter values?}
 }
 \value{
-List of named data frames
+Named list of data frames. Each data frame corresponds to an
+ algorithm, and each column in each data fram corresponds to a hyperparameter
+ for that algorithm. This is the same format that should be provided to
+ \code{tune_models(hyperparameters = )} to specify hyperparameter values.
 }
 \description{
 Get hyperparameter values
@@ -38,17 +41,11 @@ Get hyperparameters for model training.
  \code{tune_models}; the number of rows in the data frames is given by
  `tune_depth`.
 
- Each data frame in the list corresponds to an algorithm, and each column in
- each data fram corresponds to a hyperparameter for that algorithm. This is
- the same format that should be provided to \code{tune_models}
- hyperparameters argument to specify hyperparameter values.
-
- k-NN defaults are from the kknn package: kmax = 7, distance = 2 (Minkowski's
- exponent, i.e. Euclidean distance), kernal = "optimal"
-
- Random forest defaults are from Intro to Statistical Learning and caret:
- mtry = sqrt(k), splitrule = "extratrees", min.node.size = 1 for
- classification, 5 for regression
+ For \code{get_hyperparameter_defaults} k-NN defaults are from the kknn
+ package: kmax = 7, distance = 2 (Minkowski's exponent, i.e. Euclidean
+ distance), kernal = "optimal". Random forest defaults are from Intro to
+ Statistical Learning and caret: mtry = sqrt(k), splitrule = "extratrees",
+ min.node.size = 1 for classification, 5 for regression
 }
 \seealso{
 \code{\link{models}} for model and hyperparameter details
