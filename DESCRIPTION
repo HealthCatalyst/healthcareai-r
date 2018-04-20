@@ -26,7 +26,6 @@ Imports:
     lubridate,
     methods,
     MLmetrics,
-    odbc,
     purrr,
     ranger (>= 0.8.0),
     recipes (>= 0.1.2),
