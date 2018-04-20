@@ -6,13 +6,11 @@ template:
     ganalytics: UA-85609357-1
 
 development:
-  mode: devel
+  mode: release
 
 home:
   links:
-  - text: Browse source code
-    href: https://github.com/HealthCatalyst/healthcareai-r
-  - text: healthcare.ai home
+  - text: Blogs, broadcasts, and more
     href: https://healthcare.ai
 
 navbar:

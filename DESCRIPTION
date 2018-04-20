@@ -1,8 +1,8 @@
 Package: healthcareai
 Type: Package
 Title: Tools for Healthcare Machine Learning
-Version: 2.0.0.9000
-Date: 2018-04-02
+Version: 2.0.0
+Date: 2018-04-20
 Authors@R: c(
     person("Levi", "Thatcher", email = "levi.thatcher@healthcatalyst.com", role = "aut"),
     person("Michael", "Levy", email = "michael.levy@healthcatalyst.com", role = c("aut", "cre")),
@@ -24,9 +24,7 @@ Imports:
     dbplyr,
     e1071,
     ggplot2,
-    grpreg,
     kknn,
-    lme4,
     lubridate,
     methods,
     MLmetrics,

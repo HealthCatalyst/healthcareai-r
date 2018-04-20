@@ -48,7 +48,8 @@ will be determined by the class of `outcome` with the determination
 displayed in a message.}
 }
 \value{
-A model_list object
+A model_list object. You can call \code{plot}, \code{summary},
+  \code{evaluate}, or \code{predict} on a model_list.
 }
 \description{
 Tune multiple machine learning models using cross validation to optimize
@@ -98,6 +99,15 @@ plot(grid_search_models)
 }
 }
 \seealso{
-\code{\link{prep_data}}, \code{\link{predict.model_list}},
-  \code{\link{supported_models}}
+For setting up model training: \code{\link{prep_data}},
+  \code{\link{supported_models}}, \code{\link{hyperparameters}}
+
+  For evaluating models: \code{\link{plot.model_list}},
+  \code{\link{evaluate.model_list}}
+
+  For making predictions: \code{\link{predict.model_list}}
+
+  For faster, but not-optimized model training: \code{\link{flash_models}}
+
+  To prepare data and tune models in a single step: \code{\link{machine_learn}}
 }

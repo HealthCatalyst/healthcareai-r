@@ -1,6 +1,6 @@
-# healthcareai 2.0.0.9000
+# healthcareai 2.0.0
 
-This is a beta version of a new tidy, S3 package architecture. Feedback is greatly appreciated.
+A whole new architecture featuring a simpler API, more rigor under the hood, and attractive plots. 
 
 # healthcareai 1.2.4
 

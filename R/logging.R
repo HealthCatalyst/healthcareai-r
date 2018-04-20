@@ -1,14 +1,19 @@
 #' Create or append log files from predict
 #' @noRd
 log_predictions <- function(filename, target, n_preds, trained_time) {
-  the_log <- paste0(
+  new_log <- paste0(
     "Model predictions made: ", Sys.time(),
     "\n\t- Variable predicted: ", target,
     "\n\t- Number predictions: ", n_preds,
     "\n\t- Days since model trained: ",
     round(difftime(Sys.time(), trained_time, units = "days"), 1), "\n"
   )
-  write(the_log, filename, append = TRUE)
+  if (!file.exists(filename))
+    file.create(filename)
+  con <- file(filename, "r+")
+  old_log <- readLines(con)
+  writeLines(c(new_log, old_log), con = con)
+  close(con)
 }
 
 #' @title
