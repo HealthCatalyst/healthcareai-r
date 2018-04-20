@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Build a connection string for use with MSSQL and dbConnect — build_connection_string • healthcareai</title>
+<title>Convert character date columns to dates — convert_date_cols • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,10 +25,12 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Build a connection string for use with MSSQL and dbConnect — build_connection_string" />
+<meta property="og:title" content="Convert character date columns to dates — convert_date_cols" />
 
-<meta property="og:description" content="Handy utility to build a connection string to pass into
-DBI::dbConnect. Accepts trusted connections or username/password." />
+<meta property="og:description" content="This function is called in prep_data and so
+  shouldn't usually need to be called directly. It tries to convert columns
+  ending in "DTS" to type Date. It makes a best guess at the format and
+  return a more standard one if possible. Times are be removed." />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -134,72 +136,45 @@ DBI::dbConnect. Accepts trusted connections or username/password." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Build a connection string for use with MSSQL and dbConnect</h1>
+    <h1>Convert character date columns to dates</h1>
     
     </div>
 
     
-    <p>Handy utility to build a connection string to pass into
-<code><a href='http://www.rdocumentation.org/packages/DBI/topics/dbConnect'>DBI::dbConnect</a></code>. Accepts trusted connections or username/password.</p>
+    <p>This function is called in <code><a href='prep_data.html'>prep_data</a></code> and so
+  shouldn't usually need to be called directly. It tries to convert columns
+  ending in "DTS" to type Date. It makes a best guess at the format and
+  return a more standard one if possible. Times are be removed.</p>
     
 
-    <pre class="usage"><span class='fu'>build_connection_string</span>(<span class='no'>server</span>, <span class='kw'>driver</span> <span class='kw'>=</span> <span class='st'>"SQL Server"</span>, <span class='no'>database</span>,
-  <span class='kw'>trusted</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>user_id</span>, <span class='no'>password</span>)</pre>
+    <pre class="usage"><span class='fu'>convert_date_cols</span>(<span class='no'>d</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>server</th>
-      <td><p>A string, quoted, required. The name of the server you are
-trying to connect to.</p></td>
-    </tr>
-    <tr>
-      <th>driver</th>
-      <td><p>A string, quoted, optional. Defaults to "SQL Server", but use
-any driver you like.</p></td>
-    </tr>
-    <tr>
-      <th>database</th>
-      <td><p>A string, quoted, optional. If provided, connection string
-will include a specific database. If NA (default), it will connect to master
-and you'll have to specify the database when running a query.</p></td>
-    </tr>
-    <tr>
-      <th>trusted</th>
-      <td><p>Logical, optional, defaults to TRUE. If FALSE, you must use a
-user_id and password.</p></td>
-    </tr>
-    <tr>
-      <th>user_id</th>
-      <td><p>A string, quoted, optional. Don't include if using trusted.</p></td>
-    </tr>
-    <tr>
-      <th>password</th>
-      <td><p>A string, quoted, optional. Don't include if using trusted.</p></td>
+      <th>d</th>
+      <td><p>A dataframe or tibble containing data to try to convert to dates.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A connection string</p>
-    
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p><code><a href='db_read.html'>db_read</a></code></p></div>
+    <p>A tibble containing the converted date columns. If no columns needed
+  conversion, the original data will be returned.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='co'># NOT RUN {</span>
-<span class='no'>my_con</span> <span class='kw'>&lt;-</span> <span class='fu'>build_connection_string</span>(<span class='kw'>server</span> <span class='kw'>=</span> <span class='st'>"localhost"</span>)
-<span class='no'>con</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>DBI</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/DBI/topics/dbConnect'>dbConnect</a></span>(<span class='kw pkg'>odbc</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/odbc/topics/odbc'>odbc</a></span>(), <span class='kw'>.connection_string</span> <span class='kw'>=</span> <span class='no'>my_con</span>)
-
-<span class='co'># with username and password</span>
-<span class='no'>my_con</span> <span class='kw'>&lt;-</span> <span class='fu'>build_connection_string</span>(<span class='kw'>server</span> <span class='kw'>=</span> <span class='st'>"localhost"</span>,
-                                  <span class='kw'>user_id</span> <span class='kw'>=</span> <span class='st'>"jules.winnfield"</span>,
-                                  <span class='kw'>password</span> <span class='kw'>=</span> <span class='st'>"pathoftherighteous"</span>)
-<span class='no'>con</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>DBI</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/DBI/topics/dbConnect'>dbConnect</a></span>(<span class='kw pkg'>odbc</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/odbc/topics/odbc'>odbc</a></span>(), <span class='kw'>.connection_string</span> <span class='kw'>=</span> <span class='no'>my_con</span>)
-<span class='co'># }</span></pre>
+    <pre class="examples"><div class='input'><span class='no'>d</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>tibble</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/tibble/topics/tibble'>tibble</a></span>(<span class='kw'>a_DTS</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"2018-3-25"</span>, <span class='st'>"2018-3-25"</span>),
+                    <span class='kw'>b_nums</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>2</span>, <span class='fl'>4</span>),
+                    <span class='kw'>c_DTS</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"03-01-2018"</span>, <span class='st'>"03-07-2018"</span>),
+                    <span class='kw'>d_chars</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>),
+                    <span class='kw'>e_date</span> <span class='kw'>=</span> <span class='kw pkg'>lubridate</span><span class='kw ns'>::</span><span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd.html'>mdy</a></span>(<span class='fu'>c</span>(<span class='st'>"3-25-2018"</span>, <span class='st'>"3-25-2018"</span>)))
+<span class='fu'>convert_date_cols</span>(<span class='no'>d</span>)</div><div class='output co'>#&gt; # A tibble: 2 x 5
+#&gt;   a_DTS      b_nums c_DTS      d_chars e_date    
+#&gt;   &lt;date&gt;      &lt;dbl&gt; &lt;date&gt;     &lt;chr&gt;   &lt;date&gt;    
+#&gt; 1 2018-03-25     2. 2018-03-01 a       2018-03-25
+#&gt; 2 2018-03-25     4. 2018-03-07 b       2018-03-25</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -207,8 +182,6 @@ user_id and password.</p></td>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-
-      <li><a href="#see-also">See also</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>

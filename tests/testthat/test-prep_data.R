@@ -5,6 +5,8 @@ context("Testing prep_data")
 set.seed(7)
 # build data set to predict whether or not animal_id is a is_ween
 n <- 300
+sample_days <- c("03-23-2008", "04-13-2008", "10-10-2008", "12-19-2008",
+                 "05-27-2008", "07-20-2008", "09-22-2008", "01-13-2008")
 df <- data.frame(
   song_id = 1:n,
   length = rnorm(n, mean = 4, sd = 1),
@@ -15,14 +17,16 @@ df <- data.frame(
   guitar_flag = sample(c(0, 1), size = n, replace = T),
   drum_flag = sample(c(0, 1, NA), size = n, replace = T,
                      prob = c(0.45, 0.45, 0.1)),
-  date_col = lubridate::ymd("2002-03-04") + lubridate::days(sample(1000, n)),
-  posixct_col = lubridate::ymd("2004-03-04") + lubridate::days(sample(1000, n)),
-  col_DTS = lubridate::ymd("2006-03-04") + lubridate::days(sample(1000, n)),
+  date_col = lubridate::ymd("2002-03-04") + lubridate::days(sample(1:1000, n)),
+  posixct_col = lubridate::ymd("2004-03-04") + lubridate::days(sample(1:1000, n)),
+  col_DTS = lubridate::ymd("2006-03-01") + lubridate::days(sample(1:1000, n)),
+  char_DTS = sample(sample_days, n, replace = TRUE),
   missing82 = sample(1:10, n, replace = TRUE),
   missing64 = sample(100:300, n, replace = TRUE),
   state = sample(c("NY", "MA", "CT", "CA", "VT", "NH"), size = n, replace = T,
                  prob = c(0.18, 0.1, 0.1, 0.6, 0.01, 0.01))
 )
+df$char_DTS <- as.character(df$char_DTS)
 
 # give is_ween likeliness score
 df["is_ween"] <- df["length"] - 1 * df["weirdness"] + 2
@@ -192,14 +196,16 @@ test_that("impute gives warning when column has 50% or more NA", {
 })
 
 test_that("impute works with params", {
-  d_clean <- prep_data(d_train, outcome = is_ween, song_id,
-                       impute = list(numeric_method = "knnimpute",
-                                     nominal_method = "bagimpute",
-                                     numeric_params = list(knn_K = 5),
-                                     nominal_params = NULL),
-                       make_dummies = FALSE)
+  suppressWarnings({
+    d_clean <- prep_data(d_train, outcome = is_ween, song_id,
+                         impute = list(numeric_method = "knnimpute",
+                                       nominal_method = "bagimpute",
+                                       numeric_params = list(knn_K = 5),
+                                       nominal_params = NULL),
+                         make_dummies = FALSE)
+  })
   expect_true(is.numeric(d_clean$weirdness))
-  expect_false(any(is.na(d_clean$weirdness)))
+  expect_false(any(purrr::map_lgl(d_clean, ~any(is.na(.x)))))
   expect_true("missing" %in% levels(d_clean$genre))
 })
 
@@ -521,4 +527,13 @@ test_that("prep_data warns for all unique character columns and adds the to igno
   d_test$id <- paste0("a", seq_len(nrow(d_test)))
   expect_warning(pp <- prep_data(d_test, song_id), "id")
   expect_setequal(attributes(attr(pp, "recipe"))$ignored_columns, c("song_id", "id"))
+})
+
+test_that("prep_data doesn't check for all-unique columns in predict", {
+  # Additional test of this in the last code chunk of healthcareai.Rmd
+  d_prep <- prep_data(d = d_train, outcome = is_ween, song_id,
+                      convert_dates = FALSE, make_dummies = FALSE)
+  d_test$state <- c("CA", paste0("A", seq_len(nrow(d_test) - 1)))
+  expect_true("state" %in% names(pd <- prep_data(d_test, recipe = d_prep)))
+  expect_equal("CA", as.character(pd$state[1]))
 })

@@ -65,15 +65,15 @@ models
 # > Performance Metric: AUROC
 # > Number of Observations: 768
 # > Number of Features: 12
-# > Models Trained: 2018-04-18 10:33:55 
+# > Models Trained: 2018-04-19 18:09:25 
 # > 
-# > Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.
+# > Models tuned via 5-fold cross validation over 8 combinations of hyperparameter values.
 # > Best model: Random Forest
-# > AUPR = 0.71, AUROC = 0.85
+# > AUPR = 0.71, AUROC = 0.84
 # > Optimal hyperparameter values:
-# >   mtry = 5
+# >   mtry = 2
 # >   splitrule = extratrees
-# >   min.node.size = 17
+# >   min.node.size = 7
 ```
 
 Make predictions and examine predictive performance:
@@ -113,9 +113,8 @@ package, ask questions, and troubleshoot your code.
 ### Contributing
 
 If you are interested in contributing the package (great\!), please read
-the
-[contributing](file:///Users/michael.levy/Dropbox/healthcareai-r/docs/dev/CONTRIBUTING.html)
-guide, and look for [issues with the “help wanted”
+the [contributing](https://docs.healthcare.ai/contributing) guide, and
+look for [issues with the “help wanted”
 tag](https://github.com/HealthCatalyst/healthcareai-r/labels/help%20wanted).
 Feel free to tackle any issue that interests you; those are a few issues
 that we feel would make a good place to start.

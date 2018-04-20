@@ -29,7 +29,7 @@
 </script>
 </head>
 <body>
-    <div class="container template-vignette">
+    <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
@@ -97,7 +97,7 @@
 
       
       </header><div class="row">
-  <div class="col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1>Database Connections</h1>
             
@@ -108,7 +108,6 @@
 
     
     
-<div class="contents">
 <p>Let’s be honest. You need to get data from a database, do some really awesome stuff with <code>R</code>, and then write the results back to a database. RStudio (and R) can help with that. There are lots of different databases, but this document will focus on Microsoft SQL Server. RStudio supports most databases, and I’d encourage you to look at the <a href="https://db.rstudio.com/">db help pages</a> for additional resources. Andiamo!</p>
 <p>If you simply want a code snippet to copy and paste, scroll to the bottom.</p>
 <div id="connecting-to-a-database" class="section level1">
@@ -242,7 +241,6 @@
 <a class="sourceLine" id="cb5-32" data-line-number="32">DBI<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/DBI/topics/dbDisconnect">dbDisconnect</a></span>(con_in)</a>
 <a class="sourceLine" id="cb5-33" data-line-number="33">RODBC<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/RODBC/topics/odbcClose">odbcClose</a></span>(con_out)</a></code></pre></div>
 </div>
-</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -271,6 +269,8 @@
 
       </footer>
 </div>
+
+  
 
   </body>
 </html>
