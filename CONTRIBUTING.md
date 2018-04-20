@@ -16,16 +16,16 @@ We welcome contributions from within and beyond the Health Catalyst community. T
 
 #### Pull Request Checklist
 
-When submitting a pull request, here's what you need to check. Some of these things will be tested by continuous integration, others will not, so please be sure to run through this list.
+When submitting a pull request, here's what you need to check. Some of these things should be done iteratively during the development process, especially building the documentation, building the package, and running tests. To speed up testing during development, you can run a subset of tests with `devtools::test(filter = "predict")`. Some of these things will be tested by continuous integration, others will not, so please be sure to run through this list.
 
-- [ ] Pull the current remote master branch and ensure your branch is up to date.
+- [ ] Pull the current remote master branch and ensure your branch is up to date: `git checkout master; git pull; git checkout feature_branch; git merge master`
 - [ ] Generate package documentation: `devtools::document()`
 - [ ] Build package: `devtools::build()`
-- [ ] Generate package website: `pkgdown::build_site()`
-- [ ] Ensure any code you've added is well tested. A coverage report will automatically be added to the PR. You can get a sense of coverage by running `covr::report()`
+- [ ] Ensure any code you've added is well tested. A coverage report will automatically be added to the PR. You can get a sense of coverage by running `covr::package_coverage()`
 - [ ] Ensure code is lint free: `lintr::lint_package()`. This will also be checked in tests...
 - [ ] Ensure code passes all tests: `devtools::test()`. This will also be checked in check... 
 - [ ] Ensure code passes all CRAN checks without warnings or notes: `devtools::check()` 
+- [ ] Generate package website: `pkgdown::build_site()`
 
 #### Getting Started Contributing
 

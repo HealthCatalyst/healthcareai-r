@@ -22,7 +22,7 @@ test_that("get_variable_importance dfs have class variable_importance", {
   expect_s3_class(get_variable_importance(reg), "variable_importance")
 })
 
-test_that("plot_variable_importance returns a ggplot", {
+test_that("plot.variable_importance returns a ggplot", {
   expect_s3_class(plot(get_variable_importance(cl), print = FALSE), "gg")
   expect_s3_class(plot(get_variable_importance(reg), print = FALSE), "gg")
   expect_s3_class(plot(reg, caption = "none", title = "VI", font_size = 16, print = FALSE), "gg")

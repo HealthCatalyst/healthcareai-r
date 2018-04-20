@@ -17,11 +17,11 @@
 #'   through `prep_data` again, or set to FALSE to prevent `newdata` from being
 #'   sent through `prep_data`.
 #' @param write_log Write prediction metadata to a file? Default is FALSE. If
-#'   TRUE, will create or append a file called "prediction_log.txt" in the current
-#'   directory with metadata about predictions. If a character, is the name of a
-#'   file to create or append with prediction metadata. If you want a unique log
-#'   file each time predictions are made, use something like \code{write_log =
-#'   paste0(Sys.time(), " predictions.txt")}.
+#'   TRUE, will create or append-at-top a file called "prediction_log.txt" in
+#'   the current directory with metadata about predictions. If a character, is
+#'   the name of a file to create or append with prediction metadata. If you
+#'   want a unique log file each time predictions are made, use something like
+#'   \code{write_log = paste0(Sys.time(), " predictions.txt")}.
 #' @param ... Unused.
 #'
 #' @return A tibble data frame: newdata with an additional column for the
@@ -29,11 +29,11 @@
 #'   being predicted. If classification, the new column will contain predicted
 #'   probabilities. The tibble will have child class "predicted_df" and
 #'   attribute "model_info" that contains information about the model used to
-#'   make predictions.
+#'   make predictions. You can call \code{plot} or \code{evaluate} on a
+#'   predicted_df.
 #' @export
 #' @importFrom caret predict.train
-#' @seealso \code{\link{plot.predicted_df}}, \code{\link{tune_models}},
-#'   \code{\link{prep_data}}
+#' @seealso \code{\link{plot.predicted_df}}, \code{\link{evaluate.predicted_df}}
 #'
 #' @details The model and hyperparameter values with the best out-of-fold
 #'   performance in model training according to the selected metric is used to
@@ -51,6 +51,7 @@
 #'
 #' predictions <- predict(models, newdata = pima_diabetes[41:50, ])
 #' predictions
+#' evaluate(predictions)
 #' plot(predictions)
 predict.model_list <- function(object,
                                newdata,

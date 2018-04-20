@@ -22,7 +22,7 @@
 #'   knn), "triangular", "epanechnikov", "biweight", "triweight", "cos", "inv",
 #'   "gaussian", "rank", or "optimal".}
 #' }
-#'
+#' @export
 #' @seealso \code{\link{hyperparameters}} hyperparameter defaults
 #' @return Vector of currently-supported algorithms.
 #' @aliases supported_models models models_supported

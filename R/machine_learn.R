@@ -26,8 +26,8 @@
 #' @param impute Logical, if TRUE (default) missing values will be filled by
 #'   \code{\link{hcai_impute}}
 #'
-#' @return model_list object ready to make predictions via
-#'   \code{\link{predict.model_list}}
+#' @return A model_list object. You can call \code{plot}, \code{summary},
+#'   \code{evaluate}, or \code{predict} on a model_list.
 #' @export
 #'
 #' @details This is a high-level wrapper function. For finer control of data

@@ -23,10 +23,20 @@
 #'   displayed in a message.
 #'
 #' @export
-#' @seealso \code{\link{tune_models}}, \code{\link{prep_data}},
-#'   \code{\link{predict.model_list}}, \code{\link{supported_models}}
+#' @seealso For setting up model training: \code{\link{prep_data}},
+#'   \code{\link{supported_models}}, \code{\link{hyperparameters}}
 #'
-#' @return A model_list object
+#'   For evaluating models: \code{\link{plot.model_list}},
+#'   \code{\link{evaluate.model_list}}
+#'
+#'   For making predictions: \code{\link{predict.model_list}}
+#'
+#'   For optimizing performance: \code{\link{tune_models}}
+#'
+#'   To prepare data and tune models in a single step: \code{\link{machine_learn}}
+#'
+#' @return A model_list object. You can call \code{plot}, \code{summary},
+#'   \code{evaluate}, or \code{predict} on a model_list.
 #' @details This function has two major differences from
 #'   \code{\link{tune_models}}: 1. It uses fixed default hyperparameter values
 #'   to train models instead of using cross-validation to optimize

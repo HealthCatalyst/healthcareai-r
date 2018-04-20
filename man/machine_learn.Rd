@@ -41,8 +41,8 @@ Ignored if tune is FALSE.}
 \code{\link{hcai_impute}}}
 }
 \value{
-model_list object ready to make predictions via
-  \code{\link{predict.model_list}}
+A model_list object. You can call \code{plot}, \code{summary},
+  \code{evaluate}, or \code{predict} on a model_list.
 }
 \description{
 Prepare data and train machine learning models.
