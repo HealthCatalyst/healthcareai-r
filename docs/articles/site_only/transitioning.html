@@ -25,7 +25,7 @@
   ga('create', 'UA-85609357-1', 'auto');
   ga('send', 'pageview');
 
-</script>
+</script><!-- docsearch --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css">
 </head>
 <body>
     <div class="container template-article">
@@ -87,7 +87,13 @@
   </a>
 </li>
       </ul>
+<form class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="search" class="form-control" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
 </div>
+      </form>
+      
+    </div>
 <!--/.nav-collapse -->
   </div>
 <!--/.container -->
@@ -213,7 +219,7 @@
 <a class="sourceLine" id="cb8-15" data-line-number="15"></a>
 <a class="sourceLine" id="cb8-16" data-line-number="16"><span class="kw">predict</span>(models, d<span class="op">$</span>test)</a>
 <a class="sourceLine" id="cb8-17" data-line-number="17"><span class="co"># &gt; Prepping data based on provided recipe</span></a>
-<a class="sourceLine" id="cb8-18" data-line-number="18"><span class="co"># &gt; "predicted_ThirtyDayReadmitFLG" predicted by Random Forest last trained: 2018-04-20 15:09:42</span></a>
+<a class="sourceLine" id="cb8-18" data-line-number="18"><span class="co"># &gt; "predicted_ThirtyDayReadmitFLG" predicted by Random Forest last trained: 2018-04-24 09:05:36</span></a>
 <a class="sourceLine" id="cb8-19" data-line-number="19"><span class="co"># &gt; Performance in training: AUROC = 0.88</span></a>
 <a class="sourceLine" id="cb8-20" data-line-number="20"><span class="co"># &gt; # A tibble: 48 x 8</span></a>
 <a class="sourceLine" id="cb8-21" data-line-number="21"><span class="co"># &gt;   ThirtyDayReadmitF… predicted_ThirtyDayReadm… PatientEncounter… PatientID</span></a>
@@ -264,6 +270,14 @@
 </div>
 
   
-
-  </body>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script><script>
+  docsearch({
+    
+    apiKey: 'ac39465bc37cbef616f5de1e646b6037',
+    indexName: 'healthcareai',
+    inputSelector: 'input#search-input.form-control',
+    debug: false // Set debug to true if you want to inspect the dropdown
+  });
+</script>
+</body>
 </html>

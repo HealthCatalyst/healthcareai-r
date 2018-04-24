@@ -56,6 +56,9 @@
 
 
 
+<!-- docsearch -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+
   </head>
 
   <body>
@@ -120,6 +123,12 @@
   </a>
 </li>
       </ul>
+      
+      <form class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="search" class="form-control" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+        </div>
+      </form>
       
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -186,9 +195,9 @@
                         <span class='kw'>models</span> <span class='kw'>=</span> <span class='st'>"rf"</span>,
                         <span class='kw'>tune_depth</span> <span class='kw'>=</span> <span class='fl'>3</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Training with cross validation: Random Forest</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>*** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
-#&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='input'><span class='fu'>evaluate</span>(<span class='no'>models</span>)</div><div class='output co'>#&gt;   AUPR  AUROC 
-#&gt; 0.5495 0.6650 </div><div class='input'><span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>41</span>:<span class='fl'>50</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='fu'>evaluate</span>(<span class='no'>predictions</span>)</div><div class='output co'>#&gt;      AUPR     AUROC 
-#&gt; 0.5694444 0.9523810 </div></pre>
+#&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='input'><span class='fu'>evaluate</span>(<span class='no'>models</span>)</div><div class='output co'>#&gt;      AUPR     AUROC 
+#&gt; 0.5613571 0.6791667 </div><div class='input'><span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>41</span>:<span class='fl'>50</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='fu'>evaluate</span>(<span class='no'>predictions</span>)</div><div class='output co'>#&gt;      AUPR     AUROC 
+#&gt; 0.5166667 0.9047619 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -216,6 +225,17 @@
    </div>
 
   
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+<script>
+  docsearch({
+    
+    apiKey: 'ac39465bc37cbef616f5de1e646b6037',
+    indexName: 'healthcareai',
+    inputSelector: 'input#search-input.form-control',
+    debug: false // Set debug to true if you want to inspect the dropdown
+  });
+</script>
+
 
   </body>
 </html>

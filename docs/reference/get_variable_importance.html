@@ -56,6 +56,9 @@
 
 
 
+<!-- docsearch -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+
   </head>
 
   <body>
@@ -121,6 +124,12 @@
 </li>
       </ul>
       
+      <form class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="search" class="form-control" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+        </div>
+      </form>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -171,14 +180,14 @@
 #&gt;    variable importance
 #&gt;  * &lt;chr&gt;         &lt;dbl&gt;
 #&gt;  1 cyl          100.  
-#&gt;  2 wt            59.5 
-#&gt;  3 disp          57.5 
-#&gt;  4 hp            42.6 
-#&gt;  5 vs            40.2 
-#&gt;  6 am            18.2 
-#&gt;  7 drat           9.49
-#&gt;  8 gear           9.20
-#&gt;  9 carb           8.49
+#&gt;  2 disp          73.8 
+#&gt;  3 wt            53.7 
+#&gt;  4 hp            40.7 
+#&gt;  5 vs            34.4 
+#&gt;  6 am            30.3 
+#&gt;  7 carb          11.5 
+#&gt;  8 drat           9.73
+#&gt;  9 gear           6.35
 #&gt; 10 qsec           0.  </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -211,6 +220,17 @@
    </div>
 
   
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+<script>
+  docsearch({
+    
+    apiKey: 'ac39465bc37cbef616f5de1e646b6037',
+    indexName: 'healthcareai',
+    inputSelector: 'input#search-input.form-control',
+    debug: false // Set debug to true if you want to inspect the dropdown
+  });
+</script>
+
 
   </body>
 </html>

@@ -56,6 +56,9 @@
 
 
 
+<!-- docsearch -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+
   </head>
 
   <body>
@@ -120,6 +123,12 @@
   </a>
 </li>
       </ul>
+      
+      <form class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="search" class="form-control" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+        </div>
+      </form>
       
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -188,7 +197,7 @@ variable importances are generated, in the caption.</p></td>
   <span class='fu'><a href='get_variable_importance.html'>get_variable_importance</a></span>() <span class='kw'>%&gt;%</span>
   <span class='fu'>plot</span>()</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: Random Forest</span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: k-Nearest Neighbors</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>*** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
-#&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='img'><img src='plot.variable_importance-1.png' alt='' width='576' height='288' /></div></pre>
+#&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='output co'>#&gt; <span class='error'>Error in grid.Call.graphics(C_setviewport, vp, TRUE): non-finite location and/or size for viewport</span></div><div class='img'><img src='plot.variable_importance-1.png' alt='' width='576' height='288' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -216,6 +225,17 @@ variable importances are generated, in the caption.</p></td>
    </div>
 
   
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+<script>
+  docsearch({
+    
+    apiKey: 'ac39465bc37cbef616f5de1e646b6037',
+    indexName: 'healthcareai',
+    inputSelector: 'input#search-input.form-control',
+    debug: false // Set debug to true if you want to inspect the dropdown
+  });
+</script>
+
 
   </body>
 </html>
