@@ -4,6 +4,9 @@ template:
   params:
     bootswatch: yeti
     ganalytics: UA-85609357-1
+    docsearch:
+      api_key: ac39465bc37cbef616f5de1e646b6037
+      index_name: healthcareai
 
 development:
   mode: release

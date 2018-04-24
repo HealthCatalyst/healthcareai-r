@@ -25,7 +25,7 @@
   ga('create', 'UA-85609357-1', 'auto');
   ga('send', 'pageview');
 
-</script>
+</script><!-- docsearch --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css">
 </head>
 <body>
     <div class="container template-article">
@@ -87,7 +87,13 @@
   </a>
 </li>
       </ul>
+<form class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="search" class="form-control" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
 </div>
+      </form>
+      
+    </div>
 <!--/.nav-collapse -->
   </div>
 <!--/.container -->
@@ -113,8 +119,8 @@
 <p>The aim of <code>healthcareai</code> is to make machine learning in healthcare as easy as possible. It does that by providing functions to:</p>
 <ul>
 <li>Develop customized, reliable, high-performance machine learning models with minimal code</li>
-<li>Easily make and evaluate predictions and push them to a database or flat file</li>
-<li>Provide tools related to data cleaning, manipulation, imputation, and visualization</li>
+<li>Easily make and evaluate predictions and push them to a database</li>
+<li>Make data cleaning, manipulation, imputation, and visualization as simple as possible</li>
 </ul>
 </div>
 <div id="usage" class="section level2">
@@ -129,15 +135,15 @@
 <a class="sourceLine" id="cb1-6" data-line-number="6"><span class="co"># &gt; Performance Metric: AUROC</span></a>
 <a class="sourceLine" id="cb1-7" data-line-number="7"><span class="co"># &gt; Number of Observations: 768</span></a>
 <a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co"># &gt; Number of Features: 12</span></a>
-<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="co"># &gt; Models Trained: 2018-04-20 15:07:59 </span></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="co"># &gt; Models Trained: 2018-04-24 09:03:48 </span></a>
 <a class="sourceLine" id="cb1-10" data-line-number="10"><span class="co"># &gt; </span></a>
-<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co"># &gt; Models tuned via 5-fold cross validation over 9 combinations of hyperparameter values.</span></a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co"># &gt; Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.</span></a>
 <a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co"># &gt; Best model: Random Forest</span></a>
 <a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co"># &gt; AUPR = 0.72, AUROC = 0.85</span></a>
 <a class="sourceLine" id="cb1-14" data-line-number="14"><span class="co"># &gt; Optimal hyperparameter values:</span></a>
 <a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co"># &gt;   mtry = 5</span></a>
 <a class="sourceLine" id="cb1-16" data-line-number="16"><span class="co"># &gt;   splitrule = extratrees</span></a>
-<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co"># &gt;   min.node.size = 13</span></a></code></pre></div>
+<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co"># &gt;   min.node.size = 12</span></a></code></pre></div>
 <p>Make predictions and examine predictive performance:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(models)</a>
 <a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw">plot</span>(predictions)</a></code></pre></div>
@@ -235,6 +241,14 @@
 </div>
 
   
-
-  </body>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script><script>
+  docsearch({
+    
+    apiKey: 'ac39465bc37cbef616f5de1e646b6037',
+    indexName: 'healthcareai',
+    inputSelector: 'input#search-input.form-control',
+    debug: false // Set debug to true if you want to inspect the dropdown
+  });
+</script>
+</body>
 </html>

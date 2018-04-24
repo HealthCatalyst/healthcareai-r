@@ -54,6 +54,9 @@
 
 
 
+<!-- docsearch -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+
   </head>
 
   <body>
@@ -119,6 +122,12 @@
 </li>
       </ul>
       
+      <form class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="search" class="form-control" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+        </div>
+      </form>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -135,7 +144,7 @@
 
     <div id="healthcareai-2-0-0" class="section level1">
 <h1 class="page-header">
-<a href="#healthcareai-2-0-0" class="anchor"></a>healthcareai 2.0.0<small> Unreleased </small>
+<a href="#healthcareai-2-0-0" class="anchor"></a>healthcareai 2.0.0<small> 2018-04-20 </small>
 </h1>
 <p>A whole new architecture featuring a simpler API, more rigor under the hood, and attractive plots.</p>
 </div>
@@ -332,6 +341,17 @@
    </div>
 
   
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+<script>
+  docsearch({
+    
+    apiKey: 'ac39465bc37cbef616f5de1e646b6037',
+    indexName: 'healthcareai',
+    inputSelector: 'input#search-input.form-control',
+    debug: false // Set debug to true if you want to inspect the dropdown
+  });
+</script>
+
 
   </body>
 </html>
