@@ -48,6 +48,9 @@ separate_drgs <- function(drgs, remove_age = FALSE) {
       if (!length(i)) i <- 4
       return(i)
     })
+  # No mention of CC currently look the same as missing, so replace complications with
+  # missing where base is missing
+  complications[is.na(bases)] <- NA
   complications <- c("complication", "major complication", "complication", "absent complication")[complications]
   if (remove_age) {
     age_loc <- stringr::str_locate(bases, stringr::coll(" AGE"))[, "start"] - 1L

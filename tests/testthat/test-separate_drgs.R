@@ -50,3 +50,9 @@ test_that("separate_drgs can remove ages", {
   expect_false(any(grepl("age", out$base_msdrg, ignore.case = TRUE)))
   expect_equal("OTHER KIDNEY & URINARY TRACT DIAGNOSES", out$base_msdrg[1])
 })
+
+test_that("all output is missing when input is missing", {
+  MSDRGs <- c(NA, MSDRGs)
+  out <- separate_drgs(MSDRGs)
+  expect_true(all(is.na(out[1, ])))
+})
