@@ -121,18 +121,23 @@ predict.model_list <- function(object,
          timestamp = mi$timestamp,
          hyperparameters = structure(mi$best_model_tune,
                                      "row.names" = "optimal:"))
-  if (isTRUE(write_log))
+  if (isTRUE(write_log)) {
     write_log <- paste0(mi$model_name, "_prediction_log.txt")
+    from_rds <- attr(object, "loaded_from_rds")
+    if (is.null(from_rds))
+      from_rds <- "trained_in_memory"
+  }
 
   if (is.character(write_log))
-    log_predictions(filename = write_log,
-                    from_rds = attr(object, "loaded_from_rds"),
-                    target = mi$target,
-                    n_preds = nrow(newdata),
-                    trained_time = attr(object, "timestamp"),
-                    model_name = mi$model_name,
-                    pred_summary = get_pred_summary(object),
-                    missingness = missingness(newdata))
+    d_log <- log_predictions(filename = write_log,
+                             from_rds = from_rds,
+                             target = mi$target,
+                             n_preds = nrow(newdata),
+                             trained_time = attr(object, "timestamp"),
+                             model_name = mi$model_name,
+                             pred_summary = get_pred_summary(object),
+                             missingness = missingness(newdata))
+  attr(newdata, "prediction_log") <- d_log
   return(newdata)
 }
 

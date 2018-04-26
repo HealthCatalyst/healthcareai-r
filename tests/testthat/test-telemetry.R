@@ -1,16 +1,47 @@
 context("Testing telemetry functions")
 
+# Setup ========================================
 if (file.exists("telemetry_test_prediction_log.txt"))
   file.remove("telemetry_test_prediction_log.txt")
-m <- machine_learn(pima_diabetes[1:20, 8:10], outcome = diabetes, models = "rf",
-                   model_name = "telemetry_test")
-predict(object = m, newdata = pima_diabetes[1:10,], write_log = TRUE)
-d <- readLines("telemetry_test_prediction_log.txt")
+if (file.exists("telemetry_test.RDS"))
+  file.remove("telemetry_test.RDS")
 
+m <- machine_learn(pima_diabetes[1:50, 6:10], outcome = diabetes, models = "rf",
+                   model_name = "telemetry_test")
+p <- predict(object = m, newdata = pima_diabetes[1:50, 6:10],
+                      write_log = TRUE, prepdata = TRUE)
+
+save_models(m, "telemetry_test.RDS")
+m_reloaded <- load_models("telemetry_test.RDS")
+p_reloaded <- predict(object = m_reloaded, newdata = pima_diabetes[1:50, 6:10],
+             write_log = TRUE, prepdata = TRUE)
+
+# Tests =========================================
 test_that("log_predictions writes info to file correctly", {
+  d <- readLines("telemetry_test_prediction_log.txt")
   expect_true(any(grepl("name: telemetry_test", d)))
   expect_true(any(grepl("predicted: diabetes", d)))
   expect_true(any(grepl("missingness in new data", d)))
 })
 
+test_that("log_predictions returns data correctly", {
+  d_pred <- attr(p_reloaded, "prediction_log")
+  expect_equal(dim(d_pred), c(1, 18))
+  expect_equal(d_pred$loaded_from, "telemetry_test.RDS")
+  expect_equal(d_pred$model_name, "telemetry_test")
+  expect_equal(d_pred$n_predictions, 50)
+  expect_equal(d_pred$outcome_variable, "diabetes")
+})
+
+test_that("log_predictions works without loading from file", {
+  d_pred <- attr(p, "prediction_log")
+  expect_equal(dim(d_pred), c(1, 18))
+  expect_equal(d_pred$loaded_from, "trained_in_memory")
+  expect_equal(d_pred$model_name, "telemetry_test")
+  expect_equal(d_pred$n_predictions, 50)
+  expect_equal(d_pred$outcome_variable, "diabetes")
+})
+
+# Cleanup =======================================
 file.remove("telemetry_test_prediction_log.txt")
+file.remove("telemetry_test.RDS")

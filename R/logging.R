@@ -4,34 +4,55 @@ log_predictions <- function(filename, from_rds, target, n_preds, trained_time,
                             model_name, pred_summary, missingness) {
 
   missingness <- summary(missingness$percent_missing) %>% bind_rows()
+
+  d <- tibble::tibble(
+    loaded_from = from_rds,
+    predictions_made = Sys.time(),
+    model_name = model_name,
+    outcome_variable = target,
+    n_predictions = n_preds,
+    days_since_trained =
+      round(difftime(Sys.time(), trained_time, units = "days"), 1),
+    prediction_mean = round(pred_summary$Mean, 3),
+    prediction_min = round(pred_summary$Min., 3),
+    prediction_q1 = round(pred_summary$`1st Qu.`, 3),
+    prediction_median = round(pred_summary$Median, 3),
+    prediction_q3 = round(pred_summary$`3rd Qu.`, 3),
+    prediction_max = round(pred_summary$Max., 3),
+    missingness_mean = round(missingness$Mean, 3),
+    missingness_min = round(missingness$Min., 3),
+    missingness_q1 = round(missingness$`1st Qu.`, 3),
+    missingness_median = round(missingness$Median, 3),
+    missingness_q3 = round(missingness$`3rd Qu.`, 3),
+    missingness_max = round(missingness$Max., 3)
+  )
+
   the_log <- paste0(
-    "Model loaded from: ", from_rds,
-    "\n\t- Model predictions made: ", Sys.time(),
-    "\n\t- Model name: ", model_name,
-    "\n\t- Variable predicted: ", target,
-    "\n\t- Number predictions: ", n_preds,
-    "\n\t- Days since model trained: ",
-    round(difftime(Sys.time(), trained_time, units = "days"), 1),
-    "\nSummary of predictions: ",
-    "\n\t- Mean: ", round(pred_summary$Mean, 3),
-    "\n\t- Minimum: ", round(pred_summary$Min., 3),
-    "\n\t- 1st Quartile: ", round(pred_summary$`1st Qu.`, 3),
-    "\n\t- Median: ", round(pred_summary$Median, 3),
-    "\n\t- 3rd Quartile: ", round(pred_summary$`3rd Qu.`, 3),
-    "\n\t- Minimum: ", round(pred_summary$Max., 3),
-    "\nSummary of missingness in new data (%):",
-    "\n\t- Mean: ", round(missingness$Mean, 3),
-    "\n\t- Minimum: ", round(missingness$Min., 3),
-    "\n\t- 1st Quartile: ", round(missingness$`1st Qu.`, 3),
-    "\n\t- Median: ", round(missingness$Median, 3),
-    "\n\t- 3rd Quartile: ", round(missingness$`3rd Qu.`, 3),
-    "\n\t- Minimum: ", round(missingness$Max., 3),
+    "Model loaded from: ", d$loaded_from,
+    "\n\t- Model predictions made: ", d$predictions_made,
+    "\n\t- Model name: ", d$model_name,
+    "\n\t- Variable predicted: ", d$outcome_variable,
+    "\n\t- Number predictions: ", d$n_predictions,
+    "\n\t- Days since model trained: ", d$days_since_trained,
+    "\nSummary of predictions:d$ ",
+    "\n\t- Mean: ", d$prediction_mean,
+    "\n\t- Minimum: ", d$prediction_min,
+    "\n\t- 1st Quartile: ", d$prediction_q1,
+    "\n\t- Median: ", d$prediction_median,
+    "\n\t- 3rd Quartile: ", d$prediction_q3,
+    "\n\t- Maximum: ", d$prediction_max,
+    "\nSummary of missingness in new datad$ (%):",
+    "\n\t- Mean: ", d$missingness_mean,
+    "\n\t- Minimum: ", d$missingness_min,
+    "\n\t- 1st Quartile: ", d$missingness_q1,
+    "\n\t- Median: ", d$missingness_median,
+    "\n\t- 3rd Quartile: ", d$missingness_q3,
+    "\n\t- Maximum: ", d$missingness_max,
     "\n"
   )
 
   write(the_log, filename, append = TRUE)
-
-  the_tibble <- 0
+  return(d)
 }
 
 #' @title
