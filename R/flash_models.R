@@ -21,6 +21,8 @@
 #' @param model_class "regression" or "classification". If not provided, this
 #'   will be determined by the class of `outcome` with the determination
 #'   displayed in a message.
+#' @param model_name Quoted, name of the model. If left blank,
+#' defaults to the name of the outcome variable.
 #'
 #' @export
 #' @seealso \code{\link{tune_models}}, \code{\link{prep_data}},
@@ -61,7 +63,8 @@ flash_models <- function(d,
                          metric,
                          positive_class,
                          n_folds = 5,
-                         model_class) {
+                         model_class,
+                         model_name = NA) {
 
   models <- tolower(models)
   model_args <- setup_training(d, rlang::enquo(outcome), model_class, models, metric)
@@ -82,7 +85,8 @@ flash_models <- function(d,
                               tuned = FALSE,
                               target = rlang::quo_name(outcome),
                               recipe = recipe,
-                              positive_class = attr(train_list, "positive_class")) %>%
+                              positive_class = attr(train_list, "positive_class"),
+                              model_name = model_name) %>%
     structure(timestamp = Sys.time())
   return(train_list)
 }

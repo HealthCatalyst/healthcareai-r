@@ -1,11 +1,13 @@
 #' Create or append log files from predict
 #' @noRd
-log_predictions <- function(filename, target, n_preds, trained_time,
+log_predictions <- function(filename, from_rds, target, n_preds, trained_time,
                             model_name, pred_summary, missingness) {
+
   missingness <- summary(missingness$percent_missing) %>% bind_rows()
   the_log <- paste0(
-    "Model loaded from: ", model_name,
+    "Model loaded from: ", from_rds,
     "\n\t- Model predictions made: ", Sys.time(),
+    "\n\t- Model Name: ", model_name,
     "\n\t- Variable predicted: ", target,
     "\n\t- Number predictions: ", n_preds,
     "\n\t- Days since model trained: ",
@@ -17,16 +19,16 @@ log_predictions <- function(filename, target, n_preds, trained_time,
     "\n\t- Median: ", round(pred_summary$Median, 3),
     "\n\t- 3rd Quartile: ", round(pred_summary$`3rd Qu.`, 3),
     "\n\t- Minimum: ", round(pred_summary$Max., 3),
-    "\nSummary of missingness in new data:",
+    "\nSummary of missingness in new data (%):",
     "\n\t- Mean: ", round(missingness$Mean, 3),
     "\n\t- Minimum: ", round(missingness$Min., 3),
     "\n\t- 1st Quartile: ", round(missingness$`1st Qu.`, 3),
     "\n\t- Median: ", round(missingness$Median, 3),
     "\n\t- 3rd Quartile: ", round(missingness$`3rd Qu.`, 3),
-    "\n\t- Minimum: ", round(missingness$Max., 3)
+    "\n\t- Minimum: ", round(missingness$Max., 3),
+    "\n"
   )
 
-  browser()
   write(the_log, filename, append = TRUE)
 
   the_tibble <- 0

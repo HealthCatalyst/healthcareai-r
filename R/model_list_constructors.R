@@ -10,6 +10,8 @@
 #'   through prep_data
 #' @param positive_class If classification, the positive outcome class,
 #'   otherwise NULL
+#' @param model_name Quoted, name of the model. If left blank,
+#' defaults to the name of the outcome variable.
 #'
 #' @importFrom purrr map_chr
 #' @importFrom purrr map_lgl
@@ -21,7 +23,8 @@ as.model_list <- function(...,
                           model_class,
                           tuned = TRUE,
                           recipe = NULL,
-                          positive_class = NULL) {
+                          positive_class = NULL,
+                          model_name = NA) {
   listed_models <- c(
     structure(list(...),
               names = purrr::map_chr(as.list(match.call(expand.dots = FALSE)$...), deparse)),
@@ -57,9 +60,12 @@ as.model_list <- function(...,
   for (i in setdiff(seq_along(listed_models), 1)) {
     listed_models[[i]]$trainingData <- NULL
   }
+  if (is.na(model_name))
+    model_name <- target
 
   check_model_class(model_class)
   structure(listed_models,
+            model_name = model_name,
             class = c(paste0(model_class, "_list"), "model_list", class(listed_models)),
             tuned = tuned,
             target = target,

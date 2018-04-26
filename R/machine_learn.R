@@ -25,6 +25,8 @@
 #'   Ignored if tune is FALSE.
 #' @param impute Logical, if TRUE (default) missing values will be filled by
 #'   \code{\link{hcai_impute}}
+#' @param model_name Quoted, name of the model. If left blank,
+#' defaults to the name of the outcome variable.
 #'
 #' @return model_list object ready to make predictions via
 #'   \code{\link{predict.model_list}}
@@ -67,7 +69,8 @@
 #' # predictive accuracy.
 #' machine_learn(d$train, patient_id, outcome = diabetes, tune = FALSE)
 machine_learn <- function(d, ..., outcome, models, tune = TRUE, positive_class,
-                          n_folds = 5, tune_depth = 10, impute = TRUE) {
+                          n_folds = 5, tune_depth = 10, impute = TRUE,
+                          model_name = NA) {
 
   if (!is.data.frame(d))
     stop("\"d\" must be a data frame.")
@@ -102,10 +105,12 @@ machine_learn <- function(d, ..., outcome, models, tune = TRUE, positive_class,
     if (tune) {
       tune_models(pd, outcome = !!outcome, models = models,
                   positive_class = positive_class,
-                  n_folds = n_folds, tune_depth = tune_depth)
+                  n_folds = n_folds, tune_depth = tune_depth,
+                  model_name = model_name)
     } else {
       flash_models(pd, outcome = !!outcome, models = models,
-                   positive_class = positive_class, n_folds = n_folds)
+                   positive_class = positive_class, n_folds = n_folds,
+                   model_name = model_name)
     }
   return(m)
 }

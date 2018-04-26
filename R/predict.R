@@ -122,16 +122,18 @@ predict.model_list <- function(object,
          hyperparameters = structure(mi$best_model_tune,
                                      "row.names" = "optimal:"))
   if (isTRUE(write_log))
+    browser()
     write_log <- paste0(mi$model_name, "_prediction_log.txt")
 
   if (is.character(write_log))
     log_predictions(filename = write_log,
+                    from_rds = attr(object, "loaded_from_rds"),
                     target = mi$target,
                     n_preds = nrow(newdata),
                     trained_time = attr(object, "timestamp"),
                     model_name = mi$model_name,
                     pred_summary = get_pred_summary(object),
-                    missingness = summary(missingness(newdata)))
+                    missingness = missingness(newdata))
   return(newdata)
 }
 

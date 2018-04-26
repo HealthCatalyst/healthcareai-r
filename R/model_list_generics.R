@@ -10,6 +10,7 @@ print.model_list <- function(x, ...) {
     rinfo <- extract_model_info(x)
     out <- paste0(
       "Algorithms Trained: ", paste(rinfo$algs, collapse = ", "),
+      "\nModel Name: ", rinfo$model_name,
       "\nTarget: ", rinfo$target,
       "\nClass: ", rinfo$m_class,
       "\nPerformance Metric: ", rinfo$metric,

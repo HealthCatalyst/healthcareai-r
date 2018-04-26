@@ -41,6 +41,6 @@ load_models <- function(filename) {
     message(mes)
   }
   x <- readRDS(filename)
-  attributes(x, "loaded_from_rds") <- filename
+  attr(x, "loaded_from_rds") <- filename
   return(x)
 }
