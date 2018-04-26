@@ -123,12 +123,12 @@ predict.model_list <- function(object,
                                      "row.names" = "optimal:"))
   if (isTRUE(write_log)) {
     write_log <- paste0(mi$model_name, "_prediction_log.txt")
+  }
+
+  if (is.character(write_log)) {
     from_rds <- attr(object, "loaded_from_rds")
     if (is.null(from_rds))
       from_rds <- "trained_in_memory"
-  }
-
-  if (is.character(write_log))
     d_log <- log_predictions(filename = write_log,
                              from_rds = from_rds,
                              target = mi$target,
@@ -137,7 +137,8 @@ predict.model_list <- function(object,
                              model_name = mi$model_name,
                              pred_summary = get_pred_summary(object),
                              missingness = missingness(newdata))
-  attr(newdata, "prediction_log") <- d_log
+    attr(newdata, "prediction_log") <- d_log
+  }
   return(newdata)
 }
 
@@ -152,10 +153,10 @@ get_oof_predictions <- function(x, mi = extract_model_info(x)) {
 }
 
 get_pred_summary <- function(x) {
-  pred_summary <- newdata %>%
-    select(starts_with("predicted_")) %>%
-    pull() %>%
+  pred_summary <- x %>%
+    dplyr::select(starts_with("predicted_")) %>%
+    dplyr::pull() %>%
     summary() %>%
-    bind_rows()
+    dplyr::bind_rows()
   return(pred_summary)
 }

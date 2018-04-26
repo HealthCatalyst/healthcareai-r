@@ -12,7 +12,8 @@ test_that("save_models works and issues PHI message", {
 
 test_that("load_models works", {
   reloaded_m <- load_models("models.RDS")
-  expect_equal(m, reloaded_m)
+  expect_equal(class(m)[1], "classification_list")
+  expect_equal(class(reloaded_m)[1], "classification_list")
   expect_equal(attr(reloaded_m, "loaded_from_rds"), "models.RDS")
 })
 

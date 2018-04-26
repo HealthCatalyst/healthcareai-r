@@ -1,5 +1,12 @@
 context("Testing telemetry functions")
 
+## Cleanup log files
+remove_logfiles <- function() {
+  txt_files <- list.files(pattern = "txt$", full.names = TRUE, recursive = FALSE)
+  file.remove(txt_files)
+}
+remove_logfiles()
+
 # Setup ========================================
 if (file.exists("telemetry_test_prediction_log.txt"))
   file.remove("telemetry_test_prediction_log.txt")
