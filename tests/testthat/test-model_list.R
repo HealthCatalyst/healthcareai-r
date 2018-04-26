@@ -17,7 +17,8 @@ kn <- caret::train(x = dplyr::select(mtcars, -mpg),
                    trControl = caret::trainControl(savePredictions = "final")
 )
 r_models <- tune_models(mtcars, mpg, n_folds = 2, tune_depth = 2)
-c_models <- tune_models(mtcars, am, n_folds = 2, tune_depth = 2)
+c_models <- tune_models(mtcars, am, n_folds = 2, tune_depth = 2,
+                        model_name = "great_name")
 c_pr <- tune_models(mtcars, am, metric = "PR", n_folds = 2, tune_depth = 2)
 single_model_as <- as.model_list(rf)
 single_model_tune <- tune_models(mtcars, am, models = "rf")
@@ -118,6 +119,12 @@ test_that("print.model_list works", {
   cprint <- capture_output(c_pr, TRUE)
   expect_true(nchar(cprint) > 0)
   expect_true(grepl("PR", cprint, ignore.case = TRUE))
+
+  # Model name
+  rprint <- capture_output(r_models, TRUE)
+  expect_true(grepl("Model Name: mpg", rprint, ignore.case = TRUE))
+  cprint <- capture_output(c_models, TRUE)
+  expect_true(grepl("Model Name: great_name", cprint, ignore.case = TRUE))
 })
 
 test_that("summary.model_list works", {

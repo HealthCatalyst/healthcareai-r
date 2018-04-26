@@ -122,7 +122,6 @@ predict.model_list <- function(object,
          hyperparameters = structure(mi$best_model_tune,
                                      "row.names" = "optimal:"))
   if (isTRUE(write_log))
-    browser()
     write_log <- paste0(mi$model_name, "_prediction_log.txt")
 
   if (is.character(write_log))
