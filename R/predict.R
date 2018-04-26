@@ -122,12 +122,16 @@ predict.model_list <- function(object,
          hyperparameters = structure(mi$best_model_tune,
                                      "row.names" = "optimal:"))
   if (isTRUE(write_log))
-    write_log <- "prediction_log.txt"
+    write_log <- paste0(mi$model_name, "_prediction_log.txt")
+
   if (is.character(write_log))
     log_predictions(filename = write_log,
                     target = mi$target,
                     n_preds = nrow(newdata),
-                    trained_time = attr(object, "timestamp"))
+                    trained_time = attr(object, "timestamp"),
+                    model_name = mi$model_name,
+                    pred_summary = get_pred_summary(object),
+                    missingness = summary(missingness(newdata)))
   return(newdata)
 }
 
@@ -139,4 +143,13 @@ get_oof_predictions <- function(x, mi = extract_model_info(x)) {
   if (mi$m_class == "Classification")
     return(preds[[mi$positive_class]])
   stop("Eh? What kind of model is that?")
+}
+
+get_pred_summary <- function(x) {
+  pred_summary <- newdata %>%
+    select(starts_with("predicted_")) %>%
+    pull() %>%
+    summary() %>%
+    bind_rows()
+  return(pred_summary)
 }

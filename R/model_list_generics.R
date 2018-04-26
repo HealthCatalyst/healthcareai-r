@@ -205,6 +205,7 @@ extract_model_info <- function(x) {
     x[[best_model]]$bestTune
   positive_class <- attr(x, "positive_class")
   list(
+    model_name = attr(x, "model_name"),
     m_class = m_class,
     algs = algs,
     target = target,

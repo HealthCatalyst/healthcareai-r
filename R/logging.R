@@ -1,14 +1,35 @@
 #' Create or append log files from predict
 #' @noRd
-log_predictions <- function(filename, target, n_preds, trained_time) {
+log_predictions <- function(filename, target, n_preds, trained_time,
+                            model_name, pred_summary, missingness) {
+  missingness <- summary(missingness$percent_missing) %>% bind_rows()
   the_log <- paste0(
-    "Model predictions made: ", Sys.time(),
+    "Model loaded from: ", model_name,
+    "\n\t- Model predictions made: ", Sys.time(),
     "\n\t- Variable predicted: ", target,
     "\n\t- Number predictions: ", n_preds,
     "\n\t- Days since model trained: ",
-    round(difftime(Sys.time(), trained_time, units = "days"), 1), "\n"
+    round(difftime(Sys.time(), trained_time, units = "days"), 1),
+    "\nSummary of predictions: ",
+    "\n\t- Mean: ", round(pred_summary$Mean, 3),
+    "\n\t- Minimum: ", round(pred_summary$Min., 3),
+    "\n\t- 1st Quartile: ", round(pred_summary$`1st Qu.`, 3),
+    "\n\t- Median: ", round(pred_summary$Median, 3),
+    "\n\t- 3rd Quartile: ", round(pred_summary$`3rd Qu.`, 3),
+    "\n\t- Minimum: ", round(pred_summary$Max., 3),
+    "\nSummary of missingness in new data:",
+    "\n\t- Mean: ", round(missingness$Mean, 3),
+    "\n\t- Minimum: ", round(missingness$Min., 3),
+    "\n\t- 1st Quartile: ", round(missingness$`1st Qu.`, 3),
+    "\n\t- Median: ", round(missingness$Median, 3),
+    "\n\t- 3rd Quartile: ", round(missingness$`3rd Qu.`, 3),
+    "\n\t- Minimum: ", round(missingness$Max., 3)
   )
+
+  browser()
   write(the_log, filename, append = TRUE)
+
+  the_tibble <- 0
 }
 
 #' @title
