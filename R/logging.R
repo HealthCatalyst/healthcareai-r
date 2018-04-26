@@ -7,7 +7,7 @@ log_predictions <- function(filename, from_rds, target, n_preds, trained_time,
   the_log <- paste0(
     "Model loaded from: ", from_rds,
     "\n\t- Model predictions made: ", Sys.time(),
-    "\n\t- Model Name: ", model_name,
+    "\n\t- Model name: ", model_name,
     "\n\t- Variable predicted: ", target,
     "\n\t- Number predictions: ", n_preds,
     "\n\t- Days since model trained: ",
