@@ -15,7 +15,7 @@ if (file.exists("telemetry_test.RDS"))
 
 m <- machine_learn(pima_diabetes[1:50, 6:10], outcome = diabetes, models = "rf",
                    model_name = "telemetry_test")
-p <- predict(object = m, newdata = pima_diabetes[1:50, 6:10],
+p <- predict(object = m, newdata = pima_diabetes[1:50, 5:10],
                       write_log = TRUE, prepdata = TRUE)
 
 save_models(m, "telemetry_test.RDS")
@@ -33,7 +33,7 @@ test_that("log_predictions writes info to file correctly", {
 
 test_that("log_predictions returns data correctly", {
   d_pred <- attr(p_reloaded, "prediction_log")
-  expect_equal(dim(d_pred), c(1, 18))
+  expect_equal(dim(d_pred), c(1, 21))
   expect_equal(d_pred$loaded_from, "telemetry_test.RDS")
   expect_equal(d_pred$model_name, "telemetry_test")
   expect_equal(d_pred$n_predictions, 50)
@@ -42,11 +42,28 @@ test_that("log_predictions returns data correctly", {
 
 test_that("log_predictions works without loading from file", {
   d_pred <- attr(p, "prediction_log")
-  expect_equal(dim(d_pred), c(1, 18))
+  expect_equal(dim(d_pred), c(1, 21))
   expect_equal(d_pred$loaded_from, "trained_in_memory")
   expect_equal(d_pred$model_name, "telemetry_test")
   expect_equal(d_pred$n_predictions, 50)
   expect_equal(d_pred$outcome_variable, "diabetes")
+})
+
+test_that("errors are put in log file properly", {
+expect_error(
+  predict(object = m, newdata = pima_diabetes[1:50, 7:10],
+          write_log = FALSE, prepdata = TRUE)
+  )
+
+# log data should be returned with error
+p <- predict(object = m, newdata = pima_diabetes[1:50, 7:10],
+        write_log = TRUE, prepdata = TRUE)
+
+# log should contain error info
+})
+
+test_that("set and update telemetry functions work", {
+
 })
 
 # Cleanup =======================================

@@ -60,10 +60,26 @@ predict.model_list <- function(object,
                                write_log = FALSE,
                                ...) {
 
+  on.exit(log_predictions(filename = write_log, d = d_log))
+
   # Pull info
   mi <- extract_model_info(object)
   best_models <- object[[mi$best_model_name]]
   training_data <- object[[1]]$trainingData
+
+  # Prepare telemetry
+  if (isTRUE(write_log)) {
+    write_log <- paste0(mi$model_name, "_prediction_log.txt")
+  }
+  if (is.character(write_log)) {
+    zz <- file("predict_error_catch.txt", open = "wt")
+    sink(zz, type = "message")
+
+    from_rds <- attr(object, "loaded_from_rds")
+    if (is.null(from_rds))
+      from_rds <- "trained_in_memory"
+    d_log <- set_default_telemetry()
+  }
 
   # If newdata not provided, pull training data from object
   if (missing(newdata)) {
@@ -91,6 +107,7 @@ predict.model_list <- function(object,
     } else {
       ready_no_prep(training_data, newdata)
     }
+  d_log$data_prepped <- TRUE
 
   # If predicting on training, use out-of-fold; else make predictions
   if (using_training_data) {
@@ -123,22 +140,18 @@ predict.model_list <- function(object,
          timestamp = mi$timestamp,
          hyperparameters = structure(mi$best_model_tune,
                                      "row.names" = "optimal:"))
-  if (isTRUE(write_log)) {
-    write_log <- paste0(mi$model_name, "_prediction_log.txt")
-  }
+  d_log$predictions_made <- TRUE
 
+  # Prepare log for writing, which is done on exit.
   if (is.character(write_log)) {
-    from_rds <- attr(object, "loaded_from_rds")
-    if (is.null(from_rds))
-      from_rds <- "trained_in_memory"
-    d_log <- log_predictions(filename = write_log,
-                             from_rds = from_rds,
-                             target = mi$target,
-                             n_preds = nrow(newdata),
-                             trained_time = attr(object, "timestamp"),
-                             model_name = mi$model_name,
-                             pred_summary = get_pred_summary(newdata),
-                             missingness = missingness(newdata))
+    d_log <- update_telemetry(d = d_log,
+                              from_rds = from_rds,
+                              target = mi$target,
+                              n_preds = nrow(newdata),
+                              trained_time = attr(object, "timestamp"),
+                              model_name = mi$model_name,
+                              pred_summary = get_pred_summary(newdata),
+                              missingness = missingness(newdata))
     attr(newdata, "prediction_log") <- d_log
   }
   return(newdata)

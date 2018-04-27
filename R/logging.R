@@ -1,37 +1,23 @@
 #' Create or append log files from predict
 #' @noRd
-log_predictions <- function(filename, from_rds, target, n_preds, trained_time,
-                            model_name, pred_summary, missingness) {
+log_predictions <- function(filename, d) {
+  # If sink is on, turn it off
+  if (sink.number(type = "message") != 2) {
+    sink(type = "message")
+  }
 
-  missingness <- summary(missingness$percent_missing) %>% bind_rows()
-
-  d <- tibble::tibble(
-    loaded_from = from_rds,
-    predictions_made = Sys.time(),
-    model_name = model_name,
-    outcome_variable = target,
-    n_predictions = n_preds,
-    days_since_trained =
-      round(difftime(Sys.time(), trained_time, units = "days"), 1),
-    prediction_mean = round(pred_summary$Mean, 3),
-    prediction_min = round(pred_summary$Min., 3),
-    prediction_q1 = round(pred_summary$`1st Qu.`, 3),
-    prediction_median = round(pred_summary$Median, 3),
-    prediction_q3 = round(pred_summary$`3rd Qu.`, 3),
-    prediction_max = round(pred_summary$Max., 3),
-    missingness_mean = round(missingness$Mean, 3),
-    missingness_min = round(missingness$Min., 3),
-    missingness_q1 = round(missingness$`1st Qu.`, 3),
-    missingness_median = round(missingness$Median, 3),
-    missingness_q3 = round(missingness$`3rd Qu.`, 3),
-    missingness_max = round(missingness$Max., 3)
-  )
+  e <- read_lines("predict_error_catch.txt")
+  if (any(grepl("Error", e))) {
+    d$error <- stringr::str_c(e, collapse = " ")
+  }
 
   the_log <- paste0(
     "Model loaded from: ", d$loaded_from,
-    "\n\t- Model predictions made: ", d$predictions_made,
+    "\n\t- Data prepped successfully: ", d$predictions_made,
+    "\n\t- Predictions made successfully: ", d$predictions_made,
     "\n\t- Model name: ", d$model_name,
     "\n\t- Variable predicted: ", d$outcome_variable,
+    "\n\t- Predictions made time: ", d$predict_time,
     "\n\t- Number predictions: ", d$n_predictions,
     "\n\t- Days since model trained: ", d$days_since_trained,
     "\nSummary of predictions: ",
@@ -48,12 +34,86 @@ log_predictions <- function(filename, from_rds, target, n_preds, trained_time,
     "\n\t- Median: ", d$missingness_median,
     "\n\t- 3rd Quartile: ", d$missingness_q3,
     "\n\t- Maximum: ", d$missingness_max,
+    "\n\t- Error message: ", d$error,
     "\n"
   )
 
   write(the_log, filename, append = TRUE)
+  file.remove("predict_error_catch.txt")
   return(d)
 }
+
+#' Sets defaults for telemetry tibble.
+#' @noRd
+set_default_telemetry <- function() {
+  d <- tibble::tibble(
+    loaded_from = NA,
+    data_prepped = FALSE,
+    predictions_made = FALSE,
+    model_name = NA,
+    outcome_variable = NA,
+    predict_time = NA,
+    n_predictions = NA,
+    days_since_trained = NA,
+    prediction_mean = NA,
+    prediction_min = NA,
+    prediction_q1 = NA,
+    prediction_median = NA,
+    prediction_q3 = NA,
+    prediction_max = NA,
+    missingness_mean = NA,
+    missingness_min = NA,
+    missingness_q1 = NA,
+    missingness_median = NA,
+    missingness_q3 = NA,
+    missingness_max = NA,
+    error = NA)
+
+  return(d)
+}
+
+#' Updates telemetry tibble prior to writing. These fields should be set by
+#' set_default_telemetry.
+#' @noRd
+update_telemetry <- function(d, from_rds, target, n_preds, trained_time,
+                             model_name, pred_summary, missingness) {
+  missingness <- summary(missingness$percent_missing) %>% bind_rows()
+
+  d$loaded_from = from_rds
+  d$predict_time = Sys.time()
+  d$model_name = model_name
+  d$outcome_variable = target
+  d$n_predictions = n_preds
+  d$days_since_trained =
+    round(difftime(Sys.time(), trained_time, units = "days"), 1)
+  d$prediction_mean = round(pred_summary$Mean, 3)
+  d$prediction_min = round(pred_summary$Min., 3)
+  d$prediction_q1 = round(pred_summary$`1st Qu.`, 3)
+  d$prediction_median = round(pred_summary$Median, 3)
+  d$prediction_q3 = round(pred_summary$`3rd Qu.`, 3)
+  d$prediction_max = round(pred_summary$Max., 3)
+  d$missingness_mean = round(missingness$Mean, 3)
+  d$missingness_min = round(missingness$Min., 3)
+  d$missingness_q1 = round(missingness$`1st Qu.`, 3)
+  d$missingness_median = round(missingness$Median, 3)
+  d$missingness_q3 = round(missingness$`3rd Qu.`, 3)
+  d$missingness_max = round(missingness$Max., 3)
+  return(d)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #' @title
 #' Sets console logging to a file in the working directory.
