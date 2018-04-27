@@ -135,7 +135,7 @@ predict.model_list <- function(object,
                              n_preds = nrow(newdata),
                              trained_time = attr(object, "timestamp"),
                              model_name = mi$model_name,
-                             pred_summary = get_pred_summary(object),
+                             pred_summary = get_pred_summary(newdata),
                              missingness = missingness(newdata))
     attr(newdata, "prediction_log") <- d_log
   }
