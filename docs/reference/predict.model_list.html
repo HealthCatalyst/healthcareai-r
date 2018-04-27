@@ -6,13 +6,13 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Make predictions using the best-performing model from tuning — predict.model_list • healthcareai</title>
+<title>Make predictions using the best-performing model — predict.model_list • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
+<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
@@ -25,12 +25,14 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Make predictions using the best-performing model from tuning — predict.model_list" />
+<meta property="og:title" content="Make predictions using the best-performing model — predict.model_list" />
 
-<meta property="og:description" content="Make predictions using the best-performing model from tuning" />
+<meta property="og:description" content="Make predictions using the best-performing model" />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -39,6 +41,23 @@
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 
+
+<!-- Google analytics -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-85609357-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+
+<!-- docsearch -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
 
   </head>
 
@@ -53,36 +72,64 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">healthcare.ai</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">healthcareai</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li>
-  <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li class="dropdown">
+        <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Vignettes
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/site_only/fake_vignette.html">fake vignette</a>
+      <a href="../articles/site_only/healthcareai.html">Getting Started</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/db_connections.html">Database Connections</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/deploy_model.html">Deploying a model</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../reference/index.html">Functions</a>
+</li>
+<li>
+  <a href="../news/index.html">News</a>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/HealthCatalyst/healthcareai-r">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://healthcare-ai.slack.com/">
+    <span class="fa fa-users"></span>
+     
+  </a>
+</li>
       </ul>
+      
+      <form class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="search" class="form-control" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+        </div>
+      </form>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -90,21 +137,22 @@
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Make predictions using the best-performing model from tuning</h1>
+    <h1>Make predictions using the best-performing model</h1>
     
     </div>
 
     
-    <p>Make predictions using the best-performing model from tuning</p>
+    <p>Make predictions using the best-performing model</p>
     
 
     <pre class="usage"><span class='co'># S3 method for model_list</span>
-<span class='fu'>predict</span>(<span class='no'>object</span>, <span class='no'>newdata</span>, <span class='no'>prepdata</span>, <span class='no'>...</span>)</pre>
+<span class='fu'>predict</span>(<span class='no'>object</span>, <span class='no'>newdata</span>, <span class='no'>prepdata</span>, <span class='kw'>write_log</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='no'>...</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -113,10 +161,14 @@
     </tr>
     <tr>
       <th>newdata</th>
-      <td><p>data on which to make predictions. If missing, predictions
-will be made on the training data. Should have the same structure as the
-input to `prep_data`,`tune_models` or `train_models`. `predict` will try to
-figure out if the data need to be sent through `prep_data` before making
+      <td><p>data on which to make predictions. If missing, out-of-fold
+predictions from training will be returned If you want new predictions on
+training data using the final model, pass the training data to this
+argument, but know that you're getting over-fit predictions that very
+likely overestimate model performance relative to what will be achieved on
+new data. Should have the same structure as the input to
+`prep_data`,`tune_models` or `train_models`. `predict` will try to figure
+out if the data need to be sent through `prep_data` before making
 predictions; this can be overriden by setting `prepdata = FALSE`, but this
 should rarely be needed.</p></td>
     </tr>
@@ -129,6 +181,15 @@ through `prep_data` again, or set to FALSE to prevent `newdata` from being
 sent through `prep_data`.</p></td>
     </tr>
     <tr>
+      <th>write_log</th>
+      <td><p>Write prediction metadata to a file? Default is FALSE. If
+TRUE, will create or append-at-top a file called "prediction_log.txt" in
+the current directory with metadata about predictions. If a character, is
+the name of a file to create or append with prediction metadata. If you
+want a unique log file each time predictions are made, use something like
+<code>write_log = paste0(Sys.time(), " predictions.txt")</code>.</p></td>
+    </tr>
+    <tr>
       <th>...</th>
       <td><p>Unused.</p></td>
     </tr>
@@ -139,9 +200,10 @@ sent through `prep_data`.</p></td>
     <p>A tibble data frame: newdata with an additional column for the
   predictions in "predicted_TARGET" where TARGET is the name of the variable
   being predicted. If classification, the new column will contain predicted
-  probabilities. The tibble will have child class "hcai_predicted_df" and
+  probabilities. The tibble will have child class "predicted_df" and
   attribute "model_info" that contains information about the model used to
-  make predictions.</p>
+  make predictions. You can call <code>plot</code> or <code>evaluate</code> on a
+  predicted_df.</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
@@ -152,41 +214,37 @@ sent through `prep_data`.</p></td>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <p><code><a href='plot.hcai_predicted_df.html'>plot.hcai_predicted_df</a></code>, <code><a href='tune_models.html'>tune_models</a></code>,
-  <code><a href='prep_data.html'>prep_data</a></code></p>
+    <div class='dont-index'><p><code><a href='plot.predicted_df.html'>plot.predicted_df</a></code>, <code><a href='evaluate.html'>evaluate.predicted_df</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># Tune models using only the first 50 rows to keep computation fast</span>
-<span class='no'>models</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='machine_learn.html'>machine_learn</a></span>(<span class='no'>pima_diabetes</span>[<span class='fl'>1</span>:<span class='fl'>50</span>, ], <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Running cross validation for Random Forest</span></div><div class='output co'>#&gt; <span class='message'>Running cross validation for k-Nearest Neighbors</span></div><div class='input'><span class='co'># Make prediction on the next 20 rows. This uses the best-performing model from</span>
+    <pre class="examples"><div class='input'><span class='co'># Tune models using only the first 40 rows to keep computation fast</span>
+
+<span class='no'>models</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='machine_learn.html'>machine_learn</a></span>(<span class='no'>pima_diabetes</span>[<span class='fl'>1</span>:<span class='fl'>40</span>, ], <span class='no'>patient_id</span>,
+                        <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>, <span class='kw'>tune</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: Random Forest</span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: k-Nearest Neighbors</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>*** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
+#&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='input'>
+<span class='co'># Make prediction on the next 10 rows. This uses the best-performing model from</span>
 <span class='co'># tuning cross validation, and it also prepares the new data in the same way as</span>
 <span class='co'># the training data was prepared.</span>
-<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>51</span>:<span class='fl'>70</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-03-29 23:44:49</span>
-#&gt; <span class='message'>Performance in training: ROC = 0.73</span></div><div class='output co'>#&gt; # A tibble: 20 x 11
+
+<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>41</span>:<span class='fl'>50</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-04-24 09:04:18</span>
+#&gt; <span class='message'>Performance in training: AUROC = 0.63</span></div><div class='output co'>#&gt; # A tibble: 10 x 11
 #&gt;    diabetes predicted_diabe… patient_id pregnancies plasma_glucose diastolic_bp
 #&gt;  * &lt;chr&gt;               &lt;dbl&gt;      &lt;int&gt;       &lt;int&gt;          &lt;int&gt;        &lt;int&gt;
-#&gt;  1 N                   0.131         51           1            103           80
-#&gt;  2 N                   0.160         52           1            101           50
-#&gt;  3 N                   0.114         53           5             88           66
-#&gt;  4 Y                   0.743         54           8            176           90
-#&gt;  5 N                   0.816         55           7            150           66
-#&gt;  6 N                   0.108         56           1             73           50
-#&gt;  7 Y                   0.814         57           7            187           68
-#&gt;  8 N                   0.638         58           0            100           88
-#&gt;  9 N                   0.360         59           0            146           82
-#&gt; 10 N                   0.540         60           0            105           64
-#&gt; 11 N                   0.114         61           2             84           NA
-#&gt; 12 Y                   0.334         62           8            133           72
-#&gt; 13 N                   0.170         63           5             44           62
-#&gt; 14 N                   0.439         64           2            141           58
-#&gt; 15 Y                   0.366         65           7            114           66
-#&gt; 16 N                   0.139         66           5             99           74
-#&gt; 17 Y                   0.316         67           0            109           88
-#&gt; 18 N                   0.274         68           2            109           92
-#&gt; 19 N                   0.113         69           1             95           66
-#&gt; 20 N                   0.137         70           4            146           85
+#&gt;  1 N                   0.790         41           3            180           64
+#&gt;  2 N                   0.554         42           7            133           84
+#&gt;  3 N                   0.216         43           7            106           92
+#&gt;  4 Y                   0.698         44           9            171          110
+#&gt;  5 N                   0.605         45           7            159           64
+#&gt;  6 Y                   0.788         46           0            180           66
+#&gt;  7 N                   0.470         47           1            146           56
+#&gt;  8 N                   0.308         48           2             71           70
+#&gt;  9 Y                   0.642         49           7            103           66
+#&gt; 10 N                   0.650         50           7            105           NA
 #&gt; # ... with 5 more variables: skinfold &lt;int&gt;, insulin &lt;int&gt;, weight_class &lt;chr&gt;,
-#&gt; #   pedigree &lt;dbl&gt;, age &lt;int&gt;</div><div class='input'><span class='fu'>plot</span>(<span class='no'>predictions</span>)</div><div class='img'><img src='predict.model_list-1.png' alt='' width='700' height='432.632880098887' /></div></pre>
+#&gt; #   pedigree &lt;dbl&gt;, age &lt;int&gt;</div><div class='input'><span class='fu'><a href='evaluate.html'>evaluate</a></span>(<span class='no'>predictions</span>)</div><div class='output co'>#&gt;      AUPR     AUROC 
+#&gt; 0.4611111 0.8095238 </div><div class='input'><span class='fu'>plot</span>(<span class='no'>predictions</span>)</div><div class='img'><img src='predict.model_list-1.png' alt='' width='576' height='288' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -216,6 +274,19 @@ sent through `prep_data`.</p></td>
 
       </footer>
    </div>
+
+  
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+<script>
+  docsearch({
+    
+    apiKey: 'ac39465bc37cbef616f5de1e646b6037',
+    indexName: 'healthcareai',
+    inputSelector: 'input#search-input.form-control',
+    debug: false // Set debug to true if you want to inspect the dropdown
+  });
+</script>
+
 
   </body>
 </html>

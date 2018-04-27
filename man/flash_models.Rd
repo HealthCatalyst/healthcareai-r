@@ -40,7 +40,8 @@ displayed in a message.}
 defaults to the name of the outcome variable.}
 }
 \value{
-A model_list object
+A model_list object. You can call \code{plot}, \code{summary},
+  \code{evaluate}, or \code{predict} on a model_list.
 }
 \description{
 Train models without tuning for performance
@@ -76,6 +77,15 @@ system.time(
 }
 }
 \seealso{
-\code{\link{tune_models}}, \code{\link{prep_data}},
-  \code{\link{predict.model_list}}, \code{\link{supported_models}}
+For setting up model training: \code{\link{prep_data}},
+  \code{\link{supported_models}}, \code{\link{hyperparameters}}
+
+  For evaluating models: \code{\link{plot.model_list}},
+  \code{\link{evaluate.model_list}}
+
+  For making predictions: \code{\link{predict.model_list}}
+
+  For optimizing performance: \code{\link{tune_models}}
+
+  To prepare data and tune models in a single step: \code{\link{machine_learn}}
 }

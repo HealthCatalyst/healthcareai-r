@@ -6,13 +6,14 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Percent of entries in each column that are missing — missingness • healthcareai</title>
+<title>Find missingness in each column and search for strings that might represent
+missing values — missingness • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
+<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
@@ -25,13 +26,17 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Percent of entries in each column that are missing — missingness" />
+<meta property="og:title" content="Find missingness in each column and search for strings that might represent
+missing values — missingness" />
 
-<meta property="og:description" content="Finds the percent of NAs in a vector or in each column of a dataframe or
-matrix or in a vector. Possible mis-coded missing values are searched for and a warning issued if they are found." />
+<meta property="og:description" content="Finds the percent of NAs in a vector or in each column of a
+  dataframe or matrix or in a vector. Possible mis-coded missing values are
+  searched for and a warning issued if they are found." />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -40,6 +45,23 @@ matrix or in a vector. Possible mis-coded missing values are searched for and a 
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 
+
+<!-- Google analytics -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-85609357-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+
+<!-- docsearch -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
 
   </head>
 
@@ -54,36 +76,64 @@ matrix or in a vector. Possible mis-coded missing values are searched for and a 
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">healthcare.ai</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">healthcareai</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li>
-  <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li class="dropdown">
+        <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Vignettes
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/site_only/fake_vignette.html">fake vignette</a>
+      <a href="../articles/site_only/healthcareai.html">Getting Started</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/db_connections.html">Database Connections</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/deploy_model.html">Deploying a model</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../reference/index.html">Functions</a>
+</li>
+<li>
+  <a href="../news/index.html">News</a>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/HealthCatalyst/healthcareai-r">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://healthcare-ai.slack.com/">
+    <span class="fa fa-users"></span>
+     
+  </a>
+</li>
       </ul>
+      
+      <form class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="search" class="form-control" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+        </div>
+      </form>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -91,22 +141,24 @@ matrix or in a vector. Possible mis-coded missing values are searched for and a 
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Percent of entries in each column that are missing</h1>
+    <h1>Find missingness in each column and search for strings that might represent
+missing values</h1>
     
     </div>
 
     
-    <p>Finds the percent of NAs in a vector or in each column of a dataframe or
-matrix or in a vector. Possible mis-coded missing values are searched for and a warning issued if they are found.</p>
+    <p>Finds the percent of NAs in a vector or in each column of a
+  dataframe or matrix or in a vector. Possible mis-coded missing values are
+  searched for and a warning issued if they are found.</p>
     
 
     <pre class="usage"><span class='fu'>missingness</span>(<span class='no'>d</span>, <span class='kw'>return_df</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>to_search</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"NA"</span>, <span class='st'>"NAs"</span>, <span class='st'>"na"</span>, <span class='st'>"NaN"</span>,
   <span class='st'>"?"</span>, <span class='st'>"??"</span>, <span class='st'>"nil"</span>, <span class='st'>"NULL"</span>, <span class='st'>" "</span>, <span class='st'>""</span>))</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -115,17 +167,25 @@ matrix or in a vector. Possible mis-coded missing values are searched for and a 
     </tr>
     <tr>
       <th>return_df</th>
-      <td><p>If TRUE (default) a data frame is returned, which generally makes reading the output easier. If variable names are so long that the data frame gets wrapped poorly, set this to FALSE.</p></td>
+      <td><p>If TRUE (default) a data frame is returned, which generally
+makes reading the output easier. If variable names are so long that the
+data frame gets wrapped poorly, set this to FALSE.</p></td>
     </tr>
     <tr>
       <th>to_search</th>
-      <td><p>A vector of strings that might represent missingness. If found in <code>d</code>, a warning is issued.</p></td>
+      <td><p>A vector of strings that might represent missingness. If
+found in <code>d</code>, a warning is issued.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A data frame with two columns: variable names in <code>d</code> and the percent of entries in each variable that are missing.</p>
+    <p>A data frame with two columns: variable names in <code>d</code> and the
+  percent of entries in each variable that are missing.</p>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='plot.missingness.html'>plot.missingness</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
@@ -143,6 +203,8 @@ matrix or in a vector. Possible mis-coded missing values are searched for and a 
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#see-also">See also</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>
@@ -161,6 +223,19 @@ matrix or in a vector. Possible mis-coded missing values are searched for and a 
 
       </footer>
    </div>
+
+  
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+<script>
+  docsearch({
+    
+    apiKey: 'ac39465bc37cbef616f5de1e646b6037',
+    indexName: 'healthcareai',
+    inputSelector: 'input#search-input.form-control',
+    debug: false // Set debug to true if you want to inspect the dropdown
+  });
+</script>
+
 
   </body>
 </html>

@@ -101,7 +101,8 @@ plot.missingness <- function(x, filter_zero = FALSE,
     geom_point(size = point_size) +
     coord_flip() +
     scale_x_discrete(name = NULL) +
-    scale_y_continuous(name = "Percent row missing", labels = function (x) paste0(x, "%")) +
+    scale_y_continuous(name = "Percent of Observations Missing",
+                       labels = function (x) paste0(x, "%")) +
     ggtitle(title) +
     theme_gray(base_size = font_size)
 

@@ -28,8 +28,8 @@
 #' @param model_name Quoted, name of the model. If left blank,
 #' defaults to the name of the outcome variable.
 #'
-#' @return model_list object ready to make predictions via
-#'   \code{\link{predict.model_list}}
+#' @return A model_list object. You can call \code{plot}, \code{summary},
+#'   \code{evaluate}, or \code{predict} on a model_list.
 #' @export
 #'
 #' @details This is a high-level wrapper function. For finer control of data
@@ -37,8 +37,11 @@
 #'   wraps. For finer control of model tuning use \code{\link{tune_models}}.
 #'
 #' @examples
-#' # Split the data into training and test sets, using just 100 rows for speed
-#' d <- split_train_test(d = pima_diabetes[1:100, ],
+#' # These examples take about 30 seconds to execute so aren't run automatically,
+#' # but you should be able to execute this code locally.
+#' \dontrun{
+#' # Split the data into training and test sets
+#' d <- split_train_test(d = pima_diabetes,
 #'                       outcome = diabetes,
 #'                       percent_train = .9)
 #'
@@ -59,6 +62,15 @@
 #' # If the outcome variable is numeric, regression models will be trained
 #' age_model <- machine_learn(d$train, patient_id, outcome = age)
 #'
+#' # Get detailed information about performance over tuning values
+#' summary(age_model)
+#'
+#' # Get available performance metrics
+#' evaluate(age_model)
+#'
+#' # Plot training performance on tuning metric (default = RMSE)
+#' plot(age_model)
+#'
 #' # If new data isn't specifed, get predictions on training data
 #' predict(age_model)
 #'
@@ -66,8 +78,9 @@
 #'
 #' # Train models at set hyperparameter values by setting tune to FALSE. This is
 #' # faster (especially on larger datasets), but produces models with less
-#' # predictive accuracy.
+#' # predictive power.
 #' machine_learn(d$train, patient_id, outcome = diabetes, tune = FALSE)
+#' }
 machine_learn <- function(d, ..., outcome, models, tune = TRUE, positive_class,
                           n_folds = 5, tune_depth = 10, impute = TRUE,
                           model_name = NA) {

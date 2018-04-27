@@ -38,10 +38,20 @@
 #' @importFrom ranger ranger
 #' @importFrom rlang quo_name
 #'
-#' @seealso \code{\link{prep_data}}, \code{\link{predict.model_list}},
-#'   \code{\link{supported_models}}
+#' @seealso For setting up model training: \code{\link{prep_data}},
+#'   \code{\link{supported_models}}, \code{\link{hyperparameters}}
 #'
-#' @return A model_list object
+#'   For evaluating models: \code{\link{plot.model_list}},
+#'   \code{\link{evaluate.model_list}}
+#'
+#'   For making predictions: \code{\link{predict.model_list}}
+#'
+#'   For faster, but not-optimized model training: \code{\link{flash_models}}
+#'
+#'   To prepare data and tune models in a single step: \code{\link{machine_learn}}
+#'
+#' @return A model_list object. You can call \code{plot}, \code{summary},
+#'   \code{evaluate}, or \code{predict} on a model_list.
 #' @details Note that this function is training a lot of models (100 by default)
 #'   and so can take a while to execute. In general a model is trained for each
 #'   hyperparameter combination in each fold for each model, so run time is a

@@ -22,8 +22,11 @@
 #'   knn), "triangular", "epanechnikov", "biweight", "triweight", "cos", "inv",
 #'   "gaussian", "rank", or "optimal".}
 #' }
-#'
-#' @seealso \code{\link{hyperparameters}} hyperparameter defaults
+#' @export
+#' @importFrom e1071 naiveBayes
+#  ^ This is a placeholder. ranger needs e1071
+#' @seealso \code{\link{hyperparameters}} for more detail on hyperparameter
+#' defaults and specifications
 #' @return Vector of currently-supported algorithms.
 #' @aliases supported_models models models_supported
 get_supported_models <- function() {

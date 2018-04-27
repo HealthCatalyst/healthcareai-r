@@ -326,9 +326,10 @@ test_that("get_oof_predictions seems to work", {
 })
 
 test_that("logging works as expected", {
+  # Log not written by default
   preds <- predict(model_regression_prepped, test_data)
   expect_equal(length(list.files(pattern = "txt$")), 0L)
-  # Default
+  # Activating default logs works
   predict(model_regression_prepped, test_data, write_log = TRUE)
   expect_true(file.exists("Fertility_prediction_log.txt"))
   first_log <- readLines("Fertility_prediction_log.txt")

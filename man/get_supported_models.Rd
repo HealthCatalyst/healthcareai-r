@@ -35,5 +35,6 @@ Implemented via \code{kknn}.
 }
 }
 \seealso{
-\code{\link{hyperparameters}} hyperparameter defaults
+\code{\link{hyperparameters}} for more detail on hyperparameter
+defaults and specifications
 }

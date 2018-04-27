@@ -6,13 +6,13 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>healthcareai: Streamlined Machine Learning — healthcareai • healthcareai</title>
+<title>Machine Learning Made Easy — healthcareai • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
+<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
@@ -25,14 +25,16 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="healthcareai: Streamlined Machine Learning — healthcareai" />
+<meta property="og:title" content="Machine Learning Made Easy — healthcareai" />
 
-<meta property="og:description" content="healthcare-ai provides a clean interface to create and compare multiple
-models on your data and then deploy the model that is most accurate. healthcareai
-also includes functions for data exploration, data cleaning, and model evaluation." />
+<meta property="og:description" content="healthcare.ai makes it as easy as possible to pull data from a database, get
+it ready for machine learning, optimize multiple models, and deploy
+predictions." />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -41,6 +43,23 @@ also includes functions for data exploration, data cleaning, and model evaluatio
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 
+
+<!-- Google analytics -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-85609357-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+
+<!-- docsearch -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
 
   </head>
 
@@ -55,36 +74,64 @@ also includes functions for data exploration, data cleaning, and model evaluatio
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">healthcare.ai</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">healthcareai</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li>
-  <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li class="dropdown">
+        <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Vignettes
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/site_only/fake_vignette.html">fake vignette</a>
+      <a href="../articles/site_only/healthcareai.html">Getting Started</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/db_connections.html">Database Connections</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/deploy_model.html">Deploying a model</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../reference/index.html">Functions</a>
+</li>
+<li>
+  <a href="../news/index.html">News</a>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/HealthCatalyst/healthcareai-r">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://healthcare-ai.slack.com/">
+    <span class="fa fa-users"></span>
+     
+  </a>
+</li>
       </ul>
+      
+      <form class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="search" class="form-control" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+        </div>
+      </form>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -92,62 +139,25 @@ also includes functions for data exploration, data cleaning, and model evaluatio
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>healthcareai: Streamlined Machine Learning</h1>
+    <h1>Machine Learning Made Easy</h1>
     
     </div>
 
     
-    <p>healthcare-ai provides a clean interface to create and compare multiple
-models on your data and then deploy the model that is most accurate. healthcareai
-also includes functions for data exploration, data cleaning, and model evaluation.</p>
+    <p>healthcare.ai makes it as easy as possible to pull data from a database, get
+it ready for machine learning, optimize multiple models, and deploy
+predictions.</p>
     
 
         
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Modeling is done in a three-step process: First, loading, understanding, and
-preparing the data. Second, tuning and selecting a best model. Third, making
-predictions, deploying the model, and monitoring over time.</p>
-<ol>
-<li><p><strong>Load data</strong>
- <code><a href='selectData.html'>selectData</a></code> to pull data directly from a SQL
-database</p></li>
-<li><p><strong>Profile data</strong>
- <code><a href='control_chart.html'>control_chart</a></code> to plot data over time.
- <code><a href='pivot.html'>pivot</a></code> if you multiple rows for each observation you want
-a prediction on (e.g. multiple lab values for patients on separate rows), pivot
-can help reshape the data.</p></li>
-<li><p><strong>Prepare data for modeling</strong>
- <code><a href='missingness.html'>missingness</a></code> to examine how much of each variable is missing.
- <code><a href='impute.html'>impute</a></code> to impute missing values, or...
- <code><a href='prep_data.html'>prep_data</a></code> to impute and perform additional data
-manipulation to get data ready for machine learning.
- <code><a href='split_train_test.html'>split_train_test</a></code> to split data into one data frame for
-developing a model and another for evaluating the model.</p></li>
-<li><p><strong>Tune machine learning models</strong>
- <code><a href='machine_learn.html'>machine_learn</a></code> does all the work for you, from imputing
-missing values to finding optimal models via cross validation. If you want to
-keep the guts under the hood (apologies for the mixed metaphor!),
-this is the function for you!
- <code><a href='tune_models.html'>tune_models</a></code> gives you more control over how models are trained.</p></li>
-<li><p><strong>Assess models</strong>
- <code>machine_learn</code> and <code>tune_models</code> both return
-<code>model_list</code> objects. You can get high level information about your models by simply
-printing the model_list object (i.e. type the name of the variable holding the models).
- <code>summary(model_list)</code> provides even more information about model tuning.
- <code>plot(model_list)</code> plots model performance over hyperparameter space.</p></li>
-<li><p><strong>Make predictions and deploy the model</strong>
- <code><a href='predict.model_list.html'>predict.model_list</a></code> generates predictions
- <code><a href='writeData.html'>writeData</a></code> to push the predicted values into a SQL environment.</p></li>
-</ol>
-    
-    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
-
-    <p><a href='https://github.com/HealthCatalyst/healthcareai-r/'>https://github.com/HealthCatalyst/healthcareai-r/</a></p>
-<p><a href='http://healthcare.ai'>http://healthcare.ai</a></p>
+    <p>The package website -- <a href='https://docs.healthcare.ai/'>https://docs.healthcare.ai/</a> -- contains vignettes
+that demonstrate how to use the package, as well as documentation of all the
+important functions.</p>
     
 
   </div>
@@ -156,8 +166,6 @@ printing the model_list object (i.e. type the name of the variable holding the m
     <ul class="nav nav-pills nav-stacked">
       
       <li><a href="#details">Details</a></li>
-
-      <li><a href="#references">References</a></li>
           </ul>
 
   </div>
@@ -174,6 +182,19 @@ printing the model_list object (i.e. type the name of the variable holding the m
 
       </footer>
    </div>
+
+  
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+<script>
+  docsearch({
+    
+    apiKey: 'ac39465bc37cbef616f5de1e646b6037',
+    indexName: 'healthcareai',
+    inputSelector: 'input#search-input.form-control',
+    debug: false // Set debug to true if you want to inspect the dropdown
+  });
+</script>
+
 
   </body>
 </html>

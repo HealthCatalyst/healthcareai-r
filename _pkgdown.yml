@@ -4,15 +4,16 @@ template:
   params:
     bootswatch: yeti
     ganalytics: UA-85609357-1
+    docsearch:
+      api_key: ac39465bc37cbef616f5de1e646b6037
+      index_name: healthcareai
 
 development:
-  mode: devel
+  mode: release
 
 home:
   links:
-  - text: Browse source code
-    href: https://github.com/HealthCatalyst/healthcareai-r
-  - text: healthcare.ai home
+  - text: Blogs, broadcasts, and more
     href: https://healthcare.ai
 
 navbar:

@@ -138,7 +138,8 @@ In this case we sacrificed just 0.01 AUPR versus tuning the models. In our exper
 You can see how important each "feature" (aka predictor, aka variable) was for making predictions by calling `get_variable_importance` or `plot_variable_importance` on your model object.
 
 ```{r}
-plot_variable_importance(models)
+get_variable_importance(models) %>%
+  plot()
 ```
 
 # Prediction
@@ -198,4 +199,3 @@ new_patient <- data.frame(
   diabetes = "N")
 predict(regression_models, new_patient)
 ```
-

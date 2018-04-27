@@ -11,8 +11,8 @@
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
+<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
@@ -27,32 +27,37 @@
 <script src="../pkgdown.js"></script>
 <meta property="og:title" content="Prepare data for machine learning — prep_data" />
 
-<meta property="og:description" content="prep_data will prepare your data for use with
-  tune_models or other machine learning packages. Data can be
-  transformed in the following ways:
+<meta property="og:description" content="prep_data will prepare your data for machine learning.
+  Some steps enhance predictive power, some make sure that the data format is
+  compatible with a wide array of machine learning algorithms, and others
+  provide protection against common problems in model deployment. The
+  following steps are available; those followed by * are applied by default.
+  Many have customization options.
 Convert columns with
-  only 0/1 to factor
-Remove columns with near-zero variance
-Convert date columns to useful features
-Fill in missing values
-  with various imputation methods
-Collapse rare categories into
-  `other`
+  only 0/1 to factor*
+Remove columns with near-zero variance*
+Convert date columns to useful features*
+Fill in missing
+  values via imputation*
+Collapse rare categories into "other"*
 Center numeric columns
 Standardize numeric columns
-Create dummy variables
-Add levels to factors for rare and
-  missing data
-While preparing your data, a recipe will be generated for
-  identical transformation of future data and stored in the `recipe`
-  attribute of the output data frame. If a recipe object is passed to
-  `prep_data` via the `recipe` argument, that recipe will be applied to the
-  data. This allows you to transform data in model training and apply exactly
-  the same transformations in model testing and deployment. The new data must
-  be identical in structure to the data that the recipe was prepared with." />
+Create dummy variables from categorical variables*
+Add
+  protective levels to factors for rare and missing data*
+While preparing
+  your data, a recipe will be generated for identical transformation of
+  future data and stored in the `recipe` attribute of the output data frame.
+  If a recipe object is passed to `prep_data` via the `recipe` argument, that
+  recipe will be applied to the data. This allows you to transform data in
+  model training and apply exactly the same transformations in model testing
+  and deployment. The new data must be identical in structure to the data
+  that the recipe was prepared with." />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -61,6 +66,23 @@ While preparing your data, a recipe will be generated for
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 
+
+<!-- Google analytics -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-85609357-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+
+<!-- docsearch -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
 
   </head>
 
@@ -75,36 +97,64 @@ While preparing your data, a recipe will be generated for
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">healthcare.ai</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">healthcareai</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li>
-  <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li class="dropdown">
+        <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Vignettes
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/site_only/fake_vignette.html">fake vignette</a>
+      <a href="../articles/site_only/healthcareai.html">Getting Started</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/db_connections.html">Database Connections</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/deploy_model.html">Deploying a model</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../reference/index.html">Functions</a>
+</li>
+<li>
+  <a href="../news/index.html">News</a>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/HealthCatalyst/healthcareai-r">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://healthcare-ai.slack.com/">
+    <span class="fa fa-users"></span>
+     
+  </a>
+</li>
       </ul>
+      
+      <form class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="search" class="form-control" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+        </div>
+      </form>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -112,7 +162,7 @@ While preparing your data, a recipe will be generated for
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Prepare data for machine learning</h1>
@@ -120,29 +170,32 @@ While preparing your data, a recipe will be generated for
     </div>
 
     
-    <p><code>prep_data</code> will prepare your data for use with
-  <code><a href='tune_models.html'>tune_models</a></code> or other machine learning packages. Data can be
-  transformed in the following ways:</p><ol>
+    <p><code>prep_data</code> will prepare your data for machine learning.
+  Some steps enhance predictive power, some make sure that the data format is
+  compatible with a wide array of machine learning algorithms, and others
+  provide protection against common problems in model deployment. The
+  following steps are available; those followed by * are applied by default.
+  Many have customization options.</p><ol>
 <li><p>Convert columns with
-  only 0/1 to factor</p></li>
-<li><p>Remove columns with near-zero variance</p></li>
-<li><p>Convert date columns to useful features</p></li>
-<li><p>Fill in missing values
-  with various imputation methods</p></li>
-<li><p>Collapse rare categories into
-  `other`</p></li>
+  only 0/1 to factor*</p></li>
+<li><p>Remove columns with near-zero variance*</p></li>
+<li><p>Convert date columns to useful features*</p></li>
+<li><p>Fill in missing
+  values via imputation*</p></li>
+<li><p>Collapse rare categories into "other"*</p></li>
 <li><p>Center numeric columns</p></li>
 <li><p>Standardize numeric columns</p></li>
-<li><p>Create dummy variables</p></li>
-<li><p>Add levels to factors for rare and
-  missing data</p></li>
-</ol><p>While preparing your data, a recipe will be generated for
-  identical transformation of future data and stored in the `recipe`
-  attribute of the output data frame. If a recipe object is passed to
-  `prep_data` via the `recipe` argument, that recipe will be applied to the
-  data. This allows you to transform data in model training and apply exactly
-  the same transformations in model testing and deployment. The new data must
-  be identical in structure to the data that the recipe was prepared with.</p>
+<li><p>Create dummy variables from categorical variables*</p></li>
+<li><p>Add
+  protective levels to factors for rare and missing data*</p></li>
+</ol><p>While preparing
+  your data, a recipe will be generated for identical transformation of
+  future data and stored in the `recipe` attribute of the output data frame.
+  If a recipe object is passed to `prep_data` via the `recipe` argument, that
+  recipe will be applied to the data. This allows you to transform data in
+  model training and apply exactly the same transformations in model testing
+  and deployment. The new data must be identical in structure to the data
+  that the recipe was prepared with.</p>
     
 
     <pre class="usage"><span class='fu'>prep_data</span>(<span class='no'>d</span>, <span class='no'>...</span>, <span class='no'>outcome</span>, <span class='kw'>recipe</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>remove_near_zero_variance</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
@@ -150,7 +203,7 @@ While preparing your data, a recipe will be generated for
   <span class='kw'>center</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>scale</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>make_dummies</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>add_levels</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>factor_outcome</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -229,18 +282,19 @@ for categorical variables.</p></td>
     </tr>
     <tr>
       <th>add_levels</th>
-      <td><p>Logical. If TRUE (defaults), "other" and "hcai_missing"
-will be added to all nominal columns. This is protective in deployment: new
-levels found in deployment will become "other" and missingness in
-deployment can become "hcai_missing" if the nominal imputation method is
-"new_category". If FALSE, these levels may be added to some columns
-depending on details of imputation and collapse_rare_factors.</p></td>
+      <td><p>Logical. If TRUE (defaults), "other" and "missing" will be
+added to all nominal columns. This is protective in deployment: new levels
+found in deployment will become "other" and missingness in deployment can
+become "missing" if the nominal imputation method is "new_category". If
+FALSE, these levels may be added to some columns depending on details of
+imputation and collapse_rare_factors.</p></td>
     </tr>
     <tr>
       <th>factor_outcome</th>
       <td><p>Logical. If TRUE (default) and if all entries in
 outcome are 0 or 1 they will be converted to factor with levels N and Y for
-classification.</p></td>
+classification. Note that which level is the positive class is set in
+training functions rather than here.</p></td>
     </tr>
     </table>
     
@@ -252,8 +306,13 @@ classification.</p></td>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <p><code><a href='hcai_impute.html'>hcai_impute</a></code>, <code><a href='tune_models.html'>tune_models</a></code>,
-  <code><a href='predict.model_list.html'>predict.model_list</a></code></p>
+    <div class='dont-index'><p>To let data preparation happen automatically under the hood, see
+  <code><a href='machine_learn.html'>machine_learn</a></code></p>
+<p>To take finer control of imputation, see <code><a href='impute.html'>impute</a></code>, and for
+  finer control of data prep in general check out the recipes package:
+  <a href='https://topepo.github.io/recipes/'>https://topepo.github.io/recipes/</a></p>
+<p>To train models on prepared data, see <code><a href='tune_models.html'>tune_models</a></code> and
+  <code><a href='flash_models.html'>flash_models</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
@@ -279,37 +338,38 @@ classification.</p></td>
 #&gt; 
 #&gt; Sparse, unbalanced variable filter removed no terms [trained]
 #&gt; Mean Imputation for pregnancies, plasma_glucose, ... [trained]
-#&gt; Filling NA with hcai_missing for weight_class [trained]
-#&gt; Adding levels to: other, hcai_missing [trained]
+#&gt; Filling NA with missing for weight_class [trained]
+#&gt; Adding levels to: other, missing [trained]
 #&gt; Collapsing factor levels for weight_class [trained]
-#&gt; Adding levels to: other, hcai_missing [trained]
+#&gt; Adding levels to: other, missing [trained]
 #&gt; Dummy variables from weight_class [trained]</div><div class='output co'>#&gt; <span class='message'>Current data:</span></div><div class='output co'>#&gt; # A tibble: 68 x 13
 #&gt;    pregnancies plasma_glucose diastolic_bp skinfold insulin pedigree   age
 #&gt;          &lt;int&gt;          &lt;int&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;
-#&gt;  1           2            122         76.0     27.0     200    0.483    26
-#&gt;  2           6            125         78.0     31.0     154    0.565    49
-#&gt;  3           1            168         88.0     29.0     154    0.905    52
-#&gt;  4           2            129         72.3     29.1     154    0.304    41
-#&gt;  5           4            110         76.0     20.0     100    0.118    27
-#&gt;  6           6             80         80.0     36.0     154    0.177    28
-#&gt;  7          10            115         72.3     29.1     154    0.261    30
-#&gt;  8           2            127         46.0     21.0     335    0.176    22
-#&gt;  9           9            164         78.0     29.1     154    0.148    45
-#&gt; 10           2             93         64.0     32.0     160    0.674    23
+#&gt;  1           2            122         76.0     27.0    200.    0.483    26
+#&gt;  2           6            125         78.0     31.0    154.    0.565    49
+#&gt;  3           1            168         88.0     29.0    154.    0.905    52
+#&gt;  4           2            129         72.3     29.1    154.    0.304    41
+#&gt;  5           4            110         76.0     20.0    100.    0.118    27
+#&gt;  6           6             80         80.0     36.0    154.    0.177    28
+#&gt;  7          10            115         72.3     29.1    154.    0.261    30
+#&gt;  8           2            127         46.0     21.0    335.    0.176    22
+#&gt;  9           9            164         78.0     29.1    154.    0.148    45
+#&gt; 10           2             93         64.0     32.0    160.    0.674    23
 #&gt; # ... with 58 more rows, and 6 more variables: diabetes &lt;fct&gt;,
 #&gt; #   weight_class_normal &lt;dbl&gt;, weight_class_obese &lt;dbl&gt;,
 #&gt; #   weight_class_overweight &lt;dbl&gt;, weight_class_other &lt;dbl&gt;,
-#&gt; #   weight_class_hcai_missing &lt;dbl&gt;</div><div class='input'>
+#&gt; #   weight_class_missing &lt;dbl&gt;</div><div class='input'>
 <span class='co'># Customize preparations:</span>
-<span class='fu'>prep_data</span>(<span class='kw'>d</span> <span class='kw'>=</span> <span class='no'>d_train</span>, <span class='no'>patient_id</span>, <span class='no'>diabetes</span>,
+<span class='fu'>prep_data</span>(<span class='kw'>d</span> <span class='kw'>=</span> <span class='no'>d_train</span>, <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>,
           <span class='kw'>impute</span> <span class='kw'>=</span> <span class='fu'>list</span>(<span class='kw'>numeric_method</span> <span class='kw'>=</span> <span class='st'>"bagimpute"</span>,
                         <span class='kw'>nominal_method</span> <span class='kw'>=</span> <span class='st'>"bagimpute"</span>),
           <span class='kw'>collapse_rare_factors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>convert_dates</span> <span class='kw'>=</span> <span class='st'>"year"</span>,
-          <span class='kw'>center</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>scale</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>make_dummies</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe, with no outcome variable specified</span></div><div class='output co'>#&gt; <span class='message'>healthcareai-prepped data. Recipe used to prepare data:</span></div><div class='output co'>#&gt; Data Recipe
+          <span class='kw'>center</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>scale</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>make_dummies</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>healthcareai-prepped data. Recipe used to prepare data:</span></div><div class='output co'>#&gt; Data Recipe
 #&gt; 
 #&gt; Inputs:
 #&gt; 
 #&gt;       role #variables
+#&gt;    outcome          1
 #&gt;  predictor          8
 #&gt; 
 #&gt; Training data contained 700 data points and 340 incomplete rows. 
@@ -321,22 +381,22 @@ classification.</p></td>
 #&gt; Bagged tree imputation for weight_class [trained]
 #&gt; Centering for pregnancies, plasma_glucose, ... [trained]
 #&gt; Scaling for pregnancies, plasma_glucose, ... [trained]
-#&gt; Adding levels to: other, hcai_missing [trained]
-#&gt; Adding levels to: other, hcai_missing [trained]</div><div class='output co'>#&gt; <span class='message'>Current data:</span></div><div class='output co'>#&gt; # A tibble: 700 x 10
-#&gt;    patient_id diabetes pregnancies plasma_glucose diastolic_bp skinfold insulin
-#&gt;         &lt;int&gt; &lt;chr&gt;          &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
-#&gt;  1          1 Y              0.646          0.871      -0.0211   0.635   0.344 
-#&gt;  2          2 N             -0.840         -1.19       -0.514    0.0152 -0.855 
-#&gt;  3          3 Y              1.24           2.02       -0.678   -0.956   0.546 
-#&gt;  4          4 N             -0.840         -1.06       -0.514   -0.605  -0.613 
-#&gt;  5          5 Y             -1.14           0.511      -2.65     0.635   0.132 
-#&gt;  6          6 N              0.349         -0.175       0.143   -0.525  -0.252 
-#&gt;  7          7 Y             -0.246         -1.42       -1.83     0.325  -0.673 
-#&gt;  8          8 N              1.83          -0.208      -0.0957   0.507  -0.0956
-#&gt;  9          9 Y             -0.543          2.47       -0.185    1.67    3.90  
-#&gt; 10         10 Y              1.24           0.119       1.95     0.477   0.837 
-#&gt; # ... with 690 more rows, and 3 more variables: weight_class &lt;fct&gt;,
-#&gt; #   pedigree &lt;dbl&gt;, age &lt;dbl&gt;</div></pre>
+#&gt; Adding levels to: other, missing [trained]
+#&gt; Adding levels to: other, missing [trained]</div><div class='output co'>#&gt; <span class='message'>Current data:</span></div><div class='output co'>#&gt; # A tibble: 700 x 10
+#&gt;    patient_id pregnancies plasma_glucose diastolic_bp skinfold insulin
+#&gt;         &lt;int&gt;       &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
+#&gt;  1          1       0.646          0.871      -0.0214   0.636    0.292
+#&gt;  2          2      -0.840         -1.19       -0.515    0.0138  -0.844
+#&gt;  3          3       1.24           2.02       -0.679   -0.921    0.485
+#&gt;  4          4      -0.840         -1.06       -0.515   -0.609   -0.602
+#&gt;  5          5      -1.14           0.511      -2.65     0.636    0.150
+#&gt;  6          6       0.349         -0.176       0.143   -0.366   -0.274
+#&gt;  7          7      -0.246         -1.42       -1.83     0.325   -0.663
+#&gt;  8          8       1.83          -0.208      -0.0591   0.335   -0.153
+#&gt;  9          9      -0.543          2.47       -0.186    1.67     3.96 
+#&gt; 10         10       1.24           0.119       1.95     0.310    0.659
+#&gt; # ... with 690 more rows, and 4 more variables: weight_class &lt;fct&gt;,
+#&gt; #   pedigree &lt;dbl&gt;, age &lt;dbl&gt;, diabetes &lt;fct&gt;</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -364,6 +424,19 @@ classification.</p></td>
 
       </footer>
    </div>
+
+  
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+<script>
+  docsearch({
+    
+    apiKey: 'ac39465bc37cbef616f5de1e646b6037',
+    indexName: 'healthcareai',
+    inputSelector: 'input#search-input.form-control',
+    debug: false // Set debug to true if you want to inspect the dropdown
+  });
+</script>
+
 
   </body>
 </html>

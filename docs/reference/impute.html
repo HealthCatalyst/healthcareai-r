@@ -6,13 +6,13 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Impute data and return a reusable recipe. — impute • healthcareai</title>
+<title>Impute data and return a reusable recipe — impute • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
+<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
@@ -25,7 +25,7 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Impute data and return a reusable recipe. — impute" />
+<meta property="og:title" content="Impute data and return a reusable recipe — impute" />
 
 <meta property="og:description" content="impute will impute your data using a variety of methods
 for both nominal and numeric data. Currently supports mean (numeric only),
@@ -33,6 +33,8 @@ new_category (categorical only), bagged trees, or knn." />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -41,6 +43,23 @@ new_category (categorical only), bagged trees, or knn." />
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 
+
+<!-- Google analytics -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-85609357-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+
+<!-- docsearch -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
 
   </head>
 
@@ -55,36 +74,64 @@ new_category (categorical only), bagged trees, or knn." />
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">healthcare.ai</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">healthcareai</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li>
-  <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li class="dropdown">
+        <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Vignettes
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/site_only/fake_vignette.html">fake vignette</a>
+      <a href="../articles/site_only/healthcareai.html">Getting Started</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/db_connections.html">Database Connections</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/deploy_model.html">Deploying a model</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../reference/index.html">Functions</a>
+</li>
+<li>
+  <a href="../news/index.html">News</a>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/HealthCatalyst/healthcareai-r">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://healthcare-ai.slack.com/">
+    <span class="fa fa-users"></span>
+     
+  </a>
+</li>
       </ul>
+      
+      <form class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="search" class="form-control" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+        </div>
+      </form>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -92,10 +139,10 @@ new_category (categorical only), bagged trees, or knn." />
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Impute data and return a reusable recipe.</h1>
+    <h1>Impute data and return a reusable recipe</h1>
     
     </div>
 
@@ -109,7 +156,7 @@ new_category (categorical only), bagged trees, or knn.</p>
   <span class='kw'>nominal_method</span> <span class='kw'>=</span> <span class='st'>"new_category"</span>, <span class='kw'>numeric_params</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>nominal_params</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -188,16 +235,16 @@ will be used.</p></td>
 #&gt; # A tibble: 68 x 10
 #&gt;    patient_id pregnancies plasma_glucose diastolic_bp skinfold insulin
 #&gt;         &lt;int&gt;       &lt;int&gt;          &lt;int&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
-#&gt;  1        701           2            122         76.0     27.0     200
-#&gt;  2        702           6            125         78.0     31.0     154
-#&gt;  3        703           1            168         88.0     29.0     154
-#&gt;  4        704           2            129         72.3     29.1     154
-#&gt;  5        705           4            110         76.0     20.0     100
-#&gt;  6        706           6             80         80.0     36.0     154
-#&gt;  7        707          10            115         72.3     29.1     154
-#&gt;  8        708           2            127         46.0     21.0     335
-#&gt;  9        709           9            164         78.0     29.1     154
-#&gt; 10        710           2             93         64.0     32.0     160
+#&gt;  1        701           2            122         76.0     27.0    200.
+#&gt;  2        702           6            125         78.0     31.0    154.
+#&gt;  3        703           1            168         88.0     29.0    154.
+#&gt;  4        704           2            129         72.3     29.1    154.
+#&gt;  5        705           4            110         76.0     20.0    100.
+#&gt;  6        706           6             80         80.0     36.0    154.
+#&gt;  7        707          10            115         72.3     29.1    154.
+#&gt;  8        708           2            127         46.0     21.0    335.
+#&gt;  9        709           9            164         78.0     29.1    154.
+#&gt; 10        710           2             93         64.0     32.0    160.
 #&gt; # ... with 58 more rows, and 4 more variables: weight_class &lt;fct&gt;,
 #&gt; #   pedigree &lt;dbl&gt;, age &lt;int&gt;, diabetes &lt;chr&gt;</div><div class='input'><span class='co'># Specify methods:</span>
 <span class='fu'>impute</span>(<span class='kw'>d</span> <span class='kw'>=</span> <span class='no'>d_train</span>, <span class='no'>patient_id</span>, <span class='no'>diabetes</span>, <span class='kw'>numeric_method</span> <span class='kw'>=</span> <span class='st'>"bagimpute"</span>,
@@ -215,16 +262,16 @@ will be used.</p></td>
 #&gt; # A tibble: 700 x 10
 #&gt;    patient_id pregnancies plasma_glucose diastolic_bp skinfold insulin
 #&gt;         &lt;int&gt;       &lt;int&gt;          &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
-#&gt;  1          1           6          148           72.0     35.0   194  
-#&gt;  2          2           1           85.0         66.0     29.0    69.8
-#&gt;  3          3           8          183           64.0     21.8   224  
-#&gt;  4          4           1           89.0         66.0     23.0    94.0
-#&gt;  5          5           0          137           40.0     35.0   168  
-#&gt;  6          6           5          116           74.0     23.6   128  
-#&gt;  7          7           3           78.0         50.0     32.0    88.0
-#&gt;  8          8          10          115           72.2     33.0   128  
-#&gt;  9          9           2          197           70.0     45.0   543  
-#&gt; 10         10           8          125           96.0     33.0   211  
+#&gt;  1          1           6           148.         72.0     35.0   194. 
+#&gt;  2          2           1            85.         66.0     29.0    69.8
+#&gt;  3          3           8           183.         64.0     21.8   224. 
+#&gt;  4          4           1            89.         66.0     23.0    94.0
+#&gt;  5          5           0           137.         40.0     35.0   168. 
+#&gt;  6          6           5           116.         74.0     23.6   128. 
+#&gt;  7          7           3            78.         50.0     32.0    88.0
+#&gt;  8          8          10           115.         72.2     33.0   128. 
+#&gt;  9          9           2           197.         70.0     45.0   543. 
+#&gt; 10         10           8           125.         96.0     33.0   211. 
 #&gt; # ... with 690 more rows, and 4 more variables: weight_class &lt;fct&gt;,
 #&gt; #   pedigree &lt;dbl&gt;, age &lt;int&gt;, diabetes &lt;chr&gt;</div><div class='input'><span class='co'># Specify method and param:</span>
 <span class='fu'>impute</span>(<span class='kw'>d</span> <span class='kw'>=</span> <span class='no'>d_train</span>, <span class='no'>patient_id</span>, <span class='no'>diabetes</span>, <span class='kw'>nominal_method</span> <span class='kw'>=</span> <span class='st'>"knnimpute"</span>,
@@ -242,16 +289,16 @@ will be used.</p></td>
 #&gt; # A tibble: 700 x 10
 #&gt;    patient_id pregnancies plasma_glucose diastolic_bp skinfold insulin
 #&gt;         &lt;int&gt;       &lt;int&gt;          &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
-#&gt;  1          1           6          148           72.0     35.0   154  
-#&gt;  2          2           1           85.0         66.0     29.0   154  
-#&gt;  3          3           8          183           64.0     29.1   154  
-#&gt;  4          4           1           89.0         66.0     23.0    94.0
-#&gt;  5          5           0          137           40.0     35.0   168  
-#&gt;  6          6           5          116           74.0     29.1   154  
-#&gt;  7          7           3           78.0         50.0     32.0    88.0
-#&gt;  8          8          10          115           72.3     29.1   154  
-#&gt;  9          9           2          197           70.0     45.0   543  
-#&gt; 10         10           8          125           96.0     29.1   154  
+#&gt;  1          1           6           148.         72.0     35.0   154. 
+#&gt;  2          2           1            85.         66.0     29.0   154. 
+#&gt;  3          3           8           183.         64.0     29.1   154. 
+#&gt;  4          4           1            89.         66.0     23.0    94.0
+#&gt;  5          5           0           137.         40.0     35.0   168. 
+#&gt;  6          6           5           116.         74.0     29.1   154. 
+#&gt;  7          7           3            78.         50.0     32.0    88.0
+#&gt;  8          8          10           115.         72.3     29.1   154. 
+#&gt;  9          9           2           197.         70.0     45.0   543. 
+#&gt; 10         10           8           125.         96.0     29.1   154. 
 #&gt; # ... with 690 more rows, and 4 more variables: weight_class &lt;fct&gt;,
 #&gt; #   pedigree &lt;dbl&gt;, age &lt;int&gt;, diabetes &lt;chr&gt;</div></pre>
   </div>
@@ -279,6 +326,19 @@ will be used.</p></td>
 
       </footer>
    </div>
+
+  
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+<script>
+  docsearch({
+    
+    apiKey: 'ac39465bc37cbef616f5de1e646b6037',
+    indexName: 'healthcareai',
+    inputSelector: 'input#search-input.form-control',
+    debug: false // Set debug to true if you want to inspect the dropdown
+  });
+</script>
+
 
   </body>
 </html>

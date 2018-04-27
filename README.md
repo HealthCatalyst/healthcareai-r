@@ -21,35 +21,9 @@ easy as possible. It does that by providing functions to:
 
   - Develop customized, reliable, high-performance machine learning
     models with minimal code
-  - Easily make and evaluate predictions and push them to a database or
-    flat file
-  - Provide tools related to data cleaning, manipulation, imputation,
-    and visualization
-
-### Version 1 -\> Version 2 Transition
-
-As of early 2018, the package is in transition from an R6 architecture
-(v1) to a tidy, S3 architecture (v2). Everything on this website is
-written from the perspective of the new version of the package.
-
-While the new version is in beta testing, the old version remains on
-CRAN and can be installed with `install.packages("healthcareai")`. The
-stable link to install the old version of the package is
-`install.packages("remotes");
-remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")`.
-
-You can install the beta version of v2 with
-`install.packages("remotes");
-remotes::install_github("HealthCatalyst/healthcareai-r")`. If that
-doesn’t work, check out the [vignette on
-transitioning](https://docs.healthcare.ai/articles/site_only/transitioning.html)
-for backup install methods and a walkthrough of how to convert v1 code
-to v2.
-
-As always, but especially while v2 is in beta, your feedback is
-appreciated. Please file issues for any bugs, unclear docs, or feature
-suggestions
-[here](https://github.com/HealthCatalyst/healthcareai-r/issues).
+  - Easily make and evaluate predictions and push them to a database
+  - Make data cleaning, manipulation, imputation, and visualization as
+    simple as possible
 
 ## Usage
 
@@ -65,15 +39,15 @@ models
 # > Performance Metric: AUROC
 # > Number of Observations: 768
 # > Number of Features: 12
-# > Models Trained: 2018-04-19 18:09:25 
+# > Models Trained: 2018-04-20 17:14:18 
 # > 
-# > Models tuned via 5-fold cross validation over 8 combinations of hyperparameter values.
+# > Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.
 # > Best model: Random Forest
 # > AUPR = 0.71, AUROC = 0.84
 # > Optimal hyperparameter values:
-# >   mtry = 2
+# >   mtry = 9
 # >   splitrule = extratrees
-# >   min.node.size = 7
+# >   min.node.size = 13
 ```
 
 Make predictions and examine predictive performance:
@@ -113,8 +87,9 @@ package, ask questions, and troubleshoot your code.
 ### Contributing
 
 If you are interested in contributing the package (great\!), please read
-the [contributing](https://docs.healthcare.ai/contributing) guide, and
-look for [issues with the “help wanted”
+the
+[contributing](https://github.com/HealthCatalyst/healthcareai-r/blob/master/CONTRIBUTING.md)
+guide, and look for [issues with the “help wanted”
 tag](https://github.com/HealthCatalyst/healthcareai-r/labels/help%20wanted).
 Feel free to tackle any issue that interests you; those are a few issues
 that we feel would make a good place to start.
@@ -125,7 +100,7 @@ Your feedback is hugely appreciated. It is makes the package work well
 and helps us make it more useful to the community.
 
 Both feature requests and bug reports should be submitted as [Github
-issues](https://github.com/HealthCatalyst/healthcareai-r/issues).
+issues](https://github.com/HealthCatalyst/healthcareai-r/issues/new).
 
 **Bug reports** should be filed with a [minimal reproducable
 example](https://gist.github.com/hadley/270442). The [reprex
@@ -135,10 +110,11 @@ yet, `devtools::session_info()`.
 
 ## Legacy
 
-Version 1 of healthcare-ai is being retired. You can continue to use it,
-but we will no longer be maintain it and its compatibility with the R
-ecosystem. You should always be able to install it from github with:
+Version 1 of healthcare-ai has been retired. You can continue to use it,
+but its compatibility with changes in the R ecosystem are not
+guaranteed. You should always be able to install it from github with:
 `remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")`.
 
-For an example of how to adapt your v1 models to the v2 API, check out
-the [Transitioning vignettes](https://docs.healthcare.ai/articles/).
+For an example of how to adapt v1 models to the v2 API, check out the
+[Transitioning
+vignettes](https://docs.healthcare.ai/articles/site_only/transitioning.html).

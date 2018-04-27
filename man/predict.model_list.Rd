@@ -28,11 +28,11 @@ through `prep_data` again, or set to FALSE to prevent `newdata` from being
 sent through `prep_data`.}
 
 \item{write_log}{Write prediction metadata to a file? Default is FALSE. If
-TRUE, will create or append a file called "prediction_log.txt" in the current
-directory with metadata about predictions. If a character, is the name of a
-file to create or append with prediction metadata. If you want a unique log
-file each time predictions are made, use something like \code{write_log =
-paste0(Sys.time(), " predictions.txt")}.}
+TRUE, will create or append-at-top a file called "prediction_log.txt" in
+the current directory with metadata about predictions. If a character, is
+the name of a file to create or append with prediction metadata. If you
+want a unique log file each time predictions are made, use something like
+\code{write_log = paste0(Sys.time(), " predictions.txt")}.}
 
 \item{...}{Unused.}
 }
@@ -42,7 +42,8 @@ A tibble data frame: newdata with an additional column for the
   being predicted. If classification, the new column will contain predicted
   probabilities. The tibble will have child class "predicted_df" and
   attribute "model_info" that contains information about the model used to
-  make predictions.
+  make predictions. You can call \code{plot} or \code{evaluate} on a
+  predicted_df.
 }
 \description{
 Make predictions using the best-performing model
@@ -56,7 +57,8 @@ The model and hyperparameter values with the best out-of-fold
 \examples{
 # Tune models using only the first 40 rows to keep computation fast
 
-models <- machine_learn(pima_diabetes[1:40, ], patient_id, outcome = diabetes)
+models <- machine_learn(pima_diabetes[1:40, ], patient_id,
+                        outcome = diabetes, tune = FALSE)
 
 # Make prediction on the next 10 rows. This uses the best-performing model from
 # tuning cross validation, and it also prepares the new data in the same way as
@@ -64,9 +66,9 @@ models <- machine_learn(pima_diabetes[1:40, ], patient_id, outcome = diabetes)
 
 predictions <- predict(models, newdata = pima_diabetes[41:50, ])
 predictions
+evaluate(predictions)
 plot(predictions)
 }
 \seealso{
-\code{\link{plot.predicted_df}}, \code{\link{tune_models}},
-  \code{\link{prep_data}}
+\code{\link{plot.predicted_df}}, \code{\link{evaluate.predicted_df}}
 }

@@ -14,13 +14,11 @@ knitr::opts_chunk$set(echo = TRUE, results = "hold", collapse = TRUE,
 options(tibble.print_min = 5, tibble.print_max = 5)
 ```
 
-This vignette demonstrates how to translate `healthcareai` v1 code into v2 code by translating the example from the old `RandomForestDeployment` help page. 
-
-Throughout this vignette, commented code is the v1 code that is being updated in each chunk.
+This vignette demonstrates how to translate `healthcareai` v1 code into v2 code by translating the example from the old `RandomForestDeployment` help page. Throughout this vignette, commented code is the v1 code that is being updated in each chunk.
 
 ## Install and load the package
 
-First, check the package version with `packageVersion("healthcareai")`. If the first digit isn't 2, you need to update. You should be able to install v2 by running `install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r")`. If that doesn't work, try `remotes::install_url("https://github.com/HealthCatalyst/healthcareai-r/releases/download/v2.0.0.9000/healthcareai_2.0.0.9000.tar.gz")`. If that doesn't work either, [download the package file](https://github.com/HealthCatalyst/healthcareai-r/releases/download/v2.0.0.9000/healthcareai_2.0.0.9000.tar.gz), then in R Studio, choose Tools -> Install Packages..., select Install from "Package archive file", and browse to select the downloaded `.tar.gz` file. 
+First, check the package version with `packageVersion("healthcareai")`. If the first digit isn't 2, you need to update. You should be able to install v2 by running `install.packages("healthcareai")`.
 
 Then, load the package.
 
@@ -91,7 +89,7 @@ models <- machine_learn(d$train,
 
 ## Save and Load Models
 
-`healthcareai` v1 automatically saved models in the working directory, and automatically loaded them from the working directory. v2 requires you to manage model files if you want to use the models in a different R session than the one in which you trained the models.
+`healthcareai` v1 automatically saved models in the working directory, and automatically loaded them from the working directory. v2 instead provides functions to make it easy to save and load models. This is only necrequires you to manage model files if you want to use the models in a different R session than the one in which you trained the models.
 
 As with other objects in R, you can save an object to disk like this:
 

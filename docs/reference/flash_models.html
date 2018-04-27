@@ -11,8 +11,8 @@
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
+<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
@@ -31,6 +31,8 @@
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -39,6 +41,23 @@
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 
+
+<!-- Google analytics -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-85609357-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+
+<!-- docsearch -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
 
   </head>
 
@@ -53,36 +72,64 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">healthcare.ai</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">healthcareai</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li>
-  <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li class="dropdown">
+        <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Vignettes
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/site_only/fake_vignette.html">fake vignette</a>
+      <a href="../articles/site_only/healthcareai.html">Getting Started</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/db_connections.html">Database Connections</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/deploy_model.html">Deploying a model</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../reference/index.html">Functions</a>
+</li>
+<li>
+  <a href="../news/index.html">News</a>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/HealthCatalyst/healthcareai-r">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://healthcare-ai.slack.com/">
+    <span class="fa fa-users"></span>
+     
+  </a>
+</li>
       </ul>
+      
+      <form class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="search" class="form-control" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+        </div>
+      </form>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -90,7 +137,7 @@
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Train models without tuning for performance</h1>
@@ -101,10 +148,10 @@
     <p>Train models without tuning for performance</p>
     
 
-    <pre class="usage"><span class='fu'>flash_models</span>(<span class='no'>d</span>, <span class='no'>outcome</span>, <span class='no'>model_class</span>, <span class='kw'>models</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"rf"</span>, <span class='st'>"knn"</span>), <span class='kw'>n_folds</span> <span class='kw'>=</span> <span class='fl'>5</span>,
-  <span class='no'>hyperparameters</span>, <span class='no'>metric</span>)</pre>
+    <pre class="usage"><span class='fu'>flash_models</span>(<span class='no'>d</span>, <span class='no'>outcome</span>, <span class='kw'>models</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"rf"</span>, <span class='st'>"knn"</span>), <span class='no'>metric</span>, <span class='no'>positive_class</span>,
+  <span class='kw'>n_folds</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='no'>model_class</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -116,30 +163,10 @@
       <td><p>Name of the column to predict</p></td>
     </tr>
     <tr>
-      <th>model_class</th>
-      <td><p>"regression" or "classification". If not provided, this
-will be determined by the class of `outcome` with the determination
-displayed in a message.</p></td>
-    </tr>
-    <tr>
       <th>models</th>
       <td><p>Names of models to try, by default "rf" for random forest and
 "knn" for k-nearest neighbors. See <code><a href='get_supported_models.html'>supported_models</a></code> for
 available models.</p></td>
-    </tr>
-    <tr>
-      <th>n_folds</th>
-      <td><p>How many folds to train the model on. Default = 5, minimum =
-2. Whie flash_models doesn't use cross validation to tune hyperparameters,
-it trains <code>n_folds</code> models to evaluate performance out of fold.</p></td>
-    </tr>
-    <tr>
-      <th>hyperparameters</th>
-      <td><p>Optional list of hyperparameters to use. If missing,
-default values will be used. If provided, must be a named list of named
-lists where the outer list contains models and the inner lists contain
-hyperparameter values. See
-<code>healthcareai:::get_hyperparameter_defaults()</code> for a template.</p></td>
     </tr>
     <tr>
       <th>metric</th>
@@ -149,90 +176,72 @@ error), or "Rsquared." For classification: "ROC" (area under the receiver
 operating characteristic curve), or "PR" (area under the precision-recall
 curve).</p></td>
     </tr>
+    <tr>
+      <th>positive_class</th>
+      <td><p>For classification only, which outcome level is the
+"yes" case, i.e. should be associated with high probabilities? Defaults to
+"Y" or "yes" if present, otherwise is the first level of the outcome
+variable (first alphabetically if the training data outcome was not already
+a factor).</p></td>
+    </tr>
+    <tr>
+      <th>n_folds</th>
+      <td><p>How many folds to train the model on. Default = 5, minimum =
+2. Whie flash_models doesn't use cross validation to tune hyperparameters,
+it trains <code>n_folds</code> models to evaluate performance out of fold.</p></td>
+    </tr>
+    <tr>
+      <th>model_class</th>
+      <td><p>"regression" or "classification". If not provided, this
+will be determined by the class of `outcome` with the determination
+displayed in a message.</p></td>
+    </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A model_list object</p>
+    <p>A model_list object. You can call <code>plot</code>, <code>summary</code>,
+  <code>evaluate</code>, or <code>predict</code> on a model_list.</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This function has two major differences from
-  <code><a href='tune_models.html'>tune_models</a></code>:</p><ol>
-<li><p>It is much
-  faster.</p></li>
-</ol>
+  <code><a href='tune_models.html'>tune_models</a></code>: 1. It uses fixed default hyperparameter values
+  to train models instead of using cross-validation to optimize
+  hyperparameter values for predictive performance, and, as a result, 2. It
+  is much faster.</p>
+<p>If you want to train a model at a single set of non-default hyperparameter
+  values use <code><a href='tune_models.html'>tune_models</a></code> and pass a single-row data frame to
+  the hyperparameters arguemet.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <p><code><a href='tune_models.html'>tune_models</a></code>, <code><a href='prep_data.html'>prep_data</a></code>,
-  <code><a href='predict.model_list.html'>predict.model_list</a></code>, <code><a href='get_supported_models.html'>supported_models</a></code></p>
+    <div class='dont-index'><p>For setting up model training: <code><a href='prep_data.html'>prep_data</a></code>,
+  <code><a href='get_supported_models.html'>supported_models</a></code>, <code><a href='get_hyperparameter_defaults.html'>hyperparameters</a></code></p>
+<p>For evaluating models: <code><a href='plot.model_list.html'>plot.model_list</a></code>,
+  <code><a href='evaluate.html'>evaluate.model_list</a></code></p>
+<p>For making predictions: <code><a href='predict.model_list.html'>predict.model_list</a></code></p>
+<p>For optimizing performance: <code><a href='tune_models.html'>tune_models</a></code></p>
+<p>To prepare data and tune models in a single step: <code><a href='machine_learn.html'>machine_learn</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># Prepare data</span>
-<span class='no'>prepped_data</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='prep_data.html'>prep_data</a></span>(<span class='no'>pima_diabetes</span>, <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='input'>
-<span class='co'># Simplest use. Get models quickly at default hyperparameter values</span>
-<span class='fu'>flash_models</span>(<span class='no'>prepped_data</span>, <span class='no'>diabetes</span>)</div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; Algorithms Trained: Random Forest, k-Nearest Neighbors
-#&gt; Target: diabetes
-#&gt; Class: Classification
-#&gt; Performance Metric: ROC
-#&gt; Number of Observations: 768
-#&gt; Number of Features: 12
-#&gt; Models Trained: 2018-03-29 23:44:14 
-#&gt; 
-#&gt; Models have not been tuned. Performance estimated via 5-fold cross validation at fixed hyperparameter values.
-#&gt; Best model: Random Forest
-#&gt; ROC = 0.84
-#&gt; User-selected hyperparameter values:
-#&gt;   mtry = 5
-#&gt;   splitrule = extratrees
-#&gt;   min.node.size = 10 </div><div class='input'>
-<span class='co'># Set non-default hyperparameter values by passing a list of lists to \code{hyperparameters}</span>
-<span class='no'>models</span> <span class='kw'>&lt;-</span>
-  <span class='fu'>flash_models</span>(<span class='kw'>d</span> <span class='kw'>=</span> <span class='no'>prepped_data</span>,
-               <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>,
-               <span class='kw'>hyperparameters</span> <span class='kw'>=</span> <span class='fu'>list</span>(
-                 <span class='kw'>rf</span> <span class='kw'>=</span> <span class='fu'>list</span>(
-                   <span class='kw'>mtry</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-                   <span class='kw'>splitrule</span> <span class='kw'>=</span> <span class='st'>"gini"</span>,
-                   <span class='kw'>min.node.size</span> <span class='kw'>=</span> <span class='fl'>1</span>
-                 ),
-                 <span class='kw'>knn</span> <span class='kw'>=</span> <span class='fu'>list</span>(
-                   <span class='kw'>kmax</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-                   <span class='kw'>distance</span> <span class='kw'>=</span> <span class='fl'>2</span>,
-                   <span class='kw'>kernel</span> <span class='kw'>=</span> <span class='st'>"gaussian"</span>
-                 )
-               )
-  )</div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='input'><span class='fu'>summary</span>(<span class='no'>models</span>)</div><div class='output co'>#&gt; Models trained: 2018-03-29 23:44:17
-#&gt; 
-#&gt; Models have not been tuned. Performance estimated via 5-fold cross validation at fixed hyperparameter values.
-#&gt; Best algorithm: Random Forest with ROC = 0.84
-#&gt; 
-#&gt; Out-of-fold performance of all trained models:
-#&gt; 
-#&gt; $`Random Forest`
-#&gt;   mtry splitrule min.node.size       ROC  Sens      Spec      ROCSD     SensSD
-#&gt; 1    3      gini             1 0.8358218 0.868 0.5895178 0.03131845 0.04658326
-#&gt;       SpecSD
-#&gt; 1 0.06015438
-#&gt; 
-#&gt; $`k-Nearest Neighbors`
-#&gt;   kmax distance   kernel       ROC  Sens      Spec      ROCSD     SensSD
-#&gt; 1    3        2 gaussian 0.7835238 0.828 0.5934312 0.01653328 0.02863564
-#&gt;       SpecSD
-#&gt; 1 0.05642804
-#&gt; </div><div class='input'>
-# Speed comparison of no tuning with flash_models vs. tuning with tune_models:
-</div><span class='co'># NOT RUN {</span>
-  <span class='co'># ~40 seconds:</span>
-  <span class='fu'>system.time</span>(
-    <span class='fu'><a href='tune_models.html'>tune_models</a></span>(<span class='no'>prepped_data</span>, <span class='no'>diabetes</span>)
-  )
-  <span class='co'># ~6 seconds:</span>
-  <span class='fu'>system.time</span>(
-    <span class='fu'>flash_models</span>(<span class='no'>prepped_data</span>, <span class='no'>diabetes</span>)
-  )
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='co'># Prepare data</span>
+<span class='no'>prepped_data</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='prep_data.html'>prep_data</a></span>(<span class='no'>pima_diabetes</span>, <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>)
+
+<span class='co'># Get models quickly at default hyperparameter values</span>
+<span class='fu'>flash_models</span>(<span class='no'>prepped_data</span>, <span class='no'>diabetes</span>)
+
+<span class='co'># Speed comparison of no tuning with flash_models vs. tuning with tune_models:</span>
+<span class='co'># ~15 seconds:</span>
+<span class='fu'>system.time</span>(
+  <span class='fu'><a href='tune_models.html'>tune_models</a></span>(<span class='no'>prepped_data</span>, <span class='no'>diabetes</span>)
+)
+<span class='co'># ~3 seconds:</span>
+<span class='fu'>system.time</span>(
+  <span class='fu'>flash_models</span>(<span class='no'>prepped_data</span>, <span class='no'>diabetes</span>)
+)
 <span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -263,6 +272,19 @@ curve).</p></td>
 
       </footer>
    </div>
+
+  
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+<script>
+  docsearch({
+    
+    apiKey: 'ac39465bc37cbef616f5de1e646b6037',
+    indexName: 'healthcareai',
+    inputSelector: 'input#search-input.form-control',
+    debug: false // Set debug to true if you want to inspect the dropdown
+  });
+</script>
+
 
   </body>
 </html>

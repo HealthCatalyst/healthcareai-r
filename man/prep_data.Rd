@@ -62,16 +62,17 @@ standard deviation of 1. Default is FALSE.}
 \item{make_dummies}{Logical. If TRUE (default), dummy columns will be created
 for categorical variables.}
 
-\item{add_levels}{Logical. If TRUE (defaults), "other" and "missing"
-will be added to all nominal columns. This is protective in deployment: new
-levels found in deployment will become "other" and missingness in
-deployment can become "missing" if the nominal imputation method is
-"new_category". If FALSE, these levels may be added to some columns
-depending on details of imputation and collapse_rare_factors.}
+\item{add_levels}{Logical. If TRUE (defaults), "other" and "missing" will be
+added to all nominal columns. This is protective in deployment: new levels
+found in deployment will become "other" and missingness in deployment can
+become "missing" if the nominal imputation method is "new_category". If
+FALSE, these levels may be added to some columns depending on details of
+imputation and collapse_rare_factors.}
 
 \item{factor_outcome}{Logical. If TRUE (default) and if all entries in
 outcome are 0 or 1 they will be converted to factor with levels N and Y for
-classification.}
+classification. Note that which level is the positive class is set in
+training functions rather than here.}
 }
 \value{
 Prepared data frame with reusable recipe object for future data
@@ -79,21 +80,25 @@ Prepared data frame with reusable recipe object for future data
   ignored columns (those passed to ...) in attribute "ignored_columns".
 }
 \description{
-\code{prep_data} will prepare your data for use with
-  \code{\link{tune_models}} or other machine learning packages. Data can be
-  transformed in the following ways: \enumerate{ \item{Convert columns with
-  only 0/1 to factor} \item{Remove columns with near-zero variance}
-  \item{Convert date columns to useful features} \item{Fill in missing values
-  with various imputation methods} \item{Collapse rare categories into
-  `other`} \item{Center numeric columns} \item{Standardize numeric columns}
-  \item{Create dummy variables} \item{Add levels to factors for rare and
-  missing data}} While preparing your data, a recipe will be generated for
-  identical transformation of future data and stored in the `recipe`
-  attribute of the output data frame. If a recipe object is passed to
-  `prep_data` via the `recipe` argument, that recipe will be applied to the
-  data. This allows you to transform data in model training and apply exactly
-  the same transformations in model testing and deployment. The new data must
-  be identical in structure to the data that the recipe was prepared with.
+\code{prep_data} will prepare your data for machine learning.
+  Some steps enhance predictive power, some make sure that the data format is
+  compatible with a wide array of machine learning algorithms, and others
+  provide protection against common problems in model deployment. The
+  following steps are available; those followed by * are applied by default.
+  Many have customization options. \enumerate{ \item{Convert columns with
+  only 0/1 to factor*} \item{Remove columns with near-zero variance*}
+  \item{Convert date columns to useful features*} \item{Fill in missing
+  values via imputation*} \item{Collapse rare categories into "other"*}
+  \item{Center numeric columns} \item{Standardize numeric columns}
+  \item{Create dummy variables from categorical variables*} \item{Add
+  protective levels to factors for rare and missing data*}} While preparing
+  your data, a recipe will be generated for identical transformation of
+  future data and stored in the `recipe` attribute of the output data frame.
+  If a recipe object is passed to `prep_data` via the `recipe` argument, that
+  recipe will be applied to the data. This allows you to transform data in
+  model training and apply exactly the same transformations in model testing
+  and deployment. The new data must be identical in structure to the data
+  that the recipe was prepared with.
 }
 \examples{
 d_train <- pima_diabetes[1:700, ]
@@ -116,6 +121,13 @@ prep_data(d = d_train, patient_id, outcome = diabetes,
           center = TRUE, scale = TRUE, make_dummies = FALSE)
 }
 \seealso{
-\code{\link{hcai_impute}}, \code{\link{tune_models}},
-  \code{\link{predict.model_list}}
+To let data preparation happen automatically under the hood, see
+  \code{\link{machine_learn}}
+
+  To take finer control of imputation, see \code{\link{impute}}, and for
+  finer control of data prep in general check out the recipes package:
+  \url{https://topepo.github.io/recipes/}
+
+  To train models on prepared data, see \code{\link{tune_models}} and
+  \code{\link{flash_models}}
 }

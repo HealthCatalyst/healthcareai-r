@@ -6,13 +6,13 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Pivot from a long data frame to a wide data frame — pivot • healthcareai</title>
+<title>Pivot multiple rows per observation to one row with multiple columns — pivot • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
+<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
@@ -25,12 +25,14 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Pivot from a long data frame to a wide data frame — pivot" />
+<meta property="og:title" content="Pivot multiple rows per observation to one row with multiple columns — pivot" />
 
-<meta property="og:description" content="Pivot from a long data frame to a wide data frame" />
+<meta property="og:description" content="Pivot multiple rows per observation to one row with multiple columns" />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -39,6 +41,23 @@
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 
+
+<!-- Google analytics -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-85609357-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+
+<!-- docsearch -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
 
   </head>
 
@@ -53,36 +72,64 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">healthcare.ai</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">healthcareai</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li>
-  <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li class="dropdown">
+        <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Vignettes
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/site_only/fake_vignette.html">fake vignette</a>
+      <a href="../articles/site_only/healthcareai.html">Getting Started</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/db_connections.html">Database Connections</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/deploy_model.html">Deploying a model</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../reference/index.html">Functions</a>
+</li>
+<li>
+  <a href="../news/index.html">News</a>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/HealthCatalyst/healthcareai-r">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://healthcare-ai.slack.com/">
+    <span class="fa fa-users"></span>
+     
+  </a>
+</li>
       </ul>
+      
+      <form class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="search" class="form-control" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+        </div>
+      </form>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -90,20 +137,20 @@
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Pivot from a long data frame to a wide data frame</h1>
+    <h1>Pivot multiple rows per observation to one row with multiple columns</h1>
     
     </div>
 
     
-    <p>Pivot from a long data frame to a wide data frame</p>
+    <p>Pivot multiple rows per observation to one row with multiple columns</p>
     
 
     <pre class="usage"><span class='fu'>pivot</span>(<span class='no'>d</span>, <span class='no'>grain</span>, <span class='no'>spread</span>, <span class='no'>fill</span>, <span class='kw'>fun</span> <span class='kw'>=</span> <span class='no'>sum</span>, <span class='kw'>missing_fill</span> <span class='kw'>=</span> <span class='fl'>NA</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -172,10 +219,10 @@ default, the count of instances for each patient will be used.</p>
 <span class='no'>meds</span></div><div class='output co'>#&gt; # A tibble: 4 x 3
 #&gt;   patient_id medication pills_per_day
 #&gt;   &lt;chr&gt;      &lt;chr&gt;              &lt;dbl&gt;
-#&gt; 1 A          zoloft              1.00
-#&gt; 2 A          asprin              8.00
-#&gt; 3 A          lipitor             2.00
-#&gt; 4 B          asprin              4.00</div><div class='input'>
+#&gt; 1 A          zoloft                1.
+#&gt; 2 A          asprin                8.
+#&gt; 3 A          lipitor               2.
+#&gt; 4 B          asprin                4.</div><div class='input'>
 <span class='co'># Number of pills of each medication each patient gets:</span>
 <span class='fu'>pivot</span>(
   <span class='kw'>d</span> <span class='kw'>=</span> <span class='no'>meds</span>,
@@ -186,8 +233,8 @@ default, the count of instances for each patient will be used.</p>
 )</div><div class='output co'>#&gt; # A tibble: 2 x 4
 #&gt;   patient_id medication_asprin medication_lipitor medication_zoloft
 #&gt;   &lt;fct&gt;                  &lt;dbl&gt;              &lt;dbl&gt;             &lt;dbl&gt;
-#&gt; 1 A                       8.00               2.00              1.00
-#&gt; 2 B                       4.00               0                 0   </div><div class='input'>
+#&gt; 1 A                         8.                 2.                1.
+#&gt; 2 B                         4.                 0.                0.</div><div class='input'>
 <span class='no'>bills</span> <span class='kw'>&lt;-</span>
   <span class='kw pkg'>tibble</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/tibble/topics/tibble'>tibble</a></span>(
     <span class='kw'>patient_id</span> <span class='kw'>=</span> <span class='fu'>rep</span>(<span class='fu'>c</span>(<span class='st'>"A"</span>, <span class='st'>"B"</span>), <span class='kw'>each</span> <span class='kw'>=</span> <span class='fl'>4</span>),
@@ -198,26 +245,26 @@ default, the count of instances for each patient will be used.</p>
 <span class='no'>bills</span></div><div class='output co'>#&gt; # A tibble: 8 x 4
 #&gt;   patient_id dept_id charge date      
 #&gt;   &lt;chr&gt;      &lt;chr&gt;    &lt;dbl&gt; &lt;date&gt;    
-#&gt; 1 A          ED        9051 2024-12-24
-#&gt; 2 A          ICU       4995 2024-12-25
-#&gt; 3 A          ED        2687 2024-12-25
-#&gt; 4 A          ICU       5475 2024-12-23
-#&gt; 5 B          ED        8745 2024-12-24
-#&gt; 6 B          ICU       9077 2024-12-23
-#&gt; 7 B          ED        3351 2024-12-23
-#&gt; 8 B          ICU       7358 2024-12-25</div><div class='input'>
+#&gt; 1 A          ED        499. 2024-12-23
+#&gt; 2 A          ICU      7603. 2024-12-25
+#&gt; 3 A          ED       1476. 2024-12-24
+#&gt; 4 A          ICU      9167. 2024-12-25
+#&gt; 5 B          ED       9557. 2024-12-24
+#&gt; 6 B          ICU      8635. 2024-12-25
+#&gt; 7 B          ED       5162. 2024-12-25
+#&gt; 8 B          ICU      6938. 2024-12-24</div><div class='input'>
 <span class='co'># Total charges per patient x department:</span>
 <span class='fu'>pivot</span>(<span class='no'>bills</span>, <span class='no'>patient_id</span>, <span class='no'>dept_id</span>, <span class='no'>charge</span>, <span class='no'>sum</span>)</div><div class='output co'>#&gt; # A tibble: 2 x 3
 #&gt;   patient_id dept_id_ED dept_id_ICU
 #&gt;   &lt;fct&gt;           &lt;dbl&gt;       &lt;dbl&gt;
-#&gt; 1 A               11738       10471
-#&gt; 2 B               12096       16435</div><div class='input'>
+#&gt; 1 A               1974.      16770.
+#&gt; 2 B              14720.      15573.</div><div class='input'>
 <span class='co'># Count of charges per patient x day:</span>
 <span class='fu'>pivot</span>(<span class='no'>bills</span>, <span class='no'>patient_id</span>, <span class='no'>date</span>)</div><div class='output co'>#&gt; <span class='message'>No fill column was provided, so using "1" for present entities</span></div><div class='output co'>#&gt; <span class='message'>There are rows that contain the same values of both patient_id and date but you didn't provide a function to 'fun' for their aggregation. Proceeding with the default: fun = sum.</span></div><div class='output co'>#&gt; # A tibble: 2 x 4
 #&gt;   patient_id `date_2024-12-23` `date_2024-12-24` `date_2024-12-25`
 #&gt;   &lt;fct&gt;                  &lt;int&gt;             &lt;int&gt;             &lt;int&gt;
 #&gt; 1 A                          1                 1                 2
-#&gt; 2 B                          2                 1                 1</div><div class='input'>
+#&gt; 2 B                         NA                 2                 2</div><div class='input'>
 <span class='co'># Can provide a custom function to fun, which will take fill as input.</span>
 <span class='co'># Get the difference between the greatest and smallest charge in each</span>
 <span class='co'># department for each patient and format it as currency.</span>
@@ -229,8 +276,8 @@ default, the count of instances for each patient will be used.</p>
 )</div><div class='output co'>#&gt; # A tibble: 2 x 3
 #&gt;   patient_id dept_id_ED dept_id_ICU
 #&gt;   &lt;fct&gt;      &lt;chr&gt;      &lt;chr&gt;      
-#&gt; 1 A          $6364.57   $479.92    
-#&gt; 2 B          $5393.72   $1718.13   </div></pre>
+#&gt; 1 A          $976.86    $1563.93   
+#&gt; 2 B          $4394.81   $1696.53   </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -258,6 +305,19 @@ default, the count of instances for each patient will be used.</p>
 
       </footer>
    </div>
+
+  
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+<script>
+  docsearch({
+    
+    apiKey: 'ac39465bc37cbef616f5de1e646b6037',
+    indexName: 'healthcareai',
+    inputSelector: 'input#search-input.form-control',
+    debug: false // Set debug to true if you want to inspect the dropdown
+  });
+</script>
+
 
   </body>
 </html>
