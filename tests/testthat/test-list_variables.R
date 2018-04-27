@@ -8,23 +8,27 @@ d <- "Forth Variable"
 e <- "Fifth Variable"
 
 # Tests ------------------------------------------------------------------------
-test_that("Make sure input is a vector", {
-  expect_error(list_variables(c()), "not_vector")
-})
-
 test_that("Test error on empty vector", {
   x <- vector(mode = "character", length = 0)
   expect_error(list_variables(x), "vector_length_0")
 })
 
-test_that("Test error on empty vector", {
+test_that("Test structure of many variables", {
   expect_equal(list_variables(c(a, b, c, d, e, c, a, b, c, d)), "First Variable, Second Variable, Third Variable, Forth Variable, and Fifth Variable")
 })
 
-test_that("Test error on empty vector", {
+test_that("Test that output is two variablew with no commas", {
   expect_equal(list_variables(c(a, b, a, b, b, a)), "First Variable and Second Variable")
 })
 
-test_that("Test error on empty vector", {
+test_that("Test that output is one variable", {
   expect_equal(list_variables(c(c, c, c, c, c, c, c)), "Third Variable")
+})
+
+test_that("Test that output works on factors", {
+  expect_equal(list_variables(factor(letters[1:3])), "a, b, and c")
+})
+
+test_that("Test error on non-equivalent Types in list", {
+  expect_error(list_variables(list(x = list(a = 1, b = 2), y = 3)), "not_atomic")
 })
