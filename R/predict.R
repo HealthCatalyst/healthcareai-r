@@ -60,7 +60,8 @@ predict.model_list <- function(object,
                                write_log = FALSE,
                                ...) {
 
-  on.exit(log_predictions(filename = write_log, d = d_log))
+  on.exit(log_predictions(filename = write_log,
+                          d = d_log))
 
   # Pull info
   mi <- extract_model_info(object)
@@ -154,6 +155,7 @@ predict.model_list <- function(object,
                               missingness = missingness(newdata))
     attr(newdata, "prediction_log") <- d_log
   }
+
   return(newdata)
 }
 

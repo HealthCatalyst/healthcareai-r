@@ -4,10 +4,12 @@ log_predictions <- function(filename, d) {
   # If sink is on, turn it off
   if (sink.number(type = "message") != 2) {
     sink(type = "message")
+    # closeAllConnections()
   }
 
   e <- read_lines("predict_error_catch.txt")
-  if (any(grepl("Error", e))) {
+  error_flag <- any(grepl("Error", e))
+  if (error_flag) {
     d$error <- stringr::str_c(e, collapse = " ")
   }
 
@@ -34,12 +36,18 @@ log_predictions <- function(filename, d) {
     "\n\t- Median: ", d$missingness_median,
     "\n\t- 3rd Quartile: ", d$missingness_q3,
     "\n\t- Maximum: ", d$missingness_max,
-    "\n\t- Error message: ", d$error,
+    "\n Failure message: ", d$error,
+    "\n=======================================",
     "\n"
   )
 
   write(the_log, filename, append = TRUE)
   file.remove("predict_error_catch.txt")
+  if (error_flag) {
+    print(paste0("Error in predict, check ",
+                 filename, " for details."))
+  }
+
   return(d)
 }
 
