@@ -28,7 +28,7 @@ through `prep_data` again, or set to FALSE to prevent `newdata` from being
 sent through `prep_data`.}
 
 \item{write_log}{Write prediction metadata to a file? Default is FALSE. If
-TRUE, will create or append-at-top a file called "prediction_log.txt" in
+TRUE, will create or append a file called "prediction_log.txt" in
 the current directory with metadata about predictions. If a character, is
 the name of a file to create or append with prediction metadata. If you
 want a unique log file each time predictions are made, use something like
@@ -44,6 +44,11 @@ A tibble data frame: newdata with an additional column for the
   attribute "model_info" that contains information about the model used to
   make predictions. You can call \code{plot} or \code{evaluate} on a
   predicted_df.
+
+  newdata will contain an attribute, "prediction_log" that contains a
+  tibble of  logging
+  info for writing to database. If \code{write_log} is TRUE and predict
+  errors, the log tibble will still be returned.
 }
 \description{
 Make predictions using the best-performing model

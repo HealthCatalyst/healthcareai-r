@@ -17,7 +17,7 @@
 #'   through `prep_data` again, or set to FALSE to prevent `newdata` from being
 #'   sent through `prep_data`.
 #' @param write_log Write prediction metadata to a file? Default is FALSE. If
-#'   TRUE, will create or append-at-top a file called "prediction_log.txt" in
+#'   TRUE, will create or append a file called "prediction_log.txt" in
 #'   the current directory with metadata about predictions. If a character, is
 #'   the name of a file to create or append with prediction metadata. If you
 #'   want a unique log file each time predictions are made, use something like
@@ -31,6 +31,11 @@
 #'   attribute "model_info" that contains information about the model used to
 #'   make predictions. You can call \code{plot} or \code{evaluate} on a
 #'   predicted_df.
+#'
+#'   newdata will contain an attribute, "prediction_log" that contains a
+#'   tibble of  logging
+#'   info for writing to database. If \code{write_log} is TRUE and predict
+#'   errors, the log tibble will still be returned.
 #' @export
 #' @importFrom caret predict.train
 #' @seealso \code{\link{plot.predicted_df}}, \code{\link{evaluate.predicted_df}}
@@ -107,7 +112,10 @@ predict.model_list <- function(object,
   }
 }
 
-
+#' The bulk of the predict code is here. It's done this way so that we can call
+#' safe_predict_model_list_main and get output for telemetry regardless of
+#' exit status.
+#' @noRd
 predict_model_list_main <- function(object,
                                      newdata,
                                      prepdata,
@@ -181,6 +189,8 @@ predict_model_list_main <- function(object,
   return(newdata)
 }
 
+#' Predict code that always returns the dataframe tibble.
+#' @noRd
 safe_predict_model_list_main <- purrr::safely(predict_model_list_main)
 
 get_oof_predictions <- function(x, mi = extract_model_info(x)) {

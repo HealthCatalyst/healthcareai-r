@@ -183,7 +183,7 @@ sent through `prep_data`.</p></td>
     <tr>
       <th>write_log</th>
       <td><p>Write prediction metadata to a file? Default is FALSE. If
-TRUE, will create or append-at-top a file called "prediction_log.txt" in
+TRUE, will create or append a file called "prediction_log.txt" in
 the current directory with metadata about predictions. If a character, is
 the name of a file to create or append with prediction metadata. If you
 want a unique log file each time predictions are made, use something like
@@ -204,6 +204,10 @@ want a unique log file each time predictions are made, use something like
   attribute "model_info" that contains information about the model used to
   make predictions. You can call <code>plot</code> or <code>evaluate</code> on a
   predicted_df.</p>
+<p>newdata will contain an attribute, "prediction_log" that contains a
+  tibble of  logging
+  info for writing to database. If <code>write_log</code> is TRUE and predict
+  errors, the log tibble will still be returned.</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
@@ -228,7 +232,7 @@ want a unique log file each time predictions are made, use something like
 <span class='co'># tuning cross validation, and it also prepares the new data in the same way as</span>
 <span class='co'># the training data was prepared.</span>
 
-<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>41</span>:<span class='fl'>50</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-04-27 11:03:02</span>
+<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>41</span>:<span class='fl'>50</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by Random Forest last trained: 2018-05-01 22:17:53</span>
 #&gt; <span class='message'>Performance in training: AUROC = 0.63</span></div><div class='output co'>#&gt; # A tibble: 10 x 11
 #&gt;    diabetes predicted_diabe… patient_id pregnancies plasma_glucose diastolic_bp
 #&gt;  * &lt;chr&gt;               &lt;dbl&gt;      &lt;int&gt;       &lt;int&gt;          &lt;int&gt;        &lt;int&gt;

@@ -154,7 +154,7 @@
 <span class="co"># &gt; Performance Metric: AUROC</span>
 <span class="co"># &gt; Number of Observations: 768</span>
 <span class="co"># &gt; Number of Features: 12</span>
-<span class="co"># &gt; Models Trained: 2018-04-27 11:03:33 </span>
+<span class="co"># &gt; Models Trained: 2018-05-01 22:18:28 </span>
 <span class="co"># &gt; </span>
 <span class="co"># &gt; Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.</span>
 <span class="co"># &gt; Best model: Random Forest</span>
@@ -167,7 +167,7 @@
 <p>Now that we have our models, we can make predictions using the <code>predict</code> function. If you provide a new data frame to <code>predict</code> it will make predictions on the new data; otherwise, it will make predictions on the training data.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(quick_models)
 predictions
-<span class="co"># &gt; "predicted_diabetes" predicted by Random Forest last trained: 2018-04-27 11:03:33</span>
+<span class="co"># &gt; "predicted_diabetes" predicted by Random Forest last trained: 2018-05-01 22:18:28</span>
 <span class="co"># &gt; Performance in training: AUROC = 0.85</span>
 <span class="co"># &gt; # A tibble: 768 x 14</span>
 <span class="co"># &gt;   diabetes predicted_diabetes pregnancies plasma_glucose diastolic_bp</span>
@@ -267,7 +267,7 @@ predictions
 <span class="co"># &gt; Performance Metric: AUPR</span>
 <span class="co"># &gt; Number of Observations: 692</span>
 <span class="co"># &gt; Number of Features: 13</span>
-<span class="co"># &gt; Models Trained: 2018-04-27 11:03:53 </span>
+<span class="co"># &gt; Models Trained: 2018-05-01 22:18:47 </span>
 <span class="co"># &gt; </span>
 <span class="co"># &gt; Models have not been tuned. Performance estimated via 5-fold cross validation at fixed hyperparameter values.</span>
 <span class="co"># &gt; Best model: Random Forest</span>
@@ -292,7 +292,7 @@ predictions
 <a href="#prediction" class="anchor"></a>Prediction</h1>
 <p><code>predict</code> will automatically use the best-performing model from training (evaluated out-of-fold in cross validation). If no new data is passed to <code>predict</code> it will return out-of-fold predictions from training. The predicted probabilities appear in the <code>predicted_diabetes</code> column.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">predict</span>(models)
-<span class="co"># &gt; "predicted_diabetes" predicted by Random Forest last trained: 2018-04-27 11:03:50</span>
+<span class="co"># &gt; "predicted_diabetes" predicted by Random Forest last trained: 2018-05-01 22:18:44</span>
 <span class="co"># &gt; Performance in training: AUPR = 0.72</span>
 <span class="co"># &gt; # A tibble: 692 x 15</span>
 <span class="co"># &gt;   diabetes predicted_diabetes pregnancies plasma_glucose diastolic_bp</span>
@@ -337,7 +337,7 @@ predictions
 <span class="co"># &gt; *** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
 <span class="co"># &gt; *** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span>
 <span class="kw">summary</span>(regression_models)
-<span class="co"># &gt; Models trained: 2018-04-27 11:04:03</span>
+<span class="co"># &gt; Models trained: 2018-05-01 22:18:57</span>
 <span class="co"># &gt; </span>
 <span class="co"># &gt; Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.</span>
 <span class="co"># &gt; Best performance: RMSE = 8.97, MAE = 6.29, Rsquared = 0.42</span>
@@ -383,7 +383,7 @@ predictions
 <span class="co"># &gt; Warning in ready_with_prep(object, newdata, mi): The following variables(s) had the following value(s) in predict that were not observed in training. </span>
 <span class="co"># &gt;     weight_class: ???</span>
 <span class="co"># &gt; Prepping data based on provided recipe</span>
-<span class="co"># &gt; "predicted_age" predicted by Random Forest last trained: 2018-04-27 11:04:03</span>
+<span class="co"># &gt; "predicted_age" predicted by Random Forest last trained: 2018-05-01 22:18:57</span>
 <span class="co"># &gt; Performance in training: RMSE = 8.97</span>
 <span class="co"># &gt; # A tibble: 1 x 9</span>
 <span class="co"># &gt;   predicted_age pregnancies plasma_glucose diastolic_bp skinfold insulin</span>
