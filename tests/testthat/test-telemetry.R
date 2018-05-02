@@ -68,7 +68,7 @@ test_that("Errors are put in log file properly", {
                 "Error in predict")
 
   # Log should contain error info.
-  e <- readr::read_lines("telemetry_test_prediction_log.txt")
+  e <- readLines("telemetry_test_prediction_log.txt")
   expect_true(any(grepl("insulin", e)))
 
 })
