@@ -60,27 +60,64 @@ predict.model_list <- function(object,
                                write_log = FALSE,
                                ...) {
 
-  on.exit(log_predictions(filename = write_log,
-                          d = d_log))
+  out <- safe_predict_model_list_main(object,
+                                      newdata,
+                                      prepdata,
+                                      write_log,
+                                      ...)
+
+  mi <- extract_model_info(object)
+
+  # Get log file name
+  if (isTRUE(write_log)) {
+    write_log <- paste0(mi$model_name, "_prediction_log.txt")
+  }
+
+  # No error, no log
+  # Return tibble with log_data attached.
+  if (is.null(out$error) & !is.character(write_log)) {
+    return(out$result)
+  }
+  # Yes error, no log
+  # Error out of function, return error message.
+  if (!is.null(out$error) & !is.character(write_log))  {
+    stop(paste0("Predict failed with the error: ", out$error))
+  }
+
+  # No error, yes log
+  if (is.null(out$error) & is.character(write_log)) {
+    d_log <- set_inital_telemetry(object) %>%
+      update_telemetry(out$result)
+    attr(out$result, "prediction_log") <- d_log
+    attr(out$result, "failed") <- FALSE
+    log_predictions(filename = write_log, d = d_log)
+    return(out$result)
+  }
+
+  # Yes error, yes log
+  if (!is.null(out$error) & is.character(write_log)) {
+    d_log <- set_inital_telemetry(object)
+    warning(paste0("Error in predict, check ",
+                   write_log, " for details."))
+    d_log$error_message <- out$error$message
+    d_log$error_call <- as.character(out$error$call)[1] # function name
+    attr(d_log, "failed") <- TRUE
+    log_predictions(filename = write_log, d = d_log)
+    return(d_log)
+  }
+}
+
+
+predict_model_list_main <- function(object,
+                                     newdata,
+                                     prepdata,
+                                     write_log = FALSE,
+                                     ...) {
 
   # Pull info
   mi <- extract_model_info(object)
   best_models <- object[[mi$best_model_name]]
   training_data <- object[[1]]$trainingData
-
-  # Prepare telemetry
-  if (isTRUE(write_log)) {
-    write_log <- paste0(mi$model_name, "_prediction_log.txt")
-  }
-  if (is.character(write_log)) {
-    zz <- file("predict_error_catch.txt", open = "wt")
-    sink(zz, type = "message")
-
-    from_rds <- attr(object, "loaded_from_rds")
-    if (is.null(from_rds))
-      from_rds <- "trained_in_memory"
-    d_log <- set_default_telemetry()
-  }
 
   # If newdata not provided, pull training data from object
   if (missing(newdata)) {
@@ -108,7 +145,6 @@ predict.model_list <- function(object,
     } else {
       ready_no_prep(training_data, newdata)
     }
-  d_log$data_prepped <- TRUE
 
   # If predicting on training, use out-of-fold; else make predictions
   if (using_training_data) {
@@ -141,23 +177,11 @@ predict.model_list <- function(object,
          timestamp = mi$timestamp,
          hyperparameters = structure(mi$best_model_tune,
                                      "row.names" = "optimal:"))
-  d_log$predictions_made <- TRUE
-
-  # Prepare log for writing, which is done on exit.
-  if (is.character(write_log)) {
-    d_log <- update_telemetry(d = d_log,
-                              from_rds = from_rds,
-                              target = mi$target,
-                              n_preds = nrow(newdata),
-                              trained_time = attr(object, "timestamp"),
-                              model_name = mi$model_name,
-                              pred_summary = get_pred_summary(newdata),
-                              missingness = missingness(newdata))
-    attr(newdata, "prediction_log") <- d_log
-  }
 
   return(newdata)
 }
+
+safe_predict_model_list_main <- purrr::safely(predict_model_list_main)
 
 get_oof_predictions <- function(x, mi = extract_model_info(x)) {
   mod <- mi$best_model_name

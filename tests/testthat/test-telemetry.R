@@ -24,31 +24,31 @@ p_reloaded <- predict(object = m_reloaded, newdata = pima_diabetes[1:50, 6:10],
              write_log = TRUE, prepdata = TRUE)
 
 # Tests =========================================
-# test_that("log_predictions writes info to file correctly", {
-#   d <- readLines("telemetry_test_prediction_log.txt")
-#   expect_true(any(grepl("name: telemetry_test", d)))
-#   expect_true(any(grepl("predicted: diabetes", d)))
-#   expect_true(any(grepl("missingness in new data", d)))
-# })
-#
-# test_that("log_predictions returns data correctly", {
-#   d_pred <- attr(p_reloaded, "prediction_log")
-#   expect_equal(dim(d_pred), c(1, 21))
-#   expect_equal(d_pred$loaded_from, "telemetry_test.RDS")
-#   expect_equal(d_pred$model_name, "telemetry_test")
-#   expect_equal(d_pred$n_predictions, 50)
-#   expect_equal(d_pred$outcome_variable, "diabetes")
-# })
-#
-# test_that("log_predictions works without loading from file", {
-#   d_pred <- attr(p, "prediction_log")
-#   expect_equal(dim(d_pred), c(1, 21))
-#   expect_equal(d_pred$loaded_from, "trained_in_memory")
-#   expect_equal(d_pred$model_name, "telemetry_test")
-#   expect_equal(d_pred$n_predictions, 50)
-#   expect_equal(d_pred$outcome_variable, "diabetes")
-#   remove_logfiles()
-# })
+test_that("log_predictions writes info to file correctly", {
+  d <- readLines("telemetry_test_prediction_log.txt")
+  expect_true(any(grepl("name: telemetry_test", d)))
+  expect_true(any(grepl("predicted: diabetes", d)))
+  expect_true(any(grepl("missingness in new data", d)))
+})
+
+test_that("log_predictions returns data correctly", {
+  d_pred <- attr(p_reloaded, "prediction_log")
+  expect_equal(dim(d_pred), c(1, 21))
+  expect_equal(d_pred$loaded_from, "telemetry_test.RDS")
+  expect_equal(d_pred$model_name, "telemetry_test")
+  expect_equal(d_pred$n_predictions, 50)
+  expect_equal(d_pred$outcome_variable, "diabetes")
+})
+
+test_that("log_predictions works without loading from file", {
+  d_pred <- attr(p, "prediction_log")
+  expect_equal(dim(d_pred), c(1, 21))
+  expect_equal(d_pred$loaded_from, "trained_in_memory")
+  expect_equal(d_pred$model_name, "telemetry_test")
+  expect_equal(d_pred$n_predictions, 50)
+  expect_equal(d_pred$outcome_variable, "diabetes")
+  remove_logfiles()
+})
 
 test_that("Errors are put in log file properly", {
   # These predict calls have a missing column and should error.
@@ -62,50 +62,44 @@ test_that("Errors are put in log file properly", {
   )
 
   # Error should print error message
-  expect_output(predict(object = m,
+  expect_warning(predict(object = m,
                         newdata = pima_diabetes[1:50, 7:10],
                         write_log = TRUE, prepdata = TRUE),
                 "Error in predict")
 
-  expect_output(predict(object = m_reloaded,
-                        newdata = pima_diabetes[1:50, 7:10],
-                        write_log = TRUE, prepdata = TRUE),
-                "Error in predict")
-  # remove_logfiles()
-})
-
-test_that("Errors are put in log file properly", {
   # Log should contain error info.
-  predict(object = m_reloaded,
-          newdata = pima_diabetes[1:50, 7:10],
-          write_log = TRUE, prepdata = TRUE)
   e <- read_lines("telemetry_test_prediction_log.txt")
   expect_true(any(grepl("insulin", e)))
 
-  # TODO: tibble should be returned on error
 })
 
-test_that("set and update telemetry functions work", {
-  d <- set_default_telemetry()
-  expect_equal(dim(d), c(1,21))
+test_that("Failure returns warning and tibble with error info", {
+  expect_warning(pe <- predict(object = m_reloaded,
+                        newdata = pima_diabetes[1:50, 7:10],
+                        write_log = TRUE, prepdata = TRUE),
+                 "Error in predict")
 
-  d_up <- update_telemetry(d,
-                           "file",
-                           "target",
-                           30,
-                           Sys.time(),
-                           "model_name",
-                           get_pred_summary(
-                             data.frame(predicted_col = seq(0, 1, 0.1))),
-                           missingness(data.frame(a = c(0,1,2),
-                                                  b = c(4, NA, 6)))
-  )
+  # Tibble should be returned on error
+  expect_equal(dim(pe), c(1, 21))
+  expect_equal(pe$outcome_variable, "diabetes")
+  expect_false(pe$predictions_made)
+  expect_equal(pe$n_predictions, NA)
+})
+
+test_that("Set and update telemetry functions work", {
+  d <- set_inital_telemetry(m)
+  expect_equal(dim(d), c(1, 21))
+  expect_equal(d$outcome_variable, "diabetes")
+  expect_false(d$predictions_made)
+  expect_equal(d$n_predictions, NA)
+
+  d_up <- update_telemetry(d, p)
   expect_equal(dim(d_up), c(1, 21))
-  expect_equal(d_up$error, NA)
-  expect_equal(d_up$prediction_mean, 0.5)
-  expect_equal(d_up$missingness_mean, 16.65)
+  expect_equal(d_up$error_message, NA)
+  expect_true(is.numeric(d_up$prediction_mean))
+  expect_true(is.numeric(d_up$missingness_mean))
 })
-browser()
+
 # Cleanup =======================================
 file.remove("telemetry_test_prediction_log.txt")
 file.remove("telemetry_test.RDS")

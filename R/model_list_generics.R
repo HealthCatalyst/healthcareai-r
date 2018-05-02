@@ -205,6 +205,9 @@ extract_model_info <- function(x) {
   best_model_tune <-
     x[[best_model]]$bestTune
   positive_class <- attr(x, "positive_class")
+  from_rds <- attr(x, "loaded_from_rds")
+  if (is.null(from_rds))
+    from_rds <- "trained_in_memory"
   list(
     model_name = attr(x, "model_name"),
     m_class = m_class,
@@ -217,7 +220,8 @@ extract_model_info <- function(x) {
     best_model_tune = best_model_tune,
     ddim = ddim,
     tuned = attr(x, "tuned"),
-    timestamp = attr(x, "timestamp")
+    timestamp = attr(x, "timestamp"),
+    from_rds = from_rds
   )
 }
 
