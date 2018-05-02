@@ -29,6 +29,7 @@ Imports:
     MLmetrics,
     purrr,
     ranger (>= 0.8.0),
+    readr,
     recipes (>= 0.1.2),
     rlang,
     stringr,
