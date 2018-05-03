@@ -46,7 +46,7 @@ get_hyperparameter_defaults <- function(models = get_supported_models(),
 }
 
 #' @param tune_depth How many combinations of hyperparameter values?
-#'
+#' @export
 #' @importFrom stats runif
 #' @rdname get_hyperparameter_defaults
 get_random_hyperparameters <- function(models = get_supported_models(),
