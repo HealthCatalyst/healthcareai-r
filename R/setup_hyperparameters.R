@@ -65,7 +65,7 @@ get_random_hyperparameters <- function(models = get_supported_models(),
       }
     grids$rf <-
       tibble::tibble(
-        mtry = sample(seq_len(k), tune_depth, TRUE, prob = 1 / seq_len(k) ^ 1.5),
+        mtry = sample(seq_len(k), tune_depth, TRUE, prob = 1 / seq_len(k)),
         splitrule = sample(split_rules, tune_depth, TRUE),
         min.node.size = sample(min(n, 20), tune_depth, TRUE)
       )
