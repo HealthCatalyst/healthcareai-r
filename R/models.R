@@ -5,10 +5,9 @@
 #' \strong{Random Forest}: "rf". Regression and classification.
 #' Implemented via \code{ranger}.
 #' \itemize{
-#'   \item{mtry: Fraction of variables to consider for each split}
+#'   \item{mtry: Number of variables to consider for each split}
 #'   \item{splitrule: Splitting rule. For classification either "gini" or
-#'   "extratrees". For regression either "variance", "extratrees", or
-#'   "maxstat".}
+#'   "extratrees". For regression either "variance" or "extratrees".}
 #'   \item{min.node.size: Minimal node size.}
 #' }
 #'
