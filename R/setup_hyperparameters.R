@@ -61,7 +61,7 @@ get_random_hyperparameters <- function(models = get_supported_models(),
       if (model_class == "classification") {
         c("gini", "extratrees")
       } else {
-        c("variance", "extratrees", "maxstat")
+        c("variance", "extratrees")
       }
     grids$rf <-
       tibble::tibble(
