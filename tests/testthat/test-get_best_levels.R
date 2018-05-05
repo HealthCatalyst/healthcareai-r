@@ -107,3 +107,33 @@ test_that("add_best_levels adds empty columns if levels provided", {
   expect_equal(1, test_added$grouper_A)
   expect_true(is.na(test_added[[names(added)[ncol(added)]]]))
 })
+
+test_that("get_best_levels errors informatively if there's missingness in outcome", {
+  d$reg_outcome[c(2, 12)] <- NA
+  d$class_outcome[5] <- NA
+  expect_error(get_best_levels(d, groups, patient_id, grouper, class_outcome, 5), "missingness")
+  expect_error(get_best_levels(d, groups, patient_id, grouper, reg_outcome, 5), "missingness")
+})
+
+test_that("missingness in group doesn't affect get_best_levels", {
+  minus1 <- add_best_levels(d, groups[-1, ], patient_id, grouper, class_outcome, 5)
+  groups$grouper[1] <- NA
+  missing1 <- add_best_levels(d, groups, patient_id, grouper, class_outcome, 5)
+  expect_identical(minus1, missing1)
+})
+
+test_that("missingness in longsheet$id doesn't affect get_best_levels", {
+  minus1 <- add_best_levels(d, groups[-3, ], patient_id, grouper, class_outcome, 5)
+  groups$patient_id[3] <- NA
+  missing1 <- add_best_levels(d, groups, patient_id, grouper, class_outcome, 5)
+  expect_identical(minus1, missing1)
+})
+
+test_that("nothing filled for NA ID or ID not present in longsheet", {
+  no_a <- add_best_levels(d, filter(groups, patient_id != "a"), patient_id, grouper, class_outcome, 5)
+  expect_true(all(is.na(select(no_a, starts_with("grouper"))[1, ])))
+  d$patient_id[1] <- NA
+  missing_a <- add_best_levels(d, groups, patient_id, grouper, class_outcome, 5)
+  expect_true(all(is.na(select(missing_a, starts_with("grouper"))[1, ])))
+  expect_true(is.na(missing_a$patient_id[1]))
+})

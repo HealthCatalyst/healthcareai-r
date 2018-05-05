@@ -172,6 +172,7 @@ get_best_levels <- function(d, longsheet, id, groups, outcome,
   id <- rlang::enquo(id)
   groups <- rlang::enquo(groups)
   outcome <- rlang::enquo(outcome)
+  missing_check(d, outcome)
 
   tomodel <-
     longsheet %>%
