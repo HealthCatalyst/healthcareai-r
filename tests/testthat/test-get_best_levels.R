@@ -105,5 +105,5 @@ test_that("add_best_levels adds empty columns if levels provided", {
                                 levels = attr(added, "grouper_levels"))
   expect_false("grouper_new" %in% names(test_added))
   expect_equal(1, test_added$grouper_A)
-  expect_true(is.na(test_added$grouper_C))
+  expect_true(is.na(test_added[[names(added)[ncol(added)]]]))
 })

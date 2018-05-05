@@ -59,13 +59,23 @@
 #'   not use \code{fill} or \code{fun} in this determination. See \code{details}
 #'   for more info about how levels are selected.
 #'
-#' @details \code{get_best_levels} determines the levels of \code{groups} that
-#'   are likely to be good predictors by fitting a linear or logistic regression
-#'   of \code{outcome} on all of the levels of \code{groups}. The unit of
-#'   observation for this model is all values of \code{id} that have the level.
-#'   Only presence or absence of the level is considered. Levels are ranked by
-#'   their test-statistics from this model and an attempt is made to return an
-#'   equal number of the strongest positive and negative predictors.
+#' @details Here is how \code{get_best_levels} determines the levels of
+#'   \code{groups} that are likely to be good predictors. For regression: For
+#'   each group, the difference of the group-mean from the grand-mean is divided
+#'   by the standard deviation of the group as a sample (i.e.
+#'   centered_mean(group) / sqrt(var(group) / n(group))), and the groups with
+#'   the largest absolute values of that statistic are retained. For
+#'   classification: For each group, two "log-loss-like" statistics are
+#'   calculated. One is log of the fraction of observations in which the group
+#'   does not appear. The other is the log of the difference of the proportion
+#'   of different outcomes from all the same outcome (e.g. if 4/5 observations
+#'   are positive class, this statistic is log(.2)). To ensure retainment of
+#'   both positive- and negative-predictors, the all-same-outcome that is used
+#'   as the comparison is determined by which side of the median proportion of
+#'   positive_class the group falls on. For both regression and classification,
+#'   groups that appear in only one record are only retained if there are fewer
+#'   than n_levels groups found in more than one record; in this case they are
+#'   randomly sampled from.
 #'
 #' @examples
 #' set.seed(45796)
@@ -163,64 +173,61 @@ get_best_levels <- function(d, longsheet, id, groups, outcome,
   groups <- rlang::enquo(groups)
   outcome <- rlang::enquo(outcome)
 
-  # Don't want to count the same outcome twice, so only allow one combo of grain x grouper
   tomodel <-
     longsheet %>%
+    # Don't want to count the same outcome twice, so only allow one combo of grain x grouper
     dplyr::distinct(!!id, !!groups) %>%
-    dplyr::left_join(d, ., by = rlang::quo_name(id))
+    dplyr::inner_join(d, ., by = rlang::quo_name(id)) %>%
+    # Filter any level present in only one grain
+    group_by(!!groups) %>%
+    filter(n_distinct(!!id) > 1) %>%
+    ungroup()
 
-  unique_groups <- unique(dplyr::pull(tomodel, !!groups))
-  if (length(unique_groups) <= n_levels)
-    return(unique_groups)
-
-  # Currently the estimates are simply the group-averages (for regression), but
-  # we use the t-statistic to get the most informative positive and negative predictors.
-  # When we're integrating this with the rest of the pipeline, could think
-  # about using mulitple regression to get the added value of groups after
-  # other variables accounted for.
-  f <- stats::formula(paste(rlang::quo_name(outcome), "~", rlang::quo_name(groups), "- 1"))
   if (is.numeric(dplyr::pull(tomodel, !!outcome))) {
-    perfect_predictors <- tibble::tibble(group = character(), sign = integer())
-    model <- stats::lm(f, tomodel)
+    # Regression
+    # Use the distance from the grand-mean divided by the sample SD to rank predictors
+    # Groups with no variance in outcome rise to the top even if they're very small
+    tomodel <-
+      tomodel %>%
+      mutate(!!rlang::quo_name(outcome) := !!outcome - mean(!!outcome)) %>%
+      group_by(!!groups) %>%
+      summarize(mean_ssd = mean(!!outcome) / sqrt(var(!!outcome) / n())) %>%
+      arrange(desc(abs(mean_ssd)))
+    tozip <-
+      split(tomodel, sign(tomodel$mean_ssd)) %>%
+      purrr::map(~ pull(.x, !!groups))
   } else {
-    # std errors for perfect predictors are huge, so identify them separately
-    perfect_predictors <-
+    # Classification
+    # Using basically the log-loss from being present in all observations and
+    # from perfect separation of outcomes. Epislon for present in all is 1/2 a
+    # record; for perfect separation is 1/2 an observation.
+    total_observations <- n_distinct(dplyr::pull(tomodel, !!id))
+    levs <-
       tomodel %>%
-      dplyr::group_by(group = !!groups) %>%
-      dplyr::summarize(sign = dplyr::case_when(
-        all(!!outcome == positive_class) ~ 1L,
-        all(!!outcome != positive_class) ~ -1L,
-        TRUE ~ 0L)) %>%
-      dplyr::filter(sign != 0L)
-    model <-
-      tomodel %>%
-      dplyr::mutate(!!rlang::quo_name(outcome) := ifelse(!!outcome == positive_class, 1L, 0L)) %>%
-      stats::glm(f, ., family = "binomial")
+      group_by(!!groups) %>%
+      summarize(fraction_positive = mean(!!outcome == positive_class),
+                # If perfect separation of outcomes, say it got 1/2 of one wrong
+                fraction_positive = dplyr::case_when(
+                  fraction_positive == 1 ~ 1 - (.5 / total_observations),
+                  fraction_positive == 0 ~ .5 / total_observations,
+                  TRUE ~ fraction_positive),
+                # If level present in every observation, call it every one minus one-half
+                present_in = ifelse(n_distinct(!!id) == total_observations,
+                                    total_observations - .5, n_distinct(!!id)),
+                log_dist_from_in_all = -log(present_in / total_observations)) %>%
+      dplyr::select(-present_in)
+    median_positive <- median(levs$fraction_positive)
+    levs <-
+      levs %>%
+      mutate(predictor_of = as.integer(fraction_positive > median(fraction_positive)),
+             log_loss = -(predictor_of * log(fraction_positive) + (1 - predictor_of) * log(1 - fraction_positive)),
+             badness = log_loss * log_dist_from_in_all) %>%
+      arrange(badness)
+    tozip <-
+      split(levs, levs$predictor_of) %>%
+      purrr::map(~ pull(.x, !!groups))
   }
-
-  # Zip perfect predictors together
-  out <- with(perfect_predictors, zip_vectors(group[sign == 1], group[sign == -1]))
-  # If enough perfect predictors, return those; else add less than perfect
-  # predictors in descending order of absolute value of t-stat
-  if (length(out) >= n_levels)
-    return(out[seq_len(n_levels)])
-
-  # Sort by absolute value of t-statistic and split on direction of prediction
-  coefs <-
-    model %>%
-    broom::tidy() %>%
-    dplyr::mutate(group = stringr::str_remove(term, paste0("^", rlang::quo_name(groups))),
-                  sign = sign(statistic)) %>%
-    dplyr::arrange(desc(abs(statistic))) %>%
-    dplyr::filter(!group %in% perfect_predictors$group) %>%
-    split(., .$sign)
-
-  # Zip positive and negative predictors and add to perfect predictors.
-  # Add non-predictive levels after those, in random order.
-  out <- c(out,
-           zip_vectors(coefs[["1"]]$group, coefs[["-1"]]$group),
-           sample(coefs[["0"]]$group))
-
+  out <- zip_vectors(tozip[[1]], tozip[[2]])
   if (length(out) > n_levels)
     out <- out[seq_len(n_levels)]
   return(out)

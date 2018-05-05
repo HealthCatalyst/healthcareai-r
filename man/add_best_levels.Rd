@@ -84,13 +84,23 @@ In healthcare, we are often faced with very-high cardinality
   for more info about how levels are selected.
 }
 \details{
-\code{get_best_levels} determines the levels of \code{groups} that
-  are likely to be good predictors by fitting a linear or logistic regression
-  of \code{outcome} on all of the levels of \code{groups}. The unit of
-  observation for this model is all values of \code{id} that have the level.
-  Only presence or absence of the level is considered. Levels are ranked by
-  their test-statistics from this model and an attempt is made to return an
-  equal number of the strongest positive and negative predictors.
+Here is how \code{get_best_levels} determines the levels of
+  \code{groups} that are likely to be good predictors. For regression: For
+  each group, the difference of the group-mean from the grand-mean is divided
+  by the standard deviation of the group as a sample (i.e.
+  centered_mean(group) / sqrt(var(group) / n(group))), and the groups with
+  the largest absolute values of that statistic are retained. For
+  classification: For each group, two "log-loss-like" statistics are
+  calculated. One is log of the fraction of observations in which the group
+  does not appear. The other is the log of the difference of the proportion
+  of different outcomes from all the same outcome (e.g. if 4/5 observations
+  are positive class, this statistic is log(.2)). To ensure retainment of
+  both positive- and negative-predictors, the all-same-outcome that is used
+  as the comparison is determined by which side of the median proportion of
+  positive_class the group falls on. For both regression and classification,
+  groups that appear in only one record are only retained if there are fewer
+  than n_levels groups found in more than one record; in this case they are
+  randomly sampled from.
 }
 \examples{
 set.seed(45796)
