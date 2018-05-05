@@ -221,7 +221,7 @@ get_best_levels <- function(d, longsheet, id, groups, outcome,
     levs <-
       levs %>%
       mutate(predictor_of = as.integer(fraction_positive > median(fraction_positive)),
-             log_loss = -(predictor_of * log(fraction_positive) + (1 - predictor_of) * log(1 - fraction_positive)),
+             log_loss = - (predictor_of * log(fraction_positive) + (1 - predictor_of) * log(1 - fraction_positive)),
              badness = log_loss * log_dist_from_in_all) %>%
       arrange(badness)
     tozip <-
