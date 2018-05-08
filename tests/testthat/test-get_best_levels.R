@@ -137,3 +137,19 @@ test_that("nothing filled for NA ID or ID not present in longsheet", {
   expect_true(all(is.na(select(missing_a, starts_with("grouper"))[1, ])))
   expect_true(is.na(missing_a$patient_id[1]))
 })
+
+test_that("add_best_levels adds multiple attributes to df if called multiple times", {
+  added1 <- add_best_levels(d, groups, patient_id, grouper, class_outcome, 5)
+  expect_true("grouper_levels" %in% names(attributes(added1)))
+  more_groups <- tibble::tibble(patient_id = rep(sample(d$patient_id, 3), 2),
+                                newgroup = sample(letters[1:4], 6, TRUE))
+  added2 <- add_best_levels(added1, more_groups, patient_id, newgroup, class_outcome, 2)
+  expect_true("grouper_levels" %in% names(attributes(added2)))
+  expect_true("newgroup_levels" %in% names(attributes(added2)))
+})
+
+test_that("get_best_levels works if all groups have same predictive potential", {
+  same_outcome <- d$patient_id[d$class_outcome == "Y"][1:2]
+  g <- expand.grid(patient_id = same_outcome, groups = c("A", "B"), stringsAsFactors = FALSE)
+  expect_setequal(c("A", "B"), get_best_levels(d, g, patient_id, groups, class_outcome))
+})

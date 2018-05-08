@@ -134,6 +134,13 @@ add_best_levels <- function(d, longsheet, id, groups, outcome,
   outcome <- rlang::enquo(outcome)
   fill <- rlang::enquo(fill)
 
+  # Grab any best-levels already added to d to re-add them at end
+  level_atts <- stringr::str_subset(names(attributes(d)), "levels$")
+  atts_to_add <-
+    purrr::map(level_atts, ~ attr(d, .x)) %>%
+    setNames(level_atts)
+
+
   add_as_empty <- character()
   if (is.null(levels)) {
     to_add <- get_best_levels(d, longsheet, !!id, !!groups, !!outcome,
@@ -162,6 +169,7 @@ add_best_levels <- function(d, longsheet, id, groups, outcome,
   new_cols <- setdiff(names(pivoted), names(d))
   pivoted[new_cols][is.na(pivoted[new_cols])] <- missing_fill
   attr(pivoted, paste0(rlang::quo_name(groups), "_levels")) <- to_add
+  attributes(pivoted) <- c(attributes(pivoted), atts_to_add)
   return(pivoted)
 }
 
@@ -228,7 +236,12 @@ get_best_levels <- function(d, longsheet, id, groups, outcome,
       split(levs, levs$predictor_of) %>%
       purrr::map(~ pull(.x, !!groups))
   }
-  out <- zip_vectors(tozip[[1]], tozip[[2]])
+  out <-
+    if (length(tozip) == 1) {
+      tozip[[1]]
+    } else {
+      zip_vectors(tozip[[1]], tozip[[2]])
+    }
   if (length(out) > n_levels)
     out <- out[seq_len(n_levels)]
   return(out)
