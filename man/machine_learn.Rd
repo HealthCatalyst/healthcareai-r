@@ -16,8 +16,8 @@ unquoted.}
 \item{outcome}{Name of the target column, i.e. what you want to predict.
 Unquoted. Must be named, i.e. you must specify \code{outcome = }}
 
-\item{models}{Models to be trained, k-nearest neighbors and random forest by
-default. See \code{\link{supported_models}} for details.}
+\item{models}{Names of models to try. See \code{\link{get_supported_models}}
+for available models. Default is all available models.}
 
 \item{tune}{If TRUE (default) models will be tuned via
 \code{\link{tune_models}}. If FALSE, models will be trained via
@@ -34,8 +34,9 @@ a factor).}
 = 5. Models are evaluated on out-of-fold predictions whether tune is TRUE
 or FALSE.}
 
-\item{tune_depth}{How many hyperparameter combinations to try? Defualt = 10.
-Ignored if tune is FALSE.}
+\item{tune_depth}{How many hyperparameter combinations to try? Default = 10.
+Value is multiplied by 5 for regularized regression. Ignored if tune is
+FALSE.}
 
 \item{impute}{Logical, if TRUE (default) missing values will be filled by
 \code{\link{hcai_impute}}}

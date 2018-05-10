@@ -21,8 +21,14 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
 
   # tibbles upset some algorithms, so make it a data frame
   d <- as.data.frame(d)
-  # kknn can choke on characters so convert all character variables to factors.
-  d <- dplyr::mutate_if(d, is.character, as.factor)
+  # glmnet doesn't allow any character/factor predictors so stop if they're present
+  non_numerics <-
+    get_classes_sorted(select_not(d, outcome)) %>%
+    dplyr::filter(!is_numeric) %>%
+    dplyr::pull(variable)
+  if (length(non_numerics))
+    stop("All predictors must be numeric, but the variables are not numeric. Consider using ",
+         "prep_data to get data ready for model training: ", list_variables(non_numerics))
 
   if (missing(models)) {
     models <- get_supported_models()

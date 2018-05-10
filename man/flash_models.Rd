@@ -4,17 +4,16 @@
 \alias{flash_models}
 \title{Train models without tuning for performance}
 \usage{
-flash_models(d, outcome, models = c("rf", "knn"), metric, positive_class,
-  n_folds = 5, model_class)
+flash_models(d, outcome, models, metric, positive_class, n_folds = 5,
+  model_class)
 }
 \arguments{
 \item{d}{A data frame}
 
 \item{outcome}{Name of the column to predict}
 
-\item{models}{Names of models to try, by default "rf" for random forest and
-"knn" for k-nearest neighbors. See \code{\link{supported_models}} for
-available models.}
+\item{models}{Names of models to try. See \code{\link{get_supported_models}}
+for available models. Default is all available models.}
 
 \item{metric}{What metric to use to assess model performance? Options for
 regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
@@ -84,5 +83,6 @@ For setting up model training: \code{\link{prep_data}},
 
   For optimizing performance: \code{\link{tune_models}}
 
-  To prepare data and tune models in a single step: \code{\link{machine_learn}}
+  To prepare data and tune models in a single step:
+  \code{\link{machine_learn}}
 }
