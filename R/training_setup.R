@@ -15,6 +15,15 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
   outcome <- check_outcome(outcome, names(d), recipe)
   outcome_chr <- rlang::quo_name(outcome)
 
+  # Get any best_levels attributes from d
+  best_levels <- attr(d, "best_levels")
+  #   stringr::str_subset(names(attributes(d)), "_levels$")
+  # best_levels <- if (length(best_levels)) {
+  #   setNames(purrr::map(best_levels, ~ attr(d, .x)), best_levels)
+  # } else {
+  #   NULL
+  # }
+
   # Remove all-unique charactor/factor columns with a warning
   to_ignore <- find_columns_to_ignore(d, already_ignored = outcome_chr)
   d <- d[, !names(d) %in% to_ignore, drop = FALSE]
@@ -57,7 +66,8 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
          paste0(names(miss)[miss > 0], collapse = ", "))
 
   return(list(d = d, outcome = outcome, model_class = model_class,
-              models = models, metric = metric, recipe = recipe))
+              models = models, metric = metric, recipe = recipe,
+              best_levels = best_levels))
 }
 
 check_outcome <- function(outcome, d_names, recipe) {

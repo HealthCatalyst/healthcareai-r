@@ -22,6 +22,16 @@ d$reg_outcome[d$patient_id %in% groups$patient_id[groups$grouper == "J"]] <- qua
 
 cbest3 <- get_best_levels(d, groups, patient_id, grouper, class_outcome, 3)
 rbest4 <- get_best_levels(d, groups, patient_id, grouper, reg_outcome, 4)
+added <- add_best_levels(d, groups, patient_id, grouper, class_outcome, 2, missing_fill = 0L)
+test_row <- tibble::tibble(patient_id = "sam", x1 = 5)
+test_groups <- tibble::tibble(patient_id = rep("sam", 2), grouper = c("A", "new"))
+test_added <- add_best_levels(test_row, test_groups, patient_id, grouper,
+                              levels = attr(added, "best_levels"))
+models <- list(
+  fm = flash_models(dplyr::select(added, -patient_id), class_outcome, models = "knn"),
+  tm = tune_models(dplyr::select(added, -patient_id), class_outcome, models = "rf", tune_depth = 2),
+  ml = machine_learn(added, patient_id, outcome = reg_outcome, tune = FALSE, tune_depth = 2)
+)
 
 # Tests ----------------------------------------
 test_that("get_best_levels returns character vector of length n_levels", {
@@ -68,6 +78,18 @@ test_that("zip vectors works", {
   expect_equal(x, zip_vectors(numeric(), x))
 })
 
+test_that("min_obs is respected", {
+  keepers <-
+    groups %>%
+    dplyr::group_by(grouper) %>%
+    dplyr::summarize(n = n_distinct(patient_id)) %>%
+    dplyr::filter(n >= 5) %>%
+    nrow()
+  expect_equal(keepers, length(get_best_levels(d, groups, patient_id, grouper, class_outcome, min_obs = 5)))
+  expect_warning(x <- get_best_levels(d, groups, patient_id, grouper, class_outcome, min_obs = 100), "No levels")
+  expect_equal(0, length(x))
+})
+
 test_that("add_best_levels returns a data frame with new columns", {
   added <- add_best_levels(d, groups, patient_id, grouper, class_outcome, 3)
   expect_s3_class(added, "tbl_df")
@@ -82,27 +104,21 @@ test_that("add_best_levels adds all the columns if n_levels = Inf", {
 
 test_that("add_best_levels respects options passed to pivot", {
   groups$dose <- 2L
-  added <- add_best_levels(d, groups, patient_id, grouper, reg_outcome, 4,
+  added_custom <- add_best_levels(d, groups, patient_id, grouper, reg_outcome, 4,
                            fill = dose, fun = prod, missing_fill = 0L)
-  expect_equal(4, sum(stringr::str_detect(names(added), "grouper_")))
-  expect_false(any(is.na(added)))
-  expect_true(all(c(0, 2, 4) %in% added$grouper_F))
+  expect_equal(4, sum(stringr::str_detect(names(added_custom), "grouper_")))
+  expect_false(any(is.na(added_custom)))
+  expect_true(all(c(0, 2, 4) %in% added_custom$grouper_F))
 })
 
 test_that("add_best_levels attaches levels as attribute", {
-  added <- add_best_levels(d, groups, patient_id, grouper, class_outcome, 2)
-  expect_true("grouper_levels" %in% names(attributes(added)))
-  levs <- attr(added, "grouper_levels")
+  expect_true("grouper_levels" %in% names(attributes(added)$best_levels))
+  levs <- attr(added, "best_levels")$grouper_levels
   expect_true(is.character(levs))
   expect_equal(2, length(levs))
 })
 
 test_that("add_best_levels adds empty columns if levels provided", {
-  added <- add_best_levels(d, groups, patient_id, grouper, class_outcome, 2)
-  test_row <- tibble::tibble(patient_id = "sam", x1 = 5)
-  test_groups <- tibble::tibble(patient_id = rep("sam", 2), grouper = c("A", "new"))
-  test_added <- add_best_levels(test_row, test_groups, patient_id, grouper,
-                                levels = attr(added, "grouper_levels"))
   expect_false("grouper_new" %in% names(test_added))
   expect_equal(1, test_added$grouper_A)
   expect_true(is.na(test_added[[names(added)[ncol(added)]]]))
@@ -140,16 +156,40 @@ test_that("nothing filled for NA ID or ID not present in longsheet", {
 
 test_that("add_best_levels adds multiple attributes to df if called multiple times", {
   added1 <- add_best_levels(d, groups, patient_id, grouper, class_outcome, 5)
-  expect_true("grouper_levels" %in% names(attributes(added1)))
+  expect_true("grouper_levels" %in% names(attributes(added1)$best_levels))
   more_groups <- tibble::tibble(patient_id = rep(sample(d$patient_id, 3), 2),
                                 newgroup = sample(letters[1:4], 6, TRUE))
   added2 <- add_best_levels(added1, more_groups, patient_id, newgroup, class_outcome, 2)
-  expect_true("grouper_levels" %in% names(attributes(added2)))
-  expect_true("newgroup_levels" %in% names(attributes(added2)))
+  expect_true("grouper_levels" %in% names(attributes(added2)$best_levels))
+  expect_true("newgroup_levels" %in% names(attributes(added2)$best_levels))
 })
 
 test_that("get_best_levels works if all groups have same predictive potential", {
   same_outcome <- d$patient_id[d$class_outcome == "Y"][1:2]
   g <- expand.grid(patient_id = same_outcome, groups = c("A", "B"), stringsAsFactors = FALSE)
   expect_setequal(c("A", "B"), get_best_levels(d, g, patient_id, groups, class_outcome))
+})
+
+test_that("add_best_levels can pull X_levels from base", {
+  test_added_easy <- add_best_levels(test_row, test_groups, patient_id, grouper, levels = added)
+  expect_identical(test_added, test_added_easy)
+})
+
+test_that("add_best_levels can pull X_levels from best_levels list", {
+  test_added_list <- add_best_levels(test_row, test_groups, patient_id, grouper,
+                                     levels = attr(added, "best_levels"))
+  expect_identical(test_added, test_added_list)
+})
+
+test_that("model_lists get X_levels attributes from input data frame", {
+  purrr::map_lgl(models, ~ all.equal(attr(.x, "best_levels"), attr(added, "best_levels"))) %>%
+    all() %>%
+    expect_true()
+})
+
+test_that("add_best_levels can pull X_levels from a model_list object", {
+  test_added_model1 <- add_best_levels(test_row, test_groups, patient_id, grouper, levels = models$tm)
+  test_added_model2 <- add_best_levels(test_row, test_groups, patient_id, grouper, levels = models$ml)
+  expect_identical(test_added, test_added_model1)
+  expect_identical(test_added, test_added_model2)
 })

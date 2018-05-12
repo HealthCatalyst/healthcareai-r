@@ -3,15 +3,15 @@
 \name{add_best_levels}
 \alias{add_best_levels}
 \alias{get_best_levels}
-\title{Add a good subset of features from high-cardinality variables in a
-multiple-row-per-observation table}
+\title{Build efficient features from from high-cardinality, multiple-membership
+factors}
 \usage{
 add_best_levels(d, longsheet, id, groups, outcome, n_levels = 100,
-  positive_class = "Y", levels = NULL, fill, fun = sum,
+  min_obs = 1, positive_class = "Y", levels = NULL, fill, fun = sum,
   missing_fill = NA)
 
 get_best_levels(d, longsheet, id, groups, outcome, n_levels = 100,
-  positive_class = "Y")
+  min_obs = 1, positive_class = "Y")
 }
 \arguments{
 \item{d}{Data frame to use in models, at desired grain. Has id and outcome}
@@ -31,12 +31,17 @@ to return half levels positively associated with the outcome and half
 negatively. If n_levels is greater than the number present, all levels will
 be returned}
 
+\item{min_obs}{Minimum number of observations a level must be found in in
+order to be considered. Defaults to one, but larger values are often useful
+because a level present in only a few observation will rarely be a useful.}
+
 \item{positive_class}{If classification model, the positive class of the
 outcome, default = "Y"; ignored if regression}
 
-\item{levels}{Character vector of levels to pivot and add. This is a
-convenience for when add_best_levels was used in training and the same
-columns are desired for deployment.}
+\item{levels}{Use this argument when add_best_levels was used in training and
+you want to add the same columns for deployment. You can pass the model
+trained on the data frame from \code{add_best_levels}, the data frame from
+\code{add_best_levels}, or a character vector of levels to add.}
 
 \item{fill}{Passed to \code{\link{pivot}}. Column to be used to fill the
 values of cells in the output, perhaps after aggregation by \code{fun}. If
@@ -54,14 +59,18 @@ combinations of grain and spread that are not present. Defaults to NA, but
 }
 \value{
 For \code{add_best_levels}, d with new columns for the best levels
-  added and an attribute containing the names of levels added. For
-  \code{get_best_levels}, a character vector of the best levels.
+  added and best_levels attribute containing a named list of levels added.
+  For \code{get_best_levels}, a character vector of the best levels.
 }
 \description{
-In healthcare, we are often faced with very-high cardinality
-  categorical variables, where using all of the categories results in very
-  long model training times and high signal-to-noise. These functions help
-  identify a subset of categories that are likely to be valuable features.
+In healthcare, we are often faced with high cardinality
+  variables, where each observation may have zero, one, or more levels, e.g.
+  medications for a model at the patient grain. In these cases, creating a
+  feature variable for each level (each medication) as in one-hot encoding
+  can be prohibitively computationally intensive and can hurt performance by
+  diminishing the signal-to-noise ratio. \code{get_best_levels} identifies a
+  subset of categories that are likely to be valuable features, and
+  \code{add_best_levels} adds them to a model data frame.
 
   \code{get_best_levels} finds levels of \code{groups} that are likely to be
   useful predictors in \code{d} and returns them as a character vector.
@@ -69,27 +78,26 @@ In healthcare, we are often faced with very-high cardinality
   The function attempts to find both positive and negative predictors of
   \code{outcome}.
 
-  \code{add_best_levels} stores the best levels in an attribute of the
-  returned data frame called \code{paste0(groups, "_levels")}, i.e. the name
-  of the groups column followed by underscore-levels. This is useful in
-  deployment, to ensure all columns created in training are again created
-  (see final example).
+  \code{add_best_levels} stores the identified best levels and passes them
+  through model training so that in deployment, the same columns created in
+  training are again created (see the final example).
 
-  \code{add_best_levels} accepts arguments that are passed to
-  \code{\link{pivot}}; however, note that these are not used in determining
+  \code{add_best_levels} accepts arguments to \code{\link{pivot}} so that
+  values associated with the levels (e.g. doses of medications) can be used
+  in the new features. However, note that these are not used in determining
   the best levels. I.e. \code{get_best_levels} determines which levels are
-  likely to be good predictors looking only at the distribution of outcome
-  values for observations where the levels are present or abssent; it does
-  not use \code{fill} or \code{fun} in this determination. See \code{details}
-  for more info about how levels are selected.
+  likely to be good predictors looking only at outcomes where the levels are
+  present or abssent; it does not use \code{fill} or \code{fun} in this
+  determination. See \code{details} for more info about how levels are
+  selected.
 }
 \details{
 Here is how \code{get_best_levels} determines the levels of
-  \code{groups} that are likely to be good predictors. For regression: For
-  each group, the difference of the group-mean from the grand-mean is divided
-  by the standard deviation of the group as a sample (i.e.
-  centered_mean(group) / sqrt(var(group) / n(group))), and the groups with
-  the largest absolute values of that statistic are retained. For
+  \code{groups} that are likely to be good predictors. \itemize{\item{For
+  regression: For each group, the difference of the group-mean from the
+  grand-mean is divided by the standard deviation of the group as a sample
+  (i.e. centered_mean(group) / sqrt(var(group) / n(group))), and the groups
+  with the largest absolute values of that statistic are retained.} \item{For
   classification: For each group, two "log-loss-like" statistics are
   calculated. One is log of the fraction of observations in which the group
   does not appear. The other is the log of the difference of the proportion
@@ -97,18 +105,24 @@ Here is how \code{get_best_levels} determines the levels of
   are positive class, this statistic is log(.2)). To ensure retainment of
   both positive- and negative-predictors, the all-same-outcome that is used
   as the comparison is determined by which side of the median proportion of
-  positive_class the group falls on. For both regression and classification,
-  groups that appear in only one record are only retained if there are fewer
-  than n_levels groups found in more than one record; in this case they are
-  randomly sampled from.
+  positive_class the group falls on.}}
 }
 \examples{
 set.seed(45796)
+
+# We have two tables we want to use in our models:
+# - df is the model table. It has the outcomes (survived), and we want one
+#   prediction for each row in df
+# - meds has detailed information on each row (patient) in df. Each patient
+#   may have zero, one, or more observations (drugs) in meds, and meds may
+#   have associated values (doses).
+
 df <- tibble::tibble(
-  patient = paste0("Z", sample(1e6, 5)),
+  patient = paste0("Z", sample(10, 5)),
   age = sample(20:80, 5),
-  died = sample(c("N", "Y"), 5, replace = TRUE, prob = c(2, 1))
+  survived = sample(c("N", "Y"), 5, replace = TRUE, prob = c(1, 2))
 )
+
 meds <- tibble::tibble(
   patient = sample(df$patient, 10, replace = TRUE),
   drug = sample(c("Quinapril", "Vancomycin", "Ibuprofen",
@@ -116,39 +130,59 @@ meds <- tibble::tibble(
                 10, replace = TRUE),
   dose = sample(c(100, 250), 10, replace = TRUE)
 )
+
+# Identify three drugs likely to be good predictors of survival
+
 get_best_levels(d = df,
                 longsheet = meds,
                 id = patient,
                 groups = drug,
-                outcome = died,
+                outcome = survived,
                 n_levels = 3)
+
+# Identify four drugs likely to make good features and add them to df.
+# The "fill", "fun", and "missing_fill" arguments are passed to
+# `pivot`, which allows us to use the total doses of each drug given to the
+# patient as our new features
+
 new_df <- add_best_levels(d = df,
                           longsheet = meds,
                           id = patient,
                           groups = drug,
-                          outcome = died,
-                          n_levels = 3,
+                          outcome = survived,
+                          n_levels = 4,
                           fill = dose,
                           fun = sum,
                           missing_fill = 0)
 new_df
-# The names of drugs to make columns from are stored in an attribute of new_df
-# so that the same columns can be used in deployment
-attr(new_df, "drug_levels")
-test_df <- tibble::tibble(
-  patient = "Z12345",
+
+# The names of the medications that were added to df in new_df are stored in the
+# best_levels attribute of new_df so that the same columns can be added in
+# deployment. This is useful because you need to have the same columns to make
+# predictions as you had in model training. When you are ready to add levels to
+# a deployment data frame, you can pass to the "levels" argument of
+# add_best_levels either the models trained on new_df, new_df itself, or the
+# character vector of levels to add.
+
+deployment_df <- tibble::tibble(
+  patient = "p6",
   age = 30
 )
-test_meds <- tibble::tibble(
-  patient = rep("Z12345", 2),
+deployment_meds <- tibble::tibble(
+  patient = rep("p6", 2),
   drug = rep("Vancomycin", 2),
   dose = c(100, 250)
 )
-add_best_levels(d = test_df,
-                longsheet = test_meds,
+
+# Now, even though Vancomycin is the only drug that appears in
+# deployment_meds, because we pass new_df to "levels", we get all the columns
+# needed to make predictions on a model trained on new_df
+
+add_best_levels(d = deployment_df,
+                longsheet = deployment_meds,
                 id = patient,
                 groups = drug,
-                levels = attr(new_df, "drug_levels"),
+                levels = new_df,
                 fill = dose,
                 missing_fill = 0)
 }
