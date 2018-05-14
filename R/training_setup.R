@@ -17,12 +17,6 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
 
   # Get any best_levels attributes from d
   best_levels <- attr(d, "best_levels")
-  #   stringr::str_subset(names(attributes(d)), "_levels$")
-  # best_levels <- if (length(best_levels)) {
-  #   setNames(purrr::map(best_levels, ~ attr(d, .x)), best_levels)
-  # } else {
-  #   NULL
-  # }
 
   # Remove all-unique charactor/factor columns with a warning
   to_ignore <- find_columns_to_ignore(d, already_ignored = outcome_chr)
