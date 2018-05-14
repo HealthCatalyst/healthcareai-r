@@ -4,7 +4,7 @@
 \alias{pivot}
 \title{Pivot multiple rows per observation to one row with multiple columns}
 \usage{
-pivot(d, grain, spread, fill, fun = sum, missing_fill = NA)
+pivot(d, grain, spread, fill, fun = sum, missing_fill = NA, extra_cols)
 }
 \arguments{
 \item{d}{data frame}
@@ -23,32 +23,37 @@ can be used with the same syntax as the apply family of functions, e.g.
 
 \item{missing_fill}{Value to fill for combinations of grain and spread that
 are not present. Defaults to NA, but 0 may be useful as well.}
+
+\item{extra_cols}{Values of \code{spread} to create all-\code{missing_fill}
+columns, for e.g. if you want to add levels that were observed in training
+but are not present in deployment.}
 }
 \value{
 A tibble data frame with one row for each unique value of
-\code{grain}, and one column for each unique value of \code{spread} plus
-one column for the entries in grain.
+  \code{grain}, and one column for each unique value of \code{spread} plus
+  one column for the entries in grain.
 
-Entries in the tibble are defined by the fill column. Combinations of
-\code{grain} x \code{spread} that are not present in \code{d} will be filled
-in with \code{missing_fill}. If there are \code{grain} x \code{spread} pairs
-that appear more than once in d, they will be aggregated by \code{fun}.
+  Entries in the tibble are defined by the fill column. Combinations of
+  \code{grain} x \code{spread} that are not present in \code{d} will be
+  filled in with \code{missing_fill}. If there are \code{grain} x
+  \code{spread} pairs that appear more than once in d, they will be
+  aggregated by \code{fun}.
 }
 \description{
 Pivot multiple rows per observation to one row with multiple columns
 }
 \details{
 \code{pivot} is useful when you want to change the grain of your
-data, for example from the procedure grain to the patient grain. In that
-example, each patient might have 0, 1, or more medications. To make a
-patient-level table, we need a column for each medication, which is what
-it means to make a wide table. The \code{fill} argument dictates what to
-put in each of the medication columns, e.g. the dose the patient got.
-\code{fill} defaults to "1", as an indicator variable. If any patients have
-multiple rows for the same medication (say they recieved a med more than
-once), we need a way to deal with that, which is what the \code{fun} argument
-handles. By default it uses \code{sum}, so if \code{fill} is left as its
-default, the count of instances for each patient will be used.
+  data, for example from the procedure grain to the patient grain. In that
+  example, each patient might have 0, 1, or more medications. To make a
+  patient-level table, we need a column for each medication, which is what it
+  means to make a wide table. The \code{fill} argument dictates what to put
+  in each of the medication columns, e.g. the dose the patient got.
+  \code{fill} defaults to "1", as an indicator variable. If any patients have
+  multiple rows for the same medication (say they recieved a med more than
+  once), we need a way to deal with that, which is what the \code{fun}
+  argument handles. By default it uses \code{sum}, so if \code{fill} is left
+  as its default, the count of instances for each patient will be used.
 }
 \examples{
 meds <-
