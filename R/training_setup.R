@@ -88,7 +88,7 @@ set_outcome_class <- function(vec, positive_class) {
   }
   if (!positive_class %in% levels(vec))
     stop("positive_class, ", positive_class, ", not found in the outcome column. ",
-         "Outcome has values ", paste(levels(vec), collapse = " and ") )
+         "Outcome has values ", list_variables(levels(vec)) )
   vec <- stats::relevel(vec, positive_class)
   return(vec)
 }
@@ -101,7 +101,7 @@ remove_ignored <- function(d, recipe) {
   if (!is.null(ignored) && length(ignored)) {
     d <- dplyr::select(d, -dplyr::one_of(ignored))
     message("Variable(s) ignored in prep_data won't be used to tune models: ",
-            paste(ignored, collapse = ", "))
+            list_variables(ignored))
   }
   return(d)
 }
@@ -129,7 +129,7 @@ set_model_class <- function(model_class, outcome_class, outcome_chr) {
     supported_classes <- get_supported_model_classes()
     if (!model_class %in% supported_classes)
       stop("Supported model classes are: ",
-           paste(supported_classes, collapse = ", "),
+           list_variables(supported_classes),
            ". You supplied this unsupported class: ", model_class)
     if (looks_categorical && model_class == "regression") {
       stop(outcome_chr, " looks categorical but you're trying to train a regression model.")
@@ -147,9 +147,9 @@ check_models <- function(models) {
   unsupported <- models[!models %in% available]
   if (length(unsupported))
     stop("Currently supported algorithms are: ",
-         paste(available, collapse = ", "),
+         list_variables(available),
          ". You supplied these unsupported algorithms: ",
-         paste(unsupported, collapse = ", "))
+         list_variables(unsupported))
   return(models)
 }
 

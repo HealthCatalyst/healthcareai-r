@@ -137,7 +137,7 @@ convert_date_cols <- function(d) {
   if (length(bad_date_cols)) {
     stop(paste("Unable to convert the following columns to dates. Convert",
          "them to ymd, mdy, ymd hms, or mdy hms format. See lubridate::as_date",
-         "or as.POSIXct for more info. \n"), paste(bad_date_cols, collapse = ", "))
+         "or as.POSIXct for more info. \n"), list_variables(bad_date_cols))
   }
 
   # Collect working formats

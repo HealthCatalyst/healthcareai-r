@@ -89,7 +89,7 @@ impute <- function(d = NULL,
   }
   if ("TRUE" %in% names(missingness_ignored)) {
     warning("These ignored variables still have missingness: ",
-            paste(missingness_ignored[["TRUE"]]$variable, collapse = ", "))
+            list_variables(missingness_ignored[["TRUE"]]$variable))
     imp_summary <- dplyr::bind_rows(imp_summary,
                              missingness_ignored[["TRUE"]] %>%
                                dplyr::mutate(imputation_method = "ignored"))
@@ -107,7 +107,7 @@ impute <- function(d = NULL,
     # Make sure all columns are present
     present <- ignored %in% names(d)
     if (any(!present))
-      stop(paste(ignored[!present], collapse = ", "), " not found in d.")
+      stop(list_variables(ignored[!present]), " not found in d.")
 
     d_ignore <- dplyr::select(d, !!!ignore_columns)
     d <- dplyr::select(d, -dplyr::one_of(ignored))

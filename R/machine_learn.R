@@ -92,7 +92,7 @@ machine_learn <- function(d, ..., outcome, models, tune = TRUE, positive_class,
     if (length(not_there))
       stop("The following variable(s) were passed to the ... argument of machine_learn",
            " but are not the names of columns in the data frame: ",
-           paste(not_there, collapse = ", "))
+           list_variables(not_there))
   }
 
   outcome <- rlang::enquo(outcome)

@@ -108,8 +108,8 @@ hcai_impute <- function(recipe,
   extras  <- all_user_params[!(all_user_params %in% available_param_names)]
   if (length(extras > 0)) {
     warning("You have extra imputation parameters that won't be used: ",
-            paste(extras, collapse = ", "),
-            ". Available params are: ", paste(available_param_names, collapse = ", "))
+            list_variables(extras),
+            ". Available params are: ", list_variables(available_param_names))
   }
 
   # Catch datasets where all predictors are of one type

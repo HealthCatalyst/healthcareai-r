@@ -68,7 +68,7 @@ test_that("Bad ignore_colums are parsed correctly.", {
   capture_output(expect_error(impute(d = d_train, chippies),
                               regexp = "chippies not found in d"))
   capture_output(expect_error(impute(d = d_train, chippies, fishes),
-                              regexp = "chippies, fishes not found in d"))
+                              regexp = "chippies and fishes not found in d"))
 })
 
 test_that("No recipe with defaults trains and predicts.", {

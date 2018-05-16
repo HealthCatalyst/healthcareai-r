@@ -297,7 +297,7 @@ test_that("only the first few rows of training data are stored in the recipe", {
 test_that("warning is given when ignored columns have missingness", {
   expect_warning(
     prep_data(d_train, reaction, length),
-    regexp = "reaction, length")
+    regexp = "reaction and length")
 })
 
 test_that("names of ignored columns get attached as attribute to recipe", {
