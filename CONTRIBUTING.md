@@ -25,7 +25,8 @@ When submitting a pull request, here's what you need to check. Some of these thi
 - [ ] Ensure code is lint free: `lintr::lint_package()`. This will also be checked in tests...
 - [ ] Ensure code passes all tests: `devtools::test()`. This will also be checked in check... 
 - [ ] Ensure code passes all CRAN checks without warnings or notes: `devtools::check()` 
-- [ ] Generate package website: `pkgdown::build_site()`
+  - If you get NOTEs about global variables with no visible binding for variables defined via NSE (e.g. in dplyr functions), add them to the list of `globalVariables` in `R/globals.R`.
+- Do not regenerate the pkgdown website. We will rebuild this for every minor release when a new version of the package is on its way to CRAN.
 
 #### Getting Started Contributing
 

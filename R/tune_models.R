@@ -151,7 +151,8 @@ tune_models <- function(d,
                               target = rlang::quo_name(outcome),
                               recipe = recipe,
                               positive_class = attr(train_list, "positive_class"),
-                              model_name = model_name) %>%
+                              model_name = model_name,
+                              best_levels = best_levels) %>%
     structure(timestamp = Sys.time())
   return(train_list)
 }

@@ -12,6 +12,8 @@
 #'   otherwise NULL
 #' @param model_name Quoted, name of the model. If left blank,
 #' defaults to the name of the outcome variable.
+#' @param best_levels best_levels list as attached to data frames from
+#'   add_best_levels
 #'
 #' @importFrom purrr map_chr
 #' @importFrom purrr map_lgl
@@ -24,7 +26,8 @@ as.model_list <- function(...,
                           tuned = TRUE,
                           recipe = NULL,
                           positive_class = NULL,
-                          model_name = NA) {
+                          model_name = NA,
+                          best_levels = NULL) {
   listed_models <- c(
     structure(list(...),
               names = purrr::map_chr(as.list(match.call(expand.dots = FALSE)$...), deparse)),
@@ -70,7 +73,8 @@ as.model_list <- function(...,
             tuned = tuned,
             target = target,
             recipe = recipe,
-            positive_class = positive_class) %>%
+            positive_class = positive_class,
+            best_levels = best_levels) %>%
     structure(., performance = evaluate(.))
 }
 
