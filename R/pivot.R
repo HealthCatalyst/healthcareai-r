@@ -4,34 +4,38 @@
 #' @param grain Column that defines rows. Unquoted.
 #' @param spread Column that will become multiple columns. Unquoted.
 #' @param fill Column to be used to fill the values of cells in the output,
-#' perhaps after aggregation by \code{fun}. If \code{fill} is not provided,
-#' counts will be used, as though a fill column of 1s had been provided.
+#'   perhaps after aggregation by \code{fun}. If \code{fill} is not provided,
+#'   counts will be used, as though a fill column of 1s had been provided.
 #' @param fun Function for aggregation, defaults to \code{sum}. Custom functions
-#' can be used with the same syntax as the apply family of functions, e.g.
-#' \code{fun = function(x) some_function(another_fun(x))}.
+#'   can be used with the same syntax as the apply family of functions, e.g.
+#'   \code{fun = function(x) some_function(another_fun(x))}.
 #' @param missing_fill Value to fill for combinations of grain and spread that
-#' are not present. Defaults to NA, but 0 may be useful as well.
+#'   are not present. Defaults to NA, but 0 may be useful as well.
+#' @param extra_cols Values of \code{spread} to create all-\code{missing_fill}
+#'   columns, for e.g. if you want to add levels that were observed in training
+#'   but are not present in deployment.
 #'
 #' @return A tibble data frame with one row for each unique value of
-#' \code{grain}, and one column for each unique value of \code{spread} plus
-#' one column for the entries in grain.
+#'   \code{grain}, and one column for each unique value of \code{spread} plus
+#'   one column for the entries in grain.
 #'
-#' Entries in the tibble are defined by the fill column. Combinations of
-#' \code{grain} x \code{spread} that are not present in \code{d} will be filled
-#' in with \code{missing_fill}. If there are \code{grain} x \code{spread} pairs
-#' that appear more than once in d, they will be aggregated by \code{fun}.
+#'   Entries in the tibble are defined by the fill column. Combinations of
+#'   \code{grain} x \code{spread} that are not present in \code{d} will be
+#'   filled in with \code{missing_fill}. If there are \code{grain} x
+#'   \code{spread} pairs that appear more than once in d, they will be
+#'   aggregated by \code{fun}.
 #'
 #' @details \code{pivot} is useful when you want to change the grain of your
-#' data, for example from the procedure grain to the patient grain. In that
-#' example, each patient might have 0, 1, or more medications. To make a
-#' patient-level table, we need a column for each medication, which is what
-#' it means to make a wide table. The \code{fill} argument dictates what to
-#' put in each of the medication columns, e.g. the dose the patient got.
-#' \code{fill} defaults to "1", as an indicator variable. If any patients have
-#' multiple rows for the same medication (say they recieved a med more than
-#' once), we need a way to deal with that, which is what the \code{fun} argument
-#' handles. By default it uses \code{sum}, so if \code{fill} is left as its
-#' default, the count of instances for each patient will be used.
+#'   data, for example from the procedure grain to the patient grain. In that
+#'   example, each patient might have 0, 1, or more medications. To make a
+#'   patient-level table, we need a column for each medication, which is what it
+#'   means to make a wide table. The \code{fill} argument dictates what to put
+#'   in each of the medication columns, e.g. the dose the patient got.
+#'   \code{fill} defaults to "1", as an indicator variable. If any patients have
+#'   multiple rows for the same medication (say they recieved a med more than
+#'   once), we need a way to deal with that, which is what the \code{fun}
+#'   argument handles. By default it uses \code{sum}, so if \code{fill} is left
+#'   as its default, the count of instances for each patient will be used.
 #'
 #' @importFrom rlang :=
 #' @export
@@ -78,7 +82,7 @@
 #'       fill = charge,
 #'       fun = function(x) paste0("$", round(max(x) - min(x), 2))
 #' )
-pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
+pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA, extra_cols) {
   # pivot "spreads" spread into separate columns, creating one row for
   # each entry in grain
   # fill can be the name of a column in d containing value to fill in
@@ -113,16 +117,21 @@ pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA) {
   # Make sure fun is a function
   if (!is.function(fun)) stop("fun isn't a function")
 
-  # Convert grouping variables to factors
-  d <-
-    d %>%
-    dplyr::mutate(!!rlang::quo_name(grain) := as.factor(!!grain),
-                  !!rlang::quo_name(spread) := as.factor(!!spread))
-
   d <- do_aggregate(d, grain, spread, fill, fun, default_fun)
 
   out <- pivot_maker(d, grain, spread, fill, missing_fill)
 
+  # Add extra columns
+  if (!missing(extra_cols)) {
+    extra_cols <- paste0(quo_name(spread), "_", extra_cols)
+    class(missing_fill) <- class(d[[rlang::quo_name(fill)]])
+    out <-
+      matrix(missing_fill,
+             nrow = nrow(out), ncol = length(extra_cols),
+             dimnames = list(NULL, extra_cols)) %>%
+      tibble::as_tibble() %>%
+      bind_cols(out, .)
+  }
   return(out)
 }
 

@@ -70,6 +70,25 @@ test_that("pivot returns expected data frame with custom function", {
   )
 })
 
+test_that("pivot doesn't change grain class", {
+  dd$person <- as.character(dd$person)
+  dd$day <- as.character(dd$day)
+  pivoted <- pivot(dd, person, day, count)
+  expect_equal(class(dd$person), class(pivoted$person))
+})
+
+test_that("extra_cols works when supplied", {
+  ec <- pivot(dd, person, day, count, extra_cols = c("hey", "you"))
+  expect_true(all(c("day_hey", "day_you") %in% names(ec)))
+  expect_true(all(is.na(ec$day_you)))
+  expect_equal(class(ec$day_1), class(ec$day_hey))
+
+  ec0 <- pivot(dd, person, day, count, missing_fill = 0, extra_cols = c("hey", "you"))
+  expect_true(all(c("day_hey", "day_you") %in% names(ec0)))
+  expect_true(all(ec0$day_you == 0))
+  expect_equal(class(ec0$day_1), class(ec0$day_hey))
+})
+
 # Test do_aggregate ------------------------------------------------------------
 test_that("do_aggregate produces messages appropriately", {
   expect_message(
@@ -215,5 +234,5 @@ test_that("pivot works with numeric grain column", {
   d <- data.frame(id = rep(1:3, 2),
                   to_col = rep(letters[1:2], each = 3),
                   vals = rnorm(6))
-  expect_setequal(pivot(d, id, to_col, vals)$id, factor(d$id))
+  expect_setequal(pivot(d, id, to_col, vals)$id, d$id)
 })

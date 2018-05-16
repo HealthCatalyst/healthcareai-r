@@ -10,6 +10,8 @@
 #'   through prep_data
 #' @param positive_class If classification, the positive outcome class,
 #'   otherwise NULL
+#' @param best_levels best_levels list as attached to data frames from
+#'   add_best_levels
 #'
 #' @importFrom purrr map_chr
 #' @importFrom purrr map_lgl
@@ -21,7 +23,8 @@ as.model_list <- function(...,
                           model_class,
                           tuned = TRUE,
                           recipe = NULL,
-                          positive_class = NULL) {
+                          positive_class = NULL,
+                          best_levels = NULL) {
   listed_models <- c(
     structure(list(...),
               names = purrr::map_chr(as.list(match.call(expand.dots = FALSE)$...), deparse)),
@@ -64,7 +67,8 @@ as.model_list <- function(...,
             tuned = tuned,
             target = target,
             recipe = recipe,
-            positive_class = positive_class) %>%
+            positive_class = positive_class,
+            best_levels = best_levels) %>%
     structure(., performance = evaluate(.))
 }
 
