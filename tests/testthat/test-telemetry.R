@@ -16,12 +16,12 @@ if (file.exists("telemetry_test.RDS"))
 m <- machine_learn(pima_diabetes[1:50, 6:10], outcome = diabetes, models = "rf",
                    model_name = "telemetry_test")
 p <- predict(object = m, newdata = pima_diabetes[1:50, 6:10],
-                      write_log = TRUE, prepdata = TRUE)
+             write_log = TRUE, prepdata = TRUE)
 
 save_models(m, "telemetry_test.RDS")
 m_reloaded <- load_models("telemetry_test.RDS")
 p_reloaded <- predict(object = m_reloaded, newdata = pima_diabetes[1:50, 6:10],
-             write_log = TRUE, prepdata = TRUE)
+                      write_log = TRUE, prepdata = TRUE)
 
 # Tests =========================================
 test_that("log_predictions writes info to file correctly", {
@@ -63,9 +63,9 @@ test_that("Errors are put in log file properly", {
 
   # Error should print error message
   expect_warning(predict(object = m,
-                        newdata = pima_diabetes[1:50, 7:10],
-                        write_log = TRUE, prepdata = TRUE),
-                "Error in predict")
+                         newdata = pima_diabetes[1:50, 7:10],
+                         write_log = TRUE, prepdata = TRUE),
+                 "insulin")
 
   # Log should contain error info.
   e <- readLines("telemetry_test_prediction_log.txt")
@@ -73,17 +73,19 @@ test_that("Errors are put in log file properly", {
 
 })
 
-test_that("Failure returns warning and tibble with error info", {
+test_that("Failure returns warning, blank df, and error info", {
   expect_warning(pe <- predict(object = m_reloaded,
-                        newdata = pima_diabetes[1:50, 7:10],
-                        write_log = TRUE, prepdata = TRUE),
-                 "Error in predict")
+                               newdata = pima_diabetes[1:50, 7:10],
+                               write_log = TRUE, prepdata = TRUE),
+                 "insulin")
+  d_log <- attr(pe, "prediction_log")
 
   # Tibble should be returned on error
-  expect_equal(dim(pe), c(1, 21))
-  expect_equal(pe$outcome_variable, "diabetes")
-  expect_false(pe$predictions_made)
-  expect_equal(pe$n_predictions, NA)
+  expect_equal(dim(pe), c(0, 9))
+  expect_true(attr(pe, "failed"))
+  expect_equal(d_log$outcome_variable, "diabetes")
+  expect_false(d_log$predictions_made)
+  expect_equal(d_log$n_predictions, NA)
 })
 
 test_that("Set and update telemetry functions work", {

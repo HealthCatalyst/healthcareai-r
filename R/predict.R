@@ -32,10 +32,11 @@
 #'   make predictions. You can call \code{plot} or \code{evaluate} on a
 #'   predicted_df.
 #'
-#'   newdata will contain an attribute, "prediction_log" that contains a
-#'   tibble of  logging
-#'   info for writing to database. If \code{write_log} is TRUE and predict
-#'   errors, the log tibble will still be returned.
+#'   Returned data will contain an attribute, "prediction_log" that contains a
+#'   tibble of  logging info for writing to database. If \code{write_log}
+#'   is TRUE and predict errors, an empty dataframe with the "prediction_log"
+#'   attribute will still be returned. Data will also contain a "failed"
+#'   attribute to easily filter for errors after prediction.
 #' @export
 #' @importFrom caret predict.train
 #' @seealso \code{\link{plot.predicted_df}}, \code{\link{evaluate.predicted_df}}
@@ -102,13 +103,23 @@ predict.model_list <- function(object,
   # Yes error, yes log
   if (!is.null(out$error) & is.character(write_log)) {
     d_log <- set_inital_telemetry(object)
-    warning(paste0("Error in predict, check ",
-                   write_log, " for details."))
+    warning("#########################################################\n",
+            out$error,
+            "\n#########################################################",
+            "See ", write_log, " for details.",
+            "\n#########################################################")
+
+    # Create empty output dataset
+    result <- object[[1]]$trainingData[0, ] %>%
+      dplyr::mutate(!!mi$target := .outcome) %>%
+      dplyr::select(- .outcome)
+
     d_log$error_message <- out$error$message
     d_log$error_call <- as.character(out$error$call)[1] # function name
-    attr(d_log, "failed") <- TRUE
+    attr(result, "prediction_log") <- d_log
+    attr(result, "failed") <- TRUE
     log_predictions(filename = write_log, d = d_log)
-    return(d_log)
+    return(result)
   }
 }
 
@@ -117,10 +128,10 @@ predict.model_list <- function(object,
 #' exit status.
 #' @noRd
 predict_model_list_main <- function(object,
-                                     newdata,
-                                     prepdata,
-                                     write_log = FALSE,
-                                     ...) {
+                                    newdata,
+                                    prepdata,
+                                    write_log = FALSE,
+                                    ...) {
 
   # Pull info
   mi <- extract_model_info(object)
