@@ -11,8 +11,8 @@ install:
   ps: Bootstrap
 
 cache:
-  - C:\RLibrary
-
+  - C:\RLibrary -> appveyor.yml
+  
 # Adapt as necessary starting from here
 services:
   - mssql2012sp1
