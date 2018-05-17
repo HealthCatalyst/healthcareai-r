@@ -5,12 +5,8 @@
 \title{Make models into model_list object}
 \usage{
 as.model_list(..., listed_models = NULL, target = ".outcome", model_class,
-<<<<<<< HEAD
-  tuned = TRUE, recipe = NULL, positive_class = NULL, model_name = NA)
-=======
-  tuned = TRUE, recipe = NULL, positive_class = NULL,
+  tuned = TRUE, recipe = NULL, positive_class = NULL, model_name = NA,
   best_levels = NULL)
->>>>>>> master
 }
 \arguments{
 \item{...}{\code{caret}-trained models to put into a model list}
@@ -30,13 +26,11 @@ through prep_data}
 \item{positive_class}{If classification, the positive outcome class,
 otherwise NULL}
 
-<<<<<<< HEAD
 \item{model_name}{Quoted, name of the model. If left blank,
 defaults to the name of the outcome variable.}
-=======
+
 \item{best_levels}{best_levels list as attached to data frames from
 add_best_levels}
->>>>>>> master
 }
 \value{
 A model_list with child class type_list

@@ -10,6 +10,12 @@ test_that("save_models works and issues PHI message", {
   expect_true(file.exists("models.RDS"))
 })
 
+test_that("save_models works and issues PHI message", {
+  save_messages <- capture_messages(save_models(m))
+  expect_true(stringr::str_detect(save_messages, stringr::fixed("PHI")))
+  expect_true(file.exists("models.RDS"))
+})
+
 test_that("load_models works", {
   reloaded_m <- load_models("models.RDS")
   expect_equal(class(m)[1], "classification_list")

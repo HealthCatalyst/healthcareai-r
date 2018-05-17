@@ -45,10 +45,11 @@ A tibble data frame: newdata with an additional column for the
   make predictions. You can call \code{plot} or \code{evaluate} on a
   predicted_df.
 
-  newdata will contain an attribute, "prediction_log" that contains a
-  tibble of  logging
-  info for writing to database. If \code{write_log} is TRUE and predict
-  errors, the log tibble will still be returned.
+  Returned data will contain an attribute, "prediction_log" that contains a
+  tibble of  logging info for writing to database. If \code{write_log}
+  is TRUE and predict errors, an empty dataframe with the "prediction_log"
+  attribute will still be returned. Data will also contain a "failed"
+  attribute to easily filter for errors after prediction.
 }
 \description{
 Make predictions using the best-performing model

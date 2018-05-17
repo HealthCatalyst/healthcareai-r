@@ -92,6 +92,7 @@ update_telemetry <- function(d, newdata) {
 
 #' @title
 #' Depreciated
+#' @description Depreciated
 #' @param ... Depreciated
 start_prod_logs <- function(...) {
   # Create file name and open connection
@@ -113,6 +114,7 @@ start_prod_logs <- function(...) {
 
 #' @title
 #' Depreciated
+#' @description Depreciated
 #' @param ... Depreciated
 stop_prod_logs <- function(...) {
   # Stop writing to the file
@@ -122,6 +124,7 @@ stop_prod_logs <- function(...) {
 
 #' @title
 #' Depreciated
+#' @description Depreciated
 #' @param ... Depreciated
 catalyst_test_deploy_in_prod <- function(...) {
   print("If you're reading this in the log file,

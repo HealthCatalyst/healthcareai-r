@@ -25,9 +25,6 @@
 #' all.equal(m, m2)
 #' }
 save_models <- function(x, filename = "models.RDS") {
-  if (filename == "models.RDS" & !is.null(attr(x, "model_name"))) {
-    filename <- paste0(attr(x, "model_name"), ".RDS")
-  }
   saveRDS(x, filename)
   message("The model object being saved contains training data, minus ignored ID columns.\n",
           "If there was PHI in training data, normal PHI protocols apply to the RDS file.")

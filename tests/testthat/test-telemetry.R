@@ -86,6 +86,7 @@ test_that("Failure returns warning, blank df, and error info", {
   expect_equal(d_log$outcome_variable, "diabetes")
   expect_false(d_log$predictions_made)
   expect_equal(d_log$n_predictions, NA)
+  # expect_equal(names(pe), names(p))
 })
 
 test_that("Set and update telemetry functions work", {
