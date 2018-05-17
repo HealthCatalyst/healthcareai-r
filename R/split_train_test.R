@@ -12,11 +12,12 @@
 #' @export
 #'
 #' @details This function wraps `caret::createDataPartition`. If outcome is a factor
-#'   then the test/training porportions are stratified. Otherwise they are randomly 
+#'   then the test/training porportions are stratified. Otherwise they are randomly
 #'   selected. If the grouping_col is given, then groups are kept together where possible.
 #'   If grouping is prefered over stratified split, then make sure that outcome is
 #'   not a factor.
 #'
+#' @import caTools
 #' @examples
 #' split_train_test(mtcars, am, .9)
 split_train_test <- function(d, outcome, percent_train = .8, seed, grouping_col) {
