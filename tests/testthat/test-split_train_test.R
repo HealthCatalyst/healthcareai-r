@@ -17,41 +17,41 @@ test_that("split train test respects seed", {
 
 test_that("split train test grouping", {
   owner <- c(
-    'a',
-    'a',
-    'b',
-    'b',
-    'c',
-    'c',
-    'd',
-    'd',
-    'e',
-    'e',
-    'f',
-    'f',
-    'g',
-    'g',
-    'h',
-    'h',
-    'i',
-    'i',
-    'j',
-    'j',
-    'k',
-    'k',
-    'l',
-    'l',
-    'm',
-    'm',
-    'n',
-    'n',
-    'o',
-    'o',
-    'p',
-    'p'
+    "a",
+    "a",
+    "b",
+    "b",
+    "c",
+    "c",
+    "d",
+    "d",
+    "e",
+    "e",
+    "f",
+    "f",
+    "g",
+    "g",
+    "h",
+    "h",
+    "i",
+    "i",
+    "j",
+    "j",
+    "k",
+    "k",
+    "l",
+    "l",
+    "m",
+    "m",
+    "n",
+    "n",
+    "o",
+    "o",
+    "p",
+    "p"
   )
-  mtcars <- cbind(mtcars,owner)
+  mtcars <- cbind(mtcars, owner)
   sp1 <- split_train_test(mtcars, mpg, .75, 123, owner)
-  result <- length(intersect(sp1[[1]]$owner,sp1[[2]]$owner)) == 0
-  expect_true(length(intersect(sp1[[1]]$owner,sp1[[2]]$owner)) == 0)
+  result <- length(intersect(sp1[[1]]$owner, sp1[[2]]$owner)) == 0
+  expect_true(length(intersect(sp1[[1]]$owner, sp1[[2]]$owner)) == 0)
 })
