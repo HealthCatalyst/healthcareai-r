@@ -140,6 +140,8 @@ plot.model_list <- function(x, font_size = 11, point_size = 1,
             xlab(NULL) +
             labs(title = .x) +
             theme_gray(base_size = font_size)
+          if (.x == "lambda" && mod$modelInfo$label == "glmnet")
+            p <- p + scale_x_log10()
           p <-
             if (.x != hps[length(hps)]) {
               p + theme(axis.title.x = element_blank(),
