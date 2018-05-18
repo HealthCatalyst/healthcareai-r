@@ -26,6 +26,9 @@ log_predictions <- function(filename, d) {
     "\n Error status: ", !is.na(d$error_message),
     "\n Error message: ", d$error_message,
     "\n Error location: ", d$error_call,
+    "\n Warnings: ", d$error_message,
+    "\n Messages: ", d$error_message,
+    "\n Output: ", d$error_message,
     "\n=======================================",
     "\n"
   )
@@ -35,8 +38,7 @@ log_predictions <- function(filename, d) {
 
 #' Sets defaults for telemetry tibble.
 #' @noRd
-set_inital_telemetry <- function(m) {
-  mi <- extract_model_info(m)
+set_inital_telemetry <- function(mi) {
   d <- tibble::tibble(
     loaded_from = mi$from_rds,
     model_name = mi$model_name,
@@ -59,7 +61,10 @@ set_inital_telemetry <- function(m) {
     missingness_q3 = NA,
     missingness_max = NA,
     error_message = NA,
-    error_call = NA)
+    error_call = NA,
+    warnings = NA,
+    messages = NA,
+    output = NA)
 
   return(d)
 }
@@ -88,6 +93,59 @@ update_telemetry <- function(d, newdata) {
   d$missingness_q3 <- round(missingness$`3rd Qu.`, 3)
   d$missingness_max <- round(missingness$Max., 3)
   return(d)
+}
+
+#' Purrr functions safe and quiet are returned to save all types of output.
+#' @noRd
+safe_n_quiet <- function(.f, otherwise = NULL) {
+  retfun <- purrr::quietly(purrr::safely(.f,
+                                         otherwise = otherwise,
+                                         quiet = FALSE))
+  function(...) {
+    ret <- retfun(...)
+    list(result = ret$result$result,
+         output = ret$output,
+         messages = ret$messages,
+         warnings = ret$warnings,
+         error = ret$result$error)
+  }
+}
+
+#' Parse output from safe_n_quiet
+#' @noRd
+parse_safe_n_quiet <- function(x, mi) {
+  d_log <- set_inital_telemetry(mi)
+  if (length(x$warnings)) {
+    d_log$warnings <- x$warnings
+  }
+  if (length(x$messages)) {
+    d_log$messages <- x$messages
+  }
+  if (length(x$output) > 1) {
+    d_log$output <- x$output
+  }
+  # No error
+  if (is.null(x$error)) {
+    d_log <- d_log %>%
+      update_telemetry(x$result)
+    attr(x$result, "prediction_log") <- d_log
+    attr(x$result, "failed") <- FALSE
+  }
+  # Yes error
+  if (!is.null(x$error)) {
+    warning("#########################################################\n",
+            x$error,
+            "\n#########################################################")
+
+    # TODO Create empty output dataset with correct structure. From model info.
+    x$result <- data.frame(a = c(1, 2, 3), b = c(4, 5, 6))
+
+    d_log$error_message <- x$error$message
+    d_log$error_call <- as.character(x$error$call)[1] # function name
+    attr(x$result, "prediction_log") <- d_log
+    attr(x$result, "failed") <- TRUE
+  }
+  return(x$result)
 }
 
 #' @title

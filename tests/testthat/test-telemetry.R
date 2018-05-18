@@ -33,7 +33,7 @@ test_that("log_predictions writes info to file correctly", {
 
 test_that("log_predictions returns data correctly", {
   d_pred <- attr(p_reloaded, "prediction_log")
-  expect_equal(dim(d_pred), c(1, 21))
+  expect_equal(dim(d_pred), c(1, 24))
   expect_equal(d_pred$loaded_from, "telemetry_test.RDS")
   expect_equal(d_pred$model_name, "telemetry_test")
   expect_equal(d_pred$n_predictions, 50)
@@ -42,7 +42,7 @@ test_that("log_predictions returns data correctly", {
 
 test_that("log_predictions works without loading from file", {
   d_pred <- attr(p, "prediction_log")
-  expect_equal(dim(d_pred), c(1, 21))
+  expect_equal(dim(d_pred), c(1, 24))
   expect_equal(d_pred$loaded_from, "trained_in_memory")
   expect_equal(d_pred$model_name, "telemetry_test")
   expect_equal(d_pred$n_predictions, 50)
@@ -53,7 +53,7 @@ test_that("log_predictions works without loading from file", {
 test_that("Errors are put in log file properly", {
   # These predict calls have a missing column and should error.
   expect_error(
-    predict(object = m, newdata = pima_diabetes[1:50, 7:10],
+    predict(object = m, newdata = pima_diabetes[1:50, 6:10],
             write_log = FALSE, prepdata = TRUE)
   )
   expect_error(
@@ -81,23 +81,23 @@ test_that("Failure returns warning, blank df, and error info", {
   d_log <- attr(pe, "prediction_log")
 
   # Tibble should be returned on error
-  expect_equal(dim(pe), c(0, 9))
+  expect_equal(dim(pe), c(0, 6))
   expect_true(attr(pe, "failed"))
   expect_equal(d_log$outcome_variable, "diabetes")
   expect_false(d_log$predictions_made)
   expect_equal(d_log$n_predictions, NA)
-  # expect_equal(names(pe), names(p))
+  expect_equal(names(pe), names(p))
 })
 
 test_that("Set and update telemetry functions work", {
-  d <- set_inital_telemetry(m)
-  expect_equal(dim(d), c(1, 21))
+  d <- set_inital_telemetry(extract_model_info(m))
+  expect_equal(dim(d), c(1, 24))
   expect_equal(d$outcome_variable, "diabetes")
   expect_false(d$predictions_made)
   expect_equal(d$n_predictions, NA)
 
   d_up <- update_telemetry(d, p)
-  expect_equal(dim(d_up), c(1, 21))
+  expect_equal(dim(d_up), c(1, 24))
   expect_equal(d_up$error_message, NA)
   expect_true(is.numeric(d_up$prediction_mean))
   expect_true(is.numeric(d_up$missingness_mean))

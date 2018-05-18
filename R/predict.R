@@ -71,7 +71,6 @@ predict.model_list <- function(object,
                                    prepdata,
                                    write_log,
                                    ...)
-    return(out)
   } else {
     out <- safe_predict_model_list_main(object,
                                         newdata,
@@ -80,42 +79,14 @@ predict.model_list <- function(object,
                                         ...)
 
     mi <- extract_model_info(object)
+    out <- parse_safe_n_quiet(out, mi)
     # Get log file name
     if (isTRUE(write_log)) {
       write_log <- paste0(mi$model_name, "_prediction_log.txt")
     }
-
-    # No error, yes log
-    if (is.null(out$error) & is.character(write_log)) {
-      d_log <- set_inital_telemetry(object) %>%
-        update_telemetry(out$result)
-      attr(out$result, "prediction_log") <- d_log
-      attr(out$result, "failed") <- FALSE
-      log_predictions(filename = write_log, d = d_log)
-      return(out$result)
-    }
-    # Yes error, yes log
-    if (!is.null(out$error) & is.character(write_log)) {
-      d_log <- set_inital_telemetry(object)
-      warning("#########################################################\n",
-              out$error,
-              "\n#########################################################\n",
-              "See ", write_log, " for details.",
-              "\n#########################################################")
-
-      # Create empty output dataset
-      result <- object[[1]]$trainingData[0, ] %>%
-        dplyr::mutate(!!mi$target := .outcome) %>%
-        dplyr::select(- .outcome)
-
-      d_log$error_message <- out$error$message
-      d_log$error_call <- as.character(out$error$call)[1] # function name
-      attr(result, "prediction_log") <- d_log
-      attr(result, "failed") <- TRUE
-      log_predictions(filename = write_log, d = d_log)
-      return(result)
-    }
+    log_predictions(filename = write_log, d = attr(out, "prediction_log"))
   }
+  return(out)
 }
 
 #' The bulk of the predict code is here. It's done this way so that we can call
@@ -132,7 +103,6 @@ predict_model_list_main <- function(object,
   mi <- extract_model_info(object)
   best_models <- object[[mi$best_model_name]]
   training_data <- object[[1]]$trainingData
-
   # If newdata not provided, pull training data from object
   if (missing(newdata)) {
     newdata <-
@@ -193,22 +163,6 @@ predict_model_list_main <- function(object,
                                      "row.names" = "optimal:"))
 
   return(newdata)
-}
-
-#' Purrr functions safe and quiet are returned to save all types of output.
-#' @noRd
-safe_n_quiet <- function(.f, otherwise = NULL) {
-  retfun <- purrr::quietly(purrr::safely(.f,
-                                         otherwise = otherwise,
-                                         quiet = FALSE))
-  function(...) {
-    ret <- retfun(...)
-    list(result = ret$result$result,
-         output = ret$output,
-         messages = ret$messages,
-         warnings = ret$warnings,
-         error = ret$result$error)
-  }
 }
 
 #' Predict code that always returns the dataframe tibble.
