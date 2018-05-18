@@ -57,8 +57,11 @@ as.model_list <- function(...,
   model_class <- types
   names(listed_models) <- purrr::map_chr(listed_models, ~ .x$modelInfo$label)
   # Remove training data from all but the first model
-  for (i in setdiff(seq_along(listed_models), 1)) {
-    listed_models[[i]]$trainingData <- NULL
+  # and remove "call" object containing training data from all models
+  for (i in seq_along(listed_models)) {
+    if (i > 1)
+      listed_models[[i]]$trainingData <- NULL
+    listed_models[[i]]$call <- NULL
   }
 
   check_model_class(model_class)
