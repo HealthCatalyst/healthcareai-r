@@ -108,8 +108,8 @@ plot.model_list <- function(x, font_size = 11, point_size = 1,
   if (!inherits(x, "model_list"))
     stop("x is class ", class(x)[1], ", but needs to be model_list")
   if (!attr(x, "tuned"))
-    message("No tuning was done, so there's not much to plot. Use `tune_models` tune hyperparameters, ",
-            "or use `plot(predict(x))` to plot predictions on training data.")
+    message("Use `tune_models()` or `machine_learn(... , tune = TRUE)` to tune hyperparameters,",
+            " or use `predict(models) %>% plot()` to plot predictions on training data.")
   x <- change_metric_names(x)
   params <- purrr::map(x, ~ as.character(.x$modelInfo$parameters$parameter))
   bounds <- purrr::map_df(x, function(m) range(m$results[[m$metric]]))

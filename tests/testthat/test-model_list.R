@@ -190,7 +190,7 @@ test_that("summary.model_list works with untuned_model_lists", {
 test_that("plot.model_list works with message untuned_model_lists", {
   expect_warning(flash_r_plot <- plot(r_flash, print = FALSE), NA)
   expect_warning(flash_c_plot <- plot(c_flash, print = FALSE), NA)
-  expect_message(plot(c_flash, print = FALSE), "not much to plot")
+  expect_message(plot(c_flash, print = FALSE))
   expect_s3_class(flash_r_plot, "gg")
   expect_s3_class(flash_c_plot, "gg")
 })
