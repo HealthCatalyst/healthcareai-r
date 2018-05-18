@@ -68,23 +68,22 @@ plot.variable_importance <- function(x,
 #' m <- flash_models(mtcars, outcome = mpg, models = "rf")
 #' get_variable_importance(m)
 get_variable_importance <- function(models) {
-  importances <- lapply(models, safe_imp)
-  have_imp <- purrr::map_lgl(importances, ~ is.null(.x$error))
-  if (!any(have_imp))
+  # Currently RF is the only alg with variable importance we want to use
+  use <- "Random Forest"
+  if (!use %in% names(models))
     stop("Can't get variable importance for any of these models.")
-  model_order <- order_models(models)
-  # Use the best model (min rank) where we have variable importance
-  use <- have_imp[model_order][1]
-  # When we do multiclass, we'll want to average across cols in imp object
-  importances[[use]]$result[[1]][, 1, drop = FALSE] %>%
+  best_model <- extract_model_info(models)$best_model_name
+  if (best_model != use)
+    warning("Returning ", use, " variable importance, but ", best_model, " was the ",
+            "best performing model and will be used to make predictions. To ",
+            "make predictions from ", use, " instead, use: models['", use, "'].")
+  imp <- caret::varImp(models$`Random Forest`)
+  imp[[1]][, 1, drop = FALSE] %>%
     tibble::rownames_to_column() %>%
     setNames(c("variable", "importance")) %>%
     dplyr::arrange(desc(importance)) %>%
     as_tibble() %>%
     structure(.,
-              model = names(use),
+              model = use,
               class = c("variable_importance", class(.)))
-
 }
-
-safe_imp <- purrr::safely(~ caret::varImp(.x))
