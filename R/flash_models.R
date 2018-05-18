@@ -2,9 +2,8 @@
 #'
 #' @param d A data frame
 #' @param outcome Name of the column to predict
-#' @param models Names of models to try, by default "rf" for random forest and
-#'   "knn" for k-nearest neighbors. See \code{\link{supported_models}} for
-#'   available models.
+#' @param models Names of models to try. See \code{\link{get_supported_models}}
+#'   for available models. Default is all available models.
 #' @param metric What metric to use to assess model performance? Options for
 #'   regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
 #'   error), or "Rsquared." For classification: "ROC" (area under the receiver
@@ -33,7 +32,8 @@
 #'
 #'   For optimizing performance: \code{\link{tune_models}}
 #'
-#'   To prepare data and tune models in a single step: \code{\link{machine_learn}}
+#'   To prepare data and tune models in a single step:
+#'   \code{\link{machine_learn}}
 #'
 #' @return A model_list object. You can call \code{plot}, \code{summary},
 #'   \code{evaluate}, or \code{predict} on a model_list.
@@ -67,13 +67,12 @@
 #' }
 flash_models <- function(d,
                          outcome,
-                         models = c("rf", "knn"),
+                         models,
                          metric,
                          positive_class,
                          n_folds = 5,
                          model_class) {
 
-  models <- tolower(models)
   model_args <- setup_training(d, rlang::enquo(outcome), model_class, models, metric)
   # Pull each item out of "model_args" list and assign in this environment
   for (arg in names(model_args))

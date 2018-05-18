@@ -32,6 +32,15 @@ Implemented via \code{kknn}.
   knn), "triangular", "epanechnikov", "biweight", "triweight", "cos", "inv",
   "gaussian", "rank", or "optimal".}
 }
+
+\strong{Regularized regression}: "glm". Regression and classification.
+Implemented via \code{glmnet}.
+\itemize{
+  \item{alpha: Elasticnet mixing parameter, in [0, 1]. 0 = ridge regression;
+  1 = lasso.}
+  \item{lambda: Regularization parameter, > 0. Larger values make for
+  stronger regularization.}
+}
 }
 \seealso{
 \code{\link{hyperparameters}} for more detail on hyperparameter
