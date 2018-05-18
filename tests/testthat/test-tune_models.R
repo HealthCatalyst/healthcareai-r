@@ -302,3 +302,11 @@ test_that("tune_ and flash_ models add all-unique char/factor columns to ignored
     expect_false("patient_id" %in% names(tm$`Random Forest`$trainingData))
   })
 })
+
+test_that("Get informative error if there's not an outcome instance for each CV fold", {
+  small_df <- cla_df[1:10, ]
+  table(small_df$diabetes)
+  expect_error(flash_models(small_df, diabetes), "cross validation fold")
+  expect_error(tune_models(small_df, diabetes), "cross validation fold")
+  expect_error(flash_models(small_df, diabetes, n_folds = 3, models = "rf"), NA)
+})

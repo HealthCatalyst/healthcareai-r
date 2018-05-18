@@ -4,6 +4,14 @@
 #' @noRd
 train_models <- function(d, outcome, models, metric, train_control, hyperparameters, tuned) {
 
+  # ddim <- dim(d)
+  # # Minus one column for the outcome
+  # ddim[2] <- ddim[2] - 1L
+  # ncells <- prod(ddim)
+  # hpdim <- purrr::map_int(hyperparameters, nrow)
+  # time_mes <- paste("After data processing, models are being trained on", ddim[2],
+  #                   "features with", ddim[1], "observations.")
+
   mes <- if (tuned) "Training with cross validation: " else "Training at fixed values: "
 
   train_list <-
