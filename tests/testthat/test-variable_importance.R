@@ -5,7 +5,9 @@ mtcars$am <- factor(ifelse(mtcars$am, "Y", "N"))
 set.seed(6529)
 cl <- machine_learn(mtcars, outcome = am, tune = FALSE)
 reg <- machine_learn(mtcars, outcome = mpg, models = "rf", tune = FALSE)
-warns <- capture_warnings({cl_vi <- get_variable_importance(cl)})
+warns <- capture_warnings({
+  cl_vi <- get_variable_importance(cl)
+})
 
 test_that("order_models gets it right", {
   ci <- extract_model_info(cl)

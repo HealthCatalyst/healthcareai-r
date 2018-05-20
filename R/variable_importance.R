@@ -19,12 +19,12 @@
 #'   get_variable_importance() %>%
 #'   plot()
 plot.variable_importance <- function(x,
-                         caption = "model",
-                         title = NULL,
-                         font_size = 11,
-                         point_size = 3,
-                         print = TRUE,
-                         ... ) {
+                                     caption = "model",
+                                     title = NULL,
+                                     font_size = 11,
+                                     point_size = 3,
+                                     print = TRUE,
+                                     ... ) {
 
   if ( (is.data.frame(x) && names(x) != c("variable", "importance") ) ||
        !is.data.frame(x))
