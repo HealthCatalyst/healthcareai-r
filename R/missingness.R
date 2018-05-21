@@ -55,7 +55,6 @@ missingness <- function(d,
 
   if (return_df) {
     miss <- tibble::tibble(variable = names(miss), percent_missing = miss)
-    # rownames(miss) <- NULL
   }
 
   return(structure(miss, class = c("missingness", class(miss))))
