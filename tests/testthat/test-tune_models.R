@@ -198,13 +198,13 @@ test_that("set_outcome_class errors informatively if value not in vector", {
 
 test_that("set_outcome_class sets levels as expected", {
   yn <- factor(c("Y", "N"))
-  expect_equal(levels(set_outcome_class(yn))[1], "Y")
+  expect_equal(levels(set_outcome_class(yn, NULL))[1], "Y")
   expect_equal(levels(set_outcome_class(yn, "N"))[1], "N")
   yesno <- factor(c("yes", "no"))
-  expect_equal(levels(set_outcome_class(yesno))[1], "yes")
+  expect_equal(levels(set_outcome_class(yesno, NULL))[1], "yes")
   expect_equal(levels(set_outcome_class(yesno, "no"))[1], "no")
   other <- factor(c("admit", "nonadmit"))
-  expect_equal(levels(set_outcome_class(other))[1], "admit")
+  expect_equal(levels(set_outcome_class(other, NULL))[1], "admit")
   expect_equal(levels(set_outcome_class(other, "nonadmit"))[1], "nonadmit")
 })
 
@@ -301,4 +301,12 @@ test_that("tune_ and flash_ models add all-unique char/factor columns to ignored
     tm <- tune_models(cla_df, diabetes, models = "rf")
     expect_false("patient_id" %in% names(tm$`Random Forest`$trainingData))
   })
+})
+
+test_that("Get informative error if there's not an outcome instance for each CV fold", {
+  small_df <- cla_df[1:10, ]
+  table(small_df$diabetes)
+  expect_error(flash_models(small_df, diabetes), "cross validation fold")
+  expect_error(tune_models(small_df, diabetes), "cross validation fold")
+  expect_error(flash_models(small_df, diabetes, n_folds = 3, models = "rf"), NA)
 })

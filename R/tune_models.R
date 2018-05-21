@@ -106,7 +106,8 @@ tune_models <- function(d,
   if (n_folds <= 1)
     stop("n_folds must be greater than 1.")
 
-  model_args <- setup_training(d, rlang::enquo(outcome), model_class, models, metric, positive_class)
+  model_args <- setup_training(d, rlang::enquo(outcome), model_class, models,
+                               metric, positive_class, n_folds)
   # Pull each item out of "model_args" list and assign in this environment
   for (arg in names(model_args))
     assign(arg, model_args[[arg]])

@@ -73,7 +73,8 @@ flash_models <- function(d,
                          n_folds = 5,
                          model_class) {
 
-  model_args <- setup_training(d, rlang::enquo(outcome), model_class, models, metric)
+  model_args <- setup_training(d, rlang::enquo(outcome), model_class, models,
+                               metric, positive_class, n_folds)
   # Pull each item out of "model_args" list and assign in this environment
   for (arg in names(model_args))
     assign(arg, model_args[[arg]])
