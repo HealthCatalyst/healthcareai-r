@@ -1,4 +1,4 @@
-setup_training <- function(d, outcome, model_class, models, metric, positive_class) {
+setup_training <- function(d, outcome, model_class, models, metric, positive_class, n_folds) {
 
   # Get recipe and remove columns to be ignored in training
   recipe <- attr(d, "recipe")
@@ -43,11 +43,24 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
   # Make sure outcome's class works with model_class, or infer it
   model_class <- set_model_class(model_class, class(dplyr::pull(d, !!outcome)), outcome_chr)
 
-  # Some algorithms need the response to be factor instead of char or lgl
-  # Get rid of unused levels if they're present
   if (model_class == "classification") {
-    d[[outcome_chr]] <- droplevels(as.factor(d[[outcome_chr]]))
-    d[[outcome_chr]] <- set_outcome_class(d[[outcome_chr]], positive_class)
+    if (missing(positive_class))
+      positive_class <- NULL
+    # Some algorithms need the response to be factor instead of char or lgl
+    # Get rid of unused levels if they're present
+    d[[outcome_chr]] <-
+      d[[outcome_chr]] %>%
+      as.factor() %>%
+      droplevels() %>%
+      set_outcome_class(positive_class)
+    # Make sure there can be at least one instance of outcome in each fold
+    outcome_tab <- table(d[[outcome_chr]])
+    if (min(outcome_tab) < n_folds)
+      stop("There must be at least one instance of each outcome class ",
+           "for each cross validation fold. Observed frequencies in d:\n",
+           paste(names(outcome_tab), outcome_tab, sep = " = ", collapse = ", "),
+           "\nYou could try turning n_folds down from its current value of ", n_folds,
+           ", but it's hard to train a good model with few observations of an outcome.")
   }
 
   # Choose metric if not provided
@@ -72,7 +85,7 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
 
 check_outcome <- function(outcome, d_names, recipe) {
   if (rlang::quo_is_missing(outcome))
-    stop("You must provide an outcome variable to tune_models.")
+    stop("You must provide an outcome variable to tune_models and flash_models.")
   outcome_chr <- rlang::quo_name(outcome)
   if (!outcome_chr %in% d_names)
     stop(outcome_chr, " isn't a column in d.")
@@ -86,7 +99,7 @@ check_outcome <- function(outcome, d_names, recipe) {
 }
 
 set_outcome_class <- function(vec, positive_class) {
-  if (missing(positive_class)) {
+  if (is.null(positive_class)) {
     positive_class <-
       if ("Y" %in% levels(vec)) {
         "Y"
