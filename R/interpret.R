@@ -1,6 +1,6 @@
-#' Interpret a model via glmnet coefficient estimates
+#' Interpret a model via regularized coefficient estimates
 #'
-#' @param x a model_list object contain a glmnet mdoel
+#' @param x a model_list object containing a glmnet mdoel
 #' @param sparsity If NULL (default) coefficients for the best-performing model
 #'   will be returned. Otherwise, a value in [0, 1] that determines the
 #'   sparseness of the model for which coefficients will be returned, with 0
@@ -8,11 +8,21 @@
 #'   being minimally sparse.
 #'
 #' @return A data frame of variables and their regularized regression
-#'   coefficient estimates
-#' @details The value of alpha
+#'   coefficient estimates.
+#'
+#' @details If x was trained with more than one value of alpha the best value of
+#'   alpha is used; sparsity is determined only via the selection of lambda.
+#'
+#'   Coefficients are on the scale of the predictors; they are not standardized,
+#'   so unless features were scaled before training (e.g. with
+#'   \code{prep_data(..., scale = TRUE)}, the magnitude of coefficients does not
+#'   necessarily reflect their importance.
 #' @export
 #'
 #' @examples
+#' m <- machine_learn(pima_diabetes, patient_id, outcome = age, models = "glm")
+#' interpret(m)
+#' interpret(m, .2)
 interpret <- function(x, sparsity = NULL) {
   if (!is.model_list(x))
     stop("x must be a model_list")
@@ -25,30 +35,21 @@ interpret <- function(x, sparsity = NULL) {
             "best in cross-validation and will be used to make predictions. ",
             "To use the glmnet model for predictions, extract it with ",
             "x['glmnet'].")
-  g <- x$glmnet
 
-  g$results
+  g <- x$glmnet$finalModel
+  coefs <- coef(g)
 
-  coef(g, x$glmnet$bestTune$lambda)
-
-
+  # If user didn't specify sparsity, use best lambda
+  if (is.null(sparsity)) {
+    coefs <- coef(g, s = g$lambdaOpt)
+  } else {
+    if (!is.numeric(sparsity) || sparsity < 0 || sparsity > 1)
+      stop("sparsity must be a numeric value between 1 and 100")
+    lam <- round(quantile(seq_len(ncol(coefs)), sparsity), 0)
+    coefs <- coef(g)[, lam, drop = FALSE]
+  }
+  coefs <-
+    tibble::tibble(variable = rownames(coefs), coefficient = coefs[, 1]) %>%
+    dplyr::arrange(desc(variable == "(Intercept)"), desc(abs(coefficient)))
+  structure(coefs, class = c("coefs", class(coefs)))
 }
-
-#
-# fit <- glmnet::glmnet(as.matrix(dplyr::select(mtcars, -mpg)), mtcars$mpg, alpha = 0)
-#
-# lambda <- unique(fit$lambda)
-#
-# tm <- tune_models(mtcars, mpg, models = "glm", hyperparameters = data.frame(
-#   alpha = 1,
-#   lambda = .001
-# ))
-# fm <- flash_models(mtcars, mpg, models = "glm")
-# tm
-# fm
-# plot(predict(tm, mtcars)$predicted_mpg, predict(fm, mtcars)$predicted_mpg)
-# tm$glmnet$finalModel$lambdaOpt
-# fm$glmnet$finalModel$lambdaOpt
-#
-# plot(tm)
-# tm$glmnet$finalModel$beta  # This is at the best alpha value
