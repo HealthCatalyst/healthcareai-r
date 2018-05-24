@@ -17,7 +17,6 @@
 #'   If grouping is prefered over stratified split, then make sure that outcome is
 #'   not a factor.
 #'
-#' @import caTools
 #' @examples
 #' split_train_test(mtcars, am, .9)
 split_train_test <- function(d, outcome, percent_train = .8, seed, grouping_col) {

@@ -17,7 +17,6 @@ Depends:
 Imports:
     broom,
     caret (>= 6.0.78),
-    caTools,
     cowplot,
     data.table,
     dbplyr,
