@@ -21,6 +21,7 @@
 #'                 y = c(1, NaN, 3),
 #'                 z = c(1:2, NA))
 #' missingness(d)
+#' missingness(d) %>% plot()
 missingness <- function(d,
                         return_df = TRUE,
                         to_search = c("NA", "NAs", "na", "NaN",
@@ -50,14 +51,10 @@ missingness <- function(d,
     purrr::map_int(~sum(is.na(.x))) %>%
     `/`(nrow(d)) %>%
     sort() %>%
-    `*`(100) %>%
-    round(1)
+    `*`(100)
 
   if (return_df) {
-    miss <- data.frame(variable = names(miss),
-                       percent_missing = miss,
-                       stringsAsFactors = FALSE)
-    rownames(miss) <- NULL
+    miss <- tibble::tibble(variable = names(miss), percent_missing = miss)
   }
 
   return(structure(miss, class = c("missingness", class(miss))))
@@ -95,20 +92,29 @@ plot.missingness <- function(x, filter_zero = FALSE,
 
   if (filter_zero)
     x <- dplyr::filter(x, percent_missing > 0)
+
   the_plot <-
     x %>%
     ggplot(aes(x = reorder(variable, percent_missing), y = percent_missing)) +
-    geom_point(size = point_size) +
+    geom_point(size = point_size, aes(color = percent_missing == 0)) +
     coord_flip() +
     scale_x_discrete(name = NULL) +
     scale_y_continuous(name = "Percent of Observations Missing",
-                       labels = function (x) paste0(x, "%")) +
+                       labels = function (x) paste0(x, "%"),
+                       limits = c(0, NA)) +
+    scale_color_manual(values = c("TRUE" = "darkgray", "FALSE" = "black"),
+                       guide = FALSE)
     ggtitle(title) +
     theme_gray(base_size = font_size)
 
   if (print)
     print(the_plot)
   return(invisible(the_plot))
+}
+
+#' @export
+print.missingness <- function(x, ...) {
+  NextMethod("print", x, n = Inf)
 }
 
 #' @title

@@ -2,9 +2,8 @@ context("checking untuned models")
 
 set.seed(2057)
 dd <- na.omit(pima_diabetes)[51:100, ]
-cl <- dd %>%
-  prep_data(patient_id, outcome = diabetes) %>%
-  flash_models(diabetes)
+cl_prep <- prep_data(dd, patient_id, outcome = diabetes)
+cl <- flash_models(cl_prep, diabetes)
 reg <- dd %>%
   prep_data(patient_id, outcome = age) %>%
   flash_models(age)
@@ -17,8 +16,8 @@ test_that("flash_models returns appropriate model_list", {
 })
 
 test_that("flash_models let's user select model", {
-  expect_error(flash_models(dd, diabetes, models = "rf"), NA)
-  expect_error(flash_models(dd, diabetes, models = "knn"), NA)
+  expect_error(flash_models(cl_prep, diabetes, models = "rf"), NA)
+  expect_error(flash_models(cl_prep, diabetes, models = "knn"), NA)
 })
 
 test_that("flash_models works on prepped data", {

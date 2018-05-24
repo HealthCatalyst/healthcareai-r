@@ -100,15 +100,17 @@ change_metric_names <- function(object) {
   return(object)
 }
 
-#' Returns the order of performance of models in m, with 1 being best
+#' Returns the order of performance of models in m, ie the number in the first
+#' position is the index of the best model
 #' @noRd
-rank_models <- function(m) {
+order_models <- function(m) {
   mi <- extract_model_info(m)
   metric <-
     get_metric_names() %>%
     dplyr::filter(caret == mi$metric)
   perf <- do.call(rbind, purrr::map(names(m), ~ evaluate(m[.x])))
-  order(perf[, metric$ours], decreasing = m[[1]]$maximize)
+  out <- order(perf[, metric$ours], decreasing = m[[1]]$maximize)
+  setNames(out, names(m)[out])
 }
 
 #' Function to skip specific tests if they are not being run on Appveyor.

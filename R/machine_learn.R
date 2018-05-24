@@ -7,8 +7,8 @@
 #'   unquoted.
 #' @param outcome Name of the target column, i.e. what you want to predict.
 #'   Unquoted. Must be named, i.e. you must specify \code{outcome = }
-#' @param models Models to be trained, k-nearest neighbors and random forest by
-#'   default. See \code{\link{supported_models}} for details.
+#' @param models Names of models to try. See \code{\link{get_supported_models}}
+#'   for available models. Default is all available models.
 #' @param tune If TRUE (default) models will be tuned via
 #'   \code{\link{tune_models}}. If FALSE, models will be trained via
 #'   \code{\link{flash_models}} which is substantially faster but produces
@@ -21,8 +21,9 @@
 #' @param n_folds How many folds to use to assess out-of-fold accuracy? Default
 #'   = 5. Models are evaluated on out-of-fold predictions whether tune is TRUE
 #'   or FALSE.
-#' @param tune_depth How many hyperparameter combinations to try? Defualt = 10.
-#'   Ignored if tune is FALSE.
+#' @param tune_depth How many hyperparameter combinations to try? Default = 10.
+#'   Value is multiplied by 5 for regularized regression. Ignored if tune is
+#'   FALSE.
 #' @param impute Logical, if TRUE (default) missing values will be filled by
 #'   \code{\link{hcai_impute}}
 #'

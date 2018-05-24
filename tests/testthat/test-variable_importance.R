@@ -2,14 +2,16 @@ context("Checking variable importance")
 
 data(mtcars)
 mtcars$am <- factor(ifelse(mtcars$am, "Y", "N"))
+set.seed(6529)
 cl <- machine_learn(mtcars, outcome = am, tune = FALSE)
 reg <- machine_learn(mtcars, outcome = mpg, models = "rf", tune = FALSE)
 
-test_that("rank_models gets it right", {
+test_that("order_models gets it right", {
   ci <- extract_model_info(cl)
-  expect_equal(which(names(cl) == ci$best_model_name), which(rank_models(cl) == 1))
+  expect_equal(which(names(cl) == ci$best_model_name), unname(order_models(cl)[1]))
+  expect_equal(ci$best_model_name, names(order_models(cl))[1])
   ri <- extract_model_info(reg)
-  expect_equal(which(names(reg) == ri$best_model_name), which(rank_models(reg) == 1))
+  expect_equal(ri$best_model_name, names(order_models(reg))[1])
 })
 
 test_that("get_variable_importance returns a tibble", {

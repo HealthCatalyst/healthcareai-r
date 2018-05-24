@@ -23,6 +23,7 @@ Imports:
     dplyr,
     e1071,
     ggplot2,
+    glmnet,
     kknn,
     lubridate,
     methods,
