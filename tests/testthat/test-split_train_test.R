@@ -53,5 +53,5 @@ test_that("split train test grouping", {
   mtcars <- cbind(mtcars, owner)
   sp1 <- split_train_test(mtcars, mpg, .75, 123, owner)
   result <- length(intersect(sp1[[1]]$owner, sp1[[2]]$owner)) == 0
-  expect_true(length(intersect(sp1[[1]]$owner, sp1[[2]]$owner)) == 0)
+  expect_true(result)
 })
