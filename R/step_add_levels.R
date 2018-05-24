@@ -72,7 +72,7 @@ print.step_add_levels <- function(x, width = max(20, options()$width - 30), ...)
 #' @export
 tidy.step_add_levels <- function(x, ...) {
   res <- if (x$trained) {
-    tibble::tibble(terms = x$cols, value = list_variables(x$levels))
+    tibble::tibble(terms = x$cols, value = paste(x$levels, collapse = ", "))
   } else {
     tibble::tibble(terms = sel2char(x$terms), value = NA_character_)
   }
