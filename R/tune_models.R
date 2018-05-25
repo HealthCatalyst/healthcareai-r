@@ -3,9 +3,8 @@
 #'
 #' @param d A data frame
 #' @param outcome Name of the column to predict
-#' @param models Names of models to try, by default "rf" for random forest and
-#'   "knn" for k-nearest neighbors. See \code{\link{supported_models}} for
-#'   available models.
+#' @param models Names of models to try. See \code{\link{get_supported_models}}
+#'   for available models. Default is all available models.
 #' @param metric What metric to use to assess model performance? Options for
 #'   regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
 #'   error), or "Rsquared." For classification: "ROC" (area under the receiver
@@ -17,7 +16,8 @@
 #'   variable (first alphabetically if the training data outcome was not already
 #'   a factor).
 #' @param n_folds How many folds to use in cross-validation? Default = 5.
-#' @param tune_depth How many hyperparameter combinations to try? Defualt = 10.
+#' @param tune_depth How many hyperparameter combinations to try? Default = 10.
+#'   Value is multiplied by 5 for regularized regression.
 #' @param hyperparameters Optional, a list of data frames containing
 #'   hyperparameter values to tune over. If NULL (default) a random,
 #'   \code{tune_depth}-deep search of the hyperparameter space will be
@@ -34,6 +34,7 @@
 #' @export
 #' @importFrom kknn kknn
 #' @importFrom ranger ranger
+#' @importFrom glmnet glmnet
 #' @importFrom rlang quo_name
 #'
 #' @seealso For setting up model training: \code{\link{prep_data}},
@@ -46,7 +47,8 @@
 #'
 #'   For faster, but not-optimized model training: \code{\link{flash_models}}
 #'
-#'   To prepare data and tune models in a single step: \code{\link{machine_learn}}
+#'   To prepare data and tune models in a single step:
+#'   \code{\link{machine_learn}}
 #'
 #' @return A model_list object. You can call \code{plot}, \code{summary},
 #'   \code{evaluate}, or \code{predict} on a model_list.
@@ -104,7 +106,8 @@ tune_models <- function(d,
   if (n_folds <= 1)
     stop("n_folds must be greater than 1.")
 
-  model_args <- setup_training(d, rlang::enquo(outcome), model_class, models, metric, positive_class)
+  model_args <- setup_training(d, rlang::enquo(outcome), model_class, models,
+                               metric, positive_class, n_folds)
   # Pull each item out of "model_args" list and assign in this environment
   for (arg in names(model_args))
     assign(arg, model_args[[arg]])

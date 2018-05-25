@@ -1,29 +1,52 @@
 context("model_list tests setup")
 
 # Setup ------------------------------------------------------------------------
-data(mtcars)
-mtcars$am <- as.factor(c("automatic", "manual")[mtcars$am + 1])
 set.seed(257056)
-rf <- caret::train(x = dplyr::select(mtcars, -mpg),
-                   y = mtcars$mpg,
-                   method = "ranger",
-                   tuneLength = 2,
-                   trControl = caret::trainControl(savePredictions = "final")
-)
-kn <- caret::train(x = dplyr::select(mtcars, -mpg),
-                   y = mtcars$mpg,
-                   method = "kknn",
-                   tuneLength = 2,
-                   trControl = caret::trainControl(savePredictions = "final")
-)
-r_models <- tune_models(mtcars, mpg, n_folds = 2, tune_depth = 2)
-c_models <- tune_models(mtcars, am, n_folds = 2, tune_depth = 2)
-c_pr <- tune_models(mtcars, am, metric = "PR", n_folds = 2, tune_depth = 2)
+data(mtcars)
+nadd <- 50
+mtcars <- rbind(mtcars,
+                data.frame(mpg = rnorm(nadd, 25, 5),
+                           cyl = sample(c(4, 6, 8), nadd, TRUE),
+                           disp = rnorm(nadd, 200, 50),
+                           hp = rnorm(nadd, 150, 20),
+                           drat = rexp(nadd, .5),
+                           wt = rnorm(nadd, 4, .5),
+                           qsec = rnorm(nadd, 18, 2),
+                           vs = sample(0:1, nadd, TRUE),
+                           am = sample(0:1, nadd, TRUE),
+                           gear = sample(3:5, nadd, TRUE),
+                           carb = rpois(nadd, 4)))
+dreg <- prep_data(mtcars, outcome = mpg)
+dcla <- prep_data(mtcars, outcome = am)
+suppressWarnings({
+  rf <- caret::train(x = dplyr::select(dreg, -mpg),
+                     y = dreg$mpg,
+                     method = "ranger",
+                     tuneLength = 2,
+                     trControl = caret::trainControl(savePredictions = "final")
+  )
+  kn <- caret::train(x = dplyr::select(dreg, -mpg),
+                     y = dreg$mpg,
+                     method = "kknn",
+                     tuneLength = 2,
+                     trControl = caret::trainControl(savePredictions = "final")
+  )
+  gl <- caret::train(x = dplyr::select(dreg, -mpg),
+                     y = dreg$mpg,
+                     method = "glmnet",
+                     tuneLength = 2,
+                     trControl = caret::trainControl(savePredictions = "final")
+  )
+})
+# Implicit test that warning not issued for missing resampled performance metrics:
+r_models <- tune_models(dreg, mpg, n_folds = 2, tune_depth = 2)
+c_models <- tune_models(dcla, am, n_folds = 2, tune_depth = 2)
+c_pr <- tune_models(dcla, am, metric = "PR", n_folds = 2, tune_depth = 2)
 single_model_as <- as.model_list(rf)
-single_model_tune <- tune_models(mtcars, am, models = "rf")
+single_model_tune <- tune_models(dcla, am, models = "rf")
 double_model_as <- as.model_list(rf, kn)
-r_flash <- flash_models(mtcars, mpg)
-c_flash <- flash_models(mtcars, am)
+r_flash <- flash_models(dreg, mpg)
+c_flash <- flash_models(dcla, am)
 
 context("Checking model_list constructors") # ----------------------------------
 
@@ -41,7 +64,7 @@ test_that("as.model_list fails if model_class is unsupported", {
 test_that("as.model_list errors if input isn't a caret model", {
   expect_error(as.model_list(1:5, model_class = "regression"))
   expect_error(as.model_list("HEY"))
-  expect_error(as.model_list(ranger::ranger(mpg ~ ., mtcars)))
+  expect_error(as.model_list(ranger::ranger(mpg ~ ., dreg)))
 })
 
 test_that("as.model_list succeeds with one or more models as input", {
@@ -57,13 +80,13 @@ test_that("as.model_list succeeds with one or more models as input", {
 
 test_that("as.model_list returns correct model names (from modelInfo$label)", {
   correct_names <- names(r_models)
-  m_list <- structure(list(rf, kn), names = c("rando", "knn"))
+  m_list <- structure(list(rf, kn, gl), names = c("rando", "knn", "lasso"))
   expect_equal(
     names(as.model_list(listed_models = m_list)),
     correct_names
   )
   expect_equal(
-    names(as.model_list(rf, kn)),
+    names(as.model_list(rf, kn, gl)),
     correct_names
   )
 })
@@ -80,9 +103,9 @@ test_that("plot.model_list works on regression_list", {
                c("gg", "ggplot"))
   expect_equal(class(plot.model_list(r_models, print = FALSE)),
                c("gg", "ggplot"))
-  expect_error(plot.model_list(ranger::ranger(mpg ~ ., mtcars), print = FALSE),
+  expect_error(plot.model_list(ranger::ranger(mpg ~ ., dreg), print = FALSE),
                regexp = "model_list")
-  r2 <- tune_models(mtcars, mpg, models = "rf", metric = "Rsquared")
+  r2 <- tune_models(dreg, mpg, models = "rf", metric = "Rsquared")
   expect_s3_class(plot(r2, print = FALSE), "gg")
 })
 
@@ -93,7 +116,7 @@ test_that("plot.model_list works on classification_list", {
                c("gg", "ggplot"))
   expect_equal(class(plot(c_pr, print = FALSE)),
                c("gg", "ggplot"))
-  expect_error(plot.model_list(ranger::ranger(am ~ ., mtcars), print = FALSE),
+  expect_error(plot.model_list(ranger::ranger(am ~ ., dcla), print = FALSE),
                regexp = "model_list")
 
   # With PR as the metric
@@ -167,7 +190,7 @@ test_that("summary.model_list works with untuned_model_lists", {
 test_that("plot.model_list works with message untuned_model_lists", {
   expect_warning(flash_r_plot <- plot(r_flash, print = FALSE), NA)
   expect_warning(flash_c_plot <- plot(c_flash, print = FALSE), NA)
-  expect_message(plot(c_flash, print = FALSE), "not much to plot")
+  expect_message(plot(c_flash, print = FALSE))
   expect_s3_class(flash_r_plot, "gg")
   expect_s3_class(flash_c_plot, "gg")
 })
@@ -225,10 +248,11 @@ test_that("model_lists only carry one copy of training data", {
   expect_null(double_model_as[[2]]$trainingData)
 })
 
-test_that("[ extracts 1 or 2 models by index", {
+test_that("[ extracts models by index", {
   expect_s3_class(r_flash[1], "model_list")
   expect_s3_class(r_flash[2], "model_list")
-  expect_equal(r_flash[1:2], r_flash)
+  expect_s3_class(r_flash[2:3], "model_list")
+  expect_equal(r_flash[seq_along(r_flash)], r_flash)
 })
 
 test_that("[ extracts by name, index, or logical vector", {

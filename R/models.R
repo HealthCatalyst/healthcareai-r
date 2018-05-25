@@ -21,6 +21,15 @@
 #'   knn), "triangular", "epanechnikov", "biweight", "triweight", "cos", "inv",
 #'   "gaussian", "rank", or "optimal".}
 #' }
+#'
+#' \strong{Regularized regression}: "glm". Regression and classification.
+#' Implemented via \code{glmnet}.
+#' \itemize{
+#'   \item{alpha: Elasticnet mixing parameter, in [0, 1]. 0 = ridge regression;
+#'   1 = lasso.}
+#'   \item{lambda: Regularization parameter, > 0. Larger values make for
+#'   stronger regularization.}
+#' }
 #' @export
 #' @importFrom e1071 naiveBayes
 #  ^ This is a placeholder. ranger needs e1071
@@ -29,7 +38,7 @@
 #' @return Vector of currently-supported algorithms.
 #' @aliases supported_models models models_supported
 get_supported_models <- function() {
-    return(c("rf", "knn"))
+    return(c("rf", "knn", "glm"))
 }
 
 #' get_supported_model_classes
@@ -43,7 +52,7 @@ get_supported_model_classes <- function() {
 #' vice-versa (which way to go is automatic)
 #' @noRd
 translate_model_names <- function(models) {
-  key <- c(rf = "ranger", knn = "kknn")
+  key <- c(rf = "ranger", knn = "kknn", glm = "glmnet")
   if (all(models %in% key))
     key <- structure(names(key), names = key)
   return(unname(key[models]))

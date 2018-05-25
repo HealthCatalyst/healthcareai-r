@@ -1,7 +1,22 @@
 context("Test machine_learn")
 
-test_data <- mtcars[1:5, ]
-training_data <- mtcars[6:32, ]
+set.seed(257056)
+data(mtcars)
+nadd <- 50
+mtcars <- rbind(mtcars,
+                data.frame(mpg = rnorm(nadd, 25, 5),
+                           cyl = sample(c(4, 6, 8), nadd, TRUE),
+                           disp = rnorm(nadd, 200, 50),
+                           hp = rnorm(nadd, 150, 20),
+                           drat = rexp(nadd, .5),
+                           wt = rnorm(nadd, 4, .5),
+                           qsec = rnorm(nadd, 18, 2),
+                           vs = sample(0:1, nadd, TRUE),
+                           am = sample(0:1, nadd, TRUE),
+                           gear = sample(3:5, nadd, TRUE),
+                           carb = rpois(nadd, 4)))
+test_data <- mtcars[1:8, ]
+training_data <- mtcars[9:nrow(mtcars), ]
 models <- machine_learn(training_data, outcome = am)
 
 test_that("machine_learn produces a model_list", {

@@ -72,9 +72,9 @@ get_variable_importance <- function(models) {
   have_imp <- purrr::map_lgl(importances, ~ is.null(.x$error))
   if (!any(have_imp))
     stop("Can't get variable importance for any of these models.")
-  model_ranks <- rank_models(models)
+  model_order <- order_models(models)
   # Use the best model (min rank) where we have variable importance
-  use <- which.min(model_ranks[have_imp])
+  use <- have_imp[model_order][1]
   # When we do multiclass, we'll want to average across cols in imp object
   importances[[use]]$result[[1]][, 1, drop = FALSE] %>%
     tibble::rownames_to_column() %>%
@@ -82,7 +82,7 @@ get_variable_importance <- function(models) {
     dplyr::arrange(desc(importance)) %>%
     as_tibble() %>%
     structure(.,
-              model = names(models)[use],
+              model = names(use),
               class = c("variable_importance", class(.)))
 
 }

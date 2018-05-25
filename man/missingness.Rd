@@ -32,6 +32,7 @@ d <- data.frame(x = c("a", "nil", "b"),
                 y = c(1, NaN, 3),
                 z = c(1:2, NA))
 missingness(d)
+missingness(d) \%>\% plot()
 }
 \seealso{
 \code{\link{plot.missingness}}
