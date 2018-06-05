@@ -89,3 +89,8 @@ test_that("all rows of a missingness data frame are printed", {
   print_out <- capture_output( print(missingness(dd)) )
   expect_true(all(stringr::str_detect(print_out, paste0("v", 1:100))))
 })
+
+test_that("printing works whether return_df or not", {
+  expect_error(print(out), NA)
+  expect_error(print(out_vec), NA)
+})
