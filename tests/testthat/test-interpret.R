@@ -79,3 +79,40 @@ test_that("plot.interpret works on a data frame missing interpret class", {
     plot.interpret(print = FALSE) %>%
     expect_s3_class("gg")
 })
+
+test_that("Coefficient signs make sense WRT positive class", {
+
+  # For pima_diabetes, normal weight class should be negative
+  ip <- interpret(g)
+  expect_true(ip$coefficient[ip$variable == "weight_class_normal"] < 0)
+
+  n <- 100
+  # x1_y should be positive
+  d <- tibble::tibble(
+    y = c(rep("N", n / 2), rep("Y", n / 2)),
+    x1 = c(rep("n", n * .4), rep("y", n * .5), rep("n", n * .1)),
+    x2 = 0
+  )
+  m <-
+    d %>%
+    prep_data(outcome = y, remove_near_zero_variance = FALSE) %>%
+    flash_models(outcome = y, models = "glm")
+  i <- interpret(m)
+  expect_true(i$coefficient[i$variable == "x1_y"] > 0)
+
+  # Declaring positive class. Here x1_y should be negative
+  m <-
+    d %>%
+    prep_data(outcome = y, remove_near_zero_variance = FALSE) %>%
+    flash_models(outcome = y, models = "glm", positive_class = "N")
+  i <- interpret(m)
+  expect_true(i$coefficient[i$variable == "x1_y"] < 0)
+
+  # With 0/1 outcome
+  m <-
+    dplyr::mutate(d, y = dplyr::case_when(y == "Y" ~ 1L, y == "N" ~ 0L)) %>%
+    prep_data(outcome = y, remove_near_zero_variance = FALSE) %>%
+    flash_models(outcome = y, models = "glm")
+  i <- interpret(m)
+  expect_true(i$coefficient[i$variable == "x1_y"] > 0)
+})

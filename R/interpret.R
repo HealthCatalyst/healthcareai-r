@@ -47,12 +47,12 @@ interpret <- function(x, sparsity = NULL, remove_zeros = TRUE) {
   # If user didn't specify sparsity, use best lambda
   if (is.null(sparsity)) {
     lambda <- g$lambdaOpt
-    coefs <- coef(g, s = lambda)
+    coefs <- stats::coef(g, s = lambda)
   } else {
     if (!is.numeric(sparsity) || sparsity < 0 || sparsity > 1)
       stop("sparsity must be a numeric value between 1 and 100")
     j <- round(stats::quantile(seq_len(ncol(coefs)), sparsity), 0)
-    coefs <- coef(g)[, j, drop = FALSE]
+    coefs <- coefs[, j, drop = FALSE]
     lambda <- g$lambda[j]
   }
   coefs <-
