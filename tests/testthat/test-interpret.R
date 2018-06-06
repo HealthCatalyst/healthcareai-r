@@ -39,3 +39,11 @@ test_that("interpret respects remove_zeros", {
   expect_false(any(removed$coefficient == 0))
   expect_true(nrow(removed) < nrow(not_removed))
 })
+
+test_that("interpret pulls lambda correctly", {
+  default <- interpret(g)
+  sparse <- interpret(g, sparsity = 1)
+  loose <- interpret(g, sparsity = 0)
+  expect_true(attr(default, "lambda") < attr(loose, "lambda"))
+  expect_true(attr(sparse, "lambda") < attr(default, "lambda"))
+})

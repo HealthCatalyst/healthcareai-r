@@ -6,6 +6,8 @@
 #'   sparseness of the model for which coefficients will be returned, with 0
 #'   being maximally sparse (i.e. having the fewest non-zero coefficients) and 1
 #'   being minimally sparse.
+#' @param remove_zeros Remove features with coefficients equal to 0? Default is
+#'   TRUE.
 #'
 #' @return A data frame of variables and their regularized regression
 #'   coefficient estimates.
@@ -41,12 +43,14 @@ interpret <- function(x, sparsity = NULL, remove_zeros = TRUE) {
 
   # If user didn't specify sparsity, use best lambda
   if (is.null(sparsity)) {
-    coefs <- coef(g, s = g$lambdaOpt)
+    lambda <- g$lambdaOpt
+    coefs <- coef(g, s = lambda)
   } else {
     if (!is.numeric(sparsity) || sparsity < 0 || sparsity > 1)
       stop("sparsity must be a numeric value between 1 and 100")
-    lam <- round(quantile(seq_len(ncol(coefs)), sparsity), 0)
-    coefs <- coef(g)[, lam, drop = FALSE]
+    j <- round(quantile(seq_len(ncol(coefs)), sparsity), 0)
+    coefs <- coef(g)[, j, drop = FALSE]
+    lambda <- g$lambda[j]
   }
   coefs <-
     tibble::tibble(variable = rownames(coefs), coefficient = coefs[, 1]) %>%
@@ -54,5 +58,47 @@ interpret <- function(x, sparsity = NULL, remove_zeros = TRUE) {
 
   if (remove_zeros)
     coefs <- dplyr::filter(coefs, coefficient != 0)
-  structure(coefs, class = c("coefs", class(coefs)))
+
+  structure(coefs,
+            class = c("coefs", class(coefs)),
+            m_class = mi$m_class,
+            target = mi$target,
+            lambda = lambda,
+            alpha = mi$best_model_tune$alpha)
+}
+
+plot.interpret <- function(x, include_intercept = FALSE, remove_zeros = FALSE,
+                           title = NULL, font_size = 11, point_size = 3,
+                           print = TRUE, caption, ... ) {
+
+  if ( (is.data.frame(x) && names(x) != c("variable", "coefficient") ) ||
+       !is.data.frame(x))
+    stop("x must be a data frame from interpret, or at least look like one!")
+
+  if (remove_zeros)
+    x <- dplyr::filter(x, coefficient != 0, variable != "(Intercept)")
+
+  if (!include_intercept)
+    x <- dplyr::filter(x, variable != "(Intercept)")
+
+  if (missing(caption))
+    caption <-
+
+  limits <- max(abs(x$coefficient)) * c(-1.05, 1.05)
+  # the_plot <-
+  x %>%
+    ggplot(aes(x = reorder(variable, coefficient), y = coefficient)) +
+    geom_hline(yintercept = 0, linetype = "dashed", alpha = .6) +
+    geom_point(size = point_size) +
+    coord_flip() +
+    scale_x_discrete(name = NULL) +
+    scale_y_continuous(name = "Coefficient Estimate",
+                       limits = limits) +
+    ggtitle(title) +
+    theme_gray(base_size = font_size)
+
+  if (print)
+    print(the_plot)
+  return(invisible(the_plot))
+
 }
