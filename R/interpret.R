@@ -23,7 +23,7 @@
 #' m <- machine_learn(pima_diabetes, patient_id, outcome = age, models = "glm")
 #' interpret(m)
 #' interpret(m, .2)
-interpret <- function(x, sparsity = NULL) {
+interpret <- function(x, sparsity = NULL, remove_zeros = TRUE) {
   if (!is.model_list(x))
     stop("x must be a model_list")
   if (!"glmnet" %in% names(x))
@@ -51,5 +51,8 @@ interpret <- function(x, sparsity = NULL) {
   coefs <-
     tibble::tibble(variable = rownames(coefs), coefficient = coefs[, 1]) %>%
     dplyr::arrange(desc(variable == "(Intercept)"), desc(abs(coefficient)))
+
+  if (remove_zeros)
+    coefs <- dplyr::filter(coefs, coefficient != 0)
   structure(coefs, class = c("coefs", class(coefs)))
 }

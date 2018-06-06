@@ -1,5 +1,6 @@
 context("Checking interpret")
 
+set.seed(271)
 m <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = diabetes)
 g <- m["glmnet"]
 
@@ -28,4 +29,13 @@ test_that("interpret respects sparsity and returns sparser coefs when larger", {
   expect_true(mean_abs_beta(i90) > mean_abs_beta(i10))
   reg_m <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = plasma_glucose, models = "glm")
   expect_true(mean_abs_beta(interpret(reg_m, .75)) > mean_abs_beta(interpret(reg_m, .25)))
+})
+
+test_that("interpret respects remove_zeros", {
+  default <- interpret(g)
+  removed <- interpret(g, remove_zeros = TRUE)
+  not_removed <- interpret(g, remove_zeros = FALSE)
+  expect_equal(default, removed)
+  expect_false(any(removed$coefficient == 0))
+  expect_true(nrow(removed) < nrow(not_removed))
 })
