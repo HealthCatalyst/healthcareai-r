@@ -73,6 +73,14 @@ test_that("Errors are put in log file properly", {
 
 })
 
+test_that("Warnings are parsed correctly",{
+  nd <- pima_diabetes[1:50, 7:10]
+  nd$weight_class[1] <- "jabba"
+  p <- predict(object = m, newdata = nd,
+               write_log = FALSE, prepdata = TRUE)
+  stop("work here.")
+})
+
 test_that("Failure returns warning, blank df, and error info", {
   expect_warning(pe <- predict(object = m_reloaded,
                                newdata = pima_diabetes[1:50, 7:10],
