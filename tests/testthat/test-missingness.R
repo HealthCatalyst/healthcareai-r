@@ -91,6 +91,6 @@ test_that("all rows of a missingness data frame are printed", {
 })
 
 test_that("printing works whether return_df or not", {
-  expect_error(print(out), NA)
-  expect_error(print(out_vec), NA)
+  expect_error(capture_output( print(out) ), NA)
+  expect_error(capture_output( print(out_vec) ), NA)
 })

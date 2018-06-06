@@ -6,7 +6,7 @@
 \usage{
 as.model_list(..., listed_models = NULL, target = ".outcome", model_class,
   tuned = TRUE, recipe = NULL, positive_class = NULL,
-  best_levels = NULL)
+  best_levels = NULL, original_data_str)
 }
 \arguments{
 \item{...}{\code{caret}-trained models to put into a model list}
@@ -28,6 +28,10 @@ otherwise NULL}
 
 \item{best_levels}{best_levels list as attached to data frames from
 add_best_levels}
+
+\item{original_data_str}{zero-row data frame with names and classes of all
+columns except the outcome as they came into either the model training
+function such as tune_models or prep_data}
 }
 \value{
 A model_list with child class type_list

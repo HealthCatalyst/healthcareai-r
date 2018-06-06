@@ -181,7 +181,8 @@ plot.model_list <- function(x, font_size = 11, point_size = 1,
                   target = attrs$target,
                   tuned = attrs$tuned,
                   recipe = attrs$recipe,
-                  positive_class = attrs$positive_class) %>%
+                  positive_class = attrs$positive_class,
+                  original_data_str = attrs$original_data_str) %>%
     structure(timestamp = attrs$timestamp)
   return(x)
 }
