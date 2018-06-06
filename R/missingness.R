@@ -79,7 +79,7 @@ missingness <- function(d,
 #' pima_diabetes %>%
 #'   missingness() %>%
 #'   plot()
-plot.missingness <- function(x, filter_zero = FALSE,
+plot.missingness <- function(x, remove_zeros = FALSE,
                              title = NULL, font_size = 11, point_size = 3,
                              print = TRUE, ... ) {
 
@@ -90,7 +90,7 @@ plot.missingness <- function(x, filter_zero = FALSE,
        !is.data.frame(x))
     stop("x must be a data frame from missingness, or at least look like one!")
 
-  if (filter_zero)
+  if (remove_zeros)
     x <- dplyr::filter(x, percent_missing > 0)
 
   the_plot <-

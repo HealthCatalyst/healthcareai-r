@@ -66,7 +66,7 @@ test_that("plot.missingness returns a ggplot", {
 
 test_that("plot.missingness seems to respect options", {
   def <- plot(out, print = FALSE)
-  custom <- plot(out, filter_zero = TRUE)
+  custom <- plot(out, remove_zeros = TRUE)
   expect_false(isTRUE(all.equal(def, custom)))
 })
 
