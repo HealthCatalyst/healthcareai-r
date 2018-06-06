@@ -122,6 +122,13 @@ test_that("model_list's original_data_str is the same as predict's return", {
     expect_true()
 })
 
+test_that("model_lists have r, hcai, and other-package versions as attrs", {
+  expected <- c("r_version", "hcai_version", "other_packages")
+  expect_true(all(expected %in% names(attributes(r_models)$versions)))
+  expect_true(all(expected %in% names(attributes(single_model_as)$versions)))
+  expect_true(all(expected %in% names(attributes(unprepped_flash)$versions)))
+})
+
 context("Checking model_list generics") # --------------------------------------
 
 test_that("plot.model_list works on regression_list", {
