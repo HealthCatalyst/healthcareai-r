@@ -4,13 +4,13 @@
 \alias{plot.missingness}
 \title{Plot missingness}
 \usage{
-\method{plot}{missingness}(x, filter_zero = FALSE, title = NULL,
+\method{plot}{missingness}(x, remove_zeros = FALSE, title = NULL,
   font_size = 11, point_size = 3, print = TRUE, ...)
 }
 \arguments{
 \item{x}{Data frame from \code{\link{missingness}}}
 
-\item{filter_zero}{Remove variables with no missingness from the plot?
+\item{remove_zeros}{Remove variables with no missingness from the plot?
 Default = FALSE}
 
 \item{title}{Plot title}

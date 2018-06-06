@@ -63,7 +63,7 @@ missingness <- function(d,
 #' Plot missingness
 #'
 #' @param x Data frame from \code{\link{missingness}}
-#' @param filter_zero Remove variables with no missingness from the plot?
+#' @param remove_zeros Remove variables with no missingness from the plot?
 #'   Default = FALSE
 #' @param title Plot title
 #' @param font_size Relative size of all fonts in plot, default = 11

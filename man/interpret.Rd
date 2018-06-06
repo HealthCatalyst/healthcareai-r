@@ -4,7 +4,7 @@
 \alias{interpret}
 \title{Interpret a model via regularized coefficient estimates}
 \usage{
-interpret(x, sparsity = NULL)
+interpret(x, sparsity = NULL, remove_zeros = TRUE)
 }
 \arguments{
 \item{x}{a model_list object containing a glmnet mdoel}
@@ -14,10 +14,13 @@ will be returned. Otherwise, a value in [0, 1] that determines the
 sparseness of the model for which coefficients will be returned, with 0
 being maximally sparse (i.e. having the fewest non-zero coefficients) and 1
 being minimally sparse.}
+
+\item{remove_zeros}{Remove features with coefficients equal to 0? Default is
+TRUE.}
 }
 \value{
 A data frame of variables and their regularized regression
-  coefficient estimates.
+  coefficient estimates with parent class "interpret"
 }
 \description{
 Interpret a model via regularized coefficient estimates
@@ -35,4 +38,9 @@ If x was trained with more than one value of alpha the best value of
 m <- machine_learn(pima_diabetes, patient_id, outcome = age, models = "glm")
 interpret(m)
 interpret(m, .2)
+interpret(m) \%>\%
+  plot()
+}
+\seealso{
+\code{\link{plot.interpret}}
 }

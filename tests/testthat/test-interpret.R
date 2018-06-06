@@ -7,7 +7,7 @@ g <- m["glmnet"]
 test_that("interpret returns a tbl w/child class coefs if glmnet is in model_list", {
   suppressWarnings(expect_s3_class(interpret(m), "tbl_df"))
   expect_s3_class(interpret(g), "tbl_df")
-  expect_s3_class(interpret(g), "coefs")
+  expect_s3_class(interpret(g), "interpret")
 })
 
 test_that("interpret errors with ref to var-imp if no glmnet present", {
@@ -46,4 +46,36 @@ test_that("interpret pulls lambda correctly", {
   loose <- interpret(g, sparsity = 0)
   expect_true(attr(default, "lambda") < attr(loose, "lambda"))
   expect_true(attr(sparse, "lambda") < attr(default, "lambda"))
+})
+
+
+context("Checking plot.interpret")  # ------------------------------------------
+
+test_that("plot.interpret is registered generic", {
+  expect_true("plot.interpret" %in% methods("plot"))
+})
+
+test_that("plot.interpret returns a ggplot", {
+  expect_s3_class(plot(interpret(g), print = FALSE), "gg")
+  expect_s3_class(plot(interpret(g, 0, FALSE), print = FALSE), "gg")
+  expect_s3_class(plot(interpret(g), caption = "none", title = "VI",
+                       font_size = 16, print = FALSE), "gg")
+})
+
+test_that("plot.interpet seems to respect options", {
+  ig <- interpret(g, remove_zeros = FALSE)
+  def <- plot(ig, print = FALSE)
+  keep_int <- plot(ig, include_intercept = TRUE, print = FALSE)
+  no_zero <- plot(ig, remove_zeros = TRUE, print = FALSE)
+  cust <- plot(ig, caption = "my custom caption", print = FALSE)
+  expect_false(isTRUE(all.equal(def, keep_int)))
+  expect_false(isTRUE(all.equal(def, no_zero)))
+  expect_false(isTRUE(all.equal(def, cust)))
+})
+
+test_that("plot.interpret works on a data frame missing interpret class", {
+  interpret(g) %>%
+    dplyr::filter(coefficient > 0) %>%
+    plot.interpret(print = FALSE) %>%
+    expect_s3_class("gg")
 })
