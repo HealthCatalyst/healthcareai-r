@@ -310,3 +310,12 @@ test_that("Get informative error if there's not an outcome instance for each CV 
   expect_error(tune_models(small_df, diabetes), "cross validation fold")
   expect_error(flash_models(small_df, diabetes, n_folds = 3, models = "rf"), NA)
 })
+
+test_that("get_original_data works", {
+  d <- structure(data.frame(x = 1, y = 2),
+                 original_data_str = data.frame(x = integer()))
+  from_attr <- get_original_data(d, "y")
+  expect_equal(from_attr, data.frame(x = integer()))
+  expect_equal(from_attr,
+               get_original_data(structure(d, original_data_str = NULL), "y"))
+})

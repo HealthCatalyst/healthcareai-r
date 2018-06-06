@@ -1,3 +1,4 @@
+# Everything in the return list gets assigned in the calling environment (tune_models and flash_models)
 setup_training <- function(d, outcome, model_class, models, metric, positive_class, n_folds) {
 
   # Get recipe and remove columns to be ignored in training
@@ -14,6 +15,9 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
   # Check outcome provided, agrees with outcome in prep_data, present in d
   outcome <- check_outcome(outcome, names(d), recipe)
   outcome_chr <- rlang::quo_name(outcome)
+
+  # Get original data structure
+  original_data_str <- get_original_data(d, outcome_chr)
 
   # Get any best_levels attributes from d
   best_levels <- attr(d, "best_levels")
@@ -80,7 +84,7 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
 
   return(list(d = d, outcome = outcome, model_class = model_class,
               models = models, metric = metric, recipe = recipe,
-              best_levels = best_levels))
+              best_levels = best_levels, original_data_str = original_data_str))
 }
 
 check_outcome <- function(outcome, d_names, recipe) {
@@ -206,3 +210,12 @@ setup_train_control <- function(model_class, metric, n_folds) {
 
 character_in_quo <- function(x)
   is.character(purrr::safely(rlang::eval_tidy)(x)$result)
+
+get_original_data <- function(d, outcome_chr) {
+  # If it's on d, that's it
+  ods <- attr(d, "original_data_str")
+  # Otherwise, create it
+  if (is.null(ods))
+    ods <- d[0, -which(names(d) == outcome_chr), drop = FALSE]
+  return(ods)
+}

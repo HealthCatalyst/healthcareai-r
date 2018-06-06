@@ -93,7 +93,9 @@ flash_models <- function(d,
                               target = rlang::quo_name(outcome),
                               recipe = recipe,
                               positive_class = attr(train_list, "positive_class"),
-                              best_levels = best_levels) %>%
+                              best_levels = best_levels,
+                              original_data_str = original_data_str,
+                              versions = attr(train_list, "versions")) %>%
     structure(timestamp = Sys.time())
   return(train_list)
 }

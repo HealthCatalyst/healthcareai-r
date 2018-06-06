@@ -114,7 +114,11 @@ plot.missingness <- function(x, filter_zero = FALSE,
 
 #' @export
 print.missingness <- function(x, ...) {
-  NextMethod("print", x, n = Inf)
+  if (is.data.frame(x)) {
+    NextMethod("print", x, n = Inf)
+  } else {
+    NextMethod("print", x)
+  }
 }
 
 #' @title
