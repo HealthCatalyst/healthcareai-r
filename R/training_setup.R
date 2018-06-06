@@ -1,4 +1,4 @@
-#' Everything in the return list gets assigned in the calling environment (tune_models and flash_models)
+# Everything in the return list gets assigned in the calling environment (tune_models and flash_models)
 setup_training <- function(d, outcome, model_class, models, metric, positive_class, n_folds) {
 
   # Get recipe and remove columns to be ignored in training
