@@ -27,10 +27,33 @@ train_models <- function(d, outcome, models, metric, train_control, hyperparamet
       if (model == "ranger")
         train_args$importance <- "impurity"
 
-      suppressPackageStartupMessages(
-        do.call(caret::train, train_args))
+      # caret loads packages at runtime, we don't want to see those startup messages
+      suppressPackageStartupMessages({
+        # Often get a single missing performance metric warning that doesn't
+        # hurt anything, so silence it
+        withCallingHandlers(
+          expr = do.call(caret::train, train_args),
+          warning = function(w) {
+            if (grepl("missing values in resampled", w))
+              invokeRestart("muffleWarning")
+          })
+      })
+
     })
   message("\n*** Models successfully trained. The model object contains the training data minus ignored ID columns. ***\n",
           "*** If there was PHI in training data, normal PHI protocols apply to the model object. ***")
-  structure(train_list, positive_class = levels(dplyr::pull(d, !!outcome))[1])
+  structure(train_list, positive_class = levels(dplyr::pull(d, !!outcome))[1]) %>%
+    attach_session_info()
+}
+
+attach_session_info <- function(x) {
+  si <- sessionInfo()
+  structure(x,
+            versions = list(
+              r_version = paste0(si$R.version$major, ".", si$R.version$minor),
+              hcai_version = installed.packages()["healthcareai", "Version"],
+              other_packages =
+                purrr::map_chr(si$loadedOnly, ~ .x$Version) %>%
+                tibble::tibble(package = names(.), version = .))
+  )
 }

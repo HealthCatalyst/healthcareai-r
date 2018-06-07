@@ -1,4 +1,5 @@
-setup_training <- function(d, outcome, model_class, models, metric, positive_class) {
+# Everything in the return list gets assigned in the calling environment (tune_models and flash_models)
+setup_training <- function(d, outcome, model_class, models, metric, positive_class, n_folds) {
 
   # Get recipe and remove columns to be ignored in training
   recipe <- attr(d, "recipe")
@@ -15,6 +16,9 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
   outcome <- check_outcome(outcome, names(d), recipe)
   outcome_chr <- rlang::quo_name(outcome)
 
+  # Get original data structure
+  original_data_str <- get_original_data(d, outcome_chr)
+
   # Get any best_levels attributes from d
   best_levels <- attr(d, "best_levels")
 
@@ -24,8 +28,14 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
 
   # tibbles upset some algorithms, so make it a data frame
   d <- as.data.frame(d)
-  # kknn can choke on characters so convert all character variables to factors.
-  d <- dplyr::mutate_if(d, is.character, as.factor)
+  # glmnet doesn't allow any character/factor predictors so stop if they're present
+  non_numerics <-
+    get_classes_sorted(select_not(d, outcome)) %>%
+    dplyr::filter(!is_numeric) %>%
+    dplyr::pull(variable)
+  if (length(non_numerics))
+    stop("All predictors must be numeric, but the variables are not numeric. Consider using ",
+         "prep_data to get data ready for model training: ", list_variables(non_numerics))
 
   if (missing(models)) {
     models <- get_supported_models()
@@ -37,11 +47,24 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
   # Make sure outcome's class works with model_class, or infer it
   model_class <- set_model_class(model_class, class(dplyr::pull(d, !!outcome)), outcome_chr)
 
-  # Some algorithms need the response to be factor instead of char or lgl
-  # Get rid of unused levels if they're present
   if (model_class == "classification") {
-    d[[outcome_chr]] <- droplevels(as.factor(d[[outcome_chr]]))
-    d[[outcome_chr]] <- set_outcome_class(d[[outcome_chr]], positive_class)
+    if (missing(positive_class))
+      positive_class <- NULL
+    # Some algorithms need the response to be factor instead of char or lgl
+    # Get rid of unused levels if they're present
+    d[[outcome_chr]] <-
+      d[[outcome_chr]] %>%
+      as.factor() %>%
+      droplevels() %>%
+      set_outcome_class(positive_class)
+    # Make sure there can be at least one instance of outcome in each fold
+    outcome_tab <- table(d[[outcome_chr]])
+    if (min(outcome_tab) < n_folds)
+      stop("There must be at least one instance of each outcome class ",
+           "for each cross validation fold. Observed frequencies in d:\n",
+           paste(names(outcome_tab), outcome_tab, sep = " = ", collapse = ", "),
+           "\nYou could try turning n_folds down from its current value of ", n_folds,
+           ", but it's hard to train a good model with few observations of an outcome.")
   }
 
   # Choose metric if not provided
@@ -61,12 +84,12 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
 
   return(list(d = d, outcome = outcome, model_class = model_class,
               models = models, metric = metric, recipe = recipe,
-              best_levels = best_levels))
+              best_levels = best_levels, original_data_str = original_data_str))
 }
 
 check_outcome <- function(outcome, d_names, recipe) {
   if (rlang::quo_is_missing(outcome))
-    stop("You must provide an outcome variable to tune_models.")
+    stop("You must provide an outcome variable to tune_models and flash_models.")
   outcome_chr <- rlang::quo_name(outcome)
   if (!outcome_chr %in% d_names)
     stop(outcome_chr, " isn't a column in d.")
@@ -80,7 +103,7 @@ check_outcome <- function(outcome, d_names, recipe) {
 }
 
 set_outcome_class <- function(vec, positive_class) {
-  if (missing(positive_class)) {
+  if (is.null(positive_class)) {
     positive_class <-
       if ("Y" %in% levels(vec)) {
         "Y"
@@ -187,3 +210,12 @@ setup_train_control <- function(model_class, metric, n_folds) {
 
 character_in_quo <- function(x)
   is.character(purrr::safely(rlang::eval_tidy)(x)$result)
+
+get_original_data <- function(d, outcome_chr) {
+  # If it's on d, that's it
+  ods <- attr(d, "original_data_str")
+  # Otherwise, create it
+  if (is.null(ods))
+    ods <- d[0, -which(names(d) == outcome_chr), drop = FALSE]
+  return(ods)
+}

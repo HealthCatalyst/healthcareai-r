@@ -13,9 +13,8 @@ tune_models(d, outcome, models, metric, positive_class, n_folds = 5,
 
 \item{outcome}{Name of the column to predict}
 
-\item{models}{Names of models to try, by default "rf" for random forest and
-"knn" for k-nearest neighbors. See \code{\link{supported_models}} for
-available models.}
+\item{models}{Names of models to try. See \code{\link{get_supported_models}}
+for available models. Default is all available models.}
 
 \item{metric}{What metric to use to assess model performance? Options for
 regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
@@ -31,7 +30,8 @@ a factor).}
 
 \item{n_folds}{How many folds to use in cross-validation? Default = 5.}
 
-\item{tune_depth}{How many hyperparameter combinations to try? Defualt = 10.}
+\item{tune_depth}{How many hyperparameter combinations to try? Default = 10.
+Value is multiplied by 5 for regularized regression.}
 
 \item{hyperparameters}{Optional, a list of data frames containing
 hyperparameter values to tune over. If NULL (default) a random,
@@ -112,5 +112,6 @@ For setting up model training: \code{\link{prep_data}},
 
   For faster, but not-optimized model training: \code{\link{flash_models}}
 
-  To prepare data and tune models in a single step: \code{\link{machine_learn}}
+  To prepare data and tune models in a single step:
+  \code{\link{machine_learn}}
 }

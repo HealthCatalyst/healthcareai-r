@@ -10,18 +10,17 @@ remove_logfiles()
 
 ### Setup. Data from caret.
 set.seed(2570)
-library(magrittr)
 data("swiss")
 swiss <-
   swiss %>%
   tibble::rownames_to_column("province") %>%
-  dplyr::mutate(Catholic = ifelse(Catholic > 80, "Y", "N")) %>%
+  dplyr::mutate(Catholic = ifelse(Catholic > 70, "Y", "N")) %>%
   tibble::as_tibble()
-part <- caret::createDataPartition(swiss$Catholic, .8)[[1]]
-training_data <- swiss[part, ]
-test_data <- swiss[-part, ]
+part <- split_train_test(swiss, Catholic, .8)
+training_data <- part$train
+test_data <- part$test
 test_data_newlevel <- test_data
-test_data_newlevel$Catholic[c(3, 7, 16)] <- "unobserved in training"
+test_data_newlevel$Catholic[sample(nrow(test_data), 3)] <- "unobserved in training"
 test_data_newlevel$Catholic[5] <- "another new level"
 test_data_new_missing <- test_data
 test_data_new_missing$Agriculture[1:3] <- NA
@@ -46,6 +45,7 @@ suppressWarnings({
   model_regression_not_prepped <-
     training_data %>%
     dplyr::select(-province) %>%
+    dplyr::mutate(Catholic = ifelse(Catholic == "Y", 1L, 0L)) %>%
     tune_models(Fertility)
 })
 # And prepped newdata to go with them
@@ -250,12 +250,6 @@ test_that("ready_no_prep stops for missingness but not in outcome", {
                "missing")
 })
 
-test_that("ready_no_prep stops informatively for new factor levels", {
-  test_data$Catholic[1] <- "that's weird"
-  expect_error(ready_no_prep(model_regression_not_prepped[[1]]$trainingData, test_data),
-               "Catholic: that's weird")
-})
-
 test_that("ready_with_prep preps appropriately", {
   prepped <- ready_with_prep(model_regression_prepped, test_data)
   expect_s3_class(prepped, "data.frame")
@@ -315,7 +309,7 @@ test_that("can predict on untuned classification model with new data", {
 
 test_that("predict without new data returns out of fold predictions from training", {
   preds <- predict(model_classify_prepped)$predicted_Catholic
-  oofpreds <- dplyr::arrange(model_classify_prepped$`Random Forest`$pred, rowIndex)$Y
+  oofpreds <- dplyr::arrange(model_classify_prepped[[extract_model_info(model_classify_prepped)$best_model_name]]$pred, rowIndex)$Y
   expect_true(all.equal(preds, oofpreds))
 })
 

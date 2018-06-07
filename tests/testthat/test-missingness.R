@@ -61,15 +61,36 @@ test_that("plot.missingness is registered generic", {
 })
 
 test_that("plot.missingness returns a ggplot", {
-  expect_s3_class(plot(out), "gg")
+  expect_s3_class(plot(out, print = FALSE), "gg")
 })
 
 test_that("plot.missingness seems to respect options", {
-  def <- plot(out)
+  def <- plot(out, print = FALSE)
   custom <- plot(out, filter_zero = TRUE)
   expect_false(isTRUE(all.equal(def, custom)))
 })
 
 test_that("plot.missingness works on vector input", {
-  expect_s3_class(plot(out_vec), "gg")
+  expect_s3_class(plot(out_vec, print = FALSE), "gg")
+})
+
+test_that("missingness preserves small percents-missing", {
+  dd <- data.frame(x = c(NA, 1:9999),
+                   y = c(rep(NA, 5), rep(0L, 9995)))
+  expect_setequal(missingness(dd)$percent_missing,
+                  unname(purrr::map_dbl(dd, ~sum(is.na(.x))) * 100 / nrow(dd)))
+})
+
+test_that("all rows of a missingness data frame are printed", {
+  dd <- data.frame(id = paste0("id", 1:100),
+                   tocol = paste0("v", 1:100),
+                   val = 1:100) %>%
+    pivot(id, tocol, val)
+  print_out <- capture_output( print(missingness(dd)) )
+  expect_true(all(stringr::str_detect(print_out, paste0("v", 1:100))))
+})
+
+test_that("printing works whether return_df or not", {
+  expect_error(capture_output( print(out) ), NA)
+  expect_error(capture_output( print(out_vec) ), NA)
 })
