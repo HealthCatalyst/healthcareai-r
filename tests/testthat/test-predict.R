@@ -215,12 +215,12 @@ test_that("printing classification df gets ROC/PR metric right", {
 
 test_that("determine_prep FALSE when no recipe on model", {
   determine_prep(model_regression_not_prepped, test_data) %>%
-  expect_false()
+    expect_false()
 })
 
 test_that("determine_prep FALSE when newdata has been prepped", {
   determine_prep(model_regression_prepped, test_data_reg_prep) %>%
-  expect_false()
+    expect_false()
 })
 
 test_that("determine_prep TRUE w/o warning when prep needed and vars changed in prep", {

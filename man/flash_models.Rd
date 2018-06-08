@@ -4,13 +4,8 @@
 \alias{flash_models}
 \title{Train models without tuning for performance}
 \usage{
-<<<<<<< HEAD
-flash_models(d, outcome, models = c("rf", "knn"), metric, positive_class,
-  n_folds = 5, model_class, model_name = NA)
-=======
 flash_models(d, outcome, models, metric, positive_class, n_folds = 5,
-  model_class)
->>>>>>> levy1132emptyDF
+  model_class, model_name = NA)
 }
 \arguments{
 \item{d}{A data frame}

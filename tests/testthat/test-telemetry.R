@@ -63,8 +63,8 @@ test_that("Errors are put in log file properly", {
 
   # Error should print error message
   expect_warning(p <- predict(object = m,
-                         newdata = pima_diabetes[1:50, 7:10],
-                         write_log = TRUE),
+                              newdata = pima_diabetes[1:50, 7:10],
+                              write_log = TRUE),
                  "insulin")
   # Log should contain error info.
   e <- readLines("telemetry_test_prediction_log.txt")
@@ -72,12 +72,12 @@ test_that("Errors are put in log file properly", {
 
 })
 
-test_that("Warnings are parsed correctly",{
+test_that("Warnings are parsed correctly", {
   nd <- pima_diabetes[1:50, 6:10]
   nd$weight_class[1] <- "jabba"
   expect_warning(p <- predict(object = m, newdata = nd,
-               write_log = TRUE),
-               "jabba")
+                              write_log = TRUE),
+                 "jabba")
   expect_true(any(grepl("jabba",
                         attr(p, "prediction_log")$warnings)))
 })
@@ -112,22 +112,23 @@ test_that("Set and update telemetry functions work", {
   expect_true(is.numeric(d_up$missingness_mean))
 })
 
-test_that("parse safe and quiet works" , {
+test_that("parse safe and quiet works", {
   mi <- extract_model_info(m)
   x <- list(result = p, error = NULL, warnings = NULL)
   expect_equal(class(parse_safe_n_quiet(x, mi, m))[1], "predicted_df")
-  expect_equal(dim(parse_safe_n_quiet(x, mi, m)), c(50,6))
+  expect_equal(dim(parse_safe_n_quiet(x, mi, m)), c(50, 6))
 
   x <- list(result = p, error = NULL, warnings = "grrrr")
   expect_warning(res <- parse_safe_n_quiet(x, mi, m), "grrr")
   expect_equal(class(res)[1], "predicted_df")
-  expect_equal(dim(res), c(50,6))
+  expect_equal(dim(res), c(50, 6))
 
   x <- list(result = NULL, error = list(message = "ARHT!", call = "this spot"),
-                                      warnings = NULL)
+            warnings = NULL)
   expect_warning(res <- parse_safe_n_quiet(x, mi, m), "ARHT")
   expect_equal(class(res)[1], "tbl_df")
-  expect_equal(dim(res), c(0,6))
+  expect_equal(dim(res), c(0,
+                           6))
 })
 
 

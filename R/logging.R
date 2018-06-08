@@ -128,7 +128,7 @@ parse_safe_n_quiet <- function(x, mi, mod) {
             x$error,
             "#########################################################")
     x$result <- bind_cols(tibble(a = 0, b = 0)[0, ],
-                              attr(mod, "original_data_str"))
+                          attr(mod, "original_data_str"))
     names(x$result)[1:2] <- c(mi$target, paste0("predicted_", mi$target))
 
     d_log$error_message <- x$error$message
