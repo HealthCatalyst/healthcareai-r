@@ -26,9 +26,7 @@ log_predictions <- function(filename, d) {
     "\n Error status: ", !is.na(d$error_message),
     "\n Error message: ", d$error_message,
     "\n Error location: ", d$error_call,
-    "\n Warnings: ", d$error_message,
-    "\n Messages: ", d$error_message,
-    "\n Output: ", d$error_message,
+    "\n Warnings: ", d$warnings,
     "\n=======================================",
     "\n"
   )
@@ -62,9 +60,7 @@ set_inital_telemetry <- function(mi) {
     missingness_max = NA,
     error_message = NA,
     error_call = NA,
-    warnings = NA,
-    messages = NA,
-    output = NA)
+    warnings = NA)
 
   return(d)
 }
@@ -113,16 +109,11 @@ safe_n_quiet <- function(.f, otherwise = NULL) {
 
 #' Parse output from safe_n_quiet
 #' @noRd
-parse_safe_n_quiet <- function(x, mi) {
+parse_safe_n_quiet <- function(x, mi, mod) {
   d_log <- set_inital_telemetry(mi)
   if (length(x$warnings)) {
-    d_log$warnings <- x$warnings
-  }
-  if (length(x$messages)) {
-    d_log$messages <- x$messages
-  }
-  if (length(x$output) > 1) {
-    d_log$output <- x$output
+    d_log$warnings <- stringr::str_c(x$warnings, collapse = " ")
+    warning(x$warnings)
   }
   # No error
   if (is.null(x$error)) {
@@ -135,10 +126,10 @@ parse_safe_n_quiet <- function(x, mi) {
   if (!is.null(x$error)) {
     warning("#########################################################\n",
             x$error,
-            "\n#########################################################")
-
-    # TODO Create empty output dataset with correct structure. From model info.
-    x$result <- data.frame(a = c(1, 2, 3), b = c(4, 5, 6))
+            "#########################################################")
+    x$result <- bind_cols(tibble(a = 0, b = 0)[0, ],
+                              attr(mod, "original_data_str"))
+    names(x$result)[1:2] <- c(mi$target, paste0("predicted_", mi$target))
 
     d_log$error_message <- x$error$message
     d_log$error_call <- as.character(x$error$call)[1] # function name
@@ -153,21 +144,7 @@ parse_safe_n_quiet <- function(x, mi) {
 #' @description Depreciated
 #' @param ... Depreciated
 start_prod_logs <- function(...) {
-  # Create file name and open connection
-  file_name <- paste0("deployConsoleLog",
-                      "_",
-                      format(Sys.time(), paste("%Y-%m-%d_%H.%M.%OS", 3, sep = "")),
-                      ".txt")
-  closeAllConnections() # clean up connections before creating a new one.
-  file_connection <- file(description = file_name, open = "wt")
-
-  # Set console output and messages (special type of output) to get logged.
-  sink(file = file_connection)
-  sink(file = file_connection, type = "message")
-
-  # Confirm working directory
-  print(paste("Working directory is", getwd()))
-  print(paste("Logging to", file_name))
+  stop("depreciated")
 }
 
 #' @title
@@ -175,9 +152,7 @@ start_prod_logs <- function(...) {
 #' @description Depreciated
 #' @param ... Depreciated
 stop_prod_logs <- function(...) {
-  # Stop writing to the file
-  sink(type = "message")
-  sink()
+  stop("depreciated")
 }
 
 #' @title
@@ -185,8 +160,5 @@ stop_prod_logs <- function(...) {
 #' @description Depreciated
 #' @param ... Depreciated
 catalyst_test_deploy_in_prod <- function(...) {
-  print("If you're reading this in the log file,
-    deployment is ready to go in prod.")
-  library(healthcareai)
-  print(paste("Healthcareai version: ", utils::packageVersion("healthcareai")))
+  stop("depreciated")
 }

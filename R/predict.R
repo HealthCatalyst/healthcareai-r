@@ -79,7 +79,7 @@ predict.model_list <- function(object,
                                         ...)
 
     mi <- extract_model_info(object)
-    out <- parse_safe_n_quiet(out, mi)
+    out <- parse_safe_n_quiet(out, mi, object)
     # Get log file name
     if (isTRUE(write_log)) {
       write_log <- paste0(mi$model_name, "_prediction_log.txt")
