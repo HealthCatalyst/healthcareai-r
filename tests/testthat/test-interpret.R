@@ -48,6 +48,12 @@ test_that("interpret pulls lambda correctly", {
   expect_true(attr(sparse, "lambda") < attr(default, "lambda"))
 })
 
+test_that("interpret top_n works right", {
+  t5 <- interpret(g, top_n = 5)
+  expect_equal(5, nrow(t5))
+  expect_equivalent(as.data.frame(t5), as.data.frame(interpret(g))[1:5, ])
+  expect_equal(interpret(g), interpret(g, top_n = 99))
+})
 
 context("Checking plot.interpret")  # ------------------------------------------
 
@@ -66,11 +72,13 @@ test_that("plot.interpet seems to respect options", {
   ig <- interpret(g, remove_zeros = FALSE)
   def <- plot(ig, print = FALSE)
   keep_int <- plot(ig, include_intercept = TRUE, print = FALSE)
-  no_zero <- plot(ig, remove_zeros = TRUE, print = FALSE)
   cust <- plot(ig, caption = "my custom caption", print = FALSE)
+  trunc <- plot(ig, max_char = 10, print = FALSE)
+  pseudo_trunc <- plot(ig, max_char = 999, print = FALSE)
   expect_false(isTRUE(all.equal(def, keep_int)))
-  expect_false(isTRUE(all.equal(def, no_zero)))
   expect_false(isTRUE(all.equal(def, cust)))
+  expect_false(isTRUE(all.equal(def, trunc)))
+  expect_equal(def, pseudo_trunc)
 })
 
 test_that("plot.interpret works on a data frame missing interpret class", {

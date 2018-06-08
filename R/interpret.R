@@ -1,24 +1,30 @@
 #' Interpret a model via regularized coefficient estimates
 #'
-#' @param x a model_list object containing a glmnet mdoel
+#' @param x a model_list object containing a glmnet model
 #' @param sparsity If NULL (default) coefficients for the best-performing model
 #'   will be returned. Otherwise, a value in [0, 1] that determines the
 #'   sparseness of the model for which coefficients will be returned, with 0
 #'   being maximally sparse (i.e. having the fewest non-zero coefficients) and 1
-#'   being minimally sparse.
+#'   being minimally sparse
 #' @param remove_zeros Remove features with coefficients equal to 0? Default is
-#'   TRUE.
+#'   TRUE
+#' @param top_n Integer: How many coefficients to return? The largest top_n
+#'   absolute-value coefficients will be returned. If missing (default), all
+#'   coefficients are returned
 #'
 #' @return A data frame of variables and their regularized regression
 #'   coefficient estimates with parent class "interpret"
 #'
-#' @details If x was trained with more than one value of alpha the best value of
-#'   alpha is used; sparsity is determined only via the selection of lambda.
+#' @details **WARNING** Coefficients are on the scale of the predictors; they
+#'   are not standardized, so unless features were scaled before training (e.g.
+#'   with \code{prep_data(..., scale = TRUE)}, the magnitude of coefficients
+#'   does not necessarily reflect their importance.
 #'
-#'   Coefficients are on the scale of the predictors; they are not standardized,
-#'   so unless features were scaled before training (e.g. with
-#'   \code{prep_data(..., scale = TRUE)}, the magnitude of coefficients does not
-#'   necessarily reflect their importance.
+#'   If x was trained with more than one value of alpha the best value of alpha
+#'   is used; sparsity is determined only via the selection of lambda. Using
+#'   only lasso regression (i.e. alpha = 1) will produce a sparser set of
+#'   coefficients and can be obtained by not tuning hyperparameters.
+#'
 #' @export
 #' @seealso \code{\link{plot.interpret}}
 #'
@@ -28,7 +34,7 @@
 #' interpret(m, .2)
 #' interpret(m) %>%
 #'   plot()
-interpret <- function(x, sparsity = NULL, remove_zeros = TRUE) {
+interpret <- function(x, sparsity = NULL, remove_zeros = TRUE, top_n) {
   if (!is.model_list(x))
     stop("x must be a model_list")
   if (!"glmnet" %in% names(x))
@@ -62,6 +68,11 @@ interpret <- function(x, sparsity = NULL, remove_zeros = TRUE) {
   if (remove_zeros)
     coefs <- dplyr::filter(coefs, coefficient != 0)
 
+  if (!missing(top_n)) {
+    if (top_n < nrow(coefs))
+      coefs <- coefs[seq_len(top_n), ]
+  }
+
   structure(coefs,
             class = c("interpret", class(coefs)),
             m_class = mi$m_class,
@@ -76,8 +87,10 @@ interpret <- function(x, sparsity = NULL, remove_zeros = TRUE) {
 #'   and "coefficient"
 #' @param include_intercept If FALSE (default) the intercept estimate will not
 #'   be plotted
-#' @param remove_zeros If FALSE (default) estimates of 0 are included in the
-#'   plot. Note that \code{\link{interpret}} removes zero estimates by default
+#' @param max_char Maximum length of variable names to leave untruncated.
+#'   Default = 40; use \code{Inf} to prevent truncation. Variable names longer
+#'   than this will be truncated to leave the beginning and end of each variable
+#'   name, bridged by " ... ".
 #' @param title Plot title. NULL for no title; character for custom title. If
 #'   left blank contains the model class and outcome variable
 #' @param caption Plot caption, appears in lower-right. NULL for no caption;
@@ -98,7 +111,7 @@ interpret <- function(x, sparsity = NULL, remove_zeros = TRUE) {
 #' machine_learn(mtcars, outcome = mpg, models = "glm", tune = FALSE) %>%
 #'   interpret() %>%
 #'   plot(font_size = 14)
-plot.interpret <- function(x, include_intercept = FALSE, remove_zeros = FALSE,
+plot.interpret <- function(x, include_intercept = FALSE, max_char = 40,
                        title, caption, font_size = 11, point_size = 3,
                        print = TRUE, ... ) {
 
@@ -107,9 +120,6 @@ plot.interpret <- function(x, include_intercept = FALSE, remove_zeros = FALSE,
   if ( (is.data.frame(x) && names(x) != c("variable", "coefficient") ) ||
        !is.data.frame(x))
     stop("x must be a data frame from interpret, or at least look like one!")
-
-  if (remove_zeros)
-    x <- dplyr::filter(x, coefficient != 0, variable != "(Intercept)")
 
   if (!include_intercept)
     x <- dplyr::filter(x, variable != "(Intercept)")
@@ -126,6 +136,15 @@ plot.interpret <- function(x, include_intercept = FALSE, remove_zeros = FALSE,
     if (missing(caption))
       caption <- paste("Hyperparameter values alpha =", signif(ats$alpha, 1),
                        "and lambda =", signif(ats$lambda, 3))
+  }
+  # Truncate long variable names
+  to_trunc <- nchar(x$variable) > max_char
+  if (any(to_trunc)) {
+    end_char <- ceiling(max_char / 2) - 2
+    x$variable[to_trunc] <- paste0(
+      stringr::str_sub(x$variable, end = end_char), "...",
+      stringr::str_sub(x$variable, start = -end_char)
+    )[to_trunc]
   }
 
   limits <- max(abs(x$coefficient)) * c(-1.05, 1.05)

@@ -26,13 +26,13 @@ A data frame of variables and their regularized regression
 Interpret a model via regularized coefficient estimates
 }
 \details{
-If x was trained with more than one value of alpha the best value of
-  alpha is used; sparsity is determined only via the selection of lambda.
+**WARNING** Coefficients are on the scale of the predictors; they
+are not standardized, so unless features were scaled before training (e.g.
+with \code{prep_data(..., scale = TRUE)}, the magnitude of coefficients does
+not necessarily reflect their importance.
 
-  Coefficients are on the scale of the predictors; they are not standardized,
-  so unless features were scaled before training (e.g. with
-  \code{prep_data(..., scale = TRUE)}, the magnitude of coefficients does not
-  necessarily reflect their importance.
+If x was trained with more than one value of alpha the best value of alpha is
+used; sparsity is determined only via the selection of lambda.
 }
 \examples{
 m <- machine_learn(pima_diabetes, patient_id, outcome = age, models = "glm")
