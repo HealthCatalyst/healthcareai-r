@@ -89,3 +89,8 @@ test_that("all rows of a missingness data frame are printed", {
   print_out <- capture_output( print(missingness(dd)) )
   expect_true(all(stringr::str_detect(print_out, paste0("v", 1:100))))
 })
+
+test_that("plot.missingness respects max_char", {
+  md <- missingness(data.frame(long_name = NA, longer_still = 1))
+  expect_false(isTRUE(all.equal(plot(md, max_char = 7), plot(md))))
+})
