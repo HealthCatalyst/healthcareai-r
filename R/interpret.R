@@ -112,8 +112,8 @@ interpret <- function(x, sparsity = NULL, remove_zeros = TRUE, top_n) {
 #'   interpret() %>%
 #'   plot(font_size = 14)
 plot.interpret <- function(x, include_intercept = FALSE, max_char = 40,
-                       title, caption, font_size = 11, point_size = 3,
-                       print = TRUE, ... ) {
+                           title, caption, font_size = 11, point_size = 3,
+                           print = TRUE, ... ) {
 
   ats <- attributes(x)
 
@@ -138,14 +138,7 @@ plot.interpret <- function(x, include_intercept = FALSE, max_char = 40,
                        "and lambda =", signif(ats$lambda, 3))
   }
   # Truncate long variable names
-  to_trunc <- nchar(x$variable) > max_char
-  if (any(to_trunc)) {
-    end_char <- ceiling(max_char / 2) - 2
-    x$variable[to_trunc] <- paste0(
-      stringr::str_sub(x$variable, end = end_char), "...",
-      stringr::str_sub(x$variable, start = -end_char)
-    )[to_trunc]
-  }
+  x$variable <- trunc_char(x$variable, max_char)
 
   limits <- max(abs(x$coefficient)) * c(-1.05, 1.05)
   the_plot <-
