@@ -62,6 +62,8 @@ plot.variable_importance <- function(x,
 #' Get variable importances
 #'
 #' @param models model_list object
+#' @param remove_zeros Remove features with zero variable importance? Default is
+#'   TRUE
 #' @param top_n Integer: How many variables to return? The top_n most important
 #'   variables be returned. If missing (default), all variables are returned
 #'

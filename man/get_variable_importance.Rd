@@ -9,6 +9,9 @@ get_variable_importance(models, remove_zeros = TRUE, top_n)
 \arguments{
 \item{models}{model_list object}
 
+\item{remove_zeros}{Remove features with zero variable importance? Default is
+TRUE}
+
 \item{top_n}{Integer: How many variables to return? The top_n most important
 variables be returned. If missing (default), all variables are returned}
 }
