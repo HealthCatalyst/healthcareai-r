@@ -4,14 +4,19 @@
 \alias{plot.missingness}
 \title{Plot missingness}
 \usage{
-\method{plot}{missingness}(x, filter_zero = FALSE, title = NULL,
-  font_size = 11, point_size = 3, print = TRUE, ...)
+\method{plot}{missingness}(x, remove_zeros = FALSE, max_char = 40,
+  title = NULL, font_size = 11, point_size = 3, print = TRUE, ...)
 }
 \arguments{
 \item{x}{Data frame from \code{\link{missingness}}}
 
-\item{filter_zero}{Remove variables with no missingness from the plot?
+\item{remove_zeros}{Remove variables with no missingness from the plot?
 Default = FALSE}
+
+\item{max_char}{Maximum length of variable names to leave untruncated.
+Default = 40; use \code{Inf} to prevent truncation. Variable names longer
+than this will be truncated to leave the beginning and end of each variable
+name, bridged by " ... ".}
 
 \item{title}{Plot title}
 

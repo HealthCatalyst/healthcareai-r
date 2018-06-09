@@ -10,10 +10,10 @@ prep_data(d, ..., outcome, recipe = NULL, remove_near_zero_variance = TRUE,
   factor_outcome = TRUE)
 }
 \arguments{
-\item{d}{A dataframe or tibble containing data to impute.}
+\item{d}{A data frame}
 
-\item{...}{Optional. Unquoted variable names to not be prepped. These will be
-returned unaltered. Typically ID and outcome columns would go here.}
+\item{...}{Optional. Columns to be ignored in preparation and model training,
+e.g. ID columns. Unquoted; any number of columns can be included here.}
 
 \item{outcome}{Optional. Unquoted column name that indicates the target
 variable. If provided, argument must be named. If this target is 0/1, it
