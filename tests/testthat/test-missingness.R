@@ -66,7 +66,7 @@ test_that("plot.missingness returns a ggplot", {
 
 test_that("plot.missingness seems to respect options", {
   def <- plot(out, print = FALSE)
-  custom <- plot(out, filter_zero = TRUE)
+  custom <- plot(out, remove_zeros = TRUE)
   expect_false(isTRUE(all.equal(def, custom)))
 })
 
@@ -88,4 +88,9 @@ test_that("all rows of a missingness data frame are printed", {
     pivot(id, tocol, val)
   print_out <- capture_output( print(missingness(dd)) )
   expect_true(all(stringr::str_detect(print_out, paste0("v", 1:100))))
+})
+
+test_that("plot.missingness respects max_char", {
+  md <- missingness(data.frame(long_name = NA, longer_still = 1))
+  expect_false(isTRUE(all.equal(plot(md, max_char = 7), plot(md))))
 })

@@ -93,10 +93,12 @@ get_random_hyperparameters <- function(models = get_supported_models(),
   }
   if ("glm" %in% models) {
     grids$glm <-
-      tibble::tibble(
-        alpha = runif(tune_depth * 5, 0, 1),
-        lambda = 2 ^ runif(tune_depth * 5, -10, 3)
-      )
+      expand.grid(
+        alpha = c(0, 1),
+        lambda = 2 ^ runif(tune_depth, -10, 3)
+      ) %>%
+      dplyr::arrange(alpha) %>%
+      tibble::as_tibble()
   }
   return(grids)
 }

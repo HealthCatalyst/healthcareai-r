@@ -59,7 +59,8 @@ classification_prepped_prepped <-
   predict(model_classify_prepped, test_data_class_prep)
 
 regression_not_not <-
-  predict(model_regression_not_prepped, test_data)
+  dplyr::mutate(test_data, Catholic = ifelse(Catholic == "Y", 1L, 0L)) %>%
+  predict(model_regression_not_prepped, .)
 classification_not_not <-
   predict(model_classify_not_prepped, test_data)
 
