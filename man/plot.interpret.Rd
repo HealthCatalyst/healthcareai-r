@@ -4,8 +4,8 @@
 \alias{plot.interpret}
 \title{Plot regularized model coefficients}
 \usage{
-\method{plot}{interpret}(x, include_intercept = FALSE, remove_zeros = FALSE,
-  title, caption, font_size = 11, point_size = 3, print = TRUE, ...)
+\method{plot}{interpret}(x, include_intercept = FALSE, max_char = 40, title,
+  caption, font_size = 11, point_size = 3, print = TRUE, ...)
 }
 \arguments{
 \item{x}{A \code{interpret} object or a data frame with columns "variable"
@@ -14,8 +14,10 @@ and "coefficient"}
 \item{include_intercept}{If FALSE (default) the intercept estimate will not
 be plotted}
 
-\item{remove_zeros}{If FALSE (default) estimates of 0 are included in the
-plot. Note that \code{\link{interpret}} removes zero estimates by default}
+\item{max_char}{Maximum length of variable names to leave untruncated.
+Default = 40; use \code{Inf} to prevent truncation. Variable names longer
+than this will be truncated to leave the beginning and end of each variable
+name, bridged by " ... ".}
 
 \item{title}{Plot title. NULL for no title; character for custom title. If
 left blank contains the model class and outcome variable}

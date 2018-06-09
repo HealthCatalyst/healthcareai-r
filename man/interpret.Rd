@@ -4,19 +4,23 @@
 \alias{interpret}
 \title{Interpret a model via regularized coefficient estimates}
 \usage{
-interpret(x, sparsity = NULL, remove_zeros = TRUE)
+interpret(x, sparsity = NULL, remove_zeros = TRUE, top_n)
 }
 \arguments{
-\item{x}{a model_list object containing a glmnet mdoel}
+\item{x}{a model_list object containing a glmnet model}
 
 \item{sparsity}{If NULL (default) coefficients for the best-performing model
 will be returned. Otherwise, a value in [0, 1] that determines the
 sparseness of the model for which coefficients will be returned, with 0
 being maximally sparse (i.e. having the fewest non-zero coefficients) and 1
-being minimally sparse.}
+being minimally sparse}
 
 \item{remove_zeros}{Remove features with coefficients equal to 0? Default is
-TRUE.}
+TRUE}
+
+\item{top_n}{Integer: How many coefficients to return? The largest top_n
+absolute-value coefficients will be returned. If missing (default), all
+coefficients are returned}
 }
 \value{
 A data frame of variables and their regularized regression
@@ -27,12 +31,14 @@ Interpret a model via regularized coefficient estimates
 }
 \details{
 **WARNING** Coefficients are on the scale of the predictors; they
-are not standardized, so unless features were scaled before training (e.g.
-with \code{prep_data(..., scale = TRUE)}, the magnitude of coefficients does
-not necessarily reflect their importance.
+  are not standardized, so unless features were scaled before training (e.g.
+  with \code{prep_data(..., scale = TRUE)}, the magnitude of coefficients
+  does not necessarily reflect their importance.
 
-If x was trained with more than one value of alpha the best value of alpha is
-used; sparsity is determined only via the selection of lambda.
+  If x was trained with more than one value of alpha the best value of alpha
+  is used; sparsity is determined only via the selection of lambda. Using
+  only lasso regression (i.e. alpha = 1) will produce a sparser set of
+  coefficients and can be obtained by not tuning hyperparameters.
 }
 \examples{
 m <- machine_learn(pima_diabetes, patient_id, outcome = age, models = "glm")
