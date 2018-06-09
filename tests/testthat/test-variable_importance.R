@@ -8,6 +8,7 @@ reg <- machine_learn(mtcars, outcome = mpg, models = "rf", tune = FALSE)
 warns <- capture_warnings({
   cl_vi <- get_variable_importance(cl)
 })
+def <- get_variable_importance(reg)
 
 test_that("order_models gets it right", {
   ci <- extract_model_info(cl)
@@ -19,17 +20,17 @@ test_that("order_models gets it right", {
 
 test_that("get_variable_importance returns a tibble", {
   expect_s3_class(cl_vi, "tbl_df")
-  expect_s3_class(get_variable_importance(reg), "tbl_df")
+  expect_s3_class(def, "tbl_df")
 })
 
 test_that("get_variable_importance dfs have class variable_importance", {
   expect_s3_class(cl_vi, "variable_importance")
-  expect_s3_class(get_variable_importance(reg), "variable_importance")
+  expect_s3_class(def, "variable_importance")
 })
 
 test_that("plot.variable_importance returns a ggplot", {
   expect_s3_class(plot(cl_vi, print = FALSE), "gg")
-  expect_s3_class(plot(get_variable_importance(reg), print = FALSE), "gg")
+  expect_s3_class(plot(def, print = FALSE), "gg")
   expect_s3_class(plot(reg, caption = "none", title = "VI", font_size = 16, print = FALSE), "gg")
 })
 
@@ -46,4 +47,22 @@ test_that("get_variable_importance doesn't use glmnet's", {
 
 test_that("get_variable_importance warns if providing model isn't best performer", {
   expect_true(stringr::str_detect(warns, "best performing"))
+})
+
+test_that("get_variable_importance respects top_n", {
+  expect_equal(def, get_variable_importance(reg, top_n = 99))
+  expect_equivalent(def[1, ], get_variable_importance(reg, top_n = 1))
+})
+
+test_that("get_variable_importance respects remove_zeros", {
+  expect_equal(def, get_variable_importance(reg, remove_zeros = TRUE))
+  expect_true(nrow(get_variable_importance(reg, remove_zeros = FALSE)) > nrow(def))
+})
+
+test_that("plot.variable_importance respects max_char", {
+  expect_warning(
+    expect_false(isTRUE(all.equal(plot(def, max_char = 3, print = FALSE),
+                                plot(def, print = FALSE))))
+
+  )
 })
