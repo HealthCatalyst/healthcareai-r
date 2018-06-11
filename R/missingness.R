@@ -63,8 +63,12 @@ missingness <- function(d,
 #' Plot missingness
 #'
 #' @param x Data frame from \code{\link{missingness}}
-#' @param filter_zero Remove variables with no missingness from the plot?
+#' @param remove_zeros Remove variables with no missingness from the plot?
 #'   Default = FALSE
+#' @param max_char Maximum length of variable names to leave untruncated.
+#'   Default = 40; use \code{Inf} to prevent truncation. Variable names longer
+#'   than this will be truncated to leave the beginning and end of each variable
+#'   name, bridged by " ... ".
 #' @param title Plot title
 #' @param font_size Relative size of all fonts in plot, default = 11
 #' @param point_size Size of dots, default = 3
@@ -79,7 +83,7 @@ missingness <- function(d,
 #' pima_diabetes %>%
 #'   missingness() %>%
 #'   plot()
-plot.missingness <- function(x, filter_zero = FALSE,
+plot.missingness <- function(x, remove_zeros = FALSE, max_char = 40,
                              title = NULL, font_size = 11, point_size = 3,
                              print = TRUE, ... ) {
 
@@ -90,8 +94,10 @@ plot.missingness <- function(x, filter_zero = FALSE,
        !is.data.frame(x))
     stop("x must be a data frame from missingness, or at least look like one!")
 
-  if (filter_zero)
+  if (remove_zeros)
     x <- dplyr::filter(x, percent_missing > 0)
+
+  x$variable <- trunc_char(x$variable, max_char)
 
   the_plot <-
     x %>%

@@ -137,3 +137,19 @@ select_not <- function(d, var) {
 
 #' @export
 dplyr::`%>%`
+
+# Cut the middle out of string and replace with ...
+trunc_char <- function(x, max_char) {
+  if (max_char <= 5) {
+    warning(max_char, " characters isn't enough to bookend, so I'll give you ",
+            "the first ", max_char)
+    x <- stringr::str_sub(x, end = max_char)
+  }
+  to_trunc <- stringr::str_length(x) > max_char
+  if (any(to_trunc)) {
+    end_char <- ceiling(max_char / 2) - 2
+    x[to_trunc] <- paste0(stringr::str_sub(x, end = end_char), "...",
+                          stringr::str_sub(x, start = -end_char))[to_trunc]
+  }
+  return(x)
+}

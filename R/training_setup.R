@@ -103,6 +103,9 @@ check_outcome <- function(outcome, d_names, recipe) {
 }
 
 set_outcome_class <- function(vec, positive_class) {
+  if (length(levels(vec)) != 2)
+    stop(paste0("The outcome variable must have two levels for classification, ",
+         "but this has ", length(levels(vec)), ": ", paste(levels(vec), collapse = ", ")))
   if (is.null(positive_class)) {
     positive_class <-
       if ("Y" %in% levels(vec)) {
@@ -116,7 +119,7 @@ set_outcome_class <- function(vec, positive_class) {
   if (!positive_class %in% levels(vec))
     stop("positive_class, ", positive_class, ", not found in the outcome column. ",
          "Outcome has values ", paste(levels(vec), collapse = " and ") )
-  vec <- stats::relevel(vec, positive_class)
+  vec <- stats::relevel(vec, setdiff(levels(vec), positive_class))
   return(vec)
 }
 

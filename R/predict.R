@@ -172,6 +172,9 @@ safe_predict_model_list_main <- safe_n_quiet(predict_model_list_main)
 get_oof_predictions <- function(x, mi = extract_model_info(x)) {
   mod <- mi$best_model_name
   preds <- dplyr::arrange(x[[mod]]$pred, rowIndex)
+  # To solve a mysterious bug in test-predict: predict handles positive class specified in training
+  # Where each observation appeared twice in object$`Random Forest`$pred:
+  preds <- preds[!duplicated(preds), ]
   if (mi$m_class == "Regression")
     return(preds$pred)
   if (mi$m_class == "Classification")
