@@ -208,12 +208,12 @@ While preparing
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>d</th>
-      <td><p>A dataframe or tibble containing data to impute.</p></td>
+      <td><p>A data frame</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Optional. Unquoted variable names to not be prepped. These will be
-returned unaltered. Typically ID and outcome columns would go here.</p></td>
+      <td><p>Optional. Columns to be ignored in preparation and model training,
+e.g. ID columns. Unquoted; any number of columns can be included here.</p></td>
     </tr>
     <tr>
       <th>outcome</th>
@@ -385,16 +385,16 @@ training functions rather than here.</p></td>
 #&gt; Adding levels to: other, missing [trained]</div><div class='output co'>#&gt; <span class='message'>Current data:</span></div><div class='output co'>#&gt; # A tibble: 700 x 10
 #&gt;    patient_id pregnancies plasma_glucose diastolic_bp skinfold insulin
 #&gt;         &lt;int&gt;       &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
-#&gt;  1          1       0.646          0.871      -0.0214   0.636    0.292
-#&gt;  2          2      -0.840         -1.19       -0.515    0.0138  -0.844
-#&gt;  3          3       1.24           2.02       -0.679   -0.921    0.485
-#&gt;  4          4      -0.840         -1.06       -0.515   -0.609   -0.602
-#&gt;  5          5      -1.14           0.511      -2.65     0.636    0.150
-#&gt;  6          6       0.349         -0.176       0.143   -0.366   -0.274
-#&gt;  7          7      -0.246         -1.42       -1.83     0.325   -0.663
-#&gt;  8          8       1.83          -0.208      -0.0591   0.335   -0.153
-#&gt;  9          9      -0.543          2.47       -0.186    1.67     3.96 
-#&gt; 10         10       1.24           0.119       1.95     0.310    0.659
+#&gt;  1          1       0.646          0.872      -0.0203   0.638    0.385
+#&gt;  2          2      -0.840         -1.19       -0.513    0.0138  -0.824
+#&gt;  3          3       1.24           2.02       -0.677   -0.781    0.889
+#&gt;  4          4      -0.840         -1.06       -0.513   -0.610   -0.604
+#&gt;  5          5      -1.14           0.512      -2.65     0.638    0.141
+#&gt;  6          6       0.349         -0.175       0.144   -0.428   -0.273
+#&gt;  7          7      -0.246         -1.42       -1.83     0.326   -0.664
+#&gt;  8          8       1.83          -0.208      -0.112    0.367   -0.233
+#&gt;  9          9      -0.543          2.47       -0.185    1.68     3.91 
+#&gt; 10         10       1.24           0.119       1.95     0.359    0.615
 #&gt; # ... with 690 more rows, and 4 more variables: weight_class &lt;fct&gt;,
 #&gt; #   pedigree &lt;dbl&gt;, age &lt;dbl&gt;, diabetes &lt;fct&gt;</div></pre>
   </div>

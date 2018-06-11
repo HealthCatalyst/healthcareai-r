@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Plot variable importance — plot.variable_importance • healthcareai</title>
+<title>Interpret a model via regularized coefficient estimates — interpret • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,9 +25,9 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Plot variable importance — plot.variable_importance" />
+<meta property="og:title" content="Interpret a model via regularized coefficient estimates — interpret" />
 
-<meta property="og:description" content="Plot variable importance" />
+<meta property="og:description" content="Interpret a model via regularized coefficient estimates" />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -140,71 +140,98 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Plot variable importance</h1>
+    <h1>Interpret a model via regularized coefficient estimates</h1>
     
     </div>
 
     
-    <p>Plot variable importance</p>
+    <p>Interpret a model via regularized coefficient estimates</p>
     
 
-    <pre class="usage"><span class='co'># S3 method for variable_importance</span>
-<span class='fu'>plot</span>(<span class='no'>x</span>, <span class='kw'>caption</span> <span class='kw'>=</span> <span class='st'>"model"</span>, <span class='kw'>max_char</span> <span class='kw'>=</span> <span class='fl'>40</span>,
-  <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>font_size</span> <span class='kw'>=</span> <span class='fl'>11</span>, <span class='kw'>point_size</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>print</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>interpret</span>(<span class='no'>x</span>, <span class='kw'>sparsity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>remove_zeros</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>top_n</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>A data frame from <code><a href='get_variable_importance.html'>get_variable_importance</a></code></p></td>
+      <td><p>a model_list object containing a glmnet model</p></td>
     </tr>
     <tr>
-      <th>caption</th>
-      <td><p>Either "model", "none", or a string to be used as the plot
-caption. "model" puts the name of the best-performing model, on which
-variable importances are generated, in the caption.</p></td>
+      <th>sparsity</th>
+      <td><p>If NULL (default) coefficients for the best-performing model
+will be returned. Otherwise, a value in [0, 1] that determines the
+sparseness of the model for which coefficients will be returned, with 0
+being maximally sparse (i.e. having the fewest non-zero coefficients) and 1
+being minimally sparse</p></td>
     </tr>
     <tr>
-      <th>max_char</th>
-      <td><p>Maximum length of variable names to leave untruncated.
-Default = 40; use <code>Inf</code> to prevent truncation. Variable names longer
-than this will be truncated to leave the beginning and end of each variable
-name, bridged by " ... ".</p></td>
+      <th>remove_zeros</th>
+      <td><p>Remove features with coefficients equal to 0? Default is
+TRUE</p></td>
     </tr>
     <tr>
-      <th>title</th>
-      <td><p>Plot title</p></td>
-    </tr>
-    <tr>
-      <th>font_size</th>
-      <td><p>Relative size for all fonts, default = 11</p></td>
-    </tr>
-    <tr>
-      <th>point_size</th>
-      <td><p>Size of dots, default = 3</p></td>
-    </tr>
-    <tr>
-      <th>print</th>
-      <td><p>Print the plot?</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Unused</p></td>
+      <th>top_n</th>
+      <td><p>Integer: How many coefficients to return? The largest top_n
+absolute-value coefficients will be returned. If missing (default), all
+coefficients are returned</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A ggplot object, invisibly.</p>
+    <p>A data frame of variables and their regularized regression
+  coefficient estimates with parent class "interpret"</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>**WARNING** Coefficients are on the scale of the predictors; they
+  are not standardized, so unless features were scaled before training (e.g.
+  with <code><a href='prep_data.html'>prep_data(..., scale = TRUE)</a></code>, the magnitude of coefficients
+  does not necessarily reflect their importance.</p>
+<p>If x was trained with more than one value of alpha the best value of alpha
+  is used; sparsity is determined only via the selection of lambda. Using
+  only lasso regression (i.e. alpha = 1) will produce a sparser set of
+  coefficients and can be obtained by not tuning hyperparameters.</p>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='plot.interpret.html'>plot.interpret</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='machine_learn.html'>machine_learn</a></span>(<span class='no'>pima_diabetes</span>[<span class='fl'>1</span>:<span class='fl'>50</span>, ], <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>, <span class='kw'>tune</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>) <span class='kw'>%&gt;%</span>
-  <span class='fu'><a href='get_variable_importance.html'>get_variable_importance</a></span>() <span class='kw'>%&gt;%</span>
-  <span class='fu'>plot</span>()</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: Random Forest</span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: k-Nearest Neighbors</span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: glmnet</span></div><div class='output co'>#&gt; <span class='message'></span>
+    <pre class="examples"><div class='input'><span class='no'>m</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='machine_learn.html'>machine_learn</a></span>(<span class='no'>pima_diabetes</span>, <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>age</span>, <span class='kw'>models</span> <span class='kw'>=</span> <span class='st'>"glm"</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>age looks numeric, so training regression algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Training with cross validation: glmnet</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>*** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
-#&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Returning Random Forest variable importance, but glmnet was the best performing model and will be used to make predictions. To make predictions from Random Forest instead, use: models['Random Forest'].</span></div><div class='img'><img src='plot.variable_importance-1.png' alt='' width='576' height='288' /></div></pre>
+#&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='input'><span class='fu'>interpret</span>(<span class='no'>m</span>)</div><div class='output co'>#&gt; # A tibble: 12 x 2
+#&gt;    variable                coefficient
+#&gt;  * &lt;chr&gt;                         &lt;dbl&gt;
+#&gt;  1 (Intercept)                 0.575  
+#&gt;  2 weight_class_normal         4.56   
+#&gt;  3 weight_class_overweight     3.67   
+#&gt;  4 weight_class_obese          2.60   
+#&gt;  5 pregnancies                 1.55   
+#&gt;  6 diabetes_Y                  1.10   
+#&gt;  7 pedigree                    1.10   
+#&gt;  8 weight_class_other          0.711  
+#&gt;  9 diastolic_bp                0.193  
+#&gt; 10 skinfold                    0.0762 
+#&gt; 11 plasma_glucose              0.0500 
+#&gt; 12 insulin                     0.00510</div><div class='input'><span class='fu'>interpret</span>(<span class='no'>m</span>, <span class='fl'>.2</span>)</div><div class='output co'>#&gt; # A tibble: 12 x 2
+#&gt;    variable                coefficient
+#&gt;  * &lt;chr&gt;                         &lt;dbl&gt;
+#&gt;  1 (Intercept)               32.6     
+#&gt;  2 diabetes_Y                 0.0673  
+#&gt;  3 weight_class_other        -0.0529  
+#&gt;  4 weight_class_obese         0.0254  
+#&gt;  5 pregnancies                0.0221  
+#&gt;  6 weight_class_normal       -0.0169  
+#&gt;  7 pedigree                   0.0135  
+#&gt;  8 weight_class_overweight   -0.00474 
+#&gt;  9 diastolic_bp               0.00365 
+#&gt; 10 skinfold                   0.00195 
+#&gt; 11 plasma_glucose             0.00118 
+#&gt; 12 insulin                    0.000216</div><div class='input'><span class='fu'>interpret</span>(<span class='no'>m</span>) <span class='kw'>%&gt;%</span>
+  <span class='fu'>plot</span>()</div><div class='img'><img src='interpret-1.png' alt='' width='576' height='288' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -212,6 +239,10 @@ name, bridged by " ... ".</p></td>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
+
+      <li><a href="#see-also">See also</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>

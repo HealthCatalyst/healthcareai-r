@@ -233,12 +233,14 @@ See step_bagimpute or step_knnimpute for details.</p></td>
 
 <span class='co'># Apply recipe</span>
 <span class='no'>data_modified</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://www.rdocumentation.org/packages/recipes/topics/bake'>bake</a></span>(<span class='no'>trained_recipe</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>d</span>)
-<span class='fu'><a href='missingness.html'>missingness</a></span>(<span class='no'>data_modified</span>)</div><div class='output co'>#&gt;              variable percent_missing
-#&gt; 1          patient_id               0
-#&gt; 2                 age               0
-#&gt; 3    hemoglobin_count               0
-#&gt; 4 hemoglobin_category               0
-#&gt; 5             disease               0</div><div class='input'>
+<span class='fu'><a href='missingness.html'>missingness</a></span>(<span class='no'>data_modified</span>)</div><div class='output co'>#&gt; # A tibble: 5 x 2
+#&gt;   variable            percent_missing
+#&gt; * &lt;chr&gt;                         &lt;dbl&gt;
+#&gt; 1 patient_id                       0.
+#&gt; 2 age                              0.
+#&gt; 3 hemoglobin_count                 0.
+#&gt; 4 hemoglobin_category              0.
+#&gt; 5 disease                          0.</div><div class='input'>
 
 <span class='co'># Specify methods:</span>
 <span class='no'>my_recipe</span> <span class='kw'>&lt;-</span> <span class='no'>my_recipe</span> <span class='kw'>%&gt;%</span>

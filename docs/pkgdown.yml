@@ -1,12 +1,6 @@
-<<<<<<< HEAD
 pandoc: 1.19.2.1
 pkgdown: 0.1.0.9000
 pkgdown_sha: b074c575119c35459f544f15e3dae3a6d617d9bb
-=======
-pandoc: 2.1.1
-pkgdown: 0.1.0.9000
-pkgdown_sha: 7d8b4882c4eb650f0f869a618f5c445c657313f0
->>>>>>> master
 articles:
   db_connections: site_only/db_connections.html
   deploy_model: site_only/deploy_model.html

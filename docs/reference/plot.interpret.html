@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Supported models and their hyperparameters — get_supported_models • healthcareai</title>
+<title>Plot regularized model coefficients — plot.interpret • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,33 +25,9 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Supported models and their hyperparameters — get_supported_models" />
+<meta property="og:title" content="Plot regularized model coefficients — plot.interpret" />
 
-<meta property="og:description" content="Random Forest: "rf". Regression and classification.
-Implemented via ranger.
-mtry: Number of variables to consider for each split
-splitrule: Splitting rule. For classification either "gini" or
-  "extratrees". For regression either "variance" or "extratrees".
-min.node.size: Minimal node size.
-" />
-
-<meta property="og:description" content="k-nearest neighbors: "knn". Regression and classification.
-Implemented via kknn.
-kmax: Number of neighbors to consider.
-distance: Minkowsky distance parameter, (0, Inf). 1 = Manhatten, 2 =
-  Euclidian, -&gt; Inf = Chebyshev.
-kernal: Kernal to use. Possible choices are "rectangular" (standard
-  knn), "triangular", "epanechnikov", "biweight", "triweight", "cos", "inv",
-  "gaussian", "rank", or "optimal".
-" />
-
-<meta property="og:description" content="Regularized regression: "glm". Regression and classification.
-Implemented via glmnet.
-alpha: Elasticnet mixing parameter, in [0, 1]. 0 = ridge regression;
-  1 = lasso.
-lambda: Regularization parameter, &gt; 0. Larger values make for
-  stronger regularization.
-" />
+<meta property="og:description" content="Plot regularized model coefficients" />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -164,59 +140,95 @@ lambda: Regularization parameter, &gt; 0. Larger values make for
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Supported models and their hyperparameters</h1>
+    <h1>Plot regularized model coefficients</h1>
     
     </div>
 
     
-    <p><strong>Random Forest</strong>: "rf". Regression and classification.
-Implemented via <code>ranger</code>.</p><ul>
-<li><p>mtry: Number of variables to consider for each split</p></li>
-<li><p>splitrule: Splitting rule. For classification either "gini" or
-  "extratrees". For regression either "variance" or "extratrees".</p></li>
-<li><p>min.node.size: Minimal node size.</p></li>
-</ul>
-
-    <p><strong>k-nearest neighbors</strong>: "knn". Regression and classification.
-Implemented via <code>kknn</code>.</p><ul>
-<li><p>kmax: Number of neighbors to consider.</p></li>
-<li><p>distance: Minkowsky distance parameter, (0, Inf). 1 = Manhatten, 2 =
-  Euclidian, -&gt; Inf = Chebyshev.</p></li>
-<li><p>kernal: Kernal to use. Possible choices are "rectangular" (standard
-  knn), "triangular", "epanechnikov", "biweight", "triweight", "cos", "inv",
-  "gaussian", "rank", or "optimal".</p></li>
-</ul>
-
-    <p><strong>Regularized regression</strong>: "glm". Regression and classification.
-Implemented via <code>glmnet</code>.</p><ul>
-<li><p>alpha: Elasticnet mixing parameter, in [0, 1]. 0 = ridge regression;
-  1 = lasso.</p></li>
-<li><p>lambda: Regularization parameter, &gt; 0. Larger values make for
-  stronger regularization.</p></li>
-</ul>
+    <p>Plot regularized model coefficients</p>
     
 
-    <pre class="usage"><span class='fu'>get_supported_models</span>()</pre>
-        
+    <pre class="usage"><span class='co'># S3 method for interpret</span>
+<span class='fu'>plot</span>(<span class='no'>x</span>, <span class='kw'>include_intercept</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>max_char</span> <span class='kw'>=</span> <span class='fl'>40</span>, <span class='no'>title</span>,
+  <span class='no'>caption</span>, <span class='kw'>font_size</span> <span class='kw'>=</span> <span class='fl'>11</span>, <span class='kw'>point_size</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>print</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>x</th>
+      <td><p>A <code>interpret</code> object or a data frame with columns "variable"
+and "coefficient"</p></td>
+    </tr>
+    <tr>
+      <th>include_intercept</th>
+      <td><p>If FALSE (default) the intercept estimate will not
+be plotted</p></td>
+    </tr>
+    <tr>
+      <th>max_char</th>
+      <td><p>Maximum length of variable names to leave untruncated.
+Default = 40; use <code>Inf</code> to prevent truncation. Variable names longer
+than this will be truncated to leave the beginning and end of each variable
+name, bridged by " ... ".</p></td>
+    </tr>
+    <tr>
+      <th>title</th>
+      <td><p>Plot title. NULL for no title; character for custom title. If
+left blank contains the model class and outcome variable</p></td>
+    </tr>
+    <tr>
+      <th>caption</th>
+      <td><p>Plot caption, appears in lower-right. NULL for no caption;
+character for custom caption. If left blank the caption will contain info
+including the hyperparameter values of the model used by
+<code><a href='interpret.html'>interpret</a></code> to determine coefficient estimates.</p></td>
+    </tr>
+    <tr>
+      <th>font_size</th>
+      <td><p>Relative size of all fonts in plot, default = 11</p></td>
+    </tr>
+    <tr>
+      <th>point_size</th>
+      <td><p>Size of dots, default = 3</p></td>
+    </tr>
+    <tr>
+      <th>print</th>
+      <td><p>Print the plot? Default = TRUE</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Unused</p></td>
+    </tr>
+    </table>
+    
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Vector of currently-supported algorithms.</p>
+    <p>A ggplot object, invisibly.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='get_hyperparameter_defaults.html'>hyperparameters</a></code> for more detail on hyperparameter
-defaults and specifications</p></div>
+    <div class='dont-index'><p><code><a href='interpret.html'>interpret</a></code></p></div>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'><a href='machine_learn.html'>machine_learn</a></span>(<span class='no'>mtcars</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>mpg</span>, <span class='kw'>models</span> <span class='kw'>=</span> <span class='st'>"glm"</span>, <span class='kw'>tune</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>) <span class='kw'>%&gt;%</span>
+  <span class='fu'><a href='interpret.html'>interpret</a></span>() <span class='kw'>%&gt;%</span>
+  <span class='fu'>plot</span>(<span class='kw'>font_size</span> <span class='kw'>=</span> <span class='fl'>14</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>mpg looks numeric, so training regression algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: glmnet</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>*** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
+#&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='img'><img src='plot.interpret-1.png' alt='' width='576' height='288' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
 
       <li><a href="#see-also">See also</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

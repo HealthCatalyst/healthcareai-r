@@ -203,7 +203,6 @@ models &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/m
 <h2 class="hasAnchor">
 <a href="#make-predictions" class="anchor"></a>Make Predictions</h2>
 <p>To make predictions on the training dataset, simply pass the model object to <code>predict</code>. To make predictions on new data, pass the data frame to <code>predict</code> after the model object.</p>
-<<<<<<< HEAD
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># p2 &lt;- SupervisedModelDeploymentParams$new()</span>
 <span class="co"># p2$type &lt;- "classification"</span>
 <span class="co"># p2$df &lt;- dfDeploy</span>
@@ -221,49 +220,18 @@ models &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/m
 
 <span class="kw">predict</span>(models, d<span class="op">$</span>test)
 <span class="co"># &gt; Prepping data based on provided recipe</span>
-<span class="co"># &gt; "predicted_ThirtyDayReadmitFLG" predicted by Random Forest last trained: 2018-05-02 10:50:30</span>
+<span class="co"># &gt; "predicted_ThirtyDayReadmitFLG" predicted by Random Forest last trained: 2018-06-11 10:20:50</span>
 <span class="co"># &gt; Performance in training: AUROC = 0.88</span>
 <span class="co"># &gt; # A tibble: 48 x 8</span>
 <span class="co"># &gt;   ThirtyDayReadmitF… predicted_ThirtyDayReadm… PatientEncounter… PatientID</span>
 <span class="co"># &gt; * &lt;fct&gt;                                  &lt;dbl&gt;             &lt;int&gt;     &lt;int&gt;</span>
-<span class="co"># &gt; 1 N                                    0.238                  22     10004</span>
-<span class="co"># &gt; 2 N                                    0.00697                24     10005</span>
-<span class="co"># &gt; 3 N                                    0.00349                25     10005</span>
-<span class="co"># &gt; 4 N                                    0.117                  79     10014</span>
-<span class="co"># &gt; 5 N                                    0.0758                135     10024</span>
+<span class="co"># &gt; 1 N                                      0.752                22     10004</span>
+<span class="co"># &gt; 2 N                                      0.995                24     10005</span>
+<span class="co"># &gt; 3 N                                      0.996                25     10005</span>
+<span class="co"># &gt; 4 N                                      0.885                79     10014</span>
+<span class="co"># &gt; 5 N                                      0.945               135     10024</span>
 <span class="co"># &gt; # ... with 43 more rows, and 4 more variables: SystolicBPNBR &lt;int&gt;,</span>
 <span class="co"># &gt; #   LDLNBR &lt;int&gt;, A1CNBR &lt;dbl&gt;, GenderFLG &lt;fct&gt;</span></code></pre></div>
-=======
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="co"># p2 &lt;- SupervisedModelDeploymentParams$new()</span></a>
-<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="co"># p2$type &lt;- "classification"</span></a>
-<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="co"># p2$df &lt;- dfDeploy</span></a>
-<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="co"># p2$grainCol &lt;- "PatientEncounterID"</span></a>
-<a class="sourceLine" id="cb8-5" data-line-number="5"><span class="co"># p2$predictedCol &lt;- "ThirtyDayReadmitFLG"</span></a>
-<a class="sourceLine" id="cb8-6" data-line-number="6"><span class="co"># p2$impute &lt;- TRUE</span></a>
-<a class="sourceLine" id="cb8-7" data-line-number="7"><span class="co"># p2$debug &lt;- FALSE</span></a>
-<a class="sourceLine" id="cb8-8" data-line-number="8"><span class="co"># p2$cores &lt;- 1</span></a>
-<a class="sourceLine" id="cb8-9" data-line-number="9"><span class="co"># </span></a>
-<a class="sourceLine" id="cb8-10" data-line-number="10"><span class="co"># dL &lt;- RandomForestDeployment$new(p2)</span></a>
-<a class="sourceLine" id="cb8-11" data-line-number="11"><span class="co"># dL$deploy()</span></a>
-<a class="sourceLine" id="cb8-12" data-line-number="12"><span class="co"># </span></a>
-<a class="sourceLine" id="cb8-13" data-line-number="13"><span class="co"># dfOut &lt;- dL$getOutDf()</span></a>
-<a class="sourceLine" id="cb8-14" data-line-number="14"><span class="co"># head(dfOut)</span></a>
-<a class="sourceLine" id="cb8-15" data-line-number="15"></a>
-<a class="sourceLine" id="cb8-16" data-line-number="16"><span class="kw">predict</span>(models, d<span class="op">$</span>test)</a>
-<a class="sourceLine" id="cb8-17" data-line-number="17"><span class="co"># &gt; Prepping data based on provided recipe</span></a>
-<a class="sourceLine" id="cb8-18" data-line-number="18"><span class="co"># &gt; "predicted_ThirtyDayReadmitFLG" predicted by Random Forest last trained: 2018-05-10 18:42:49</span></a>
-<a class="sourceLine" id="cb8-19" data-line-number="19"><span class="co"># &gt; Performance in training: AUROC = 0.88</span></a>
-<a class="sourceLine" id="cb8-20" data-line-number="20"><span class="co"># &gt; # A tibble: 48 x 8</span></a>
-<a class="sourceLine" id="cb8-21" data-line-number="21"><span class="co"># &gt;   ThirtyDayReadmitF… predicted_ThirtyDayReadm… PatientEncounter… PatientID</span></a>
-<a class="sourceLine" id="cb8-22" data-line-number="22"><span class="co"># &gt; * &lt;fct&gt;                                  &lt;dbl&gt;             &lt;int&gt;     &lt;int&gt;</span></a>
-<a class="sourceLine" id="cb8-23" data-line-number="23"><span class="co"># &gt; 1 N                                    0.248                  22     10004</span></a>
-<a class="sourceLine" id="cb8-24" data-line-number="24"><span class="co"># &gt; 2 N                                    0.00463                24     10005</span></a>
-<a class="sourceLine" id="cb8-25" data-line-number="25"><span class="co"># &gt; 3 N                                    0.00366                25     10005</span></a>
-<a class="sourceLine" id="cb8-26" data-line-number="26"><span class="co"># &gt; 4 N                                    0.115                  79     10014</span></a>
-<a class="sourceLine" id="cb8-27" data-line-number="27"><span class="co"># &gt; 5 N                                    0.0546                135     10024</span></a>
-<a class="sourceLine" id="cb8-28" data-line-number="28"><span class="co"># &gt; # ... with 43 more rows, and 4 more variables: SystolicBPNBR &lt;int&gt;,</span></a>
-<a class="sourceLine" id="cb8-29" data-line-number="29"><span class="co"># &gt; #   LDLNBR &lt;int&gt;, A1CNBR &lt;dbl&gt;, GenderFLG &lt;fct&gt;</span></a></code></pre></div>
->>>>>>> master
 </div>
 <div id="further-reading" class="section level2">
 <h2 class="hasAnchor">
