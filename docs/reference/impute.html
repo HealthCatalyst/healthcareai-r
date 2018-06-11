@@ -224,13 +224,11 @@ will be used.</p></td>
 <span class='co'># Apply to new data</span>
 <span class='fu'>impute</span>(<span class='kw'>d</span> <span class='kw'>=</span> <span class='no'>d_test</span>, <span class='no'>patient_id</span>, <span class='no'>diabetes</span>, <span class='kw'>recipe</span> <span class='kw'>=</span> <span class='no'>train_imputed</span>)</div><div class='output co'>#&gt; Original missingness and methods used in imputation:
 #&gt; 
-#&gt; # A tibble: 4 x 3
-#&gt;   variable     percent_missing imputation_method_used
-#&gt;   &lt;chr&gt;                  &lt;dbl&gt; &lt;chr&gt;                 
-#&gt; 1 weight_class            1.47 new_category          
-#&gt; 2 diastolic_bp            2.94 mean                  
-#&gt; 3 skinfold               26.5  mean                  
-#&gt; 4 insulin                52.9  mean                  
+#&gt;       variable percent_missing imputation_method_used
+#&gt; 1 weight_class             1.5           new_category
+#&gt; 2 diastolic_bp             2.9                   mean
+#&gt; 3     skinfold            26.5                   mean
+#&gt; 4      insulin            52.9                   mean
 #&gt; 
 #&gt; Current data:
 #&gt; 
@@ -252,14 +250,12 @@ will be used.</p></td>
 <span class='fu'>impute</span>(<span class='kw'>d</span> <span class='kw'>=</span> <span class='no'>d_train</span>, <span class='no'>patient_id</span>, <span class='no'>diabetes</span>, <span class='kw'>numeric_method</span> <span class='kw'>=</span> <span class='st'>"bagimpute"</span>,
 <span class='kw'>nominal_method</span> <span class='kw'>=</span> <span class='st'>"new_category"</span>)</div><div class='output co'>#&gt; Original missingness and methods used in imputation:
 #&gt; 
-#&gt; # A tibble: 5 x 3
-#&gt;   variable       percent_missing imputation_method_used
-#&gt;   &lt;chr&gt;                    &lt;dbl&gt; &lt;chr&gt;                 
-#&gt; 1 plasma_glucose           0.714 bagimpute             
-#&gt; 2 weight_class             1.43  new_category          
-#&gt; 3 diastolic_bp             4.71  bagimpute             
-#&gt; 4 skinfold                29.9   bagimpute             
-#&gt; 5 insulin                 48.3   bagimpute             
+#&gt;         variable percent_missing imputation_method_used
+#&gt; 1 plasma_glucose             0.7              bagimpute
+#&gt; 2   weight_class             1.4           new_category
+#&gt; 3   diastolic_bp             4.7              bagimpute
+#&gt; 4       skinfold            29.9              bagimpute
+#&gt; 5        insulin            48.3              bagimpute
 #&gt; 
 #&gt; Current data:
 #&gt; 
@@ -281,14 +277,12 @@ will be used.</p></td>
 <span class='fu'>impute</span>(<span class='kw'>d</span> <span class='kw'>=</span> <span class='no'>d_train</span>, <span class='no'>patient_id</span>, <span class='no'>diabetes</span>, <span class='kw'>nominal_method</span> <span class='kw'>=</span> <span class='st'>"knnimpute"</span>,
 <span class='kw'>nominal_params</span> <span class='kw'>=</span> <span class='fu'>list</span>(<span class='kw'>knn_K</span> <span class='kw'>=</span> <span class='fl'>4</span>))</div><div class='output co'>#&gt; Original missingness and methods used in imputation:
 #&gt; 
-#&gt; # A tibble: 5 x 3
-#&gt;   variable       percent_missing imputation_method_used
-#&gt;   &lt;chr&gt;                    &lt;dbl&gt; &lt;chr&gt;                 
-#&gt; 1 plasma_glucose           0.714 mean                  
-#&gt; 2 weight_class             1.43  knnimpute             
-#&gt; 3 diastolic_bp             4.71  mean                  
-#&gt; 4 skinfold                29.9   mean                  
-#&gt; 5 insulin                 48.3   mean                  
+#&gt;         variable percent_missing imputation_method_used
+#&gt; 1 plasma_glucose             0.7                   mean
+#&gt; 2   weight_class             1.4              knnimpute
+#&gt; 3   diastolic_bp             4.7                   mean
+#&gt; 4       skinfold            29.9                   mean
+#&gt; 5        insulin            48.3                   mean
 #&gt; 
 #&gt; Current data:
 #&gt; 

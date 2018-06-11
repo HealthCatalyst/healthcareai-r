@@ -149,8 +149,8 @@
     
 
     <pre class="usage"><span class='co'># S3 method for variable_importance</span>
-<span class='fu'>plot</span>(<span class='no'>x</span>, <span class='kw'>caption</span> <span class='kw'>=</span> <span class='st'>"model"</span>, <span class='kw'>max_char</span> <span class='kw'>=</span> <span class='fl'>40</span>,
-  <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>font_size</span> <span class='kw'>=</span> <span class='fl'>11</span>, <span class='kw'>point_size</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>print</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
+<span class='fu'>plot</span>(<span class='no'>x</span>, <span class='kw'>caption</span> <span class='kw'>=</span> <span class='st'>"model"</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>font_size</span> <span class='kw'>=</span> <span class='fl'>11</span>, <span class='kw'>point_size</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>print</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -164,13 +164,6 @@
       <td><p>Either "model", "none", or a string to be used as the plot
 caption. "model" puts the name of the best-performing model, on which
 variable importances are generated, in the caption.</p></td>
-    </tr>
-    <tr>
-      <th>max_char</th>
-      <td><p>Maximum length of variable names to leave untruncated.
-Default = 40; use <code>Inf</code> to prevent truncation. Variable names longer
-than this will be truncated to leave the beginning and end of each variable
-name, bridged by " ... ".</p></td>
     </tr>
     <tr>
       <th>title</th>
@@ -202,9 +195,9 @@ name, bridged by " ... ".</p></td>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='machine_learn.html'>machine_learn</a></span>(<span class='no'>pima_diabetes</span>[<span class='fl'>1</span>:<span class='fl'>50</span>, ], <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>, <span class='kw'>tune</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>) <span class='kw'>%&gt;%</span>
   <span class='fu'><a href='get_variable_importance.html'>get_variable_importance</a></span>() <span class='kw'>%&gt;%</span>
-  <span class='fu'>plot</span>()</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: Random Forest</span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: k-Nearest Neighbors</span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: glmnet</span></div><div class='output co'>#&gt; <span class='message'></span>
+  <span class='fu'>plot</span>()</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: Random Forest</span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: k-Nearest Neighbors</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>*** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
-#&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Returning Random Forest variable importance, but glmnet was the best performing model and will be used to make predictions. To make predictions from Random Forest instead, use: models['Random Forest'].</span></div><div class='img'><img src='plot.variable_importance-1.png' alt='' width='576' height='288' /></div></pre>
+#&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='img'><img src='plot.variable_importance-1.png' alt='' width='576' height='288' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

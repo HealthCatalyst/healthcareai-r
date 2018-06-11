@@ -169,8 +169,9 @@ performance</p>
     </tr>
     <tr>
       <th>models</th>
-      <td><p>Names of models to try. See <code><a href='get_supported_models.html'>get_supported_models</a></code>
-for available models. Default is all available models.</p></td>
+      <td><p>Names of models to try, by default "rf" for random forest and
+"knn" for k-nearest neighbors. See <code><a href='get_supported_models.html'>supported_models</a></code> for
+available models.</p></td>
     </tr>
     <tr>
       <th>metric</th>
@@ -194,8 +195,7 @@ a factor).</p></td>
     </tr>
     <tr>
       <th>tune_depth</th>
-      <td><p>How many hyperparameter combinations to try? Default = 10.
-Value is multiplied by 5 for regularized regression.</p></td>
+      <td><p>How many hyperparameter combinations to try? Defualt = 10.</p></td>
     </tr>
     <tr>
       <th>hyperparameters</th>
@@ -244,8 +244,7 @@ defaults to the name of the outcome variable.</p></td>
   <code><a href='evaluate.html'>evaluate.model_list</a></code></p>
 <p>For making predictions: <code><a href='predict.model_list.html'>predict.model_list</a></code></p>
 <p>For faster, but not-optimized model training: <code><a href='flash_models.html'>flash_models</a></code></p>
-<p>To prepare data and tune models in a single step:
-  <code><a href='machine_learn.html'>machine_learn</a></code></p></div>
+<p>To prepare data and tune models in a single step: <code><a href='machine_learn.html'>machine_learn</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>

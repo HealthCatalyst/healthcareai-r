@@ -148,7 +148,7 @@
     <p>Get variable importances</p>
     
 
-    <pre class="usage"><span class='fu'>get_variable_importance</span>(<span class='no'>models</span>, <span class='kw'>remove_zeros</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>top_n</span>)</pre>
+    <pre class="usage"><span class='fu'>get_variable_importance</span>(<span class='no'>models</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -156,16 +156,6 @@
     <tr>
       <th>models</th>
       <td><p>model_list object</p></td>
-    </tr>
-    <tr>
-      <th>remove_zeros</th>
-      <td><p>Remove features with zero variable importance? Default is
-TRUE</p></td>
-    </tr>
-    <tr>
-      <th>top_n</th>
-      <td><p>Integer: How many variables to return? The top_n most important
-variables be returned. If missing (default), all variables are returned</p></td>
     </tr>
     </table>
     
@@ -186,18 +176,19 @@ variables be returned. If missing (default), all variables are returned</p></td>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='no'>m</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='flash_models.html'>flash_models</a></span>(<span class='no'>mtcars</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>mpg</span>, <span class='kw'>models</span> <span class='kw'>=</span> <span class='st'>"rf"</span>)</div><div class='output co'>#&gt; <span class='message'>mpg looks numeric, so training regression algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: Random Forest</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>*** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
-#&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='input'><span class='fu'>get_variable_importance</span>(<span class='no'>m</span>)</div><div class='output co'>#&gt; # A tibble: 9 x 2
-#&gt;   variable importance
-#&gt; * &lt;chr&gt;         &lt;dbl&gt;
-#&gt; 1 cyl          100.  
-#&gt; 2 disp          65.8 
-#&gt; 3 wt            60.7 
-#&gt; 4 hp            47.3 
-#&gt; 5 vs            32.5 
-#&gt; 6 am            19.8 
-#&gt; 7 gear          12.3 
-#&gt; 8 drat           3.92
-#&gt; 9 carb           2.65</div></pre>
+#&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='input'><span class='fu'>get_variable_importance</span>(<span class='no'>m</span>)</div><div class='output co'>#&gt; # A tibble: 10 x 2
+#&gt;    variable importance
+#&gt;  * &lt;chr&gt;         &lt;dbl&gt;
+#&gt;  1 cyl          100.  
+#&gt;  2 wt            59.5 
+#&gt;  3 disp          57.5 
+#&gt;  4 hp            42.6 
+#&gt;  5 vs            40.2 
+#&gt;  6 am            18.2 
+#&gt;  7 drat           9.49
+#&gt;  8 gear           9.20
+#&gt;  9 carb           8.49
+#&gt; 10 qsec           0.  </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

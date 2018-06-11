@@ -170,8 +170,8 @@ Unquoted. Must be named, i.e. you must specify <code>outcome = </code></p></td>
     </tr>
     <tr>
       <th>models</th>
-      <td><p>Names of models to try. See <code><a href='get_supported_models.html'>get_supported_models</a></code>
-for available models. Default is all available models.</p></td>
+      <td><p>Models to be trained, k-nearest neighbors and random forest by
+default. See <code><a href='get_supported_models.html'>supported_models</a></code> for details.</p></td>
     </tr>
     <tr>
       <th>tune</th>
@@ -196,9 +196,8 @@ or FALSE.</p></td>
     </tr>
     <tr>
       <th>tune_depth</th>
-      <td><p>How many hyperparameter combinations to try? Default = 10.
-Value is multiplied by 5 for regularized regression. Ignored if tune is
-FALSE.</p></td>
+      <td><p>How many hyperparameter combinations to try? Defualt = 10.
+Ignored if tune is FALSE.</p></td>
     </tr>
     <tr>
       <th>impute</th>
