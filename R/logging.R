@@ -43,7 +43,7 @@ set_inital_telemetry <- function(mi) {
     outcome_variable = mi$target,
     predict_time = Sys.time(),
     predictions_made = FALSE,
-    n_predictions = NA,
+    n_predictions = 0,
     days_since_trained =
       round(difftime(Sys.time(), mi$timestamp, units = "days"), 1),
     prediction_min = NA,
@@ -76,18 +76,18 @@ update_telemetry <- function(d, newdata) {
 
   d$n_predictions <- nrow(newdata)
   d$predictions_made <- TRUE
-  d$prediction_mean <- round(pred_summary$Mean, 3)
-  d$prediction_min <- round(pred_summary$Min., 3)
-  d$prediction_q1 <- round(pred_summary$`1st Qu.`, 3)
-  d$prediction_median <- round(pred_summary$Median, 3)
-  d$prediction_q3 <- round(pred_summary$`3rd Qu.`, 3)
-  d$prediction_max <- round(pred_summary$Max., 3)
-  d$missingness_mean <- round(missingness$Mean, 3)
-  d$missingness_min <- round(missingness$Min., 3)
-  d$missingness_q1 <- round(missingness$`1st Qu.`, 3)
-  d$missingness_median <- round(missingness$Median, 3)
-  d$missingness_q3 <- round(missingness$`3rd Qu.`, 3)
-  d$missingness_max <- round(missingness$Max., 3)
+  d$prediction_mean <- pred_summary$Mean
+  d$prediction_min <- pred_summary$Min.
+  d$prediction_q1 <- pred_summary$`1st Qu.`
+  d$prediction_median <- pred_summary$Median
+  d$prediction_q3 <- pred_summary$`3rd Qu.`
+  d$prediction_max <- pred_summary$Max.
+  d$missingness_mean <- missingness$Mean
+  d$missingness_min <- missingness$Min.
+  d$missingness_q1 <- missingness$`1st Qu.`
+  d$missingness_median <- missingness$Median
+  d$missingness_q3 <- missingness$`3rd Qu.`
+  d$missingness_max <- missingness$Max.
   return(d)
 }
 
@@ -140,25 +140,25 @@ parse_safe_n_quiet <- function(x, mi, mod) {
 }
 
 #' @title
-#' Depreciated
-#' @description Depreciated
-#' @param ... Depreciated
+#' Defunct
+#' @description Defunct
+#' @param ... Defunct
 start_prod_logs <- function(...) {
-  stop("depreciated")
+  .Defunct("predict.model_list")
 }
 
 #' @title
-#' Depreciated
-#' @description Depreciated
-#' @param ... Depreciated
+#' Defunct
+#' @description Defunct
+#' @param ... Defunct
 stop_prod_logs <- function(...) {
-  stop("depreciated")
+  .Defunct("predict.model_list")
 }
 
 #' @title
-#' Depreciated
-#' @description Depreciated
-#' @param ... Depreciated
+#' Defunct
+#' @description Defunct
+#' @param ... Defunct
 catalyst_test_deploy_in_prod <- function(...) {
-  stop("depreciated")
+  .Defunct("predict.model_list")
 }

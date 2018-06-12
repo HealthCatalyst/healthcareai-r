@@ -20,8 +20,8 @@
 #' @param model_class "regression" or "classification". If not provided, this
 #'   will be determined by the class of `outcome` with the determination
 #'   displayed in a message.
-#' @param model_name Quoted, name of the model. If left blank,
-#' defaults to the name of the outcome variable.
+#' @param model_name Quoted, name of the model. Defaults to the name of the
+#' outcome variable.
 #'
 #' @export
 #' @seealso For setting up model training: \code{\link{prep_data}},
@@ -74,7 +74,7 @@ flash_models <- function(d,
                          positive_class,
                          n_folds = 5,
                          model_class,
-                         model_name = NA) {
+                         model_name = NULL) {
 
   model_args <- setup_training(d, rlang::enquo(outcome), model_class, models,
                                metric, positive_class, n_folds)

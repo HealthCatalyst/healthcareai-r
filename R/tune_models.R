@@ -30,8 +30,8 @@
 #' @param model_class "regression" or "classification". If not provided, this
 #'   will be determined by the class of `outcome` with the determination
 #'   displayed in a message.
-#' @param model_name Quoted, name of the model. If left blank,
-#' defaults to the name of the outcome variable.
+#' @param model_name Quoted, name of the model. Defaults to the name of the
+#' outcome variable.
 #'
 #' @export
 #' @importFrom kknn kknn
@@ -104,7 +104,7 @@ tune_models <- function(d,
                         tune_depth = 10,
                         hyperparameters = NULL,
                         model_class,
-                        model_name = NA) {
+                        model_name = NULL) {
 
   if (n_folds <= 1)
     stop("n_folds must be greater than 1.")

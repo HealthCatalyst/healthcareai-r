@@ -10,8 +10,8 @@
 #'   through prep_data
 #' @param positive_class If classification, the positive outcome class,
 #'   otherwise NULL
-#' @param model_name Quoted, name of the model. If left blank,
-#' defaults to the name of the outcome variable.
+#' @param model_name Quoted, name of the model. Defaults to the name of the
+#' outcome variable.
 #' @param best_levels best_levels list as attached to data frames from
 #'   add_best_levels
 #' @param original_data_str zero-row data frame with names and classes of all
@@ -33,7 +33,7 @@ as.model_list <- function(...,
                           tuned = TRUE,
                           recipe = NULL,
                           positive_class = NULL,
-                          model_name = NA,
+                          model_name = NULL,
                           best_levels = NULL,
                           original_data_str,
                           versions) {
@@ -75,7 +75,7 @@ as.model_list <- function(...,
       listed_models[[i]]$trainingData <- NULL
     listed_models[[i]]$call <- NULL
   }
-  if (is.na(model_name))
+  if (is.null(model_name))
     model_name <- target
   # If this is a direct wrapping of a caret model
   if (missing(original_data_str)) {

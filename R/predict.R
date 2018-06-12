@@ -21,7 +21,8 @@
 #'   the current directory with metadata about predictions. If a character, is
 #'   the name of a file to create or append with prediction metadata. If you
 #'   want a unique log file each time predictions are made, use something like
-#'   \code{write_log = paste0(Sys.time(), " predictions.txt")}.
+#'   \code{write_log = paste0(Sys.time(), " predictions.txt")}. This param
+#'   modifies error behavior and is best used in production. See details.
 #' @param ... Unused.
 #'
 #' @return A tibble data frame: newdata with an additional column for the
@@ -30,13 +31,17 @@
 #'   probabilities. The tibble will have child class "predicted_df" and
 #'   attribute "model_info" that contains information about the model used to
 #'   make predictions. You can call \code{plot} or \code{evaluate} on a
-#'   predicted_df.
+#'   predicted_df. If \code{write_log} is TRUE and this function errors, a
+#'   zero-row dataframe will be returned.
 #'
 #'   Returned data will contain an attribute, "prediction_log" that contains a
 #'   tibble of  logging info for writing to database. If \code{write_log}
 #'   is TRUE and predict errors, an empty dataframe with the "prediction_log"
-#'   attribute will still be returned. Data will also contain a "failed"
-#'   attribute to easily filter for errors after prediction.
+#'   attribute will still be returned. Extract this attribute using
+#'   \code{attr(pred, "prediction_log")}.
+#'
+#'   Data will also contain a "failed" attribute to easily filter for errors
+#'   after prediction. Extract using \code{attr(pred, "failed")}.
 #' @export
 #' @importFrom caret predict.train
 #' @seealso \code{\link{plot.predicted_df}}, \code{\link{evaluate.predicted_df}}
@@ -45,6 +50,13 @@
 #'   performance in model training according to the selected metric is used to
 #'   make predictions. Prepping data inside `predict` has the advantage of
 #'   returning your predictions with the newdata in its original format.
+#'
+#'   If \code{write_log} is TRUE and an error is encountered, \code{predict}
+#'   will not stop. It will return the error message as:
+#'   - A warning in the console
+#'   - A field in the log file
+#'   - A column in the "prediction_log" attribute
+#'   - A zero-row data frame will be returned
 #'
 #' @examples
 #' # Tune models using only the first 40 rows to keep computation fast

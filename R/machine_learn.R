@@ -26,8 +26,8 @@
 #'   FALSE.
 #' @param impute Logical, if TRUE (default) missing values will be filled by
 #'   \code{\link{hcai_impute}}
-#' @param model_name Quoted, name of the model. If left blank,
-#' defaults to the name of the outcome variable.
+#' @param model_name Quoted, name of the model. Defaults to the name of the
+#' outcome variable.
 #'
 #' @return A model_list object. You can call \code{plot}, \code{summary},
 #'   \code{evaluate}, or \code{predict} on a model_list.
@@ -84,7 +84,7 @@
 #' }
 machine_learn <- function(d, ..., outcome, models, tune = TRUE, positive_class,
                           n_folds = 5, tune_depth = 10, impute = TRUE,
-                          model_name = NA) {
+                          model_name = NULL) {
 
   if (!is.data.frame(d))
     stop("\"d\" must be a data frame.")
