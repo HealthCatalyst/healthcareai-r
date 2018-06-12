@@ -40,13 +40,20 @@ suppressWarnings({
 })
 # Implicit test that warning not issued for missing resampled performance metrics:
 r_models <- tune_models(dreg, mpg, n_folds = 2, tune_depth = 2)
-c_models <- tune_models(dcla, am, n_folds = 2, tune_depth = 2)
+c_models <- tune_models(dcla, am, n_folds = 2, tune_depth = 2,
+                        model_name = "great_name")
 c_pr <- tune_models(dcla, am, metric = "PR", n_folds = 2, tune_depth = 2)
 single_model_as <- as.model_list(rf)
 single_model_tune <- tune_models(dcla, am, models = "rf")
 double_model_as <- as.model_list(rf, kn)
 r_flash <- flash_models(dreg, mpg)
 c_flash <- flash_models(dcla, am)
+unprepped_flash <- flash_models(mtcars, mpg, models = "glm")
+ods <- list(
+  prepped = attr(c_models, "original_data_str"),
+  unprepped = attr(unprepped_flash, "original_data_str"),
+  as = attr(single_model_as, "original_data_str")
+)
 
 context("Checking model_list constructors") # ----------------------------------
 
@@ -96,6 +103,33 @@ test_that("as.model_list tuned-argument works", {
   expect_false(attr(as.model_list(rf, tuned = FALSE), "tuned"))
 })
 
+test_that("model_lists have original data str as zero-row DF with right names and classes", {
+  purrr::map_lgl(ods, is.data.frame) %>% all() %>% expect_true()
+  purrr::map_lgl(ods, ~ nrow(.x) == 0) %>% all() %>% expect_true()
+  expect_equivalent(ods$prepped, mtcars[0, -which(names(mtcars) == "am")])
+  expect_equivalent(ods$unprepped, mtcars[0, -which(names(mtcars) == "mpg")])
+  expect_equivalent(ods$as, dplyr::select(dreg[0, ], -mpg))
+})
+
+test_that("model_list's original_data_str is the same as predict's return", {
+
+  preds <- purrr::map2(
+    .x = list(c_models, unprepped_flash, single_model_as),
+    .y = list(mtcars, mtcars, mtcars),
+    .f = ~ suppressWarnings( predict(.x, .y)[0, - (1:2)] )
+  )
+  purrr::map2_lgl(preds, ods, all.equal) %>%
+    all() %>%
+    expect_true()
+})
+
+test_that("model_lists have r, hcai, and other-package versions as attrs", {
+  expected <- c("r_version", "hcai_version", "other_packages")
+  expect_true(all(expected %in% names(attributes(r_models)$versions)))
+  expect_true(all(expected %in% names(attributes(single_model_as)$versions)))
+  expect_true(all(expected %in% names(attributes(unprepped_flash)$versions)))
+})
+
 context("Checking model_list generics") # --------------------------------------
 
 test_that("plot.model_list works on regression_list", {
@@ -141,6 +175,12 @@ test_that("print.model_list works", {
   cprint <- capture_output(c_pr, TRUE)
   expect_true(nchar(cprint) > 0)
   expect_true(grepl("PR", cprint, ignore.case = TRUE))
+
+  # Model name
+  rprint <- capture_output(r_models, TRUE)
+  expect_true(grepl("Model Name: mpg", rprint, ignore.case = TRUE))
+  cprint <- capture_output(c_models, TRUE)
+  expect_true(grepl("Model Name: great_name", cprint, ignore.case = TRUE))
 })
 
 test_that("summary.model_list works", {

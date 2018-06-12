@@ -2,35 +2,13 @@
 % Please edit documentation in R/logging.R
 \name{start_prod_logs}
 \alias{start_prod_logs}
-\title{Sets console logging to a file in the working directory.}
+\title{Defunct}
 \usage{
-start_prod_logs()
+start_prod_logs(...)
+}
+\arguments{
+\item{...}{Defunct}
 }
 \description{
-Logs all console messages and output to a timestamped file
-called, "deployConsoleLog..." in the working directory. This is meant to be
-used in production to monitor console output on ETL servers.
-}
-\examples{
-\dontrun{
-# Object Attribute Base should contain a script like this:
-# Move to working directory
-setwd("Prod Server/Machine Learning/MyProject")
-
-# Start console logging
-start_prod_logs()
-
-# Deploy -------------------------------------------------
-# Test deployment. Comment/delete when working
-catalyst_test_deploy_in_prod()
-
-# Deploy model
-source("myDeployScript.R")
-
-# Stop console logging
-stop_prod_logs()
-}
-}
-\seealso{
-\code{\link{stop_prod_logs}}
+Defunct
 }

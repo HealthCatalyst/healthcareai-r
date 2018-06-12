@@ -216,12 +216,12 @@ test_that("printing classification df gets ROC/PR metric right", {
 
 test_that("determine_prep FALSE when no recipe on model", {
   determine_prep(model_regression_not_prepped, test_data) %>%
-  expect_false()
+    expect_false()
 })
 
 test_that("determine_prep FALSE when newdata has been prepped", {
   determine_prep(model_regression_prepped, test_data_reg_prep) %>%
-  expect_false()
+    expect_false()
 })
 
 test_that("determine_prep TRUE w/o warning when prep needed and vars changed in prep", {
@@ -326,18 +326,23 @@ test_that("logging works as expected", {
   expect_equal(length(list.files(pattern = "txt$")), 0L)
   # Activating default logs works
   predict(model_regression_prepped, test_data, write_log = TRUE)
-  expect_true(file.exists("prediction_log.txt"))
-  first_log <- readLines("prediction_log.txt")
+  expect_true(file.exists("Fertility_prediction_log.txt"))
+  first_log <- readLines("Fertility_prediction_log.txt")
   expect_true(any(stringr::str_detect(first_log, "Days since model trained")))
   # Appends same file
   predict(model_regression_prepped, test_data[1, ], write_log = TRUE)
   expect_equal(length(list.files(pattern = "txt$")), 1L)
-  second_log <- readLines("prediction_log.txt")
+  second_log <- readLines("Fertility_prediction_log.txt")
   expect_true(length(second_log) > length(first_log))
   # Custom file location
   fileloc <- tempfile(pattern = "temp-testfile-", tmpdir = ".", fileext = ".txt")
   predict(model_regression_prepped, test_data, write_log = fileloc)
   expect_true(file.exists(fileloc))
+})
+
+test_that("get_pred_summary seems to work", {
+  expect_true(tibble::is.tibble(get_pred_summary(classification_prepped_prepped)))
+  expect_equal(dim(get_pred_summary(classification_prepped_prepped)), c(1, 6))
 })
 
 remove_logfiles()
