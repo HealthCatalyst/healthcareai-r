@@ -77,6 +77,7 @@ predict.model_list <- function(object,
                                prepdata,
                                write_log = FALSE,
                                ...) {
+  start <- Sys.time()
   if (write_log == FALSE) {
     out <- predict_model_list_main(object,
                                    newdata,
@@ -96,6 +97,11 @@ predict.model_list <- function(object,
     if (isTRUE(write_log)) {
       write_log <- paste0(mi$model_name, "_prediction_log.txt")
     }
+  }
+
+  run <- Sys.time() - start
+  attr(out, "prediction_log")$run_time <- as.numeric(lubridate::seconds(run))
+  if (write_log != FALSE) {
     log_predictions(filename = write_log, d = attr(out, "prediction_log"))
   }
   return(out)

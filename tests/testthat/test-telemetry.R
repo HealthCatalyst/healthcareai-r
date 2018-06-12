@@ -33,20 +33,22 @@ test_that("log_predictions writes info to file correctly", {
 
 test_that("log_predictions returns data correctly", {
   d_pred <- attr(p_reloaded, "prediction_log")
-  expect_equal(dim(d_pred), c(1, 22))
+  expect_equal(dim(d_pred), c(1, 23))
   expect_equal(d_pred$loaded_from, "telemetry_test.RDS")
   expect_equal(d_pred$model_name, "telemetry_test")
   expect_equal(d_pred$n_predictions, 50)
   expect_equal(d_pred$outcome_variable, "diabetes")
+  expect_equal(class(d_pred$run_time), "numeric")
 })
 
 test_that("log_predictions works without loading from file", {
   d_pred <- attr(p, "prediction_log")
-  expect_equal(dim(d_pred), c(1, 22))
+  expect_equal(dim(d_pred), c(1, 23))
   expect_equal(d_pred$loaded_from, "trained_in_memory")
   expect_equal(d_pred$model_name, "telemetry_test")
   expect_equal(d_pred$n_predictions, 50)
   expect_equal(d_pred$outcome_variable, "diabetes")
+  expect_equal(class(d_pred$run_time), "numeric")
   remove_logfiles()
 })
 
@@ -94,19 +96,20 @@ test_that("Failure returns warning, blank df, and error info", {
   expect_true(attr(pe, "failed"))
   expect_equal(d_log$outcome_variable, "diabetes")
   expect_false(d_log$predictions_made)
-  expect_equal(d_log$n_predictions, NA)
+  expect_equal(d_log$n_predictions, 0)
   expect_equal(names(pe), names(p))
+  expect_equal(class(d_log$run_time), "numeric")
 })
 
 test_that("Set and update telemetry functions work", {
   d <- set_inital_telemetry(extract_model_info(m))
-  expect_equal(dim(d), c(1, 22))
+  expect_equal(dim(d), c(1, 23))
   expect_equal(d$outcome_variable, "diabetes")
   expect_false(d$predictions_made)
-  expect_equal(d$n_predictions, NA)
+  expect_equal(d$n_predictions, 0)
 
   d_up <- update_telemetry(d, p)
-  expect_equal(dim(d_up), c(1, 22))
+  expect_equal(dim(d_up), c(1, 23))
   expect_equal(d_up$error_message, NA)
   expect_true(is.numeric(d_up$prediction_mean))
   expect_true(is.numeric(d_up$missingness_mean))

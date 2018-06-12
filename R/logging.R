@@ -44,6 +44,7 @@ set_inital_telemetry <- function(mi) {
     predict_time = Sys.time(),
     predictions_made = FALSE,
     n_predictions = 0,
+    run_time = NA,
     days_since_trained =
       round(difftime(Sys.time(), mi$timestamp, units = "days"), 1),
     prediction_min = NA,
