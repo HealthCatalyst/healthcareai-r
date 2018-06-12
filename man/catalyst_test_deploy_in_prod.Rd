@@ -2,13 +2,13 @@
 % Please edit documentation in R/logging.R
 \name{catalyst_test_deploy_in_prod}
 \alias{catalyst_test_deploy_in_prod}
-\title{Depreciated}
+\title{Defunct}
 \usage{
 catalyst_test_deploy_in_prod(...)
 }
 \arguments{
-\item{...}{Depreciated}
+\item{...}{Defunct}
 }
 \description{
-Depreciated
+Defunct
 }

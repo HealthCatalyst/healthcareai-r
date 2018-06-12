@@ -2,13 +2,13 @@
 % Please edit documentation in R/logging.R
 \name{stop_prod_logs}
 \alias{stop_prod_logs}
-\title{Depreciated}
+\title{Defunct}
 \usage{
 stop_prod_logs(...)
 }
 \arguments{
-\item{...}{Depreciated}
+\item{...}{Defunct}
 }
 \description{
-Depreciated
+Defunct
 }

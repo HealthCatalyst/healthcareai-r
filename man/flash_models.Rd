@@ -5,7 +5,7 @@
 \title{Train models without tuning for performance}
 \usage{
 flash_models(d, outcome, models, metric, positive_class, n_folds = 5,
-  model_class, model_name = NA)
+  model_class, model_name = NULL)
 }
 \arguments{
 \item{d}{A data frame}
@@ -35,8 +35,8 @@ it trains \code{n_folds} models to evaluate performance out of fold.}
 will be determined by the class of `outcome` with the determination
 displayed in a message.}
 
-\item{model_name}{Quoted, name of the model. If left blank,
-defaults to the name of the outcome variable.}
+\item{model_name}{Quoted, name of the model. Defaults to the name of the
+outcome variable.}
 }
 \value{
 A model_list object. You can call \code{plot}, \code{summary},

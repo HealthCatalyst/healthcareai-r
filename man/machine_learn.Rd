@@ -5,7 +5,7 @@
 \title{Machine learning made easy}
 \usage{
 machine_learn(d, ..., outcome, models, tune = TRUE, positive_class,
-  n_folds = 5, tune_depth = 10, impute = TRUE, model_name = NA)
+  n_folds = 5, tune_depth = 10, impute = TRUE, model_name = NULL)
 }
 \arguments{
 \item{d}{A data frame}
@@ -41,8 +41,8 @@ FALSE.}
 \item{impute}{Logical, if TRUE (default) missing values will be filled by
 \code{\link{hcai_impute}}}
 
-\item{model_name}{Quoted, name of the model. If left blank,
-defaults to the name of the outcome variable.}
+\item{model_name}{Quoted, name of the model. Defaults to the name of the
+outcome variable.}
 }
 \value{
 A model_list object. You can call \code{plot}, \code{summary},

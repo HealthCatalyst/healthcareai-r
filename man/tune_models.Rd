@@ -6,7 +6,7 @@
 performance}
 \usage{
 tune_models(d, outcome, models, metric, positive_class, n_folds = 5,
-  tune_depth = 10, hyperparameters = NULL, model_class, model_name = NA)
+  tune_depth = 10, hyperparameters = NULL, model_class, model_name = NULL)
 }
 \arguments{
 \item{d}{A data frame}
@@ -47,8 +47,8 @@ bare to this argument.}
 will be determined by the class of `outcome` with the determination
 displayed in a message.}
 
-\item{model_name}{Quoted, name of the model. If left blank,
-defaults to the name of the outcome variable.}
+\item{model_name}{Quoted, name of the model. Defaults to the name of the
+outcome variable.}
 }
 \value{
 A model_list object. You can call \code{plot}, \code{summary},
