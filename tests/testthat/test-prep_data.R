@@ -381,7 +381,7 @@ test_that("remove_near_zero_variance works with params", {
   d_train <- dplyr::mutate(d_train,
                            a_nzv_col = c("rare", rep("common", nrow(d_train) - 1)))
   expect_error(def <- prep_data(d_train,
-                                  remove_near_zero_variance = "chowder"),
+                                remove_near_zero_variance = "chowder"),
                regexp = "logical or list")
   expect_error(def <- prep_data(d_train,
                                 remove_near_zero_variance = list(
@@ -390,9 +390,9 @@ test_that("remove_near_zero_variance works with params", {
                regexp = "freq_cut")
   expect_message(def <- prep_data(d_train,
                                   remove_near_zero_variance = list(
-                                    freq_cut = 90/10,
+                                    freq_cut = 90 / 10,
                                     unique_cut = 2)
-                                  ), regexp = "a_nzv_col")
+  ), regexp = "a_nzv_col")
   expect_false("a_nzv_col_rare" %in% names(def))
   # nzv_col should be removed in deployement even if it has variance
   d_test <- dplyr::mutate(d_test,
@@ -405,7 +405,7 @@ test_that("remove_near_zero_variance works with params", {
   d_train$a_nzv_col[31:50] <- letters[1:20]
   def <- prep_data(d_train,
                    remove_near_zero_variance = list(
-                     freq_cut = 90/10,
+                     freq_cut = 90 / 10,
                      unique_cut = .01)
   )
   expect_true("a_nzv_col_rare" %in% names(def))

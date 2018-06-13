@@ -254,18 +254,18 @@ prep_data <- function(d,
     # recipe <- recipe %>% step_hcai_mostly_missing_to_factor()  # nolint
 
     # Remove columns with near zero variance ----------------------------------
-    options = list(freq_cut = 95 / 5, unique_cut = 10)
-      if (!is.logical(remove_near_zero_variance)) {
-        if (!is.list(remove_near_zero_variance))
-          stop("remove_near_zero_variance must be logical or list for step_nzv")
-        if (all(sort(names(remove_near_zero_variance)) !=
-                c("freq_cut", "unique_cut"))) {
-          stop("remove_near_zero_variance must be a named list with 'freq_cut'
+    options <- list(freq_cut = 95 / 5, unique_cut = 10)
+    if (!is.logical(remove_near_zero_variance)) {
+      if (!is.list(remove_near_zero_variance))
+        stop("remove_near_zero_variance must be logical or list for step_nzv")
+      if (all(sort(names(remove_near_zero_variance)) !=
+              c("freq_cut", "unique_cut"))) {
+        stop("remove_near_zero_variance must be a named list with 'freq_cut'
                and 'unique_cut'")
-        }
-        options <- remove_near_zero_variance
-        remove_near_zero_variance <- TRUE
       }
+      options <- remove_near_zero_variance
+      remove_near_zero_variance <- TRUE
+    }
     if (remove_near_zero_variance) {
       recipe <- recipe %>%
         recipes::step_nzv(all_predictors(), options = options)
