@@ -17,6 +17,10 @@
 #'   because a level present in only a few observation will rarely be a useful.
 #' @param positive_class If classification model, the positive class of the
 #'   outcome, default = "Y"; ignored if regression
+#' @param cohesion_weight For classification problems only, how much to value a
+#'   level being consistently associated with an outcome relative to its being
+#'   present in many observations. Default = 2; equal weight is 1. Note that
+#'   this is a parameter that could potentially be tuned over.
 #' @param levels Use this argument when add_best_levels was used in training and
 #'   you want to add the same columns for deployment. You can pass the model
 #'   trained on the data frame from \code{add_best_levels}, the data frame from
@@ -73,13 +77,18 @@
 #'   (i.e. centered_mean(group) / sqrt(var(group) / n(group))), and the groups
 #'   with the largest absolute values of that statistic are retained.} \item{For
 #'   classification: For each group, two "log-loss-like" statistics are
-#'   calculated. One is log of the fraction of observations in which the group
-#'   does not appear. The other is the log of the difference of the proportion
-#'   of different outcomes from all the same outcome (e.g. if 4/5 observations
-#'   are positive class, this statistic is log(.2)). To ensure retainment of
-#'   both positive- and negative-predictors, the all-same-outcome that is used
-#'   as the comparison is determined by which side of the median proportion of
-#'   positive_class the group falls on.}}
+#'   calculated. One is the log of the fraction of observations in which the
+#'   group does not appear, which captures how ubiquitous the group is: more
+#'   common groups are more useful as predictors. The other captures how far the
+#'   group is from being always associated with the same outcome: groups that
+#'   are consistently assoicated with either outcome are more useful as
+#'   predictors. This is calculated as the log of the proportion of outcomes
+#'   that are not all the same outcome (e.g. if 4/5 observations are positive
+#'   class, this statistic is log(.2)). This value is then raised to the
+#'   \code{cohesion_weight} power. To ensure retainment of both positive- and
+#'   negative-predictors, the all-same-outcome that is used as the comparison is
+#'   determined by which side of the median proportion of positive_class the
+#'   group falls on.}}
 #'
 #' @examples
 #' set.seed(45796)
@@ -160,8 +169,8 @@
 #'                 fill = dose,
 #'                 missing_fill = 0)
 add_best_levels <- function(d, longsheet, id, groups, outcome, n_levels = 100,
-                            min_obs = 1, positive_class = "Y", levels = NULL,
-                            fill, fun = sum, missing_fill = NA) {
+                            min_obs = 1, positive_class = "Y", cohesion_weight = 2,
+                            levels = NULL, fill, fun = sum, missing_fill = NA) {
   id <- rlang::enquo(id)
   groups <- rlang::enquo(groups)
   outcome <- rlang::enquo(outcome)
@@ -220,7 +229,8 @@ add_best_levels <- function(d, longsheet, id, groups, outcome, n_levels = 100,
 #' @export
 #' @rdname add_best_levels
 get_best_levels <- function(d, longsheet, id, groups, outcome, n_levels = 100,
-                            min_obs = 1, positive_class = "Y") {
+                            min_obs = 1, positive_class = "Y",
+                            cohesion_weight = 2) {
   id <- rlang::enquo(id)
   groups <- rlang::enquo(groups)
   outcome <- rlang::enquo(outcome)
@@ -282,7 +292,7 @@ get_best_levels <- function(d, longsheet, id, groups, outcome, n_levels = 100,
       levs %>%
       mutate(predictor_of = as.integer(fraction_positive > stats::median(fraction_positive)),
              log_loss = - (predictor_of * log(fraction_positive) + (1 - predictor_of) * log(1 - fraction_positive)),
-             badness = log_loss * log_dist_from_in_all) %>%
+             badness = log_loss ^ cohesion_weight * log_dist_from_in_all) %>%
       arrange(badness)
     tozip <-
       split(levs, levs$predictor_of) %>%
