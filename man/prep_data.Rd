@@ -27,12 +27,15 @@ prepared. If training data is big, pull the recipe from the "recipe"
 attribute of the prepped training data frame and pass that to this
 argument. If present, all following arguments will be ignored.}
 
-\item{remove_near_zero_variance}{Logical. If TRUE (default), columns with
+\item{remove_near_zero_variance}{Logical or list. If TRUE (default), columns
+with
 near-zero variance will be removed. These columns are either a single
 value, or meet both of the following criteria: 1. they have very few unique
 values relative to the number of samples and 2. the ratio of the frequency
 of the most common value to the frequency of the second most common value
-is large.}
+is large. If a list, it is passed to the `options` argument of
+`recipes::step_nzv`. E.g. if you want lower-variance columns to pass, use
+`remove_near_zero_variance = list(freq_cut = 98/2, unique_cut = 5)`.}
 
 \item{convert_dates}{Logical or character. If TRUE (default), date columns
 are identifed and used to generate day-of-week, month, and year columns,
@@ -118,7 +121,8 @@ prep_data(d = d_train, patient_id, outcome = diabetes,
           impute = list(numeric_method = "bagimpute",
                         nominal_method = "bagimpute"),
           collapse_rare_factors = FALSE, convert_dates = "year",
-          center = TRUE, scale = TRUE, make_dummies = FALSE)
+          center = TRUE, scale = TRUE, make_dummies = FALSE,
+          remove_near_zero_variance = list(freq_cut = 95/5, unique_cut = 10))
 }
 \seealso{
 To let data preparation happen automatically under the hood, see

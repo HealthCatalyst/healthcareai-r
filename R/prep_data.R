@@ -33,12 +33,15 @@
 #'   prepared. If training data is big, pull the recipe from the "recipe"
 #'   attribute of the prepped training data frame and pass that to this
 #'   argument. If present, all following arguments will be ignored.
-#' @param remove_near_zero_variance Logical. If TRUE (default), columns with
+#' @param remove_near_zero_variance Logical or list. If TRUE (default), columns
+#'   with
 #'   near-zero variance will be removed. These columns are either a single
 #'   value, or meet both of the following criteria: 1. they have very few unique
 #'   values relative to the number of samples and 2. the ratio of the frequency
 #'   of the most common value to the frequency of the second most common value
-#'   is large.
+#'   is large. If a list, it is passed to the `options` argument of
+#'   `recipes::step_nzv`. E.g. if you want lower-variance columns to pass, use
+#'   `remove_near_zero_variance = list(freq_cut = 98/2, unique_cut = 5)`.
 #' @param convert_dates Logical or character. If TRUE (default), date columns
 #'   are identifed and used to generate day-of-week, month, and year columns,
 #'   and the original date columns are removed. If FALSE, date columns are
@@ -104,7 +107,8 @@
 #'           impute = list(numeric_method = "bagimpute",
 #'                         nominal_method = "bagimpute"),
 #'           collapse_rare_factors = FALSE, convert_dates = "year",
-#'           center = TRUE, scale = TRUE, make_dummies = FALSE)
+#'           center = TRUE, scale = TRUE, make_dummies = FALSE,
+#'           remove_near_zero_variance = list(freq_cut = 95/5, unique_cut = 10))
 prep_data <- function(d,
                       ...,
                       outcome,
@@ -250,9 +254,21 @@ prep_data <- function(d,
     # recipe <- recipe %>% step_hcai_mostly_missing_to_factor()  # nolint
 
     # Remove columns with near zero variance ----------------------------------
+    options = list(freq_cut = 95 / 5, unique_cut = 10)
+      if (!is.logical(remove_near_zero_variance)) {
+        if (!is.list(remove_near_zero_variance))
+          stop("remove_near_zero_variance must be logical or list for step_date")
+        if (all(sort(names(remove_near_zero_variance)) !=
+                c("freq_cut", "unique_cut"))) {
+          stop("remove_near_zero_variance must be a named list with 'freq_cut'
+               and 'unique_cut'")
+        }
+        options <- remove_near_zero_variance
+        remove_near_zero_variance <- TRUE
+      }
     if (remove_near_zero_variance) {
       recipe <- recipe %>%
-        recipes::step_nzv(all_predictors())
+        recipes::step_nzv(all_predictors(), options = options)
     }
 
     # Check if there are any nominal predictors that won't be removed; stop if not.
