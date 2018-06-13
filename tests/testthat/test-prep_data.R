@@ -380,6 +380,14 @@ test_that("remove_near_zero_variance works with params", {
   # Meets criteria
   d_train <- dplyr::mutate(d_train,
                            a_nzv_col = c("rare", rep("common", nrow(d_train) - 1)))
+  expect_error(def <- prep_data(d_train,
+                                  remove_near_zero_variance = "chowder"),
+               regexp = "logical or list")
+  expect_error(def <- prep_data(d_train,
+                                remove_near_zero_variance = list(
+                                  flounder = 1,
+                                  crab = 2)),
+               regexp = "freq_cut")
   expect_message(def <- prep_data(d_train,
                                   remove_near_zero_variance = list(
                                     freq_cut = 90/10,
