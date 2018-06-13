@@ -13,7 +13,8 @@ Description: A machine learning toolbox tailored to healthcare data.
 License: MIT + file LICENSE
 LazyData: TRUE
 Depends:
-    R (>= 3.3)
+    R (>= 3.3),
+    methods
 Imports:
     broom,
     caret (>= 6.0.78),
@@ -26,7 +27,6 @@ Imports:
     glmnet,
     kknn,
     lubridate,
-    methods,
     MLmetrics,
     purrr,
     ranger (>= 0.8.0),
