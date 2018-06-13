@@ -210,8 +210,8 @@ test_that("printing classification df gets ROC/PR metric right", {
       tune_models(Catholic, models = "RF", metric = "PR", tune_depth = 2, n_folds = 2) %>%
       predict()
   })
-  expect_false(stringr::str_detect(capture_message(print(roc)), "PR"))
-  expect_false(stringr::str_detect(capture_message(print(pr)), "ROC"))
+  expect_false(stringr::str_detect(as.character(capture_message(print(roc))), "PR"))
+  expect_false(stringr::str_detect(as.character(capture_message(print(pr))), "ROC"))
 })
 
 test_that("determine_prep FALSE when no recipe on model", {
