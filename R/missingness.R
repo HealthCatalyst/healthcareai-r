@@ -120,7 +120,11 @@ plot.missingness <- function(x, remove_zeros = FALSE, max_char = 40,
 
 #' @export
 print.missingness <- function(x, ...) {
-  NextMethod("print", x, n = Inf)
+  if (is.data.frame(x)) {
+    NextMethod("print", x, n = Inf)
+  } else {
+    NextMethod("print", x)
+  }
 }
 
 #' @title

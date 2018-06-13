@@ -2,14 +2,13 @@
 % Please edit documentation in R/logging.R
 \name{stop_prod_logs}
 \alias{stop_prod_logs}
-\title{Stops all console logging.}
+\title{Defunct}
 \usage{
-stop_prod_logs()
+stop_prod_logs(...)
+}
+\arguments{
+\item{...}{Defunct}
 }
 \description{
-Stops all console logging. This is meant to be used in
-production to monitor console output on ETL servers.
-}
-\seealso{
-\code{\link{start_prod_logs}}
+Defunct
 }

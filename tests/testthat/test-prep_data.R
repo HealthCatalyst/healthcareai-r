@@ -135,6 +135,15 @@ test_that("prep_data works with defaults and two ignore columns", {
   expect_true(all(d_clean$genre[is.na(d_train$genre)] == "missing"))
 })
 
+test_that("prep_data correctly attaches original data str", {
+  ods <- attr(d_prep, "original_data_str")
+  expect_s3_class(ods, "data.frame")
+  expect_equal(0, nrow(ods))
+  dtn <- names(d_train)
+  expect_setequal(dtn[-which(dtn == "is_ween")], names(ods))
+  expect_equal(ods, attr(d_reprep, "original_data_str"))
+})
+
 test_that("0/1 outcome is converted to N/Y", {
   d_train <- dplyr::mutate(d_train, is_ween = ifelse(is_ween == "Y", 1, 0))
   d_clean <- prep_data(d = d_train, outcome = is_ween)
