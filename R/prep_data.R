@@ -139,7 +139,7 @@ prep_data <- function(d,
   if (length(ignored)) {
     present <- ignored %in% names(d)
     if (any(!present))
-      stop(paste(ignored[!present], collapse = ", "), " not found in d.")
+      stop(list_variables(ignored[!present]), " not found in d.")
     if (length(ignored) >= ncol(d))
       stop("You only have ignored columns. Try again.")
     # Separate data into ignored and not
@@ -150,7 +150,7 @@ prep_data <- function(d,
       dplyr::filter(percent_missing > 0)
     if (!purrr::is_empty(m$variable))
       warning("These ignored variables have missingness: ",
-              paste(m$variable, collapse = ", "))
+              list_variables(m$variable))
   }
 
   # Check global options for factor handling
@@ -172,7 +172,7 @@ prep_data <- function(d,
                                    attr(recipe, "ignored_columns")))
     if (length(newvars)) {
       warning("These variables were not observed in training ",
-              "and will be ignored: ", paste(newvars, collapse = ", "))
+              "and will be ignored: ", list_variables(newvars))
       ignored <- c(ignored, newvars)
       d_ignore <- dplyr::bind_cols(d_ignore, dplyr::select(d, !!newvars))
     }
@@ -180,13 +180,13 @@ prep_data <- function(d,
     missing_vars <- setdiff(recipe$var_info$variable[recipe$var_info$role == "predictor"], names(d))
     if (length(missing_vars))
       stop("These variables were present in training but are missing or ignored here: ",
-           paste(missing_vars, collapse = ", "))
+           list_variables(missing_vars))
 
     # If imputing, look for variables with missingness now that didn't have any in training
     newly_missing <- find_new_missingness(d, recipe)
     if (length(newly_missing))
       warning("The following variable(s) have missingness that was not present when recipe was trained: ",
-              paste(newly_missing, collapse = ", "))
+              list_variables(newly_missing))
 
     # Outcome gets added as all NAs; set a flag to remove it at end if not in provided DF
     outcome_var <- recipe$var_info$variable[recipe$var_info$role == "outcome"]
@@ -267,7 +267,7 @@ prep_data <- function(d,
            "here - https://github.com/HealthCatalyst/healthcareai-r/issues/new - ",
            "and we will work on a fix. In the meantime, either remove these ",
            "NZV columns before prep_data or set remove_near_zero_variance = FALSE.\n  ",
-           paste(removing, collapse = ", "))
+           list_variables(removing))
 
     # Convert date columns to useful features and remove original. ------------
     if (!is.logical(convert_dates)) {
@@ -307,8 +307,8 @@ prep_data <- function(d,
       extras  <- names(impute)[!(names(impute) %in% names(ip))]
       if (length(extras > 0)) {
         warning("You have extra imputation parameters that won't be used: ",
-                paste(extras, collapse = ", "),
-                ". Available params are: ", paste(names(ip), collapse = ", "))
+                list_variables(extras),
+                ". Available params are: ", list_variables(names(ip)))
       }
 
       # Impute takes defaults or user specified inputs. Error handling inside.
@@ -395,7 +395,7 @@ prep_data <- function(d,
     message("Removing the following ", length(nzv_removed), " near-zero variance column(s). ",
             "If you don't want to remove them, call prep_data with ",
             "remove_near_zero_variance = FALSE.\n  ",
-            paste(nzv_removed, collapse = ", "))
+            list_variables(nzv_removed))
 
   # Remove outcome if recipe was provided but outcome not present
   if (remove_outcome && outcome_var %in% names(d))

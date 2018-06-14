@@ -62,7 +62,7 @@ ready_no_prep <- function(training_data, newdata) {
     stop("The following variables have missingness that needs to be ",
          "addressed before making predictions. ",
          "Consider using prep_data to address this.\n\t",
-         paste(names(has_missing)[has_missing], collapse = ", "))
+         list_variables(names(has_missing)[has_missing]))
   # Check for no new levels in factors
   missing_levels <-
     find_new_levels(to_pred, training_data) %>%

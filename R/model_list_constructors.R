@@ -53,17 +53,17 @@ as.model_list <- function(...,
   metrics <- unique(purrr::map_chr(listed_models, "metric"))
   if (length(metrics) > 1)
     stop("All models must be trained on the same evaluation metric. ",
-         "Those models were trained on ", paste(metrics, collapse = ", "))
+         "Those models were trained on ", list_variables(metrics))
   if (!metrics %in% get_metric_names()$caret)
     stop(metrics, " is not a healthcareai supported metric. ",
-         "Tune your models on one of: ", paste(get_metric_names()$caret, collapse = ", "))
+         "Tune your models on one of: ", list_variables(get_metric_names()$caret))
   if (any(purrr::map_lgl(listed_models, ~ is.null(.x$pred))))
     stop("as.model_list requires training predictions to be saved. ",
          "Use `trControl = trainControl(savePredictions = \"final\")` in `train`")
   types <- unique(tolower(purrr::map_chr(listed_models, ~ .x$modelType)))
   if (length(types) > 1L)
     stop("All model_class elements need to be the same. Yours: ",
-         paste(types, collapse = ", "))
+         list_variables(types))
   if (!missing(model_class) && model_class != types)
     stop("model_class doesn't match the model(s).")
   model_class <- types
@@ -112,6 +112,6 @@ check_model_class <- function(model_class) {
   supported_model_classes <- c("classification", "regression")
   if (!model_class %in% supported_model_classes)
     stop("model_class must be one of: ",
-         paste(supported_model_classes, collapse = ", "))
+         list_variables(supported_model_classes))
   return(invisible(NULL))
 }

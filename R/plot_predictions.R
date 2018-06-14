@@ -74,7 +74,7 @@ plot.predicted_df <- function(x,
       perf <- evaluate(x)
       if (!caption %in% names(perf))
         stop(caption, " not a performance metric for this model. Available metrics: ",
-             paste(names(perf), collapse = ", "))
+             list_variables(names(perf)))
       format_performance(perf[caption])
     } else {
       NULL
