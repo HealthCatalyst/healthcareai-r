@@ -33,9 +33,10 @@ Split data into training and test data frames
 \details{
 This function wraps `caret::createDataPartition`. If outcome is a factor
   then the test/training porportions are stratified. Otherwise they are randomly
-  selected. If the grouping_col is given, then groups are kept together where possible.
-  If grouping is prefered over stratified split, then make sure that outcome is
-  not a factor.
+  selected. 
+  
+  If the grouping_col is given, then the groups are divided into the test/
+  training porportions by using the given aggregate function.
 }
 \examples{
 split_train_test(mtcars, am, .9)

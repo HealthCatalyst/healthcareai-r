@@ -16,9 +16,10 @@
 #'
 #' @details This function wraps `caret::createDataPartition`. If outcome is a factor
 #'   then the test/training porportions are stratified. Otherwise they are randomly
-#'   selected. If the grouping_col is given, then groups are kept together where possible.
-#'   If grouping is prefered over stratified split, then make sure that outcome is
-#'   not a factor.
+#'   selected. 
+#'   
+#'   If the grouping_col is given, then the groups are divided into the test/
+#'   training porportions by using the given aggregate function.
 #'
 #' @examples
 #' split_train_test(mtcars, am, .9)
@@ -33,7 +34,7 @@ split_train_test <- function(d, outcome, percent_train = .8, seed, grouping_col 
     set.seed(seed)
   if (!missing(grouping_col)){
     return(
-      grouping_stratified_split(d, outcome, percent_train, grouping_col, aggreg_func)
+      group_strat_split(d, outcome, percent_train, grouping_col, aggreg_func)
     )
   } else {
     train_rows <- caret::createDataPartition(dplyr::pull(d, !!outcome),
@@ -42,18 +43,19 @@ split_train_test <- function(d, outcome, percent_train = .8, seed, grouping_col 
   }
 }
 
-grouping_stratified_split <- function(d, outcome, percent_train = .8, grouping_col, aggreg_func = dplyr::first) {
-  #grouping_col <- rlang::enquo(grouping_col)
-  #outcome <- rlang::enquo(outcome)
+group_strat_split <- function(d, outcome, percent_train = .8, grouping_col, aggreg_func = dplyr::first) {
+  grouping_col <- rlang::enquo(grouping_col)
+  outcome <- rlang::enquo(outcome)
   d_limited <- d %>% dplyr::group_by(!!grouping_col) %>% dplyr::summarize(outcome = aggreg_func(!!outcome))
 
   outcome <- rlang::quo(outcome)
   col_insterest <- d_limited %>% dplyr::pull(!!outcome)
 
   train_rows <- caret::createDataPartition(col_insterest, p = percent_train)[[1]]
-  group_training <- d_limited[train_rows, ] %>% dplyr::pull(!!grouping_col)
+  
+  group_training <- d_limited[train_rows, ] %>% dplyr::pull(!! grouping_col)
 
-  training_data <- dplyr::filter(d, !!grouping_col %in% group_training)
-  test_data <- dplyr::filter(d, !(!!grouping_col %in% group_training))
+  training_data <- dplyr::filter(d, !! grouping_col %in% group_training)
+  test_data <- dplyr::filter(d, ! (!! grouping_col %in% group_training))
   return(list(train = training_data, test = test_data))
 }
