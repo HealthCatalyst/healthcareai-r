@@ -5,7 +5,7 @@
 \title{Split data into training and test data frames}
 \usage{
 split_train_test(d, outcome, percent_train = 0.8, seed, grouping_col = NULL,
-  aggreg_func = first)
+  aggreg_func = dplyr::first)
 }
 \arguments{
 \item{d}{Data frame}
@@ -18,7 +18,11 @@ variable}
 \item{seed}{Optional, if provided the function will return the same split
 each time it is called}
 
-\item{grouping_col}{column header of dataframe to base grouping split}
+\item{grouping_col}{column name that specifies grouping. Individuals in the same
+group are in the same training/test set.}
+
+\item{aggreg_func}{when the data is grouped, the outcome column is aggregated
+based on this function.}
 }
 \value{
 A list of two data frames with names train and test
