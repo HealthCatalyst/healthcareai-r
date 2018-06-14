@@ -2,16 +2,13 @@
 % Please edit documentation in R/logging.R
 \name{catalyst_test_deploy_in_prod}
 \alias{catalyst_test_deploy_in_prod}
-\title{Test function to check that the production environment is active.}
+\title{Defunct}
 \usage{
-catalyst_test_deploy_in_prod()
+catalyst_test_deploy_in_prod(...)
+}
+\arguments{
+\item{...}{Defunct}
 }
 \description{
-This is meant to test the production environment on ETL servers.
-Use it instead of a long running deploy script.
-}
-\seealso{
-\code{\link{start_prod_logs}}
-
-\code{\link{stop_prod_logs}}
+Defunct
 }

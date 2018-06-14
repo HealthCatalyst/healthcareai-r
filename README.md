@@ -10,6 +10,8 @@ Status](https://travis-ci.org/HealthCatalyst/healthcareai-r.svg?branch=master)](
 [![codecov
 badge](https://codecov.io/gh/HealthCatalyst/healthcareai-r/branch/master/graph/badge.svg)](https://codecov.io/gh/HealthCatalyst/healthcareai-r)
 [![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version-last-release/healthcareai)](https://cran.r-project.org/package=healthcareai)
+![CRAN downloads
+badge](https://cranlogs.r-pkg.org/badges/grand-total/healthcareai)
 [![License:
 MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/HealthCatalystSLC/healthcareai-r/blob/master/LICENSE)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.999334.svg)](https://doi.org/10.5281/zenodo.999334)
@@ -33,21 +35,21 @@ line of code:
 ``` r
 models <- machine_learn(pima_diabetes, patient_id, outcome = diabetes)
 models
-# > Algorithms Trained: Random Forest, k-Nearest Neighbors
+# > Algorithms Trained: Random Forest, k-Nearest Neighbors, glmnet
 # > Target: diabetes
 # > Class: Classification
 # > Performance Metric: AUROC
 # > Number of Observations: 768
 # > Number of Features: 12
-# > Models Trained: 2018-04-20 17:14:18 
+# > Models Trained: 2018-06-08 19:10:01 
 # > 
 # > Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.
 # > Best model: Random Forest
 # > AUPR = 0.71, AUROC = 0.84
 # > Optimal hyperparameter values:
-# >   mtry = 9
+# >   mtry = 4
 # >   splitrule = extratrees
-# >   min.node.size = 13
+# >   min.node.size = 8
 ```
 
 Make predictions and examine predictive performance:

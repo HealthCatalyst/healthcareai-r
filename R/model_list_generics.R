@@ -10,6 +10,7 @@ print.model_list <- function(x, ...) {
     rinfo <- extract_model_info(x)
     out <- paste0(
       "Algorithms Trained: ", list_variables(rinfo$algs),
+      "\nModel Name: ", rinfo$model_name,
       "\nTarget: ", rinfo$target,
       "\nClass: ", rinfo$m_class,
       "\nPerformance Metric: ", rinfo$metric,
@@ -181,7 +182,8 @@ plot.model_list <- function(x, font_size = 11, point_size = 1,
                   target = attrs$target,
                   tuned = attrs$tuned,
                   recipe = attrs$recipe,
-                  positive_class = attrs$positive_class) %>%
+                  positive_class = attrs$positive_class,
+                  original_data_str = attrs$original_data_str) %>%
     structure(timestamp = attrs$timestamp)
   return(x)
 }
@@ -207,7 +209,11 @@ extract_model_info <- function(x) {
   best_model_tune <-
     x[[best_model]]$bestTune
   positive_class <- attr(x, "positive_class")
+  from_rds <- attr(x, "loaded_from_rds")
+  if (is.null(from_rds))
+    from_rds <- "trained_in_memory"
   list(
+    model_name = attr(x, "model_name"),
     m_class = m_class,
     algs = algs,
     target = target,
@@ -218,7 +224,8 @@ extract_model_info <- function(x) {
     best_model_tune = best_model_tune,
     ddim = ddim,
     tuned = attr(x, "tuned"),
-    timestamp = attr(x, "timestamp")
+    timestamp = attr(x, "timestamp"),
+    from_rds = from_rds
   )
 }
 

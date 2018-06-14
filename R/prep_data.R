@@ -20,9 +20,9 @@
 #'   and deployment. The new data must be identical in structure to the data
 #'   that the recipe was prepared with.
 #'
-#' @param d A dataframe or tibble containing data to impute.
-#' @param ... Optional. Unquoted variable names to not be prepped. These will be
-#'   returned unaltered. Typically ID and outcome columns would go here.
+#' @param d A data frame
+#' @param ... Optional. Columns to be ignored in preparation and model training,
+#'   e.g. ID columns. Unquoted; any number of columns can be included here.
 #' @param outcome Optional. Unquoted column name that indicates the target
 #'   variable. If provided, argument must be named. If this target is 0/1, it
 #'   will be coerced to Y/N if factor_outcome is TRUE; other manipulation steps
@@ -124,6 +124,8 @@ prep_data <- function(d,
   }
   # Capture pre-modification missingness
   d_missing <- missingness(d, return_df = FALSE)
+  # Capture original data structure
+  d_ods <- d[0, ]
   # Capture factor levels
   d_levels <- get_factor_levels(d)
 
@@ -398,10 +400,14 @@ prep_data <- function(d,
   # Remove outcome if recipe was provided but outcome not present
   if (remove_outcome && outcome_var %in% names(d))
     d <- select_not(d, outcome_var)
+  # And remove outcome from original_data_str if it's present
+  if (rlang::quo_name(outcome) %in% names(d_ods))
+    d_ods <- select_not(d_ods, outcome)
   # Add ignore columns back in and attach as attribute to recipe
   d <- dplyr::bind_cols(d_ignore, d)
   attr(recipe, "ignored_columns") <- unname(ignored)
   attr(d, "recipe") <- recipe
+  attr(d, "original_data_str") <- d_ods
   d <- tibble::as_tibble(d)
   class(d) <- c("prepped_df", class(d))
 
