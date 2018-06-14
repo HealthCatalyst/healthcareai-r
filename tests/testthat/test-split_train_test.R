@@ -39,26 +39,26 @@ test_that("grouping_stratified_split - grouping stratified split semi reserved",
   expect_true(result)
 })
 
-test_that("split_train_test - grouping functionality", {
-  owner <- as.factor(rep(letters[1:16], each = 2))
-  mtcars <- cbind(mtcars, owner)
-  sp <- split_train_test(mtcars, am, .75, grouping_col = owner, aggreg_func = dplyr::first)
-  result <- length(intersect(sp[[1]]$owner, sp[[2]]$owner)) == 0
-  expect_true(result)
-})
+# test_that("split_train_test - grouping functionality", {
+#   owner <- as.factor(rep(letters[1:16], each = 2))
+#   mtcars <- cbind(mtcars, owner)
+#   sp <- split_train_test(mtcars, am, .75, grouping_col = owner, aggreg_func = dplyr::first)
+#   result <- length(intersect(sp[[1]]$owner, sp[[2]]$owner)) == 0
+#   expect_true(result)
+# })
 
-test_that("split_train_test - grouping aggreg default parameter", {
-  owner <- as.factor(rep(letters[1:16], each = 2))
-  mtcars <- cbind(mtcars, owner)
-  sp <- split_train_test(mtcars, am, .75, grouping_col = owner)
-  result <- length(intersect(sp[[1]]$owner, sp[[2]]$owner)) == 0
-  expect_true(result)
-})
+# test_that("split_train_test - grouping aggreg default parameter", {
+#   owner <- as.factor(rep(letters[1:16], each = 2))
+#   mtcars <- cbind(mtcars, owner)
+#   sp <- split_train_test(mtcars, am, .75, grouping_col = owner)
+#   result <- length(intersect(sp[[1]]$owner, sp[[2]]$owner)) == 0
+#   expect_true(result)
+# })
 
-test_that("split_train_test -grouping stratified split semi reserved", {
-  owner <- as.factor(rep(letters[1:16], each = 2))
-  mtcars <- cbind(mtcars, owner)
-  sp <- split_train_test(mtcars, mpg, .75, 123, owner, mean)
-  result <- (mean(sp[[1]]$mpg) - mean(sp[[2]]$mpg)) < 2
-  expect_true(result)
-})
+# test_that("split_train_test -grouping stratified split semi reserved", {
+#   owner <- as.factor(rep(letters[1:16], each = 2))
+#   mtcars <- cbind(mtcars, owner)
+#   sp <- split_train_test(mtcars, mpg, .75, 123, owner, mean)
+#   result <- (mean(sp[[1]]$mpg) - mean(sp[[2]]$mpg)) < 2
+#   expect_true(result)
+# })
