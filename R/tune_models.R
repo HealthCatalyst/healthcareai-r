@@ -30,6 +30,8 @@
 #' @param model_class "regression" or "classification". If not provided, this
 #'   will be determined by the class of `outcome` with the determination
 #'   displayed in a message.
+#' @param model_name Quoted, name of the model. Defaults to the name of the
+#' outcome variable.
 #'
 #' @export
 #' @importFrom kknn kknn
@@ -101,7 +103,8 @@ tune_models <- function(d,
                         n_folds = 5,
                         tune_depth = 10,
                         hyperparameters = NULL,
-                        model_class) {
+                        model_class,
+                        model_name = NULL) {
 
   if (n_folds <= 1)
     stop("n_folds must be greater than 1.")
@@ -151,7 +154,10 @@ tune_models <- function(d,
                               target = rlang::quo_name(outcome),
                               recipe = recipe,
                               positive_class = attr(train_list, "positive_class"),
-                              best_levels = best_levels) %>%
+                              model_name = model_name,
+                              best_levels = best_levels,
+                              original_data_str = original_data_str,
+                              versions = attr(train_list, "versions")) %>%
     structure(timestamp = Sys.time())
   return(train_list)
 }

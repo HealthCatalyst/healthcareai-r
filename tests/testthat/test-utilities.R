@@ -75,3 +75,11 @@ test_that("select_not works and returns a data frame in all cases", {
   expect_s3_class(d <- select_not(d, rlang::quo(y)), "data.frame")
   expect_s3_class(select_not(d, "z"), "data.frame")
 })
+
+test_that("trunc_vars", {
+  test_vec <- c("seven l", "eleven lets", "fifteen   letters")
+  expect_equal(test_vec, trunc_char(test_vec, 18))
+  expect_equal(trunc_char(test_vec, 14), c(test_vec[1:2], "fifte...tters"))
+  expect_warning(short <- trunc_char(test_vec, 5), "5")
+  expect_equal(short, c("seven", "eleve", "fifte"))
+})

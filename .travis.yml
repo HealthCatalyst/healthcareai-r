@@ -34,4 +34,4 @@ addons:
       - libnlopt-dev
 
 after_success:
-  - Rscript -e 'covr::codecov()'
+  - travis_wait 30 Rscript -e 'covr::codecov()'
