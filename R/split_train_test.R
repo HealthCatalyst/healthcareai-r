@@ -43,6 +43,18 @@ split_train_test <- function(d, outcome, percent_train = .8, seed, grouping_col 
   }
 }
 
+#' Split groups in data training and test data frames
+#'
+#' @param d Data frame
+#' @param outcome Target column, unquoted. Split will be stratified across this
+#'   variable
+#' @param percent_train Proportion of rows in d to put into training. Default is 0.8
+#' @param grouping_col column name that specifies grouping. Individuals in the same
+#'   group are in the same training/test set.
+#' @param aggreg_func when the data is grouped, the outcome column is aggregated
+#'   based on this function.
+#'
+#' @return A list of two data frames with names train and test
 group_strat_split <- function(d, outcome, percent_train = .8, grouping_col, aggreg_func = dplyr::first) {
   grouping_col <- rlang::enquo(grouping_col)
   outcome <- rlang::enquo(outcome)
