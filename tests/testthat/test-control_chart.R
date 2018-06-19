@@ -43,13 +43,14 @@ test_that("control_chart errors if measure or x column not present", {
 })
 
 test_that("control_chart has correct number of panels", {
+  item <- if (packageVersion("ggplot2") < "2.2.1.9000") "panel_layout" else "layout"
   output <- control_chart(test_df, "outcome", print = FALSE)
-  expect_equal(nrow(ggplot_build(output)$layout$layout), 1L)
+  expect_equal(nrow(ggplot_build(output)$layout[[item]]), 1L)
   output <- control_chart(test_df, "outcome", group1 = "var1", print = FALSE)
-  expect_equal(nrow(ggplot_build(output)$layout$layout),
+  expect_equal(nrow(ggplot_build(output)$layout[[item]]),
                length(unique(test_df$var1)))
   output <- control_chart(test_df, "outcome", group1 = "var1", group2 = "var2", print = FALSE)
-  expect_equal(nrow(ggplot_build(output)$layout$layout),
+  expect_equal(nrow(ggplot_build(output)$layout[[item]]),
                length(unique(test_df$var1)) * length(unique(test_df$var2)))
 })
 
