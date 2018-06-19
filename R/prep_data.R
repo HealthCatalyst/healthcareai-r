@@ -65,8 +65,9 @@
 #'   added to all nominal columns. This is protective in deployment: new levels
 #'   found in deployment will become "other" and missingness in deployment can
 #'   become "missing" if the nominal imputation method is "new_category". If
-#'   FALSE, these levels may be added to some columns depending on details of
-#'   imputation and collapse_rare_factors.
+#'   FALSE, these "other" will be added to all nominal variables if
+#'   \code{collapse_rare_factors} is used, and "missingness" may be added
+#'   depending on details of imputation.
 #' @param factor_outcome Logical. If TRUE (default) and if all entries in
 #'   outcome are 0 or 1 they will be converted to factor with levels N and Y for
 #'   classification. Note that which level is the positive class is set in
