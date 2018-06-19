@@ -10,15 +10,15 @@ test_df <- tibble::tibble(
 
 # Test control_chart -----------------------------------------------------------
 test_that("control_chart returns a ggplot object", {
-  output <- control_chart(test_df, "outcome")
+  output <- control_chart(test_df, "outcome", print = FALSE)
   expect_true(is.ggplot(output))
-  output <- control_chart(test_df, "outcome", group1 = "var1", group2 = "var2")
+  output <- control_chart(test_df, "outcome", group1 = "var1", group2 = "var2", print = FALSE)
   expect_true(is.ggplot(output))
 })
 
 test_that("control_chart takes csv filepath as argumnent", {
   write.csv(test_df, "tmpFile.csv", row.names = FALSE)
-  output <- control_chart(d = "tmpFile.csv", measure = "outcome")
+  output <- control_chart(d = "tmpFile.csv", measure = "outcome", print = FALSE)
   expect_true(is.ggplot(output))
 })
 
@@ -43,13 +43,14 @@ test_that("control_chart errors if measure or x column not present", {
 })
 
 test_that("control_chart has correct number of panels", {
-  output <- control_chart(test_df, "outcome")
-  expect_equal(nrow(ggplot_build(output)$layout$panel_layout), 1L)
-  output <- control_chart(test_df, "outcome", group1 = "var1")
-  expect_equal(nrow(ggplot_build(output)$layout$panel_layout),
+  item <- if (packageVersion("ggplot2") < "2.2.1.9000") "panel_layout" else "layout"
+  output <- control_chart(test_df, "outcome", print = FALSE)
+  expect_equal(nrow(ggplot_build(output)$layout[[item]]), 1L)
+  output <- control_chart(test_df, "outcome", group1 = "var1", print = FALSE)
+  expect_equal(nrow(ggplot_build(output)$layout[[item]]),
                length(unique(test_df$var1)))
-  output <- control_chart(test_df, "outcome", group1 = "var1", group2 = "var2")
-  expect_equal(nrow(ggplot_build(output)$layout$panel_layout),
+  output <- control_chart(test_df, "outcome", group1 = "var1", group2 = "var2", print = FALSE)
+  expect_equal(nrow(ggplot_build(output)$layout[[item]]),
                length(unique(test_df$var1)) * length(unique(test_df$var2)))
 })
 

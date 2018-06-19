@@ -277,7 +277,7 @@ test_that("centering and scaling work", {
 test_that("dummy columns are created as expected", {
   d_clean <- prep_data(d = d_train, outcome = is_ween, song_id,
                        convert_dates = FALSE, make_dummies = TRUE,
-                       add_levels = FALSE)
+                       add_levels = FALSE, collapse_rare_factors = FALSE)
   exp <- c("genre_Jazz", "genre_Rock", "genre_missing")
   n <- names(dplyr::select(d_clean, dplyr::starts_with("genre")))
   expect_true(all(exp %in% n))
@@ -433,7 +433,8 @@ test_that("add_levels doesn't add levels to outcome", {
 
 test_that("prep_data respects add_levels = FALSE", {
   d <- data.frame(x = c("A", "B", "B"), y = 1:3)
-  pd <- prep_data(d, add_levels = FALSE, make_dummies = FALSE, impute = FALSE)
+  pd <- prep_data(d, add_levels = FALSE, make_dummies = FALSE,
+                  impute = FALSE, collapse_rare_factors = FALSE)
   expect_false(any(c("other", "missing") %in% levels(pd$x)))
 })
 
