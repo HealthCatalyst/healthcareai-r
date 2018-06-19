@@ -10,7 +10,7 @@ test_df <- tibble::tibble(
 
 # Test control_chart -----------------------------------------------------------
 test_that("control_chart returns a ggplot object", {
-  output <- control_chart(test_df, "outcome")
+  output <- control_chart(test_df, "outcome", print = FALSE)
   expect_true(is.ggplot(output))
   output <- control_chart(test_df, "outcome", group1 = "var1", group2 = "var2", print = FALSE)
   expect_true(is.ggplot(output))
@@ -44,12 +44,12 @@ test_that("control_chart errors if measure or x column not present", {
 
 test_that("control_chart has correct number of panels", {
   output <- control_chart(test_df, "outcome", print = FALSE)
-  expect_equal(nrow(ggplot_build(output)$layout$panel_layout), 1L)
+  expect_equal(nrow(ggplot_build(output)$layout$layout), 1L)
   output <- control_chart(test_df, "outcome", group1 = "var1", print = FALSE)
-  expect_equal(nrow(ggplot_build(output)$layout$panel_layout),
+  expect_equal(nrow(ggplot_build(output)$layout$layout),
                length(unique(test_df$var1)))
   output <- control_chart(test_df, "outcome", group1 = "var1", group2 = "var2", print = FALSE)
-  expect_equal(nrow(ggplot_build(output)$layout$panel_layout),
+  expect_equal(nrow(ggplot_build(output)$layout$layout),
                length(unique(test_df$var1)) * length(unique(test_df$var2)))
 })
 
