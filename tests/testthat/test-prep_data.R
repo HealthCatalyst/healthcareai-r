@@ -373,7 +373,7 @@ test_that("remove_near_zero_variance is respected, works, and messages", {
   stay <- prep_data(d_train, remove_near_zero_variance = FALSE, make_dummies = FALSE)
   expect_true("a_nzv_col" %in% names(stay))
   expect_error(prep_data(dplyr::select(d_train, a_nzv_col, is_ween), outcome = is_ween),
-               "github.com")
+               "less aggressive")
 })
 
 test_that("remove_near_zero_variance works with params", {
@@ -382,17 +382,10 @@ test_that("remove_near_zero_variance works with params", {
                            a_nzv_col = c("rare", rep("common", nrow(d_train) - 1)))
   expect_error(def <- prep_data(d_train,
                                 remove_near_zero_variance = "chowder"),
-               regexp = "logical or list")
-  expect_error(def <- prep_data(d_train,
-                                remove_near_zero_variance = list(
-                                  flounder = 1,
-                                  crab = 2)),
-               regexp = "freq_cut")
+               regexp = "logical or numeric")
   expect_message(def <- prep_data(d_train,
-                                  remove_near_zero_variance = list(
-                                    freq_cut = 90 / 10,
-                                    unique_cut = 2)
-  ), regexp = "a_nzv_col")
+                                  remove_near_zero_variance = 0.01)
+                 , regexp = "a_nzv_col")
   expect_false("a_nzv_col_rare" %in% names(def))
   # nzv_col should be removed in deployement even if it has variance
   d_test <- dplyr::mutate(d_test,
@@ -400,14 +393,16 @@ test_that("remove_near_zero_variance works with params", {
   expect_message(pd <- prep_data(d_test, recipe = def), regexp = "a_nzv_col")
   expect_false("a_nzv_col_rare" %in% names(def))
 
+  expect_error(def <- d_train %>%
+                 select(guitar_flag, a_nzv_col, length) %>%
+                 prep_data(remove_near_zero_variance = .1),
+               regexp = "less aggressive")
+
   # Doesn't meet criteria
   d_train$a_nzv_col[1:30] <- "rare"
   d_train$a_nzv_col[31:50] <- letters[1:20]
   def <- prep_data(d_train,
-                   remove_near_zero_variance = list(
-                     freq_cut = 90 / 10,
-                     unique_cut = .01)
-  )
+                   remove_near_zero_variance = .11)
   expect_true("a_nzv_col_rare" %in% names(def))
   # nzv_col should be removed in deployement even if it has variance
   d_test <- dplyr::mutate(d_test,
