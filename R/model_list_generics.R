@@ -9,7 +9,7 @@ print.model_list <- function(x, ...) {
     x <- change_metric_names(x)
     rinfo <- extract_model_info(x)
     out <- paste0(
-      "Algorithms Trained: ", paste(rinfo$algs, collapse = ", "),
+      "Algorithms Trained: ", list_variables(rinfo$algs),
       "\nModel Name: ", rinfo$model_name,
       "\nTarget: ", rinfo$target,
       "\nClass: ", rinfo$m_class,

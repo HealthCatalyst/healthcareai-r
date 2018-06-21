@@ -42,7 +42,7 @@ missingness <- function(d,
   if (length(possible_na)) {
     possible_na <- map_chr(possible_na, function(st) paste0('"', st, '"'))
     warning("Found these strings that may represent missing values: ",
-            paste(possible_na, collapse = ", "),
+            list_variables(possible_na),
             ". If they do represent missingness, replace them with NA.")
   }
 
