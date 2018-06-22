@@ -42,11 +42,14 @@ Get hyperparameters for model training.
  \code{tune_models}; the number of rows in the data frames is given by
  `tune_depth`.
 
- For \code{get_hyperparameter_defaults} k-NN defaults are from the kknn
- package: kmax = 7, distance = 2 (Minkowski's exponent, i.e. Euclidean
- distance), kernal = "optimal". Random forest defaults are from Intro to
+ For \code{get_hyperparameter_defaults}
+ XGBoost defaults are from caret and XGBoost documentation:
+ eta = 0.3, gamma = 0, max_depth = 6, subsample = 0.7,
+ colsample_bytree = 0.8, min_child_weight = 1, and nrounds = 50.
+ Random forest defaults are from Intro to
  Statistical Learning and caret: mtry = sqrt(k), splitrule = "extratrees",
- min.node.size = 1 for classification, 5 for regression. glm defaults are
+ min.node.size = 1 for classification, 5 for regression.
+ glm defaults are
  from caret: alpha = 1, and because glmnet fits sequences of lambda nearly as
  fast as an individual value, lambda is a sequence from 1e-4 to 8.
 }
