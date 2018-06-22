@@ -277,13 +277,14 @@ test_that("ready_with_prep warns for new factor levels (via prep_data)", {
 
 test_that("predict handles positive class specified in training", {
   d <- tibble::tibble(y = rbinom(50, 1, .5),
-                      x1 = rnorm(50, mean = y, sd = .1),
-                      x2 = rnorm(50, mean = y, sd = .1))
+                      x1 = rnorm(50, mean = y, sd = 1),
+                      x2 = rnorm(50, mean = y, sd = 1))
+  d$x3 <- map_chr(d$y, ~ sample(c("a", "b"), 1, FALSE, if (.x) c(2, 1) else c(1, 2)))
   pd <- prep_data(d, outcome = y)
   # Default Y is positive
   preds <- list(
     tm_rf = pd %>% tune_models(y, tune_depth = 2, models = "rf") %>% predict(),
-    tm_knn = pd %>% tune_models(y, tune_depth = 2, models = "knn") %>% predict(),
+    tm_xgb = pd %>% tune_models(y, tune_depth = 2, models = "xgb") %>% predict(),
     ml = machine_learn(d, outcome = y, models = "rf", tune_depth = 2) %>% predict()
   )
   expect_true(all(map_lgl(preds, ~ {
@@ -292,7 +293,7 @@ test_that("predict handles positive class specified in training", {
   # Set N as positive
   preds <- list(
     tm_rf = pd %>% tune_models(y, tune_depth = 2, models = "rf", positive_class = "N") %>% predict(),
-    tm_knn = pd %>% tune_models(y, tune_depth = 2, models = "knn", positive_class = "N") %>% predict(),
+    tm_xgb = pd %>% tune_models(y, tune_depth = 2, models = "xgb", positive_class = "N") %>% predict(),
     ml = machine_learn(d, outcome = y, models = "rf", tune_depth = 2, positive_class = "N") %>% predict()
   )
   expect_true(all(map_lgl(preds, ~ {
