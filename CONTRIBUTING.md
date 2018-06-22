@@ -59,16 +59,27 @@ Code should conform to the [tidyverse style guide](http://style.tidyverse.org/).
 
 When adding support for a new algorithm, these are some spots you'll need to address. There are likely to be others as well depending on details of the algorithm, but these should diminish as more algorithms are implemented. 
 
-- In models.R
-    - `translate_model_names`: Add caret's name and ours
-    - `get_supported_models`: Add our name
-        - Update @description with hyperparameters
-- In setup_hyperparameters.R
-    - `get_hyperparameter_defaults`
-        - Update @details
-    - `get_random_hyperparameters`
-- In tune_models.R: @importFrom the library(ies) caret calls to fit the model. 
-- Tests: See what fails and update them accordingly
+Get caret model info with `mi <– caret::getModelInfo("caretModelName")[[1]]`
+
+#### In models.R
+
+- [ ] translate_model_names: Add caret's name and ours
+- [ ] get_supported_models: Add our name
+- [ ] @importFrom the library(ies) caret calls to fit the model.
+- [ ] Update @description with hyperparameters
+    - Hyperparameters can be found in `mi$parameters`
+
+#### In setup_hyperparameters.R
+
+Caret's hyperparameter value selection are in `mi$grid`. `mi$grid(len = 1)` might be a good place to start for default values.
+
+- [ ] get_hyperparameter_defaults
+  - [ ] Update @details
+- [ ] get_random_hyperparameters
+
+#### Tests
+
+- See what fails and update them accordingly
 
 ---
 Thanks to the well-organized rOpenSci [codemetar](https://github.com/ropensci/codemetar) and [drake](https://github.com/ropensci/drake) packages, which were drawn on heavily in the creation of this document.
