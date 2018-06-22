@@ -156,8 +156,9 @@ plot.model_list <- function(x, font_size = 11, point_size = 1,
       title <-
         cowplot::ggdraw() +
         cowplot::draw_label(mod$modelInfo$label, fontface = "bold")
-      plot_grid(title, cowplot::plot_grid(plotlist = plots, ncol = 1, align = "v"),
-                ncol = 1, rel_heights = c(0.1, 1.9))
+      ncols <- if (mod$modelInfo$label == "eXtreme Gradient Boosting") 2 else 1
+      cowplot::plot_grid(plotlist = plots, ncol = ncols, align = "v") %>%
+        plot_grid(title, ., ncol = 1, rel_heights = c(0.1, 1.9))
     })
   gg <- cowplot::plot_grid(plotlist = gg_list, nrow = 1)
   if (print)
