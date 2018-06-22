@@ -11,15 +11,19 @@
 #'   \item{min.node.size: Minimal node size.}
 #' }
 #'
-#' \strong{k-nearest neighbors}: "knn". Regression and classification.
-#' Implemented via \code{kknn}.
+#' \strong{XGBoost}: "xgb". eXtreme Gradient Boosting
+#' Implemented via \code{xgboost}.
 #' \itemize{
-#'   \item{kmax: Number of neighbors to consider.}
-#'   \item{distance: Minkowsky distance parameter, (0, Inf). 1 = Manhatten, 2 =
-#'   Euclidian, -> Inf = Chebyshev.}
-#'   \item{kernal: Kernal to use. Possible choices are "rectangular" (standard
-#'   knn), "triangular", "epanechnikov", "biweight", "triweight", "cos", "inv",
-#'   "gaussian", "rank", or "optimal".}
+#'   \item{eta: Control for learning rate, [0, 1]}
+#'   \item{gamma: Threshold for further cutting of leaves, [0, Inf].
+#'   Larger is more conservative.}
+#'   \item{max_depth: Maximum tree depth, [0, Inf]. Larger means more complex
+#'   models and so greater likelihood of overfitting. 0 produces no limit on depth.}
+#'   \item{subsample: Fraction of data to use in each training instance, (0, 1].}
+#'   \item{colsample_bytree: Fraction of features to use in each tree, (0, 1].)}
+#'   \item{min_child_weight: Minimum sum of instance weight need to keep partitioning,
+#'   [0, Inf]. Larger values mean more conservative models.}
+#'   \item{nrounds: Number of rounds of boosting, [0, Inf)}
 #' }
 #'
 #' \strong{Regularized regression}: "glm". Regression and classification.
@@ -31,6 +35,9 @@
 #'   stronger regularization.}
 #' }
 #' @export
+#' @importFrom ranger ranger
+#' @importFrom glmnet glmnet
+#' @importFrom xgboost xgb.train
 #' @importFrom e1071 naiveBayes
 #  ^ This is a placeholder. ranger needs e1071
 #' @seealso \code{\link{hyperparameters}} for more detail on hyperparameter
@@ -38,7 +45,7 @@
 #' @return Vector of currently-supported algorithms.
 #' @aliases supported_models models models_supported
 get_supported_models <- function() {
-    return(c("rf", "knn", "glm"))
+    return(c("rf", "xgb", "glm"))
 }
 
 #' get_supported_model_classes
@@ -52,7 +59,7 @@ get_supported_model_classes <- function() {
 #' vice-versa (which way to go is automatic)
 #' @noRd
 translate_model_names <- function(models) {
-  key <- c(rf = "ranger", knn = "kknn", glm = "glmnet")
+  key <- c(rf = "ranger", xgb = "xgbTree", glm = "glmnet")
   if (all(models %in% key))
     key <- structure(names(key), names = key)
   return(unname(key[models]))

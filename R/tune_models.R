@@ -34,9 +34,6 @@
 #' outcome variable.
 #'
 #' @export
-#' @importFrom kknn kknn
-#' @importFrom ranger ranger
-#' @importFrom glmnet glmnet
 #' @importFrom rlang quo_name
 #'
 #' @seealso For setting up model training: \code{\link{prep_data}},
