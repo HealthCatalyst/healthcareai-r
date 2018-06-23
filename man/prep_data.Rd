@@ -27,12 +27,14 @@ prepared. If training data is big, pull the recipe from the "recipe"
 attribute of the prepped training data frame and pass that to this
 argument. If present, all following arguments will be ignored.}
 
-\item{remove_near_zero_variance}{Logical. If TRUE (default), columns with
-near-zero variance will be removed. These columns are either a single
-value, or meet both of the following criteria: 1. they have very few unique
-values relative to the number of samples and 2. the ratio of the frequency
-of the most common value to the frequency of the second most common value
-is large.}
+\item{remove_near_zero_variance}{Logical or numeric. If TRUE (default),
+columns with near-zero variance will be removed. These columns are either a
+single value, or the most common value is much more frequent than the
+second most common value.
+Example: In a column with 120 "Male" and 2 "Female", the frequency ratio is
+0.0167. It would be excluded by default or if
+`remove_near_zero_variance` > 0.0166. Larger values will remove more columns
+and this value must lie between 0 and 1.}
 
 \item{convert_dates}{Logical or character. If TRUE (default), date columns
 are identifed and used to generate day-of-week, month, and year columns,
@@ -119,7 +121,8 @@ prep_data(d = d_train, patient_id, outcome = diabetes,
           impute = list(numeric_method = "bagimpute",
                         nominal_method = "bagimpute"),
           collapse_rare_factors = FALSE, convert_dates = "year",
-          center = TRUE, scale = TRUE, make_dummies = FALSE)
+          center = TRUE, scale = TRUE, make_dummies = FALSE,
+          remove_near_zero_variance = .02)
 }
 \seealso{
 To let data preparation happen automatically under the hood, see
