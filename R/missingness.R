@@ -46,12 +46,7 @@ missingness <- function(d,
             ". If they do represent missingness, replace them with NA.")
   }
 
-  miss <-
-    d %>%
-    purrr::map_int(~sum(is.na(.x))) %>%
-    `/`(nrow(d)) %>%
-    sort() %>%
-    `*`(100)
+  miss <- sort(100 * purrr::map_int(d, ~sum(is.na(.x))) / nrow(d))
 
   if (return_df) {
     miss <- tibble::tibble(variable = names(miss), percent_missing = miss)

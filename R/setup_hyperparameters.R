@@ -95,7 +95,7 @@ get_random_hyperparameters <- function(models = get_supported_models(),
         max_depth = sample(10, tune_depth, replace = TRUE),
         subsample = runif(tune_depth, .35, 1),
         colsample_bytree = runif(tune_depth, .5, .9),
-        min_child_weight = rexp(tune_depth, .2),
+        min_child_weight = stats::rexp(tune_depth, .2),
         nrounds = sample(25:1000, tune_depth, prob = 1 / (25:1000))
       )
   }
