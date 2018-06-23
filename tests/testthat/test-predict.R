@@ -288,7 +288,7 @@ test_that("predict handles positive class specified in training", {
     ml = machine_learn(d, outcome = y, models = "rf", tune_depth = 2) %>% predict()
   )
   expect_true(all(map_lgl(preds, ~ {
-    mean(.x$predicted_y[.x$y == "Y"]) > mean(.x$predicted_y[.x$y == "N"])
+    mean(.x$predicted_y[.x$y == "Y"]) >= mean(.x$predicted_y[.x$y == "N"])
   })))
   # Set N as positive
   preds <- list(
@@ -297,7 +297,7 @@ test_that("predict handles positive class specified in training", {
     ml = machine_learn(d, outcome = y, models = "rf", tune_depth = 2, positive_class = "N") %>% predict()
   )
   expect_true(all(map_lgl(preds, ~ {
-    mean(.x$predicted_y[.x$y == "Y"]) < mean(.x$predicted_y[.x$y == "N"])
+    mean(.x$predicted_y[.x$y == "Y"]) <= mean(.x$predicted_y[.x$y == "N"])
   })))
 })
 
