@@ -5,7 +5,7 @@ articles:
   db_connections: site_only/db_connections.html
   deploy_model: site_only/deploy_model.html
   healthcareai: site_only/healthcareai.html
-  performance: site_only/performance.htm
+  performance: site_only/performance.html
   transitioning: site_only/transitioning.html
 urls:
   reference: https://docs.healthcare.ai/reference
