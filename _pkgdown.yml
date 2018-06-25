@@ -29,6 +29,8 @@ navbar:
         href: articles/site_only/deploy_model.html
       - text: Transition from Version 1
         href: articles/site_only/transitioning.html
+      - text: Performance with Big Data
+        href: articles/site_only/performance.html
    - text: "Functions"
      href: reference/index.html
    - text: "News"

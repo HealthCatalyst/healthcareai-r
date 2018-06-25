@@ -6,6 +6,7 @@ articles:
   deploy_model: site_only/deploy_model.html
   healthcareai: site_only/healthcareai.html
   transitioning: site_only/transitioning.html
+  performance: site_only/performance.html
 urls:
   reference: https://docs.healthcare.ai/reference
   article: https://docs.healthcare.ai/articles
