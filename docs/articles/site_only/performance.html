@@ -5,11 +5,11 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Performance Tricks • healthcareai</title>
+<title>Performance with Big Data • healthcareai</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- pkgdown --><link href="../../pkgdown.css" rel="stylesheet">
-<script src="../../jquery.sticky-kit.min.js"></script><script src="../../pkgdown.js"></script><meta property="og:title" content="Performance Tricks">
+<script src="../../jquery.sticky-kit.min.js"></script><script src="../../pkgdown.js"></script><meta property="og:title" content="Performance with Big Data">
 <meta property="og:description" content="">
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png">
 <meta name="twitter:card" content="summary">
@@ -48,7 +48,7 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Vignettes
-
+     
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -64,6 +64,9 @@
     <li>
       <a href="../../articles/site_only/transitioning.html">Transition from Version 1</a>
     </li>
+    <li>
+      <a href="../../articles/site_only/performance.html">Performance with Big Data</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -77,13 +80,13 @@
 <li>
   <a href="https://github.com/HealthCatalyst/healthcareai-r">
     <span class="fa fa-github"></span>
-
+     
   </a>
 </li>
 <li>
   <a href="https://healthcare-ai.slack.com/">
     <span class="fa fa-users"></span>
-
+     
   </a>
 </li>
       </ul>
@@ -92,7 +95,7 @@
           <input type="search" class="form-control" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
 </div>
       </form>
-
+      
     </div>
 <!--/.nav-collapse -->
   </div>
@@ -100,19 +103,19 @@
 </div>
 <!--/.navbar -->
 
-
+      
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>Performance Tricks</h1>
-
-
-
+      <h1>Performance with Big Data</h1>
+            
+      
+      
 
     </div>
 
-
-
+    
+    
 <p>If your healthcareai models are running out of memory or are very slow, you might be thinking that something is wrong with the package or that you need a bigger computer. While that can be frustrating, there are several tricks that you can use to speed things up and save memory. Read on to see some options for using healthcareai with a large data set.</p>
 <div id="tldr" class="section level1">
 <h1 class="hasAnchor">
@@ -138,7 +141,7 @@
 <p>Start by loading up the <em>flights</em> dataset.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tidyverse)
 <span class="co"># &gt; Warning: package 'tidyverse' was built under R version 3.4.2</span>
-<span class="co"># &gt; ── Attaching packages ──────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</span>
+<span class="co"># &gt; ── Attaching packages ────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</span>
 <span class="co"># &gt; ✔ ggplot2 2.2.1     ✔ purrr   0.2.4</span>
 <span class="co"># &gt; ✔ tibble  1.4.2     ✔ dplyr   0.7.4</span>
 <span class="co"># &gt; ✔ tidyr   0.7.2     ✔ stringr 1.3.0</span>
@@ -148,7 +151,7 @@
 <span class="co"># &gt; Warning: package 'purrr' was built under R version 3.4.2</span>
 <span class="co"># &gt; Warning: package 'dplyr' was built under R version 3.4.2</span>
 <span class="co"># &gt; Warning: package 'stringr' was built under R version 3.4.3</span>
-<span class="co"># &gt; ── Conflicts ─────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──</span>
+<span class="co"># &gt; ── Conflicts ───────────────────────────────────────────────────────────── tidyverse_conflicts() ──</span>
 <span class="co"># &gt; ✖ dplyr::filter() masks stats::filter()</span>
 <span class="co"># &gt; ✖ dplyr::lag()    masks stats::lag()</span>
 <span class="kw">library</span>(pryr)
@@ -196,7 +199,7 @@ d &lt;-<span class="st"> </span>d <span class="op">%&gt;%</span>
 d_clean &lt;-<span class="st"> </span>d <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="../../reference/prep_data.html">prep_data</a></span>(<span class="dt">outcome =</span> arr_delay,
             <span class="dt">... =</span> tailnum,
-            <span class="dt">collapse_rare_factors =</span> <span class="ot">FALSE</span>,
+            <span class="dt">collapse_rare_factors =</span> <span class="ot">FALSE</span>, 
             <span class="dt">add_levels =</span> <span class="ot">FALSE</span>)
 <span class="co"># &gt; Warning in prep_data(., outcome = arr_delay, ... = tailnum,</span>
 <span class="co"># &gt; collapse_rare_factors = FALSE, : These ignored variables have missingness:</span>
@@ -269,7 +272,7 @@ d_clean <span class="op">%&gt;%</span>
 <span class="co"># &gt; 1         2      16    4044      3   105</span></code></pre></div>
 <p>What about how those values correlate with the outcome? In this case, we’ll do a visualization of <code>destination</code>, looking at the proportion of each that belongs to the delayed group.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">reorder</span>(dest, arr_delay, <span class="cf">function</span>(x) <span class="op">-</span><span class="kw">sum</span>(x <span class="op">==</span><span class="st"> "Y"</span>) <span class="op">/</span><span class="st"> </span><span class="kw">length</span>(x)),
+<span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">reorder</span>(dest, arr_delay, <span class="cf">function</span>(x) <span class="op">-</span><span class="kw">sum</span>(x <span class="op">==</span><span class="st"> "Y"</span>) <span class="op">/</span><span class="st"> </span><span class="kw">length</span>(x)), 
              <span class="dt">fill =</span> arr_delay)) <span class="op">+</span>
 <span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">stat =</span> <span class="st">"count"</span>, <span class="dt">position =</span> <span class="st">"fill"</span>) <span class="op">+</span>
 <span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">90</span>, <span class="dt">hjust =</span> <span class="dv">1</span>, <span class="dt">vjust =</span> .<span class="dv">5</span>)) <span class="op">+</span>
@@ -343,7 +346,7 @@ d_clean2 <span class="op">%&gt;%</span>
 <span class="co"># &gt;     date</span>
 d_clean2 &lt;-<span class="st"> </span>d <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">hour_of_day =</span> <span class="kw">as.character</span>(<span class="kw"><a href="http://lubridate.tidyverse.org/reference/hour.html">hour</a></span>(time_hour))) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw"><a href="../../reference/prep_data.html">prep_data</a></span>(<span class="dt">outcome =</span> arr_delay,
+<span class="st">  </span><span class="kw"><a href="../../reference/prep_data.html">prep_data</a></span>(<span class="dt">outcome =</span> arr_delay, 
             <span class="dt">... =</span> tailnum,
             <span class="dt">collapse_rare_factors =</span> <span class="fl">0.02</span>,
             <span class="dt">convert_dates =</span> <span class="kw">c</span>(<span class="st">"dow"</span>, <span class="st">"month"</span>))
@@ -419,7 +422,7 @@ d_clean2
          <span class="dt">month_of_year =</span> <span class="kw"><a href="http://lubridate.tidyverse.org/reference/month.html">month</a></span>(time_hour),
          <span class="dt">day_of_week =</span> <span class="kw"><a href="http://lubridate.tidyverse.org/reference/day.html">wday</a></span>(time_hour)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>time_hour) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw"><a href="../../reference/prep_data.html">prep_data</a></span>(<span class="dt">outcome =</span> arr_delay,
+<span class="st">  </span><span class="kw"><a href="../../reference/prep_data.html">prep_data</a></span>(<span class="dt">outcome =</span> arr_delay, 
             <span class="dt">... =</span> tailnum,
             <span class="dt">collapse_rare_factors =</span> <span class="fl">0.02</span>,
             <span class="dt">convert_dates =</span> <span class="ot">FALSE</span>)
@@ -582,15 +585,15 @@ Training with cross validation: Random Forest</code></pre>
 <p>We can use <code>prep_data</code> and <code>flash_models</code> to get an idea of how long our models will take to train. <code>flash_models</code> requires at least 2 folds, meaning 2 models, each trained on half the data. We recommend using at least 4 folds. If 4 models takes 6.5 minutes, 150 models will be in the ballpark of 4 hours.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">start &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()
 d_clean &lt;-<span class="st"> </span>downsampled_d <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw"><a href="../../reference/prep_data.html">prep_data</a></span>(<span class="dt">outcome =</span> arr_delay,
+<span class="st">  </span><span class="kw"><a href="../../reference/prep_data.html">prep_data</a></span>(<span class="dt">outcome =</span> arr_delay, 
             <span class="dt">collapse_rare_factors =</span> <span class="fl">0.03</span>,
             <span class="dt">convert_dates =</span> <span class="ot">FALSE</span>)
 <span class="co"># &gt; Training new data prep recipe</span>
 <span class="co"># &gt; Removing the following 1 near-zero variance column(s). If you don't want to remove them, call prep_data with remove_near_zero_variance as a smaller numeric or FALSE.</span>
 <span class="co"># &gt;   year</span>
 
-m_rf_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/flash_models.html">flash_models</a></span>(d_clean,
-                       <span class="dt">outcome =</span> arr_delay,
+m_rf_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/flash_models.html">flash_models</a></span>(d_clean, 
+                       <span class="dt">outcome =</span> arr_delay, 
                        <span class="dt">models =</span> <span class="st">"rf"</span>,
                        <span class="dt">n_folds =</span> <span class="dv">4</span>)
 <span class="co"># &gt; arr_delay looks categorical, so training classification algorithms.</span>
@@ -600,13 +603,13 @@ m_rf_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw"><a
 <span class="co"># &gt; *** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
 <span class="co"># &gt; *** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span>
 <span class="kw">Sys.time</span>() <span class="op">-</span><span class="st"> </span>start
-<span class="co"># &gt; Growing trees.. Progress: 69%. Estimated remaining time: 13 seconds.</span>
-<span class="co"># &gt; Growing trees.. Progress: 69%. Estimated remaining time: 13 seconds.</span>
-<span class="co"># &gt; Growing trees.. Progress: 69%. Estimated remaining time: 13 seconds.</span>
-<span class="co"># &gt; Growing trees.. Progress: 69%. Estimated remaining time: 14 seconds.</span>
+<span class="co"># &gt; Growing trees.. Progress: 66%. Estimated remaining time: 15 seconds.</span>
+<span class="co"># &gt; Growing trees.. Progress: 70%. Estimated remaining time: 13 seconds.</span>
+<span class="co"># &gt; Growing trees.. Progress: 68%. Estimated remaining time: 14 seconds.</span>
+<span class="co"># &gt; Growing trees.. Progress: 66%. Estimated remaining time: 15 seconds.</span>
 <span class="co"># &gt; Growing trees.. Progress: 46%. Estimated remaining time: 35 seconds.</span>
 <span class="co"># &gt; Growing trees.. Progress: 95%. Estimated remaining time: 3 seconds.</span>
-<span class="co"># &gt; Time difference of 6.705197 mins</span></code></pre></div>
+<span class="co"># &gt; Time difference of 6.955846 mins</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">m_rf_<span class="dv">1</span>
 <span class="co"># &gt; Algorithms Trained: Random Forest</span>
 <span class="co"># &gt; Model Name: arr_delay</span>
@@ -615,7 +618,7 @@ m_rf_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw"><a
 <span class="co"># &gt; Performance Metric: AUROC</span>
 <span class="co"># &gt; Number of Observations: 155260</span>
 <span class="co"># &gt; Number of Features: 34</span>
-<span class="co"># &gt; Models Trained: 2018-06-22 15:33:36 </span>
+<span class="co"># &gt; Models Trained: 2018-06-25 12:02:51 </span>
 <span class="co"># &gt; </span>
 <span class="co"># &gt; Models have not been tuned. Performance estimated via 4-fold cross validation at fixed hyperparameter values.</span>
 <span class="co"># &gt; Best model: Random Forest</span>
@@ -625,7 +628,7 @@ m_rf_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw"><a
 <span class="co"># &gt;   splitrule = extratrees</span>
 <span class="co"># &gt;   min.node.size = 1</span></code></pre></div>
 <p>If you don’t need the finer control of your data preparation, <code>machine_learn</code> with <code>tune = FALSE</code> is equivalent to <code>prep_data %&gt;% flash_models</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">m &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/machine_learn.html">machine_learn</a></span>(d,
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">m &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/machine_learn.html">machine_learn</a></span>(d,    
                    <span class="dt">outcome =</span> arr_delay,
                    <span class="dt">models =</span> <span class="st">"rf"</span>,
                    <span class="dt">tune =</span> <span class="ot">FALSE</span>,
@@ -635,18 +638,18 @@ m_rf_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw"><a
 <h2 class="hasAnchor">
 <a href="#glm-for-speed" class="anchor"></a>GLM for Speed</h2>
 <p>As different models take different amounts of time, it’s good to know what performance looks like using both before choosing one to go forward with. GLM tends to be faster than random forest on long data sets but sometimes not as accurate. It won’t buy you much on very wide data sets. KNN tends to be pretty slow.</p>
-<p>On our <code>flights</code> data, GLM was faster, taking only a quarter of the time RF did. Its performance was not as high though. RF had an AUPR of 0.72 while GLM was 0.62. The performance increase could potentially be worth your time as random forest appears to better fit the data.</p>
+<p>On our <code>flights</code> data, GLM was faster, taking only a quarter of the time RF did. Its performance was not as high though. RF had an AUPR of 0.72 while GLM was 0.69. The performance increase could potentially be worth your time as random forest appears to better fit the data.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">start &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()
 d_clean &lt;-<span class="st"> </span>downsampled_d <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw"><a href="../../reference/prep_data.html">prep_data</a></span>(<span class="dt">outcome =</span> arr_delay,
+<span class="st">  </span><span class="kw"><a href="../../reference/prep_data.html">prep_data</a></span>(<span class="dt">outcome =</span> arr_delay, 
             <span class="dt">collapse_rare_factors =</span> <span class="fl">0.03</span>,
             <span class="dt">convert_dates =</span> <span class="ot">FALSE</span>)
 <span class="co"># &gt; Training new data prep recipe</span>
 <span class="co"># &gt; Removing the following 1 near-zero variance column(s). If you don't want to remove them, call prep_data with remove_near_zero_variance as a smaller numeric or FALSE.</span>
 <span class="co"># &gt;   year</span>
 
-m_glm_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/flash_models.html">flash_models</a></span>(d_clean,
-                        <span class="dt">outcome =</span> arr_delay,
+m_glm_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/flash_models.html">flash_models</a></span>(d_clean, 
+                        <span class="dt">outcome =</span> arr_delay, 
                         <span class="dt">models =</span> <span class="st">"glm"</span>,
                         <span class="dt">n_folds =</span> <span class="dv">4</span>)
 <span class="co"># &gt; arr_delay looks categorical, so training classification algorithms.</span>
@@ -655,7 +658,7 @@ m_glm_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw"><
 <span class="co"># &gt; *** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
 <span class="co"># &gt; *** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span>
 <span class="kw">Sys.time</span>() <span class="op">-</span><span class="st"> </span>start
-<span class="co"># &gt; Time difference of 1.282971 mins</span></code></pre></div>
+<span class="co"># &gt; Time difference of 1.342435 mins</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">m_glm_<span class="dv">1</span>
 <span class="co"># &gt; Algorithms Trained: glmnet</span>
 <span class="co"># &gt; Model Name: arr_delay</span>
@@ -664,7 +667,7 @@ m_glm_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw"><
 <span class="co"># &gt; Performance Metric: AUROC</span>
 <span class="co"># &gt; Number of Observations: 155260</span>
 <span class="co"># &gt; Number of Features: 34</span>
-<span class="co"># &gt; Models Trained: 2018-06-22 15:34:53 </span>
+<span class="co"># &gt; Models Trained: 2018-06-25 12:04:11 </span>
 <span class="co"># &gt; </span>
 <span class="co"># &gt; Models have not been tuned. Performance estimated via 4-fold cross validation at fixed hyperparameter values.</span>
 <span class="co"># &gt; Best model: glmnet</span>
@@ -680,7 +683,7 @@ m_glm_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw"><
 <p>Now that you’ve settled on a model, you could use either <code>machine_learn</code> with just that model or <code>tune_models</code> with selected tuning options. This gives you a little more rigor than our svelt <code>flash_models</code> but won’t take 4 hours.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">start &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()
 d_clean &lt;-<span class="st"> </span>downsampled_d <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw"><a href="../../reference/prep_data.html">prep_data</a></span>(<span class="dt">outcome =</span> arr_delay,
+<span class="st">  </span><span class="kw"><a href="../../reference/prep_data.html">prep_data</a></span>(<span class="dt">outcome =</span> arr_delay, 
             <span class="dt">collapse_rare_factors =</span> <span class="fl">0.03</span>,
             <span class="dt">convert_dates =</span> <span class="ot">FALSE</span>)
 <span class="co"># &gt; Training new data prep recipe</span>
@@ -698,7 +701,7 @@ m_glm_<span class="dv">2</span> &lt;-
 <span class="co"># &gt; *** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
 <span class="co"># &gt; *** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span>
 <span class="kw">Sys.time</span>() <span class="op">-</span><span class="st"> </span>start
-<span class="co"># &gt; Time difference of 2.04658 mins</span></code></pre></div>
+<span class="co"># &gt; Time difference of 2.145739 mins</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">m_glm_<span class="dv">2</span>
 <span class="co"># &gt; Algorithms Trained: glmnet</span>
 <span class="co"># &gt; Model Name: arr_delay</span>
@@ -707,7 +710,7 @@ m_glm_<span class="dv">2</span> &lt;-
 <span class="co"># &gt; Performance Metric: AUROC</span>
 <span class="co"># &gt; Number of Observations: 155260</span>
 <span class="co"># &gt; Number of Features: 34</span>
-<span class="co"># &gt; Models Trained: 2018-06-22 15:36:56 </span>
+<span class="co"># &gt; Models Trained: 2018-06-25 12:06:20 </span>
 <span class="co"># &gt; </span>
 <span class="co"># &gt; Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.</span>
 <span class="co"># &gt; Best model: glmnet</span>
@@ -760,10 +763,10 @@ m_glm_<span class="dv">2</span> &lt;-
       </footer>
 </div>
 
-
+  
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script><script>
   docsearch({
-
+    
     apiKey: 'ac39465bc37cbef616f5de1e646b6037',
     indexName: 'healthcareai',
     inputSelector: 'input#search-input.form-control',

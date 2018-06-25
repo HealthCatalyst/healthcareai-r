@@ -97,6 +97,9 @@
     <li>
       <a href="articles/site_only/transitioning.html">Transition from Version 1</a>
     </li>
+    <li>
+      <a href="articles/site_only/performance.html">Performance with Big Data</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -172,6 +175,7 @@
 <li>[ ] Ensure code passes all tests: <code><a href="http://www.rdocumentation.org/packages/devtools/topics/test">devtools::test()</a></code>. This will also be checked in check…</li>
 <li>[ ] Ensure code passes all CRAN checks without warnings or notes: <code><a href="http://www.rdocumentation.org/packages/devtools/topics/check">devtools::check()</a></code>
 </li>
+<li>If you get NOTEs about global variables with no visible binding for variables defined via NSE (e.g. in dplyr functions), add them to the list of <code>globalVariables</code> in <code>R/globals.R</code>.</li>
 <li>Do not regenerate the pkgdown website. We will rebuild this for every minor release when a new version of the package is on its way to CRAN.</li>
 </ul>
 </div>
@@ -203,6 +207,38 @@
 <h2 class="hasAnchor">
 <a href="#code-style" class="anchor"></a>Code Style</h2>
 <p>Code should conform to the <a href="http://style.tidyverse.org/">tidyverse style guide</a>. Code style will be checked in your pull request by <a href="https://github.com/jimhester/lintr">lintr</a>, and tests will fail on Travis if there are lints. You can check conformation with the style guide by running <code><a href="http://www.rdocumentation.org/packages/lintr/topics/lint_package">lintr::lint_package()</a></code> locally.</p>
+</div>
+<div id="adding-algorithms" class="section level2">
+<h2 class="hasAnchor">
+<a href="#adding-algorithms" class="anchor"></a>Adding Algorithms</h2>
+<p>When adding support for a new algorithm, these are some spots you’ll need to address. There are likely to be others as well depending on details of the algorithm, but these should diminish as more algorithms are implemented.</p>
+<ul>
+<li>In models.R
+<ul>
+<li>
+<code>translate_model_names</code>: Add caret’s name and ours</li>
+<li>
+<code>get_supported_models</code>: Add our name
+<ul>
+<li>Update @description with hyperparameters</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>In setup_hyperparameters.R
+<ul>
+<li>
+<code>get_hyperparameter_defaults</code>
+<ul>
+<li>Update @details</li>
+</ul>
+</li>
+<li><code>get_random_hyperparameters</code></li>
+</ul>
+</li>
+<li>In tune_models.R: @importFrom the library(ies) caret calls to fit the model.</li>
+<li>Tests: See what fails and update them accordingly</li>
+</ul>
 <hr>
 <p>Thanks to the well-organized rOpenSci <a href="https://github.com/ropensci/codemetar">codemetar</a> and <a href="https://github.com/ropensci/drake">drake</a> packages, which were drawn on heavily in the creation of this document.</p>
 </div>
