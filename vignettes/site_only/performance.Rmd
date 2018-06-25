@@ -1,0 +1,439 @@
+---
+title: "Performance with Big Data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with healthcareai}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include=FALSE}
+set.seed(43170)
+knitr::opts_chunk$set(echo = TRUE, results = "hold", collapse = TRUE, 
+                      comment = "# >")
+options(tibble.print_min = 5, tibble.print_max = 5)
+```
+
+If your healthcareai models are running out of memory or are very slow, you 
+might be thinking that something is wrong with the package or that you need a 
+bigger computer. While that can be frustrating, there are several tricks that 
+you can use to speed things up and save memory. Read on to see some options
+for using healthcareai with a large data set.
+
+# TL;DR
+If you have a dataset with more than 20k rows or 50 columns, you might run into
+performance issues. The size of your data and the type of model training you use 
+influence how long it will take. Some easy steps to reduce training time:
+
+- Limit the number of columns in your data after `prep_data`.
+- Categorical variables with many unique values (like zip code) create many
+columns. Use `get_best_levels` or `prep_data`'s `collapse_rare_factors` to 
+limit them.
+- `prep_data` transforms date columns into many columns by default. Use
+`convert_dates = FALSE` to prevent that.
+- Limit the length of your data to more recent data or to a subset of the 
+original data.
+- Use `flash_models` instead of `machine_learn` to train fewer models during 
+development work.
+- GLM is typically faster than RF, though doesn't always perform as well.
+- Use `machine_learn` or `tune_models` with faster settings. Pick 1 model, and
+use a tune depth of 5.
+
+
+# Data
+If you are running out of memory, it's probably because your data is too large 
+for the operations that you've asked R to do. 
+
+In general, machine learning can 
+ignore useless columns. But with large data sets, it's better to use fewer 
+columns that are more predictive to save computational cost. Remember, machine 
+learning should be iterative. Add columns and see if they help, remove them and 
+see if it hurts, try different transformations.
+
+This document walks through some steps to help you build a better model in less
+time.
+
+Start by loading up the *flights* dataset.
+```{r}
+library(tidyverse)
+library(pryr)
+library(nycflights13)
+library(healthcareai)
+
+d <- nycflights13::flights
+d
+```
+
+You can get the size of a dataset with `dim`, `nrow`, `ncol` and `object_size`.
+40.6 MB really doesn't seem like that much. Your computer probably has at least 
+8 GB of RAM. But you are going to prepare that data for machine learning and then
+train several models to see which one fits the data best. Larger data sets take more
+memory and time to process. Despite its small size, if you were to train a model 
+on this data, it would take a long time.
+```{r}
+os <- object.size(d)
+print(paste("Data is", round(as.numeric(os)/1000000, 1), "mb."))
+```
+
+## Data Set Sizes
+In general, 336k rows and 19 columns is large but should be workable. Keep in mind
+that the data changes as you manipulate it though. For example, if we `prep_data`,
+the size of the data changes. This is because `prep_data` transforms, adds, and
+removes columns to prepare your data for machine learning. It will only modify
+columns, never rows.
+
+Prepping this data increased the number of columns from 19 to 155. The size went up 
+an order of magnitude, to 408 MB. The categorical columns, those made up of 
+characters or factors, are the reason for the extra columns, and thus, the size 
+change. The amount of memory your data takes up is proportional to the number of 
+cells in the table, rows times columns.
+
+R works with data "in-memory." When the size of data loaded in the session
+exceeds available memory, it starts using harddisk for memory, which is about 
+an order of magnitude slower. Check out the `Grid View` of the `Environment` 
+tab in Rstudio. You can sort by object size to see if you're lugging around a 
+bunch of big items and what's taking up space. You can remove items from the 
+active environment (this doesn't touch anything on disk, but you'll have to 
+re-load/create it to get it back in R) with `rm(object_name)`. More detail on 
+memory usage can be found in [Hadley's book, "Advanced R."](http://adv-r.had.co.nz/memory.html)
+
+```{r}
+library(healthcareai)
+d <- d %>%
+  mutate(arr_delay = case_when(arr_delay > 15 ~ "Y",
+                               TRUE ~ "N"),
+         flight_id = 1:nrow(d)) %>%
+  select(-dep_time, -arr_time, -dep_delay, hour, minute)
+d_clean <- d %>% 
+  prep_data(outcome = arr_delay,
+            ... = tailnum,
+            collapse_rare_factors = FALSE, 
+            add_levels = FALSE)
+dim(d_clean)
+os <- object.size(d_clean)
+print(paste("Prepped data is", round(as.numeric(os)/1000000, 1), "mb."))
+```
+
+## Categorical Variables
+Categorical columns must be multiplied into *dummy columns* for machine learning. 
+For example, `carrier` has 16 unique values and those will be turned into 16
+unique columns. These dummy columns are made up of 1s and 0s. There is one dummy
+column for each unique value in the original column except one. The missing 
+value can be inferred from a 0 in the rest of the columns. For example, if your
+gender column contained `Male` and `Female`, you would get 1 dummy column, 
+`Gender_Male`, where males were `1`. Females would then be the `0`'s. If you
+wanted that dummy column to instead be `Gender_Female`, you can use the prep
+data argument, `ref_data`, like this:  `ref_levels = c(gender = "Female")`. `prep_data`
+then adds a column to collect missing values in the original column.
+
+Be careful with categorical columns, as they can blow up your data set. If you had 
+a column of DRG codes (or `tailnums`, which was removed above) with 100s of 
+unique values, your data would become hundreds of columns!
+```{r}
+print(paste("Carrier has", unique(d$carrier) %>% length(), "unique values."))
+
+d_clean %>%
+  select(starts_with("carrier"))
+```
+
+## Limiting Width
+One of the best ways to reduce training time and memory requirements is to limit 
+the number of columns in the data. Here are some easy ways to do it.
+
+### Understand High Cardinality Variables
+Since character variables with lots of unique values, or *high cardinality variables*, 
+cause very wide datasets, the best way to limit width is understanding which
+columns those are and whether or not you need them in your data. How many 
+unique values are in a character column, like `destination`?
+```{r}
+d %>%
+  summarize_if(~ is.character(.x) | is.factor(.x) , n_distinct)
+```
+
+What about how those values correlate with the outcome? In this case, we'll do
+a visualization of `destination`, looking at the proportion of each that belongs
+to the delayed group.
+```{r, fig.width = 12, fig.height = 5}
+d %>%
+  ggplot(aes(x = reorder(dest, arr_delay, function(x) -sum(x == "Y") / length(x)), 
+             fill = arr_delay)) +
+  geom_bar(stat = "count", position = "fill") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5)) +
+  xlab("Destination") +
+  ylab("Proporition Delayed")
+```
+
+But really, you want to know what the distribution of all your variables looks like. 
+You should **profile your data** using the `DataExplorer` package. It gives you 
+all sorts of good info about your data and generates an HTML report that you can 
+refer back to later to know if your data might have changed. [Check out an 
+example here.](https://github.com/boxuancui/DataExplorer)
+
+### Remove or Transform Columns
+The simplest option is to remove categorical or date columns with more than say, 
+50 categories. You might throw out some information, but you can always add it
+back in later if you need. You'll notice that's what I did above by ignoring `tailnum`,
+which has 4000 categories and doesn't likely contain much useful information.
+
+We saw in the plot that `destination`, definitely has useful information as some
+destinations are rarely delayed while others are routinely delayed. 105 
+categories is simply too many to just include it though. Here, the 
+`collapse_rare_factors` argument to `prep_data` can help with that lumping some
+of the rare categories into an "other" category. This example puts any category that
+contains less than 2% of the total data into "other." `destination` is shrunk to the 
+16 most common destinations.
+```{r}
+d_clean2 <- d %>%
+  mutate(hour_of_day = lubridate::hour(time_hour)) %>%
+  prep_data(outcome = arr_delay,
+            ... = tailnum,
+            collapse_rare_factors = 0.02)
+
+d_clean2 %>%
+  select(starts_with("dest"))
+```
+
+By default, `prep_data` will also transform dates into categorical columns that 
+make the dataset larger. That can be good, as there planes might tend to be more
+often delayed in snowy January than cool October. Categorical months
+are technically more correct than numeric months as January (1) is not less than February 
+(2). Similarly, an `hour_of_day` column could be a categorical column or a 
+numeric. Categorical columns will create a larger dataset but will perform better 
+using GLM. It's fine to leave these as numeric for tree-based methods like
+random forest or xgboost.
+
+Using categorical dates, needed for GLM, we get 81 columns. That might be slow.
+```{r}
+library(lubridate)
+d_clean2 <- d %>%
+  mutate(hour_of_day = as.character(hour(time_hour))) %>%
+  prep_data(outcome = arr_delay, 
+            ... = tailnum,
+            collapse_rare_factors = 0.02,
+            convert_dates = c("dow", "month"))
+d_clean2
+```
+If we want numeric dates, fine for RF or XGB, we'll have to create them ourselves. 
+With numeric dates, 46 columns remain.
+```{r}
+d_clean2 <- d %>%
+  mutate(hour_of_day = hour(time_hour),
+         month_of_year = month(time_hour),
+         day_of_week = wday(time_hour)) %>%
+  select(-time_hour) %>%
+  prep_data(outcome = arr_delay, 
+            ... = tailnum,
+            collapse_rare_factors = 0.02,
+            convert_dates = FALSE)
+d_clean2
+```
+
+### Select Best Levels
+Some categories, like `tailnum`, are not handled well by  the
+`collapse_rare_factors` argument. There are too many categories and they are fairly
+evenly distributed. They all get moved into category `other`, which doesn't 
+help at all. You could remove them by passing them to the `...` argument of 
+`prep_data`, as I did with tailnum.
+
+An alternative to grouping rare categories is to use `add_best_levels` to make
+columns for the categories (or levels) that are likely to help differentiate the 
+outcome variable. This function can be used for any grouping variable, like
+zip code.
+
+The following example will identify 20 tail numbers that could be predictive of 
+the outcome. Instead of removing tail number, These are good levels to add to try adding to
+the data with `bind_cols`. Similarly, you could select the best `dest` values by
+using `dest` as the grouping variable.
+```{r}
+data <- d %>% select(flight_id, arr_delay)
+ls <- d %>% select(flight_id, tailnum, arr_delay)
+
+d_best_levels <- data %>%
+  add_best_levels(longsheet = ls,
+                  id = flight_id,
+                  groups = tailnum,
+                  outcome = arr_delay,
+                  n_levels = 20,
+                  min_obs = 50,
+                  missing_fill = 0)
+d_best_levels
+```
+
+
+## Limiting Length
+At some point, adding more rows of data will no longer improve performance. 
+Better data will always win against more of the same bad data.
+
+If you have a large data set, like `flights`, you probably have enough information
+to do machine learning on a subset and still get good results. 
+Some common ways to reduce length:
+
+Sample a random subset of data. This keeps half the orginial data with the same
+ratio of delayed to not delayed.
+```{r}
+stratified_sample_d <- d %>%
+  split_train_test(outcome = arr_delay, percent_train = .5)
+stratified_sample_d <- stratified_sample_d$train
+
+d %>% 
+  count(arr_delay) %>%
+  arrange(desc(n))
+
+stratified_sample_d %>% 
+  count(arr_delay) %>%
+  arrange(desc(n))
+```
+
+Use only data from the last year or 2. Healthcare data often goes back several
+years, but you might find that data from 5 years ago isn't as predictive as more
+current data anyways! 
+```{r}
+# From an integer month column
+d_recent <- d %>% 
+  filter(month >= 6)
+
+# From a date column
+d_recent <- d %>%
+  filter(lubridate::month(time_hour) >= 6)
+```
+
+In the case of unbalanced data sets, where there are many more "No" than "Yes"
+outcomes, throw out some of the "No" rows.
+```{r}
+downsampled_d <- caret::downSample(d, as.factor(d$arr_delay)) %>%
+  select(-Class, -tailnum)
+
+downsampled_d %>% 
+  count(arr_delay) %>%
+  arrange(desc(n))
+```
+
+# Models
+Let's train a model to predict whether a plane arrived more than
+15 minutes late or not. The first thing you might do is use `machine_learn`.
+I stopped this code after I saw the warning message.
+```{r, eval = FALSE}
+m <- machine_learn(downsampled_d, outcome = arr_delay)
+```
+```
+Training new data prep recipe
+Removing the following 1 near-zero variance column(s). If you don't want to remove them, call prep_data with remove_near_zero_variance = FALSE.
+year
+arr_delay looks categorical, so training classification algorithms.
+You've chosen to tune 150 models (n_folds = 5 x tune_depth = 10 x length(models) = 3) on a 336,776 row dataset. This may take a while...
+Training with cross validation: Random Forest
+```
+
+Notice that `machine_learn` gives the warning message that says it will be training
+150 models! Under the hood, this function is doing some seriously rigorous 
+machine learning for you:
+
+- It is doing *5-fold cross validation*. This means that it's training 5 models 
+with 80/20 splits of training and testing. This ensures that all data is part of
+the test set once.
+- It is *tuning hyperparmeters* using *random search* with 10 different combinations.
+- It is trying 3 different algorithms.
+
+These steps ensure you get the best performing model while still being resistent
+to overfitting. They come at the cost of computational complexity. You can speed
+things up by using a shorter model list, `models = "rf"`, less hyperparameter
+tuning, `tune_depth = 3`, and fewer folds, `n_folds = 4`. Just know that you're 
+cutting corners for the sake of time. We recommend doing your development work 
+quickly using `flash_models` but then doing the full tune before saving your 
+final model.
+
+## flash_models for Speed
+We can use `prep_data` and `flash_models` to get an idea of how long our models will take to 
+train. `flash_models` requires at least 2 folds, meaning 2 models, each trained
+on half the data. We recommend using at least 4 folds. If 4 models takes 6.5 
+minutes, 150 models will be in the ballpark of 4 hours. 
+```{r}
+start <- Sys.time()
+d_clean <- downsampled_d %>%
+  prep_data(outcome = arr_delay, 
+            collapse_rare_factors = 0.03,
+            convert_dates = FALSE)
+
+m_rf_1 <- flash_models(d_clean, 
+                       outcome = arr_delay, 
+                       models = "rf",
+                       n_folds = 4)
+Sys.time() - start
+```
+```{r}
+m_rf_1
+```
+
+If you don't need the finer control of your data preparation, `machine_learn` 
+with `tune = FALSE` is equivalent to `prep_data %>% flash_models`. 
+```{r, eval = FALSE}
+m <- machine_learn(d,    
+                   outcome = arr_delay,
+                   models = "rf",
+                   tune = FALSE,
+                   n_folds = 4)
+```                  
+
+## GLM for Speed
+As different models take different amounts of time, it's good to know what
+performance looks like using both before choosing one to go forward with. 
+GLM tends to be faster than random forest on long data sets but
+sometimes not as accurate. It won't buy you much on very wide data sets. KNN 
+tends to be pretty slow.
+
+On our `flights` data, GLM was faster, taking only a quarter of the time RF did. 
+Its performance was not as high though. RF had an AUPR of 0.72 while GLM was 0.69. 
+The performance increase could potentially be worth your time as random forest appears to 
+better fit the data.
+```{r}
+start <- Sys.time()
+d_clean <- downsampled_d %>%
+  prep_data(outcome = arr_delay, 
+            collapse_rare_factors = 0.03,
+            convert_dates = FALSE)
+
+m_glm_1 <- flash_models(d_clean, 
+                        outcome = arr_delay, 
+                        models = "glm",
+                        n_folds = 4)
+Sys.time() - start
+```
+```{r}
+m_glm_1
+```
+
+This chart should help you get an idea of the different algorithms react to
+data sets of various sizes.
+![ML Speed](figures/speed.png)
+
+## Limited Tuning
+Now that you've settled on a model, you could use either `machine_learn` with just 
+that model or `tune_models` with selected tuning options. This gives you a 
+little more rigor than our svelt `flash_models` but won't take 4 hours.
+```{r}
+start <- Sys.time()
+d_clean <- downsampled_d %>%
+  prep_data(outcome = arr_delay, 
+            collapse_rare_factors = 0.03,
+            convert_dates = FALSE)
+m_glm_2 <-
+  tune_models(d = d_clean,
+              outcome = arr_delay,
+              models = "glm",
+              tune_depth = 5)
+Sys.time() - start
+```
+
+```{r}
+m_glm_2
+```
+We got different performance than when we used `flash_models`. Why? 
+Hyperparameters are chosen randomly. We could have gotten lucky before. Using
+5-fold cross validation is more rigorous as well. It will uncover any differences
+there might be in subsets of the data and more closely mimic the production 
+environment.
+
+Before simply getting more memory on your computer, try the above on your data.
+Hopefully, you end up with a better model in less time!
+
+
