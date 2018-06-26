@@ -40,8 +40,12 @@ evaluate <- function(x, ...) {
 }
 
 #' @export
+#' @param na.rm Logical. If FALSE (default) performance metrics will be NA if
+#'   any rows are missing an outcome value. If TRUE, performance will be
+#'   evaluted on the rows that have an outcome value. Only used when evaluating
+#'   a prediction data frame.
 #' @rdname evaluate
-evaluate.predicted_df <- function(x, ...) {
+evaluate.predicted_df <- function(x, na.rm = FALSE, ...) {
   outcome <- attr(x, "model_info")[["target"]]
   if (!outcome %in% names(x))
     stop("Outcome variable: ", outcome, " not found in d. You must have actual outcomes in ",
@@ -49,14 +53,18 @@ evaluate.predicted_df <- function(x, ...) {
          "somewhere else, consider using ",
          paste0("evaluate_", tolower(attr(x, "model_info")[["type"]])))
 
-  obs <- x[[outcome]]
-  pred <- x[[paste0("predicted_", outcome)]]
-
+  op <- tibble::tibble(
+    obs = x[[outcome]],
+    pred = x[[paste0("predicted_", outcome)]]
+  )
+  if (na.rm) {
+    op <- dplyr::filter(op, !is.na(obs))
+  }
   if (attr(x, "model_info")[["type"]] == "Regression") {
-    scores <- evaluate_regression(predicted = pred, actual = obs)
+    scores <- evaluate_regression(predicted = op$pred, actual = op$obs)
   } else if (attr(x, "model_info")[["type"]] == "Classification") {
-    obs <- ifelse(obs == attr(x, "model_info")$positive_class, 1L, 0L)
-    scores <- evaluate_classification(predicted = pred, actual = obs)
+    op$obs <- ifelse(op$obs == attr(x, "model_info")$positive_class, 1L, 0L)
+    scores <- evaluate_classification(predicted = op$pred, actual = op$obs)
   } else {
     stop("Somthing's gone wrong. I don't know how to deal with model type ",
          attr(x, "model_info")[["type"]])
@@ -68,6 +76,7 @@ evaluate.predicted_df <- function(x, ...) {
 #' @param all_models Logical. If FALSE (default), a numeric vector giving
 #'   performance metrics for the best-performing model is returned. If TRUE,
 #'   a data frame with performance metrics for all trained models is returned.
+#'   Only used when evaluating a model_list.
 #' @rdname evaluate
 evaluate.model_list <- function(x, all_models = FALSE, ...) {
   if (!length(x))

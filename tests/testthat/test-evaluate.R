@@ -94,3 +94,9 @@ test_that("evalute all_models works right", {
   (diff(alls$r_all$RMSE) >= 0) %>% all() %>% expect_true()
   (diff(alls$c_all$AUROC) <= 0) %>% all() %>% expect_true()
 })
+
+test_that("evaluate.predicted_df na.rm works", {
+  r_preds_training$plasma_glucose[1] <- NA
+  evaluate(r_preds_training) %>% is.na() %>% all() %>% expect_true()
+  evaluate(r_preds_training, na.rm = TRUE) %>% is.na() %>% any() %>% expect_false()
+})

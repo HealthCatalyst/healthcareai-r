@@ -8,7 +8,7 @@
 \usage{
 evaluate(x, ...)
 
-\method{evaluate}{predicted_df}(x, ...)
+\method{evaluate}{predicted_df}(x, na.rm = FALSE, ...)
 
 \method{evaluate}{model_list}(x, all_models = FALSE, ...)
 }
@@ -17,9 +17,15 @@ evaluate(x, ...)
 
 \item{...}{Not used}
 
+\item{na.rm}{Logical. If FALSE (default) performance metrics will be NA if
+any rows are missing an outcome value. If TRUE, performance will be
+evaluted on the rows that have an outcome value. Only used when evaluating
+a prediction data frame.}
+
 \item{all_models}{Logical. If FALSE (default), a numeric vector giving
 performance metrics for the best-performing model is returned. If TRUE,
-a data frame with performance metrics for all trained models is returned.}
+a data frame with performance metrics for all trained models is returned.
+Only used when evaluating a model_list.}
 }
 \value{
 Either a numeric vector or a data frame depending on the value of
