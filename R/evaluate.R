@@ -23,6 +23,9 @@
 #'   and then averaged, while metrics calculated on the prediction data frame
 #'   (\code{evaluate(predict(models))}) are calculated once on all observations.
 #'
+#' @return Either a numeric vector or a data frame depending on the value of
+#'   all_models
+#'
 #' @examples
 #' models <- machine_learn(pima_diabetes[1:40, ],
 #'                         patient_id,
@@ -62,25 +65,45 @@ evaluate.predicted_df <- function(x, ...) {
 }
 
 #' @export
+#' @param all_models Logical. If FALSE (default), a numeric vector giving
+#'   performance metrics for the best-performing model is returned. If TRUE,
+#'   a data frame with performance metrics for all trained models is returned.
 #' @rdname evaluate
-evaluate.model_list <- function(x, ...) {
+evaluate.model_list <- function(x, all_models = FALSE, ...) {
   if (!length(x))
     stop("Can't evaluate an empty model_list")
   x <- change_metric_names(x)
   mi <- extract_model_info(x)
-  mod <- mi$best_model_name
   if (mi$m_class == "Regression") {
     f <- evaluate_regression
     pred_col <- "pred"
   } else if (mi$m_class == "Classification") {
     f <- evaluate_classification
     pred_col <- mi$positive_class
-    x[[mod]]$pred$obs <- ifelse(x[[mod]]$pred$obs == mi$positive_class, 1L, 0L)
+    for (mod in names(x))
+      x[[mod]]$pred$obs <- ifelse(x[[mod]]$pred$obs == mi$positive_class, 1L, 0L)
   }
-  split(x[[mod]]$pred, x[[mod]]$pred$Resample) %>%
-    purrr::map_df(~ f(predicted = .x[[pred_col]], actual = .x$obs) %>%
-                    dplyr::bind_rows()) %>%
-    colMeans()
+  # Pull all available metrics from all models
+  out <-
+    purrr::map_df(names(x), function(mod) {
+      split(x[[mod]]$pred, x[[mod]]$pred$Resample) %>%
+        purrr::map_df(~ f(predicted = .x[[pred_col]], actual = .x$obs) %>%
+                        dplyr::bind_rows()) %>%
+        purrr::map(mean) %>%
+        tibble::as_tibble() %>%
+        dplyr::mutate(model = mod) %>%
+        dplyr::select(model, dplyr::everything())
+    })
+  # Arrange models by metric scores
+  to_order <- out[[mi$metric]]
+  if (x[[1]]$maximize)
+    to_order <- -to_order
+  out <- out[order(to_order), ]
+  if (!all_models) {
+    # Extract best-performing model's scores as named numeric vector
+    out <- unlist(out[1, -1])
+  }
+  return(out)
 }
 
 #' Get performance metrics for classification predictions

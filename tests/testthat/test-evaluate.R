@@ -83,3 +83,14 @@ test_that("evaluate model_list metrics match caret's", {
   expect_equal(attributes(c_preds_training)$model_info$performance,
                c_models_eval[["AUROC"]])
 })
+
+test_that("evalute all_models works right", {
+  alls <- list(
+    r_all = evaluate(r_models, all_models = TRUE),
+    c_all = evaluate(c_models, all_models = TRUE),
+    all1 = evaluate(r_models[1], all_models = TRUE)
+  )
+  purrr::map_lgl(alls, is.data.frame) %>% all() %>% expect_true()
+  (diff(alls$r_all$RMSE) >= 0) %>% all() %>% expect_true()
+  (diff(alls$c_all$AUROC) <= 0) %>% all() %>% expect_true()
+})

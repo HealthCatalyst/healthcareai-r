@@ -10,12 +10,20 @@ evaluate(x, ...)
 
 \method{evaluate}{predicted_df}(x, ...)
 
-\method{evaluate}{model_list}(x, ...)
+\method{evaluate}{model_list}(x, all_models = FALSE, ...)
 }
 \arguments{
 \item{x}{Object to be evaluted}
 
 \item{...}{Not used}
+
+\item{all_models}{Logical. If FALSE (default), a numeric vector giving
+performance metrics for the best-performing model is returned. If TRUE,
+a data frame with performance metrics for all trained models is returned.}
+}
+\value{
+Either a numeric vector or a data frame depending on the value of
+  all_models
 }
 \description{
 Get model performance metrics
