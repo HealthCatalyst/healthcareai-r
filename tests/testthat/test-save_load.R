@@ -2,7 +2,7 @@ context("Checking model saving and loading")
 
 if (file.exists("models.RDS"))
   file.remove("models.RDS")
-m <- machine_learn(pima_diabetes[1:20, 8:10], outcome = diabetes, models = "knn")
+m <- machine_learn(pima_diabetes[1:20, 8:10], outcome = diabetes, models = "rf", tune = FALSE)
 
 test_that("save_models works and issues PHI message", {
   save_messages <- capture_messages(save_models(m, "models.RDS"))

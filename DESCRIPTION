@@ -25,7 +25,6 @@ Imports:
     e1071,
     ggplot2,
     glmnet,
-    kknn,
     lubridate,
     MLmetrics,
     purrr,
@@ -35,6 +34,7 @@ Imports:
     stringr,
     tibble,
     tidyr,
+    xgboost
 RoxygenNote: 6.0.1
 Suggests:
     DBI,

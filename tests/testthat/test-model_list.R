@@ -25,9 +25,9 @@ suppressWarnings({
                      tuneLength = 2,
                      trControl = caret::trainControl(savePredictions = "final")
   )
-  kn <- caret::train(x = dplyr::select(dreg, -mpg),
+  xg <- caret::train(x = dplyr::select(dreg, -mpg),
                      y = dreg$mpg,
-                     method = "kknn",
+                     method = "xgbTree",
                      tuneLength = 2,
                      trControl = caret::trainControl(savePredictions = "final")
   )
@@ -45,7 +45,7 @@ c_models <- tune_models(dcla, am, n_folds = 2, tune_depth = 2,
 c_pr <- tune_models(dcla, am, metric = "PR", n_folds = 2, tune_depth = 2)
 single_model_as <- as.model_list(rf)
 single_model_tune <- tune_models(dcla, am, models = "rf")
-double_model_as <- as.model_list(rf, kn)
+double_model_as <- as.model_list(rf, xg)
 r_flash <- flash_models(dreg, mpg)
 c_flash <- flash_models(dcla, am)
 unprepped_flash <- flash_models(mtcars, mpg, models = "glm")
@@ -77,9 +77,9 @@ test_that("as.model_list errors if input isn't a caret model", {
 test_that("as.model_list succeeds with one or more models as input", {
   expect_s3_class(as.model_list(rf, model_class = "regression"),
                   "model_list")
-  expect_s3_class(as.model_list(rf, kn), "model_list")
+  expect_s3_class(as.model_list(rf, xg), "model_list")
   expect_s3_class(
-    as.model_list(listed_models = list(rf, kn), model_class = "regression"),
+    as.model_list(listed_models = list(rf, xg), model_class = "regression"),
     "model_list"
   )
   expect_s3_class(as.model_list(listed_models = list(rf)), "model_list")
@@ -87,13 +87,13 @@ test_that("as.model_list succeeds with one or more models as input", {
 
 test_that("as.model_list returns correct model names (from modelInfo$label)", {
   correct_names <- names(r_models)
-  m_list <- structure(list(rf, kn, gl), names = c("rando", "knn", "lasso"))
+  m_list <- structure(list(rf, xg, gl), names = c("rando", "xgb", "lasso"))
   expect_equal(
     names(as.model_list(listed_models = m_list)),
     correct_names
   )
   expect_equal(
-    names(as.model_list(rf, kn, gl)),
+    names(as.model_list(rf, xg, gl)),
     correct_names
   )
 })
@@ -245,7 +245,7 @@ test_that("change_metric_names changes AUC to AUPR", {
 
   expect_true(
     all(c("AUPR", "Precision", "Recall") %in% names(
-      m$`k-Nearest Neighbors`$results)))
+      m$`eXtreme Gradient Boosting`$results)))
 })
 
 test_that("change_metric_names changes ROC to AUROC", {
@@ -257,7 +257,7 @@ test_that("change_metric_names changes ROC to AUROC", {
 
   expect_true(
     all(c("AUROC", "Sens", "Spec") %in% names(
-      m$`k-Nearest Neighbors`$results)))
+      m$`eXtreme Gradient Boosting`$results)))
 })
 
 test_that("Change PR metric doesn't change object class", {
@@ -299,8 +299,8 @@ test_that("[ extracts by name, index, or logical vector", {
   expect_equal(double_model_as[1], double_model_as["Random Forest"])
   expect_equal(c_models[1], c_models["Random Forest"])
   expect_equal(double_model_as[1], double_model_as[c(TRUE, FALSE)])
-  expect_equal(double_model_as[2], double_model_as["k-Nearest Neighbors"])
-  expect_equal(double_model_as[1:2], double_model_as[c("Random Forest", "k-Nearest Neighbors")])
+  expect_equal(double_model_as[2], double_model_as["eXtreme Gradient Boosting"])
+  expect_equal(double_model_as[1:2], double_model_as[c("Random Forest", "eXtreme Gradient Boosting")])
   expect_equal(double_model_as, double_model_as[c(TRUE, TRUE)])
 })
 

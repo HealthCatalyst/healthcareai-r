@@ -31,7 +31,8 @@ a factor).}
 \item{n_folds}{How many folds to use in cross-validation? Default = 5.}
 
 \item{tune_depth}{How many hyperparameter combinations to try? Default = 10.
-Value is multiplied by 5 for regularized regression.}
+Value is multiplied by 5 for regularized regression. Increasing this value
+when tuning XGBoost models may be particularly useful for performance.}
 
 \item{hyperparameters}{Optional, a list of data frames containing
 hyperparameter values to tune over. If NULL (default) a random,

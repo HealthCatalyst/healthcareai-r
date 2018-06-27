@@ -22,11 +22,14 @@
 #'  \code{tune_models}; the number of rows in the data frames is given by
 #'  `tune_depth`.
 #'
-#'  For \code{get_hyperparameter_defaults} k-NN defaults are from the kknn
-#'  package: kmax = 7, distance = 2 (Minkowski's exponent, i.e. Euclidean
-#'  distance), kernal = "optimal". Random forest defaults are from Intro to
+#'  For \code{get_hyperparameter_defaults}
+#'  XGBoost defaults are from caret and XGBoost documentation:
+#'  eta = 0.3, gamma = 0, max_depth = 6, subsample = 0.7,
+#'  colsample_bytree = 0.8, min_child_weight = 1, and nrounds = 50.
+#'  Random forest defaults are from Intro to
 #'  Statistical Learning and caret: mtry = sqrt(k), splitrule = "extratrees",
-#'  min.node.size = 1 for classification, 5 for regression. glm defaults are
+#'  min.node.size = 1 for classification, 5 for regression.
+#'  glm defaults are
 #'  from caret: alpha = 1, and because glmnet fits sequences of lambda nearly as
 #'  fast as an individual value, lambda is a sequence from 1e-4 to 8.
 get_hyperparameter_defaults <- function(models = get_supported_models(),
@@ -40,15 +43,18 @@ get_hyperparameter_defaults <- function(models = get_supported_models(),
         mtry = floor(sqrt(k)),
         splitrule = "extratrees",
         min.node.size = if (model_class == "classification") 1L else 5L),
-      knn = tibble::tibble(
-        kmax = 7,
-        distance = 2,
-        kernel = "optimal"
+      xgb = tibble::tibble(
+        eta = .3,
+        gamma = 0,
+        max_depth = 6,
+        subsample = .7,
+        colsample_bytree = .8,
+        min_child_weight = 1,
+        nrounds = 50
       ),
       # For glmnet, fitting 10 lambdas is only ~30% slower than an individual
       # value, and it's so important for performance, so go ahead and fit 10
-      glm =
-        tibble::tibble(
+      glm = tibble::tibble(
           alpha = 1,
           lambda = 2 ^ seq(-10, 3, len = 10)
         )
@@ -81,14 +87,16 @@ get_random_hyperparameters <- function(models = get_supported_models(),
         min.node.size = sample(min(n, 20), tune_depth, TRUE)
       )
   }
-  if ("knn" %in% models) {
-    kmax_limit <- min(10, n)
-    grids$knn <-
+  if ("xgb" %in% models) {
+    grids$xgb <-
       tibble::tibble(
-        kmax = sample(kmax_limit, tune_depth, TRUE),
-        distance = runif(tune_depth, 0, 3),
-        kernel = sample(c("rectangular", "epanechnikov", "triweight",
-                          "cos", "gaussian", "optimal"), tune_depth, TRUE)
+        eta = runif(tune_depth, 0.001, .5),
+        gamma = runif(tune_depth, 0, 10),
+        max_depth = sample(10, tune_depth, replace = TRUE),
+        subsample = runif(tune_depth, .35, 1),
+        colsample_bytree = runif(tune_depth, .5, .9),
+        min_child_weight = stats::rexp(tune_depth, .2),
+        nrounds = sample(25:1000, tune_depth, prob = 1 / (25:1000))
       )
   }
   if ("glm" %in% models) {

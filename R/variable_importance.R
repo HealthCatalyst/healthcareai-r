@@ -79,16 +79,9 @@ plot.variable_importance <- function(x,
 #' m <- flash_models(mtcars, outcome = mpg, models = "rf")
 #' get_variable_importance(m)
 get_variable_importance <- function(models, remove_zeros = TRUE, top_n) {
-  # Currently RF is the only alg with variable importance we want to use
-  use <- "Random Forest"
-  if (!use %in% names(models))
-    stop("Can't get variable importance for any of these models.")
-  best_model <- extract_model_info(models)$best_model_name
-  if (best_model != use)
-    warning("Returning ", use, " variable importance, but ", best_model, " was the ",
-            "best performing model and will be used to make predictions. To ",
-            "make predictions from ", use, " instead, use: models['", use, "'].")
-  imp <- caret::varImp(models$`Random Forest`)
+
+  use <- choose_vi_model(models)
+  imp <- caret::varImp(models[[use]])
   imp <-
     imp[[1]][, 1, drop = FALSE] %>%
     tibble::rownames_to_column() %>%
@@ -107,4 +100,30 @@ get_variable_importance <- function(models, remove_zeros = TRUE, top_n) {
   structure(imp,
             model = use,
             class = c("variable_importance", class(imp)))
+}
+
+# This is where we keep which models can really do varible importance (glmnet)
+# can, but it's values are bogus because coefficients aren't standardized.
+# This should eventually go into a master model table (issue #1113).
+choose_vi_model <- function(models, have_vi = c("Random Forest",
+                                                "eXtreme Gradient Boosting")) {
+  usable <- intersect(have_vi, names(models))
+  if (!length(usable))
+    stop("Can't get variable importance from ", list_variables(names(models)))
+
+  original_best <- best_model <- extract_model_info(models)$best_model_name
+  # If the best model doesn't have VI, remove it and check again
+  while (!best_model %in% have_vi) {
+    models <- models[!names(models) %in% best_model]
+    best_model <- extract_model_info(models)$best_model_name
+  }
+  use <- best_model
+
+  if (original_best != use)
+    warning(original_best, " was the best performing model and will be used to ",
+            "make predictions, but it doesn't offer variable importance. ",
+            "Returning variable importance from ", use, " instead. ",
+            "To make predictions from ", use, ", use: models['", use, "'].")
+
+  return(use)
 }

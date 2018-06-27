@@ -13,18 +13,18 @@ test_that("Error informatively if outcome class doesn't match model_class", {
 })
 
 # No error for each algorithm x response-class type
-test_that("tune doesn't error on knn regression", {
+test_that("tune doesn't error on xgb regression", {
   expect_error(
     tune_models(d = reg_df, outcome = plasma_glucose, model_class = "regression",
-         models = "knn", n_folds = 2, tune_depth = 2)
+         models = "xgb", n_folds = 2, tune_depth = 2)
     , regexp = NA)
 
 })
 
-test_that("tune doesn't error on knn classification", {
+test_that("tune doesn't error on xgb classification", {
   expect_error(
     tune_models(d = cla_df, outcome = diabetes, model_class = "classification",
-         models = "knn", n_folds = 2, tune_depth = 2)
+         models = "xgb", n_folds = 2, tune_depth = 2)
     , regexp = NA)
 })
 
@@ -47,10 +47,10 @@ test_that("tune errors sensibly if outcome isn't present", {
 })
 
 # Training multiple models in one call
-test_that("tune doesn't error on rf & knn classification", {
+test_that("tune doesn't error on rf & xgb classification", {
   expect_error(
     tune_models(d = cla_df, outcome = diabetes, model_class = "classification",
-         models = c("rf", "knn"), n_folds = 2, tune_depth = 2)
+         models = c("rf", "xgb"), n_folds = 2, tune_depth = 2)
     , regexp = NA)
 })
 
@@ -102,21 +102,21 @@ test_that("Character and factor input variables produce informative error", {
 test_that("tune supports various loss functions in classification", {
   expect_warning(
     tune_models(d = cla_df, outcome = diabetes, model_class = "classification",
-         metric = "ROC", models = "knn", n_folds = 2, tune_depth = 2)
+         metric = "ROC", models = "xgb", n_folds = 2, tune_depth = 2)
     , regexp = NA)
   # Not yet supported
   # expect_warning(
   #   tune_models(d = cla_df, outcome = diabetes, model_class = "classification",
-  #               metric = "mnLogLoss", models = "knn", n_folds = 2,
+  #               metric = "mnLogLoss", models = "xgb", n_folds = 2,
   #               tune_depth = 2)
   #   , regexp = NA)
   expect_warning(
     tune_models(d = cla_df, outcome = diabetes, model_class = "classification",
-                metric = "PR", models = "knn", n_folds = 2, tune_depth = 2)
+                metric = "PR", models = "xgb", n_folds = 2, tune_depth = 2)
     , regexp = NA)
   # expect_warning(
   #   tune_models(d = cla_df, outcome = diabetes, model_class = "classification",
-  #               metric = "accuracy", models = "knn", n_folds = 2,
+  #               metric = "accuracy", models = "xgb", n_folds = 2,
   #               tune_depth = 2)
   #   , regexp = NA)
 })
@@ -124,11 +124,11 @@ test_that("tune supports various loss functions in classification", {
 test_that("tune supports various loss functions in regression", {
   expect_warning(
     tune_models(d = reg_df, outcome = plasma_glucose, model_class = "regression",
-         metric = "MAE", models = "knn", n_folds = 2, tune_depth = 2)
+         metric = "MAE", models = "rf", n_folds = 2, tune_depth = 2)
     , regexp = NA)
   expect_warning(
     tune_models(d = reg_df, outcome = plasma_glucose, model_class = "regression",
-         metric = "Rsquared", models = "knn", n_folds = 2,
+         metric = "Rsquared", models = "rf", n_folds = 2,
          tune_depth = 2)
     , regexp = NA)
 })
@@ -142,13 +142,13 @@ test_that("tune handles character outcome", {
 
 test_that("tune handles tibble input", {
   expect_s3_class(tune_models(tibble::as_tibble(cla_df), diabetes,
-                              tune_depth = 2, n_folds = 2, models = "knn"),
+                              tune_depth = 2, n_folds = 2, models = "xgb"),
                   "classification_list")
 })
 
 test_that("If a column was ignored in prep_data it's ignored in tune", {
   pd <- prep_data(reg_df, plasma_glucose, outcome = age)
-  capture_warnings(mods <- tune_models(pd, age, tune_depth = 2, n_folds = 2, models = "knn"))
+  capture_warnings(mods <- tune_models(pd, age, tune_depth = 2, n_folds = 2, models = "xgb"))
   expect_false("plasma_glucose" %in% names(mods[[1]]$trainingData))
 })
 
@@ -231,10 +231,15 @@ test_that("tune models takes hyperparameter grid and tunes on it", {
 test_that("tune models takes a list of one-row data frames of hyperparameters and tunes on it", {
   hp <-
     list(
-      knn = data.frame(
-        kmax = 3,
-        distance = 1,
-        kernel = "cos"),
+      xgb = data.frame(
+        eta = .5,
+        gamma = 0,
+        max_depth = 0,
+        subsample = .5,
+        colsample_bytree = .5,
+        min_child_weight = 2,
+        nrounds = 5
+      ),
       rf = data.frame(
         mtry = 3,
         splitrule = "extratrees",
@@ -294,7 +299,7 @@ test_that("tune_ and flash_ models add all-unique char/factor columns to ignored
     cla_df$ignore2 <- paste0("a", seq_len(nrow(cla_df)))
     tm2 <- tune_models(reg_df, plasma_glucose, models = "rf")
     expect_false(any(c("patient_id", "ignore2") %in% names(tm2$`Random Forest`$trainingData)))
-    fm <- tune_models(cla_df, diabetes, models = "knn")
+    fm <- tune_models(cla_df, diabetes, models = "xgb")
     expect_false(any(c("patient_id", "ignore2") %in% names(fm[[1]]$trainingData)))
 
     cla_df$patient_id <- factor(cla_df$patient_id)
