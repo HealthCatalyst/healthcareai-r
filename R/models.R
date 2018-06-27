@@ -20,10 +20,11 @@
 #'   \item{max_depth: Maximum tree depth, [0, Inf]. Larger means more complex
 #'   models and so greater likelihood of overfitting. 0 produces no limit on depth.}
 #'   \item{subsample: Fraction of data to use in each training instance, (0, 1].}
-#'   \item{colsample_bytree: Fraction of features to use in each tree, (0, 1].)}
+#'   \item{colsample_bytree: Fraction of features to use in each tree, (0, 1].}
 #'   \item{min_child_weight: Minimum sum of instance weight need to keep partitioning,
 #'   [0, Inf]. Larger values mean more conservative models.}
-#'   \item{nrounds: Number of rounds of boosting, [0, Inf)}
+#'   \item{nrounds: Number of rounds of boosting, [0, Inf). Larger values produce
+#'   a greater likelihood of overfitting.}
 #' }
 #'
 #' \strong{Regularized regression}: "glm". Regression and classification.
