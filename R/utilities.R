@@ -75,8 +75,7 @@ dfs_compatible <- function(training, predicting) {
 #' @noRd
 get_classes_sorted <- function(d) {
   classes <- purrr::map_lgl(d, is.numeric)
-  broom::tidy(classes) %>%
-    setNames(c("variable", "is_numeric")) %>%
+  tibble::tibble(variable = names(classes), is_numeric = classes) %>%
     dplyr::arrange(variable)
 }
 
