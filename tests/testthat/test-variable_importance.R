@@ -9,6 +9,9 @@ warns <- capture_warnings({
   cl_vi <- get_variable_importance(cl)
 })
 def <- get_variable_importance(reg)
+r3 <- machine_learn(mtcars, outcome = mpg, tune = FALSE)
+c2 <- cl[c("eXtreme Gradient Boosting", "Random Forest")]
+best_with_vi <- healthcareai:::extract_model_info(c2)$best_model_name
 
 test_that("order_models gets it right", {
   ci <- extract_model_info(cl)
@@ -45,6 +48,12 @@ test_that("get_variable_importance doesn't use glmnet's", {
   expect_false(attr(cl_vi, "model") == "glmnet")
 })
 
+test_that("get_variable_importance can use xgb", {
+  xg <- machine_learn(mtcars, outcome = am, tune = FALSE, models = "xgb")
+  expect_s3_class(get_variable_importance(xg), "variable_importance")
+
+})
+
 test_that("get_variable_importance warns if providing model isn't best performer", {
   expect_true(stringr::str_detect(warns, "best performing"))
 })
@@ -63,6 +72,27 @@ test_that("plot.variable_importance respects max_char", {
   expect_warning(
     expect_false(isTRUE(all.equal(plot(def, max_char = 3, print = FALSE),
                                 plot(def, print = FALSE))))
-
   )
+})
+
+test_that("get_variable_importance works for xgb", {
+  expect_s3_class(get_variable_importance(r3["eXtreme Gradient Boosting"]),
+                  "variable_importance")
+})
+
+test_that("get_variable_importance picks the best performing model regression", {
+  r2 <- r3[c("eXtreme Gradient Boosting", "Random Forest")]
+  expect_equal(healthcareai:::extract_model_info(r2)$best_model_name,
+               attr(get_variable_importance(r2), "model"))
+})
+
+test_that("get_variable_importance picks the best performing model classification", {
+  expect_equal(best_with_vi, attr(get_variable_importance(c2), "model"))
+})
+
+test_that("choose_vi_model works", {
+  expect_warning(choose_g <- choose_vi_model(cl), "best performing")
+  expect_false(choose_g == "glmnet")
+  expect_equal(choose_g, best_with_vi)
+  expect_error(choose_vi_model(cl["glmnet"]), "Can't")
 })

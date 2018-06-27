@@ -17,7 +17,7 @@ test_that("flash_models returns appropriate model_list", {
 
 test_that("flash_models let's user select model", {
   expect_error(flash_models(cl_prep, diabetes, models = "rf"), NA)
-  expect_error(flash_models(cl_prep, diabetes, models = "knn"), NA)
+  expect_error(flash_models(cl_prep, diabetes, models = "glm"), NA)
 })
 
 test_that("flash_models works on prepped data", {

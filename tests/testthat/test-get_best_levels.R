@@ -28,7 +28,7 @@ test_groups <- tibble::tibble(patient_id = rep("sam", 2), grouper = c("A", "new"
 test_added <- add_best_levels(test_row, test_groups, patient_id, grouper,
                               levels = attr(added, "best_levels"))
 models <- list(
-  fm = flash_models(dplyr::select(added, -patient_id), class_outcome, models = "knn"),
+  fm = flash_models(dplyr::select(added, -patient_id), class_outcome, models = "xgb"),
   tm = tune_models(dplyr::select(added, -patient_id), class_outcome, models = "rf", tune_depth = 2),
   ml = machine_learn(added, patient_id, outcome = reg_outcome, tune = FALSE, tune_depth = 2)
 )
