@@ -12,7 +12,9 @@
 #' }
 #'
 #' \strong{XGBoost}: "xgb". eXtreme Gradient Boosting
-#' Implemented via \code{xgboost}.
+#' Implemented via \code{xgboost}. Note that XGB has many more hyperparameters
+#' than the other models. Because of this, it may require greater tune_depth
+#' to optimize performance.
 #' \itemize{
 #'   \item{eta: Control for learning rate, [0, 1]}
 #'   \item{gamma: Threshold for further cutting of leaves, [0, Inf].
