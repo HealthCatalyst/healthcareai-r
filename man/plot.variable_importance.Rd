@@ -4,22 +4,22 @@
 \alias{plot.variable_importance}
 \title{Plot variable importance}
 \usage{
-\method{plot}{variable_importance}(x, caption = "model", max_char = 40,
-  title = NULL, font_size = 11, point_size = 3, print = TRUE, ...)
+\method{plot}{variable_importance}(x, title = "model", max_char = 40,
+  caption = NULL, font_size = 11, point_size = 3, print = TRUE, ...)
 }
 \arguments{
 \item{x}{A data frame from \code{\link{get_variable_importance}}}
 
-\item{caption}{Either "model", "none", or a string to be used as the plot
+\item{title}{Either "model", "none", or a string to be used as the plot
 caption. "model" puts the name of the best-performing model, on which
-variable importances are generated, in the caption.}
+variable importances are generated, in the title.}
 
 \item{max_char}{Maximum length of variable names to leave untruncated.
 Default = 40; use \code{Inf} to prevent truncation. Variable names longer
 than this will be truncated to leave the beginning and end of each variable
 name, bridged by " ... ".}
 
-\item{title}{Plot title}
+\item{caption}{Plot title}
 
 \item{font_size}{Relative size for all fonts, default = 11}
 

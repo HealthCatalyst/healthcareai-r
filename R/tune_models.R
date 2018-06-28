@@ -138,13 +138,9 @@ tune_models <- function(d,
     metric <- "AUC" # For caret internal function
 
   # Rough check for training that will take a while, message if so
-  n_mod <- n_folds * tune_depth * length(models)
-  obs <- nrow(d)
-  if ( (obs > 1000 && n_mod > 10) || (obs > 100 && n_mod > 100) )
-    message("You've chosen to tune ", n_mod, " models (n_folds = ", n_folds,
-            " x tune_depth = ", tune_depth, " x ", "length(models) = ",
-            length(models), ") on a ", format(obs, big.mark = ","), " row dataset. ",
-            "This may take a while...")
+  check_training_time(ddim = dim(d), n_folds = n_folds,
+                      hpdim = purrr::map_int(hyperparameters, nrow)) %>%
+    message()
 
   train_list <- train_models(d, outcome, models, metric, train_control, hyperparameters, tuned)
   train_list <- as.model_list(listed_models = train_list,

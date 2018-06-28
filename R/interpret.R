@@ -78,7 +78,7 @@ interpret <- function(x, sparsity = NULL, remove_zeros = TRUE, top_n) {
             m_class = mi$m_class,
             target = mi$target,
             lambda = lambda,
-            alpha = mi$best_model_tune$alpha)
+            alpha = g$tuneValue[["alpha"]])
 }
 
 #' Plot regularized model coefficients

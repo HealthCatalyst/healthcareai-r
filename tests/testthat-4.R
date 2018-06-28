@@ -1,4 +1,4 @@
 library(testthat)
 library(healthcareai)
 Sys.setenv("R_TESTS" = "")
-test_check("healthcareai", filter = "^[(s-y)|(S-Y)]")
+test_check("healthcareai", filter = "^(z|Z)")

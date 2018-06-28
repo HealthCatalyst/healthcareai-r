@@ -210,7 +210,7 @@ prep_data <- function(d,
     }
 
     # Initialize a new recipe
-    mes <- "Training new data prep recipe"
+    mes <- "Training new data prep recipe...\n"
     ## Start by making all variables predictors...
     ## Only pass head of d here because it's carried around with the recipe
     ## and we don't want to pass around big datasets

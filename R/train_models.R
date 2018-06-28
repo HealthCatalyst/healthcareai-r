@@ -23,8 +23,13 @@ train_models <- function(d, outcome, models, metric, train_control, hyperparamet
                          tuneGrid = tune_grid)
 
       # Add arguments specific to models
-      if (model == "ranger")
+      if (model == "ranger") {
         train_args$importance <- "impurity"
+        if (nrow(d) >= 1e5 || ncol(d) >= 100)
+          message("You may, or may not, see messages about progress in growing trees. ",
+                  "The estimates are very rough, and you should expect the progress ",
+                  "ticker to cycle ", train_control$number + 1, " times.")
+      }
 
       # caret loads packages at runtime, we don't want to see those startup messages
       suppressPackageStartupMessages({

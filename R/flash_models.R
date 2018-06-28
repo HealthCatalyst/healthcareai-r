@@ -89,6 +89,11 @@ flash_models <- function(d,
   if (metric == "PR")
     metric <- "AUC"
 
+  # Rough check for training that will take a while, message if so
+  check_training_time(ddim = dim(d), n_folds = n_folds,
+                      hpdim = purrr::map_int(hyperparameters, nrow)) %>%
+    message()
+
   train_list <- train_models(d, outcome, models, metric, train_control,
                              hyperparameters, tuned = FALSE)
   train_list <- as.model_list(listed_models = train_list,
