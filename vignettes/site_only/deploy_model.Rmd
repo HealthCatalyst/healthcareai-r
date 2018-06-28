@@ -122,12 +122,12 @@ predictions <- predictions %>%
   
   ```{SQL}
      SELECT 
-      '' AS FacilityAccountID
+      '' AS FacilityAccountID --Change this to match your grain column
      ,'' AS PredictedProbNBR
-     FROM SAM.Schema.SummaryVisitBASE where 1=0
+     FROM SAM.Schema.SummaryVisitBASE WHERE 1=0
   ```
-  - Edit the column types, name the binding something like ReadmitMLOutputTable, and ensure that's it generated as expected. 
-  - Set the binding to `Incremental`, such that the table isn't dropped and reloaded each night.
+  - Edit the column types, name the R output entity something like ReadmitMLOutput, and ensure that it's generated as expected. 
+  - Set the binding to `Inactive` and save, such that your R output in this entity isn't accidentally truncated.
 
 ## Writing predictions to the table
 
@@ -140,14 +140,14 @@ con <- odbcDriverConnect(connection = my_con)
 
 sqlSave(con, 
         predictions, 
-        "Schema.ReadmitMLOutputTable", 
+        "Schema.ReadmitMLOutputBASE", 
         append = TRUE, 
         rownames = FALSE)
 
 odbcClose(con)
 ```
 
-If your predictions arrive in the database, congrats! You're now ready to work with the DBA/ETL* team to schedule this reoccurring job, such that it runs in a manner that's dependency-aware.
+If your predictions arrive in the database, congrats! You're now ready to work with the DBA/ETL team to schedule this reoccurring job, such that it runs as part of a dependency-aware ETL job each day. See [here](https://github.com/HealthCatalyst/SSIS/blob/master/R%20Extensibility%20Instructions.md) for how to configure.
 
 # Testing in production
 
@@ -192,11 +192,9 @@ con <- odbcDriverConnect(connection = my_con)
 
 sqlSave(con, 
         predictions, 
-        "Schema.ReadmitMLOutputTableBASE", 
+        "Schema.ReadmitMLOutputBASE", 
         append = TRUE, 
         rownames = FALSE)
 
 odbcClose(con)
 ```
-
-*Note: for those working in a Health Catalyst environment, proceed with the ML-Prod document in Spark
