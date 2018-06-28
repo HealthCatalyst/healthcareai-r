@@ -247,9 +247,13 @@ check_training_time <- function(ddim, hpdim, n_folds) {
       paste("WARNING: MODEL TRAINING COULD TAKE A REALLY LONG TIME. If you don't",
             "know what you've just started, start smaller by turning off tuning,",
             "training fewer algorithms, or using a subset of oberservations, and",
-            "work your way up once you have a sense of training time.")
+            "work your way up once you have a sense of training time.",
+            "This vignette on improving model training perfomance may be helpful:",
+            "https://docs.healthcare.ai/articles/site_only/performance.html")
     } else if (N > 9) {
-      "Model training may take hours."
+      paste("Model training may take hours. If you'd like to speed things up,",
+            "this vignette on improving model training perfomance may be helpful:",
+            "https://docs.healthcare.ai/articles/site_only/performance.html")
     } else if (N > 8)  {
       "Model training may take a few minutes."
     }
