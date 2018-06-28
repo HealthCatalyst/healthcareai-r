@@ -327,10 +327,10 @@ test_that("get_original_data works", {
 
 test_that("check_training_time works", {
   small_data <- check_training_time(ddim = c(100, 10), hpdim = c(glm = 1), n_folds = 5)
-  expect_false(str_detect(small_data, "Model training"))
-  expect_true(str_detect(small_data, " 9 features "))
+  expect_false(stringr::str_detect(small_data, "Model training"))
+  expect_true(stringr::str_detect(small_data, " 9 features "))
   big_data <- check_training_time(ddim = c(1e6, 1001), hpdim = purrr::map_int(get_random_hyperparameters(), nrow),
                                   n_folds = 5)
-  expect_true(str_detect(big_data, "MODEL TRAINING"))
-  expect_true(str_detect(big_data, "1,000 features"))
+  expect_true(stringr::str_detect(big_data, "MODEL TRAINING"))
+  expect_true(stringr::str_detect(big_data, "1,000 features"))
 })
