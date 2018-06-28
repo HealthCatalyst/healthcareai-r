@@ -238,6 +238,12 @@ get_best_levels <- function(d, longsheet, id, groups, outcome, n_levels = 100,
   if (!is.numeric(n_levels) || !is.numeric(min_obs))
     stop("n_levels and min_obs should both be integers")
 
+  if(isTRUE(all.equal(d, longsheet))) {
+    ## Remove duplicate columns that muck up post-join
+    longsheet <- longsheet %>% select_not(outcome)
+    d <- select_not(d, groups)
+  }
+
   tomodel <-
     longsheet %>%
     # Don't want to count the same outcome twice, so only allow one combo of grain x grouper
