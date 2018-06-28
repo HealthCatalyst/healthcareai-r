@@ -36,7 +36,7 @@ If you don't want to fuss with details any more than necessary, `machine_learn` 
 quick_models <- machine_learn(pima_diabetes, patient_id, outcome = diabetes)
 ```
 
-`machine_learn` has told us that it has created a recipe for data preparation (this allows us to do exactly the same data cleaning and feature engineering when you want predictions on a new dataset), is ignoring `patient_id` when tuning models as we told it to, is training classification algorithms because the outcome variable `diabetes` is categorical, and has executed cross validation for three machine learning models: random forests, xgboost, and logistic regression. Let's see what the models look like.
+`machine_learn` has told us that it has created a recipe for data preparation (this allows us to do exactly the same data cleaning and feature engineering when you want predictions on a new dataset), is ignoring `patient_id` when tuning models as we told it to, is training classification algorithms because the outcome variable `diabetes` is categorical, and has executed cross validation for three machine learning models: random forests, XGBoost, and regularized regression. Let's see what the models look like.
 
 ```{r}
 quick_models
@@ -98,65 +98,68 @@ The "recipe" that the above message refers to is a set of instructions for how t
 
 `machine_learn` takes care of data preparation and model training for you, but if you want more precise control, `tune_models` and `flash_models` are the model-training function you're looking for. They differ in that `tune_models` searches over hyperparameters to optimize model performance, while `flash_models` trains models at set hyperparameter values. So, `tune_models` produces better models, but takes longer (approaching 10x longer at default settings).
 
-Let's tune only random forests (by default, xgboost and GLM are also tuned), and to try to really optimize model performance, let's crank `tune_depth` up a little from its default value of ten. That will tune the models over more combinations of hyperparameter values in the search for the best model.
+Let's tune all three available models: random forests ("RF"), regularized regression (i.e. lasso and ridge, "GLM"), and gradient-boosted decision trees (i.e. XGBoost, "XGB"). To optimize model performance, let's crank `tune_depth` up a little from its default value of ten. That will tune the models over more combinations of hyperparameter values in the search for the best model. This will increasing training time, so be cautious with it at first, but for this modest-sized dataset, the entire process takes less than a minute to complete on a laptop.
 
 Let's also select "PR" as our model metric. That optimizes for area under the precision-recall curve rather than the default of area under the receiver operating characteristic curve ("ROC"). This is usually a good idea when one outcome category is much more common than the other category.
 
 ```{r}
 models <- tune_models(d = prepped_training_data,
                       outcome = diabetes,
-                      models = "RF",
                       tune_depth = 25,
                       metric = "PR")
 ```
 
-We get a message saying the training may take a while because we're training so many models, but in this case it takes just about 20 seconds to train all those models.
-
 We can examine how the model performs across hyperparameters by plotting the model object. It looks like extratrees is a superior split rule for this model, and larger values of minimum node size tend to do better.
 
-```{r, fig.height = 6}
+```{r, fig.height = 6, fig.width = 9}
 plot(models)
 ```
 
 ## Faster Model Training
 
-If you're feeling the need for speed, `flash_models` is the function for you. It uses fixed sets of hyperparameter values to train the models, so you still get a model customized to your data, but without burning the electricity and time to precisely optimize all the details.
+If you're feeling the need for speed, `flash_models` is the function for you. It uses fixed sets of hyperparameter values to train the models, so you still get a model customized to your data, but without burning the electricity and time to precisely optimize all the details. Here we'll use `models = "RF"` to train only a random forest.
 
-If you want to choose the hyperparameter values that `flash_models` uses, you can pass them as a list to the `hyperparameters` argument. Run `get_hyperparameter_defaults()` to see the default values and get a list you can customize.
+If you want to train a model on fixed hyperparameter values, but you want to choose those values, you can pass them to the `hyperparameters` argument of `tune_models`. Run `get_hyperparameter_defaults()` to see the default values and get a list you can customize.
 
 ```{r}
-flash_models(d = prepped_training_data,
-             outcome = diabetes,
-             models = "RF",
-             metric = "PR")
+untuned_rf <- flash_models(d = prepped_training_data,
+                           outcome = diabetes,
+                           models = "RF",
+                           metric = "PR")
 ```
 
-In this case we sacrificed just 0.01 AUPR versus tuning the models. In our experience, that's on the small side of typical. A good workflow is often to do all of your development using `flash_models`, and as a final step before putting a model into production, retrain the model using `tune_models`.
+# Model Interpretation
 
-# Variable Importance
+## Evaluate
 
-You can see how important each "feature" (aka predictor, aka variable) was for making predictions by calling `get_variable_importance` and `plot.variable_importance` on your model object.
+Let's see how the predictive performance of our untuned random forest compares to our extensively tuned models. The `evaluate` function gives you performance metrics for the best performing model by default, but if you set `all_models = TRUE` you can see how well all trained performed.
 
-```{r}
+In this the untuned model comes in just `r round(evaluate(models, all_models = TRUE)$AUPR[1] - evaluate(untuned_rf)[["AUPR"]], 2)` AUPR units ahead of the tuned models. In our experience, that's on the small side of typical, with the difference in performance growing with the size of the dataset. A workflow that often works well is to do all of your development using `flash_models`, and as a final step before putting a model into production, retrain the model using `tune_models`.
+
+```{r, results="markup"}
+evaluate(untuned_rf)
+evaluate(models, all_models = TRUE)
+```
+
+## Interpret
+
+If you trained a GLM model, you can extract model coefficients from it with the `interpret` function. These are coefficient estimates from a regularized logistic or linear regression model. If you didn't scale your predictors (which is the default in `prep_data`), these will be in natural units (e.g. in the plot below, a unit increase in plasma glucose corresponds to an expected log-odds increase of diabetes of just over one). Importantly, natural units mean that you can't interpret the size of the coefficients as the importance of the predictor. To get that interpretation, scale your features during data preparation by calling `prep_data` with `scale = TRUE` and then `flash_models` or `tune_models`. 
+
+In this plot, the low value of `weight_class_normal` signifies that people with normal weight are less likely to have diabetes. Similarly, plasma glucose is associated with increased risk of diabetes after accounting for other variables.
+
+```{r, fig.width=7}
+interpret(models) %>% 
+  plot()
+```
+
+## Variable Importance
+
+Tree based methods such as random forest and boosted decision trees can't provide coefficients like regularized regression models can, but they can provide information about how important each feature (aka predictor, aka variable) is for making accurate predictions. You can see these "variable importances" by calling `get_variable_importance` on your model object. Like `interpret` and many other functions in `healthcareai`, you can plot the output of `get_variable_importance` with a simple `plot` call.
+
+```{r, fig.width=7}
 get_variable_importance(models) %>%
   plot()
 ```
-
-# Interpret
-You can also use GLM to see which features (or categorical levels) are correlated with the outcome by training a GLM model and then
-using `interpret` and `plot.interpret` on your model object. These values will be most accurate if you scale your features during data
-preparation. That requires using `prep_data` with `scale = TRUE`, then `flash_models` or `tune_models`. In this example, the low value of `weight_class_normal` signifies that people with normal weight are less likely to have diabetes. Similarly, plasma glucose is correlated with having diabetes.
-
-```{r}
-glm <- flash_models(d = prepped_training_data,
-                    outcome = diabetes,
-                    models = "GLM",
-                    metric = "PR")
-
-interpret(glm) %>%
-  plot()
-```
-
 
 # Prediction
 
