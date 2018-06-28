@@ -238,8 +238,14 @@ get_best_levels <- function(d, longsheet, id, groups, outcome, n_levels = 100,
   if (!is.numeric(n_levels) || !is.numeric(min_obs))
     stop("n_levels and min_obs should both be integers")
 
-  if(isTRUE(all.equal(d, longsheet))) {
-    ## Remove duplicate columns that muck up post-join
+  # Check for multiple observations per unit of observation in d
+  id_ft <- dplyr::count(d, !!id) %>% dplyr::filter(n > 1)
+  if (nrow(id_ft))
+    stop("d can have only one row per observation. The following ID(s) had more ",
+         "than one observation: ", list_variables(dplyr::pull(id_ft, !!id)))
+
+  if (isTRUE(all.equal(d, longsheet))) {
+    # Remove duplicate columns that muck up joined table
     longsheet <- longsheet %>% select_not(outcome)
     d <- select_not(d, groups)
   }
