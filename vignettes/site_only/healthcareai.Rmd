@@ -36,7 +36,7 @@ If you don't want to fuss with details any more than necessary, `machine_learn` 
 quick_models <- machine_learn(pima_diabetes, patient_id, outcome = diabetes)
 ```
 
-`machine_learn` has told us that it has created a recipe for data preparation (this allows us to do exactly the same data cleaning and feature engineering when you want predictions on a new dataset), is ignoring `patient_id` when tuning models as we told it to, is training classification algorithms because the outcome variable `diabetes` is categorical, and has executed cross validation for two machine learning models: random forests, and k-nearest neighbors. Let's see what the models look like.
+`machine_learn` has told us that it has created a recipe for data preparation (this allows us to do exactly the same data cleaning and feature engineering when you want predictions on a new dataset), is ignoring `patient_id` when tuning models as we told it to, is training classification algorithms because the outcome variable `diabetes` is categorical, and has executed cross validation for three machine learning models: random forests, xgboost, and logistic regression. Let's see what the models look like.
 
 ```{r}
 quick_models
@@ -98,7 +98,7 @@ The "recipe" that the above message refers to is a set of instructions for how t
 
 `machine_learn` takes care of data preparation and model training for you, but if you want more precise control, `tune_models` and `flash_models` are the model-training function you're looking for. They differ in that `tune_models` searches over hyperparameters to optimize model performance, while `flash_models` trains models at set hyperparameter values. So, `tune_models` produces better models, but takes longer (approaching 10x longer at default settings).
 
-Let's tune only random forests (by default, k-nearest neighbors is also tuned), and to try to really optimize model performance, let's crank `tune_depth` up a little from its default value of ten. That will tune the models over more combinations of hyperparameter values in the search for the best model.
+Let's tune only random forests (by default, xgboost and GLM are also tuned), and to try to really optimize model performance, let's crank `tune_depth` up a little from its default value of ten. That will tune the models over more combinations of hyperparameter values in the search for the best model.
 
 Let's also select "PR" as our model metric. That optimizes for area under the precision-recall curve rather than the default of area under the receiver operating characteristic curve ("ROC"). This is usually a good idea when one outcome category is much more common than the other category.
 
@@ -135,12 +135,28 @@ In this case we sacrificed just 0.01 AUPR versus tuning the models. In our exper
 
 # Variable Importance
 
-You can see how important each "feature" (aka predictor, aka variable) was for making predictions by calling `get_variable_importance` or `plot_variable_importance` on your model object.
+You can see how important each "feature" (aka predictor, aka variable) was for making predictions by calling `get_variable_importance` and `plot.variable_importance` on your model object.
 
 ```{r}
 get_variable_importance(models) %>%
   plot()
 ```
+
+# Interpret
+You can also use GLM to see which features (or categorical levels) are correlated with the outcome by training a GLM model and then
+using `interpret` and `plot.interpret` on your model object. These values will be most accurate if you scale your features during data
+preparation. That requires using `prep_data` with `scale = TRUE`, then `flash_models` or `tune_models`. In this example, the low value of `weight_class_normal` signifies that people with normal weight are less likely to have diabetes. Similarly, plasma glucose is correlated with having diabetes.
+
+```{r}
+glm <- flash_models(d = prepped_training_data,
+                    outcome = diabetes,
+                    models = "GLM",
+                    metric = "PR")
+
+interpret(glm) %>%
+  plot()
+```
+
 
 # Prediction
 
@@ -156,7 +172,6 @@ To get predictions on a new dataset, pass the new data to `predict`, and it will
 test_predictions <- predict(models, split_data$test)
 plot(test_predictions)
 ```
-
 
 # Saving, Moving, and Loading Models
 
