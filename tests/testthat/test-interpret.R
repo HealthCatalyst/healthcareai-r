@@ -124,3 +124,8 @@ test_that("Coefficient signs make sense WRT positive class", {
   i <- interpret(m)
   expect_true(i$coefficient[i$variable == "x1_y"] > 0)
 })
+
+test_that("alpha gets attached to interpret objects even if glm isn't best", {
+  expect_warning( i3 <- interpret(m) )
+  expect_equal(attr(i3, "alpha"), attr(interpret(g), "alpha"))
+})
