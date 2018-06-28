@@ -105,7 +105,7 @@ check_outcome <- function(outcome, d_names, recipe) {
 set_outcome_class <- function(vec, positive_class) {
   if (length(levels(vec)) != 2)
     stop(paste0("The outcome variable must have two levels for classification, ",
-         "but this has ", length(levels(vec)), ": ", paste(levels(vec), collapse = ", ")))
+                "but this has ", length(levels(vec)), ": ", paste(levels(vec), collapse = ", ")))
   if (is.null(positive_class)) {
     positive_class <-
       if ("Y" %in% levels(vec)) {
@@ -153,7 +153,7 @@ set_model_class <- function(model_class, outcome_class, outcome_chr) {
       model_class <- "regression"
       # User provided model_class, so check it
     }
-    message(mes)
+    message("\n", mes)
   } else {
     # Check user-provided model_class
     supported_classes <- get_supported_model_classes()
@@ -194,11 +194,11 @@ set_default_metric <- function(model_class) {
 }
 
 setup_train_control <- function(model_class, metric, n_folds) {
-    # Always use grid. We'll make our own, one row if not tuning, in train_models
-    train_control <- caret::trainControl(method = "cv",
-                                         number = n_folds,
-                                         search = "grid",
-                                         savePredictions = "final")
+  # Always use grid. We'll make our own, one row if not tuning, in train_models
+  train_control <- caret::trainControl(method = "cv",
+                                       number = n_folds,
+                                       search = "grid",
+                                       savePredictions = "final")
   # trainControl defaults are good for regression. Change for classification
   if (model_class == "classification") {
     if (metric == "PR") {
@@ -221,4 +221,38 @@ get_original_data <- function(d, outcome_chr) {
   if (is.null(ods))
     ods <- d[0, -which(names(d) == outcome_chr), drop = FALSE]
   return(ods)
+}
+
+# ddim is dim(d)
+# hpdim is map_int(hyperparameters, nrow)
+check_training_time <- function(ddim, hpdim, n_folds) {
+  # Minus one column for the outcome
+  ddim[2] <- ddim[2] - 1L
+  ncells <- prod(ddim)
+  n_models <-
+      paste0(n_folds * hpdim, " ", names(hpdim), "'s") %>%
+      list_variables()
+  mes <- paste(
+    "\nAfter data processing, models are being trained on", format(ddim[2], big.mark = ","),
+    "features with", format(ddim[1], big.mark = ","), "observations.\nBased on n_folds =",
+    n_folds, "and hyperparameter settings, the following number of",
+    "models will be trained:", n_models, "\n"
+  )
+  # N is a rough indicator of model training time, developed in ml.internal/r-pkg/package_profiling
+  # rows * columns * hp-depth * n_folds summed over models
+  N <- log10(ncells * sum(hpdim) * n_folds)
+  mes <- paste0(
+    mes,
+    if (N > 10) {
+      paste("WARNING: MODEL TRAINING COULD TAKE A REALLY LONG TIME. If you don't",
+            "know what you've just started, start smaller by turning off tuning,",
+            "training fewer algorithms, or using a subset of oberservations, and",
+            "work your way up once you have a sense of training time.")
+    } else if (N > 9) {
+      "Model training may take hours."
+    } else if (N > 8)  {
+      "Model training may take a few minutes."
+    }
+  )
+  return(mes)
 }
