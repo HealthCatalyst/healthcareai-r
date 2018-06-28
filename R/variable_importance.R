@@ -1,14 +1,14 @@
 #' Plot variable importance
 #'
 #' @param x A data frame from \code{\link{get_variable_importance}}
-#' @param caption Either "model", "none", or a string to be used as the plot
+#' @param title Either "model", "none", or a string to be used as the plot
 #'   caption. "model" puts the name of the best-performing model, on which
-#'   variable importances are generated, in the caption.
+#'   variable importances are generated, in the title.
 #' @param max_char Maximum length of variable names to leave untruncated.
 #'   Default = 40; use \code{Inf} to prevent truncation. Variable names longer
 #'   than this will be truncated to leave the beginning and end of each variable
 #'   name, bridged by " ... ".
-#' @param title Plot title
+#' @param caption Plot title
 #' @param font_size Relative size for all fonts, default = 11
 #' @param point_size Size of dots, default = 3
 #' @param print Print the plot?
@@ -23,9 +23,9 @@
 #'   get_variable_importance() %>%
 #'   plot()
 plot.variable_importance <- function(x,
-                                     caption = "model",
+                                     title = "model",
                                      max_char = 40,
-                                     title = NULL,
+                                     caption = NULL,
                                      font_size = 11,
                                      point_size = 3,
                                      print = TRUE,
@@ -35,10 +35,10 @@ plot.variable_importance <- function(x,
        !is.data.frame(x))
     stop("x must be a data frame from get_variable_importance, or at least look like one!")
 
-  if (caption == "model") {
-    caption <- paste(attr(x, "model"), "variable importance")
-  } else if (caption == "none") {
-    caption <- NULL
+  if (title == "model") {
+    title <- paste(attr(x, "model"), "variable importance")
+  } else if (title == "none") {
+    title <- NULL
   }
 
   x$variable <- trunc_char(x$variable, max_char)
