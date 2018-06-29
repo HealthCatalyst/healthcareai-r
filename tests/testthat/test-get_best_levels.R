@@ -193,3 +193,19 @@ test_that("add_best_levels can pull X_levels from a model_list object", {
   expect_identical(test_added, test_added_model1)
   expect_identical(test_added, test_added_model2)
 })
+
+test_that("Informative error if there are multiple observations per obs in d", {
+   dd <- dplyr::bind_rows(d[1, ], d)
+   expect_error(get_best_levels(dd, groups, patient_id, grouper, class_outcome, 3),
+                dd$patient_id[1])
+})
+
+test_that("d and longsheet can be the same table", {
+  both <-
+    groups %>%
+    group_by(patient_id) %>%
+    sample_n(1) %>%
+    left_join(d, ., by = "patient_id")
+  expect_s3_class(add_best_levels(both, both, patient_id, grouper, class_outcome, 5),
+                  "data.frame")
+})
