@@ -21,16 +21,28 @@
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
+<!-- sticky kit -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
+
+
+<!-- docsearch -->
+<script src="../docsearch.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+<link href="../docsearch.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+
+
 <meta property="og:title" content="Pivot multiple rows per observation to one row with multiple columns — pivot" />
 
 <meta property="og:description" content="Pivot multiple rows per observation to one row with multiple columns" />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
+
 
 
 <!-- mathjax -->
@@ -42,22 +54,15 @@
 <![endif]-->
 
 
-<!-- Google analytics -->
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-85609357-1"></script>
 <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
-  ga('create', 'UA-85609357-1', 'auto');
-  ga('send', 'pageview');
-
+  gtag('config', 'UA-85609357-1');
 </script>
-
-
-
-<!-- docsearch -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
 
   </head>
 
@@ -74,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.0</span>
       </span>
     </div>
 
@@ -94,10 +99,13 @@
       <a href="../articles/site_only/db_connections.html">Database Connections</a>
     </li>
     <li>
-      <a href="../articles/site_only/deploy_model.html">Deploying a model</a>
+      <a href="../articles/site_only/deploy_model.html">Deploying a Model</a>
     </li>
     <li>
       <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/performance.html">Performance with Big Data</a>
     </li>
   </ul>
 </li>
@@ -126,7 +134,7 @@
       
       <form class="navbar-form navbar-right" role="search">
         <div class="form-group">
-          <input type="search" class="form-control" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+          <input type="search" class="form-control" name="search-input" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
         </div>
       </form>
       
@@ -142,13 +150,16 @@
     <div class="page-header">
     <h1>Pivot multiple rows per observation to one row with multiple columns</h1>
     
+    <div class="hidden name"><code>pivot.Rd</code></div>
     </div>
 
+    <div class="ref-description">
     
     <p>Pivot multiple rows per observation to one row with multiple columns</p>
     
+    </div>
 
-    <pre class="usage"><span class='fu'>pivot</span>(<span class='no'>d</span>, <span class='no'>grain</span>, <span class='no'>spread</span>, <span class='no'>fill</span>, <span class='kw'>fun</span> <span class='kw'>=</span> <span class='no'>sum</span>, <span class='kw'>missing_fill</span> <span class='kw'>=</span> <span class='fl'>NA</span>)</pre>
+    <pre class="usage"><span class='fu'>pivot</span>(<span class='no'>d</span>, <span class='no'>grain</span>, <span class='no'>spread</span>, <span class='no'>fill</span>, <span class='kw'>fun</span> <span class='kw'>=</span> <span class='no'>sum</span>, <span class='kw'>missing_fill</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='no'>extra_cols</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -182,31 +193,38 @@ can be used with the same syntax as the apply family of functions, e.g.
       <td><p>Value to fill for combinations of grain and spread that
 are not present. Defaults to NA, but 0 may be useful as well.</p></td>
     </tr>
+    <tr>
+      <th>extra_cols</th>
+      <td><p>Values of <code>spread</code> to create all-<code>missing_fill</code>
+columns, for e.g. if you want to add levels that were observed in training
+but are not present in deployment.</p></td>
+    </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A tibble data frame with one row for each unique value of
-<code>grain</code>, and one column for each unique value of <code>spread</code> plus
-one column for the entries in grain.</p>
+  <code>grain</code>, and one column for each unique value of <code>spread</code> plus
+  one column for the entries in grain.</p>
 <p>Entries in the tibble are defined by the fill column. Combinations of
-<code>grain</code> x <code>spread</code> that are not present in <code>d</code> will be filled
-in with <code>missing_fill</code>. If there are <code>grain</code> x <code>spread</code> pairs
-that appear more than once in d, they will be aggregated by <code>fun</code>.</p>
+  <code>grain</code> x <code>spread</code> that are not present in <code>d</code> will be
+  filled in with <code>missing_fill</code>. If there are <code>grain</code> x
+  <code>spread</code> pairs that appear more than once in d, they will be
+  aggregated by <code>fun</code>.</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p><code>pivot</code> is useful when you want to change the grain of your
-data, for example from the procedure grain to the patient grain. In that
-example, each patient might have 0, 1, or more medications. To make a
-patient-level table, we need a column for each medication, which is what
-it means to make a wide table. The <code>fill</code> argument dictates what to
-put in each of the medication columns, e.g. the dose the patient got.
-<code>fill</code> defaults to "1", as an indicator variable. If any patients have
-multiple rows for the same medication (say they recieved a med more than
-once), we need a way to deal with that, which is what the <code>fun</code> argument
-handles. By default it uses <code>sum</code>, so if <code>fill</code> is left as its
-default, the count of instances for each patient will be used.</p>
+  data, for example from the procedure grain to the patient grain. In that
+  example, each patient might have 0, 1, or more medications. To make a
+  patient-level table, we need a column for each medication, which is what it
+  means to make a wide table. The <code>fill</code> argument dictates what to put
+  in each of the medication columns, e.g. the dose the patient got.
+  <code>fill</code> defaults to "1", as an indicator variable. If any patients have
+  multiple rows for the same medication (say they recieved a med more than
+  once), we need a way to deal with that, which is what the <code>fun</code>
+  argument handles. By default it uses <code>sum</code>, so if <code>fill</code> is left
+  as its default, the count of instances for each patient will be used.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
@@ -219,10 +237,10 @@ default, the count of instances for each patient will be used.</p>
 <span class='no'>meds</span></div><div class='output co'>#&gt; # A tibble: 4 x 3
 #&gt;   patient_id medication pills_per_day
 #&gt;   &lt;chr&gt;      &lt;chr&gt;              &lt;dbl&gt;
-#&gt; 1 A          zoloft                1.
-#&gt; 2 A          asprin                8.
-#&gt; 3 A          lipitor               2.
-#&gt; 4 B          asprin                4.</div><div class='input'>
+#&gt; 1 A          zoloft                 1
+#&gt; 2 A          asprin                 8
+#&gt; 3 A          lipitor                2
+#&gt; 4 B          asprin                 4</div><div class='input'>
 <span class='co'># Number of pills of each medication each patient gets:</span>
 <span class='fu'>pivot</span>(
   <span class='kw'>d</span> <span class='kw'>=</span> <span class='no'>meds</span>,
@@ -232,9 +250,9 @@ default, the count of instances for each patient will be used.</p>
   <span class='kw'>missing_fill</span> <span class='kw'>=</span> <span class='fl'>0</span>
 )</div><div class='output co'>#&gt; # A tibble: 2 x 4
 #&gt;   patient_id medication_asprin medication_lipitor medication_zoloft
-#&gt;   &lt;fct&gt;                  &lt;dbl&gt;              &lt;dbl&gt;             &lt;dbl&gt;
-#&gt; 1 A                         8.                 2.                1.
-#&gt; 2 B                         4.                 0.                0.</div><div class='input'>
+#&gt;   &lt;chr&gt;                  &lt;dbl&gt;              &lt;dbl&gt;             &lt;dbl&gt;
+#&gt; 1 A                          8                  2                 1
+#&gt; 2 B                          4                  0                 0</div><div class='input'>
 <span class='no'>bills</span> <span class='kw'>&lt;-</span>
   <span class='kw pkg'>tibble</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/tibble/topics/tibble'>tibble</a></span>(
     <span class='kw'>patient_id</span> <span class='kw'>=</span> <span class='fu'>rep</span>(<span class='fu'>c</span>(<span class='st'>"A"</span>, <span class='st'>"B"</span>), <span class='kw'>each</span> <span class='kw'>=</span> <span class='fl'>4</span>),
@@ -245,26 +263,26 @@ default, the count of instances for each patient will be used.</p>
 <span class='no'>bills</span></div><div class='output co'>#&gt; # A tibble: 8 x 4
 #&gt;   patient_id dept_id charge date      
 #&gt;   &lt;chr&gt;      &lt;chr&gt;    &lt;dbl&gt; &lt;date&gt;    
-#&gt; 1 A          ED        499. 2024-12-23
-#&gt; 2 A          ICU      7603. 2024-12-25
-#&gt; 3 A          ED       1476. 2024-12-24
-#&gt; 4 A          ICU      9167. 2024-12-25
-#&gt; 5 B          ED       9557. 2024-12-24
-#&gt; 6 B          ICU      8635. 2024-12-25
-#&gt; 7 B          ED       5162. 2024-12-25
-#&gt; 8 B          ICU      6938. 2024-12-24</div><div class='input'>
+#&gt; 1 A          ED        495. 2024-12-25
+#&gt; 2 A          ICU      1762. 2024-12-24
+#&gt; 3 A          ED       7828. 2024-12-24
+#&gt; 4 A          ICU      2800. 2024-12-25
+#&gt; 5 B          ED       2031. 2024-12-23
+#&gt; 6 B          ICU      3884. 2024-12-25
+#&gt; 7 B          ED       9263. 2024-12-24
+#&gt; 8 B          ICU      5197. 2024-12-23</div><div class='input'>
 <span class='co'># Total charges per patient x department:</span>
 <span class='fu'>pivot</span>(<span class='no'>bills</span>, <span class='no'>patient_id</span>, <span class='no'>dept_id</span>, <span class='no'>charge</span>, <span class='no'>sum</span>)</div><div class='output co'>#&gt; # A tibble: 2 x 3
 #&gt;   patient_id dept_id_ED dept_id_ICU
-#&gt;   &lt;fct&gt;           &lt;dbl&gt;       &lt;dbl&gt;
-#&gt; 1 A               1974.      16770.
-#&gt; 2 B              14720.      15573.</div><div class='input'>
+#&gt;   &lt;chr&gt;           &lt;dbl&gt;       &lt;dbl&gt;
+#&gt; 1 A               8323.       4561.
+#&gt; 2 B              11294.       9082.</div><div class='input'>
 <span class='co'># Count of charges per patient x day:</span>
 <span class='fu'>pivot</span>(<span class='no'>bills</span>, <span class='no'>patient_id</span>, <span class='no'>date</span>)</div><div class='output co'>#&gt; <span class='message'>No fill column was provided, so using "1" for present entities</span></div><div class='output co'>#&gt; <span class='message'>There are rows that contain the same values of both patient_id and date but you didn't provide a function to 'fun' for their aggregation. Proceeding with the default: fun = sum.</span></div><div class='output co'>#&gt; # A tibble: 2 x 4
 #&gt;   patient_id `date_2024-12-23` `date_2024-12-24` `date_2024-12-25`
-#&gt;   &lt;fct&gt;                  &lt;int&gt;             &lt;int&gt;             &lt;int&gt;
-#&gt; 1 A                          1                 1                 2
-#&gt; 2 B                         NA                 2                 2</div><div class='input'>
+#&gt;   &lt;chr&gt;                  &lt;int&gt;             &lt;int&gt;             &lt;int&gt;
+#&gt; 1 A                         NA                 2                 2
+#&gt; 2 B                          2                 1                 1</div><div class='input'>
 <span class='co'># Can provide a custom function to fun, which will take fill as input.</span>
 <span class='co'># Get the difference between the greatest and smallest charge in each</span>
 <span class='co'># department for each patient and format it as currency.</span>
@@ -275,9 +293,9 @@ default, the count of instances for each patient will be used.</p>
       <span class='kw'>fun</span> <span class='kw'>=</span> <span class='kw'>function</span>(<span class='no'>x</span>) <span class='fu'>paste0</span>(<span class='st'>"$"</span>, <span class='fu'>round</span>(<span class='fu'>max</span>(<span class='no'>x</span>) - <span class='fu'>min</span>(<span class='no'>x</span>), <span class='fl'>2</span>))
 )</div><div class='output co'>#&gt; # A tibble: 2 x 3
 #&gt;   patient_id dept_id_ED dept_id_ICU
-#&gt;   &lt;fct&gt;      &lt;chr&gt;      &lt;chr&gt;      
-#&gt; 1 A          $976.86    $1563.93   
-#&gt; 2 B          $4394.81   $1696.53   </div></pre>
+#&gt;   &lt;chr&gt;      &lt;chr&gt;      &lt;chr&gt;      
+#&gt; 1 A          $7333.36   $1037.95   
+#&gt; 2 B          $7231.55   $1313.01   </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -311,10 +329,16 @@ default, the count of instances for each patient will be used.</p>
 <script>
   docsearch({
     
+    
     apiKey: 'ac39465bc37cbef616f5de1e646b6037',
     indexName: 'healthcareai',
     inputSelector: 'input#search-input.form-control',
-    debug: false // Set debug to true if you want to inspect the dropdown
+    transformData: function(hits) {
+      return hits.map(function (hit) {
+        hit.url = updateHitURL(hit);
+        return hit;
+      });
+    }
   });
 </script>
 

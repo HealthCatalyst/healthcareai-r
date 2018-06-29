@@ -21,16 +21,28 @@
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
+<!-- sticky kit -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
+
+
+<!-- docsearch -->
+<script src="../docsearch.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+<link href="../docsearch.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+
+
 <meta property="og:title" content="Get model performance metrics — evaluate" />
 
 <meta property="og:description" content="Get model performance metrics" />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
+
 
 
 <!-- mathjax -->
@@ -42,22 +54,15 @@
 <![endif]-->
 
 
-<!-- Google analytics -->
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-85609357-1"></script>
 <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
-  ga('create', 'UA-85609357-1', 'auto');
-  ga('send', 'pageview');
-
+  gtag('config', 'UA-85609357-1');
 </script>
-
-
-
-<!-- docsearch -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
 
   </head>
 
@@ -74,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.0</span>
       </span>
     </div>
 
@@ -94,10 +99,13 @@
       <a href="../articles/site_only/db_connections.html">Database Connections</a>
     </li>
     <li>
-      <a href="../articles/site_only/deploy_model.html">Deploying a model</a>
+      <a href="../articles/site_only/deploy_model.html">Deploying a Model</a>
     </li>
     <li>
       <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/performance.html">Performance with Big Data</a>
     </li>
   </ul>
 </li>
@@ -126,7 +134,7 @@
       
       <form class="navbar-form navbar-right" role="search">
         <div class="form-group">
-          <input type="search" class="form-control" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+          <input type="search" class="form-control" name="search-input" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
         </div>
       </form>
       
@@ -142,19 +150,22 @@
     <div class="page-header">
     <h1>Get model performance metrics</h1>
     
+    <div class="hidden name"><code>evaluate.Rd</code></div>
     </div>
 
+    <div class="ref-description">
     
     <p>Get model performance metrics</p>
     
+    </div>
 
     <pre class="usage"><span class='fu'>evaluate</span>(<span class='no'>x</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for predicted_df</span>
-<span class='fu'>evaluate</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+<span class='fu'>evaluate</span>(<span class='no'>x</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for model_list</span>
-<span class='fu'>evaluate</span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
+<span class='fu'>evaluate</span>(<span class='no'>x</span>, <span class='kw'>all_models</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -167,7 +178,26 @@
       <th>...</th>
       <td><p>Not used</p></td>
     </tr>
+    <tr>
+      <th>na.rm</th>
+      <td><p>Logical. If FALSE (default) performance metrics will be NA if
+any rows are missing an outcome value. If TRUE, performance will be
+evaluted on the rows that have an outcome value. Only used when evaluating
+a prediction data frame.</p></td>
+    </tr>
+    <tr>
+      <th>all_models</th>
+      <td><p>Logical. If FALSE (default), a numeric vector giving
+performance metrics for the best-performing model is returned. If TRUE,
+a data frame with performance metrics for all trained models is returned.
+Only used when evaluating a model_list.</p></td>
+    </tr>
     </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>Either a numeric vector or a data frame depending on the value of
+  all_models</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
@@ -192,18 +222,33 @@
     <pre class="examples"><div class='input'><span class='no'>models</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='machine_learn.html'>machine_learn</a></span>(<span class='no'>pima_diabetes</span>[<span class='fl'>1</span>:<span class='fl'>40</span>, ],
                         <span class='no'>patient_id</span>,
                         <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>,
-                        <span class='kw'>models</span> <span class='kw'>=</span> <span class='st'>"rf"</span>,
-                        <span class='kw'>tune_depth</span> <span class='kw'>=</span> <span class='fl'>3</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'>Training with cross validation: Random Forest</span></div><div class='output co'>#&gt; <span class='message'></span>
+                        <span class='kw'>tune_depth</span> <span class='kw'>=</span> <span class='fl'>3</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe...</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>After data processing, models are being trained on 12 features with 40 observations.</span>
+#&gt; <span class='message'>Based on n_folds = 5 and hyperparameter settings, the following number of models will be trained: 15 rf's, 15 xgb's, and 30 glm's </span></div><div class='output co'>#&gt; <span class='message'>Training with cross validation: Random Forest</span></div><div class='output co'>#&gt; <span class='message'>Training with cross validation: eXtreme Gradient Boosting</span></div><div class='output co'>#&gt; <span class='message'>Training with cross validation: glmnet</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>*** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
-#&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='input'><span class='fu'>evaluate</span>(<span class='no'>models</span>)</div><div class='output co'>#&gt;   AUPR  AUROC 
-#&gt; 0.5495 0.6650 </div><div class='input'><span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>41</span>:<span class='fl'>50</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='fu'>evaluate</span>(<span class='no'>predictions</span>)</div><div class='output co'>#&gt;      AUPR     AUROC 
-#&gt; 0.5694444 0.9523810 </div></pre>
+#&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='input'>
+<span class='co'># By default, evaluate returns performance of only the best model</span>
+<span class='fu'>evaluate</span>(<span class='no'>models</span>)</div><div class='output co'>#&gt;      AUPR     AUROC 
+#&gt; 0.5471310 0.7191667 </div><div class='input'>
+<span class='co'># Set all_models = TRUE to see the performance of all trained models</span>
+<span class='fu'>evaluate</span>(<span class='no'>models</span>, <span class='kw'>all_models</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; # A tibble: 3 x 3
+#&gt;   model                      AUPR AUROC
+#&gt;   &lt;chr&gt;                     &lt;dbl&gt; &lt;dbl&gt;
+#&gt; 1 glmnet                    0.547 0.719
+#&gt; 2 Random Forest             0.565 0.689
+#&gt; 3 eXtreme Gradient Boosting 0.464 0.555</div><div class='input'>
+<span class='co'># Can also get performance on a test dataset</span>
+<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>41</span>:<span class='fl'>50</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='fu'>evaluate</span>(<span class='no'>predictions</span>)</div><div class='output co'>#&gt;      AUPR     AUROC 
+#&gt; 0.3777778 0.8571429 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
+      <li><a href="#value">Value</a></li>
+
       <li><a href="#details">Details</a></li>
       
       <li><a href="#examples">Examples</a></li>
@@ -229,10 +274,16 @@
 <script>
   docsearch({
     
+    
     apiKey: 'ac39465bc37cbef616f5de1e646b6037',
     indexName: 'healthcareai',
     inputSelector: 'input#search-input.form-control',
-    debug: false // Set debug to true if you want to inspect the dropdown
+    transformData: function(hits) {
+      return hits.map(function (hit) {
+        hit.url = updateHitURL(hit);
+        return hit;
+      });
+    }
   });
 </script>
 

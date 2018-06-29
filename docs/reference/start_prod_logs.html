@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Sets console logging to a file in the working directory. — start_prod_logs • healthcareai</title>
+<title>Defunct — start_prod_logs • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -21,18 +21,28 @@
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
+<!-- sticky kit -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Sets console logging to a file in the working directory. — start_prod_logs" />
 
-<meta property="og:description" content="Logs all console messages and output to a timestamped file
-called, "deployConsoleLog..." in the working directory. This is meant to be
-used in production to monitor console output on ETL servers." />
+
+<!-- docsearch -->
+<script src="../docsearch.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+<link href="../docsearch.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+
+
+<meta property="og:title" content="Defunct — start_prod_logs" />
+
+<meta property="og:description" content="Defunct" />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
+
 
 
 <!-- mathjax -->
@@ -44,22 +54,15 @@ used in production to monitor console output on ETL servers." />
 <![endif]-->
 
 
-<!-- Google analytics -->
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-85609357-1"></script>
 <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
-  ga('create', 'UA-85609357-1', 'auto');
-  ga('send', 'pageview');
-
+  gtag('config', 'UA-85609357-1');
 </script>
-
-
-
-<!-- docsearch -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
 
   </head>
 
@@ -76,7 +79,7 @@ used in production to monitor console output on ETL servers." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.0</span>
       </span>
     </div>
 
@@ -96,10 +99,13 @@ used in production to monitor console output on ETL servers." />
       <a href="../articles/site_only/db_connections.html">Database Connections</a>
     </li>
     <li>
-      <a href="../articles/site_only/deploy_model.html">Deploying a model</a>
+      <a href="../articles/site_only/deploy_model.html">Deploying a Model</a>
     </li>
     <li>
       <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/performance.html">Performance with Big Data</a>
     </li>
   </ul>
 </li>
@@ -128,7 +134,7 @@ used in production to monitor console output on ETL servers." />
       
       <form class="navbar-form navbar-right" role="search">
         <div class="form-group">
-          <input type="search" class="form-control" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+          <input type="search" class="form-control" name="search-input" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
         </div>
       </form>
       
@@ -142,51 +148,35 @@ used in production to monitor console output on ETL servers." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Sets console logging to a file in the working directory.</h1>
+    <h1>Defunct</h1>
+    
+    <div class="hidden name"><code>start_prod_logs.Rd</code></div>
+    </div>
+
+    <div class="ref-description">
+    
+    <p>Defunct</p>
     
     </div>
 
+    <pre class="usage"><span class='fu'>start_prod_logs</span>(<span class='no'>...</span>)</pre>
     
-    <p>Logs all console messages and output to a timestamped file
-called, "deployConsoleLog..." in the working directory. This is meant to be
-used in production to monitor console output on ETL servers.</p>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>...</th>
+      <td><p>Defunct</p></td>
+    </tr>
+    </table>
     
 
-    <pre class="usage"><span class='fu'>start_prod_logs</span>()</pre>
-        
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p><code><a href='stop_prod_logs.html'>stop_prod_logs</a></code></p></div>
-    
-
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='co'># NOT RUN {</span>
-<span class='co'># Object Attribute Base should contain a script like this:</span>
-<span class='co'># Move to working directory</span>
-<span class='fu'>setwd</span>(<span class='st'>"Prod Server/Machine Learning/MyProject"</span>)
-
-<span class='co'># Start console logging</span>
-<span class='fu'>start_prod_logs</span>()
-
-<span class='co'># Deploy -------------------------------------------------</span>
-<span class='co'># Test deployment. Comment/delete when working</span>
-<span class='fu'><a href='catalyst_test_deploy_in_prod.html'>catalyst_test_deploy_in_prod</a></span>()
-
-<span class='co'># Deploy model</span>
-<span class='fu'>source</span>(<span class='st'>"myDeployScript.R"</span>)
-
-<span class='co'># Stop console logging</span>
-<span class='fu'><a href='stop_prod_logs.html'>stop_prod_logs</a></span>()
-<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      
-      <li><a href="#see-also">See also</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
+      <li><a href="#arguments">Arguments</a></li>
+                </ul>
 
   </div>
 </div>
@@ -208,10 +198,16 @@ used in production to monitor console output on ETL servers.</p>
 <script>
   docsearch({
     
+    
     apiKey: 'ac39465bc37cbef616f5de1e646b6037',
     indexName: 'healthcareai',
     inputSelector: 'input#search-input.form-control',
-    debug: false // Set debug to true if you want to inspect the dropdown
+    transformData: function(hits) {
+      return hits.map(function (hit) {
+        hit.url = updateHitURL(hit);
+        return hit;
+      });
+    }
   });
 </script>
 

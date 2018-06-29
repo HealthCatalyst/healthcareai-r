@@ -21,14 +21,26 @@
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
+<!-- sticky kit -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+
 <!-- pkgdown -->
 <link href="pkgdown.css" rel="stylesheet">
-<script src="jquery.sticky-kit.min.js"></script>
 <script src="pkgdown.js"></script>
+
+
+<!-- docsearch -->
+<script src="docsearch.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+<link href="docsearch.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+
+
 <meta property="og:title" content="Contributing Guidelines" />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
+
 
 
 <!-- mathjax -->
@@ -40,22 +52,15 @@
 <![endif]-->
 
 
-<!-- Google analytics -->
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-85609357-1"></script>
 <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
-  ga('create', 'UA-85609357-1', 'auto');
-  ga('send', 'pageview');
-
+  gtag('config', 'UA-85609357-1');
 </script>
-
-
-
-<!-- docsearch -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
 
   </head>
 
@@ -72,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.0</span>
       </span>
     </div>
 
@@ -127,7 +132,7 @@
       
       <form class="navbar-form navbar-right" role="search">
         <div class="form-group">
-          <input type="search" class="form-control" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+          <input type="search" class="form-control" name="search-input" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
         </div>
       </form>
       
@@ -174,8 +179,10 @@
 <li>[ ] Ensure code is lint free: <code><a href="http://www.rdocumentation.org/packages/lintr/topics/lint_package">lintr::lint_package()</a></code>. This will also be checked in tests…</li>
 <li>[ ] Ensure code passes all tests: <code><a href="http://www.rdocumentation.org/packages/devtools/topics/test">devtools::test()</a></code>. This will also be checked in check…</li>
 <li>[ ] Ensure code passes all CRAN checks without warnings or notes: <code><a href="http://www.rdocumentation.org/packages/devtools/topics/check">devtools::check()</a></code>
-</li>
+<ul>
 <li>If you get NOTEs about global variables with no visible binding for variables defined via NSE (e.g. in dplyr functions), add them to the list of <code>globalVariables</code> in <code>R/globals.R</code>.</li>
+</ul>
+</li>
 <li>Do not regenerate the pkgdown website. We will rebuild this for every minor release when a new version of the package is on its way to CRAN.</li>
 </ul>
 </div>
@@ -212,35 +219,44 @@
 <h2 class="hasAnchor">
 <a href="#adding-algorithms" class="anchor"></a>Adding Algorithms</h2>
 <p>When adding support for a new algorithm, these are some spots you’ll need to address. There are likely to be others as well depending on details of the algorithm, but these should diminish as more algorithms are implemented.</p>
+<p>Get caret model info with <code>mi &lt;– caret::getModelInfo("caretModelName")[[1]]</code></p>
+<div id="in-models-r" class="section level4">
+<h4 class="hasAnchor">
+<a href="#in-models-r" class="anchor"></a>In models.R</h4>
 <ul>
-<li>In models.R
+<li>[ ] translate_model_names: Add caret’s name and ours</li>
+<li>[ ] get_supported_models: Add our name</li>
+<li>[ ] @importFrom the library(ies) caret calls to fit the model.</li>
+<li>[ ] Update @description with hyperparameters
 <ul>
-<li>
-<code>translate_model_names</code>: Add caret’s name and ours</li>
-<li>
-<code>get_supported_models</code>: Add our name
-<ul>
-<li>Update @description with hyperparameters</li>
-</ul>
+<li>Hyperparameters can be found in <code>mi$parameters</code>
 </li>
 </ul>
 </li>
-<li>In setup_hyperparameters.R
+</ul>
+</div>
+<div id="in-setup_hyperparameters-r" class="section level4">
+<h4 class="hasAnchor">
+<a href="#in-setup_hyperparameters-r" class="anchor"></a>In setup_hyperparameters.R</h4>
+<p>Caret’s hyperparameter value selection are in <code>mi$grid</code>. <code>mi$grid(len = 1)</code> might be a good place to start for default values.</p>
 <ul>
-<li>
-<code>get_hyperparameter_defaults</code>
+<li>[ ] get_hyperparameter_defaults
 <ul>
-<li>Update @details</li>
+<li>[ ] Update @details</li>
 </ul>
 </li>
-<li><code>get_random_hyperparameters</code></li>
+<li>[ ] get_random_hyperparameters</li>
 </ul>
-</li>
-<li>In tune_models.R: @importFrom the library(ies) caret calls to fit the model.</li>
-<li>Tests: See what fails and update them accordingly</li>
+</div>
+<div id="tests" class="section level4">
+<h4 class="hasAnchor">
+<a href="#tests" class="anchor"></a>Tests</h4>
+<ul>
+<li>See what fails and update them accordingly</li>
 </ul>
 <hr>
 <p>Thanks to the well-organized rOpenSci <a href="https://github.com/ropensci/codemetar">codemetar</a> and <a href="https://github.com/ropensci/drake">drake</a> packages, which were drawn on heavily in the creation of this document.</p>
+</div>
 </div>
 </div>
 
@@ -266,10 +282,16 @@
 <script>
   docsearch({
     
+    
     apiKey: 'ac39465bc37cbef616f5de1e646b6037',
     indexName: 'healthcareai',
     inputSelector: 'input#search-input.form-control',
-    debug: false // Set debug to true if you want to inspect the dropdown
+    transformData: function(hits) {
+      return hits.map(function (hit) {
+        hit.url = updateHitURL(hit);
+        return hit;
+      });
+    }
   });
 </script>
 

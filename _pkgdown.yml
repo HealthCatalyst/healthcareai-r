@@ -53,8 +53,9 @@ reference:
     - predict.model_list
   - title: Model Interpretation
     contents:
-    - evaluate
     - get_variable_importance
+    - interpret
+    - evaluate
   - title: Visualization
     contents:
     - plot.model_list
@@ -64,6 +65,7 @@ reference:
     - control_chart
   - title: Data Preparation
     contents:
+    - add_best_levels
     - prep_data
     - impute
     - split_train_test

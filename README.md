@@ -35,21 +35,22 @@ line of code:
 ``` r
 models <- machine_learn(pima_diabetes, patient_id, outcome = diabetes)
 models
-# > Algorithms Trained: Random Forest, k-Nearest Neighbors, glmnet
+# > Algorithms Trained: Random Forest, eXtreme Gradient Boosting, and glmnet
+# > Model Name: diabetes
 # > Target: diabetes
 # > Class: Classification
 # > Performance Metric: AUROC
 # > Number of Observations: 768
 # > Number of Features: 12
-# > Models Trained: 2018-06-08 19:10:01 
+# > Models Trained: 2018-06-29 17:19:43 
 # > 
 # > Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.
 # > Best model: Random Forest
 # > AUPR = 0.71, AUROC = 0.84
 # > Optimal hyperparameter values:
-# >   mtry = 4
+# >   mtry = 2
 # >   splitrule = extratrees
-# >   min.node.size = 8
+# >   min.node.size = 6
 ```
 
 Make predictions and examine predictive performance:

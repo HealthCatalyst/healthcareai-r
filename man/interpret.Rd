@@ -41,7 +41,7 @@ Interpret a model via regularized coefficient estimates
   coefficients and can be obtained by not tuning hyperparameters.
 }
 \examples{
-m <- machine_learn(pima_diabetes, patient_id, outcome = age, models = "glm")
+m <- machine_learn(pima_diabetes, patient_id, outcome = diabetes, models = "glm")
 interpret(m)
 interpret(m, .2)
 interpret(m) \%>\%

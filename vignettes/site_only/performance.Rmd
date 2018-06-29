@@ -45,7 +45,7 @@ The plot below provides a rough idea of how long you can expect model training t
 
 In general, [glm tunes very efficiently](https://web.stanford.edu/~hastie/glmnet/glmnet_alpha.html); however due to its linear constraints, it may not always provide a performant model. xgb is fast if tuning isn't performed, but it is a complex model for which tuning can be both important and computationally intensive. When you decide to use xgb, we recommend a final round of model tuning with `tune_depth` turned up at least several times higher than the default value of 10. Tuning time will increase linearly with `tune_depth`, so you can expect turning it up from 10 to 30 to approximately triple model training time. Both xgb and rf can be quite expensive to tune; this is a result of `healthcare.ai` exploring some computationally expensive regions in their hyperparameter space. It may be more efficient to examine the results of an initial random search with `plot(models)`, and then tune over the most-promising region in hyperparameter space by passing a `hyperparameters` data frame to `tune_models`. You can see how the default  hyperparameter search spaces are defined in `healthcareai:::get_random_hyperparameters`.
 
-If you want to squeeze every ounce of performance from one of these models; we suggest alliteratively zeroing in on the region in hyperparameter space that optimizes performance. 
+If you want to squeeze every ounce of performance from one of these models; we suggest iteratively zeroing in on the region in hyperparameter space that optimizes performance. 
 
 ![model training time](https://github.com/HealthCatalyst/ml.internal/blob/master/r-pkg/package_profiling/model_training_times.png?raw=true)
 

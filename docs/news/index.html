@@ -21,14 +21,26 @@
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
+<!-- sticky kit -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
+
+
+<!-- docsearch -->
+<script src="../docsearch.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+<link href="../docsearch.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+
+
 <meta property="og:title" content="Changelog" />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
+
 
 
 <!-- mathjax -->
@@ -40,22 +52,15 @@
 <![endif]-->
 
 
-<!-- Google analytics -->
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-85609357-1"></script>
 <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
-  ga('create', 'UA-85609357-1', 'auto');
-  ga('send', 'pageview');
-
+  gtag('config', 'UA-85609357-1');
 </script>
-
-
-
-<!-- docsearch -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
 
   </head>
 
@@ -72,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.0</span>
       </span>
     </div>
 
@@ -92,10 +97,13 @@
       <a href="../articles/site_only/db_connections.html">Database Connections</a>
     </li>
     <li>
-      <a href="../articles/site_only/deploy_model.html">Deploying a model</a>
+      <a href="../articles/site_only/deploy_model.html">Deploying a Model</a>
     </li>
     <li>
       <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/performance.html">Performance with Big Data</a>
     </li>
   </ul>
 </li>
@@ -124,7 +132,7 @@
       
       <form class="navbar-form navbar-right" role="search">
         <div class="form-group">
-          <input type="search" class="form-control" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+          <input type="search" class="form-control" name="search-input" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
         </div>
       </form>
       
@@ -142,6 +150,49 @@
       
     </div>
 
+    <div id="healthcareai-2-1-0" class="section level1">
+<h1 class="page-header">
+<a href="#healthcareai-2-1-0" class="anchor"></a>healthcareai 2.1.0<small> Unreleased </small>
+</h1>
+<div id="added" class="section level4">
+<h4 class="hasAnchor">
+<a href="#added" class="anchor"></a>Added</h4>
+<ul>
+<li>Identify values of high-cardinality variables that will make good features, even with multiple values per observation with <code>add_best_levels</code> and <code>get_best_levels</code>.</li>
+<li>glmnet for regularized linear and logistic regression.</li>
+<li>
+<code>interpret</code> and <code>plot.interpret</code> to extract glmnet estimates.</li>
+<li>XGBoost for regression and classification models.</li>
+<li>
+<code>variable_importance</code> returns random forest or xgboost importances, whichever model performs better.</li>
+</ul>
+</div>
+<div id="changed" class="section level4">
+<h4 class="hasAnchor">
+<a href="#changed" class="anchor"></a>Changed</h4>
+<ul>
+<li>
+<code>predict</code> can now write an extensive log file, and if that option is activated, as in production, <code>predict</code> is a safe function that always completes; if there is an error, it returns a zero-row data frame that is otherwise the same as what would have been returned (provided <code>prep_data</code> or <code>machine_learn</code> was used).</li>
+<li>Control how low variance must be to remove columns by providing a numeric value to the <code>remove_near_zero_variance</code> argument of <code>prep_data</code>.</li>
+<li>Fixed bug in missingness that caused very small values to round to zero.</li>
+<li>Messages about time required for model training are improved.</li>
+<li>
+<code>separate_drgs</code> returns <code>NA</code> for complication when the DRG is missing.</li>
+<li>Removed some redundent training data from <code>model_list</code> objects.</li>
+<li>
+<code>methods</code> is attached on attaching the package so that scripts operate the same in Rscript, R GUI, and R Studio.</li>
+<li>Minor changes to maintain compatibility with <code>ggplot2</code>, <code>broom</code>, and <code>recipes</code>.</li>
+</ul>
+</div>
+<div id="removed" class="section level4">
+<h4 class="hasAnchor">
+<a href="#removed" class="anchor"></a>Removed</h4>
+<ul>
+<li>Removed support for k-nearest neighbors</li>
+<li>Remove support for maxstat splitting rule in random forests</li>
+</ul>
+</div>
+</div>
     <div id="healthcareai-2-0-0" class="section level1">
 <h1 class="page-header">
 <a href="#healthcareai-2-0-0" class="anchor"></a>healthcareai 2.0.0<small> 2018-04-20 </small>
@@ -164,9 +215,9 @@
 <h1 class="page-header">
 <a href="#healthcareai-1-2-0" class="anchor"></a>healthcareai 1.2.0<small> 2017-10-27 </small>
 </h1>
-<div id="added" class="section level4">
+<div id="added-1" class="section level4">
 <h4 class="hasAnchor">
-<a href="#added" class="anchor"></a>Added</h4>
+<a href="#added-1" class="anchor"></a>Added</h4>
 <ul>
 <li>
 <em>Limone</em> – a <a href="https://www.oreilly.com/learning/introduction-to-local-interpretable-model-agnostic-explanations-lime">lime</a>-like model interpretation tool.
@@ -183,25 +234,25 @@
 <h1 class="page-header">
 <a href="#healthcareai-1-1-0" class="anchor"></a>healthcareai 1.1.0<small> Unreleased </small>
 </h1>
-<div id="added-1" class="section level4">
+<div id="added-2" class="section level4">
 <h4 class="hasAnchor">
-<a href="#added-1" class="anchor"></a>Added</h4>
+<a href="#added-2" class="anchor"></a>Added</h4>
 <ul>
 <li>Deploy now saves information about the model and deployment as an attribute of the output dataframe. This information is written to a log file in the working directory.</li>
 <li>
 <code>skip_on_not_appveyor</code> will skip a unit test unless it’s being run on Appveyor.</li>
 </ul>
 </div>
-<div id="changed" class="section level4">
+<div id="changed-1" class="section level4">
 <h4 class="hasAnchor">
-<a href="#changed" class="anchor"></a>Changed</h4>
+<a href="#changed-1" class="anchor"></a>Changed</h4>
 <ul>
 <li>Unit tests involving MSSQL now only run on Appveyor.</li>
 </ul>
 </div>
-<div id="removed" class="section level4">
+<div id="removed-1" class="section level4">
 <h4 class="hasAnchor">
-<a href="#removed" class="anchor"></a>Removed</h4>
+<a href="#removed-1" class="anchor"></a>Removed</h4>
 <ul>
 <li>
 <code>skip_if_no_mssql</code> isn’t needed as a test utility anymore.</li>
@@ -212,9 +263,9 @@
 <h1 class="page-header">
 <a href="#healthcareai-1-0-0" class="anchor"></a>healthcareai 1.0.0<small> 2017-09-11 </small>
 </h1>
-<div id="added-2" class="section level4">
+<div id="added-3" class="section level4">
 <h4 class="hasAnchor">
-<a href="#added-2" class="anchor"></a>Added</h4>
+<a href="#added-3" class="anchor"></a>Added</h4>
 <ul>
 <li>Multiclass functionality with XGBoost is supported using <code>XGBoostDevelopment</code> and <code>XGBoostDeployment</code>.</li>
 <li>K-means clustering is supported using <code>KmeansClustering</code>.</li>
@@ -224,9 +275,9 @@
 <code>variationAcrossGroups</code> will plot a boxplot of variation between groups for a chosen target measure.</li>
 </ul>
 </div>
-<div id="changed-1" class="section level4">
+<div id="changed-2" class="section level4">
 <h4 class="hasAnchor">
-<a href="#changed-1" class="anchor"></a>Changed</h4>
+<a href="#changed-2" class="anchor"></a>Changed</h4>
 <ul>
 <li>
 <code>SupervisedModelDevelopment</code> now saves the model after training</li>
@@ -240,9 +291,9 @@
 <li>Model file documentation files now accurately reflect the available methods.</li>
 </ul>
 </div>
-<div id="removed-1" class="section level4">
+<div id="removed-2" class="section level4">
 <h4 class="hasAnchor">
-<a href="#removed-1" class="anchor"></a>Removed</h4>
+<a href="#removed-2" class="anchor"></a>Removed</h4>
 <ul>
 <li>
 <code>testWindowCol</code> is no longer a param in <code>SupervisedModelDeployment</code> or used in the algorithms.</li>
@@ -257,9 +308,9 @@
 <h1 class="page-header">
 <a href="#healthcareai-0-1-12" class="anchor"></a>healthcareai 0.1.12<small> 2017-05-05 </small>
 </h1>
-<div id="added-3" class="section level4">
+<div id="added-4" class="section level4">
 <h4 class="hasAnchor">
-<a href="#added-3" class="anchor"></a>Added</h4>
+<a href="#added-4" class="anchor"></a>Added</h4>
 <ul>
 <li>Added getters for predictions <code>getPredictions()</code> in development (lasso, random forest, linear mixed model)</li>
 <li>Added getOutDf to each algorithm deploy file so predictions can go to CSV</li>
@@ -267,9 +318,9 @@
 <li>Added featureAvailabilityProfiler</li>
 </ul>
 </div>
-<div id="changed-2" class="section level4">
+<div id="changed-3" class="section level4">
 <h4 class="hasAnchor">
-<a href="#changed-2" class="anchor"></a>Changed</h4>
+<a href="#changed-3" class="anchor"></a>Changed</h4>
 <ul>
 <li>TimeStamp column predictive output is now local time (not GMT)</li>
 </ul>
@@ -283,17 +334,17 @@
 <h1 class="page-header">
 <a href="#healthcareai-0-1-11" class="anchor"></a>healthcareai 0.1.11<small> 2017-02-13 </small>
 </h1>
-<div id="added-4" class="section level4">
+<div id="added-5" class="section level4">
 <h4 class="hasAnchor">
-<a href="#added-4" class="anchor"></a>Added</h4>
+<a href="#added-5" class="anchor"></a>Added</h4>
 <ul>
 <li>Added changelog</li>
 <li>Added travis.yml to prepare for CRAN release</li>
 </ul>
 </div>
-<div id="changed-3" class="section level4">
+<div id="changed-4" class="section level4">
 <h4 class="hasAnchor">
-<a href="#changed-3" class="anchor"></a>Changed</h4>
+<a href="#changed-4" class="anchor"></a>Changed</h4>
 <ul>
 <li>generateAUC now calls getCutOffs to give guidance on ideal cutoffs.</li>
 <li>getCutOffs now generates list of cutoffs and suggests ideal ones.</li>
@@ -315,6 +366,7 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
+        <li><a href="#healthcareai-2-1-0">2.1.0</a></li>
         <li><a href="#healthcareai-2-0-0">2.0.0</a></li>
         <li><a href="#healthcareai-1-2-4">1.2.4</a></li>
         <li><a href="#healthcareai-1-2-0">1.2.0</a></li>
@@ -345,10 +397,16 @@
 <script>
   docsearch({
     
+    
     apiKey: 'ac39465bc37cbef616f5de1e646b6037',
     indexName: 'healthcareai',
     inputSelector: 'input#search-input.form-control',
-    debug: false // Set debug to true if you want to inspect the dropdown
+    transformData: function(hits) {
+      return hits.map(function (hit) {
+        hit.url = updateHitURL(hit);
+        return hit;
+      });
+    }
   });
 </script>
 

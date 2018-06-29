@@ -73,7 +73,7 @@ Note that this function is training a lot of models (100 by default)
 # Prepare data for tuning
 d <- prep_data(pima_diabetes, patient_id, outcome = diabetes)
 
-# Tune random forest and k-nearest neighbors classification models
+# Tune random forest, xgboost, and regularized regression classification models
 m <- tune_models(d, outcome = diabetes)
 
 # Get some info about the tuned models

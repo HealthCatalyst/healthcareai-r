@@ -21,32 +21,59 @@
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
+<!-- sticky kit -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
+
+
+<!-- docsearch -->
+<script src="../docsearch.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+<link href="../docsearch.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+
+
 <meta property="og:title" content="Supported models and their hyperparameters — get_supported_models" />
 
-<meta property="og:description" content="Random Forest: "rf". Regression and classification.
+<meta property="og:description" content="Random Forest: &quot;rf&quot;. Regression and classification.
 Implemented via ranger.
 mtry: Number of variables to consider for each split
-splitrule: Splitting rule. For classification either "gini" or
-  "extratrees". For regression either "variance" or "extratrees".
+splitrule: Splitting rule. For classification either &quot;gini&quot; or
+  &quot;extratrees&quot;. For regression either &quot;variance&quot; or &quot;extratrees&quot;.
 min.node.size: Minimal node size.
 " />
 
-<meta property="og:description" content="k-nearest neighbors: "knn". Regression and classification.
-Implemented via kknn.
-kmax: Number of neighbors to consider.
-distance: Minkowsky distance parameter, (0, Inf). 1 = Manhatten, 2 =
-  Euclidian, -&gt; Inf = Chebyshev.
-kernal: Kernal to use. Possible choices are "rectangular" (standard
-  knn), "triangular", "epanechnikov", "biweight", "triweight", "cos", "inv",
-  "gaussian", "rank", or "optimal".
+<meta property="og:description" content="XGBoost: &quot;xgb&quot;. eXtreme Gradient Boosting
+Implemented via xgboost. Note that XGB has many more hyperparameters
+than the other models. Because of this, it may require greater tune_depth
+to optimize performance.
+eta: Control for learning rate, [0, 1]
+gamma: Threshold for further cutting of leaves, [0, Inf].
+  Larger is more conservative.
+max_depth: Maximum tree depth, [0, Inf]. Larger means more complex
+  models and so greater likelihood of overfitting. 0 produces no limit on depth.
+subsample: Fraction of data to use in each training instance, (0, 1].
+colsample_bytree: Fraction of features to use in each tree, (0, 1].
+min_child_weight: Minimum sum of instance weight need to keep partitioning,
+  [0, Inf]. Larger values mean more conservative models.
+nrounds: Number of rounds of boosting, [0, Inf). Larger values produce
+  a greater likelihood of overfitting.
+" />
+
+<meta property="og:description" content="Regularized regression: &quot;glm&quot;. Regression and classification.
+Implemented via glmnet.
+alpha: Elasticnet mixing parameter, in [0, 1]. 0 = ridge regression;
+  1 = lasso.
+lambda: Regularization parameter, &amp;gt; 0. Larger values make for
+  stronger regularization.
 " />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
+
 
 
 <!-- mathjax -->
@@ -58,22 +85,15 @@ kernal: Kernal to use. Possible choices are "rectangular" (standard
 <![endif]-->
 
 
-<!-- Google analytics -->
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-85609357-1"></script>
 <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
-  ga('create', 'UA-85609357-1', 'auto');
-  ga('send', 'pageview');
-
+  gtag('config', 'UA-85609357-1');
 </script>
-
-
-
-<!-- docsearch -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
 
   </head>
 
@@ -90,7 +110,7 @@ kernal: Kernal to use. Possible choices are "rectangular" (standard
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.0</span>
       </span>
     </div>
 
@@ -110,10 +130,13 @@ kernal: Kernal to use. Possible choices are "rectangular" (standard
       <a href="../articles/site_only/db_connections.html">Database Connections</a>
     </li>
     <li>
-      <a href="../articles/site_only/deploy_model.html">Deploying a model</a>
+      <a href="../articles/site_only/deploy_model.html">Deploying a Model</a>
     </li>
     <li>
       <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/performance.html">Performance with Big Data</a>
     </li>
   </ul>
 </li>
@@ -142,7 +165,7 @@ kernal: Kernal to use. Possible choices are "rectangular" (standard
       
       <form class="navbar-form navbar-right" role="search">
         <div class="form-group">
-          <input type="search" class="form-control" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+          <input type="search" class="form-control" name="search-input" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
         </div>
       </form>
       
@@ -158,8 +181,10 @@ kernal: Kernal to use. Possible choices are "rectangular" (standard
     <div class="page-header">
     <h1>Supported models and their hyperparameters</h1>
     
+    <div class="hidden name"><code>get_supported_models.Rd</code></div>
     </div>
 
+    <div class="ref-description">
     
     <p><strong>Random Forest</strong>: "rf". Regression and classification.
 Implemented via <code>ranger</code>.</p><ul>
@@ -169,16 +194,32 @@ Implemented via <code>ranger</code>.</p><ul>
 <li><p>min.node.size: Minimal node size.</p></li>
 </ul>
 
-    <p><strong>k-nearest neighbors</strong>: "knn". Regression and classification.
-Implemented via <code>kknn</code>.</p><ul>
-<li><p>kmax: Number of neighbors to consider.</p></li>
-<li><p>distance: Minkowsky distance parameter, (0, Inf). 1 = Manhatten, 2 =
-  Euclidian, -&gt; Inf = Chebyshev.</p></li>
-<li><p>kernal: Kernal to use. Possible choices are "rectangular" (standard
-  knn), "triangular", "epanechnikov", "biweight", "triweight", "cos", "inv",
-  "gaussian", "rank", or "optimal".</p></li>
+    <p><strong>XGBoost</strong>: "xgb". eXtreme Gradient Boosting
+Implemented via <code>xgboost</code>. Note that XGB has many more hyperparameters
+than the other models. Because of this, it may require greater tune_depth
+to optimize performance.</p><ul>
+<li><p>eta: Control for learning rate, [0, 1]</p></li>
+<li><p>gamma: Threshold for further cutting of leaves, [0, Inf].
+  Larger is more conservative.</p></li>
+<li><p>max_depth: Maximum tree depth, [0, Inf]. Larger means more complex
+  models and so greater likelihood of overfitting. 0 produces no limit on depth.</p></li>
+<li><p>subsample: Fraction of data to use in each training instance, (0, 1].</p></li>
+<li><p>colsample_bytree: Fraction of features to use in each tree, (0, 1].</p></li>
+<li><p>min_child_weight: Minimum sum of instance weight need to keep partitioning,
+  [0, Inf]. Larger values mean more conservative models.</p></li>
+<li><p>nrounds: Number of rounds of boosting, [0, Inf). Larger values produce
+  a greater likelihood of overfitting.</p></li>
+</ul>
+
+    <p><strong>Regularized regression</strong>: "glm". Regression and classification.
+Implemented via <code>glmnet</code>.</p><ul>
+<li><p>alpha: Elasticnet mixing parameter, in [0, 1]. 0 = ridge regression;
+  1 = lasso.</p></li>
+<li><p>lambda: Regularization parameter, &gt; 0. Larger values make for
+  stronger regularization.</p></li>
 </ul>
     
+    </div>
 
     <pre class="usage"><span class='fu'>get_supported_models</span>()</pre>
         
@@ -222,10 +263,16 @@ defaults and specifications</p></div>
 <script>
   docsearch({
     
+    
     apiKey: 'ac39465bc37cbef616f5de1e646b6037',
     indexName: 'healthcareai',
     inputSelector: 'input#search-input.form-control',
-    debug: false // Set debug to true if you want to inspect the dropdown
+    transformData: function(hits) {
+      return hits.map(function (hit) {
+        hit.url = updateHitURL(hit);
+        return hit;
+      });
+    }
   });
 </script>
 

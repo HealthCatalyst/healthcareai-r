@@ -21,16 +21,28 @@
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
+<!-- sticky kit -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
+
+
+<!-- docsearch -->
+<script src="../docsearch.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+<link href="../docsearch.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+
+
 <meta property="og:title" content="Machine learning made easy — machine_learn" />
 
 <meta property="og:description" content="Prepare data and train machine learning models." />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
+
 
 
 <!-- mathjax -->
@@ -42,22 +54,15 @@
 <![endif]-->
 
 
-<!-- Google analytics -->
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-85609357-1"></script>
 <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
-  ga('create', 'UA-85609357-1', 'auto');
-  ga('send', 'pageview');
-
+  gtag('config', 'UA-85609357-1');
 </script>
-
-
-
-<!-- docsearch -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
 
   </head>
 
@@ -74,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.0</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.0</span>
       </span>
     </div>
 
@@ -94,10 +99,13 @@
       <a href="../articles/site_only/db_connections.html">Database Connections</a>
     </li>
     <li>
-      <a href="../articles/site_only/deploy_model.html">Deploying a model</a>
+      <a href="../articles/site_only/deploy_model.html">Deploying a Model</a>
     </li>
     <li>
       <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/performance.html">Performance with Big Data</a>
     </li>
   </ul>
 </li>
@@ -126,7 +134,7 @@
       
       <form class="navbar-form navbar-right" role="search">
         <div class="form-group">
-          <input type="search" class="form-control" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+          <input type="search" class="form-control" name="search-input" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
         </div>
       </form>
       
@@ -142,14 +150,17 @@
     <div class="page-header">
     <h1>Machine learning made easy</h1>
     
+    <div class="hidden name"><code>machine_learn.Rd</code></div>
     </div>
 
+    <div class="ref-description">
     
     <p>Prepare data and train machine learning models.</p>
     
+    </div>
 
     <pre class="usage"><span class='fu'>machine_learn</span>(<span class='no'>d</span>, <span class='no'>...</span>, <span class='no'>outcome</span>, <span class='no'>models</span>, <span class='kw'>tune</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>positive_class</span>,
-  <span class='kw'>n_folds</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>tune_depth</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>impute</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+  <span class='kw'>n_folds</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>tune_depth</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>impute</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>model_name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -170,8 +181,8 @@ Unquoted. Must be named, i.e. you must specify <code>outcome = </code></p></td>
     </tr>
     <tr>
       <th>models</th>
-      <td><p>Models to be trained, k-nearest neighbors and random forest by
-default. See <code><a href='get_supported_models.html'>supported_models</a></code> for details.</p></td>
+      <td><p>Names of models to try. See <code><a href='get_supported_models.html'>get_supported_models</a></code>
+for available models. Default is all available models.</p></td>
     </tr>
     <tr>
       <th>tune</th>
@@ -196,13 +207,19 @@ or FALSE.</p></td>
     </tr>
     <tr>
       <th>tune_depth</th>
-      <td><p>How many hyperparameter combinations to try? Defualt = 10.
-Ignored if tune is FALSE.</p></td>
+      <td><p>How many hyperparameter combinations to try? Default = 10.
+Value is multiplied by 5 for regularized regression. Ignored if tune is
+FALSE.</p></td>
     </tr>
     <tr>
       <th>impute</th>
       <td><p>Logical, if TRUE (default) missing values will be filled by
 <code><a href='hcai_impute.html'>hcai_impute</a></code></p></td>
+    </tr>
+    <tr>
+      <th>model_name</th>
+      <td><p>Quoted, name of the model. Defaults to the name of the
+outcome variable.</p></td>
     </tr>
     </table>
     
@@ -296,10 +313,16 @@ Ignored if tune is FALSE.</p></td>
 <script>
   docsearch({
     
+    
     apiKey: 'ac39465bc37cbef616f5de1e646b6037',
     indexName: 'healthcareai',
     inputSelector: 'input#search-input.form-control',
-    debug: false // Set debug to true if you want to inspect the dropdown
+    transformData: function(hits) {
+      return hits.map(function (hit) {
+        hit.url = updateHitURL(hit);
+        return hit;
+      });
+    }
   });
 </script>
 
