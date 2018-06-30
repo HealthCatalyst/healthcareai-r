@@ -2,7 +2,8 @@
 #'
 #' @return list of models to be passed with details to as.model_list
 #' @noRd
-train_models <- function(d, outcome, models, metric, train_control, hyperparameters, tuned) {
+train_models <- function(d, outcome, models, metric, train_control,
+                         hyperparameters, tuned, allow_parallel) {
 
   mes <- if (tuned) "Training with cross validation: " else "Training at fixed values: "
 
@@ -29,6 +30,8 @@ train_models <- function(d, outcome, models, metric, train_control, hyperparamet
           message("You may, or may not, see messages about progress in growing trees. ",
                   "The estimates are very rough, and you should expect the progress ",
                   "ticker to cycle ", train_control$number + 1, " times.")
+      } else if (model == "xgbTree") {
+        train_args$allowParallel <- allow_parallel
       }
 
       # caret loads packages at runtime, we don't want to see those startup messages
