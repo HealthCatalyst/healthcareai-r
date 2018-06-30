@@ -27,7 +27,10 @@
 #' @param impute Logical, if TRUE (default) missing values will be filled by
 #'   \code{\link{hcai_impute}}
 #' @param model_name Quoted, name of the model. Defaults to the name of the
-#' outcome variable.
+#'   outcome variable.
+#' @param allow_parallel Logical, defaults to FALSE. If TRUE and a parallel
+#'   backend is set up (e.g. with \code{doMC}) models with support for parallel
+#'   training will be trained across cores.
 #'
 #' @return A model_list object. You can call \code{plot}, \code{summary},
 #'   \code{evaluate}, or \code{predict} on a model_list.
@@ -84,7 +87,7 @@
 #' }
 machine_learn <- function(d, ..., outcome, models, tune = TRUE, positive_class,
                           n_folds = 5, tune_depth = 10, impute = TRUE,
-                          model_name = NULL) {
+                          model_name = NULL, allow_parallel = FALSE) {
 
   if (!is.data.frame(d))
     stop("\"d\" must be a data frame.")
@@ -120,11 +123,11 @@ machine_learn <- function(d, ..., outcome, models, tune = TRUE, positive_class,
       tune_models(pd, outcome = !!outcome, models = models,
                   positive_class = positive_class,
                   n_folds = n_folds, tune_depth = tune_depth,
-                  model_name = model_name)
+                  model_name = model_name, allow_parallel = allow_parallel)
     } else {
       flash_models(pd, outcome = !!outcome, models = models,
                    positive_class = positive_class, n_folds = n_folds,
-                   model_name = model_name)
+                   model_name = model_name, allow_parallel = allow_parallel)
     }
   return(m)
 }

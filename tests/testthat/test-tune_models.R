@@ -171,14 +171,14 @@ test_that("By default Y is chosen as positive class for N/Y character outcome", 
 
 test_that("tune_models picks Y and yes as positive class even if N/no is first", {
   cla_df$diabetes <- factor(cla_df$diabetes, levels = c("N", "Y"))
-  m <- tune_models(cla_df, diabetes, "rf")
+  m <- tune_models(cla_df, diabetes, "glm")
   expect_equal("Y", attr(m, "positive_class"))
   p <- predict(m)
   expect_true(mean(p$predicted_diabetes[p$diabetes == "Y"]) > mean(p$predicted_diabetes[p$diabetes == "N"]))
 
   cla_df$diabetes <- factor(ifelse(cla_df$diabetes == "Y", "yes", "no"),
                              levels = c("no", "yes"))
-  m <- tune_models(cla_df, diabetes, "rf")
+  m <- tune_models(cla_df, diabetes, "glm")
   expect_equal("yes", attr(m, "positive_class"))
   p <- predict(m)
   expect_true(mean(p$predicted_diabetes[p$diabetes == "yes"]) > mean(p$predicted_diabetes[p$diabetes == "no"]))

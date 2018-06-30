@@ -33,6 +33,9 @@
 #'   displayed in a message.
 #' @param model_name Quoted, name of the model. Defaults to the name of the
 #' outcome variable.
+#' @param allow_parallel Logical, defaults to FALSE. If TRUE and a parallel
+#'   backend is set up (e.g. with \code{doMC}) models with support for parallel
+#'   training will be trained across cores.
 #'
 #' @export
 #' @importFrom rlang quo_name
@@ -102,7 +105,8 @@ tune_models <- function(d,
                         tune_depth = 10,
                         hyperparameters = NULL,
                         model_class,
-                        model_name = NULL) {
+                        model_name = NULL,
+                        allow_parallel = FALSE) {
 
   if (n_folds <= 1)
     stop("n_folds must be greater than 1.")
@@ -142,7 +146,8 @@ tune_models <- function(d,
                       hpdim = purrr::map_int(hyperparameters, nrow)) %>%
     message()
 
-  train_list <- train_models(d, outcome, models, metric, train_control, hyperparameters, tuned)
+  train_list <- train_models(d, outcome, models, metric, train_control,
+                             hyperparameters, tuned, allow_parallel)
   train_list <- as.model_list(listed_models = train_list,
                               tuned = tuned,
                               target = rlang::quo_name(outcome),

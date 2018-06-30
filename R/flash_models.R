@@ -22,6 +22,9 @@
 #'   displayed in a message.
 #' @param model_name Quoted, name of the model. Defaults to the name of the
 #' outcome variable.
+#' @param allow_parallel Logical, defaults to FALSE. If TRUE and a parallel
+#'   backend is set up (e.g. with \code{doMC}) models with support for parallel
+#'   training will be trained across cores.
 #'
 #' @export
 #' @seealso For setting up model training: \code{\link{prep_data}},
@@ -74,7 +77,8 @@ flash_models <- function(d,
                          positive_class,
                          n_folds = 5,
                          model_class,
-                         model_name = NULL) {
+                         model_name = NULL,
+                         allow_parallel = FALSE) {
 
   model_args <- setup_training(d, rlang::enquo(outcome), model_class, models,
                                metric, positive_class, n_folds)
@@ -95,7 +99,8 @@ flash_models <- function(d,
     message()
 
   train_list <- train_models(d, outcome, models, metric, train_control,
-                             hyperparameters, tuned = FALSE)
+                             hyperparameters, tuned = FALSE,
+                             allow_parallel = allow_parallel)
   train_list <- as.model_list(listed_models = train_list,
                               tuned = FALSE,
                               target = rlang::quo_name(outcome),

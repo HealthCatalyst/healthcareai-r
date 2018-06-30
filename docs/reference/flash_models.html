@@ -160,7 +160,7 @@
     </div>
 
     <pre class="usage"><span class='fu'>flash_models</span>(<span class='no'>d</span>, <span class='no'>outcome</span>, <span class='no'>models</span>, <span class='no'>metric</span>, <span class='no'>positive_class</span>, <span class='kw'>n_folds</span> <span class='kw'>=</span> <span class='fl'>5</span>,
-  <span class='no'>model_class</span>, <span class='kw'>model_name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+  <span class='no'>model_class</span>, <span class='kw'>model_name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>allow_parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -210,6 +210,12 @@ displayed in a message.</p></td>
       <th>model_name</th>
       <td><p>Quoted, name of the model. Defaults to the name of the
 outcome variable.</p></td>
+    </tr>
+    <tr>
+      <th>allow_parallel</th>
+      <td><p>Logical, defaults to FALSE. If TRUE and a parallel
+backend is set up (e.g. with <code>doMC</code>) models with support for parallel
+training will be trained across cores.</p></td>
     </tr>
     </table>
     

@@ -30,7 +30,7 @@
 #' models <- machine_learn(pima_diabetes[1:40, ],
 #'                         patient_id,
 #'                         outcome = diabetes,
-#'                         tune_depth = 3)
+#'                         tune = FALSE)
 #'
 #' # By default, evaluate returns performance of only the best model
 #' evaluate(models)
