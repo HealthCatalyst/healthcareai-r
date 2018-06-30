@@ -29,6 +29,6 @@ Plot of model performance as a function of algorithm and
 Plot performance of models
 }
 \examples{
-models <- tune_models(mtcars, mpg, models = "xgb", tune_depth = 5)
+models <- tune_models(mtcars, mpg, models = "glm")
 plot(models)
 }

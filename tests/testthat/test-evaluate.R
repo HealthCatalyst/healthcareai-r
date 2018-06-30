@@ -1,5 +1,4 @@
 context("Checking evaluate")
-library(magrittr)
 
 # Setup
 d <- na.omit(pima_diabetes)[1:100, ]
