@@ -71,12 +71,15 @@
 #'   selected.
 #'
 #' @details Here is how \code{get_best_levels} determines the levels of
-#'   \code{groups} that are likely to be good predictors. \itemize{\item{For
-#'   regression: For each group, the difference of the group-mean from the
+#'   \code{groups} that are likely to be good predictors.
+#'
+#'   \itemize{
+#'   \item{For regression: For each group, the difference of the group-mean from the
 #'   grand-mean is divided by the standard deviation of the group as a sample
 #'   (i.e. centered_mean(group) / sqrt(var(group) / n(group))), and the groups
-#'   with the largest absolute values of that statistic are retained.} \item{For
-#'   classification: For each group, two "log-loss-like" statistics are
+#'   with the largest absolute values of that statistic are retained.}
+#'
+#'   \item{For classification: For each group, two "log-loss-like" statistics are
 #'   calculated. One is the log of the fraction of observations in which the
 #'   group does not appear, which captures how ubiquitous the group is: more
 #'   common groups are more useful as predictors. The other captures how far the
@@ -88,7 +91,8 @@
 #'   \code{cohesion_weight} power. To ensure retainment of both positive- and
 #'   negative-predictors, the all-same-outcome that is used as the comparison is
 #'   determined by which side of the median proportion of positive_class the
-#'   group falls on.}}
+#'   group falls on.}
+#'   }
 #'
 #' @examples
 #' set.seed(45796)

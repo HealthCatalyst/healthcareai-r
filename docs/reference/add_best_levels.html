@@ -303,9 +303,13 @@ combinations of grain and spread that are not present. Defaults to NA, but
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>Here is how <code>get_best_levels</code> determines the levels of
-  <code>groups</code> that are likely to be good predictors.</p><ul>
-<li><p>For
-  classification: For each group, two "log-loss-like" statistics are
+  <code>groups</code> that are likely to be good predictors.</p>
+<p></p><ul>
+<li><p>For regression: For each group, the difference of the group-mean from the
+  grand-mean is divided by the standard deviation of the group as a sample
+  (i.e. centered_mean(group) / sqrt(var(group) / n(group))), and the groups
+  with the largest absolute values of that statistic are retained.</p></li>
+<li><p>For classification: For each group, two "log-loss-like" statistics are
   calculated. One is the log of the fraction of observations in which the
   group does not appear, which captures how ubiquitous the group is: more
   common groups are more useful as predictors. The other captures how far the
