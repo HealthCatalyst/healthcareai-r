@@ -220,27 +220,28 @@ Only used when evaluating a model_list.</p></td>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='no'>models</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='machine_learn.html'>machine_learn</a></span>(<span class='no'>pima_diabetes</span>[<span class='fl'>1</span>:<span class='fl'>40</span>, ],
-                        <span class='no'>patient_id</span>,
-                        <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>,
-                        <span class='kw'>tune</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe...</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'></span>
+                       <span class='no'>patient_id</span>,
+                       <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>,
+                       <span class='kw'>models</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"XGB"</span>, <span class='st'>"RF"</span>),
+                       <span class='kw'>tune</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+                       <span class='kw'>n_folds</span> <span class='kw'>=</span> <span class='fl'>3</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe...</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>After data processing, models are being trained on 12 features with 40 observations.</span>
-#&gt; <span class='message'>Based on n_folds = 5 and hyperparameter settings, the following number of models will be trained: 5 rf's, 5 xgb's, and 50 glm's </span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: Random Forest</span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: eXtreme Gradient Boosting</span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: glmnet</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>Based on n_folds = 3 and hyperparameter settings, the following number of models will be trained: 3 xgb's and 3 rf's </span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: eXtreme Gradient Boosting</span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: Random Forest</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>*** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
 #&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='input'>
 <span class='co'># By default, evaluate returns performance of only the best model</span>
 <span class='fu'>evaluate</span>(<span class='no'>models</span>)</div><div class='output co'>#&gt;      AUPR     AUROC 
-#&gt; 0.5264405 0.6608333 </div><div class='input'>
+#&gt; 0.5770314 0.6250000 </div><div class='input'>
 <span class='co'># Set all_models = TRUE to see the performance of all trained models</span>
-<span class='fu'>evaluate</span>(<span class='no'>models</span>, <span class='kw'>all_models</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; # A tibble: 3 x 3
+<span class='fu'>evaluate</span>(<span class='no'>models</span>, <span class='kw'>all_models</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; # A tibble: 2 x 3
 #&gt;   model                      AUPR AUROC
 #&gt;   &lt;chr&gt;                     &lt;dbl&gt; &lt;dbl&gt;
-#&gt; 1 glmnet                    0.526 0.661
-#&gt; 2 Random Forest             0.505 0.616
-#&gt; 3 eXtreme Gradient Boosting 0.505 0.569</div><div class='input'>
+#&gt; 1 Random Forest             0.577 0.625
+#&gt; 2 eXtreme Gradient Boosting 0.526 0.573</div><div class='input'>
 <span class='co'># Can also get performance on a test dataset</span>
 <span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>41</span>:<span class='fl'>50</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='fu'>evaluate</span>(<span class='no'>predictions</span>)</div><div class='output co'>#&gt;      AUPR     AUROC 
-#&gt; 0.2184524 0.6190476 </div></pre>
+#&gt; 0.5138889 0.8571429 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

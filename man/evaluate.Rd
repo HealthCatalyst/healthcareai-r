@@ -54,9 +54,11 @@ This function gets model performance from a model_list object that
 }
 \examples{
 models <- machine_learn(pima_diabetes[1:40, ],
-                        patient_id,
-                        outcome = diabetes,
-                        tune = FALSE)
+                       patient_id,
+                       outcome = diabetes,
+                       models = c("XGB", "RF"),
+                       tune = FALSE,
+                       n_folds = 3)
 
 # By default, evaluate returns performance of only the best model
 evaluate(models)
