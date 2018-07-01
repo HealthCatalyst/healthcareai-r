@@ -18,6 +18,8 @@ services:
   - mssql2012sp1
 
 environment:
+  NOT_CRAN: true
+  
   global:
     WARNINGS_ARE_ERRORS: 1
 
