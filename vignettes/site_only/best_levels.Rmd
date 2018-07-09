@@ -1,0 +1,101 @@
+---
+title: "Find Best Category Values"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Find Best Category Values}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include=FALSE}
+set.seed(6564)
+knitr::opts_chunk$set(echo = TRUE, results = "hold", collapse = TRUE,
+                      comment = "# >")
+options(tibble.print_min = 5, tibble.print_max = 5)
+```
+
+# Summary
+
+This vignette documents how to use a pair of functions that identify values of high-cardinality factors that are likely to make features that contribute to the accuracy of a predictive model. The problem this addresses is when you have so many levels of a categorical variable that using them all creates a table that is so wide (when one column is created for each level, which is required before model training) that training takes too long or signal is lost in noise. For example, a laborotory table might have thousands of different lab tests. This presents two problems: 
+
+1. Creating a column for each lab test makes a very wide table. E.g. if there are one million patients that each got one of 5,000 possible lab tests, fully encoding those tests would create a one-million by five-thousand = five-billion cell table, which will occupy a lot of RAM and likely take too long to train models on.
+
+1. If a subset of the tests are associated with the outcome of interest, the other categories can add a lot of noise to the signal.
+
+For both of those reasons it would be preferable to create columns only for the subset of tests that are associated with the outcome variable. That is what `add_best_levels` does.
+
+Note that each patient might have zero, one, or many lab tests. That is not a problem; however, for that reason `add_best_levels` expects two data tables: one containing the high-cardinality factor (`longsheet`; lab tests in the example) and one that contains the outcome variable and will be returned for modeling (`d`). Both tables must contain an ID column that is used to join them (`id`).
+
+
+
+```{r, warning = FALSE, message = FALSE, results = "hide"}
+library(healthcareai)
+library(tidyverse)
+```
+
+```{r, echo = FALSE}
+meds <- 
+  tribble( 
+    ~ name, ~ predicts_diabetes,
+    "insulin", .9,
+    "metformin", .85,
+    "prednisone", .05,
+    "metoprolol", .1,
+    "nexium", .45,
+    "tiotropium", .5
+  )
+pima_meds <- 
+  pima_diabetes %>%
+  group_by(patient_id) %>%
+  summarize(drug_name = list(tibble(
+    medication = sample(x = meds$name, size = sample(0:4, 1), replace = FALSE, 
+                        prob = if (diabetes == "Y") meds$predicts_diabetes else 1 - meds$predicts_diabetes),
+    years_taken = rexp(n = length(medication), rate = .2)
+  ))) %>%
+  unnest()
+```
+
+
+
+
+# Data Generation
+
+We now show how we generated the `pima_meds` table that supplements the `pima_diabetes` dataset. This is "FYI" and is not necessary to understand how to use `add_best_levels` or `get_best_levels`.
+
+First we create a table of medications with a numeric value declaring how common the medication is among diabetic patients, with values close to one indicating medications that are used almost exclusively in diabetics, values close to zero being counter-indicated for diabetics, and values near 0.5 being used equally among diabetic and non-diabetic patients.
+
+Insulin and metformin are both strong indicators that a patient has diabetes. Prednisone is a corticosteroid that can cause blood sugar to spike and so might be used more rarely in patients with diabetes. Metoprolol is a beta-blocker that can mask symptoms of hypoglycemia and so might be avoided by diabetics. Nexium and tiotropium are both common drugs that we don't expect to be more- or less-common in diabetic patients than in non-diabetic patients.
+
+```{r, eval = FALSE}
+meds <- 
+  tribble( 
+    ~ name, ~ predicts_diabetes,
+    "insulin", .9,
+    "metformin", .85,
+    "prednisone", .05,
+    "metoprolol", .1,
+    "nexium", .45,
+    "tiotropium", .5
+  )
+```
+
+
+Now we take each patient and choose 0 - 4 (at random) medications for them, with the probability they have each medication proportional to `meds$predicts_diabetes` if the patient has diabetes, and `1 - meds$predicts_diabetes` if they don't. We also create a `years_taken` variable, which is sampled at random from an expoential distrobution. So, some patients won't appear in this table (those who got 0 meds), some will have one row (those who got 1 med), and some will have multiple rows (those who got more than 1 med). 
+
+```{r, eval = FALSE}
+pima_meds <- 
+  pima_diabetes %>%
+  group_by(patient_id) %>%
+  summarize(drug_name = list(tibble(
+    medication = sample(x = meds$name, size = sample(0:4, 1), replace = FALSE, 
+                        prob = if (diabetes == "Y") meds$predicts_diabetes else 1 - meds$predicts_diabetes),
+    years_taken = rexp(n = length(medication), rate = .2)
+  ))) %>%
+  unnest()
+```
+
+Let's look at the first few patients.
+
+```{r}
+pima_meds
+``` 
