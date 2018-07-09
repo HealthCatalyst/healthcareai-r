@@ -16,17 +16,19 @@ options(tibble.print_min = 5, tibble.print_max = 5)
 
 # Summary
 
-This vignette documents how to use a pair of functions that identify values of high-cardinality factors that are likely to make features that contribute to the accuracy of a predictive model. The problem this addresses is when you have so many levels of a categorical variable that using them all creates a table that is so wide (when one column is created for each level, which is required before model training) that training takes too long or signal is lost in noise. For example, a laborotory table might have thousands of different lab tests. This presents two problems: 
+In healthcare we often have high-cardinality variables (categories with lots of distinct values) such as DRG, medication, or physician that we want to use in predictive models. However using all of the entries can be computationally prohibitive and, perhaps paradoxically, hurt model performance. `healthcareai` can identify a subset of values that are likely to make good model features.
+
+This vignette documents how to use the `add_best_levels` function to engineer features from high-cardinality factors that are likely to add to model performance. The problem `add_best_levels` addresses is when you have so many levels of a categorical variable that using them all creates a table that is so wide (when one column is created for each level, which is required for model training, though `healthcareai` and other R packages do this automatically) that training takes too long or signal is lost in noise. For example, a laborotory test results table might have thousands of unique lab tests. That presents two problems: 
 
 1. Creating a column for each lab test makes a very wide table. E.g. if there are one million patients that each got one of 5,000 possible lab tests, fully encoding those tests would create a one-million by five-thousand = five-billion cell table, which will occupy a lot of RAM and likely take too long to train models on.
 
-1. If a subset of the tests are associated with the outcome of interest, the other categories can add a lot of noise to the signal.
+1. If only a subset of the tests are associated with the outcome of interest, the other categories can add a lot of noise to the signal, hurting predictive accuracy.
 
-For both of those reasons it would be preferable to create columns only for the subset of tests that are associated with the outcome variable. That is what `add_best_levels` does.
+For both of those reasons it would be better to create columns only for the tests that are associated (positively or negatively) with the outcome variable. That is what `add_best_levels` does.
 
-Note that each patient might have zero, one, or many lab tests. That is not a problem; however, for that reason `add_best_levels` expects two data tables: one containing the high-cardinality factor (`longsheet`; lab tests in the example) and one that contains the outcome variable and will be returned for modeling (`d`). Both tables must contain an ID column that is used to join them (`id`).
+# Introduction
 
-
+For this vignette, we introduce a new data table, `pima_meds`, which contains information on what medications each patient has taken and for how long they have taken them. Some patients have no meds and so don't appear in this table, some have one med, and most have more than one (see [Data Generation] for a detailed description of this data). Because of this, the medication information doesn't fit neatly into the model table (`pima_diabetes`) without being `pivot`ed. `get_best_levels` identifies which levels to use, and `add_best_levels` `pivot`s them into new columns on the model table.
 
 ```{r, warning = FALSE, message = FALSE, results = "hide"}
 library(healthcareai)
@@ -37,11 +39,11 @@ library(tidyverse)
 meds <- 
   tribble( 
     ~ name, ~ predicts_diabetes,
-    "insulin", .9,
-    "metformin", .85,
-    "prednisone", .05,
-    "metoprolol", .1,
-    "nexium", .45,
+    "insulin", .99,
+    "metformin", .95,
+    "prednisone", .25,
+    "metoprolol", .2,
+    "nexium", .5,
     "tiotropium", .5
   )
 pima_meds <- 
@@ -54,6 +56,122 @@ pima_meds <-
   ))) %>%
   unnest()
 ```
+
+```{r}
+pima_meds
+```
+
+To keep things simple, there are only six medications in `pima_meds`: insulin and metformin are positively associated with diabetes, prednisone and metoprolol are negatively associated with diabetes, and nexium and tiotropium and equally likely among diabetic and non-diabetic patients. In real work, you probably wouldn't use these functions with fewer than ~100 unique categories.
+
+# Use
+
+Let's add two features to `pima_diabetes`, whether or not a patient got two drugs that are associated with diabetes. The code below is heavily commented to describe what each argument does.
+
+```{r}
+pima_diabetes_meds <- 
+  add_best_levels(
+    # Data frame with id, outcome, and (optionally) any number other features
+    d = pima_diabetes,
+    # Data frame with id, the high-cardinality factor, and (optionally) a column 
+    # to be used in pivoting
+    longsheet = pima_meds,
+    # The name of the ID variable present in both tables, used to join them
+    id = patient_id,
+    # The name of the high-cardinality factor
+    groups = medication,
+    # The name of the outcome
+    outcome = diabetes,
+    # The number of categories to keep. This many columns will be added to the first data frame
+    n_levels = 2
+  )
+```
+
+
+`add_best_levels` correctly identifies two drugs associated with diabetes, insulin and metoprolol. It returns `pima_diabetes` unchanged, except that there are two new columns, one for each of the drugs identified, with 1 for patients who had the drug, and `NA` for patients who didn't. We'll see how to change the way those columns are filled in the next section.
+
+```{r}
+glimpse(pima_diabetes_meds)
+```
+
+
+## Feature Engineering Options
+
+Note the message that `add_best_levels` returned above: because no fill column was provided, "1" is used for present entries. That message actually comes through from the `pivot` function, and it means the data are being one-hot encoded -- for each drug identified as a good feature, a variable is created for each of the identified drugs with a "1" indicating that the patient got the drug. You can customize what goes in those columns by passing arguments (`fill`, `fun`, and `missing_fill`) through to the `pivot` function. The values passed to those arguements won't affect what columns get created, only what goes in them. By specifying `fill = years_taken` and `missing_fill = 0`, we get columns with the years each patient has been on each of the best-feature drugs with "0" entries for patients who didn't get that drug. The `fun` argument is only relevant if there are multiple observations of the same level for the same ID; for example, if a patient could have the same drug listed twice for different periods they were on the drug, we could use `fun = sum` to get the total length of time they were on each drug.
+
+```{r}
+pima_diabetes_med_duration <- 
+  add_best_levels(
+    d = pima_diabetes,
+    longsheet = pima_meds,
+    id = patient_id,
+    groups = medication,
+    outcome = diabetes,
+    n_levels = 2,
+    ### The following arguments are passed to the `pivot` function.
+    # The name of the column in longsheet to be used to fill new columns
+    fill = years_taken,
+    # The value to use for observations that lack a best level
+    missing_fill = 0
+  )
+glimpse(pima_diabetes_med_duration)
+```
+
+# `add_best_levels` in deployment
+
+It's one thing to identify and create useful features for model training, but what `healthcareai` tries really hard to make easy and reliable is deploying models to make predictions in production. So, once you've identified the best levels and added them to your training dataset, and then trained models on that dataset, you can easily build the exact same features in deployment. You do this by passing to the `levels` argument of `add_best_levels` either a model trained on a data frame that came back from `add_best_levels`, or the data frame that came back from `add_best_levels` itself.
+
+For example, suppose we get a new patient with the following attributes. We can add her medication information to the rest of her data creating the same columns as we did in the training dataset. Here the best levels aren't being identified (they couldn't be because there's only one observation and we don't know her diabetes status -- that's why we want to predict it!). Instead we're using the information from the training dataset to apply the same transformations here.
+
+```{r}
+new_patient <- tibble(patient_id = 999, pregnancies = 0, plasma_glucose = 94,
+                      diastolic_bp = 69, skinfold = 24, insulin = NA,
+                      weight_class = "normal", pedigree = 0.5, age = 22)
+new_meds <- tibble(patient_id = rep(999, 2),
+                   medication = c("nexium", "metoprolol"),
+                   years_taken = c(.25, 2.4))
+new_patient_med_duration <- 
+  add_best_levels(d = new_patient, 
+                  longsheet = new_meds, 
+                  id = patient_id,
+                  groups = medication,
+                  outcome = diabetes,
+                  n_levels = 2,
+                  levels = pima_diabetes_med_duration,
+                  fill = years_taken,
+                  missing_fill = 0)
+glimpse(new_patient_med_duration)
+```
+
+## Whole Pipeline
+
+Let's use our best-levels-added data frame to train models and then use the models to prepare data to make predictions in deployment.
+
+```{r}
+models <- machine_learn(pima_diabetes_med_duration, patient_id, outcome = diabetes, 
+                        models = "xgb", tune = FALSE)
+models$`eXtreme Gradient Boosting`$finalModel$feature_names
+
+add_best_levels(d = new_patient, 
+                longsheet = new_meds, 
+                id = patient_id,
+                groups = medication,
+                outcome = diabetes,
+                n_levels = 2,
+                levels = models,  # Note that we can use the model object here
+                fill = years_taken,
+                missing_fill = 0) %>% 
+  predict(models, .)
+```
+
+
+# `get_best_levels`
+
+# What's happening under the hood?
+
+- cohesion_weight
+
+# Working with a single table
+
 
 
 
@@ -74,7 +192,7 @@ meds <-
     "metformin", .85,
     "prednisone", .05,
     "metoprolol", .1,
-    "nexium", .45,
+    "nexium", .5,
     "tiotropium", .5
   )
 ```
