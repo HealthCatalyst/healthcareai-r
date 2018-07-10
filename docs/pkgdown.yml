@@ -2,6 +2,7 @@ pandoc: 2.1.1
 pkgdown: 1.1.0
 pkgdown_sha: ~
 articles:
+  best_levels: site_only/best_levels.html
   db_connections: site_only/db_connections.html
   deploy_model: site_only/deploy_model.html
   healthcareai: site_only/healthcareai.html

@@ -27,10 +27,12 @@ navbar:
         href: articles/site_only/db_connections.html
       - text: Deploying a Model
         href: articles/site_only/deploy_model.html
-      - text: Transition from Version 1
-        href: articles/site_only/transitioning.html
+      - text: Variables with Many Categories
+        href: articles/site_only/best_levels.html
       - text: Performance with Big Data
         href: articles/site_only/performance.html
+      - text: Transition from Version 1
+        href: articles/site_only/transitioning.html
    - text: "Functions"
      href: reference/index.html
    - text: "News"

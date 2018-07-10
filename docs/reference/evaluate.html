@@ -232,16 +232,16 @@ Only used when evaluating a model_list.</p></td>
 #&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='input'>
 <span class='co'># By default, evaluate returns performance of only the best model</span>
 <span class='fu'>evaluate</span>(<span class='no'>models</span>)</div><div class='output co'>#&gt;      AUPR     AUROC 
-#&gt; 0.5770314 0.6250000 </div><div class='input'>
+#&gt; 0.5856454 0.6636905 </div><div class='input'>
 <span class='co'># Set all_models = TRUE to see the performance of all trained models</span>
 <span class='fu'>evaluate</span>(<span class='no'>models</span>, <span class='kw'>all_models</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; # A tibble: 2 x 3
 #&gt;   model                      AUPR AUROC
 #&gt;   &lt;chr&gt;                     &lt;dbl&gt; &lt;dbl&gt;
-#&gt; 1 Random Forest             0.577 0.625
-#&gt; 2 eXtreme Gradient Boosting 0.526 0.573</div><div class='input'>
+#&gt; 1 Random Forest             0.586 0.664
+#&gt; 2 eXtreme Gradient Boosting 0.558 0.642</div><div class='input'>
 <span class='co'># Can also get performance on a test dataset</span>
 <span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>41</span>:<span class='fl'>50</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='fu'>evaluate</span>(<span class='no'>predictions</span>)</div><div class='output co'>#&gt;      AUPR     AUROC 
-#&gt; 0.5138889 0.8571429 </div></pre>
+#&gt; 0.4305556 0.9047619 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
