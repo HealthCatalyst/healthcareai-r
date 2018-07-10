@@ -346,4 +346,19 @@ test_that("get_pred_summary seems to work", {
   expect_equal(dim(get_pred_summary(classification_prepped_prepped)), c(1, 6))
 })
 
+test_that("predict xgboost works when columns are in different order", {
+  xgb_mod <- model_classify_not_prepped["eXtreme Gradient Boosting"]
+  same_order <-
+    test_data %>%
+    dplyr::select(-province) %>%
+    predict(xgb_mod, .)
+  new_order <-
+    test_data %>%
+    dplyr::select(-province) %>%
+    dplyr::select(Agriculture, Education, dplyr::everything()) %>%
+    predict(xgb_mod, .)
+  expect_equal(same_order[, order(names(same_order))],
+               new_order[, order(names(new_order))])
+})
+
 remove_logfiles()

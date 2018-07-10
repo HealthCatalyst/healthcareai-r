@@ -147,6 +147,10 @@ predict_model_list_main <- function(object,
     } else {
       ready_no_prep(training_data, newdata)
     }
+  # Align column order
+  ord <- match(names(training_data), names(to_pred))
+  # The ord part gets columns that are in training_data; the which part retains any other columns
+  to_pred <- to_pred[, c(ord[!is.na(ord)], which(!names(to_pred) %in% names(training_data)))]
 
   # If predicting on training, use out-of-fold; else make predictions
   if (using_training_data) {
