@@ -94,6 +94,7 @@ reference:
   - title: Example Data
     contents:
     - pima_diabetes
+    - pima_meds
   - title: Model Details
     contents:
     - models

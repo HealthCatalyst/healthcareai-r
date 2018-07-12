@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.0</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.1</span>
       </span>
     </div>
 
@@ -122,20 +122,21 @@
 <div id="summary" class="section level1">
 <h1 class="hasAnchor">
 <a href="#summary" class="anchor"></a>Summary</h1>
-<p>In healthcare we often have high-cardinality variables (categories with many distinct values) such as DRG, medication, or physician that we want to use in predictive models. However using all of the entries can be computationally prohibitive and, perhaps paradoxically, hurt model performance. <code>healthcareai</code> can identify a subset of values that are likely to make good model features, making model training faster and predictions more accurate.</p>
-<p>This vignette documents how to use the <code>add_best_levels</code> function to engineer features from high-cardinality factors that are likely to add to model performance. The problem <code>add_best_levels</code> addresses is when you have so many levels of a categorical variable that using them all would create a table that is so wide (when one column is created for each level, which is required for model training, though <code>healthcareai</code> and other R packages do this automatically) that training takes too long or signal is lost in noise. For example, a laborotory test results table might have thousands of unique lab tests. That presents two problems:</p>
+<p>In healthcare we often have high-cardinality variables (categories with many distinct values) such as DRG, medication, or physician that we want to use in predictive models. However using all of the entries can be computationally prohibitive and, perhaps paradoxically, can hurt model performance. <code>healthcareai</code> can identify the subset of values that are most strongly associated with the outcome and so are likely to make good model features. This makes model training faster and predictions more accurate.</p>
+<p>This vignette documents how to use the <code>add_best_levels</code> function to take high-cardinality factors and engineer features from them that will add to model performance. The problem <code>add_best_levels</code> addresses is when you have so many levels of a categorical variable that using them all would create a table that is so wide (when one column is created for each level, which is required for model training, though <code>healthcareai</code> and other R packages do this automatically) that training takes too long or signal is lost in noise. For example, a laboratory test results table might have thousands of unique lab tests. That presents two problems:</p>
 <ol style="list-style-type: decimal">
-<li><p>Creating a column for each lab test makes a very wide table. E.g. if there are one million patients that each got one of 5,000 possible lab tests, fully encoding those tests would create a one-million by five-thousand = five-billion cell table, which will occupy a lot of RAM and likely take too long to train models on.</p></li>
+<li><p>Creating a column for each lab test makes a very wide table. E.g. if there are one-million patients that each got one of five-thousand possible lab tests, fully encoding those tests would create a one-million by five-thousand = five-billion cell table, which will occupy a lot of RAM and likely take too long to train models on.</p></li>
 <li><p>If only a subset of the tests are associated with the outcome of interest, the other categories can add a lot of noise to the signal, hurting predictive accuracy.</p></li>
 </ol>
-<p>For both of those reasons it would be better to create columns only for the tests that are associated (positively or negatively) with the outcome variable. That is what <code>add_best_levels</code> does.</p>
+<p>For both of those reasons it would be better to create columns only for the tests that are strongly associated (positively or negatively) with the outcome variable. That is what <code>add_best_levels</code> does.</p>
 </div>
 <div id="introduction" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h1>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(healthcareai)</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">library</span>(tidyverse)</a></code></pre></div>
-<p>For this vignette, we introduce a new data table, <code>pima_meds</code>, which contains information on what medications each patient in the <code>pima_diabetes</code> dataset has taken and for how long. Some patients have no meds and so don’t appear in this table, some have one med, and most have more than one (see <a href="#appendix-data-generation">Appendix: Data Generation</a> for a detailed description of this data). Because of this, the medication information doesn’t fit neatly into the model table (<code>pima_diabetes</code>) without being <code>pivot</code>ed. <code>get_best_levels</code> identifies which levels to use, and <code>add_best_levels</code> <code>pivot</code>s them into new columns on the model table. Here are the first rows in the <code>pima_meds</code> table.</p>
+<p>For this vignette, we introduce a new data table, <code>pima_meds</code>, which contains information on what medications each patient in the <code>pima_diabetes</code> dataset has taken and for how long. This dataset is built into <code>healthcareai</code> as of version 2.1.1, which you can install before it is on CRAN with <code>remotes::install_github("HealthCatalyst/healthcareai-r@v2.1.1")</code>, or you can generate it yourself with the code in <a href="#appendix-data-generation">Appendix: Data Generation</a>.</p>
+<p>Some patients have no meds and so don’t appear in the table, some have one med, and most have more than one. Because of this, the medication information doesn’t fit neatly into the model table (<code>pima_diabetes</code>) without being <code>pivot</code>ed. Under the hood, <code>get_best_levels</code> identifies which levels to use, and <code>add_best_levels</code> <code>pivot</code>s them into new columns on the model table. Here are the first rows in the <code>pima_meds</code> table.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">pima_meds</a>
 <a class="sourceLine" id="cb2-2" data-line-number="2"><span class="co"># &gt; # A tibble: 1,604 x 3</span></a>
 <a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co"># &gt;   patient_id medication years_taken</span></a>
@@ -189,7 +190,7 @@
 <h1 class="hasAnchor">
 <a href="#feature-engineering" class="anchor"></a>Feature Engineering</h1>
 <p>Note the message that <code>add_best_levels</code> returned above: because no fill column was provided, “1” is used for present entries. That message actually comes through from the <code>pivot</code> function, and it means the data are being one-hot encoded: for each drug identified as a good feature, a variable is created with a “1” indicating that the patient got the drug.</p>
-<p>You can customize what goes in those columns by passing arguments (<code>fill</code>, <code>fun</code>, and <code>missing_fill</code>) through to the <code>pivot</code> function. The values passed to those arguements won’t affect what columns get created, only what goes in them. By specifying <code>fill = years_taken</code> and <code>missing_fill = 0</code>, we get columns with the years each patient has been on each of the best-feature drugs with “0” entries for patients who didn’t get that drug.</p>
+<p>You can customize what goes in those columns by passing arguments (<code>fill</code>, <code>fun</code>, and <code>missing_fill</code>) through to the <code>pivot</code> function. The values passed to those arguments won’t affect what columns get created, only what goes in them. By specifying <code>fill = years_taken</code> and <code>missing_fill = 0</code>, we get columns with the years each patient has been on each of the best-feature drugs with “0” entries for patients who didn’t get that drug.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">pima_diabetes_med_duration &lt;-<span class="st"> </span></a>
 <a class="sourceLine" id="cb5-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="../../reference/add_best_levels.html">add_best_levels</a></span>(</a>
 <a class="sourceLine" id="cb5-3" data-line-number="3">    <span class="dt">d =</span> pima_diabetes,</a>
@@ -220,73 +221,116 @@
 <a class="sourceLine" id="cb5-28" data-line-number="28"><span class="co"># &gt; $ medication_metoprolol &lt;dbl&gt; 2.6856286, 1.8333840, 0.0000000, 1.76063...</span></a></code></pre></div>
 <p>The <code>fun</code> argument is only relevant if there are multiple observations of the same level for the same ID; for example, if a patient could have the same drug listed twice for different periods they were on the drug, we could use <code>fun = sum</code> to get the total length of time they were on the drug.</p>
 </div>
+<div id="working-with-a-single-table" class="section level1">
+<h1 class="hasAnchor">
+<a href="#working-with-a-single-table" class="anchor"></a>Working with a single table</h1>
+<p>In the examples above, each observation (each row in <code>d</code>/<code>pima_diabetes</code>) could have zero, one, or many group memberships (rows in <code>longsheet</code>/<code>pima_meds</code>). There is a special case when each observation is in exactly one group. In this case you might have only one table because the groups fit tidily into a single column in <code>d</code>. However, there might still be so many groups that creating a column for each is infeasible for the reasons described in the <a href="#summary">Summary</a>. There are other options available for this special case, e.g. <a href="http://www.win-vector.com/blog/2012/08/a-bit-more-on-impact-coding/">impact coding</a> as implemented by the <a href="https://winvector.github.io/vtreat/"><code>vtreat</code></a> package, but <code>add_best_levels</code> works well here too. In this case, simply provide the same data frame to <code>d</code> and <code>longsheet</code> and proceed as usual, but note that you will need to remove the original column at the end.</p>
+<p>For example, suppose we have 100,000 patients’ zip codes and we want to predict their lengths of stay (LOS). In reality we’d want lots of other features, but we’ll keep things simple here. Creating a column for every zip code (we’ll use Intermountain West zip codes, which we’ll pretend are every integer from 80001 to 89999) would create a massive table – model training would be very slow, and including zip codes that aren’t associated with particularly long or short LOS would impair model performance. <code>add_best_levels</code> helps by identifying zip codes associated with especially long or short LOS, and creating dummy variables for those zip codes. Here is that simulated data.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">n &lt;-<span class="st"> </span><span class="fl">1e5</span></a>
+<a class="sourceLine" id="cb6-2" data-line-number="2">zip_los &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3">  <span class="dt">id =</span> <span class="kw">seq_len</span>(n),</a>
+<a class="sourceLine" id="cb6-4" data-line-number="4">  <span class="dt">zip =</span> <span class="kw">sample</span>(<span class="dv">80001</span><span class="op">:</span><span class="dv">89999</span>, n, <span class="dt">replace =</span> <span class="ot">TRUE</span>),</a>
+<a class="sourceLine" id="cb6-5" data-line-number="5">  <span class="dt">LOS =</span> zip <span class="op">*</span><span class="st"> </span><span class="fl">1e-4</span> <span class="op">+</span><span class="st"> </span><span class="kw">abs</span>(<span class="kw">rnorm</span>(n, <span class="dt">sd =</span> <span class="fl">.1</span>)))</a>
+<a class="sourceLine" id="cb6-6" data-line-number="6">zip_los</a>
+<a class="sourceLine" id="cb6-7" data-line-number="7"><span class="co"># &gt; # A tibble: 100,000 x 3</span></a>
+<a class="sourceLine" id="cb6-8" data-line-number="8"><span class="co"># &gt;      id   zip   LOS</span></a>
+<a class="sourceLine" id="cb6-9" data-line-number="9"><span class="co"># &gt;   &lt;int&gt; &lt;int&gt; &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb6-10" data-line-number="10"><span class="co"># &gt; 1     1 80779  8.21</span></a>
+<a class="sourceLine" id="cb6-11" data-line-number="11"><span class="co"># &gt; 2     2 88739  8.89</span></a>
+<a class="sourceLine" id="cb6-12" data-line-number="12"><span class="co"># &gt; 3     3 86002  8.69</span></a>
+<a class="sourceLine" id="cb6-13" data-line-number="13"><span class="co"># &gt; 4     4 83807  8.54</span></a>
+<a class="sourceLine" id="cb6-14" data-line-number="14"><span class="co"># &gt; 5     5 80618  8.13</span></a>
+<a class="sourceLine" id="cb6-15" data-line-number="15"><span class="co"># &gt; # ... with 1e+05 more rows</span></a></code></pre></div>
+<p>Now we create we’ll create dummy variables for the ten zip codes likely to make the best predictors of LOS. Note that LOS was simulated as a linear function of the numeric value of the patient’s zip code (plus some random noise), so we should expect zip codes close to 80001 to be associated with especially short LOS and close to 89999 with especially long LOS. Therefore the columns added as best levels should be zip codes near the endpoints.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw"><a href="../../reference/add_best_levels.html">add_best_levels</a></span>(</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">  <span class="dt">d =</span> zip_los,</a>
+<a class="sourceLine" id="cb7-3" data-line-number="3">  <span class="dt">longsheet =</span> zip_los,</a>
+<a class="sourceLine" id="cb7-4" data-line-number="4">  <span class="dt">id =</span> id,</a>
+<a class="sourceLine" id="cb7-5" data-line-number="5">  <span class="dt">groups =</span> zip,</a>
+<a class="sourceLine" id="cb7-6" data-line-number="6">  <span class="dt">outcome =</span> LOS,</a>
+<a class="sourceLine" id="cb7-7" data-line-number="7">  <span class="dt">n_levels =</span> <span class="dv">10</span>,</a>
+<a class="sourceLine" id="cb7-8" data-line-number="8">  <span class="dt">missing_fill =</span> 0L</a>
+<a class="sourceLine" id="cb7-9" data-line-number="9">) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb7-10" data-line-number="10"><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>zip)</a>
+<a class="sourceLine" id="cb7-11" data-line-number="11"><span class="co"># &gt; # A tibble: 100,000 x 12</span></a>
+<a class="sourceLine" id="cb7-12" data-line-number="12"><span class="co"># &gt;      id   LOS zip_80052 zip_80147 zip_80265 zip_80712 zip_80752 zip_88397</span></a>
+<a class="sourceLine" id="cb7-13" data-line-number="13"><span class="co"># &gt;   &lt;int&gt; &lt;dbl&gt;     &lt;int&gt;     &lt;int&gt;     &lt;int&gt;     &lt;int&gt;     &lt;int&gt;     &lt;int&gt;</span></a>
+<a class="sourceLine" id="cb7-14" data-line-number="14"><span class="co"># &gt; 1     1  8.21         0         0         0         0         0         0</span></a>
+<a class="sourceLine" id="cb7-15" data-line-number="15"><span class="co"># &gt; 2     2  8.89         0         0         0         0         0         0</span></a>
+<a class="sourceLine" id="cb7-16" data-line-number="16"><span class="co"># &gt; 3     3  8.69         0         0         0         0         0         0</span></a>
+<a class="sourceLine" id="cb7-17" data-line-number="17"><span class="co"># &gt; 4     4  8.54         0         0         0         0         0         0</span></a>
+<a class="sourceLine" id="cb7-18" data-line-number="18"><span class="co"># &gt; 5     5  8.13         0         0         0         0         0         0</span></a>
+<a class="sourceLine" id="cb7-19" data-line-number="19"><span class="co"># &gt; # ... with 1e+05 more rows, and 4 more variables: zip_88757 &lt;int&gt;,</span></a>
+<a class="sourceLine" id="cb7-20" data-line-number="20"><span class="co"># &gt; #   zip_88993 &lt;int&gt;, zip_89121 &lt;int&gt;, zip_89520 &lt;int&gt;</span></a></code></pre></div>
+<p>Note that we remove the <code>zip</code> column at the end because otherwise modeling functions would create a column for every zip code. You only have to do this when providing the same data frame to <code>d</code> and <code>longsheet</code>.</p>
+</div>
 <div id="adding-best-levels-in-deployment" class="section level1">
 <h1 class="hasAnchor">
 <a href="#adding-best-levels-in-deployment" class="anchor"></a>Adding best levels in deployment</h1>
 <p>It’s one thing to identify and create useful features for model training, but <code>healthcareai</code> goes to great lengths to make model deployment easy and reliable so that you can count on getting good predictions in production. Once you’ve identified the best levels, added them to your training dataset, and trained models on that dataset, you can reliably get the same features in deployment. You do this by passing to the <code>levels</code> argument of <code>add_best_levels</code> either a model trained on a data frame that came back from <code>add_best_levels</code>, or the data frame that came back from <code>add_best_levels</code> itself.</p>
 <p>For example, suppose we get a new patient with the following attributes. We can add her medication information to the rest of her data, creating exactly the same columns as in the training dataset. The best levels aren’t being identified here (they couldn’t be because there’s only one observation and we don’t know her outcome!). Instead we apply the information from the training dataset to achieve the same transformations here. Note that the patient got nexium and metoprolol, but columns are created for metoprolol and insulin.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">new_patient &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">patient_id =</span> <span class="dv">999</span>, <span class="dt">pregnancies =</span> <span class="dv">0</span>, <span class="dt">plasma_glucose =</span> <span class="dv">94</span>,</a>
-<a class="sourceLine" id="cb6-2" data-line-number="2">                      <span class="dt">diastolic_bp =</span> <span class="dv">69</span>, <span class="dt">skinfold =</span> <span class="dv">24</span>, <span class="dt">insulin =</span> <span class="ot">NA</span>,</a>
-<a class="sourceLine" id="cb6-3" data-line-number="3">                      <span class="dt">weight_class =</span> <span class="st">"normal"</span>, <span class="dt">pedigree =</span> <span class="fl">0.5</span>, <span class="dt">age =</span> <span class="dv">22</span>)</a>
-<a class="sourceLine" id="cb6-4" data-line-number="4">new_meds &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">patient_id =</span> <span class="kw">rep</span>(<span class="dv">999</span>, <span class="dv">2</span>),</a>
-<a class="sourceLine" id="cb6-5" data-line-number="5">                   <span class="dt">medication =</span> <span class="kw">c</span>(<span class="st">"nexium"</span>, <span class="st">"metoprolol"</span>),</a>
-<a class="sourceLine" id="cb6-6" data-line-number="6">                   <span class="dt">years_taken =</span> <span class="kw">c</span>(.<span class="dv">25</span>, <span class="fl">2.4</span>))</a>
-<a class="sourceLine" id="cb6-7" data-line-number="7">new_patient_med_duration &lt;-<span class="st"> </span></a>
-<a class="sourceLine" id="cb6-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="../../reference/add_best_levels.html">add_best_levels</a></span>(<span class="dt">d =</span> new_patient, </a>
-<a class="sourceLine" id="cb6-9" data-line-number="9">                  <span class="dt">longsheet =</span> new_meds, </a>
-<a class="sourceLine" id="cb6-10" data-line-number="10">                  <span class="dt">id =</span> patient_id,</a>
-<a class="sourceLine" id="cb6-11" data-line-number="11">                  <span class="dt">groups =</span> medication,</a>
-<a class="sourceLine" id="cb6-12" data-line-number="12">                  <span class="dt">outcome =</span> diabetes,</a>
-<a class="sourceLine" id="cb6-13" data-line-number="13">                  <span class="dt">n_levels =</span> <span class="dv">2</span>,</a>
-<a class="sourceLine" id="cb6-14" data-line-number="14">                  <span class="dt">levels =</span> pima_diabetes_med_duration,</a>
-<a class="sourceLine" id="cb6-15" data-line-number="15">                  <span class="dt">fill =</span> years_taken,</a>
-<a class="sourceLine" id="cb6-16" data-line-number="16">                  <span class="dt">missing_fill =</span> <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb6-17" data-line-number="17"><span class="kw">glimpse</span>(new_patient_med_duration)</a>
-<a class="sourceLine" id="cb6-18" data-line-number="18"><span class="co"># &gt; Observations: 1</span></a>
-<a class="sourceLine" id="cb6-19" data-line-number="19"><span class="co"># &gt; Variables: 11</span></a>
-<a class="sourceLine" id="cb6-20" data-line-number="20"><span class="co"># &gt; $ patient_id            &lt;dbl&gt; 999</span></a>
-<a class="sourceLine" id="cb6-21" data-line-number="21"><span class="co"># &gt; $ pregnancies           &lt;dbl&gt; 0</span></a>
-<a class="sourceLine" id="cb6-22" data-line-number="22"><span class="co"># &gt; $ plasma_glucose        &lt;dbl&gt; 94</span></a>
-<a class="sourceLine" id="cb6-23" data-line-number="23"><span class="co"># &gt; $ diastolic_bp          &lt;dbl&gt; 69</span></a>
-<a class="sourceLine" id="cb6-24" data-line-number="24"><span class="co"># &gt; $ skinfold              &lt;dbl&gt; 24</span></a>
-<a class="sourceLine" id="cb6-25" data-line-number="25"><span class="co"># &gt; $ insulin               &lt;lgl&gt; NA</span></a>
-<a class="sourceLine" id="cb6-26" data-line-number="26"><span class="co"># &gt; $ weight_class          &lt;chr&gt; "normal"</span></a>
-<a class="sourceLine" id="cb6-27" data-line-number="27"><span class="co"># &gt; $ pedigree              &lt;dbl&gt; 0.5</span></a>
-<a class="sourceLine" id="cb6-28" data-line-number="28"><span class="co"># &gt; $ age                   &lt;dbl&gt; 22</span></a>
-<a class="sourceLine" id="cb6-29" data-line-number="29"><span class="co"># &gt; $ medication_metoprolol &lt;dbl&gt; 2.4</span></a>
-<a class="sourceLine" id="cb6-30" data-line-number="30"><span class="co"># &gt; $ medication_insulin    &lt;dbl&gt; 0</span></a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">new_patient &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">patient_id =</span> <span class="dv">999</span>, <span class="dt">pregnancies =</span> <span class="dv">0</span>, <span class="dt">plasma_glucose =</span> <span class="dv">94</span>,</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2">                      <span class="dt">diastolic_bp =</span> <span class="dv">69</span>, <span class="dt">skinfold =</span> <span class="dv">24</span>, <span class="dt">insulin =</span> <span class="ot">NA</span>,</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3">                      <span class="dt">weight_class =</span> <span class="st">"normal"</span>, <span class="dt">pedigree =</span> <span class="fl">0.5</span>, <span class="dt">age =</span> <span class="dv">22</span>)</a>
+<a class="sourceLine" id="cb8-4" data-line-number="4">new_meds &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">patient_id =</span> <span class="kw">rep</span>(<span class="dv">999</span>, <span class="dv">2</span>),</a>
+<a class="sourceLine" id="cb8-5" data-line-number="5">                   <span class="dt">medication =</span> <span class="kw">c</span>(<span class="st">"nexium"</span>, <span class="st">"metoprolol"</span>),</a>
+<a class="sourceLine" id="cb8-6" data-line-number="6">                   <span class="dt">years_taken =</span> <span class="kw">c</span>(.<span class="dv">25</span>, <span class="fl">2.4</span>))</a>
+<a class="sourceLine" id="cb8-7" data-line-number="7">new_patient_med_duration &lt;-<span class="st"> </span></a>
+<a class="sourceLine" id="cb8-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="../../reference/add_best_levels.html">add_best_levels</a></span>(<span class="dt">d =</span> new_patient, </a>
+<a class="sourceLine" id="cb8-9" data-line-number="9">                  <span class="dt">longsheet =</span> new_meds, </a>
+<a class="sourceLine" id="cb8-10" data-line-number="10">                  <span class="dt">id =</span> patient_id,</a>
+<a class="sourceLine" id="cb8-11" data-line-number="11">                  <span class="dt">groups =</span> medication,</a>
+<a class="sourceLine" id="cb8-12" data-line-number="12">                  <span class="dt">outcome =</span> diabetes,</a>
+<a class="sourceLine" id="cb8-13" data-line-number="13">                  <span class="dt">n_levels =</span> <span class="dv">2</span>,</a>
+<a class="sourceLine" id="cb8-14" data-line-number="14">                  <span class="dt">levels =</span> pima_diabetes_med_duration,</a>
+<a class="sourceLine" id="cb8-15" data-line-number="15">                  <span class="dt">fill =</span> years_taken,</a>
+<a class="sourceLine" id="cb8-16" data-line-number="16">                  <span class="dt">missing_fill =</span> <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb8-17" data-line-number="17"><span class="kw">glimpse</span>(new_patient_med_duration)</a>
+<a class="sourceLine" id="cb8-18" data-line-number="18"><span class="co"># &gt; Observations: 1</span></a>
+<a class="sourceLine" id="cb8-19" data-line-number="19"><span class="co"># &gt; Variables: 11</span></a>
+<a class="sourceLine" id="cb8-20" data-line-number="20"><span class="co"># &gt; $ patient_id            &lt;dbl&gt; 999</span></a>
+<a class="sourceLine" id="cb8-21" data-line-number="21"><span class="co"># &gt; $ pregnancies           &lt;dbl&gt; 0</span></a>
+<a class="sourceLine" id="cb8-22" data-line-number="22"><span class="co"># &gt; $ plasma_glucose        &lt;dbl&gt; 94</span></a>
+<a class="sourceLine" id="cb8-23" data-line-number="23"><span class="co"># &gt; $ diastolic_bp          &lt;dbl&gt; 69</span></a>
+<a class="sourceLine" id="cb8-24" data-line-number="24"><span class="co"># &gt; $ skinfold              &lt;dbl&gt; 24</span></a>
+<a class="sourceLine" id="cb8-25" data-line-number="25"><span class="co"># &gt; $ insulin               &lt;lgl&gt; NA</span></a>
+<a class="sourceLine" id="cb8-26" data-line-number="26"><span class="co"># &gt; $ weight_class          &lt;chr&gt; "normal"</span></a>
+<a class="sourceLine" id="cb8-27" data-line-number="27"><span class="co"># &gt; $ pedigree              &lt;dbl&gt; 0.5</span></a>
+<a class="sourceLine" id="cb8-28" data-line-number="28"><span class="co"># &gt; $ age                   &lt;dbl&gt; 22</span></a>
+<a class="sourceLine" id="cb8-29" data-line-number="29"><span class="co"># &gt; $ medication_metoprolol &lt;dbl&gt; 2.4</span></a>
+<a class="sourceLine" id="cb8-30" data-line-number="30"><span class="co"># &gt; $ medication_insulin    &lt;dbl&gt; 0</span></a></code></pre></div>
 <div id="using-models-to-add-best-levels" class="section level2">
 <h2 class="hasAnchor">
 <a href="#using-models-to-add-best-levels" class="anchor"></a>Using Models to Add Best Levels</h2>
 <p>When you train models on a data frame that has had best levels added to it, and then you go make predictions from those models, you’ll need to add best levels in the same way on the prediction dataset. Here’s how to do that.</p>
 <p>As above, we’re using the determination of best levels from the training data and applying it to the data we want a prediction from, but now we pass the trained model object to the <code>levels</code> argument. That means that you don’t have to carry any additional objects into your deployment environment – just the model and whatever data you want to predict on.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">models &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/machine_learn.html">machine_learn</a></span>(pima_diabetes_med_duration, patient_id, <span class="dt">outcome =</span> diabetes, </a>
-<a class="sourceLine" id="cb7-2" data-line-number="2">                        <span class="dt">models =</span> <span class="st">"xgb"</span>, <span class="dt">tune =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb7-3" data-line-number="3"><span class="kw"><a href="../../reference/add_best_levels.html">add_best_levels</a></span>(<span class="dt">d =</span> new_patient, </a>
-<a class="sourceLine" id="cb7-4" data-line-number="4">                <span class="dt">longsheet =</span> new_meds, </a>
-<a class="sourceLine" id="cb7-5" data-line-number="5">                <span class="dt">id =</span> patient_id,</a>
-<a class="sourceLine" id="cb7-6" data-line-number="6">                <span class="dt">groups =</span> medication,</a>
-<a class="sourceLine" id="cb7-7" data-line-number="7">                <span class="dt">outcome =</span> diabetes,</a>
-<a class="sourceLine" id="cb7-8" data-line-number="8">                <span class="dt">n_levels =</span> <span class="dv">2</span>,</a>
-<a class="sourceLine" id="cb7-9" data-line-number="9">                <span class="dt">levels =</span> models,</a>
-<a class="sourceLine" id="cb7-10" data-line-number="10">                <span class="dt">fill =</span> years_taken,</a>
-<a class="sourceLine" id="cb7-11" data-line-number="11">                <span class="dt">missing_fill =</span> <span class="dv">0</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb7-12" data-line-number="12"><span class="st">  </span><span class="kw">predict</span>(models, .)</a>
-<a class="sourceLine" id="cb7-13" data-line-number="13"><span class="co"># &gt; # A tibble: 1 x 12</span></a>
-<a class="sourceLine" id="cb7-14" data-line-number="14"><span class="co"># &gt;   predicted_diabetes patient_id pregnancies plasma_glucose diastolic_bp</span></a>
-<a class="sourceLine" id="cb7-15" data-line-number="15"><span class="co"># &gt; *              &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;</span></a>
-<a class="sourceLine" id="cb7-16" data-line-number="16"><span class="co"># &gt; 1           0.000561        999           0             94           69</span></a>
-<a class="sourceLine" id="cb7-17" data-line-number="17"><span class="co"># &gt; # ... with 7 more variables: skinfold &lt;dbl&gt;, insulin &lt;lgl&gt;,</span></a>
-<a class="sourceLine" id="cb7-18" data-line-number="18"><span class="co"># &gt; #   weight_class &lt;chr&gt;, pedigree &lt;dbl&gt;, age &lt;dbl&gt;,</span></a>
-<a class="sourceLine" id="cb7-19" data-line-number="19"><span class="co"># &gt; #   medication_metoprolol &lt;dbl&gt;, medication_insulin &lt;dbl&gt;</span></a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">models &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/machine_learn.html">machine_learn</a></span>(pima_diabetes_med_duration, patient_id, <span class="dt">outcome =</span> diabetes, </a>
+<a class="sourceLine" id="cb9-2" data-line-number="2">                        <span class="dt">models =</span> <span class="st">"xgb"</span>, <span class="dt">tune =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb9-3" data-line-number="3"><span class="kw"><a href="../../reference/add_best_levels.html">add_best_levels</a></span>(<span class="dt">d =</span> new_patient, </a>
+<a class="sourceLine" id="cb9-4" data-line-number="4">                <span class="dt">longsheet =</span> new_meds, </a>
+<a class="sourceLine" id="cb9-5" data-line-number="5">                <span class="dt">id =</span> patient_id,</a>
+<a class="sourceLine" id="cb9-6" data-line-number="6">                <span class="dt">groups =</span> medication,</a>
+<a class="sourceLine" id="cb9-7" data-line-number="7">                <span class="dt">outcome =</span> diabetes,</a>
+<a class="sourceLine" id="cb9-8" data-line-number="8">                <span class="dt">n_levels =</span> <span class="dv">2</span>,</a>
+<a class="sourceLine" id="cb9-9" data-line-number="9">                <span class="dt">levels =</span> models,</a>
+<a class="sourceLine" id="cb9-10" data-line-number="10">                <span class="dt">fill =</span> years_taken,</a>
+<a class="sourceLine" id="cb9-11" data-line-number="11">                <span class="dt">missing_fill =</span> <span class="dv">0</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb9-12" data-line-number="12"><span class="st">  </span><span class="kw">predict</span>(models, .)</a>
+<a class="sourceLine" id="cb9-13" data-line-number="13"><span class="co"># &gt; # A tibble: 1 x 12</span></a>
+<a class="sourceLine" id="cb9-14" data-line-number="14"><span class="co"># &gt;   predicted_diabetes patient_id pregnancies plasma_glucose diastolic_bp</span></a>
+<a class="sourceLine" id="cb9-15" data-line-number="15"><span class="co"># &gt; *              &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb9-16" data-line-number="16"><span class="co"># &gt; 1           0.000496        999           0             94           69</span></a>
+<a class="sourceLine" id="cb9-17" data-line-number="17"><span class="co"># &gt; # ... with 7 more variables: skinfold &lt;dbl&gt;, insulin &lt;lgl&gt;,</span></a>
+<a class="sourceLine" id="cb9-18" data-line-number="18"><span class="co"># &gt; #   weight_class &lt;chr&gt;, pedigree &lt;dbl&gt;, age &lt;dbl&gt;,</span></a>
+<a class="sourceLine" id="cb9-19" data-line-number="19"><span class="co"># &gt; #   medication_metoprolol &lt;dbl&gt;, medication_insulin &lt;dbl&gt;</span></a></code></pre></div>
 </div>
 </div>
 <div id="get_best_levels" class="section level1">
 <h1 class="hasAnchor">
 <a href="#get_best_levels" class="anchor"></a>get_best_levels</h1>
 <p><code>add_best_levels</code> is a convenience function that wraps two workhorses: <code>get_best_levels</code> and <code>pivot</code>. <code>get_best_levels</code> does the work of identifying which levels should be used as features. You can call it directly the same way you’d call <code>add_best_levels</code> (sans the arguments to <code>pivot</code>), but instead of adding columns to the data frame, you get back a character vector of the best levels. Next, we look at how <code>get_best_levels</code> determines what those levels are.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw"><a href="../../reference/add_best_levels.html">get_best_levels</a></span>(pima_diabetes, pima_meds, patient_id, medication, diabetes, <span class="dv">4</span>)</a>
-<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="co"># &gt; [1] "metoprolol" "insulin"    "prednisone" "metformin"</span></a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw"><a href="../../reference/add_best_levels.html">get_best_levels</a></span>(pima_diabetes, pima_meds, patient_id, medication, diabetes, <span class="dv">4</span>)</a>
+<a class="sourceLine" id="cb10-2" data-line-number="2"><span class="co"># &gt; [1] "metoprolol" "insulin"    "prednisone" "metformin"</span></a></code></pre></div>
 <div id="mathematics" class="section level2">
 <h2 class="hasAnchor">
 <a href="#mathematics" class="anchor"></a>Mathematics</h2>
@@ -308,86 +352,31 @@
 </div>
 </div>
 </div>
-<div id="working-with-a-single-table" class="section level1">
-<h1 class="hasAnchor">
-<a href="#working-with-a-single-table" class="anchor"></a>Working with a single table</h1>
-<p>In the examples above, each observation (each row in <code>d</code>/<code>pima_diabetes</code>) could have zero, one, or many group memberships (rows in <code>longsheet</code>/<code>pima_meds</code>). There is a special case when each observation is in exactly one group. In this case you might have only one table because the groups fit tidily into a single column in <code>d</code>. However, there might still be so many groups that creating a column for each is infeasible for the reasons described in the <a href="#summary">Summary</a>. There are other options available for this special case, e.g. <a href="http://www.win-vector.com/blog/2012/08/a-bit-more-on-impact-coding/">impact coding</a> as implemented by the <a href="https://winvector.github.io/vtreat/"><code>vtreat</code></a> package, but <code>add_best_levels</code> works well here too. In this case, simply provide the same data frame to <code>d</code> and <code>longsheet</code> and procede as usual, but note that you will need to remove the original column at the end.</p>
-<p>For example, suppose we have 100,000 patients’ zipcodes and we want to predict their lengths of stay (LOS). In reality we’d want lots of other features, but we’ll keep things simple here. Creating a column for every zip code (we’ll use Intermountain West zip codes, which we’ll pretend are every integer from 80001 to 89999) would create a massive table – model training would be very slow, and including zipcodes that aren’t associated with particularly long or short LOS would impare model performance. <code>add_best_levels</code> helps by identifying zipcodes associated with especially long or short LOS, and creating dummy variables for those zipcodes. Here is that simulated data.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">n &lt;-<span class="st"> </span><span class="fl">1e5</span></a>
-<a class="sourceLine" id="cb9-2" data-line-number="2">zip_los &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb9-3" data-line-number="3">  <span class="dt">id =</span> <span class="kw">seq_len</span>(n),</a>
-<a class="sourceLine" id="cb9-4" data-line-number="4">  <span class="dt">zip =</span> <span class="kw">sample</span>(<span class="dv">80001</span><span class="op">:</span><span class="dv">89999</span>, n, <span class="dt">replace =</span> <span class="ot">TRUE</span>),</a>
-<a class="sourceLine" id="cb9-5" data-line-number="5">  <span class="dt">LOS =</span> zip <span class="op">*</span><span class="st"> </span><span class="fl">1e-4</span> <span class="op">+</span><span class="st"> </span><span class="kw">abs</span>(<span class="kw">rnorm</span>(n, <span class="dt">sd =</span> <span class="fl">.1</span>)))</a>
-<a class="sourceLine" id="cb9-6" data-line-number="6">zip_los</a>
-<a class="sourceLine" id="cb9-7" data-line-number="7"><span class="co"># &gt; # A tibble: 100,000 x 3</span></a>
-<a class="sourceLine" id="cb9-8" data-line-number="8"><span class="co"># &gt;      id   zip   LOS</span></a>
-<a class="sourceLine" id="cb9-9" data-line-number="9"><span class="co"># &gt;   &lt;int&gt; &lt;int&gt; &lt;dbl&gt;</span></a>
-<a class="sourceLine" id="cb9-10" data-line-number="10"><span class="co"># &gt; 1     1 88607  8.93</span></a>
-<a class="sourceLine" id="cb9-11" data-line-number="11"><span class="co"># &gt; 2     2 86756  8.78</span></a>
-<a class="sourceLine" id="cb9-12" data-line-number="12"><span class="co"># &gt; 3     3 87467  8.79</span></a>
-<a class="sourceLine" id="cb9-13" data-line-number="13"><span class="co"># &gt; 4     4 84444  8.62</span></a>
-<a class="sourceLine" id="cb9-14" data-line-number="14"><span class="co"># &gt; 5     5 88766  8.96</span></a>
-<a class="sourceLine" id="cb9-15" data-line-number="15"><span class="co"># &gt; # ... with 1e+05 more rows</span></a></code></pre></div>
-<p>Now we create we’ll create dummy variables for the ten zipcodes likely to make the best predictors of LOS. Note that LOS was simulated as a linear function of the numeric value of the patient’s zipcode (plus some random noise), so we should expect zipcodes close to 80001 to be associated with especially short LOS and close to 89999 with especially long LOS. Therefore the columns added as best levels should be zipcodes near the endpoints.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw"><a href="../../reference/add_best_levels.html">add_best_levels</a></span>(</a>
-<a class="sourceLine" id="cb10-2" data-line-number="2">  <span class="dt">d =</span> zip_los,</a>
-<a class="sourceLine" id="cb10-3" data-line-number="3">  <span class="dt">longsheet =</span> zip_los,</a>
-<a class="sourceLine" id="cb10-4" data-line-number="4">  <span class="dt">id =</span> id,</a>
-<a class="sourceLine" id="cb10-5" data-line-number="5">  <span class="dt">groups =</span> zip,</a>
-<a class="sourceLine" id="cb10-6" data-line-number="6">  <span class="dt">outcome =</span> LOS,</a>
-<a class="sourceLine" id="cb10-7" data-line-number="7">  <span class="dt">n_levels =</span> <span class="dv">10</span>,</a>
-<a class="sourceLine" id="cb10-8" data-line-number="8">  <span class="dt">missing_fill =</span> 0L</a>
-<a class="sourceLine" id="cb10-9" data-line-number="9">) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb10-10" data-line-number="10"><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>zip)</a>
-<a class="sourceLine" id="cb10-11" data-line-number="11"><span class="co"># &gt; # A tibble: 100,000 x 12</span></a>
-<a class="sourceLine" id="cb10-12" data-line-number="12"><span class="co"># &gt;      id   LOS zip_80317 zip_80355 zip_80459 zip_80879 zip_81827 zip_87965</span></a>
-<a class="sourceLine" id="cb10-13" data-line-number="13"><span class="co"># &gt;   &lt;int&gt; &lt;dbl&gt;     &lt;int&gt;     &lt;int&gt;     &lt;int&gt;     &lt;int&gt;     &lt;int&gt;     &lt;int&gt;</span></a>
-<a class="sourceLine" id="cb10-14" data-line-number="14"><span class="co"># &gt; 1     1  8.93         0         0         0         0         0         0</span></a>
-<a class="sourceLine" id="cb10-15" data-line-number="15"><span class="co"># &gt; 2     2  8.78         0         0         0         0         0         0</span></a>
-<a class="sourceLine" id="cb10-16" data-line-number="16"><span class="co"># &gt; 3     3  8.79         0         0         0         0         0         0</span></a>
-<a class="sourceLine" id="cb10-17" data-line-number="17"><span class="co"># &gt; 4     4  8.62         0         0         0         0         0         0</span></a>
-<a class="sourceLine" id="cb10-18" data-line-number="18"><span class="co"># &gt; 5     5  8.96         0         0         0         0         0         0</span></a>
-<a class="sourceLine" id="cb10-19" data-line-number="19"><span class="co"># &gt; # ... with 1e+05 more rows, and 4 more variables: zip_89350 &lt;int&gt;,</span></a>
-<a class="sourceLine" id="cb10-20" data-line-number="20"><span class="co"># &gt; #   zip_89351 &lt;int&gt;, zip_89432 &lt;int&gt;, zip_89550 &lt;int&gt;</span></a></code></pre></div>
-<p>Note that we remove the <code>zip</code> column at the end because otherwise modeling functions would create a column for every zipcode. You only have to do this when providing the same data frame to <code>d</code> and <code>longsheet</code>.</p>
-</div>
 <div id="appendix-data-generation" class="section level1">
 <h1 class="hasAnchor">
 <a href="#appendix-data-generation" class="anchor"></a>Appendix: Data Generation</h1>
 <p>We now show how we generated the <code>pima_meds</code> table that supplements the <code>pima_diabetes</code> dataset. This is “FYI” and is not necessary to understand how to use <code>add_best_levels</code> or <code>get_best_levels</code>.</p>
 <p>First we create a table of medications with a numeric value declaring how common the medication is among diabetic patients, with values close to one indicating medications that are used almost exclusively in diabetics, values close to zero being counter-indicated for diabetics, and values near 0.5 being used equally among diabetic and non-diabetic patients.</p>
 <p>Insulin and metformin are both strong indicators that a patient has diabetes. Prednisone is a corticosteroid that can cause blood sugar to spike and so might be used more rarely in patients with diabetes. Metoprolol is a beta-blocker that can mask symptoms of hypoglycemia and so might be avoided by diabetics. Nexium and tiotropium are both common drugs that we don’t expect to be more- or less-common in diabetic patients than in non-diabetic patients.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">meds &lt;-<span class="st"> </span></a>
-<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="st">  </span><span class="kw">tribble</span>( </a>
-<a class="sourceLine" id="cb11-3" data-line-number="3">    <span class="op">~</span><span class="st"> </span>name, <span class="op">~</span><span class="st"> </span>predicts_diabetes,</a>
-<a class="sourceLine" id="cb11-4" data-line-number="4">    <span class="st">"insulin"</span>, <span class="fl">.9</span>,</a>
-<a class="sourceLine" id="cb11-5" data-line-number="5">    <span class="st">"metformin"</span>, <span class="fl">.85</span>,</a>
-<a class="sourceLine" id="cb11-6" data-line-number="6">    <span class="st">"prednisone"</span>, <span class="fl">.05</span>,</a>
-<a class="sourceLine" id="cb11-7" data-line-number="7">    <span class="st">"metoprolol"</span>, <span class="fl">.1</span>,</a>
-<a class="sourceLine" id="cb11-8" data-line-number="8">    <span class="st">"nexium"</span>, <span class="fl">.5</span>,</a>
-<a class="sourceLine" id="cb11-9" data-line-number="9">    <span class="st">"tiotropium"</span>, <span class="fl">.5</span></a>
-<a class="sourceLine" id="cb11-10" data-line-number="10">  )</a></code></pre></div>
-<p>Now we take each patient and choose 0 - 4 (at random) medications for them, with the probability they have each medication proportional to <code>meds$predicts_diabetes</code> if the patient has diabetes, and <code>1 - meds$predicts_diabetes</code> if they don’t. We also create a <code>years_taken</code> variable, which is sampled at random from an expoential distrobution. So, some patients won’t appear in this table (those who got 0 meds), some will have one row (those who got 1 med), and some will have multiple rows (those who got more than 1 med).</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">meds &lt;-<span class="st"> </span><span class="kw">tribble</span>( </a>
+<a class="sourceLine" id="cb11-2" data-line-number="2">  <span class="op">~</span><span class="st"> </span>name, <span class="op">~</span><span class="st"> </span>predicts_diabetes,</a>
+<a class="sourceLine" id="cb11-3" data-line-number="3">  <span class="st">"insulin"</span>, <span class="fl">.99</span>,</a>
+<a class="sourceLine" id="cb11-4" data-line-number="4">  <span class="st">"metformin"</span>, <span class="fl">.95</span>,</a>
+<a class="sourceLine" id="cb11-5" data-line-number="5">  <span class="st">"prednisone"</span>, <span class="fl">.25</span>,</a>
+<a class="sourceLine" id="cb11-6" data-line-number="6">  <span class="st">"metoprolol"</span>, <span class="fl">.2</span>,</a>
+<a class="sourceLine" id="cb11-7" data-line-number="7">  <span class="st">"nexium"</span>, <span class="fl">.5</span>,</a>
+<a class="sourceLine" id="cb11-8" data-line-number="8">  <span class="st">"tiotropium"</span>, <span class="fl">.5</span></a>
+<a class="sourceLine" id="cb11-9" data-line-number="9">)</a></code></pre></div>
+<p>Now we take each patient and choose 0 - 4 (at random) medications for them, with the probability they have each medication proportional to <code>meds$predicts_diabetes</code> if the patient has diabetes, and <code>1 - meds$predicts_diabetes</code> if they don’t. We also create a <code>years_taken</code> variable, which is sampled at random from an exponential distribution. So, some patients won’t appear in this table (those who got 0 meds), some will have one row (those who got 1 med), and some will have multiple rows (those who got more than 1 med).</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">pima_meds &lt;-<span class="st"> </span></a>
 <a class="sourceLine" id="cb12-2" data-line-number="2"><span class="st">  </span>pima_diabetes <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb12-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(patient_id) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb12-4" data-line-number="4"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">drug_name =</span> <span class="kw">list</span>(<span class="kw">tibble</span>(</a>
 <a class="sourceLine" id="cb12-5" data-line-number="5">    <span class="dt">medication =</span> <span class="kw">sample</span>(<span class="dt">x =</span> meds<span class="op">$</span>name, <span class="dt">size =</span> <span class="kw">sample</span>(<span class="dv">0</span><span class="op">:</span><span class="dv">4</span>, <span class="dv">1</span>), <span class="dt">replace =</span> <span class="ot">FALSE</span>, </a>
 <a class="sourceLine" id="cb12-6" data-line-number="6">                        <span class="dt">prob =</span> <span class="cf">if</span> (diabetes <span class="op">==</span><span class="st"> "Y"</span>) meds<span class="op">$</span>predicts_diabetes <span class="cf">else</span> <span class="dv">1</span> <span class="op">-</span><span class="st"> </span>meds<span class="op">$</span>predicts_diabetes),</a>
-<a class="sourceLine" id="cb12-7" data-line-number="7">    <span class="dt">years_taken =</span> <span class="kw">rexp</span>(<span class="dt">n =</span> <span class="kw">length</span>(medication), <span class="dt">rate =</span> <span class="fl">.2</span>)</a>
-<a class="sourceLine" id="cb12-8" data-line-number="8">  ))) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb12-7" data-line-number="7">    <span class="dt">years_taken =</span> <span class="kw">rexp</span>(<span class="dt">n =</span> <span class="kw">length</span>(medication), <span class="dt">rate =</span> <span class="fl">.2</span>)))</a>
+<a class="sourceLine" id="cb12-8" data-line-number="8">  ) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb12-9" data-line-number="9"><span class="st">  </span><span class="kw">unnest</span>()</a></code></pre></div>
-<p>Let’s look at the first few patients.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">pima_meds</a>
-<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="co"># &gt; # A tibble: 1,604 x 3</span></a>
-<a class="sourceLine" id="cb13-3" data-line-number="3"><span class="co"># &gt;   patient_id medication years_taken</span></a>
-<a class="sourceLine" id="cb13-4" data-line-number="4"><span class="co"># &gt;        &lt;int&gt; &lt;chr&gt;            &lt;dbl&gt;</span></a>
-<a class="sourceLine" id="cb13-5" data-line-number="5"><span class="co"># &gt; 1          1 metformin        0.651</span></a>
-<a class="sourceLine" id="cb13-6" data-line-number="6"><span class="co"># &gt; 2          1 metoprolol       2.69 </span></a>
-<a class="sourceLine" id="cb13-7" data-line-number="7"><span class="co"># &gt; 3          1 nexium           1.14 </span></a>
-<a class="sourceLine" id="cb13-8" data-line-number="8"><span class="co"># &gt; 4          2 tiotropium       3.03 </span></a>
-<a class="sourceLine" id="cb13-9" data-line-number="9"><span class="co"># &gt; 5          2 metoprolol       1.83 </span></a>
-<a class="sourceLine" id="cb13-10" data-line-number="10"><span class="co"># &gt; # ... with 1,599 more rows</span></a></code></pre></div>
 </div>
   </div>
 
@@ -400,6 +389,7 @@
       <li><a href="#introduction">Introduction</a></li>
       <li><a href="#basic-use">Basic Use</a></li>
       <li><a href="#feature-engineering">Feature Engineering</a></li>
+      <li><a href="#working-with-a-single-table">Working with a single table</a></li>
       <li>
 <a href="#adding-best-levels-in-deployment">Adding best levels in deployment</a><ul class="nav nav-pills nav-stacked">
 <li><a href="#using-models-to-add-best-levels">Using Models to Add Best Levels</a></li>
@@ -410,7 +400,6 @@
 <li><a href="#mathematics">Mathematics</a></li>
       </ul>
 </li>
-      <li><a href="#working-with-a-single-table">Working with a single table</a></li>
       <li><a href="#appendix-data-generation">Appendix: Data Generation</a></li>
       </ul>
 </div>

@@ -16,15 +16,15 @@ options(tibble.print_min = 5, tibble.print_max = 5)
 
 # Summary
 
-In healthcare we often have high-cardinality variables (categories with many distinct values) such as DRG, medication, or physician that we want to use in predictive models. However using all of the entries can be computationally prohibitive and, perhaps paradoxically, hurt model performance. `healthcareai` can identify a subset of values that are likely to make good model features, making model training faster and predictions more accurate.
+In healthcare we often have high-cardinality variables (categories with many distinct values) such as DRG, medication, or physician that we want to use in predictive models. However using all of the entries can be computationally prohibitive and, perhaps paradoxically, can hurt model performance. `healthcareai` can identify the subset of values that are most strongly associated with the outcome and so are likely to make good model features. This makes model training faster and predictions more accurate.
 
-This vignette documents how to use the `add_best_levels` function to engineer features from high-cardinality factors that are likely to add to model performance. The problem `add_best_levels` addresses is when you have so many levels of a categorical variable that using them all would create a table that is so wide (when one column is created for each level, which is required for model training, though `healthcareai` and other R packages do this automatically) that training takes too long or signal is lost in noise. For example, a laborotory test results table might have thousands of unique lab tests. That presents two problems: 
+This vignette documents how to use the `add_best_levels` function to take high-cardinality factors and engineer features from them that will add to model performance. The problem `add_best_levels` addresses is when you have so many levels of a categorical variable that using them all would create a table that is so wide (when one column is created for each level, which is required for model training, though `healthcareai` and other R packages do this automatically) that training takes too long or signal is lost in noise. For example, a laboratory test results table might have thousands of unique lab tests. That presents two problems: 
 
-1. Creating a column for each lab test makes a very wide table. E.g. if there are one million patients that each got one of 5,000 possible lab tests, fully encoding those tests would create a one-million by five-thousand = five-billion cell table, which will occupy a lot of RAM and likely take too long to train models on.
+1. Creating a column for each lab test makes a very wide table. E.g. if there are one-million patients that each got one of five-thousand possible lab tests, fully encoding those tests would create a one-million by five-thousand = five-billion cell table, which will occupy a lot of RAM and likely take too long to train models on.
 
 1. If only a subset of the tests are associated with the outcome of interest, the other categories can add a lot of noise to the signal, hurting predictive accuracy.
 
-For both of those reasons it would be better to create columns only for the tests that are associated (positively or negatively) with the outcome variable. That is what `add_best_levels` does.
+For both of those reasons it would be better to create columns only for the tests that are strongly associated (positively or negatively) with the outcome variable. That is what `add_best_levels` does.
 
 # Introduction
 
@@ -33,7 +33,9 @@ library(healthcareai)
 library(tidyverse)
 ```
 
-For this vignette, we introduce a new data table, `pima_meds`, which contains information on what medications each patient in the `pima_diabetes` dataset has taken and for how long. Some patients have no meds and so don't appear in this table, some have one med, and most have more than one (see [Appendix: Data Generation] for a detailed description of this data). Because of this, the medication information doesn't fit neatly into the model table (`pima_diabetes`) without being `pivot`ed. `get_best_levels` identifies which levels to use, and `add_best_levels` `pivot`s them into new columns on the model table. Here are the first rows in the `pima_meds` table.
+For this vignette, we introduce a new data table, `pima_meds`, which contains information on what medications each patient in the `pima_diabetes` dataset has taken and for how long. This dataset is built into `healthcareai` as of version 2.1.1, which you can install before it is on CRAN with `remotes::install_github("HealthCatalyst/healthcareai-r@v2.1.1")`, or you can generate it yourself with the code in [Appendix: Data Generation]. 
+
+Some patients have no meds and so don't appear in the table, some have one med, and most have more than one. Because of this, the medication information doesn't fit neatly into the model table (`pima_diabetes`) without being `pivot`ed. Under the hood, `get_best_levels` identifies which levels to use, and `add_best_levels` `pivot`s them into new columns on the model table. Here are the first rows in the `pima_meds` table.
 
 ```{r, echo = FALSE}
 meds <- tribble( 
@@ -91,12 +93,11 @@ pima_diabetes_meds <-
 glimpse(pima_diabetes_meds)
 ```
 
-
 # Feature Engineering
 
 Note the message that `add_best_levels` returned above: because no fill column was provided, "1" is used for present entries. That message actually comes through from the `pivot` function, and it means the data are being one-hot encoded: for each drug identified as a good feature, a variable is created with a "1" indicating that the patient got the drug. 
 
-You can customize what goes in those columns by passing arguments (`fill`, `fun`, and `missing_fill`) through to the `pivot` function. The values passed to those arguements won't affect what columns get created, only what goes in them. By specifying `fill = years_taken` and `missing_fill = 0`, we get columns with the years each patient has been on each of the best-feature drugs with "0" entries for patients who didn't get that drug.
+You can customize what goes in those columns by passing arguments (`fill`, `fun`, and `missing_fill`) through to the `pivot` function. The values passed to those arguments won't affect what columns get created, only what goes in them. By specifying `fill = years_taken` and `missing_fill = 0`, we get columns with the years each patient has been on each of the best-feature drugs with "0" entries for patients who didn't get that drug.
 
 ```{r}
 pima_diabetes_med_duration <- 
@@ -116,6 +117,38 @@ glimpse(pima_diabetes_med_duration)
 ```
 
 The `fun` argument is only relevant if there are multiple observations of the same level for the same ID; for example, if a patient could have the same drug listed twice for different periods they were on the drug, we could use `fun = sum` to get the total length of time they were on the drug.
+
+# Working with a single table
+
+In the examples above, each observation (each row in `d`/`pima_diabetes`) could have zero, one, or many group memberships (rows in `longsheet`/`pima_meds`). There is a special case when each observation is in exactly one group. In this case you might have only one table because the groups fit tidily into a single column in `d`. However, there might still be so many groups that creating a column for each is infeasible for the reasons described in the [Summary]. There are other options available for this special case, e.g. [impact coding](http://www.win-vector.com/blog/2012/08/a-bit-more-on-impact-coding/) as implemented by the [`vtreat`](https://winvector.github.io/vtreat/) package, but `add_best_levels` works well here too. In this case, simply provide the same data frame to `d` and `longsheet` and proceed as usual, but note that you will need to remove the original column at the end.
+
+For example, suppose we have 100,000 patients' zip codes and we want to predict their lengths of stay (LOS). In reality we'd want lots of other features, but we'll keep things simple here. Creating a column for every zip code (we'll use Intermountain West zip codes, which we'll pretend are every integer from 80001 to 89999) would create a massive table -- model training would be very slow, and including zip codes that aren't associated with particularly long or short LOS would impair model performance. `add_best_levels` helps by identifying zip codes associated with especially long or short LOS, and creating dummy variables for those zip codes. Here is that simulated data.
+
+```{r}
+n <- 1e5
+zip_los <- tibble(
+  id = seq_len(n),
+  zip = sample(80001:89999, n, replace = TRUE),
+  LOS = zip * 1e-4 + abs(rnorm(n, sd = .1)))
+zip_los
+```
+
+Now we create we'll create dummy variables for the ten zip codes likely to make the best predictors of LOS. Note that LOS was simulated as a linear function of the numeric value of the patient's zip code (plus some random noise), so we should expect zip codes close to 80001 to be associated with especially short LOS and close to 89999 with especially long LOS. Therefore the columns added as best levels should be zip codes near the endpoints.
+
+```{r}
+add_best_levels(
+  d = zip_los,
+  longsheet = zip_los,
+  id = id,
+  groups = zip,
+  outcome = LOS,
+  n_levels = 10,
+  missing_fill = 0L
+) %>%
+  select(-zip)
+```
+
+Note that we remove the `zip` column at the end because otherwise modeling functions would create a column for every zip code. You only have to do this when providing the same data frame to `d` and `longsheet`.
 
 # Adding best levels in deployment
 
@@ -195,37 +228,6 @@ $$\Omega_j = (-C_j\ln{p_j^{y_1}} - (1 - C_j)(\ln{(1 - p_j^{y_1})}))^\xi \times -
 
 The mathematically intuitive will notice that $\Omega_j$ blows up when every observation is in the group or the group is universally associated with one outcome. In these cases, the intermediate statistics are moved a small distance (0.5) from the endpoint before their logarithm is taken. 
 
-# Working with a single table
-
-In the examples above, each observation (each row in `d`/`pima_diabetes`) could have zero, one, or many group memberships (rows in `longsheet`/`pima_meds`). There is a special case when each observation is in exactly one group. In this case you might have only one table because the groups fit tidily into a single column in `d`. However, there might still be so many groups that creating a column for each is infeasible for the reasons described in the [Summary]. There are other options available for this special case, e.g. [impact coding](http://www.win-vector.com/blog/2012/08/a-bit-more-on-impact-coding/) as implemented by the [`vtreat`](https://winvector.github.io/vtreat/) package, but `add_best_levels` works well here too. In this case, simply provide the same data frame to `d` and `longsheet` and procede as usual, but note that you will need to remove the original column at the end.
-
-For example, suppose we have 100,000 patients' zipcodes and we want to predict their lengths of stay (LOS). In reality we'd want lots of other features, but we'll keep things simple here. Creating a column for every zip code (we'll use Intermountain West zip codes, which we'll pretend are every integer from 80001 to 89999) would create a massive table -- model training would be very slow, and including zipcodes that aren't associated with particularly long or short LOS would impare model performance. `add_best_levels` helps by identifying zipcodes associated with especially long or short LOS, and creating dummy variables for those zipcodes. Here is that simulated data.
-
-```{r}
-n <- 1e5
-zip_los <- tibble(
-  id = seq_len(n),
-  zip = sample(80001:89999, n, replace = TRUE),
-  LOS = zip * 1e-4 + abs(rnorm(n, sd = .1)))
-zip_los
-```
-
-Now we create we'll create dummy variables for the ten zipcodes likely to make the best predictors of LOS. Note that LOS was simulated as a linear function of the numeric value of the patient's zipcode (plus some random noise), so we should expect zipcodes close to 80001 to be associated with especially short LOS and close to 89999 with especially long LOS. Therefore the columns added as best levels should be zipcodes near the endpoints.
-
-```{r}
-add_best_levels(
-  d = zip_los,
-  longsheet = zip_los,
-  id = id,
-  groups = zip,
-  outcome = LOS,
-  n_levels = 10,
-  missing_fill = 0L
-) %>%
-  select(-zip)
-```
-
-Note that we remove the `zip` column at the end because otherwise modeling functions would create a column for every zipcode. You only have to do this when providing the same data frame to `d` and `longsheet`.
 
 # Appendix: Data Generation
 
@@ -236,20 +238,18 @@ First we create a table of medications with a numeric value declaring how common
 Insulin and metformin are both strong indicators that a patient has diabetes. Prednisone is a corticosteroid that can cause blood sugar to spike and so might be used more rarely in patients with diabetes. Metoprolol is a beta-blocker that can mask symptoms of hypoglycemia and so might be avoided by diabetics. Nexium and tiotropium are both common drugs that we don't expect to be more- or less-common in diabetic patients than in non-diabetic patients.
 
 ```{r, eval = FALSE}
-meds <- 
-  tribble( 
-    ~ name, ~ predicts_diabetes,
-    "insulin", .9,
-    "metformin", .85,
-    "prednisone", .05,
-    "metoprolol", .1,
-    "nexium", .5,
-    "tiotropium", .5
-  )
+meds <- tribble( 
+  ~ name, ~ predicts_diabetes,
+  "insulin", .99,
+  "metformin", .95,
+  "prednisone", .25,
+  "metoprolol", .2,
+  "nexium", .5,
+  "tiotropium", .5
+)
 ```
 
-
-Now we take each patient and choose 0 - 4 (at random) medications for them, with the probability they have each medication proportional to `meds$predicts_diabetes` if the patient has diabetes, and `1 - meds$predicts_diabetes` if they don't. We also create a `years_taken` variable, which is sampled at random from an expoential distrobution. So, some patients won't appear in this table (those who got 0 meds), some will have one row (those who got 1 med), and some will have multiple rows (those who got more than 1 med). 
+Now we take each patient and choose 0 - 4 (at random) medications for them, with the probability they have each medication proportional to `meds$predicts_diabetes` if the patient has diabetes, and `1 - meds$predicts_diabetes` if they don't. We also create a `years_taken` variable, which is sampled at random from an exponential distribution. So, some patients won't appear in this table (those who got 0 meds), some will have one row (those who got 1 med), and some will have multiple rows (those who got more than 1 med). 
 
 ```{r, eval = FALSE}
 pima_meds <- 
@@ -258,13 +258,8 @@ pima_meds <-
   summarize(drug_name = list(tibble(
     medication = sample(x = meds$name, size = sample(0:4, 1), replace = FALSE, 
                         prob = if (diabetes == "Y") meds$predicts_diabetes else 1 - meds$predicts_diabetes),
-    years_taken = rexp(n = length(medication), rate = .2)
-  ))) %>%
+    years_taken = rexp(n = length(medication), rate = .2)))
+  ) %>%
   unnest()
 ```
 
-Let's look at the first few patients.
-
-```{r}
-pima_meds
-``` 
