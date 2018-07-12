@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function to find proportion of NAs in each column of a dataframe or matrix — countMissingData • healthcareai</title>
+<title>Patient medications dataset — pima_meds • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -36,9 +36,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
 
 
-<meta property="og:title" content="Function to find proportion of NAs in each column of a dataframe or matrix — countMissingData" />
+<meta property="og:title" content="Patient medications dataset — pima_meds" />
 
-<meta property="og:description" content="DEPRICATED. Use missingness instead." />
+<meta property="og:description" content="This is a companion dataset for pima_diabetes. The
+pima_diabetes dataset is real; this dataset is synthetic. You can see
+how it was generated here:
+https://docs.healthcare.ai/articles/site_only/best_levels.html#appendix-data-generation.
+Briefly, each patient in pima_diabetes is assigned 0-4 medications
+from the following six: insulin and metformin are more common among
+diabetics, prednisone and metoprolol are less common among diabetics, and
+nexium and tiotropium are equally likely among diabetic and non-diabetic
+patients. Each patient-medication has a years_taken value associated
+with it, which is a random number drawn from an exponential distribution." />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -151,39 +160,51 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Function to find proportion of NAs in each column of a dataframe or matrix</h1>
+    <h1>Patient medications dataset</h1>
     
-    <div class="hidden name"><code>countMissingData.Rd</code></div>
+    <div class="hidden name"><code>pima_meds.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>DEPRICATED. Use <code><a href='missingness.html'>missingness</a></code> instead.</p>
+    <p>This is a companion dataset for <code><a href='pima_diabetes.html'>pima_diabetes</a></code>. The
+<code>pima_diabetes</code> dataset is real; this dataset is synthetic. You can see
+how it was generated here:
+<a href='https://docs.healthcare.ai/articles/site_only/best_levels.html#appendix-data-generation'>https://docs.healthcare.ai/articles/site_only/best_levels.html#appendix-data-generation</a>.
+Briefly, each patient in <code>pima_diabetes</code> is assigned 0-4 medications
+from the following six: insulin and metformin are more common among
+diabetics, prednisone and metoprolol are less common among diabetics, and
+nexium and tiotropium are equally likely among diabetic and non-diabetic
+patients. Each patient-medication has a <code>years_taken</code> value associated
+with it, which is a random number drawn from an exponential distribution.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>countMissingData</span>(<span class='no'>x</span>, <span class='kw'>userNAs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='no'>pima_meds</span></pre>
+        
+    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
+
+    <p>A tibble data frame with 1,604 rows and 3 variables:</p><dl class='dl-horizontal'>
+  <dt>patient_id</dt><dd><p>Unique identifier, used to join <code>pima_diabetes</code></p></dd>
+  <dt>medication</dt><dd><p>One of the six medications described above</p></dd>
+  <dt>years_taken</dt><dd><p>Numeric value indicating the duration the medication has
+  been used</p></dd>
+</dl>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>x</th>
-      <td><p>A data frame or matrix</p></td>
-    </tr>
-    <tr>
-      <th>userNAs</th>
-      <td><p>A vector of user defined NA values.</p></td>
-    </tr>
-    </table>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='pima_diabetes.html'>pima_diabetes</a></code></p></div>
     
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-                </ul>
+      
+      <li><a href="#format">Format</a></li>
+
+      <li><a href="#see-also">See also</a></li>
+          </ul>
 
   </div>
 </div>
