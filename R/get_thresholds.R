@@ -21,17 +21,41 @@
 #' @param cost.fp Cost of a false positive. Default = 1. Only affects cost.
 #' @param cost.fn Cost of a false negative. Default = 1. Only affects cost.
 #'
-#' @return Tibble with rows for each possible threshold value
-#' and columns for the thresholds and each value in \code{measures}. Rows are
-#' sorted increasing by the first value in measures (cost by default).
+#' @return Tibble with rows for each possible threshold
+#' and columns for the thresholds and each value in \code{measures}.
 #' @export
 #' @importFrom ROCR prediction
 #' @importFrom ROCR performance
 #'
+#' @description healthcareai gives you predicted probabilities for classification
+#' problems, but sometimes you may need to convert probabilities into predicted
+#' classes. That requires choosing a threshold, where probabilities above the
+#' threshold are predicted as the positive class and probabilities below the
+#' threshold are predicted as the negative class. This function helps you do that
+#' by calculating a bunch of model-performance metrics at every possible
+#' threshold.
+#'
+#' We recommend plotting the thresholds with their performance measures to
+#' see how optimizing for one measure affects performance on other measures.
+#' See \code{\link{plot.thresholds_df}} for how to do this.
+#'
 #' @examples
-#' machine_learn(pima_diabetes[1:20, ], patient_id, outcome = diabetes,
-#'               models = "rf", tune = FALSE) %>%
-#'   get_thresholds()
+#' models <- machine_learn(pima_diabetes[1:20, ], patient_id, outcome = diabetes,
+#'                         models = "rf", tune = FALSE)
+#'
+#' # Get all the possible thresholds and performance measures at each
+#' (thresholds <- get_thresholds(models))
+#'
+#' # Extract the threshold that makes the highest accuracy predictions and
+#' # use it to generate predicted classes on the training dataset.
+#' library(dplyr)
+#' optimal_threshold <- thresholds$threshold[which.max(thresholds$acc)]
+#' predict(models) %>%
+#'   mutate(predicted_class_diabetes = case_when(
+#'     predicted_diabetes > optimal_threshold ~ "Y",
+#'     predicted_diabetes <= optimal_threshold ~ "N"
+#'   )) %>%
+#'   select_at(vars(ends_with("diabetes")))
 get_thresholds <- function(x,
                            measures = c("cost", "acc", "tpr", "fnr", "tnr", "fpr", "ppv", "npv"),
                            cost.fp = 1, cost.fn = 1) {
