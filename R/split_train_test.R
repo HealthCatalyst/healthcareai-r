@@ -71,5 +71,3 @@ group_strat_split <- function(d, outcome, percent_train = .8, grouping_col, aggr
   test_data <- dplyr::filter(d, !(!! grouping_col %in% group_training))
   return(list(train = training_data, test = test_data))
 }
-
-
