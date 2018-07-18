@@ -15,50 +15,50 @@ test_that("split train test respects seed", {
   expect_equal(sp1, sp2)
 })
 
-test_that("grouping_stratified_split - grouping functionality", {
+test_that("group_strat_split - grouping functionality", {
   owner <- as.factor(rep(letters[1:16], each = 2))
   mtcars <- cbind(mtcars, owner)
-  sp <- grouping_stratified_split(mtcars, am, .75, owner, dplyr::first)
+  sp <- group_strat_split(mtcars, rlang::quo(am), .75, rlang::quo(owner), dplyr::first)
   result <- length(intersect(sp[[1]]$owner, sp[[2]]$owner)) == 0
   expect_true(result)
 })
 
-test_that("grouping_stratified_split - grouping aggreg default parameter", {
+test_that("group_strat_split - grouping aggreg default parameter", {
   owner <- as.factor(rep(letters[1:16], each = 2))
   mtcars <- cbind(mtcars, owner)
-  sp <- grouping_stratified_split(mtcars, am, .75, owner)
+  sp <- group_strat_split(mtcars, rlang::quo(am), .75, rlang::quo(owner))
   result <- length(intersect(sp[[1]]$owner, sp[[2]]$owner)) == 0
   expect_true(result)
 })
 
-test_that("grouping_stratified_split - grouping stratified split semi reserved", {
+test_that("group_strat_split - grouping stratified split semi reserved", {
   owner <- as.factor(rep(letters[1:16], each = 2))
   mtcars <- cbind(mtcars, owner)
-  sp <- grouping_stratified_split(mtcars, mpg, .75, owner, mean)
+  sp <- group_strat_split(mtcars, rlang::quo(mpg), .75, rlang::quo(owner), mean)
   result <- (mean(sp[[1]]$mpg) - mean(sp[[2]]$mpg)) < 2
   expect_true(result)
 })
 
-# test_that("split_train_test - grouping functionality", {
-#   owner <- as.factor(rep(letters[1:16], each = 2))
-#   mtcars <- cbind(mtcars, owner)
-#   sp <- split_train_test(mtcars, am, .75, grouping_col = owner, aggreg_func = dplyr::first)
-#   result <- length(intersect(sp[[1]]$owner, sp[[2]]$owner)) == 0
-#   expect_true(result)
-# })
+test_that("split_train_test - grouping functionality", {
+  owner <- as.factor(rep(letters[1:16], each = 2))
+  mtcars <- cbind(mtcars, owner)
+  sp <- split_train_test(mtcars, am, .75, grouping_col = owner, aggreg_func = dplyr::first)
+  result <- length(intersect(sp[[1]]$owner, sp[[2]]$owner)) == 0
+  expect_true(result)
+})
 
-# test_that("split_train_test - grouping aggreg default parameter", {
-#   owner <- as.factor(rep(letters[1:16], each = 2))
-#   mtcars <- cbind(mtcars, owner)
-#   sp <- split_train_test(mtcars, am, .75, grouping_col = owner)
-#   result <- length(intersect(sp[[1]]$owner, sp[[2]]$owner)) == 0
-#   expect_true(result)
-# })
+test_that("split_train_test - grouping aggreg default parameter", {
+  owner <- as.factor(rep(letters[1:16], each = 2))
+  mtcars <- cbind(mtcars, owner)
+  sp <- split_train_test(mtcars, am, .75, grouping_col = owner)
+  result <- length(intersect(sp[[1]]$owner, sp[[2]]$owner)) == 0
+  expect_true(result)
+})
 
-# test_that("split_train_test -grouping stratified split semi reserved", {
-#   owner <- as.factor(rep(letters[1:16], each = 2))
-#   mtcars <- cbind(mtcars, owner)
-#   sp <- split_train_test(mtcars, mpg, .75, 123, owner, mean)
-#   result <- (mean(sp[[1]]$mpg) - mean(sp[[2]]$mpg)) < 2
-#   expect_true(result)
-# })
+test_that("split_train_test - stratified split semi reserved", {
+  owner <- as.factor(rep(letters[1:16], each = 2))
+  mtcars <- cbind(mtcars, owner)
+  sp <- split_train_test(mtcars, mpg, .75, 123, owner, mean)
+  result <- (mean(sp[[1]]$mpg) - mean(sp[[2]]$mpg)) < 2
+  expect_true(result)
+})

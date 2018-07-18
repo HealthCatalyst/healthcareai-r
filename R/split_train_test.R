@@ -16,8 +16,8 @@
 #'
 #' @details This function wraps `caret::createDataPartition`. If outcome is a factor
 #'   then the test/training porportions are stratified. Otherwise they are randomly
-#'   selected. 
-#'   
+#'   selected.
+#'
 #'   If the grouping_col is given, then the groups are divided into the test/
 #'   training porportions by using the given aggregate function.
 #'
@@ -33,6 +33,7 @@ split_train_test <- function(d, outcome, percent_train = .8, seed, grouping_col 
   if (!missing(seed))
     set.seed(seed)
   if (!missing(grouping_col)){
+    grouping_col <- rlang::enquo(grouping_col)
     return(
       group_strat_split(d, outcome, percent_train, grouping_col, aggreg_func)
     )
@@ -56,18 +57,19 @@ split_train_test <- function(d, outcome, percent_train = .8, seed, grouping_col 
 #'
 #' @return A list of two data frames with names train and test
 group_strat_split <- function(d, outcome, percent_train = .8, grouping_col, aggreg_func = dplyr::first) {
-  grouping_col <- rlang::enquo(grouping_col)
-  outcome <- rlang::enquo(outcome)
-  d_limited <- d %>% dplyr::group_by(!!grouping_col) %>% dplyr::summarize(outcome = aggreg_func(!!outcome))
+  d_limited <- d %>%
+    dplyr::group_by(!!grouping_col) %>%
+    dplyr::summarize(!!quo_name(outcome) := aggreg_func(!!outcome))
 
-  outcome <- rlang::quo(outcome)
-  col_insterest <- d_limited %>% dplyr::pull(!!outcome)
+  col_interest <- dplyr::pull(d_limited, !!quo_name(outcome))
 
-  train_rows <- caret::createDataPartition(col_insterest, p = percent_train)[[1]]
-  
-  group_training <- d_limited[train_rows, ] %>% dplyr::pull(!! grouping_col)
+  train_rows <- caret::createDataPartition(col_interest, p = percent_train)[[1]]
+
+  group_training <- d_limited[train_rows, ] %>% dplyr::pull(!!grouping_col)
 
   training_data <- dplyr::filter(d, !! grouping_col %in% group_training)
-  test_data <- dplyr::filter(d, ! (!! grouping_col %in% group_training))
+  test_data <- dplyr::filter(d, !(!! grouping_col %in% group_training))
   return(list(train = training_data, test = test_data))
 }
+
+
