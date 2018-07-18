@@ -35,10 +35,10 @@ test_that("cost.fp and cost.fn are respected", {
   expect_false(isTRUE(all.equal(set1, set2)))
 })
 
-test_that("get_thresholds order rows correctly", {
-  expect_true(all(diff(def$cost) >= 0))
+test_that("get_thresholds order rows by increasing threshold", {
+  expect_true(all(diff(def$threshold) < 0))
   acc <- get_thresholds(m, "acc")
-  expect_true(all(diff(acc$acc) >= 0))
+  expect_true(all(diff(acc$threshold) < 0))
 })
 
 test_that("get_thresholds errors gracefully if a scaler measure is provided", {
@@ -47,4 +47,16 @@ test_that("get_thresholds errors gracefully if a scaler measure is provided", {
 
 test_that("get_thresholds return has thresholds_df class", {
   expect_s3_class(def, "thresholds_df")
+})
+
+
+#######
+context("plot.thresholds_df")
+
+test_that("plot.thresholds_df is a registered S3 method", {
+  expect_true("plot.thresholds_df" %in% methods("plot"))
+})
+
+test_that("plot.thresholds_df returns a ggplot", {
+  expect_s3_class(plot(def, print = FALSE), "gg")
 })

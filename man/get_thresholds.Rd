@@ -40,3 +40,8 @@ sorted increasing by the first value in measures (cost by default).
 \description{
 Get class-separating thresholds for classification predictions
 }
+\examples{
+machine_learn(pima_diabetes[1:20, ], patient_id, outcome = diabetes,
+              models = "rf", tune = FALSE) \%>\%
+  get_thresholds()
+}

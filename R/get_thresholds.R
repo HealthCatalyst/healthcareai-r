@@ -29,6 +29,9 @@
 #' @importFrom ROCR performance
 #'
 #' @examples
+#' machine_learn(pima_diabetes[1:20, ], patient_id, outcome = diabetes,
+#'               models = "rf", tune = FALSE) %>%
+#'   get_thresholds()
 get_thresholds <- function(x,
                            measures = c("cost", "acc", "tpr", "fnr", "tnr", "fpr", "ppv", "npv"),
                            cost.fp = 1, cost.fn = 1) {
@@ -66,8 +69,54 @@ get_thresholds <- function(x,
     }) %>%
     setNames(measures) %>%
     dplyr::bind_cols(threshold = thresholds, .)
-  out_df <- out_df[order(out_df[[2]]), ]
   class(out_df) <- c("thresholds_df", class(out_df))
   return(out_df)
 }
 
+#' Plot threshold performance metrics
+#'
+#' @param x A \code{threshold_df} object from \code{\link{get_thresholds}} or a
+#'  data frame with columns "threshold" and other columns to be plotted against thresholds
+#' @param title Plot title. Default NULL produces no title
+#' @param caption Plot caption. Default NULL produces no caption
+#' @param font_size Relative size of all fonts in plot, default = 11
+#' @param line_size Width of lines, default = 0.5
+#' @param point_size Point size. Default is \code{NA} which suppresses points.
+#' Set to a number to see where threholds are.
+#' @param ncol Number of columns of facets.
+#' @param print Print the plot? Default = TRUE
+#' @param ... Unused
+#'
+#' @return A ggplot object, invisibly.
+#' @export
+#' @seealso \code{\link{get_thresholds}}
+#'
+#' @examples
+#' m <- machine_learn(pima_diabetes[1:100, ], patient_id, outcome = diabetes,
+#'                    models = "xgb", tune = FALSE, n_folds = 3)
+#' get_thresholds(m) %>%
+#'   plot()
+#' thresh <- get_thresholds(m, measures = c("acc", "cost"), cost.fn = 3)
+#' plot(thresh, point_size = .5, ncol = 1, caption = "Try setting cost.fn = 10") +
+#'   geom_vline(xintercept = thresh$threshold[which.min(thresh$cost)],
+#'              linetype = "dashed", color = "firebrick")
+plot.thresholds_df <- function(x, title = NULL, caption = NULL, font_size = 11,
+                               line_size = .5, point_size = NA, ncol = 2,
+                               print = TRUE, ... ) {
+  if ( !is.data.frame(x) || !"threshold" %in% names(x) )
+    stop("x must be a data frame from get_thresholds, or at least look like one!")
+  the_plot <-
+    x %>%
+    tidyr::gather(measure, value, -threshold) %>%
+    ggplot(aes(x = threshold, y = value)) +
+    facet_wrap(~ measure, ncol = ncol, scales = "free_y") +
+    geom_point(size = point_size, na.rm = TRUE) +
+    geom_line(size = line_size, na.rm = TRUE) +
+    ylab(NULL) +
+    labs(title = title, caption = caption) +
+    theme_gray(base_size = font_size)
+
+  if (print)
+    print(the_plot)
+  return(invisible(the_plot))
+}
