@@ -117,7 +117,7 @@ machine_learn <- function(d, ..., outcome, models, tune = TRUE, positive_class,
   if (missing(models))
     models <- get_supported_models()
 
-  pd <- prep_data(d, !!dots, outcome = !!outcome, impute = impute)
+  pd <- prep_data(d, !!!dots, outcome = !!outcome, impute = impute)
   m <-
     if (tune) {
       tune_models(pd, outcome = !!outcome, models = models,
