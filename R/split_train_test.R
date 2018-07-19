@@ -26,7 +26,7 @@
 split_train_test <- function(d, outcome, percent_train = .8, seed, grouping_col = NULL, aggreg_func = dplyr::first) {
   outcome <- rlang::enquo(outcome)
   if (rlang::quo_is_missing(outcome))
-    stop("You must provide an outcome variable to tune_models.")
+    stop("You must provide an outcome variable to split_train_test.")
   outcome_chr <- rlang::quo_name(outcome)
   if (!outcome_chr %in% names(d))
     stop(outcome_chr, " isn't a column in d.")
