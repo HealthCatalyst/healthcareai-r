@@ -361,4 +361,24 @@ test_that("predict xgboost works when columns are in different order", {
                new_order[, order(names(new_order))])
 })
 
+test_that("print.predicted_df works", {
+  pred_mes <- capture_messages({
+    pred_print <- capture_output(classification_prepped_prepped, TRUE)
+  })
+  expect_true(stringr::str_detect(pred_mes, "predicted by"))
+  expect_true(stringr::str_detect(pred_print, "predicted_Catholic"))
+})
+
+test_that("print.predicted_df works when attributes are stripped", {
+  stripped <- structure(regression_prepped_not, model_info = NULL)
+  expect_error(capture_output(stripped, TRUE), NA)
+})
+
+test_that("print.predicted_df works after join", {
+  joined <- dplyr::inner_join(classification_not_not,
+                              classification_not_not,
+                              by = "province")
+  expect_error(capture_output(joined, TRUE), NA)
+})
+
 remove_logfiles()
