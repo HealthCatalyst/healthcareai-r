@@ -43,7 +43,7 @@ missingness <- function(d,
     possible_na <- map_chr(possible_na, function(st) paste0('"', st, '"'))
     warning("Found these strings that may represent missing values: ",
             list_variables(possible_na),
-            ". If they do represent missingness, replace them with NA.")
+            ". If they do represent missingness, replace them with NA.") ## TODO: add to this string!!!
   }
 
   miss <- sort(100 * purrr::map_int(d, ~sum(is.na(.x))) / nrow(d))
@@ -133,4 +133,26 @@ countMissingData <- function(x, userNAs = NULL) {
 
   .Deprecated("missingness", "healthcareai")
   missingness(x)
+}
+
+
+#' Replace missing data with NA
+#'
+#' This function replaces any given value in a dataframe with NA.
+#'
+#' @param x A dataframe or matrix
+#' @param to_replace The value that will be replaced.
+#' @return A dataframe with the missing data replaced.
+#'
+#' @export
+replace.missingness <- function(x, to_replace) {
+  ## TODO: make sure to_replace doesn't need ""
+  # if (is.data.frame(x)) {
+  #   x[x == to_replace] <- NA
+  # } else {
+  #   stop("Error: `x` must be a dataframe")
+  # }
+  x[x == to_replace] <- NA
+  droplevels(x)
+  ## TODO: check the column types afterwards
 }
