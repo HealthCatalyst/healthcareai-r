@@ -1,88 +1,73 @@
-# Needed to avoid a CMD check note
-# TODO: move to a better place
-globalVariables(c(".data"))
+pip <- function(model, d, new_values, repeated_factors = FALSE,
+                number_of_factors = 3, smaller_better = TRUE, expected_signs, id) {
 
-# 1. Build List of Dataframes --------------------------------------------------
-# The following use a dataframe of (deploy) data to build a list of dataframes,
-# one for each row of data, containing information about how modifying each
-# modifiable process variable affects the prediction.
+  id <- rlang::enquo(id)
+  # Try to find an ID column in the model's recipe
+  if (rlang::quo_is_missing(id))
+    id <- rlang::as_quosure(attr(attr(model, "recipe"), "ignored_columns"))
 
-#' @title
-#' Build a list of dataframes with new predictions for each modifiable variable.
-#' @description Builds a list consisting of one dataframe per row in
-#' \code{dataframe} which shows how the predictions for that row change as
-#' each of the mofifiable variables are altered
-#' @param dataframe A dataframe consisting of deployment data.
-#' @param grain_column_values The grain column (values, not just the name) of
-#' the deployment data.
-#' @param modifiable_variable_levels A list indexed by the modifiable
-#' process variables and containing the factor levels of each such variable.
-#' @param predict_function A function with which to make new predictions on the
-#' data.
-#' @param smaller_better A boolean indicating whether the goal is to
-#' increase or decrease the predictions/predicted probabilities.
-#' @return A list of dataframes.
-#' @keywords internal
-build_process_variable_df_list <- function(dataframe,
-                                           grain_column_values,
-                                           modifiable_variable_levels,
-                                           predict_function,
-                                           smaller_better) {
+  # Add row_id column used to join permutations; deleted at end
+  d <- dplyr::mutate(d, row_id = dplyr::row_number())
 
-  # Add the grain colum
-  dataframe["df_grain_column"] <- grain_column_values
   # Build big dataframe of permuted data
-  permuted_df <- permute_process_variables(dataframe,
-                                           modifiable_variable_levels)
-
-  # Columns not used in prediction
-  tracking_columns <- c("df_grain_column", "process_variable_name", "alt_value")
+  permuted_df <- permute_process_variables(d, new_values)
 
   # Make Predictions on the original and permuted data
-  dataframe$base_prediction <- predict_function(newData = dataframe[!names(dataframe) %in% tracking_columns])
-  permuted_df$new_prediction <- predict_function(newData = permuted_df[!names(permuted_df) %in% tracking_columns])
+  suppressWarnings({
+    suppressMessages({
+      d <- predict(model, newdata = d)
+      names(d)[stringr::str_which(names(d), "^predicted_")[1]] <- "base_prediction"
+      permuted_df <- predict(model, newdata = permuted_df)
+      names(permuted_df)[stringr::str_which(names(permuted_df), "^predicted_")[1]] <- "new_prediction"
+    })
+  })
 
   # Scaling constant to change the ordering depending on smaller_better
   ordering_direction <- if (smaller_better) -1 else 1
 
   # Join the dataframes containing the old and new predictions
-  full_df <- dataframe %>%
+  d <-
+    d %>%
+    select(!!id, row_id, base_prediction) %>%
     # Join on row number
-    dplyr::inner_join(permuted_df, by = "df_grain_column") %>%
+    dplyr::inner_join(
+      select(permuted_df, row_id, new_prediction, current_value,
+             alt_value, process_variable_name)
+      , by = "row_id") %>%
     # Add delta column
-    dplyr::mutate(delta = .data[["new_prediction"]] -
-                    .data[["base_prediction"]]) %>%
-    # Restrict to desired columns
-    dplyr::select(.data[["df_grain_column"]],
-                  .data[["process_variable_name"]],
-                  .data[["current_value"]],
-                  .data[["alt_value"]],
-                  .data[["base_prediction"]],
-                  .data[["new_prediction"]],
-                  .data[["delta"]]) %>%
-    # For each grain column id, order the results by delta
-    dplyr::arrange(.data[["df_grain_column"]],
-                   ordering_direction * desc(.data[["delta"]]))
+    dplyr::mutate(improvement = new_prediction - base_prediction)
 
   # Check for predictions that are same or worse as the original and
   # replace the recomendation and modified prediction with the originals
   # and the delta with 0
-  to_fix <-
-    if (smaller_better) {
-      full_df$delta >= 0L
-    } else {
-      full_df$delta <= 0L
-    }
+  if (smaller_better) {
+    to_fix <- d$improvement >= 0L
+    d$improvement <- d$improvement * -1
+  } else {
+    to_fix <- d$improvement <= 0L
+  }
 
   if (length(to_fix)) {
     # These rows will only be exposed if best delta is 0, so replace with current
-    full_df$alt_value[to_fix] <- full_df$current_value[to_fix]
-    full_df$new_prediction[to_fix] <- full_df$base_prediction[to_fix]
-    full_df$delta[to_fix] <- 0
+    d$alt_value[to_fix] <- d$current_value[to_fix]
+    d$new_prediction[to_fix] <- d$base_prediction[to_fix]
+    d$improvement[to_fix] <- 0
   }
 
-  # Split the large dataframe into a list of dataframes
-  split(full_df, as.factor(full_df$df_grain_column))
+  d %>%
+    select(!!id, row_id,
+           modifiable_variable = process_variable_name,
+           original_value = current_value,
+           modified_value = alt_value,
+           original_prediction = base_prediction,
+           modified_prediction = new_prediction,
+           improvement) %>%
+    group_by(row_id) %>%
+    arrange(row_id, desc(improvement)) %>%
+    mutate(value_rank = dplyr::row_number()) %>%
+    filter(value_rank <= number_of_factors) %>%
+    ungroup() %>%
+    select(-row_id, -value_rank)
 }
 
 #' @title Take a dataframe and build a larger dataframe by permuting the
@@ -127,7 +112,6 @@ permute_process_variables <- function(dataframe,
     dplyr::bind_rows()
 }
 
-
 #' @title
 #' Replace all value in the column of a dataframe with a given value.
 #' @description Takes a dataframe and replaces all the values in the
@@ -147,12 +131,6 @@ build_one_level_df <- function(dataframe, modifiable_variable, level) {
   dataframe[[modifiable_variable]] <- level
   return(dataframe)
 }
-
-# 2. Build Output Dataframe ----------------------------------------------------
-# The folloiwng functions take the list of dataframes generated using the
-# functions in 1. and combine these into a single dataframe with one row for
-# each original row of deploy data. This dataframe provides the top n most
-# useful modifiable factors.
 
 #' @title
 #' Build a the output dataframe for modifiable process variables from a list
@@ -182,25 +160,28 @@ build_process_variables_df <- function(list_of_dataframes,
 
   # Extract the first few rows from each individual dataframe and combine
   # them into one long row. Build the full dataframe out of such long rows.
-  full_df <- do.call(rbind, lapply(list_of_dataframes, function(row_df){
-    # Start by including the grain coulumn
-    cbind(df_grain_column = row_df$df_grain_column[[1]],
-          # Combine first few rows into a single row with the grain
-          do.call(cbind, lapply(1:number_of_factors, function(i) {
-            # Drop unwanted columns
-            row <- row_df[i, !(names(row_df) %in% c("df_grain_column",
-                                                    "base_prediction"))]
-            # Rename the columns
-            names(row) <- c(paste0("Modify", i, "TXT"),
-                            paste0("Modify", i, "Current"),
-                            paste0("Modify", i, "AltValue"),
-                            paste0("Modify", i, "AltPrediction"),
-                            paste0("Modify", i, "Delta"))
-            # Return the long row to help build the full dataframe
-            row
-          }))
-    )
-  }))
+  full_df <-
+    do.call(rbind, lapply(list_of_dataframes, function(row_df){
+      # Start by including the grain coulumn
+      cbind(row_id = row_df$row_id[[1]],
+            # Combine first few rows into a single row with the grain
+            do.call(cbind,
+                    lapply(seq_len(number_of_factors), function(i) {
+
+                      # Drop unwanted columns
+                      row <- row_df[i, !(names(row_df) %in% c("df_grain_column",
+                                                              "base_prediction"))]
+                      # Rename the columns
+                      names(row) <- c(paste0("Modify", i, "TXT"),
+                                      paste0("Modify", i, "Current"),
+                                      paste0("Modify", i, "AltValue"),
+                                      paste0("Modify", i, "AltPrediction"),
+                                      paste0("Modify", i, "Delta"))
+                      # Return the long row to help build the full dataframe
+                      row
+                    }))
+      )
+    }))
   row.names(full_df) <- NULL
 
   return(full_df)
