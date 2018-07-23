@@ -5,11 +5,6 @@
 #' in the same train/test group. This has been created to group patients with
 #' multiple observations in the same group.
 #'
-#' `hcai-impute` adds various imputation methods to an existing
-#' recipe. Currently supports mean (numeric only), new_category (categorical
-#' only), bagged trees, or knn.
-#' @param recipe A recipe object.
-#'
 #' @param d Data frame
 #' @param outcome Target column, unquoted. Split will be stratified across this
 #'   variable
@@ -34,6 +29,8 @@
 #'
 #'
 #' # splits to training and tests while grouping on the owner of cars
+#' library(dplyr)
+#'
 #' mtcars_owners <-
 #'   mtcars %>%
 #'   mutate(owner = as.factor(rep(letters[1:16], each = 2)))
@@ -41,7 +38,7 @@
 #' split_train_test(mtcars_owners, am, grouping_col = owner)
 #'
 #' # Grouping patients
-#' split_train_test(d, outcome, grouping_col = patient_id)
+#' split_train_test(pima_diabetes, diabetes, grouping_col = patient_id)
 #'
 split_train_test <- function(d, outcome, percent_train = .8, seed, grouping_col) {
   outcome <- rlang::enquo(outcome)

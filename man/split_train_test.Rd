@@ -19,8 +19,6 @@ each time it is called}
 
 \item{grouping_col}{column name that specifies grouping. Individuals in the same
 group are in the same training/test set.}
-
-\item{recipe}{A recipe object.}
 }
 \value{
 A list of two data frames with names train and test
@@ -30,10 +28,6 @@ A list of two data frames with names train and test
 offers an implentation to group all observations with the same column value
 in the same train/test group. This has been created to group patients with
 multiple observations in the same group.
-
-`hcai-impute` adds various imputation methods to an existing
-recipe. Currently supports mean (numeric only), new_category (categorical
-only), bagged trees, or knn.
 }
 \details{
 This function wraps `caret::createDataPartition`. If outcome is a factor
@@ -48,6 +42,8 @@ split_train_test(mtcars, am, .9)
 
 
 # splits to training and tests while grouping on the owner of cars
+library(dplyr)
+
 mtcars_owners <-
   mtcars \%>\%
   mutate(owner = as.factor(rep(letters[1:16], each = 2)))
@@ -55,6 +51,6 @@ mtcars_owners <-
 split_train_test(mtcars_owners, am, grouping_col = owner)
 
 # Grouping patients
-split_train_test(d, outcome, grouping_col = patient_id)
+split_train_test(pima_diabetes, diabetes, grouping_col = patient_id)
 
 }
