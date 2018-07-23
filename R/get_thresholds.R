@@ -2,6 +2,9 @@
 #'
 #' @param x Either a predictions data frame (from \code{predict}) or a
 #'   model_list (e.g. from \code{machine_learn}).
+#' @param optimize Optional. If provided, one of the entries in \code{measures}. A logical
+#' column named "optimal" will be added with one TRUE entry corresponding to
+#' the threshold that optimizes this measure.
 #' @param measures Character vector of performance metrics to calculate. The
 #' returned data frame will have one column for each metric. Any
 #'   of the non-scaler measure arguements to \code{ROCR::performance} should work.
@@ -43,8 +46,13 @@
 #' models <- machine_learn(pima_diabetes[1:20, ], patient_id, outcome = diabetes,
 #'                         models = "rf", tune = FALSE)
 #' get_thresholds(models)
-#' get_thresholds(models) %>%
-#'   plot()
+#'
+#' # Get the threshold that maximizes accuracy:
+#' get_thresholds(models, optimize = "acc") %>%
+#'   filter(optimal)
+#'
+#' # Plot performance on all measures across threshold values
+#' plot(thresholds)
 #'
 #' # Extract the threshold that makes the highest accuracy predictions and
 #' # use it to generate predicted classes on the training dataset.
@@ -58,9 +66,9 @@
 #'   )) %>%
 #'   select_at(vars(ends_with("diabetes"))) %>%
 #'  arrange(predicted_diabetes)
-get_thresholds <- function(x,
-                           measures = c("cost", "acc", "tpr", "fnr", "tnr", "fpr", "ppv", "npv"),
+get_thresholds <- function(x, optimize = NULL, measures = "all",
                            cost.fp = 1, cost.fn = 1) {
+  measures <- get_measures(measures)
   if (is.model_list(x))
     x <- predict(x)
   mi <- attr(x, "model_info")
@@ -85,7 +93,7 @@ get_thresholds <- function(x,
   thresholds <- unlist(pred_obj@cutoffs)
   # Calculate measures and put them in a data frame with the thresholds
   out_df <-
-    lapply(measures, function(x) {
+    lapply(names(measures), function(x) {
       scores <- unlist(ROCR::performance(pred_obj, x, cost.fp = cost.fp, cost.fn = cost.fn)@y.values)
       if (length(scores) != length(thresholds))
         stop(x, ", which you supplied to `measures` doesn't seem to produce one ",
@@ -93,18 +101,47 @@ get_thresholds <- function(x,
              "Here's what ", x, " produced:\n", scores)
       return(scores)
     }) %>%
-    setNames(measures) %>%
+    setNames(names(measures)) %>%
     dplyr::bind_cols(threshold = thresholds, .)
+  if (!is.null(optimize)) {
+    if (!optimize %in% names(measures))
+      stop("optimize must be one of the measures being calculated. You provided ",
+           "optimize = ", optimize, ", and measures = ", list_variables(names(measures)))
+    best <- which.max(out_df[[optimize]] * measures[[optimize]])
+    out_df$optimal <- FALSE
+    out_df$optimal[best] <- TRUE
+    attr(out_df, "optimized") <- optimize
+  }
+
   class(out_df) <- c("thresholds_df", class(out_df))
   return(out_df)
+}
+
+get_measures <- function(measures) {
+  available <- c("cost" = -1, "acc" = 1, "tpr" = 1, "fnr" = -1,
+                 "tnr" = 1, "fpr" = -1, "ppv" = 1, "npv" = 1)
+  if (length(measures) == 1 && measures == "all") {
+    measures <- available
+  } else {
+    not_supported <- !measures %in% names(available)
+    if (any(not_supported))
+      stop("These are not available performance measures: ",
+           list_variables(measures[not_supported]))
+    measures <- available[measures]
+  }
+  return(measures)
 }
 
 #' Plot threshold performance metrics
 #'
 #' @param x A \code{threshold_df} object from \code{\link{get_thresholds}} or a
-#'  data frame with columns "threshold" and other columns to be plotted against thresholds
+#'  data frame with columns "threshold" and other columns to be plotted against
+#'  thresholds. If \code{optimize} was provided to \code{\link{get_thresholds}}
+#'  a line is drawn in each facet corresponding to the optimal threshold.
 #' @param title Plot title. Default NULL produces no title
-#' @param caption Plot caption. Default NULL produces no caption
+#' @param caption Plot caption. Default NULL produces no caption unless
+#' \code{get_thresholds(optimize)} was provided, in which case information
+#' about the threshold and performance are provided in the caption.
 #' @param font_size Relative size of all fonts in plot, default = 11
 #' @param line_size Width of lines, default = 0.5
 #' @param point_size Point size. Default is \code{NA} which suppresses points.
@@ -131,6 +168,17 @@ plot.thresholds_df <- function(x, title = NULL, caption = NULL, font_size = 11,
                                print = TRUE, ... ) {
   if ( !is.data.frame(x) || !"threshold" %in% names(x) )
     stop("x must be a data frame from get_thresholds, or at least look like one!")
+
+  # Process optimal
+  optimized <- attr(x, "optimized")
+  if (!is.null(optimized)) {
+    thresh <- filter(x, optimal) %>% pull(threshold)
+    x <- select(x, -optimal)
+    if (is.null(caption))
+      caption <- paste("Threshold value of", signif(thresh, 3),
+                       "chosen to optimize", optimized)
+  }
+
   the_plot <-
     x %>%
     tidyr::gather(measure, value, -threshold) %>%
@@ -141,6 +189,13 @@ plot.thresholds_df <- function(x, title = NULL, caption = NULL, font_size = 11,
     ylab(NULL) +
     labs(title = title, caption = caption) +
     theme_gray(base_size = font_size)
+
+  if (!is.null(optimized)) {
+    the_plot <-
+      the_plot +
+      geom_vline(xintercept = thresh, linetype = "dashed",
+                 alpha = .6, color = "firebrick")
+  }
 
   if (print)
     print(the_plot)
