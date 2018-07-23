@@ -4,8 +4,7 @@
 \alias{split_train_test}
 \title{Split data into training and test data frames}
 \usage{
-split_train_test(d, outcome, percent_train = 0.8, seed, grouping_col = NULL,
-  aggreg_func = dplyr::first)
+split_train_test(d, outcome, percent_train = 0.8, seed, grouping_col)
 }
 \arguments{
 \item{d}{Data frame}
@@ -21,14 +20,20 @@ each time it is called}
 \item{grouping_col}{column name that specifies grouping. Individuals in the same
 group are in the same training/test set.}
 
-\item{aggreg_func}{when the data is grouped, the outcome column is aggregated
-based on this function.}
+\item{recipe}{A recipe object.}
 }
 \value{
 A list of two data frames with names train and test
 }
 \description{
-Split data into training and test data frames
+`split_train_test` splits data for validation of models. It also
+offers an implentation to group all observations with the same column value
+in the same train/test group. This has been created to group patients with
+multiple observations in the same group.
+
+`hcai-impute` adds various imputation methods to an existing
+recipe. Currently supports mean (numeric only), new_category (categorical
+only), bagged trees, or knn.
 }
 \details{
 This function wraps `caret::createDataPartition`. If outcome is a factor
@@ -36,8 +41,20 @@ This function wraps `caret::createDataPartition`. If outcome is a factor
   selected.
 
   If the grouping_col is given, then the groups are divided into the test/
-  training porportions by using the given aggregate function.
+  training porportions.
 }
 \examples{
 split_train_test(mtcars, am, .9)
+
+
+# splits to training and tests while grouping on the owner of cars
+mtcars_owners <-
+  mtcars \%>\%
+  mutate(owner = as.factor(rep(letters[1:16], each = 2)))
+
+split_train_test(mtcars_owners, am, grouping_col = owner)
+
+# Grouping patients
+split_train_test(d, outcome, grouping_col = patient_id)
+
 }
