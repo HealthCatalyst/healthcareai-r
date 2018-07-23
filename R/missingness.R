@@ -147,12 +147,12 @@ countMissingData <- function(x, userNAs = NULL) {
 #' @export
 replace.missingness <- function(x, to_replace) {
   ## TODO: make sure to_replace doesn't need ""
-  # if (is.data.frame(x)) {
-  #   x[x == to_replace] <- NA
-  # } else {
-  #   stop("Error: `x` must be a dataframe")
-  # }
-  x[x == to_replace] <- NA
-  droplevels(x)
+  if (is.data.frame(x)) {
+    x[x == to_replace] <- NA
+  } else {
+    stop("Error: `x` must be a dataframe")
+  }
+  # x[x == to_replace] <- NA
+  return(droplevels(x))
   ## TODO: check the column types afterwards
 }

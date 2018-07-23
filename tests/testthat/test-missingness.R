@@ -100,7 +100,16 @@ test_that("plot.missingness respects max_char", {
   expect_false(isTRUE(all.equal(plot(md, max_char = 7), plot(md))))
 })
 
-test_that("replace.missingness", {
+test_that("replace.missingness replace blank", {
+  expected <- data.frame(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
+                         b = c(NA, 0, "na", "None", "none", 3, 10, 4),
+                         c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
+                         d = c(1, 6, 7, 8, 9, 5, 10, 1078950492))
+  actual <- replace.missingness(dat,"blank")
+  expect_identical(actual, expected)
+})
+
+test_that("replace.missingness replace ", {
   expected <- data.frame(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
                          b = c(NA, 0, "na", "None", "none", 3, 10, 4),
                          c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
