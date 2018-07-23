@@ -28,7 +28,7 @@
 #' @importFrom ROCR performance
 #'
 #' @description healthcareai gives you predicted probabilities for classification
-#' problems, but sometimes you may need to convert probabilities into predicted
+#' problems, but sometimes you need to convert probabilities into predicted
 #' classes. That requires choosing a threshold, where probabilities above the
 #' threshold are predicted as the positive class and probabilities below the
 #' threshold are predicted as the negative class. This function helps you do that
@@ -42,20 +42,22 @@
 #' @examples
 #' models <- machine_learn(pima_diabetes[1:20, ], patient_id, outcome = diabetes,
 #'                         models = "rf", tune = FALSE)
-#'
-#' # Get all the possible thresholds and performance measures at each
-#' (thresholds <- get_thresholds(models))
+#' get_thresholds(models)
+#' get_thresholds(models) %>%
+#'   plot()
 #'
 #' # Extract the threshold that makes the highest accuracy predictions and
 #' # use it to generate predicted classes on the training dataset.
 #' library(dplyr)
+#' thresholds <- get_thresholds(models)
 #' optimal_threshold <- thresholds$threshold[which.max(thresholds$acc)]
 #' predict(models) %>%
 #'   mutate(predicted_class_diabetes = case_when(
 #'     predicted_diabetes > optimal_threshold ~ "Y",
 #'     predicted_diabetes <= optimal_threshold ~ "N"
 #'   )) %>%
-#'   select_at(vars(ends_with("diabetes")))
+#'   select_at(vars(ends_with("diabetes"))) %>%
+#'  arrange(predicted_diabetes)
 get_thresholds <- function(x,
                            measures = c("cost", "acc", "tpr", "fnr", "tnr", "fpr", "ppv", "npv"),
                            cost.fp = 1, cost.fn = 1) {
@@ -66,7 +68,7 @@ get_thresholds <- function(x,
     stop("get_thresholds only works for classification models. x looks like it's ", mi$type)
   target <- mi$target
   actual <- x[[target]]
-  if (is.null(labels))
+  if (is.null(actual))
     stop("x doesn't have outcomes, so get_thresholds can't calculate performance metrics")
   preds <- x[[paste0("predicted_", target)]]
   # If positive class is in the actual vector, set the positive class explicitly:

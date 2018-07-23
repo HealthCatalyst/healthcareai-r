@@ -49,6 +49,9 @@ test_that("get_thresholds return has thresholds_df class", {
   expect_s3_class(def, "thresholds_df")
 })
 
+test_that("get_thresholds errors nicely if labels aren't present", {
+  expect_error(get_thresholds(select(pred, -am)), "doesn't have outcomes")
+})
 
 #######
 context("plot.thresholds_df")
