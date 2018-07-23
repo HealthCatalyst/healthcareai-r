@@ -10,11 +10,15 @@
 }
 \arguments{
 \item{x}{A \code{threshold_df} object from \code{\link{get_thresholds}} or a
-data frame with columns "threshold" and other columns to be plotted against thresholds}
+data frame with columns "threshold" and other columns to be plotted against
+thresholds. If \code{optimize} was provided to \code{\link{get_thresholds}}
+a line is drawn in each facet corresponding to the optimal threshold.}
 
 \item{title}{Plot title. Default NULL produces no title}
 
-\item{caption}{Plot caption. Default NULL produces no caption}
+\item{caption}{Plot caption. Default NULL produces no caption unless
+\code{get_thresholds(optimize)} was provided, in which case information
+about the threshold and performance are provided in the caption.}
 
 \item{font_size}{Relative size of all fonts in plot, default = 11}
 
@@ -38,12 +42,12 @@ Plot threshold performance metrics
 \examples{
 m <- machine_learn(pima_diabetes[1:100, ], patient_id, outcome = diabetes,
                    models = "xgb", tune = FALSE, n_folds = 3)
+
 get_thresholds(m) \%>\%
   plot()
-thresh <- get_thresholds(m, measures = c("acc", "cost"), cost.fn = 3)
-plot(thresh, point_size = .5, ncol = 1, caption = "Try setting cost.fn = 10") +
-  geom_vline(xintercept = thresh$threshold[which.min(thresh$cost)],
-             linetype = "dashed", color = "firebrick")
+
+get_thresholds(m, optimize = "cost", measures = c("acc", "cost"), cost_fn = 3) \%>\%
+  plot(point_size = .5, ncol = 1)
 }
 \seealso{
 \code{\link{get_thresholds}}

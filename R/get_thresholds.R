@@ -5,13 +5,12 @@
 #' @param optimize Optional. If provided, one of the entries in \code{measures}. A logical
 #' column named "optimal" will be added with one TRUE entry corresponding to
 #' the threshold that optimizes this measure.
-#' @param measures Character vector of performance metrics to calculate. The
-#' returned data frame will have one column for each metric. Any
-#'   of the non-scaler measure arguements to \code{ROCR::performance} should work.
-#'   Defaults to all of the following: \itemize{
+#' @param measures Character vector of performance metrics to calculate, or "all",
+#' which is equivalent to using all of the following measures. The
+#' returned data frame will have one column for each metric. \itemize{
 #'   \item{cost: Captures how bad all the errors are. You can adjust the relative costs
-#'    of false alarms and missed detections by setting \code{cost.fp} or
-#'    \code{cost.fn}}. At the default of equal costs, this is directly inversely
+#'    of false alarms and missed detections by setting \code{cost_fp} or
+#'    \code{cost_fn}}. At the default of equal costs, this is directly inversely
 #'    proportional to accuracy.
 #'   \item{acc: Accuracy}
 #'   \item{tpr: True positive rate, aka sensitivity, aka recall}
@@ -21,8 +20,8 @@
 #'   \item{ppv: Positive predictive value, aka precision}
 #'   \item{npv: Negative predictive value}
 #'   }
-#' @param cost.fp Cost of a false positive. Default = 1. Only affects cost.
-#' @param cost.fn Cost of a false negative. Default = 1. Only affects cost.
+#' @param cost_fp Cost of a false positive. Default = 1. Only affects cost.
+#' @param cost_fn Cost of a false negative. Default = 1. Only affects cost.
 #'
 #' @return Tibble with rows for each possible threshold
 #' and columns for the thresholds and each value in \code{measures}.
@@ -38,36 +37,66 @@
 #' by calculating a bunch of model-performance metrics at every possible
 #' threshold.
 #'
+#' "cost" is an especially useful measure as it allows you to weight how bad a
+#' false alarm is relative to a missed detection. E.g. if for your use case
+#' a missed detection is five times as bad as a false alarm (another way to say
+#' that is that you're willing to allow five false positives for every one
+#' false negative), set \code{cost_fn = 5} and use the threshold that minimizes
+#' cost (see \code{examples}).
+#'
 #' We recommend plotting the thresholds with their performance measures to
 #' see how optimizing for one measure affects performance on other measures.
 #' See \code{\link{plot.thresholds_df}} for how to do this.
 #'
 #' @examples
-#' models <- machine_learn(pima_diabetes[1:20, ], patient_id, outcome = diabetes,
-#'                         models = "rf", tune = FALSE)
+#' library(dplyr)
+#' models <- machine_learn(pima_diabetes[1:15, ], patient_id, outcome = diabetes,
+#'                         models = "xgb", tune = FALSE)
 #' get_thresholds(models)
 #'
-#' # Get the threshold that maximizes accuracy:
-#' get_thresholds(models, optimize = "acc") %>%
+#' # Identify the threshold that maximizes accuracy:
+#' get_thresholds(models, optimize = "acc")
+#'
+#' # Assert that one missed detection is as bad as five false alarms and
+#' # filter to the threshold that minimizes "cost" based on that assertion:
+#' get_thresholds(models, optimize = "cost", cost_fn = 5) %>%
 #'   filter(optimal)
 #'
 #' # Plot performance on all measures across threshold values
-#' plot(thresholds)
+#' get_thresholds(models) %>%
+#'   plot()
 #'
-#' # Extract the threshold that makes the highest accuracy predictions and
-#' # use it to generate predicted classes on the training dataset.
-#' library(dplyr)
-#' thresholds <- get_thresholds(models)
-#' optimal_threshold <- thresholds$threshold[which.max(thresholds$acc)]
-#' predict(models) %>%
+#' # If a measure is provided to optimize, the best threshold will be highlighted in plots
+#' get_thresholds(models, optimize = "acc") %>%
+#'   plot()
+#'
+#' ## Transform probability predictions into classes based on an optimal threshold ##
+#' # Pull the threshold that minimizes cost
+#' optimal_threshold <-
+#'   get_thresholds(models, optimize = "cost") %>%
+#'   filter(optimal) %>%
+#'   pull(threshold)
+#'
+#' # Add a Y/N column to predictions based on whether the predicted probability
+#' # is greater than the threshold
+#' class_predictions <-
+#'   predict(models) %>%
 #'   mutate(predicted_class_diabetes = case_when(
 #'     predicted_diabetes > optimal_threshold ~ "Y",
 #'     predicted_diabetes <= optimal_threshold ~ "N"
-#'   )) %>%
+#'   ))
+#'
+#' class_predictions %>%
 #'   select_at(vars(ends_with("diabetes"))) %>%
-#'  arrange(predicted_diabetes)
+#'   arrange(predicted_diabetes)
+#'
+#' # Examine the expected volume of false-and-true negatives-and-positive
+#' # Note that you could view this in proportions by dividing by
+#' # \code{nrow(class_predictions)}
+#' table(Actual = class_predictions$diabetes,
+#'       Predicted = class_predictions$predicted_class_diabetes)
 get_thresholds <- function(x, optimize = NULL, measures = "all",
-                           cost.fp = 1, cost.fn = 1) {
+                           cost_fp = 1, cost_fn = 1) {
   measures <- get_measures(measures)
   if (is.model_list(x))
     x <- predict(x)
@@ -94,7 +123,8 @@ get_thresholds <- function(x, optimize = NULL, measures = "all",
   # Calculate measures and put them in a data frame with the thresholds
   out_df <-
     lapply(names(measures), function(x) {
-      scores <- unlist(ROCR::performance(pred_obj, x, cost.fp = cost.fp, cost.fn = cost.fn)@y.values)
+      scores <- unlist(
+        ROCR::performance(pred_obj, x, cost.fp = cost_fp, cost.fn = cost_fn)@y.values)
       if (length(scores) != length(thresholds))
         stop(x, ", which you supplied to `measures` doesn't seem to produce one ",
              "value per threshold. Check `?ROCR::performance`. ",
@@ -157,12 +187,12 @@ get_measures <- function(measures) {
 #' @examples
 #' m <- machine_learn(pima_diabetes[1:100, ], patient_id, outcome = diabetes,
 #'                    models = "xgb", tune = FALSE, n_folds = 3)
+#'
 #' get_thresholds(m) %>%
 #'   plot()
-#' thresh <- get_thresholds(m, measures = c("acc", "cost"), cost.fn = 3)
-#' plot(thresh, point_size = .5, ncol = 1, caption = "Try setting cost.fn = 10") +
-#'   geom_vline(xintercept = thresh$threshold[which.min(thresh$cost)],
-#'              linetype = "dashed", color = "firebrick")
+#'
+#' get_thresholds(m, optimize = "cost", measures = c("acc", "cost"), cost_fn = 3) %>%
+#'   plot(point_size = .5, ncol = 1)
 plot.thresholds_df <- function(x, title = NULL, caption = NULL, font_size = 11,
                                line_size = .5, point_size = NA, ncol = 2,
                                print = TRUE, ... ) {
@@ -172,8 +202,8 @@ plot.thresholds_df <- function(x, title = NULL, caption = NULL, font_size = 11,
   # Process optimal
   optimized <- attr(x, "optimized")
   if (!is.null(optimized)) {
-    thresh <- filter(x, optimal) %>% pull(threshold)
-    x <- select(x, -optimal)
+    thresh <- dplyr::filter(x, optimal) %>% dplyr::pull(threshold)
+    x <- dplyr::select(x, -optimal)
     if (is.null(caption))
       caption <- paste("Threshold value of", signif(thresh, 3),
                        "chosen to optimize", optimized)

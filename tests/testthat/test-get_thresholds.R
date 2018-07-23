@@ -28,9 +28,9 @@ test_that("measures are respected", {
   expect_error(get_thresholds(m, measures = c("mi", "f")), "not available")
 })
 
-test_that("cost.fp and cost.fn are respected", {
-  set1 <- get_thresholds(pred, cost.fn = 10)
-  set2 <- get_thresholds(pred, measures = "cost", cost.fp = .1, cost.fn = 3)
+test_that("cost_fp and cost_fn are respected", {
+  set1 <- get_thresholds(pred, cost_fn = 10)
+  set2 <- get_thresholds(pred, measures = "cost", cost_fp = .1, cost_fn = 3)
   expect_false(isTRUE(all.equal(def, set1)))
   expect_false(isTRUE(all.equal(set1, set2)))
 })
