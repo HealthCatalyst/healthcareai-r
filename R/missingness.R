@@ -145,14 +145,25 @@ countMissingData <- function(x, userNAs = NULL) {
 #' @return A dataframe with the missing data replaced.
 #'
 #' @export
-replace.missingness <- function(x, to_replace) {
+replace.missingness <- function(d, to_replace) {
   ## TODO: make sure to_replace doesn't need ""
-  if (is.data.frame(x)) {
-    x[x == to_replace] <- NA
+  if (is.data.frame(d)) {
+    print(sQuote(to_replace))
+    d[d == sQuote(to_replace)] <- NA
+    d <- map_dfr(d, function(col) {
+      if (is.character(col)) {
+        ans <- map_lgl(col, function(val) {
+          ans <- !is.na(as.numeric(val)) || is.na(val)
+          return(ans)
+        })
+        if (all(ans)) {
+          col <- as.numeric(col)
+        }
+      }
+      return(col)
+    })
   } else {
-    stop("Error: `x` must be a dataframe")
+    stop("\"d\" must be a dataframe or tibble")
   }
-  # x[x == to_replace] <- NA
-  return(droplevels(x))
-  ## TODO: check the column types afterwards
+  return(droplevels(d))
 }
