@@ -1,0 +1,72 @@
+context("pip")
+
+set.seed(5470)
+n <- 10
+animals <- tibble::tibble(id_column = letters[1:n],
+                          animal = sample(c("cat", "dog", "mouse", "rabbit"), n, TRUE),
+                          weight = rexp(n, .5),
+                          super =  sample(c("yes", "no"), n, TRUE),
+                          y = rnorm(n))
+animodel <- machine_learn(animals, id_column, outcome = y, tune = FALSE, models = "xgb")
+alt_list <- list(animal = c("dog", "cat"), weight = 0, super = c("yes", "no"))
+def_pip <- pip(animodel, animals, new_values = alt_list)
+glm_model <- machine_learn(animals, id_column, outcome = y, tune = FALSE, models = "glm")
+
+test_that("build_one_level_df", {
+  animals_replaced <- build_one_level_df(animals, variable = "animal", level = "deer")
+  expect_true(isTRUE(all.equal(animals$animal, animals_replaced$current_value)))
+  expect_true(all(animals_replaced$alt_value == "deer"))
+  expect_true(isTRUE(all.equal(animals$y, animals_replaced$y)))
+
+  y_replaced <- build_one_level_df(animals, "y", 2)
+  expect_true(isTRUE(all.equal(animals$y, as.numeric(y_replaced$current_value))))
+  expect_true(all(y_replaced$alt_value == 2))
+  expect_true(isTRUE(all.equal(y_replaced$animal, y_replaced$animal)))
+})
+
+test_that("permute_process_variables", {
+  perm <- permute_process_variables(animals,
+                                    list(animal = c("rat", "gopher"), y = 1:3))
+  expect_equal(sum(perm$animal == "rat"), nrow(animals))
+  expect_equal(sum(perm$y == 1), sum(perm$y == 2))
+  expect_equal(sum(perm$y == 1), nrow(animals))
+  expect_setequal(perm$process_variable_name, c("animal", "y"))
+})
+
+test_that("id columns are retained", {
+  # From model_list
+  expect_true("id_column" %in% names(def_pip))
+  # Explicitly given
+  ani2 <- dplyr::mutate(animals, id2 = 1:n)
+  m2 <- machine_learn(ani2, id_column, outcome = y, tune = FALSE, models = "xgb")
+  pip2 <- pip(m2, ani2[1, ], alt_list)
+  expect_true("id_column" %in% names(pip2))
+  expect_false("id2" %in% names(pip2))
+  pip3 <- pip(m2, ani2[1, ], alt_list, id = id2)
+  expect_true("id2" %in% names(pip3))
+})
+
+test_that("repeated_factors works", {
+  max_count <- function(d)
+    dplyr::count(d, id_column) %>% dplyr::pull(n) %>% max()
+  expect_true(max_count(def_pip) <= 3)
+  expect_true(max_count(pip(animodel, animals, new_values = alt_list, n = 2)) <= 2)
+  expect_true(max_count(pip(animodel, animals, new_values = alt_list, n = 1)) <= 1)
+})
+
+test_that("pip warns if unused variables are provided as potential modifieds", {
+  # Ensure that animal was regularized to zero:
+  expect_false("animal" %in% interpret(glm_model)$variable)
+  expect_warning(pip(glm_model, animals, new_values = alt_list), "animal")
+})
+
+test_that("smaller_better", {
+  rev_pip <- pip(animodel, animals, new_values = alt_list, smaller_better = FALSE)
+  dplyr::inner_join(
+    dplyr::filter(rev_pip, improvement > 0),
+    dplyr::filter(def_pip, improvement > 0),
+    by = c("id_column", "original_value", "modified_value")
+  ) %>%
+    nrow() %>%
+    expect_equal(0)
+})
