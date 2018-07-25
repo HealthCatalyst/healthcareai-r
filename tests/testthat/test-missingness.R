@@ -105,22 +105,44 @@ test_that("replace.missingness replace blank", {
                          b = c(NA, 0, "na", "None", "none", 3, 10, 4),
                          c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
                          d = c(1, 6, 7, 8, 9, 5, 10, 1078950492))
-  actual <- replace.missingness(dat, blank)
+  actual <- replace.missingness(dat, "blank")
   expect_equal(actual, expected)
-  #expect_identical(actual, expected)
 })
 
-# test_that("replace.missingness switch col to numeric", {
-#   new_line <- c(1, 2, 3, 4, 5, 6, 7, "NULL")
-#   dat <-
-#     dat %>%
-#     mutate(e = new_line)
-#   expected <- data.frame(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
-#                          b = c("blank", 0, "na", "None", "none", 3, 10, 4),
-#                          c = c(10, 5, 8, 1, NA, NA, NaN, "Nas"),
-#                          d = c(1, 6, 7, 8, 9, 5, 10, 1078950492),
-#                          e = c(1, 2, 3, 4, 5, 6, 7, NA))
-#   actual <- replace.missingness(dat, "NULL")
-#   expect_equal(actual, expected)
-#   # expect_identical(actual, expected)
-# })
+test_that("replace.missingness tibble switch character col to numeric", {
+  new_line <- c(1, 2, 3, 4, 5, 6, 7, "none")
+  dat <-
+    dat %>%
+    mutate(e = new_line)
+  expected <- data.frame(a = c(1, 2, "NA", NA, NA, "??", "?", 5),
+                       b = c("blank", 0, "na", "None", NA, 3, 10, 4),
+                       c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
+                       d = c(1, 6, 7, 8, 9, 5, 10, 1078950492),
+                       e = c(1, 2, 3, 4, 5, 6, 7, NA))
+  actual <- replace.missingness(dat, "none")
+  expect_equal(actual, expected)
+})
+
+test_that("replace.missingness replace NULL", {
+  expected <- data.frame(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
+                         b = c("blank", 0, "na", "None", "none", 3, 10, 4),
+                         c = c(10, 5, 8, 1, NA, NA, NaN, "Nas"),
+                         d = c(1, 6, 7, 8, 9, 5, 10, 1078950492))
+  actual <- replace.missingness(dat, "NULL")
+  expect_equal(actual, expected)
+})
+
+test_that("replace.missingness df switch character col to numeric", {
+  new_line <- c(1, 2, 3, 4, 5, 6, 7, "none")
+  dat <-
+    dat %>%
+    mutate(e = new_line)
+  dat <- as.data.frame(dat)
+  expected <- data.frame(a = c(1, 2, "NA", NA, NA, "??", "?", 5),
+                         b = c("blank", 0, "na", "None", NA, 3, 10, 4),
+                         c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
+                         d = c(1, 6, 7, 8, 9, 5, 10, 1078950492),
+                         e = c(1, 2, 3, 4, 5, 6, 7, NA))
+  actual <- replace.missingness(dat, "none")
+  expect_equal(actual, expected)
+})

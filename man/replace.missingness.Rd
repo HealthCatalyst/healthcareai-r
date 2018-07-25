@@ -2,12 +2,12 @@
 % Please edit documentation in R/missingness.R
 \name{replace.missingness}
 \alias{replace.missingness}
-\title{Replace missing data with NA}
+\title{Replaces missing data with NA}
 \usage{
-replace.missingness(x, to_replace)
+replace.missingness(d, to_replace)
 }
 \arguments{
-\item{x}{A dataframe or matrix}
+\item{d}{A dataframe or matrix}
 
 \item{to_replace}{The value that will be replaced.}
 }

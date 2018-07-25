@@ -43,7 +43,8 @@ missingness <- function(d,
     possible_na <- map_chr(possible_na, function(st) paste0('"', st, '"'))
     warning("Found these strings that may represent missing values: ",
             list_variables(possible_na),
-            ". If they do represent missingness, replace them with NA.") ## TODO: add to this string!!!
+            ". If they do represent missingness, replace them with NA by using",
+            " `replace.missingness`")
   }
 
   miss <- sort(100 * purrr::map_int(d, ~sum(is.na(.x))) / nrow(d))
@@ -136,27 +137,32 @@ countMissingData <- function(x, userNAs = NULL) {
 }
 
 
-#' Replace missing data with NA
+#' Replaces missing data with NA
 #'
 #' This function replaces any given value in a dataframe with NA.
 #'
-#' @param x A dataframe or matrix
+#' @param d A dataframe or matrix
 #' @param to_replace The value that will be replaced.
 #' @return A dataframe with the missing data replaced.
 #'
 #' @export
+#' @example
+#' # Replace "NULL" in dat
+#' dat <- data.frame(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
+#'                   b = c("blank", 0, "na", "None", "none", 3, 10, 4),
+#'                   c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
+#'                   d = c(1, 6, 7, 8, 9, 5, 10, 1078950492))
+#'
+#' replace.missingness(dat, "NULL")
+#'
 replace.missingness <- function(d, to_replace) {
-  ## TODO: make sure to_replace doesn't need ""
   if (is.data.frame(d)) {
-    print(sQuote(to_replace))
-    d[d == sQuote(to_replace)] <- NA
+    d[d == to_replace] <- NA
+
     d <- map_dfr(d, function(col) {
       if (is.character(col)) {
-        ans <- map_lgl(col, function(val) {
-          ans <- !is.na(as.numeric(val)) || is.na(val)
-          return(ans)
-        })
-        if (all(ans)) {
+        ans <- sum(is.na(col)) == sum(is.na(as.numeric(col)))
+        if (ans) {
           col <- as.numeric(col)
         }
       }
