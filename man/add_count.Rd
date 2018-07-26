@@ -18,10 +18,12 @@ a tibble with the counts appended to the `variable_name` column
 adds the count of each variable to its value
 }
 \examples{
+\dontrun{
 # Adds the count of each animal to its animal listing in the column animal
 library(tidyverse)
 d <- tibble(animal = sample(c("cat", "dog", "mouse", "rabbit"), 20, TRUE),
   other_var = rnorm(20))
 
 add_count(d, animal)
+}
 }

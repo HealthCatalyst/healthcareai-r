@@ -7,12 +7,14 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Adds the count of each animal to its animal listing in the column animal
 #' library(tidyverse)
 #' d <- tibble(animal = sample(c("cat", "dog", "mouse", "rabbit"), 20, TRUE),
 #'   other_var = rnorm(20))
 #'
 #' add_count(d, animal)
+#' }
 add_count <- function(d, variable_name) {
   if (!is.data.frame(d))
     stop("`d` must be dataframe")
