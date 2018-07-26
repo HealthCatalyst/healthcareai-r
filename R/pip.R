@@ -258,7 +258,7 @@ permute_process_variables <- function(dataframe, variable_levels,
   modifiable_names <- names(variable_levels)
 
   # Build a dataframe for each modifiable variable and glue these together
-  lapply(X = seq_along(variable_levels), FUN = function(i) {
+  purrr::map_df(seq_along(variable_levels), function(i) {
     # Get variable name and levels
     variable <- modifiable_names[i]
     if (is.factor(dataframe[[variable]])) {
@@ -267,22 +267,14 @@ permute_process_variables <- function(dataframe, variable_levels,
     } else {
       levels <- variable_levels[[i]]
     }
-
     # For one variable, cycle through all levels and build a dataframe for
     # each one by perturbing the levels, then combine these.
-    one_variable_df <- lapply(X = levels,
-                              FUN = build_one_level_df,
-                              dataframe = dataframe,
-                              variable = variable,
-                              one_variable_direction = variable_direction[variable],
-                              one_prohibited_transition = prohibited_transitions[[variable]]) %>%
-      dplyr::bind_rows()
-    # Add the modifiable variable to the dataframe
-    # one_variable_df["process_variable_name"] <- as.character(variable)
-    # Output each one_variable_df so that they may be combined
-    one_variable_df
-  }) %>%
-    dplyr::bind_rows()
+    purrr::map_df(levels, build_one_level_df,
+                  dataframe = dataframe,
+                  variable = variable,
+                  one_variable_direction = variable_direction[variable],
+                  one_prohibited_transition = prohibited_transitions[[variable]])
+  })
 }
 
 #' @title
