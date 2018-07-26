@@ -55,11 +55,48 @@
 #' @export
 #'
 #' @examples
+#' # First, we need a model to make recommendations
 #' m <- machine_learn(pima_diabetes, patient_id, outcome = diabetes,
 #'                    tune = FALSE, models = "xgb")
-#' pip(model = m, d = pima_diabetes[1:3, ],
-#'     new_values = list(weight_class = c("underweight", "normal", "overweight"),
-#'                       plasma_glucose = c(75, 100)))
+#' # Let's look at changes in predicted outcomes for patients changing their
+#' # weight class, blood glucose, and blood pressure
+#' modifications <- list(weight_class = c("underweight", "normal", "overweight"),
+#'                       plasma_glucose = c(75, 100),
+#'                       diastolic_bp = 70)
+#' pip(model = m, d = pima_diabetes[1:3, ], new_values = modifications)
+#'
+#' # In the above example, only one patient is predicted to have a positive
+#' # predicted impact from changing their diastolic_bp to 70, so for the other
+#' # patients fewer than the default n=3 predictions are provided. We can get n=3
+#' # predictions for each patient by specifying allow_same, which will recommend
+#' # the other two patients maintain their current diastolic_bp.
+#' pip(model = m, d = pima_diabetes[1:3, ], new_values = modifications, allow_same = TRUE)
+#'
+#' # Sometimes clinical knowledge trumps machine learning. Clinicians should always
+#' # be consulted when using patient impact predictor. If there is clinical
+#' # knowledge to suggest what impact a variable should have, that knowledge can be
+#' # provided to pip. The way it is provided depends on whether the variable is
+#' # categorical (use prohibited_transitions) or numeric (use variable_direction).
+#'
+#' # Suppose a clinician says that suggesting a patient change their weight class
+#' # to underweight from any value except normal is a bad idea. We can disallow
+#' # those suggestions through prohibited_transitions. Note the change in patient
+#' # 1's second recommendation.
+#' prohibit <- data.frame(from = setdiff(unique(pima_diabetes$weight_class), "normal"),
+#'                        to = "underweight")
+#' pip(model = m, d = pima_diabetes[1:3, ], new_values = modifications,
+#'     prohibited_transitions = list(weight_class = prohibit))
+#'
+#' # Suppose a clinician says that increasing diastolic_bp should never be
+#' # recommended to improve diabetes outcomes, and likewise for reducing
+#' # plasma_glucose (which is clinically silly, but provides an illustration). The
+#' # following code ensures that diastolic_bp is only recommended to decrease and
+#' # plasma_glucose is only recommended to increase. Note that the plasma_glucose
+#' # recommendations disappear, because no patient would see their outcomes
+#' # improve by increasing their plasma_glucose.
+#' directional_changes <- c(diastolic_bp = -1, plasma_glucose = 1)
+#' pip(model = m, d = pima_diabetes[1:3, ], new_values = modifications,
+#'     variable_direction = directional_changes)
 pip <- function(model, d, new_values, n = 3, allow_same = FALSE,
                 repeated_factors = FALSE, smaller_better = TRUE,
                 variable_direction = NULL, prohibited_transitions = NULL, id) {
