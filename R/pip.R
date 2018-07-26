@@ -6,7 +6,13 @@
 #'   names of the list must be variables in \code{d} and the entries are the
 #'   alternative value(s) to try.
 #' @param n Integer, default = 3. The number of alternatives to return for each
-#'   patient.
+#'   patient. Note that the actual number returned may be less than \code{n}
+#'   e.g. \code{length(new_values) < n}, but also if, e.g. \code{!allow_same}.
+#' @param allow_same Logical, default = FALSE. If TRUE, \code{pip} may return
+#'   rows with modified_value = original_value and improvment = 0. This happens
+#'   when there are fewer than \code{n} modifications for a patient that result
+#'   in improvement. Making this TRUE increases the likelihood of getting
+#'   \code{n} results for each patient.
 #' @param repeated_factors Logical, default = FALSE. Do you want multiple
 #'   modifications of the same variable for the same patient? E.g. Reducing BMI
 #'   to 15 and to 20.
@@ -18,12 +24,24 @@
 #'   indicate only increases can yield improvements or -1 to indicate only
 #'   decreases can yield improvements. Numeric variables not appearing in this
 #'   list may increase or decrease to yield improvements.
-#' @param prohibited_transitions TODO
+#' @param prohibited_transitions A list of data frames that contain variable
+#'   modifications that won't be considered by pip. The names of the list are
+#'   variables in \code{d}, and data frames have two columns, "from" and "to",
+#'   indicating the original value and modified value, respectively, of the
+#'   prohibited transition. If column names are not "from" and "to", the first
+#'   column will be assumed to be the "from" column.
 #' @param id An identifying column in \code{d} to return in the output data
 #'   frame. If this isn't provided, an ID column from \code{model}'s data prep
 #'   will be used if available.
 #'
-#' @description TODO
+#' @description Idenfity potential opportunities to improve patient outcomes by
+#'   exploring predicted outcomes over changes to input variables. \strong{Note
+#'   that causality cannot be established by this function.} Omited variable
+#'   bias and other statistical phenomena may mean that the impacts predicted
+#'   here are not realizable. Clinical guidance is essentail in choosing
+#'   \code{new_values} and acting on impact predictions. Extensive options are
+#'   provided to control what impact predictions are surfaced, including
+#'   \code{variable_direction} and \code{prohibited_transitions}.
 #'
 #' @return A tibble with the following columns: id if provided, "variable": the
 #'   name of the variable being altered, "original_value": the patient's
@@ -32,8 +50,8 @@
 #'   "modified_prediction": the patient's prediction given the that "variable"
 #'   changes to "modified_value", "improvement": the difference between the
 #'   original and modified prediction with positive values reflecting
-#'   improvement, based on the value of \code{smaller_better}, and "impact_rank":
-#'   the rank of the modification for that patient.
+#'   improvement, based on the value of \code{smaller_better}, and
+#'   "impact_rank": the rank of the modification for that patient.
 #' @export
 #'
 #' @examples
@@ -42,9 +60,9 @@
 #' pip(model = m, d = pima_diabetes[1:3, ],
 #'     new_values = list(weight_class = c("underweight", "normal", "overweight"),
 #'                       plasma_glucose = c(75, 100)))
-pip <- function(model, d, new_values, n = 3, repeated_factors = FALSE,
-                smaller_better = TRUE, variable_direction = NULL, prohibited_transitions,
-                id) {
+pip <- function(model, d, new_values, n = 3, allow_same = FALSE,
+                repeated_factors = FALSE, smaller_better = TRUE,
+                variable_direction = NULL, prohibited_transitions = NULL, id) {
 
   id <- rlang::enquo(id)
   # Try to find an ID column in the model's recipe
@@ -58,11 +76,31 @@ pip <- function(model, d, new_values, n = 3, repeated_factors = FALSE,
   if (extract_model_info(model)$best_model_name == "glmnet") {
     int <- interpret(model)
     offered_unused <- names(new_values)[!names(new_values) %in% int$variable]
-      if (length(offered_unused))
-        warning("The following variables will never produce impact because the ",
-                "model used to make predictions is glm and these variables ",
-                "don't have any impact on glm predictions: ",
-                list_variables(offered_unused))
+    if (length(offered_unused))
+      warning("The following variables will never produce impact because the ",
+              "model used to make predictions is glm and these variables ",
+              "don't have any impact on glm predictions: ",
+              list_variables(offered_unused))
+  }
+
+  # Check format of prohibited_transitions
+  if (!is.null(prohibited_transitions)) {
+    if (!is.list(prohibited_transitions) ||
+        is.data.frame(prohibited_transitions) ||
+        is.null(names(prohibited_transitions)) ||
+        any(purrr::map_lgl(prohibited_transitions, ~ !is.data.frame(.x))))
+      stop("prohibited_transitions must be a named list of data frames")
+    not_vars <- names(prohibited_transitions)[!names(prohibited_transitions) %in% names(d)]
+    if (length(not_vars))
+      stop("The following variables were given as names in prohibited_transitions ",
+           "but are not variables in d: ", list_variables(not_vars))
+    # Set names and order of columns
+    prohibited_transitions <-
+      purrr::map(prohibited_transitions, function(pt) {
+        if (!dplyr::setequal(names(pt), c("from", "to")))
+          names(pt) <- c("from", "to")
+        dplyr::select(pt, from, to)
+      })
   }
 
   # Ensure variable_direction is valid
@@ -70,7 +108,7 @@ pip <- function(model, d, new_values, n = 3, repeated_factors = FALSE,
     variable_direction <- check_variable_direction(d, variable_direction)
 
   # Build big dataframe of permuted data
-  permuted_df <- permute_process_variables(d, new_values, variable_direction)
+  permuted_df <- permute_process_variables(d, new_values, variable_direction, prohibited_transitions)
 
   # Make Predictions on the original and permuted data
   suppressWarnings({
@@ -109,11 +147,24 @@ pip <- function(model, d, new_values, n = 3, repeated_factors = FALSE,
     to_fix <- d$improvement <= 0L
   }
 
-  if (any(to_fix)) {
-    # These rows will only be exposed if best delta is 0, so replace with current
-    d$alt_value[to_fix] <- d$current_value[to_fix]
-    d$new_prediction[to_fix] <- d$base_prediction[to_fix]
-    d$improvement[to_fix] <- 0
+  d <- if (allow_same) {
+    # Replace modifications that hurt outcome with x to x and improvement of 0
+    d %>%
+      dplyr::mutate(
+        alt_value = dplyr::case_when(to_fix ~ current_value, !to_fix ~ alt_value),
+        new_prediction = dplyr::case_when(to_fix ~ base_prediction, !to_fix ~ new_prediction),
+        improvement = dplyr::case_when(to_fix ~ 0, !to_fix ~ improvement)
+      )
+  } else {
+    # Remove modifications that hurt outcomes
+    dplyr::filter(d, !to_fix)
+  }
+
+  # Remove prohibited transitions
+  if (!is.null(prohibited_transitions)) {
+    split_vars <- split(d, d$process_variable_name)
+    d <- purrr::map_df(names(split_vars), function(v)
+      remove_prohibited(split_vars[[v]], prohibited_transitions[[v]]))
   }
 
   d <-
@@ -128,17 +179,16 @@ pip <- function(model, d, new_values, n = 3, repeated_factors = FALSE,
     group_by(row_id)
   # Remove recs w/i patient on same variable
   if (!repeated_factors)
-      d <- dplyr::distinct(d, variable, .keep_all = TRUE)
+    d <- dplyr::distinct(d, variable, .keep_all = TRUE)
   d <-
     d %>%
     arrange(row_id, desc(improvement)) %>%
-    mutate(impact_rank = dplyr::row_number())
-
-  d <-
-    d %>%
+    mutate(impact_rank = dplyr::row_number()) %>%
     filter(impact_rank <= n) %>%
     ungroup() %>%
     select(-row_id)
+
+  return(d)
 }
 
 #' @title Take a dataframe and build a larger dataframe by permuting the
@@ -152,7 +202,8 @@ pip <- function(model, d, new_values, n = 3, repeated_factors = FALSE,
 #' columns have been permuted.
 #' @keywords internal
 #' @importFrom dplyr %>%
-permute_process_variables <- function(dataframe, variable_levels, variable_direction) {
+permute_process_variables <- function(dataframe, variable_levels,
+                                      variable_direction, prohibited_transitions) {
 
   # Get the names of the modifiable variables
   modifiable_names <- names(variable_levels)
@@ -174,7 +225,8 @@ permute_process_variables <- function(dataframe, variable_levels, variable_direc
                               FUN = build_one_level_df,
                               dataframe = dataframe,
                               variable = variable,
-                              variable_direction = variable_direction[variable]) %>%
+                              one_variable_direction = variable_direction[variable],
+                              one_prohibited_transition = prohibited_transitions[[variable]]) %>%
       dplyr::bind_rows()
     # Add the modifiable variable to the dataframe
     # one_variable_df["process_variable_name"] <- as.character(variable)
@@ -195,7 +247,8 @@ permute_process_variables <- function(dataframe, variable_levels, variable_direc
 #' @param level The modified value to use in the \code{variable} column
 #' @return A dataframe
 #' @keywords internal
-build_one_level_df <- function(dataframe, variable, level, variable_direction) {
+build_one_level_df <- function(dataframe, variable, level, one_variable_direction,
+                               one_prohibited_transition) {
   # Add reference columns
   dataframe$current_value <- dataframe[[variable]]
   dataframe$alt_value <- as.character(level)
@@ -204,12 +257,24 @@ build_one_level_df <- function(dataframe, variable, level, variable_direction) {
   dataframe[[variable]] <- level
   # If variable was provided in variable_direction, filter any transitions in
   # the wrong direction
-  if (!is.null(variable_direction) && !is.na(variable_direction)) {
-    keepers <- variable_direction * level >= variable_direction * dataframe$current_value
+  if (!is.null(one_variable_direction) && !is.na(one_variable_direction)) {
+    keepers <- one_variable_direction * level >= one_variable_direction * dataframe$current_value
     dataframe <- dplyr::slice(dataframe, which(keepers))
   }
+  # Remove prohibited transitions
+  dataframe <- remove_prohibited(dataframe, one_prohibited_transition)
   dataframe$current_value <- as.character(dataframe$current_value)
   return(dataframe)
+}
+
+# Remove prohibited. Called mainly from build_one_level_df,
+# but also from pip to remove x to x transitions if !allow_same
+remove_prohibited <- function(d, prohibited) {
+  if (is.null(prohibited)) return(d)
+  suppressWarnings({
+    dplyr::anti_join(d, prohibited,
+                     by = c(current_value = "from", alt_value = "to"))
+  })
 }
 
 check_variable_direction <- function(d, variable_direction) {

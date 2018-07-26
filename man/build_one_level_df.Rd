@@ -4,7 +4,8 @@
 \alias{build_one_level_df}
 \title{Replace all value in the column of a dataframe with a given value.}
 \usage{
-build_one_level_df(dataframe, variable, level, variable_direction)
+build_one_level_df(dataframe, variable, level, one_variable_direction,
+  one_prohibited_transition)
 }
 \arguments{
 \item{dataframe}{a dataframe}

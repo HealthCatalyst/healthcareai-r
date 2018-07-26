@@ -4,9 +4,9 @@
 \alias{pip}
 \title{Patient Impact Predictor}
 \usage{
-pip(model, d, new_values, n = 3, repeated_factors = FALSE,
-  smaller_better = TRUE, variable_direction = NULL, prohibited_transitions,
-  id)
+pip(model, d, new_values, n = 3, allow_same = FALSE,
+  repeated_factors = FALSE, smaller_better = TRUE,
+  variable_direction = NULL, prohibited_transitions = NULL, id)
 }
 \arguments{
 \item{model}{A model_list object}
@@ -18,7 +18,14 @@ names of the list must be variables in \code{d} and the entries are the
 alternative value(s) to try.}
 
 \item{n}{Integer, default = 3. The number of alternatives to return for each
-patient.}
+patient. Note that the actual number returned may be less than \code{n}
+e.g. \code{length(new_values) < n}, but also if, e.g. \code{!allow_same}.}
+
+\item{allow_same}{Logical, default = FALSE. If TRUE, \code{pip} may return
+rows with modified_value = original_value and improvment = 0. This happens
+when there are fewer than \code{n} modifications for a patient that result
+in improvement. Making this TRUE increases the likelihood of getting
+\code{n} results for each patient.}
 
 \item{repeated_factors}{Logical, default = FALSE. Do you want multiple
 modifications of the same variable for the same patient? E.g. Reducing BMI
@@ -34,7 +41,12 @@ indicate only increases can yield improvements or -1 to indicate only
 decreases can yield improvements. Numeric variables not appearing in this
 list may increase or decrease to yield improvements.}
 
-\item{prohibited_transitions}{TODO}
+\item{prohibited_transitions}{A list of data frames that contain variable
+modifications that won't be considered by pip. The names of the list are
+variables in \code{d}, and data frames have two columns, "from" and "to",
+indicating the original value and modified value, respectively, of the
+prohibited transition. If column names are not "from" and "to", the first
+column will be assumed to be the "from" column.}
 
 \item{id}{An identifying column in \code{d} to return in the output data
 frame. If this isn't provided, an ID column from \code{model}'s data prep
@@ -48,11 +60,18 @@ A tibble with the following columns: id if provided, "variable": the
   "modified_prediction": the patient's prediction given the that "variable"
   changes to "modified_value", "improvement": the difference between the
   original and modified prediction with positive values reflecting
-  improvement, based on the value of \code{smaller_better}, and "impact_rank":
-  the rank of the modification for that patient.
+  improvement, based on the value of \code{smaller_better}, and
+  "impact_rank": the rank of the modification for that patient.
 }
 \description{
-TODO
+Idenfity potential opportunities to improve patient outcomes by
+  exploring predicted outcomes over changes to input variables. \strong{Note
+  that causality is not established by this function. Omited variable bias or
+  other statistical phenomena may mean that the impacts predicted here are
+  not realizable. Clinical guidance is essentail in choosing
+  \code{new_values} and acting on impact predictions. Extensive options are
+  provided to control what impact predictions are surfaced, including
+  \code{variable_direction} and \code{prohibited_transitions}.}
 }
 \examples{
 m <- machine_learn(pima_diabetes, patient_id, outcome = diabetes,

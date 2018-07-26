@@ -16,14 +16,17 @@ suppressWarnings({
 })
 alt_list <- list(animal = c("dog", "cat"), weight = 0, super = c("yes", "no"))
 def_pip <- pip(animodel, animals, new_values = alt_list)
+allow_same_pip <- pip(animodel, animals, new_values = alt_list, allow_same = TRUE)
 
 test_that("build_one_level_df", {
-  animals_replaced <- build_one_level_df(animals, variable = "animal", level = "deer", variable_direction = NULL)
+  animals_replaced <- build_one_level_df(animals, variable = "animal", level = "deer",
+                                         one_variable_direction = NULL, one_prohibited_transition = NULL)
   expect_true(isTRUE(all.equal(animals$animal, animals_replaced$current_value)))
   expect_true(all(animals_replaced$alt_value == "deer"))
   expect_true(isTRUE(all.equal(animals$y, animals_replaced$y)))
 
-  y_replaced <- build_one_level_df(animals, "y", 2, variable_direction = NULL)
+  y_replaced <- build_one_level_df(animals, "y", 2, one_variable_direction = NULL,
+                                   one_prohibited_transition = NULL)
   expect_true(isTRUE(all.equal(animals$y, as.numeric(y_replaced$current_value))))
   expect_true(all(y_replaced$alt_value == 2))
   expect_true(isTRUE(all.equal(y_replaced$animal, y_replaced$animal)))
@@ -32,7 +35,8 @@ test_that("build_one_level_df", {
 test_that("permute_process_variables", {
   perm <- permute_process_variables(animals,
                                     list(animal = c("rat", "gopher"), y = 1:3),
-                                    variable_direction = NULL)
+                                    variable_direction = NULL,
+                                    prohibited_transitions = NULL)
   expect_equal(sum(perm$animal == "rat"), nrow(animals))
   expect_equal(sum(perm$y == 1), sum(perm$y == 2))
   expect_equal(sum(perm$y == 1), nrow(animals))
@@ -118,4 +122,67 @@ test_that("variable_direction", {
     all.equal(select(filter(w_dir, variable == "num2"), -impact_rank)) %>%
     isTRUE() %>%
     expect_true()
+})
+
+test_that("prohibited_transitions", {
+  # Canonical format
+  expect_true(any(with(def_pip, (original_value == "dog" & modified_value == "cat"))))
+  no_dog_cat <- pip(animodel, animals, new_values = alt_list,
+                    prohibited_transitions = list(animal = data.frame(from = "dog", to = "cat")))
+  expect_false(any(with(no_dog_cat, (original_value == "dog" & modified_value == "cat"))))
+  # Named columns can be in either order
+  no_dog_cat_rev <- pip(animodel, animals, new_values = alt_list,
+                        prohibited_transitions = list(animal = data.frame(to = "cat", from = "dog")))
+  expect_false(any(with(no_dog_cat_rev, (original_value == "dog" & modified_value == "cat"))))
+  # If names aren't to and from, column order gets it done
+  no_dog_cat_unnamed <- pip(animodel, animals, new_values = alt_list,
+                            prohibited_transitions = list(animal = data.frame(x1 = "dog", x2 = "cat")))
+  expect_false(any(with(no_dog_cat_unnamed, (original_value == "dog" & modified_value == "cat"))))
+
+  # Prohibiting transitions on two variables
+  prohibit <- list(
+    animal = data.frame(from = "dog", to = "cat"),
+    super = data.frame(from = c("yes", "no"), to = "no")
+  )
+  prohibit2 <- pip(animodel, animals, new_values = alt_list,
+                   prohibited_transitions = prohibit)
+  expect_false(any(with(prohibit2, (original_value == "dog" & modified_value == "cat"))))
+  expect_false(any(with(prohibit2, (modified_value == "no"))))
+})
+
+test_that("allow_same", {
+  expect_false(any(with(def_pip, original_value == modified_value)))
+  expect_true(any(with(allow_same_pip, original_value == modified_value)))
+})
+
+test_that("prohibited_transitions trumps allow_same", {
+  # Establish that without prohibited_transitions both variables have same transitions
+  expect_true(any(with(allow_same_pip[allow_same_pip$variable == "animal", ],
+                       original_value == modified_value)))
+  expect_true(any(with(allow_same_pip[allow_same_pip$variable == "super", ],
+                       original_value == modified_value)))
+  # Disallow same transitions for animals only
+  animal_same <- tibble::tibble(from = unique(animals$animal), to = from)
+  no_self_animal <- pip(animodel, animals, new_values = alt_list, allow_same = TRUE,
+                        prohibited_transitions = list(animal = animal_same))
+  # Test that there are not animal-same transitions but are super-same transitions
+  expect_false(any(with(no_self_animal[no_self_animal$variable == "animal", ],
+                       original_value == modified_value)))
+  expect_true(any(with(no_self_animal[no_self_animal$variable == "super", ],
+                       original_value == modified_value)))
+})
+
+test_that("prohibited_transitions gives informative errors for formatting issues", {
+  expect_error(pip(animodel, animals, new_values = alt_list,
+                   prohibited_transitions = data.frame(from = "dog", to = "cat")),
+               "named list")
+  expect_error(pip(animodel, animals, new_values = alt_list,
+                   prohibited_transitions = list(data.frame(from = "dog", to = "cat"))),
+               "named list")
+  expect_error(pip(animodel, animals, new_values = alt_list,
+                   prohibited_transitions = list(c(from = "dog", to = "cat"))),
+               "named list")
+  expect_error(pip(animodel, animals, new_values = alt_list,
+                   prohibited_transitions = list(rando = data.frame(from = "dog", to = "cat"))),
+               "rando")
 })
