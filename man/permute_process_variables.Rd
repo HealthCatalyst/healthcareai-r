@@ -5,7 +5,7 @@
 \title{Take a dataframe and build a larger dataframe by permuting the
 values in certain columns.}
 \usage{
-permute_process_variables(dataframe, variable_levels)
+permute_process_variables(dataframe, variable_levels, variable_direction)
 }
 \arguments{
 \item{dataframe}{A dataframe.}

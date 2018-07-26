@@ -12,20 +12,28 @@
 #'   to 15 and to 20.
 #' @param smaller_better Logical, default = TRUE. Are lesser values of the
 #'   outcome variable in \code{model} preferable?
-#' @param expected_signs TODO
-#' @param excluded_transitions TODO
+#' @param variable_direction Named numeric vector with entries of -1 or 1. This
+#'   specifies the direction numeric variables are permitted to move to produce
+#'   improvements. Names of the vector are variable names; entries are 1 to
+#'   indicate only increases can yield improvements or -1 to indicate only
+#'   decreases can yield improvements. Numeric variables not appearing in this
+#'   list may increase or decrease to yield improvements.
+#' @param prohibited_transitions TODO
 #' @param id An identifying column in \code{d} to return in the output data
 #'   frame. If this isn't provided, an ID column from \code{model}'s data prep
 #'   will be used if available.
 #'
-#' @return A tibble with \code{number_of the following columns: id, "variable":
-#'   the name of the variable being altered, "original_value": the patient's
-#'   observed value of "variable", "modified_value" the altered value of
+#' @description TODO
+#'
+#' @return A tibble with the following columns: id if provided, "variable": the
+#'   name of the variable being altered, "original_value": the patient's
+#'   observed value of "variable", "modified_value": the altered value of
 #'   "variable", "original_prediction": the patient's original prediction,
 #'   "modified_prediction": the patient's prediction given the that "variable"
-#'   changes to "modified_value", and "improvement": the difference between the
-#'   original and modified prediction with positive being improvement, based on
-#'   the value of \code{smaller_better}.
+#'   changes to "modified_value", "improvement": the difference between the
+#'   original and modified prediction with positive values reflecting
+#'   improvement, based on the value of \code{smaller_better}, and "impact_rank":
+#'   the rank of the modification for that patient.
 #' @export
 #'
 #' @examples
@@ -35,7 +43,7 @@
 #'     new_values = list(weight_class = c("underweight", "normal", "overweight"),
 #'                       plasma_glucose = c(75, 100)))
 pip <- function(model, d, new_values, n = 3, repeated_factors = FALSE,
-                smaller_better = TRUE, expected_signs, excluded_transitions,
+                smaller_better = TRUE, variable_direction = NULL, prohibited_transitions,
                 id) {
 
   id <- rlang::enquo(id)
@@ -57,8 +65,12 @@ pip <- function(model, d, new_values, n = 3, repeated_factors = FALSE,
                 list_variables(offered_unused))
   }
 
+  # Ensure variable_direction is valid
+  if (!is.null(variable_direction))
+    variable_direction <- check_variable_direction(d, variable_direction)
+
   # Build big dataframe of permuted data
-  permuted_df <- permute_process_variables(d, new_values)
+  permuted_df <- permute_process_variables(d, new_values, variable_direction)
 
   # Make Predictions on the original and permuted data
   suppressWarnings({
@@ -83,7 +95,9 @@ pip <- function(model, d, new_values, n = 3, repeated_factors = FALSE,
              alt_value, process_variable_name)
       , by = "row_id") %>%
     # Add delta column
-    dplyr::mutate(improvement = new_prediction - base_prediction)
+    dplyr::mutate(improvement = new_prediction - base_prediction) %>%
+    # Remove rows that where current and alternative values are the same
+    dplyr::filter(current_value != alt_value)
 
   # Check for predictions that are same or worse as the original and
   # replace the recomendation and modified prediction with the originals
@@ -95,14 +109,15 @@ pip <- function(model, d, new_values, n = 3, repeated_factors = FALSE,
     to_fix <- d$improvement <= 0L
   }
 
-  if (length(to_fix)) {
+  if (any(to_fix)) {
     # These rows will only be exposed if best delta is 0, so replace with current
     d$alt_value[to_fix] <- d$current_value[to_fix]
     d$new_prediction[to_fix] <- d$base_prediction[to_fix]
     d$improvement[to_fix] <- 0
   }
 
-  d <- d %>%
+  d <-
+    d %>%
     select(!!id, row_id,
            variable = process_variable_name,
            original_value = current_value,
@@ -110,16 +125,20 @@ pip <- function(model, d, new_values, n = 3, repeated_factors = FALSE,
            original_prediction = base_prediction,
            modified_prediction = new_prediction,
            improvement) %>%
-    group_by(row_id) %>%
-    arrange(row_id, desc(improvement)) %>%
-    mutate(value_rank = dplyr::row_number())
+    group_by(row_id)
   # Remove recs w/i patient on same variable
   if (!repeated_factors)
-    d <- dplyr::distinct(d, variable, .keep_all = TRUE)
-  d %>%
-    filter(value_rank <= n) %>%
+      d <- dplyr::distinct(d, variable, .keep_all = TRUE)
+  d <-
+    d %>%
+    arrange(row_id, desc(improvement)) %>%
+    mutate(impact_rank = dplyr::row_number())
+
+  d <-
+    d %>%
+    filter(impact_rank <= n) %>%
     ungroup() %>%
-    select(-row_id, -value_rank)
+    select(-row_id)
 }
 
 #' @title Take a dataframe and build a larger dataframe by permuting the
@@ -133,8 +152,8 @@ pip <- function(model, d, new_values, n = 3, repeated_factors = FALSE,
 #' columns have been permuted.
 #' @keywords internal
 #' @importFrom dplyr %>%
-permute_process_variables <- function(dataframe,
-                                      variable_levels) {
+permute_process_variables <- function(dataframe, variable_levels, variable_direction) {
+
   # Get the names of the modifiable variables
   modifiable_names <- names(variable_levels)
 
@@ -154,10 +173,11 @@ permute_process_variables <- function(dataframe,
     one_variable_df <- lapply(X = levels,
                               FUN = build_one_level_df,
                               dataframe = dataframe,
-                              variable = variable) %>%
+                              variable = variable,
+                              variable_direction = variable_direction[variable]) %>%
       dplyr::bind_rows()
     # Add the modifiable variable to the dataframe
-    one_variable_df["process_variable_name"] <- as.character(variable)
+    # one_variable_df["process_variable_name"] <- as.character(variable)
     # Output each one_variable_df so that they may be combined
     one_variable_df
   }) %>%
@@ -172,14 +192,44 @@ permute_process_variables <- function(dataframe,
 #' @param dataframe a dataframe
 #' @param variable The name of the column whose values we wish to
 #' change
-#' @param level The value to use in the \code{variable} column
+#' @param level The modified value to use in the \code{variable} column
 #' @return A dataframe
 #' @keywords internal
-build_one_level_df <- function(dataframe, variable, level) {
+build_one_level_df <- function(dataframe, variable, level, variable_direction) {
   # Add reference columns
-  dataframe$current_value <- as.character(dataframe[[variable]])
+  dataframe$current_value <- dataframe[[variable]]
   dataframe$alt_value <- as.character(level)
+  dataframe$process_variable_name <- variable
   # Fill the modifiable variable column with the specified level
   dataframe[[variable]] <- level
+  # If variable was provided in variable_direction, filter any transitions in
+  # the wrong direction
+  if (!is.null(variable_direction) && !is.na(variable_direction)) {
+    keepers <- variable_direction * level >= variable_direction * dataframe$current_value
+    dataframe <- dplyr::slice(dataframe, which(keepers))
+  }
+  dataframe$current_value <- as.character(dataframe$current_value)
   return(dataframe)
+}
+
+check_variable_direction <- function(d, variable_direction) {
+  variable_direction <- unlist(variable_direction)
+  # Check format of variable_direction
+  not_ones <- names(variable_direction)[!variable_direction %in% c(-1, 1)]
+  if (length(not_ones))
+    stop("Entries in variable_direction can only be -1 or 1. Problem variables: ",
+         list_variables(not_ones))
+  not_present <- names(variable_direction)[!names(variable_direction) %in% names(d)]
+  if (length(not_present))
+    stop("The following variables were provided as names of `variable_direction` ",
+         "but are not present in d: ", list_variables(not_present))
+  non_num <-
+    d[, names(d) %in% names(variable_direction), drop = FALSE] %>%
+    purrr::map_lgl(~ !is.numeric(.x))
+  if (any(non_num))
+    stop("Only numeric variables can be provided to `variable_direction` ",
+         "to control what's allowed for non-numeric variables, use ",
+         "`prohibited_transitions`. Problem variables: ",
+         list_variables(names(non_num)[non_num]))
+  return(variable_direction)
 }

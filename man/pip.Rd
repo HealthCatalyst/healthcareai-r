@@ -5,7 +5,8 @@
 \title{Patient Impact Predictor}
 \usage{
 pip(model, d, new_values, n = 3, repeated_factors = FALSE,
-  smaller_better = TRUE, expected_signs, excluded_transitions, id)
+  smaller_better = TRUE, variable_direction = NULL, prohibited_transitions,
+  id)
 }
 \arguments{
 \item{model}{A model_list object}
@@ -26,16 +27,32 @@ to 15 and to 20.}
 \item{smaller_better}{Logical, default = TRUE. Are lesser values of the
 outcome variable in \code{model} preferable?}
 
-\item{expected_signs}{TODO}
+\item{variable_direction}{Named numeric vector with entries of -1 or 1. This
+specifies the direction numeric variables are permitted to move to produce
+improvements. Names of the vector are variable names; entries are 1 to
+indicate only increases can yield improvements or -1 to indicate only
+decreases can yield improvements. Numeric variables not appearing in this
+list may increase or decrease to yield improvements.}
 
-\item{excluded_transitions}{TODO}
+\item{prohibited_transitions}{TODO}
 
 \item{id}{An identifying column in \code{d} to return in the output data
 frame. If this isn't provided, an ID column from \code{model}'s data prep
 will be used if available.}
 }
+\value{
+A tibble with the following columns: id if provided, "variable": the
+  name of the variable being altered, "original_value": the patient's
+  observed value of "variable", "modified_value": the altered value of
+  "variable", "original_prediction": the patient's original prediction,
+  "modified_prediction": the patient's prediction given the that "variable"
+  changes to "modified_value", "improvement": the difference between the
+  original and modified prediction with positive values reflecting
+  improvement, based on the value of \code{smaller_better}, and "impact_rank":
+  the rank of the modification for that patient.
+}
 \description{
-Patient Impact Predictor
+TODO
 }
 \examples{
 m <- machine_learn(pima_diabetes, patient_id, outcome = diabetes,

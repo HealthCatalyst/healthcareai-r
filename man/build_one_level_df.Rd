@@ -4,7 +4,7 @@
 \alias{build_one_level_df}
 \title{Replace all value in the column of a dataframe with a given value.}
 \usage{
-build_one_level_df(dataframe, variable, level)
+build_one_level_df(dataframe, variable, level, variable_direction)
 }
 \arguments{
 \item{dataframe}{a dataframe}
@@ -12,7 +12,7 @@ build_one_level_df(dataframe, variable, level)
 \item{variable}{The name of the column whose values we wish to
 change}
 
-\item{level}{The value to use in the \code{variable} column}
+\item{level}{The modified value to use in the \code{variable} column}
 }
 \value{
 A dataframe
