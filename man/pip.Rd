@@ -9,103 +9,115 @@ pip(model, d, new_values, n = 3, allow_same = FALSE,
   variable_direction = NULL, prohibited_transitions = NULL, id)
 }
 \arguments{
-\item{model}{A model_list object}
+\item{model}{A model_list object, as from \code{\link{machine_learn}} or
+\code{\link{tune_models}}}
 
 \item{d}{A data frame on which \code{model} can make predictions}
 
-\item{new_values}{A list of alternative values of variables of interest. The
+\item{new_values}{A list of alternative values for variables of interest. The
 names of the list must be variables in \code{d} and the entries are the
-alternative value(s) to try.}
+alternative values to try.}
 
-\item{n}{Integer, default = 3. The number of alternatives to return for each
-patient. Note that the actual number returned may be less than \code{n}
-e.g. \code{length(new_values) < n}, but also if, e.g. \code{!allow_same}.}
+\item{n}{Integer, default = 3. The maximum number of alternatives to return
+for each patient. Note that the actual number returned may be less than
+\code{n}, for example if \code{length(new_values) < n} or if
+\code{allow_same} is FALSE.}
 
 \item{allow_same}{Logical, default = FALSE. If TRUE, \code{pip} may return
-rows with modified_value = original_value and improvment = 0. This happens
-when there are fewer than \code{n} modifications for a patient that result
-in improvement. Making this TRUE increases the likelihood of getting
-\code{n} results for each patient.}
+rows with \code{modified_value = original_value} and \code{improvement =
+0}. This happens when there are fewer than \code{n} modifications for a
+patient that result in improvement. If \code{allow_same} is TRUE and
+\code{length(new_values) >= n} you are likely to get \code{n} results for
+each patient; however, contraints from \code{variable_direction} or
+\code{prohibited_transitions} could make recommendations for some variables
+impossible, resulting in fewer than \code{n} recommendations.}
 
 \item{repeated_factors}{Logical, default = FALSE. Do you want multiple
-modifications of the same variable for the same patient? E.g. Reducing BMI
-to 15 and to 20.}
+modifications of the same variable for the same patient?}
 
 \item{smaller_better}{Logical, default = TRUE. Are lesser values of the
 outcome variable in \code{model} preferable?}
 
-\item{variable_direction}{Named numeric vector with entries of -1 or 1. This
-specifies the direction numeric variables are permitted to move to produce
-improvements. Names of the vector are variable names; entries are 1 to
-indicate only increases can yield improvements or -1 to indicate only
-decreases can yield improvements. Numeric variables not appearing in this
-list may increase or decrease to yield improvements.}
+\item{variable_direction}{Named numeric vector or list with entries of -1 or
+1. This specifies the direction numeric variables are permitted to move to
+produce improvements. Names of the vector are names of variables in
+\code{d}; entries are 1 to indicate only increases can yield improvements
+or -1 to indicate only decreases can yield improvements. Numeric variables
+not appearing in this list may increase or decrease to surface
+improvements.}
 
 \item{prohibited_transitions}{A list of data frames that contain variable
-modifications that won't be considered by pip. The names of the list are
-variables in \code{d}, and data frames have two columns, "from" and "to",
-indicating the original value and modified value, respectively, of the
-prohibited transition. If column names are not "from" and "to", the first
-column will be assumed to be the "from" column.}
+modifications that won't be considered by \code{pip}. Names of the list are
+names of variables in \code{d}, and data frames have two columns, "from"
+and "to", indicating the original value and modified value, respectively,
+of the prohibited transition. If column names are not "from" and "to", the
+first column will be assumed to be the "from" column.}
 
-\item{id}{An identifying column in \code{d} to return in the output data
-frame. If this isn't provided, an ID column from \code{model}'s data prep
-will be used if available.}
+\item{id}{Optionally, an unquoted variable name in \code{d} to serve as an
+identifying column in the returned data frame. If this isn't provided, an
+ID column from \code{model}'s data prep will be used if available.}
 }
 \value{
-A tibble with the following columns: id if provided, "variable": the
-  name of the variable being altered, "original_value": the patient's
-  observed value of "variable", "modified_value": the altered value of
-  "variable", "original_prediction": the patient's original prediction,
+A tibble with any id columns and "variable": the name of the variable
+  being altered, "original_value": the patient's observed value of
+  "variable", "modified_value": the altered value of "variable",
+  "original_prediction": the patient's original prediction,
   "modified_prediction": the patient's prediction given the that "variable"
   changes to "modified_value", "improvement": the difference between the
   original and modified prediction with positive values reflecting
-  improvement, based on the value of \code{smaller_better}, and
-  "impact_rank": the rank of the modification for that patient.
+  improvement based on the value of \code{smaller_better}, and "impact_rank":
+  the rank of the modification for that patient.
 }
 \description{
-Idenfity potential opportunities to improve patient outcomes by
-  exploring predicted outcomes over changes to input variables. \strong{Note
-  that causality cannot be established by this function.} Omited variable
+Identify opportunities to improve patient outcomes by exploring
+  changes in predicted outcomes over changes to input variables. \strong{Note
+  that causality cannot be established by this function.} Omitted variable
   bias and other statistical phenomena may mean that the impacts predicted
-  here are not realizable. Clinical guidance is essentail in choosing
+  here are not realizable. Clinical guidance is essential in choosing
   \code{new_values} and acting on impact predictions. Extensive options are
   provided to control what impact predictions are surfaced, including
   \code{variable_direction} and \code{prohibited_transitions}.
 }
 \examples{
 # First, we need a model to make recommendations
+set.seed(52760)
 m <- machine_learn(pima_diabetes, patient_id, outcome = diabetes,
                    tune = FALSE, models = "xgb")
-# Let's look at changes in predicted outcomes for patients changing their
+# Let's look at changes in predicted outcomes for three patients changing their
 # weight class, blood glucose, and blood pressure
 modifications <- list(weight_class = c("underweight", "normal", "overweight"),
                       plasma_glucose = c(75, 100),
                       diastolic_bp = 70)
 pip(model = m, d = pima_diabetes[1:3, ], new_values = modifications)
 
-# In the above example, only one patient is predicted to have a positive
-# predicted impact from changing their diastolic_bp to 70, so for the other
-# patients fewer than the default n=3 predictions are provided. We can get n=3
-# predictions for each patient by specifying allow_same, which will recommend
-# the other two patients maintain their current diastolic_bp.
+# In the above example, only the first patient has a positive predicted impact
+# from changing their diastolic_bp, so for the other patients fewer than the
+# default n=3 predictions are provided. We can get n=3 predictions for each
+# patient by specifying allow_same, which will recommend the other two patients
+# maintain their current diastolic_bp.
 pip(model = m, d = pima_diabetes[1:3, ], new_values = modifications, allow_same = TRUE)
 
-# Sometimes clinical knowledge trumps machine learning. Clinicians should always
-# be consulted when using patient impact predictor. If there is clinical
-# knowledge to suggest what impact a variable should have, that knowledge can be
-# provided to pip. The way it is provided depends on whether the variable is
-# categorical (use prohibited_transitions) or numeric (use variable_direction).
+# Sometimes clinical knowledge trumps machine learning. In particular, machine
+# learning models don't establish causality, they only leverage correlation.
+# Patient impact predictor suggests causality, so clinicians should always be
+# consulted to ensure that the causal impacts are medically sound.
+#
+# If there is clinical knowledge to suggest what impact a variable should have,
+# that knowledge can be provided to pip. The way it is provided depends on
+# whether the variable is categorical (prohibited_transitions) or numeric
+# (variable_direction).
 
-# Suppose a clinician says that suggesting a patient change their weight class
+### Constraining categorical variables ###
+# Suppose a clinician says that recommending a patient change their weight class
 # to underweight from any value except normal is a bad idea. We can disallow
-# those suggestions through prohibited_transitions. Note the change in patient
-# 1's second recommendation.
+# those suggestions using prohibited_transitions. Note the change in patient
+# 1's second recommendation goes from underweight to normal.
 prohibit <- data.frame(from = setdiff(unique(pima_diabetes$weight_class), "normal"),
                        to = "underweight")
 pip(model = m, d = pima_diabetes[1:3, ], new_values = modifications,
     prohibited_transitions = list(weight_class = prohibit))
 
+### Constraining numeric variables ###
 # Suppose a clinician says that increasing diastolic_bp should never be
 # recommended to improve diabetes outcomes, and likewise for reducing
 # plasma_glucose (which is clinically silly, but provides an illustration). The
