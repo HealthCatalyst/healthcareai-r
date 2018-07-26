@@ -139,37 +139,60 @@ countMissingData <- function(x, userNAs = NULL) {
 
 #' Replaces missing data with NA
 #'
-#' This function replaces any given value in a dataframe with NA.
+#' This function replaces any given value in a dataframe or tibble with NA. It
+#' can be used when missing values are filled with characters like "missing".
 #'
-#' @param d A dataframe or matrix
-#' @param to_replace The value that will be replaced.
-#' @return A dataframe with the missing data replaced.
+#' @param d A dataframe or tibble
+#' @param to_replace A vector of the values or string of the value that will be
+#'   replaced with NA
+#' @return A tibble with the missing data replaced with NA
 #'
 #' @export
-#' @example
-#' # Replace "NULL" in dat
-#' dat <- data.frame(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
-#'                   b = c("blank", 0, "na", "None", "none", 3, 10, 4),
-#'                   c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
-#'                   d = c(1, 6, 7, 8, 9, 5, 10, 1078950492))
+#' @examples
+#' \dontrun{
+#' # Replace "missing" in dat
+#' dat <- tibble(gender = c("male", "male", "female", "male", "missing"),
+#'               age = c(64, 52, 75, "missing", 70),
+#'               weight = c(139, 0, 193, 158, 273))
 #'
-#' replace.missingness(dat, "NULL")
+#' replace_missingness(dat, "missing")
 #'
-replace.missingness <- function(d, to_replace) {
-  if (is.data.frame(d)) {
-    d[d == to_replace] <- NA
-
-    d <- map_dfr(d, function(col) {
-      if (is.character(col)) {
-        ans <- sum(is.na(col)) == sum(is.na(as.numeric(col)))
-        if (ans) {
-          col <- as.numeric(col)
-        }
-      }
-      return(col)
-    })
-  } else {
+#' # Replace both "missing" and Nan in dat
+#' dat <- tibble(gender = c("male", NaN, "female", "male", "missing"),
+#'               age = c(64, 52, 75, "missing", 70),
+#'               weight = c(139, 0, 193, NaN, 273))
+#'
+#' replace_missingness(dat, c("missing", NaN))
+#' }
+#'
+replace_missingness <- function(d, to_replace) {
+  if (!is.data.frame(d))
     stop("\"d\" must be a dataframe or tibble")
+  if (!is.atomic(to_replace))
+    stop("\"to_replace\" must be atomic")
+
+  for (val in to_replace) {
+    d[d == val] <- NA
   }
+
+  d <- map_dfr(d, function(col) {
+    if (!is.numeric(col)) {
+      if (is.factor(col)) {
+        new_col <- as.character(col)
+      } else {
+        new_col <- col
+      }
+
+      suppressWarnings(
+        ans <- sum(is.na(new_col)) == sum(is.na(as.numeric(new_col)))
+      )
+
+      if (ans) {
+        col <- as.numeric(new_col)
+      }
+    }
+    return(col)
+  })
+
   return(droplevels(d))
 }
