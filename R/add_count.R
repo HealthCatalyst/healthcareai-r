@@ -8,6 +8,7 @@
 #'
 #' @examples
 #' # Adds the count of each animal to its animal listing in the column animal
+#' library(tidyverse)
 #' d <- tibble(animal = sample(c("cat", "dog", "mouse", "rabbit"), 20, TRUE),
 #'   other_var = rnorm(20))
 #'
