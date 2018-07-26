@@ -366,8 +366,7 @@ test_that("print.predicted_df works", {
     pred_print <- capture_output(classification_prepped_prepped, TRUE)
   })
   expect_true(stringr::str_detect(pred_mes, "predicted by"))
-  print(pred_print)
-  expect_true(stringr::str_detect(pred_print, "predicted_Catholic"))
+  expect_true(stringr::str_detect(pred_print, "A tibble"))
 })
 
 test_that("print.predicted_df works when attributes are stripped", {
