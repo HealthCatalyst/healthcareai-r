@@ -255,9 +255,9 @@ test_that("replace_missingness - df strings NOT Factors - replace many", {
 })
 
 test_that("replace_missingness - test df or tibble", {
-  expect_error(replace_missingness(c(1,2), "NA"))
+  expect_error(replace_missingness(c(1, 2), "NA"))
 })
 
 test_that("replace_missingness - test atomic", {
-  expect_error(replace_missingness(dat, ))
+  expect_error(replace_missingness(dat, list()))
 })
