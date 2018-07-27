@@ -1,23 +1,9 @@
 context("Test machine_learn")
 
 set.seed(257056)
-data(mtcars)
-nadd <- 50
-mtcars <- rbind(mtcars,
-                data.frame(mpg = rnorm(nadd, 25, 5),
-                           cyl = sample(c(4, 6, 8), nadd, TRUE),
-                           disp = rnorm(nadd, 200, 50),
-                           hp = rnorm(nadd, 150, 20),
-                           drat = rexp(nadd, .5),
-                           wt = rnorm(nadd, 4, .5),
-                           qsec = rnorm(nadd, 18, 2),
-                           vs = sample(0:1, nadd, TRUE),
-                           am = sample(0:1, nadd, TRUE),
-                           gear = sample(3:5, nadd, TRUE),
-                           carb = rpois(nadd, 4)))
-test_data <- mtcars[1:8, ]
-training_data <- mtcars[9:nrow(mtcars), ]
-models <- machine_learn(training_data, outcome = am)
+training_data <- dplyr::sample_n(pima_diabetes, 25)
+models <- machine_learn(training_data,
+                        outcome = diabetes, models = "xgb", tune = FALSE)
 
 test_that("machine_learn produces a model_list", {
   expect_s3_class(models, "model_list")
@@ -25,10 +11,10 @@ test_that("machine_learn produces a model_list", {
 
 test_that("Can predict on output of machine_learn", {
   suppressWarnings({
-    preds <- predict(models, test_data)
+    preds <- predict(models, pima_diabetes[1:5, ])
   })
   expect_s3_class(preds, "predicted_df")
-  expect_true(all(c("am", "predicted_am") %in% names(preds)))
+  expect_true(all(c("diabetes", "predicted_diabetes") %in% names(preds)))
 })
 
 test_that("Get an informative error message for missing / wrong-class args", {
@@ -41,16 +27,17 @@ test_that("Get an informative error message for missing / wrong-class args", {
 })
 
 test_that("Machine learn points the user to naming outcome if unprovided", {
-  expect_error(machine_learn(training_data, am), "outcome = ")
+  expect_error(machine_learn(pima_diabetes, diabetes), "outcome = ")
 })
 
 test_that("Machine learn respects CV details", {
-  m <- machine_learn(training_data, outcome = am, n_folds = 2, tune_depth = 3)
+  m <- machine_learn(training_data, outcome = diabetes, n_folds = 2, tune_depth = 3, models = "rf")
   expect_equal(2, m[[1]]$control$number)
   expect_equal(3, nrow(m[[1]]$results))
 })
 
 test_that("Machine learn respects tune = FALSE", {
-  ut <- machine_learn(training_data, outcome = am, n_folds = 2, tune = FALSE)
+  ut <- machine_learn(training_data, outcome = pedigree, n_folds = 3,
+                      tune = FALSE, models = "xgb")
   expect_false(attr(ut, "tuned"))
 })
