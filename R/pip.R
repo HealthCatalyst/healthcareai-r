@@ -34,10 +34,12 @@
 #'   names of variables in \code{d}, and data frames have two columns, "from"
 #'   and "to", indicating the original value and modified value, respectively,
 #'   of the prohibited transition. If column names are not "from" and "to", the
-#'   first column will be assumed to be the "from" column.
-#' @param id Optionally, an unquoted variable name in \code{d} to serve as an
-#'   identifying column in the returned data frame. If this isn't provided, an
-#'   ID column from \code{model}'s data prep will be used if available.
+#'   first column will be assumed to be the "from" column. This is intended for
+#'   categorical variables, but could be used for integers as well.
+#' @param id Optional. A unquoted variable name in \code{d} representing an
+#'   identifier column; it will be included in the returned data frame. If not
+#'   provided, an ID column from \code{model}'s data prep will be used if
+#'   available.
 #'
 #' @description Identify opportunities to improve patient outcomes by exploring
 #'   changes in predicted outcomes over changes to input variables. \strong{Note
@@ -157,7 +159,7 @@ pip <- function(model, d, new_values, n = 3, allow_same = FALSE,
     variable_direction <- check_variable_direction(d, variable_direction)
 
   # Build big dataframe of permuted data
-  permuted_df <- permute_process_variables(d, new_values, variable_direction, prohibited_transitions)
+  permuted_df <- permute_process_variables(d, new_values, variable_direction)
 
   # Make Predictions on the original and permuted data
   suppressWarnings({
@@ -210,7 +212,7 @@ pip <- function(model, d, new_values, n = 3, allow_same = FALSE,
   }
 
   # Remove prohibited transitions
-  if (!is.null(prohibited_transitions)) {
+  if (!is.null(prohibited_transitions) && nrow(d)) {
     split_vars <- split(d, d$process_variable_name)
     d <- purrr::map_df(names(split_vars), function(v)
       remove_prohibited(split_vars[[v]], prohibited_transitions[[v]]))
@@ -237,6 +239,7 @@ pip <- function(model, d, new_values, n = 3, allow_same = FALSE,
     ungroup() %>%
     select(-row_id)
 
+  class(d) <- c("pip_df", class(d))
   return(d)
 }
 
@@ -251,8 +254,7 @@ pip <- function(model, d, new_values, n = 3, allow_same = FALSE,
 #' columns have been permuted.
 #' @keywords internal
 #' @importFrom dplyr %>%
-permute_process_variables <- function(dataframe, variable_levels,
-                                      variable_direction, prohibited_transitions) {
+permute_process_variables <- function(dataframe, variable_levels, variable_direction) {
 
   # Get the names of the modifiable variables
   modifiable_names <- names(variable_levels)
@@ -272,8 +274,7 @@ permute_process_variables <- function(dataframe, variable_levels,
     purrr::map_df(levels, build_one_level_df,
                   dataframe = dataframe,
                   variable = variable,
-                  one_variable_direction = variable_direction[variable],
-                  one_prohibited_transition = prohibited_transitions[[variable]])
+                  one_variable_direction = variable_direction[variable])
   })
 }
 
@@ -288,8 +289,7 @@ permute_process_variables <- function(dataframe, variable_levels,
 #' @param level The modified value to use in the \code{variable} column
 #' @return A dataframe
 #' @keywords internal
-build_one_level_df <- function(dataframe, variable, level, one_variable_direction,
-                               one_prohibited_transition) {
+build_one_level_df <- function(dataframe, variable, level, one_variable_direction) {
   # Add reference columns
   dataframe$current_value <- dataframe[[variable]]
   dataframe$alt_value <- as.character(level)
@@ -302,8 +302,6 @@ build_one_level_df <- function(dataframe, variable, level, one_variable_directio
     keepers <- one_variable_direction * level >= one_variable_direction * dataframe$current_value
     dataframe <- dplyr::slice(dataframe, which(keepers))
   }
-  # Remove prohibited transitions
-  dataframe <- remove_prohibited(dataframe, one_prohibited_transition)
   dataframe$current_value <- as.character(dataframe$current_value)
   return(dataframe)
 }
@@ -312,10 +310,17 @@ build_one_level_df <- function(dataframe, variable, level, one_variable_directio
 # but also from pip to remove x to x transitions if !allow_same
 remove_prohibited <- function(d, prohibited) {
   if (is.null(prohibited)) return(d)
-  suppressWarnings({
-    dplyr::anti_join(d, prohibited,
+  if (any(na.omit(suppressWarnings(as.numeric(d$current_value))) %% 1 != 0))
+    warning("You're prohibiting transitions in ", unique(d$process_variable_name),
+            " but at least some values in ", unique(d$process_variable_name),
+            " are non-integer numbers, which makes them hard to specify precisely ",
+            "for prohibited_transitions. Are you sure you don't want to use ",
+            "variable_direction instead?")
+  d %>%
+    dplyr::mutate(current_value = as.character(current_value),
+                  alt_value = as.character(alt_value)) %>%
+    dplyr::anti_join(dplyr::mutate_all(prohibited, as.character),
                      by = c(current_value = "from", alt_value = "to"))
-  })
 }
 
 check_variable_direction <- function(d, variable_direction) {

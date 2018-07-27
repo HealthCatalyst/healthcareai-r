@@ -20,13 +20,12 @@ allow_same_pip <- pip(animodel, animals, new_values = alt_list, allow_same = TRU
 
 test_that("build_one_level_df", {
   animals_replaced <- build_one_level_df(animals, variable = "animal", level = "deer",
-                                         one_variable_direction = NULL, one_prohibited_transition = NULL)
+                                         one_variable_direction = NULL)
   expect_true(isTRUE(all.equal(animals$animal, animals_replaced$current_value)))
   expect_true(all(animals_replaced$alt_value == "deer"))
   expect_true(isTRUE(all.equal(animals$y, animals_replaced$y)))
 
-  y_replaced <- build_one_level_df(animals, "y", 2, one_variable_direction = NULL,
-                                   one_prohibited_transition = NULL)
+  y_replaced <- build_one_level_df(animals, "y", 2, one_variable_direction = NULL)
   expect_true(isTRUE(all.equal(animals$y, as.numeric(y_replaced$current_value))))
   expect_true(all(y_replaced$alt_value == 2))
   expect_true(isTRUE(all.equal(y_replaced$animal, y_replaced$animal)))
@@ -35,8 +34,7 @@ test_that("build_one_level_df", {
 test_that("permute_process_variables", {
   perm <- permute_process_variables(animals,
                                     list(animal = c("rat", "gopher"), y = 1:3),
-                                    variable_direction = NULL,
-                                    prohibited_transitions = NULL)
+                                    variable_direction = NULL)
   expect_equal(sum(perm$animal == "rat"), nrow(animals))
   expect_equal(sum(perm$y == 1), sum(perm$y == 2))
   expect_equal(sum(perm$y == 1), nrow(animals))
@@ -167,7 +165,7 @@ test_that("prohibited_transitions trumps allow_same", {
                         prohibited_transitions = list(animal = animal_same))
   # Test that there are not animal-same transitions but are super-same transitions
   expect_false(any(with(no_self_animal[no_self_animal$variable == "animal", ],
-                       original_value == modified_value)))
+                        original_value == modified_value)))
   expect_true(any(with(no_self_animal[no_self_animal$variable == "super", ],
                        original_value == modified_value)))
 })
@@ -185,4 +183,25 @@ test_that("prohibited_transitions gives informative errors for formatting issues
   expect_error(pip(animodel, animals, new_values = alt_list,
                    prohibited_transitions = list(rando = data.frame(from = "dog", to = "cat"))),
                "rando")
+})
+
+test_that("no rows coming back with prohibited transitions doesn't break", {
+  pip(animodel, animals, new_values = list(num2 = 4),
+      prohibited_transitions = list(num2 = data.frame(from = 5, to = 4))) %>%
+    expect_s3_class("pip_df")
+})
+
+test_that("prohibited_transitions works on integers", {
+  no_pro <- pip(animodel, animals, new_values = list(num2 = 5))
+  expect_true(any(with(no_pro, original_value == 4 & modified_value == 5)))
+  w_pro <- pip(animodel, animals, new_values = list(num2 = 5),
+               prohibited_transitions = list(num2 = data.frame(from = 4, to = 5)))
+  expect_false(any(with(w_pro, original_value == 4 & modified_value == 5)))
+})
+
+test_that("prohibited_transitions warns on non-integer numerics", {
+  expect_warning(
+    pip(animodel, animals, new_values = list(weight = 1),
+        prohibited_transitions = list(weight = data.frame(from = 5, to = 1))),
+    "variable_direction")
 })

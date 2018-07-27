@@ -51,11 +51,13 @@ modifications that won't be considered by \code{pip}. Names of the list are
 names of variables in \code{d}, and data frames have two columns, "from"
 and "to", indicating the original value and modified value, respectively,
 of the prohibited transition. If column names are not "from" and "to", the
-first column will be assumed to be the "from" column.}
+first column will be assumed to be the "from" column. This is intended for
+categorical variables, but could be used for integers as well.}
 
-\item{id}{Optionally, an unquoted variable name in \code{d} to serve as an
-identifying column in the returned data frame. If this isn't provided, an
-ID column from \code{model}'s data prep will be used if available.}
+\item{id}{Optional. A unquoted variable name in \code{d} representing an
+identifier column; it will be included in the returned data frame. If not
+provided, an ID column from \code{model}'s data prep will be used if
+available.}
 }
 \value{
 A tibble with any id columns and "variable": the name of the variable
