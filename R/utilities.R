@@ -85,16 +85,20 @@ get_classes_sorted <- function(d) {
 #' @noRd
 change_metric_names <- function(object) {
   metrics <- get_metric_names()
-  if (is.model_list(object)) {
+  old_metric <- if (is.model_list(object)) object[[1]]$metric else attr(object, "model_info")$metric
+  # Only switch metrics if they're not already ours
+  if (!old_metric %in% metrics$ours) {
+    if (is.model_list(object)) {
       for (i in seq_along(object)) {
         switch_row <- which(metrics$caret == object[[i]]$metric)
         object[[i]]$metric <- metrics$ours[switch_row]
         names(object[[i]]$results)[names(object[[i]]$results) == metrics$caret[switch_row]] <-
           metrics$ours[switch_row]
       }
-  } else if (is.predicted_df(object)) {
-    attr(object, "model_info")$metric <-
-      metrics$ours[metrics$caret == attr(object, "model_info")$metric]
+    } else if (is.predicted_df(object)) {
+      attr(object, "model_info")$metric <-
+        metrics$ours[metrics$caret == old_metric]
+    }
   }
   return(object)
 }
@@ -120,10 +124,10 @@ order_models <- function(m) {
 #'
 #' @noRd
 skip_on_not_appveyor <- function() {
-    if (identical(Sys.getenv("APPVEYOR"), "True")) {
-        return()
-    }
-    testthat::skip("Not on Appveyor")
+  if (identical(Sys.getenv("APPVEYOR"), "True")) {
+    return()
+  }
+  testthat::skip("Not on Appveyor")
 }
 
 #' Whether var is quo or character returns d without it
