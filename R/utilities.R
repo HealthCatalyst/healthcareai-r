@@ -163,8 +163,5 @@ Mode <- function(x) {
   ux <- unique(x)
   mode <- ux[which.max(tabulate(match(x, ux)))]
 
-  if (is.factor(mode))
-    mode <- droplevels(mode)
-
   return(mode)
 }

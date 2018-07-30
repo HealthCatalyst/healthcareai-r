@@ -86,7 +86,7 @@ test_that("trunc_vars", {
 
 test_that("mode - test factor", {
   test_vec <- as.factor(c("a", "b", "c", "d", "b"))
-  expect_equal(as.factor(c("b")), Mode(test_vec))
+  expect_equal(factor(c("b"), levels = c("a", "b", "c", "d")), Mode(test_vec))
 })
 
 test_that("mode - test character", {
@@ -95,6 +95,6 @@ test_that("mode - test character", {
 })
 
 test_that("mode - test numeric", {
-  test_vec <- c(3,2,1,2,3,3)
+  test_vec <- c(3, 2, 1, 2, 3, 3)
   expect_equal(3, Mode(test_vec))
 })
