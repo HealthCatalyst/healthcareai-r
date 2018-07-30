@@ -21,7 +21,7 @@ Imports:
     cowplot,
     data.table,
     dbplyr,
-    dplyr,
+    dplyr (>= 0.7.6),
     e1071,
     ggplot2,
     glmnet,

@@ -11,17 +11,22 @@ is.predicted_df <- function(x) "predicted_df" %in% class(x)
 # print method for predicted data frame
 #' @export
 print.predicted_df <- function(x, ...) {
-  x <- change_metric_names(x)
-  mi <- attr(x, "model_info")
-  mes <- paste0("\"predicted_", mi$target, "\" predicted by ",
-                mi$algorithm, " last trained: ", mi$timestamp,
-                "\nPerformance in training: ", mi$metric, " = ",
-                round(mi$performance, 2), "\n")
-  message(mes)
-  # Avoid dispatching print.prepped_df:
-  y <- structure(x, class = class(x)[!stringr::str_detect(class(x), "^(predicted)|(prepped)")])
-  print(y)
-  return(invisible(x))
+  if (!"model_info" %in% names(attributes(x))) {
+    x <- structure(x, class = class(x)[!stringr::str_detect(class(x), "^(predicted)|(prepped)")])
+    NextMethod(x)
+  } else {
+    x <- change_metric_names(x)
+    mi <- attr(x, "model_info")
+    mes <- paste0("\"predicted_", mi$target, "\" predicted by ",
+                  mi$algorithm, " last trained: ", mi$timestamp,
+                  "\nPerformance in training: ", mi$metric, " = ",
+                  round(mi$performance, 2), "\n")
+    message(mes)
+    # Avoid dispatching print.prepped_df:
+    y <- structure(x, class = class(x)[!stringr::str_detect(class(x), "^(predicted)|(prepped)")])
+    print(y)
+    return(invisible(x))
+  }
 }
 
 ################################################

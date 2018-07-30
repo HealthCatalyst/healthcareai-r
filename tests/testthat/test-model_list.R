@@ -2,53 +2,42 @@ context("model_list tests setup")
 
 # Setup ------------------------------------------------------------------------
 set.seed(257056)
-data(mtcars)
-nadd <- 50
-mtcars <- rbind(mtcars,
-                data.frame(mpg = rnorm(nadd, 25, 5),
-                           cyl = sample(c(4, 6, 8), nadd, TRUE),
-                           disp = rnorm(nadd, 200, 50),
-                           hp = rnorm(nadd, 150, 20),
-                           drat = rexp(nadd, .5),
-                           wt = rnorm(nadd, 4, .5),
-                           qsec = rnorm(nadd, 18, 2),
-                           vs = sample(0:1, nadd, TRUE),
-                           am = sample(0:1, nadd, TRUE),
-                           gear = sample(3:5, nadd, TRUE),
-                           carb = rpois(nadd, 4)))
-dreg <- prep_data(mtcars, outcome = mpg)
-dcla <- prep_data(mtcars, outcome = am)
+short <- dplyr::sample_n(na.omit(pima_diabetes), 50)
+dreg <- prep_data(short, outcome = pedigree)
+dcla <- prep_data(short, outcome = diabetes)
 suppressWarnings({
-  rf <- caret::train(x = dplyr::select(dreg, -mpg),
-                     y = dreg$mpg,
+  rf <- caret::train(x = dplyr::select(dreg, -pedigree),
+                     y = dreg$pedigree,
                      method = "ranger",
                      tuneLength = 2,
-                     trControl = caret::trainControl(savePredictions = "final")
+                     trControl = caret::trainControl(savePredictions = "final",
+                                                     method = "cv", search = "grid")
   )
-  xg <- caret::train(x = dplyr::select(dreg, -mpg),
-                     y = dreg$mpg,
+  xg <- caret::train(x = dplyr::select(dreg, -pedigree),
+                     y = dreg$pedigree,
                      method = "xgbTree",
                      tuneLength = 2,
-                     trControl = caret::trainControl(savePredictions = "final")
+                     trControl = caret::trainControl(savePredictions = "final",
+                                                     method = "cv", search = "grid")
   )
-  gl <- caret::train(x = dplyr::select(dreg, -mpg),
-                     y = dreg$mpg,
+  gl <- caret::train(x = dplyr::select(dreg, -pedigree),
+                     y = dreg$pedigree,
                      method = "glmnet",
-                     tuneLength = 2,
-                     trControl = caret::trainControl(savePredictions = "final")
+                     trControl = caret::trainControl(savePredictions = "final",
+                                                     method = "cv", search = "grid")
   )
 })
 # Implicit test that warning not issued for missing resampled performance metrics:
-r_models <- tune_models(dreg, mpg, n_folds = 2, tune_depth = 2)
-c_models <- tune_models(dcla, am, n_folds = 2, tune_depth = 2,
-                        model_name = "great_name")
-c_pr <- tune_models(dcla, am, metric = "PR", n_folds = 2, tune_depth = 2)
+r_models <- tune_models(dreg, pedigree, tune_depth = 2, n_folds = 2, models = c("rf", "glm"))
+c_models <- tune_models(dcla, diabetes, tune_depth = 2, n_folds = 2, model_name = "great_name", models = "xgb")
+c_pr <- flash_models(dcla, diabetes, metric = "PR", n_folds = 2, models = "xgb")
 single_model_as <- as.model_list(rf)
-single_model_tune <- tune_models(dcla, am, models = "rf")
+single_model_tune <- tune_models(dcla, diabetes, models = "xgb", n_folds = 2, tune_depth = 2)
 double_model_as <- as.model_list(rf, xg)
-r_flash <- flash_models(dreg, mpg)
-c_flash <- flash_models(dcla, am)
-unprepped_flash <- flash_models(mtcars, mpg, models = "glm")
+r_flash <- flash_models(dreg, pedigree, n_folds = 2, models = "xgb")
+c_flash <- flash_models(dcla, diabetes, n_folds = 2, models = "xgb")
+unprepped_flash <- flash_models(dplyr::select(short, pregnancies, age, pedigree),
+                                pedigree, models = "rf", n_folds = 2)
 ods <- list(
   prepped = attr(c_models, "original_data_str"),
   unprepped = attr(unprepped_flash, "original_data_str"),
@@ -65,13 +54,13 @@ test_that("as.model_list works same with different argument specs", {
 })
 
 test_that("as.model_list fails if model_class is unsupported", {
-  expect_error(as.model_list(model_class = "what am i even?"))
+  expect_error(as.model_list(model_class = "what diabetes i even?"))
 })
 
 test_that("as.model_list errors if input isn't a caret model", {
   expect_error(as.model_list(1:5, model_class = "regression"))
   expect_error(as.model_list("HEY"))
-  expect_error(as.model_list(ranger::ranger(mpg ~ ., dreg)))
+  expect_error(as.model_list(ranger::ranger(pedigree ~ ., dreg)))
 })
 
 test_that("as.model_list succeeds with one or more models as input", {
@@ -87,13 +76,13 @@ test_that("as.model_list succeeds with one or more models as input", {
 
 test_that("as.model_list returns correct model names (from modelInfo$label)", {
   correct_names <- names(r_models)
-  m_list <- structure(list(rf, xg, gl), names = c("rando", "xgb", "lasso"))
+  m_list <- structure(list(rf, gl), names = c("rando", "lasso"))
   expect_equal(
     names(as.model_list(listed_models = m_list)),
     correct_names
   )
   expect_equal(
-    names(as.model_list(rf, xg, gl)),
+    names(as.model_list(rf, gl)),
     correct_names
   )
 })
@@ -106,19 +95,18 @@ test_that("as.model_list tuned-argument works", {
 test_that("model_lists have original data str as zero-row DF with right names and classes", {
   purrr::map_lgl(ods, is.data.frame) %>% all() %>% expect_true()
   purrr::map_lgl(ods, ~ nrow(.x) == 0) %>% all() %>% expect_true()
-  expect_equivalent(ods$prepped, mtcars[0, -which(names(mtcars) == "am")])
-  expect_equivalent(ods$unprepped, mtcars[0, -which(names(mtcars) == "mpg")])
-  expect_equivalent(ods$as, dplyr::select(dreg[0, ], -mpg))
+  expect_equivalent(ods$prepped, short[0, -which(names(short) == "diabetes")])
+  expect_setequal(names(ods$unprepped), c("pregnancies", "age"))
+  expect_equivalent(ods$as, dplyr::select(dreg[0, ], -pedigree))
 })
 
 test_that("model_list's original_data_str is the same as predict's return", {
-
   preds <- purrr::map2(
-    .x = list(c_models, unprepped_flash, single_model_as),
-    .y = list(mtcars, mtcars, mtcars),
+    .x = list(c_models, unprepped_flash),
+    .y = list(short, dplyr::select(short, pregnancies, age, pedigree)),
     .f = ~ suppressWarnings( predict(.x, .y)[0, - (1:2)] )
   )
-  purrr::map2_lgl(preds, ods, all.equal) %>%
+  purrr::map2_lgl(preds, ods[1:2], ~ isTRUE(all.equal(.x, .y))) %>%
     all() %>%
     expect_true()
 })
@@ -137,9 +125,9 @@ test_that("plot.model_list works on regression_list", {
                c("gg", "ggplot"))
   expect_equal(class(plot.model_list(r_models, print = FALSE)),
                c("gg", "ggplot"))
-  expect_error(plot.model_list(ranger::ranger(mpg ~ ., dreg), print = FALSE),
+  expect_error(plot.model_list(ranger::ranger(pedigree ~ ., dreg), print = FALSE),
                regexp = "model_list")
-  r2 <- tune_models(dreg, mpg, models = "rf", metric = "Rsquared")
+  r2 <- tune_models(dreg, pedigree, models = "rf", metric = "Rsquared")
   expect_s3_class(plot(r2, print = FALSE), "gg")
 })
 
@@ -150,7 +138,7 @@ test_that("plot.model_list works on classification_list", {
                c("gg", "ggplot"))
   expect_equal(class(plot(c_pr, print = FALSE)),
                c("gg", "ggplot"))
-  expect_error(plot.model_list(ranger::ranger(am ~ ., dcla), print = FALSE),
+  expect_error(plot.model_list(ranger::ranger(diabetes ~ ., dcla), print = FALSE),
                regexp = "model_list")
 
   # With PR as the metric
@@ -178,7 +166,7 @@ test_that("print.model_list works", {
 
   # Model name
   rprint <- capture_output(r_models, TRUE)
-  expect_true(grepl("Model Name: mpg", rprint, ignore.case = TRUE))
+  expect_true(grepl("Model Name: pedigree", rprint, ignore.case = TRUE))
   cprint <- capture_output(c_models, TRUE)
   expect_true(grepl("Model Name: great_name", cprint, ignore.case = TRUE))
 })
@@ -211,8 +199,8 @@ test_that("print.model_list works with untuned_model_lists", {
   expect_warning(flash_c_print <- capture_output(print(c_flash)), NA)
   expect_false(grepl("Inf", flash_r_print))
   expect_false(grepl("Inf", flash_c_print))
-  expect_true(grepl("Target: mpg", flash_r_print))
-  expect_true(grepl("Target: am", flash_c_print))
+  expect_true(grepl("Target: pedigree", flash_r_print))
+  expect_true(grepl("Target: diabetes", flash_c_print))
   expect_true(grepl("Models have not been tuned", flash_r_print))
   expect_true(grepl("selected hyperparameter values", flash_c_print))
 })
@@ -236,28 +224,18 @@ test_that("plot.model_list works with message untuned_model_lists", {
 })
 
 context("Testing model list utilities") # --------------------------------------
-test_that("change_metric_names changes AUC to AUPR", {
+test_that("change_metric_names changes AUC to AUPR and prints", {
   m <- change_metric_names(c_pr)
-
-  expect_true(
-    all(c("AUPR", "Precision", "Recall") %in% names(
-      m$`Random Forest`$results)))
-
-  expect_true(
-    all(c("AUPR", "Precision", "Recall") %in% names(
-      m$`eXtreme Gradient Boosting`$results)))
+  expect_true(all(c("AUPR", "Precision", "Recall") %in% names(m[[1]]$results)))
+  expect_true(all(c("AUPR", "Precision", "Recall") %in% names(m[[1]]$results)))
+  expect_error(capture_output(print(m)), NA)
 })
 
 test_that("change_metric_names changes ROC to AUROC", {
   m <- change_metric_names(c_models)
-
-  expect_true(
-    all(c("AUROC", "Sens", "Spec") %in% names(
-      m$`Random Forest`$results)))
-
-  expect_true(
-    all(c("AUROC", "Sens", "Spec") %in% names(
-      m$`eXtreme Gradient Boosting`$results)))
+  expect_true(all(c("AUROC", "Sens", "Spec") %in% names(m[[1]]$results)))
+  expect_true(all(c("AUROC", "Sens", "Spec") %in% names(m[[1]]$results)))
+  expect_error(capture_output(print(m)), NA)
 })
 
 test_that("Change PR metric doesn't change object class", {
@@ -284,31 +262,30 @@ test_that("model_lists only carry one copy of training data", {
   expect_s3_class(single_model_tune[[1]]$trainingData, "data.frame")
 
   expect_null(r_models[[2]]$trainingData)
-  expect_null(c_models[[2]]$trainingData)
   expect_null(double_model_as[[2]]$trainingData)
 })
 
 test_that("[ extracts models by index", {
   expect_s3_class(r_flash[1], "model_list")
-  expect_s3_class(r_flash[2], "model_list")
-  expect_s3_class(r_flash[2:3], "model_list")
-  expect_equal(r_flash[seq_along(r_flash)], r_flash)
+  expect_s3_class(r_models[2], "model_list")
+  expect_s3_class(r_models[1:2], "model_list")
+  expect_equivalent(r_models[seq_along(r_models)], r_models)
 })
 
 test_that("[ extracts by name, index, or logical vector", {
-  expect_equal(double_model_as[1], double_model_as["Random Forest"])
-  expect_equal(c_models[1], c_models["Random Forest"])
-  expect_equal(double_model_as[1], double_model_as[c(TRUE, FALSE)])
-  expect_equal(double_model_as[2], double_model_as["eXtreme Gradient Boosting"])
-  expect_equal(double_model_as[1:2], double_model_as[c("Random Forest", "eXtreme Gradient Boosting")])
-  expect_equal(double_model_as, double_model_as[c(TRUE, TRUE)])
+  expect_equivalent(double_model_as[1], double_model_as[names(double_model_as)[1]])
+  expect_equivalent(c_models[1], c_models[names(c_models)[1]])
+  expect_equivalent(double_model_as[1], double_model_as[c(TRUE, FALSE)])
+  expect_equivalent(double_model_as[2], double_model_as[names(double_model_as)[2]])
+  expect_equivalent(double_model_as[1:2], double_model_as[names(double_model_as)[1:2]])
+  expect_equivalent(double_model_as, double_model_as[c(TRUE, TRUE)])
 })
 
 test_that("metrics and predict are same for extracted best model", {
   best <- extract_model_info(c_models)$best_model_name
   extracted <- c_models[best]
-  expect_equal(evaluate(c_models), evaluate(extracted))
-  expect_equal(predict(c_models), predict(extracted))
+  expect_equivalent(evaluate(c_models), evaluate(extracted))
+  expect_equivalent(predict(c_models), predict(extracted))
 })
 
 test_that("performance drops if the best model is pulled out of model_list", {
