@@ -202,7 +202,7 @@ prep_data <- function(d,
     undeclared_ignores <- find_columns_to_ignore(d, c(rlang::quo_name(outcome), ignored))
     if (length(undeclared_ignores)) {
       warning("The following variable(s) look a lot like identifiers: They are ",
-              "character-type and have a unique value on everyrow. They will ",
+              "character-type and have a unique value on every row. They will ",
               "be ignored: ", paste0(undeclared_ignores, collapse = ", "))
       ignored <- c(ignored, undeclared_ignores)
       d_ignore <- dplyr::bind_cols(d_ignore, d[, names(d) %in% undeclared_ignores, drop = FALSE])
