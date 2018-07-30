@@ -31,22 +31,22 @@ test_data_new_missing$Catholic[6:7] <- NA
 model_classify_prepped <-
   training_data %>%
   prep_data(province, outcome = Catholic, make_dummies = TRUE) %>%
-  tune_models(Catholic)
+  flash_models(Catholic)
 model_classify_not_prepped <-
   training_data %>%
   dplyr::select(-province) %>%
-  tune_models(Catholic)
+  flash_models(Catholic)
 # Warning when RF can't find a good cut
 suppressWarnings({
   model_regression_prepped <-
     training_data %>%
     prep_data(province, outcome = Fertility, make_dummies = TRUE) %>%
-    tune_models(Fertility)
+    flash_models(Fertility)
   model_regression_not_prepped <-
     training_data %>%
     dplyr::select(-province) %>%
     dplyr::mutate(Catholic = ifelse(Catholic == "Y", 1L, 0L)) %>%
-    tune_models(Fertility)
+    flash_models(Fertility)
 })
 # And prepped newdata to go with them
 test_data_reg_prep <- prep_data(test_data, recipe = model_regression_prepped)
@@ -132,12 +132,12 @@ test_that("If newdata isn't provided, make predictions on training data", {
 test_that("predict can handle binary character non Y/N columns", {
   training_data %>%
     dplyr::mutate(Catholic = ifelse(Catholic == "Y", "yes", "no")) %>%
-    machine_learn(province, outcome = Catholic) %>%
+    machine_learn(province, outcome = Catholic, tune = FALSE) %>%
     predict() %>%
     expect_s3_class("data.frame")
   training_data %>%
     dplyr::mutate(Catholic = factor(ifelse(Catholic == "Y", "cath", "other"))) %>%
-    machine_learn(province, outcome = Catholic) %>%
+    machine_learn(province, outcome = Catholic, tune = FALSE) %>%
     predict() %>%
     expect_s3_class("data.frame")
 })
@@ -202,12 +202,12 @@ test_that("printing classification df gets ROC/PR metric right", {
     roc <-
       training_data %>%
       prep_data(province, outcome = Catholic, make_dummies = TRUE) %>%
-      tune_models(Catholic, models = "RF", metric = "ROC", tune_depth = 2, n_folds = 2) %>%
+      flash_models(Catholic, models = "RF", metric = "ROC", n_folds = 2) %>%
       predict()
     pr <-
       training_data %>%
       prep_data(province, outcome = Catholic, make_dummies = TRUE) %>%
-      tune_models(Catholic, models = "RF", metric = "PR", tune_depth = 2, n_folds = 2) %>%
+      flash_models(Catholic, models = "RF", metric = "PR", n_folds = 2) %>%
       predict()
   })
   expect_false(stringr::str_detect(as.character(capture_message(print(roc))), "PR"))
@@ -279,21 +279,21 @@ test_that("predict handles positive class specified in training", {
   d <- tibble::tibble(y = rbinom(50, 1, .5),
                       x1 = rnorm(50, mean = y, sd = 1),
                       x2 = rnorm(50, mean = y, sd = 1))
-  d$x3 <- map_chr(d$y, ~ sample(c("a", "b"), 1, FALSE, if (.x) c(2, 1) else c(1, 2)))
+  d$x3 <- purrr::map_chr(d$y, ~ sample(c("a", "b"), 1, FALSE, if (.x) c(2, 1) else c(1, 2)))
   pd <- prep_data(d, outcome = y)
   # Default Y is positive
   preds <- list(
-    tm_rf = pd %>% tune_models(y, tune_depth = 2, models = "rf") %>% predict(),
-    tm_xgb = pd %>% tune_models(y, tune_depth = 2, models = "xgb") %>% predict(),
-    ml = machine_learn(d, outcome = y, models = "rf", tune_depth = 2) %>% predict()
+    tm_rf = pd %>% flash_models(y, n_folds = 2, models = "rf") %>% predict(),
+    tm_xgb = pd %>% flash_models(y, n_folds = 2, models = "xgb") %>% predict(),
+    ml = machine_learn(d, outcome = y, models = "rf", tune = FALSE) %>% predict()
   )
   expect_true(all(map_lgl(preds, ~ {
     mean(.x$predicted_y[.x$y == "Y"]) >= mean(.x$predicted_y[.x$y == "N"])
   })))
   # Set N as positive
   preds <- list(
-    tm_rf = pd %>% tune_models(y, tune_depth = 2, models = "rf", positive_class = "N") %>% predict(),
-    tm_xgb = pd %>% tune_models(y, tune_depth = 2, models = "xgb", positive_class = "N") %>% predict(),
+    tm_rf = pd %>% flash_models(y, n_folds = 2, models = "rf", positive_class = "N") %>% predict(),
+    tm_xgb = pd %>% flash_models(y, n_folds = 2, models = "xgb", positive_class = "N") %>% predict(),
     ml = machine_learn(d, outcome = y, models = "rf", tune_depth = 2, positive_class = "N") %>% predict()
   )
   expect_true(all(map_lgl(preds, ~ {
@@ -359,6 +359,26 @@ test_that("predict xgboost works when columns are in different order", {
     predict(xgb_mod, .)
   expect_equal(same_order[, order(names(same_order))],
                new_order[, order(names(new_order))])
+})
+
+test_that("print.predicted_df works", {
+  pred_mes <- capture_messages({
+    pred_print <- capture_output(classification_prepped_prepped, TRUE)
+  })
+  expect_true(stringr::str_detect(pred_mes, "predicted by"))
+  expect_true(stringr::str_detect(pred_print, "A tibble"))
+})
+
+test_that("print.predicted_df works when attributes are stripped", {
+  stripped <- structure(regression_prepped_not, model_info = NULL)
+  expect_error(capture_output(stripped, TRUE), NA)
+})
+
+test_that("print.predicted_df works after join", {
+  joined <- dplyr::inner_join(classification_not_not,
+                              classification_not_not,
+                              by = "province")
+  expect_error(capture_output(joined, TRUE), NA)
 })
 
 remove_logfiles()
