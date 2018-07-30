@@ -4,7 +4,7 @@ data(mtcars)
 
 mtcars_owners <-
   mtcars %>%
-  mutate(owner = as.factor(rep(letters[1:16], each = 2)))
+  mutate(owner = rep(letters[1:16], each = 2))
 
 test_that("split train test returns a named list with two data frames", {
   sp <- split_train_test(mtcars, am, .8)

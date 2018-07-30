@@ -161,5 +161,10 @@ trunc_char <- function(x, max_char) {
 #' @noRd
 Mode <- function(x) {
   ux <- unique(x)
-  ux[which.max(tabulate(match(x, ux)))]
+  mode <- ux[which.max(tabulate(match(x, ux)))]
+
+  if (is.factor(mode))
+    mode <- droplevels(mode)
+
+  return(mode)
 }

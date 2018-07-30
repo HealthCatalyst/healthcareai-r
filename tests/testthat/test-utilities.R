@@ -83,3 +83,18 @@ test_that("trunc_vars", {
   expect_warning(short <- trunc_char(test_vec, 5), "5")
   expect_equal(short, c("seven", "eleve", "fifte"))
 })
+
+test_that("mode - test factor", {
+  test_vec <- as.factor(c("a", "b", "c", "d", "b"))
+  expect_equal(as.factor(c("b")), Mode(test_vec))
+})
+
+test_that("mode - test character", {
+  test_vec <- c("a", "b", "c", "d", "b")
+  expect_equal("b", Mode(test_vec))
+})
+
+test_that("mode - test numeric", {
+  test_vec <- c(3,2,1,2,3,3)
+  expect_equal(3, Mode(test_vec))
+})

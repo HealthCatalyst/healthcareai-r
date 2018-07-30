@@ -28,17 +28,14 @@
 #' split_train_test(mtcars, am, .9)
 #'
 #'
-#' # splits to training and tests while grouping on the owner of cars
+#' # Below is an additional example of grouping. Grouping is where individuals
+#' # in the same group are in the same training/test set. Here we group on car
+#' # owners. Owners will be in the same training/test set.
 #' library(dplyr)
 #'
-#' mtcars_owners <-
-#'   mtcars %>%
-#'   mutate(owner = as.factor(rep(letters[1:16], each = 2)))
-#'
-#' split_train_test(mtcars_owners, am, grouping_col = owner)
-#'
-#' # Grouping patients
-#' split_train_test(pima_diabetes, diabetes, grouping_col = patient_id)
+#' mtcars %>%
+#'   mutate(owner = rep(letters[1:16], each = 2)) %>%
+#'   split_train_test(., am, grouping_col = owner)
 #'
 split_train_test <- function(d, outcome, percent_train = .8, seed, grouping_col) {
   outcome <- rlang::enquo(outcome)
