@@ -15,13 +15,22 @@ rename_with_counts(d, variable_name)
 a tibble with the counts appended to the `variable_name` column
 }
 \description{
-It can be useful in plots and tables to display the fequency of
-  categories. `rename_with_counts` concatenates the count of each variable
-  to its variable value to make these plots and tables.
+`rename_with_counts` concatenates the count of each category to
+  its category name given a specific variable. It can be useful in plots and
+  tables to display the fequency of categories of a variable (see the example
+  below).
 }
 \examples{
+# TODO::
+rename_with_counts(pima_diabetes, weight_class)
+
+# Below is an example of how `rename_with_counts` can be helpful when
+# creating plots and tables. This graph shows the outcomes of different
+# weightclasses in `pima_diabetes`. With the added information from
+# `rename_with_counts`, we more correctly draw conclusions about the
+# different categories.
 library(ggplot2)
-healthcareai::rename_with_counts(pima_diabetes, weight_class) \%>\%
+rename_with_counts(pima_diabetes, weight_class) \%>\%
   ggplot(aes(x = reorder(weight_class, diabetes, function(x) mean(x == "Y")),
              fill = diabetes)) +
   geom_bar(position = "fill") +
