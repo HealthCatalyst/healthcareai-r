@@ -41,8 +41,6 @@ test_that("With user defined NA values, function returns expected output", {
                      c = c(10, 5, 8, "void", NA, "NULL", NaN, "Nas"),
                      d = c(1, 6, 7, 8, 9, 5, 10, "what"))
   expect_warning( out <- missingness(dat2, to_search = "void"), "void")
-  # out <- missingness(dat2, to_search = c("void", "what"))
-  # expect_true(FALSE)
   expect_equal(out$percent_missing, c(0, 0, 12.5, 12.5))
 })
 

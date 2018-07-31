@@ -26,29 +26,37 @@ This function replaces any given value in a dataframe or tibble
   numeric vectors when the missingness string is replaced.
 }
 \examples{
-# Replace "missing" in dat
 dat <- data.frame(gender = c("male", "male", "female", "male", "missing"),
               name = c("Paul", "Jim", "Sarah", "missing", "Alex"),
               weight = c(139, 0, 193, 158, 273))
 
+# Replace "missing" in `dat`
 make_na(dat, "missing")
 
-# Replace "missing" in dat. `gender` and `name` factor vectors will keep
-# "missing" as a level
-dat <- data.frame(gender = c("male", "male", "female", "male", "missing"),
-              name = c("Paul", "Jim", "Sarah", "missing", "Alex"),
-              weight = c(139, 0, 193, 158, 273))
+# If you didn't know what was missing in `dat`, you can run
+# \\code{\\link{missingness}}. This function will tell you that it "Found these
+# strings"... that could be possible missingness values. It will then propose
+# how to remove these values with a call to this function.
+missingness(dat)
+make_na(dat, "missing")
 
+# If you want to keep original levels in factor vectors, you can set
+# `drop_levels` to `FALSE`. This means that `name` and `gender` factor
+# vectors will still contain "missing" in their levels even though it is not
+# in the vector anymore.
 make_na(dat, "missing", drop_levels = FALSE)
 
-# Replace both "missing" and "??" in dat. `age` should be loaded as a numeric
-# vector, but since "missing" is present it is stored as a character vector.
-# `age` will be converted to a numeric vector when "missing" is replaced.
+# If there are multiple missing values, you can pass a vector of the values
+# that represent missingness to replace all of them.
 dat <- data.frame(gender = c("male", "??", "female", "male", "missing"),
               age = c(64, 52, 75, "missing", 70),
               weight = c(139, 0, 193, "??", 273),
               stringsAsFactors = FALSE)
 
 make_na(dat, c("missing", "??"))
+
+# Note: in this last example, `age` should be loaded as a numeric vector, but
+# since "missing" is present, it is stored as a character vector. When
+# "missing" is replaced, `age` will be converted to a numeric vector.
 
 }
