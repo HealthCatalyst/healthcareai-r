@@ -41,6 +41,8 @@ test_that("With user defined NA values, function returns expected output", {
                      c = c(10, 5, 8, "void", NA, "NULL", NaN, "Nas"),
                      d = c(1, 6, 7, 8, 9, 5, 10, "what"))
   expect_warning( out <- missingness(dat2, to_search = "void"), "void")
+  # out <- missingness(dat2, to_search = c("void", "what"))
+  # expect_true(FALSE)
   expect_equal(out$percent_missing, c(0, 0, 12.5, 12.5))
 })
 
@@ -109,35 +111,35 @@ test_that("plot.missingness respects max_char", {
   expect_false(isTRUE(all.equal(plot(md, max_char = 7), plot(md))))
 })
 
-test_that("replace_missingness - tibble - normal", {
+test_that("make_na - tibble - normal", {
   expected <- tibble(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
                      b = c(NA, 0, "na", "None", "none", 3, 10, 4),
                      c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
                      d = c(1, 6, 7, 8, 9, 5, 10, 1078950492))
-  actual <- replace_missingness(dat_tibble, "blank")
+  actual <- make_na(dat_tibble, "blank")
   expect_equal(actual, expected)
 })
 
-test_that("replace_missingness - df stringsAsFactors - normal", {
+test_that("make_na - df stringsAsFactors - normal", {
   expected <- data.frame(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
                          b = c(NA, 0, "na", "None", "none", 3, 10, 4),
                          c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
                          d = c(1, 6, 7, 8, 9, 5, 10, 1078950492))
-  actual <- replace_missingness(dat, "blank")
+  actual <- make_na(dat, "blank")
   expect_equal(actual, expected)
 })
 
-test_that("replace_missingness - df strings NOT Factors - normal", {
+test_that("make_na - df strings NOT Factors - normal", {
   expected <- data.frame(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
                          b = c(NA, 0, "na", "None", "none", 3, 10, 4),
                          c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
                          d = c(1, 6, 7, 8, 9, 5, 10, 1078950492),
                          stringsAsFactors = FALSE)
-  actual <- replace_missingness(dat_strnotfactors, "blank")
+  actual <- make_na(dat_strnotfactors, "blank")
   expect_equal(actual, expected)
 })
 
-test_that("replace_missingness - tibble - character col to numeric", {
+test_that("make_na - tibble - character col to numeric", {
   dat_tibble <-
     dat_tibble %>%
     mutate(e = c(1, 2, 3, 4, 5, 6, 7, "none"))
@@ -146,11 +148,11 @@ test_that("replace_missingness - tibble - character col to numeric", {
                      c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
                      d = c(1, 6, 7, 8, 9, 5, 10, 1078950492),
                      e = c(1, 2, 3, 4, 5, 6, 7, NA))
-  actual <- replace_missingness(dat_tibble, "none")
+  actual <- make_na(dat_tibble, "none")
   expect_equal(actual, expected)
 })
 
-test_that("replace_missingness - df stringsAsFactors - character col to numeric", {
+test_that("make_na - df stringsAsFactors - character col to numeric", {
   dat <-
     dat %>%
     mutate(e = c(1, 2, 3, 4, 5, 6, 7, "none"))
@@ -160,11 +162,11 @@ test_that("replace_missingness - df stringsAsFactors - character col to numeric"
                          c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
                          d = c(1, 6, 7, 8, 9, 5, 10, 1078950492),
                          e = c(1, 2, 3, 4, 5, 6, 7, NA))
-  actual <- replace_missingness(dat, "none")
+  actual <- make_na(dat, "none")
   expect_equal(actual, expected)
 })
 
-test_that("replace_missingness - df strings NOT Factors - character col to numeric", {
+test_that("make_na - df strings NOT Factors - character col to numeric", {
   dat_strnotfactors <-
     dat_strnotfactors %>%
     mutate(e = c(1, 2, 3, 4, 5, 6, 7, "none"))
@@ -175,61 +177,61 @@ test_that("replace_missingness - df strings NOT Factors - character col to numer
                          d = c(1, 6, 7, 8, 9, 5, 10, 1078950492),
                          e = c(1, 2, 3, 4, 5, 6, 7, NA),
                          stringsAsFactors = FALSE)
-  actual <- replace_missingness(dat_strnotfactors, "none")
+  actual <- make_na(dat_strnotfactors, "none")
   expect_equal(actual, expected)
 })
 
-test_that("replace_missingness - tibble - replace NULL", {
+test_that("make_na - tibble - replace NULL", {
   expected <- tibble(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
                      b = c("blank", 0, "na", "None", "none", 3, 10, 4),
                      c = c(10, 5, 8, 1, NA, NA, NaN, "Nas"),
                      d = c(1, 6, 7, 8, 9, 5, 10, 1078950492))
-  actual <- replace_missingness(dat_tibble, "NULL")
+  actual <- make_na(dat_tibble, "NULL")
   expect_equal(actual, expected)
 })
 
-test_that("replace_missingness - df stringsAsFactors - replace NULL", {
+test_that("make_na - df stringsAsFactors - replace NULL", {
   expected <- data.frame(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
                          b = c("blank", 0, "na", "None", "none", 3, 10, 4),
                          c = c(10, 5, 8, 1, NA, NA, NaN, "Nas"),
                          d = c(1, 6, 7, 8, 9, 5, 10, 1078950492))
-  actual <- replace_missingness(dat, "NULL")
+  actual <- make_na(dat, "NULL")
   expect_equal(actual, expected)
 })
 
-test_that("replace_missingness - df strings NOT Factors - replace NULL", {
+test_that("make_na - df strings NOT Factors - replace NULL", {
   expected <- data.frame(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
                          b = c("blank", 0, "na", "None", "none", 3, 10, 4),
                          c = c(10, 5, 8, 1, NA, NA, NaN, "Nas"),
                          d = c(1, 6, 7, 8, 9, 5, 10, 1078950492),
                          stringsAsFactors = FALSE)
-  actual <- replace_missingness(dat_strnotfactors, "NULL")
+  actual <- make_na(dat_strnotfactors, "NULL")
   expect_equal(actual, expected)
 })
 
-test_that("replace_missingness - tibble - replace many", {
+test_that("make_na - tibble - replace many", {
   expected <- tibble(a = c(1, 2, NA, NA, NA, NA, NA, 5),
                      b = c(NA, 0, NA, NA, NA, 3, 10, 4),
                      c = c(10, 5, 8, 1, NA, NA, NA, NA),
                      d = c(1, 6, 7, 8, 9, 5, 10, 1078950492))
   missing_values <-
     c("NULL", "none", NaN, "Nas", "na", "??", "?", "NA", "blank", "None")
-  actual <- replace_missingness(dat_tibble, missing_values)
+  actual <- make_na(dat_tibble, missing_values)
   expect_equal(actual, expected)
 })
 
-test_that("replace_missingness - df stringsAsFactors - replace many", {
+test_that("make_na - df stringsAsFactors - replace many", {
   expected <- data.frame(a = c(1, 2, NA, NA, NA, NA, NA, 5),
                          b = c(NA, 0, NA, NA, NA, 3, 10, 4),
                          c = c(10, 5, 8, 1, NA, NA, NA, NA),
                          d = c(1, 6, 7, 8, 9, 5, 10, 1078950492))
   missing_values <-
     c("NULL", "none", NaN, "Nas", "na", "??", "?", "NA", "blank", "None")
-  actual <- replace_missingness(dat, missing_values)
+  actual <- make_na(dat, missing_values)
   expect_equal(actual, expected)
 })
 
-test_that("replace_missingness - df strings NOT Factors - replace many", {
+test_that("make_na - df strings NOT Factors - replace many", {
   expected <- data.frame(a = c(1, 2, NA, NA, NA, NA, NA, 5),
                          b = c(NA, 0, NA, NA, NA, 3, 10, 4),
                          c = c(10, 5, 8, 1, NA, NA, NA, NA),
@@ -237,12 +239,12 @@ test_that("replace_missingness - df strings NOT Factors - replace many", {
                          stringsAsFactors = FALSE)
   missing_values <-
     c("NULL", "none", NaN, "Nas", "na", "??", "?", "NA", "blank", "None")
-  actual <- replace_missingness(dat_strnotfactors, missing_values)
+  actual <- make_na(dat_strnotfactors, missing_values)
   expect_equal(actual, expected)
 })
 
 
-test_that("replace_missingness - df strings NOT Factors - replace many", {
+test_that("make_na - df strings NOT Factors - replace many", {
   expected <- data.frame(a = c(1, 2, NA, NA, NA, NA, NA, 5),
                          b = c(NA, 0, NA, NA, NA, 3, 10, 4),
                          c = c(10, 5, 8, 1, NA, NA, NA, NA),
@@ -250,14 +252,14 @@ test_that("replace_missingness - df strings NOT Factors - replace many", {
                          stringsAsFactors = FALSE)
   missing_values <-
     c("NULL", "none", NaN, "Nas", "na", "??", "?", "NA", "blank", "None")
-  actual <- replace_missingness(dat_strnotfactors, missing_values)
+  actual <- make_na(dat_strnotfactors, missing_values)
   expect_equal(actual, expected)
 })
 
-test_that("replace_missingness - test df or tibble", {
-  expect_error(replace_missingness(c(1, 2), "NA"))
+test_that("make_na - test df or tibble", {
+  expect_error(make_na(c(1, 2), "NA"))
 })
 
-test_that("replace_missingness - test atomic", {
-  expect_error(replace_missingness(dat, list()))
+test_that("make_na - test atomic", {
+  expect_error(make_na(dat, list()))
 })

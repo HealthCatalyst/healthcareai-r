@@ -43,8 +43,10 @@ missingness <- function(d,
     possible_na <- map_chr(possible_na, function(st) paste0('"', st, '"'))
     warning("Found these strings that may represent missing values: ",
             list_variables(possible_na),
-            ". If they do represent missingness, replace them with NA by using",
-            " `replace.missingness`")
+            ". If they do represent missingness, replace them with NA with: ",
+            "`make_na(my_df, c(",
+            paste(possible_na, collapse = ", "),
+            ")`")
   }
 
   miss <- sort(100 * purrr::map_int(d, ~sum(is.na(.x))) / nrow(d))
@@ -142,42 +144,52 @@ countMissingData <- function(x, userNAs = NULL) {
 #' @description This function replaces any given value in a dataframe or tibble
 #'   with NA. It can be used when missing values are filled with characters like
 #'   "missing". Numeric vector columns that were originally loaded as character
-#'   or factor columns becuase of a missingness string, are converted to numeric
-#'   vectors when the missingness string is replaced.
+#'   or factor columns (because of a missingness string), are converted to
+#'   numeric vectors when the missingness string is replaced.
 #'
 #' @param d A dataframe or tibble
 #' @param to_replace A vector of the values or string of the value that will be
 #'   replaced with NA
-#' @param
+#' @param drop_levels a boolean to drop unused levels in factor vectors that are
+#'   created from missingness values being replaced. Default = TRUE
 #' @return A tibble with the missing data replaced with NA
 #'
 #' @export
 #' @examples
-#' # Replace "missing" in dat
 #' dat <- data.frame(gender = c("male", "male", "female", "male", "missing"),
-#'               age = c(64, 52, 75, "missing", 70),
+#'               name = c("Paul", "Jim", "Sarah", "missing", "Alex"),
 #'               weight = c(139, 0, 193, 158, 273))
 #'
-#' replace_missingness(dat, "missing")
+#' # Replace "missing" in `dat`
+#' make_na(dat, "missing")
 #'
-#' # Replace both "missing" and Nan in dat
-#' dat <- data.frame(gender = c("male", NaN, "female", "male", "missing"),
+#' # If you didn't know what was missing in `dat`, you can run
+#' # \code{\link{missingness}}. This function will tell you that it "Found these
+#' # strings"... that could be possible missingness values. It will then propose
+#' # how to remove these values with a call to this function.
+#' missingness(dat)
+#' make_na(dat, "missing")
+#'
+#' # If you want to keep original levels in factor vectors, you can set
+#' # `drop_levels` to `FALSE`. This means that `name` and `gender` factor
+#' # vectors will still contain "missing" in their levels even though it is not
+#' # in the vector anymore.
+#' make_na(dat, "missing", drop_levels = FALSE)
+#'
+#' # If there are multiple missing values, you can pass a vector of the values
+#' # that represent missingness to replace all of them.
+#' dat <- data.frame(gender = c("male", "??", "female", "male", "missing"),
 #'               age = c(64, 52, 75, "missing", 70),
-#'               weight = c(139, 0, 193, NaN, 273))
-#'
-#' replace_missingness(dat, c("missing", NaN))
-#'
-#' # Replace both "missing" dat, `age` should be loaded as a numeric vector, but
-#' # since "missing" is present it is stored as a character vector. `age` will
-#' # be converted to a numeric vector when "missing" is replaced.
-#' dat <- data.frame(gender = c("male", NaN, "female", "male", "missing"),
-#'               age = c(64, 52, 75, "missing", 70),
-#'               weight = c(139, 0, 193, NaN, 273),
+#'               weight = c(139, 0, 193, "??", 273),
 #'               stringsAsFactors = FALSE)
 #'
-#' replace_missingness(dat, c("missing", NaN))
+#' make_na(dat, c("missing", "??"))
 #'
-replace_missingness <- function(d, to_replace, drop_levels = TRUE) {
+#' # Note: in this last example, `age` should be loaded as a numeric vector, but
+#' # since "missing" is present, it is stored as a character vector. When
+#' # "missing" is replaced, `age` will be converted to a numeric vector.
+#'
+make_na <- function(d, to_replace, drop_levels = TRUE) {
   if (!is.data.frame(d))
     stop("\"d\" must be a dataframe or tibble")
   if (!is.atomic(to_replace))
