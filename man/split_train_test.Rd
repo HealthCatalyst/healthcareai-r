@@ -12,27 +12,33 @@ split_train_test(d, outcome, percent_train = 0.8, seed, grouping_col)
 \item{outcome}{Target column, unquoted. Split will be stratified across this
 variable}
 
-\item{percent_train}{Proportion of rows in d to put into training. Default is 0.8}
+\item{percent_train}{Proportion of rows in d to put into training. Default is
+0.8}
 
 \item{seed}{Optional, if provided the function will return the same split
 each time it is called}
 
-\item{grouping_col}{column name that specifies grouping. Individuals in the same
-group are in the same training/test set.}
+\item{grouping_col}{column name that specifies grouping. Individuals in the
+same group are in the same training/test set.}
 }
 \value{
 A list of two data frames with names train and test
 }
 \description{
-`split_train_test` splits data for validation of models. It also
-offers an implentation to group all observations with the same column value
-in the same train/test group. This has been created to group patients with
-multiple observations in the same group.
+`split_train_test` splits data into two data frames for
+  validation of models. One data frame is meant for model training ("train")
+  and the other is meant to assess model performance ("test"). The
+  distribution of \code{outcome} will be preserved acrosss the train and test
+  datasets. Additionally, if there are groups in the dataset, you can keep
+  all observations within a in the same train/test dataset by passing the
+  name of the group column to \code{grouping_col}; this is useful, for
+  example, when there are multiple observations per patient, and you want to
+  keep each patient within one dataset.
 }
 \details{
-This function wraps `caret::createDataPartition`. If outcome is a factor
-  then the test/training porportions are stratified. Otherwise they are randomly
-  selected.
+This function wraps `caret::createDataPartition`. If outcome is a
+  factor then the test/training porportions are stratified. Otherwise they
+  are randomly selected.
 
   If the grouping_col is given, then the groups are divided into the test/
   training porportions.
