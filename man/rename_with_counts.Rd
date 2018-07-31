@@ -2,7 +2,7 @@
 % Please edit documentation in R/rename_with_counts.R
 \name{rename_with_counts}
 \alias{rename_with_counts}
-\title{Concatenates the count to the end specific variable value}
+\title{Adds the category count to each category name in a given variable column}
 \usage{
 rename_with_counts(d, variable_name)
 }
@@ -21,14 +21,12 @@ a tibble with the counts appended to the `variable_name` column
   below).
 }
 \examples{
-# TODO::
 rename_with_counts(pima_diabetes, weight_class)
 
 # Below is an example of how `rename_with_counts` can be helpful when
 # creating plots and tables. This graph shows the outcomes of different
-# weightclasses in `pima_diabetes`. With the added information from
-# `rename_with_counts`, we more correctly draw conclusions about the
-# different categories.
+# weight classes in `pima_diabetes`. With the added information from
+# `rename_with_counts`, we can see how common each category is.
 library(ggplot2)
 rename_with_counts(pima_diabetes, weight_class) \%>\%
   ggplot(aes(x = reorder(weight_class, diabetes, function(x) mean(x == "Y")),

@@ -1,4 +1,4 @@
-#' Concatenates the count to the end specific variable value
+#' Adds the category count to each category name in a given variable column
 #'
 #' @description `rename_with_counts` concatenates the count of each category to
 #'   its category name given a specific variable. It can be useful in plots and
@@ -10,14 +10,12 @@
 #' @export
 #'
 #' @examples
-#' # TODO::
 #' rename_with_counts(pima_diabetes, weight_class)
 #'
 #' # Below is an example of how `rename_with_counts` can be helpful when
 #' # creating plots and tables. This graph shows the outcomes of different
-#' # weightclasses in `pima_diabetes`. With the added information from
-#' # `rename_with_counts`, we more correctly draw conclusions about the
-#' # different categories.
+#' # weight classes in `pima_diabetes`. With the added information from
+#' # `rename_with_counts`, we can see how common each category is.
 #' library(ggplot2)
 #' rename_with_counts(pima_diabetes, weight_class) %>%
 #'   ggplot(aes(x = reorder(weight_class, diabetes, function(x) mean(x == "Y")),
