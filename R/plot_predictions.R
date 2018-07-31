@@ -29,7 +29,7 @@
 #'      title = "This model's predictions regress to the mean",
 #'      point_size = 3, point_alpha = .7, font_size = 14)
 #' p <- plot(predictions, print = FALSE)
-#' p + coord_fixed(ratio = 1) + theme_classic()
+#' p + theme_classic()
 plot.predicted_df <- function(x,
                               caption = TRUE,
                               title = NULL,
