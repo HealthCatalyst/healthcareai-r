@@ -156,3 +156,12 @@ trunc_char <- function(x, max_char) {
   }
   return(x)
 }
+
+#' Mode function to aggregate groups in split_train_test
+#' @noRd
+Mode <- function(x) {
+  ux <- unique(x)
+  mode <- ux[which.max(tabulate(match(x, ux)))]
+
+  return(mode)
+}
