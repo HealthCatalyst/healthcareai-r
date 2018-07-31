@@ -20,6 +20,7 @@ It can be useful in plots and tables to display the fequency of
   to its variable value to make these plots and tables.
 }
 \examples{
+library(ggplot2)
 healthcareai::rename_with_counts(pima_diabetes, weight_class) \%>\%
   ggplot(aes(x = reorder(weight_class, diabetes, function(x) mean(x == "Y")),
              fill = diabetes)) +

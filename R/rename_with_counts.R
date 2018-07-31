@@ -9,6 +9,7 @@
 #' @export
 #'
 #' @examples
+#' library(ggplot2)
 #' healthcareai::rename_with_counts(pima_diabetes, weight_class) %>%
 #'   ggplot(aes(x = reorder(weight_class, diabetes, function(x) mean(x == "Y")),
 #'              fill = diabetes)) +
@@ -22,7 +23,8 @@ rename_with_counts <- function(d, variable_name) {
   variable_name <- rlang::enquo(variable_name)
 
   if (is.numeric(d %>% pull(!!variable_name)))
-    warning("`variable_name` is an numeric column. `rename_with_counts` is not designed for numeric columns")
+    warning("`variable_name` is an numeric column. `rename_with_counts` is not",
+            " designed for numeric columns")
 
   d <-
     d %>%
