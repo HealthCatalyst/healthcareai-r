@@ -2,28 +2,25 @@
 % Please edit documentation in R/missingness.R
 \name{make_na}
 \alias{make_na}
-\title{Replaces missing data with NA}
+\title{Replace missingness values with NA and correct columns types}
 \usage{
 make_na(d, to_replace, drop_levels = TRUE)
 }
 \arguments{
 \item{d}{A dataframe or tibble}
 
-\item{to_replace}{A vector of the values or string of the value that will be
-replaced with NA}
+\item{to_replace}{A value or vector of values that will be replaced with NA}
 
-\item{drop_levels}{a boolean to drop unused levels in factor vectors that are
-created from missingness values being replaced. Default = TRUE}
+\item{drop_levels}{If TRUE (default) unused factor levels are dropped}
 }
 \value{
-A tibble with the missing data replaced with NA
+A tibble where the missing value/values is/are replaced with NA
 }
 \description{
-This function replaces any given value in a dataframe or tibble
-  with NA. It can be used when missing values are filled with characters like
-  "missing". Numeric vector columns that were originally loaded as character
-  or factor columns (because of a missingness string), are converted to
-  numeric vectors when the missingness string is replaced.
+This function replaces given missingness values with NA in a
+  given dataframe or tibble. Numeric vectors that were originally loaded as
+  character or factor vectors (because of missingness values in the column),
+  are also converted to numeric vectors when values are replaced.
 }
 \examples{
 dat <- data.frame(gender = c("male", "male", "female", "male", "missing"),
@@ -33,30 +30,29 @@ dat <- data.frame(gender = c("male", "male", "female", "male", "missing"),
 # Replace "missing" in `dat`
 make_na(dat, "missing")
 
-# If you didn't know what was missing in `dat`, you can run
-# \\code{\\link{missingness}}. This function will tell you that it "Found these
-# strings"... that could be possible missingness values. It will then propose
-# how to remove these values with a call to this function.
-missingness(dat)
-make_na(dat, "missing")
-
-# If you want to keep original levels in factor vectors, you can set
-# `drop_levels` to `FALSE`. This means that `name` and `gender` factor
-# vectors will still contain "missing" in their levels even though it is not
-# in the vector anymore.
+# To keep original levels in factor vectors, set `drop_levels` to `FALSE`.
+# In this example, this means that `name` and `gender` factor vectors will
+# still contain "missing" in their levels even though these vectors do not
+# contain "missing" anymore.
 make_na(dat, "missing", drop_levels = FALSE)
 
-# If there are multiple missing values, you can pass a vector of the values
-# that represent missingness to replace all of them.
-dat <- data.frame(gender = c("male", "??", "female", "male", "missing"),
-              age = c(64, 52, 75, "missing", 70),
+# If there are multiple missing values, pass them through a vector.
+dat <- data.frame(gender = c("male", "??", "female", "male", "NULL"),
+              age = c(64, 52, 75, "NULL", 70),
               weight = c(139, 0, 193, "??", 273),
               stringsAsFactors = FALSE)
 
-make_na(dat, c("missing", "??"))
+make_na(dat, c("??", "NULL"))
 
-# Note: in this last example, `age` should be loaded as a numeric vector, but
-# since "missing" is present, it is stored as a character vector. When
-# "missing" is replaced, `age` will be converted to a numeric vector.
+# Run `missingness()` to find possible missingness values in `dat`. It will
+# suggest the default implementation of `make_na` to replace all found
+# missingness values (the suggested default implementation for this example
+# is `make_na(dat, c("??", "NULL"))`).
+missingness(dat)
+make_na(dat, c("??", "NULL"))
+
+# Note: In this last example, `age` should be loaded as a numeric vector, but
+# since "NULL" is present, it is stored as a character vector. When "NULL" is
+# replaced, `age` will be converted to a numeric vector.
 
 }

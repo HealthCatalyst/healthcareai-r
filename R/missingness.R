@@ -176,8 +176,8 @@ countMissingData <- function(x, userNAs = NULL) {
 #'
 #' # Run `missingness()` to find possible missingness values in `dat`. It will
 #' # suggest the default implementation of `make_na` to replace all found
-#' # missingness values (the suggested default implementation is
-#' # `make_na(dat, c("??", "NULL"))`).
+#' # missingness values (the suggested default implementation for this example
+#' # is `make_na(dat, c("??", "NULL"))`).
 #' missingness(dat)
 #' make_na(dat, c("??", "NULL"))
 #'
@@ -197,7 +197,7 @@ make_na <- function(d, to_replace, drop_levels = TRUE) {
     # The following operations execute only on non-numeric columns for speed
     if (!is.numeric(.x)) {
       # Convert factors to characters because factors loose information in
-      # as.numeric(). `new_col` is created so that if column cannot be numeric,
+      # as.numeric(). `new_col` is created so that if the column cannot be numeric,
       # the column will remain as factor.
       if (is.factor(.x)) {
         new_col <- as.character(.x)
@@ -205,8 +205,8 @@ make_na <- function(d, to_replace, drop_levels = TRUE) {
         new_col <- .x
       }
 
-      # The column contains numeric values if `as.numeric()` does not coerce the
-      # value to NA
+      # The column should be numeric if `as.numeric()` does not coerce any value
+      # to NA
       suppressWarnings(
         ans <- sum(is.na(new_col)) == sum(is.na(as.numeric(new_col)))
       )
