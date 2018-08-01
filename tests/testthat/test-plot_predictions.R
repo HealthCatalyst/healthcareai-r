@@ -88,3 +88,14 @@ test_that("Arguments to plot.predicted_df get passed to plot_classification_pred
   expect_s3_class(p, "gg")
   expect_equal(ggplot_build(p)$plot$labels$title, my_title)
 })
+
+test_that("fixed_aspect works", {
+  reg_fix <- plot(reg_preds_self, print = FALSE)
+  reg_unfix <- plot(reg_preds_self, fixed_aspect = FALSE, print = FALSE)
+  expect_false(isTRUE(all.equal(reg_fix, reg_unfix)))
+  class_fix <- plot(class_preds_new, fixed_aspect = TRUE, print = FALSE)
+  class_unfix <- plot(class_preds_new, print = FALSE)
+  class_unfix_force <- plot(class_preds_new, fixed_aspect = FALSE, print = FALSE)
+  expect_false(isTRUE(all.equal(class_fix, class_unfix)))
+  expect_equivalent(class_unfix, class_unfix_force)
+})
