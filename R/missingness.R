@@ -36,7 +36,7 @@ missingness <- function(d,
 
   # Check for possible representations of missingness
   possible_na <-
-    purrr::map(d, ~ if(!is.numeric(.x)) to_search[to_search %in% .x[!is.na(.x)]]) %>%
+    purrr::map(d, ~ if (!is.numeric(.x)) to_search[to_search %in% .x[!is.na(.x)]]) %>%
     unlist() %>%
     unique()
   if (length(possible_na)) {
