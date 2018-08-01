@@ -6,6 +6,8 @@
 #'   (e.g. "RMSE"), in which case the caption will include only that metric.
 #' @param title Character: Plot title, default NULL produces no title.
 #' @param font_size Number: Relative size of all font in plot, default = 11
+#' @param fixed_aspect Logical: If TRUE (default for regression only), units of
+#'   the x- and y-axis will have the same spacing.
 #' @param outcomes Vector of outcomes if not present in x
 #' @param print Logical, if TRUE (default) the plot is printed on the current
 #'   graphics device. The plot is always (silently) returned.
@@ -27,12 +29,13 @@
 #'      title = "This model's predictions regress to the mean",
 #'      point_size = 3, point_alpha = .7, font_size = 14)
 #' p <- plot(predictions, print = FALSE)
-#' p + coord_fixed(ratio = 1) + theme_classic()
+#' p + theme_classic()
 plot.predicted_df <- function(x,
                               caption = TRUE,
                               title = NULL,
                               font_size = 11,
                               outcomes = NULL,
+                              fixed_aspect = attr(x, "model_info")$type == "Regression",
                               print = TRUE,
                               ...) {
   # Checks, and put outcomes in x if necessary
@@ -83,6 +86,8 @@ plot.predicted_df <- function(x,
     the_plot +
     labs(caption = cap, title = title) +
     theme_gray(base_size = font_size)
+  if (!is.null(fixed_aspect) && fixed_aspect)
+    the_plot <- the_plot + coord_fixed()
   # Print and return
   if (print)
     print(the_plot)

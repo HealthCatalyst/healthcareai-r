@@ -310,7 +310,7 @@ build_one_level_df <- function(dataframe, variable, level, one_variable_directio
 # but also from pip to remove x to x transitions if !allow_same
 remove_prohibited <- function(d, prohibited) {
   if (is.null(prohibited)) return(d)
-  if (any(na.omit(suppressWarnings(as.numeric(d$current_value))) %% 1 != 0))
+  if (any(stats::na.omit(suppressWarnings(as.numeric(d$current_value))) %% 1 != 0))
     warning("You're prohibiting transitions in ", unique(d$process_variable_name),
             " but at least some values in ", unique(d$process_variable_name),
             " are non-integer numbers, which makes them hard to specify precisely ",
