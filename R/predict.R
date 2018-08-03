@@ -24,7 +24,7 @@
 #'   \code{write_log = paste0(Sys.time(), " predictions.txt")}. This param
 #'   modifies error behavior and is best used in production. See details.
 #' @param ... Unused.
-#' @param Ensemble Default TRUE, user can set Ensemble is TRUE or FALSE.
+#' @param Ensemble Default FALSE, user can set Ensemble is TRUE or FALSE.
 #'
 #' @return A tibble data frame: newdata with an additional column for the
 #'   predictions in "predicted_TARGET" where TARGET is the name of the variable
@@ -76,7 +76,7 @@
 predict.model_list <- function(object,
                                newdata,
                                prepdata,
-                               Ensemble = TRUE,
+                               Ensemble = FALSE,
                                write_log = FALSE,
                                ...) {
   start <- Sys.time()
@@ -84,14 +84,14 @@ predict.model_list <- function(object,
     out <- predict_model_list_main(object,
                                    newdata,
                                    prepdata,
-                                   Ensemble = TRUE,
+                                   Ensemble,
                                    write_log,
                                    ...)
   } else {
     out <- safe_predict_model_list_main(object,
                                         newdata,
                                         prepdata,
-                                        Ensemble = TRUE,
+                                        Ensemble,
                                         write_log,
                                         ...)
 
@@ -118,7 +118,7 @@ predict.model_list <- function(object,
 predict_model_list_main <- function(object,
                                     newdata,
                                     prepdata,
-                                    Ensemble = TRUE,
+                                    Ensemble = FALSE,
                                     write_log = FALSE,
                                     ...) {
 
@@ -162,7 +162,7 @@ predict_model_list_main <- function(object,
 
   # If predicting on training, use out-of-fold; else make predictions
   if (using_training_data) {
-    preds <- get_oof_predictions(object, mi, Ensemble = TRUE)
+    preds <- get_oof_predictions(object, mi, Ensemble)
   } else {
     # If classification, want probabilities. If regression, raw's the only option
     type <- if (is.classification_list(object)) "prob" else "raw"
@@ -210,11 +210,11 @@ predict_model_list_main <- function(object,
 #' @noRd
 safe_predict_model_list_main <- safe_n_quiet(predict_model_list_main)
 
-get_oof_predictions <- function(x, mi = extract_model_info(x), Ensemble = TRUE) {
+get_oof_predictions <- function(x, mi = extract_model_info(x), Ensemble) {
   mod <- mi$best_model_name
-  mod_first <- object[[1]]$modelInfo$label
-  mod_second <- object[[2]]$modelInfo$label
-  mod_third <- object[[3]]$modelInfo$label
+  mod_first <- x[[1]]$modelInfo$label
+  mod_second <- x[[2]]$modelInfo$label
+  mod_third <- x[[3]]$modelInfo$label
   preds <- dplyr::arrange(x[[mod]]$pred, rowIndex)
   preds_First <- dplyr::arrange(x[[mod_first]]$pred, rowIndex)
   preds_Second <-dplyr::arrange(x[[mod_second]]$pred, rowIndex)
