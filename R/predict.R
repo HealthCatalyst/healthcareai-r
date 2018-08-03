@@ -125,9 +125,9 @@ predict_model_list_main <- function(object,
   # Pull info
   mi <- extract_model_info(object)
   best_models <- object[[mi$best_model_name]]
-  model_first <- object[[1]]$modelInfo$label
-  model_second <- object[[2]]$modelInfo$label
-  model_third <- object[[3]]$modelInfo$label
+  model_first <- object[[1]]
+  model_second <- object[[2]]
+  model_third <- object[[3]]
   training_data <- object[[1]]$trainingData
   # If newdata not provided, pull training data from object
   if (missing(newdata)) {
