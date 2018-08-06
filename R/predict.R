@@ -24,7 +24,7 @@
 #'   \code{write_log = paste0(Sys.time(), " predictions.txt")}. This param
 #'   modifies error behavior and is best used in production. See details.
 #' @param ... Unused.
-#' @param Ensemble Default FALSE, user can set Ensemble is TRUE or FALSE.
+#' @param ensemble Default FALSE, user can set ensemble is TRUE or FALSE.
 #'
 #' @return A tibble data frame: newdata with an additional column for the
 #'   predictions in "predicted_TARGET" where TARGET is the name of the variable
@@ -76,7 +76,7 @@
 predict.model_list <- function(object,
                                newdata,
                                prepdata,
-                               Ensemble = FALSE,
+                               ensemble = FALSE,
                                write_log = FALSE,
                                ...) {
   start <- Sys.time()
@@ -84,14 +84,14 @@ predict.model_list <- function(object,
     out <- predict_model_list_main(object,
                                    newdata,
                                    prepdata,
-                                   Ensemble,
+                                   ensemble,
                                    write_log,
                                    ...)
   } else {
     out <- safe_predict_model_list_main(object,
                                         newdata,
                                         prepdata,
-                                        Ensemble,
+                                        ensemble,
                                         write_log,
                                         ...)
 
@@ -118,16 +118,13 @@ predict.model_list <- function(object,
 predict_model_list_main <- function(object,
                                     newdata,
                                     prepdata,
-                                    Ensemble = FALSE,
+                                    ensemble = FALSE,
                                     write_log = FALSE,
                                     ...) {
 
   # Pull info
   mi <- extract_model_info(object)
   best_models <- object[[mi$best_model_name]]
-  model_first <- object[[1]]
-  model_second <- object[[2]]
-  model_third <- object[[3]]
   training_data <- object[[1]]$trainingData
   # If newdata not provided, pull training data from object
   if (missing(newdata)) {
@@ -162,24 +159,28 @@ predict_model_list_main <- function(object,
 
   # If predicting on training, use out-of-fold; else make predictions
   if (using_training_data) {
-    preds <- get_oof_predictions(object, mi, Ensemble)
+    preds <- get_oof_predictions(object, mi, ensemble)
   } else {
     # If classification, want probabilities. If regression, raw's the only option
     type <- if (is.classification_list(object)) "prob" else "raw"
     preds <- caret::predict.train(best_models, to_pred, type = type)
-    preds_First <- caret::predict.train(model_first, to_pred, type = type)
-    preds_Second <- caret::predict.train(model_second, to_pred, type = type)
-    preds_third <- caret::predict.train(model_third, to_pred, type = type)
-   # Probs get returned for no and yes. Keep only positive class as set in training
+  # Probs get returned for no and yes. Keep only positive class as set in training
     if (is.classification_list(object))
-      if (Ensemble){
+      if (ensemble == FALSE){
+        preds <- preds[[mi$positive_class]]
+      }
+      else{
+        model_first <- object[[1]]
+        model_second <- object[[2]]
+        model_third <- object[[3]]
+        preds_First <- caret::predict.train(model_first, to_pred, type = type)
+        preds_Second <- caret::predict.train(model_second, to_pred, type = type)
+        preds_third <- caret::predict.train(model_third, to_pred, type = type)
         preds_First <- preds_First[[mi$positive_class]]
         preds_Second <- preds_Second[[mi$positive_class]]
         preds_third <- preds_third[[mi$positive_class]]
         preds[[mi$positive_class]] <- (preds_First + preds_Second + preds_third) / 3
-      }
-      else{
-      preds <- preds[[mi$positive_class]]
+        preds <- preds[[mi$positive_class]]
       }
   }
 
@@ -210,15 +211,9 @@ predict_model_list_main <- function(object,
 #' @noRd
 safe_predict_model_list_main <- safe_n_quiet(predict_model_list_main)
 
-get_oof_predictions <- function(x, mi = extract_model_info(x), Ensemble) {
+get_oof_predictions <- function(x, mi = extract_model_info(x), ensemble = FALSE) {
   mod <- mi$best_model_name
-  mod_first <- x[[1]]$modelInfo$label
-  mod_second <- x[[2]]$modelInfo$label
-  mod_third <- x[[3]]$modelInfo$label
   preds <- dplyr::arrange(x[[mod]]$pred, rowIndex)
-  preds_First <- dplyr::arrange(x[[mod_first]]$pred, rowIndex)
-  preds_Second <-dplyr::arrange(x[[mod_second]]$pred, rowIndex)
-  preds_third <- dplyr::arrange(x[[mod_third]]$pred, rowIndex)
   # To solve a mysterious bug in test-predict: predict handles positive class specified in training
   # Where each observation appeared twice in object$`Random Forest`$pred:
   ## Now even hackier because this error popped up on Debian CRAN checks in
@@ -231,20 +226,40 @@ get_oof_predictions <- function(x, mi = extract_model_info(x), Ensemble) {
     tibble::as_tibble(preds) %>%
     .[!duplicated(.$rowIndex), ]
   if (mi$m_class == "Regression"){
-    if (Ensemble){
+    if (ensemble == FALSE){
+       return(preds$pred)
+      }
+    else{
+      mod_first <- x[[1]]$modelInfo$label
+      mod_second <- x[[2]]$modelInfo$label
+      mod_third <- x[[3]]$modelInfo$label
+      preds_First <- dplyr::arrange(x[[mod_first]]$pred, rowIndex)
+      preds_Second <- dplyr::arrange(x[[mod_second]]$pred, rowIndex)
+      preds_third <- dplyr::arrange(x[[mod_third]]$pred, rowIndex)
       preds$pred <- (preds_First$pred + preds_Second$pred + preds_third$pred) / 3
+      return(preds$pred)
     }
-    return(preds$pred)
+
   }
   if (mi$m_class == "Classification"){
-    if (Ensemble){
+    if (ensemble == FALSE){
+      return(preds[[mi$positive_class]])
+    }
+    else{
+      mod_first <- x[[1]]$modelInfo$label
+      mod_second <- x[[2]]$modelInfo$label
+      mod_third <- x[[3]]$modelInfo$label
+      preds_First <- dplyr::arrange(x[[mod_first]]$pred, rowIndex)
+      preds_Second <- dplyr::arrange(x[[mod_second]]$pred, rowIndex)
+      preds_third <- dplyr::arrange(x[[mod_third]]$pred, rowIndex)
       preds_First <- preds_First[[mi$positive_class]]
       preds_Second <- preds_Second[[mi$positive_class]]
       preds_third <- preds_third[[mi$positive_class]]
       preds[[mi$positive_class]] <- (preds_First + preds_Second + preds_third) / 3
-     }
-    return(preds[[mi$positive_class]])
+      return(preds[[mi$positive_class]])
     }
+
+  }
   stop("Eh? What kind of model is that?")
 }
 
