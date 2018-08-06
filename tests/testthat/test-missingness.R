@@ -99,3 +99,78 @@ test_that("plot.missingness respects max_char", {
   md <- missingness(data.frame(long_name = NA, longer_still = 1))
   expect_false(isTRUE(all.equal(plot(md, max_char = 7), plot(md))))
 })
+
+test_that("summary.missingness - warning less missingness than top_n", {
+  expect_warning(capture_output(
+    missingness(pima_diabetes) %>%
+      summary(),
+    "`top_n` specifies to list"
+  ))
+})
+
+test_that("summary.missingness - warning more top_n than", {
+  expect_warning(capture_output(
+    missingness(pima_diabetes) %>%
+      summary(top_n = 13),
+    "Cannot list more variables than exist"
+    ))
+})
+
+test_that("summary.missingness - test normal", {
+  expected <- "Missingness summary:
+1: 50% of data variables contain missingness.
+2: `insulin` contains the most missingness with 48.7% missingness.
+3: The top 5 missingness variables are: insulin, skinfold, diastolic_bp, weight_class, and plasma_glucose."
+  suppressWarnings(actual <- capture_output(
+    missingness(pima_diabetes) %>%
+      summary()
+  ))
+  expect_equal(actual, expected)
+})
+
+test_that("summary.missingness - test top_n", {
+  expected <- "Missingness summary:
+1: 50% of data variables contain missingness.
+2: `insulin` contains the most missingness with 48.7% missingness.
+3: The top 3 missingness variables are: insulin, skinfold, and diastolic_bp."
+  suppressWarnings(actual <- capture_output(
+    missingness(pima_diabetes) %>%
+      summary(top_n = 3)
+  ))
+  expect_equal(actual, expected)
+})
+
+test_that("summary.missingness - test threshold", {
+  expected <- "Missingness summary:
+1: 10% of data variables contain more than 40% missingness.
+2: `insulin` contains the most missingness with 48.7% missingness.
+3: The top missingness variable is: insulin."
+  suppressWarnings(actual <- capture_output(
+    missingness(pima_diabetes) %>%
+      summary(top_n = 3, threshold = 40)
+  ))
+  expect_equal(actual, expected)
+})
+
+test_that("summary.missingness - test error for threshold", {
+  expect_error(
+    missingness(pima_diabetes) %>%
+      summary(threshold = -1)
+  )
+  expect_error(
+    missingness(pima_diabetes) %>%
+      summary(threshold = 101)
+  )
+})
+
+test_that("summary.missingness - test error for top_n", {
+  expect_error(
+    missingness(pima_diabetes) %>%
+      summary(top_n = 0)
+  )
+  expect_error(
+    missingness(pima_diabetes) %>%
+      summary(top_n = -1)
+  )
+})
+

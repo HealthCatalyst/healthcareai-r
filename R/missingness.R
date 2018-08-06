@@ -134,3 +134,98 @@ countMissingData <- function(x, userNAs = NULL) {
   .Deprecated("missingness", "healthcareai")
   missingness(x)
 }
+
+#' Summarizes data given by \code{\link{missingness}}
+#'
+#' @description With wide datasets (datasets with many columns), sometimes it is
+#'   difficult to make sense of the output from \code{\link{missingness}}. This
+#'   function is designed to summarize this output with three points. 1. The
+#'   percent of variables that contain missingness above the given `threshold`,
+#'   2. The variable name with the maximum amount of missingness along with its
+#'   percent missingness, and 3. Lists the `top_n` variables that have
+#'   missingness over the `threshold` given. This function will also throw a
+#'   warning 1. if `top_n` is more than the amount of variables in `x`, and/or
+#'   2. if `top_n` is greater than the amount of variables found with
+#'   missingness percentages over `threshold`. When the warning is thrown
+#'   `top_n` is corrected.
+#'
+#' @param x Data frame from \code{\link{missingness}}
+#' @param threshold a value between 0 and 100 (default = 0). This function will
+#'   look for missingness percent values that are greater than this threshold.
+#' @param top_n a value between 1 and number of variables (default = 10). This
+#'   function will list this number of variables if they contain missingness.
+#'   Otherwise, this function will return all the variables that contain
+#'   missingness.
+#' @return a list of, invisibly
+#' @export
+#' @examples
+#' missingness(pima_diabetes) %>%
+#'   summary()
+#'
+#' # To list the amount of variables with more than 5% missingness
+#' missingness(pima_diabetes) %>%
+#'   summary(threshold = 5)
+#'
+#' # To list only the top 3 variables that contain missingness
+#' missingness(pima_diabetes) %>%
+#'   summary(top_n = 3)
+#'
+summary.missingness <- function(x, threshold = 0, top_n = 10, ...) {
+  if (!length(x))
+    stop("`x` is empty.")
+  if (threshold < 0 || threshold > 100)
+    stop("`threshold` needs to be between 0 and 100")
+  if (top_n <= 0)
+    stop("`top_n` has to be positive")
+
+  n_var <- length(x$variable)
+  if (top_n > n_var) {
+    warning(". Reset `top_n` to ", n_var, " variables.")
+    top_n <- n_var
+  }
+
+  tmp_max_df <- x[x$percent_missing == max(x$percent_missing),]
+
+  max_col <- tmp_max_df[[1]][1]# Grab the first variable if there is a tie
+  max_perc <- tmp_max_df[[2]][1]# Grab the first value if there is a tie
+
+  col_missing <- x$percent_missing > threshold
+  n_col_missing <- sum(col_missing)
+  perc_col_missing <- mean(col_missing) * 100 # Convert to percent
+
+  if (top_n > n_col_missing) {
+    warning("`top_n` specifies to list ", top_n, " variables, but only ",
+            n_col_missing, " column(s) have/has missingness above the chosen ",
+            " threshold. Only ", n_col_missing, " variable(s) is/are listed.")
+    top_n <- n_col_missing
+  }
+
+  first_nvar <- x$variable[order(x$percent_missing, decreasing = TRUE)][1:top_n]
+
+  if (n_col_missing == 0) {
+    # different wording when threshold is 0
+    if (threshold == 0)
+      out <- paste0("`x` has no variables with missingness.")
+    else
+      out <- paste0("`x` has no variables with missingness over ", threshold, "%.")
+  } else {
+    out <- paste0("Missingness summary:\n1: ", perc_col_missing,
+                  "% of data variables contain")
+    if (threshold != 0)
+      out <- paste0(out, " more than ", threshold, "%")
+    out <- paste0(out, " missingness.\n2: `", max_col,
+                  "` contains the most missingness with ", round(max_perc, 1),
+                  "% missingness.\n3: The top ")
+    out <-
+      if (top_n == 1) { # different wording when one variable found
+        paste0(out, "missingness variable is: ", first_nvar, ".\n")
+      } else {
+        paste0(out, top_n, " missingness variables are: ",
+               list_variables(first_nvar), ".\n")
+      }
+  }
+
+  cat(out)
+  return(invisible(out))
+}
+
