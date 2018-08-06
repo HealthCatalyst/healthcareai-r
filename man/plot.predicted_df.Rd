@@ -7,7 +7,8 @@
 \title{Plot model predictions vs observed outcomes}
 \usage{
 \method{plot}{predicted_df}(x, caption = TRUE, title = NULL,
-  font_size = 11, outcomes = NULL, print = TRUE, ...)
+  font_size = 11, outcomes = NULL, fixed_aspect = attr(x,
+  "model_info")$type == "Regression", print = TRUE, ...)
 
 plot_regression_predictions(x, point_size = 1, point_alpha = 1, target)
 
@@ -26,6 +27,9 @@ all available metrics, FALSE prints nothing. Can also provide metric name
 \item{font_size}{Number: Relative size of all font in plot, default = 11}
 
 \item{outcomes}{Vector of outcomes if not present in x}
+
+\item{fixed_aspect}{Logical: If TRUE (default for regression only), units of
+the x- and y-axis will have the same spacing.}
 
 \item{print}{Logical, if TRUE (default) the plot is printed on the current
 graphics device. The plot is always (silently) returned.}
@@ -68,5 +72,5 @@ plot(predictions, caption = "Rsquared",
      title = "This model's predictions regress to the mean",
      point_size = 3, point_alpha = .7, font_size = 14)
 p <- plot(predictions, print = FALSE)
-p + coord_fixed(ratio = 1) + theme_classic()
+p + theme_classic()
 }

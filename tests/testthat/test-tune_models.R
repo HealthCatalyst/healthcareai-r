@@ -1,9 +1,17 @@
 context("test-tune_models")
 
 # Setup ------------------------------------------------------------------------
-reg_df <- na.omit(pima_diabetes)[1:100, ] %>% prep_data(patient_id, outcome = plasma_glucose)
-cla_df <- na.omit(pima_diabetes)[1:100, ] %>% prep_data(patient_id, outcome = diabetes)
-tm <- tune_models(cla_df, diabetes)
+td <- na.omit(pima_diabetes)[1:40, ]
+reg_df <- prep_data(td, patient_id, outcome = plasma_glucose)
+cla_df <- prep_data(td, patient_id, outcome = diabetes)
+tune_messages <- capture_messages({
+  c_models <-
+    tune_models(d = cla_df, outcome = diabetes, model_class = "classification",
+                n_folds = 2, tune_depth = 2)
+})
+r_models <-
+  tune_models(d = reg_df, outcome = plasma_glucose,
+              n_folds = 2, tune_depth = 2)
 
 test_that("Error informatively if outcome class doesn't match model_class", {
   expect_error(tune_models(cla_df, diabetes, model_class = "regression"), "categorical")
@@ -12,72 +20,30 @@ test_that("Error informatively if outcome class doesn't match model_class", {
   expect_error(tune_models(reg_df, plasma_glucose, model_class = "classification"), "numeric")
 })
 
-# No error for each algorithm x response-class type
-test_that("tune doesn't error on xgb regression", {
-  expect_error(
-    tune_models(d = reg_df, outcome = plasma_glucose, model_class = "regression",
-         models = "xgb", n_folds = 2, tune_depth = 2)
-    , regexp = NA)
-
-})
-
-test_that("tune doesn't error on xgb classification", {
-  expect_error(
-    tune_models(d = cla_df, outcome = diabetes, model_class = "classification",
-         models = "xgb", n_folds = 2, tune_depth = 2)
-    , regexp = NA)
-})
-
-test_that("tune doesn't error on rf regression", {
-  expect_error(
-      tune_models(d = reg_df, outcome = plasma_glucose, model_class = "regression",
-           models = "rf", n_folds = 2, tune_depth = 2)
-    , regexp = NA)
-})
-
-test_that("tune doesn't error on rf classification", {
-  expect_error(
-    tune_models(d = cla_df, outcome = diabetes, model_class = "classification",
-         models = "rf", n_folds = 2, tune_depth = 2)
-    , regexp = NA)
+test_that("reg and class train all three models", {
+  expect_setequal(names(c_models), c("Random Forest", "eXtreme Gradient Boosting", "glmnet"))
+  expect_setequal(names(r_models), c("Random Forest", "eXtreme Gradient Boosting", "glmnet"))
 })
 
 test_that("tune errors sensibly if outcome isn't present", {
   expect_error(tune_models(cla_df, xxx), regexp = "xxx")
 })
 
-# Training multiple models in one call
-test_that("tune doesn't error on rf & xgb classification", {
-  expect_error(
+test_that("can specify which models to train", {
     tune_models(d = cla_df, outcome = diabetes, model_class = "classification",
-         models = c("rf", "xgb"), n_folds = 2, tune_depth = 2)
-    , regexp = NA)
+                models = c("glm", "xgb"), n_folds = 2, tune_depth = 2) %>%
+    names() %>%
+    expect_setequal(c("eXtreme Gradient Boosting", "glmnet"))
 })
 
 test_that("tune returns a model_list of appropriate type", {
-  c_models <-
-    tune_models(d = cla_df, outcome = diabetes, model_class = "classification",
-         n_folds = 2, tune_depth = 2)
-    r_models <-
-      tune_models(d = reg_df, outcome = plasma_glucose, model_class = "regression",
-           n_folds = 2, tune_depth = 2)
   expect_s3_class(c_models, "model_list")
   expect_s3_class(c_models, "classification_list")
   expect_s3_class(r_models, "model_list")
   expect_s3_class(r_models, "regression_list")
 })
 
-test_that("tune returns a model_list of appropriate type when not specified", {
-  c_models <-
-    tune_models(d = cla_df, outcome = diabetes, n_folds = 2, tune_depth = 2)
-    r_models <-
-      tune_models(d = reg_df, outcome = plasma_glucose, n_folds = 2, tune_depth = 2)
-  expect_s3_class(c_models, "model_list")
-  expect_s3_class(c_models, "classification_list")
-  expect_s3_class(r_models, "model_list")
-  expect_s3_class(r_models, "regression_list")
-})
-
+# Informative erroring
 test_that("tune errors informatively if outcome is list", {
   reg_df$plasma_glucose <- as.list(reg_df$plasma_glucose)
   expect_error(
@@ -85,7 +51,6 @@ test_that("tune errors informatively if outcome is list", {
     regexp = "list")
 })
 
-# Informative erroring
 test_that("tune errors informatively if the algorithm isn't supported", {
   expect_error(tune_models(reg_df, plasma_glucose, "regression", "not a model"),
                regexp = "supported")
@@ -98,45 +63,29 @@ test_that("Character and factor input variables produce informative error", {
   expect_error(tune_models(reg_df, outcome = plasma_glucose), "pregnancies")
 })
 
-# Can handle various metrics. expect_warning because metric not found->default
 test_that("tune supports various loss functions in classification", {
-  expect_warning(
-    tune_models(d = cla_df, outcome = diabetes, model_class = "classification",
-         metric = "ROC", models = "xgb", n_folds = 2, tune_depth = 2)
-    , regexp = NA)
-  # Not yet supported
-  # expect_warning(
-  #   tune_models(d = cla_df, outcome = diabetes, model_class = "classification",
-  #               metric = "mnLogLoss", models = "xgb", n_folds = 2,
-  #               tune_depth = 2)
-  #   , regexp = NA)
   expect_warning(
     tune_models(d = cla_df, outcome = diabetes, model_class = "classification",
                 metric = "PR", models = "xgb", n_folds = 2, tune_depth = 2)
     , regexp = NA)
-  # expect_warning(
-  #   tune_models(d = cla_df, outcome = diabetes, model_class = "classification",
-  #               metric = "accuracy", models = "xgb", n_folds = 2,
-  #               tune_depth = 2)
-  #   , regexp = NA)
 })
 
 test_that("tune supports various loss functions in regression", {
   expect_warning(
     tune_models(d = reg_df, outcome = plasma_glucose, model_class = "regression",
-         metric = "MAE", models = "rf", n_folds = 2, tune_depth = 2)
+                metric = "MAE", models = "rf", n_folds = 2, tune_depth = 2)
     , regexp = NA)
   expect_warning(
     tune_models(d = reg_df, outcome = plasma_glucose, model_class = "regression",
-         metric = "Rsquared", models = "rf", n_folds = 2,
-         tune_depth = 2)
+                metric = "Rsquared", models = "rf", n_folds = 2,
+                tune_depth = 2)
     , regexp = NA)
 })
 
 test_that("tune handles character outcome", {
   cla_df$diabetes <- as.character(cla_df$diabetes)
   expect_s3_class(tune_models(cla_df, diabetes, tune_depth = 2,
-                              n_folds = 2, models = "rf"),
+                              n_folds = 2, models = "glm"),
                   "classification_list")
 })
 
@@ -162,11 +111,11 @@ test_that("Get informative error from setup_training if you forgot to name outco
 })
 
 test_that("tune_models attaches positive class to model_list", {
-  expect_true("positive_class" %in% names(attributes(tm)))
+  expect_true("positive_class" %in% names(attributes(c_models)))
 })
 
 test_that("By default Y is chosen as positive class for N/Y character outcome", {
-  expect_equal("Y", attr(tm, "positive_class"))
+  expect_equal("Y", attr(c_models, "positive_class"))
 })
 
 test_that("tune_models picks Y and yes as positive class even if N/no is first", {
@@ -177,7 +126,7 @@ test_that("tune_models picks Y and yes as positive class even if N/no is first",
   expect_true(mean(p$predicted_diabetes[p$diabetes == "Y"]) > mean(p$predicted_diabetes[p$diabetes == "N"]))
 
   cla_df$diabetes <- factor(ifelse(cla_df$diabetes == "Y", "yes", "no"),
-                             levels = c("no", "yes"))
+                            levels = c("no", "yes"))
   m <- tune_models(cla_df, diabetes, "glm")
   expect_equal("yes", attr(m, "positive_class"))
   p <- predict(m)
@@ -186,7 +135,7 @@ test_that("tune_models picks Y and yes as positive class even if N/no is first",
 
 test_that("tune_models and predict respect positive class declaration", {
   cla_df$diabetes <- factor(cla_df$diabetes, levels = c("Y", "N"))
-  n_ref <- tune_models(cla_df, diabetes, "rf", positive_class = "N")
+  n_ref <- tune_models(cla_df, diabetes, "xgb", positive_class = "N")
   expect_equal(attr(n_ref, "positive_class"), "N")
   p <- predict(n_ref)
   expect_true(mean(p$predicted_diabetes[p$diabetes == "N"]) > mean(p$predicted_diabetes[p$diabetes == "Y"]))
@@ -232,30 +181,30 @@ test_that("tune models takes a list of one-row data frames of hyperparameters an
   hp <-
     list(
       xgb = data.frame(
-        eta = .5,
+        eta = 1.5,
         gamma = 0,
         max_depth = 0,
-        subsample = .5,
+        subsample = .2,
         colsample_bytree = .5,
         min_child_weight = 2,
-        nrounds = 5
+        nrounds = 1
       ),
       rf = data.frame(
-        mtry = 3,
-        splitrule = "extratrees",
-        min.node.size = 3),
+        mtry = 1,
+        splitrule = "gini",
+        min.node.size = 10),
       glm = data.frame(
-        alpha = 1,
+        alpha = 0,
         lambda = .001)
     )
   m <- tune_models(cla_df, diabetes, hyperparameters = hp)
   expect_s3_class(m, "classification_list")
   expect_true(all(purrr::map_int(m, ~ nrow(.x$results) == 1)))
-  expect_true(m$`Random Forest`$results$mtry == 3)
+  expect_true(m$`Random Forest`$results$mtry == 1)
 })
 
 test_that("If only tuning one model, can provide hyperparameter grid outside list", {
-  hp <- expand.grid(mtry = c(3, 9), splitrule = "extratrees", min.node.size = c(1, 5))
+  hp <- expand.grid(mtry = c(1, 2), splitrule = "gini", min.node.size = c(5, 10))
   expect_error(tune_models(cla_df, diabetes, hyperparameters = hp), regexp = "data frame")
   m <- tune_models(cla_df, diabetes, models = "rf", hyperparameters = hp)
   expect_s3_class(m, "classification_list")
@@ -268,43 +217,24 @@ test_that("tune_ and flash_ issues informative errors if missingness in predicto
   with_miss <- pima_diabetes[i, -1]
   expect_error(tune_models(dplyr::select(with_miss, -weight_class), diabetes), "impute")
   expect_error(flash_models(dplyr::select(with_miss, -weight_class, -diabetes), age), "impute")
-  expect_error(machine_learn(with_miss, outcome = diabetes), NA)
+  expect_error(machine_learn(with_miss, outcome = diabetes, tune = FALSE, models = "glm"), NA)
 })
 
-test_that("outcome can be provided quoted", {
-  expect_s3_class(m <- tune_models(cla_df, "diabetes"), "model_list")
-  expect_s3_class(predict(m), "predicted_df")
-})
-
-test_that("tune_models, flash_models, and machine_learn issue PHI cautions", {
+test_that("tune_models issues PHI cautions", {
   phi_present <- function(messages)
     any(purrr::map_lgl(messages, stringr::str_detect, "PHI"))
-
-  tune_messages <- capture_messages(tune_models(cla_df, diabetes))
-  flash_messages <- capture_messages(flash_models(cla_df, diabetes))
-  ml_messages <- capture_messages(machine_learn(cla_df, outcome = diabetes))
-
   expect_true(phi_present(tune_messages))
-  expect_true(phi_present(flash_messages))
-  expect_true(phi_present(ml_messages))
 })
 
 test_that("tune_ and flash_ models add all-unique char/factor columns to ignored", {
   # Warnings by design here and are tested in test-find_unique_columns
   suppressWarnings({
     cla_df$patient_id <- paste0("A", cla_df$patient_id)
-    tm <- tune_models(cla_df, diabetes)
-
-    expect_false("patient_id" %in% names(tm$`Random Forest`$trainingData))
+    fg <- flash_models(cla_df, diabetes, models = "glm")
+    expect_false("patient_id" %in% names(fg[[1]]$trainingData))
     cla_df$ignore2 <- paste0("a", seq_len(nrow(cla_df)))
-    tm2 <- tune_models(reg_df, plasma_glucose, models = "rf")
-    expect_false(any(c("patient_id", "ignore2") %in% names(tm2$`Random Forest`$trainingData)))
-    fm <- tune_models(cla_df, diabetes, models = "xgb")
-    expect_false(any(c("patient_id", "ignore2") %in% names(fm[[1]]$trainingData)))
-
-    cla_df$patient_id <- factor(cla_df$patient_id)
-    tm <- tune_models(cla_df, diabetes, models = "rf")
-    expect_false("patient_id" %in% names(tm$`Random Forest`$trainingData))
+    fg2 <- flash_models(reg_df, plasma_glucose, models = "xgb")
+    expect_false(any(c("patient_id", "ignore2") %in% names(fg2[[1]]$trainingData)))
   })
 })
 
