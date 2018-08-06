@@ -109,7 +109,7 @@ test_that("test summary.missingness", {
 
   expect_true(nchar(actual_output) > 0)
   expect_true(grepl("Missingness summary", actual_output))
-  expect_true(is.tibble(actual_result))
+  expect_true(is.list(actual_result))
   expect_true(rlang::is_named(actual_result))
 })
 
@@ -118,4 +118,3 @@ test_that("test summary.missingness", {
     missingness(vector()) %>% summary()
   )
 })
-

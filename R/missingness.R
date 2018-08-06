@@ -163,7 +163,7 @@ summary.missingness <- function(object, ...) {
     stop("`object` has no variables with missingness.")
   } else {
     # Get the percent of columns that have any missing values
-    perc_col_missing <- mean(col_missing) * 100 # Convert to percent
+    perc_col_missing <- mean(col_missing) * 100 # Convert from decimal to percent
 
     # Get the name and percent_missing of the variable with the most missingness
     max_df <- (

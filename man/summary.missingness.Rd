@@ -4,10 +4,12 @@
 \alias{summary.missingness}
 \title{Summarizes data given by \code{\link{missingness}}}
 \usage{
-\method{summary}{missingness}(x, ...)
+\method{summary}{missingness}(object, ...)
 }
 \arguments{
-\item{x}{Data frame from \code{\link{missingness}}}
+\item{object}{Data frame from \code{\link{missingness}}}
+
+\item{...}{Unused}
 }
 \value{
 a tibble of the top 5 missingness percentage levels with the count of
@@ -16,9 +18,9 @@ a tibble of the top 5 missingness percentage levels with the count of
 \description{
 Interpreting \code{\link{missingness}} results from wide
   datasets is difficult. This function helps interpret missingness output by
-  summarizing this output by listing: 1. The percent of variables that
-  contain missingness, 2. The variable name of the variable with the maximum
-  amount of missingness along with its percent missingness, and 3. A tibble
+  summarizing this output by listing: the percent of variables that
+  contain missingness, the variable name of the variable with the maximum
+  amount of missingness along with its percent missingness, and a tibble
   that lists the top 5 missingness levels with the count of the number of
   variables associated with each level.
 }
