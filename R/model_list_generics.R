@@ -45,7 +45,7 @@ print.model_list <- function(x, ...) {
 
 #' summary method for model_list
 #'
-#' @param x model_list
+#' @param object model_list
 #' @return list of tuning performance data frames, invisibly
 #'
 #' @export

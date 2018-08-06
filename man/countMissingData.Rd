@@ -10,6 +10,8 @@ countMissingData(x, userNAs = NULL)
 \item{x}{A data frame or matrix}
 
 \item{userNAs}{A vector of user defined NA values.}
+
+\item{...}{Unused}
 }
 \description{
 DEPRICATED. Use \code{\link{missingness}} instead.

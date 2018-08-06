@@ -4,45 +4,26 @@
 \alias{summary.missingness}
 \title{Summarizes data given by \code{\link{missingness}}}
 \usage{
-\method{summary}{missingness}(x, threshold = 0, top_n = 10, ...)
+\method{summary}{missingness}(x, ...)
 }
 \arguments{
 \item{x}{Data frame from \code{\link{missingness}}}
-
-\item{threshold}{a value between 0 and 100 (default = 0). This function will
-look for missingness percent values that are greater than this threshold.}
-
-\item{top_n}{a value between 1 and number of variables (default = 10). This
-function will list this number of variables if they contain missingness.
-Otherwise, this function will return all the variables that contain
-missingness.}
 }
 \value{
-a list of, invisibly
+a tibble of the top 5 missingness percentage levels with the count of
+  the number of variables associated with each level
 }
 \description{
-With wide datasets (datasets with many columns), sometimes it is
-  difficult to make sense of the output from \code{\link{missingness}}. This
-  function is designed to summarize this output with three points. 1. The
-  percent of variables that contain missingness above the given `threshold`,
-  2. The variable name with the maximum amount of missingness along with its
-  percent missingness, and 3. Lists the `top_n` variables that have
-  missingness over the `threshold` given. This function will also throw a
-  warning 1. if `top_n` is more than the amount of variables in `x`, and/or
-  2. if `top_n` is greater than the amount of variables found with
-  missingness percentages over `threshold`. When the warning is thrown
-  `top_n` is corrected.
+Interpreting \code{\link{missingness}} results from wide
+  datasets is difficult. This function helps interpret missingness output by
+  summarizing this output by listing: 1. The percent of variables that
+  contain missingness, 2. The variable name of the variable with the maximum
+  amount of missingness along with its percent missingness, and 3. A tibble
+  that lists the top 5 missingness levels with the count of the number of
+  variables associated with each level.
 }
 \examples{
 missingness(pima_diabetes) \%>\%
   summary()
-
-# To list the amount of variables with more than 5\% missingness
-missingness(pima_diabetes) \%>\%
-  summary(threshold = 5)
-
-# To list only the top 3 variables that contain missingness
-missingness(pima_diabetes) \%>\%
-  summary(top_n = 3)
 
 }
