@@ -78,7 +78,6 @@ missingness <- function(d,
 #' pima_diabetes %>%
 #'   missingness() %>%
 #'   plot()
-#'
 plot.missingness <- function(x, remove_zeros = FALSE, max_char = 40,
                              title = NULL, font_size = 11, point_size = 3,
                              print = TRUE, ... ) {
