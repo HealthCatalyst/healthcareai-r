@@ -4,6 +4,15 @@ dat <- data.frame(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
                   b = c("blank", 0, "na", "None", "none", 3, 10, 4),
                   c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
                   d = c(1, 6, 7, 8, 9, 5, 10, 1078950492))
+dat_strnotfactors <- data.frame(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
+                                b = c("blank", 0, "na", "None", "none", 3, 10, 4),
+                                c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
+                                d = c(1, 6, 7, 8, 9, 5, 10, 1078950492),
+                                stringsAsFactors = FALSE)
+dat_tibble <- tibble(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
+                     b = c("blank", 0, "na", "None", "none", 3, 10, 4),
+                     c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
+                     d = c(1, 6, 7, 8, 9, 5, 10, 1078950492))
 suppressWarnings( out <- missingness(dat) )
 suppressWarnings( out_vec <- missingness(dat, return_df = FALSE) )
 manual <- sort(100 * sapply(dat, function(x) sum(is.na(x))) / nrow(dat))
@@ -98,4 +107,157 @@ test_that("printing works whether return_df or not", {
 test_that("plot.missingness respects max_char", {
   md <- missingness(data.frame(long_name = NA, longer_still = 1))
   expect_false(isTRUE(all.equal(plot(md, max_char = 7), plot(md))))
+})
+
+test_that("make_na - tibble - normal", {
+  expected <- tibble(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
+                     b = c(NA, 0, "na", "None", "none", 3, 10, 4),
+                     c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
+                     d = c(1, 6, 7, 8, 9, 5, 10, 1078950492))
+  actual <- make_na(dat_tibble, "blank")
+  expect_equal(actual, expected)
+})
+
+test_that("make_na - df stringsAsFactors - normal", {
+  expected <- data.frame(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
+                         b = c(NA, 0, "na", "None", "none", 3, 10, 4),
+                         c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
+                         d = c(1, 6, 7, 8, 9, 5, 10, 1078950492))
+  actual <- make_na(dat, "blank")
+  expect_equal(actual, expected)
+})
+
+test_that("make_na - df strings NOT Factors - normal", {
+  expected <- data.frame(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
+                         b = c(NA, 0, "na", "None", "none", 3, 10, 4),
+                         c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
+                         d = c(1, 6, 7, 8, 9, 5, 10, 1078950492),
+                         stringsAsFactors = FALSE)
+  actual <- make_na(dat_strnotfactors, "blank")
+  expect_equal(actual, expected)
+})
+
+test_that("make_na - tibble - character col to numeric", {
+  dat_tibble <-
+    dat_tibble %>%
+    mutate(e = c(1, 2, 3, 4, 5, 6, 7, "none"))
+  expected <- tibble(a = c(1, 2, "NA", NA, NA, "??", "?", 5),
+                     b = c("blank", 0, "na", "None", NA, 3, 10, 4),
+                     c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
+                     d = c(1, 6, 7, 8, 9, 5, 10, 1078950492),
+                     e = c(1, 2, 3, 4, 5, 6, 7, NA))
+  actual <- make_na(dat_tibble, "none")
+  expect_equal(actual, expected)
+})
+
+test_that("make_na - df stringsAsFactors - character col to numeric", {
+  dat <-
+    dat %>%
+    mutate(e = c(1, 2, 3, 4, 5, 6, 7, "none"))
+  dat <- as.data.frame(dat)
+  expected <- data.frame(a = c(1, 2, "NA", NA, NA, "??", "?", 5),
+                         b = c("blank", 0, "na", "None", NA, 3, 10, 4),
+                         c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
+                         d = c(1, 6, 7, 8, 9, 5, 10, 1078950492),
+                         e = c(1, 2, 3, 4, 5, 6, 7, NA))
+  actual <- make_na(dat, "none")
+  expect_equal(actual, expected)
+})
+
+test_that("make_na - df strings NOT Factors - character col to numeric", {
+  dat_strnotfactors <-
+    dat_strnotfactors %>%
+    mutate(e = c(1, 2, 3, 4, 5, 6, 7, "none"))
+  dat_strnotfactors <- as.data.frame(dat_strnotfactors)
+  expected <- data.frame(a = c(1, 2, "NA", NA, NA, "??", "?", 5),
+                         b = c("blank", 0, "na", "None", NA, 3, 10, 4),
+                         c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
+                         d = c(1, 6, 7, 8, 9, 5, 10, 1078950492),
+                         e = c(1, 2, 3, 4, 5, 6, 7, NA),
+                         stringsAsFactors = FALSE)
+  actual <- make_na(dat_strnotfactors, "none")
+  expect_equal(actual, expected)
+})
+
+test_that("make_na - tibble - replace NULL", {
+  expected <- tibble(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
+                     b = c("blank", 0, "na", "None", "none", 3, 10, 4),
+                     c = c(10, 5, 8, 1, NA, NA, NaN, "Nas"),
+                     d = c(1, 6, 7, 8, 9, 5, 10, 1078950492))
+  actual <- make_na(dat_tibble, "NULL")
+  expect_equal(actual, expected)
+})
+
+test_that("make_na - df stringsAsFactors - replace NULL", {
+  expected <- data.frame(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
+                         b = c("blank", 0, "na", "None", "none", 3, 10, 4),
+                         c = c(10, 5, 8, 1, NA, NA, NaN, "Nas"),
+                         d = c(1, 6, 7, 8, 9, 5, 10, 1078950492))
+  actual <- make_na(dat, "NULL")
+  expect_equal(actual, expected)
+})
+
+test_that("make_na - df strings NOT Factors - replace NULL", {
+  expected <- data.frame(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
+                         b = c("blank", 0, "na", "None", "none", 3, 10, 4),
+                         c = c(10, 5, 8, 1, NA, NA, NaN, "Nas"),
+                         d = c(1, 6, 7, 8, 9, 5, 10, 1078950492),
+                         stringsAsFactors = FALSE)
+  actual <- make_na(dat_strnotfactors, "NULL")
+  expect_equal(actual, expected)
+})
+
+test_that("make_na - tibble - replace many", {
+  expected <- tibble(a = c(1, 2, NA, NA, NA, NA, NA, 5),
+                     b = c(NA, 0, NA, NA, NA, 3, 10, 4),
+                     c = c(10, 5, 8, 1, NA, NA, NA, NA),
+                     d = c(1, 6, 7, 8, 9, 5, 10, 1078950492))
+  missing_values <-
+    c("NULL", "none", NaN, "Nas", "na", "??", "?", "NA", "blank", "None")
+  actual <- make_na(dat_tibble, missing_values)
+  expect_equal(actual, expected)
+})
+
+test_that("make_na - df stringsAsFactors - replace many", {
+  expected <- data.frame(a = c(1, 2, NA, NA, NA, NA, NA, 5),
+                         b = c(NA, 0, NA, NA, NA, 3, 10, 4),
+                         c = c(10, 5, 8, 1, NA, NA, NA, NA),
+                         d = c(1, 6, 7, 8, 9, 5, 10, 1078950492))
+  missing_values <-
+    c("NULL", "none", NaN, "Nas", "na", "??", "?", "NA", "blank", "None")
+  actual <- make_na(dat, missing_values)
+  expect_equal(actual, expected)
+})
+
+test_that("make_na - df strings NOT Factors - replace many", {
+  expected <- data.frame(a = c(1, 2, NA, NA, NA, NA, NA, 5),
+                         b = c(NA, 0, NA, NA, NA, 3, 10, 4),
+                         c = c(10, 5, 8, 1, NA, NA, NA, NA),
+                         d = c(1, 6, 7, 8, 9, 5, 10, 1078950492),
+                         stringsAsFactors = FALSE)
+  missing_values <-
+    c("NULL", "none", NaN, "Nas", "na", "??", "?", "NA", "blank", "None")
+  actual <- make_na(dat_strnotfactors, missing_values)
+  expect_equal(actual, expected)
+})
+
+
+test_that("make_na - df strings NOT Factors - replace many", {
+  expected <- data.frame(a = c(1, 2, NA, NA, NA, NA, NA, 5),
+                         b = c(NA, 0, NA, NA, NA, 3, 10, 4),
+                         c = c(10, 5, 8, 1, NA, NA, NA, NA),
+                         d = c(1, 6, 7, 8, 9, 5, 10, 1078950492),
+                         stringsAsFactors = FALSE)
+  missing_values <-
+    c("NULL", "none", NaN, "Nas", "na", "??", "?", "NA", "blank", "None")
+  actual <- make_na(dat_strnotfactors, missing_values)
+  expect_equal(actual, expected)
+})
+
+test_that("make_na - test df or tibble", {
+  expect_error(make_na(c(1, 2), "NA"))
+})
+
+test_that("make_na - test atomic", {
+  expect_error(make_na(dat, list()))
 })

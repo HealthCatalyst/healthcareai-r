@@ -43,7 +43,10 @@ missingness <- function(d,
     possible_na <- map_chr(possible_na, function(st) paste0('"', st, '"'))
     warning("Found these strings that may represent missing values: ",
             list_variables(possible_na),
-            ". If they do represent missingness, replace them with NA.")
+            ". If they do represent missingness, replace them with NA with: ",
+            "`make_na(my_df, c(",
+            paste(possible_na, collapse = ", "),
+            "))`")
   }
 
   miss <- sort(100 * purrr::map_int(d, ~sum(is.na(.x))) / nrow(d))
@@ -133,4 +136,84 @@ countMissingData <- function(x, userNAs = NULL) {
 
   .Deprecated("missingness", "healthcareai")
   missingness(x)
+}
+
+
+#' Replace missingness values with NA and correct columns types
+#'
+#' @description This function replaces given missingness values with NA in a
+#'   given dataframe or tibble. Numeric vectors that were originally loaded as
+#'   character or factor vectors (because of missingness values in the column),
+#'   are also converted to numeric vectors when values are replaced.
+#'
+#' @param d A dataframe or tibble
+#' @param to_replace A value or vector of values that will be replaced with NA
+#' @param drop_levels If TRUE (default) unused factor levels are dropped
+#' @return A tibble where the missing value/values is/are replaced with NA,
+#'   columns that only have numbers left are coerced to numeric type
+#'
+#' @export
+#' @examples
+#' dat <- data.frame(gender = c("male", "male", "female", "male", "missing"),
+#'               name = c("Paul", "Jim", "Sarah", "missing", "Alex"),
+#'               weight = c(139, 0, 193, 158, 273))
+#'
+#' # Replace "missing" in `dat`
+#' make_na(dat, "missing")
+#'
+#' # If there are multiple missing values, pass them through a vector.
+#' dat <- data.frame(gender = c("male", "??", "female", "male", "NULL"),
+#'               age = c(64, 52, 75, "NULL", 70),
+#'               weight = c(139, 0, 193, "??", 273),
+#'               stringsAsFactors = FALSE)
+#'
+#' make_na(dat, c("??", "NULL"))
+#'
+#' # Run `missingness()` to find possible missingness values in `dat`. It will
+#' # suggest the default implementation of `make_na` to replace all found
+#' # missingness values (the suggested default implementation for this example
+#' # is `make_na(dat, c("??", "NULL"))`).
+#' missingness(dat)
+#' make_na(dat, c("??", "NULL"))
+#'
+#' # Note: In this last example, `age` should be loaded as a numeric vector, but
+#' # since "NULL" is present, it is stored as a character vector. When "NULL" is
+#' # replaced, `age` will be converted to a numeric vector.
+#'
+make_na <- function(d, to_replace, drop_levels = TRUE) {
+  if (!is.data.frame(d))
+    stop("\"d\" must be a dataframe or tibble")
+  if (!is.atomic(to_replace))
+    stop("\"to_replace\" must be atomic")
+
+  d <- purrr::map_dfc(d, ~ {
+    .x[.x %in% to_replace] <- NA
+
+    # The following operations execute only on non-numeric columns for speed
+    if (!is.numeric(.x)) {
+      # Convert factors to characters because factors loose information in
+      # as.numeric(). `new_col` is created so that if the column cannot be numeric,
+      # the column will remain as factor.
+      if (is.factor(.x)) {
+        new_col <- as.character(.x)
+      } else {
+        new_col <- .x
+      }
+
+      # The column should be numeric if `as.numeric()` does not coerce any value
+      # to NA
+      suppressWarnings(
+        ans <- sum(is.na(new_col)) == sum(is.na(as.numeric(new_col)))
+      )
+
+      if (ans)
+        .x <- as.numeric(new_col)
+    }
+    .x
+  })
+
+  if (drop_levels)
+    d <- droplevels(d)
+
+  return(d)
 }
