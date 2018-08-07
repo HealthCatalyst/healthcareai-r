@@ -154,37 +154,40 @@ countMissingData <- function(x, userNAs = NULL) {
 #'   summary()
 #'
 summary.missingness <- function(object, ...) {
-  if (!length(object))
+  if (missing(object))
     stop("`object` is empty.")
 
   col_missing <- pull(object, percent_missing) > 0
   if (sum(col_missing) == 0) {
-    stop("`object` has no variables with missingness.")
+    out <- "`object` has no variables with missingness."
+    sumry_missing <- NULL
   } else {
     # Get the percent of columns that have any missing values
-    perc_col_missing <- mean(col_missing) * 100 # Convert from decimal to percent
+    perc_col_missing <- signif(mean(col_missing) * 100, 3) # Convert from decimal to percent
 
     # Get the name and percent_missing of the variable with the most missingness
-    max_df <- (
-      object %>% filter(percent_missing == max(percent_missing))
-    )[1, ] #In tie, grab first row
+    max_df <-
+      object %>% filter(percent_missing == max(percent_missing)) %>% top_n(1, percent_missing)#In tie, grab first row
+
+    print(max_df)
 
     out <- paste0("Missingness summary:\n", perc_col_missing,
                   "% of data variables contain missingness.\n`",
                   max_df$variable,
                   "` contains the most missingness with ",
-                  round(max_df$percent_missing, 1),
+                  signif(max_df$percent_missing, 3),
                   "% missingness.\n\nNumber of variables with levels of ",
                   "missingness:\n")
 
     # Get the top 5 missingness percentage levels with the count of the number
     # of variables associated with each level
-    sumry_missing <- (
+    sumry_missing <-
       object %>%
       count(percent_missing) %>%
       arrange(desc(percent_missing)) %>%
-      rename(n_variables = n)
-    )[1:5, ] # only grab first 5 rows
+      mutate(percent_missing = signif(percent_missing, 3)) %>%
+      rename(n_variables = n) %>%
+      top_n(5, n_variables) # only grab first 5 rows (more if ties)
   }
 
   cat(out)
