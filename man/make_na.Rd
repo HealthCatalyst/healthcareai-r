@@ -14,7 +14,8 @@ make_na(d, to_replace, drop_levels = TRUE)
 \item{drop_levels}{If TRUE (default) unused factor levels are dropped}
 }
 \value{
-A tibble where the missing value/values is/are replaced with NA
+A tibble where the missing value/values is/are replaced with NA,
+  columns that only have numbers left are coerced to numeric type
 }
 \description{
 This function replaces given missingness values with NA in a
@@ -29,12 +30,6 @@ dat <- data.frame(gender = c("male", "male", "female", "male", "missing"),
 
 # Replace "missing" in `dat`
 make_na(dat, "missing")
-
-# To keep original levels in factor vectors, set `drop_levels` to `FALSE`.
-# In this example, this means that `name` and `gender` factor vectors will
-# still contain "missing" in their levels even though these vectors do not
-# contain "missing" anymore.
-make_na(dat, "missing", drop_levels = FALSE)
 
 # If there are multiple missing values, pass them through a vector.
 dat <- data.frame(gender = c("male", "??", "female", "male", "NULL"),

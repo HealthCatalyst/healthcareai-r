@@ -149,7 +149,8 @@ countMissingData <- function(x, userNAs = NULL) {
 #' @param d A dataframe or tibble
 #' @param to_replace A value or vector of values that will be replaced with NA
 #' @param drop_levels If TRUE (default) unused factor levels are dropped
-#' @return A tibble where the missing value/values is/are replaced with NA
+#' @return A tibble where the missing value/values is/are replaced with NA,
+#'   columns that only have numbers left are coerced to numeric type
 #'
 #' @export
 #' @examples
@@ -159,12 +160,6 @@ countMissingData <- function(x, userNAs = NULL) {
 #'
 #' # Replace "missing" in `dat`
 #' make_na(dat, "missing")
-#'
-#' # To keep original levels in factor vectors, set `drop_levels` to `FALSE`.
-#' # In this example, this means that `name` and `gender` factor vectors will
-#' # still contain "missing" in their levels even though these vectors do not
-#' # contain "missing" anymore.
-#' make_na(dat, "missing", drop_levels = FALSE)
 #'
 #' # If there are multiple missing values, pass them through a vector.
 #' dat <- data.frame(gender = c("male", "??", "female", "male", "NULL"),
