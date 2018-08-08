@@ -173,7 +173,7 @@ summary.missingness <- function(object, ...) {
     # Get the name and percent_missing of the variable with the most missingness
     max_df <- (
       object %>% filter(percent_missing == max(percent_missing))
-    )[1,]#In tie, grab first row
+    )[1, ]#In tie, grab first row
 
     out <- paste0("Missingness summary:\n", perc_col_missing,
                   "% of data variables contain missingness.\n`",
