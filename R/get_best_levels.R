@@ -214,6 +214,7 @@ add_best_levels <- function(d, longsheet, id, groups, outcome, n_levels = 100,
     fun = fun,
     missing_fill = missing_fill
   )
+  print(pivot_args)
   if (!missing(fill))
     pivot_args$fill <- eval(fill)
   if (length(add_as_empty))
