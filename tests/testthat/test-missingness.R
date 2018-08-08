@@ -124,7 +124,7 @@ test_that("test summary.missingness", {
 
 test_that("test summary.missingness", {
   expect_error(
-    missingness(vector()) %>% summary()
+    summary()
   )
 })
 

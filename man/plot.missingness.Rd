@@ -38,7 +38,6 @@ Plot missingness
 pima_diabetes \%>\%
   missingness() \%>\%
   plot()
-
 }
 \seealso{
 \code{\link{missingness}}

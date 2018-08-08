@@ -146,11 +146,13 @@ countMissingData <- function(x, userNAs = NULL) {
 #'   contain missingness, the variable name of the variable with the maximum
 #'   amount of missingness along with its percent missingness, and a tibble
 #'   that lists the top 5 missingness levels with the count of the number of
-#'   variables associated with each level.
+#'   variables associated with each level. If there is no variables with
+#'   missingness a message that reports this is printed instead.
 #' @param object Data frame from \code{\link{missingness}}
 #' @param ... Unused
 #' @return a tibble of the top 5 missingness percentage levels with the count of
-#'   the number of variables associated with each level
+#'   the number of variables associated with each level. If no missingness is
+#'   found NULL is returned instead.
 #' @export
 #' @examples
 #' missingness(pima_diabetes) %>%
@@ -169,18 +171,17 @@ summary.missingness <- function(object, ...) {
     perc_col_missing <- signif(mean(col_missing) * 100, 3) # Convert from decimal to percent
 
     # Get the name and percent_missing of the variable with the most missingness
-    max_df <-
-      object %>% filter(percent_missing == max(percent_missing)) %>% top_n(1, percent_missing)#In tie, grab first row
-
-    print(max_df)
+    max_df <- (
+      object %>% filter(percent_missing == max(percent_missing))
+    )[1,]#In tie, grab first row
 
     out <- paste0("Missingness summary:\n", perc_col_missing,
                   "% of data variables contain missingness.\n`",
                   max_df$variable,
                   "` contains the most missingness with ",
                   signif(max_df$percent_missing, 3),
-                  "% missingness.\n\nNumber of variables with levels of ",
-                  "missingness:\n")
+                  "% of observations containing missing values.\n\nNumber of ",
+                  "variables with levels of missingness:\n")
 
     # Get the top 5 missingness percentage levels with the count of the number
     # of variables associated with each level
