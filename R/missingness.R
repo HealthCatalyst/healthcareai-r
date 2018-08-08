@@ -166,7 +166,7 @@ countMissingData <- function(x, userNAs = NULL) {
 summary.missingness <- function(object, ...) {
   col_missing <- pull(object, percent_missing) > 0
   if (sum(col_missing) == 0) {
-    out <- "`object` has no variables with missingness."
+    out <- paste("Your data does not have any variables with missing values.")
     sumry_missing <- NULL
   } else {
     # Get the percent of columns that have any missing values
@@ -191,11 +191,11 @@ summary.missingness <- function(object, ...) {
       mutate(percent_missing = signif(percent_missing, 3)) %>%
       rename(n_variables = n) %>%
       top_n(5, n_variables) # only grab first 5 rows (more if ties, less if 5 dont exist)
+
+    print(sumry_missing)
   }
 
   cat(out)
-  if (!is.null(sumry_missing))
-    print(sumry_missing)
   return(invisible(sumry_missing))
 }
 

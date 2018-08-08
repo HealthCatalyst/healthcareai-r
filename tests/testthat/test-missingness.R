@@ -124,8 +124,8 @@ test_that("test summary.missingness normal", {
 
 test_that("test summary.missingness no missingness", {
   d <- data.frame(
-    a = c(1,2,3,4,5),
-    b = c('a', 'a', 'b', 'b', 'c')
+    a = c(1, 2, 3, 4, 5),
+    b = c("a", "b", "a", "a", "c")
   )
   suppressWarnings(
     actual_output <- capture_output(
@@ -134,7 +134,10 @@ test_that("test summary.missingness no missingness", {
   )
 
   expect_equal(actual_result, NULL)
-  expect_equal(actual_output, "`object` has no variables with missingness.")
+  expect_equal(
+    actual_output,
+    "Your data does not have any variables with missing values."
+  )
 })
 
 test_that("make_na - tibble - normal", {
