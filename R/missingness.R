@@ -190,12 +190,13 @@ summary.missingness <- function(object, ...) {
       arrange(desc(percent_missing)) %>%
       mutate(percent_missing = signif(percent_missing, 3)) %>%
       rename(n_variables = n) %>%
-      top_n(5, n_variables) # only grab first 5 rows (more if ties, less if 5 dont exist)
-
-    print(sumry_missing)
+      slice(1:5) # only grab first 5 rows (more if ties, less if 5 dont exist)
   }
 
   cat(out)
+  if (!is.null(sumry_missing))
+    print(sumry_missing)
+
   return(invisible(sumry_missing))
 }
 
