@@ -150,14 +150,15 @@ countMissingData <- function(x, userNAs = NULL) {
 #'   contain missingness, the variable name of the variable with the maximum
 #'   amount of missingness along with its percent of observations containing
 #'   missing values, and a tibble that lists the top 5 missingness levels with
-#'   the count of the number of variables associated with each level. If there
-#'   are no variables with missingness, a message that reports no missingness is
-#'   printed and NULL is returned instead.
+#'   the count of the number of variables associated with each level (0
+#'   missingness level is ignored). If there are no variables with missingness,
+#'   a message that reports no missingness is printed and NULL is returned
+#'   instead.
 #' @param object Data frame from \code{\link{missingness}}
 #' @param ... Unused
 #' @return a tibble of the top 5 missingness percentage levels with the count of
 #'   the number of variables associated with each level. If no missingness is
-#'   found NULL is returned instead.
+#'   found, NULL is returned instead.
 #' @export
 #' @examples
 #' missingness(pima_diabetes) %>%
@@ -190,6 +191,7 @@ summary.missingness <- function(object, ...) {
       arrange(desc(percent_missing)) %>%
       mutate(percent_missing = signif(percent_missing, 3)) %>%
       rename(n_variables = n) %>%
+      filter(percent_missing > 0) %>%
       slice(1:5) # only grab first 5 rows (more if ties, less if 5 dont exist)
   }
 

@@ -14,7 +14,7 @@
 \value{
 a tibble of the top 5 missingness percentage levels with the count of
   the number of variables associated with each level. If no missingness is
-  found NULL is returned instead.
+  found, NULL is returned instead.
 }
 \description{
 Interpreting \code{\link{missingness}} results from wide
@@ -23,9 +23,10 @@ Interpreting \code{\link{missingness}} results from wide
   contain missingness, the variable name of the variable with the maximum
   amount of missingness along with its percent of observations containing
   missing values, and a tibble that lists the top 5 missingness levels with
-  the count of the number of variables associated with each level. If there
-  are no variables with missingness, a message that reports no missingness is
-  printed and NULL is returned instead.
+  the count of the number of variables associated with each level (0
+  missingness level is ignored). If there are no variables with missingness,
+  a message that reports no missingness is printed and NULL is returned
+  instead.
 }
 \examples{
 missingness(pima_diabetes) \%>\%
