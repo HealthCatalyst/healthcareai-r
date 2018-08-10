@@ -83,11 +83,6 @@ reference:
     contents:
     - build_connection_string
     - db_read
-  - title: Logging
-    contents:
-    - start_prod_logs
-    - stop_prod_logs
-    - catalyst_test_deploy_in_prod
   - title: Save and Load Models
     contents:
     - save_models
