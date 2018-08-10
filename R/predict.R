@@ -170,17 +170,20 @@ predict_model_list_main <- function(object,
         preds <- preds[[mi$positive_class]]
       }
       else{
-        model_first <- object[[1]]
-        model_second <- object[[2]]
-        model_third <- object[[3]]
-        preds_First <- caret::predict.train(model_first, to_pred, type = type)
-        preds_Second <- caret::predict.train(model_second, to_pred, type = type)
-        preds_third <- caret::predict.train(model_third, to_pred, type = type)
-        preds_First <- preds_First[[mi$positive_class]]
-        preds_Second <- preds_Second[[mi$positive_class]]
-        preds_third <- preds_third[[mi$positive_class]]
-        preds[[mi$positive_class]] <- (preds_First + preds_Second + preds_third) / 3
-        preds <- preds[[mi$positive_class]]
+        preds_all <- lapply(object, caret::predict.train, newdata = to_pred, type = type)
+        preds <- map(preds_all, mi$positive_class)
+        preds_data_frame <- data.frame(preds)
+        target <- preds[[mi$best_model_name]]
+        weight_modeling <- glm(target ~ ., data = preds_data_frame)
+        weight_model_coefficient <- summary(weight_modeling)$coefficient
+        weight_model = data.frame(weight_model_coefficient)
+        weight_model$variables = row.names(weight_model)
+        weight_model= weight_model[c("variables", "Estimate")][-1,]
+        weight_model$Estimate=abs(weight_model$Estimate)
+        weight_model$weight= weight_model$Estimate / sum(weight_model$Estimate)
+        Weighted_model <- Map('*',preds,weight_model$weight)
+        add <- function(x) Reduce("+", x)
+        preds <- add(Weighted_model)
       }
   }
 
@@ -230,13 +233,20 @@ get_oof_predictions <- function(x, mi = extract_model_info(x), ensemble = FALSE)
        return(preds$pred)
       }
     else{
-      mod_first <- x[[1]]$modelInfo$label
-      mod_second <- x[[2]]$modelInfo$label
-      mod_third <- x[[3]]$modelInfo$label
-      preds_First <- dplyr::arrange(x[[mod_first]]$pred, rowIndex)
-      preds_Second <- dplyr::arrange(x[[mod_second]]$pred, rowIndex)
-      preds_third <- dplyr::arrange(x[[mod_third]]$pred, rowIndex)
-      preds$pred <- (preds_First$pred + preds_Second$pred + preds_third$pred) / 3
+      preds_all <- lapply(object, caret::predict.train, newdata = to_pred, type = type)
+      preds <- map(preds_all, x$pred)
+      preds_data_frame <- data.frame(preds)
+      target <- preds[[mi$best_model_name]]
+      weight_modeling <- glm(target ~ ., data = preds_data_frame)
+      weight_model_coefficient <- summary(weight_modeling)$coefficient
+      weight_model = data.frame(weight_model_coefficient)
+      weight_model$variables = row.names(weight_model)
+      weight_model= weight_model[c("variables", "Estimate")][-1,]
+      weight_model$Estimate=abs(weight_model$Estimate)
+      weight_model$weight= weight_model$Estimate / sum(weight_model$Estimate)
+      Weighted_model <- Map('*',preds,weight_model$weight)
+      add <- function(x) Reduce("+", x)
+      preds$pred <- add(Weighted_model)
       return(preds$pred)
     }
 
@@ -246,16 +256,20 @@ get_oof_predictions <- function(x, mi = extract_model_info(x), ensemble = FALSE)
       return(preds[[mi$positive_class]])
     }
     else{
-      mod_first <- x[[1]]$modelInfo$label
-      mod_second <- x[[2]]$modelInfo$label
-      mod_third <- x[[3]]$modelInfo$label
-      preds_First <- dplyr::arrange(x[[mod_first]]$pred, rowIndex)
-      preds_Second <- dplyr::arrange(x[[mod_second]]$pred, rowIndex)
-      preds_third <- dplyr::arrange(x[[mod_third]]$pred, rowIndex)
-      preds_First <- preds_First[[mi$positive_class]]
-      preds_Second <- preds_Second[[mi$positive_class]]
-      preds_third <- preds_third[[mi$positive_class]]
-      preds[[mi$positive_class]] <- (preds_First + preds_Second + preds_third) / 3
+      preds_all <- lapply(object, caret::predict.train, newdata = to_pred, type = type)
+      preds <- map(preds_all, mi$positive_class)
+      preds_data_frame <- data.frame(preds)
+      target <- preds[[mi$best_model_name]]
+      weight_modeling <- glm(target ~ ., data = preds_data_frame)
+      weight_model_coefficient <- summary(weight_modeling)$coefficient
+      weight_model = data.frame(weight_model_coefficient)
+      weight_model$variables = row.names(weight_model)
+      weight_model= weight_model[c("variables", "Estimate")][-1,]
+      weight_model$Estimate=abs(weight_model$Estimate)
+      weight_model$weight= weight_model$Estimate / sum(weight_model$Estimate)
+      Weighted_model <- Map('*',preds,weight_model$weight)
+      add <- function(x) Reduce("+", x)
+      preds[[mi$positive_class]] <- add(Weighted_model)
       return(preds[[mi$positive_class]])
     }
 
