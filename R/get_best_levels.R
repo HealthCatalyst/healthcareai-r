@@ -1,4 +1,4 @@
-#' Build efficient features from from high-cardinality, multiple-membership
+#' Build efficient features from high-cardinality, multiple-membership
 #' factors
 #'
 #' @param d Data frame to use in models, at desired grain. Has id and outcome
