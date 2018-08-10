@@ -11,20 +11,38 @@
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
+<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
+
+<!-- sticky kit -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  <link href="../extra.css" rel="stylesheet">
-  
+
+
+<!-- docsearch -->
+<script src="../docsearch.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+<link href="../docsearch.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+
+
+<meta property="og:title" content="Function reference" />
+
+<meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
+<meta name="twitter:card" content="summary" />
+
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -33,6 +51,16 @@
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-85609357-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-85609357-1');
+</script>
 
   </head>
 
@@ -47,36 +75,70 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">healthcareai</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">healthcareai</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.1</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li>
-  <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li class="dropdown">
+        <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Vignettes
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/site_only/fake_vignette.html">fake vignette</a>
+      <a href="../articles/site_only/healthcareai.html">Getting Started</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/db_connections.html">Database Connections</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/deploy_model.html">Deploying a Model</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/best_levels.html">Variables with Many Categories</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/performance.html">Performance with Big Data</a>
+    </li>
+    <li>
+      <a href="../articles/site_only/transitioning.html">Transition from Version 1</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../reference/index.html">Functions</a>
+</li>
+<li>
+  <a href="../news/index.html">News</a>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/HealthCatalyst/healthcareai-r">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://healthcare-ai.slack.com/">
+    <span class="fa fa-users"></span>
+     
+  </a>
+</li>
       </ul>
+      
+      <form class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="search" class="form-control" name="search-input" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+        </div>
+      </form>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -84,152 +146,291 @@
       
       </header>
 
-      <div class="row">
-  <div class="col-md-9">
+<div class="row">
+  <div class="contents col-md-9">
     <div class="page-header">
-      <h1>
-        Reference
-        <small>version&nbsp;1.2.0</small>
-      </h1>
+      <h1>Reference</h1>
     </div>
 
-    <div class="contents">
-      <table class="ref-index">
+    <table class="ref-index">
 
-      <colgroup>
-        <col class="alias" />
-        <col class="title" />
-      </colgroup>
+    <colgroup>
+      
+      <col class="alias" />
+      <col class="title" />
+    </colgroup>
 
-      <tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-model-development" class="hasAnchor"><a href="#section-model-development" class="anchor"></a>Model Development</h2>
-            <p class="section-desc"><p>Train machine learning models</p></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="LassoDevelopment.html">LassoDevelopment</a></code> </p>
-          </td>
-          <td><p>Compare predictive models, created on your data</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="LinearMixedModelDevelopment.html">LinearMixedModelDevelopment</a></code> </p>
-          </td>
-          <td><p>Compare predictive models, created on your data</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="RandomForestDevelopment.html">RandomForestDevelopment</a></code> </p>
-          </td>
-          <td><p>Compare predictive models, created on your data</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="SupervisedModelDevelopment.html">SupervisedModelDevelopment</a></code> </p>
-          </td>
-          <td><p>Compare predictive models, created on your data</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="SupervisedModelDevelopmentParams.html">SupervisedModelDevelopmentParams</a></code> </p>
-          </td>
-          <td><p>SupervisedModelDevelopmentParams class to set up parameters required to build SupervisedModel classes</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="XGBoostDevelopment.html">XGBoostDevelopment</a></code> </p>
-          </td>
-          <td><p>Compare predictive models, created on your data</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-model-deployment" class="hasAnchor"><a href="#section-model-deployment" class="anchor"></a>Model Deployment</h2>
-            <p class="section-desc"><p>Put a model into production</p></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="LassoDeployment.html">LassoDeployment</a></code> </p>
-          </td>
-          <td><p>Deploy a production-ready predictive Lasso model</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="LinearMixedModelDeployment.html">LinearMixedModelDeployment</a></code> </p>
-          </td>
-          <td><p>Deploy a production-ready predictive Linear Mixed Model model</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="RandomForestDeployment.html">RandomForestDeployment</a></code> </p>
-          </td>
-          <td><p>Deploy a production-ready predictive RandomForest model</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="SupervisedModelDeployment.html">SupervisedModelDeployment</a></code> </p>
-          </td>
-          <td><p>Deploy predictive models, created on your data</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="SupervisedModelDeploymentParams.html">SupervisedModelDeploymentParams</a></code> </p>
-          </td>
-          <td><p>SupervisedModelDeploymentParams class to set up parameters required to build
-SupervisedModelDeployment class</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="XGBoostDeployment.html">XGBoostDeployment</a></code> </p>
-          </td>
-          <td><p>Deploy a production-ready predictive XGBoost model</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-sql-helpers" class="hasAnchor"><a href="#section-sql-helpers" class="anchor"></a>SQL helpers</h2>
-            <p class="section-desc"><p>Interface with a database</p></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="selectData.html">selectData</a></code> </p>
-          </td>
-          <td><p>Pull data into R via an ODBC connection</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="writeData.html">writeData</a></code> </p>
-          </td>
-          <td><p>Write data to database</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-everything-else" class="hasAnchor"><a href="#section-everything-else" class="anchor"></a>Everything Else</h2>
-            <p class="section-desc"><p>Is still to be added. Possibly <a href="https://stackoverflow.com/questions/45886789/include-all-other-functions-in-a-pkgdown-reference-yaml">automatically</a></p></p>
-          </th>
-        </tr>
+    <tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-model-training" class="hasAnchor"><a href="#section-model-training" class="anchor"></a>Model Training</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
         
-      </tbody>
-      </table>
-    </div>
+        <td>
+          <p><code><a href="machine_learn.html">machine_learn()</a></code> </p>
+        </td>
+        <td><p>Machine learning made easy</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="tune_models.html">tune_models()</a></code> </p>
+        </td>
+        <td><p>Tune multiple machine learning models using cross validation to optimize
+performance</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="flash_models.html">flash_models()</a></code> </p>
+        </td>
+        <td><p>Train models without tuning for performance</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-prediction" class="hasAnchor"><a href="#section-prediction" class="anchor"></a>Prediction</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="predict.model_list.html">predict(<i>&lt;model_list&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Make predictions using the best-performing model</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-model-interpretation" class="hasAnchor"><a href="#section-model-interpretation" class="anchor"></a>Model Interpretation</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="get_variable_importance.html">get_variable_importance()</a></code> </p>
+        </td>
+        <td><p>Get variable importances</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="interpret.html">interpret()</a></code> </p>
+        </td>
+        <td><p>Interpret a model via regularized coefficient estimates</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="evaluate.html">evaluate()</a></code> </p>
+        </td>
+        <td><p>Get model performance metrics</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-visualization" class="hasAnchor"><a href="#section-visualization" class="anchor"></a>Visualization</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="plot.model_list.html">plot(<i>&lt;model_list&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Plot performance of models</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot.predicted_df.html">plot(<i>&lt;predicted_df&gt;</i>)</a></code> <code><a href="plot.predicted_df.html">plot_regression_predictions()</a></code> <code><a href="plot.predicted_df.html">plot_classification_predictions()</a></code> </p>
+        </td>
+        <td><p>Plot model predictions vs observed outcomes</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot.variable_importance.html">plot(<i>&lt;variable_importance&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Plot variable importance</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot.missingness.html">plot(<i>&lt;missingness&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Plot missingness</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="control_chart.html">control_chart()</a></code> </p>
+        </td>
+        <td><p>Create a control chart</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-data-preparation" class="hasAnchor"><a href="#section-data-preparation" class="anchor"></a>Data Preparation</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="add_best_levels.html">add_best_levels()</a></code> <code><a href="add_best_levels.html">get_best_levels()</a></code> </p>
+        </td>
+        <td><p>Build efficient features from from high-cardinality, multiple-membership
+factors</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="prep_data.html">prep_data()</a></code> </p>
+        </td>
+        <td><p>Prepare data for machine learning</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="impute.html">impute()</a></code> </p>
+        </td>
+        <td><p>Impute data and return a reusable recipe</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="split_train_test.html">split_train_test()</a></code> </p>
+        </td>
+        <td><p>Split data into training and test data frames</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-data-manipulation" class="hasAnchor"><a href="#section-data-manipulation" class="anchor"></a>Data Manipulation</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="pivot.html">pivot()</a></code> </p>
+        </td>
+        <td><p>Pivot multiple rows per observation to one row with multiple columns</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="separate_drgs.html">separate_drgs()</a></code> </p>
+        </td>
+        <td><p>Convert MSDRGs into a "base DRG" and complication level</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="add_SAM_utility_cols.html">add_SAM_utility_cols()</a></code> </p>
+        </td>
+        <td><p>Add SAM utility columns to table</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-data-profiling" class="hasAnchor"><a href="#section-data-profiling" class="anchor"></a>Data Profiling</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="missingness.html">missingness()</a></code> </p>
+        </td>
+        <td><p>Find missingness in each column and search for strings that might represent
+missing values</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-connect-to-databases" class="hasAnchor"><a href="#section-connect-to-databases" class="anchor"></a>Connect to Databases</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="build_connection_string.html">build_connection_string()</a></code> </p>
+        </td>
+        <td><p>Build a connection string for use with MSSQL and dbConnect</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="db_read.html">db_read()</a></code> </p>
+        </td>
+        <td><p>Read from a SQL Server database table</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-save-and-load-models" class="hasAnchor"><a href="#section-save-and-load-models" class="anchor"></a>Save and Load Models</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="save_models.html">save_models()</a></code> <code><a href="save_models.html">load_models()</a></code> </p>
+        </td>
+        <td><p>Save models to disk and load models from disk</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-example-data" class="hasAnchor"><a href="#section-example-data" class="anchor"></a>Example Data</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="pima_diabetes.html">pima_diabetes</a></code> </p>
+        </td>
+        <td><p>Patient diabetes dataset</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="pima_meds.html">pima_meds</a></code> </p>
+        </td>
+        <td><p>Patient medications dataset</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-model-details" class="hasAnchor"><a href="#section-model-details" class="anchor"></a>Model Details</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="get_supported_models.html">get_supported_models()</a></code> </p>
+        </td>
+        <td><p>Supported models and their hyperparameters</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="get_hyperparameter_defaults.html">get_hyperparameter_defaults()</a></code> <code><a href="get_hyperparameter_defaults.html">get_random_hyperparameters()</a></code> </p>
+        </td>
+        <td><p>Get hyperparameter values</p></td>
+      </tr>
+    </tbody>
+    </table>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#section-model-development">Model Development</a></li>
-      <li><a href="#section-model-deployment">Model Deployment</a></li>
-      <li><a href="#section-sql-helpers">SQL helpers</a></li>
-      <li><a href="#section-everything-else">Everything Else</a></li>
+      <li><a href="#section-model-training">Model Training</a></li>
+      <li><a href="#section-prediction">Prediction</a></li>
+      <li><a href="#section-model-interpretation">Model Interpretation</a></li>
+      <li><a href="#section-visualization">Visualization</a></li>
+      <li><a href="#section-data-preparation">Data Preparation</a></li>
+      <li><a href="#section-data-manipulation">Data Manipulation</a></li>
+      <li><a href="#section-data-profiling">Data Profiling</a></li>
+      <li><a href="#section-connect-to-databases">Connect to Databases</a></li>
+      <li><a href="#section-save-and-load-models">Save and Load Models</a></li>
+      <li><a href="#section-example-data">Example Data</a></li>
+      <li><a href="#section-model-details">Model Details</a></li>
     </ul>
   </div>
 </div>
@@ -240,11 +441,31 @@ SupervisedModelDeployment class</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
    </div>
 
+  
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+<script>
+  docsearch({
+    
+    
+    apiKey: 'ac39465bc37cbef616f5de1e646b6037',
+    indexName: 'healthcareai',
+    inputSelector: 'input#search-input.form-control',
+    transformData: function(hits) {
+      return hits.map(function (hit) {
+        hit.url = updateHitURL(hit);
+        return hit;
+      });
+    }
+  });
+</script>
+
+
   </body>
 </html>
+

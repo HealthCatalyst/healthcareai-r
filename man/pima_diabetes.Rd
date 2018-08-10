@@ -6,7 +6,7 @@
 \title{Patient diabetes dataset}
 \format{A tibble data frame with 768 rows and 10 variables:
 \describe{
-  \item{patient_id}{unique identifier}
+  \item{patient_id}{Unique identifier}
   \item{pregnancies}{Number of times pregnant}
   \item{plasma_glucose}{Plasma glucose concentration 2 hours in an oral
   glucose tolerance test}
@@ -30,5 +30,8 @@ A dataset containing diabetes status and other health-related variables for
 (see source URL below), the source data had some biologically impossible zero
 values. We have replaced zero values in every variable except
 \code{Pregnancies} with NA.
+}
+\seealso{
+\code{\link{pima_meds}}
 }
 \keyword{datasets}

@@ -4,24 +4,31 @@
 \alias{plot.model_list}
 \title{Plot performance of models}
 \usage{
-\method{plot}{model_list}(x, print = TRUE, ...)
+\method{plot}{model_list}(x, font_size = 11, point_size = 1, print = TRUE,
+  ...)
 }
 \arguments{
 \item{x}{modellist object as returned by \code{\link{tune_models}} or
 \code{\link{machine_learn}}}
 
+\item{font_size}{Relative size of all fonts in plot, default = 11}
+
+\item{point_size}{Size of dots, default = 3}
+
 \item{print}{If TRUE (default) plot is printed}
 
-\item{...}{generic compatability}
+\item{...}{Unused}
 }
 \value{
 Plot of model performance as a function of algorithm and
   hyperparameter values tuned over. Generally called for the side effect of
-  printing a plot, but the plot is also invisibly returned.
+  printing a plot, but the plot is also invisibly returned. The
+  best-performing model within each algorithm will be plotted as a triangle.
 }
 \description{
 Plot performance of models
 }
 \examples{
-plot(tune_models(mtcars, mpg))
+models <- tune_models(mtcars, mpg, models = "glm")
+plot(models)
 }

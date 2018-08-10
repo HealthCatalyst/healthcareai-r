@@ -1,24 +1,28 @@
 #' @title Prepare data for machine learning
 #'
-#' @description \code{prep_data} will prepare your data for use with
-#'   \code{\link{tune_models}} or other machine learning packages. Data can be
-#'   transformed in the following ways: \enumerate{ \item{Convert columns with
-#'   only 0/1 to factor} \item{Remove columns with near-zero variance}
-#'   \item{Convert date columns to useful features} \item{Fill in missing values
-#'   with various imputation methods} \item{Collapse rare categories into
-#'   `other`} \item{Center numeric columns} \item{Standardize numeric columns}
-#'   \item{Create dummy variables} \item{Add levels to factors for rare and
-#'   missing data}} While preparing your data, a recipe will be generated for
-#'   identical transformation of future data and stored in the `recipe`
-#'   attribute of the output data frame. If a recipe object is passed to
-#'   `prep_data` via the `recipe` argument, that recipe will be applied to the
-#'   data. This allows you to transform data in model training and apply exactly
-#'   the same transformations in model testing and deployment. The new data must
-#'   be identical in structure to the data that the recipe was prepared with.
+#' @description \code{prep_data} will prepare your data for machine learning.
+#'   Some steps enhance predictive power, some make sure that the data format is
+#'   compatible with a wide array of machine learning algorithms, and others
+#'   provide protection against common problems in model deployment. The
+#'   following steps are available; those followed by * are applied by default.
+#'   Many have customization options. \enumerate{ \item{Convert columns with
+#'   only 0/1 to factor*} \item{Remove columns with near-zero variance*}
+#'   \item{Convert date columns to useful features*} \item{Fill in missing
+#'   values via imputation*} \item{Collapse rare categories into "other"*}
+#'   \item{Center numeric columns} \item{Standardize numeric columns}
+#'   \item{Create dummy variables from categorical variables*} \item{Add
+#'   protective levels to factors for rare and missing data*}} While preparing
+#'   your data, a recipe will be generated for identical transformation of
+#'   future data and stored in the `recipe` attribute of the output data frame.
+#'   If a recipe object is passed to `prep_data` via the `recipe` argument, that
+#'   recipe will be applied to the data. This allows you to transform data in
+#'   model training and apply exactly the same transformations in model testing
+#'   and deployment. The new data must be identical in structure to the data
+#'   that the recipe was prepared with.
 #'
-#' @param d A dataframe or tibble containing data to impute.
-#' @param ... Optional. Unquoted variable names to not be prepped. These will be
-#'   returned unaltered. Typically ID and outcome columns would go here.
+#' @param d A data frame
+#' @param ... Optional. Columns to be ignored in preparation and model training,
+#'   e.g. ID columns. Unquoted; any number of columns can be included here.
 #' @param outcome Optional. Unquoted column name that indicates the target
 #'   variable. If provided, argument must be named. If this target is 0/1, it
 #'   will be coerced to Y/N if factor_outcome is TRUE; other manipulation steps
@@ -29,12 +33,14 @@
 #'   prepared. If training data is big, pull the recipe from the "recipe"
 #'   attribute of the prepped training data frame and pass that to this
 #'   argument. If present, all following arguments will be ignored.
-#' @param remove_near_zero_variance Logical. If TRUE (default), columns with
-#'   near-zero variance will be removed. These columns are either a single
-#'   value, or meet both of the following criteria: 1. they have very few unique
-#'   values relative to the number of samples and 2. the ratio of the frequency
-#'   of the most common value to the frequency of the second most common value
-#'   is large.
+#' @param remove_near_zero_variance Logical or numeric. If TRUE (default),
+#'   columns with near-zero variance will be removed. These columns are either a
+#'   single value, or the most common value is much more frequent than the
+#'   second most common value.
+#'   Example: In a column with 120 "Male" and 2 "Female", the frequency ratio is
+#'   0.0167. It would be excluded by default or if
+#'   `remove_near_zero_variance` > 0.0166. Larger values will remove more columns
+#'   and this value must lie between 0 and 1.
 #' @param convert_dates Logical or character. If TRUE (default), date columns
 #'   are identifed and used to generate day-of-week, month, and year columns,
 #'   and the original date columns are removed. If FALSE, date columns are
@@ -57,20 +63,31 @@
 #'   standard deviation of 1. Default is FALSE.
 #' @param make_dummies Logical. If TRUE (default), dummy columns will be created
 #'   for categorical variables.
-#' @param add_levels Logical. If TRUE (defaults), "other" and "hcai_missing"
-#'   will be added to all nominal columns. This is protective in deployment: new
-#'   levels found in deployment will become "other" and missingness in
-#'   deployment can become "hcai_missing".
+#' @param add_levels Logical. If TRUE (defaults), "other" and "missing" will be
+#'   added to all nominal columns. This is protective in deployment: new levels
+#'   found in deployment will become "other" and missingness in deployment can
+#'   become "missing" if the nominal imputation method is "new_category". If
+#'   FALSE, these "other" will be added to all nominal variables if
+#'   \code{collapse_rare_factors} is used, and "missingness" may be added
+#'   depending on details of imputation.
 #' @param factor_outcome Logical. If TRUE (default) and if all entries in
 #'   outcome are 0 or 1 they will be converted to factor with levels N and Y for
-#'   classification.
+#'   classification. Note that which level is the positive class is set in
+#'   training functions rather than here.
 #'
 #' @return Prepared data frame with reusable recipe object for future data
 #'   preparation in attribute "recipe". Attribute recipe contains the names of
 #'   ignored columns (those passed to ...) in attribute "ignored_columns".
 #' @export
-#' @seealso \code{\link{hcai_impute}}, \code{\link{tune_models}},
-#'   \code{\link{predict.model_list}}
+#' @seealso To let data preparation happen automatically under the hood, see
+#'   \code{\link{machine_learn}}
+#'
+#'   To take finer control of imputation, see \code{\link{impute}}, and for
+#'   finer control of data prep in general check out the recipes package:
+#'   \url{https://topepo.github.io/recipes/}
+#'
+#'   To train models on prepared data, see \code{\link{tune_models}} and
+#'   \code{\link{flash_models}}
 #'
 #' @examples
 #' d_train <- pima_diabetes[1:700, ]
@@ -86,11 +103,12 @@
 #' d_test_prepped
 #'
 #' # Customize preparations:
-#' prep_data(d = d_train, patient_id, diabetes,
+#' prep_data(d = d_train, patient_id, outcome = diabetes,
 #'           impute = list(numeric_method = "bagimpute",
 #'                         nominal_method = "bagimpute"),
 #'           collapse_rare_factors = FALSE, convert_dates = "year",
-#'           center = TRUE, scale = TRUE, make_dummies = FALSE)
+#'           center = TRUE, scale = TRUE, make_dummies = FALSE,
+#'           remove_near_zero_variance = .02)
 prep_data <- function(d,
                       ...,
                       outcome,
@@ -108,14 +126,26 @@ prep_data <- function(d,
   if (!is.data.frame(d)) {
     stop("\"d\" must be a data frame.")
   }
+  # Capture pre-modification missingness
+  d_missing <- missingness(d, return_df = FALSE)
+  # Capture original data structure
+  d_ods <- d[0, ]
+  # Capture factor levels
+  d_levels <- get_factor_levels(d)
+
+  outcome <- rlang::enquo(outcome)
+  remove_outcome <- FALSE
   # Deal with "..." columns to be ignored
   ignore_columns <- rlang::quos(...)
   ignored <- purrr::map_chr(ignore_columns, rlang::quo_name)
+
   d_ignore <- NULL
-  if (length(ignore_columns)) {
+  if (length(ignored)) {
     present <- ignored %in% names(d)
     if (any(!present))
-      stop(paste(ignored[!present], collapse = ", "), " not found in d.")
+      stop(list_variables(ignored[!present]), " not found in d.")
+    if (length(ignored) >= ncol(d))
+      stop("You only have ignored columns. Try again.")
     # Separate data into ignored and not
     d_ignore <- dplyr::select(d, !!ignored)
     d <- dplyr::select(d, -dplyr::one_of(ignored))
@@ -124,19 +154,29 @@ prep_data <- function(d,
       dplyr::filter(percent_missing > 0)
     if (!purrr::is_empty(m$variable))
       warning("These ignored variables have missingness: ",
-              paste(m$variable, collapse = ", "))
+              list_variables(m$variable))
+  }
+
+  # Check global options for factor handling
+  opt <- options("contrasts")[[1]][[1]]
+  if (opt != "contr.treatment"){
+    w <- paste0("Your unordered-factor contrasts option is set to ", opt,
+                ". This may produce unexpected behavior, particularly in step_dummy in prep_data. ",
+                "Consider resetting it by restarting R, or with: ",
+                "options(contrasts = c(\"contr.treatment\", \"contr.poly\"))")
+    warning(w)
   }
 
   # If there's a recipe in recipe, use that
   if (!is.null(recipe)) {
-    message("Prepping data based on provided recipe")
     recipe <- check_rec_obj(recipe)
+    message("Prepping data based on provided recipe")
     # Look for variables that weren't present in training, add them to ignored
     newvars <- setdiff(names(d), c(recipe$var_info$variable,
                                    attr(recipe, "ignored_columns")))
     if (length(newvars)) {
       warning("These variables were not observed in training ",
-              "and will be ignored: ", paste(newvars, collapse = ", "))
+              "and will be ignored: ", list_variables(newvars))
       ignored <- c(ignored, newvars)
       d_ignore <- dplyr::bind_cols(d_ignore, dplyr::select(d, !!newvars))
     }
@@ -144,15 +184,38 @@ prep_data <- function(d,
     missing_vars <- setdiff(recipe$var_info$variable[recipe$var_info$role == "predictor"], names(d))
     if (length(missing_vars))
       stop("These variables were present in training but are missing or ignored here: ",
-           paste(missing_vars, collapse = ", "))
+           list_variables(missing_vars))
+
+    # If imputing, look for variables with missingness now that didn't have any in training
+    newly_missing <- find_new_missingness(d, recipe)
+    if (length(newly_missing))
+      warning("The following variable(s) have missingness that was not present when recipe was trained: ",
+              list_variables(newly_missing))
+
+    # Outcome gets added as all NAs; set a flag to remove it at end if not in provided DF
+    outcome_var <- recipe$var_info$variable[recipe$var_info$role == "outcome"]
+    if (length(outcome_var) && !outcome_var %in% names(d))
+      remove_outcome <- TRUE
+
   } else {
+    # Look for all-unique characters columns and add them to ignored
+    undeclared_ignores <- find_columns_to_ignore(d, c(rlang::quo_name(outcome), ignored))
+    if (length(undeclared_ignores)) {
+      warning("The following variable(s) look a lot like identifiers: They are ",
+              "character-type and have a unique value on every row. They will ",
+              "be ignored: ", paste0(undeclared_ignores, collapse = ", "))
+      ignored <- c(ignored, undeclared_ignores)
+      d_ignore <- dplyr::bind_cols(d_ignore, d[, names(d) %in% undeclared_ignores, drop = FALSE])
+      d <- d[, !names(d) %in% undeclared_ignores, drop = FALSE]
+    }
 
     # Initialize a new recipe
-    message("Training new data prep recipe")
+    mes <- "Training new data prep recipe...\n"
     ## Start by making all variables predictors...
-    recipe <- recipes::recipe(d, ~ .)
+    ## Only pass head of d here because it's carried around with the recipe
+    ## and we don't want to pass around big datasets
+    recipe <- recipes::recipe(head(d), ~ .)
     ## Then deal with outcome if present
-    outcome <- rlang::enquo(outcome)
     if (!rlang::quo_is_missing(outcome)) {
       outcome_name <- rlang::quo_name(outcome)
       if (!outcome_name %in% names(d))
@@ -170,13 +233,19 @@ prep_data <- function(d,
       suppressWarnings({
         recipe <- recipes::add_role(recipe, !!outcome, new_role = "outcome")
       })
-
       # If outcome is binary 0/1, convert to N/Y -----------------------------
       if (factor_outcome && all(outcome_vec %in% 0:1)) {
+        if (!is.numeric(outcome_vec))
+          stop("factor_outcome is TRUE, but ", outcome_name, " is a character",
+               "-type variable with 0s and 1s. Consider making it numeric with ",
+               "`as.numeric(as.character())")
         recipe <- recipe %>%
           recipes::step_bin2factor(all_outcomes(), levels = c("Y", "N"))
       }
+    } else {
+      mes <- paste0(mes, ", with no outcome variable specified")
     }
+    message(mes)
 
     # Build recipe step-by-step:
 
@@ -185,10 +254,32 @@ prep_data <- function(d,
     # recipe <- recipe %>% step_hcai_mostly_missing_to_factor()  # nolint
 
     # Remove columns with near zero variance ----------------------------------
+    nzv_opts <- list(freq_cut = 49, unique_cut = 10)
+    if (!is.logical(remove_near_zero_variance)) {
+      if (!is.numeric(remove_near_zero_variance))
+        stop("remove_near_zero_variance must be logical or numeric for step_nzv")
+      if (remove_near_zero_variance < 0 | remove_near_zero_variance > 1)
+        stop("remove_near_zero_variance must be numeric between 0 and 1")
+      nzv_opts$freq_cut <- remove_near_zero_variance ^ -1
+      remove_near_zero_variance <- TRUE
+    }
     if (remove_near_zero_variance) {
       recipe <- recipe %>%
-        recipes::step_nzv(all_predictors())
+        recipes::step_nzv(all_predictors(), options = nzv_opts)
     }
+
+    # Check if there are any nominal predictors that won't be removed; stop if not.
+    prep_check <- recipes::prep(recipe, training = d)
+    removing <- prep_check$steps[[1]]$removals
+    vi <- recipe$var_info
+    nom_preds <- vi$variable[vi$role == "predictor" & vi$type == "nominal"]
+    if (length(nom_preds) && all(nom_preds %in% removing))
+      stop("All your categorical columns will be removed because they have ",
+           "near-zero variance, which will break prep_data. ",
+           "Be less aggressive in removing near-zero variance columns by ",
+           "using a larger value of remove_near_zero_variance or setting it ",
+           "to FALSE.\n  ",
+           list_variables(removing))
 
     # Convert date columns to useful features and remove original. ------------
     if (!is.logical(convert_dates)) {
@@ -204,7 +295,7 @@ prep_data <- function(d,
       cols <- find_date_cols(d)
       if (!purrr::is_empty(cols)) {
         recipe <-
-          do.call(recipes::step_date,
+          do.call(step_date_hcai,
                   list(recipe = recipe, cols, features = sdf)) %>%
           recipes::step_rm(cols)
       }
@@ -228,8 +319,8 @@ prep_data <- function(d,
       extras  <- names(impute)[!(names(impute) %in% names(ip))]
       if (length(extras > 0)) {
         warning("You have extra imputation parameters that won't be used: ",
-                paste(extras, collapse = ", "),
-                ". Available params are: ", paste(names(ip), collapse = ", "))
+                list_variables(extras),
+                ". Available params are: ", list_variables(names(ip)))
       }
 
       # Impute takes defaults or user specified inputs. Error handling inside.
@@ -242,37 +333,8 @@ prep_data <- function(d,
       stop("impute must be boolean or list.")
     }
 
-    # If there are nominal predictors, apply nominal transformations
+    # If there are numeric predictors, apply numeric transformations
     var_info <- recipe$var_info
-    if (any(var_info$type == "nominal" & var_info$role == "predictor")) {
-      # Collapse rare factors into "other" --------------------------------------
-      if (!is.logical(collapse_rare_factors)) {
-        if (!is.numeric(collapse_rare_factors))
-          stop("collapse_rare_factors must be logical or numeric")
-        if (collapse_rare_factors >= 1 || collapse_rare_factors < 0)
-          stop("If numeric, collapse_rare_factors should be between 0 and 1.")
-        fac_thresh <- collapse_rare_factors
-        collapse_rare_factors <- TRUE
-      }
-      if (collapse_rare_factors) {
-        if (!exists("fac_thresh"))
-          fac_thresh <- 0.03
-        recipe <- recipe %>%
-          recipes::step_other(all_nominal(), - all_outcomes(),
-                              threshold = fac_thresh)
-      }
-
-      # Add protective levels --------------------------------------------------
-      if (add_levels)
-        recipe <- step_add_levels(recipe, all_nominal(), - all_outcomes())
-
-      # make_dummies -----------------------------------------------------------
-      if (make_dummies) {
-        recipe <- recipe %>%
-          recipes::step_dummy(all_nominal(), - all_outcomes())
-      }
-    }
-
     if (any(var_info$type == "numeric" & var_info$role == "predictor")) {
 
       # Log transform
@@ -291,8 +353,47 @@ prep_data <- function(d,
       }
     }
 
+    # If there are nominal predictors, apply nominal transformations
+    if (any(var_info$type == "nominal" & var_info$role == "predictor")) {
+
+      # Add protective levels --------------------------------------------------
+      if (add_levels)
+        recipe <- step_add_levels(recipe, all_nominal(), - all_outcomes())
+
+      # Collapse rare factors into "other" --------------------------------------
+      if (!is.logical(collapse_rare_factors)) {
+        if (!is.numeric(collapse_rare_factors))
+          stop("collapse_rare_factors must be logical or numeric")
+        if (collapse_rare_factors >= 1 || collapse_rare_factors < 0)
+          stop("If numeric, collapse_rare_factors should be between 0 and 1.")
+        fac_thresh <- collapse_rare_factors
+        collapse_rare_factors <- TRUE
+      }
+      if (collapse_rare_factors) {
+        if (!exists("fac_thresh"))
+          fac_thresh <- 0.03
+        recipe <- recipe %>%
+          recipes::step_other(all_nominal(), - all_outcomes(),
+                              threshold = fac_thresh)
+      }
+
+      # Re-add protective levels if missing dropped by step_other
+      if (add_levels)
+        recipe <- step_add_levels(recipe, all_nominal(), - all_outcomes())
+
+      # make_dummies -----------------------------------------------------------
+      if (make_dummies) {
+        recipe <- recipe %>%
+          recipes::step_dummy(all_nominal(), - all_outcomes())
+      }
+    }
+
     # Prep the newly built recipe ---------------------------------------------
     recipe <- recipes::prep(recipe, training = d)
+
+    # Attach missingness and factor-levels in the original data to the recipe
+    attr(recipe, "missingness") <- d_missing
+    attr(recipe, "factor_levels") <- d_levels
   }
 
   # Bake either the newly built or passed-in recipe
@@ -303,23 +404,31 @@ prep_data <- function(d,
   ## near zero variance
   if ("step_nzv" %in% steps &&
       length(nzv_removed <- recipe$steps[[which(steps == "step_nzv")]]$removals))
-    warning("Removing these near-zero variance columns: ",
-            paste(nzv_removed, collapse = ", "))
+    message("Removing the following ", length(nzv_removed), " near-zero variance column(s). ",
+            "If you don't want to remove them, call prep_data with ",
+            "remove_near_zero_variance as a smaller numeric or FALSE.\n  ",
+            list_variables(nzv_removed))
 
+  # Remove outcome if recipe was provided but outcome not present
+  if (remove_outcome && outcome_var %in% names(d))
+    d <- select_not(d, outcome_var)
+  # And remove outcome from original_data_str if it's present
+  if (rlang::quo_name(outcome) %in% names(d_ods))
+    d_ods <- select_not(d_ods, outcome)
   # Add ignore columns back in and attach as attribute to recipe
   d <- dplyr::bind_cols(d_ignore, d)
   attr(recipe, "ignored_columns") <- unname(ignored)
   attr(d, "recipe") <- recipe
+  attr(d, "original_data_str") <- d_ods
   d <- tibble::as_tibble(d)
-  class(d) <- c("hcai_prepped_df", class(d))
+  class(d) <- c("prepped_df", class(d))
 
-  # TODO: Remove unused factor levels with droplevels. (MAYBE)
   return(d)
 }
 
 # print method for prep_data
 #' @export
-print.hcai_prepped_df <- function(x, ...) {
+print.prepped_df <- function(x, ...) {
   message("healthcareai-prepped data. Recipe used to prepare data:\n")
   print(attr(x, "recipe"))
   message("Current data:\n")

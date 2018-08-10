@@ -1,17 +1,101 @@
+url: https://docs.healthcare.ai
+
+template:
+  params:
+    bootswatch: yeti
+    ganalytics: UA-85609357-1
+    docsearch:
+      api_key: ac39465bc37cbef616f5de1e646b6037
+      index_name: healthcareai
+
+development:
+  mode: release
+
+home:
+  links:
+  - text: Blogs, broadcasts, and more
+    href: https://healthcare.ai
+
+navbar:
+  title: "healthcare.ai"
+  left:
+   - text: Vignettes
+     menu:
+      - text: Getting Started
+        href: articles/site_only/healthcareai.html
+      - text: Database Connections
+        href: articles/site_only/db_connections.html
+      - text: Deploying a Model
+        href: articles/site_only/deploy_model.html
+      - text: Variables with Many Categories
+        href: articles/site_only/best_levels.html
+      - text: Performance with Big Data
+        href: articles/site_only/performance.html
+      - text: Transition from Version 1
+        href: articles/site_only/transitioning.html
+   - text: "Functions"
+     href: reference/index.html
+   - text: "News"
+     href: news/index.html
+
+  right:
+   - icon: fa-github
+     href: https://github.com/HealthCatalyst/healthcareai-r
+   - icon: fa-users
+     href: https://healthcare-ai.slack.com/
+
 reference:
-  - title: Model Development
-    desc: Train machine learning models
+  - title: Model Training
     contents:
-    - contains("Development")
-  - title: Model Deployment
-    desc: Put a model into production
+    - machine_learn
+    - tune_models
+    - flash_models
+  - title: Prediction
     contents:
-    - contains("Deployment")
-  - title: SQL helpers
-    desc: Interface with a database
+    - predict.model_list
+  - title: Model Interpretation
     contents:
-    - selectData
-    - writeData
-  - title: Everything Else
-    desc: Is still to be added. Possibly [automatically](https://stackoverflow.com/questions/45886789/include-all-other-functions-in-a-pkgdown-reference-yaml)
-    contents: 
+    - get_variable_importance
+    - interpret
+    - evaluate
+  - title: Visualization
+    contents:
+    - plot.model_list
+    - plot.predicted_df
+    - plot.variable_importance
+    - plot.missingness
+    - control_chart
+  - title: Data Preparation
+    contents:
+    - add_best_levels
+    - prep_data
+    - impute
+    - split_train_test
+  - title: Data Manipulation
+    contents:
+    - pivot
+    - separate_drgs
+    - add_SAM_utility_cols
+  - title: Data Profiling
+    contents:
+    - missingness
+  - title: Connect to Databases
+    contents:
+    - build_connection_string
+    - db_read
+  - title: Save and Load Models
+    contents:
+    - save_models
+  - title: Example Data
+    contents:
+    - pima_diabetes
+    - pima_meds
+  - title: Model Details
+    contents:
+    - models
+    - hyperparameters
+
+figures:
+  fig.asp: NULL
+  fig.height: 3
+  fig.width: 6

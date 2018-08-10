@@ -6,34 +6,29 @@
 #' @param d data frame or a path to a csv file that will be read in
 #' @param measure variable of interest mapped to y-axis (quoted, ie as a string)
 #' @param x variable to go on the x-axis, often a time variable. If unspecified
-#' row indices will be used (quoted)
+#'   row indices will be used (quoted)
 #' @param group1 Optional grouping variable to be panelled horizontally (quoted)
 #' @param group2 Optional grouping variable to be panelled vertically (quoted)
-#' @param center_line Function used to calculate central tendency.
-#' Defaults to mean
+#' @param center_line Function used to calculate central tendency. Defaults to
+#'   mean
 #' @param sigmas Number of standard deviations above and below the central
-#' tendency to call a point influenced by "special cause variation."
-#' Defaults to 3
-#' @param save_to Optional file path to save chart. If not provided, the chart
-#' will be printed on screen
-#' @param plot_width In inches. Only used if save_to is specified
-#' @param plot_height In inches. Only used if save_to is specified
-#' @param plot_title Title in upper-left
-#' @param plot_catpion Caption in lower-right
-#' @param plot_font_size Base font size; text elements will be scaled to this
+#'   tendency to call a point influenced by "special cause variation." Defaults
+#'   to 3
+#' @param title Title in upper-left
+#' @param catpion Caption in lower-right
+#' @param font_size Base font size; text elements will be scaled to this
+#' @param print Print the plot? Default = TRUE. Set to FALSE if you want to
+#'   assign the plot to a variable for further modification, as in the last
+#'   example.
 #'
-#' @return Generally called for the side effect of printing the control chart
-#' or writing the control chart to file, depending on whether save_to is
-#' specified. Invisibly, returns a ggplot object for further customization.
+#' @return Generally called for the side effect of printing the control chart.
+#'   Invisibly, returns a ggplot object for further customization.
 #' @export
 #' @import ggplot2
-#' @importFrom readr read_csv
 #' @importFrom tibble data_frame
 #' @importFrom stats as.formula
 #'
 #' @examples
-#' \dontrun{
-#' # Create a data frame to plot
 #' d <-
 #'   tibble::data_frame(
 #'     day = sample(c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"),
@@ -59,20 +54,19 @@
 #' my_chart <- control_chart(d, "count", "date")
 #' my_chart +
 #'   ylab("Number of Adverse Events") +
-#'   scale_x_date(name = "Week of", date_breaks = "week") +
+#'   scale_x_date(name = "Week of ... ", date_breaks = "week") +
 #'   theme(axis.text.x = element_text(angle = -90, vjust = 0.5, hjust=1))
-#' }
 control_chart <- function(d, measure, x, group1, group2,
                           center_line = mean, sigmas = 3,
-                          save_to, plot_width = 8, plot_height = 4,
-                          plot_title = NULL, plot_catpion = NULL,
-                          plot_font_size = 11) {
+                          title = NULL, catpion = NULL,
+                          font_size = 11,
+                          print = TRUE) {
 
   if (missing(d) || !(is.data.frame(d) || is.character(d))) {
     stop("You have to provide a data frame or a file location.")
   } else if (is.character(d)) {
     message("Attempting to read csv from ", d)
-    d <- readr::read_csv(d)
+    d <- read.csv(d)
   }
 
   if (missing(measure)) {
@@ -83,9 +77,6 @@ control_chart <- function(d, measure, x, group1, group2,
     stop(group1, " isn't the name of a column in ", match.call()[["d"]])
   if (!missing(group2) && !group2 %in% names(d))
     stop(group2, " isn't the name of a column in ", match.call()[["d"]])
-
-  if (!missing(save_to) && !grepl("\\.[[:alpha:]]{3,4}$", save_to))
-    stop("save_to has to end with a graphics extension such as .png or .pdf")
 
   if (missing(x)) {
     x <- "x"
@@ -111,8 +102,8 @@ control_chart <- function(d, measure, x, group1, group2,
     geom_point(aes(color = outside), size = 2) +
     scale_color_manual(values = c("out" = "firebrick", "in" = "black"),
                                 guide = FALSE) +
-    labs(title = plot_title, caption = plot_catpion) +
-    theme_bw(base_size = plot_font_size) +
+    labs(title = title, caption = catpion) +
+    theme_gray(base_size = font_size) +
     theme(panel.grid.major.y = element_blank(),
                    panel.grid.minor.y = element_blank())
 
@@ -131,16 +122,9 @@ control_chart <- function(d, measure, x, group1, group2,
       facet_wrap(as.formula(paste("~", group2)), ncol = 1)
   }
 
-  # If no file path, print plot, otherwise write to disk
-  if (missing(save_to)) {
+  if (print)
     print(chart)
-  } else {
-    ggsave(filename = save_to, plot = chart,
-           width = plot_width, height = plot_height)
-  }
-
-  # Return the plot invisibly
-  invisible(return(chart))
+  return(invisible(chart))
 }
 
 #' Calculate lower, middle, and upper lines for control_chart

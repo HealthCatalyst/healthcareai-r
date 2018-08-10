@@ -10,10 +10,10 @@ prep_data(d, ..., outcome, recipe = NULL, remove_near_zero_variance = TRUE,
   factor_outcome = TRUE)
 }
 \arguments{
-\item{d}{A dataframe or tibble containing data to impute.}
+\item{d}{A data frame}
 
-\item{...}{Optional. Unquoted variable names to not be prepped. These will be
-returned unaltered. Typically ID and outcome columns would go here.}
+\item{...}{Optional. Columns to be ignored in preparation and model training,
+e.g. ID columns. Unquoted; any number of columns can be included here.}
 
 \item{outcome}{Optional. Unquoted column name that indicates the target
 variable. If provided, argument must be named. If this target is 0/1, it
@@ -27,12 +27,14 @@ prepared. If training data is big, pull the recipe from the "recipe"
 attribute of the prepped training data frame and pass that to this
 argument. If present, all following arguments will be ignored.}
 
-\item{remove_near_zero_variance}{Logical. If TRUE (default), columns with
-near-zero variance will be removed. These columns are either a single
-value, or meet both of the following criteria: 1. they have very few unique
-values relative to the number of samples and 2. the ratio of the frequency
-of the most common value to the frequency of the second most common value
-is large.}
+\item{remove_near_zero_variance}{Logical or numeric. If TRUE (default),
+columns with near-zero variance will be removed. These columns are either a
+single value, or the most common value is much more frequent than the
+second most common value.
+Example: In a column with 120 "Male" and 2 "Female", the frequency ratio is
+0.0167. It would be excluded by default or if
+`remove_near_zero_variance` > 0.0166. Larger values will remove more columns
+and this value must lie between 0 and 1.}
 
 \item{convert_dates}{Logical or character. If TRUE (default), date columns
 are identifed and used to generate day-of-week, month, and year columns,
@@ -62,14 +64,18 @@ standard deviation of 1. Default is FALSE.}
 \item{make_dummies}{Logical. If TRUE (default), dummy columns will be created
 for categorical variables.}
 
-\item{add_levels}{Logical. If TRUE (defaults), "other" and "hcai_missing"
-will be added to all nominal columns. This is protective in deployment: new
-levels found in deployment will become "other" and missingness in
-deployment can become "hcai_missing".}
+\item{add_levels}{Logical. If TRUE (defaults), "other" and "missing" will be
+added to all nominal columns. This is protective in deployment: new levels
+found in deployment will become "other" and missingness in deployment can
+become "missing" if the nominal imputation method is "new_category". If
+FALSE, these "other" will be added to all nominal variables if
+\code{collapse_rare_factors} is used, and "missingness" may be added
+depending on details of imputation.}
 
 \item{factor_outcome}{Logical. If TRUE (default) and if all entries in
 outcome are 0 or 1 they will be converted to factor with levels N and Y for
-classification.}
+classification. Note that which level is the positive class is set in
+training functions rather than here.}
 }
 \value{
 Prepared data frame with reusable recipe object for future data
@@ -77,21 +83,25 @@ Prepared data frame with reusable recipe object for future data
   ignored columns (those passed to ...) in attribute "ignored_columns".
 }
 \description{
-\code{prep_data} will prepare your data for use with
-  \code{\link{tune_models}} or other machine learning packages. Data can be
-  transformed in the following ways: \enumerate{ \item{Convert columns with
-  only 0/1 to factor} \item{Remove columns with near-zero variance}
-  \item{Convert date columns to useful features} \item{Fill in missing values
-  with various imputation methods} \item{Collapse rare categories into
-  `other`} \item{Center numeric columns} \item{Standardize numeric columns}
-  \item{Create dummy variables} \item{Add levels to factors for rare and
-  missing data}} While preparing your data, a recipe will be generated for
-  identical transformation of future data and stored in the `recipe`
-  attribute of the output data frame. If a recipe object is passed to
-  `prep_data` via the `recipe` argument, that recipe will be applied to the
-  data. This allows you to transform data in model training and apply exactly
-  the same transformations in model testing and deployment. The new data must
-  be identical in structure to the data that the recipe was prepared with.
+\code{prep_data} will prepare your data for machine learning.
+  Some steps enhance predictive power, some make sure that the data format is
+  compatible with a wide array of machine learning algorithms, and others
+  provide protection against common problems in model deployment. The
+  following steps are available; those followed by * are applied by default.
+  Many have customization options. \enumerate{ \item{Convert columns with
+  only 0/1 to factor*} \item{Remove columns with near-zero variance*}
+  \item{Convert date columns to useful features*} \item{Fill in missing
+  values via imputation*} \item{Collapse rare categories into "other"*}
+  \item{Center numeric columns} \item{Standardize numeric columns}
+  \item{Create dummy variables from categorical variables*} \item{Add
+  protective levels to factors for rare and missing data*}} While preparing
+  your data, a recipe will be generated for identical transformation of
+  future data and stored in the `recipe` attribute of the output data frame.
+  If a recipe object is passed to `prep_data` via the `recipe` argument, that
+  recipe will be applied to the data. This allows you to transform data in
+  model training and apply exactly the same transformations in model testing
+  and deployment. The new data must be identical in structure to the data
+  that the recipe was prepared with.
 }
 \examples{
 d_train <- pima_diabetes[1:700, ]
@@ -107,13 +117,21 @@ d_test_prepped <- prep_data(d_test, recipe = d_train_prepped)
 d_test_prepped
 
 # Customize preparations:
-prep_data(d = d_train, patient_id, diabetes,
+prep_data(d = d_train, patient_id, outcome = diabetes,
           impute = list(numeric_method = "bagimpute",
                         nominal_method = "bagimpute"),
           collapse_rare_factors = FALSE, convert_dates = "year",
-          center = TRUE, scale = TRUE, make_dummies = FALSE)
+          center = TRUE, scale = TRUE, make_dummies = FALSE,
+          remove_near_zero_variance = .02)
 }
 \seealso{
-\code{\link{hcai_impute}}, \code{\link{tune_models}},
-  \code{\link{predict.model_list}}
+To let data preparation happen automatically under the hood, see
+  \code{\link{machine_learn}}
+
+  To take finer control of imputation, see \code{\link{impute}}, and for
+  finer control of data prep in general check out the recipes package:
+  \url{https://topepo.github.io/recipes/}
+
+  To train models on prepared data, see \code{\link{tune_models}} and
+  \code{\link{flash_models}}
 }

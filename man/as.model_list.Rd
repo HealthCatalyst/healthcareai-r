@@ -4,7 +4,9 @@
 \alias{as.model_list}
 \title{Make models into model_list object}
 \usage{
-as.model_list(..., listed_models = NULL, target = ".outcome", model_class)
+as.model_list(..., listed_models = NULL, target = ".outcome", model_class,
+  tuned = TRUE, recipe = NULL, positive_class = NULL, model_name = NULL,
+  best_levels = NULL, original_data_str, versions)
 }
 \arguments{
 \item{...}{\code{caret}-trained models to put into a model list}
@@ -13,7 +15,31 @@ as.model_list(..., listed_models = NULL, target = ".outcome", model_class)
 
 \item{target}{Quoted name of response variable}
 
-\item{model_class}{"classification" or "regression"}
+\item{model_class}{"classification" or "regression". Will be determined if
+not provided}
+
+\item{tuned}{Logical; if FALSE, will have super-class untuned_models}
+
+\item{recipe}{recipe object from prep+_data, or NULL if the data didn't go
+through prep_data}
+
+\item{positive_class}{If classification, the positive outcome class,
+otherwise NULL}
+
+\item{model_name}{Quoted, name of the model. Defaults to the name of the
+outcome variable.}
+
+\item{best_levels}{best_levels list as attached to data frames from
+add_best_levels}
+
+\item{original_data_str}{zero-row data frame with names and classes of all
+columns except the outcome as they came into either the model training
+function such as tune_models or prep_data}
+
+\item{versions}{A list containing the following environmental variables from
+model training: r_version, hcai_version, and other_packages (a tibble). If
+not provided, will be extracted from the current session. See
+healthcareai:::attach_session_info for details}
 }
 \value{
 A model_list with child class type_list

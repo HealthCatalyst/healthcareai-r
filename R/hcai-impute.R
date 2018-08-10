@@ -108,8 +108,8 @@ hcai_impute <- function(recipe,
   extras  <- all_user_params[!(all_user_params %in% available_param_names)]
   if (length(extras > 0)) {
     warning("You have extra imputation parameters that won't be used: ",
-            paste(extras, collapse = ", "),
-            ". Available params are: ", paste(available_param_names, collapse = ", "))
+            list_variables(extras),
+            ". Available params are: ", list_variables(available_param_names))
   }
 
   # Catch datasets where all predictors are of one type
@@ -120,7 +120,7 @@ hcai_impute <- function(recipe,
   # Numerics
   if (!all_nominal) {
     if (numeric_method == "mean") {
-      recipe <- step_meanimpute(recipe, all_numeric())
+      recipe <- step_meanimpute(recipe, all_numeric(), - all_outcomes())
     } else if (numeric_method == "bagimpute") {
       recipe <- step_bagimpute(
         recipe,
@@ -143,7 +143,7 @@ hcai_impute <- function(recipe,
   # Nominals
   if (!all_numeric) {
     if (nominal_method == "new_category") {
-      recipe <- step_hcai_missing(recipe, all_nominal(), - all_outcomes())
+      recipe <- step_missing(recipe, all_nominal(), - all_outcomes())
     } else if (nominal_method == "bagimpute") {
       recipe <- step_bagimpute(
         recipe,

@@ -2,25 +2,38 @@
 % Please edit documentation in R/predict.R
 \name{predict.model_list}
 \alias{predict.model_list}
-\title{Make predictions using the best-performing model from tuning}
+\title{Make predictions using the best-performing model}
 \usage{
-\method{predict}{model_list}(object, newdata, prepdata, ...)
+\method{predict}{model_list}(object, newdata, prepdata, write_log = FALSE,
+  ...)
 }
 \arguments{
 \item{object}{model_list object, as from `tune_models`}
 
-\item{newdata}{data on which to make predictions. If missing, predictions
-will be made on the training data. Should have the same structure as the
-input to `prep_data`,`tune_models` or `train_models`. `predict` will try to
-figure out if the data need to be sent through `prep_data` before making
-predictions; this can be overriden by setting `prepdata = FALSE``, but this
+\item{newdata}{data on which to make predictions. If missing, out-of-fold
+predictions from training will be returned If you want new predictions on
+training data using the final model, pass the training data to this
+argument, but know that you're getting over-fit predictions that very
+likely overestimate model performance relative to what will be achieved on
+new data. Should have the same structure as the input to
+`prep_data`,`tune_models` or `train_models`. `predict` will try to figure
+out if the data need to be sent through `prep_data` before making
+predictions; this can be overriden by setting `prepdata = FALSE`, but this
 should rarely be needed.}
 
-\item{prepdata}{Logical, rarely needs to be set by the user. By default, if
-`newdata` hasn't been prepped, it will be prepped by `prep_data` before
+\item{prepdata}{Logical, this should rarely be set by the user. By default,
+if `newdata` hasn't been prepped, it will be prepped by `prep_data` before
 predictions are made. Set this to TRUE to force already-prepped data
 through `prep_data` again, or set to FALSE to prevent `newdata` from being
 sent through `prep_data`.}
+
+\item{write_log}{Write prediction metadata to a file? Default is FALSE. If
+TRUE, will create or append a file called "prediction_log.txt" in
+the current directory with metadata about predictions. If a character, is
+the name of a file to create or append with prediction metadata. If you
+want a unique log file each time predictions are made, use something like
+\code{write_log = paste0(Sys.time(), " predictions.txt")}. This param
+modifies error behavior and is best used in production. See details.}
 
 \item{...}{Unused.}
 }
@@ -28,30 +41,52 @@ sent through `prep_data`.}
 A tibble data frame: newdata with an additional column for the
   predictions in "predicted_TARGET" where TARGET is the name of the variable
   being predicted. If classification, the new column will contain predicted
-  probabilities. The tibble will have child class "hcai_predicted_df" and
+  probabilities. The tibble will have child class "predicted_df" and
   attribute "model_info" that contains information about the model used to
-  make predictions.
+  make predictions. You can call \code{plot} or \code{evaluate} on a
+  predicted_df. If \code{write_log} is TRUE and this function errors, a
+  zero-row dataframe will be returned.
+
+  Returned data will contain an attribute, "prediction_log" that contains a
+  tibble of  logging info for writing to database. If \code{write_log}
+  is TRUE and predict errors, an empty dataframe with the "prediction_log"
+  attribute will still be returned. Extract this attribute using
+  \code{attr(pred, "prediction_log")}.
+
+  Data will also contain a "failed" attribute to easily filter for errors
+  after prediction. Extract using \code{attr(pred, "failed")}.
 }
 \description{
-Make predictions using the best-performing model from tuning
+Make predictions using the best-performing model
 }
 \details{
 The model and hyperparameter values with the best out-of-fold
   performance in model training according to the selected metric is used to
   make predictions. Prepping data inside `predict` has the advantage of
   returning your predictions with the newdata in its original format.
+
+  If \code{write_log} is TRUE and an error is encountered, \code{predict}
+  will not stop. It will return the error message as:
+  - A warning in the console
+  - A field in the log file
+  - A column in the "prediction_log" attribute
+  - A zero-row data frame will be returned
 }
 \examples{
-# Tune models using only the first 50 rows to keep computation fast
-models <- machine_learn(pima_diabetes[1:50, ], diabetes)
-# Make prediction on the next 20 rows. This uses the best-performing model from
+# Tune models using only the first 40 rows to keep computation fast
+
+models <- machine_learn(pima_diabetes[1:40, ], patient_id,
+                        outcome = diabetes, tune = FALSE)
+
+# Make prediction on the next 10 rows. This uses the best-performing model from
 # tuning cross validation, and it also prepares the new data in the same way as
 # the training data was prepared.
-predictions <- predict(models, newdata = pima_diabetes[51:70, ])
+
+predictions <- predict(models, newdata = pima_diabetes[41:50, ])
 predictions
-ggplot(predictions, aes(x = predicted_diabetes, fill = diabetes)) +
-  geom_density(alpha = .5)
+evaluate(predictions)
+plot(predictions)
 }
 \seealso{
-\code{\link{tune_models}}, \code{\link{prep_data}}
+\code{\link{plot.predicted_df}}, \code{\link{evaluate.predicted_df}}
 }

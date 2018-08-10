@@ -1,68 +1,123 @@
-# healthcareai
 
-[![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/0xrpe233o9a16l4l/branch/master?svg=true)](https://ci.appveyor.com/project/CatalystAdmin/healthcareai-r/) 
-[![Travis-CI Build Status](https://travis-ci.org/HealthCatalyst/healthcareai-r.svg?branch=master)](https://travis-ci.org/HealthCatalyst/healthcareai-r) 
-[![codecov badge](https://codecov.io/gh/HealthCatalyst/healthcareai-r/branch/master/graph/badge.svg)](https://codecov.io/gh/HealthCatalyst/healthcareai-r) 
+<!-- README.md is generated from README.Rmd. Please edit the .Rmd and knit it to generate the .md. -->
 
-[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version-last-release/healthcareai)](https://cran.r-project.org/package=healthcareai)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/HealthCatalystSLC/healthcareai-r/blob/master/LICENSE)
+# healthcareai <img src="man/figures/logo.png" align="right" />
+
+[![Appveyor Build
+Status](https://ci.appveyor.com/api/projects/status/0xrpe233o9a16l4l/branch/master?svg=true)](https://ci.appveyor.com/project/CatalystAdmin/healthcareai-r/)
+[![Travis-CI Build
+Status](https://travis-ci.org/HealthCatalyst/healthcareai-r.svg?branch=master)](https://travis-ci.org/HealthCatalyst/healthcareai-r)
+[![codecov
+badge](https://codecov.io/gh/HealthCatalyst/healthcareai-r/branch/master/graph/badge.svg)](https://codecov.io/gh/HealthCatalyst/healthcareai-r)
+[![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version-last-release/healthcareai)](https://cran.r-project.org/package=healthcareai)
+![CRAN downloads
+badge](https://cranlogs.r-pkg.org/badges/grand-total/healthcareai)
+[![License:
+MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/HealthCatalystSLC/healthcareai-r/blob/master/LICENSE)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.999334.svg)](https://doi.org/10.5281/zenodo.999334)
 
-Machine learning as easy as...
+## Overview
 
-```r
-library(healthcareai)
-models <- machine_learn(d = pima_diabetes, outcome = diabetes)
-predict(models)
+The aim of `healthcareai` is to make machine learning in healthcare as
+easy as possible. It does that by providing functions to:
+
+  - Develop customized, reliable, high-performance machine learning
+    models with minimal code
+  - Easily make and evaluate predictions and push them to a database
+  - Make data cleaning, manipulation, imputation, and visualization as
+    simple as possible
+
+## Usage
+
+`healthcareai` can take you from messy data to an optimized model in one
+line of code:
+
+``` r
+models <- machine_learn(pima_diabetes, patient_id, outcome = diabetes)
+models
+# > Algorithms Trained: Random Forest, eXtreme Gradient Boosting, and glmnet
+# > Model Name: diabetes
+# > Target: diabetes
+# > Class: Classification
+# > Performance Metric: AUROC
+# > Number of Observations: 768
+# > Number of Features: 12
+# > Models Trained: 2018-06-29 17:19:43 
+# > 
+# > Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.
+# > Best model: Random Forest
+# > AUPR = 0.71, AUROC = 0.84
+# > Optimal hyperparameter values:
+# >   mtry = 2
+# >   splitrule = extratrees
+# >   min.node.size = 6
 ```
 
-**Please note that the package is currently in transition** from an R6 architecture to a tidy, S3 architecture. The code above is the new version, which is in beta and can be acquired via `devtools::install_github("HealthCatalyst/healthcareai-r")`. Beta testing of the new version, pre-CRAN, is very welcome; please file issues for any bugs, unclear docs, or feature suggestions here. `install.packages("healthcareai")` will get you the old version from CRAN, which will remain available via `devtools::install_github("HealthCatalyst/healthcareai-r@v1.2.3")`.
+Make predictions and examine predictive performance:
 
+``` r
+predictions <- predict(models)
+plot(predictions)
+```
 
-The aim of `healthcareai` is to make machine learning on healthcare data easy. The package does that by providing functions to:
+![](man/figures/README-plot_predictions-1.png)<!-- -->
 
-- Easily develop a high performance machine-learning model tuned to your data. 
-- Make predictions based on that model and push them to a database or flat file.
--  Provide tools related to data cleaning, manipulation, imputation, and visualization.
+## Learn More
 
-## Getting started
+For details on what’s happening under the hood and for options to
+customize data preparation and model training, see [Getting Started with
+healthcareai](https://docs.healthcare.ai/articles/site_only/healthcareai.html)
+as well as the helpfiles for individual functions such as
+`?machine_learn`, `?prep_data`, and `?tune_models`.
 
-- If you haven't, install [R](https://CRAN.r-project.org/) and [RStudio](https://www.rstudio.com/products/rstudio/download)
-    + Note: if you're setting up R on an ETL server, don't download RStudio--simply open up RGui or work in the terminal.
-- Open RStudio and install the package by entering this in the console: `install.packages('healthcareai')`
+Documentation of all functions as well as vignettes on various uses of
+the package are available at the package website:
+<https://docs.healthcare.ai/>.
 
-#### Website examples
+Also, be sure to read our [blog](http://healthcare.ai/blog/) and watch
+our
+[broadcasts](https://www.youtube.com/channel/UCGZUobs_x712KbcL6RSzfnQ)
+to learn more about what’s new in healthcare machine learning and how we
+are using this toolkit to put machine learning to work in real
+healthcare systems.
 
-See our [docs website](http://healthcareai-r.readthedocs.io).
+## Get Involved
 
-#### Join the community
+We have a [Slack community](https://healthcare-ai.slack.com/) that is a
+great place to introduce yourself, share what you’re doing with the
+package, ask questions, and troubleshoot your code.
 
-Read the [blog](http://healthcare.ai/blog/), check out our machine learning [broadcasts](https://www.youtube.com/channel/UCGZUobs_x712KbcL6RSzfnQ), and join the [Slack group](https://healthcare-ai.slack.com/).
+### Contributing
 
-## For issues
+If you are interested in contributing the package (great\!), please read
+the
+[contributing](https://github.com/HealthCatalyst/healthcareai-r/blob/master/CONTRIBUTING.md)
+guide, and look for [issues with the “help wanted”
+tag](https://github.com/HealthCatalyst/healthcareai-r/labels/help%20wanted).
+Feel free to tackle any issue that interests you; those are a few issues
+that we feel would make a good place to start.
 
-- If you're having trouble getting code to work, the [healthcare-ai Slack community](https://healthcare-ai.slack.com/) is a great place to ask question. If you think something may be broken, you can file a [Github issue](https://github.com/HealthCatalyst/healthcareai-r/issues) or submit a question on [Stack Overflow](http://stackoverflow.com/) using the healthcare-ai tag. Please provide:
-  + Details on your environment. The output `devtools::session_info()` is great for this.
-  + A concise discussion of what are you trying to accomplish.
-  + A [reproducible example](https://github.com/tidyverse/reprex) of the error.
+### Feedback
 
-## Contributing
+Your feedback is hugely appreciated. It is makes the package work well
+and helps us make it more useful to the community.
 
-You want to help? Woohoo! We welcome that and are willing to help newbies get started.
+Both feature requests and bug reports should be submitted as [Github
+issues](https://github.com/HealthCatalyst/healthcareai-r/issues/new).
 
-First, see [here](CONTRIBUTING.md) for instructions on setting up your development environment and how to contribute. You'll want to install the development version of the package via 'devtools::install_github(repo='HealthCatalyst/healthcareai-r')`.
+**Bug reports** should be filed with a [minimal reproducable
+example](https://gist.github.com/hadley/270442). The [reprex
+package](https://github.com/tidyverse/reprex) is extraordinarily helpful
+for this. Please also include the output of `sessionInfo()` or better
+yet, `devtools::session_info()`.
 
-## Troubleshooting
+## Legacy
 
-Does `install.packages('healthcareai')` or `library(healthcareai)` fail? If you don't have admin rights on the machine you are working on, you may need to set a custom location for your R libraries. Here's how to do that:
+Version 1 of healthcare-ai has been retired. You can continue to use it,
+but its compatibility with changes in the R ecosystem are not
+guaranteed. You should always be able to install it from github with:
+`remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")`.
 
-1. *Create a folder to hold your R packages.* You'll generally have write access to your `Documents` folder, so you might create a new directory: `C:\Users\your.name\Documents\R\R_library`. Shift-right click on that folder and copy its path.
-2. *Define a system variable with that folder location.* Open the Control Panel and click through User Accounts -> User Accounts -> Change my environment variables, and add a variable called `R_LIBS_USER`, and paste the folder path (`C:\Users\your.name\Documents\R\R_library`) into the value field. Make sure the path is not surrounded by `"`s.
-3. *Tell R to use that location.* Restart R Studio, run `install.packages('healthcareai')`, and if asked whether you want to use a custom library location choose yes, which may be sufficient. If not, click into the Console in R Studio, type `.libPaths()`, paste the path to your new library folder inside the `()`, and change the `\`s to `/`. You should end up with a line that looks like: `.libPaths("C:/Users/your.name/Documents/R/R_library")`. Press enter to run that.
-4. *Try again.* Run `install.packages('healthcareai')` and `library(healthcareai)` again and all should be well! 
-
-If that doesn't work, please contact us through Github or at the website linked above.
-
-#### Looking for an older version of the package? 
-
-Version 1 of healthcare-ai has been retired, but if you want to to continue to use its functionality, you can still install it from github: `devtools::install_github("HealthCatalyst/healthcareai-r@v1.2.3")`.
+For an example of how to adapt v1 models to the v2 API, check out the
+[Transitioning
+vignettes](https://docs.healthcare.ai/articles/site_only/transitioning.html).

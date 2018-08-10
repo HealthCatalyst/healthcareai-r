@@ -2,27 +2,56 @@
 % Please edit documentation in R/machine_learn.R
 \name{machine_learn}
 \alias{machine_learn}
-\title{Machine Learn}
+\title{Machine learning made easy}
 \usage{
-machine_learn(d, outcome, ..., models = c("rf", "knn"), impute = TRUE)
+machine_learn(d, ..., outcome, models, tune = TRUE, positive_class,
+  n_folds = 5, tune_depth = 10, impute = TRUE, model_name = NULL,
+  allow_parallel = FALSE)
 }
 \arguments{
 \item{d}{A data frame}
 
+\item{...}{Columns to be ignored in model training, e.g. ID columns,
+unquoted.}
+
 \item{outcome}{Name of the target column, i.e. what you want to predict.
-Unquoted.}
+Unquoted. Must be named, i.e. you must specify \code{outcome = }}
 
-\item{...}{Identifier columns not to be used in model training, unquoted}
+\item{models}{Names of models to try. See \code{\link{get_supported_models}}
+for available models. Default is all available models.}
 
-\item{models}{Models to be trained, k-nearest neighbors and random forest by
-default. See \code{\link{supported_models}} for details.}
+\item{tune}{If TRUE (default) models will be tuned via
+\code{\link{tune_models}}. If FALSE, models will be trained via
+\code{\link{flash_models}} which is substantially faster but produces
+less-predictively powerful models.}
+
+\item{positive_class}{For classification only, which outcome level is the
+"yes" case, i.e. should be associated with high probabilities? Defaults to
+"Y" or "yes" if present, otherwise is the first level of the outcome
+variable (first alphabetically if the training data outcome was not already
+a factor).}
+
+\item{n_folds}{How many folds to use to assess out-of-fold accuracy? Default
+= 5. Models are evaluated on out-of-fold predictions whether tune is TRUE
+or FALSE.}
+
+\item{tune_depth}{How many hyperparameter combinations to try? Default = 10.
+Value is multiplied by 5 for regularized regression. Ignored if tune is
+FALSE.}
 
 \item{impute}{Logical, if TRUE (default) missing values will be filled by
 \code{\link{hcai_impute}}}
+
+\item{model_name}{Quoted, name of the model. Defaults to the name of the
+outcome variable.}
+
+\item{allow_parallel}{Logical, defaults to FALSE. If TRUE and a parallel
+backend is set up (e.g. with \code{doMC}) models with support for parallel
+training will be trained across cores.}
 }
 \value{
-model_list object ready to make predictions via
-  \code{\link{predict.model_list}}
+A model_list object. You can call \code{plot}, \code{summary},
+  \code{evaluate}, or \code{predict} on a model_list.
 }
 \description{
 Prepare data and train machine learning models.
@@ -33,23 +62,48 @@ This is a high-level wrapper function. For finer control of data
   wraps. For finer control of model tuning use \code{\link{tune_models}}.
 }
 \examples{
-# Split data into training and test sets using a subset of the data for speed
-test_data <- pima_diabetes[1:10, ]
-training_data <- pima_diabetes[11:100, ]
+# These examples take about 30 seconds to execute so aren't run automatically,
+# but you should be able to execute this code locally.
+\dontrun{
+# Split the data into training and test sets
+d <- split_train_test(d = pima_diabetes,
+                      outcome = diabetes,
+                      percent_train = .9)
 
 ### Classification ###
 
-# Clean and prep the data, tune algorithms over hyperparameter values to predict diabetes
-models <- machine_learn(training_data, diabetes)
+# Clean and prep the training data, specifying that patient_id is an ID column,
+# and tune algorithms over hyperparameter values to predict diabetes
+diabetes_models <- machine_learn(d$train, patient_id, outcome = diabetes)
+
+# Inspect model specification and performance
+diabetes_models
 
 # Make predictions (predicted probability of diabetes) on test data
-predict(models, test_data)
+predict(diabetes_models, d$test)
 
 ### Regression ###
 
-# Predict numeric outcomes simply by specifying the name of the outcome variable
-age_model <- machine_learn(training_data, age)
+# If the outcome variable is numeric, regression models will be trained
+age_model <- machine_learn(d$train, patient_id, outcome = age)
+
+# Get detailed information about performance over tuning values
+summary(age_model)
+
+# Get available performance metrics
+evaluate(age_model)
+
+# Plot training performance on tuning metric (default = RMSE)
+plot(age_model)
 
 # If new data isn't specifed, get predictions on training data
 predict(age_model)
+
+### Faster model training without tuning hyperparameters ###
+
+# Train models at set hyperparameter values by setting tune to FALSE. This is
+# faster (especially on larger datasets), but produces models with less
+# predictive power.
+machine_learn(d$train, patient_id, outcome = diabetes, tune = FALSE)
+}
 }

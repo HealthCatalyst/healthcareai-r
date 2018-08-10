@@ -68,23 +68,23 @@ test_that("Bad ignore_colums are parsed correctly.", {
   capture_output(expect_error(impute(d = d_train, chippies),
                               regexp = "chippies not found in d"))
   capture_output(expect_error(impute(d = d_train, chippies, fishes),
-                              regexp = "chippies, fishes not found in d"))
+                              regexp = "chippies and fishes not found in d"))
 })
 
 test_that("No recipe with defaults trains and predicts.", {
   capture_output(res <- impute(d = d_train,
                                animal_id, kitty))
   expect_equal(res$length[1], 7.1, tol = .02)
-  expect_equal(as.character(res$color[2]), "hcai_missing")
-  expect_equal(as.character(res$fur[3]), "hcai_missing")
+  expect_equal(as.character(res$color[2]), "missing")
+  expect_equal(as.character(res$fur[3]), "missing")
   expect_equal(res$width[3], 2.02, tol = .02)
 
   capture_output(res <- impute(d = d_test,
                                animal_id, kitty,
                                recipe = attr(res, "recipe")))
   expect_equal(res$length[1], 7.1, tol = .02)
-  expect_equal(as.character(res$color[2]), "hcai_missing")
-  expect_equal(as.character(res$fur[3]), "hcai_missing")
+  expect_equal(as.character(res$color[2]), "missing")
+  expect_equal(as.character(res$fur[3]), "missing")
   expect_equal(res$width[3], 2.02, tol = .02)
 })
 

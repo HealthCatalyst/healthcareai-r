@@ -1,0 +1,133 @@
+---
+title: "Transitioning from healthcareai v1 to v2"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with healthcareai}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include=FALSE}
+set.seed(43170)
+knitr::opts_chunk$set(echo = TRUE, results = "hold", collapse = TRUE, 
+                      comment = "# >")
+options(tibble.print_min = 5, tibble.print_max = 5)
+```
+
+This vignette demonstrates how to translate `healthcareai` v1 code into v2 code by translating the example from the old `RandomForestDeployment` help page. Throughout this vignette, commented code is the v1 code that is being updated in each chunk.
+
+## Install and load the package
+
+First, check the package version with `packageVersion("healthcareai")`. If the first digit isn't 2, you need to update. You should be able to install v2 by running `install.packages("healthcareai")`.
+
+Then, load the package.
+
+```{r}
+library(healthcareai)
+```
+
+## Load Data
+
+First, we'll read the data from the repository and inspect it.
+
+```{r}
+# csvfile <- system.file("extdata", 
+#                        "HCRDiabetesClinical.csv", 
+#                        package = "healthcareai")
+# df <- read.csv(file = csvfile, 
+#                header = TRUE, 
+#                na.strings = c("NULL", "NA", ""))
+# 
+# df$PatientID <- NULL # Only one ID column (ie, PatientEncounterID) is needed remove this column
+## v2 lets you retain any number of identifier columns
+
+df <- read.csv("https://raw.githubusercontent.com/HealthCatalyst/healthcareai-r/8355ee33a6ea2ad549c8f840832b7843ddf27b04/inst/extdata/HCRDiabetesClinical.csv",
+               na.strings = "")
+str(df)
+```
+
+There are missing values in the outcome variable `ThirtyDayReadmitFLG`, and v2 of the package intentionally does not allow missing values in the outcome, so we will discard those rows. Missingness in predictors is automatically taken care of and a variety of imputation methods [are supported](https://docs.healthcare.ai/reference/index.html#section-data-preparation).
+
+```{r}
+df <- dplyr::filter(df, !is.na(ThirtyDayReadmitFLG))
+```
+
+## Reserve Validation Set
+
+This is an optional step. Withholding some data from model training and evaluating model performance on that data provides a rigorously honest estimation of how well the model will perform on new data. `healthcareai` v2 actually does this repeatedly under the hood in model training (through cross validation), so the performance reported on training data should be consistent with performance on new data; however, validation on a test dataset can still be useful, so we demonstrate how to do it here.
+
+`split_train_test` returns two data frames, `train` and `test`, ensuring equal representation of the outcome in each. The following code puts 95% of rows in `train` and 5% of rows in `test`. The latter won't be used in model training, and instead will be used to make predictions to see how well the model performs on data it has never seen.
+
+```{r}
+# dfDeploy <- df[951:1000,]
+d <- split_train_test(df, outcome = ThirtyDayReadmitFLG, percent_train = .95)
+```
+
+## Train Models
+
+`machine_learn` needs the name of the data frame, any columns that shouldn't be used in training (identifier columns), and the outcome variable. It will do everything else automatically, including imputing missing values, training multiple algorithms, optimizing algorithm details through cross validation, and much more. Specifying `models = "rf"` means that only random forests will be trained; if left blank, all supported models will be trained, and the best performing model will be used to make predictions.
+
+```{r}
+# p <- SupervisedModelDevelopmentParams$new()
+# p$df <- df
+# p$type <- "classification"
+# p$impute <- TRUE
+# p$grainCol <- "PatientEncounterID"
+# p$predictedCol <- "ThirtyDayReadmitFLG"
+# p$debug <- FALSE
+# p$cores <- 1
+# 
+# # Run RandomForest
+# RandomForest <- RandomForestDevelopment$new(p)
+# RandomForest$run()
+
+models <- machine_learn(d$train, 
+                        PatientEncounterID, PatientID,
+                        outcome = ThirtyDayReadmitFLG, 
+                        models = "rf")
+```
+
+## Save and Load Models
+
+`healthcareai` v1 automatically saved models in the working directory, and automatically loaded them from the working directory. v2 instead provides functions to make it easy to save and load models. This is only necrequires you to manage model files if you want to use the models in a different R session than the one in which you trained the models.
+
+As with other objects in R, you can save an object to disk like this:
+
+```{r, eval = FALSE}
+save(models, file = "my_random_forests.RDA")
+```
+
+That will write the `models` object to the `my_random_forests.RDA` file in the working directory. You can find out where that is by running `getwd()`.
+
+Loading the models with the following line will reestablish the `models` object in a new R session. That means you can move the `my_random_forests.RDA` file to another directory or another computer, and get your models there with this line. If the RDA file is in a different directory than your R script (or project if you use RStudio's Projects), you'll need to point to that location relative to the current working directory, e.g. `load("../data/trained_models/my_random_forests.RDA")`. Here is some [recommended reading](http://stat545.com/block002_hello-r-workspace-wd-project.html#working-directory) on working directories and filepaths if you need help loading saved models.
+
+```{r, eval = FALSE}
+load("my_random_forests.RDA")
+```
+
+## Make Predictions
+
+To make predictions on the training dataset, simply pass the model object to `predict`. To make predictions on new data, pass the data frame to `predict` after the model object.
+
+```{r}
+# p2 <- SupervisedModelDeploymentParams$new()
+# p2$type <- "classification"
+# p2$df <- dfDeploy
+# p2$grainCol <- "PatientEncounterID"
+# p2$predictedCol <- "ThirtyDayReadmitFLG"
+# p2$impute <- TRUE
+# p2$debug <- FALSE
+# p2$cores <- 1
+# 
+# dL <- RandomForestDeployment$new(p2)
+# dL$deploy()
+# 
+# dfOut <- dL$getOutDf()
+# head(dfOut)
+
+predict(models, d$test)
+```
+
+## Further Reading
+
+For more detail on using v2 or about what's happening under the hood, see [Getting Started](https://docs.healthcare.ai/articles/site_only/healthcareai.html) or the [function reference page](https://docs.healthcare.ai/reference/index.html). To see how to connect to a database, see [Database Connections](https://docs.healthcare.ai/articles/site_only/db_connections.html).

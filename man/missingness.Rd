@@ -2,7 +2,8 @@
 % Please edit documentation in R/missingness.R
 \name{missingness}
 \alias{missingness}
-\title{Percent of entries in each column that are missing}
+\title{Find missingness in each column and search for strings that might represent
+missing values}
 \usage{
 missingness(d, return_df = TRUE, to_search = c("NA", "NAs", "na", "NaN",
   "?", "??", "nil", "NULL", " ", ""))
@@ -10,20 +11,29 @@ missingness(d, return_df = TRUE, to_search = c("NA", "NAs", "na", "NaN",
 \arguments{
 \item{d}{A data frame or matrix}
 
-\item{return_df}{If TRUE (default) a data frame is returned, which generally makes reading the output easier. If variable names are so long that the data frame gets wrapped poorly, set this to FALSE.}
+\item{return_df}{If TRUE (default) a data frame is returned, which generally
+makes reading the output easier. If variable names are so long that the
+data frame gets wrapped poorly, set this to FALSE.}
 
-\item{to_search}{A vector of strings that might represent missingness. If found in \code{d}, a warning is issued.}
+\item{to_search}{A vector of strings that might represent missingness. If
+found in \code{d}, a warning is issued.}
 }
 \value{
-A data frame with two columns: variable names in \code{d} and the percent of entries in each variable that are missing.
+A data frame with two columns: variable names in \code{d} and the
+  percent of entries in each variable that are missing.
 }
 \description{
-Finds the percent of NAs in a vector or in each column of a dataframe or
-matrix or in a vector. Possible mis-coded missing values are searched for and a warning issued if they are found.
+Finds the percent of NAs in a vector or in each column of a
+  dataframe or matrix or in a vector. Possible mis-coded missing values are
+  searched for and a warning issued if they are found.
 }
 \examples{
 d <- data.frame(x = c("a", "nil", "b"),
                 y = c(1, NaN, 3),
                 z = c(1:2, NA))
 missingness(d)
+missingness(d) \%>\% plot()
+}
+\seealso{
+\code{\link{plot.missingness}}
 }

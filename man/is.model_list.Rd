@@ -2,16 +2,22 @@
 % Please edit documentation in R/model_list_generics.R
 \name{is.model_list}
 \alias{is.model_list}
-\title{Class check}
+\alias{is.classification_list}
+\alias{is.regression_list}
+\title{Type checks}
 \usage{
 is.model_list(x)
+
+is.classification_list(x)
+
+is.regression_list(x)
 }
 \arguments{
-\item{x}{object}
+\item{x}{Object}
 }
 \value{
-logical
+Logical
 }
 \description{
-Class check
+Type checks
 }
