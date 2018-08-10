@@ -9,7 +9,7 @@
 #'   2:4} varies the 2nd, 3rd, and 4th most-important variables). Alternatively,
 #'   a vector of variable names to vary may be provided. Or, for the finest
 #'   level of control, a list with names being variable names and entries being
-#'   values to use may be provided; in this case \code{numerics} and
+#'   values to use; in this case \code{numerics} and
 #'   \code{characters} are ignored.
 #' @param hold How to choose the values of variables not being varied? If this
 #'   is an integer, the values from that row in the training dataset are used.
@@ -138,5 +138,6 @@ choose_values <- function(models, vary, variables, numerics, characters) {
 
 }
 
-attr(models, "original_data_str")
+# attr(models, "original_data_str")
+# attributes(models)$recipe
 

@@ -4,19 +4,17 @@
 \alias{simulate}
 \title{Simulate Counterfactual Predictions}
 \usage{
-simulate(model, vary = 4, hold = list(numerics = median, characters = Mode),
-  numerics = 5, characters = unique)
+simulate(models, vary = 4, hold = list(numerics = median, characters =
+  Mode), numerics = 5, characters = unique)
 }
 \arguments{
-\item{model}{A model_list object}
-
 \item{vary}{Which variables to vary? Default is 4; if it is a single integer
 (n), the n most important variables are varied (see details). If it is a
 vector of integers, those rankings of variables are used (e.g. \code{vary =
 2:4} varies the 2nd, 3rd, and 4th most-important variables). Alternatively,
 a vector of variable names to vary may be provided. Or, for the finest
 level of control, a list with names being variable names and entries being
-values to use may be provided; in this case \code{numerics} and
+values to use; in this case \code{numerics} and
 \code{characters} are ignored.}
 
 \item{hold}{How to choose the values of variables not being varied? If this
@@ -39,6 +37,14 @@ provided, the n-most common categories in the training dataset will be
 used. A function that takes a character vector (the column from training
 data) and returns a character vector (the values to be used) may also be
 provided}
+
+\item{model}{A model_list object. The data the model was trained on must have
+been prepared, either by training with \code{\link{machine_learn}} or by
+preparing with \code{\link{prep_data}}}
+}
+\value{
+A tibble with values of variables used to make predictions and
+  predictions. Has class \code{simulated_df} and \code{predicted_df}.
 }
 \description{
 Simulate Counterfactual Predictions
@@ -48,4 +54,8 @@ If \code{vary} is an integer, the most important variables are
   determined by \code{\link{get_variable_importance}}, unless glm is the only
   model present, in which case \code{\link{interpret}} is used with a
   warning.
+
+  When selecting the most important variables to vary over, for categorical
+  variables the sum of variable importance of all the levels as dummy
+  variables is used.
 }
