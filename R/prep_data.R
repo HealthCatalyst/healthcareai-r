@@ -61,6 +61,8 @@
 #'   mean of 0. Default is FALSE.
 #' @param scale Logical. If TRUE, numeric columns will be scaled to have a
 #'   standard deviation of 1. Default is FALSE.
+#' @param PCA Logical. If TRUE, will convert numeric data into one or more
+#'   principal components. Default is FALSE.
 #' @param make_dummies Logical. If TRUE (default), dummy columns will be created
 #'   for categorical variables.
 #' @param add_levels Logical. If TRUE (defaults), "other" and "missing" will be
@@ -119,6 +121,7 @@ prep_data <- function(d,
                       collapse_rare_factors = TRUE,
                       center = FALSE,
                       scale = FALSE,
+                      PCA = FALSE,
                       make_dummies = TRUE,
                       add_levels = TRUE,
                       factor_outcome = TRUE) {
@@ -387,6 +390,13 @@ prep_data <- function(d,
           recipes::step_dummy(all_nominal(), - all_outcomes())
       }
     }
+
+    # Perform PCA
+    if (PCA) {
+      recipe <- recipe %>%
+        recipes::step_pca()
+    }
+
 
     # Prep the newly built recipe ---------------------------------------------
     recipe <- recipes::prep(recipe, training = d)
