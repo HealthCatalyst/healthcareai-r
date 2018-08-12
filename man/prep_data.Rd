@@ -6,8 +6,8 @@
 \usage{
 prep_data(d, ..., outcome, recipe = NULL, remove_near_zero_variance = TRUE,
   convert_dates = TRUE, impute = TRUE, collapse_rare_factors = TRUE,
-  center = FALSE, scale = FALSE, make_dummies = TRUE, add_levels = TRUE,
-  factor_outcome = TRUE)
+  center = FALSE, scale = FALSE, PCA = FALSE, make_dummies = TRUE,
+  add_levels = TRUE, factor_outcome = TRUE)
 }
 \arguments{
 \item{d}{A data frame}
@@ -60,6 +60,9 @@ mean of 0. Default is FALSE.}
 
 \item{scale}{Logical. If TRUE, numeric columns will be scaled to have a
 standard deviation of 1. Default is FALSE.}
+
+\item{PCA}{Logical. If TRUE, will convert numeric data into one or more
+principal components. Default is FALSE.}
 
 \item{make_dummies}{Logical. If TRUE (default), dummy columns will be created
 for categorical variables.}
