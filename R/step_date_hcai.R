@@ -201,6 +201,7 @@ get_date_features <-
 #' @export
 bake.step_date_hcai <- function(object, newdata, ...) {
   # Update new data columns to fix DTS columns
+  browser()
   newdata <- convert_date_cols(newdata)
   new_cols <-
     rep(length(object$features), each = length(object$columns))
