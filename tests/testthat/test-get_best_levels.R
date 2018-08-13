@@ -177,8 +177,46 @@ test_that("add_best_levels can pull X_levels from base", {
 
 test_that("add_best_levels can pull X_levels from best_levels list", {
   test_added_list <- add_best_levels(test_row, test_groups, patient_id, grouper,
-                                     levels = attr(added, "best_levels"))
+                                    levels = attr(added, "best_levels"))
   expect_identical(test_added, test_added_list)
+})
+
+test_that("add_best_levels - add empty levels - logical", {
+  test_added_list <- add_best_levels(test_row, test_groups, patient_id, grouper,
+                                     levels = c("a", "b"))
+  test_none <-
+    tribble(
+      ~ patient_id, ~ x1, ~ grouper_a, ~ grouper_b,
+      "sam", 5, NA, NA
+    )
+  attr(test_none, "best_levels") <- list("grouper_levels" = c("a", "b"))
+  expect_identical(test_none, test_added_list)
+})
+
+test_that("add_best_levels - add empty levels - numeric", {
+  test_added_list <- add_best_levels(test_row, test_groups, patient_id, grouper,
+                                     levels = c("a", "b"), missing_fill = 0)
+  test_none <-
+    tribble(
+      ~ patient_id, ~ x1, ~ grouper_a, ~ grouper_b,
+      "sam", 5, 0, 0
+    )
+  attr(test_none, "best_levels") <- list("grouper_levels" = c("a", "b"))
+  expect_identical(test_none, test_added_list)
+})
+
+test_that("add_best_levels - add empty levels to best_levels attribute", {
+  test_added_list <- add_best_levels(test_row, test_groups, patient_id, grouper,
+                                     levels = c("A", "a"))
+  test_none <-
+    tibble(
+      patient_id = "sam",
+      x1 = 5,
+      grouper_A = as.integer(1),
+      grouper_a = as.integer(c(NA))
+    )
+  attr(test_none, "best_levels") <- list("grouper_levels" = c("A", "a"))
+  expect_identical(test_none, test_added_list)
 })
 
 test_that("model_lists get X_levels attributes from input data frame", {
