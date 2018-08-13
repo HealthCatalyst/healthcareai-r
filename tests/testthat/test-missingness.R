@@ -109,6 +109,37 @@ test_that("plot.missingness respects max_char", {
   expect_false(isTRUE(all.equal(plot(md, max_char = 7), plot(md))))
 })
 
+test_that("test summary.missingness normal", {
+  suppressWarnings(
+    actual_output <- capture_output(
+      actual_result <- missingness(pima_diabetes) %>% summary()
+    )
+  )
+
+  expect_true(nchar(actual_output) > 0)
+  expect_true(grepl("Missingness summary", actual_output))
+  expect_true(is.list(actual_result))
+  expect_true(rlang::is_named(actual_result))
+})
+
+test_that("test summary.missingness no missingness", {
+  d <- data.frame(
+    a = c(1, 2, 3, 4, 5),
+    b = c("a", "b", "a", "a", "c")
+  )
+  suppressWarnings(
+    actual_output <- capture_output(
+      actual_result <- missingness(d) %>% summary()
+    )
+  )
+
+  expect_equal(actual_result, NULL)
+  expect_equal(
+    actual_output,
+    "Your data does not have any variables with missing values."
+  )
+})
+
 test_that("make_na - tibble - normal", {
   expected <- tibble(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
                      b = c(NA, 0, "na", "None", "none", 3, 10, 4),
