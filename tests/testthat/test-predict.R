@@ -69,6 +69,22 @@ regression_prepped_not <-
 suppressWarnings(classification_prepped_not <-
                    predict(model_classify_prepped, test_data))
 
+#output ensemble
+regres_prepd_prepd_ensemble <-
+  predict(model_regression_prepped, test_data_reg_prep, ensemble = TRUE)
+classifi_prepd_prepd_ensemble <-
+  predict(model_classify_prepped, test_data_class_prep, ensemble = TRUE)
+
+regres_not_not_ensemble <-
+  dplyr::mutate(test_data, Catholic = ifelse(Catholic == "Y", 1L, 0L)) %>%
+  predict(model_regression_not_prepped, ., ensemble = TRUE)
+classifi_not_not_ensemble <-
+  predict(model_classify_not_prepped, test_data, ensemble = TRUE)
+
+regres_prepd_not_ensemble <-
+  predict(model_regression_prepped, test_data, ensemble = TRUE)
+suppressWarnings(classifi_prepd_not_ensemble <-
+                   predict(model_classify_prepped, test_data, ensemble = TRUE))
 # Test for some messages and warnings when whether to prep before predict is unclear:
 # Here, should get a warning because all predictors are numeric, so they appear
 # to have been prepped even when they haven't, which triggers warning.
@@ -92,10 +108,22 @@ test_that("predict regression returns a tibble", {
   expect_s3_class(regression_not_not, "tbl_df")
 })
 
+test_that("predict regression returns a tibble where ensemble is TRUE", {
+  expect_s3_class(regres_prepd_not_ensemble, "tbl_df")
+  expect_s3_class(regres_prepd_prepd_ensemble, "tbl_df")
+  expect_s3_class(regres_not_not_ensemble, "tbl_df")
+})
+
 test_that("predict classification returns a tibble", {
   expect_s3_class(classification_prepped_not, "tbl_df")
   expect_s3_class(classification_prepped_prepped, "tbl_df")
   expect_s3_class(classification_not_not, "tbl_df")
+})
+
+test_that("predict classification returns a tibble where ensemble is TRUE", {
+  expect_s3_class(classification_prepped_not, "tbl_df")
+  expect_s3_class(classifi_prepd_prepd_ensemble, "tbl_df")
+  expect_s3_class(classifi_not_not_ensemble, "tbl_df")
 })
 
 test_that("prepping data inside or before predict produces same output", {
@@ -125,6 +153,15 @@ test_that("If newdata isn't provided, make predictions on training data", {
   expect_s3_class(pc, "predicted_df")
   expect_true(all(c("Catholic", "predicted_Catholic") %in% names(pc)))
   pr <- predict(model_regression_not_prepped)
+  expect_s3_class(pr, "predicted_df")
+  expect_true(all(c("Fertility", "predicted_Fertility") %in% names(pr)))
+})
+
+test_that("If newdata isn't provided, make predictions on training data where ensemble is TRUE", {
+  pc <- predict(model_classify_prepped, ensemble = TRUE)
+  expect_s3_class(pc, "predicted_df")
+  expect_true(all(c("Catholic", "predicted_Catholic") %in% names(pc)))
+  pr <- predict(model_regression_not_prepped, ensemble = TRUE)
   expect_s3_class(pr, "predicted_df")
   expect_true(all(c("Fertility", "predicted_Fertility") %in% names(pr)))
 })
