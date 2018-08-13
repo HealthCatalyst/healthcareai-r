@@ -27,6 +27,8 @@ missingness <- function(d,
                         to_search = c("NA", "NAs", "na", "NaN",
                                       "?", "??", "nil", "NULL", " ", "")
 ) {
+  captured_d <- rlang::enquo(d)
+
   if (is.matrix(d) | (is.vector(d) && !is.list(d)))
     d <- as.data.frame(d)
 
@@ -44,7 +46,9 @@ missingness <- function(d,
     warning("Found these strings that may represent missing values: ",
             list_variables(possible_na),
             ". If they do represent missingness, replace them with NA with: ",
-            "`make_na(my_df, c(",
+            "`make_na(",
+            quo_name(captured_d),
+            ", c(",
             paste(possible_na, collapse = ", "),
             "))`")
   }
@@ -138,6 +142,65 @@ countMissingData <- function(x, userNAs = NULL) {
   missingness(x)
 }
 
+#' Summarizes data given by \code{\link{missingness}}
+#'
+#' @description Interpreting \code{\link{missingness}} results from wide
+#'   datasets is difficult. This function helps interpret missingness output by
+#'   summarizing this output by listing: the percent of variables that
+#'   contain missingness, the variable name of the variable with the maximum
+#'   amount of missingness along with its percent of observations containing
+#'   missing values, and a tibble that lists the top 5 missingness levels with
+#'   the count of the number of variables associated with each level (0
+#'   missingness level is ignored). If there are no variables with missingness,
+#'   a message that reports no missingness is printed and NULL is returned
+#'   instead.
+#' @param object Data frame from \code{\link{missingness}}
+#' @param ... Unused
+#' @return a tibble of the top 5 missingness percentage levels with the count of
+#'   the number of variables associated with each level. If no missingness is
+#'   found, NULL is returned instead.
+#' @export
+#' @examples
+#' missingness(pima_diabetes) %>%
+#'   summary()
+#'
+summary.missingness <- function(object, ...) {
+  col_missing <- pull(object, percent_missing) > 0
+  if (sum(col_missing) == 0) {
+    out <- paste("Your data does not have any variables with missing values.")
+    sumry_missing <- NULL
+  } else {
+    # Get the percent of columns that have any missing values
+    perc_col_missing <- signif(mean(col_missing) * 100, 3) # Convert from decimal to percent
+
+    max_df <- object %>% slice(which.max(percent_missing))
+
+    out <- paste0("Missingness summary:\n", perc_col_missing,
+                  "% of data variables contain missingness.\n`",
+                  max_df$variable,
+                  "` contains the most missingness with ",
+                  signif(max_df$percent_missing, 3),
+                  "% of observations containing missing values.\n\nNumber of ",
+                  "variables with levels of missingness:\n")
+
+    # Get the top 5 missingness percentage levels with the count of the number
+    # of variables associated with each level
+    sumry_missing <-
+      object %>%
+      count(percent_missing) %>%
+      arrange(desc(percent_missing)) %>%
+      mutate(percent_missing = signif(percent_missing, 3)) %>%
+      rename(n_variables = n) %>%
+      filter(percent_missing > 0) %>%
+      slice(1:5) # only grab first 5 rows (more if ties, less if 5 dont exist)
+  }
+
+  cat(out)
+  if (!is.null(sumry_missing))
+    print(sumry_missing)
+
+  return(invisible(sumry_missing))
+}
 
 #' Replace missingness values with NA and correct columns types
 #'
