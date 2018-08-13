@@ -1,4 +1,4 @@
-#' Build efficient features from from high-cardinality, multiple-membership
+#' Build efficient features from high-cardinality, multiple-membership
 #' factors
 #'
 #' @param d Data frame to use in models, at desired grain. Has id and outcome
@@ -184,6 +184,7 @@ add_best_levels <- function(d, longsheet, id, groups, outcome, n_levels = 100,
   if (is.null(levels)) {
     to_add <- get_best_levels(d, longsheet, !!id, !!groups, !!outcome,
                               n_levels, min_obs, positive_class)
+    add_as_empty <- character()
   } else {
     levels_name <- paste0(rlang::quo_name(groups), "_levels")
     # If a data frame or model_list was passed to levels, pull levels from it
@@ -205,28 +206,49 @@ add_best_levels <- function(d, longsheet, id, groups, outcome, n_levels = 100,
     to_add <- levels[levels %in% present_levels]
     add_as_empty <- levels[!levels %in% present_levels]
   }
-  longsheet <- dplyr::filter(longsheet, (!!groups) %in% to_add)
 
-  pivot_args <- list(
-    d = longsheet,
-    grain = eval(id),
-    spread = eval(groups),
-    fun = fun,
-    missing_fill = missing_fill
-  )
-  if (!missing(fill))
-    pivot_args$fill <- eval(fill)
-  if (length(add_as_empty))
-    pivot_args$extra_cols <- add_as_empty
-  pivoted <- do.call(pivot, pivot_args) %>%
+  if (purrr::is_empty(to_add)) {
+    simplified_id <-
+      d %>%
+      dplyr::select(!!id)
+
+    empty_col_names <- paste0(quo_name(eval(groups)), "_", add_as_empty)
+    class(missing_fill) <- class(d[[rlang::quo_name(fill)]])
+
+    pivoted <-
+      matrix(missing_fill,
+             nrow = length(simplified_id), ncol = length(empty_col_names),
+             dimnames = list(NULL, empty_col_names)) %>%
+      tibble::as_tibble() %>%
+      bind_cols(simplified_id, .)
+  } else {
+    longsheet <- dplyr::filter(longsheet, (!!groups) %in% to_add)
+
+    pivot_args <- list(
+      d = longsheet,
+      grain = eval(id),
+      spread = eval(groups),
+      fun = fun,
+      missing_fill = missing_fill
+    )
+    if (!missing(fill))
+      pivot_args$fill <- eval(fill)
+    if (length(add_as_empty))
+      pivot_args$extra_cols <- add_as_empty
+    pivoted <- do.call(pivot, pivot_args)
+  }
+
+  pivoted <-
+    pivoted %>%
     dplyr::left_join(d, ., by = rlang::quo_name(id))
+
   # Replace any rows not found in the pivot table in the join with missing_fill
   new_cols <- setdiff(names(pivoted), names(d))
   pivoted[new_cols][is.na(pivoted[new_cols])] <- missing_fill
   # Add new best_levels to any that came in on d
   attr(pivoted, "best_levels") <-
     c(attr(d, "best_levels"),
-      setNames(list(to_add), paste0(rlang::quo_name(groups), "_levels")))
+      setNames(list(dplyr::union(to_add, add_as_empty)), paste0(rlang::quo_name(groups), "_levels")))
   return(pivoted)
 }
 
