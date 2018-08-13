@@ -51,11 +51,11 @@ simulate <- function(models,
                      characters = unique) {
 
   if (!is.model_list(models))
-    stop("model must be a model_list object; this is a ", class(models)[1])
+    stop("models must be a model_list object; this is a ", class(models)[1])
 
   rec <- attr(models, "recipe")
   if (is.null(rec))
-    stop("model must have been trained on prepped data, either through ",
+    stop("models must have been trained on prepped data, either through ",
          "machine_learn or prep_data.")
 
   variables <-
@@ -65,7 +65,7 @@ simulate <- function(models,
     purrr::map(pull, variable)
 
 
-  create_varying_df()
+  create_varying_df(models = models, vary = vary, variables = variables)
   add_static_columns()
 
 
@@ -89,7 +89,8 @@ create_varying_df <- function(models, vary, variables) {
     }
     # Now we have a character vector of variables to vary, need to choose values,
     # which come back as a named list
-    vary <- choose_values(models, vary, variables, numerics, characters)
+    vary <- choose_values(models = models, vary = vary, variables = variables,
+                          numerics = numerics, characters = characters)
   }
 
   expand.grid(vary) %>%
@@ -135,6 +136,8 @@ choose_variables <- function(models, vary, variables) {
 
 
 choose_values <- function(models, vary, variables, numerics, characters) {
+      browser()
+
 
 }
 
