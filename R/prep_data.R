@@ -126,6 +126,9 @@ prep_data <- function(d,
   if (!is.data.frame(d)) {
     stop("\"d\" must be a data frame.")
   }
+
+  d <- dplyr::mutate_if(d, is.logical, as.numeric)
+
   # Capture pre-modification missingness
   d_missing <- missingness(d, return_df = FALSE)
   # Capture original data structure
@@ -224,8 +227,17 @@ prep_data <- function(d,
       outcome_vec <- dplyr::pull(d, !!outcome)
       # Currently can't deal with logical outcomes
       if (is.logical(outcome_vec) || any(c("TRUE", "FALSE") %in% outcome_vec))
-        stop("outcome looks logical. Please convert the outcome to character",
-             " with values other than TRUE and FALSE.")
+        d <-
+          d %>%
+          mutate(!!rlang::quo_name(outcome) :=
+            ifelse(
+              !!outcome %in% c("TRUE", "T", "true", "True"),
+              1,
+              0
+            )
+          )
+        # stop("outcome looks logical. Please convert the outcome to character",
+        #      " with values other than TRUE and FALSE.")
       if (any(is.na(outcome_vec)))
         stop("Found NA values in the outcome column. Clean your data or ",
              "remove these rows before training a model.")
