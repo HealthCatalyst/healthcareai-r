@@ -79,8 +79,8 @@ animals <- tibble::tibble(
   animal = sample(c("cat", "dog", "mouse"), n, TRUE),
   weight = rexp(n, 0.5), super = sample(c(TRUE, FALSE), n, TRUE), y = rnorm(n)
 )
-animals_train <- animals[1:250,]
-animals_test <- animals[251:300,]
+animals_train <- animals[1:250, ]
+animals_test <- animals[251:300, ]
 
 # Tests ------------------------------------------------------------------------
 test_that("Bad data throws an error", {
