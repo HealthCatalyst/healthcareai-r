@@ -1,10 +1,11 @@
 #' Simulate Counterfactual Predictions
 #'
-#' @param model A model_list object. The data the model was trained on must have
+#' @param models A model_list object. The data the model was trained on must have
 #'   been prepared, either by training with \code{\link{machine_learn}} or by
 #'   preparing with \code{\link{prep_data}} before model training
-#' @param vary Which variables to vary? Default is 4; if it is a single integer
-#'   (n), the n most important variables are varied (see details). If it is a
+#' @param vary Which (or how many) variables to vary? Default is 4; if
+#'   \code{vary} is a single integer (n), the n-most-important variables are
+#'   varied (see details for importance is determined). If \code{vary} is a
 #'   vector of integers, those rankings of variables are used (e.g. \code{vary =
 #'   2:4} varies the 2nd, 3rd, and 4th most-important variables). Alternatively,
 #'   a vector of variable names to vary may be provided. Or, for the finest
@@ -12,18 +13,20 @@
 #'   values to use; in this case \code{numerics} and \code{characters} are
 #'   ignored.
 #' @param hold How to choose the values of variables not being varied? This can
-#'   either be a length-2 list with names "numerics" and "characters" each
+#'   either be a length-2 list with names "numerics" and "characters", each
 #'   giving functions for how to handle that data type. The default is
-#'   list(numerics = median, characters = Mode). Alternatively, this can be a
-#'   row of a data frame from the training data if, e.g. you want to run
-#'   simulations for a particular patient. It can also be a list or 1-row data
-#'   frame containing values of variables at which to hold; values of variables
-#'   that will vary are ignored.
-#' @param numerics For numeric variables being varied, how to select values. By
+#'   \code{list(numerics = median, characters = Mode)}; numerics is applied to
+#'   the column from the training data, \code{characters} is applied to a
+#'   frequency table of the column from the training data. Alternatively, this
+#'   can be a row of a data frame from the training data if, for example, you
+#'   want to run simulations for a particular patient. It can also be a list or
+#'   one-row data frame containing values of variables at which to hold; in this
+#'   case values of variables that vary are ignored.
+#' @param numerics For numeric variables being varied, how to select values? By
 #'   default, the minimum, 25th-, 50th-, 75th-percentile, and maximum values
 #'   from the training dataset will be used. If this is an integer, it specifies
 #'   the number of evenly spaced quantiles to use (default = 5). If it is a
-#'   numeric vector, it should be in [0, 1] and specifies the quantiles to use.
+#'   numeric vector, it specifies the quantiles to use and so must be in [0, 1].
 #' @param characters Integer. For categorical variables being varied, how many
 #'   values to use? Values are used from most- to least-common; default is all
 #'   (Inf).
@@ -32,16 +35,42 @@
 #'   predictions. Has class \code{simulated_df} and \code{predicted_df}.
 #' @export
 #'
+#' @description This function makes predictions for observations that vary over
+#'   variables of interest. At the model level, it can be used to understand how
+#'   different combinations of variables influence predictions, and the
+#'   individual level it can be used to explore what an observation's prediction
+#'   would be if certain variables were different. \strong{Note that causality
+#'   cannot be established by this function.}
+#'
 #' @details If \code{vary} is an integer, the most important variables are
 #'   determined by \code{\link{get_variable_importance}}, unless glm is the only
 #'   model present, in which case \code{\link{interpret}} is used with a
-#'   warning.
-#'
-#'   When selecting the most important variables to vary over, for categorical
-#'   variables the sum of variable importance of all the levels as dummy
-#'   variables is used.
+#'   warning. When selecting the most important variables to vary over, for
+#'   categorical variables the sum of variable importance of all the levels as
+#'   dummy variables is used.
 #'
 #' @examples
+#' # First, we need a model on which to run simulations
+#' set.seed(5176)
+#' m <- machine_learn(pima_diabetes, patient_id, outcome = diabetes,
+#'                    tune = FALSE, models = "xgb")
+#'
+#' # By default, the four most important variables are varied, with numeric
+#' # variables taking their 0, 25%, 50%, 75%, and 100% quantile values. Others are
+#' # held at their median and modal values for numeric and categorical variables,
+#' # respectively. This can help to understand how the model responds to different
+#' # variables
+#' simulate(m)
+#'
+#' # You can specify which variables vary and what values they take in a variety of
+#' # ways. For example, you could vary only "weight_class" and "plasma_glucose"
+#' simulate(m, vary = c("weight_class", "plasma_glucose"))
+#'
+#' # You can also control what values non-varying variables take.
+#' # For example, if you want to simulate alternative scenarios for patient 321
+#' patient321 <- dplyr::filter(pima_diabetes, patient_id == 321)
+#' patient321
+#' simulate(m, hold = patient321)
 simulate <- function(models,
                      vary = 4,
                      hold = list(numerics = median, characters = Mode),
@@ -70,7 +99,7 @@ simulate <- function(models,
   static <- do.call(dplyr::bind_rows, replicate(nrow(d), static, simplify = FALSE))
   d <- dplyr::bind_cols(d, static)
   suppressMessages( preds <- predict(models, d) )
-  structure(preds, class = c("simulated_df", class(d)))
+  structure(preds, class = c("simulated_df", class(preds)))
 }
 
 # Create the data frame containing combinations of variable values on which to
