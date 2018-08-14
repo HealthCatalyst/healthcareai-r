@@ -396,6 +396,7 @@ prep_data <- function(d,
     attr(recipe, "missingness") <- d_missing
     attr(recipe, "factor_levels") <- d_levels
   }
+  # Coerces all logical predictor columns as numeric columns
   d <- dplyr::mutate_if(d, is.logical, as.numeric)
 
   # Bake either the newly built or passed-in recipe
