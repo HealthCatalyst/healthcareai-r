@@ -84,7 +84,8 @@ step_date_hcai <-
         "semester",
         "quarter",
         "dow",
-        "month")
+        "month",
+        "hour")
     if (!all(features %in% feat))
       stop("Possible values of `features` should include: ",
            paste0("'", feat, "'", collapse = ", "))
@@ -155,14 +156,19 @@ ord2fac <- function(x, what) {
   factor(as.character(x), levels = levels(x), ordered = FALSE)
 }
 
+convert_to_circular <- function(x, parts, fun) {
+  return(fun(2*pi/parts * x))
+}
 
-#' @importFrom lubridate year yday week decimal_date quarter semester wday month
+
+#' @importFrom lubridate year yday week decimal_date quarter semester wday month hour
 get_date_features <-
   function(dt,
            feats,
            abbr = TRUE,
            label = TRUE,
            ord = FALSE) {
+    browser()
     # Pre-allocate values
     res <- matrix(NA, nrow = length(dt), ncol = length(feats))
     res <- as_tibble(res)
@@ -170,29 +176,44 @@ get_date_features <-
 
     if ("year" %in% feats)
       res[, grepl("year$", names(res))] <- year(dt)
-    if ("doy" %in% feats)
-      res[, grepl("doy$", names(res))] <- yday(dt)
-    if ("week" %in% feats)
-      res[, grepl("week$", names(res))] <- week(dt)
-    if ("decimal" %in% feats)
-      res[, grepl("decimal$", names(res))] <- decimal_date(dt)
-    if ("quarter" %in% feats)
-      res[, grepl("quarter$", names(res))] <- quarter(dt)
-    if ("semester" %in% feats)
-      res[, grepl("semester$", names(res))] <- semester(dt)
+    # if ("doy" %in% feats)
+    #   res[, grepl("doy$", names(res))] <- yday(dt)
+    # if ("week" %in% feats)
+    #   res[, grepl("week$", names(res))] <- week(dt)
+    # if ("decimal" %in% feats)
+    #   res[, grepl("decimal$", names(res))] <- decimal_date(dt)
+    # if ("quarter" %in% feats)
+    #   res[, grepl("quarter$", names(res))] <- quarter(dt)
+    # if ("semester" %in% feats)
+    #   res[, grepl("semester$", names(res))] <- semester(dt)
     if ("dow" %in% feats) {
-      res[, grepl("dow$", names(res))] <-
-        wday(dt, abbr = abbr, label = label)
-      if (!ord & label == TRUE)
-        res[, grepl("dow$", names(res))]  <-
-          ord2fac(res, grep("dow$", names(res), value = TRUE))
+      res[, grepl("dow$", names(res))] <- convert_to_circular(
+        wday(dt),
+        7,
+        sin
+      )
+      # wday(dt, abbr = abbr, label = label)
+      # if (!ord & label == TRUE)
+      #   res[, grepl("dow$", names(res))]  <-
+      #     ord2fac(res, grep("dow$", names(res), value = TRUE))
     }
     if ("month" %in% feats) {
-      res[, grepl("month$", names(res))] <-
-        month(dt, abbr = abbr, label = label)
-      if (!ord & label == TRUE)
-        res[, grepl("month$", names(res))]  <-
-          ord2fac(res, grep("month$", names(res), value = TRUE))
+      res[, grepl("month$", names(res))] <- convert_to_circular(
+        month(dt),
+        12,
+        sin
+      )
+      # month(dt, abbr = abbr, label = label)
+      # if (!ord & label == TRUE)
+      #   res[, grepl("month$", names(res))]  <-
+      #     ord2fac(res, grep("month$", names(res), value = TRUE))
+    }
+    if ("hour" %in% feats) {
+      res[, grepl("hour$", names(res))] <- convert_to_circular(
+        hour(dt),
+        24,
+        sin
+      )
     }
     res
   }
@@ -209,6 +230,8 @@ bake.step_date_hcai <- function(object, newdata, ...) {
     matrix(NA, nrow = nrow(newdata), ncol = sum(new_cols))
   colnames(date_values) <- rep("", sum(new_cols))
   date_values <- as_tibble(date_values)
+
+  print(seq_along(object$columns))
 
   strt <- 1
   for (i in seq_along(object$columns)) {
