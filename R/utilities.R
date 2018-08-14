@@ -28,7 +28,8 @@ find_new_levels <- function(new, ref) {
     new <- get_factor_levels(new)
   if (is.data.frame(ref))
     ref <- get_factor_levels(ref)
-  lapply(names(ref), function(v) dplyr::setdiff(new[[v]], ref[[v]])) %>%
+  lapply(names(ref), function(v)
+    dplyr::setdiff(names(new[[v]]), names(ref[[v]]))) %>%
     setNames(names(ref))
 }
 
@@ -38,7 +39,7 @@ get_factor_levels <- function(d) {
   not_factors <- dplyr::union(names(d)[purrr::map_lgl(d, ~ is.numeric(.x))],
                               find_date_cols(d))
   d <- d[, !names(d) %in% not_factors, drop = FALSE]
-  lapply(d, function(x) as.character(unique(x)))
+  lapply(d, table, useNA = "ifany")
 }
 
 #' Take list of character vectors as from find_new_levels and format for
