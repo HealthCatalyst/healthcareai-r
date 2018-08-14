@@ -158,11 +158,15 @@ trunc_char <- function(x, max_char) {
   return(x)
 }
 
-#' Mode function to aggregate groups in split_train_test
+#' Return most common entry, whether x is a frequency table or a vector
 #' @noRd
 Mode <- function(x) {
-  ux <- unique(x)
-  mode <- ux[which.max(tabulate(match(x, ux)))]
-
-  return(mode)
+  if (is.table(x)) {
+    x <- names(sort(x, decreasing = TRUE))[1]
+    suppressWarnings( if (!is.na(as.numeric(x))) x <- as.numeric(x) )
+    x
+  } else {
+    ux <- unique(x)
+    ux[which.max(tabulate(match(x, ux)))]
+  }
 }
