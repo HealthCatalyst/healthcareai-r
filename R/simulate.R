@@ -99,8 +99,17 @@ simulate <- function(models,
   static <- do.call(dplyr::bind_rows, replicate(nrow(d), static, simplify = FALSE))
   d <- dplyr::bind_cols(d, static)
   suppressMessages( preds <- predict(models, d) )
-  structure(preds, class = c("simulated_df", class(preds)))
+  # Intentionally leave off the predicted_df class here to avoid performance-
+  # in-training info printing
+  structure(preds, class = c("simulated_df", class(d)))
 }
+
+############## plot method
+
+
+
+
+############## helper functions
 
 # Create the data frame containing combinations of variable values on which to
 # make counterfactual predictions, but not containing fixed predictors.

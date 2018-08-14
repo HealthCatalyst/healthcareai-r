@@ -1,5 +1,6 @@
 context("Simulate")
 
+##### Setup
 set.seed(574)
 m <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = diabetes,
                    tune = FALSE, n_folds = 2)
@@ -10,6 +11,7 @@ variabs <-
   purrr::map(dplyr::pull, variable)
 sm <- simulate(m)
 
+##### simulate
 test_that("test_presence", {
   expect_error(test_presence(c("weight_class", "insulin", "age"), variabs), NA)
   against <- list(a = c("one", "thing", "or"), b = "another")
@@ -193,4 +195,11 @@ test_that("simulate returns the right number of numeric values", {
   expect_equal(dplyr::n_distinct(simulate(m, vary = "plasma_glucose", numerics = 2)$plasma_glucose), 2)
   expect_equal(dplyr::n_distinct(simulate(m, numerics = 9)$plasma_glucose), 9)
   expect_equal(dplyr::n_distinct(simulate(m, numerics = c(.1, .3, .8))$plasma_glucose), 3)
+})
+
+##### simulate generics
+test_that("printing a simulated df doesn't print training performance info", {
+  sim_print <- capture_output( sim_mess <- capture_messages( print(sm)))
+  sim_output <- paste(sim_print, sim_mess)
+  expect_false(stringr::str_detect(sim_print, "Performance"))
 })
