@@ -127,8 +127,6 @@ prep_data <- function(d,
     stop("\"d\" must be a data frame.")
   }
 
-  d <- dplyr::mutate_if(d, is.logical, as.numeric)
-
   # Capture pre-modification missingness
   d_missing <- missingness(d, return_df = FALSE)
   # Capture original data structure
@@ -199,7 +197,6 @@ prep_data <- function(d,
     outcome_var <- recipe$var_info$variable[recipe$var_info$role == "outcome"]
     if (length(outcome_var) && !outcome_var %in% names(d))
       remove_outcome <- TRUE
-
   } else {
     # Look for all-unique characters columns and add them to ignored
     undeclared_ignores <- find_columns_to_ignore(d, c(rlang::quo_name(outcome), ignored))
@@ -213,7 +210,7 @@ prep_data <- function(d,
     }
 
     # Initialize a new recipe
-    mes <- "Training new data prep recipe...\n"
+    mes <- "Training new data prep recipe"
     ## Start by making all variables predictors...
     ## Only pass head of d here because it's carried around with the recipe
     ## and we don't want to pass around big datasets
@@ -227,17 +224,8 @@ prep_data <- function(d,
       outcome_vec <- dplyr::pull(d, !!outcome)
       # Currently can't deal with logical outcomes
       if (is.logical(outcome_vec) || any(c("TRUE", "FALSE") %in% outcome_vec))
-        d <-
-          d %>%
-          mutate(!!rlang::quo_name(outcome) :=
-            ifelse(
-              !!outcome %in% c("TRUE", "T", "true", "True"),
-              1,
-              0
-            )
-          )
-        # stop("outcome looks logical. Please convert the outcome to character",
-        #      " with values other than TRUE and FALSE.")
+        stop("outcome looks logical. Please convert the outcome to character",
+             " with values other than TRUE and FALSE.")
       if (any(is.na(outcome_vec)))
         stop("Found NA values in the outcome column. Clean your data or ",
              "remove these rows before training a model.")
@@ -254,8 +242,9 @@ prep_data <- function(d,
         recipe <- recipe %>%
           recipes::step_bin2factor(all_outcomes(), levels = c("Y", "N"))
       }
+      mes <- paste0(mes, "...\n")
     } else {
-      mes <- paste0(mes, ", with no outcome variable specified")
+      mes <- paste0(mes, " with no outcome variable specified...\n")
     }
     message(mes)
 
@@ -407,6 +396,7 @@ prep_data <- function(d,
     attr(recipe, "missingness") <- d_missing
     attr(recipe, "factor_levels") <- d_levels
   }
+  d <- dplyr::mutate_if(d, is.logical, as.numeric)
 
   # Bake either the newly built or passed-in recipe
   d <- recipes::bake(recipe, d)
