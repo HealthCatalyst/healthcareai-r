@@ -9,8 +9,8 @@
 #'   2:4} varies the 2nd, 3rd, and 4th most-important variables). Alternatively,
 #'   a vector of variable names to vary may be provided. Or, for the finest
 #'   level of control, a list with names being variable names and entries being
-#'   values to use; in this case \code{numerics} and
-#'   \code{characters} are ignored.
+#'   values to use; in this case \code{numerics} and \code{characters} are
+#'   ignored.
 #' @param hold How to choose the values of variables not being varied? If this
 #'   is an integer, the values from that row in the training dataset are used.
 #'   Otherwise, it is a length-2 list with names "numerics" and "characters"
@@ -19,16 +19,11 @@
 #' @param numerics For numeric variables being varied, how to select values. By
 #'   default, the minimum, 25th-, 50th-, 75th-percentile, and maximum values
 #'   from the training dataset will be used. If this is an integer, it specifies
-#'   the number of evenly spaced quantiles to use. If it is a numeric vector, it
-#'   should be in [0, 1] and specifies the quantiles to use. A function that
-#'   takes a numeric vector (the column from training data) and returns a
-#'   numeric vector (the values to be used) may also be provided
-#' @param characters For categorical variables being varied, how to select
-#'   values? By default all unique values are used. If an integer (n) is
-#'   provided, the n-most common categories in the training dataset will be
-#'   used. A function that takes a character vector (the column from training
-#'   data) and returns a character vector (the values to be used) may also be
-#'   provided
+#'   the number of evenly spaced quantiles to use (default = 5). If it is a
+#'   numeric vector, it should be in [0, 1] and specifies the quantiles to use.
+#' @param characters Integer. For categorical variables being varied, how many
+#'   values to use? Values are used from most- to least-common; default is all
+#'   (Inf).
 #'
 #' @return A tibble with values of variables used to make predictions and
 #'   predictions. Has class \code{simulated_df} and \code{predicted_df}.
@@ -48,7 +43,7 @@ simulate <- function(models,
                      vary = 4,
                      hold = list(numerics = median, characters = Mode),
                      numerics = 5,
-                     characters = unique) {
+                     characters = Inf) {
 
   if (!is.model_list(models))
     stop("models must be a model_list object; this is a ", class(models)[1])
@@ -65,17 +60,24 @@ simulate <- function(models,
     purrr::map(pull, variable)
 
 
-  create_varying_df(models = models, vary = vary, variables = variables)
-  add_static_columns()
+  d <-
+    create_varying_df(models = models, vary = vary, variables = variables,
+                      numerics = numerics, characters = characters)
 
 
+  add_static_columns(models = models,
+                     variables = purrr::map(variables, dplyr::setdiff, names(d)),
+                     hold = hold)
 
+}
+
+add_static_columns <- function(models, variables, hold) {
 
 }
 
 # Create the data frame containing combinations of variable values on which to
 # make counterfactual predictions, but not containing fixed predictors.
-create_varying_df <- function(models, vary, variables) {
+create_varying_df <- function(models, vary, variables, numerics, characters) {
 
   # If vary is a list, our job is easy
   if (is.list(vary)) {
@@ -136,11 +138,28 @@ choose_variables <- function(models, vary, variables) {
 
 
 choose_values <- function(models, vary, variables, numerics, characters) {
-      browser()
 
+  # Choose nominal values
+  noms_to_use <- dplyr::intersect(variables$nominal, vary)
+  if (length(noms_to_use)) {
+    rec <- attr(models, "recipe")
+    noms <-
+      attr(rec, "factor_levels")[noms_to_use] %>%
+      purrr::map(function(vartab) {
+        sort(vartab, decreasing = TRUE)[seq_len(min(length(vartab), characters))]
+      })
+  }
 
+  # Choose numeric values
+  nums_to_use <- dplyr::intersect(variables$numeric, vary)
+  if (length(nums_to_use)) {
+    # Create quantiles if numerics is a single number in (0, 1)
+    if (length(numerics) == 1 && numerics > 1) {
+      numerics <- seq(0, 1, len = numerics)
+    }
+    nums <-
+      dplyr::select(models[[1]]$trainingData, nums_to_use) %>%
+      purrr::map(quantile, numerics, na.rm = TRUE)
+  }
+  return(c(noms, nums))
 }
-
-# attr(models, "original_data_str")
-# attributes(models)$recipe
-
