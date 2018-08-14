@@ -126,7 +126,6 @@ prep_data <- function(d,
   if (!is.data.frame(d)) {
     stop("\"d\" must be a data frame.")
   }
-
   # Capture pre-modification missingness
   d_missing <- missingness(d, return_df = FALSE)
   # Capture original data structure
@@ -197,6 +196,7 @@ prep_data <- function(d,
     outcome_var <- recipe$var_info$variable[recipe$var_info$role == "outcome"]
     if (length(outcome_var) && !outcome_var %in% names(d))
       remove_outcome <- TRUE
+
   } else {
     # Look for all-unique characters columns and add them to ignored
     undeclared_ignores <- find_columns_to_ignore(d, c(rlang::quo_name(outcome), ignored))
