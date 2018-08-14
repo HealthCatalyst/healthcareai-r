@@ -2,7 +2,7 @@
 #'
 #' @param model A model_list object. The data the model was trained on must have
 #'   been prepared, either by training with \code{\link{machine_learn}} or by
-#'   preparing with \code{\link{prep_data}}
+#'   preparing with \code{\link{prep_data}} before model training
 #' @param vary Which variables to vary? Default is 4; if it is a single integer
 #'   (n), the n most important variables are varied (see details). If it is a
 #'   vector of integers, those rankings of variables are used (e.g. \code{vary =
@@ -11,11 +11,14 @@
 #'   level of control, a list with names being variable names and entries being
 #'   values to use; in this case \code{numerics} and \code{characters} are
 #'   ignored.
-#' @param hold How to choose the values of variables not being varied? If this
-#'   is an integer, the values from that row in the training dataset are used.
-#'   Otherwise, it is a length-2 list with names "numerics" and "characters"
-#'   each giving functions for how to handle that data type. The default is
-#'   list(numerics = median, characters = Mode)
+#' @param hold How to choose the values of variables not being varied? This can
+#'   either be a length-2 list with names "numerics" and "characters" each
+#'   giving functions for how to handle that data type. The default is
+#'   list(numerics = median, characters = Mode). Alternatively, this can be a
+#'   row of a data frame from the training data if, e.g. you want to run
+#'   simulations for a particular patient. It can also be a list or 1-row data
+#'   frame containing values of variables at which to hold; values of variables
+#'   that will vary are ignored.
 #' @param numerics For numeric variables being varied, how to select values. By
 #'   default, the minimum, 25th-, 50th-, 75th-percentile, and maximum values
 #'   from the training dataset will be used. If this is an integer, it specifies
@@ -59,20 +62,15 @@ simulate <- function(models,
     split(., .$type) %>%
     purrr::map(pull, variable)
 
-
-  d <-
-    create_varying_df(models = models, vary = vary, variables = variables,
-                      numerics = numerics, characters = characters)
-
-
-  add_static_columns(models = models,
-                     variables = purrr::map(variables, dplyr::setdiff, names(d)),
-                     hold = hold)
-
-}
-
-add_static_columns <- function(models, variables, hold) {
-
+  d <- create_varying_df(models = models, vary = vary, variables = variables,
+                         numerics = numerics, characters = characters)
+  static <- choose_static_values(models = models,
+                                 static_variables = purrr::map(variables, dplyr::setdiff, names(d)),
+                                 hold = hold)
+  static <- do.call(dplyr::bind_rows, replicate(nrow(d), static, simplify = FALSE))
+  d <- dplyr::bind_cols(d, static)
+  suppressMessages( preds <- predict(models, d) )
+  structure(preds, class = c("simulated_df", class(d)))
 }
 
 # Create the data frame containing combinations of variable values on which to
@@ -95,9 +93,9 @@ create_varying_df <- function(models, vary, variables, numerics, characters) {
                           numerics = numerics, characters = characters)
   }
 
-  expand.grid(vary) %>%
+  expand.grid(vary, stringsAsFactors = FALSE) %>%
+    as_tibble() %>%
     return()
-
 }
 
 # Test whether all vary are in variables, which is a list, and stop if not
@@ -138,28 +136,62 @@ choose_variables <- function(models, vary, variables) {
 
 
 choose_values <- function(models, vary, variables, numerics, characters) {
-
   # Choose nominal values
   noms_to_use <- dplyr::intersect(variables$nominal, vary)
-  if (length(noms_to_use)) {
-    rec <- attr(models, "recipe")
-    noms <-
+  noms <-
+    if (length(noms_to_use)) {
+      rec <- attr(models, "recipe")
       attr(rec, "factor_levels")[noms_to_use] %>%
-      purrr::map(function(vartab) {
-        sort(vartab, decreasing = TRUE)[seq_len(min(length(vartab), characters))]
-      })
-  }
-
+        purrr::map(function(vartab) {
+          names(sort(vartab, decreasing = TRUE))[seq_len(min(length(vartab), characters))]
+        })
+    } else {
+      NULL
+    }
   # Choose numeric values
   nums_to_use <- dplyr::intersect(variables$numeric, vary)
-  if (length(nums_to_use)) {
-    # Create quantiles if numerics is a single number in (0, 1)
-    if (length(numerics) == 1 && numerics > 1) {
-      numerics <- seq(0, 1, len = numerics)
-    }
-    nums <-
+  nums <-
+    if (length(nums_to_use)) {
+      # Create quantiles if numerics is a single number in (0, 1)
+      if (length(numerics) == 1 && numerics > 1) {
+        numerics <- seq(0, 1, len = numerics)
+      }
       dplyr::select(models[[1]]$trainingData, nums_to_use) %>%
-      purrr::map(quantile, numerics, na.rm = TRUE)
-  }
+        purrr::map(quantile, numerics, na.rm = TRUE)
+    } else {
+      NULL
+    }
   return(c(noms, nums))
+}
+
+choose_static_values <- function(models, static_variables, hold) {
+  if (setequal(names(hold), c("numerics", "characters"))) {
+    # hold is two functions
+    not_funs <- purrr::map_chr(hold, class) %>% .[. != "function"]
+    if (length(not_funs))
+      stop("`hold` must either be values of non-varying variables to use ",
+           'or a length-2 list with names "numerics" and "characters" containing ',
+           "functions to determine what values of non-varying numeric and ",
+           "character variables to use. You provided the following non-functions: ",
+           list_variables(paste(names(not_funs), not_funs, sep = " is ")))
+    num_holds <-
+      dplyr::select(models[[1]]$trainingData, static_variables$numeric) %>%
+      purrr::map_dbl(hold$numerics)
+    nom_holds <-
+      attr(attr(models, "recipe"), "factor_levels")[static_variables$nominal] %>%
+      purrr::map_chr(hold$characters)
+    hold_values <- purrr::flatten(list(num_holds, nom_holds))
+  } else {
+    # hold is list/df of values to use
+    not_provided <- setdiff(unlist(static_variables), names(hold))
+    if (length(not_provided))
+      stop("`hold` must either be values of non-varying variables to use ",
+           'or a length-2 list with names "numerics" and "characters" containing ',
+           "functions to determine what values of non-varying numeric and ",
+           "character variables to use. You provided ", list_variables(names(hold)),
+           " but didn't provide values for the folloiwng variables: ",
+           list_variables(not_provided))
+    hold_values <- hold[names(hold) %in% unname(unlist(static_variables))]
+  }
+  return(hold_values)
 }
