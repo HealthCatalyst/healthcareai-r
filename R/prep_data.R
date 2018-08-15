@@ -41,7 +41,7 @@
 #'   0.0167. It would be excluded by default or if
 #'   `remove_near_zero_variance` > 0.0166. Larger values will remove more columns
 #'   and this value must lie between 0 and 1.
-#' @param convert_dates Logical or character. If TRUE (default), date columns
+#' @param convert_dates Logical or character. If TRUE (default), date columns #TODO::::I NEED TO FIX THIS
 #'   are identifed and used to generate day-of-week, month, and year columns,
 #'   and the original date columns are removed. If FALSE, date columns are
 #'   removed. If a character vector, it is passed to the `features` argument of
@@ -106,7 +106,7 @@
 #' prep_data(d = d_train, patient_id, outcome = diabetes,
 #'           impute = list(numeric_method = "bagimpute",
 #'                         nominal_method = "bagimpute"),
-#'           collapse_rare_factors = FALSE, convert_dates = "year",
+#'           collapse_rare_factors = FALSE, convert_dates = "year", #########################TODO: FIX
 #'           center = TRUE, scale = TRUE, make_dummies = FALSE,
 #'           remove_near_zero_variance = .02)
 prep_data <- function(d,
@@ -114,7 +114,7 @@ prep_data <- function(d,
                       outcome,
                       recipe = NULL,
                       remove_near_zero_variance = TRUE,
-                      convert_dates = TRUE,
+                      convert_dates = "continuous",
                       impute = TRUE,
                       collapse_rare_factors = TRUE,
                       center = FALSE,
@@ -282,27 +282,23 @@ prep_data <- function(d,
            list_variables(removing))
 
     # Convert date columns to useful features and remove original. ------------
-    if (!is.logical(convert_dates)) {
-      if (!is.character(convert_dates))  #  || is.null(names(convert_date))
-        stop("convert_dates must be logical or features for step_date")
-      sdf <- convert_dates
-      convert_dates <- TRUE
-    }
-    if (convert_dates) {
-      # If user didn't provide features, set them to defaults
-      if (!exists("sdf"))
-        sdf <- c("dow", "month", "year")
+    if (!is.character(convert_dates))
+      stop('convert_dates must be "none", "continuous", or "categories" for `step_date`')
+    if (!(convert_dates %in% c("none", "continuous", "categories")))
+      stop('convert_dates must be "none", "continuous", or "categories" for `step_date`')
+
+    if (convert_dates == "none") {
+      cols <- find_date_cols(d)
+      if (!purrr::is_empty(cols))
+        recipe <- recipes::step_rm(recipe, cols)
+    } else {
       cols <- find_date_cols(d)
       if (!purrr::is_empty(cols)) {
         recipe <-
           do.call(step_date_hcai,
-                  list(recipe = recipe, cols, features = sdf)) %>%
+                  list(recipe = recipe, cols, features = convert_dates)) %>%
           recipes::step_rm(cols)
       }
-    } else {
-      cols <- find_date_cols(d)
-      if (!purrr::is_empty(cols))
-        recipe <- recipes::step_rm(recipe, cols)
     }
 
     # Impute ------------------------------------------------------------------

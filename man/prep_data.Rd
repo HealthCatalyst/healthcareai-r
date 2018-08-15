@@ -5,9 +5,9 @@
 \title{Prepare data for machine learning}
 \usage{
 prep_data(d, ..., outcome, recipe = NULL, remove_near_zero_variance = TRUE,
-  convert_dates = TRUE, impute = TRUE, collapse_rare_factors = TRUE,
-  center = FALSE, scale = FALSE, make_dummies = TRUE, add_levels = TRUE,
-  factor_outcome = TRUE)
+  convert_dates = "continuous", impute = TRUE,
+  collapse_rare_factors = TRUE, center = FALSE, scale = FALSE,
+  make_dummies = TRUE, add_levels = TRUE, factor_outcome = TRUE)
 }
 \arguments{
 \item{d}{A data frame}
@@ -36,7 +36,7 @@ Example: In a column with 120 "Male" and 2 "Female", the frequency ratio is
 `remove_near_zero_variance` > 0.0166. Larger values will remove more columns
 and this value must lie between 0 and 1.}
 
-\item{convert_dates}{Logical or character. If TRUE (default), date columns
+\item{convert_dates}{Logical or character. If TRUE (default), date columns #TODO::::I NEED TO FIX THIS
 are identifed and used to generate day-of-week, month, and year columns,
 and the original date columns are removed. If FALSE, date columns are
 removed. If a character vector, it is passed to the `features` argument of
@@ -120,7 +120,7 @@ d_test_prepped
 prep_data(d = d_train, patient_id, outcome = diabetes,
           impute = list(numeric_method = "bagimpute",
                         nominal_method = "bagimpute"),
-          collapse_rare_factors = FALSE, convert_dates = "year",
+          collapse_rare_factors = FALSE, convert_dates = "year", #########################TODO: FIX
           center = TRUE, scale = TRUE, make_dummies = FALSE,
           remove_near_zero_variance = .02)
 }
