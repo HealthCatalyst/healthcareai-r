@@ -10,6 +10,7 @@ variabs <-
   split(., .$type) %>%
   purrr::map(dplyr::pull, variable)
 sm <- simulate(m)
+plot_sm <- plot(sm)
 
 ##### simulate
 test_that("test_presence", {
@@ -202,4 +203,14 @@ test_that("printing a simulated df doesn't print training performance info", {
   sim_print <- capture_output( sim_mess <- capture_messages( print(sm)))
   sim_output <- paste(sim_print, sim_mess)
   expect_false(stringr::str_detect(sim_print, "Performance"))
+})
+
+test_that("plot.simulated_df is registered", {
+  stringr::str_detect(methods("plot"), "simulated_df") %>%
+    any() %>%
+    expect_true()
+})
+
+test_that("plot.simulated_df returns a ggplot", {
+  expect_s3_class(plot_sm, "gg")
 })

@@ -104,12 +104,39 @@ simulate <- function(models,
   structure(preds, class = c("simulated_df", class(d)))
 }
 
-############## plot method
+#' Plot Simulated Counterfactual Predictions
+#'
+#' @param x A simulated_df object from \code{link{simulate}}
+#' @param numeric_groups For numeric variables that are converted to categories,
+#' how many categories to create? Default = 5.
+#' @param font_size
+#' @param print
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
+plot.simulated_df <- function(x, numeric_groups = 5,
+                              font_size = 11, print = TRUE, ...) {
+  outcome <- stringr::str_subset(names(x), "^predicted_")
+  varies <-
+    x %>%
+    dplyr::select(-predicted_diabetes) %>%
+    purrr::map_lgl(~ dplyr::n_distinct(.x) > 1) %>%
+    names(.)[.]
+  varies_num <- purrr::map_lgl(dplyr::select(x, varies), is.numeric)
+
+  ## Reorder all varying categorical variables by median(?) value ##
+
+  p <-
+    ggplot(x, aes(x = !!rlang::sym(varies[1]), y = !!rlang::sym(outcome))) +
+    geom_point()
+}
 
 
 
 
-############## helper functions
 
 # Create the data frame containing combinations of variable values on which to
 # make counterfactual predictions, but not containing fixed predictors.
