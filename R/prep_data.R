@@ -41,12 +41,13 @@
 #'   0.0167. It would be excluded by default or if
 #'   `remove_near_zero_variance` > 0.0166. Larger values will remove more columns
 #'   and this value must lie between 0 and 1.
-#' @param convert_dates Logical or character. If TRUE (default), date columns #TODO::::I NEED TO FIX THIS
-#'   are identifed and used to generate day-of-week, month, and year columns,
-#'   and the original date columns are removed. If FALSE, date columns are
-#'   removed. If a character vector, it is passed to the `features` argument of
-#'   `recipes::step_date`. E.g. if you want only quarter and year back:
-#'   `convert_dates = c("quarter", "year")`.
+#' @param convert_dates character. Specifies how `prep_data` handles date
+#'   variables. The three possibilities are: `none`, `continuous` (default) or
+#'   `categories`. Both `continuous` and `categories` create new variables for
+#'   hour, day, month, and year. `continuous` uses numeric circular
+#'   respresentation for ml optimization. `categories` makes these features more
+#'   readable. If `make_dummies` is selected, each unique value will become a
+#'   new dummy variable.
 #' @param impute Logical or list. If TRUE (default), columns will be imputed
 #'   using mean (numeric), and new category (nominal). If FALSE, data will not
 #'   be imputed. If this is a list, it must be named, with possible entries for
@@ -106,7 +107,7 @@
 #' prep_data(d = d_train, patient_id, outcome = diabetes,
 #'           impute = list(numeric_method = "bagimpute",
 #'                         nominal_method = "bagimpute"),
-#'           collapse_rare_factors = FALSE, convert_dates = "year", #########################TODO: FIX
+#'           collapse_rare_factors = FALSE, convert_dates = "continuous", #########################TODO: FIX
 #'           center = TRUE, scale = TRUE, make_dummies = FALSE,
 #'           remove_near_zero_variance = .02)
 prep_data <- function(d,
@@ -298,6 +299,10 @@ prep_data <- function(d,
           do.call(step_date_hcai,
                   list(recipe = recipe, cols, features = convert_dates)) %>%
           recipes::step_rm(cols)
+        # recipe <-
+        #   do.call(step_date_hcai,
+        #           list(recipe = recipe, cols, features = convert_dates)) %>% ## try this without the do.call..
+        #   recipes::step_rm(cols)
       }
     }
 

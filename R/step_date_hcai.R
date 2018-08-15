@@ -1,56 +1,47 @@
 #' Date Feature Generator
 #'
-#' `step_date_hcai` creates a a *specification* of a recipe
-#'  step that will convert date data into one or more factor or
-#'  numeric variables. It is a copy of `recipes::step_date` but will
-#'  try to guess the date format of columns with the "_DTS" suffix.
+#' @description `step_date_hcai` creates a *specification* of a recipe step that
+#'  will convert date data into factor or numeric variable(s). This step will
+#'  guess the date format of columns with the "_DTS" suffix, and then create
+#'  either `categories` or `continuous` columns. Various portions of this step
+#'  are copied from `recipes::step_date`.
 #'
 #' @param recipe A recipe object. The step will be added to the sequence of
-#'operations for this recipe.
-#' @param ... One or more selector functions to choose which
-#' variables that will be used to create the new variables. The
-#' selected variables should have class `Date` or
-#' `POSIXct`. See [selections()] for more details.
-#' For the `tidy` method, these are not currently used.
-#' @param role For model terms created by this step, what analysis
-#' role should they be assigned?. By default, the function assumes
-#' that the new variable columns created by the original variables
-#' will be used as predictors in a model.
-#' @param features A character string that includes at least one
-#' of the following values: `month`, `dow` (day of week),
-#' `doy` (day of year), `week`, `month`,
-#' `decimal` (decimal date, e.g. 2002.197), `quarter`,
-#' `semester`, `year`.
-#' @param label A logical. Only available for features
-#' `month` or `dow`. `TRUE` will display the day of
-#' the week as an ordered factor of character strings, such as
-#' "Sunday." `FALSE` will display the day of the week as a
-#' number.
-#' @param abbr A logical. Only available for features `month`
-#' or `dow`. `FALSE` will display the day of the week as
-#' an ordered factor of character strings, such as "Sunday".
-#' `TRUE` will display an abbreviated version of the label,
-#' such as "Sun". `abbr` is disregarded if `label =
-#' FALSE`.
-#' @param ordinal A logical: should factors be ordered? Only
-#' available for features `month` or `dow`.
-#' @param columns A character string of variables that will be
-#' used as inputs. This field is a placeholder and will be
-#' populated once [prep.recipe()] is used.
+#'   operations for this recipe.
+#' @param ... One or more selector functions to choose which variables that will
+#'   be used to create the new variables. The selected variables should have
+#'   class `Date` or `POSIXct`. See [selections()] for more details. For the
+#'   `tidy` method, these are not currently used.
+#' @param role For model terms created by this step, what analysis role should
+#'   they be assigned?. By default, the function assumes that the new variable
+#'   columns created by the original variables will be used as predictors in a
+#'   model.
+#' @param features character, either `continuous` (default) or `categories`.
+#' @param label A logical. Only available for features `month` or `dow`. `TRUE`
+#'   will display the day of the week as an ordered factor of character strings,
+#'   such as "Sunday." `FALSE` will display the day of the week as a number.
+#' @param abbr A logical. Only available for features `month` or `dow`. `FALSE`
+#'   will display the day of the week as an ordered factor of character strings,
+#'   such as "Sunday". `TRUE` will display an abbreviated version of the label,
+#'   such as "Sun". `abbr` is disregarded if `label = FALSE`.
+#' @param ordinal A logical: should factors be ordered? Only available for
+#'   features `month` or `dow`.
+#' @param columns A character string of variables that will be used as inputs.
+#'   This field is a placeholder and will be populated once [prep.recipe()] is
+#'   used.
 #' @param trained A logical to indicate if the number of NA values have been
-#' counted in preprocessing.
-#' @param skip A logical. Should the step be skipped when the
-#' recipe is baked?
-#' @return For `step_date_hcai`, an updated version of recipe with
-#' the new step added to the sequence of existing steps (if any).
-#' For the `tidy` method, a tibble with columns `terms`
-#' (the selectors or variables selected), `value` (the feature
-#' names), and `ordinal` (a logical).
+#'   counted in preprocessing.
+#' @param skip A logical. Should the step be skipped when the recipe is baked?
+#' @return For `step_date_hcai`, an updated version of recipe with the new step
+#'   added to the sequence of existing steps (if any). For the `tidy` method, a
+#'   tibble with columns `terms` (the selectors or variables selected), `value`
+#'   (the feature names), and `ordinal` (a logical).
 #' @export
-#' @details Unlike other steps, `step_date_hcai` does *not*
-#' remove the original date variables. [step_rm()] can be
-#' used for this purpose.
+#' @details Unlike other steps, `step_date_hcai` does *not* remove the original
+#'   date variables. [step_rm()] can be used for this purpose.
 #' @examples
+#'
+#' # normal functionality, default "continuous"
 #' library(lubridate)
 #' library(recipes)
 #'
@@ -64,6 +55,14 @@
 #' date_values <- bake(date_rec, newdata = examples)
 #' date_values
 #'
+#' #
+#' date_rec <- recipe(~ Dan + Stefan, examples) %>%
+#'   step_date_hcai(all_predictors(), features = "categories")
+#'
+#' date_rec <- prep(date_rec, training = examples)
+#'
+#' date_values <- bake(date_rec, newdata = examples)
+#' date_values
 step_date_hcai <- function(recipe, ..., role = "predictor", trained = FALSE,
                            features = "continuous", abbr = TRUE, label = TRUE,
                            ordinal = FALSE, columns = NULL, skip = FALSE) {
@@ -122,20 +121,20 @@ get_date_features <- function(dt, feats, column_name, abbr = TRUE, label = TRUE,
                               ord = FALSE) {
   if (feats == "continuous") {
     res <- tibble(
-      year = year(dt),
+      hour_sin = convert_to_circular(hour(dt), 24, sin),
+      hour_cos = convert_to_circular(hour(dt), 24, cos),
       dow_sin = convert_to_circular(wday(dt), 7, sin),
       dow_cos = convert_to_circular(wday(dt), 7, cos),
       month_sin = convert_to_circular(month(dt), 12, sin),
       month_cos = convert_to_circular(month(dt), 12, cos),
-      hour_sin = convert_to_circular(hour(dt), 24, sin),
-      hour_cos = convert_to_circular(hour(dt), 24, cos)
+      year = year(dt)
     )
   } else {
     res <- tibble(
-      year = year(dt),
       hour = hour(dt),
       dow = wday(dt, abbr = abbr, label = label),
-      month = month(dt, abbr = abbr, label = label)
+      month = month(dt, abbr = abbr, label = label),
+      year = year(dt)
     )
 
     if (!ord & label == TRUE) {
