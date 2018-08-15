@@ -104,40 +104,6 @@ simulate <- function(models,
   structure(preds, class = c("simulated_df", class(d)))
 }
 
-#' Plot Simulated Counterfactual Predictions
-#'
-#' @param x A simulated_df object from \code{link{simulate}}
-#' @param numeric_groups For numeric variables that are converted to categories,
-#' how many categories to create? Default = 5.
-#' @param font_size
-#' @param print
-#' @param ...
-#'
-#' @return
-#' @export
-#'
-#' @examples
-plot.simulated_df <- function(x, numeric_groups = 5,
-                              font_size = 11, print = TRUE, ...) {
-  outcome <- stringr::str_subset(names(x), "^predicted_")
-  varies <-
-    x %>%
-    dplyr::select(-predicted_diabetes) %>%
-    purrr::map_lgl(~ dplyr::n_distinct(.x) > 1) %>%
-    names(.)[.]
-  varies_num <- purrr::map_lgl(dplyr::select(x, varies), is.numeric)
-
-  ## Reorder all varying categorical variables by median(?) value ##
-
-  p <-
-    ggplot(x, aes(x = !!rlang::sym(varies[1]), y = !!rlang::sym(outcome))) +
-    geom_point()
-}
-
-
-
-
-
 # Create the data frame containing combinations of variable values on which to
 # make counterfactual predictions, but not containing fixed predictors.
 create_varying_df <- function(models, vary, variables, numerics, characters) {
@@ -179,6 +145,10 @@ choose_variables <- function(models, vary, variables) {
       suppressWarnings( get_variable_importance(models) )
     } else {
       # Format interpret to function as variable importance
+      warning("glm is the only model present in models, so using coefficients ",
+              "to determine which variables to vary. If variables weren't scaled ",
+              "this will be misleading. Consider using another algorithm or ",
+              "`prep_data(scale = TRUE)` prior to model training.")
       interpret(models) %>%
         dplyr::transmute(variable = variable, importance = abs(coefficient)) %>%
         dplyr::filter(variable != "(Intercept)")
@@ -201,6 +171,7 @@ choose_variables <- function(models, vary, variables) {
 
 
 choose_values <- function(models, vary, variables, numerics, characters) {
+  vary_order <- vary
   # Choose nominal values
   noms_to_use <- dplyr::intersect(variables$nominal, vary)
   noms <-
@@ -226,7 +197,10 @@ choose_values <- function(models, vary, variables, numerics, characters) {
     } else {
       NULL
     }
-  return(c(noms, nums))
+  both <- c(noms, nums)
+  # Keeps variables in order by variable importance
+  both[order(match(names(both), vary_order))] %>%
+    return()
 }
 
 choose_static_values <- function(models, static_variables, hold) {
@@ -259,4 +233,114 @@ choose_static_values <- function(models, static_variables, hold) {
     hold_values <- hold[names(hold) %in% unname(unlist(static_variables))]
   }
   return(hold_values)
+}
+
+#' Plot Simulated Counterfactual Predictions
+#'
+#' @param x A simulated_df object from \code{link{simulate}}
+#' @param numeric_groups For numeric variables that are converted to categories,
+#'   how many categories to create? Default = 5.
+#' @param x_var Variable to put on the x-axis (unquoted). If not provided, the
+#'   most important variable is used, with numerics prioritized if one was
+#'   varied
+#' @param color_var Variable to color lines (unquoted). If not provided, the
+#' most important variable excluding \code{x_var}
+#' @param reorder_categories If TRUE (default) categorical variables that were
+#'   varied in \code{simulate} will be arranged in decreasing order of their
+#'   median predicted outcome
+#' @param font_size
+#' @param print
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
+plot.simulated_df <- function(x, numeric_groups = 5, reorder_categories = TRUE,
+                              x_var, color_var,
+                              font_size = 11, print = TRUE, ...) {
+  x_var <- rlang::enquo(x_var)
+  color_var <- rlang::enquo(color_var)
+  outcome <- stringr::str_subset(names(x), "^predicted_")
+
+  # varies contains variables varied in names; entries are whether it is numeric
+  varies <-
+    x %>%
+    dplyr::select(-predicted_diabetes) %>%
+    purrr::map_lgl(~ dplyr::n_distinct(.x) > 1) %>%
+    names(.)[.] %>%
+    dplyr::select(x, .) %>%
+    purrr::map_lgl(is.numeric)
+
+  if (length(varies) > 4)
+    stop("plot.simulated_df can only handle up to four varying variables. ",
+         "Please re-run `simulate` with a vary <= 4. ",
+         "The following variables are currently varying: ",
+         list_variables(names(varies)))
+
+  # Reorder categorical variables by median outcome value
+  if (reorder_categories)
+    x <- dplyr::mutate_if(x, names(x) %in% names(varies)[!varies], ~ {
+      as.character(.x) %>%
+      tidyr::replace_na("NA") %>%
+        reorder(- x[[outcome]], median)
+    })
+
+  # Determine which variable goes on the x-axis
+  x_var <-
+    if (!rlang::quo_is_missing(x_var)) {
+      rlang::quo_name(x_var)
+    } else {
+      if (any(varies)) {
+        # Using top numeric for x-axis
+        names(varies)[varies][1]
+      } else {
+        # Using category on x-axis
+        names(varies)[1]
+      }
+    }
+
+  # Remove x-axis variable from consideration for other slots
+  varies <- varies[names(varies) != x_var]
+
+  # Cut additional numerics if necessary
+  # x <- dplyr::mutate_if(x, names(x) %in% names(varies)[varies], ~ cut(.x, numeric_groups))
+
+  # No longer have numeric varying variables, so just keep names of varying variables
+  varies <- names(varies)
+
+  # Create plot basis
+  p <- ggplot(x, aes(x = !!rlang::sym(x_var), y = !!rlang::sym(outcome)))
+
+  if (!length(varies)) {
+    # There was only one varying variable
+    p <- p + geom_line(alpha = .7)
+  } else {
+    # There were two or more varying variables
+    # Determine which variable gets mapped to color
+    color_var <-
+      if (!rlang::quo_is_missing(color_var)) {
+        rlang::quo_name(color_var)
+      } else {
+        varies[1]
+      }
+    # Remove the color variable
+    varies <- varies[varies != color_var]
+
+    p <- p +
+      geom_line(aes(color = !!rlang::sym(color_var), group = !!rlang::sym(color_var)),
+                alpha = .7)
+
+    # Facet if there are additional varying variables
+    if (length(varies) == 1)
+      # There were three varying variables
+      p <- p + facet_wrap(as.formula(paste("~", varies[1])), labeller = label_both)
+    if (length(varies) > 1)
+      # There were four or more varying variables (we only plot four)
+      p <- p + facet_grid(as.formula(paste(varies[1], "~", varies[2])), labeller = label_both)
+  }
+
+  if (print)
+    print(p)
+  return(invisible(p))
 }

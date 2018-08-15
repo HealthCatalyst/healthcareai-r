@@ -4,10 +4,26 @@
 \alias{plot.simulated_df}
 \title{Plot Simulated Counterfactual Predictions}
 \usage{
-\method{plot}{simulated_df}(x, font_size = 11, print = TRUE, ...)
+\method{plot}{simulated_df}(x, numeric_groups = 5,
+  reorder_categories = TRUE, x_var, color_var, font_size = 11,
+  print = TRUE, ...)
 }
 \arguments{
 \item{x}{A simulated_df object from \code{link{simulate}}}
+
+\item{numeric_groups}{For numeric variables that are converted to categories,
+how many categories to create? Default = 5.}
+
+\item{reorder_categories}{If TRUE (default) categorical variables that were
+varied in \code{simulate} will be arranged in decreasing order of their
+median predicted outcome}
+
+\item{x_var}{Variable to put on the x-axis (unquoted). If not provided, the
+most important variable is used, with numerics prioritized if one was
+varied}
+
+\item{color_var}{Variable to color lines (unquoted). If not provided, the
+most important variable excluding \code{x_var}}
 
 \item{...}{}
 }
