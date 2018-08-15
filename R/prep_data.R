@@ -210,7 +210,7 @@ prep_data <- function(d,
     }
 
     # Initialize a new recipe
-    mes <- "Training new data prep recipe...\n"
+    mes <- "Training new data prep recipe"
     ## Start by making all variables predictors...
     ## Only pass head of d here because it's carried around with the recipe
     ## and we don't want to pass around big datasets
@@ -242,8 +242,9 @@ prep_data <- function(d,
         recipe <- recipe %>%
           recipes::step_bin2factor(all_outcomes(), levels = c("Y", "N"))
       }
+      mes <- paste0(mes, "...\n")
     } else {
-      mes <- paste0(mes, ", with no outcome variable specified")
+      mes <- paste0(mes, " with no outcome variable specified...\n")
     }
     message(mes)
 
@@ -395,6 +396,8 @@ prep_data <- function(d,
     attr(recipe, "missingness") <- d_missing
     attr(recipe, "factor_levels") <- d_levels
   }
+  # Coerces all logical predictor columns as numeric columns
+  d <- dplyr::mutate_if(d, is.logical, as.numeric)
 
   # Bake either the newly built or passed-in recipe
   d <- recipes::bake(recipe, d)
