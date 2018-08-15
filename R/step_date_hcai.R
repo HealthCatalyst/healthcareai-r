@@ -64,62 +64,17 @@
 #' date_values <- bake(date_rec, newdata = examples)
 #' date_values
 #'
-step_date_hcai <-
-  function(recipe,
-           ...,
-           role = "predictor",
-           trained = FALSE,
-           features = c("dow", "month", "year"),
-           abbr = TRUE,
-           label = TRUE,
-           ordinal = FALSE,
-           columns = NULL,
-           skip = FALSE
-  ) {
-    feat <-
-      c("year",
-        "doy",
-        "week",
-        "decimal",
-        "semester",
-        "quarter",
-        "dow",
-        "month",
-        "hour")
-    if (!all(features %in% feat))
-      stop("Possible values of `features` should include: ",
-           paste0("'", feat, "'", collapse = ", "))
-    add_step(
-      recipe,
-      step_date_hcai_new(
-        terms = ellipse_check(...),
-        role = role,
-        trained = trained,
-        features = features,
-        abbr = abbr,
-        label = label,
-        ordinal = ordinal,
-        columns = columns,
-        skip = skip
-      )
-    )
-  }
-
-step_date_hcai_new <-
-  function(
-    terms = NULL,
-    role = "predictor",
-    trained = FALSE,
-    features = features,
-    abbr = abbr,
-    label = label,
-    ordinal = ordinal,
-    columns = columns,
-    skip = FALSE
-  ) {
-    step(
-      subclass = "date_hcai",
-      terms = terms,
+step_date_hcai <- function(recipe, ..., role = "predictor", trained = FALSE,
+                           features = "continuous", abbr = TRUE, label = TRUE,
+                           ordinal = FALSE, columns = NULL, skip = FALSE) {
+  possible_features <- c("categories", "continuous")
+  if (!(features %in% possible_features))
+    stop("Possible values of `features` should include: ",
+         paste0("'", possible_features, "'", collapse = ", "))
+  add_step(
+    recipe,
+    step_date_hcai_new(
+      terms = ellipse_check(...),
       role = role,
       trained = trained,
       features = features,
@@ -129,7 +84,17 @@ step_date_hcai_new <-
       columns = columns,
       skip = skip
     )
-  }
+  )
+}
+
+step_date_hcai_new <- function(terms = NULL, role = "predictor",
+                               trained = FALSE, features = NULL, abbr = NULL,
+                               label = NULL, ordinal = NULL, columns = NULL,
+                               skip = FALSE) {
+  step(subclass = "date_hcai", terms = terms, role = role, trained = trained,
+       features = features, abbr = abbr, label = label, ordinal = ordinal,
+       columns = columns, skip = skip)
+}
 
 #' @importFrom stats as.formula model.frame
 #' @export
@@ -137,17 +102,9 @@ prep.step_date_hcai <- function(x, training, info = NULL, ...) {
   col_names <- terms_select(x$terms, info = info)
   date_data <- info[info$variable %in% col_names, ]
 
-  step_date_hcai_new(
-    terms = x$terms,
-    role = x$role,
-    trained = TRUE,
-    features = x$features,
-    abbr = x$abbr,
-    label = x$label,
-    ordinal = x$ordinal,
-    columns = col_names,
-    skip = x$skip
-  )
+  step_date_hcai_new(terms = x$terms, role = x$role, trained = TRUE,
+                     features = x$features, abbr = x$abbr, label = x$label,
+                     ordinal = x$ordinal, columns = col_names, skip = x$skip)
 }
 
 
@@ -157,116 +114,75 @@ ord2fac <- function(x, what) {
 }
 
 convert_to_circular <- function(x, parts, fun) {
-  return(fun(2*pi/parts * x))
+  return(fun(2 * pi / parts * x))
 }
 
+#' @importFrom lubridate year wday month hour
+get_date_features <- function(dt, feats, column_name, abbr = TRUE, label = TRUE,
+                              ord = FALSE) {
+  if (feats == "continuous") {
+    res <- tibble(
+      year = year(dt),
+      dow_sin = convert_to_circular(wday(dt), 7, sin),
+      dow_cos = convert_to_circular(wday(dt), 7, cos),
+      month_sin = convert_to_circular(month(dt), 12, sin),
+      month_cos = convert_to_circular(month(dt), 12, cos),
+      hour_sin = convert_to_circular(hour(dt), 24, sin),
+      hour_cos = convert_to_circular(hour(dt), 24, cos)
+    )
+  } else {
+    res <- tibble(
+      year = year(dt),
+      hour = hour(dt),
+      dow = wday(dt, abbr = abbr, label = label),
+      month = month(dt, abbr = abbr, label = label)
+    )
 
-#' @importFrom lubridate year yday week decimal_date quarter semester wday month hour
-get_date_features <-
-  function(dt,
-           feats,
-           abbr = TRUE,
-           label = TRUE,
-           ord = FALSE) {
-    browser()
-    # Pre-allocate values
-    res <- matrix(NA, nrow = length(dt), ncol = length(feats))
-    res <- as_tibble(res)
-    colnames(res) <- feats
-
-    if ("year" %in% feats)
-      res[, grepl("year$", names(res))] <- year(dt)
-    # if ("doy" %in% feats)
-    #   res[, grepl("doy$", names(res))] <- yday(dt)
-    # if ("week" %in% feats)
-    #   res[, grepl("week$", names(res))] <- week(dt)
-    # if ("decimal" %in% feats)
-    #   res[, grepl("decimal$", names(res))] <- decimal_date(dt)
-    # if ("quarter" %in% feats)
-    #   res[, grepl("quarter$", names(res))] <- quarter(dt)
-    # if ("semester" %in% feats)
-    #   res[, grepl("semester$", names(res))] <- semester(dt)
-    if ("dow" %in% feats) {
-      res[, grepl("dow$", names(res))] <- convert_to_circular(
-        wday(dt),
-        7,
-        sin
-      )
-      # wday(dt, abbr = abbr, label = label)
-      # if (!ord & label == TRUE)
-      #   res[, grepl("dow$", names(res))]  <-
-      #     ord2fac(res, grep("dow$", names(res), value = TRUE))
+    if (!ord & label == TRUE) {
+      res$dow <- ord2fac(res, "dow")
+      res$month <- ord2fac(res, "month")
     }
-    if ("month" %in% feats) {
-      res[, grepl("month$", names(res))] <- convert_to_circular(
-        month(dt),
-        12,
-        sin
-      )
-      # month(dt, abbr = abbr, label = label)
-      # if (!ord & label == TRUE)
-      #   res[, grepl("month$", names(res))]  <-
-      #     ord2fac(res, grep("month$", names(res), value = TRUE))
-    }
-    if ("hour" %in% feats) {
-      res[, grepl("hour$", names(res))] <- convert_to_circular(
-        hour(dt),
-        24,
-        sin
-      )
-    }
-    res
   }
+  names(res) <-
+    paste(column_name,
+          names(res),
+          sep = "_")
+  res
+}
 
 #' @importFrom tibble as_tibble is_tibble
 #' @export
 bake.step_date_hcai <- function(object, newdata, ...) {
-  # Update new data columns to fix DTS columns
-  browser()
+  # convert to standard date format
   newdata <- convert_date_cols(newdata)
-  new_cols <-
-    rep(length(object$features), each = length(object$columns))
-  date_values <-
-    matrix(NA, nrow = nrow(newdata), ncol = sum(new_cols))
-  colnames(date_values) <- rep("", sum(new_cols))
-  date_values <- as_tibble(date_values)
 
-  print(seq_along(object$columns))
-
-  strt <- 1
-  for (i in seq_along(object$columns)) {
-    cols <- (strt):(strt + new_cols[i] - 1)
-
-    tmp <- get_date_features(
-      dt = getElement(newdata, object$columns[i]),
+  # get date info for each date column. A list of dataframes.
+  date_info <- purrr::map(object$columns, ~{
+    get_date_features(
+      dt = dplyr::pull(newdata, .x),
       feats = object$features,
+      column_name = .x,
       abbr = object$abbr,
       label = object$label,
       ord = object$ordinal
     )
+  })
 
-    date_values[, cols] <- tmp
+  # combines all cols that exist in each df in the `date_info` list with the
+  # cols in newdata
+  newdata <- bind_cols(newdata, date_info)
 
-    names(date_values)[cols] <-
-      paste(object$columns[i],
-            names(tmp),
-            sep = "_")
-
-    strt <- max(cols) + 1
-  }
-  newdata <- bind_cols(newdata, date_values)
   if (!is_tibble(newdata))
     newdata <- as_tibble(newdata)
   newdata
 }
 
 #' @export
-print.step_date_hcai <-
-  function(x, width = max(20, options()$width - 29), ...) {
-    cat("Date features from ")
-    printer(x$columns, x$terms, x$trained, width = width)
-    invisible(x)
-  }
+print.step_date_hcai <- function(x, width = max(20, options()$width - 29), ...) {
+  cat("Date features from ")
+  printer(x$columns, x$terms, x$trained, width = width)
+  invisible(x)
+}
 
 #' @rdname step_date_hcai
 #' @param x A `step_date_hcai` object.

@@ -6,8 +6,8 @@
 \title{Date Feature Generator}
 \usage{
 step_date_hcai(recipe, ..., role = "predictor", trained = FALSE,
-  features = c("dow", "month", "year"), abbr = TRUE, label = TRUE,
-  ordinal = FALSE, columns = NULL, skip = FALSE)
+  features = "continuous", abbr = TRUE, label = TRUE, ordinal = FALSE,
+  columns = NULL, skip = FALSE)
 
 \method{tidy}{step_date_hcai}(x, ...)
 }
