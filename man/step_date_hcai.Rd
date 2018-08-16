@@ -83,8 +83,9 @@ date_rec <- prep(date_rec, training = examples)
 date_values <- bake(date_rec, newdata = examples)
 date_values
 
-#
-date_rec <- recipe(~ Dan + Stefan, examples) \%>\%
+# changing features to categories
+date_rec <-
+  recipe(~ Dan + Stefan, examples) \%>\%
   step_date_hcai(all_predictors(), features = "categories")
 
 date_rec <- prep(date_rec, training = examples)

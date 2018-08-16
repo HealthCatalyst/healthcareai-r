@@ -55,8 +55,9 @@
 #' date_values <- bake(date_rec, newdata = examples)
 #' date_values
 #'
-#' #
-#' date_rec <- recipe(~ Dan + Stefan, examples) %>%
+#' # changing features to categories
+#' date_rec <-
+#'   recipe(~ Dan + Stefan, examples) %>%
 #'   step_date_hcai(all_predictors(), features = "categories")
 #'
 #' date_rec <- prep(date_rec, training = examples)
@@ -183,6 +184,14 @@ print.step_date_hcai <- function(x, width = max(20, options()$width - 29), ...) 
   invisible(x)
 }
 
+
+get_values <- function(features) {
+  if (features == "continuous")
+    c("hour_sin", "hour_cos", "dow_sin", "dow_cos", "month_sin", "month_cos", "year")
+  else
+    c("hour", "dow", "month", "year")
+}
+
 #' @rdname step_date_hcai
 #' @param x A `step_date_hcai` object.
 #' @export
@@ -190,15 +199,17 @@ tidy.step_date_hcai <- function(x, ...) {
   if (x$trained == TRUE) {
     res <- expand.grid(
       terms = x$columns,
-      value = x$features,
-      ordinal = x$ordinal
+      value = get_values(x$features),
+      ordinal = x$ordinal,
+      features = x$features
     )
   } else {
     term_names <- sel2char(x$terms)
     res <- expand.grid(
       terms = term_names,
-      value = x$features,
-      ordinal = x$ordinal
+      value = get_values(x$features),
+      ordinal = x$ordinal,
+      features = x$features
     )
   }
   as_tibble(res)

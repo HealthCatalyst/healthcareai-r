@@ -73,25 +73,24 @@ test_that("Mixed tibble converts all date columns", {
                c("Date", "numeric", "Date", "character", "Date"))
 })
 
-
-test_that("step_date_hcai produces same results as step_date", {
+test_that("same results as recipes::step_date for dow, month, and year", {
   d <- d %>% dplyr::select(e_date, b_nums, d_chars)
   cols <- find_date_cols(d)
   sdf <- c("dow", "month", "year")
 
   date_rec <- recipes::recipe(head(d), ~ .)
-  date_rec <- step_date_hcai(date_rec, cols = cols, features = sdf) %>%
+  date_rec <- step_date_hcai(date_rec, cols = cols, features = "categories") %>%
     recipes::step_rm(cols = cols)
   date_rec <- recipes::prep(date_rec, training = d)
   d_hcai <- recipes::bake(date_rec, newdata = d)
-  d_hcai <- select(d_hcai, contains("date"))[, 1:3]
+  d_hcai <- select(d_hcai, contains("date")) %>% select(-contains("hour"))
 
   date_rec <- recipes::recipe(head(d), ~ .)
   date_rec <- recipes::step_date(date_rec, cols = cols, features = sdf) %>%
     recipes::step_rm(cols = cols)
   date_rec <- recipes::prep(date_rec, training = d)
   d_recipes <- recipes::bake(date_rec, newdata = d)
-  d_recipes <- select(d_recipes, contains("date"))[, 1:3]
+  d_recipes <- select(d_recipes, contains("date"))
 
   expect_equal(d_hcai, d_recipes)
 })
@@ -102,7 +101,7 @@ test_that("Print method works correctly", {
   sdf <- c("dow", "month", "year")
 
   date_rec <- recipes::recipe(head(d), ~ .)
-  date_rec <- step_date_hcai(date_rec, cols = cols, features = sdf)
+  date_rec <- step_date_hcai(date_rec, cols = cols, features = "categories")
   date_rec <- recipes::prep(date_rec, training = d)
 
   expect_output(
@@ -111,21 +110,59 @@ test_that("Print method works correctly", {
   )
 })
 
-test_that("tidy method prints correctly", {
+test_that("tidy method prints correctly for categories features", {
   d <- d %>% dplyr::select(e_date, b_nums, d_chars)
   cols <- find_date_cols(d)
-  sdf <- c("dow", "month", "year")
 
-  date_rec <- recipes::recipe(head(d), ~ .)
-  date_rec <- step_date_hcai(date_rec, cols = cols, features = sdf)
-  date_rec <- recipes::prep(date_rec, training = d)
+  date_rec <-
+    recipes::recipe(head(d), ~ .) %>%
+    step_date_hcai(cols = cols, features = "categories") %>%
+    recipes::prep(training = d)
 
   exp <- tibble::as_tibble(
-    data.frame(terms = "e_date",
-               value = c("dow", "month", "year"),
-               ordinal = FALSE))
+    data.frame(
+      terms = "e_date",
+      value = factor(c("hour", "dow", "month", "year"),
+                     levels = c("hour", "dow", "month", "year")),
+      ordinal = FALSE,
+      features = "categories"
+    )
+  )
+
+  expect_equal(
+    exp,
+    broom::tidy(date_rec$steps[[1]]))
+  expect_s3_class(broom::tidy(date_rec$steps[[1]]), "tbl_df")
+
+
+})
+
+test_that("tidy method prints correctly for continuous features", {
+  d <- d %>% dplyr::select(e_date, b_nums, d_chars)
+  cols <- find_date_cols(d)
+
+  date_rec <-
+    recipes::recipe(head(d), ~ .) %>%
+    step_date_hcai(cols = cols, features = "continuous") %>%
+    recipes::prep(training = d)
+
+  exp <- tibble::as_tibble(
+    data.frame(
+      terms = "e_date",
+      value = factor(c("hour_sin", "hour_cos", "dow_sin", "dow_cos", "month_sin", "month_cos", "year"),
+                     levels = c("hour_sin", "hour_cos", "dow_sin", "dow_cos", "month_sin", "month_cos", "year")),
+      ordinal = FALSE,
+      features = "continuous"
+    )
+  )
+
   expect_equal(
     exp,
     broom::tidy(date_rec$steps[[1]]))
   expect_s3_class(broom::tidy(date_rec$steps[[1]]), "tbl_df")
 })
+
+## Things to test
+# 1. hours are not being created unless they need to.
+# 2. find another way to test hours
+

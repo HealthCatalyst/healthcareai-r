@@ -155,7 +155,9 @@ test_that("0/1 outcome is converted to N/Y", {
 
 test_that("date columns are found and converted", {
   d_clean <- prep_data(d = d_train, outcome = is_ween, song_id,
-                       make_dummies = FALSE)
+                       make_dummies = FALSE, convert_dates = "categories") ##################ADD check for hours
+  print(d_clean$date_col_hour)
+  expect_true(is.numeric(d_clean$date_col_hour))
   expect_true(is.factor(d_clean$date_col_dow))
   expect_true(is.factor(d_clean$posixct_col_month))
   expect_true(is.numeric(d_clean$col_DTS_year))
@@ -165,7 +167,7 @@ test_that("date columns are found and converted", {
 })
 
 test_that("date columns are found, converted, and dummified", {
-  d_clean <- prep_data(d = d_train, outcome = is_ween, song_id)
+  d_clean <- prep_data(d = d_train, outcome = is_ween, song_id, convert_dates = "categories")
   # Should find 11 month names in names of prepped data as all but one get dummied
   expect_equal(sum(purrr::map_lgl(month.abb, ~ any(grepl(.x, names(d_clean))))), 11)
   expect_true("date_col_dow_Thu" %in% names(d_clean))
@@ -173,16 +175,16 @@ test_that("date columns are found, converted, and dummified", {
   expect_true(all(2004:2006 %in% d_clean$posixct_col_year))
 })
 
-test_that("convert_dates works when non default", {
-  dd <- prep_data(d_train, convert_dates = "quarter")
-  expect_true("date_col_quarter" %in% names(dd))
-  expect_false("date_col_dow" %in% names(dd))
-  dd <- prep_data(d_train, convert_dates = c("doy", "quarter"))
-  expect_true(all(c("date_col_doy", "date_col_quarter") %in% names(dd)))
-})
+# test_that("convert_dates works when continuous", {
+#   dd <- prep_data(d_train, convert_dates = "quarter")
+#   expect_true("date_col_quarter" %in% names(dd))
+#   expect_false("date_col_dow" %in% names(dd))
+#   dd <- prep_data(d_train, convert_dates = c("doy", "quarter"))
+#   expect_true(all(c("date_col_doy", "date_col_quarter") %in% names(dd)))
+# })
 
-test_that("convert_dates removes date columns when false", {
-  dd <- prep_data(d_train, convert_dates = FALSE)
+test_that("convert_dates removes date columns when none", {
+  dd <- prep_data(d_train, convert_dates = "none")
   expect_true(!all(c("date_col", "posixct_col", "col_DTS") %in% names(dd)))
 })
 
@@ -276,7 +278,7 @@ test_that("centering and scaling work", {
 
 test_that("dummy columns are created as expected", {
   d_clean <- prep_data(d = d_train, outcome = is_ween, song_id,
-                       convert_dates = FALSE, make_dummies = TRUE,
+                       convert_dates = "none", make_dummies = TRUE,
                        add_levels = FALSE, collapse_rare_factors = FALSE)
   exp <- c("genre_Jazz", "genre_Rock", "genre_missing")
   n <- names(dplyr::select(d_clean, dplyr::starts_with("genre")))
@@ -577,7 +579,7 @@ test_that("prep_data warns for all unique character columns and adds the to igno
 test_that("prep_data doesn't check for all-unique columns in predict", {
   # Additional test of this in the last code chunk of healthcareai.Rmd
   d_prep <- prep_data(d = d_train, outcome = is_ween, song_id,
-                      convert_dates = FALSE, make_dummies = FALSE)
+                      convert_dates = "none", make_dummies = FALSE)
   d_test$state <- c("CA", paste0("A", seq_len(nrow(d_test) - 1)))
   expect_true("state" %in% names(pd <- prep_data(d_test, recipe = d_prep)))
   expect_equal("CA", as.character(pd$state[1]))
