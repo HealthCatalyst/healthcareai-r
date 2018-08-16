@@ -17,15 +17,6 @@
 #'   columns created by the original variables will be used as predictors in a
 #'   model.
 #' @param features character, either `continuous` (default) or `categories`.
-#' @param label A logical. Only available for features `month` or `dow`. `TRUE`
-#'   will display the day of the week as an ordered factor of character strings,
-#'   such as "Sunday." `FALSE` will display the day of the week as a number.
-#' @param abbr A logical. Only available for features `month` or `dow`. `FALSE`
-#'   will display the day of the week as an ordered factor of character strings,
-#'   such as "Sunday". `TRUE` will display an abbreviated version of the label,
-#'   such as "Sun". `abbr` is disregarded if `label = FALSE`.
-#' @param ordinal A logical: should factors be ordered? Only available for
-#'   features `month` or `dow`.
 #' @param columns A character string of variables that will be used as inputs.
 #'   This field is a placeholder and will be populated once [prep.recipe()] is
 #'   used.
@@ -65,8 +56,7 @@
 #' date_values <- bake(date_rec, newdata = examples)
 #' date_values
 step_date_hcai <- function(recipe, ..., role = "predictor", trained = FALSE,
-                           features = "continuous", abbr = TRUE, label = TRUE,
-                           ordinal = FALSE, columns = NULL, skip = FALSE) {
+                           features = "continuous", columns = NULL, skip = FALSE) {
   possible_features <- c("categories", "continuous")
   if (!(features %in% possible_features))
     stop("Possible values of `features` should include: ",
@@ -78,9 +68,6 @@ step_date_hcai <- function(recipe, ..., role = "predictor", trained = FALSE,
       role = role,
       trained = trained,
       features = features,
-      abbr = abbr,
-      label = label,
-      ordinal = ordinal,
       columns = columns,
       skip = skip
     )
@@ -88,12 +75,9 @@ step_date_hcai <- function(recipe, ..., role = "predictor", trained = FALSE,
 }
 
 step_date_hcai_new <- function(terms = NULL, role = "predictor",
-                               trained = FALSE, features = NULL, abbr = NULL,
-                               label = NULL, ordinal = NULL, columns = NULL,
-                               skip = FALSE) {
+                               trained = FALSE, features = NULL, columns = NULL, skip = FALSE) {
   step(subclass = "date_hcai", terms = terms, role = role, trained = trained,
-       features = features, abbr = abbr, label = label, ordinal = ordinal,
-       columns = columns, skip = skip)
+       features = features, columns = columns, skip = skip)
 }
 
 #' @importFrom stats as.formula model.frame
@@ -103,8 +87,7 @@ prep.step_date_hcai <- function(x, training, info = NULL, ...) {
   date_data <- info[info$variable %in% col_names, ]
 
   step_date_hcai_new(terms = x$terms, role = x$role, trained = TRUE,
-                     features = x$features, abbr = x$abbr, label = x$label,
-                     ordinal = x$ordinal, columns = col_names, skip = x$skip)
+                     features = x$features, columns = col_names, skip = x$skip)
 }
 
 
@@ -118,8 +101,7 @@ convert_to_circular <- function(x, parts, fun) {
 }
 
 #' @importFrom lubridate year wday month hour
-get_date_features <- function(dt, feats, column_name, abbr = TRUE, label = TRUE,
-                              ord = FALSE) {
+get_date_features <- function(dt, feats, column_name) {
   if (feats == "continuous") {
     res <- tibble(
       hour_sin = convert_to_circular(hour(dt), 24, sin),
@@ -133,15 +115,13 @@ get_date_features <- function(dt, feats, column_name, abbr = TRUE, label = TRUE,
   } else {
     res <- tibble(
       hour = hour(dt),
-      dow = wday(dt, abbr = abbr, label = label),
-      month = month(dt, abbr = abbr, label = label),
+      dow = wday(dt, abbr = TRUE, label = TRUE),
+      month = month(dt, abbr = TRUE, label = TRUE),
       year = year(dt)
     )
 
-    if (!ord & label == TRUE) {
-      res$dow <- ord2fac(res, "dow")
-      res$month <- ord2fac(res, "month")
-    }
+    res$dow <- ord2fac(res, "dow")
+    res$month <- ord2fac(res, "month")
   }
   names(res) <-
     paste(column_name,
@@ -161,10 +141,7 @@ bake.step_date_hcai <- function(object, newdata, ...) {
     get_date_features(
       dt = dplyr::pull(newdata, .x),
       feats = object$features,
-      column_name = .x,
-      abbr = object$abbr,
-      label = object$label,
-      ord = object$ordinal
+      column_name = .x
     )
   })
 
@@ -200,7 +177,6 @@ tidy.step_date_hcai <- function(x, ...) {
     res <- expand.grid(
       terms = x$columns,
       value = get_values(x$features),
-      ordinal = x$ordinal,
       features = x$features
     )
   } else {
@@ -208,7 +184,6 @@ tidy.step_date_hcai <- function(x, ...) {
     res <- expand.grid(
       terms = term_names,
       value = get_values(x$features),
-      ordinal = x$ordinal,
       features = x$features
     )
   }

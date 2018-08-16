@@ -6,8 +6,7 @@
 \title{Date Feature Generator}
 \usage{
 step_date_hcai(recipe, ..., role = "predictor", trained = FALSE,
-  features = "continuous", abbr = TRUE, label = TRUE, ordinal = FALSE,
-  columns = NULL, skip = FALSE)
+  features = "continuous", columns = NULL, skip = FALSE)
 
 \method{tidy}{step_date_hcai}(x, ...)
 }
@@ -29,18 +28,6 @@ model.}
 counted in preprocessing.}
 
 \item{features}{character, either `continuous` (default) or `categories`.}
-
-\item{abbr}{A logical. Only available for features `month` or `dow`. `FALSE`
-will display the day of the week as an ordered factor of character strings,
-such as "Sunday". `TRUE` will display an abbreviated version of the label,
-such as "Sun". `abbr` is disregarded if `label = FALSE`.}
-
-\item{label}{A logical. Only available for features `month` or `dow`. `TRUE`
-will display the day of the week as an ordered factor of character strings,
-such as "Sunday." `FALSE` will display the day of the week as a number.}
-
-\item{ordinal}{A logical: should factors be ordered? Only available for
-features `month` or `dow`.}
 
 \item{columns}{A character string of variables that will be used as inputs.
 This field is a placeholder and will be populated once [prep.recipe()] is

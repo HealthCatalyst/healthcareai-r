@@ -124,7 +124,6 @@ test_that("tidy method prints correctly for categories features", {
       terms = "e_date",
       value = factor(c("hour", "dow", "month", "year"),
                      levels = c("hour", "dow", "month", "year")),
-      ordinal = FALSE,
       features = "categories"
     )
   )
@@ -151,7 +150,6 @@ test_that("tidy method prints correctly for continuous features", {
       terms = "e_date",
       value = factor(c("hour_sin", "hour_cos", "dow_sin", "dow_cos", "month_sin", "month_cos", "year"),
                      levels = c("hour_sin", "hour_cos", "dow_sin", "dow_cos", "month_sin", "month_cos", "year")),
-      ordinal = FALSE,
       features = "continuous"
     )
   )
