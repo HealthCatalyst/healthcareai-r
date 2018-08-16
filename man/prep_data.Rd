@@ -4,9 +4,10 @@
 \alias{prep_data}
 \title{Prepare data for machine learning}
 \usage{
-prep_data(d, ..., outcome, recipe = NULL, remove_near_zero_variance = TRUE,
-  convert_dates = TRUE, impute = TRUE, collapse_rare_factors = TRUE,
-  center = FALSE, scale = FALSE, PCA = FALSE, make_dummies = TRUE,
+prep_data(d, ..., outcome, recipe = NULL,
+  remove_near_zero_variance = TRUE, convert_dates = TRUE,
+  impute = TRUE, collapse_rare_factors = TRUE, PCA = FALSE,
+  center = PCA, scale = PCA, make_dummies = TRUE,
   add_levels = TRUE, factor_outcome = TRUE)
 }
 \arguments{
@@ -55,14 +56,16 @@ into a new category, `other`. If numeric, must be in {0, 1}, and is the
 proportion of observations below which levels will be grouped into other.
 See `recipes::step_other`.}
 
+\item{PCA}{Integer or Logical. If integer, represents the number of principal
+components to convert the numeric data into. If TRUE, will convert numeric
+data into 5 principal components. Data must also be centered and scaled
+(default). If 0 or FALSE, the PCA step will be skipped. Default is FALSE.}
+
 \item{center}{Logical. If TRUE, numeric columns will be centered to have a
-mean of 0. Default is FALSE.}
+mean of 0. Default is PCA.}
 
 \item{scale}{Logical. If TRUE, numeric columns will be scaled to have a
-standard deviation of 1. Default is FALSE.}
-
-\item{PCA}{Logical. If TRUE, will convert numeric data into one or more
-principal components. Default is FALSE.}
+standard deviation of 1. Default is PCA.}
 
 \item{make_dummies}{Logical. If TRUE (default), dummy columns will be created
 for categorical variables.}

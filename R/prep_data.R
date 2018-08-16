@@ -57,12 +57,14 @@
 #'   into a new category, `other`. If numeric, must be in {0, 1}, and is the
 #'   proportion of observations below which levels will be grouped into other.
 #'   See `recipes::step_other`.
+#' @param PCA Integer or Logical. If integer, represents the number of principal
+#'   components to convert the numeric data into. If TRUE, will convert numeric
+#'   data into 5 principal components. Data must also be centered and scaled
+#'   (default). If 0 or FALSE, the PCA step will be skipped. Default is FALSE.
 #' @param center Logical. If TRUE, numeric columns will be centered to have a
-#'   mean of 0. Default is FALSE.
+#'   mean of 0. Default is PCA.
 #' @param scale Logical. If TRUE, numeric columns will be scaled to have a
-#'   standard deviation of 1. Default is FALSE.
-#' @param PCA Logical. If TRUE, will convert numeric data into one or more
-#'   principal components. Default is FALSE.
+#'   standard deviation of 1. Default is PCA.
 #' @param make_dummies Logical. If TRUE (default), dummy columns will be created
 #'   for categorical variables.
 #' @param add_levels Logical. If TRUE (defaults), "other" and "missing" will be
@@ -119,9 +121,9 @@ prep_data <- function(d,
                       convert_dates = TRUE,
                       impute = TRUE,
                       collapse_rare_factors = TRUE,
-                      center = FALSE,
-                      scale = FALSE,
                       PCA = FALSE,
+                      center = PCA,
+                      scale = PCA,
                       make_dummies = TRUE,
                       add_levels = TRUE,
                       factor_outcome = TRUE) {
@@ -356,6 +358,8 @@ prep_data <- function(d,
       }
     }
 
+
+
     # If there are nominal predictors, apply nominal transformations
     if (any(var_info$type == "nominal" & var_info$role == "predictor")) {
 
@@ -387,16 +391,21 @@ prep_data <- function(d,
       # make_dummies -----------------------------------------------------------
       if (make_dummies) {
         recipe <- recipe %>%
-          recipes::step_dummy(all_nominal(), - all_outcomes())
+          recipes::step_dummy(all_nominal(), -all_outcomes())
       }
     }
-
-    # Perform PCA
     if (PCA) {
-      recipe <- recipe %>%
-        recipes::step_pca()
+      # Check for valid PCA parameter
+      if (!(is.numeric(PCA) || is.logical(PCA))) {
+        stop("PCA parameter must be an integer or logical.")
+      }
+      if (!scale || !center) {
+        stop("\"d\" must be centered and scaled to perform PCA.")
+      }
+        # Perform PCA
+        recipe <- recipe %>%
+        recipes::step_kpca(all_numeric(), -all_outcomes(),num = ifelse(is.numeric(PCA),as.integer(PCA),5))
     }
-
 
     # Prep the newly built recipe ---------------------------------------------
     recipe <- recipes::prep(recipe, training = d)
