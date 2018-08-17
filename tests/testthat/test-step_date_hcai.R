@@ -140,5 +140,3 @@ test_that("test possible values for `feature_type`", {
     "Possible values"
   )
 })
-
-
