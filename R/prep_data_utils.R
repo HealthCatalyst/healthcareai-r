@@ -65,9 +65,9 @@ find_new_missingness <- function(d, recipe) {
   return(dplyr::intersect(new_missing, predictors))
 }
 
-#' @title Convert character date columns to dates
+#' @title Convert character date columns to dates and times
 #'
-#' @description This function is called in \code{\link{prep_data}} and so
+#' @description This function is called in \code{\link{prep_data}} and so it
 #'   shouldn't usually need to be called directly. It tries to convert columns
 #'   ending in "DTS" to type Date or DateTime (POSIXt). It makes a best guess at
 #'   the format and return a more standard one if possible.

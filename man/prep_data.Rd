@@ -36,13 +36,15 @@ Example: In a column with 120 "Male" and 2 "Female", the frequency ratio is
 `remove_near_zero_variance` > 0.0166. Larger values will remove more columns
 and this value must lie between 0 and 1.}
 
-\item{convert_dates}{character. Specifies how `prep_data` handles date
-variables. The three possibilities are: `none`, `continuous` (default) or
-`categories`. Both `continuous` and `categories` create new variables for
-hour, day, month, and year. `continuous` uses numeric circular
-respresentation for ml optimization. `categories` makes these features more
-readable. If `make_dummies` is selected, each unique value will become a
-new dummy variable.}
+\item{convert_dates}{character. It specifies how `prep_data` handles date and
+time features. The three options that \code{prep_data} provides are:
+`continuous` (default), `categories` or `none`. Both `continuous` and
+`categories` create new variables for hour, day, month, and year.
+`continuous` (recommended) uses numeric circular respresentation of these
+features for ml optimization. `categories` makes these features more
+readable (If `make_dummies` is selected, each unique value will become a
+new dummy variable. This will create wide data, which is more challenging
+for ml models.). `none` removes all date and time features.}
 
 \item{impute}{Logical or list. If TRUE (default), columns will be imputed
 using mean (numeric), and new category (nominal). If FALSE, data will not
@@ -121,9 +123,21 @@ d_test_prepped
 prep_data(d = d_train, patient_id, outcome = diabetes,
           impute = list(numeric_method = "bagimpute",
                         nominal_method = "bagimpute"),
-          collapse_rare_factors = FALSE, convert_dates = "continuous", #########################TODO: FIX
-          center = TRUE, scale = TRUE, make_dummies = FALSE,
-          remove_near_zero_variance = .02)
+          collapse_rare_factors = FALSE, center = TRUE, scale = TRUE,
+          make_dummies = FALSE, remove_near_zero_variance = .02)
+
+#' # `prep_data` also handles date and time features
+d <-
+  pima_diabetes \%>\%
+  cbind(
+    admitted_DTS = seq(as.POSIXct("2005-1-1 0:00"),
+                       length.out = nrow(pima_diabetes), by = "hour")
+  )
+d_train = d[1:700, ]
+prep_data(d = d_train)
+
+# Customize how date and time features are handled:
+prep_data(d = d_train, convert_dates = "categories")
 }
 \seealso{
 To let data preparation happen automatically under the hood, see

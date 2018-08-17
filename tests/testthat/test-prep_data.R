@@ -18,7 +18,7 @@ df <- data.frame(
   drum_flag = sample(c(0, 1, NA), size = n, replace = T,
                      prob = c(0.45, 0.45, 0.1)),
   date_col = lubridate::ymd("2002-03-04") + lubridate::days(sample(1:1000, n)),
-  posixct_col = seq(as.POSIXct("2005-1-1 0:00"), length.out = n, by = 'hour'),
+  posixct_col = seq(as.POSIXct("2005-1-1 0:00"), length.out = n, by = "hour"),
   col_DTS = lubridate::ymd("2006-03-01") + lubridate::days(sample(1:1000, n)),
   char_DTS = sample(sample_days, n, replace = TRUE),
   missing82 = sample(1:10, n, replace = TRUE),

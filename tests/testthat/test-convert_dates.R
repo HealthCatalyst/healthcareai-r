@@ -95,6 +95,3 @@ test_that("Mixed tibble converts all date columns", {
                c("Date", "numeric", "Date", "character", "Date"))
   expect_equal(as.character(class(out$f_DTS)), c("POSIXct", "POSIXt"))
 })
-
-
-

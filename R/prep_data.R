@@ -41,13 +41,15 @@
 #'   0.0167. It would be excluded by default or if
 #'   `remove_near_zero_variance` > 0.0166. Larger values will remove more columns
 #'   and this value must lie between 0 and 1.
-#' @param convert_dates character. Specifies how `prep_data` handles date
-#'   variables. The three possibilities are: `none`, `continuous` (default) or
-#'   `categories`. Both `continuous` and `categories` create new variables for
-#'   hour, day, month, and year. `continuous` uses numeric circular
-#'   respresentation for ml optimization. `categories` makes these features more
-#'   readable. If `make_dummies` is selected, each unique value will become a
-#'   new dummy variable.
+#' @param convert_dates character. It specifies how `prep_data` handles date and
+#'   time features. The three options that \code{prep_data} provides are:
+#'   `continuous` (default), `categories` or `none`. Both `continuous` and
+#'   `categories` create new variables for hour, day, month, and year.
+#'   `continuous` (recommended) uses numeric circular respresentation of these
+#'   features for ml optimization. `categories` makes these features more
+#'   readable (If `make_dummies` is selected, each unique value will become a
+#'   new dummy variable. This will create wide data, which is more challenging
+#'   for ml models.). `none` removes all date and time features.
 #' @param impute Logical or list. If TRUE (default), columns will be imputed
 #'   using mean (numeric), and new category (nominal). If FALSE, data will not
 #'   be imputed. If this is a list, it must be named, with possible entries for
@@ -110,16 +112,17 @@
 #'           collapse_rare_factors = FALSE, center = TRUE, scale = TRUE,
 #'           make_dummies = FALSE, remove_near_zero_variance = .02)
 #'
-#' # `prep_data` also handles date and time features
-#' d_train <-
-#'   d_train %>%
+#' #' # `prep_data` also handles date and time features
+#' d <-
+#'   pima_diabetes %>%
 #'   cbind(
 #'     admitted_DTS = seq(as.POSIXct("2005-1-1 0:00"),
-#'                        length.out = nrow(d_train), by = "hour")
+#'                        length.out = nrow(pima_diabetes), by = "hour")
 #'   )
+#' d_train = d[1:700, ]
 #' prep_data(d = d_train)
 #'
-#' # Customize how these date and time features are handled:
+#' # Customize how date and time features are handled:
 #' prep_data(d = d_train, convert_dates = "categories")
 prep_data <- function(d,
                       ...,
@@ -296,10 +299,10 @@ prep_data <- function(d,
     # Convert date columns to useful features and remove original. ------------
     if (!is.character(convert_dates))
       stop('convert_dates must be "none", "continuous", or "categories" for ',
-           '`step_date`')
+           "`step_date`")
     if (!(convert_dates %in% c("none", "continuous", "categories")))
       stop('convert_dates must be "none", "continuous", or "categories" for ',
-           '`step_date`')
+           "`step_date`")
 
     if (convert_dates == "none") {
       cols <- find_date_cols(d)

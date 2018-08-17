@@ -1,4 +1,4 @@
-#' Date Feature Generator
+#' Date and Time Feature Generator
 #'
 #' @description `step_date_hcai` creates a *specification* of a recipe step that
 #'  will convert date data into factor or numeric variable(s). This step will
@@ -10,13 +10,14 @@
 #'   operations for this recipe.
 #' @param ... One or more selector functions to choose which variables that will
 #'   be used to create the new variables. The selected variables should have
-#'   class `Date` or `POSIXct`. See [selections()] for more details. For the
-#'   `tidy` method, these are not currently used.
+#'   class `Date` or `POSIXct` or their name must end with `DTS`. See
+#'   [selections()] for more details. For the `tidy` method, these are not
+#'   currently used.
 #' @param role For model terms created by this step, what analysis role should
 #'   they be assigned?. By default, the function assumes that the new variable
 #'   columns created by the original variables will be used as predictors in a
 #'   model.
-#' @param features character, either `continuous` (default) or `categories`.
+#' @param feature_type character, either `continuous` (default) or `categories`.
 #' @param columns A character string of variables that will be used as inputs.
 #'   This field is a placeholder and will be populated once [prep.recipe()] is
 #'   used.
@@ -31,8 +32,6 @@
 #' @details Unlike other steps, `step_date_hcai` does *not* remove the original
 #'   date variables. [step_rm()] can be used for this purpose.
 #' @examples
-#'
-#' # normal functionality, default "continuous"
 #' library(lubridate)
 #' library(recipes)
 #'
@@ -46,10 +45,10 @@
 #' date_values <- bake(date_rec, newdata = examples)
 #' date_values
 #'
-#' # changing features to categories
+#' # changing `feature_type` to `categories`
 #' date_rec <-
 #'   recipe(~ Dan + Stefan, examples) %>%
-#'   step_date_hcai(all_predictors(), features = "categories")
+#'   step_date_hcai(all_predictors(), feature_type = "categories")
 #'
 #' date_rec <- prep(date_rec, training = examples)
 #'
@@ -60,7 +59,7 @@ step_date_hcai <- function(recipe, ..., role = "predictor", trained = FALSE,
   possible_feature_types <- c("categories", "continuous")
   if (!(feature_type %in% possible_feature_types))
     stop("Possible values of `feature_type` should include: ",
-         paste0("'", possible_features, "'", collapse = ", "))
+         paste0("'", possible_feature_types, "'", collapse = ", "))
   add_step(
     recipe,
     step_date_hcai_new(
@@ -154,7 +153,7 @@ bake.step_date_hcai <- function(object, newdata, ...) {
 
   # combines all cols that exist in each df in the `date_info` list with the
   # cols in newdata
-  newdata <- bind_cols(newdata, date_info)
+  newdata <- dplyr::bind_cols(newdata, date_info)
 
   if (!is_tibble(newdata))
     newdata <- as_tibble(newdata)
