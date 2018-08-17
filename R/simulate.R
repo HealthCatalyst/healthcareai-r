@@ -244,21 +244,38 @@ choose_static_values <- function(models, static_variables, hold) {
 #'   most important variable is used, with numerics prioritized if one was
 #'   varied
 #' @param color_var Variable to color lines (unquoted). If not provided, the
-#' most important variable excluding \code{x_var}
+#'   most important variable excluding \code{x_var}
 #' @param reorder_categories If TRUE (default) categorical variables that were
 #'   varied in \code{simulate} will be arranged in decreasing order of their
 #'   median predicted outcome
-#' @param font_size
-#' @param print
+#' @param jitter_y If TRUE (default) and a variable is mapped to color (i.e. if
+#'   there is more than one varying variable), the vertical location of the
+#'   lines will be jittered slightly (no more than 1% of the range of the
+#'   outcome variable) to avoid overlap.
+#' @param font_size Parent font size for the whole plot. Default = 11
+#' @param strip_font_size Relative font size for facet strip title font. Default
+#'   = 0.85
+#' @param line_width Width of lines. Default = 0.5
+#' @param line_alpha Opacity of lines. Default = 0.7
+#' @param rotate_x If FALSE (default), x axis tick labels are positioned
+#'   horizontally. If TRUE, they are rotated one quarter turn, which can be
+#'   helpful when a categorical variable with long labels is mapped to x.
+#' @param print Print the plot? Default is FALSE. Either way, the plot is
+#'   invisbly returned
 #' @param ...
 #'
-#' @return
+#' @return ggplot object, invisibly
 #' @export
+#'
+#' @description
+#' @details
 #'
 #' @examples
 plot.simulated_df <- function(x, numeric_groups = 5, reorder_categories = TRUE,
-                              x_var, color_var,
-                              font_size = 11, print = TRUE, ...) {
+                              jitter_y = TRUE, x_var, color_var,
+                              font_size = 11, strip_font_size = .85,
+                              line_width = .5, line_alpha = .7,
+                              rotate_x = FALSE, print = TRUE, ...) {
   x_var <- rlang::enquo(x_var)
   color_var <- rlang::enquo(color_var)
   outcome <- stringr::str_subset(names(x), "^predicted_")
@@ -314,7 +331,7 @@ plot.simulated_df <- function(x, numeric_groups = 5, reorder_categories = TRUE,
 
   if (!length(varies)) {
     # There was only one varying variable
-    p <- p + geom_line(alpha = .7)
+    p <- p + geom_line(group = 1, alpha = line_alpha, size = line_width)
   } else {
     # There were two or more varying variables
     # Determine which variable gets mapped to color
@@ -327,18 +344,31 @@ plot.simulated_df <- function(x, numeric_groups = 5, reorder_categories = TRUE,
     # Remove the color variable
     varies <- varies[varies != color_var]
 
-    p <- p +
+    y_pos <-
+      if (jitter_y) {
+        position_jitter(width = 0, height = .01 * diff(range(x[[outcome]])))
+      } else {
+        "identity"
+      }
+    p <-
+      p +
       geom_line(aes(color = !!rlang::sym(color_var), group = !!rlang::sym(color_var)),
-                alpha = .7)
+                alpha = line_alpha, size = line_width, position = y_pos)
 
     # Facet if there are additional varying variables
     if (length(varies) == 1)
       # There were three varying variables
-      p <- p + facet_wrap(as.formula(paste("~", varies[1])), labeller = label_both)
+      p <- p + facet_wrap(as.formula(paste("~", varies[1])), labeller = as_labeller(formatter))
     if (length(varies) > 1)
       # There were four or more varying variables (we only plot four)
       p <- p + facet_grid(as.formula(paste(varies[1], "~", varies[2])), labeller = label_both)
   }
+
+  x_text <- if(rotate_x) element_text(angle = 90, hjust = 1, vjust = 0.5) else element_text()
+  p <- p +
+    theme_gray(base_size = font_size) +
+    theme(strip.text = element_text(size = rel(strip_font_size)),
+          axis.text.x = x_text)
 
   if (print)
     print(p)

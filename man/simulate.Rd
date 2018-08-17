@@ -9,8 +9,8 @@ simulate(models, vary = 4, hold = list(numerics = median, characters =
 }
 \arguments{
 \item{models}{A model_list object. The data the model was trained on must have
-been prepared, either by training with \code{\link{machine_learn}} or by
-preparing with \code{\link{prep_data}} before model training}
+been prepared, either by training with \code{\link{machine_learning}} or by
+preparing with [prep_data()] before model training}
 
 \item{vary}{Which (or how many) variables to vary? Default is 4; if
 \code{vary} is a single integer (n), the n-most-important variables are

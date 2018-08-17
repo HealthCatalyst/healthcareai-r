@@ -5,8 +5,8 @@
 \title{Plot Simulated Counterfactual Predictions}
 \usage{
 \method{plot}{simulated_df}(x, numeric_groups = 5,
-  reorder_categories = TRUE, x_var, color_var, font_size = 11,
-  print = TRUE, ...)
+  reorder_categories = TRUE, jitter_y = TRUE, x_var, color_var,
+  font_size = 11, strip_size = 1, line_width = 0.5, print = TRUE, ...)
 }
 \arguments{
 \item{x}{A simulated_df object from \code{link{simulate}}}
@@ -18,6 +18,11 @@ how many categories to create? Default = 5.}
 varied in \code{simulate} will be arranged in decreasing order of their
 median predicted outcome}
 
+\item{jitter_y}{If TRUE (default) and a variable is mapped to color (i.e. if
+there is more than one varying variable), the vertical location of the
+lines will be jittered slightly (no more than 1% of the range of the
+outcome variable) to avoid overlap.}
+
 \item{x_var}{Variable to put on the x-axis (unquoted). If not provided, the
 most important variable is used, with numerics prioritized if one was
 varied}
@@ -27,6 +32,6 @@ most important variable excluding \code{x_var}}
 
 \item{...}{}
 }
-\description{
-Plot Simulated Counterfactual Predictions
+\details{
+
 }
