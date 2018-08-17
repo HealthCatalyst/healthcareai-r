@@ -32,7 +32,7 @@
 #'   (Inf).
 #'
 #' @return A tibble with values of variables used to make predictions and
-#'   predictions. Has class \code{simulated_df} and \code{predicted_df}.
+#'   predictions. Has class \code{cf_df} and \code{predicted_df}.
 #' @export
 #'
 #' @description This function makes predictions for observations that vary over
@@ -60,22 +60,22 @@
 #' # held at their median and modal values for numeric and categorical variables,
 #' # respectively. This can help to understand how the model responds to different
 #' # variables
-#' simulate(m)
+#' predict_counterfactual(m)
 #'
 #' # You can specify which variables vary and what values they take in a variety of
 #' # ways. For example, you could vary only "weight_class" and "plasma_glucose"
-#' simulate(m, vary = c("weight_class", "plasma_glucose"))
+#' predict_counterfactual(m, vary = c("weight_class", "plasma_glucose"))
 #'
 #' # You can also control what values non-varying variables take.
 #' # For example, if you want to simulate alternative scenarios for patient 321
 #' patient321 <- dplyr::filter(pima_diabetes, patient_id == 321)
 #' patient321
-#' simulate(m, hold = patient321)
-simulate <- function(models,
-                     vary = 4,
-                     hold = list(numerics = median, characters = Mode),
-                     numerics = 5,
-                     characters = Inf) {
+#' predict_counterfactual(m, hold = patient321)
+predict_counterfactual <- function(models,
+                                   vary = 4,
+                                   hold = list(numerics = median, characters = Mode),
+                                   numerics = 5,
+                                   characters = Inf) {
 
   if (!is.model_list(models))
     stop("models must be a model_list object; this is a ", class(models)[1])
@@ -101,7 +101,7 @@ simulate <- function(models,
   suppressMessages( preds <- predict(models, d) )
   # Intentionally leave off the predicted_df class here to avoid performance-
   # in-training info printing
-  structure(preds, class = c("simulated_df", class(d)))
+  structure(preds, class = c("cf_df", class(d)))
 }
 
 # Create the data frame containing combinations of variable values on which to
@@ -124,8 +124,14 @@ create_varying_df <- function(models, vary, variables, numerics, characters) {
                           numerics = numerics, characters = characters)
   }
 
+  # Collect variable attributes to keep with the cf_df object
+  vi <- map_df(names(vary), ~ tibble(variable = .x,
+                                     numeric = is.numeric(vary[[.x]]),
+                                     nlev = length(vary[[.x]])))
+
   expand.grid(vary, stringsAsFactors = FALSE) %>%
     as_tibble() %>%
+    structure(vi = vi) %>%
     return()
 }
 
@@ -139,7 +145,7 @@ test_presence <- function(vary, variables) {
 
 # Choose which variables to vary for CF predictions
 choose_variables <- function(models, vary, variables) {
-  vi <-
+  var_imp <-
     if (!dplyr::setequal(names(models), "glmnet")) {
       # Suppress warning that glmnet is best model if it is
       suppressWarnings( get_variable_importance(models) )
@@ -154,18 +160,18 @@ choose_variables <- function(models, vary, variables) {
         dplyr::filter(variable != "(Intercept)")
     }
   # Only keep the top level of any categoricals
-  vi <-
+  var_imp <-
     purrr::map_df(variables$nominal, function(var_name) {
-      vi %>%
+      var_imp %>%
         filter(stringr::str_detect(variable, var_name)) %>%
         dplyr::summarize(variable = var_name, importance = sum(importance))
     }) %>%
     # Add numerics and sort by importance
-    dplyr::bind_rows(dplyr::filter(vi, variable %in% variables$numeric)) %>%
+    dplyr::bind_rows(dplyr::filter(var_imp, variable %in% variables$numeric)) %>%
     arrange(desc(importance))
   if (length(vary) == 1)
     vary <- seq(1, vary)
-  dplyr::slice(vi, vary) %>%
+  dplyr::slice(var_imp, vary) %>%
     dplyr::pull(variable)
 }
 
@@ -233,144 +239,4 @@ choose_static_values <- function(models, static_variables, hold) {
     hold_values <- hold[names(hold) %in% unname(unlist(static_variables))]
   }
   return(hold_values)
-}
-
-#' Plot Simulated Counterfactual Predictions
-#'
-#' @param x A simulated_df object from \code{link{simulate}}
-#' @param numeric_groups For numeric variables that are converted to categories,
-#'   how many categories to create? Default = 5.
-#' @param x_var Variable to put on the x-axis (unquoted). If not provided, the
-#'   most important variable is used, with numerics prioritized if one was
-#'   varied
-#' @param color_var Variable to color lines (unquoted). If not provided, the
-#'   most important variable excluding \code{x_var}
-#' @param reorder_categories If TRUE (default) categorical variables that were
-#'   varied in \code{simulate} will be arranged in decreasing order of their
-#'   median predicted outcome
-#' @param jitter_y If TRUE (default) and a variable is mapped to color (i.e. if
-#'   there is more than one varying variable), the vertical location of the
-#'   lines will be jittered slightly (no more than 1% of the range of the
-#'   outcome variable) to avoid overlap.
-#' @param font_size Parent font size for the whole plot. Default = 11
-#' @param strip_font_size Relative font size for facet strip title font. Default
-#'   = 0.85
-#' @param line_width Width of lines. Default = 0.5
-#' @param line_alpha Opacity of lines. Default = 0.7
-#' @param rotate_x If FALSE (default), x axis tick labels are positioned
-#'   horizontally. If TRUE, they are rotated one quarter turn, which can be
-#'   helpful when a categorical variable with long labels is mapped to x.
-#' @param print Print the plot? Default is FALSE. Either way, the plot is
-#'   invisbly returned
-#' @param ...
-#'
-#' @return ggplot object, invisibly
-#' @export
-#'
-#' @description
-#' @details
-#'
-#' @examples
-plot.simulated_df <- function(x, numeric_groups = 5, reorder_categories = TRUE,
-                              jitter_y = TRUE, x_var, color_var,
-                              font_size = 11, strip_font_size = .85,
-                              line_width = .5, line_alpha = .7,
-                              rotate_x = FALSE, print = TRUE, ...) {
-  x_var <- rlang::enquo(x_var)
-  color_var <- rlang::enquo(color_var)
-  outcome <- stringr::str_subset(names(x), "^predicted_")
-
-  # varies contains variables varied in names; entries are whether it is numeric
-  varies <-
-    x %>%
-    dplyr::select(-predicted_diabetes) %>%
-    purrr::map_lgl(~ dplyr::n_distinct(.x) > 1) %>%
-    names(.)[.] %>%
-    dplyr::select(x, .) %>%
-    purrr::map_lgl(is.numeric)
-
-  if (length(varies) > 4)
-    stop("plot.simulated_df can only handle up to four varying variables. ",
-         "Please re-run `simulate` with a vary <= 4. ",
-         "The following variables are currently varying: ",
-         list_variables(names(varies)))
-
-  # Reorder categorical variables by median outcome value
-  if (reorder_categories)
-    x <- dplyr::mutate_if(x, names(x) %in% names(varies)[!varies], ~ {
-      as.character(.x) %>%
-      tidyr::replace_na("NA") %>%
-        reorder(- x[[outcome]], median)
-    })
-
-  # Determine which variable goes on the x-axis
-  x_var <-
-    if (!rlang::quo_is_missing(x_var)) {
-      rlang::quo_name(x_var)
-    } else {
-      if (any(varies)) {
-        # Using top numeric for x-axis
-        names(varies)[varies][1]
-      } else {
-        # Using category on x-axis
-        names(varies)[1]
-      }
-    }
-
-  # Remove x-axis variable from consideration for other slots
-  varies <- varies[names(varies) != x_var]
-
-  # Cut additional numerics if necessary
-  # x <- dplyr::mutate_if(x, names(x) %in% names(varies)[varies], ~ cut(.x, numeric_groups))
-
-  # No longer have numeric varying variables, so just keep names of varying variables
-  varies <- names(varies)
-
-  # Create plot basis
-  p <- ggplot(x, aes(x = !!rlang::sym(x_var), y = !!rlang::sym(outcome)))
-
-  if (!length(varies)) {
-    # There was only one varying variable
-    p <- p + geom_line(group = 1, alpha = line_alpha, size = line_width)
-  } else {
-    # There were two or more varying variables
-    # Determine which variable gets mapped to color
-    color_var <-
-      if (!rlang::quo_is_missing(color_var)) {
-        rlang::quo_name(color_var)
-      } else {
-        varies[1]
-      }
-    # Remove the color variable
-    varies <- varies[varies != color_var]
-
-    y_pos <-
-      if (jitter_y) {
-        position_jitter(width = 0, height = .01 * diff(range(x[[outcome]])))
-      } else {
-        "identity"
-      }
-    p <-
-      p +
-      geom_line(aes(color = !!rlang::sym(color_var), group = !!rlang::sym(color_var)),
-                alpha = line_alpha, size = line_width, position = y_pos)
-
-    # Facet if there are additional varying variables
-    if (length(varies) == 1)
-      # There were three varying variables
-      p <- p + facet_wrap(as.formula(paste("~", varies[1])), labeller = as_labeller(formatter))
-    if (length(varies) > 1)
-      # There were four or more varying variables (we only plot four)
-      p <- p + facet_grid(as.formula(paste(varies[1], "~", varies[2])), labeller = label_both)
-  }
-
-  x_text <- if(rotate_x) element_text(angle = 90, hjust = 1, vjust = 0.5) else element_text()
-  p <- p +
-    theme_gray(base_size = font_size) +
-    theme(strip.text = element_text(size = rel(strip_font_size)),
-          axis.text.x = x_text)
-
-  if (print)
-    print(p)
-  return(invisible(p))
 }

@@ -1,4 +1,4 @@
-context("Simulate")
+context("predict_counterfactual")
 
 ##### Setup
 set.seed(574)
@@ -9,10 +9,10 @@ variabs <-
   dplyr::filter(role == "predictor") %>%
   split(., .$type) %>%
   purrr::map(dplyr::pull, variable)
-sm <- simulate(m)
+sm <- predict_counterfactual(m)
 plot_sm <- plot(sm)
 
-##### simulate
+##### predict_counterfactual
 test_that("test_presence", {
   expect_error(test_presence(c("weight_class", "insulin", "age"), variabs), NA)
   against <- list(a = c("one", "thing", "or"), b = "another")
@@ -133,33 +133,33 @@ test_that("choose_static_values hold is custom values", {
   purrr::walk(sv, expect_length, 1)
 })
 
-test_that("simulate returns a tibble with custom class", {
+test_that("predict_counterfactual returns a tibble with custom class", {
   expect_s3_class(sm, "tbl_df")
-  expect_s3_class(sm, "simulated_df")
+  expect_s3_class(sm, "cf_df")
 })
 
-test_that("simulate can use any algorithm", {
-  purrr::map_lgl(seq_along(m), ~ is.tbl(simulate(m[.x]))) %>%
+test_that("predict_counterfactual can use any algorithm", {
+  purrr::map_lgl(seq_along(m), ~ is.tbl(predict_counterfactual(m[.x]))) %>%
     all() %>%
     expect_true()
 })
 
 test_that("vary varies the correct number of variables", {
-  simulate(m, vary = 1) %>%
+  predict_counterfactual(m, vary = 1) %>%
     dplyr::select(-predicted_diabetes) %>%
     purrr::map_lgl(~ dplyr::n_distinct(.x) > 1) %>%
     sum() %>%
     expect_equal(1)
-  simulate(m, vary = 5) %>%
+  predict_counterfactual(m, vary = 5) %>%
     dplyr::select(-predicted_diabetes) %>%
     purrr::map_lgl(~ dplyr::n_distinct(.x) > 1) %>%
     sum() %>%
     expect_equal(5)
 })
 
-test_that("simulate hold custom functions (mean instead of median for numerics)", {
-  sm_def <- simulate(m, vary = c("weight_class", "skinfold"))
-  sm2 <- simulate(m, vary = c("weight_class", "skinfold"),
+test_that("predict_counterfactual hold custom functions (mean instead of median for numerics)", {
+  sm_def <- predict_counterfactual(m, vary = c("weight_class", "skinfold"))
+  sm2 <- predict_counterfactual(m, vary = c("weight_class", "skinfold"),
                   hold = list(numerics = mean, characters = Mode))
   same <- purrr::map2(sm_def, sm2, ~ isTRUE(all.equal(.x, .y)))
   expect_true(same$weight_class)
@@ -167,8 +167,8 @@ test_that("simulate hold custom functions (mean instead of median for numerics)"
   expect_false(same$predicted_diabetes)
 })
 
-test_that("simulate hold row from test data", {
-  p51 <- simulate(m, hold = pima_diabetes[51, ], vary = c("weight_class"))
+test_that("predict_counterfactual hold row from test data", {
+  p51 <- predict_counterfactual(m, hold = pima_diabetes[51, ], vary = c("weight_class"))
   varying <- purrr::map_lgl(p51, ~ dplyr::n_distinct(.x) > 1)
   expect_setequal(names(varying)[varying], c("predicted_diabetes", "weight_class"))
   p51[, !varying] %>%
@@ -176,8 +176,8 @@ test_that("simulate hold row from test data", {
     expect_equal(pima_diabetes[51, which(names(pima_diabetes) %in% names(varying)[!varying])])
 })
 
-test_that("simulate hold custom list", {
-  ch <- simulate(m,
+test_that("predict_counterfactual hold custom list", {
+  ch <- predict_counterfactual(m,
                   vary = dplyr::setdiff(names(pima_diabetes), c("patient_id", "diabetes", "age", "skinfold")),
                   hold = list(age = 21, skinfold = 18))
   varying <- purrr::map_lgl(ch, ~ dplyr::n_distinct(.x) > 1)
@@ -186,31 +186,92 @@ test_that("simulate hold custom list", {
   expect_equal(unique(ch$skinfold), 18)
 })
 
-test_that("simulate returns right number of character values", {
-  expect_equal(dplyr::n_distinct(simulate(m, vary = "weight_class", characters = 2)$weight_class), 2)
-  expect_equal(dplyr::n_distinct(simulate(m, characters = 4)$weight_class), 4)
+test_that("predict_counterfactual returns right number of character values", {
+  expect_equal(dplyr::n_distinct(predict_counterfactual(m, vary = "weight_class", characters = 2)$weight_class), 2)
+  expect_equal(dplyr::n_distinct(predict_counterfactual(m, characters = 4)$weight_class), 4)
   expect_equal(dplyr::n_distinct(sm$weight_class), dplyr::n_distinct(pima_diabetes$weight_class[1:50]))
 })
 
-test_that("simulate returns the right number of numeric values", {
-  expect_equal(dplyr::n_distinct(simulate(m, vary = "plasma_glucose", numerics = 2)$plasma_glucose), 2)
-  expect_equal(dplyr::n_distinct(simulate(m, numerics = 9)$plasma_glucose), 9)
-  expect_equal(dplyr::n_distinct(simulate(m, numerics = c(.1, .3, .8))$plasma_glucose), 3)
+test_that("predict_counterfactual returns the right number of numeric values", {
+  expect_equal(dplyr::n_distinct(predict_counterfactual(m, vary = "plasma_glucose", numerics = 2)$plasma_glucose), 2)
+  expect_equal(dplyr::n_distinct(predict_counterfactual(m, numerics = 9)$plasma_glucose), 9)
+  expect_equal(dplyr::n_distinct(predict_counterfactual(m, numerics = c(.1, .3, .8))$plasma_glucose), 3)
 })
 
-##### simulate generics
-test_that("printing a simulated df doesn't print training performance info", {
+##### predict_counterfactual generics
+test_that("printing a predict_counterfactuald df doesn't print training performance info", {
   sim_print <- capture_output( sim_mess <- capture_messages( print(sm)))
   sim_output <- paste(sim_print, sim_mess)
   expect_false(stringr::str_detect(sim_print, "Performance"))
 })
 
-test_that("plot.simulated_df is registered", {
-  stringr::str_detect(methods("plot"), "simulated_df") %>%
+test_that("plot.cf_df is registered", {
+  stringr::str_detect(methods("plot"), "cf_df") %>%
     any() %>%
     expect_true()
 })
 
-test_that("plot.simulated_df returns a ggplot", {
+test_that("plot.cf_df returns a ggplot", {
   expect_s3_class(plot_sm, "gg")
+})
+
+#### plot.cf_df helpers
+vars <- tibble::tibble(variable = letters[1:4],
+                       numeric = c(FALSE, TRUE, TRUE, FALSE),
+                       nlev = 5)
+
+test_that("map_variables without mappings specified", {
+  # First var nominal
+  map_variables(vars, x_var = rlang::quo(), color_var = rlang::quo()) %>%
+    dplyr::pull(map_to) %>%
+    expect_equal(c("color", "x", "facet", "facet"))
+  # First var numeric
+  vars[c(2, 1, 3, 4), ] %>%
+    map_variables(x_var = rlang::quo(), color_var = rlang::quo()) %>%
+    dplyr::pull(map_to) %>%
+    expect_equal(c("x", "color", "facet", "facet"))
+  # Only one variable
+  map_variables(vars[1, ], x_var = rlang::quo(), color_var = rlang::quo()) %>%
+    dplyr::pull(map_to) %>%
+    expect_equal("x")
+  map_variables(vars[2, ], x_var = rlang::quo(), color_var = rlang::quo()) %>%
+    dplyr::pull(map_to) %>%
+    expect_equal("x")
+  # Only numerics
+  vars %>%
+    dplyr::filter(numeric) %>%
+    map_variables(x_var = rlang::quo(), color_var = rlang::quo()) %>%
+    dplyr::pull(map_to) %>%
+    expect_equal(c("x", "color"))
+  # Only nominals
+  vars %>%
+    dplyr::filter(!numeric) %>%
+    map_variables(x_var = rlang::quo(), color_var = rlang::quo()) %>%
+    dplyr::pull(map_to) %>%
+    expect_equal(c("x", "color"))
+})
+
+test_that("map_variables with mappings specified", {
+  vars %>%
+    map_variables(x_var = rlang::quo(a), color_var = rlang::quo()) %>%
+    dplyr::pull(map_to) %>%
+    expect_equal(c("x", "color", "facet", "facet"))
+  vars %>%
+    map_variables(x_var = rlang::quo(d), color_var = rlang::quo()) %>%
+    dplyr::pull(map_to) %>%
+    expect_equal(c("color", "facet", "facet", "x"))
+  vars %>%
+    map_variables(x_var = rlang::quo(), color_var = rlang::quo(b)) %>%
+    dplyr::pull(map_to) %>%
+    expect_equal(c("facet", "color", "x", "facet"))
+  vars %>%
+    map_variables(x_var = rlang::quo(d), color_var = rlang::quo(b)) %>%
+    dplyr::pull(map_to) %>%
+    expect_equal(c("facet", "color", "facet", "x"))
+  vars %>%
+    dplyr::filter(!numeric) %>%
+    map_variables(x_var = rlang::quo(), color_var = rlang::quo(a)) %>%
+    dplyr::pull(map_to) %>%
+    expect_equal(c("color", "x"))
+  expect_error(map_variables(vars[1, ], color_var = rlang::quo(a)), "color")
 })
