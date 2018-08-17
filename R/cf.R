@@ -3,12 +3,12 @@
 #' @param models A model_list object. The data the model was trained on must have
 #'   been prepared, either by training with \code{\link{machine_learn}} or by
 #'   preparing with \code{\link{prep_data}} before model training
-#' @param vary Which (or how many) variables to vary? Default is 4; if
-#'   \code{vary} is a single integer (n), the n-most-important variables are
+#' @param vary Which (or how many) features to vary? Default is 4; if
+#'   \code{vary} is a single integer (n), the n-most-important features are
 #'   varied (see details for importance is determined). If \code{vary} is a
-#'   vector of integers, those rankings of variables are used (e.g. \code{vary =
-#'   2:4} varies the 2nd, 3rd, and 4th most-important variables). Alternatively,
-#'   a vector of variable names to vary may be provided. Or, for the finest
+#'   vector of integers, those rankings of features are used (e.g. \code{vary =
+#'   2:4} varies the 2nd, 3rd, and 4th most-important features). Alternatively,
+#'   a vector of features names to vary may be provided. For the finest
 #'   level of control, a list with names being variable names and entries being
 #'   values to use; in this case \code{numerics} and \code{characters} are
 #'   ignored.
@@ -210,6 +210,9 @@ choose_values <- function(models, vary, variables, numerics, characters) {
 }
 
 choose_static_values <- function(models, static_variables, hold) {
+  if (!rlang::is_named(hold))
+    stop("`hold` must be a named list (or data frame), whether it contains ",
+         "functions to determine values or values themselves.")
   if (setequal(names(hold), c("numerics", "characters"))) {
     # hold is two functions
     not_funs <- purrr::map_chr(hold, class) %>% .[. != "function"]

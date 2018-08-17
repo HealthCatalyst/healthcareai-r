@@ -36,7 +36,8 @@
 #' @details
 #'
 #' @examples
-plot.cf_df <- function(x, reorder_categories = TRUE, n_use = 4, aggregate_fun = median,
+plot.cf_df <- function(x, reorder_categories = TRUE,
+                       n_use = 4, aggregate_fun = median,
                        jitter_y = TRUE, x_var, color_var,
                        font_size = 11, strip_font_size = .85,
                        line_width = .5, line_alpha = .7,
@@ -84,7 +85,8 @@ plot.cf_df <- function(x, reorder_categories = TRUE, n_use = 4, aggregate_fun = 
         } else {
           "identity"
         }
-      geom_line(aes(color = !!rlang::sym(vi$variable[vi$map_to == "color"])),
+      color_group <- rlang::sym(vi$variable[vi$map_to == "color"])
+      geom_line(aes(color = !!color_group, group = !!color_group),
                 position = y_pos, alpha = line_alpha, size = line_width)
     } else {
       geom_line(group = 1, alpha = line_alpha, size = line_width)

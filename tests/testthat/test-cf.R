@@ -10,7 +10,7 @@ variabs <-
   split(., .$type) %>%
   purrr::map(dplyr::pull, variable)
 sm <- predict_counterfactual(m)
-plot_sm <- plot(sm)
+plot_sm <- plot(sm, print = FALSE)
 
 ##### predict_counterfactual
 test_that("test_presence", {
@@ -38,7 +38,7 @@ test_that("choose_variables default", {
 })
 
 test_that("choose_variables glm", {
-  g3 <- choose_variables(m["glmnet"], 3, variabs)
+  expect_warning( g3 <- choose_variables(m["glmnet"], 3, variabs), "glm")
   expect_length(g3, 3)
   expect_true(all(g3 %in% names(pima_diabetes)))
 })
@@ -139,9 +139,11 @@ test_that("predict_counterfactual returns a tibble with custom class", {
 })
 
 test_that("predict_counterfactual can use any algorithm", {
-  purrr::map_lgl(seq_along(m), ~ is.tbl(predict_counterfactual(m[.x]))) %>%
-    all() %>%
-    expect_true()
+  suppressWarnings({
+    purrr::map_lgl(seq_along(m), ~ is.tbl(predict_counterfactual(m[.x]))) %>%
+      all() %>%
+      expect_true()
+  })
 })
 
 test_that("vary varies the correct number of variables", {
@@ -160,7 +162,7 @@ test_that("vary varies the correct number of variables", {
 test_that("predict_counterfactual hold custom functions (mean instead of median for numerics)", {
   sm_def <- predict_counterfactual(m, vary = c("weight_class", "skinfold"))
   sm2 <- predict_counterfactual(m, vary = c("weight_class", "skinfold"),
-                  hold = list(numerics = mean, characters = Mode))
+                                hold = list(numerics = mean, characters = Mode))
   same <- purrr::map2(sm_def, sm2, ~ isTRUE(all.equal(.x, .y)))
   expect_true(same$weight_class)
   expect_false(same$plasma_glucose)
@@ -178,8 +180,8 @@ test_that("predict_counterfactual hold row from test data", {
 
 test_that("predict_counterfactual hold custom list", {
   ch <- predict_counterfactual(m,
-                  vary = dplyr::setdiff(names(pima_diabetes), c("patient_id", "diabetes", "age", "skinfold")),
-                  hold = list(age = 21, skinfold = 18))
+                               vary = dplyr::setdiff(names(pima_diabetes), c("patient_id", "diabetes", "age", "skinfold")),
+                               hold = list(age = 21, skinfold = 18))
   varying <- purrr::map_lgl(ch, ~ dplyr::n_distinct(.x) > 1)
   expect_setequal(names(varying)[!varying], c("age", "skinfold"))
   expect_equal(unique(ch$age), 21)
@@ -198,6 +200,20 @@ test_that("predict_counterfactual returns the right number of numeric values", {
   expect_equal(dplyr::n_distinct(predict_counterfactual(m, numerics = c(.1, .3, .8))$plasma_glucose), 3)
 })
 
+test_that("predict_counterfactual errors as expected", {
+  expect_error(predict_counterfactual(pima_diabetes), "model_list")
+  expect_error(predict_counterfactual(structure(m, recipe = NULL)), "prep_data")
+  expect_error(predict_counterfactual(m, vary = c("age", "not_a_var")), "not_a_var")
+  expect_error(predict_counterfactual(m, hold = list(numerics = mean)), "hold")
+  expect_error(predict_counterfactual(m, hold = list(characters = Mode)), "hold")
+  expect_error(predict_counterfactual(m, hold = list(numerics = mean, characters = Mode)), NA)
+  expect_error(predict_counterfactual(m, hold = list(median, Mode)), "named")
+  expect_error(predict_counterfactual(m, hold = list(age = 50)), "hold")
+
+})
+
+
+
 ##### predict_counterfactual generics
 test_that("printing a predict_counterfactuald df doesn't print training performance info", {
   sim_print <- capture_output( sim_mess <- capture_messages( print(sm)))
@@ -213,6 +229,33 @@ test_that("plot.cf_df is registered", {
 
 test_that("plot.cf_df returns a ggplot", {
   expect_s3_class(plot_sm, "gg")
+})
+
+test_that("plot.cf args work", {
+  default_plot <- plot(sm, print = FALSE, jitter_y = FALSE)
+  suppressWarnings({
+    expect_false(isTRUE(all.equal(
+      plot(sm, print = FALSE, jitter_y = FALSE, n_use = 2),
+      plot(sm, print = FALSE, jitter_y = FALSE, n_use = 2, aggregate_fun = mean))))
+  })
+  expect_message(plot(sm, print = FALSE, n_use = 2), "aggregate")
+
+  # make sure each argument changes something
+  altered_plots <- list(
+    plot(sm, print = FALSE, jitter_y = FALSE, reorder_categories = FALSE),
+    plot(sm, print = FALSE, jitter_y = FALSE, n_use = 3),
+    plot(sm, print = FALSE, jitter_y = TRUE),
+    plot(sm, print = FALSE, jitter_y = FALSE, x_var = weight_class),
+    plot(sm, print = FALSE, jitter_y = FALSE, color_var = skinfold),
+    plot(sm, print = FALSE, jitter_y = FALSE, font_size = 8),
+    plot(sm, print = FALSE, jitter_y = FALSE, strip_font_size = .5),
+    plot(sm, print = FALSE, jitter_y = FALSE, line_width = 1),
+    plot(sm, print = FALSE, jitter_y = FALSE, line_alpha = .5),
+    plot(sm, print = FALSE, jitter_y = FALSE, rotate_x = TRUE)
+  )
+  purrr::map_lgl(altered_plots, ~ isTRUE(all.equal(.x, default_plot))) %>%
+    any() %>%
+    expect_false()
 })
 
 #### plot.cf_df helpers
