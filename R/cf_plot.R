@@ -1,47 +1,89 @@
-#' Plot Simulated Counterfactual Predictions
+#' Plot Counterfactual Predictions
 #'
-#' @param x A cf_df object from \code{link{simulate}}
-#' @param x_var Variable to put on the x-axis (unquoted). If not provided, the
-#'   most important variable is used, with numerics prioritized if one was
-#'   varied
-#' @param color_var Variable to color lines (unquoted). If not provided, the
-#'   most important variable excluding \code{x_var}
-#' @param reorder_categories If TRUE (default) categorical variables that were
-#'   varied in \code{simulate} will be arranged in decreasing order of their
-#'   median predicted outcome
+#' @param x A cf_df object from \code{\link{predict_counterfactuals}}
+#' @param n_use Number of features to vary, default = 4. If the number of
+#'   features varied in \code{\link{predict_counterfactuals}} is greater than
+#'   \code{n_use}, additional features will be aggregated over by
+#'   \code{aggregate_fun}
 #' @param aggregate_fun Default = median. Varying features in x are mapped to
-#'   the x-axis, line color, and vertical- and horizontal facets. If
-#'   more than four features vary, this function is used to aggreagate across
-#'   the least-important varying features.
-#' @param jitter_y If TRUE (default) and a variable is mapped to color (i.e. if
-#'   there is more than one varying variable), the vertical location of the
-#'   lines will be jittered slightly (no more than 1% of the range of the
-#'   outcome variable) to avoid overlap.
-#' @param font_size Parent font size for the whole plot. Default = 11
+#'   the x-axis, line color, and vertical- and horizontal facets. If more than
+#'   four features vary, this function is used to aggreagate across the
+#'   least-important varying features.
+#' @param reorder_categories If TRUE (default) varying categorical features are
+#'   arranged by their median predicted outcome. If FALSE, the incoming level
+#'   orders are retained, which is alphabetical by default, but you can set your
+#'   own level orders with \code{reorder}
+#' @param x_var Feature to put on the x-axis (unquoted). If not provided, the
+#'   most important feature is used, with numerics prioritized if one varies
+#' @param color_var Feature to color lines (unquoted). If not provided, the most
+#'   important feature excluding \code{x_var} is used.
+#' @param jitter_y If TRUE (default) and a feature is mapped to color (i.e. if
+#'   there is more than one varying feature), the vertical location of the lines
+#'   will be jittered slightly (no more than 1% of the range of the outcome) to
+#'   avoid overlap.
+#' @param font_size Parent font size for the plot. Default = 11
 #' @param strip_font_size Relative font size for facet strip title font. Default
 #'   = 0.85
 #' @param line_width Width of lines. Default = 0.5
 #' @param line_alpha Opacity of lines. Default = 0.7
 #' @param rotate_x If FALSE (default), x axis tick labels are positioned
 #'   horizontally. If TRUE, they are rotated one quarter turn, which can be
-#'   helpful when a categorical variable with long labels is mapped to x.
+#'   helpful when a categorical feature with long labels is mapped to x.
+#' @param nrows Only used when the number of varying features is three. The
+#'   number of rows into which the facets will be arranged. Default = 1. NULL
+#'   lets the number be determined algorithmically
 #' @param print Print the plot? Default is FALSE. Either way, the plot is
-#'   invisbly returned
-#' @param ...
+#'   invisibly returned
+#' @param ... Not used
 #'
 #' @return ggplot object, invisibly
 #' @export
 #'
-#' @description
-#' @details
-#'
 #' @examples
-plot.cf_df <- function(x, reorder_categories = TRUE,
-                       n_use = 4, aggregate_fun = median,
-                       jitter_y = TRUE, x_var, color_var,
-                       font_size = 11, strip_font_size = .85,
+#' # First, we need a model on which to make counterfactual predictions
+#' set.seed(2507)
+#' m <- machine_learn(pima_diabetes, patient_id, outcome = pregnancies,
+#'                    tune = FALSE, models = "rf")
+#' cfs <- predict_counterfactuals(m)
+#'
+#' # By default up to four varying features are plotted. This example shows how
+#' # counterfactual predictions can provide insight into how a model maps inputs
+#' # (features) to outputs (outcome). In this plot, across all other variables,
+#' # we see a rapid rise in predict number of pregnancies from age 20 to ~40
+#' # followed by a sharp leveling off the predicted number of pregnancies after
+#' # age 40.
+#' plot(cfs)
+#'
+#' # You can reduce the complexity of the plot by limiting the number of features
+#' # varied in the plot. This is accomplished by averaging over the additional
+#' # features using the `aggregate_fun`
+#' plot(cfs, n_use = 2, aggregate_fun = mean)
+#'
+#' # Alternatively, you could vary only two features in the generation of counter-
+#' # factual predictions
+#' predict_counterfactuals(m, vary = 2) %>%
+#'   plot()
+#'
+#' # You can specify which of the varying features are mapped to the x-axis and
+#' # the color scale
+#' plot(cfs, x_var = age, color_var = weight_class, n_use = 3)
+#'
+#' # There are a variety of options available to customize the appearance of the plot
+#' plot(cfs, x_var = weight_class, color = diastolic_bp, n_use = 3,
+#'      font_size = 16, strip_font_size = 1, line_width = 2, line_alpha = .5,
+#'      rotate_x = TRUE, nrows = NULL)
+#'
+#' # And you can further modify the plot like any other ggplot object
+#' plot(cfs, n_use = 1) +
+#'   theme_classic() +
+#'   labs(title = "Counterfactual predictions across age",
+#'        caption = paste("Based on a random forest trained on",
+#'                        nrow(pima_diabetes), "Pima women"))
+plot.cf_df <- function(x, n_use = 4, aggregate_fun = median,
+                       reorder_categories = TRUE, x_var, color_var,
+                       jitter_y = TRUE, font_size = 11, strip_font_size = .85,
                        line_width = .5, line_alpha = .7,
-                       rotate_x = FALSE, print = TRUE, ...) {
+                       rotate_x = FALSE, nrows = 1, print = TRUE, ...) {
   x_var <- rlang::enquo(x_var)
   color_var <- rlang::enquo(color_var)
   outcome <- stringr::str_subset(names(x), "^predicted_")
@@ -55,7 +97,11 @@ plot.cf_df <- function(x, reorder_categories = TRUE,
     message("With ", nrow(vi), " varying features and n_use = ", n_use, ", using ",
             substitute(aggregate_fun), " to aggregate predicted outcomes across ",
             list_variables(vi$variable[-seq_len(n_use)]))
-    vi <- slice(vi, seq_len(n_use))
+    # Arrange variable indices by those specified first, then others in row order
+    # which is feature importance order
+    try_to_keep <- which(vi$variable %in% c(rlang::quo_name(x_var), rlang::quo_name(color_var)))
+    to_keep <- dplyr::union(try_to_keep, seq_len(nrow(vi)))[seq_len(n_use)]
+    vi <- slice(vi, to_keep)
     x <-
       x %>%
       group_by(!!!rlang::syms(vi$variable)) %>%
@@ -96,7 +142,7 @@ plot.cf_df <- function(x, reorder_categories = TRUE,
   f <- function(x) formatC(x, drop0trailing = TRUE)
   if (length(facet_vars) == 1) {
     p <- p +
-      facet_wrap(as.formula(paste("~", facet_vars)),
+      facet_wrap(as.formula(paste("~", facet_vars)), nrow = nrows,
                  labeller = label_both)
   } else if (length(facet_vars) == 2) {
     p <-
@@ -105,7 +151,12 @@ plot.cf_df <- function(x, reorder_categories = TRUE,
                  labeller = label_both)
   }
 
-  x_text <- if(rotate_x) element_text(angle = 90, hjust = 1, vjust = 0.5) else element_text()
+  x_text <-
+    if (rotate_x) {
+      element_text(angle = 90, hjust = 1, vjust = 0.5)
+    } else {
+      element_text()
+    }
   p <- p +
     theme_gray(base_size = font_size) +
     theme(strip.text = element_text(size = rel(strip_font_size)),
@@ -120,7 +171,7 @@ plot.cf_df <- function(x, reorder_categories = TRUE,
 map_variables <- function(vi, x_var, color_var) {
 
   if (!rlang::quo_is_missing(color_var) && nrow(vi) < 2)
-    stop("You specify the color variable unless more than one feature varies")
+    stop("You can't specify the color variable unless more than one feature varies")
   vi$map_to <- NA_character_
 
   # x axis
@@ -132,7 +183,11 @@ map_variables <- function(vi, x_var, color_var) {
       ovars <- ovars[ovars != rlang::quo_name(color_var)]
     vi$map_to[vi$variable == ovars[1]] <- "x"
   } else {
-    vi$map_to[vi$variable == rlang::quo_name(x_var)] <- "x"
+    x_var <- rlang::quo_name(x_var)
+    if (!x_var %in% vi$variable)
+      stop("You passed ", x_var, " to x_var, but it isn't a varying feature. ",
+           "Either leave it blank or choose one of ", list_variables(vi$variable))
+    vi$map_to[vi$variable == x_var] <- "x"
   }
 
   # color
@@ -140,6 +195,9 @@ map_variables <- function(vi, x_var, color_var) {
     vi$map_to[which(is.na(vi$map_to))[1]] <- "color"
   } else {
     color_var <- rlang::quo_name(color_var)
+    if (!color_var %in% vi$variable)
+      stop("You passed ", color_var, " to color_var, but it isn't a varying feature. ",
+           "Either leave it blank or choose one of ", list_variables(vi$variable))
     vi$map_to[vi$variable == color_var] <- "color"
   }
 

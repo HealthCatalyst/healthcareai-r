@@ -2,38 +2,43 @@
 % Please edit documentation in R/cf_plot.R
 \name{plot.cf_df}
 \alias{plot.cf_df}
-\title{Plot Simulated Counterfactual Predictions}
+\title{Plot Counterfactual Predictions}
 \usage{
-\method{plot}{cf_df}(x, reorder_categories = TRUE, n_use = 4,
-  aggregate_fun = median, jitter_y = TRUE, x_var, color_var,
+\method{plot}{cf_df}(x, n_use = 4, aggregate_fun = median,
+  reorder_categories = TRUE, x_var, color_var, jitter_y = TRUE,
   font_size = 11, strip_font_size = 0.85, line_width = 0.5,
-  line_alpha = 0.7, rotate_x = FALSE, print = TRUE, ...)
+  line_alpha = 0.7, rotate_x = FALSE, nrows = 1, print = TRUE, ...)
 }
 \arguments{
-\item{x}{A cf_df object from \code{link{simulate}}}
+\item{x}{A cf_df object from \code{\link{predict_counterfactuals}}}
 
-\item{reorder_categories}{If TRUE (default) categorical variables that were
-varied in \code{simulate} will be arranged in decreasing order of their
-median predicted outcome}
+\item{n_use}{Number of features to vary, default = 4. If the number of
+features varied in \code{\link{predict_counterfactuals}} is greater than
+\code{n_use}, additional features will be aggregated over by
+\code{aggregate_fun}}
 
 \item{aggregate_fun}{Default = median. Varying features in x are mapped to
-the x-axis, line color, and vertical- and horizontal facets. If
-more than four features vary, this function is used to aggreagate across
-the least-important varying features.}
+the x-axis, line color, and vertical- and horizontal facets. If more than
+four features vary, this function is used to aggreagate across the
+least-important varying features.}
 
-\item{jitter_y}{If TRUE (default) and a variable is mapped to color (i.e. if
-there is more than one varying variable), the vertical location of the
-lines will be jittered slightly (no more than 1% of the range of the
-outcome variable) to avoid overlap.}
+\item{reorder_categories}{If TRUE (default) varying categorical features are
+arranged by their median predicted outcome. If FALSE, the incoming level
+orders are retained, which is alphabetical by default, but you can set your
+own level orders with \code{reorder}}
 
-\item{x_var}{Variable to put on the x-axis (unquoted). If not provided, the
-most important variable is used, with numerics prioritized if one was
-varied}
+\item{x_var}{Feature to put on the x-axis (unquoted). If not provided, the
+most important feature is used, with numerics prioritized if one varies}
 
-\item{color_var}{Variable to color lines (unquoted). If not provided, the
-most important variable excluding \code{x_var}}
+\item{color_var}{Feature to color lines (unquoted). If not provided, the most
+important feature excluding \code{x_var} is used.}
 
-\item{font_size}{Parent font size for the whole plot. Default = 11}
+\item{jitter_y}{If TRUE (default) and a feature is mapped to color (i.e. if
+there is more than one varying feature), the vertical location of the lines
+will be jittered slightly (no more than 1% of the range of the outcome) to
+avoid overlap.}
+
+\item{font_size}{Parent font size for the plot. Default = 11}
 
 \item{strip_font_size}{Relative font size for facet strip title font. Default
 = 0.85}
@@ -44,16 +49,61 @@ most important variable excluding \code{x_var}}
 
 \item{rotate_x}{If FALSE (default), x axis tick labels are positioned
 horizontally. If TRUE, they are rotated one quarter turn, which can be
-helpful when a categorical variable with long labels is mapped to x.}
+helpful when a categorical feature with long labels is mapped to x.}
+
+\item{nrows}{Only used when the number of varying features is three. The
+number of rows into which the facets will be arranged. Default = 1. NULL
+lets the number be determined algorithmically}
 
 \item{print}{Print the plot? Default is FALSE. Either way, the plot is
-invisbly returned}
+invisibly returned}
 
-\item{...}{}
+\item{...}{Not used}
 }
 \value{
 ggplot object, invisibly
 }
-\details{
+\description{
+Plot Counterfactual Predictions
+}
+\examples{
+# First, we need a model on which to make counterfactual predictions
+set.seed(2507)
+m <- machine_learn(pima_diabetes, patient_id, outcome = pregnancies,
+                   tune = FALSE, models = "rf")
+cfs <- predict_counterfactuals(m)
 
+# By default up to four varying features are plotted. This example shows how
+# counterfactual predictions can provide insight into how a model maps inputs
+# (features) to outputs (outcome). In this plot, across all other variables,
+# we see a rapid rise in predict number of pregnancies from age 20 to ~40
+# followed by a sharp leveling off the predicted number of pregnancies after
+# age 40.
+plot(cfs)
+
+# You can reduce the complexity of the plot by limiting the number of features
+# varied in the plot. This is accomplished by averaging over the additional
+# features using the `aggregate_fun`
+plot(cfs, n_use = 2, aggregate_fun = mean)
+
+# Alternatively, you could vary only two features in the generation of counter-
+# factual predictions
+predict_counterfactuals(m, vary = 2) \%>\%
+  plot()
+
+# You can specify which of the varying features are mapped to the x-axis and
+# the color scale
+plot(cfs, x_var = age, color_var = weight_class, n_use = 3)
+
+# There are a variety of options available to customize the appearance of the plot
+plot(cfs, x_var = weight_class, color = diastolic_bp, n_use = 3,
+     font_size = 16, strip_font_size = 1, line_width = 2, line_alpha = .5,
+     rotate_x = TRUE, nrows = NULL)
+
+# And you can further modify the plot like any other ggplot object
+plot(cfs, n_use = 1) +
+  theme_classic() +
+  labs(title = "Counterfactual predictions across age",
+       caption = paste("Based on a random forest trained on",
+                       nrow(pima_diabetes), "Pima women"))
 }

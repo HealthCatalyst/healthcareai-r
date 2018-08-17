@@ -1,4 +1,4 @@
-context("predict_counterfactual")
+context("predict_counterfactuals")
 
 ##### Setup
 set.seed(574)
@@ -9,10 +9,10 @@ variabs <-
   dplyr::filter(role == "predictor") %>%
   split(., .$type) %>%
   purrr::map(dplyr::pull, variable)
-sm <- predict_counterfactual(m)
+sm <- predict_counterfactuals(m)
 plot_sm <- plot(sm, print = FALSE)
 
-##### predict_counterfactual
+##### predict_counterfactuals
 test_that("test_presence", {
   expect_error(test_presence(c("weight_class", "insulin", "age"), variabs), NA)
   against <- list(a = c("one", "thing", "or"), b = "another")
@@ -133,35 +133,35 @@ test_that("choose_static_values hold is custom values", {
   purrr::walk(sv, expect_length, 1)
 })
 
-test_that("predict_counterfactual returns a tibble with custom class", {
+test_that("predict_counterfactuals returns a tibble with custom class", {
   expect_s3_class(sm, "tbl_df")
   expect_s3_class(sm, "cf_df")
 })
 
-test_that("predict_counterfactual can use any algorithm", {
+test_that("predict_counterfactuals can use any algorithm", {
   suppressWarnings({
-    purrr::map_lgl(seq_along(m), ~ is.tbl(predict_counterfactual(m[.x]))) %>%
+    purrr::map_lgl(seq_along(m), ~ is.tbl(predict_counterfactuals(m[.x]))) %>%
       all() %>%
       expect_true()
   })
 })
 
 test_that("vary varies the correct number of variables", {
-  predict_counterfactual(m, vary = 1) %>%
+  predict_counterfactuals(m, vary = 1) %>%
     dplyr::select(-predicted_diabetes) %>%
     purrr::map_lgl(~ dplyr::n_distinct(.x) > 1) %>%
     sum() %>%
     expect_equal(1)
-  predict_counterfactual(m, vary = 5) %>%
+  predict_counterfactuals(m, vary = 5) %>%
     dplyr::select(-predicted_diabetes) %>%
     purrr::map_lgl(~ dplyr::n_distinct(.x) > 1) %>%
     sum() %>%
     expect_equal(5)
 })
 
-test_that("predict_counterfactual hold custom functions (mean instead of median for numerics)", {
-  sm_def <- predict_counterfactual(m, vary = c("weight_class", "skinfold"))
-  sm2 <- predict_counterfactual(m, vary = c("weight_class", "skinfold"),
+test_that("predict_counterfactuals hold custom functions (mean instead of median for numerics)", {
+  sm_def <- predict_counterfactuals(m, vary = c("weight_class", "skinfold"))
+  sm2 <- predict_counterfactuals(m, vary = c("weight_class", "skinfold"),
                                 hold = list(numerics = mean, characters = Mode))
   same <- purrr::map2(sm_def, sm2, ~ isTRUE(all.equal(.x, .y)))
   expect_true(same$weight_class)
@@ -169,8 +169,8 @@ test_that("predict_counterfactual hold custom functions (mean instead of median 
   expect_false(same$predicted_diabetes)
 })
 
-test_that("predict_counterfactual hold row from test data", {
-  p51 <- predict_counterfactual(m, hold = pima_diabetes[51, ], vary = c("weight_class"))
+test_that("predict_counterfactuals hold row from test data", {
+  p51 <- predict_counterfactuals(m, hold = pima_diabetes[51, ], vary = c("weight_class"))
   varying <- purrr::map_lgl(p51, ~ dplyr::n_distinct(.x) > 1)
   expect_setequal(names(varying)[varying], c("predicted_diabetes", "weight_class"))
   p51[, !varying] %>%
@@ -178,8 +178,8 @@ test_that("predict_counterfactual hold row from test data", {
     expect_equal(pima_diabetes[51, which(names(pima_diabetes) %in% names(varying)[!varying])])
 })
 
-test_that("predict_counterfactual hold custom list", {
-  ch <- predict_counterfactual(m,
+test_that("predict_counterfactuals hold custom list", {
+  ch <- predict_counterfactuals(m,
                                vary = dplyr::setdiff(names(pima_diabetes), c("patient_id", "diabetes", "age", "skinfold")),
                                hold = list(age = 21, skinfold = 18))
   varying <- purrr::map_lgl(ch, ~ dplyr::n_distinct(.x) > 1)
@@ -188,34 +188,34 @@ test_that("predict_counterfactual hold custom list", {
   expect_equal(unique(ch$skinfold), 18)
 })
 
-test_that("predict_counterfactual returns right number of character values", {
-  expect_equal(dplyr::n_distinct(predict_counterfactual(m, vary = "weight_class", characters = 2)$weight_class), 2)
-  expect_equal(dplyr::n_distinct(predict_counterfactual(m, characters = 4)$weight_class), 4)
+test_that("predict_counterfactuals returns right number of character values", {
+  expect_equal(dplyr::n_distinct(predict_counterfactuals(m, vary = "weight_class", characters = 2)$weight_class), 2)
+  expect_equal(dplyr::n_distinct(predict_counterfactuals(m, characters = 4)$weight_class), 4)
   expect_equal(dplyr::n_distinct(sm$weight_class), dplyr::n_distinct(pima_diabetes$weight_class[1:50]))
 })
 
-test_that("predict_counterfactual returns the right number of numeric values", {
-  expect_equal(dplyr::n_distinct(predict_counterfactual(m, vary = "plasma_glucose", numerics = 2)$plasma_glucose), 2)
-  expect_equal(dplyr::n_distinct(predict_counterfactual(m, numerics = 9)$plasma_glucose), 9)
-  expect_equal(dplyr::n_distinct(predict_counterfactual(m, numerics = c(.1, .3, .8))$plasma_glucose), 3)
+test_that("predict_counterfactuals returns the right number of numeric values", {
+  expect_equal(dplyr::n_distinct(predict_counterfactuals(m, vary = "plasma_glucose", numerics = 2)$plasma_glucose), 2)
+  expect_equal(dplyr::n_distinct(predict_counterfactuals(m, numerics = 9)$plasma_glucose), 9)
+  expect_equal(dplyr::n_distinct(predict_counterfactuals(m, numerics = c(.1, .3, .8))$plasma_glucose), 3)
 })
 
-test_that("predict_counterfactual errors as expected", {
-  expect_error(predict_counterfactual(pima_diabetes), "model_list")
-  expect_error(predict_counterfactual(structure(m, recipe = NULL)), "prep_data")
-  expect_error(predict_counterfactual(m, vary = c("age", "not_a_var")), "not_a_var")
-  expect_error(predict_counterfactual(m, hold = list(numerics = mean)), "hold")
-  expect_error(predict_counterfactual(m, hold = list(characters = Mode)), "hold")
-  expect_error(predict_counterfactual(m, hold = list(numerics = mean, characters = Mode)), NA)
-  expect_error(predict_counterfactual(m, hold = list(median, Mode)), "named")
-  expect_error(predict_counterfactual(m, hold = list(age = 50)), "hold")
+test_that("predict_counterfactuals errors as expected", {
+  expect_error(predict_counterfactuals(pima_diabetes), "model_list")
+  expect_error(predict_counterfactuals(structure(m, recipe = NULL)), "prep_data")
+  expect_error(predict_counterfactuals(m, vary = c("age", "not_a_var")), "not_a_var")
+  expect_error(predict_counterfactuals(m, hold = list(numerics = mean)), "hold")
+  expect_error(predict_counterfactuals(m, hold = list(characters = Mode)), "hold")
+  expect_error(predict_counterfactuals(m, hold = list(numerics = mean, characters = Mode)), NA)
+  expect_error(predict_counterfactuals(m, hold = list(median, Mode)), "named")
+  expect_error(predict_counterfactuals(m, hold = list(age = 50)), "hold")
 
 })
 
 
 
-##### predict_counterfactual generics
-test_that("printing a predict_counterfactuald df doesn't print training performance info", {
+##### predict_counterfactuals generics
+test_that("printing a predict_counterfactualsd df doesn't print training performance info", {
   sim_print <- capture_output( sim_mess <- capture_messages( print(sm)))
   sim_output <- paste(sim_print, sim_mess)
   expect_false(stringr::str_detect(sim_print, "Performance"))
@@ -243,7 +243,6 @@ test_that("plot.cf args work", {
   # make sure each argument changes something
   altered_plots <- list(
     plot(sm, print = FALSE, jitter_y = FALSE, reorder_categories = FALSE),
-    plot(sm, print = FALSE, jitter_y = FALSE, n_use = 3),
     plot(sm, print = FALSE, jitter_y = TRUE),
     plot(sm, print = FALSE, jitter_y = FALSE, x_var = weight_class),
     plot(sm, print = FALSE, jitter_y = FALSE, color_var = skinfold),
@@ -256,6 +255,8 @@ test_that("plot.cf args work", {
   purrr::map_lgl(altered_plots, ~ isTRUE(all.equal(.x, default_plot))) %>%
     any() %>%
     expect_false()
+  use2 <- plot(sm, print = FALSE, n_use = 2)
+  expect_equal(nrow(ggplot2::ggplot_build(use2)$layout$layout), 1)
 })
 
 #### plot.cf_df helpers
@@ -317,4 +318,9 @@ test_that("map_variables with mappings specified", {
     dplyr::pull(map_to) %>%
     expect_equal(c("color", "x"))
   expect_error(map_variables(vars[1, ], color_var = rlang::quo(a)), "color")
+})
+
+test_that("map_variables errors informatively", {
+  expect_error(map_variables(vars, rlang::quo("something else"), rlang::quo()), "x_var")
+  expect_error(map_variables(vars, rlang::quo(), rlang::quo("something else")), "color_var")
 })
