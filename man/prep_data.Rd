@@ -126,7 +126,7 @@ prep_data(d = d_train, patient_id, outcome = diabetes,
           collapse_rare_factors = FALSE, center = TRUE, scale = TRUE,
           make_dummies = FALSE, remove_near_zero_variance = .02)
 
-#' # `prep_data` also handles date and time features
+# `prep_data` also handles date and time features
 d <-
   pima_diabetes \%>\%
   cbind(

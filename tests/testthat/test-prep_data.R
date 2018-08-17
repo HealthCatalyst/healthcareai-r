@@ -296,6 +296,11 @@ test_that("dummy columns are created as expected", {
   expect_true(all(n == exp))
 })
 
+test_that("test convert_dates is `none`, `continuous`, or `categories`", {
+  expect_error(prep_data(d_train, convert_dates = TRUE), "convert_dates must")
+  expect_error(prep_data(d_train, convert_dates = "test"), "convert_dates must")
+})
+
 test_that("Output of impute is same for tibble vs data frame", {
   expect_equal(
     prep_data(d_train),

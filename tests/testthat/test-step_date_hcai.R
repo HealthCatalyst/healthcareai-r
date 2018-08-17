@@ -133,6 +133,12 @@ test_that("tidy method prints correctly for categories features", {
   expect_s3_class(broom::tidy(date_rec$steps[[1]]), "tbl_df")
 })
 
-## Things to test
-# 1. hours are not being created unless they need to.
-# 2. find another way to test hours
+test_that("test possible values for `feature_type`", {
+  expect_error(
+    recipes::recipe(head(d), ~ .) %>%
+      step_date_hcai(cols = cols, feature_type = "test"),
+    "Possible values"
+  )
+})
+
+
