@@ -284,9 +284,11 @@ prep_data <- function(d,
 
     # Convert date columns to useful features and remove original. ------------
     if (!is.character(convert_dates))
-      stop('convert_dates must be "none", "continuous", or "categories" for `step_date`')
+      stop('convert_dates must be "none", "continuous", or "categories" for ',
+           '`step_date`')
     if (!(convert_dates %in% c("none", "continuous", "categories")))
-      stop('convert_dates must be "none", "continuous", or "categories" for `step_date`')
+      stop('convert_dates must be "none", "continuous", or "categories" for ',
+           '`step_date`')
 
     if (convert_dates == "none") {
       cols <- find_date_cols(d)
@@ -297,7 +299,7 @@ prep_data <- function(d,
       if (!purrr::is_empty(cols)) {
         recipe <-
           do.call(step_date_hcai,
-                  list(recipe = recipe, cols, features = convert_dates)) %>%
+                  list(recipe = recipe, cols, feature_type = convert_dates)) %>%
           recipes::step_rm(cols)
         # recipe <-
         #   do.call(step_date_hcai,

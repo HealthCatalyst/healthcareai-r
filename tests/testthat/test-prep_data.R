@@ -18,7 +18,7 @@ df <- data.frame(
   drum_flag = sample(c(0, 1, NA), size = n, replace = T,
                      prob = c(0.45, 0.45, 0.1)),
   date_col = lubridate::ymd("2002-03-04") + lubridate::days(sample(1:1000, n)),
-  posixct_col = lubridate::ymd("2004-03-04") + lubridate::days(sample(1:1000, n)),
+  posixct_col = seq(as.POSIXct("2005-1-1 0:00"), length.out = n, by = 'hour'),
   col_DTS = lubridate::ymd("2006-03-01") + lubridate::days(sample(1:1000, n)),
   char_DTS = sample(sample_days, n, replace = TRUE),
   missing82 = sample(1:10, n, replace = TRUE),
@@ -155,15 +155,15 @@ test_that("0/1 outcome is converted to N/Y", {
 
 test_that("date columns are found and converted", {
   d_clean <- prep_data(d = d_train, outcome = is_ween, song_id,
-                       make_dummies = FALSE, convert_dates = "categories") ##################ADD check for hours
-  print(d_clean$date_col_hour)
-  expect_true(is.numeric(d_clean$date_col_hour))
+                       make_dummies = FALSE, convert_dates = "categories")
+  expect_true(is.numeric(d_clean$posixct_col_hour))
   expect_true(is.factor(d_clean$date_col_dow))
   expect_true(is.factor(d_clean$posixct_col_month))
   expect_true(is.numeric(d_clean$col_DTS_year))
   expect_true(all(c("Jan", "Mar") %in% d_clean$date_col_month))
-  expect_true(all(2004:2006 %in% d_clean$posixct_col_year))
+  expect_true(all(2006:2008 %in% d_clean$col_DTS_year))
   expect_true(all(c("Sun", "Mon", "Tue") %in% d_clean$col_DTS_dow))
+  expect_true(all(c(0:23) %in% d_clean$posixct_col_hour))
 })
 
 test_that("date columns are found, converted, and dummified", {
@@ -172,16 +172,17 @@ test_that("date columns are found, converted, and dummified", {
   expect_equal(sum(purrr::map_lgl(month.abb, ~ any(grepl(.x, names(d_clean))))), 11)
   expect_true("date_col_dow_Thu" %in% names(d_clean))
   expect_equal(sort(unique(d_clean$col_DTS_month_Sep)), c(0, 1))
-  expect_true(all(2004:2006 %in% d_clean$posixct_col_year))
+  expect_true(all(2006:2008 %in% d_clean$col_DTS_year))
+  expect_true(all(c(0:23) %in% d_clean$posixct_col_hour))
 })
 
-# test_that("convert_dates works when continuous", {
-#   dd <- prep_data(d_train, convert_dates = "quarter")
-#   expect_true("date_col_quarter" %in% names(dd))
-#   expect_false("date_col_dow" %in% names(dd))
-#   dd <- prep_data(d_train, convert_dates = c("doy", "quarter"))
-#   expect_true(all(c("date_col_doy", "date_col_quarter") %in% names(dd)))
-# })
+test_that("convert_dates works when continuous", {
+  dd <- prep_data(d_train)
+  expect_true("date_col_dow_sin" %in% names(dd))
+  expect_false("date_col_dow" %in% names(dd))
+  dd <- prep_data(d_train, convert_dates = "continuous")
+  expect_true(all(c("date_col_dow_sin", "posixct_col_hour_cos") %in% names(dd)))
+})
 
 test_that("convert_dates removes date columns when none", {
   dd <- prep_data(d_train, convert_dates = "none")
