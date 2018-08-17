@@ -158,8 +158,17 @@ trunc_char <- function(x, max_char) {
   return(x)
 }
 
-#' Return most common entry, whether x is a frequency table or a vector
-#' @noRd
+#' Mode
+#'
+#' @param x Either a vector or a frequency table from \code{table}
+#'
+#' @return The modal value of x
+#' @export
+#'
+#' @examples
+#' x <- c(3, 1:5)
+#' Mode(x)
+#' Mode(table(x))
 Mode <- function(x) {
   if (is.table(x)) {
     x <- names(sort(x, decreasing = TRUE))[1]
