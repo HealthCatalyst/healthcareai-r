@@ -107,9 +107,20 @@
 #' prep_data(d = d_train, patient_id, outcome = diabetes,
 #'           impute = list(numeric_method = "bagimpute",
 #'                         nominal_method = "bagimpute"),
-#'           collapse_rare_factors = FALSE, convert_dates = "continuous", #########################TODO: FIX
-#'           center = TRUE, scale = TRUE, make_dummies = FALSE,
-#'           remove_near_zero_variance = .02)
+#'           collapse_rare_factors = FALSE, center = TRUE, scale = TRUE,
+#'           make_dummies = FALSE, remove_near_zero_variance = .02)
+#'
+#' # `prep_data` also handles date and time features
+#' d_train <-
+#'   d_train %>%
+#'   cbind(
+#'     admitted_DTS = seq(as.POSIXct("2005-1-1 0:00"),
+#'                        length.out = nrow(d_train), by = "hour")
+#'   )
+#' prep_data(d = d_train)
+#'
+#' # Customize how these date and time features are handled:
+#' prep_data(d = d_train, convert_dates = "categories")
 prep_data <- function(d,
                       ...,
                       outcome,
@@ -301,10 +312,6 @@ prep_data <- function(d,
           do.call(step_date_hcai,
                   list(recipe = recipe, cols, feature_type = convert_dates)) %>%
           recipes::step_rm(cols)
-        # recipe <-
-        #   do.call(step_date_hcai,
-        #           list(recipe = recipe, cols, features = convert_dates)) %>% ## try this without the do.call..
-        #   recipes::step_rm(cols)
       }
     }
 
