@@ -13,26 +13,87 @@ d <- data.frame(
 
 # Tests ------------------------------------------------------------------------
 
-test_that("same results as recipes::step_date for dow, month, and year", {
+test_that("categories - check dow, month, and year with recipes::step_date", {
   d <- d %>% dplyr::select(e_date, b_nums, d_chars)
   cols <- find_date_cols(d)
   sdf <- c("dow", "month", "year")
 
   date_rec <- recipes::recipe(head(d), ~ .)
-  date_rec <- step_date_hcai(date_rec, cols = cols, features = "categories") %>%
+  date_rec <- step_date_hcai(date_rec, cols = cols, feature_type = "categories") %>%
     recipes::step_rm(cols = cols)
   date_rec <- recipes::prep(date_rec, training = d)
   d_hcai <- recipes::bake(date_rec, newdata = d)
-  d_hcai <- select(d_hcai, contains("date")) %>% select(-contains("hour"))
 
   date_rec <- recipes::recipe(head(d), ~ .)
   date_rec <- recipes::step_date(date_rec, cols = cols, features = sdf) %>%
     recipes::step_rm(cols = cols)
   date_rec <- recipes::prep(date_rec, training = d)
   d_recipes <- recipes::bake(date_rec, newdata = d)
-  d_recipes <- select(d_recipes, contains("date"))
 
   expect_equal(d_hcai, d_recipes)
+})
+
+test_that("categories - check hour column created corectly", {
+  expected <- data.frame(
+    f_DTS_hour = c(13, 1, 12)
+  )
+
+  d <- d %>% dplyr::select(b_nums, f_DTS)
+  cols <- find_date_cols(d)
+
+  date_rec <- recipes::recipe(head(d), ~ .)
+  date_rec <- step_date_hcai(date_rec, cols = cols, feature_type = "categories") %>%
+    recipes::step_rm(cols = cols)
+  date_rec <- recipes::prep(date_rec, training = d)
+  d_hcai <- recipes::bake(date_rec, newdata = d)
+
+  expect_equal(d_hcai$f_DTS_hour, expected$f_DTS_hour)
+})
+
+test_that("continuous - check date time column created correctly", {
+  expected <- data.frame(
+    b_nums = d$b_nums,
+    f_DTS_dow_sin = sin(2 * pi / 7 * c(7, 2, 5)),
+    f_DTS_dow_cos = cos(2 * pi / 7 * c(7, 2, 5)),
+    f_DTS_month_sin = sin(2 * pi / 12 * c(1, 1, 5)),
+    f_DTS_month_cos = cos(2 * pi / 12 * c(1, 1, 5)),
+    f_DTS_year = c(2000, 2000, 2001),
+    f_DTS_hour_sin = sin(2 * pi / 24 * c(13, 1, 12)),
+    f_DTS_hour_cos = cos(2 * pi / 24 * c(13, 1, 12))
+  )
+
+  d <- d %>% dplyr::select(b_nums, f_DTS)
+  cols <- find_date_cols(d)
+
+  date_rec <- recipes::recipe(head(d), ~ .)
+  date_rec <- step_date_hcai(date_rec, cols = cols, feature_type = "continuous") %>%
+    recipes::step_rm(cols = cols)
+  date_rec <- recipes::prep(date_rec, training = d)
+  d_hcai <- recipes::bake(date_rec, newdata = d)
+
+  expect_equal(d_hcai, expected)
+})
+
+test_that("continuous - check date only column created correctly - no hour", {
+  expected <- data.frame(
+    b_nums = d$b_nums,
+    c_DTS_dow_sin = sin(2 * pi / 7 * c(2, 2, 4)),
+    c_DTS_dow_cos = cos(2 * pi / 7 * c(2, 2, 4)),
+    c_DTS_month_sin = sin(2 * pi / 12 * c(3, 3, 6)),
+    c_DTS_month_cos = cos(2 * pi / 12 * c(3, 3, 6)),
+    c_DTS_year = c(2018, 2018, 2019)
+  )
+
+  d <- d %>% dplyr::select(b_nums, c_DTS)
+  cols <- find_date_cols(d)
+
+  date_rec <- recipes::recipe(head(d), ~ .)
+  date_rec <- step_date_hcai(date_rec, cols = cols, feature_type = "continuous") %>%
+    recipes::step_rm(cols = cols)
+  date_rec <- recipes::prep(date_rec, training = d)
+  d_hcai <- recipes::bake(date_rec, newdata = d)
+
+  expect_equal(data.frame(d_hcai), expected)
 })
 
 test_that("Print method works correctly", {
@@ -41,7 +102,7 @@ test_that("Print method works correctly", {
   sdf <- c("dow", "month", "year")
 
   date_rec <- recipes::recipe(head(d), ~ .)
-  date_rec <- step_date_hcai(date_rec, cols = cols, features = "categories")
+  date_rec <- step_date_hcai(date_rec, cols = cols, feature_type = "categories")
   date_rec <- recipes::prep(date_rec, training = d)
 
   expect_output(
@@ -56,41 +117,13 @@ test_that("tidy method prints correctly for categories features", {
 
   date_rec <-
     recipes::recipe(head(d), ~ .) %>%
-    step_date_hcai(cols = cols, features = "categories") %>%
+    step_date_hcai(cols = cols, feature_type = "categories") %>%
     recipes::prep(training = d)
 
   exp <- tibble::as_tibble(
     data.frame(
       terms = "e_date",
-      value = factor(c("hour", "dow", "month", "year"),
-                     levels = c("hour", "dow", "month", "year")),
-      features = "categories"
-    )
-  )
-
-  expect_equal(
-    exp,
-    broom::tidy(date_rec$steps[[1]]))
-  expect_s3_class(broom::tidy(date_rec$steps[[1]]), "tbl_df")
-
-
-})
-
-test_that("tidy method prints correctly for continuous features", {
-  d <- d %>% dplyr::select(e_date, b_nums, d_chars)
-  cols <- find_date_cols(d)
-
-  date_rec <-
-    recipes::recipe(head(d), ~ .) %>%
-    step_date_hcai(cols = cols, features = "continuous") %>%
-    recipes::prep(training = d)
-
-  exp <- tibble::as_tibble(
-    data.frame(
-      terms = "e_date",
-      value = factor(c("hour_sin", "hour_cos", "dow_sin", "dow_cos", "month_sin", "month_cos", "year"),
-                     levels = c("hour_sin", "hour_cos", "dow_sin", "dow_cos", "month_sin", "month_cos", "year")),
-      features = "continuous"
+      feature_type = "categories"
     )
   )
 

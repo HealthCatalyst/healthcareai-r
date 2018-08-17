@@ -56,10 +56,10 @@
 #' date_values <- bake(date_rec, newdata = examples)
 #' date_values
 step_date_hcai <- function(recipe, ..., role = "predictor", trained = FALSE,
-                           features = "continuous", columns = NULL, skip = FALSE) {
-  possible_features <- c("categories", "continuous")
-  if (!(features %in% possible_features))
-    stop("Possible values of `features` should include: ",
+                           feature_type = "continuous", columns = NULL, skip = FALSE) {
+  possible_feature_types <- c("categories", "continuous")
+  if (!(feature_type %in% possible_feature_types))
+    stop("Possible values of `feature_type` should include: ",
          paste0("'", possible_features, "'", collapse = ", "))
   add_step(
     recipe,
@@ -67,7 +67,7 @@ step_date_hcai <- function(recipe, ..., role = "predictor", trained = FALSE,
       terms = ellipse_check(...),
       role = role,
       trained = trained,
-      features = features,
+      feature_type = feature_type,
       columns = columns,
       skip = skip
     )
@@ -75,9 +75,9 @@ step_date_hcai <- function(recipe, ..., role = "predictor", trained = FALSE,
 }
 
 step_date_hcai_new <- function(terms = NULL, role = "predictor",
-                               trained = FALSE, features = NULL, columns = NULL, skip = FALSE) {
-  step(subclass = "date_hcai", terms = terms, role = role, trained = trained,
-       features = features, columns = columns, skip = skip)
+                               trained = FALSE, feature_type = NULL, columns = NULL, skip = FALSE) {
+  step(subclass = "date_hcai", terms = terms, role = role, trained = trained, new_features = NULL,
+       feature_type = feature_type, columns = columns, skip = skip)
 }
 
 #' @importFrom stats as.formula model.frame
@@ -87,7 +87,7 @@ prep.step_date_hcai <- function(x, training, info = NULL, ...) {
   date_data <- info[info$variable %in% col_names, ]
 
   step_date_hcai_new(terms = x$terms, role = x$role, trained = TRUE,
-                     features = x$features, columns = col_names, skip = x$skip)
+                     feature_type = x$feature_type, columns = col_names, skip = x$skip)
 }
 
 
@@ -147,7 +147,7 @@ bake.step_date_hcai <- function(object, newdata, ...) {
   date_info <- purrr::map(object$columns, ~{
     get_date_features(
       dt = dplyr::pull(newdata, .x),
-      feats = object$features,
+      feats = object$feature_type,
       column_name = .x
     )
   })
@@ -168,14 +168,6 @@ print.step_date_hcai <- function(x, width = max(20, options()$width - 29), ...) 
   invisible(x)
 }
 
-
-get_values <- function(features) {
-  if (features == "continuous")
-    c("hour_sin", "hour_cos", "dow_sin", "dow_cos", "month_sin", "month_cos", "year")
-  else
-    c("hour", "dow", "month", "year")
-}
-
 #' @rdname step_date_hcai
 #' @param x A `step_date_hcai` object.
 #' @export
@@ -183,15 +175,13 @@ tidy.step_date_hcai <- function(x, ...) {
   if (x$trained == TRUE) {
     res <- expand.grid(
       terms = x$columns,
-      value = get_values(x$features),
-      features = x$features
+      feature_type = x$feature_type
     )
   } else {
     term_names <- sel2char(x$terms)
     res <- expand.grid(
       terms = term_names,
-      value = get_values(x$features),
-      features = x$features
+      feature_type = x$feature_type
     )
   }
   as_tibble(res)

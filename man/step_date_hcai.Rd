@@ -6,7 +6,7 @@
 \title{Date Feature Generator}
 \usage{
 step_date_hcai(recipe, ..., role = "predictor", trained = FALSE,
-  features = "continuous", columns = NULL, skip = FALSE)
+  feature_type = "continuous", columns = NULL, skip = FALSE)
 
 \method{tidy}{step_date_hcai}(x, ...)
 }
@@ -27,8 +27,6 @@ model.}
 \item{trained}{A logical to indicate if the number of NA values have been
 counted in preprocessing.}
 
-\item{features}{character, either `continuous` (default) or `categories`.}
-
 \item{columns}{A character string of variables that will be used as inputs.
 This field is a placeholder and will be populated once [prep.recipe()] is
 used.}
@@ -36,6 +34,8 @@ used.}
 \item{skip}{A logical. Should the step be skipped when the recipe is baked?}
 
 \item{x}{A `step_date_hcai` object.}
+
+\item{features}{character, either `continuous` (default) or `categories`.}
 }
 \value{
 For `step_date_hcai`, an updated version of recipe with the new step
