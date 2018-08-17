@@ -34,8 +34,9 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
     dplyr::filter(!is_numeric) %>%
     dplyr::pull(variable)
   if (length(non_numerics))
-    stop("All predictors must be numeric, but the variables are not numeric. Consider using ",
-         "prep_data to get data ready for model training: ", list_variables(non_numerics))
+    stop("All predictors must be numeric, but the following variables are not ",
+         "numeric. Consider using prep_data to get data ready for model ",
+         "training: ", list_variables(non_numerics))
 
   if (missing(models)) {
     models <- get_supported_models()
