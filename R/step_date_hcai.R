@@ -104,17 +104,20 @@ convert_to_circular <- function(x, parts, fun) {
 get_date_features <- function(dt, feats, column_name) {
   if (feats == "continuous") {
     res <- tibble(
-      hour_sin = convert_to_circular(hour(dt), 24, sin),
-      hour_cos = convert_to_circular(hour(dt), 24, cos),
       dow_sin = convert_to_circular(wday(dt), 7, sin),
       dow_cos = convert_to_circular(wday(dt), 7, cos),
       month_sin = convert_to_circular(month(dt), 12, sin),
       month_cos = convert_to_circular(month(dt), 12, cos),
       year = year(dt)
     )
+
+    # only make hour feature if time exists in object
+    if (is.POSIXt(dt)) {
+      res$hour_sin <- convert_to_circular(hour(dt), 24, sin)
+      res$hour_cos <- convert_to_circular(hour(dt), 24, cos)
+    }
   } else {
     res <- tibble(
-      hour = hour(dt),
       dow = wday(dt, abbr = TRUE, label = TRUE),
       month = month(dt, abbr = TRUE, label = TRUE),
       year = year(dt)
@@ -122,6 +125,10 @@ get_date_features <- function(dt, feats, column_name) {
 
     res$dow <- ord2fac(res, "dow")
     res$month <- ord2fac(res, "month")
+
+    # only make hour feature if time exists in object
+    if (is.POSIXt(dt))
+      res$hour <- hour(dt)
   }
   names(res) <-
     paste(column_name,

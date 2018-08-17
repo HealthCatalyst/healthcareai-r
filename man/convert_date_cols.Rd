@@ -16,8 +16,8 @@ A tibble containing the converted date columns. If no columns needed
 \description{
 This function is called in \code{\link{prep_data}} and so
   shouldn't usually need to be called directly. It tries to convert columns
-  ending in "DTS" to type Date. It makes a best guess at the format and
-  return a more standard one if possible. Times are be removed.
+  ending in "DTS" to type Date or DateTime (POSIXt). It makes a best guess at
+  the format and return a more standard one if possible.
 }
 \examples{
 d <- tibble::tibble(a_DTS = c("2018-3-25", "2018-3-25"),

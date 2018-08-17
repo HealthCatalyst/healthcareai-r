@@ -69,8 +69,8 @@ find_new_missingness <- function(d, recipe) {
 #'
 #' @description This function is called in \code{\link{prep_data}} and so
 #'   shouldn't usually need to be called directly. It tries to convert columns
-#'   ending in "DTS" to type Date. It makes a best guess at the format and
-#'   return a more standard one if possible. Times are be removed.
+#'   ending in "DTS" to type Date or DateTime (POSIXt). It makes a best guess at
+#'   the format and return a more standard one if possible.
 #'
 #' @param d A dataframe or tibble containing data to try to convert to dates.
 #'
@@ -152,7 +152,10 @@ convert_date_cols <- function(d) {
   # Convert dates in original data
   stopifnot(all.equal(names(dd), d_dates$names))
   dd <- map2_df(dd, d_dates$working_format, function(x, y) {
-    out <- date(as.POSIXct(x = x, format = y))
+    if (grepl("H", y))
+      out <- as.POSIXct(x = x, format = y)
+    else
+      out <- date(as.POSIXct(x = x, format = y))
   })
 
   # Replace and reorder original dataframe
