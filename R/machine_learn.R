@@ -9,6 +9,11 @@
 #'   Unquoted. Must be named, i.e. you must specify \code{outcome = }
 #' @param models Names of models to try. See \code{\link{get_supported_models}}
 #'   for available models. Default is all available models.
+#' @param metric What metric to use to assess model performance? Options for
+#'   regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
+#'   error), or "Rsquared." For classification: "ROC" (area under the receiver
+#'   operating characteristic curve), or "PR" (area under the precision-recall
+#'   curve).
 #' @param tune If TRUE (default) models will be tuned via
 #'   \code{\link{tune_models}}. If FALSE, models will be trained via
 #'   \code{\link{flash_models}} which is substantially faster but produces
@@ -85,7 +90,7 @@
 #' # predictive power.
 #' machine_learn(d$train, patient_id, outcome = diabetes, tune = FALSE)
 #' }
-machine_learn <- function(d, ..., outcome, models, tune = TRUE, positive_class,
+machine_learn <- function(d, ..., outcome, models, metric, tune = TRUE, positive_class,
                           n_folds = 5, tune_depth = 10, impute = TRUE,
                           model_name = NULL, allow_parallel = FALSE) {
 
@@ -120,12 +125,12 @@ machine_learn <- function(d, ..., outcome, models, tune = TRUE, positive_class,
   pd <- prep_data(d, !!!dots, outcome = !!outcome, impute = impute)
   m <-
     if (tune) {
-      tune_models(pd, outcome = !!outcome, models = models,
+      tune_models(pd, outcome = !!outcome, models = models, metric = metric,
                   positive_class = positive_class,
                   n_folds = n_folds, tune_depth = tune_depth,
                   model_name = model_name, allow_parallel = allow_parallel)
     } else {
-      flash_models(pd, outcome = !!outcome, models = models,
+      flash_models(pd, outcome = !!outcome, models = models, metric = metric,
                    positive_class = positive_class, n_folds = n_folds,
                    model_name = model_name, allow_parallel = allow_parallel)
     }

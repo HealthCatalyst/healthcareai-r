@@ -4,7 +4,7 @@
 \alias{machine_learn}
 \title{Machine learning made easy}
 \usage{
-machine_learn(d, ..., outcome, models, tune = TRUE, positive_class,
+machine_learn(d, ..., outcome, models, metric, tune = TRUE, positive_class,
   n_folds = 5, tune_depth = 10, impute = TRUE, model_name = NULL,
   allow_parallel = FALSE)
 }
@@ -19,6 +19,12 @@ Unquoted. Must be named, i.e. you must specify \code{outcome = }}
 
 \item{models}{Names of models to try. See \code{\link{get_supported_models}}
 for available models. Default is all available models.}
+
+\item{metric}{What metric to use to assess model performance? Options for
+regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
+error), or "Rsquared." For classification: "ROC" (area under the receiver
+operating characteristic curve), or "PR" (area under the precision-recall
+curve).}
 
 \item{tune}{If TRUE (default) models will be tuned via
 \code{\link{tune_models}}. If FALSE, models will be trained via
