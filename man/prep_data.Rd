@@ -36,12 +36,12 @@ Example: In a column with 120 "Male" and 2 "Female", the frequency ratio is
 `remove_near_zero_variance` > 0.0166. Larger values will remove more columns
 and this value must lie between 0 and 1.}
 
-\item{convert_dates}{character. It specifies how `prep_data` handles date and
+\item{convert_dates}{Character. It specifies how `prep_data` handles date and
 time features. The three options that \code{prep_data} provides are:
 `continuous` (default), `categories` or `none`. Both `continuous` and
 `categories` create new variables for hour, day, month, and year.
 `continuous` (recommended) uses numeric circular respresentation of these
-features for ml optimization. `categories` makes these features more
+features for model optimization. `categories` makes these features more
 readable (If `make_dummies` is selected, each unique value will become a
 new dummy variable. This will create wide data, which is more challenging
 for ml models.). `none` removes all date and time features.}
@@ -126,7 +126,7 @@ prep_data(d = d_train, patient_id, outcome = diabetes,
           collapse_rare_factors = FALSE, center = TRUE, scale = TRUE,
           make_dummies = FALSE, remove_near_zero_variance = .02)
 
-# `prep_data` also handles date and time features
+# `prep_data` also handles date and time features:
 d <-
   pima_diabetes \%>\%
   cbind(
@@ -137,6 +137,9 @@ d_train = d[1:700, ]
 prep_data(d = d_train)
 
 # Customize how date and time features are handled:
+
+# When `convert_dates` is set to "categories", the prepped data will be more
+# readable, but will be wider.
 prep_data(d = d_train, convert_dates = "categories")
 }
 \seealso{
