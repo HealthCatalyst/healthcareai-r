@@ -55,7 +55,8 @@
 #' date_values <- bake(date_rec, newdata = examples)
 #' date_values
 step_date_hcai <- function(recipe, ..., role = "predictor", trained = FALSE,
-                           feature_type = "continuous", columns = NULL, skip = FALSE) {
+                           feature_type = "continuous", columns = NULL,
+                           skip = FALSE) {
   possible_feature_types <- c("categories", "continuous")
   if (!(feature_type %in% possible_feature_types))
     stop("Possible values of `feature_type` should include: ",
@@ -74,9 +75,11 @@ step_date_hcai <- function(recipe, ..., role = "predictor", trained = FALSE,
 }
 
 step_date_hcai_new <- function(terms = NULL, role = "predictor",
-                               trained = FALSE, feature_type = NULL, columns = NULL, skip = FALSE) {
-  step(subclass = "date_hcai", terms = terms, role = role, trained = trained, new_features = NULL,
-       feature_type = feature_type, columns = columns, skip = skip)
+                               trained = FALSE, feature_type = NULL,
+                               columns = NULL, skip = FALSE) {
+  step(subclass = "date_hcai", terms = terms, role = role, trained = trained,
+       new_features = NULL, feature_type = feature_type, columns = columns,
+       skip = skip)
 }
 
 #' @importFrom stats as.formula model.frame
@@ -86,7 +89,8 @@ prep.step_date_hcai <- function(x, training, info = NULL, ...) {
   date_data <- info[info$variable %in% col_names, ]
 
   step_date_hcai_new(terms = x$terms, role = x$role, trained = TRUE,
-                     feature_type = x$feature_type, columns = col_names, skip = x$skip)
+                     feature_type = x$feature_type, columns = col_names,
+                     skip = x$skip)
 }
 
 
@@ -110,10 +114,14 @@ get_date_features <- function(dt, feats, column_name) {
       year = year(dt)
     )
 
-    # only make hour feature if time exists in object
+    # Only make hour feature if time exists in object
     if (is.POSIXt(dt)) {
-      res$hour_sin <- convert_to_circular(hour(dt), 24, sin)
-      res$hour_cos <- convert_to_circular(hour(dt), 24, cos)
+      res <-
+        res %>%
+        mutate(
+          hour_sin = convert_to_circular(hour(dt), 24, sin),
+          hour_cos = convert_to_circular(hour(dt), 24, cos)
+        )
     }
   } else {
     res <- tibble(
@@ -122,12 +130,18 @@ get_date_features <- function(dt, feats, column_name) {
       year = year(dt)
     )
 
-    res$dow <- ord2fac(res, "dow")
-    res$month <- ord2fac(res, "month")
+    res <-
+      res %>%
+      mutate(
+        dow = ord2fac(res, "dow"),
+        month = ord2fac(res, "month")
+      )
 
-    # only make hour feature if time exists in object
+    # Only make hour feature if time exists in object
     if (is.POSIXt(dt))
-      res$hour <- hour(dt)
+      res <-
+        res %>%
+        mutate(hour = hour(dt))
   }
   names(res) <-
     paste(column_name,
@@ -161,7 +175,8 @@ bake.step_date_hcai <- function(object, newdata, ...) {
 }
 
 #' @export
-print.step_date_hcai <- function(x, width = max(20, options()$width - 29), ...) {
+print.step_date_hcai <- function(x, width = max(20, options()$width - 29),
+                                 ...) {
   cat("Date features from ")
   printer(x$columns, x$terms, x$trained, width = width)
   invisible(x)
