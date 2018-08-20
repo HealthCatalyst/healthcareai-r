@@ -89,6 +89,9 @@
 #' # faster (especially on larger datasets), but produces models with less
 #' # predictive power.
 #' machine_learn(d$train, patient_id, outcome = diabetes, tune = FALSE)
+#'
+#' ### Train models optimizing given metric ###
+#' machine_learn(d$train, patient_id, outcome = diabetes, metric = "PR")
 #' }
 machine_learn <- function(d, ..., outcome, models, metric, tune = TRUE, positive_class,
                           n_folds = 5, tune_depth = 10, impute = TRUE,
@@ -126,9 +129,9 @@ machine_learn <- function(d, ..., outcome, models, metric, tune = TRUE, positive
   m <-
     if (tune) {
       tune_models(pd, outcome = !!outcome, models = models, metric = metric,
-                  positive_class = positive_class,
-                  n_folds = n_folds, tune_depth = tune_depth,
-                  model_name = model_name, allow_parallel = allow_parallel)
+                  positive_class = positive_class, n_folds = n_folds,
+                  tune_depth = tune_depth, model_name = model_name,
+                  allow_parallel = allow_parallel)
     } else {
       flash_models(pd, outcome = !!outcome, models = models, metric = metric,
                    positive_class = positive_class, n_folds = n_folds,
