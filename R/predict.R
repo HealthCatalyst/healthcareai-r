@@ -11,16 +11,18 @@
 #'   out if the data need to be sent through `prep_data` before making
 #'   predictions; this can be overriden by setting `prepdata = FALSE`, but this
 #'   should rarely be needed.
+#'   @param risk_groups
+#'   @param outcome_groups
 #' @param prepdata Logical, this should rarely be set by the user. By default,
 #'   if `newdata` hasn't been prepped, it will be prepped by `prep_data` before
 #'   predictions are made. Set this to TRUE to force already-prepped data
 #'   through `prep_data` again, or set to FALSE to prevent `newdata` from being
 #'   sent through `prep_data`.
 #' @param write_log Write prediction metadata to a file? Default is FALSE. If
-#'   TRUE, will create or append a file called "prediction_log.txt" in
-#'   the current directory with metadata about predictions. If a character, is
-#'   the name of a file to create or append with prediction metadata. If you
-#'   want a unique log file each time predictions are made, use something like
+#'   TRUE, will create or append a file called "prediction_log.txt" in the
+#'   current directory with metadata about predictions. If a character, is the
+#'   name of a file to create or append with prediction metadata. If you want a
+#'   unique log file each time predictions are made, use something like
 #'   \code{write_log = paste0(Sys.time(), " predictions.txt")}. This param
 #'   modifies error behavior and is best used in production. See details.
 #' @param ... Unused.
@@ -35,8 +37,8 @@
 #'   zero-row dataframe will be returned.
 #'
 #'   Returned data will contain an attribute, "prediction_log" that contains a
-#'   tibble of  logging info for writing to database. If \code{write_log}
-#'   is TRUE and predict errors, an empty dataframe with the "prediction_log"
+#'   tibble of  logging info for writing to database. If \code{write_log} is
+#'   TRUE and predict errors, an empty dataframe with the "prediction_log"
 #'   attribute will still be returned. Extract this attribute using
 #'   \code{attr(pred, "prediction_log")}.
 #'
@@ -52,11 +54,9 @@
 #'   returning your predictions with the newdata in its original format.
 #'
 #'   If \code{write_log} is TRUE and an error is encountered, \code{predict}
-#'   will not stop. It will return the error message as:
-#'   - A warning in the console
-#'   - A field in the log file
-#'   - A column in the "prediction_log" attribute
-#'   - A zero-row data frame will be returned
+#'   will not stop. It will return the error message as: - A warning in the
+#'   console - A field in the log file - A column in the "prediction_log"
+#'   attribute - A zero-row data frame will be returned
 #'
 #' @examples
 #' # Tune models using only the first 40 rows to keep computation fast
@@ -74,6 +74,8 @@
 #' plot(predictions)
 predict.model_list <- function(object,
                                newdata,
+                               risk_groups = NULL,
+                               outcome_groups = NULL,
                                prepdata,
                                write_log = FALSE,
                                ...) {
@@ -81,12 +83,16 @@ predict.model_list <- function(object,
   if (write_log == FALSE) {
     out <- predict_model_list_main(object,
                                    newdata,
+                                   risk_groups = NULL,
+                                   outcome_groups = NULL,
                                    prepdata,
                                    write_log,
                                    ...)
   } else {
     out <- safe_predict_model_list_main(object,
                                         newdata,
+                                        risk_groups = NULL,
+                                        outcome_groups = NULL,
                                         prepdata,
                                         write_log,
                                         ...)
@@ -167,6 +173,13 @@ predict_model_list_main <- function(object,
   pred_name <- paste0("predicted_", mi$target)
   newdata[[pred_name]] <- preds
   newdata <- tibble::as_tibble(newdata)
+
+  # Add groups if desired
+  if (!is.null(risk_groups))
+    # TODO
+  if (!is.null(outcome_groups))
+    # TODO
+
   # Put predictions and, if present, the outcome at left of newdata
   newdata <- dplyr::select(newdata, pred_name, dplyr::everything())
   if (mi$target %in% names(newdata))
