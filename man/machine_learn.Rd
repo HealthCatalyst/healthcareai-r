@@ -111,5 +111,8 @@ predict(age_model)
 # faster (especially on larger datasets), but produces models with less
 # predictive power.
 machine_learn(d$train, patient_id, outcome = diabetes, tune = FALSE)
+
+### Train models optimizing given metric ###
+machine_learn(d$train, patient_id, outcome = diabetes, metric = "PR")
 }
 }
