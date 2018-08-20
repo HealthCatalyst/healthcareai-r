@@ -123,7 +123,7 @@ predict_counterfactuals <- function(models,
                                  hold = hold)
   static <- do.call(dplyr::bind_rows, replicate(nrow(d), static, simplify = FALSE))
   d <- dplyr::bind_cols(d, static)
-  suppressMessages( preds <- predict(models, d) )
+  suppressWarnings( suppressMessages( preds <- predict(models, d) ) )
   # Intentionally leave off the predicted_df class here to avoid performance-
   # in-training info printing
   structure(preds, class = c("cf_df", class(d)))
