@@ -41,7 +41,7 @@
 #'   0.0167. It would be excluded by default or if
 #'   `remove_near_zero_variance` > 0.0166. Larger values will remove more columns
 #'   and this value must lie between 0 and 1.
-#' @param convert_dates Character. It specifies how `prep_data` handles date and
+#' @param convert_dates Character. It specifies how \code{prep_data} handles date and
 #'   time features. The three options that \code{prep_data} provides are:
 #'   `continuous` (default), `categories` or `none`. Both `continuous` and
 #'   `categories` create new variables for hour, day, month, and year.
@@ -49,7 +49,7 @@
 #'   features for model optimization. `categories` makes these features more
 #'   readable (If `make_dummies` is selected, each unique value will become a
 #'   new dummy variable. This will create wide data, which is more challenging
-#'   for ml models.). `none` removes all date and time features.
+#'   for some machine learning models.). `none` removes all date and time features. All features with the DTS suffix will be treated as a date.
 #' @param impute Logical or list. If TRUE (default), columns will be imputed
 #'   using mean (numeric), and new category (nominal). If FALSE, data will not
 #'   be imputed. If this is a list, it must be named, with possible entries for
