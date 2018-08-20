@@ -24,6 +24,7 @@
 #'   \code{write_log = paste0(Sys.time(), " predictions.txt")}. This param
 #'   modifies error behavior and is best used in production. See details.
 #' @param ... Unused.
+#' @param ensemble Default FALSE, user can set ensemble is TRUE or FALSE.
 #'
 #' @return A tibble data frame: newdata with an additional column for the
 #'   predictions in "predicted_TARGET" where TARGET is the name of the variable
@@ -75,6 +76,7 @@
 predict.model_list <- function(object,
                                newdata,
                                prepdata,
+                               ensemble = FALSE,
                                write_log = FALSE,
                                ...) {
   start <- Sys.time()
@@ -82,12 +84,14 @@ predict.model_list <- function(object,
     out <- predict_model_list_main(object,
                                    newdata,
                                    prepdata,
+                                   ensemble,
                                    write_log,
                                    ...)
   } else {
     out <- safe_predict_model_list_main(object,
                                         newdata,
                                         prepdata,
+                                        ensemble,
                                         write_log,
                                         ...)
 
@@ -114,6 +118,7 @@ predict.model_list <- function(object,
 predict_model_list_main <- function(object,
                                     newdata,
                                     prepdata,
+                                    ensemble = FALSE,
                                     write_log = FALSE,
                                     ...) {
 
@@ -154,14 +159,20 @@ predict_model_list_main <- function(object,
 
   # If predicting on training, use out-of-fold; else make predictions
   if (using_training_data) {
-    preds <- get_oof_predictions(object, mi)
+    preds <- get_oof_predictions(object, mi, to_pred, ensemble)
   } else {
     # If classification, want probabilities. If regression, raw's the only option
     type <- if (is.classification_list(object)) "prob" else "raw"
     preds <- caret::predict.train(best_models, to_pred, type = type)
-    # Probs get returned for no and yes. Keep only positive class as set in training
+  # Probs get returned for no and yes. Keep only positive class as set in training
     if (is.classification_list(object))
-      preds <- preds[[mi$positive_class]]
+      if (ensemble == FALSE){
+        preds <- preds[[mi$positive_class]]
+      }
+      else{
+        preds_all <- lapply(object, caret::predict.train, newdata = to_pred, type = type)
+        preds <- weighted_average_ensemble(object, mi = extract_model_info(object), preds_all, mi$positive_class)
+      }
   }
 
   pred_name <- paste0("predicted_", mi$target)
@@ -191,7 +202,7 @@ predict_model_list_main <- function(object,
 #' @noRd
 safe_predict_model_list_main <- safe_n_quiet(predict_model_list_main)
 
-get_oof_predictions <- function(x, mi = extract_model_info(x)) {
+get_oof_predictions <- function(x, mi = extract_model_info(x), to_pred, ensemble = FALSE) {
   mod <- mi$best_model_name
   preds <- dplyr::arrange(x[[mod]]$pred, rowIndex)
   # To solve a mysterious bug in test-predict: predict handles positive class specified in training
@@ -200,16 +211,56 @@ get_oof_predictions <- function(x, mi = extract_model_info(x)) {
   ## tune_models tests for picking positive class even with the hacky fix of
   ## removing any fully duplicated lines from preds
   ### Cannot reproduce locally, so not sure what is wrong, but two changes:
-  ### convert to tibble to avoid potential partial name matching and other such gotchas and
+  ### convert to tibble to avoid potential parstial name matching and other such gotchas and
   ### Take the first value of each rowIndex if any appears twice (which they should not!)
   preds <-
     tibble::as_tibble(preds) %>%
     .[!duplicated(.$rowIndex), ]
-  if (mi$m_class == "Regression")
-    return(preds$pred)
-  if (mi$m_class == "Classification")
-    return(preds[[mi$positive_class]])
+  if (mi$m_class == "Regression"){
+    if (ensemble == FALSE){
+       return(preds$pred)
+      }
+    else{
+      preds_all <- lapply(x, caret::predict.train, newdata = to_pred, type = "raw")
+      preds$pred <- weighted_average_ensemble(x, mi = extract_model_info(x), preds_all)
+      return(preds$pred)
+    }
+
+  }
+  if (mi$m_class == "Classification"){
+    if (ensemble == FALSE){
+      return(preds[[mi$positive_class]])
+    }
+    else{
+      preds_all <- lapply(x, caret::predict.train, newdata = to_pred, type = "prob")
+      preds[[mi$positive_class]] <- weighted_average_ensemble(x, mi = extract_model_info(x), preds_all, mi$positive_class)
+      return(preds[[mi$positive_class]])
+    }
+
+  }
   stop("Eh? What kind of model is that?")
+}
+
+weighted_average_ensemble <- function(x, mi = extract_model_info(x), preds_all, pred_class) {
+  mod <- mi$best_model_name
+  if (missing(pred_class)){
+    preds <- preds_all
+  }else{
+    preds <- map(preds_all, pred_class)
+  }
+  preds_data_frame <- data.frame(preds)
+  target <- preds[[mod]]
+  weight_modeling <- glm(target ~ ., data = preds_data_frame)
+  weight_model_coefficient <- summary(weight_modeling)$coefficient
+  weight_model <- data.frame(weight_model_coefficient)
+  weight_model$variables <- row.names(weight_model)
+  weight_model <- weight_model[c("variables", "Estimate")][-1, ]
+  weight_model$Estimate <- abs(weight_model$Estimate)
+  weight_model$weight <- weight_model$Estimate / sum(weight_model$Estimate)
+  Weighted_model <- Map("*", preds, weight_model$weight)
+  add <- function(x) Reduce("+", x)
+  preds_outcome <- add(Weighted_model)
+  return(preds_outcome)
 }
 
 get_pred_summary <- function(x) {
