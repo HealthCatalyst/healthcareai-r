@@ -41,3 +41,48 @@ test_that("Machine learn respects tune = FALSE", {
                       tune = FALSE, models = "xgb")
   expect_false(attr(ut, "tuned"))
 })
+
+test_that("Machine learn respects metric - on tune_models", {
+  mock_tune_models <- function(d,
+                               outcome,
+                               models,
+                               metric,
+                               positive_class,
+                               n_folds = 5,
+                               tune_depth = 10,
+                               hyperparameters = NULL,
+                               model_class,
+                               model_name = NULL,
+                               allow_parallel = FALSE) {return(metric)}
+
+  with_mock(tune_models = mock_tune_models, {
+    mdl_metric <- machine_learn(training_data, outcome = diabetes,
+                                metric = "PR")
+    expect_equal(mdl_metric, "PR")
+    mdl_metric <- machine_learn(training_data, outcome = age,
+                                metric = "RMSE")
+    expect_equal(mdl_metric, "RMSE")
+  })
+})
+
+test_that("Machine learn respects metric - on flash_models", {
+
+  mock_flash_models <- function(d,
+                                outcome,
+                                models,
+                                metric,
+                                positive_class,
+                                n_folds = 5,
+                                model_class,
+                                model_name = NULL,
+                                allow_parallel = FALSE) {return(metric)}
+
+  with_mock(flash_models = mock_flash_models, {
+    mdl_metric <- machine_learn(training_data, outcome = diabetes, tune = FALSE,
+                                metric = "PR")
+    expect_equal(mdl_metric, "PR")
+    mdl_metric <- machine_learn(training_data, outcome = age, tune = FALSE,
+                                metric = "RMSE")
+    expect_equal(mdl_metric, "RMSE")
+  })
+})
