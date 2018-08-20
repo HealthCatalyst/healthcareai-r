@@ -177,14 +177,12 @@ predict_model_list_main <- function(object,
   newdata <- tibble::as_tibble(newdata)
 
   # Add groups if desired
-  browser()
-  if (!is.null(risk_groups))
-    # TODO
-  if (!is.null(outcome_groups))
-    # TODO
+  newdata <- add_groups(object, mi, newdata, risk_groups, outcome_groups)
 
-  # Put predictions and, if present, the outcome at left of newdata
+  # Put predictions and, if present, the outcome and predicted group at left of newdata
   newdata <- dplyr::select(newdata, pred_name, dplyr::everything())
+  if ("predicted_group" %in% names(newdata))
+    newdata <- dplyr::select(newdata, pred_name, predicted_group, dplyr::everything())
   if (mi$target %in% names(newdata))
     newdata <- dplyr::select(newdata, mi$target, dplyr::everything())
   # Add class and attributes to data frame
@@ -200,6 +198,32 @@ predict_model_list_main <- function(object,
          hyperparameters = structure(mi$best_model_tune,
                                      "row.names" = "optimal:"))
 
+  return(newdata)
+}
+
+add_groups <- function(object, mi, newdata, risk_groups, outcome_groups) {
+  # browser()
+  if (!is.null(risk_groups)) {
+    if (!is.null(outcome_groups))
+      stop("You can only get `risk_groups` or `outcome_groups`. If you really ",
+           "want both, call `predict` twice and `cbind` the results.")
+    if (is.numeric(risk_groups)) {
+      if (risk_groups == 1)
+        stop("risk_groups = 1 just puts everyone in the same group. ",
+             "Do you want outcome_groups = 1?")
+      risk_groups <- paste0("risk_group", seq_len(risk_groups))
+    }
+    risk_groups <- rev(risk_groups)
+    oof <- get_oof_predictions(object)
+    cuts <- stats::quantile(oof, seq(0, 1, len = length(risk_groups) + 1))
+    newdata$predicted_group <-
+      structure(cut(oof, breaks = cuts, labels = risk_groups, include.lowest = TRUE),
+                group_type = "risk",
+                cutpoints = cuts)
+  } else if (!is.null(outcome_groups)) {
+    # TODO
+
+  }
   return(newdata)
 }
 
