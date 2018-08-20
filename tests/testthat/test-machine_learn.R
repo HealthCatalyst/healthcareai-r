@@ -42,7 +42,7 @@ test_that("Machine learn respects tune = FALSE", {
   expect_false(attr(ut, "tuned"))
 })
 
-test_that("Machine learn respects metric - on tune_models", {
+test_that("Machine learn respects metric - when tuning (using tune_models)", {
   mock_tune_models <- function(d,
                                outcome,
                                models,
@@ -65,8 +65,7 @@ test_that("Machine learn respects metric - on tune_models", {
   })
 })
 
-test_that("Machine learn respects metric - on flash_models", {
-
+test_that("Machine learn respects metric - when not tuning (using flash_models)", {
   mock_flash_models <- function(d,
                                 outcome,
                                 models,
