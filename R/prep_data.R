@@ -57,14 +57,18 @@
 #'   into a new category, `other`. If numeric, must be in {0, 1}, and is the
 #'   proportion of observations below which levels will be grouped into other.
 #'   See `recipes::step_other`.
-#' @param PCA Integer or Logical. If integer, represents the number of principal
-#'   components to convert the numeric data into. If TRUE, will convert numeric
-#'   data into 5 principal components. Data must also be centered and scaled
-#'   (default). If 0 or FALSE, the PCA step will be skipped. Default is FALSE.
+#' @param PCA Integer or Logical. PCA is done to reduce training time,
+#'   particularly for wide datasets. If integer, represents the number of
+#'   principalcomponents to convert the numeric data into. If TRUE, will convert
+#'   numeric data into 5 principal components. Data must also be centered and
+#'   scaled (default).  If 0 or FALSE, the PCA step will be skipped. Default is
+#'   FALSE.
 #' @param center Logical. If TRUE, numeric columns will be centered to have a
-#'   mean of 0. Default is PCA.
+#'   mean of 0. Default is FALSE, unless PCA is performed, in which case it is
+#'   TRUE.
 #' @param scale Logical. If TRUE, numeric columns will be scaled to have a
-#'   standard deviation of 1. Default is PCA.
+#'   standard deviation of 1. Default is FALSE, unless PCA is performed, in
+#'   which case it is TRUE.
 #' @param make_dummies Logical. If TRUE (default), dummy columns will be created
 #'   for categorical variables.
 #' @param add_levels Logical. If TRUE (defaults), "other" and "missing" will be
@@ -113,6 +117,21 @@
 #'           collapse_rare_factors = FALSE, convert_dates = "year",
 #'           center = TRUE, scale = TRUE, make_dummies = FALSE,
 #'           remove_near_zero_variance = .02)
+#'
+#' # PCA to reduce training time:
+#' start_time <- Sys.time()
+#' pd <- prep_data(pima_diabetes, patient_id, outcome = diabetes, PCA = 'nope')
+#' ncol(pd)
+#' m <- machine_learn(pd, patient_id, outcome = diabetes)
+#' end_time <- Sys.time()
+#' end_time - start_time
+#'
+#' start_time <- Sys.time()
+#' pcapd <- prep_data(pima_diabetes, patient_id, outcome = diabetes, PCA = TRUE)
+#' ncol(pcapd)
+#' m <- machine_learn(pcapd, patient_id, outcome = diabetes)
+#' end_time <- Sys.time()
+#' end_time - start_time
 prep_data <- function(d,
                       ...,
                       outcome,
@@ -347,13 +366,13 @@ prep_data <- function(d,
       # Saving until columns can be specified
 
       # Center ------------------------------------------------------------------
-      if (center) {
+      if (isTRUE(as.logical(center))) {
         recipe <- recipe %>%
           recipes::step_center(all_numeric(), - all_outcomes())
       }
 
       # Scale -------------------------------------------------------------------
-      if (scale) {
+      if (isTRUE(as.logical(scale))) {
         recipe <- recipe %>%
           recipes::step_scale(all_numeric(), - all_outcomes())
       }
@@ -395,17 +414,22 @@ prep_data <- function(d,
           recipes::step_dummy(all_nominal(), -all_outcomes())
       }
     }
-    if (PCA) {
+    if (isTRUE(as.logical(PCA))) {
       # Check for valid PCA parameter
       if (!(is.numeric(PCA) || is.logical(PCA))) {
         stop("PCA parameter must be an integer or logical.")
       }
-      if (!scale || !center) {
-        stop("\"d\" must be centered and scaled to perform PCA.")
+      if (!isTRUE(as.logical(scale)) || !isTRUE(as.logical(center))) {
+        warning("\"d\" must be centered and scaled to perform PCA.")
       }
-        # Perform PCA
-        recipe <- recipe %>%
-        recipes::step_kpca(all_numeric(), -all_outcomes(),num = ifelse(is.numeric(PCA),as.integer(PCA),5))
+
+      # Set PCA to default 5 PCs if PCA input was TRUE
+      if (isTRUE(PCA)) {
+        PCA <- 5
+      }
+      # Perform PCA
+      recipe <- recipe %>%
+      recipes::step_kpca(all_numeric(), -all_outcomes(), num = as.integer(PCA))
     }
 
     # Prep the newly built recipe ---------------------------------------------
