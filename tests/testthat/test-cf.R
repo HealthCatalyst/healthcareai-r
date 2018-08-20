@@ -159,6 +159,17 @@ test_that("vary varies the correct number of variables", {
     expect_equal(5)
 })
 
+test_that("list of values to vary works right", {
+  values_to_use <- list(
+    plasma_glucose = c(50, 100, 150),
+    weight_class = c("underweight", "normal", NA)
+  )
+  preds <- predict_counterfactuals(m, vary = values_to_use)
+  expect_s3_class(preds, "cf_df")
+  expect_setequal(preds$plasma_glucose, values_to_use$plasma_glucose)
+  expect_setequal(preds$weight_class, values_to_use$weight_class)
+})
+
 test_that("predict_counterfactuals hold custom functions (mean instead of median for numerics)", {
   sm_def <- predict_counterfactuals(m, vary = c("weight_class", "skinfold"))
   sm2 <- predict_counterfactuals(m, vary = c("weight_class", "skinfold"),
@@ -206,13 +217,11 @@ test_that("predict_counterfactuals errors as expected", {
   expect_error(predict_counterfactuals(m, vary = c("age", "not_a_var")), "not_a_var")
   expect_error(predict_counterfactuals(m, hold = list(numerics = mean)), "hold")
   expect_error(predict_counterfactuals(m, hold = list(characters = Mode)), "hold")
+  expect_error(predict_counterfactuals(m, hold = list(characters = letters)), "hold")
   expect_error(predict_counterfactuals(m, hold = list(numerics = mean, characters = Mode)), NA)
   expect_error(predict_counterfactuals(m, hold = list(median, Mode)), "named")
   expect_error(predict_counterfactuals(m, hold = list(age = 50)), "hold")
-
 })
-
-
 
 ##### predict_counterfactuals generics
 test_that("printing a predict_counterfactualsd df doesn't print training performance info", {
@@ -255,8 +264,12 @@ test_that("plot.cf args work", {
   purrr::map_lgl(altered_plots, ~ isTRUE(all.equal(.x, default_plot))) %>%
     any() %>%
     expect_false()
-  use2 <- plot(sm, print = FALSE, n_use = 2)
+  use2 <- plot(sm, print = FALSE, jitter_y = FALSE, n_use = 2)
   expect_equal(nrow(ggplot2::ggplot_build(use2)$layout$layout), 1)
+  use1 <- plot(sm, print = FALSE, jitter_y = FALSE, n_use = 1)
+  expect_false(isTRUE(all.equal(use1, use2)))
+  use3 <- plot(sm, print = FALSE, jitter_y = FALSE, n_use = 3)
+  expect_false(isTRUE(all.equal(use3, use2)))
 })
 
 #### plot.cf_df helpers
@@ -323,4 +336,8 @@ test_that("map_variables with mappings specified", {
 test_that("map_variables errors informatively", {
   expect_error(map_variables(vars, rlang::quo("something else"), rlang::quo()), "x_var")
   expect_error(map_variables(vars, rlang::quo(), rlang::quo("something else")), "color_var")
+})
+
+test_that("n_use > 4 errors informatively", {
+  expect_error(plot(sm, print = FALSE, n_use = 5), "n_use")
 })
