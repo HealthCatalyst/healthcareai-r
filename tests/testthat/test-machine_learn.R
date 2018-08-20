@@ -53,7 +53,9 @@ test_that("Machine learn respects metric - when tuning (using tune_models)", {
                                hyperparameters = NULL,
                                model_class,
                                model_name = NULL,
-                               allow_parallel = FALSE) {return(metric)}
+                               allow_parallel = FALSE) {
+    return(metric)
+  }
 
   with_mock(tune_models = mock_tune_models, {
     mdl_metric <- machine_learn(training_data, outcome = diabetes,
@@ -74,7 +76,9 @@ test_that("Machine learn respects metric - when not tuning (using flash_models)"
                                 n_folds = 5,
                                 model_class,
                                 model_name = NULL,
-                                allow_parallel = FALSE) {return(metric)}
+                                allow_parallel = FALSE) {
+    return(metric)
+  }
 
   with_mock(flash_models = mock_flash_models, {
     mdl_metric <- machine_learn(training_data, outcome = diabetes, tune = FALSE,
