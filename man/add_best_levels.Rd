@@ -3,7 +3,7 @@
 \name{add_best_levels}
 \alias{add_best_levels}
 \alias{get_best_levels}
-\title{Build efficient features from from high-cardinality, multiple-membership
+\title{Build efficient features from high-cardinality, multiple-membership
 factors}
 \usage{
 add_best_levels(d, longsheet, id, groups, outcome, n_levels = 100,
