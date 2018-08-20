@@ -83,16 +83,16 @@ predict.model_list <- function(object,
   if (write_log == FALSE) {
     out <- predict_model_list_main(object,
                                    newdata,
-                                   risk_groups = NULL,
-                                   outcome_groups = NULL,
+                                   risk_groups,
+                                   outcome_groups,
                                    prepdata,
                                    write_log,
                                    ...)
   } else {
     out <- safe_predict_model_list_main(object,
                                         newdata,
-                                        risk_groups = NULL,
-                                        outcome_groups = NULL,
+                                        risk_groups,
+                                        outcome_groups,
                                         prepdata,
                                         write_log,
                                         ...)
@@ -119,6 +119,8 @@ predict.model_list <- function(object,
 #' @noRd
 predict_model_list_main <- function(object,
                                     newdata,
+                                    risk_groups,
+                                    outcome_groups,
                                     prepdata,
                                     write_log = FALSE,
                                     ...) {
@@ -175,6 +177,7 @@ predict_model_list_main <- function(object,
   newdata <- tibble::as_tibble(newdata)
 
   # Add groups if desired
+  browser()
   if (!is.null(risk_groups))
     # TODO
   if (!is.null(outcome_groups))

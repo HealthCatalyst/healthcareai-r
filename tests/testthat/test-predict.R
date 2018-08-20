@@ -381,4 +381,45 @@ test_that("print.predicted_df works after join", {
   expect_error(capture_output(joined, TRUE), NA)
 })
 
+test_that("risk_groups works on training data", {
+  rg5 <- predict(model_classify_prepped, risk_groups = 5)
+  expect_equal(length(unique(rg5$predicted_group)), 5)
+  gr <- c("high", "medium", "low")
+  rg_custom <- predict(model_classify_prepped, risk_groups = gr)$predicted_group
+  expect_setequal(rg_custom, gr)
+  expect_equal(sum(rg_custom == "high"), sum(rg_custom == "low"), tolerance = 1)
+})
+
+test_that("risk_groups works on test data", {
+  rg5 <- predict(model_classify_prepped, test_data_class_prep, risk_groups = 5)$predicted_group
+  expect_equal(length(unique(rg5)), 5)
+  gr <- c("high", "medium", "low")
+  rg_custom <- predict(model_classify_prepped, test_data_class_prep, risk_groups = gr)$predicted_group
+  expect_setequal(rg_custom, gr)
+  expect_equal(sum(rg_custom == "high"), sum(rg_custom == "low"), tolerance = 1)
+})
+
+test_that("class_groups works on training data", {
+  cg <- predict(model_classify_prepped, class_groups = TRUE)$predicted_group
+  expect_setequal(test_data_class_prep$Catholic, cg)
+  fp_cheap <- cg <- predict(model_classify_prepped, class_groups = 5)$predicted_group
+  fp_expensive <- cg <- predict(model_classify_prepped, class_groups = .2)$predicted_group
+  expect_true(sum(fp_cheap == "Y") > sum(cg == "Y"))
+  expect_true(sum(cg == "Y") > sum(fp_expensive == "Y"))
+})
+
+test_that("class_groups works on test data", {
+  cg <- predict(model_classify_prepped, test_data_class_prep, class_groups = TRUE)$predicted_group
+  expect_setequal(test_data_class_prep$Catholic, cg)
+  fp_cheap <- cg <- predict(model_classify_prepped, test_data_class_prep, class_groups = 5)$predicted_group
+  fp_expensive <- cg <- predict(model_classify_prepped, test_data_class_prep, class_groups = .2)$predicted_group
+  expect_true(sum(fp_cheap == "Y") > sum(cg == "Y"))
+  expect_true(sum(cg == "Y") > sum(fp_expensive == "Y"))
+})
+
+test_that("If risk_groups and class_groups are specified, get an error", {
+  expect_error(predict(model_classify_prepped, risk_groups = 5, outcome_groups = TRUE),
+               "cbind")
+})
+
 remove_logfiles()
