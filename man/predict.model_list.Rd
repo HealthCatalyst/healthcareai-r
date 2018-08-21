@@ -101,19 +101,34 @@ The model and hyperparameter values with the best out-of-fold
   attribute - A zero-row data frame will be returned
 }
 \examples{
-# Tune models using only the first 40 rows to keep computation fast
+# Prepare data and train models using only the first 100 rows to keep computation fast
+models <-
+  pima_diabetes[1:100, ] \%>\%
+  prep_data(patient_id, outcome = diabetes) \%>\%
+  flash_models(outcome = diabetes)
 
-models <- machine_learn(pima_diabetes[1:40, ], patient_id,
-                        outcome = diabetes, tune = FALSE)
-
-# Make prediction on the next 10 rows. This uses the best-performing model from
-# tuning cross validation, and it also prepares the new data in the same way as
-# the training data was prepared.
-
-predictions <- predict(models, newdata = pima_diabetes[41:50, ])
+# Make prediction on the next 100 rows using the model that performed best in
+# cross validation during model training. Before predictions are made, newdata
+# is automatically prepared the same way the training data was.
+predictions <- predict(models, newdata = pima_diabetes[101:200, ])
 predictions
 evaluate(predictions)
 plot(predictions)
+
+# If you want class predictions in addition to predicted probabilities for
+# a classification model, specify outcome_groups. The number passed to
+# outcome groups is the cost of a false negative relative to a false positive.
+# This specifies that one missed detection is as bad as three false alarms,
+# and the resulting confusion matrix reflects this preference.
+class_preds <- predict(models, newdata = pima_diabetes[101:200, ], outcome_groups = 3)
+table(actual = class_preds$diabetes, predicted = class_preds$predicted_group)
+
+# Alternatively, you can stratify observations into risk groups by specifying
+# the risk_groups parameter. For example, this creates five equal size groups
+# with custom names
+predict(models, pima_diabetes[101:200, ],
+        risk_groups = c("very low", "low", "medium", "high", "very high")) \%>\%
+  plot()
 }
 \seealso{
 \code{\link{plot.predicted_df}}, \code{\link{evaluate.predicted_df}}

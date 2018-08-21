@@ -99,3 +99,34 @@ test_that("fixed_aspect works", {
   expect_false(isTRUE(all.equal(class_fix, class_unfix)))
   expect_equivalent(class_unfix, class_unfix_force)
 })
+
+test_that("lines and labels are added when outcome_groups present", {
+  w_groups <-
+    predict(m_class, outcome_groups = 1/3) %>%
+    plot(print = FALSE) %>%
+    ggplot_build()
+  wo_groups <-
+    predict(m_class) %>%
+    plot(print = FALSE) %>%
+    ggplot_build()
+  expect_length(w_groups$data, 3)
+  expect_length(wo_groups$data, 1)
+  expect_true("linetype" %in% names(w_groups$data[[2]]))
+  expect_equal(nrow(w_groups$data[[3]]), 2)  # one for each label
+})
+
+test_that("lines and labels are added when risk_groups present", {
+  groups = c("low", "mid", "high")
+  w_groups <-
+    predict(m_class, risk_groups = groups) %>%
+    plot(print = FALSE) %>%
+    ggplot_build()
+  wo_groups <-
+    predict(m_class) %>%
+    plot(print = FALSE) %>%
+    ggplot_build()
+  expect_length(w_groups$data, 3)
+  expect_length(wo_groups$data, 1)
+  expect_equal(nrow(w_groups$data[[2]]), 2)
+  expect_setequal(groups, w_groups$data[[3]]$label)
+})
