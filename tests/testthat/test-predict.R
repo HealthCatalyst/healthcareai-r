@@ -415,27 +415,29 @@ test_that("risk_groups works on test data", {
   expect_true(with(rg_sized, sum(predicted_group == "low") > sum(predicted_group == "high")))
 })
 
-test_that("class_groups works on training data", {
-  cg <- predict(model_classify_prepped, class_groups = TRUE)$predicted_group
+test_that("outcome_groups works on training data", {
+  cg <- predict(model_classify_prepped, outcome_groups = TRUE)$predicted_group
+  expect_equal(levels(cg), c("N", "Y"))
   expect_setequal(test_data_class_prep$Catholic, cg)
-  fp_cheap <- cg <- predict(model_classify_prepped, class_groups = 5)$predicted_group
-  fp_expensive <- cg <- predict(model_classify_prepped, class_groups = .2)$predicted_group
+  fp_cheap <- predict(model_classify_prepped, outcome_groups = 5)$predicted_group
+  fp_expensive <- predict(model_classify_prepped, outcome_groups = .2)$predicted_group
   expect_true(sum(fp_cheap == "Y") > sum(cg == "Y"))
   expect_true(sum(cg == "Y") > sum(fp_expensive == "Y"))
 })
 
-test_that("class_groups works on test data", {
-  cg <- predict(model_classify_prepped, test_data_class_prep, class_groups = TRUE)$predicted_group
+test_that("outcome_groups works on test data", {
+  cg <- predict(model_classify_prepped, test_data_class_prep, outcome_groups = TRUE)$predicted_group
   expect_setequal(test_data_class_prep$Catholic, cg)
-  fp_cheap <- cg <- predict(model_classify_prepped, test_data_class_prep, class_groups = 5)$predicted_group
-  fp_expensive <- cg <- predict(model_classify_prepped, test_data_class_prep, class_groups = .2)$predicted_group
+  fp_cheap <- predict(model_classify_prepped, test_data_class_prep, outcome_groups = 5)$predicted_group
+  fp_expensive <- predict(model_classify_prepped, test_data_class_prep, outcome_groups = .2)$predicted_group
   expect_true(sum(fp_cheap == "Y") > sum(cg == "Y"))
   expect_true(sum(cg == "Y") > sum(fp_expensive == "Y"))
 })
 
-test_that("If risk_groups and class_groups are specified, get an error", {
+test_that("add_groups errors informatively", {
   expect_error(predict(model_classify_prepped, risk_groups = 5, outcome_groups = TRUE),
                "cbind")
+  expect_error(predict(model_classify_prepped, outcome_groups = FALSE), "FALSE")
 })
 
 remove_logfiles()

@@ -21,24 +21,35 @@ out if the data need to be sent through `prep_data` before making
 predictions; this can be overriden by setting `prepdata = FALSE`, but this
 should rarely be needed.}
 
-\item{risk_groups}{Should predictions be grouped into risk groups? If this is
-NULL (default), they will not be. If this is a single number, that number
-of groups will be created with names "risk_group1", "risk_group2", etc.
-"risk_group1" is always the highest risk (highest predicted probability).
-The groups will have equal expected sizes, based on the distribution of
-out-of-fold predictions on the training data. If this is a character
-vector, its entries will be used as the names of the risk groups, in
-increasing order of risk, again with equal expected sizes of groups. If you
-want unequal-size groups, this can be a named numeric vector, where the
-names will be the names of the risk groups, in increasing order of risk,
-and the entries will be the relative proportion of observations in the
-group, again based on the distribution of out-of-fold predictions on the
-training data. For example, \code{c(low = 2, mid = 1, high = 1)} will put
-the bottom half of predicted probabilities in the "low" group, the next
-quarter in the "mid" group, and the highest quarter in the "high"
-group.}
+\item{risk_groups}{Should predictions be grouped into risk groups and
+returned in column "predicted_group"? If this is NULL (default), they will
+not be. If this is a single number, that number of groups will be created
+with names "risk_group1", "risk_group2", etc. "risk_group1" is always the
+highest risk (highest predicted probability). The groups will have equal
+expected sizes, based on the distribution of out-of-fold predictions on the
+training data. If this is a character vector, its entries will be used as
+the names of the risk groups, in increasing order of risk, again with equal
+expected sizes of groups. If you want unequal-size groups, this can be a
+named numeric vector, where the names will be the names of the risk groups,
+in increasing order of risk, and the entries will be the relative
+proportion of observations in the group, again based on the distribution of
+out-of-fold predictions on the training data. For example,
+\code{risk_groups = c(low = 2, mid = 1, high = 1)} will put the bottom half
+of predicted probabilities in the "low" group, the next quarter in the
+"mid" group, and the highest quarter in the "high" group.}
 
-\item{outcome_groups}{Predicted classes. TODO}
+\item{outcome_groups}{Should predictions be grouped into outcome classes and
+returned in column "predicted_group"? If this is NULL (default), they will
+not be. The threshold for splitting outcome classes is determined on the
+training data via \code{\link{get_thresholds}}. If this is TRUE, the
+threshold is chosen to maximize accuracy, i.e. false positives and false
+negatives are equally weighted. If this is a number it is the ratio of cost
+(badnesss) of false negatives (missed detections) to false positives (false
+alarms). For example, \code{outcome_groups = 5} indicates a prefered ratio
+of five false alarms to every missed detection, and \code{outcome_groups =
+.5} indicates that two missed detections is as bad as one false alarm. This
+value is passed to the \code{cost_fn} argument of
+\code{\link{get_thresholds}}.}
 
 \item{prepdata}{Logical, this should rarely be set by the user. By default,
 if `newdata` hasn't been prepped, it will be prepped by `prep_data` before
