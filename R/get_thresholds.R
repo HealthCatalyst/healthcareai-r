@@ -62,6 +62,10 @@
 #' get_thresholds(models, optimize = "cost", cost_fn = 5) %>%
 #'   filter(optimal)
 #'
+#' # Use that threshold to make class predictions
+#' (class_preds <- predict(models, outcome_groups = 5))
+#' attr(class_preds$predicted_group, "cutpoints")
+#'
 #' # Plot performance on all measures across threshold values
 #' get_thresholds(models) %>%
 #'   plot()
