@@ -4,8 +4,8 @@
 \alias{predict.model_list}
 \title{Make predictions using the best-performing model}
 \usage{
-\method{predict}{model_list}(object, newdata, prepdata, write_log = FALSE,
-  ...)
+\method{predict}{model_list}(object, newdata, risk_groups = NULL,
+  outcome_groups = NULL, prepdata, write_log = FALSE, ...)
 }
 \arguments{
 \item{object}{model_list object, as from `tune_models`}
@@ -21,6 +21,25 @@ out if the data need to be sent through `prep_data` before making
 predictions; this can be overriden by setting `prepdata = FALSE`, but this
 should rarely be needed.}
 
+\item{risk_groups}{Should predictions be grouped into risk groups? If this is
+NULL (default), they will not be. If this is a single number, that number
+of groups will be created with names "risk_group1", "risk_group2", etc.
+"risk_group1" is always the highest risk (highest predicted probability).
+The groups will have equal expected sizes, based on the distribution of
+out-of-fold predictions on the training data. If this is a character
+vector, its entries will be used as the names of the risk groups, in
+increasing order of risk, again with equal expected sizes of groups. If you
+want unequal-size groups, this can be a named numeric vector, where the
+names will be the names of the risk groups, in increasing order of risk,
+and the entries will be the relative proportion of observations in the
+group, again based on the distribution of out-of-fold predictions on the
+training data. For example, \code{c(low = 2, mid = 1, high = 1)} will put
+the bottom half of predicted probabilities in the "low" group, the next
+quarter in the "mid" group, and the highest quarter in the "high"
+group.}
+
+\item{outcome_groups}{Predicted classes. TODO}
+
 \item{prepdata}{Logical, this should rarely be set by the user. By default,
 if `newdata` hasn't been prepped, it will be prepped by `prep_data` before
 predictions are made. Set this to TRUE to force already-prepped data
@@ -28,10 +47,10 @@ through `prep_data` again, or set to FALSE to prevent `newdata` from being
 sent through `prep_data`.}
 
 \item{write_log}{Write prediction metadata to a file? Default is FALSE. If
-TRUE, will create or append a file called "prediction_log.txt" in
-the current directory with metadata about predictions. If a character, is
-the name of a file to create or append with prediction metadata. If you
-want a unique log file each time predictions are made, use something like
+TRUE, will create or append a file called "prediction_log.txt" in the
+current directory with metadata about predictions. If a character, is the
+name of a file to create or append with prediction metadata. If you want a
+unique log file each time predictions are made, use something like
 \code{write_log = paste0(Sys.time(), " predictions.txt")}. This param
 modifies error behavior and is best used in production. See details.}
 
@@ -48,8 +67,8 @@ A tibble data frame: newdata with an additional column for the
   zero-row dataframe will be returned.
 
   Returned data will contain an attribute, "prediction_log" that contains a
-  tibble of  logging info for writing to database. If \code{write_log}
-  is TRUE and predict errors, an empty dataframe with the "prediction_log"
+  tibble of  logging info for writing to database. If \code{write_log} is
+  TRUE and predict errors, an empty dataframe with the "prediction_log"
   attribute will still be returned. Extract this attribute using
   \code{attr(pred, "prediction_log")}.
 
@@ -66,11 +85,9 @@ The model and hyperparameter values with the best out-of-fold
   returning your predictions with the newdata in its original format.
 
   If \code{write_log} is TRUE and an error is encountered, \code{predict}
-  will not stop. It will return the error message as:
-  - A warning in the console
-  - A field in the log file
-  - A column in the "prediction_log" attribute
-  - A zero-row data frame will be returned
+  will not stop. It will return the error message as: - A warning in the
+  console - A field in the log file - A column in the "prediction_log"
+  attribute - A zero-row data frame will be returned
 }
 \examples{
 # Tune models using only the first 40 rows to keep computation fast

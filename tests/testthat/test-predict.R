@@ -384,19 +384,35 @@ test_that("print.predicted_df works after join", {
 test_that("risk_groups works on training data", {
   rg5 <- predict(model_classify_prepped, risk_groups = 5)
   expect_equal(length(unique(rg5$predicted_group)), 5)
-  gr <- c("high", "medium", "low")
-  rg_custom <- predict(model_classify_prepped, risk_groups = gr)$predicted_group
-  expect_setequal(rg_custom, gr)
-  expect_equal(sum(rg_custom == "high"), sum(rg_custom == "low"), tolerance = 1)
+  gr <- c("low", "medium", "high")
+  rg_custom <- predict(model_classify_prepped, risk_groups = gr)
+  expect_setequal(as.character(rg_custom$predicted_group), gr)
+  expect_equal(
+    sum(rg_custom$predicted_group == "high"), sum(rg_custom$predicted_group == "low"),
+    tolerance = 1)
+  expect_true(with(rg_custom,
+                   min(predicted_Catholic[predicted_group == "high"]) >=
+                     max(predicted_Catholic[predicted_group == "medium"])))
+  expect_true(all(c("group_type", "cutpoints") %in% names(attributes(rg_custom$predicted_group))))
 })
 
 test_that("risk_groups works on test data", {
-  rg5 <- predict(model_classify_prepped, test_data_class_prep, risk_groups = 5)$predicted_group
-  expect_equal(length(unique(rg5)), 5)
-  gr <- c("high", "medium", "low")
-  rg_custom <- predict(model_classify_prepped, test_data_class_prep, risk_groups = gr)$predicted_group
-  expect_setequal(rg_custom, gr)
-  expect_equal(sum(rg_custom == "high"), sum(rg_custom == "low"), tolerance = 1)
+  rg5 <- predict(model_classify_prepped, test_data_class_prep, risk_groups = 5)
+  expect_false(any(is.na(rg5$predicted_group)))
+  gr <- c("v low", "low", "high", "v high")
+  rg_custom <- predict(model_classify_prepped, test_data_class_prep, risk_groups = gr)
+  expect_true(all(as.character(rg_custom$predicted_group) %in% gr))
+  expect_true(with(rg_custom,
+                   min(predicted_Catholic[stringr::str_detect(predicted_group, "high")]) >=
+                     min(predicted_Catholic[stringr::str_detect(predicted_group, "low")])
+  ))
+  expect_true(all(c("group_type", "cutpoints") %in% names(attributes(rg_custom$predicted_group))))
+
+  grps <- c(low = 20, mid = 2, high = 1)
+  rg_sized <- predict(model_classify_prepped, test_data_class_prep, risk_groups = grps)
+  expect_false(any(is.na(rg_sized$predicted_group)))
+  expect_true(all(as.character(rg_sized$predicted_group) %in% names(grps)))
+  expect_true(with(rg_sized, sum(predicted_group == "low") > sum(predicted_group == "high")))
 })
 
 test_that("class_groups works on training data", {

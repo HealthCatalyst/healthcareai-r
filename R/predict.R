@@ -11,8 +11,23 @@
 #'   out if the data need to be sent through `prep_data` before making
 #'   predictions; this can be overriden by setting `prepdata = FALSE`, but this
 #'   should rarely be needed.
-#'   @param risk_groups
-#'   @param outcome_groups
+#' @param risk_groups Should predictions be grouped into risk groups? If this is
+#'   NULL (default), they will not be. If this is a single number, that number
+#'   of groups will be created with names "risk_group1", "risk_group2", etc.
+#'   "risk_group1" is always the highest risk (highest predicted probability).
+#'   The groups will have equal expected sizes, based on the distribution of
+#'   out-of-fold predictions on the training data. If this is a character
+#'   vector, its entries will be used as the names of the risk groups, in
+#'   increasing order of risk, again with equal expected sizes of groups. If you
+#'   want unequal-size groups, this can be a named numeric vector, where the
+#'   names will be the names of the risk groups, in increasing order of risk,
+#'   and the entries will be the relative proportion of observations in the
+#'   group, again based on the distribution of out-of-fold predictions on the
+#'   training data. For example, \code{c(low = 2, mid = 1, high = 1)} will put
+#'   the bottom half of predicted probabilities in the "low" group, the next
+#'   quarter in the "mid" group, and the highest quarter in the "high"
+#'   group.
+#' @param outcome_groups Predicted classes. TODO
 #' @param prepdata Logical, this should rarely be set by the user. By default,
 #'   if `newdata` hasn't been prepped, it will be prepped by `prep_data` before
 #'   predictions are made. Set this to TRUE to force already-prepped data
@@ -177,7 +192,7 @@ predict_model_list_main <- function(object,
   newdata <- tibble::as_tibble(newdata)
 
   # Add groups if desired
-  newdata <- add_groups(object, mi, newdata, risk_groups, outcome_groups)
+  newdata <- add_groups(object, mi, newdata, pred_name, risk_groups, outcome_groups)
 
   # Put predictions and, if present, the outcome and predicted group at left of newdata
   newdata <- dplyr::select(newdata, pred_name, dplyr::everything())
@@ -201,25 +216,57 @@ predict_model_list_main <- function(object,
   return(newdata)
 }
 
-add_groups <- function(object, mi, newdata, risk_groups, outcome_groups) {
-  # browser()
+# Add "predicted_group" column to newdata. For risk_groups,
+# note that `cut` needs 0 for the lowest break but one fewer labels, hense
+# the adding of a 0 to risk_groups which in the `cut` call propigates to
+# `breaks` but is removed for `labels`
+add_groups <- function(object, mi, newdata, pred_name, risk_groups, outcome_groups) {
+  if (!is.null(outcome_groups) && !is.null(risk_groups))
+    stop("You can only get `risk_groups` or `outcome_groups`. If you really ",
+         "want both, call `predict` twice and `cbind` the results.")
+
+  oof <- get_oof_predictions(object)
+
   if (!is.null(risk_groups)) {
-    if (!is.null(outcome_groups))
-      stop("You can only get `risk_groups` or `outcome_groups`. If you really ",
-           "want both, call `predict` twice and `cbind` the results.")
-    if (is.numeric(risk_groups)) {
+
+    if (rlang::is_named(risk_groups)) {
+      # Using custom-size groups
+      cutter <- tibble::tibble(
+        names = c("zero", names(risk_groups)),
+        quantiles = c(0, cumsum(risk_groups) / sum(risk_groups))
+      )
+    } else if (is.character(risk_groups)) {
+      # Using custom-name, even-size groups
+      cutter <- tibble::tibble(
+        names = c("zero", risk_groups),
+        quantiles = seq(0, 1, len = length(risk_groups) + 1)
+      )
+    } else {
+      # Using default name and size groups
       if (risk_groups == 1)
         stop("risk_groups = 1 just puts everyone in the same group. ",
              "Do you want outcome_groups = 1?")
-      risk_groups <- paste0("risk_group", seq_len(risk_groups))
+      cutter <- tibble::tibble(
+        names = c("zero", paste0("risk_group", rev(seq_len(risk_groups)))),
+        quantiles = seq(0, 1, len = risk_groups + 1)
+      )
     }
-    risk_groups <- rev(risk_groups)
-    oof <- get_oof_predictions(object)
-    cuts <- stats::quantile(oof, seq(0, 1, len = length(risk_groups) + 1))
+    # Replace outer bounds with 0 and 1 so that any predicted prob is in bounds
+    cutter <-
+      cutter %>%
+      dplyr::mutate(cutpoints = stats::quantile(oof, quantiles),
+                    cutpoints = dplyr::case_when(
+                      quantiles == 0 ~ 0,
+                      quantiles == 1 ~ 1,
+                      TRUE ~ cutpoints))
     newdata$predicted_group <-
-      structure(cut(oof, breaks = cuts, labels = risk_groups, include.lowest = TRUE),
-                group_type = "risk",
-                cutpoints = cuts)
+      cut(newdata[[pred_name]],
+          breaks = cutter$cutpoints,
+          labels = cutter$names[-1],
+          include.lowest = TRUE) %>%
+      structure(group_type = "risk",
+                cutpoints = cutter$cutpoints)
+
   } else if (!is.null(outcome_groups)) {
     # TODO
 
