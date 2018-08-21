@@ -148,9 +148,11 @@ tune_models <- function(d,
 
   train_list <- train_models(d, outcome, models, metric, train_control,
                              hyperparameters, tuned, allow_parallel)
+
   train_list <- as.model_list(listed_models = train_list,
                               tuned = tuned,
                               target = rlang::quo_name(outcome),
+                              model_class = model_class,
                               recipe = recipe,
                               positive_class = attr(train_list, "positive_class"),
                               model_name = model_name,

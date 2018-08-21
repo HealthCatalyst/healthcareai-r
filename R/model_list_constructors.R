@@ -64,8 +64,13 @@ as.model_list <- function(...,
   if (length(types) > 1L)
     stop("All model_class elements need to be the same. Yours: ",
          list_variables(types))
-  if (!missing(model_class) && model_class != types)
-    stop("model_class doesn't match the model(s).")
+  if (model_class != types) {
+    if (model_class == "multiclass") {
+      types <- "multiclass" # caret doesn't distinguish between 2 classes and >2
+    } else {
+      stop("model_class doesn't match the model(s).")
+    }
+  }
   model_class <- types
   names(listed_models) <- purrr::map_chr(listed_models, ~ .x$modelInfo$label)
   # Remove training data from all but the first model
@@ -85,7 +90,6 @@ as.model_list <- function(...,
   }
   if (missing(versions))
     versions <- attr(attach_session_info(1), "versions")
-
   check_model_class(model_class)
   structure(listed_models,
             model_name = model_name,
@@ -109,7 +113,7 @@ as.model_list <- function(...,
 check_model_class <- function(model_class) {
   if (missing(model_class))
     stop("You have to provide a model_class")
-  supported_model_classes <- c("classification", "regression")
+  supported_model_classes <- c("classification", "regression", "multiclass")
   if (!model_class %in% supported_model_classes)
     stop("model_class must be one of: ",
          list_variables(supported_model_classes))

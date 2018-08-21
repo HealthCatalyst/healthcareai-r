@@ -99,8 +99,12 @@ evaluate.model_list <- function(x, all_models = FALSE, ...) {
     pred_col <- mi$positive_class
     for (mod in names(x))
       x[[mod]]$pred$obs <- ifelse(x[[mod]]$pred$obs == mi$positive_class, 1L, 0L)
+  } else if (mi$m_class == "Multiclass") {
+    f <- evaluate_multiclass
+    pred_col <- "pred"
   }
   # Pull all available metrics from all models
+  browser()
   out <-
     purrr::map_df(names(x), function(mod) {
       split(x[[mod]]$pred, x[[mod]]$pred$Resample) %>%
@@ -139,6 +143,25 @@ evaluate.model_list <- function(x, all_models = FALSE, ...) {
 evaluate_classification <- function(predicted, actual) {
   c("AUPR" = MLmetrics::PRAUC(y_pred = predicted, y_true = actual),
     "AUROC" = MLmetrics::AUC(y_pred = predicted, y_true = actual)
+  )
+}
+
+#' Get performance metrics for multiclass predictions
+#'
+#' @param predicted Vector of predicted probabilities
+#' @param actual Vector of realized outcomes, must be 0/1
+#'
+#' @importFrom MLmetrics Accuracy
+#'
+#' @return Numeric vector of scores with metric as names
+#' @export
+#'
+#' @examples
+#' evaluate_multiclass(iris$Species, sample(iris$Species))
+evaluate_multiclass <- function(predicted, actual) {
+  c("Accuracy" = MLmetrics::Accuracy(y_pred = predicted, y_true = actual),
+    "Kappa" = caret::confusionMatrix(
+      data = predicted, reference = actual)$overall[["Kappa"]]
   )
 }
 

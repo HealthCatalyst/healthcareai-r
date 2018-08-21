@@ -203,6 +203,8 @@ extract_model_info <- function(x) {
   best_model <- which(best_metrics == optimum(best_metrics))[1] # 1 in case tie
   algs <- purrr::map_chr(x, ~ .x$modelInfo$label)
   m_class <- x[[1]]$modelType
+  if (length(levels(x[[1]])) > 2)
+    m_class <- "Multiclass"
   target <- attr(x, "target")
   ddim <- dim(x[[1]]$trainingData)
   best_model_name <- algs[[best_model]]
