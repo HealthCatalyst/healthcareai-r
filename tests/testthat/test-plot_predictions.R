@@ -102,7 +102,7 @@ test_that("fixed_aspect works", {
 
 test_that("lines and labels are added when outcome_groups present", {
   w_groups <-
-    predict(m_class, outcome_groups = 1/3) %>%
+    predict(m_class, outcome_groups = 1 / 3) %>%
     plot(print = FALSE) %>%
     ggplot_build()
   wo_groups <-
@@ -116,7 +116,7 @@ test_that("lines and labels are added when outcome_groups present", {
 })
 
 test_that("lines and labels are added when risk_groups present", {
-  groups = c("low", "mid", "high")
+  groups <- c("low", "mid", "high")
   w_groups <-
     predict(m_class, risk_groups = groups) %>%
     plot(print = FALSE) %>%
