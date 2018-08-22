@@ -1,81 +1,106 @@
-#' Simulate Counterfactual Predictions
+#' Make Counterfactual Predictions
 #'
-#' @param models A model_list object. The data the model was trained on must have
-#'   been prepared, either by training with \code{\link{machine_learn}} or by
-#'   preparing with \code{\link{prep_data}} before model training
-#' @param vary Which (or how many) variables to vary? Default is 4; if
-#'   \code{vary} is a single integer (n), the n-most-important variables are
-#'   varied (see details for importance is determined). If \code{vary} is a
-#'   vector of integers, those rankings of variables are used (e.g. \code{vary =
-#'   2:4} varies the 2nd, 3rd, and 4th most-important variables). Alternatively,
-#'   a vector of variable names to vary may be provided. Or, for the finest
-#'   level of control, a list with names being variable names and entries being
-#'   values to use; in this case \code{numerics} and \code{characters} are
+#' @param models A model_list object. The data the model was trained on must
+#'   have been prepared, either by training with \code{\link{machine_learn}} or
+#'   by preparing with \code{\link{prep_data}} before model training
+#' @param vary Which (or how many) features to vary? Default is 4; if
+#'   \code{vary} is a single integer (n), the n-most-important features are
+#'   varied (see Details for how importance is determined). If \code{vary} is a
+#'   vector of integers, those rankings of features are used (e.g. \code{vary =
+#'   2:4} varies the 2nd, 3rd, and 4th most-important features). Alternatively,
+#'   you can specify which features to vary by passing a vector of feature
+#'   names. For the finest level of control, you can choose the alternative
+#'   values to use by passing a list with names being features names and entries
+#'   being values to use; in this case \code{numerics} and \code{characters} are
 #'   ignored.
-#' @param hold How to choose the values of variables not being varied? This can
-#'   either be a length-2 list with names "numerics" and "characters", each
-#'   giving functions for how to handle that data type. The default is
-#'   \code{list(numerics = median, characters = Mode)}; numerics is applied to
-#'   the column from the training data, \code{characters} is applied to a
-#'   frequency table of the column from the training data. Alternatively, this
-#'   can be a row of a data frame from the training data if, for example, you
-#'   want to run simulations for a particular patient. It can also be a list or
-#'   one-row data frame containing values of variables at which to hold; in this
-#'   case values of variables that vary are ignored.
-#' @param numerics For numeric variables being varied, how to select values? By
+#' @param hold How to choose the values of features not being varied? To make
+#'   counterfactual predictions for a particular patient, this can be a row of
+#'   the training data frame (or a one-row data frame containing values for all
+#'   of the non-varying features). Alternatively, this can be functions to
+#'   determine the values of non-varying features, in which case it must be a
+#'   length-2 list with names "numerics" and "characters", each being a function
+#'   to determine the values of non-varying features of that data type. The
+#'   default is \code{list(numerics = median, characters = Mode)}; numerics is
+#'   applied to the column from the training data, characters is applied to a
+#'   frequency table of the column from the training data.
+#' @param numerics How to determine values of numeric features being varied? By
 #'   default, the minimum, 25th-, 50th-, 75th-percentile, and maximum values
-#'   from the training dataset will be used. If this is an integer, it specifies
-#'   the number of evenly spaced quantiles to use (default = 5). If it is a
-#'   numeric vector, it specifies the quantiles to use and so must be in [0, 1].
+#'   from the training dataset will be used. To specify evenly spaced quantiles,
+#'   pass an integer to this argument and that number of evenly spaced quantiles
+#'   will be used (default = 5). To specify which quantiles to use, pass a
+#'   numeric vector in [0, 1] to this argument.
 #' @param characters Integer. For categorical variables being varied, how many
 #'   values to use? Values are used from most- to least-common; default is all
 #'   (Inf).
 #'
-#' @return A tibble with values of variables used to make predictions and
-#'   predictions. Has class \code{simulated_df} and \code{predicted_df}.
+#' @return A tibble with values of features used to make predictions and
+#'   predictions. Has class \code{cf_df} and attribute \code{vi} giving
+#'   information about the varying features.
 #' @export
+#' @importFrom stats median
 #'
-#' @description This function makes predictions for observations that vary over
-#'   variables of interest. At the model level, it can be used to understand how
-#'   different combinations of variables influence predictions, and the
-#'   individual level it can be used to explore what an observation's prediction
-#'   would be if certain variables were different. \strong{Note that causality
-#'   cannot be established by this function.}
+#' @description Make predictions for observations that vary over features of
+#'   interest. There are two major use cases for this function. One is to
+#'   understand how the model responds to features, not just individually but
+#'   over combinations of features (i.e. interaction effects). The other is to
+#'   explore how an individual prediction would vary if feature values were
+#'   different. \strong{Note, however, that this function does not establish
+#'   causality and the latter use case should be deployed judiciously.}
 #'
-#' @details If \code{vary} is an integer, the most important variables are
+#' @details If \code{vary} is an integer, the most important features are
 #'   determined by \code{\link{get_variable_importance}}, unless glm is the only
 #'   model present, in which case \code{\link{interpret}} is used with a
-#'   warning. When selecting the most important variables to vary over, for
-#'   categorical variables the sum of variable importance of all the levels as
-#'   dummy variables is used.
+#'   warning. When selecting the most important features to vary over, for
+#'   categorical features the sum of feature importance of all the levels as
+#'   dummy features is used.
+#'
+#' @seealso \code{\link{plot.cf_df}}
 #'
 #' @examples
-#' # First, we need a model on which to run simulations
+#' # First, we need a model on which to make counterfactual predictions
 #' set.seed(5176)
 #' m <- machine_learn(pima_diabetes, patient_id, outcome = diabetes,
 #'                    tune = FALSE, models = "xgb")
 #'
-#' # By default, the four most important variables are varied, with numeric
-#' # variables taking their 0, 25%, 50%, 75%, and 100% quantile values. Others are
-#' # held at their median and modal values for numeric and categorical variables,
+#' # By default, the four most important features are varied, with numeric
+#' # features taking their 0, 25%, 50%, 75%, and 100% quantile values. Others are
+#' # held at their median and modal values for numeric and categorical features,
 #' # respectively. This can help to understand how the model responds to different
-#' # variables
-#' simulate(m)
+#' # features
+#' predict_counterfactuals(m)
 #'
-#' # You can specify which variables vary and what values they take in a variety of
+#' # It is easy to plot counterfactual predictions. See `?plot.cf_df`
+#' # for customization options
+#' predict_counterfactuals(m) %>%
+#'   plot()
+#'
+#' # You can specify which features vary and what values they take in a variety of
 #' # ways. For example, you could vary only "weight_class" and "plasma_glucose"
-#' simulate(m, vary = c("weight_class", "plasma_glucose"))
+#' predict_counterfactuals(m, vary = c("weight_class", "plasma_glucose"))
 #'
-#' # You can also control what values non-varying variables take.
+#' # You can also control what values non-varying features take.
 #' # For example, if you want to simulate alternative scenarios for patient 321
 #' patient321 <- dplyr::filter(pima_diabetes, patient_id == 321)
 #' patient321
-#' simulate(m, hold = patient321)
-simulate <- function(models,
-                     vary = 4,
-                     hold = list(numerics = median, characters = Mode),
-                     numerics = 5,
-                     characters = Inf) {
+#' predict_counterfactuals(m, hold = patient321)
+#'
+#' # Here is an example in which both the varying and non-varying feature values
+#' # are explicitly specified.
+#' predict_counterfactuals(m,
+#'                        vary = list(weight_class = c("normal", "overweight", "obese"),
+#'                                    plasma_glucose = seq(60, 200, 10)),
+#'                        hold = list(pregnancies = 2,
+#'                                    pedigree = .5,
+#'                                    age = 25,
+#'                                    insulin = NA,
+#'                                    skinfold = NA,
+#'                                    diastolic_bp = 85)) %>%
+#'   plot()
+predict_counterfactuals <- function(models,
+                                   vary = 4,
+                                   hold = list(numerics = median, characters = Mode),
+                                   numerics = 5,
+                                   characters = Inf) {
 
   if (!is.model_list(models))
     stop("models must be a model_list object; this is a ", class(models)[1])
@@ -98,18 +123,11 @@ simulate <- function(models,
                                  hold = hold)
   static <- do.call(dplyr::bind_rows, replicate(nrow(d), static, simplify = FALSE))
   d <- dplyr::bind_cols(d, static)
-  suppressMessages( preds <- predict(models, d) )
+  suppressWarnings( suppressMessages( preds <- predict(models, d) ) )
   # Intentionally leave off the predicted_df class here to avoid performance-
   # in-training info printing
-  structure(preds, class = c("simulated_df", class(d)))
+  structure(preds, class = c("cf_df", class(d)))
 }
-
-############## plot method
-
-
-
-
-############## helper functions
 
 # Create the data frame containing combinations of variable values on which to
 # make counterfactual predictions, but not containing fixed predictors.
@@ -131,8 +149,14 @@ create_varying_df <- function(models, vary, variables, numerics, characters) {
                           numerics = numerics, characters = characters)
   }
 
+  # Collect variable attributes to keep with the cf_df object
+  vi <- map_df(names(vary), ~ tibble(variable = .x,
+                                     numeric = is.numeric(vary[[.x]]),
+                                     nlev = length(vary[[.x]])))
+
   expand.grid(vary, stringsAsFactors = FALSE) %>%
     as_tibble() %>%
+    structure(vi = vi) %>%
     return()
 }
 
@@ -146,34 +170,39 @@ test_presence <- function(vary, variables) {
 
 # Choose which variables to vary for CF predictions
 choose_variables <- function(models, vary, variables) {
-  vi <-
+  var_imp <-
     if (!dplyr::setequal(names(models), "glmnet")) {
       # Suppress warning that glmnet is best model if it is
       suppressWarnings( get_variable_importance(models) )
     } else {
       # Format interpret to function as variable importance
+      warning("glm is the only model present in models, so using coefficients ",
+              "to determine which variables to vary. If variables weren't scaled ",
+              "this will be misleading. Consider using another algorithm or ",
+              "`prep_data(scale = TRUE)` prior to model training.")
       interpret(models) %>%
         dplyr::transmute(variable = variable, importance = abs(coefficient)) %>%
         dplyr::filter(variable != "(Intercept)")
     }
   # Only keep the top level of any categoricals
-  vi <-
+  var_imp <-
     purrr::map_df(variables$nominal, function(var_name) {
-      vi %>%
+      var_imp %>%
         filter(stringr::str_detect(variable, var_name)) %>%
         dplyr::summarize(variable = var_name, importance = sum(importance))
     }) %>%
     # Add numerics and sort by importance
-    dplyr::bind_rows(dplyr::filter(vi, variable %in% variables$numeric)) %>%
+    dplyr::bind_rows(dplyr::filter(var_imp, variable %in% variables$numeric)) %>%
     arrange(desc(importance))
   if (length(vary) == 1)
     vary <- seq(1, vary)
-  dplyr::slice(vi, vary) %>%
+  dplyr::slice(var_imp, vary) %>%
     dplyr::pull(variable)
 }
 
 
 choose_values <- function(models, vary, variables, numerics, characters) {
+  vary_order <- vary
   # Choose nominal values
   noms_to_use <- dplyr::intersect(variables$nominal, vary)
   noms <-
@@ -195,14 +224,20 @@ choose_values <- function(models, vary, variables, numerics, characters) {
         numerics <- seq(0, 1, len = numerics)
       }
       dplyr::select(models[[1]]$trainingData, nums_to_use) %>%
-        purrr::map(quantile, numerics, na.rm = TRUE)
+        purrr::map(stats::quantile, numerics, na.rm = TRUE)
     } else {
       NULL
     }
-  return(c(noms, nums))
+  both <- c(noms, nums)
+  # Keeps variables in order by variable importance
+  both[order(match(names(both), vary_order))] %>%
+    return()
 }
 
 choose_static_values <- function(models, static_variables, hold) {
+  if (!rlang::is_named(hold))
+    stop("`hold` must be a named list (or data frame), whether it contains ",
+         "functions to determine values or values themselves.")
   if (setequal(names(hold), c("numerics", "characters"))) {
     # hold is two functions
     not_funs <- purrr::map_chr(hold, class) %>% .[. != "function"]
