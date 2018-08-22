@@ -41,3 +41,21 @@ test_that("Machine learn respects tune = FALSE", {
                       tune = FALSE, models = "xgb")
   expect_false(attr(ut, "tuned"))
 })
+
+# Testing Multiclass ---------
+set.seed(257056)
+training_data <- dplyr::sample_n(iris, 25)
+
+test_that("multiclass machine_learn produces a model_list", {
+  models <- machine_learn(training_data,
+                          outcome = Species, models = "xgb")
+  expect_s3_class(models, "multiclass_list")
+})
+
+test_that("Machine learn respects tune = FALSE", {
+  ut <- machine_learn(training_data, outcome = Species, n_folds = 3,
+                      tune = FALSE, models = "xgb")
+  expect_s3_class(ut, "multiclass_list")
+  expect_false(attr(ut, "tuned"))
+})
+

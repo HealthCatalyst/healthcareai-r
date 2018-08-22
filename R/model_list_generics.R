@@ -178,10 +178,14 @@ plot.model_list <- function(x, font_size = 11, point_size = 1,
   if (!1 %in% i)
     x[[min(i)]]$trainingData <- x[[1]]$trainingData
   # Rebuild the model_list, keeping the old timestamp
+  m_class <- x[[1]]$modelType
+  if (length(levels(x[[1]])) > 2)
+    m_class <- "Multiclass"
   x <-
     as.model_list(listed_models = .subset(x, i),
                   target = attrs$target,
                   tuned = attrs$tuned,
+                  model_class = m_class,
                   recipe = attrs$recipe,
                   positive_class = attrs$positive_class,
                   original_data_str = attrs$original_data_str) %>%

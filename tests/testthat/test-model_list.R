@@ -5,6 +5,7 @@ set.seed(257056)
 short <- dplyr::sample_n(na.omit(pima_diabetes), 50)
 dreg <- prep_data(short, outcome = pedigree)
 dcla <- prep_data(short, outcome = diabetes)
+dmul <- prep_data(dplyr::sample_n(iris, 100), outcome = Species)
 suppressWarnings({
   rf <- caret::train(x = dplyr::select(dreg, -pedigree),
                      y = dreg$pedigree,
@@ -30,12 +31,14 @@ suppressWarnings({
 # Implicit test that warning not issued for missing resampled performance metrics:
 r_models <- tune_models(dreg, pedigree, tune_depth = 2, n_folds = 2, models = c("rf", "glm"))
 c_models <- tune_models(dcla, diabetes, tune_depth = 2, n_folds = 2, model_name = "great_name", models = "xgb")
+m_models <- tune_models(d = dmul, outcome = Species, tune_depth = 2, n_folds = 2, models = "rf")
 c_pr <- flash_models(dcla, diabetes, metric = "PR", n_folds = 2, models = "xgb")
 single_model_as <- as.model_list(rf)
 single_model_tune <- tune_models(dcla, diabetes, models = "xgb", n_folds = 2, tune_depth = 2)
 double_model_as <- as.model_list(rf, xg)
 r_flash <- flash_models(dreg, pedigree, n_folds = 2, models = "xgb")
 c_flash <- flash_models(dcla, diabetes, n_folds = 2, models = "xgb")
+m_flash <- flash_models(dmul, Species, n_folds = 2, models = "xgb")
 unprepped_flash <- flash_models(dplyr::select(short, pregnancies, age, pedigree),
                                 pedigree, models = "rf", n_folds = 2)
 ods <- list(
@@ -159,6 +162,10 @@ test_that("print.model_list works", {
   expect_true(nchar(cprint) > 0)
   expect_true(grepl("classification", cprint, ignore.case = TRUE))
 
+  mprint <- capture_output(m_models, TRUE)
+  expect_true(nchar(mprint) > 0)
+  expect_true(grepl("multiclass", cprint, ignore.case = TRUE))
+
   # With PR as the metric
   cprint <- capture_output(c_pr, TRUE)
   expect_true(nchar(cprint) > 0)
@@ -197,22 +204,29 @@ context("Checking model_list generics on untuned model_lists") #----------------
 test_that("print.model_list works with untuned_model_lists", {
   expect_warning(flash_r_print <- capture_output(print(r_flash)), NA)
   expect_warning(flash_c_print <- capture_output(print(c_flash)), NA)
+  expect_warning(flash_m_print <- capture_output(print(m_flash)), NA)
   expect_false(grepl("Inf", flash_r_print))
   expect_false(grepl("Inf", flash_c_print))
+  expect_false(grepl("Inf", flash_m_print))
   expect_true(grepl("Target: pedigree", flash_r_print))
   expect_true(grepl("Target: diabetes", flash_c_print))
+  expect_true(grepl("Target: Species", flash_m_print))
   expect_true(grepl("Models have not been tuned", flash_r_print))
   expect_true(grepl("selected hyperparameter values", flash_c_print))
+  expect_true(grepl("Accuracy", flash_m_print))
 })
 
 test_that("summary.model_list works with untuned_model_lists", {
   expect_warning(flash_r_summary <- capture_output(summary(r_flash)), NA)
   expect_warning(flash_c_summary <- capture_output(summary(c_flash)), NA)
+  expect_warning(flash_m_summary <- capture_output(summary(m_flash)), NA)
   expect_false(grepl("Inf", flash_r_summary))
   expect_false(grepl("Inf", flash_c_summary))
+  expect_false(grepl("Inf", flash_m_summary))
   expect_false(grepl("0 rows", flash_r_summary))
   expect_false(grepl("Best performance:", flash_r_summary))
   expect_true(grepl("Best algorithm:", flash_c_summary))
+  expect_true(grepl("Kappa", flash_m_summary))
 })
 
 test_that("plot.model_list works with message untuned_model_lists", {
@@ -249,14 +263,17 @@ test_that("model_lists have time model trained attribute", {
   check_timestamp <- function(m) expect_true(lubridate::is.POSIXt(attr(m, "timestamp")))
   check_timestamp(r_models)
   check_timestamp(c_models)
+  check_timestamp(m_models)
   check_timestamp(c_pr)
   check_timestamp(r_flash)
   check_timestamp(c_flash)
+  check_timestamp(m_flash)
 })
 
 test_that("model_lists only carry one copy of training data", {
   expect_s3_class(r_models[[1]]$trainingData, "data.frame")
   expect_s3_class(c_models[[1]]$trainingData, "data.frame")
+  expect_s3_class(m_models[[1]]$trainingData, "data.frame")
   expect_s3_class(double_model_as[[1]]$trainingData, "data.frame")
   expect_s3_class(single_model_as[[1]]$trainingData, "data.frame")
   expect_s3_class(single_model_tune[[1]]$trainingData, "data.frame")

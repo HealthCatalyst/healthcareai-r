@@ -104,7 +104,6 @@ evaluate.model_list <- function(x, all_models = FALSE, ...) {
     pred_col <- "pred"
   }
   # Pull all available metrics from all models
-  browser()
   out <-
     purrr::map_df(names(x), function(mod) {
       split(x[[mod]]$pred, x[[mod]]$pred$Resample) %>%

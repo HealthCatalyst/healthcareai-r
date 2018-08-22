@@ -79,6 +79,7 @@ get_metric_names <- function() {
       "RMSE",     "RMSE",       min,
       "MAE",      "MAE",        min,
       "Rsquared", "Rsquared",   max,
-      "Accuracy", "Accuracy",   max
+      "Accuracy", "Accuracy",   max,
+      "Kappa",    "Kappa",      max
   )
 }
