@@ -36,7 +36,9 @@ proportion of observations in the group, again based on the distribution of
 out-of-fold predictions on the training data. For example,
 \code{risk_groups = c(low = 2, mid = 1, high = 1)} will put the bottom half
 of predicted probabilities in the "low" group, the next quarter in the
-"mid" group, and the highest quarter in the "high" group.}
+"mid" group, and the highest quarter in the "high" group. You can get the
+cutoff values used to separate groups by passing the output of
+\code{predict} to \code{\link{get_cutoffs}}}
 
 \item{outcome_groups}{Should predictions be grouped into outcome classes and
 returned in column "predicted_group"? If this is NULL (default), they will
@@ -49,7 +51,9 @@ alarms). For example, \code{outcome_groups = 5} indicates a prefered ratio
 of five false alarms to every missed detection, and \code{outcome_groups =
 .5} indicates that two missed detections is as bad as one false alarm. This
 value is passed to the \code{cost_fn} argument of
-\code{\link{get_thresholds}}.}
+\code{\link{get_thresholds}}. You can get the cutoff values used to
+separate groups by passing the output of \code{predict} to
+\code{\link{get_cutoffs}}}
 
 \item{prepdata}{Logical, this should rarely be set by the user. By default,
 if `newdata` hasn't been prepped, it will be prepped by `prep_data` before
@@ -131,5 +135,6 @@ predict(models, pima_diabetes[101:200, ],
   plot()
 }
 \seealso{
-\code{\link{plot.predicted_df}}, \code{\link{evaluate.predicted_df}}
+\code{\link{plot.predicted_df}}, \code{\link{evaluate.predicted_df}},
+\code{\link{get_thresholds}}, \code{\link{get_cutoffs}}
 }

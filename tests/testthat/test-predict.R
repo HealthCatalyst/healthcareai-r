@@ -441,4 +441,18 @@ test_that("add_groups errors informatively", {
   expect_error(predict(model_classify_prepped, outcome_groups = FALSE), "FALSE")
 })
 
+test_that("get_cutoffs", {
+  og <- predict(model_classify_prepped, outcome_groups = 2)
+  rg <- predict(model_classify_prepped, risk_groups = 5)
+  og_mes <- capture_messages( og_cutoffs <- get_cutoffs(og) )
+  junk <- capture_output(rg_mes <- capture_messages( rg_cutoffs <- get_cutoffs(rg)))
+  expect_true(stringr::str_detect(tolower(og_mes), "outcome"))
+  expect_true(stringr::str_detect(tolower(rg_mes), "risk"))
+  expect_true(is.numeric(og_cutoffs))
+  expect_length(og_cutoffs, 1)
+  expect_s3_class(rg_cutoffs, "data.frame")
+  expect_equal(stringr::str_extract(rg_cutoffs$group, "[0-9]$"), as.character(1:5))
+  expect_true(all(diff(rg_cutoffs$minimum_probability) < 0))
+})
+
 remove_logfiles()

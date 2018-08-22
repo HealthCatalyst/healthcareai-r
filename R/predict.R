@@ -26,7 +26,9 @@
 #'   out-of-fold predictions on the training data. For example,
 #'   \code{risk_groups = c(low = 2, mid = 1, high = 1)} will put the bottom half
 #'   of predicted probabilities in the "low" group, the next quarter in the
-#'   "mid" group, and the highest quarter in the "high" group.
+#'   "mid" group, and the highest quarter in the "high" group. You can get the
+#'   cutoff values used to separate groups by passing the output of
+#'   \code{predict} to \code{\link{get_cutoffs}}
 #' @param outcome_groups Should predictions be grouped into outcome classes and
 #'   returned in column "predicted_group"? If this is NULL (default), they will
 #'   not be. The threshold for splitting outcome classes is determined on the
@@ -38,7 +40,9 @@
 #'   of five false alarms to every missed detection, and \code{outcome_groups =
 #'   .5} indicates that two missed detections is as bad as one false alarm. This
 #'   value is passed to the \code{cost_fn} argument of
-#'   \code{\link{get_thresholds}}.
+#'   \code{\link{get_thresholds}}. You can get the cutoff values used to
+#'   separate groups by passing the output of \code{predict} to
+#'   \code{\link{get_cutoffs}}
 #' @param prepdata Logical, this should rarely be set by the user. By default,
 #'   if `newdata` hasn't been prepped, it will be prepped by `prep_data` before
 #'   predictions are made. Set this to TRUE to force already-prepped data
@@ -72,7 +76,8 @@
 #'   after prediction. Extract using \code{attr(pred, "failed")}.
 #' @export
 #' @importFrom caret predict.train
-#' @seealso \code{\link{plot.predicted_df}}, \code{\link{evaluate.predicted_df}}
+#' @seealso \code{\link{plot.predicted_df}}, \code{\link{evaluate.predicted_df}},
+#' \code{\link{get_thresholds}}, \code{\link{get_cutoffs}}
 #'
 #' @details The model and hyperparameter values with the best out-of-fold
 #'   performance in model training according to the selected metric is used to
@@ -304,12 +309,10 @@ add_groups <- function(object, mi, newdata, pred_name, risk_groups, outcome_grou
       dplyr::filter(optimal) %>%
       dplyr::pull(threshold)
     neg_class <- levels(object[[1]]$trainingData$.outcome)[1]
-    stopifnot(neg_class != mi$positive_class)  # programming check
     newdata$predicted_group <-
       ifelse(newdata[[pred_name]] >= cutpoint, mi$positive_class, neg_class) %>%
       factor(levels = c(neg_class, mi$positive_class)) %>%
       structure(group_type = "outcome", cutpoints = cutpoint)
-    # dplyr::setdiff(object[[1]]$trainingData$.outcome, mi$positive_class))
   }
   return(newdata)
 }
@@ -346,4 +349,48 @@ get_pred_summary <- function(x) {
     summary() %>%
     dplyr::bind_rows()
   return(pred_summary)
+}
+
+#' Get cutoff values for group predictions
+#'
+#' @param x Data frame from \code{\link{predict.model_list}} where
+#'   \code{outcome_groups} or \code{risk_groups} was specified
+#'
+#' @return A message is printed about the thresholds. If \code{outcome_groups}
+#'   were defined the return value is a single numeric value, the threshold used
+#'   to separate predicted probabilities into outcome groups. If
+#'   \code{risk_groups} were defined the return value is a data frame with one
+#'   column giving the group names and another column giving the minimum
+#'   predicted probability for an observation to be in that group.
+#' @export
+#'
+#' @examples
+#' machine_learn(pima_diabetes[1:20, ], patient_id, outcome = diabetes,
+#'               models = "xgb", tune = FALSE) %>%
+#'   predict(risk_groups = 5) %>%
+#'   get_cutoffs()
+get_cutoffs <- function(x) {
+  if (!is.predicted_df(x))
+    stop("`get_cutoffs` only works on the output of `predict`. Do you want `get_thresholds`?")
+  if(!"predicted_group" %in% names(x))
+    stop("`get_cutoffs` requires that groups were created during prediction. ",
+         "Specify `risk_groups` or `outcome_groups` in your `predict` call.")
+
+  ats <- attributes(x$predicted_group)
+
+  if (ats$group_type == "outcome") {
+    message("Predicted outcomes ", list_variables(ats$levels),
+            " separated at: ", signif(ats$cutpoints, 3))
+    return(invisible(ats$cutpoints))
+  } else {
+    message("Risk groups defined by the following thresholds:\n")
+    d <-
+      tibble::tibble(
+        group = ats$levels,
+        minimum_probability = ats$cutpoints[-length(ats$cutpoints)]
+      ) %>%
+      dplyr::arrange(desc(minimum_probability))
+    print(d)
+    return(invisible(d))
+  }
 }
