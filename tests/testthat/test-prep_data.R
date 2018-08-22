@@ -75,6 +75,12 @@ d_reprep <- prep_data(d_test, outcome = is_ween, song_id,
                       recipe = attr(d_prep, "recipe"))
 d_reprep2 <- prep_data(d_test, outcome = is_ween, song_id,
                        recipe = d_prep)
+animals <- tibble::tibble(
+  animal = sample(c("cat", "dog", "mouse"), n, TRUE),
+  weight = rexp(n, 0.5), super = sample(c(TRUE, FALSE), n, TRUE), y = rnorm(n)
+)
+animals_train <- animals[1:250, ]
+animals_test <- animals[251:300, ]
 
 # Tests ------------------------------------------------------------------------
 test_that("Bad data throws an error", {
@@ -581,4 +587,18 @@ test_that("prep_data doesn't check for all-unique columns in predict", {
   d_test$state <- c("CA", paste0("A", seq_len(nrow(d_test) - 1)))
   expect_true("state" %in% names(pd <- prep_data(d_test, recipe = d_prep)))
   expect_equal("CA", as.character(pd$state[1]))
+})
+
+test_that("prep_data gets rid of logicals", {
+  prepped_train <- prep_data(animals_train, outcome = y)
+  prepped_test <- prep_data(animals_test, recipe = prepped_train, outcome = y)
+  expect_false(any(purrr::map_lgl(prepped_train, is.logical)))
+  expect_false(any(purrr::map_lgl(prepped_test, is.logical)))
+})
+
+test_that("prep_data gets rid of logicals, when no outcome", {
+  prepped_train <- prep_data(animals_train)
+  prepped_test <- prep_data(animals_test, recipe = prepped_train)
+  expect_false(any(purrr::map_lgl(prepped_train, is.logical)))
+  expect_false(any(purrr::map_lgl(prepped_test, is.logical)))
 })
