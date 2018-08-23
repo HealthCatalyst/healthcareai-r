@@ -58,4 +58,3 @@ test_that("Machine learn respects tune = FALSE", {
   expect_s3_class(ut, "multiclass_list")
   expect_false(attr(ut, "tuned"))
 })
-

@@ -64,7 +64,7 @@ as.model_list <- function(...,
   if (length(types) > 1L)
     stop("All model_class elements need to be the same. Yours: ",
          list_variables(types))
-  if (model_class != types) {
+  if (!missing(model_class) && model_class != types) {
     if (model_class == "multiclass") {
       types <- "multiclass" # caret doesn't distinguish between 2 classes and >2
     } else {

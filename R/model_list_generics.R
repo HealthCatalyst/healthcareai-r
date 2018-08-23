@@ -185,7 +185,6 @@ plot.model_list <- function(x, font_size = 11, point_size = 1,
     as.model_list(listed_models = .subset(x, i),
                   target = attrs$target,
                   tuned = attrs$tuned,
-                  model_class = m_class,
                   recipe = attrs$recipe,
                   positive_class = attrs$positive_class,
                   original_data_str = attrs$original_data_str) %>%
@@ -271,3 +270,7 @@ is.classification_list <- function(x) "classification_list" %in% class(x)
 #' @export
 #' @rdname is.model_list
 is.regression_list <- function(x) "regression_list" %in% class(x)
+
+#' @export
+#' @rdname is.model_list
+is.multiclass_list <- function(x) "multiclass_list" %in% class(x)

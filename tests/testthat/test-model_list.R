@@ -164,7 +164,7 @@ test_that("print.model_list works", {
 
   mprint <- capture_output(m_models, TRUE)
   expect_true(nchar(mprint) > 0)
-  expect_true(grepl("multiclass", cprint, ignore.case = TRUE))
+  expect_true(grepl("multiclass", mprint, ignore.case = TRUE))
 
   # With PR as the metric
   cprint <- capture_output(c_pr, TRUE)

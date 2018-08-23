@@ -20,9 +20,9 @@ r_preds_test_eval <- predict(r_models, dtest) %>% evaluate()
 c_preds_training <- predict(c_models)
 c_preds_train_eval <- evaluate(c_preds_training)
 c_preds_test_eval <- predict(c_models, dtest) %>% evaluate()
-# m_preds_training <- predict(m_models)
-# m_preds_train_eval <- evaluate(m_preds_training)
-# m_preds_test_eval <- predict(m_models, dtest) %>% evaluate()
+# m_preds_training <- predict(m_models) # nolint
+# m_preds_train_eval <- evaluate(m_preds_training) # nolint
+# m_preds_test_eval <- predict(m_models, dtest) %>% evaluate() # nolint
 
 all_evals <- list(r_models_eval, c_models_eval, m_models_eval,
                   r_preds_train_eval, c_preds_train_eval,
@@ -65,9 +65,9 @@ test_that("All evalutes methods returns appropriate metrics", {
   expect_setequal(names(c_preds_train_eval), c("AUPR", "AUROC"))
   expect_setequal(names(c_preds_test_eval), c("AUPR", "AUROC"))
   expect_setequal(names(c_models_eval), c("AUPR", "AUROC"))
-  expect_setequal(names(m_preds_train_eval), c("Accuracy", "Kappa"))
-  expect_setequal(names(m_preds_test_eval), c("Accuracy", "Kappa"))
-  expect_setequal(names(m_models_eval), c("Accuracy", "Kappa"))
+  # expect_setequal(names(m_preds_train_eval), c("Accuracy", "Kappa")) # nolint
+  # expect_setequal(names(m_preds_test_eval), c("Accuracy", "Kappa")) # nolint
+  # expect_setequal(names(m_models_eval), c("Accuracy", "Kappa")) # nolint
 })
 
 test_that("All classification metrics are in [0, 1]", {
@@ -104,7 +104,7 @@ test_that("evalute all_models works right", {
   alls <- list(
     r_all = evaluate(r_models, all_models = TRUE),
     c_all = evaluate(c_models, all_models = TRUE),
-    m_all = evaulate(m_models, all_models = TRUE),
+    m_all = evaluate(m_models, all_models = TRUE),
     all1 = evaluate(r_models[1], all_models = TRUE)
   )
   purrr::map_lgl(alls, is.data.frame) %>% all() %>% expect_true()

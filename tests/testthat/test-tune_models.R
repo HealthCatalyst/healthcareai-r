@@ -22,7 +22,8 @@ test_that("Error informatively if outcome class doesn't match model_class", {
   cla_df$diabetes <- factor(cla_df$diabetes)
   expect_error(tune_models(cla_df, diabetes, model_class = "regression"), "categorical")
   expect_error(tune_models(reg_df, plasma_glucose, model_class = "classification"), "numeric")
-  expect_error(tune_models(m_df, Species, model_class = "multiclass"), "numeric")
+  expect_error(tune_models(reg_df, plasma_glucose, model_class = "multiclass"), "numeric")
+  expect_error(tune_models(m_df, Species, model_class = "classification"), "2-class")
 })
 
 test_that("reg and class train all three models", {
