@@ -21,6 +21,7 @@
 #'   customization of the plot. See the third example.
 #'
 #' @examples
+#' # Some regression examples
 #' models <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = plasma_glucose,
 #'                         models = "rf", tune = FALSE)
 #' predictions <- predict(models)
@@ -30,6 +31,13 @@
 #'      point_size = 3, point_alpha = .7, font_size = 14)
 #' p <- plot(predictions, print = FALSE)
 #' p + theme_classic()
+#'
+#' # A classification example with risk groups
+#' class_models <- machine_learn(pima_diabetes, patient_id, outcome = diabetes,
+#'                               models = "xgb", tune = FALSE)
+#' predict(class_models,
+#'         risk_groups = c("v low", "low", "medium", "high", "very high")) %>%
+#'   plot()
 plot.predicted_df <- function(x,
                               caption = TRUE,
                               title = NULL,
@@ -114,26 +122,57 @@ plot_regression_predictions <- function(x,
   return(p)
 }
 
-#' @param fill_colors Length-2 character vector: colors to fill density
-#'   curves. Default is c("firebrick", "steelblue"). If named, names must match
+#' @param fill_colors Length-2 character vector: colors to fill density curves.
+#'   Default is c("firebrick", "steelblue"). If named, names must match
 #'   \code{unique(x[[target]])}, in any order.
 #' @param fill_alpha Number in [0, 1] giving opacity of fill colors.
-#' @param curve_flex Numeric. Kernal adjustment for density curves. Default is 1.
-#'   Less than 1 makes curves more flexible, analogous to smaller bins in a
+#' @param curve_flex Numeric. Kernal adjustment for density curves. Default is
+#'   1. Less than 1 makes curves more flexible, analogous to smaller bins in a
 #'   histogram; greater than 1 makes curves more rigid.
+#' @param add_labels If TRUE (default) and a predicted_group column was added to
+#'   predictions by specifying \code{risk_groups} or \code{outcome_groups} in
+#'   \code{link{predict.model_list}}, labels specifying groups are added to the
+#'   plot.
 #'
 #' @rdname plot.predicted_df
 plot_classification_predictions <- function(x,
                                             fill_colors = c("firebrick", "steelblue"),
                                             fill_alpha = .7,
                                             curve_flex = 1,
+                                            add_labels = TRUE,
                                             target) {
   preds <- paste0("predicted_", target)
   p <-
-    ggplot(x, aes_string(x = preds, fill = target)) +
-    geom_density(alpha = fill_alpha, adjust = curve_flex) +
+    ggplot() +
+    geom_density(data = x,
+                 mapping = aes_string(x = preds, fill = target),
+                 alpha = fill_alpha, adjust = curve_flex) +
     scale_x_continuous(name = paste("Predicted Probability of", target),
                        limits = c(0, 1)) +
-    scale_fill_manual(name = paste0("Actual\n", target), values = fill_colors)
+    scale_fill_manual(name = paste0("Actual\n", target), values = fill_colors,
+                      guide = guide_legend(reverse = TRUE))
+
+  if (add_labels && "predicted_group" %in% names(x)) {
+    group_attrs <- attributes(x$predicted_group)
+    max_height <- ggplot_build(p)$layout$panel_scales_y[[1]]$range$range[2] * .98
+    if (group_attrs$group_type == "outcome") {
+      p <- p +
+        geom_vline(xintercept = group_attrs$cutpoints, linetype = "dashed") +
+        geom_label(aes(label = paste("Predicted", group_attrs$levels),
+                       x = group_attrs$cutpoints, y = max_height),
+                   hjust = c(1.1, -.1), vjust = 1)
+    } else if (group_attrs$group_type == "risk") {
+      ct_pts <- group_attrs$cutpoints[-c(1, length(group_attrs$cutpoints))]
+      labels <- group_attrs$levels
+      v_just <- -1 + 1.1 * seq_len(ceiling(length(labels) / 2))
+      half2 <- if (length(labels) %% 2) v_just[-length(v_just)] else v_just
+      v_just <- c(v_just, rev(half2))
+      p <- p +
+        geom_vline(xintercept = ct_pts, linetype = "dashed") +
+        geom_label(aes(label = labels,
+                       x = c(0, ct_pts), y = max_height), hjust = -.1, vjust = v_just)
+    }
+  }
+
   return(p)
 }
