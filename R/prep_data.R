@@ -132,7 +132,8 @@ prep_data <- function(d,
                       scale = FALSE,
                       make_dummies = TRUE,
                       add_levels = TRUE,
-                      factor_outcome = TRUE) {
+                      factor_outcome = TRUE,
+                      ref_levels = NULL) {
   # Check to make sure that d is a dframe
   if (!is.data.frame(d)) {
     stop("\"d\" must be a data frame.")
@@ -141,8 +142,14 @@ prep_data <- function(d,
   d_missing <- missingness(d, return_df = FALSE)
   # Capture original data structure
   d_ods <- d[0, ]
+
+  # Converting all characters to factors to set reference
+  if (make_dummies)
+    d <- set_refs(d, ref_levels)
   # Capture factor levels
   d_levels <- get_factor_levels(d)
+  # Get reference variable from factor levels
+  ref_levels <- purrr::map(d_levels, first)
 
   outcome <- rlang::enquo(outcome)
   remove_outcome <- FALSE
@@ -406,6 +413,7 @@ prep_data <- function(d,
     # Attach missingness and factor-levels in the original data to the recipe
     attr(recipe, "missingness") <- d_missing
     attr(recipe, "factor_levels") <- d_levels
+    attr(recipe, "ref_levels") <- ref_levels
   }
   # Coerces all logical predictor columns as numeric columns
   d <- dplyr::mutate_if(d, is.logical, as.numeric)
