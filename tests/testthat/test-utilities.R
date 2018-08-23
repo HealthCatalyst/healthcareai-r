@@ -98,3 +98,59 @@ test_that("mode - test numeric", {
   test_vec <- c(3, 2, 1, 2, 3, 3)
   expect_equal(3, Mode(test_vec))
 })
+
+test_that("get_factor_levels", {
+  fl <-
+    dplyr::mutate(pima_diabetes, weight_class = forcats::fct_relevel(weight_class, "underweight")) %>%
+    get_factor_levels()
+  expect_equal(fl$weight_class[1], "underweight")
+})
+
+test_that("resetting ref to mode and with named vector - Factors", {
+  d <- tibble(
+    a = factor(c("c", "c", "a"), levels = c("a", "c")),
+    b = factor(c("d", "b", "b"), levels = c("b", "d")),
+    speed = factor(c("med", "med", "fast"), levels = c("slow", "med", "fast"),
+                   ordered = TRUE)
+  )
+  # No named vector
+  d <- set_refs(d, NULL)
+  expect_equal(levels(d$a), c("c", "a"))
+  expect_equal(levels(d$b), c("b", "d"))
+  # test ordered example
+  expect_equal(levels(d$speed), c("slow", "med", "fast"))
+
+  # With named vector
+  d <- set_refs(d, c(b = "d", a = "a"))
+  expect_equal(levels(d$a), c("a", "c"))
+  expect_equal(levels(d$b), c("d", "b"))
+  # test ordered example
+  expect_equal(levels(d$speed), c("slow", "med", "fast"))
+})
+
+test_that("resetting ref to mode and with named vector - Characters", {
+  d <- tibble(
+    a = c("c", "c", "a"),
+    b = c("d", "b", "b")
+  )
+  # No named vector
+  d <- set_refs(d, NULL)
+  expect_equal(levels(d$a), c("c", "a"))
+  expect_equal(levels(d$b), c("b", "d"))
+
+  # With named vector
+  d <- set_refs(d, c(b = "d", a = "a"))
+  expect_equal(levels(d$a), c("a", "c"))
+  expect_equal(levels(d$b), c("d", "b"))
+})
+
+test_that("set_refs throws error for bad ref_levels", {
+  # Error for bad named vector
+  expect_error(set_refs(dd, list()))
+  expect_error(set_refs(dd, c("b")))
+  expect_error(set_refs(dd, c(z = "b", "c")))
+  # Error for numeric column (y)
+  expect_error(set_refs(dd, c(z = "b", y = "c")))
+  # Error for column not existing in dd (a)
+  expect_error(set_refs(dd, c(z = "b", a = "c")))
+})

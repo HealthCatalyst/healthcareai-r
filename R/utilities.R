@@ -38,7 +38,60 @@ get_factor_levels <- function(d) {
   not_factors <- dplyr::union(names(d)[purrr::map_lgl(d, ~ is.numeric(.x))],
                               find_date_cols(d))
   d <- d[, !names(d) %in% not_factors, drop = FALSE]
-  lapply(d, function(x) as.character(unique(x)))
+  lapply(d, function(x) {
+    if (is.factor(x)) levels(x) else unique(x)
+  })
+}
+
+#' Sets mode or user choice for reference
+#' @noRd
+set_refs <- function(d, ref_levels) {
+  if (!is.atomic(ref_levels))
+    stop("`ref_levels` needs to be atomic")
+
+  # If vector is not null, make sure it has names for every value
+  if (!is.null(ref_levels) &&
+     (any(names(ref_levels) == "") || is.null(names(ref_levels))))
+    stop("`ref_levels` must be named")
+
+  # Alert user if the columns given won't be adjusted
+  if (!all(map_lgl(names(ref_levels), ~{
+    .x %in% names(d) && (is.character(d[[.x]]) ||
+                         (is.factor(d[[.x]]) && !is.ordered(d[[.x]])))
+  })))
+    stop("`ref_levels` must be in `d` and be charactor or nominal factor")
+
+  adjusted_d <- map_dfc(names(d), ~{
+    tmp_data <- pull(d, .x)
+
+    # Need to convert characters to factors to store reference levels
+    if (is.character(tmp_data))
+      tmp_data <- as.factor(tmp_data)
+
+    # Only make reference levels for features that are not numeric or dates
+    if (is.factor(tmp_data) && !is.ordered(tmp_data)) {
+      x_captured <- rlang::enquo(.x)
+
+      # Find mode, make sure it can't be NA
+      col_mode <- as.character(Mode(na.omit(tmp_data)))
+
+      # Set reference level to mode or the chosen reference level
+      d <-
+        if (.x %in% names(ref_levels))
+          d %>%
+          mutate(!!quo_name(x_captured) := relevel(tmp_data, ref_levels[[.x]]))
+        else
+          d %>%
+          mutate(!!quo_name(x_captured) := relevel(tmp_data, col_mode))
+    }
+    # Return the column with column name
+    return(select(d, .x))
+  })
+
+  # Copy old attributes to new object
+  attributes(adjusted_d) <- attributes(d)
+
+  return(adjusted_d)
 }
 
 #' Take list of character vectors as from find_new_levels and format for
