@@ -62,7 +62,8 @@
 #' @param scale Logical. If TRUE, numeric columns will be scaled to have a
 #'   standard deviation of 1. Default is FALSE.
 #' @param make_dummies Logical. If TRUE (default), dummy columns will be created
-#'   for categorical variables.
+#'   for categorical variables. When TRUE, nominal characters vector columns
+#'   will be converted to factors.
 #' @param add_levels Logical. If TRUE (defaults), "other" and "missing" will be
 #'   added to all nominal columns. This is protective in deployment: new levels
 #'   found in deployment will become "other" and missingness in deployment can
@@ -74,6 +75,10 @@
 #'   outcome are 0 or 1 they will be converted to factor with levels N and Y for
 #'   classification. Note that which level is the positive class is set in
 #'   training functions rather than here.
+#' @param ref_levels A named vector. Name is the feature and the desired refence
+#'   level is the value. \code{prep_data} sets the mode level to the reference
+#'   level for all character and nominal factors features. Reference levels
+#'   provided will replace the mode level.
 #'
 #' @return Prepared data frame with reusable recipe object for future data
 #'   preparation in attribute "recipe". Attribute recipe contains the names of
@@ -109,6 +114,12 @@
 #'           collapse_rare_factors = FALSE, convert_dates = "year",
 #'           center = TRUE, scale = TRUE, make_dummies = FALSE,
 #'           remove_near_zero_variance = .02)
+#'
+#' # Picking reference levels:
+#' # Dummy variables are not created for reference levels. Mode levels are
+#' # chosen as reference levels by default.
+#' prep_data(d = d_train, patient_id, outcome = diabetes,
+#'           ref_levels = c(weight_class = "normal"))
 prep_data <- function(d,
                       ...,
                       outcome,
