@@ -82,9 +82,11 @@ ready_no_prep <- function(training_data, newdata) {
 #' check for new factor levels and send new data to prep_data before predicting
 #' @noRd
 ready_with_prep <- function(object, newdata, mi = extract_model_info(object)) {
-  # Converting all characters to factors to set reference
-  newdata <- set_refs(newdata, attr(object, "ref_levels"))
   recipe <- attr(object, "recipe")
+  # If dummies, convert all characters to factors to set reference
+  if (grepl("Dummy variables from", recipe))
+    newdata <- set_refs(newdata, attr(object, "ref_levels"))
+
   if (is.null(recipe))
     stop("Can't prep data in prediction without a recipe from training data.")
 
