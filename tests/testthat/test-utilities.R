@@ -101,7 +101,8 @@ test_that("mode - test numeric", {
 
 test_that("get_factor_levels", {
   fl <-
-    dplyr::mutate(pima_diabetes, weight_class = forcats::fct_relevel(weight_class, "underweight")) %>%
+    dplyr::mutate(pima_diabetes, weight_class =
+                    relevel(factor(weight_class), "underweight")) %>%
     get_factor_levels()
   expect_equal(fl$weight_class[1], "underweight")
 })
