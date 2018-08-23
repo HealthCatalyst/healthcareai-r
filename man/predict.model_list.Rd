@@ -2,7 +2,7 @@
 % Please edit documentation in R/predict.R
 \name{predict.model_list}
 \alias{predict.model_list}
-\title{Make predictions using the best-performing model}
+\title{Get predictions}
 \usage{
 \method{predict}{model_list}(object, newdata, risk_groups = NULL,
   outcome_groups = NULL, prepdata, write_log = FALSE, ...)
@@ -18,7 +18,7 @@ likely overestimate model performance relative to what will be achieved on
 new data. Should have the same structure as the input to
 `prep_data`,`tune_models` or `train_models`. `predict` will try to figure
 out if the data need to be sent through `prep_data` before making
-predictions; this can be overriden by setting `prepdata = FALSE`, but this
+predictions; this can be overridden by setting `prepdata = FALSE`, but this
 should rarely be needed.}
 
 \item{risk_groups}{Should predictions be grouped into risk groups and
@@ -38,7 +38,8 @@ out-of-fold predictions on the training data. For example,
 of predicted probabilities in the "low" group, the next quarter in the
 "mid" group, and the highest quarter in the "high" group. You can get the
 cutoff values used to separate groups by passing the output of
-\code{predict} to \code{\link{get_cutoffs}}}
+\code{predict} to \code{\link{get_cutoffs}}. Note that only one of
+\code{risk_groups} and \code{outcome_groups} can be specified.}
 
 \item{outcome_groups}{Should predictions be grouped into outcome classes and
 returned in column "predicted_group"? If this is NULL (default), they will
@@ -47,13 +48,14 @@ training data via \code{\link{get_thresholds}}. If this is TRUE, the
 threshold is chosen to maximize accuracy, i.e. false positives and false
 negatives are equally weighted. If this is a number it is the ratio of cost
 (badnesss) of false negatives (missed detections) to false positives (false
-alarms). For example, \code{outcome_groups = 5} indicates a prefered ratio
+alarms). For example, \code{outcome_groups = 5} indicates a preferred ratio
 of five false alarms to every missed detection, and \code{outcome_groups =
 .5} indicates that two missed detections is as bad as one false alarm. This
 value is passed to the \code{cost_fn} argument of
 \code{\link{get_thresholds}}. You can get the cutoff values used to
 separate groups by passing the output of \code{predict} to
-\code{\link{get_cutoffs}}}
+\code{\link{get_cutoffs}}. Note that only one of \code{risk_groups} and
+\code{outcome_groups} can be specified.}
 
 \item{prepdata}{Logical, this should rarely be set by the user. By default,
 if `newdata` hasn't been prepped, it will be prepped by `prep_data` before
@@ -91,7 +93,10 @@ A tibble data frame: newdata with an additional column for the
   after prediction. Extract using \code{attr(pred, "failed")}.
 }
 \description{
-Make predictions using the best-performing model
+Make predictions using the best-performing model. For
+  classification models, predicted probabilities are always returned, and you
+  can get either predicted outcome class by specifying \code{outcome_groups}
+  or risk groups by specifying \code{risk_groups}.
 }
 \details{
 The model and hyperparameter values with the best out-of-fold
@@ -105,36 +110,95 @@ The model and hyperparameter values with the best out-of-fold
   attribute - A zero-row data frame will be returned
 }
 \examples{
-# Prepare data and train models using only the first 100 rows to keep computation fast
-models <-
-  pima_diabetes[1:100, ] \%>\%
-  prep_data(patient_id, outcome = diabetes) \%>\%
-  flash_models(outcome = diabetes)
+### Data prep and model training ###
+####################################
 
-# Make prediction on the next 100 rows using the model that performed best in
-# cross validation during model training. Before predictions are made, newdata
-# is automatically prepared the same way the training data was.
-predictions <- predict(models, newdata = pima_diabetes[101:200, ])
+set.seed(7510)
+# Split the first 100 rows in pima_diabetes into a model-training dataset
+# containing 3/4 of the data and a test dataset containing 1/4 of the data.
+d <- split_train_test(pima_diabetes[1:100], diabetes, .75)
+
+# Prep the training data for model training and train regularized regression
+# and extreme gradient boosted models
+models <-
+  d$train \%>\%
+  prep_data(patient_id, outcome = diabetes) \%>\%
+  flash_models(outcome = diabetes, models = c("glm", "xgb"))
+
+### Making predictions ###
+##########################
+
+# Make prediction on test data using the model that performed best in
+# cross validation during model training. Before predictions are made, the test
+# data is automatically prepared the same way the training data was.
+predictions <- predict(models, newdata = d$test)
 predictions
 evaluate(predictions)
 plot(predictions)
 
+### Outcome-class predictions ###
+#################################
+
 # If you want class predictions in addition to predicted probabilities for
 # a classification model, specify outcome_groups. The number passed to
 # outcome groups is the cost of a false negative relative to a false positive.
-# This specifies that one missed detection is as bad as three false alarms,
-# and the resulting confusion matrix reflects this preference.
-class_preds <- predict(models, newdata = pima_diabetes[101:200, ], outcome_groups = 3)
+# This example specifies that one missed detection is as bad as ten false
+# alarms, and the resulting confusion matrix reflects this preference.
+class_preds <- predict(models, newdata = d$test, outcome_groups = 10)
 table(actual = class_preds$diabetes, predicted = class_preds$predicted_group)
 
+# You can extract the threshold used to separate predicted Y from predicted N
+get_cutoffs(class_preds)
+
+# And you can visualize that cutoff by simply plotting the predictions
+plot(class_preds)
+
+### Risk stratification ###
+###########################
+
 # Alternatively, you can stratify observations into risk groups by specifying
-# the risk_groups parameter. For example, this creates five equal size groups
-# with custom names
-predict(models, pima_diabetes[101:200, ],
+# the risk_groups parameter. For example, this creates five risk groups
+# with custom names. Risk group assignment is based on the distribution of
+# predicted probabilities in model training. This is useful because it preserves
+# a consistent notion of risk; for example, if you make daily predictions and
+# one day happens to contain only low-risk patients, those patients will all
+# be classified as low risk. Over the long run, group sizes will be consistent,
+# but in any given round of predictions they may differ. If you want fixed
+# group sizes, see the following examples.
+predict(models, d$test,
         risk_groups = c("very low", "low", "medium", "high", "very high")) \%>\%
   plot()
+
+### Fixed-size groups ###
+#########################
+
+# If you want groups of fixed sizes, e.g. say you have capacity to admit the three
+# highest-risk patients, treat the next five, and have to discharge the remainder,
+# you can use predicted probabilities to do that. One way to do that is to
+# arrange the predictions data frame in descending order of risk, and then use the
+# row numbers to stratify patients
+library(dplyr)
+predict(models, d$test) \%>\%
+  arrange(desc(predicted_diabetes)) \%>\%
+  mutate(action = case_when(
+    row_number() <= 3 ~ "admit",
+    row_number() <= 8 ~ "treat",
+    TRUE ~ "discharge"
+  )) \%>\%
+  select(predicted_diabetes, action, everything())
+
+# Finally, if you want a fixed group size that is further down on the risk
+# scale, you can achieve that with a combination of risk groups and the
+# stratifying approach in the last example. For example, say you have capacity
+# to admit 5 patients, but you don't want to admit patients in the top 10\% of
+# risk scores.
+predict(models, d$test,
+        risk_groups = c("risk acceptable" = 90, "risk too high" = 10)) \%>\%
+  filter(predicted_group == "risk acceptable") \%>\%
+  top_n(n = 5, wt = predicted_diabetes)
 }
 \seealso{
-\code{\link{plot.predicted_df}}, \code{\link{evaluate.predicted_df}},
-\code{\link{get_thresholds}}, \code{\link{get_cutoffs}}
+\code{\link{plot.predicted_df}},
+  \code{\link{evaluate.predicted_df}}, \code{\link{get_thresholds}},
+  \code{\link{get_cutoffs}}
 }
