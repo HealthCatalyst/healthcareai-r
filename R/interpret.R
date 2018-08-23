@@ -194,3 +194,27 @@ plot.interpret <- function(x, include_intercept = FALSE, max_char = 40,
     print(the_plot)
   return(invisible(the_plot))
 }
+
+# Print interpret objects
+#' @export
+print.interpret <- function(x, ...) {
+  ref_levels <- attr(x, "ref_levels")
+  out <-
+    if (purrr::is_empty(ref_levels))
+      "There are no reference levels..."
+    else
+      paste0(
+        "Reference Levels:\n",
+        paste0(
+          "All `", names(ref_levels), "` are relative to `", ref_levels, "`\n"
+        )
+      )
+
+  cat(
+    out,
+    "\n\nThe coeffients and reference levels of each variable:\n",
+    sep = ""
+  )
+  NextMethod(x)
+  return(invisible(x))
+}
