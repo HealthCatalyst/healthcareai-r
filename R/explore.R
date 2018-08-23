@@ -1,4 +1,4 @@
-#' Make Counterfactual Predictions
+#' Explore a model's "reasoning" via counterfactual predictions
 #'
 #' @param models A model_list object. The data the model was trained on must
 #'   have been prepared, either by training with \code{\link{machine_learn}} or
@@ -34,7 +34,7 @@
 #'   (Inf).
 #'
 #' @return A tibble with values of features used to make predictions and
-#'   predictions. Has class \code{cf_df} and attribute \code{vi} giving
+#'   predictions. Has class \code{explore_df} and attribute \code{vi} giving
 #'   information about the varying features.
 #' @export
 #' @importFrom stats median
@@ -54,7 +54,7 @@
 #'   categorical features the sum of feature importance of all the levels as
 #'   dummy features is used.
 #'
-#' @seealso \code{\link{plot.cf_df}}
+#' @seealso \code{\link{plot.explore_df}}
 #'
 #' @examples
 #' # First, we need a model on which to make counterfactual predictions
@@ -67,26 +67,26 @@
 #' # held at their median and modal values for numeric and categorical features,
 #' # respectively. This can help to understand how the model responds to different
 #' # features
-#' predict_counterfactuals(m)
+#' explore(m)
 #'
-#' # It is easy to plot counterfactual predictions. See `?plot.cf_df`
+#' # It is easy to plot counterfactual predictions. See `?plot.explore_df`
 #' # for customization options
-#' predict_counterfactuals(m) %>%
+#' explore(m) %>%
 #'   plot()
 #'
 #' # You can specify which features vary and what values they take in a variety of
 #' # ways. For example, you could vary only "weight_class" and "plasma_glucose"
-#' predict_counterfactuals(m, vary = c("weight_class", "plasma_glucose"))
+#' explore(m, vary = c("weight_class", "plasma_glucose"))
 #'
 #' # You can also control what values non-varying features take.
 #' # For example, if you want to simulate alternative scenarios for patient 321
 #' patient321 <- dplyr::filter(pima_diabetes, patient_id == 321)
 #' patient321
-#' predict_counterfactuals(m, hold = patient321)
+#' explore(m, hold = patient321)
 #'
 #' # Here is an example in which both the varying and non-varying feature values
 #' # are explicitly specified.
-#' predict_counterfactuals(m,
+#' explore(m,
 #'                        vary = list(weight_class = c("normal", "overweight", "obese"),
 #'                                    plasma_glucose = seq(60, 200, 10)),
 #'                        hold = list(pregnancies = 2,
@@ -96,7 +96,7 @@
 #'                                    skinfold = NA,
 #'                                    diastolic_bp = 85)) %>%
 #'   plot()
-predict_counterfactuals <- function(models,
+explore <- function(models,
                                    vary = 4,
                                    hold = list(numerics = median, characters = Mode),
                                    numerics = 5,
@@ -126,7 +126,7 @@ predict_counterfactuals <- function(models,
   suppressWarnings( suppressMessages( preds <- predict(models, d) ) )
   # Intentionally leave off the predicted_df class here to avoid performance-
   # in-training info printing
-  structure(preds, class = c("cf_df", class(d)))
+  structure(preds, class = c("explore_df", class(d)))
 }
 
 # Create the data frame containing combinations of variable values on which to
@@ -149,7 +149,7 @@ create_varying_df <- function(models, vary, variables, numerics, characters) {
                           numerics = numerics, characters = characters)
   }
 
-  # Collect variable attributes to keep with the cf_df object
+  # Collect variable attributes to keep with the explore_df object
   vi <- map_df(names(vary), ~ tibble(variable = .x,
                                      numeric = is.numeric(vary[[.x]]),
                                      nlev = length(vary[[.x]])))

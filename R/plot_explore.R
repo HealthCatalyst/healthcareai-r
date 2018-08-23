@@ -1,6 +1,6 @@
 #' Plot Counterfactual Predictions
 #'
-#' @param x A cf_df object from \code{\link{predict_counterfactuals}}
+#' @param x A explore_df object from \code{\link{predict_counterfactuals}}
 #' @param n_use Number of features to vary, default = 4. If the number of
 #'   features varied in \code{\link{predict_counterfactuals}} is greater than
 #'   \code{n_use}, additional features will be aggregated over by
@@ -79,11 +79,11 @@
 #'   labs(title = "Counterfactual predictions across age",
 #'        caption = paste("Based on a random forest trained on",
 #'                        nrow(pima_diabetes), "Pima women"))
-plot.cf_df <- function(x, n_use = 4, aggregate_fun = median,
-                       reorder_categories = TRUE, x_var, color_var,
-                       jitter_y = TRUE, font_size = 11, strip_font_size = .85,
-                       line_width = .5, line_alpha = .7,
-                       rotate_x = FALSE, nrows = 1, print = TRUE, ...) {
+plot.explore_df <- function(x, n_use = 4, aggregate_fun = median,
+                            reorder_categories = TRUE, x_var, color_var,
+                            jitter_y = TRUE, font_size = 11, strip_font_size = .85,
+                            line_width = .5, line_alpha = .7,
+                            rotate_x = FALSE, nrows = 1, print = TRUE, ...) {
   x_var <- rlang::enquo(x_var)
   color_var <- rlang::enquo(color_var)
   outcome <- stringr::str_subset(names(x), "^predicted_")
