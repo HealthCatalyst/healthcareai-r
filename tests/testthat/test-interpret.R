@@ -162,7 +162,7 @@ test_that("test setting reference level/ print.reference_level", {
   expect_true(is.na(i$reference_level[i$variable == "x2"]))
 
   output <- capture_output(print(i))
-  expect_true(grepl("Reference Levels:\n", output))
+  expect_true(length(gregexpr("Reference Levels:\n", output)[[1]]) == 1)
   expect_true(grepl("All `y` are relative to `N`", output))
   expect_true(grepl("All `x1` are relative to `n`\n\n", output))
 })

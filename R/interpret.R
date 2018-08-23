@@ -200,16 +200,14 @@ plot.interpret <- function(x, include_intercept = FALSE, max_char = 40,
 print.interpret <- function(x, ...) {
   ref_levels <- attr(x, "ref_levels")
   out <-
-    if (purrr::is_empty(ref_levels))
+    if (purrr::is_empty(ref_levels)) {
       "There are no reference levels..."
-    else
-      paste0(
-        "Reference Levels:\n",
-        paste0(
-          "All `", names(ref_levels), "` are relative to `", ref_levels, "`\n"
-        )
+    } else {
+      out <- paste0(
+        "All `", names(ref_levels), "` are relative to `", ref_levels, "`\n"
       )
-
+      capture_output(cat("Reference Levels:\n", out, sep = "" ))
+    }
   cat(
     out,
     "\n\nThe coeffients and reference levels of each variable:\n",
