@@ -203,10 +203,9 @@ print.interpret <- function(x, ...) {
     if (purrr::is_empty(ref_levels)) {
       "There are no reference levels..."
     } else {
-      out <- paste0(
+      paste0(c("Reference Levels:\n", paste0(
         "All `", names(ref_levels), "` are relative to `", ref_levels, "`\n"
-      )
-      capture_output(cat("Reference Levels:\n", out, sep = ""))
+      )), collapse = "")
     }
   cat(
     out,
