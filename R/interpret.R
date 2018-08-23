@@ -147,8 +147,8 @@ plot.interpret <- function(x, include_intercept = FALSE, max_char = 40,
 
   ats <- attributes(x)
 
-  if ( (is.data.frame(x) && names(x) != c("variable", "coefficient") ) ||
-       !is.data.frame(x))
+  if ( (is.data.frame(x) && names(x) !=
+        c("variable", "coefficient", "reference_level") ) || !is.data.frame(x))
     stop("x must be a data frame from interpret, or at least look like one!")
 
   if (!include_intercept)
@@ -173,7 +173,14 @@ plot.interpret <- function(x, include_intercept = FALSE, max_char = 40,
   limits <- max(abs(x$coefficient)) * c(-1.05, 1.05)
   the_plot <-
     x %>%
-    ggplot(aes(x = reorder(variable, coefficient), y = coefficient)) +
+    ggplot(aes(x = reorder(
+      ifelse( # Add the reference level if it exists
+        is.na(reference_level),
+        variable,
+        paste0(variable, " (vs. ", reference_level, ")")
+      ),
+      coefficient
+    ), y = coefficient)) +
     geom_hline(yintercept = 0, linetype = "dashed", alpha = .6) +
     geom_point(size = point_size) +
     coord_flip() +
