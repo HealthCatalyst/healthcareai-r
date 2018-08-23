@@ -13,7 +13,7 @@
 plot_regression_predictions(x, point_size = 1, point_alpha = 1, target)
 
 plot_classification_predictions(x, fill_colors = c("firebrick", "steelblue"),
-  fill_alpha = 0.7, curve_flex = 1, target)
+  fill_alpha = 0.7, curve_flex = 1, add_labels = TRUE, target)
 }
 \arguments{
 \item{x}{data frame as returned `predict.model_list`}
@@ -43,15 +43,20 @@ plot_classification_predictions; listed below. These must be named.}
 
 \item{target}{Not meant to be set by user. outcome column name}
 
-\item{fill_colors}{Length-2 character vector: colors to fill density
-curves. Default is c("firebrick", "steelblue"). If named, names must match
+\item{fill_colors}{Length-2 character vector: colors to fill density curves.
+Default is c("firebrick", "steelblue"). If named, names must match
 \code{unique(x[[target]])}, in any order.}
 
 \item{fill_alpha}{Number in [0, 1] giving opacity of fill colors.}
 
-\item{curve_flex}{Numeric. Kernal adjustment for density curves. Default is 1.
-Less than 1 makes curves more flexible, analogous to smaller bins in a
+\item{curve_flex}{Numeric. Kernal adjustment for density curves. Default is
+1. Less than 1 makes curves more flexible, analogous to smaller bins in a
 histogram; greater than 1 makes curves more rigid.}
+
+\item{add_labels}{If TRUE (default) and a predicted_group column was added to
+predictions by specifying \code{risk_groups} or \code{outcome_groups} in
+\code{link{predict.model_list}}, labels specifying groups are added to the
+plot.}
 }
 \value{
 A ggplot object
@@ -64,6 +69,7 @@ Note that a ggplot object is returned, so you can do additional
   customization of the plot. See the third example.
 }
 \examples{
+# Some regression examples
 models <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = plasma_glucose,
                         models = "rf", tune = FALSE)
 predictions <- predict(models)
@@ -73,4 +79,11 @@ plot(predictions, caption = "Rsquared",
      point_size = 3, point_alpha = .7, font_size = 14)
 p <- plot(predictions, print = FALSE)
 p + theme_classic()
+
+# A classification example with risk groups
+class_models <- machine_learn(pima_diabetes, patient_id, outcome = diabetes,
+                              models = "xgb", tune = FALSE)
+predict(class_models,
+        risk_groups = c("v low", "low", "medium", "high", "very high")) \%>\%
+  plot()
 }
