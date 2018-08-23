@@ -4,18 +4,18 @@
 \alias{plot.explore_df}
 \title{Plot Counterfactual Predictions}
 \usage{
-\method{plot}{explore_df}(x, n_use = 4, aggregate_fun = median,
+\method{plot}{explore_df}(x, n_use = 2, aggregate_fun = median,
   reorder_categories = TRUE, x_var, color_var, jitter_y = TRUE,
-  font_size = 11, strip_font_size = 0.85, line_width = 0.5,
-  line_alpha = 0.7, rotate_x = FALSE, nrows = 1, print = TRUE, ...)
+  sig_fig = 3, font_size = 11, strip_font_size = 0.85, line_width = 0.5,
+  line_alpha = 0.7, rotate_x = FALSE, nrows = 1, title = NULL, caption,
+  print = TRUE, ...)
 }
 \arguments{
-\item{x}{A explore_df object from \code{\link{predict_counterfactuals}}}
+\item{x}{A explore_df object from \code{\link{explore}}}
 
 \item{n_use}{Number of features to vary, default = 4. If the number of
-features varied in \code{\link{predict_counterfactuals}} is greater than
-\code{n_use}, additional features will be aggregated over by
-\code{aggregate_fun}}
+features varied in \code{\link{explore}} is greater than \code{n_use},
+additional features will be aggregated over by \code{aggregate_fun}}
 
 \item{aggregate_fun}{Default = median. Varying features in x are mapped to
 the x-axis, line color, and vertical- and horizontal facets. If more than
@@ -38,6 +38,9 @@ there is more than one varying feature), the vertical location of the lines
 will be jittered slightly (no more than 1% of the range of the outcome) to
 avoid overlap.}
 
+\item{sig_fig}{Number of significant figures (digits) to use in labels of
+numeric features. Default = 3; set to Inf to not truncate decimals.}
+
 \item{font_size}{Parent font size for the plot. Default = 11}
 
 \item{strip_font_size}{Relative font size for facet strip title font. Default
@@ -55,6 +58,11 @@ helpful when a categorical feature with long labels is mapped to x.}
 number of rows into which the facets will be arranged. Default = 1. NULL
 lets the number be determined algorithmically}
 
+\item{title}{Plot title}
+
+\item{caption}{Plot caption. Defaults to model used to make counterfactual
+predictions. Can be a string for custom caption or NULL for no caption.}
+
 \item{print}{Print the plot? Default is FALSE. Either way, the plot is
 invisibly returned}
 
@@ -67,43 +75,41 @@ ggplot object, invisibly
 Plot Counterfactual Predictions
 }
 \examples{
-# First, we need a model on which to make counterfactual predictions
-set.seed(2507)
+# First, we need a model
+set.seed(4956)
 m <- machine_learn(pima_diabetes, patient_id, outcome = pregnancies,
-                   tune = FALSE, models = "rf")
-cfs <- predict_counterfactuals(m)
+                   models = "rf", tune = FALSE)
+# Then we can explore our model through counterfactual predictions
+counterfactuals <- explore(m)
 
-# By default up to four varying features are plotted. This example shows how
-# counterfactual predictions can provide insight into how a model maps inputs
-# (features) to outputs (outcome). In this plot, across all other variables,
-# we see a rapid rise in predict number of pregnancies from age 20 to ~40
-# followed by a sharp leveling off the predicted number of pregnancies after
-# age 40.
-plot(cfs)
+# By default only the two most important varying features are plotted. This
+# example shows how counterfactual predictions can provide insight into how a
+# model maps inputs (features) to the output (outcome). This plot shows that for
+# this dataset, age is the most important predictor of the number of pregnancies
+# a woman has had, and the predicted number of pregnancies rises almost
+# perfectly linearly between approximately 20 and 40 before leveling off.
+plot(counterfactuals)
 
-# You can reduce the complexity of the plot by limiting the number of features
-# varied in the plot. This is accomplished by averaging over the additional
-# features using the `aggregate_fun`
-plot(cfs, n_use = 2, aggregate_fun = mean)
-
-# Alternatively, you could vary only two features in the generation of counter-
-# factual predictions
-predict_counterfactuals(m, vary = 2) \%>\%
-  plot()
+# To see the effects of more features in the model, increase the value of
+# `n_use`. This plot provides a nice reminder that this function does not assert
+# causality. Among low-blood pressure women, obesity is associated with greater
+# predicted pregnancies, but it seems more likely that repeated pregnancies
+# lead to greater BMI than the reverse.
+plot(counterfactuals, n_use = 4)
 
 # You can specify which of the varying features are mapped to the x-axis and
 # the color scale
-plot(cfs, x_var = age, color_var = weight_class, n_use = 3)
+plot(counterfactuals, x_var = diastolic_bp, color_var = skinfold, n_use = 3)
 
 # There are a variety of options available to customize the appearance of the plot
-plot(cfs, x_var = weight_class, color = diastolic_bp, n_use = 3,
-     font_size = 16, strip_font_size = 1, line_width = 2, line_alpha = .5,
+plot(counterfactuals, x_var = weight_class, color = age, n_use = 3,
+     font_size = 16, strip_font_size = 1, line_width = 3, line_alpha = .5,
      rotate_x = TRUE, nrows = NULL)
 
 # And you can further modify the plot like any other ggplot object
-plot(cfs, n_use = 1) +
+plot(counterfactuals, n_use = 1) +
   theme_classic() +
-  labs(title = "Counterfactual predictions across age",
-       caption = paste("Based on a random forest trained on",
-                       nrow(pima_diabetes), "Pima women"))
+  theme(aspect.ratio = 1,
+        panel.background = element_rect(fill = "slateblue"),
+        plot.caption = element_text(face = "italic"))
 }

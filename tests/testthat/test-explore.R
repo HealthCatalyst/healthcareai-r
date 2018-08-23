@@ -46,9 +46,8 @@ test_that("choose_variables glm", {
 test_that("choose_values nums only", {
   cv <- choose_values(m, vary = c("skinfold", "age"), variables = variabs, numerics = 5, characters = Inf)
   expect_setequal(names(cv), c("skinfold", "age"))
-  purrr::map_lgl(cv, ~ dplyr::setequal(names(.x), c("0%", "25%", "50%", "75%", "100%"))) %>%
-    all() %>%
-    expect_true()
+  expect_equal(names(cv[[1]]), names(cv[[2]]))
+  expect_true(all(stringr::str_sub(names(cv[[1]]), -1, -1) == "%"))
 })
 
 test_that("choose_values noms only", {
@@ -77,7 +76,7 @@ test_that("choose_values numerics is integer", {
   cv <- choose_values(m, vary = c("weight_class", "age"), variables = variabs, numerics = 3, characters = Inf)
   expect_setequal(names(cv), c("weight_class", "age"))
   expect_length(cv$age, 3)
-  expect_setequal(names(cv$age), c("0%", "50%", "100%"))
+  expect_setequal(names(cv$age), c("5%", "50%", "95%"))
 })
 
 test_that("choose_values numerics is quantiles", {

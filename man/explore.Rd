@@ -5,12 +5,12 @@
 \title{Explore a model's "reasoning" via counterfactual predictions}
 \usage{
 explore(models, vary = 4, hold = list(numerics = median, characters = Mode),
-  numerics = 5, characters = Inf)
+  numerics = c(0.05, 0.25, 0.5, 0.75, 0.95), characters = 5)
 }
 \arguments{
 \item{models}{A model_list object. The data the model was trained on must
 have been prepared, either by training with \code{\link{machine_learn}} or
-by preparing with \code{\link{prep_data}} before model training}
+by preparing with \code{\link{prep_data}} before model training.}
 
 \item{vary}{Which (or how many) features to vary? Default is 4; if
 \code{vary} is a single integer (n), the n-most-important features are
@@ -35,15 +35,15 @@ applied to the column from the training data, characters is applied to a
 frequency table of the column from the training data.}
 
 \item{numerics}{How to determine values of numeric features being varied? By
-default, the minimum, 25th-, 50th-, 75th-percentile, and maximum values
+default, the 5th, 25th, 50th (median), 75th, and 95th percentile values
 from the training dataset will be used. To specify evenly spaced quantiles,
-pass an integer to this argument and that number of evenly spaced quantiles
-will be used (default = 5). To specify which quantiles to use, pass a
-numeric vector in [0, 1] to this argument.}
+starting with the 5th and ending with the 95th, pass an integer to this
+argument. To specify which quantiles to use, pass a numeric vector in [0,
+1] to this argument, e.g. \code{c(0, .5, 1)} for the minimum, median, and
+maximum values from the training dataset.}
 
 \item{characters}{Integer. For categorical variables being varied, how many
-values to use? Values are used from most- to least-common; default is all
-(Inf).}
+values to use? Values are used from most- to least-common; default is 5.}
 }
 \value{
 A tibble with values of features used to make predictions and
@@ -63,9 +63,9 @@ Make predictions for observations that vary over features of
 If \code{vary} is an integer, the most important features are
   determined by \code{\link{get_variable_importance}}, unless glm is the only
   model present, in which case \code{\link{interpret}} is used with a
-  warning. When selecting the most important features to vary over, for
+  warning. When selecting the most important features to vary, for
   categorical features the sum of feature importance of all the levels as
-  dummy features is used.
+  dummies is used.
 }
 \examples{
 # First, we need a model on which to make counterfactual predictions
@@ -74,14 +74,16 @@ m <- machine_learn(pima_diabetes, patient_id, outcome = diabetes,
                    tune = FALSE, models = "xgb")
 
 # By default, the four most important features are varied, with numeric
-# features taking their 0, 25\%, 50\%, 75\%, and 100\% quantile values. Others are
+# features taking their 5, 25, 50, 75, and 95 percentile values, and
+# categoricals taking their five most common values. Others features are
 # held at their median and modal values for numeric and categorical features,
-# respectively. This can help to understand how the model responds to different
-# features
+# respectively. This can provide insight into how the model responds to
+# different features
 explore(m)
 
-# It is easy to plot counterfactual predictions. See `?plot.explore_df`
-# for customization options
+# It is easy to plot counterfactual predictions. By default, only the two most
+# important features are plotted over; see `?plot.explore_df` for
+# customization options
 explore(m) \%>\%
   plot()
 
@@ -98,14 +100,14 @@ explore(m, hold = patient321)
 # Here is an example in which both the varying and non-varying feature values
 # are explicitly specified.
 explore(m,
-                       vary = list(weight_class = c("normal", "overweight", "obese"),
-                                   plasma_glucose = seq(60, 200, 10)),
-                       hold = list(pregnancies = 2,
-                                   pedigree = .5,
-                                   age = 25,
-                                   insulin = NA,
-                                   skinfold = NA,
-                                   diastolic_bp = 85)) \%>\%
+        vary = list(weight_class = c("normal", "overweight", "obese"),
+                    plasma_glucose = seq(60, 200, 10)),
+        hold = list(pregnancies = 2,
+                    pedigree = .5,
+                    age = 25,
+                    insulin = NA,
+                    skinfold = NA,
+                    diastolic_bp = 85)) \%>\%
   plot()
 }
 \seealso{

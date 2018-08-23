@@ -1,10 +1,9 @@
 #' Plot Counterfactual Predictions
 #'
-#' @param x A explore_df object from \code{\link{predict_counterfactuals}}
+#' @param x A explore_df object from \code{\link{explore}}
 #' @param n_use Number of features to vary, default = 4. If the number of
-#'   features varied in \code{\link{predict_counterfactuals}} is greater than
-#'   \code{n_use}, additional features will be aggregated over by
-#'   \code{aggregate_fun}
+#'   features varied in \code{\link{explore}} is greater than \code{n_use},
+#'   additional features will be aggregated over by \code{aggregate_fun}
 #' @param aggregate_fun Default = median. Varying features in x are mapped to
 #'   the x-axis, line color, and vertical- and horizontal facets. If more than
 #'   four features vary, this function is used to aggreagate across the
@@ -21,6 +20,8 @@
 #'   there is more than one varying feature), the vertical location of the lines
 #'   will be jittered slightly (no more than 1% of the range of the outcome) to
 #'   avoid overlap.
+#' @param sig_fig Number of significant figures (digits) to use in labels of
+#'   numeric features. Default = 3; set to Inf to not truncate decimals.
 #' @param font_size Parent font size for the plot. Default = 11
 #' @param strip_font_size Relative font size for facet strip title font. Default
 #'   = 0.85
@@ -32,6 +33,9 @@
 #' @param nrows Only used when the number of varying features is three. The
 #'   number of rows into which the facets will be arranged. Default = 1. NULL
 #'   lets the number be determined algorithmically
+#' @param title Plot title
+#' @param caption Plot caption. Defaults to model used to make counterfactual
+#'   predictions. Can be a string for custom caption or NULL for no caption.
 #' @param print Print the plot? Default is FALSE. Either way, the plot is
 #'   invisibly returned
 #' @param ... Not used
@@ -40,63 +44,66 @@
 #' @export
 #'
 #' @examples
-#' # First, we need a model on which to make counterfactual predictions
-#' set.seed(2507)
+#' # First, we need a model
+#' set.seed(4956)
 #' m <- machine_learn(pima_diabetes, patient_id, outcome = pregnancies,
-#'                    tune = FALSE, models = "rf")
-#' cfs <- predict_counterfactuals(m)
+#'                    models = "rf", tune = FALSE)
+#' # Then we can explore our model through counterfactual predictions
+#' counterfactuals <- explore(m)
 #'
-#' # By default up to four varying features are plotted. This example shows how
-#' # counterfactual predictions can provide insight into how a model maps inputs
-#' # (features) to outputs (outcome). In this plot, across all other variables,
-#' # we see a rapid rise in predict number of pregnancies from age 20 to ~40
-#' # followed by a sharp leveling off the predicted number of pregnancies after
-#' # age 40.
-#' plot(cfs)
+#' # By default only the two most important varying features are plotted. This
+#' # example shows how counterfactual predictions can provide insight into how a
+#' # model maps inputs (features) to the output (outcome). This plot shows that for
+#' # this dataset, age is the most important predictor of the number of pregnancies
+#' # a woman has had, and the predicted number of pregnancies rises almost
+#' # perfectly linearly between approximately 20 and 40 before leveling off.
+#' plot(counterfactuals)
 #'
-#' # You can reduce the complexity of the plot by limiting the number of features
-#' # varied in the plot. This is accomplished by averaging over the additional
-#' # features using the `aggregate_fun`
-#' plot(cfs, n_use = 2, aggregate_fun = mean)
-#'
-#' # Alternatively, you could vary only two features in the generation of counter-
-#' # factual predictions
-#' predict_counterfactuals(m, vary = 2) %>%
-#'   plot()
+#' # To see the effects of more features in the model, increase the value of
+#' # `n_use`. This plot provides a nice reminder that this function does not assert
+#' # causality. Among low-blood pressure women, obesity is associated with greater
+#' # predicted pregnancies, but it seems more likely that repeated pregnancies
+#' # lead to greater BMI than the reverse.
+#' plot(counterfactuals, n_use = 4)
 #'
 #' # You can specify which of the varying features are mapped to the x-axis and
 #' # the color scale
-#' plot(cfs, x_var = age, color_var = weight_class, n_use = 3)
+#' plot(counterfactuals, x_var = diastolic_bp, color_var = skinfold, n_use = 3)
 #'
 #' # There are a variety of options available to customize the appearance of the plot
-#' plot(cfs, x_var = weight_class, color = diastolic_bp, n_use = 3,
-#'      font_size = 16, strip_font_size = 1, line_width = 2, line_alpha = .5,
+#' plot(counterfactuals, x_var = weight_class, color = age, n_use = 3,
+#'      font_size = 16, strip_font_size = 1, line_width = 3, line_alpha = .5,
 #'      rotate_x = TRUE, nrows = NULL)
 #'
 #' # And you can further modify the plot like any other ggplot object
-#' plot(cfs, n_use = 1) +
+#' plot(counterfactuals, n_use = 1) +
 #'   theme_classic() +
-#'   labs(title = "Counterfactual predictions across age",
-#'        caption = paste("Based on a random forest trained on",
-#'                        nrow(pima_diabetes), "Pima women"))
-plot.explore_df <- function(x, n_use = 4, aggregate_fun = median,
+#'   theme(aspect.ratio = 1,
+#'         panel.background = element_rect(fill = "slateblue"),
+#'         plot.caption = element_text(face = "italic"))
+plot.explore_df <- function(x, n_use = 2, aggregate_fun = median,
                             reorder_categories = TRUE, x_var, color_var,
-                            jitter_y = TRUE, font_size = 11, strip_font_size = .85,
+                            jitter_y = TRUE, sig_fig = 3,
+                            font_size = 11, strip_font_size = .85,
                             line_width = .5, line_alpha = .7,
-                            rotate_x = FALSE, nrows = 1, print = TRUE, ...) {
+                            rotate_x = FALSE, nrows = 1,
+                            title = NULL, caption, print = TRUE, ...) {
   x_var <- rlang::enquo(x_var)
   color_var <- rlang::enquo(color_var)
   outcome <- stringr::str_subset(names(x), "^predicted_")
-
+  alg <- attr(x, "model_info")$algorithm
   vi <- attr(x, "vi")
 
   if (n_use > 4)
     stop("counterfactual plots can only handle four varying features. ",
          "Set n_use to a value between 1 and 4.")
   if (nrow(vi) > n_use) {
-    message("With ", nrow(vi), " varying features and n_use = ", n_use, ", using ",
-            substitute(aggregate_fun), " to aggregate predicted outcomes across ",
-            list_variables(vi$variable[-seq_len(n_use)]))
+    mes <- paste0("With ", nrow(vi), " varying features and n_use = ", n_use, ", using ",
+                  substitute(aggregate_fun), " to aggregate predicted outcomes across ",
+                  list_variables(vi$variable[-seq_len(n_use)]))
+    if (n_use < 4)
+      mes <- paste0(mes, ". You could turn `n_use` up to see the impact of more features.")
+    message(mes)
     # Arrange variable indices by those specified first, then others in row order
     # which is feature importance order
     try_to_keep <- which(vi$variable %in% c(rlang::quo_name(x_var), rlang::quo_name(color_var)))
@@ -118,25 +125,31 @@ plot.explore_df <- function(x, n_use = 4, aggregate_fun = median,
         reorder(- x[[outcome]], median)
     })
 
+  # Shorten appearance of numeric variables
+  x <- dplyr::mutate_if(x, names(x) %in% vi$variable[vi$numeric], signif, sig_fig)
+
+
   # Determine variable-plot mappings
   vi <- map_variables(vi, x_var, color_var)
 
   p <-
     ggplot(x, aes(x = !!rlang::sym(vi$variable[vi$map_to == "x"]),
-                  y = !!rlang::sym(outcome))) +
-    if ("color" %in% vi$map_to) {
-      y_pos <-
-        if (jitter_y) {
-          position_jitter(width = 0, height = .01 * diff(range(x[[outcome]])))
-        } else {
-          "identity"
-        }
-      color_group <- rlang::sym(vi$variable[vi$map_to == "color"])
-      geom_line(aes(color = !!color_group, group = !!color_group),
-                position = y_pos, alpha = line_alpha, size = line_width)
-    } else {
-      geom_line(group = 1, alpha = line_alpha, size = line_width)
-    }
+                  y = !!rlang::sym(outcome)))
+  if ("color" %in% vi$map_to) {
+    y_pos <-
+      if (jitter_y) {
+        position_jitter(width = 0, height = .01 * diff(range(x[[outcome]])))
+      } else {
+        "identity"
+      }
+    color_group <- rlang::sym(vi$variable[vi$map_to == "color"])
+    p <- p +
+      geom_line(aes(color = factor(!!color_group), group = !!color_group),
+                position = y_pos, alpha = line_alpha, size = line_width) +
+      scale_color_discrete(name = rlang::quo_name(color_group))
+  } else {
+    p <- p + geom_line(group = 1, alpha = line_alpha, size = line_width)
+  }
 
   facet_vars <- vi$variable[vi$map_to == "facet"]
   f <- function(x) formatC(x, drop0trailing = TRUE)
@@ -157,10 +170,14 @@ plot.explore_df <- function(x, n_use = 4, aggregate_fun = median,
     } else {
       element_text()
     }
+
+  if (missing(caption))
+    caption <- paste("Predictions made by:", alg)
   p <- p +
     theme_gray(base_size = font_size) +
     theme(strip.text = element_text(size = rel(strip_font_size)),
-          axis.text.x = x_text)
+          axis.text.x = x_text) +
+    labs(title = title, caption = caption)
 
   if (print)
     print(p)
