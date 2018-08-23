@@ -133,14 +133,14 @@ test_that("plot.interpret works on a data frame missing interpret class", {
     expect_s3_class("gg")
 })
 
-test_that("Coefficient signs make sense WRT positive class", {
+context("Checking print.interpret")  # ------------------------------------------
 
-  # For pima_diabetes, normal weight class should be negative
-  ip <- interpret(g)
-  expect_true(ip$coefficient[ip$variable == "weight_class_normal"] < 0)
+test_that("print.interpret is registered generic", {
+  expect_true("print.interpret" %in% methods(class = "interpret"))
+})
 
+test_that("test setting reference level/ print.reference_level", {
   n <- 100
-  # x1_y should be positive
   d <- tibble::tibble(
     y = c(rep("N", n / 2), rep("Y", n / 2)),
     x1 = c(rep("n", n * .4), rep("y", n * .5), rep("n", n * .1)),
@@ -150,30 +150,25 @@ test_that("Coefficient signs make sense WRT positive class", {
     d %>%
     prep_data(outcome = y, remove_near_zero_variance = FALSE) %>%
     flash_models(outcome = y, models = "glm")
-  i <- interpret(m)
-  expect_true(i$coefficient[i$variable == "x1_y"] > 0)
+  i <- interpret(m, remove_zeros = FALSE)
 
-  # Declaring positive class. Here x1_y should be negative
-  m <-
-    d %>%
-    prep_data(outcome = y, remove_near_zero_variance = FALSE) %>%
-    flash_models(outcome = y, models = "glm", positive_class = "N")
-  i <- interpret(m)
-  expect_true(i$coefficient[i$variable == "x1_y"] < 0)
+  # Test normal
+  expect_true(i$reference_level[i$variable == "x1_other"] == "n")
 
-  # With 0/1 outcome
-  m <-
-    dplyr::mutate(d, y = dplyr::case_when(y == "Y" ~ 1L, y == "N" ~ 0L)) %>%
-    prep_data(outcome = y, remove_near_zero_variance = FALSE) %>%
-    flash_models(outcome = y, models = "glm")
-  i <- interpret(m)
-  expect_true(i$coefficient[i$variable == "x1_y"] > 0)
+  # Test when two variables are in new dummy variable
+  expect_true(i$reference_level[i$variable == "x1_y"] == "n")
+
+  # Test no reference level
+  expect_true(is.na(i$reference_level[i$variable == "x2"]))
+
+  output <- capture_output(print(i))
+  expect_true(grepl("Reference Levels:\n", output))
+  expect_true(grepl("All `y` are relative to `N`", output))
+  expect_true(grepl("All `x1` are relative to `n`\n\n", output))
 })
 
-test_that("alpha gets attached to interpret objects even if glm isn't best", {
-  # Note: On my OSX machine RF outperforms glmnet which correctly triggers a
-  # warning on `interpret(m)`. On Windows no warning is given, perhaps
-  # because glmnet is the best performing model???
-  suppressWarnings( i3 <- interpret(m) )
-  expect_equal(attr(i3, "alpha"), attr(interpret(g), "alpha"))
+test_that("test empty reference level", {
+  m <- machine_learn(mtcars, outcome = mpg, models = "glm", tune = FALSE)
+  out <- capture_output(print(interpret(m)))
+  expect_true(grepl("There are no reference levels...\n\n", out))
 })
