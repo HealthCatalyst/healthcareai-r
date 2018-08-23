@@ -206,7 +206,7 @@ print.interpret <- function(x, ...) {
       out <- paste0(
         "All `", names(ref_levels), "` are relative to `", ref_levels, "`\n"
       )
-      capture_output(cat("Reference Levels:\n", out, sep = "" ))
+      capture_output(cat("Reference Levels:\n", out, sep = ""))
     }
   cat(
     out,
