@@ -102,9 +102,9 @@
 #' ####################################
 #'
 #' set.seed(7510)
-#' # Split the first 100 rows in pima_diabetes into a model-training dataset
+#' # Split the first 200 rows in pima_diabetes into a model-training dataset
 #' # containing 3/4 of the data and a test dataset containing 1/4 of the data.
-#' d <- split_train_test(pima_diabetes[1:100], diabetes, .75)
+#' d <- split_train_test(pima_diabetes[1:200, ], diabetes, .75)
 #'
 #' # Prep the training data for model training and train regularized regression
 #' # and extreme gradient boosted models
@@ -124,7 +124,7 @@
 #' evaluate(predictions)
 #' plot(predictions)
 #'
-#' ### Outcome-class predictions ###
+#' ### Outcome class predictions ###
 #' #################################
 #'
 #' # If you want class predictions in addition to predicted probabilities for
@@ -157,7 +157,7 @@
 #'         risk_groups = c("very low", "low", "medium", "high", "very high")) %>%
 #'   plot()
 #'
-#' ### Fixed-size groups ###
+#' ### Fixed size groups ###
 #' #########################
 #'
 #' # If you want groups of fixed sizes, e.g. say you have capacity to admit the three
@@ -438,7 +438,7 @@ get_pred_summary <- function(x) {
 get_cutoffs <- function(x) {
   if (!is.predicted_df(x))
     stop("`get_cutoffs` only works on the output of `predict`. Do you want `get_thresholds`?")
-  if(!"predicted_group" %in% names(x))
+  if (!"predicted_group" %in% names(x))
     stop("`get_cutoffs` requires that groups were created during prediction. ",
          "Specify `risk_groups` or `outcome_groups` in your `predict` call.")
 

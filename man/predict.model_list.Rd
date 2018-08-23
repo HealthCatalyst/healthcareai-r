@@ -114,9 +114,9 @@ The model and hyperparameter values with the best out-of-fold
 ####################################
 
 set.seed(7510)
-# Split the first 100 rows in pima_diabetes into a model-training dataset
+# Split the first 200 rows in pima_diabetes into a model-training dataset
 # containing 3/4 of the data and a test dataset containing 1/4 of the data.
-d <- split_train_test(pima_diabetes[1:100], diabetes, .75)
+d <- split_train_test(pima_diabetes[1:200, ], diabetes, .75)
 
 # Prep the training data for model training and train regularized regression
 # and extreme gradient boosted models
@@ -136,7 +136,7 @@ predictions
 evaluate(predictions)
 plot(predictions)
 
-### Outcome-class predictions ###
+### Outcome class predictions ###
 #################################
 
 # If you want class predictions in addition to predicted probabilities for
@@ -169,7 +169,7 @@ predict(models, d$test,
         risk_groups = c("very low", "low", "medium", "high", "very high")) \%>\%
   plot()
 
-### Fixed-size groups ###
+### Fixed size groups ###
 #########################
 
 # If you want groups of fixed sizes, e.g. say you have capacity to admit the three
