@@ -23,9 +23,8 @@ absolute-value coefficients will be returned. If missing (default), all
 coefficients are returned}
 }
 \value{
-A data frame of variables, their regularized regression
-  coefficient estimates with parent class "interpret", and their correlated
-  reference level
+A data frame of variables and their regularized regression
+  coefficient estimates with parent class "interpret"
 }
 \description{
 Interpret a model via regularized coefficient estimates
