@@ -28,7 +28,8 @@ find_new_levels <- function(new, ref) {
     new <- get_factor_levels(new)
   if (is.data.frame(ref))
     ref <- get_factor_levels(ref)
-  lapply(names(ref), function(v) dplyr::setdiff(new[[v]], ref[[v]])) %>%
+  lapply(names(ref), function(v)
+    dplyr::setdiff(names(new[[v]]), names(ref[[v]]))) %>%
     setNames(names(ref))
 }
 
@@ -38,7 +39,7 @@ get_factor_levels <- function(d) {
   not_factors <- dplyr::union(names(d)[purrr::map_lgl(d, ~ is.numeric(.x))],
                               find_date_cols(d))
   d <- d[, !names(d) %in% not_factors, drop = FALSE]
-  lapply(d, function(x) as.character(unique(x)))
+  lapply(d, table, useNA = "ifany")
 }
 
 #' Take list of character vectors as from find_new_levels and format for
@@ -157,11 +158,24 @@ trunc_char <- function(x, max_char) {
   return(x)
 }
 
-#' Mode function to aggregate groups in split_train_test
-#' @noRd
+#' Mode
+#'
+#' @param x Either a vector or a frequency table from \code{table}
+#'
+#' @return The modal value of x
+#' @export
+#'
+#' @examples
+#' x <- c(3, 1:5)
+#' Mode(x)
+#' Mode(table(x))
 Mode <- function(x) {
-  ux <- unique(x)
-  mode <- ux[which.max(tabulate(match(x, ux)))]
-
-  return(mode)
+  if (is.table(x)) {
+    x <- names(sort(x, decreasing = TRUE))[1]
+    suppressWarnings( if (!is.na(as.numeric(x))) x <- as.numeric(x) )
+    x
+  } else {
+    ux <- unique(x)
+    ux[which.max(tabulate(match(x, ux)))]
+  }
 }
