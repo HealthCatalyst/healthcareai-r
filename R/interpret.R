@@ -12,9 +12,8 @@
 #'   absolute-value coefficients will be returned. If missing (default), all
 #'   coefficients are returned
 #'
-#' @return A data frame of variables, their regularized regression
-#'   coefficient estimates with parent class "interpret", and their correlated
-#'   reference level
+#' @return A data frame of variables and their regularized regression
+#'   coefficient estimates with parent class "interpret"
 #'
 #' @details **WARNING** Coefficients are on the scale of the predictors; they
 #'   are not standardized, so unless features were scaled before training (e.g.
@@ -126,7 +125,7 @@ add_refs <- function(d, x) {
 #' Plot regularized model coefficients
 #'
 #' @param x A \code{interpret} object or a data frame with columns "variable"
-#'   "coefficient" and "reference_level"
+#'   and "coefficient"
 #' @param include_intercept If FALSE (default) the intercept estimate will not
 #'   be plotted
 #' @param max_char Maximum length of variable names to leave untruncated.
