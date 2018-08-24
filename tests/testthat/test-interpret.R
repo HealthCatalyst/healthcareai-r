@@ -60,10 +60,9 @@ test_that("interpret top_n works right", {
 })
 
 test_that("Coefficient signs make sense WRT positive class", {
-
   # For pima_diabetes, normal weight class should be negative
   ip <- interpret(g)
-  expect_true(ip$coefficient[ip$variable == "weight_class_normal"] < 0)
+  expect_true(ip$coefficient[ip$variable == "weight_class_normal (vs. obese)"] < 0)
 
   n <- 100
   # x1_y should be positive
@@ -77,7 +76,7 @@ test_that("Coefficient signs make sense WRT positive class", {
     prep_data(outcome = y, remove_near_zero_variance = FALSE) %>%
     flash_models(outcome = y, models = "glm")
   i <- interpret(m)
-  expect_true(i$coefficient[i$variable == "x1_y"] > 0)
+  expect_true(i$coefficient[i$variable == "x1_y (vs. n)"] > 0)
 
   # Declaring positive class. Here x1_y should be negative
   m <-
@@ -85,7 +84,7 @@ test_that("Coefficient signs make sense WRT positive class", {
     prep_data(outcome = y, remove_near_zero_variance = FALSE) %>%
     flash_models(outcome = y, models = "glm", positive_class = "N")
   i <- interpret(m)
-  expect_true(i$coefficient[i$variable == "x1_y"] < 0)
+  expect_true(i$coefficient[i$variable == "x1_y (vs. n)"] < 0)
 
   # With 0/1 outcome
   m <-
@@ -93,7 +92,7 @@ test_that("Coefficient signs make sense WRT positive class", {
     prep_data(outcome = y, remove_near_zero_variance = FALSE) %>%
     flash_models(outcome = y, models = "glm")
   i <- interpret(m)
-  expect_true(i$coefficient[i$variable == "x1_y"] > 0)
+  expect_true(i$coefficient[i$variable == "x1_y (vs. n)"] > 0)
 })
 
 test_that("alpha gets attached to interpret objects even if glm isn't best", {
@@ -162,23 +161,26 @@ test_that("test setting reference level/ print.reference_level", {
     flash_models(outcome = y, models = "glm")
   i <- interpret(m, remove_zeros = FALSE)
 
-  # Test normal
-  expect_true(i$reference_level[i$variable == "x1_other"] == "n")
-
-  # Test when two variables are in new dummy variable
-  expect_true(i$reference_level[i$variable == "x1_y"] == "n")
-
-  # Test no reference level
-  expect_true(is.na(i$reference_level[i$variable == "x2"]))
-
   output <- capture_output(print(i))
   expect_true(length(gregexpr("Reference Levels:\n", output)[[1]]) == 1)
-  expect_true(grepl("All `y` are relative to `N`", output))
-  expect_true(grepl("All `x1` are relative to `n`\n\n", output))
+  expect_false(grepl("All `y` estimates are relative to `N`", output))
+  expect_true(grepl("All `x1` estimates are relative to `n`\n", output))
 })
 
-test_that("test empty reference level", {
-  m <- machine_learn(mtcars, outcome = mpg, models = "glm", tune = FALSE)
-  out <- capture_output(print(interpret(m)))
-  expect_true(grepl("There are no reference levels...\n\n", out))
+context("Checking add_refs") # -------------------------------------------------
+
+test_that("test add_refs normal functionality", {
+  dat <- tibble(
+    variable = c("weight_class_obese", "skinfold"),
+    coefficient = c(1,.500)
+  )
+  m <- machine_learn(pima_diabetes[0:50,], outcome = diabetes, models = "glm",
+                     tune = FALSE)
+  actual <- add_refs(dat, m)
+  expect_true("weight_class_obese (vs. obese)" %in% actual$variable)
+  expect_true("skinfold" %in% actual$variable)
+
+  attr(attr(m, "recipe"), "dummies") <- NULL
+  actual <- add_refs(dat, m)
+  expect_equal(actual$variable, dat$variable)
 })

@@ -104,7 +104,7 @@ test_that("get_factor_levels", {
     dplyr::mutate(pima_diabetes, weight_class =
                     relevel(factor(weight_class), "underweight")) %>%
     get_factor_levels()
-  expect_equal(fl$weight_class[1], "underweight")
+  expect_equal(names(fl$weight_class)[1], "underweight")
 })
 
 test_that("resetting ref to mode and with named vector - Factors", {
@@ -155,7 +155,7 @@ test_that("set_refs throws error for bad ref_levels", {
   # Error for column not existing in dd (a)
   expect_error(set_refs(dd, c(z = "b", a = "c")))
 })
- 
+
 test_that("mode - test table", {
   test_vec <- c(3, 2, 1, 2, 3, 3)
   vec_ft <- table(test_vec)
@@ -164,4 +164,17 @@ test_that("mode - test table", {
   test_vec <- c("a", "b", "c", "d", "b")
   vec_ft <- table(test_vec)
   expect_equal(Mode(vec_ft), Mode(test_vec))
+})
+
+test_that("get_dummies", {
+  levels <- list(
+    "variable" = table(c(rep("first one", 5), rep("second", 3)))
+  )
+  expected <- list(variable = c("variable_first.one", "variable_second",
+                                "variable_missing", "variable_other"))
+  actual <- get_dummies(levels, TRUE)
+  expect_equal(actual, expected)
+  expected <- list(variable = c("variable_first.one", "variable_second"))
+  actual <- get_dummies(levels, FALSE)
+  expect_equal(actual, expected)
 })

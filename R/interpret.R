@@ -68,31 +68,9 @@ interpret <- function(x, sparsity = NULL, remove_zeros = TRUE, top_n) {
     attr("ref_levels")
 
   coefs <-
-    tibble::tibble(variable = rownames(coefs), coefficient = coefs[, 1],
-                   reference_level = map_chr(variable, ~{
-                     if (purrr::is_empty(ref_levels)) {
-                       var_ref_level <- NA
-                     } else {
-                       var_ref_loc <- sapply(names(ref_levels),
-                                             function(y) grepl(y, .x))
-
-                       # There are multiple matches if a feature name is in
-                       # another feature's dummy variable
-                       if (sum(var_ref_loc) > 1) {
-                         var_ref_loc <- sapply(names(ref_levels)[var_ref_loc],
-                                               function(y) regexpr(y, .x))
-                         var_ref_level <- ref_levels[[
-                           names(var_ref_loc[which.min(var_ref_loc)])
-                           ]]
-                       } else if (any(var_ref_loc)) {
-                         var_ref_level <- as.character(ref_levels[var_ref_loc])
-                       } else {
-                         var_ref_level <- NA
-                       }
-                     }
-                     return(var_ref_level)
-                   })) %>%
-    dplyr::arrange(desc(variable == "(Intercept)"), desc(abs(coefficient)))
+    tibble::tibble(variable = rownames(coefs), coefficient = coefs[, 1]) %>%
+    dplyr::arrange(desc(variable == "(Intercept)"), desc(abs(coefficient))) %>%
+    add_refs(x)
 
   if (remove_zeros)
     coefs <- dplyr::filter(coefs, coefficient != 0)
@@ -109,6 +87,37 @@ interpret <- function(x, sparsity = NULL, remove_zeros = TRUE, top_n) {
             lambda = lambda,
             alpha = g$tuneValue[["alpha"]],
             ref_levels = ref_levels)
+}
+
+#' Adds existing reference levels to variable names
+#' @param d A tibble with a variable and coefficient column
+#' @param x a model_list object containing a glmnet model
+#' @return A tibble with reference levels added to variable names
+#' @noRd
+add_refs <- function(d, x) {
+  # Store the dummies object that holds all possible dummy variables for each
+  # factor feature
+  dummies <- x %>% attr("recipe") %>% attr("dummies")
+  if (!purrr::is_empty(dummies)) {
+    # Store the reference level object that holds each factor features'
+    # reference level
+    ref_levels <- x %>% attr("recipe") %>% attr("ref_levels")
+
+    d$variable <- map_chr(d$variable, ~{
+      # Find out which features contain the dummy match
+      dummy_loc <- map_lgl(dummies, function(y) {.x %in% y})
+      n_matches <- sum(dummy_loc)
+      if (n_matches > 1)
+        stop("Error: Only one dummy column should match.")
+      else if (n_matches == 1) {
+        var <- paste0(.x, " (vs. ", ref_levels[dummy_loc], ")")
+      } else {
+        var <- .x
+      }
+      return(var)
+    })
+  }
+  return(d)
 }
 
 #' Plot regularized model coefficients
@@ -147,8 +156,8 @@ plot.interpret <- function(x, include_intercept = FALSE, max_char = 40,
 
   ats <- attributes(x)
 
-  if ( (is.data.frame(x) && names(x) !=
-        c("variable", "coefficient", "reference_level") ) || !is.data.frame(x))
+  if ( (is.data.frame(x) && names(x) != c("variable", "coefficient") ) ||
+       !is.data.frame(x))
     stop("x must be a data frame from interpret, or at least look like one!")
 
   if (!include_intercept)
@@ -173,14 +182,7 @@ plot.interpret <- function(x, include_intercept = FALSE, max_char = 40,
   limits <- max(abs(x$coefficient)) * c(-1.05, 1.05)
   the_plot <-
     x %>%
-    ggplot(aes(x = reorder(
-      ifelse( # Add the reference level if it exists
-        is.na(reference_level),
-        variable,
-        paste0(variable, " (vs. ", reference_level, ")")
-      ),
-      coefficient
-    ), y = coefficient)) +
+    ggplot(aes(x = reorder(variable, coefficient), y = coefficient)) +
     geom_hline(yintercept = 0, linetype = "dashed", alpha = .6) +
     geom_point(size = point_size) +
     coord_flip() +
@@ -200,18 +202,13 @@ plot.interpret <- function(x, include_intercept = FALSE, max_char = 40,
 print.interpret <- function(x, ...) {
   ref_levels <- attr(x, "ref_levels")
   out <-
-    if (purrr::is_empty(ref_levels)) {
-      "There are no reference levels..."
-    } else {
-      paste0(c("Reference Levels:\n", paste0(
-        "All `", names(ref_levels), "` are relative to `", ref_levels, "`\n"
-      )), collapse = "")
+    if (!purrr::is_empty(ref_levels)) {
+      paste0(c("Reference Levels:\n",
+               paste0("All `", names(ref_levels),
+                      "` estimates are relative to `", ref_levels, "`\n"),
+               "\n"), collapse = "")
     }
-  cat(
-    out,
-    "\n\nThe coeffients and reference levels of each variable:\n",
-    sep = ""
-  )
+  cat(out)
   NextMethod(x)
   return(invisible(x))
 }

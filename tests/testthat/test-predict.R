@@ -264,14 +264,14 @@ test_that("ready_with_prep preps appropriately", {
 
 test_that("ready_with_prep preps dummies appropriately", {
   prepped_validation <-
-    pima_diabetes[1:50,] %>%
+    pima_diabetes[1:50, ] %>%
     prep_data(outcome = diabetes, make_dummies = TRUE)
 
   model <-
     prepped_validation %>%
     flash_models(diabetes)
 
-  prepped_actual <- ready_with_prep(model, pima_diabetes[50:100,])
+  prepped_actual <- ready_with_prep(model, pima_diabetes[50:100, ])
   expect_equal(names(prepped_actual), names(prepped_validation))
 })
 

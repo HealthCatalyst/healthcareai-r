@@ -62,8 +62,7 @@
 #' @param scale Logical. If TRUE, numeric columns will be scaled to have a
 #'   standard deviation of 1. Default is FALSE.
 #' @param make_dummies Logical. If TRUE (default), dummy columns will be created
-#'   for categorical variables. When TRUE, nominal characters vector columns
-#'   will be converted to factors.
+#'   for categorical variables.
 #' @param add_levels Logical. If TRUE (defaults), "other" and "missing" will be
 #'   added to all nominal columns. This is protective in deployment: new levels
 #'   found in deployment will become "other" and missingness in deployment can
@@ -75,10 +74,12 @@
 #'   outcome are 0 or 1 they will be converted to factor with levels N and Y for
 #'   classification. Note that which level is the positive class is set in
 #'   training functions rather than here.
-#' @param ref_levels A named vector. Name is the feature and the desired refence
-#'   level is the value. \code{prep_data} sets the mode level to the reference
-#'   level for all character and nominal factors features. Reference levels
-#'   provided will replace the mode level.
+#' @param ref_levels A named vector that provides the reference levels for
+#'   categorical variables. If make_dummies is TRUE, the reference level will
+#'   not have a column created, making model estimates for other levels relative
+#'   to the reference level. By default, \code{prep_data} sets the mode level to
+#'   the reference level for all character and nominal factors features.
+#'   Reference levels provided will be chosen in the place of the mode level.
 #'
 #' @return Prepared data frame with reusable recipe object for future data
 #'   preparation in attribute "recipe". Attribute recipe contains the names of
@@ -149,7 +150,20 @@ prep_data <- function(d,
   # Capture factor levels
   d_levels <- get_factor_levels(d)
   # Get reference variable from factor levels
-  ref_levels <- purrr::map(d_levels, first)
+  ref_levels <- purrr::map(d_levels, ~{
+    names(.x) %>% first
+  })
+  # Get nse reference from outcome
+
+  # Remove outcome from dummies and ref_levels
+  if (!missing(outcome)) {
+    outcome_nse <- deparse(substitute(outcome))
+    ref_levels[outcome_nse] <- NULL
+    dummies <- get_dummies(d_levels, add_levels)
+    dummies[outcome_nse] <- NULL
+  } else {
+    dummies <- NULL
+  }
 
   outcome <- rlang::enquo(outcome)
   remove_outcome <- FALSE
@@ -413,6 +427,7 @@ prep_data <- function(d,
     # Attach missingness and factor-levels in the original data to the recipe
     attr(recipe, "missingness") <- d_missing
     attr(recipe, "factor_levels") <- d_levels
+    attr(recipe, "dummies") <- dummies
     attr(recipe, "ref_levels") <- ref_levels
   }
   # Coerces all logical predictor columns as numeric columns
