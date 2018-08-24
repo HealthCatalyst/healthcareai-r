@@ -172,9 +172,9 @@ context("Checking add_refs") # -------------------------------------------------
 test_that("test add_refs normal functionality", {
   dat <- tibble(
     variable = c("weight_class_obese", "skinfold"),
-    coefficient = c(1,.500)
+    coefficient = c(1, .500)
   )
-  m <- machine_learn(pima_diabetes[0:50,], outcome = diabetes, models = "glm",
+  m <- machine_learn(pima_diabetes[0:50, ], outcome = diabetes, models = "glm",
                      tune = FALSE)
   actual <- add_refs(dat, m)
   expect_true("weight_class_obese (vs. obese)" %in% actual$variable)

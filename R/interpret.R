@@ -105,7 +105,10 @@ add_refs <- function(d, x) {
 
     d$variable <- map_chr(d$variable, ~{
       # Find out which features contain the dummy match
-      dummy_loc <- map_lgl(dummies, function(y) {.x %in% y})
+      dummy_loc <- map_lgl(dummies, function(y) {
+        .x %in% y
+      }
+      )
       n_matches <- sum(dummy_loc)
       if (n_matches > 1)
         stop("Error: Only one dummy column should match.")
