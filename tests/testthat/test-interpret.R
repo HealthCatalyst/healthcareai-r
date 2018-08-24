@@ -4,10 +4,14 @@ set.seed(271)
 m <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = diabetes)
 g <- m["glmnet"]
 
+test_that("test errors", {
+  expect_warning(interpret(m), "Interpreting glmnet model, but Random Forest performed best in cross-validation")
+  expect_error(interpret(list()), "x must be a model_list")
+})
+
 test_that("interpret returns a tbl w/child class coefs if glmnet is in model_list", {
   suppressWarnings(expect_s3_class(interpret(m), "tbl_df"))
   expect_s3_class(interpret(g), "tbl_df")
-  expect_s3_class(interpret(g), "interpret")
 })
 
 test_that("interpret errors with ref to var-imp if no glmnet present", {
@@ -104,6 +108,12 @@ context("Checking plot.interpret")  # ------------------------------------------
 
 test_that("plot.interpret is registered generic", {
   expect_true("plot.interpret" %in% methods("plot"))
+})
+
+test_that("test errors", {
+  test <- list()
+  attr(test, "class") <- "interpret"
+  expect_error(plot(test), "x must be a data frame from interpret")
 })
 
 test_that("plot.interpret returns a ggplot", {

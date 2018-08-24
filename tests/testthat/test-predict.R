@@ -262,6 +262,19 @@ test_that("ready_with_prep preps appropriately", {
   expect_setequal(prepped_predictors, predictors)
 })
 
+test_that("ready_with_prep preps dummies appropriately", {
+  prepped_validation <-
+    pima_diabetes[1:50,] %>%
+    prep_data(outcome = diabetes, make_dummies = TRUE)
+
+  model <-
+    prepped_validation %>%
+    flash_models(diabetes)
+
+  prepped_actual <- ready_with_prep(model, pima_diabetes[50:100,])
+  expect_equal(names(prepped_actual), names(prepped_validation))
+})
+
 test_that("ready_with_prep warns for new missingness but not in outcome", {
   test_data$Fertility[1] <- NA
   expect_s3_class(ready_with_prep(model_regression_prepped, test_data), "data.frame")
