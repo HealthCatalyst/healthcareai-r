@@ -5,7 +5,6 @@ m <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = diabetes)
 g <- m["glmnet"]
 
 test_that("test errors", {
-  expect_warning(interpret(m), "Interpreting glmnet model, but Random Forest performed best in cross-validation")
   expect_error(interpret(list()), "x must be a model_list")
 })
 
