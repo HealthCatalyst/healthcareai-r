@@ -206,7 +206,10 @@ extract_model_info <- function(x) {
   target <- attr(x, "target")
   ddim <- dim(x[[1]]$trainingData)
   best_model_name <- algs[[best_model]]
-  best_model_perf <- best_metrics[[best_model]]
+  # caret's AUPR is goofed, so calculate our own if that's the metric
+  # (which is called AUC by caret)
+  best_model_perf <-
+    if (metric != "AUC") best_metrics[[best_model]] else evaluate(x)[["AUPR"]]
   best_model_tune <-
     x[[best_model]]$bestTune
   positive_class <- attr(x, "positive_class")

@@ -455,4 +455,16 @@ test_that("get_cutoffs", {
   expect_true(all(diff(rg_cutoffs$minimum_probability) < 0))
 })
 
+test_that("print.predicted prints correct AUPR value", {
+  fm <- training_data %>%
+      prep_data(province, outcome = Catholic, make_dummies = TRUE) %>%
+      flash_models(Catholic, models = "RF", metric = "PR", n_folds = 2)
+  pr_preds <- predict(fm)
+  model_pr <- capture_output(print(fm)) %>% stringr::str_extract("AUPR = [(0-9)|\\.]*")
+  pred_pr <- capture_messages(print(pr_preds)) %>% stringr::str_extract("AUPR = [(0-9)|\\.]*")
+  actual <- paste("AUPR =", round(evaluate(fm)[["AUPR"]], 2))
+  expect_equal(actual, model_pr)
+  expect_equal(actual, pred_pr)
+})
+
 remove_logfiles()
