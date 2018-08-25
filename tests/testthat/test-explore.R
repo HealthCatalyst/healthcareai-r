@@ -340,3 +340,14 @@ test_that("map_variables errors informatively", {
 test_that("n_use > 4 errors informatively", {
   expect_error(plot(sm, print = FALSE, n_use = 5), "n_use")
 })
+
+test_that("explore can handle once-logical features", {
+  n <- 20
+  d <- tibble::tibble(x = sample(c(FALSE, TRUE), n, TRUE),
+                      other = rnorm(n),
+                      another = sample(c("dog", "cat"), n, TRUE),
+                      y = sample(c("Y", "N"), n, TRUE))
+  m <- machine_learn(d, outcome = y, tune = FALSE, models = "xgb", n_folds = 2)
+  expect_error(expl <- explore(m), NA)
+  expect_s3_class(expl, "explore_df")
+})
