@@ -41,6 +41,13 @@ test_that("choose_variables glm", {
   expect_warning( g3 <- choose_variables(m["glmnet"], 3, variabs), "glm")
   expect_length(g3, 3)
   expect_true(all(g3 %in% names(pima_diabetes)))
+  # No warning if glm and variables were scaled:
+  expect_warning({
+    pima_diabetes[1:40, ] %>%
+      prep_data(patient_id, outcome = diabetes, scale = TRUE) %>%
+      flash_models(diabetes, models = "glm", n_folds = 2) %>%
+      explore()
+  }, NA)
 })
 
 test_that("choose_values nums only", {

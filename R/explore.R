@@ -183,10 +183,12 @@ choose_variables <- function(models, vary, variables) {
       suppressWarnings( get_variable_importance(models) )
     } else {
       # Format interpret to function as variable importance
-      warning("glm is the only model present in models, so using coefficients ",
-              "to determine which variables to vary. If variables weren't scaled ",
-              "this will be misleading. Consider using another algorithm or ",
-              "`prep_data(scale = TRUE)` prior to model training.")
+      if (!"scale" %in% broom::tidy(attr(models, "recipe"))$type)
+        warning("glm is the only model present in models, so coefficients will be used ",
+                "to determine which variables to vary. However, variables weren't ",
+                "scaled in `prep_data`, which means coefficients aren't a good ",
+                "measure of variable importance. Consider using another algorithm or ",
+                "`prep_data(scale = TRUE)` prior to model training.")
       interpret(models) %>%
         dplyr::transmute(variable = variable, importance = abs(coefficient)) %>%
         dplyr::filter(variable != "(Intercept)")
