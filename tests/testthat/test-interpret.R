@@ -162,23 +162,9 @@ test_that("test setting reference level/ print.reference_level", {
     flash_models(outcome = y, models = "glm")
   i <- interpret(m, remove_zeros = FALSE)
 
-  # Test normal
-  expect_true(i$reference_level[i$variable == "x1_other"] == "n")
-
-  # Test when two variables are in new dummy variable
-  expect_true(i$reference_level[i$variable == "x1_y"] == "n")
-
   # Test no reference level
   expect_true(is.na(i$reference_level[i$variable == "x2"]))
 
   output <- capture_output(print(i))
   expect_true(length(gregexpr("Reference Levels:\n", output)[[1]]) == 1)
-  expect_true(grepl("All `y` are relative to `N`", output))
-  expect_true(grepl("All `x1` are relative to `n`\n\n", output))
-})
-
-test_that("test empty reference level", {
-  m <- machine_learn(mtcars, outcome = mpg, models = "glm", tune = FALSE)
-  out <- capture_output(print(interpret(m)))
-  expect_true(grepl("There are no reference levels...\n\n", out))
 })

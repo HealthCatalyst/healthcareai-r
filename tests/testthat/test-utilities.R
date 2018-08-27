@@ -99,14 +99,6 @@ test_that("mode - test numeric", {
   expect_equal(3, Mode(test_vec))
 })
 
-test_that("get_factor_levels", {
-  fl <-
-    dplyr::mutate(pima_diabetes, weight_class =
-                    relevel(factor(weight_class), "underweight")) %>%
-    get_factor_levels()
-  expect_equal(fl$weight_class[1], "underweight")
-})
-
 test_that("resetting ref to mode and with named vector - Factors", {
   d <- tibble(
     a = factor(c("c", "c", "a"), levels = c("a", "c")),
