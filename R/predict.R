@@ -209,6 +209,8 @@ get_oof_predictions <- function(x, mi = extract_model_info(x)) {
     return(preds$pred)
   if (mi$m_class == "Classification")
     return(preds[[mi$positive_class]])
+  if (mi$m_class == "Multiclass")
+    return(preds$pred)
   stop("Eh? What kind of model is that?")
 }
 
