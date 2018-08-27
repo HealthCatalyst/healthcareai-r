@@ -155,3 +155,13 @@ test_that("set_refs throws error for bad ref_levels", {
   # Error for column not existing in dd (a)
   expect_error(set_refs(dd, c(z = "b", a = "c")))
 })
+
+test_that("mode - test table", {
+  test_vec <- c(3, 2, 1, 2, 3, 3)
+  vec_ft <- table(test_vec)
+  expect_equal(Mode(vec_ft), Mode(test_vec))
+
+  test_vec <- c("a", "b", "c", "d", "b")
+  vec_ft <- table(test_vec)
+  expect_equal(Mode(vec_ft), Mode(test_vec))
+})
