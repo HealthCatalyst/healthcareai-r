@@ -103,6 +103,10 @@ evaluate.model_list <- function(x, all_models = FALSE, ...) {
   # Pull all available metrics from all models
   out <-
     purrr::map_df(names(x), function(mod) {
+      # Here we split across CV folds, calculate the metrics for each fold,
+      # and then average across folds. This matches how caret makes this
+      # calculation, which lands in summary.model_list.
+      # More detail: https://stackoverflow.com/a/49746153/2565816
       split(x[[mod]]$pred, x[[mod]]$pred$Resample) %>%
         purrr::map_df(~ f(predicted = .x[[pred_col]], actual = .x$obs) %>%
                         dplyr::bind_rows()) %>%
