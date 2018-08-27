@@ -73,8 +73,10 @@ evaluate.predicted_df <- function(x, na.rm = FALSE, ...) {
   } else if (attr(x, "model_info")[["type"]] == "Classification") {
     op$obs <- ifelse(op$obs == attr(x, "model_info")$positive_class, 1L, 0L)
     scores <- evaluate_classification(predicted = op$pred, actual = op$obs)
+  } else if (attr(x, "model_info")[["type"]] == "Multiclass") {
+    scores <- evaluate_multiclass(predicted = op$pred, actual = op$obs)
   } else {
-    stop("Somthing's gone wrong. I don't know how to deal with model type ",
+    stop("Something's gone wrong. I don't know how to deal with model type ",
          attr(x, "model_info")[["type"]])
   }
   return(scores)
