@@ -99,6 +99,61 @@ test_that("mode - test numeric", {
   expect_equal(3, Mode(test_vec))
 })
 
+test_that("get_factor_levels", {
+  fl <-
+    dplyr::mutate(pima_diabetes, weight_class =
+                    relevel(factor(weight_class), "underweight")) %>%
+    get_factor_levels()
+  expect_equal(names(fl$weight_class)[1], "underweight")
+})
+
+test_that("resetting ref to mode and with named vector - Factors", {
+  d <- tibble(
+    a = factor(c("c", "c", "a"), levels = c("a", "c")),
+    b = factor(c("d", "b", "b"), levels = c("b", "d")),
+    speed = factor(c("med", "med", "fast"), levels = c("slow", "med", "fast"),
+                   ordered = TRUE)
+  )
+  # No named vector
+  d <- set_refs(d, NULL)
+  expect_equal(levels(d$a), c("c", "a"))
+  expect_equal(levels(d$b), c("b", "d"))
+  # test ordered example
+  expect_equal(levels(d$speed), c("slow", "med", "fast"))
+  # With named vector
+  d <- set_refs(d, c(b = "d", a = "a"))
+  expect_equal(levels(d$a), c("a", "c"))
+  expect_equal(levels(d$b), c("d", "b"))
+  # test ordered example
+  expect_equal(levels(d$speed), c("slow", "med", "fast"))
+})
+
+test_that("resetting ref to mode and with named vector - Characters", {
+  d <- tibble(
+    a = c("c", "c", "a"),
+    b = c("d", "b", "b")
+  )
+  # No named vector
+  d <- set_refs(d, NULL)
+  expect_equal(levels(d$a), c("c", "a"))
+  expect_equal(levels(d$b), c("b", "d"))
+  # With named vector
+  d <- set_refs(d, c(b = "d", a = "a"))
+  expect_equal(levels(d$a), c("a", "c"))
+  expect_equal(levels(d$b), c("d", "b"))
+})
+
+test_that("set_refs throws error for bad ref_levels", {
+  # Error for bad named vector
+  expect_error(set_refs(dd, list()))
+  expect_error(set_refs(dd, c("b")))
+  expect_error(set_refs(dd, c(z = "b", "c")))
+  # Error for numeric column (y)
+  expect_error(set_refs(dd, c(z = "b", y = "c")))
+  # Error for column not existing in dd (a)
+  expect_error(set_refs(dd, c(z = "b", a = "c")))
+})
+
 test_that("mode - test table", {
   test_vec <- c(3, 2, 1, 2, 3, 3)
   vec_ft <- table(test_vec)
@@ -107,4 +162,17 @@ test_that("mode - test table", {
   test_vec <- c("a", "b", "c", "d", "b")
   vec_ft <- table(test_vec)
   expect_equal(Mode(vec_ft), Mode(test_vec))
+})
+
+test_that("get_dummies", {
+  levels <- list(
+    "variable" = table(c(rep("first one", 5), rep("second", 3)))
+  )
+  expected <- list(variable = c("variable_first.one", "variable_second",
+                                "variable_missing", "variable_other"))
+  actual <- get_dummies(levels, TRUE)
+  expect_equal(actual, expected)
+  expected <- list(variable = c("variable_first.one", "variable_second"))
+  actual <- get_dummies(levels, FALSE)
+  expect_equal(actual, expected)
 })
