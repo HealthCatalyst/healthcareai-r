@@ -53,14 +53,19 @@ test_that("log_predictions works without loading from file", {
 })
 
 test_that("Errors are put in log file properly", {
-  # These predict calls have a missing column and should error.
+  # These predict calls have a missing column and should error on predict.
+  # They also warn on prep
   expect_error(
-    predict(object = m, newdata = pima_diabetes[1:50, 7:10],
-            write_log = FALSE)
+    expect_warning(
+      predict(object = m, newdata = pima_diabetes[1:50, 7:10],
+              write_log = FALSE)
+    )
   )
   expect_error(
-    predict(object = m_reloaded, newdata = pima_diabetes[1:50, 7:10],
-            write_log = FALSE)
+    expect_warning(
+      predict(object = m_reloaded, newdata = pima_diabetes[1:50, 7:10],
+              write_log = FALSE)
+    )
   )
 
   # Error should print error message

@@ -450,4 +450,78 @@ test_that("print.predicted_df works after join", {
   expect_error(capture_output(joined, TRUE), NA)
 })
 
+test_that("risk_groups works on training data", {
+  rg5 <- predict(model_classify_prepped, risk_groups = 5)
+  expect_equal(length(unique(rg5$predicted_group)), 5)
+  gr <- c("low", "medium", "high")
+  rg_custom <- predict(model_classify_prepped, risk_groups = gr)
+  expect_setequal(as.character(rg_custom$predicted_group), gr)
+  expect_equal(
+    sum(rg_custom$predicted_group == "high"), sum(rg_custom$predicted_group == "low"),
+    tolerance = 1)
+  expect_true(with(rg_custom,
+                   min(predicted_Catholic[predicted_group == "high"]) >=
+                     max(predicted_Catholic[predicted_group == "medium"])))
+  expect_true(all(c("group_type", "cutpoints") %in% names(attributes(rg_custom$predicted_group))))
+})
+
+test_that("risk_groups works on test data", {
+  rg5 <- predict(model_classify_prepped, test_data_class_prep, risk_groups = 5)
+  expect_false(any(is.na(rg5$predicted_group)))
+  gr <- c("v low", "low", "high", "v high")
+  rg_custom <- predict(model_classify_prepped, test_data_class_prep, risk_groups = gr)
+  expect_true(all(as.character(rg_custom$predicted_group) %in% gr))
+  expect_true(with(rg_custom,
+                   min(predicted_Catholic[stringr::str_detect(predicted_group, "high")]) >=
+                     min(predicted_Catholic[stringr::str_detect(predicted_group, "low")])
+  ))
+  expect_true(all(c("group_type", "cutpoints") %in% names(attributes(rg_custom$predicted_group))))
+
+  grps <- c(low = 20, mid = 2, high = 1)
+  rg_sized <- predict(model_classify_prepped, test_data_class_prep, risk_groups = grps)
+  expect_false(any(is.na(rg_sized$predicted_group)))
+  expect_true(all(as.character(rg_sized$predicted_group) %in% names(grps)))
+  expect_true(with(rg_sized, sum(predicted_group == "low") > sum(predicted_group == "high")))
+})
+
+test_that("outcome_groups works on training data", {
+  cg <- predict(model_classify_prepped, outcome_groups = TRUE)$predicted_group
+  expect_equal(levels(cg), c("N", "Y"))
+  expect_setequal(test_data_class_prep$Catholic, cg)
+  fp_cheap <- predict(model_classify_prepped, outcome_groups = 10)$predicted_group
+  fp_expensive <- predict(model_classify_prepped, outcome_groups = .1)$predicted_group
+  expect_true(sum(fp_cheap == "Y") >= sum(cg == "Y"))
+  expect_true(sum(cg == "Y") >= sum(fp_expensive == "Y"))
+})
+
+test_that("outcome_groups works on test data", {
+  set.seed(5270)
+  cg <- predict(model_classify_prepped, test_data_class_prep, outcome_groups = TRUE)$predicted_group
+  expect_setequal(test_data_class_prep$Catholic, cg)
+  fp_cheap <- predict(model_classify_prepped, test_data_class_prep, outcome_groups = 10)$predicted_group
+  fp_expensive <- predict(model_classify_prepped, test_data_class_prep, outcome_groups = .1)$predicted_group
+  expect_true(sum(fp_cheap == "Y") >= sum(cg == "Y"))
+  expect_true(sum(cg == "Y") >= sum(fp_expensive == "Y"))
+})
+
+test_that("add_groups errors informatively", {
+  expect_error(predict(model_classify_prepped, risk_groups = 5, outcome_groups = TRUE),
+               "cbind")
+  expect_error(predict(model_classify_prepped, outcome_groups = FALSE), "FALSE")
+})
+
+test_that("get_cutoffs", {
+  og <- predict(model_classify_prepped, outcome_groups = 2)
+  rg <- predict(model_classify_prepped, risk_groups = 5)
+  og_mes <- capture_messages( og_cutoffs <- get_cutoffs(og) )
+  junk <- capture_output(rg_mes <- capture_messages( rg_cutoffs <- get_cutoffs(rg)))
+  expect_true(stringr::str_detect(tolower(og_mes), "outcome"))
+  expect_true(stringr::str_detect(tolower(rg_mes), "risk"))
+  expect_true(is.numeric(og_cutoffs))
+  expect_length(og_cutoffs, 1)
+  expect_s3_class(rg_cutoffs, "data.frame")
+  expect_equal(stringr::str_extract(rg_cutoffs$group, "[0-9]$"), as.character(1:5))
+  expect_true(all(diff(rg_cutoffs$minimum_probability) < 0))
+})
+
 remove_logfiles()
