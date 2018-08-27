@@ -86,10 +86,6 @@ ready_with_prep <- function(object, newdata, mi = extract_model_info(object)) {
   if (is.null(recipe))
     stop("Can't prep data in prediction without a recipe from training data.")
 
-  # If dummies, convert all characters to factors to set reference
-  if (grepl("Dummy variables from", recipe))
-    newdata <- set_refs(newdata, attr(object, "ref_levels"))
-
   # Check for new levels in factors not present in training and warn if present
   new_levels <- find_new_levels(newdata, attr(recipe, "factor_levels"))
   # Don't check ignored columns. NAs are checked in prep_data

@@ -143,9 +143,6 @@ prep_data <- function(d,
   d_missing <- missingness(d, return_df = FALSE)
   # Capture original data structure
   d_ods <- d[0, ]
-  # Converting all characters to factors to set reference
-  if (make_dummies)
-    d <- set_refs(d, ref_levels)
   # Capture factor levels
   d_levels <- get_factor_levels(d)
 
