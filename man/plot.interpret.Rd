@@ -9,7 +9,7 @@
 }
 \arguments{
 \item{x}{A \code{interpret} object or a data frame with columns "variable"
-and "coefficient"}
+"coefficient" and "reference_level"}
 
 \item{include_intercept}{If FALSE (default) the intercept estimate will not
 be plotted}

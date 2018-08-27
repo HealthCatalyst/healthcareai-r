@@ -62,7 +62,8 @@
 #' @param scale Logical. If TRUE, numeric columns will be scaled to have a
 #'   standard deviation of 1. Default is FALSE.
 #' @param make_dummies Logical. If TRUE (default), dummy columns will be created
-#'   for categorical variables.
+#'   for categorical variables. When TRUE, nominal characters vector columns
+#'   will be converted to factors.
 #' @param add_levels Logical. If TRUE (defaults), "other" and "missing" will be
 #'   added to all nominal columns. This is protective in deployment: new levels
 #'   found in deployment will become "other" and missingness in deployment can
@@ -74,6 +75,10 @@
 #'   outcome are 0 or 1 they will be converted to factor with levels N and Y for
 #'   classification. Note that which level is the positive class is set in
 #'   training functions rather than here.
+#' @param ref_levels A named vector. Name is the feature and the desired refence
+#'   level is the value. \code{prep_data} sets the mode level to the reference
+#'   level for all character and nominal factors features. Reference levels
+#'   provided will replace the mode level.
 #'
 #' @return Prepared data frame with reusable recipe object for future data
 #'   preparation in attribute "recipe". Attribute recipe contains the names of
@@ -109,6 +114,12 @@
 #'           collapse_rare_factors = FALSE, convert_dates = "year",
 #'           center = TRUE, scale = TRUE, make_dummies = FALSE,
 #'           remove_near_zero_variance = .02)
+#'
+#' # Picking reference levels:
+#' # Dummy variables are not created for reference levels. Mode levels are
+#' # chosen as reference levels by default.
+#' prep_data(d = d_train, patient_id, outcome = diabetes,
+#'           ref_levels = c(weight_class = "normal"))
 prep_data <- function(d,
                       ...,
                       outcome,
@@ -121,7 +132,8 @@ prep_data <- function(d,
                       scale = FALSE,
                       make_dummies = TRUE,
                       add_levels = TRUE,
-                      factor_outcome = TRUE) {
+                      factor_outcome = TRUE,
+                      ref_levels = NULL) {
   # Check to make sure that d is a dframe
   if (!is.data.frame(d)) {
     stop("\"d\" must be a data frame.")
@@ -130,8 +142,14 @@ prep_data <- function(d,
   d_missing <- missingness(d, return_df = FALSE)
   # Capture original data structure
   d_ods <- d[0, ]
+
+  # Converting all characters to factors to set reference
+  if (make_dummies)
+    d <- set_refs(d, ref_levels)
   # Capture factor levels
   d_levels <- get_factor_levels(d)
+  # Get reference variable from factor levels
+  ref_levels <- purrr::map(d_levels, first)
 
   outcome <- rlang::enquo(outcome)
   remove_outcome <- FALSE
@@ -395,6 +413,7 @@ prep_data <- function(d,
     # Attach missingness and factor-levels in the original data to the recipe
     attr(recipe, "missingness") <- d_missing
     attr(recipe, "factor_levels") <- d_levels
+    attr(recipe, "ref_levels") <- ref_levels
   }
   # Coerces all logical predictor columns as numeric columns
   d <- dplyr::mutate_if(d, is.logical, as.numeric)

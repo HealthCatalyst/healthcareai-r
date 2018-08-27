@@ -7,7 +7,7 @@
 prep_data(d, ..., outcome, recipe = NULL, remove_near_zero_variance = TRUE,
   convert_dates = TRUE, impute = TRUE, collapse_rare_factors = TRUE,
   center = FALSE, scale = FALSE, make_dummies = TRUE, add_levels = TRUE,
-  factor_outcome = TRUE)
+  factor_outcome = TRUE, ref_levels = NULL)
 }
 \arguments{
 \item{d}{A data frame}
@@ -62,7 +62,8 @@ mean of 0. Default is FALSE.}
 standard deviation of 1. Default is FALSE.}
 
 \item{make_dummies}{Logical. If TRUE (default), dummy columns will be created
-for categorical variables.}
+for categorical variables. When TRUE, nominal characters vector columns
+will be converted to factors.}
 
 \item{add_levels}{Logical. If TRUE (defaults), "other" and "missing" will be
 added to all nominal columns. This is protective in deployment: new levels
@@ -76,6 +77,11 @@ depending on details of imputation.}
 outcome are 0 or 1 they will be converted to factor with levels N and Y for
 classification. Note that which level is the positive class is set in
 training functions rather than here.}
+
+\item{ref_levels}{A named vector. Name is the feature and the desired refence
+level is the value. \code{prep_data} sets the mode level to the reference
+level for all character and nominal factors features. Reference levels
+provided will replace the mode level.}
 }
 \value{
 Prepared data frame with reusable recipe object for future data
@@ -123,6 +129,12 @@ prep_data(d = d_train, patient_id, outcome = diabetes,
           collapse_rare_factors = FALSE, convert_dates = "year",
           center = TRUE, scale = TRUE, make_dummies = FALSE,
           remove_near_zero_variance = .02)
+
+# Picking reference levels:
+# Dummy variables are not created for reference levels. Mode levels are
+# chosen as reference levels by default.
+prep_data(d = d_train, patient_id, outcome = diabetes,
+          ref_levels = c(weight_class = "normal"))
 }
 \seealso{
 To let data preparation happen automatically under the hood, see

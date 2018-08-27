@@ -59,7 +59,7 @@ This is an optional step. Withholding some data from model training and evaluati
 `split_train_test` returns two data frames, `train` and `test`, ensuring equal representation of the outcome in each. The following code puts 95% of rows in `train` and 5% of rows in `test`. The latter won't be used in model training, and instead will be used to make predictions to see how well the model performs on data it has never seen.
 
 ```{r}
-# dfDeploy <- df[951:1000,]
+# dfDeploy <- df[951:1000, ]
 d <- split_train_test(df, outcome = ThirtyDayReadmitFLG, percent_train = .95)
 ```
 

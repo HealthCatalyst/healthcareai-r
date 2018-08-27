@@ -4,10 +4,14 @@ set.seed(271)
 m <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = diabetes)
 g <- m["glmnet"]
 
+test_that("test errors", {
+  expect_warning(interpret(m), "Interpreting glmnet model, but Random Forest performed best in cross-validation")
+  expect_error(interpret(list()), "x must be a model_list")
+})
+
 test_that("interpret returns a tbl w/child class coefs if glmnet is in model_list", {
   suppressWarnings(expect_s3_class(interpret(m), "tbl_df"))
   expect_s3_class(interpret(g), "tbl_df")
-  expect_s3_class(interpret(g), "interpret")
 })
 
 test_that("interpret errors with ref to var-imp if no glmnet present", {
@@ -55,39 +59,6 @@ test_that("interpret top_n works right", {
   expect_equal(interpret(g), interpret(g, top_n = 99))
 })
 
-context("Checking plot.interpret")  # ------------------------------------------
-
-test_that("plot.interpret is registered generic", {
-  expect_true("plot.interpret" %in% methods("plot"))
-})
-
-test_that("plot.interpret returns a ggplot", {
-  expect_s3_class(plot(interpret(g), print = FALSE), "gg")
-  expect_s3_class(plot(interpret(g, 0, FALSE), print = FALSE), "gg")
-  expect_s3_class(plot(interpret(g), caption = "none", title = "VI",
-                       font_size = 16, print = FALSE), "gg")
-})
-
-test_that("plot.interpet seems to respect options", {
-  ig <- interpret(g, remove_zeros = FALSE)
-  def <- plot(ig, print = FALSE)
-  keep_int <- plot(ig, include_intercept = TRUE, print = FALSE)
-  cust <- plot(ig, caption = "my custom caption", print = FALSE)
-  trunc <- plot(ig, max_char = 10, print = FALSE)
-  pseudo_trunc <- plot(ig, max_char = 999, print = FALSE)
-  expect_false(isTRUE(all.equal(def, keep_int)))
-  expect_false(isTRUE(all.equal(def, cust)))
-  expect_false(isTRUE(all.equal(def, trunc)))
-  expect_equal(def, pseudo_trunc)
-})
-
-test_that("plot.interpret works on a data frame missing interpret class", {
-  interpret(g) %>%
-    dplyr::filter(coefficient > 0) %>%
-    plot.interpret(print = FALSE) %>%
-    expect_s3_class("gg")
-})
-
 test_that("Coefficient signs make sense WRT positive class", {
 
   # For pima_diabetes, normal weight class should be negative
@@ -131,4 +102,69 @@ test_that("alpha gets attached to interpret objects even if glm isn't best", {
   # because glmnet is the best performing model???
   suppressWarnings( i3 <- interpret(m) )
   expect_equal(attr(i3, "alpha"), attr(interpret(g), "alpha"))
+})
+
+context("Checking plot.interpret")  # ------------------------------------------
+
+test_that("plot.interpret is registered generic", {
+  expect_true("plot.interpret" %in% methods("plot"))
+})
+
+test_that("test errors", {
+  test <- list()
+  attr(test, "class") <- "interpret"
+  expect_error(plot(test), "x must be a data frame from interpret")
+})
+
+test_that("plot.interpret returns a ggplot", {
+  expect_s3_class(plot(interpret(g), print = FALSE), "gg")
+  expect_s3_class(plot(interpret(g, 0, FALSE), print = FALSE), "gg")
+  expect_s3_class(plot(interpret(g), caption = "none", title = "VI",
+                       font_size = 16, print = FALSE), "gg")
+})
+
+test_that("plot.interpet seems to respect options", {
+  ig <- interpret(g, remove_zeros = FALSE)
+  def <- plot(ig, print = FALSE)
+  keep_int <- plot(ig, include_intercept = TRUE, print = FALSE)
+  cust <- plot(ig, caption = "my custom caption", print = FALSE)
+  trunc <- plot(ig, max_char = 10, print = FALSE)
+  pseudo_trunc <- plot(ig, max_char = 999, print = FALSE)
+  expect_false(isTRUE(all.equal(def, keep_int)))
+  expect_false(isTRUE(all.equal(def, cust)))
+  expect_false(isTRUE(all.equal(def, trunc)))
+  expect_equal(def, pseudo_trunc)
+})
+
+test_that("plot.interpret works on a data frame missing interpret class", {
+  interpret(g) %>%
+    dplyr::filter(coefficient > 0) %>%
+    plot.interpret(print = FALSE) %>%
+    expect_s3_class("gg")
+})
+
+context("Checking print.interpret")  # ------------------------------------------
+
+test_that("print.interpret is registered generic", {
+  expect_true("print.interpret" %in% methods(class = "interpret"))
+})
+
+test_that("test setting reference level/ print.reference_level", {
+  n <- 100
+  d <- tibble::tibble(
+    y = c(rep("N", n / 2), rep("Y", n / 2)),
+    x1 = c(rep("n", n * .4), rep("y", n * .5), rep("n", n * .1)),
+    x2 = 0
+  )
+  m <-
+    d %>%
+    prep_data(outcome = y, remove_near_zero_variance = FALSE) %>%
+    flash_models(outcome = y, models = "glm")
+  i <- interpret(m, remove_zeros = FALSE)
+
+  # Test no reference level
+  expect_true(is.na(i$reference_level[i$variable == "x2"]))
+
+  output <- capture_output(print(i))
+  expect_true(length(gregexpr("Reference Levels:\n", output)[[1]]) == 1)
 })
