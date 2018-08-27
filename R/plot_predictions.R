@@ -74,8 +74,10 @@ plot.predicted_df <- function(x,
       stop("x comes from a classification model, but there are ",
            distinct_outcomes, " distinct outcomes in `outcomes`.")
     the_plot <- plot_classification_predictions(x, target = target, ...)
+  } else if (mi$type == "Multiclass") {
+    the_plot <- plot_multiclass_predictions(x, target = target, ...)
   } else {
-    stop("Plotting predictions of model type ", mi$type, "is not currently supported.")
+    stop("Plotting predictions of model type ", mi$type, " is not currently supported.")
   }
 
   cap <-
@@ -173,6 +175,53 @@ plot_classification_predictions <- function(x,
                        x = c(0, ct_pts), y = max_height), hjust = -.1, vjust = v_just)
     }
   }
+
+  return(p)
+}
+
+#' @param fill_colors Length-2 character vector: colors to fill density curves.
+#'   Default is c("gray20", "steelblue"). If named, names must match
+#'   \code{unique(x[[target]])}, in any order.
+#'
+#' @rdname plot.predicted_df
+plot_multiclass_predictions <- function(x,
+                                        fill_colors = c("gray20", "steelblue"),
+                                        target) {
+  preds <- paste0("predicted_", target)
+  #compute frequency of actual categories
+  actual <- as.tibble(table(x[[target]])) %>%
+    rename(!!target := Var1,
+           actual_freq = n)
+  #build confusion matrix
+  confusion = as.tibble(table(x[[target]], x[[preds]])) %>%
+    rename(!!target := Var1,
+           !!preds := Var2,
+           freq = n)
+  #calculate percentage of test cases based on actual frequency
+  confusion <- inner_join(confusion, actual, by = target) %>%
+    mutate(percent = freq / actual_freq * 100,
+           diag = as.character(!!rlang::sym(target)) ==
+             as.character(!!rlang::sym(preds)))
+
+  # plot
+  # draw tiles, fill color
+  p <- confusion %>%
+    ggplot(aes_string(x = target, y = preds)) +
+    geom_tile(mapping = aes(fill = percent),
+              color = "black",
+              size = 0.1) +
+    xlab(target) +
+    ylab(preds)
+  # write percentage in each tile
+  p <- p +
+    geom_text(aes(label = sprintf("%.1f", percent)), size = 3, color = "black") +
+    scale_fill_gradient(name = "% Correct",
+                        low = fill_colors[1],
+                        high = fill_colors[2])
+  # highlight diagonals
+  p <-  p +
+    geom_tile(data = filter(confusion, diag),
+              color = "black", size = 0.3, fill = "black", alpha = 0)
 
   return(p)
 }
