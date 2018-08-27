@@ -115,6 +115,8 @@ explore <- function(models,
   variables <-
     rec$var_info %>%
     dplyr::filter(role == "predictor") %>%
+    dplyr::mutate(type = dplyr::case_when(type == "logical" ~ "numeric",
+                                          TRUE ~ type)) %>%
     split(., .$type) %>%
     purrr::map(pull, variable)
 
@@ -250,7 +252,8 @@ choose_static_values <- function(models, static_variables, hold) {
            "character variables to use. You provided the following non-functions: ",
            list_variables(paste(names(not_funs), not_funs, sep = " is ")))
     num_holds <-
-      dplyr::select(models[[1]]$trainingData, static_variables$numeric) %>%
+      dplyr::select(models[[1]]$trainingData,
+                    which(names(models[[1]]$trainingData) %in% static_variables$numeric)) %>%
       purrr::map_dbl(hold$numerics)
     nom_holds <-
       attr(attr(models, "recipe"), "factor_levels")[static_variables$nominal] %>%
