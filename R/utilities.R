@@ -40,9 +40,6 @@ get_factor_levels <- function(d) {
                               find_date_cols(d))
   d <- d[, !names(d) %in% not_factors, drop = FALSE]
   lapply(d, table, useNA = "ifany")
-  # lapply(d, function(x) {
-  #   if (is.factor(x)) levels(x) else unique(x)
-  # })
 }
 
 #' Sets mode or user choice for reference
