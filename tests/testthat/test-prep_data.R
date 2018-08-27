@@ -13,7 +13,7 @@ df <- data.frame(
   weirdness = rnorm(n, mean = 4, sd = 2),
   genre = sample(c("Rock", "Jazz", "Country"), size = n, replace = T),
   reaction = sample(c("Love", "Huh", "Dislike", "Mixed"),
-                    size = n, replace = T),
+                    size = n, replace = T, prob = c(1, 1, 1, 10)),
   guitar_flag = sample(c(0, 1), size = n, replace = T),
   drum_flag = sample(c(0, 1, NA), size = n, replace = T,
                      prob = c(0.45, 0.45, 0.1)),
@@ -284,10 +284,10 @@ test_that("dummy columns are created as expected", {
   d_clean <- prep_data(d = d_train, outcome = is_ween, song_id,
                        convert_dates = FALSE, make_dummies = TRUE,
                        add_levels = FALSE, collapse_rare_factors = FALSE)
-  exp <- c("genre_Jazz", "genre_Rock", "genre_missing")
+  exp <- c("genre_Country", "genre_Jazz", "genre_missing")
   n <- names(dplyr::select(d_clean, dplyr::starts_with("genre")))
   expect_true(all(exp %in% n))
-  exp <- c("reaction_Huh", "reaction_Love", "reaction_Mixed",
+  exp <- c("reaction_Dislike", "reaction_Huh", "reaction_Love",
            "reaction_missing" )
   n <- names(dplyr::select(d_clean, dplyr::starts_with("reaction")))
   expect_true(all(n == exp))
@@ -608,4 +608,12 @@ test_that("prep_data gets rid of logicals, when no outcome", {
   prepped_test <- prep_data(animals_test, recipe = prepped_train)
   expect_false(any(purrr::map_lgl(prepped_train, is.logical)))
   expect_false(any(purrr::map_lgl(prepped_test, is.logical)))
+})
+
+test_that("test ref levels", {
+  d_clean <- prep_data(d = d_train, outcome = is_ween, song_id,
+                       ref_levels = c(genre = "Jazz", reaction = "Dislike"))
+  expect_true("ref_levels" %in% names(attributes(attr(d_clean, "recipe"))))
+  expect_false("genre_Jazz" %in% names(d_clean))
+  expect_false("reaction_Dislike" %in% names(d_clean))
 })
