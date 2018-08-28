@@ -215,7 +215,7 @@ prep_data <- function(d,
     # Look for predictors unignored in training but missing here and error
     missing_vars <- setdiff(recipe$var_info$variable[recipe$var_info$role == "predictor"], names(d))
     if (length(missing_vars))
-      stop("These variables were present in training but are missing or ignored here: ",
+      warning("These variables were present in training but are missing or ignored here: ",
            list_variables(missing_vars))
 
     # If imputing, look for variables with missingness now that didn't have any in training
