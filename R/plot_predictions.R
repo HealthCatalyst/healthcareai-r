@@ -179,21 +179,17 @@ plot_classification_predictions <- function(x,
   return(p)
 }
 
-#' @param fill_colors Length-2 character vector: colors to fill density curves.
-#'   Default is c("gray20", "steelblue"). If named, names must match
-#'   \code{unique(x[[target]])}, in any order.
-#'
 #' @rdname plot.predicted_df
 plot_multiclass_predictions <- function(x,
                                         fill_colors = c("gray20", "steelblue"),
                                         target) {
   preds <- paste0("predicted_", target)
   #compute frequency of actual categories
-  actual <- as.tibble(table(x[[target]])) %>%
+  actual <- tibble::as.tibble(table(x[[target]])) %>%
     rename(!!target := Var1,
            actual_freq = n)
   #build confusion matrix
-  confusion = as.tibble(table(x[[target]], x[[preds]])) %>%
+  confusion <- tibble::as.tibble(table(x[[target]], x[[preds]])) %>%
     rename(!!target := Var1,
            !!preds := Var2,
            freq = n)

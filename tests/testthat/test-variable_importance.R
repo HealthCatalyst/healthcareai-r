@@ -18,7 +18,7 @@ m_df <- prep_data(dplyr::sample_n(iris, 100), outcome = Species)
 m_models <-
   tune_models(d = m_df, outcome = Species, n_folds = 2, tune_depth = 2)
 m_warns <- capture_warnings({
-  m_vi <- get_variable_importance(m)
+  m_vi <- get_variable_importance(m_models)
 })
 
 test_that("order_models gets it right", {
