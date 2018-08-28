@@ -7,9 +7,18 @@ cl <- flash_models(cl_prep, diabetes, models = "xgb")
 reg <- dd %>%
   prep_data(patient_id, outcome = age) %>%
   flash_models(age, models = "glm")
-m_df <- prep_data(dplyr::sample_n(iris, 100), outcome = Species)
+
+# Using a more complicated Multiclass dataframe
+set.seed(1998)
+n <- nrow(mpg)
+m_df <- mpg %>%
+  mutate(year = replace(year, sample(1:n, 10), NA),
+         cyl = replace(cyl, sample(1:n, 20), NA),
+         fl = replace(fl, sample(1:n, 10), NA),
+         cty = replace(cty, sample(1:n, 30), NA))
+m_df_clean <- m_df %>% prep_data(model, outcome = drv)
 multi <-
-  flash_models(d = m_df, outcome = Species, models = "rf")
+  flash_models(d = m_df_clean, outcome = drv)
 
 test_that("flash_models returns appropriate model_list", {
   expect_s3_class(cl, "model_list")
@@ -33,4 +42,5 @@ test_that("flash_models are model_lists with attr tuned = FALSE", {
 test_that("can predict on flash models", {
   expect_s3_class(predict(cl), "predicted_df")
   expect_s3_class(predict(reg, dd[10:1, ]), "predicted_df")
+  expect_s3_class(predict(multi, m_df[1:7, ]), "predicted_df")
 })

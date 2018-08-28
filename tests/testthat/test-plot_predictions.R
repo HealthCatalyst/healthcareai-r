@@ -44,7 +44,7 @@ test_that("plot.predicted_df stops if outcome vector is wrong length or class", 
                "length")
   expect_error(plot(dplyr::select(multi_preds_self, -Species),
                     outcomes = sample(10, nrow(multi_preds_self), TRUE)),
-               "overlap")
+               "factors")
 })
 
 test_that("plot.predicted_df warns but works if outcomes present in df and passed in", {
