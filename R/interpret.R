@@ -71,6 +71,11 @@ interpret <- function(x, sparsity = NULL, remove_zeros = TRUE, top_n) {
     dplyr::arrange(desc(variable == "(Intercept)"), desc(abs(coefficient))) %>%
     add_refs(x)
 
+  # caret and glmnet take opposite approaches to positive outcome handling,
+  # so need to flip the signs of coefficients for classification models
+  if (mi$m_class == "Classification")
+    coefs$coefficient <- - coefs$coefficient
+
   if (remove_zeros)
     coefs <- dplyr::filter(coefs, coefficient != 0)
 

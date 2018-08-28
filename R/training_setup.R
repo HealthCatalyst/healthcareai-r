@@ -51,12 +51,13 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
   if (model_class == "classification") {
     if (missing(positive_class))
       positive_class <- NULL
-    # Some algorithms need the response to be factor instead of char or lgl
-    # Get rid of unused levels if they're present
     d[[outcome_chr]] <-
       d[[outcome_chr]] %>%
+      # Some algorithms need the response to be factor instead of char or lgl
       as.factor() %>%
+      # Get rid of unused levels if they're present
       droplevels() %>%
+      # Choose positive class and set it to the factor reference level
       set_outcome_class(positive_class)
     # Make sure there can be at least one instance of outcome in each fold
     outcome_tab <- table(d[[outcome_chr]])
@@ -120,7 +121,7 @@ set_outcome_class <- function(vec, positive_class) {
   if (!positive_class %in% levels(vec))
     stop("positive_class, ", positive_class, ", not found in the outcome column. ",
          "Outcome has values ", list_variables(levels(vec)) )
-  vec <- stats::relevel(vec, setdiff(levels(vec), positive_class))
+  vec <- stats::relevel(vec, positive_class)  # setdiff(levels(vec), positive_class))
   return(vec)
 }
 
