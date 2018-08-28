@@ -160,6 +160,7 @@ evaluate_classification <- function(predicted, actual) {
 #' @examples
 #' evaluate_multiclass(iris$Species, sample(iris$Species))
 evaluate_multiclass <- function(predicted, actual) {
+  actual <- factor(actual, levels = levels(predicted))
   c("Accuracy" = MLmetrics::Accuracy(y_pred = predicted, y_true = actual),
     "Kappa" = caret::confusionMatrix(
       data = predicted, reference = actual)$overall[["Kappa"]]

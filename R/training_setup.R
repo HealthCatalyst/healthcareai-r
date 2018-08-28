@@ -61,7 +61,7 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
         set_outcome_class(positive_class)
     # Make sure there can be at least one instance of outcome in each fold
   }
-  if (model_class == "classification" || model_class == "multiclass") {
+  if (model_class == "classification") {
     if (min(outcome_tab) < n_folds)
       stop("There must be at least one instance of each outcome class ",
            "for each cross validation fold. Observed frequencies in d:\n",
@@ -152,7 +152,7 @@ set_model_class <- function(model_class, outcome, outcome_chr) {
     # Need to infer model_class
     if (looks_categorical) {
       if (n_outcomes > 2) {
-        mes <- paste0(outcome_chr, " looks multiclass, so training classification algorithms.")
+        mes <- paste0(outcome_chr, " looks multiclass, so training multiclass algorithms.")
         model_class <- "multiclass"
       } else {
         mes <- paste0(outcome_chr, " looks categorical, so training classification algorithms.")
@@ -173,10 +173,7 @@ set_model_class <- function(model_class, outcome, outcome_chr) {
            ". You supplied this unsupported class: ", model_class)
     if (looks_categorical && model_class == "regression") {
       stop(outcome_chr, " looks categorical but you're trying to train a regression model.")
-    } else if (looks_numeric && model_class == "classification") {
-      stop(outcome_chr, " looks numeric but you're trying to train a classification ",
-           "model. If that's what you want convert it explicitly with as.factor().")
-    } else if (looks_numeric && model_class == "multiclass") {
+    } else if (looks_numeric && model_class %in% c("classification", "multiclass")) {
       stop(outcome_chr, " looks numeric but you're trying to train a classification ",
            "model. If that's what you want convert it explicitly with as.factor().")
     } else if (looks_categorical && model_class == "classification" && n_outcomes > 2) {
