@@ -135,7 +135,7 @@ prep_data(d = d_train, patient_id, outcome = diabetes,
 # Dummy variables are not created for reference levels. Mode levels are
 # chosen as reference levels by default.
 prep_data(d = d_train, patient_id, outcome = diabetes,
-          ref_levels = c(weight_class = "normal"))
+          ref_levels = list(weight_class = "normal"))
 }
 \seealso{
 To let data preparation happen automatically under the hood, see

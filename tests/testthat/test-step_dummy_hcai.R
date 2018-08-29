@@ -1,55 +1,71 @@
 context("testing step_dummy_hcai")
 
-data(okc)
-okc <- okc[complete.cases(okc), ]
 
-rec <- recipe(~ diet + age + height, data = okc)
-
+rec <- recipes::recipe(head(pima_diabetes), ~.)
 
 test_that("testing prep.step_dummy_hcai", {
-  diet_orig_levels <- unique(okc$diet)
-  diet_orig_levels <- diet_orig_levels[order(diet_orig_levels)]
+  weight_class_orig_levels <- unique(pima_diabetes$weight_class)
+  weight_class_orig_levels <- weight_class_orig_levels[!is.na(weight_class_orig_levels)]
+  weight_class_orig_levels <- weight_class_orig_levels[order(weight_class_orig_levels)]
 
-  dummies <- rec %>% healthcareai:::step_dummy_hcai(diet)
-  dummies <- prep(dummies, training = okc)
+  dummies <- rec %>% healthcareai:::step_dummy_hcai(weight_class)
+  expect_warning(
+    dummies <- prep(dummies, training = pima_diabetes)
+  )
 
-  diet_values_empty <- attr(dummies$steps[[1]]$levels$diet, "values")
-  diet_values <- diet_values_empty[c(4, 1:3, 5:length(diet_values_empty))]
+  weight_class_values_empty <- attr(dummies$steps[[1]]$levels$weight_class, "values")
+  weight_class_values <- weight_class_values_empty[c(4, 1:3, 5:length(weight_class_values_empty))]
 
   # ## reorder levels
-  dummies <- rec %>% healthcareai:::step_dummy_hcai(diet,  levels = list(diet = diet_values))
-  dummies <- prep(dummies, training = okc)
-  actual <- attr(dummies$steps[[1]]$levels$diet, "values")
-  expect_equal(actual, diet_values)
+  dummies <- rec %>% healthcareai:::step_dummy_hcai(weight_class,  levels = list(weight_class = weight_class_values))
+  expect_warning(
+    dummies <- prep(dummies, training = pima_diabetes)
+  )
+  actual <- attr(dummies$steps[[1]]$levels$weight_class, "values")
+  expect_equal(actual, weight_class_values)
 
-  dummy_data <- bake(dummies, newdata = okc)
-  expect_false("diet_mostly_anything" %in% names(dummy_data))
-  expect_true("diet_anything" %in% names(dummy_data))
+  expect_warning(
+    dummy_data <- bake(dummies, newdata = pima_diabetes)
+  )
+  expect_false("weight_class_overweight" %in% names(dummy_data))
+  expect_true("weight_class_obese" %in% names(dummy_data))
 
   # No levels provided - choose the Mode
-  dummies <- rec %>% healthcareai:::step_dummy_hcai(diet,  levels = NULL)
-  dummies <- prep(dummies, training = okc)
-  actual <- attr(dummies$steps[[1]]$levels$diet, "values")
-  expect_equal(actual, diet_values_empty)
+  dummies <- rec %>% healthcareai:::step_dummy_hcai(weight_class,  levels = NULL)
+  expect_warning(
+    dummies <- prep(dummies, training = pima_diabetes)
+  )
+  actual <- attr(dummies$steps[[1]]$levels$weight_class, "values")
+  expect_equal(actual, weight_class_values_empty)
 
-  dummy_data <- bake(dummies, newdata = okc)
-  expect_false("diet_mostly_anything" %in% names(dummy_data))
+  expect_warning(
+    dummy_data <- bake(dummies, newdata = pima_diabetes)
+  )
+  expect_false("weight_class_obese" %in% names(dummy_data))
 
   # Add extra level
-  dummies <- rec %>% healthcareai:::step_dummy_hcai(diet,  levels = list(diet = c(diet_values, "extra")))
-  dummies <- prep(dummies, training = okc)
-  actual <- attr(dummies$steps[[1]]$levels$diet, "values")
-  expect_equal(actual, c(diet_values, "extra"))
+  dummies <- rec %>% healthcareai:::step_dummy_hcai(weight_class,  levels = list(weight_class = c(weight_class_values, "missing")))
+  expect_warning(
+    dummies <- prep(dummies, training = pima_diabetes)
+  )
+  actual <- attr(dummies$steps[[1]]$levels$weight_class, "values")
+  expect_equal(actual, c(weight_class_values, "missing"))
 
-  dummy_data <- bake(dummies, newdata = okc)
-  expect_true("diet_extra" %in% names(dummy_data))
+  expect_warning(
+    dummy_data <- bake(dummies, newdata = pima_diabetes)
+  )
+  expect_true("weight_class_missing" %in% names(dummy_data))
 
   # Make dummies from reference level
-  dummies <- rec %>% healthcareai:::step_dummy_hcai(diet,  levels = list(diet = c("halal")))
-  dummies <- prep(dummies, training = okc)
-  actual <- attr(dummies$steps[[1]]$levels$diet, "values")
-  expect_equal(actual, diet_orig_levels[c(2, 1, 3:length(diet_orig_levels))])
+  dummies <- rec %>% healthcareai:::step_dummy_hcai(weight_class,  levels = list(weight_class = "normal"))
+  expect_warning(
+    dummies <- prep(dummies, training = pima_diabetes)
+  )
+  actual <- attr(dummies$steps[[1]]$levels$weight_class, "values")
+  expect_equal(actual, weight_class_orig_levels[c(2, 1, 3:length(weight_class_orig_levels))])
 
-  dummy_data <- bake(dummies, newdata = okc)
-  expect_false("diet_halal" %in% names(dummy_data))
+  expect_warning(
+    dummy_data <- bake(dummies, newdata = pima_diabetes)
+  )
+  expect_false("weight_class_normal" %in% names(dummy_data))
 })

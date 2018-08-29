@@ -180,7 +180,7 @@ prep.step_dummy_hcai <- function(x, training, info = NULL, ...) {
         x$levels[[col_names[i]]][1] %in% levels(training_col)) {
       x$levels[[col_names[i]]] <- c(x$levels[[col_names[i]]], levels(training_col)[!existing_levels])
     } else {
-      training_mode <- as.character(Mode(na.omit(training_col)))
+      training_mode <- as.character(Mode(training_col))
       training_levels <- levels(training_col)
       x$levels[[col_names[i]]] <- c(training_mode, training_levels[-which(training_levels == training_mode)])
     }
@@ -190,10 +190,13 @@ prep.step_dummy_hcai <- function(x, training, info = NULL, ...) {
       form_chr <- paste0(form_chr, "-1")
     }
     form <- as.formula(form_chr)
-    terms <- model.frame(form,
-                         data = training,
-                         xlev = x$levels[col_names[i]],
-                         na.action = na.pass)
+    suppressWarnings(
+      terms <- model.frame(form,
+                           data = training,
+                           xlev = x$levels[col_names[i]],
+                           na.action = na.pass)
+    )
+
     levels[[i]] <- attr(terms, "terms")
 
     ## About factor levels here: once dummy variables are made,
@@ -314,6 +317,7 @@ bake.step_dummy_hcai <- function(object, newdata, ...) {
 
 print.step_dummy_hcai <-
   function(x, width = max(20, options()$width - 20), ...) {
+    browser()
     if (x$trained) {
       cat("Dummy variables from ")
       cat(list_variables(names(x$levels)))
