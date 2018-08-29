@@ -44,27 +44,33 @@ test_that("choose_variables glm", {
 })
 
 test_that("choose_values nums only", {
-  cv <- choose_values(m, vary = c("skinfold", "age"), variables = variabs, numerics = 5, characters = Inf)
+  cv <- choose_values(m, vary = c("skinfold", "age"), variables = variabs,
+                      numerics = 5, characters = Inf,
+                      training_data = pima_diabetes[1:50, ])
   expect_setequal(names(cv), c("skinfold", "age"))
   expect_equal(names(cv[[1]]), names(cv[[2]]))
   expect_true(all(stringr::str_sub(names(cv[[1]]), -1, -1) == "%"))
 })
 
 test_that("choose_values noms only", {
-  cv <- choose_values(m, vary = "weight_class", variables = variabs, numerics = 5, characters = Inf)
+  cv <- choose_values(m, vary = "weight_class", variables = variabs, numerics = 5,
+                      characters = Inf, training_data = pima_diabetes[1:50, ])
   expect_equal(names(cv), "weight_class")
   expect_setequal(cv$weight_class, unique(pima_diabetes$weight_class[1:50]))
 })
 
 test_that("choose_values both", {
-  cv <- choose_values(m, vary = c("weight_class", "age"), variables = variabs, numerics = 5, characters = Inf)
+  cv <- choose_values(m, vary = c("weight_class", "age"), variables = variabs,
+                      numerics = 5, characters = Inf,
+                      training_data = pima_diabetes[1:50, ])
   expect_setequal(names(cv), c("weight_class", "age"))
   expect_true(is.numeric(cv$age))
   expect_true(is.character(cv$weight_class))
 })
 
 test_that("choose_values limit characters", {
-  cv <- choose_values(m, vary = c("weight_class", "age"), variables = variabs, numerics = 5, characters = 3)
+  cv <- choose_values(m, vary = c("weight_class", "age"), variables = variabs, numerics = 5,
+                      characters = 3, training_data = pima_diabetes[1:50, ])
   pima_diabetes %>%
     dplyr::count(weight_class) %>%
     dplyr::top_n(3, n) %>%
@@ -73,14 +79,17 @@ test_that("choose_values limit characters", {
 })
 
 test_that("choose_values numerics is integer", {
-  cv <- choose_values(m, vary = c("weight_class", "age"), variables = variabs, numerics = 3, characters = Inf)
+  cv <- choose_values(m, vary = c("weight_class", "age"), variables = variabs,
+                      numerics = 3, characters = Inf, training_data = pima_diabetes[1:50, ])
   expect_setequal(names(cv), c("weight_class", "age"))
   expect_length(cv$age, 3)
   expect_setequal(names(cv$age), c("5%", "50%", "95%"))
 })
 
 test_that("choose_values numerics is quantiles", {
-  cv <- choose_values(m, vary = "plasma_glucose", variables = variabs, numerics = c(.33, .67), characters = Inf)
+  cv <- choose_values(m, vary = "plasma_glucose", variables = variabs,
+                      numerics = c(.33, .67), characters = Inf,
+                      training_data = pima_diabetes[1:50, ])
   expect_equal(names(cv), "plasma_glucose")
   expect_length(cv$plasma_glucose, 2)
   expect_setequal(names(cv$plasma_glucose), c("33%", "67%"))
@@ -89,7 +98,8 @@ test_that("choose_values numerics is quantiles", {
 test_that("choose_static_values nums only", {
   sv <- choose_static_values(m,
                              static_variables = list(nominal = character(), numeric = c("insulin", "age")),
-                             hold = list(numerics = median, characters = Mode))
+                             hold = list(numerics = median, characters = Mode),
+                             training_data = pima_diabetes[1:50, ])
   expect_true(is.list(sv))
   expect_setequal(names(sv), c("insulin", "age"))
   purrr::walk(sv, expect_length, 1)
@@ -98,7 +108,8 @@ test_that("choose_static_values nums only", {
 test_that("choose_static_values noms only", {
   sv <- choose_static_values(m,
                              static_variables = list(nominal = "weight_class", numeric = character()),
-                             hold = list(numerics = median, characters = Mode))
+                             hold = list(numerics = median, characters = Mode),
+                             training_data = pima_diabetes[1:50, ])
   expect_true(is.list(sv))
   expect_setequal(names(sv), "weight_class")
   purrr::walk(sv, expect_length, 1)
@@ -107,7 +118,8 @@ test_that("choose_static_values noms only", {
 test_that("choose_static_values both", {
   sv <- choose_static_values(m,
                              static_variables = list(nominal = "weight_class", numeric = c("insulin", "age")),
-                             hold = list(numerics = median, characters = Mode))
+                             hold = list(numerics = median, characters = Mode),
+                             training_data = pima_diabetes[1:50, ])
   expect_true(is.list(sv))
   expect_setequal(names(sv), c("insulin", "age", "weight_class"))
   purrr::walk(sv, expect_length, 1)
@@ -116,7 +128,8 @@ test_that("choose_static_values both", {
 test_that("choose_static_values hold from training data", {
   sv <- choose_static_values(m,
                              static_variables = list(nominal = "weight_class", numeric = c("insulin", "age")),
-                             hold = pima_diabetes[3, ])
+                             hold = pima_diabetes[3, ],
+                             training_data = pima_diabetes[1:50, ])
   expect_true(is.list(sv))
   expect_setequal(names(sv), c("insulin", "age", "weight_class"))
   purrr::walk(sv, expect_length, 1)
@@ -126,7 +139,8 @@ test_that("choose_static_values hold is custom values", {
   sv <- choose_static_values(m,
                              static_variables = list(nominal = "weight_class", numeric = c("insulin", "age")),
                              hold = list(pregnancies = 0, plasma_glucose = 99, weight_class = "obese",
-                                         insulin = 3, age = 32))
+                                         insulin = 3, age = 32),
+                             training_data = pima_diabetes[1:50, ])
   expect_true(is.list(sv))
   expect_setequal(names(sv), c("insulin", "age", "weight_class"))
   purrr::walk(sv, expect_length, 1)
