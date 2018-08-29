@@ -75,9 +75,11 @@ d_reprep <- prep_data(d_test, outcome = is_ween, song_id,
                       recipe = attr(d_prep, "recipe"))
 d_reprep2 <- prep_data(d_test, outcome = is_ween, song_id,
                        recipe = d_prep)
-animals <- tibble::tibble(
+animals <- data.frame(
   animal = sample(c("cat", "dog", "mouse"), n, TRUE),
-  weight = rexp(n, 0.5), super = sample(c(TRUE, FALSE), n, TRUE), y = rnorm(n)
+  weight = rexp(n, 0.5),
+  super = sample(c(TRUE, FALSE), n, TRUE),
+  y = rnorm(n)
 )
 animals_train <- animals[1:250, ]
 animals_test <- animals[251:300, ]
@@ -612,6 +614,7 @@ test_that("prep_data gets rid of logicals, when no outcome", {
 
 test_that("no_prep dominates", {
   noprep <- prep_data(animals_train, outcome = y, no_prep = TRUE)
+  expect_true(attr(attr(noprep, "recipe"), "no_prep"))
   expect_equivalent(animals_train, noprep)
   expect_equivalent(animals_test, prep_data(animals_test, recipe = noprep))
 })
