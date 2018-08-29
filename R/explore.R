@@ -116,6 +116,8 @@ explore <- function(models,
   variables <-
     rec$var_info %>%
     dplyr::filter(role == "predictor") %>%
+    dplyr::mutate(type = dplyr::case_when(type == "logical" ~ "numeric",
+                                          TRUE ~ type)) %>%
     split(., .$type) %>%
     purrr::map(dplyr::pull, variable)
 
