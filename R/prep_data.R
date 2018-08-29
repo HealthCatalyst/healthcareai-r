@@ -41,15 +41,15 @@
 #'   0.0167. It would be excluded by default or if
 #'   `remove_near_zero_variance` > 0.0166. Larger values will remove more columns
 #'   and this value must lie between 0 and 1.
-#' @param convert_dates Character. It specifies how \code{prep_data} handles date and
-#'   time features. The three options that \code{prep_data} provides are:
-#'   `continuous` (default), `categories` or `none`. Both `continuous` and
-#'   `categories` create new variables for hour, day, month, and year.
-#'   `continuous` (recommended) uses numeric circular respresentation of these
-#'   features for model optimization. `categories` makes these features more
-#'   readable (If `make_dummies` is selected, each unique value will become a
+#' @param convert_dates Character. Specifies handling date and time features as
+#'   either "continuous" (default), "categories" or "none". Both "continuous"
+#'   and "categories" create new variables for hour, day, month, and year.
+#'   "continuous" (recommended) uses numeric circular respresentation of these
+#'   features for model optimization. "categories" makes these features more
+#'   readable (If \code{make_dummies} is TRUE, each unique value will become a
 #'   new dummy variable. This will create wide data, which is more challenging
-#'   for some machine learning models.). `none` removes all date and time features. All features with the DTS suffix will be treated as a date.
+#'   for some machine learning models.). "none" removes all date and time
+#'   features. All features with the DTS suffix will be treated as a date.
 #' @param impute Logical or list. If TRUE (default), columns will be imputed
 #'   using mean (numeric), and new category (nominal). If FALSE, data will not
 #'   be imputed. If this is a list, it must be named, with possible entries for
@@ -112,10 +112,10 @@
 #'           collapse_rare_factors = FALSE, center = TRUE, scale = TRUE,
 #'           make_dummies = FALSE, remove_near_zero_variance = .02)
 #'
-#' # `prep_data` also handles date and time features:
+#' # `prep_data` also handles date and time features by default:
 #' d <-
 #'   pima_diabetes %>%
-#'   cbind(
+#'   mutate(
 #'     admitted_DTS = seq(as.POSIXct("2005-1-1 0:00"),
 #'                        length.out = nrow(pima_diabetes), by = "hour")
 #'   )
@@ -123,7 +123,6 @@
 #' prep_data(d = d_train)
 #'
 #' # Customize how date and time features are handled:
-#'
 #' # When `convert_dates` is set to "categories", the prepped data will be more
 #' # readable, but will be wider.
 #' prep_data(d = d_train, convert_dates = "categories")
