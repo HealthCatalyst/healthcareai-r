@@ -74,35 +74,6 @@
 #'  [dummy_names()], [step_regex()], [step_count()],
 #'  [step_ordinalscore()], [step_unorder()], [step_other()]
 #'  [step_novel()]
-#' @examples
-#' data(okc)
-#' okc <- okc[complete.cases(okc),]
-#'
-#' rec <- recipe(~ diet + age + height, data = okc)
-#'
-#' dummies <- rec %>% step_dummy_hcai(diet)
-#' dummies <- prep(dummies, training = okc)
-#'
-#' dummy_data <- bake(dummies, newdata = okc)
-#'
-#' unique(okc$diet)
-#' grep("^diet", names(dummy_data), value = TRUE)
-#'
-#' # Obtain the full set of dummy variables using `one_hot` option
-#' rec %>%
-#'   step_dummy_hcai(diet, one_hot = TRUE) %>%
-#'   prep(training = okc, retain = TRUE) %>%
-#'   juice(starts_with("diet")) %>%
-#'   names() %>%
-#'   length()
-#'
-#' length(unique(okc$diet))
-#'
-#' # Without one_hot
-#' length(grep("^diet", names(dummy_data), value = TRUE))
-#'
-#'
-#' tidy(dummies, number = 1)
 step_dummy_hcai <-
   function(recipe,
            ...,
