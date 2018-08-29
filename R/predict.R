@@ -382,7 +382,7 @@ add_groups <- function(object, mi, newdata, pred_name, risk_groups, outcome_grou
                      cost_fn = outcome_groups) %>%
       dplyr::filter(optimal) %>%
       dplyr::pull(threshold)
-    neg_class <- levels(object[[1]]$trainingData$.outcome)[1]
+    neg_class <- levels(object[[1]]$trainingData$.outcome)[2]
     newdata$predicted_group <-
       ifelse(newdata[[pred_name]] >= cutpoint, mi$positive_class, neg_class) %>%
       factor(levels = c(neg_class, mi$positive_class)) %>%
