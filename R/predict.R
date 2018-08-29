@@ -252,6 +252,9 @@ predict_model_list_main <- function(object,
     # Use out-of-fold predictions from training
     preds <- get_oof_predictions(object, mi)
   } else {
+    if (inherits(newdata, "prepped_df"))
+      stop("predict will prep your data for you. Please pass the pre-prep ",
+           "version to newdata (without passing it through `prep_data` first.)")
     if (!inherits(newdata, "data.frame"))
       stop("newdata must be a data frame")
     to_pred <- ready_with_prep(object, newdata, mi)

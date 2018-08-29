@@ -3,14 +3,15 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
 
   # Get recipe and remove columns to be ignored in training
   recipe <- attr(d, "recipe")
-  if (!is.null(recipe)) {
-    outcome_chr <- rlang::quo_name(outcome)
-    if (outcome_chr %in% attr(recipe, "ignored_columns"))
-      stop("You specified ", outcome_chr, " as your outcome variable, but ",
-           "the recipe you used to prep your data says to ignore it. ",
-           "Did you forget to specify `outcome = ` in prep_data?")
-    d <- remove_ignored(d, recipe)
-  }
+  if (is.null(recipe))
+    stop("data must be prepped before training models. If you want to prep ",
+         "data yourself (not recommended), use `prep_data(..., no_prep = TRUE)`")
+  outcome_chr <- rlang::quo_name(outcome)
+  if (outcome_chr %in% attr(recipe, "ignored_columns"))
+    stop("You specified ", outcome_chr, " as your outcome variable, but ",
+         "the recipe you used to prep your data says to ignore it. ",
+         "Did you forget to specify `outcome = ` in prep_data?")
+  d <- remove_ignored(d, recipe)
 
   # Check outcome provided, agrees with outcome in prep_data, present in d
   outcome <- check_outcome(outcome, names(d), recipe)
@@ -58,7 +59,8 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
       # Get rid of unused levels if they're present
       droplevels() %>%
       # Choose positive class and set it to the factor reference level
-      set_outcome_class(positive_class)
+      set_outcome_class(positive_class = positive_class,
+                        original_classes = names(attributes(recipe)$factor_levels[[outcome_chr]]))
     # Make sure there can be at least one instance of outcome in each fold
     outcome_tab <- table(d[[outcome_chr]])
     if (min(outcome_tab) < n_folds)
@@ -104,10 +106,15 @@ check_outcome <- function(outcome, d_names, recipe) {
   return(outcome)
 }
 
-set_outcome_class <- function(vec, positive_class) {
+set_outcome_class <- function(vec, positive_class, original_classes) {
   if (length(levels(vec)) != 2)
     stop(paste0("The outcome variable must have two levels for classification, ",
                 "but this has ", length(levels(vec)), ": ", paste(levels(vec), collapse = ", ")))
+  if (!all(original_classes %in% vec))
+    stop("It looks like outcome levels have changed between data prep and ",
+         "model training. Change them before prep_data instead.\nPre-prep ",
+         "values: ", list_variables(original_classes), "\nCurrent values: ",
+         list_variables(unique(vec)))
   if (is.null(positive_class)) {
     positive_class <-
       if ("Y" %in% levels(vec)) {
@@ -121,7 +128,7 @@ set_outcome_class <- function(vec, positive_class) {
   if (!positive_class %in% levels(vec))
     stop("positive_class, ", positive_class, ", not found in the outcome column. ",
          "Outcome has values ", list_variables(levels(vec)) )
-  vec <- stats::relevel(vec, positive_class)  # setdiff(levels(vec), positive_class))
+  vec <- stats::relevel(vec, positive_class)
   return(vec)
 }
 
@@ -232,8 +239,8 @@ check_training_time <- function(ddim, hpdim, n_folds) {
   ddim[2] <- ddim[2] - 1L
   ncells <- prod(ddim)
   n_models <-
-      paste0(n_folds * hpdim, " ", names(hpdim), "'s") %>%
-      list_variables()
+    paste0(n_folds * hpdim, " ", names(hpdim), "'s") %>%
+    list_variables()
   mes <- paste(
     "\nAfter data processing, models are being trained on", format(ddim[2], big.mark = ","),
     "features with", format(ddim[1], big.mark = ","), "observations.\nBased on n_folds =",

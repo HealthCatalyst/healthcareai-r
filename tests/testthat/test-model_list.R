@@ -12,22 +12,9 @@ c_pr <- flash_models(dcla, diabetes, metric = "PR", n_folds = 2, models = "xgb")
 single_model_tune <- tune_models(dcla, diabetes, models = "xgb", n_folds = 2, tune_depth = 2)
 r_flash <- flash_models(dreg, pedigree, n_folds = 2, models = "xgb")
 c_flash <- flash_models(dcla, diabetes, n_folds = 2, models = "xgb")
-unprepped_flash <- flash_models(dplyr::select(short, pregnancies, age, pedigree),
-                                pedigree, models = "rf", n_folds = 2)
-ods <- list(
-  prepped = attr(c_models, "original_data_str"),
-  unprepped = attr(unprepped_flash, "original_data_str"),
-  as = attr(single_model_as, "original_data_str")
-)
+ods <- attr(c_models, "original_data_str")
 
 context("Checking model_list constructors") # ----------------------------------
-
-test_that("as.model_list works same with different argument specs", {
-  expect_equivalent(as.model_list(rf),
-                    as.model_list(listed_models = list(rf)))
-  expect_equivalent(as.model_list(rf),
-                    as.model_list(rf, model_class = "regression"))
-})
 
 test_that("as.model_list fails if model_class is unsupported", {
   expect_error(as.model_list(model_class = "what diabetes i even?"))
@@ -39,59 +26,20 @@ test_that("as.model_list errors if input isn't a caret model", {
   expect_error(as.model_list(ranger::ranger(pedigree ~ ., dreg)))
 })
 
-test_that("as.model_list succeeds with one or more models as input", {
-  expect_s3_class(as.model_list(rf, model_class = "regression"),
-                  "model_list")
-  expect_s3_class(as.model_list(rf, xg), "model_list")
-  expect_s3_class(
-    as.model_list(listed_models = list(rf, xg), model_class = "regression"),
-    "model_list"
-  )
-  expect_s3_class(as.model_list(listed_models = list(rf)), "model_list")
-})
-
-test_that("as.model_list returns correct model names (from modelInfo$label)", {
-  correct_names <- names(r_models)
-  m_list <- structure(list(rf, gl), names = c("rando", "lasso"))
-  expect_equal(
-    names(as.model_list(listed_models = m_list)),
-    correct_names
-  )
-  expect_equal(
-    names(as.model_list(rf, gl)),
-    correct_names
-  )
-})
-
-test_that("as.model_list tuned-argument works", {
-  expect_true(attr(as.model_list(rf), "tuned"))
-  expect_false(attr(as.model_list(rf, tuned = FALSE), "tuned"))
-})
-
 test_that("model_lists have original data str as zero-row DF with right names and classes", {
-  purrr::map_lgl(ods, is.data.frame) %>% all() %>% expect_true()
-  purrr::map_lgl(ods, ~ nrow(.x) == 0) %>% all() %>% expect_true()
-  expect_equivalent(ods$prepped, short[0, -which(names(short) == "diabetes")])
-  expect_setequal(names(ods$unprepped), c("pregnancies", "age"))
-  expect_equivalent(ods$as, dplyr::select(dreg[0, ], -pedigree))
+  expect_s3_class(ods, "data.frame")
+  expect_equal(nrow(ods), 0)
+  expect_equivalent(ods, short[0, -which(names(short) == "diabetes")])
 })
 
 test_that("model_list's original_data_str is the same as predict's return", {
-  preds <- purrr::map2(
-    .x = list(c_models, unprepped_flash),
-    .y = list(short, dplyr::select(short, pregnancies, age, pedigree)),
-    .f = ~ suppressWarnings( predict(.x, .y)[0, - (1:2)] )
-  )
-  purrr::map2_lgl(preds, ods[1:2], ~ isTRUE(all.equal(.x, .y))) %>%
-    all() %>%
-    expect_true()
+  preds <- predict(c_models, short)[0, - (1:2)]
+  expect_equal(preds, ods)
 })
 
 test_that("model_lists have r, hcai, and other-package versions as attrs", {
   expected <- c("r_version", "hcai_version", "other_packages")
   expect_true(all(expected %in% names(attributes(r_models)$versions)))
-  expect_true(all(expected %in% names(attributes(single_model_as)$versions)))
-  expect_true(all(expected %in% names(attributes(unprepped_flash)$versions)))
 })
 
 context("Checking model_list generics") # --------------------------------------
@@ -101,9 +49,7 @@ test_that("plot.model_list works on regression_list", {
                c("gg", "ggplot"))
   expect_equal(class(plot.model_list(r_models, print = FALSE)),
                c("gg", "ggplot"))
-  expect_error(plot.model_list(ranger::ranger(pedigree ~ ., dreg), print = FALSE),
-               regexp = "model_list")
-  r2 <- tune_models(dreg, pedigree, models = "rf", metric = "Rsquared")
+  r2 <- flash_models(dreg, pedigree, models = "rf", n_folds = 3, metric = "Rsquared")
   expect_s3_class(plot(r2, print = FALSE), "gg")
 })
 
@@ -114,8 +60,6 @@ test_that("plot.model_list works on classification_list", {
                c("gg", "ggplot"))
   expect_equal(class(plot(c_pr, print = FALSE)),
                c("gg", "ggplot"))
-  expect_error(plot.model_list(ranger::ranger(diabetes ~ ., dcla), print = FALSE),
-               regexp = "model_list")
 
   # With PR as the metric
   expect_equal(class(plot(c_pr, print = FALSE)),
@@ -230,15 +174,10 @@ test_that("model_lists have time model trained attribute", {
   check_timestamp(c_flash)
 })
 
-test_that("model_lists only carry one copy of training data", {
-  expect_s3_class(r_models[[1]]$trainingData, "data.frame")
-  expect_s3_class(c_models[[1]]$trainingData, "data.frame")
-  expect_s3_class(double_model_as[[1]]$trainingData, "data.frame")
-  expect_s3_class(single_model_as[[1]]$trainingData, "data.frame")
-  expect_s3_class(single_model_tune[[1]]$trainingData, "data.frame")
-
+test_that("model_lists only carry training data in recipe", {
+  expect_null(r_models[[1]]$trainingData)
+  expect_null(c_models[[1]]$trainingData)
   expect_null(r_models[[2]]$trainingData)
-  expect_null(double_model_as[[2]]$trainingData)
 })
 
 test_that("[ extracts models by index", {
@@ -249,12 +188,12 @@ test_that("[ extracts models by index", {
 })
 
 test_that("[ extracts by name, index, or logical vector", {
-  expect_equivalent(double_model_as[1], double_model_as[names(double_model_as)[1]])
+  expect_equivalent(r_models[1], r_models[names(r_models)[1]])
   expect_equivalent(c_models[1], c_models[names(c_models)[1]])
-  expect_equivalent(double_model_as[1], double_model_as[c(TRUE, FALSE)])
-  expect_equivalent(double_model_as[2], double_model_as[names(double_model_as)[2]])
-  expect_equivalent(double_model_as[1:2], double_model_as[names(double_model_as)[1:2]])
-  expect_equivalent(double_model_as, double_model_as[c(TRUE, TRUE)])
+  expect_equivalent(r_models[1], r_models[c(TRUE, FALSE)])
+  expect_equivalent(r_models[2], r_models[names(r_models)[2]])
+  expect_equivalent(r_models[1:2], r_models[names(r_models)[1:2]])
+  expect_equivalent(r_models, r_models[c(TRUE, TRUE)])
 })
 
 test_that("metrics and predict are same for extracted best model", {

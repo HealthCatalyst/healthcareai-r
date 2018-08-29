@@ -36,3 +36,8 @@ test_that("AUPR is correct", {
   actual_aupr <- evaluate(pr)[["AUPR"]]
   expect_equal(carets_aupr, actual_aupr)
 })
+
+test_that("flash_ and tune_ error informatively if training data isn't prepped", {
+  expect_error(flash_models(mtcars, outcome = mpg), "no_prep")
+  expect_error(tune_models(mtcars, outcome = am), "no_prep")
+})

@@ -150,6 +150,8 @@ prep_data <- function(d,
   d_ods <- d[0, ]
   # Capture factor levels
   d_levels <- get_factor_levels(d)
+  # Capture best_levels attributes
+  best_levels <- attr(d, "best_levels")
 
   outcome <- rlang::enquo(outcome)
   remove_outcome <- FALSE
@@ -443,6 +445,7 @@ prep_data <- function(d,
   attr(recipe, "ignored_columns") <- unname(ignored)
   attr(recipe, "no_prep") <- no_prep
   attr(d, "recipe") <- recipe
+  attr(d, "best_levels") <- best_levels
   attr(d, "original_data_str") <- d_ods
   d <- tibble::as_tibble(d)
   class(d) <- c("prepped_df", class(d))
