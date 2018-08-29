@@ -140,3 +140,31 @@ test_that("test possible values for `feature_type`", {
     "Possible values"
   )
 })
+
+test_that("convert_to_circular converts to circular correctly", {
+  expect_equal(convert_to_circular(3, 12, sin), sin(pi/2))
+  expect_equal(convert_to_circular(3, 12, cos), cos(pi/2))
+
+  expected <- c(cos(pi/2), cos(pi/2), cos(pi))
+  actual <- convert_to_circular(lubridate::month(d$e_date), 12, cos)
+  expect_equal(actual, expected)
+})
+
+test_that("ord2fac - tibble", {
+  d <- tibble(
+    test1 = factor(c("slow", "medium", "fast", "slow"),
+                   levels = c("slow", "medium", "fast"), ordered = TRUE)
+  )
+  actual <- ord2fac(d, "test1")
+  expect_false(is.ordered(actual))
+})
+
+test_that("ord2fac - df", {
+  d <- data.frame(
+    test1 = factor(c("slow", "medium", "fast", "slow"),
+                   levels = c("slow", "medium", "fast"), ordered = TRUE)
+  )
+  actual <- ord2fac(d, "test1")
+  expect_false(is.ordered(actual))
+})
+
