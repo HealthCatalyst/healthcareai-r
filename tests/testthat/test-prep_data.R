@@ -305,8 +305,8 @@ test_that("recipe attr is a recipe class object", {
   expect_s3_class(attr(dd, "recipe"), "recipe")
 })
 
-test_that("only the first few rows of training data are stored in the recipe", {
-  expect_true(nrow(attr(d_prep, "recipe")$template) <= 10)
+test_that("Training data are stored entirely in the recipe", {
+  expect_equivalent(attr(d_prep, "recipe")$template, d_train)
 })
 
 test_that("warning is given when ignored columns have missingness", {
@@ -608,4 +608,10 @@ test_that("prep_data gets rid of logicals, when no outcome", {
   prepped_test <- prep_data(animals_test, recipe = prepped_train)
   expect_false(any(purrr::map_lgl(prepped_train, is.logical)))
   expect_false(any(purrr::map_lgl(prepped_test, is.logical)))
+})
+
+test_that("no_prep dominates", {
+  noprep <- prep_data(animals_train, outcome = y, no_prep = TRUE)
+  expect_equivalent(animals_train, noprep)
+  expect_equivalent(animals_test, prep_data(animals_test, recipe = noprep))
 })

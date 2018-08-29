@@ -45,8 +45,7 @@ as.model_list <- function(...,
 
   if (any(!purrr::map_lgl(listed_models, inherits, "train")))
     stop("Those don't look like caret-trained models.")
-  # model_lists only keep one copy of the data, so check that only where present
-  # datasets match
+  # Check that models were trained on the same data
   datasets <- lapply(listed_models, function(mm) mm$trainingData)
   if (length(unique(datasets[!purrr::map_lgl(datasets, is.null)])) > 1)
     stop("Those models don't appear to have been trained on the same data.")
@@ -68,11 +67,10 @@ as.model_list <- function(...,
     stop("model_class doesn't match the model(s).")
   model_class <- types
   names(listed_models) <- purrr::map_chr(listed_models, ~ .x$modelInfo$label)
-  # Remove training data from all but the first model
+  # Remove training data from models. Kept in recipe instead
   # and remove "call" object containing training data from all models
   for (i in seq_along(listed_models)) {
-    if (i > 1)
-      listed_models[[i]]$trainingData <- NULL
+    listed_models[[i]]$trainingData <- NULL
     listed_models[[i]]$call <- NULL
   }
   if (is.null(model_name))

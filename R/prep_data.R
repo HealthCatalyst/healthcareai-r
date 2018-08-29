@@ -36,11 +36,10 @@
 #' @param remove_near_zero_variance Logical or numeric. If TRUE (default),
 #'   columns with near-zero variance will be removed. These columns are either a
 #'   single value, or the most common value is much more frequent than the
-#'   second most common value.
-#'   Example: In a column with 120 "Male" and 2 "Female", the frequency ratio is
-#'   0.0167. It would be excluded by default or if
-#'   `remove_near_zero_variance` > 0.0166. Larger values will remove more columns
-#'   and this value must lie between 0 and 1.
+#'   second most common value. Example: In a column with 120 "Male" and 2
+#'   "Female", the frequency ratio is 0.0167. It would be excluded by default or
+#'   if `remove_near_zero_variance` > 0.0166. Larger values will remove more
+#'   columns and this value must lie between 0 and 1.
 #' @param convert_dates Logical or character. If TRUE (default), date columns
 #'   are identifed and used to generate day-of-week, month, and year columns,
 #'   and the original date columns are removed. If FALSE, date columns are
@@ -74,6 +73,8 @@
 #'   outcome are 0 or 1 they will be converted to factor with levels N and Y for
 #'   classification. Note that which level is the positive class is set in
 #'   training functions rather than here.
+#' @param no_prep Logical. If TRUE, overrides all other arguments to FALSE so
+#'   that d is returned unmodified.
 #'
 #' @return Prepared data frame with reusable recipe object for future data
 #'   preparation in attribute "recipe". Attribute recipe contains the names of
@@ -121,11 +122,17 @@ prep_data <- function(d,
                       scale = FALSE,
                       make_dummies = TRUE,
                       add_levels = TRUE,
-                      factor_outcome = TRUE) {
+                      factor_outcome = TRUE,
+                      no_prep = FALSE) {
   # Check to make sure that d is a dframe
-  if (!is.data.frame(d)) {
+  if (!is.data.frame(d))
     stop("\"d\" must be a data frame.")
-  }
+
+  if (no_prep)
+    remove_near_zero_variance <- convert_dates <- impute <-
+      collapse_rare_factors <- center <- scale <- make_dummies <-
+      add_levels <- factor_outcome <- FALSE
+
   # Capture pre-modification missingness
   d_missing <- missingness(d, return_df = FALSE)
   # Capture original data structure
@@ -169,6 +176,7 @@ prep_data <- function(d,
 
   # If there's a recipe in recipe, use that
   if (!is.null(recipe)) {
+    new_recipe <- FALSE
     recipe <- check_rec_obj(recipe)
     message("Prepping data based on provided recipe")
     # Look for variables that weren't present in training, add them to ignored
@@ -198,6 +206,7 @@ prep_data <- function(d,
       remove_outcome <- TRUE
 
   } else {
+    new_recipe <- TRUE
     # Look for all-unique characters columns and add them to ignored
     undeclared_ignores <- find_columns_to_ignore(d, c(rlang::quo_name(outcome), ignored))
     if (length(undeclared_ignores)) {
@@ -212,9 +221,9 @@ prep_data <- function(d,
     # Initialize a new recipe
     mes <- "Training new data prep recipe"
     ## Start by making all variables predictors...
-    ## Only pass head of d here because it's carried around with the recipe
-    ## and we don't want to pass around big datasets
-    recipe <- recipes::recipe(head(d), ~ .)
+    ## d gets stored with the recipe and it is the one copy of training data
+    ## that we carry around with the model_list
+    recipe <- recipes::recipe(d, ~ .)
     ## Then deal with outcome if present
     if (!rlang::quo_is_missing(outcome)) {
       outcome_name <- rlang::quo_name(outcome)
@@ -420,6 +429,8 @@ prep_data <- function(d,
     d_ods <- select_not(d_ods, outcome)
   # Add ignore columns back in and attach as attribute to recipe
   d <- dplyr::bind_cols(d_ignore, d)
+  if (new_recipe)
+    recipe$template <- dplyr::bind_cols(d_ignore, recipe$template)
   attr(recipe, "ignored_columns") <- unname(ignored)
   attr(d, "recipe") <- recipe
   attr(d, "original_data_str") <- d_ods

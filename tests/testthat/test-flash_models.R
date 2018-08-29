@@ -30,10 +30,6 @@ test_that("can predict on flash models", {
   expect_s3_class(predict(reg, dd[10:1, ]), "predicted_df")
 })
 
-test_that("outcome positive class is the reference level", {
-  expect_equal(levels(cl$`eXtreme Gradient Boosting`$trainingData$.outcome)[1], "Y")
-})
-
 test_that("AUPR is correct", {
   pr <- flash_models(cl_prep, diabetes, models = "xgb", metric = "PR")
   carets_aupr <- pr$`eXtreme Gradient Boosting`$results$AUC[1]

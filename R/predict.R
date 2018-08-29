@@ -50,11 +50,7 @@
 #'   separate groups by passing the output of \code{predict} to
 #'   \code{\link{get_cutoffs}}. Note that only one of \code{risk_groups} and
 #'   \code{outcome_groups} can be specified.
-#' @param prepdata Logical, this should rarely be set by the user. By default,
-#'   if `newdata` hasn't been prepped, it will be prepped by `prep_data` before
-#'   predictions are made. Set this to TRUE to force already-prepped data
-#'   through `prep_data` again, or set to FALSE to prevent `newdata` from being
-#'   sent through `prep_data`.
+#' @param prepdata Defunct. Data are always prepped in prediction.
 #' @param write_log Write prediction metadata to a file? Default is FALSE. If
 #'   TRUE, will create or append a file called "prediction_log.txt" in the
 #'   current directory with metadata about predictions. If a character, is the
@@ -191,6 +187,15 @@ predict.model_list <- function(object,
                                prepdata,
                                write_log = FALSE,
                                ...) {
+  if (missing(prepdata)) {
+    prepdata <- TRUE
+  } else if (!prepdata) {
+    stop("Data must be prepped during prediction. If this is really ",
+         "problematic for you, consider using healthcare v2.1.")
+  } else {
+    warning("Specifying `prepdata` to `predict` is defunct. Data are ",
+            "always prepped prior to predictions being made.")
+  }
   start <- Sys.time()
   if (write_log == FALSE) {
     out <- predict_model_list_main(object,
@@ -240,50 +245,22 @@ predict_model_list_main <- function(object,
   # Pull info
   mi <- extract_model_info(object)
   best_models <- object[[mi$best_model_name]]
-  training_data <- object[[1]]$trainingData
-  # If newdata not provided, pull training data from object
+  recipe <- attr(object, "recipe")
   if (missing(newdata)) {
-    newdata <-
-      training_data %>%
-      dplyr::mutate(!!mi$target := .outcome) %>%
-      dplyr::select(- .outcome)
-    # caret::train strips prepped_df class from newdata. So,
-    # check recipe attr to see if it was prepped and if so convert.
-    if ("recipe" %in% names(attributes(object)))
-      class(newdata) <- c("prepped_df", class(newdata))
-    using_training_data <- TRUE
-  } else {
-    using_training_data <- FALSE
-  }
-  if (!inherits(newdata, "data.frame"))
-    stop("newdata must be a data frame")
-
-  # Decide whether data needs to be prepped, check data, and prep if appropriate
-  if (missing(prepdata))
-    prepdata <- determine_prep(object, newdata, mi)
-  to_pred <-
-    if (prepdata) {
-      ready_with_prep(object, newdata, mi)
-    } else {
-      ready_no_prep(training_data, newdata)
-    }
-  # Align column order
-  ord <- match(names(training_data), names(to_pred))
-  # The ord part gets columns that are in training_data; the which part retains any other columns
-  to_pred <- to_pred[, c(ord[!is.na(ord)], which(!names(to_pred) %in% names(training_data)))]
-
-  # If predicting on training, use out-of-fold; else make predictions
-  if (using_training_data) {
+    # Get prep-prep training data
+    newdata <- recipe$template
+    # Use out-of-fold predictions from training
     preds <- get_oof_predictions(object, mi)
   } else {
-    # If classification, want probabilities. If regression, raw's the only option
+    if (!inherits(newdata, "data.frame"))
+      stop("newdata must be a data frame")
+    to_pred <- ready_with_prep(object, newdata, mi)
     type <- if (is.classification_list(object)) "prob" else "raw"
     preds <- caret::predict.train(best_models, to_pred, type = type)
     # Probs get returned for no and yes. Keep only positive class as set in training
     if (is.classification_list(object))
       preds <- preds[[mi$positive_class]]
   }
-
   pred_name <- paste0("predicted_", mi$target)
   newdata[[pred_name]] <- preds
   newdata <- tibble::as_tibble(newdata)
@@ -374,7 +351,9 @@ add_groups <- function(object, mi, newdata, pred_name, risk_groups, outcome_grou
                      cost_fn = outcome_groups) %>%
       dplyr::filter(optimal) %>%
       dplyr::pull(threshold)
-    neg_class <- levels(object[[1]]$trainingData$.outcome)[2]
+    neg_class <-
+      dplyr::setdiff(names(attr(attr(object, "recipe"), "factor_levels")[[mi$target]]),
+                     mi$positive_class)
     newdata$predicted_group <-
       ifelse(newdata[[pred_name]] >= cutpoint, mi$positive_class, neg_class) %>%
       factor(levels = c(neg_class, mi$positive_class)) %>%

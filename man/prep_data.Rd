@@ -7,7 +7,7 @@
 prep_data(d, ..., outcome, recipe = NULL, remove_near_zero_variance = TRUE,
   convert_dates = TRUE, impute = TRUE, collapse_rare_factors = TRUE,
   center = FALSE, scale = FALSE, make_dummies = TRUE, add_levels = TRUE,
-  factor_outcome = TRUE)
+  factor_outcome = TRUE, no_prep = FALSE)
 }
 \arguments{
 \item{d}{A data frame}
@@ -30,11 +30,10 @@ argument. If present, all following arguments will be ignored.}
 \item{remove_near_zero_variance}{Logical or numeric. If TRUE (default),
 columns with near-zero variance will be removed. These columns are either a
 single value, or the most common value is much more frequent than the
-second most common value.
-Example: In a column with 120 "Male" and 2 "Female", the frequency ratio is
-0.0167. It would be excluded by default or if
-`remove_near_zero_variance` > 0.0166. Larger values will remove more columns
-and this value must lie between 0 and 1.}
+second most common value. Example: In a column with 120 "Male" and 2
+"Female", the frequency ratio is 0.0167. It would be excluded by default or
+if `remove_near_zero_variance` > 0.0166. Larger values will remove more
+columns and this value must lie between 0 and 1.}
 
 \item{convert_dates}{Logical or character. If TRUE (default), date columns
 are identifed and used to generate day-of-week, month, and year columns,
@@ -76,6 +75,9 @@ depending on details of imputation.}
 outcome are 0 or 1 they will be converted to factor with levels N and Y for
 classification. Note that which level is the positive class is set in
 training functions rather than here.}
+
+\item{no_prep}{Logical. If TRUE, overrides all other arguments to FALSE so
+that d is returned unmodified.}
 }
 \value{
 Prepared data frame with reusable recipe object for future data

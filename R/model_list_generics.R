@@ -174,9 +174,6 @@ plot.model_list <- function(x, font_size = 11, point_size = 1,
   } else if (is.character(i)) {
     i <- which(names(x) %in% i)
   }
-  # Training data is held in first model only; move it there if it's not staying
-  if (!1 %in% i)
-    x[[min(i)]]$trainingData <- x[[1]]$trainingData
   # Rebuild the model_list, keeping the old timestamp
   x <-
     as.model_list(listed_models = .subset(x, i),

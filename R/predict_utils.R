@@ -86,6 +86,12 @@ ready_with_prep <- function(object, newdata, mi = extract_model_info(object)) {
   if (is.null(recipe))
     stop("Can't prep data in prediction without a recipe from training data.")
 
+  # Make newdata column order the same as training data for XGBoost
+  ord <- match(names(recipe$template), names(newdata))
+  # The ord part gets columns that are in training_data; the which part retains any other columns
+  newdata <- newdata[, c(ord[!is.na(ord)],
+                         which(!names(newdata) %in% names(recipe$template)))]
+
   # Check for new levels in factors not present in training and warn if present
   new_levels <- find_new_levels(newdata, attr(recipe, "factor_levels"))
   # Don't check ignored columns. NAs are checked in prep_data

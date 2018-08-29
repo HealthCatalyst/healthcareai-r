@@ -5,35 +5,11 @@ set.seed(257056)
 short <- dplyr::sample_n(na.omit(pima_diabetes), 50)
 dreg <- prep_data(short, outcome = pedigree)
 dcla <- prep_data(short, outcome = diabetes)
-suppressWarnings({
-  rf <- caret::train(x = dplyr::select(dreg, -pedigree),
-                     y = dreg$pedigree,
-                     method = "ranger",
-                     tuneLength = 2,
-                     trControl = caret::trainControl(savePredictions = "final",
-                                                     method = "cv", search = "grid")
-  )
-  xg <- caret::train(x = dplyr::select(dreg, -pedigree),
-                     y = dreg$pedigree,
-                     method = "xgbTree",
-                     tuneLength = 2,
-                     trControl = caret::trainControl(savePredictions = "final",
-                                                     method = "cv", search = "grid")
-  )
-  gl <- caret::train(x = dplyr::select(dreg, -pedigree),
-                     y = dreg$pedigree,
-                     method = "glmnet",
-                     trControl = caret::trainControl(savePredictions = "final",
-                                                     method = "cv", search = "grid")
-  )
-})
 # Implicit test that warning not issued for missing resampled performance metrics:
 r_models <- tune_models(dreg, pedigree, tune_depth = 2, n_folds = 2, models = c("rf", "glm"))
 c_models <- tune_models(dcla, diabetes, tune_depth = 2, n_folds = 2, model_name = "great_name", models = "xgb")
 c_pr <- flash_models(dcla, diabetes, metric = "PR", n_folds = 2, models = "xgb")
-single_model_as <- as.model_list(rf)
 single_model_tune <- tune_models(dcla, diabetes, models = "xgb", n_folds = 2, tune_depth = 2)
-double_model_as <- as.model_list(rf, xg)
 r_flash <- flash_models(dreg, pedigree, n_folds = 2, models = "xgb")
 c_flash <- flash_models(dcla, diabetes, n_folds = 2, models = "xgb")
 unprepped_flash <- flash_models(dplyr::select(short, pregnancies, age, pedigree),
