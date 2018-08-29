@@ -617,3 +617,19 @@ test_that("prep_data gets rid of logicals, when no outcome", {
   expect_false(any(purrr::map_lgl(prepped_train, is.logical)))
   expect_false(any(purrr::map_lgl(prepped_test, is.logical)))
 })
+
+test_that("prep_data doesn't throw warning if DTS character column is unique", {
+  d_train <-
+    animals_train %>%
+    mutate(
+      admitted_DTS = seq(as.POSIXct("2005-1-1 0:00"),
+                         length.out = nrow(animals_train), by = "hour")
+    )
+  d_train$admitted_DTS <- as.character(d_train$admitted_DTS)
+  prepped <- prep_data(d_train)
+  admitted_dTS_cols <- map_lgl(names(prepped), ~{
+    grepl("admitted_DTS", .x)
+  }
+  )
+  expect_true(sum(admitted_dTS_cols) > 1)
+})
