@@ -1,4 +1,9 @@
-#' Make predictions using the best-performing model
+#' Get predictions
+#'
+#' @description Make predictions using the best-performing model. For
+#'   classification models, predicted probabilities are always returned, and you
+#'   can get either predicted outcome class by specifying \code{outcome_groups}
+#'   or risk groups by specifying \code{risk_groups}.
 #'
 #' @param object model_list object, as from `tune_models`
 #' @param newdata data on which to make predictions. If missing, out-of-fold
@@ -9,18 +14,52 @@
 #'   new data. Should have the same structure as the input to
 #'   `prep_data`,`tune_models` or `train_models`. `predict` will try to figure
 #'   out if the data need to be sent through `prep_data` before making
-#'   predictions; this can be overriden by setting `prepdata = FALSE`, but this
+#'   predictions; this can be overridden by setting `prepdata = FALSE`, but this
 #'   should rarely be needed.
+#' @param risk_groups Should predictions be grouped into risk groups and
+#'   returned in column "predicted_group"? If this is NULL (default), they will
+#'   not be. If this is a single number, that number of groups will be created
+#'   with names "risk_group1", "risk_group2", etc. "risk_group1" is always the
+#'   highest risk (highest predicted probability). The groups will have equal
+#'   expected sizes, based on the distribution of out-of-fold predictions on the
+#'   training data. If this is a character vector, its entries will be used as
+#'   the names of the risk groups, in increasing order of risk, again with equal
+#'   expected sizes of groups. If you want unequal-size groups, this can be a
+#'   named numeric vector, where the names will be the names of the risk groups,
+#'   in increasing order of risk, and the entries will be the relative
+#'   proportion of observations in the group, again based on the distribution of
+#'   out-of-fold predictions on the training data. For example,
+#'   \code{risk_groups = c(low = 2, mid = 1, high = 1)} will put the bottom half
+#'   of predicted probabilities in the "low" group, the next quarter in the
+#'   "mid" group, and the highest quarter in the "high" group. You can get the
+#'   cutoff values used to separate groups by passing the output of
+#'   \code{predict} to \code{\link{get_cutoffs}}. Note that only one of
+#'   \code{risk_groups} and \code{outcome_groups} can be specified.
+#' @param outcome_groups Should predictions be grouped into outcome classes and
+#'   returned in column "predicted_group"? If this is NULL (default), they will
+#'   not be. The threshold for splitting outcome classes is determined on the
+#'   training data via \code{\link{get_thresholds}}. If this is TRUE, the
+#'   threshold is chosen to maximize accuracy, i.e. false positives and false
+#'   negatives are equally weighted. If this is a number it is the ratio of cost
+#'   (badnesss) of false negatives (missed detections) to false positives (false
+#'   alarms). For example, \code{outcome_groups = 5} indicates a preferred ratio
+#'   of five false alarms to every missed detection, and \code{outcome_groups =
+#'   .5} indicates that two missed detections is as bad as one false alarm. This
+#'   value is passed to the \code{cost_fn} argument of
+#'   \code{\link{get_thresholds}}. You can get the cutoff values used to
+#'   separate groups by passing the output of \code{predict} to
+#'   \code{\link{get_cutoffs}}. Note that only one of \code{risk_groups} and
+#'   \code{outcome_groups} can be specified.
 #' @param prepdata Logical, this should rarely be set by the user. By default,
 #'   if `newdata` hasn't been prepped, it will be prepped by `prep_data` before
 #'   predictions are made. Set this to TRUE to force already-prepped data
 #'   through `prep_data` again, or set to FALSE to prevent `newdata` from being
 #'   sent through `prep_data`.
 #' @param write_log Write prediction metadata to a file? Default is FALSE. If
-#'   TRUE, will create or append a file called "prediction_log.txt" in
-#'   the current directory with metadata about predictions. If a character, is
-#'   the name of a file to create or append with prediction metadata. If you
-#'   want a unique log file each time predictions are made, use something like
+#'   TRUE, will create or append a file called "prediction_log.txt" in the
+#'   current directory with metadata about predictions. If a character, is the
+#'   name of a file to create or append with prediction metadata. If you want a
+#'   unique log file each time predictions are made, use something like
 #'   \code{write_log = paste0(Sys.time(), " predictions.txt")}. This param
 #'   modifies error behavior and is best used in production. See details.
 #' @param ... Unused.
@@ -35,8 +74,8 @@
 #'   zero-row dataframe will be returned.
 #'
 #'   Returned data will contain an attribute, "prediction_log" that contains a
-#'   tibble of  logging info for writing to database. If \code{write_log}
-#'   is TRUE and predict errors, an empty dataframe with the "prediction_log"
+#'   tibble of  logging info for writing to database. If \code{write_log} is
+#'   TRUE and predict errors, an empty dataframe with the "prediction_log"
 #'   attribute will still be returned. Extract this attribute using
 #'   \code{attr(pred, "prediction_log")}.
 #'
@@ -44,7 +83,9 @@
 #'   after prediction. Extract using \code{attr(pred, "failed")}.
 #' @export
 #' @importFrom caret predict.train
-#' @seealso \code{\link{plot.predicted_df}}, \code{\link{evaluate.predicted_df}}
+#' @seealso \code{\link{plot.predicted_df}},
+#'   \code{\link{evaluate.predicted_df}}, \code{\link{get_thresholds}},
+#'   \code{\link{get_cutoffs}}
 #'
 #' @details The model and hyperparameter values with the best out-of-fold
 #'   performance in model training according to the selected metric is used to
@@ -52,28 +93,101 @@
 #'   returning your predictions with the newdata in its original format.
 #'
 #'   If \code{write_log} is TRUE and an error is encountered, \code{predict}
-#'   will not stop. It will return the error message as:
-#'   - A warning in the console
-#'   - A field in the log file
-#'   - A column in the "prediction_log" attribute
-#'   - A zero-row data frame will be returned
+#'   will not stop. It will return the error message as: - A warning in the
+#'   console - A field in the log file - A column in the "prediction_log"
+#'   attribute - A zero-row data frame will be returned
 #'
 #' @examples
-#' # Tune models using only the first 40 rows to keep computation fast
+#' ### Data prep and model training ###
+#' ####################################
 #'
-#' models <- machine_learn(pima_diabetes[1:40, ], patient_id,
-#'                         outcome = diabetes, tune = FALSE)
+#' set.seed(7510)
+#' # Split the first 200 rows in pima_diabetes into a model-training dataset
+#' # containing 3/4 of the data and a test dataset containing 1/4 of the data.
+#' d <- split_train_test(pima_diabetes[1:200, ], diabetes, .75)
 #'
-#' # Make prediction on the next 10 rows. This uses the best-performing model from
-#' # tuning cross validation, and it also prepares the new data in the same way as
-#' # the training data was prepared.
+#' # Prep the training data for model training and train regularized regression
+#' # and extreme gradient boosted models
+#' models <-
+#'   d$train %>%
+#'   prep_data(patient_id, outcome = diabetes) %>%
+#'   flash_models(outcome = diabetes, models = c("glm", "xgb"))
 #'
-#' predictions <- predict(models, newdata = pima_diabetes[41:50, ])
+#' ### Making predictions ###
+#' ##########################
+#'
+#' # Make prediction on test data using the model that performed best in
+#' # cross validation during model training. Before predictions are made, the test
+#' # data is automatically prepared the same way the training data was.
+#' predictions <- predict(models, newdata = d$test)
 #' predictions
 #' evaluate(predictions)
 #' plot(predictions)
+#'
+#' ### Outcome class predictions ###
+#' #################################
+#'
+#' # If you want class predictions in addition to predicted probabilities for
+#' # a classification model, specify outcome_groups. The number passed to
+#' # outcome groups is the cost of a false negative relative to a false positive.
+#' # This example specifies that one missed detection is as bad as ten false
+#' # alarms, and the resulting confusion matrix reflects this preference.
+#' class_preds <- predict(models, newdata = d$test, outcome_groups = 10)
+#' table(actual = class_preds$diabetes, predicted = class_preds$predicted_group)
+#'
+#' # You can extract the threshold used to separate predicted Y from predicted N
+#' get_cutoffs(class_preds)
+#'
+#' # And you can visualize that cutoff by simply plotting the predictions
+#' plot(class_preds)
+#'
+#' ### Risk stratification ###
+#' ###########################
+#'
+#' # Alternatively, you can stratify observations into risk groups by specifying
+#' # the risk_groups parameter. For example, this creates five risk groups
+#' # with custom names. Risk group assignment is based on the distribution of
+#' # predicted probabilities in model training. This is useful because it preserves
+#' # a consistent notion of risk; for example, if you make daily predictions and
+#' # one day happens to contain only low-risk patients, those patients will all
+#' # be classified as low risk. Over the long run, group sizes will be consistent,
+#' # but in any given round of predictions they may differ. If you want fixed
+#' # group sizes, see the following examples.
+#' predict(models, d$test,
+#'         risk_groups = c("very low", "low", "medium", "high", "very high")) %>%
+#'   plot()
+#'
+#' ### Fixed size groups ###
+#' #########################
+#'
+#' # If you want groups of fixed sizes, e.g. say you have capacity to admit the three
+#' # highest-risk patients, treat the next five, and have to discharge the remainder,
+#' # you can use predicted probabilities to do that. One way to do that is to
+#' # arrange the predictions data frame in descending order of risk, and then use the
+#' # row numbers to stratify patients
+#' library(dplyr)
+#' predict(models, d$test) %>%
+#'   arrange(desc(predicted_diabetes)) %>%
+#'   mutate(action = case_when(
+#'     row_number() <= 3 ~ "admit",
+#'     row_number() <= 8 ~ "treat",
+#'     TRUE ~ "discharge"
+#'   )) %>%
+#'   select(predicted_diabetes, action, everything())
+#'
+#' # Finally, if you want a fixed group size that is further down on the risk
+#' # scale, you can achieve that with a combination of risk groups and the
+#' # stratifying approach in the last example. For example, say you have capacity
+#' # to admit 5 patients, but you don't want to admit patients in the top 10% of
+#' # risk scores.
+#' predict(models, d$test,
+#'         risk_groups = c("risk acceptable" = 90, "risk too high" = 10)) %>%
+#'   filter(predicted_group == "risk acceptable") %>%
+#'   top_n(n = 5, wt = predicted_diabetes)
 predict.model_list <- function(object,
                                newdata,
+                               risk_groups = NULL,
+                               outcome_groups = NULL,
                                prepdata,
                                write_log = FALSE,
                                ...) {
@@ -81,12 +195,16 @@ predict.model_list <- function(object,
   if (write_log == FALSE) {
     out <- predict_model_list_main(object,
                                    newdata,
+                                   risk_groups,
+                                   outcome_groups,
                                    prepdata,
                                    write_log,
                                    ...)
   } else {
     out <- safe_predict_model_list_main(object,
                                         newdata,
+                                        risk_groups,
+                                        outcome_groups,
                                         prepdata,
                                         write_log,
                                         ...)
@@ -113,6 +231,8 @@ predict.model_list <- function(object,
 #' @noRd
 predict_model_list_main <- function(object,
                                     newdata,
+                                    risk_groups,
+                                    outcome_groups,
                                     prepdata,
                                     write_log = FALSE,
                                     ...) {
@@ -167,8 +287,14 @@ predict_model_list_main <- function(object,
   pred_name <- paste0("predicted_", mi$target)
   newdata[[pred_name]] <- preds
   newdata <- tibble::as_tibble(newdata)
-  # Put predictions and, if present, the outcome at left of newdata
+
+  # Add groups if desired
+  newdata <- add_groups(object, mi, newdata, pred_name, risk_groups, outcome_groups)
+
+  # Put predictions and, if present, the outcome and predicted group at left of newdata
   newdata <- dplyr::select(newdata, pred_name, dplyr::everything())
+  if ("predicted_group" %in% names(newdata))
+    newdata <- dplyr::select(newdata, pred_name, predicted_group, dplyr::everything())
   if (mi$target %in% names(newdata))
     newdata <- dplyr::select(newdata, mi$target, dplyr::everything())
   # Add class and attributes to data frame
@@ -184,6 +310,76 @@ predict_model_list_main <- function(object,
          hyperparameters = structure(mi$best_model_tune,
                                      "row.names" = "optimal:"))
 
+  return(newdata)
+}
+
+# Add "predicted_group" column to newdata. For risk_groups,
+# note that `cut` needs 0 for the lowest break but one fewer labels, hense
+# the adding of a 0 to risk_groups which in the `cut` call propigates to
+# `breaks` but is removed for `labels`
+add_groups <- function(object, mi, newdata, pred_name, risk_groups, outcome_groups) {
+  if (!is.null(outcome_groups) && !is.null(risk_groups))
+    stop("You can only get `risk_groups` or `outcome_groups`. If you really ",
+         "want both, call `predict` twice and `cbind` the results.")
+
+  oof <- get_oof_predictions(object)
+
+  if (!is.null(risk_groups)) {
+
+    if (rlang::is_named(risk_groups)) {
+      # Using custom-size groups
+      cutter <- tibble::tibble(
+        names = c("zero", names(risk_groups)),
+        quantiles = c(0, cumsum(risk_groups) / sum(risk_groups))
+      )
+    } else if (is.character(risk_groups)) {
+      # Using custom-name, even-size groups
+      cutter <- tibble::tibble(
+        names = c("zero", risk_groups),
+        quantiles = seq(0, 1, len = length(risk_groups) + 1)
+      )
+    } else {
+      # Using default name and size groups
+      if (risk_groups == 1)
+        stop("risk_groups = 1 just puts everyone in the same group. ",
+             "Do you want outcome_groups = 1?")
+      cutter <- tibble::tibble(
+        names = c("zero", paste0("risk_group", rev(seq_len(risk_groups)))),
+        quantiles = seq(0, 1, len = risk_groups + 1)
+      )
+    }
+    # Replace outer bounds with 0 and 1 so that any predicted prob is in bounds
+    cutter <-
+      cutter %>%
+      dplyr::mutate(cutpoints = stats::quantile(oof, quantiles),
+                    cutpoints = dplyr::case_when(
+                      quantiles == 0 ~ 0,
+                      quantiles == 1 ~ 1,
+                      TRUE ~ cutpoints))
+    newdata$predicted_group <-
+      cut(newdata[[pred_name]],
+          breaks = cutter$cutpoints,
+          labels = cutter$names[-1],
+          include.lowest = TRUE) %>%
+      structure(group_type = "risk",
+                cutpoints = cutter$cutpoints)
+
+  } else if (!is.null(outcome_groups)) {
+    if (!outcome_groups)
+      stop("outcome_groups should be a number, you provided outcome_groups = FALSE")
+    cutpoint <-
+      get_thresholds(object,
+                     optimize = "cost",
+                     measures = "cost",
+                     cost_fn = outcome_groups) %>%
+      dplyr::filter(optimal) %>%
+      dplyr::pull(threshold)
+    neg_class <- levels(object[[1]]$trainingData$.outcome)[2]
+    newdata$predicted_group <-
+      ifelse(newdata[[pred_name]] >= cutpoint, mi$positive_class, neg_class) %>%
+      factor(levels = c(neg_class, mi$positive_class)) %>%
+      structure(group_type = "outcome", cutpoints = cutpoint)
+  }
   return(newdata)
 }
 
@@ -219,4 +415,48 @@ get_pred_summary <- function(x) {
     summary() %>%
     dplyr::bind_rows()
   return(pred_summary)
+}
+
+#' Get cutoff values for group predictions
+#'
+#' @param x Data frame from \code{\link{predict.model_list}} where
+#'   \code{outcome_groups} or \code{risk_groups} was specified
+#'
+#' @return A message is printed about the thresholds. If \code{outcome_groups}
+#'   were defined the return value is a single numeric value, the threshold used
+#'   to separate predicted probabilities into outcome groups. If
+#'   \code{risk_groups} were defined the return value is a data frame with one
+#'   column giving the group names and another column giving the minimum
+#'   predicted probability for an observation to be in that group.
+#' @export
+#'
+#' @examples
+#' machine_learn(pima_diabetes[1:20, ], patient_id, outcome = diabetes,
+#'               models = "xgb", tune = FALSE) %>%
+#'   predict(risk_groups = 5) %>%
+#'   get_cutoffs()
+get_cutoffs <- function(x) {
+  if (!is.predicted_df(x))
+    stop("`get_cutoffs` only works on the output of `predict`. Do you want `get_thresholds`?")
+  if (!"predicted_group" %in% names(x))
+    stop("`get_cutoffs` requires that groups were created during prediction. ",
+         "Specify `risk_groups` or `outcome_groups` in your `predict` call.")
+
+  ats <- attributes(x$predicted_group)
+
+  if (ats$group_type == "outcome") {
+    message("Predicted outcomes ", list_variables(ats$levels),
+            " separated at: ", signif(ats$cutpoints, 3))
+    return(invisible(ats$cutpoints))
+  } else {
+    message("Risk groups defined by the following thresholds:\n")
+    d <-
+      tibble::tibble(
+        group = ats$levels,
+        minimum_probability = ats$cutpoints[-length(ats$cutpoints)]
+      ) %>%
+      dplyr::arrange(desc(minimum_probability))
+    print(d)
+    return(invisible(d))
+  }
 }

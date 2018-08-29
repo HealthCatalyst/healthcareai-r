@@ -349,8 +349,12 @@ test_that("prep_data applies recipe from training on test data", {
   expect_true(all(d_reprep$genre_missing[is.na(d_test$genre)] == 1))
 })
 
-test_that("Unignored variables present in training but not deployment error", {
-  expect_error(prep_data(dplyr::select(d_test, -length), recipe = d_prep))
+test_that("Unignored variables present in training but not deployment error if needed", {
+  expect_error(
+    expect_warning(
+      prep_data(dplyr::select(d_test, -length), recipe = d_prep)
+    ),
+    "length")
   expect_s3_class(prep_data(dplyr::select(d_test, -song_id), recipe = d_prep),
                   "prepped_df")
 })
@@ -388,6 +392,9 @@ test_that("remove_near_zero_variance is respected, works, and messages", {
   expect_true("a_nzv_col" %in% names(stay))
   expect_error(prep_data(dplyr::select(d_train, a_nzv_col, is_ween), outcome = is_ween),
                "less aggressive")
+  # Check that NZV columns missing in deployment warn but don't error
+  expect_warning(prep_data(dplyr::select(d_test, -a_nzv_col), recipe = def),
+                 "present in training")
 })
 
 test_that("remove_near_zero_variance works with params", {

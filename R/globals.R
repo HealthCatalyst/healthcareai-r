@@ -12,7 +12,8 @@ utils::globalVariables(c("outside", "percent_missing", "variable", ".outcome",
                          "base_prediction", "current_value", "from", "impact_rank",
                          "improvement", "measure", "new_prediction", "optimal",
                          "predict", "process_variable_name", "row_id",
-                         "threshold", "to", "value"))
+                         "threshold", "to", "value", "role", "quantiles",
+                         "predicted_group"))
 
 printer <- utils::getFromNamespace("printer", "recipes")
 

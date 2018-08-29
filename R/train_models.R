@@ -49,7 +49,7 @@ train_models <- function(d, outcome, models, metric, train_control,
     })
   message("\n*** Models successfully trained. The model object contains the training data minus ignored ID columns. ***\n",
           "*** If there was PHI in training data, normal PHI protocols apply to the model object. ***")
-  structure(train_list, positive_class = levels(dplyr::pull(d, !!outcome))[2]) %>%
+  structure(train_list, positive_class = levels(dplyr::pull(d, !!outcome))[1]) %>%
     attach_session_info()
 }
 
