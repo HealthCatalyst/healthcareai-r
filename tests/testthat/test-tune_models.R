@@ -274,8 +274,7 @@ test_that("Get informative error if there's not an outcome instance for each CV 
   expect_error(flash_models(small_df, diabetes, n_folds = 3, models = "rf"), NA)
   set.seed(98)
   small_df2 <- m_df[1:10, ]
-  expect_error(flash_models(small_df2, Species), "cross validation fold")
-  expect_error(flash_models(small_df2, Species, n_folds = 2, models = "rf"), NA)
+  expect_error(flash_models(small_df2, Species, models = "rf"), NA)
 })
 
 test_that("get_original_data works", {

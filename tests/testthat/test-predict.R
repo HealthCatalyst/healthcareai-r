@@ -450,6 +450,13 @@ test_that("print.predicted_df works after join", {
   expect_error(capture_output(joined, TRUE), NA)
 })
 
+test_that("multiclass errors with groups", {
+  expect_warning(pr <- predict(model_multi_prepped, risk_groups = 4))
+  expect_s3_class(pr, "predicted_df")
+  expect_warning(pr <- predict(model_multi_prepped, outcome_groups = 4))
+  expect_s3_class(pr, "predicted_df")
+})
+
 test_that("risk_groups works on training data", {
   rg5 <- predict(model_classify_prepped, risk_groups = 5)
   expect_equal(length(unique(rg5$predicted_group)), 5)

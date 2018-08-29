@@ -16,7 +16,8 @@ plot_regression_predictions(x, point_size = 1, point_alpha = 1, target)
 plot_classification_predictions(x, fill_colors = c("firebrick", "steelblue"),
   fill_alpha = 0.7, curve_flex = 1, add_labels = TRUE, target)
 
-plot_multiclass_predictions(x, fill_colors = c("gray20", "steelblue"), target)
+plot_multiclass_predictions(x, conf_colors = c("black", "steelblue"),
+  text_color = "yellow", target)
 }
 \arguments{
 \item{x}{data frame as returned `predict.model_list`}
@@ -60,6 +61,12 @@ histogram; greater than 1 makes curves more rigid.}
 predictions by specifying \code{risk_groups} or \code{outcome_groups} in
 \code{link{predict.model_list}}, labels specifying groups are added to the
 plot.}
+
+\item{conf_colors}{Length-2 character vector: colors to fill density curves.
+Default is c("black", "steelblue").}
+
+\item{text_color}{Character: color to write percent correct.
+Default is "yellow".}
 }
 \value{
 A ggplot object

@@ -15,6 +15,7 @@ d_multi <- prep_data(iris[1:140, ], outcome = Species)
 m_multi <- tune_models(d_multi, outcome = Species, n_folds = 2, tune_depth = 1, models = "rf")
 multi_preds_self <- predict(m_multi)
 multi_preds_new <- predict(m_multi, iris[141:150, ])
+multi_preds_single <- predict(m_multi, iris[100, ])
 
 ### Tests
 test_that("plot.predicted_df stops if there's no outcome", {
@@ -44,7 +45,7 @@ test_that("plot.predicted_df stops if outcome vector is wrong length or class", 
                "length")
   expect_error(plot(dplyr::select(multi_preds_self, -Species),
                     outcomes = sample(10, nrow(multi_preds_self), TRUE)),
-               "factors")
+               "same data")
 })
 
 test_that("plot.predicted_df warns but works if outcomes present in df and passed in", {
@@ -91,6 +92,16 @@ test_that("plot_multiclass_predictions handles separately supplied outcomes", {
                   "gg")
 })
 
+test_that("single-class multiclass are correct dimensions", {
+  p <- plot(multi_preds_single, print = FALSE)
+  expect_equal(length(unique(p$data$Species)), 1)
+  expect_equal(length(unique(p$data$predicted_Species)), 3)
+})
+
+test_that("multiclass correct predictions are on main diagonal", {
+  p <- plot(multi_preds_self, print = FALSE)
+  expect_true(all(levels(p$data$Species) == rev(levels(p$data$predicted_Species))))
+})
 
 test_that("Arguments to plot.predicted_df get passed to plot_regression_predictions", {
   my_title <- "this is my title"
@@ -117,7 +128,7 @@ test_that("Arguments to plot.predicted_df get passed to plot_multiclass_predicti
   my_title <- "this is my title"
   p <- plot(multi_preds_self,
             title = my_title,
-            fill_colors = c(Y = "green", N = "red"),
+            conf_colors = c(Y = "green", N = "red"),
             print = FALSE)
   expect_s3_class(p, "gg")
   expect_equal(ggplot_build(p)$plot$labels$title, my_title)

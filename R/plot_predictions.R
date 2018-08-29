@@ -189,6 +189,13 @@ plot_multiclass_predictions <- function(x,
                                         text_color = "yellow",
                                         target) {
   preds <- paste0("predicted_", target)
+  # Only show actuals that are in the data.
+  x[[target]] <- factor(x[[target]])
+  if (!any(levels(x[[target]]) %in% levels(x[[preds]])))
+    stop("Something went wrong, the predictions don't look like the same data ",
+         "as the true values. Predictions look like: '",
+         list_variables(levels(x[[preds]])[1:2]), "' and outcomes look like: '",
+         list_variables(levels(x[[target]])[1:2]), "'")
   # Compute frequency of actual categories
   actual <- tibble::as.tibble(table(x[[target]])) %>%
     rename(!!target := Var1,
