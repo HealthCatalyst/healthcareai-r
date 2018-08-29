@@ -146,20 +146,6 @@ prep_data <- function(d,
   # Capture factor levels
   d_levels <- get_factor_levels(d)
 
-  # Get reference variable from factor levels
-  ref_levels <- purrr::map(d_levels, ~{
-    names(.x) %>% first
-  })
-  # Remove outcome from dummies and ref_levels
-  if (!missing(outcome)) {
-    outcome_nse <- deparse(substitute(outcome))
-    ref_levels[outcome_nse] <- NULL
-    dummies <- get_dummies(d_levels, add_levels)
-    dummies[outcome_nse] <- NULL
-  } else {
-    dummies <- NULL
-  }
-
   outcome <- rlang::enquo(outcome)
   remove_outcome <- FALSE
   # Deal with "..." columns to be ignored
@@ -412,7 +398,7 @@ prep_data <- function(d,
       # make_dummies -----------------------------------------------------------
       if (make_dummies) {
         recipe <- recipe %>%
-          recipes::step_dummy(all_nominal(), - all_outcomes())
+          step_dummy_hcai(all_nominal(), - all_outcomes(), levels = ref_levels)
       }
     }
 
@@ -422,8 +408,6 @@ prep_data <- function(d,
     # Attach missingness and factor-levels in the original data to the recipe
     attr(recipe, "missingness") <- d_missing
     attr(recipe, "factor_levels") <- d_levels
-    attr(recipe, "dummies") <- dummies
-    attr(recipe, "ref_levels") <- ref_levels
   }
   # Coerces all logical predictor columns as numeric columns
   d <- dplyr::mutate_if(d, is.logical, as.numeric)

@@ -101,22 +101,15 @@ interpret <- function(x, sparsity = NULL, remove_zeros = TRUE, top_n) {
 add_refs <- function(d, x) {
   # Store the dummies object that holds all possible dummy variables for each
   # factor feature
-  dummies <- x %>% attr("recipe") %>% attr("dummies")
-  if (!purrr::is_empty(dummies)) {
-    # Store the reference level object that holds each factor features'
-    # reference level
-    ref_levels <- x %>% attr("recipe") %>% attr("ref_levels")
+  steps <- (x %>% attr("recipe"))$step
+  loc <- purrr::map_lgl(steps, ~{class(.x) %>% first() == "step_dummy_hcai"})
+
+  if (any(loc)) {
+    dummies <- steps[loc][[1]]$dummies
+
     d$variable <- map_chr(d$variable, ~{
-      # Find out which features contain the dummy match
-      dummy_loc <- map_lgl(dummies, function(y) {
-        .x %in% y
-      }
-      )
-      n_matches <- sum(dummy_loc)
-      if (n_matches > 1)
-        stop("Error: Only one dummy column should match.")
-      else if (n_matches == 1) {
-        var <- paste0(.x, " (vs. ", ref_levels[dummy_loc], ")")
+      if (.x %in% dummies$dummy) {
+        var <- paste0(.x, " (vs. ", dummies$ref[dummies$dummy == .x], ")")
       } else {
         var <- .x
       }
