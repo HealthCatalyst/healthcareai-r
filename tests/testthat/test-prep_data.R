@@ -172,7 +172,7 @@ test_that("date columns are found and converted", {
 
 test_that("date columns are found, converted, and dummified", {
   d_clean <- prep_data(d = d_train, outcome = is_ween, song_id)
-  d_clean_dummied_months <- d_clean[grepl("date_col_month",names(d_clean))]
+  d_clean_dummied_months <- d_clean[grepl("date_col_month", names(d_clean))]
   # Should find 11 month names in names of prepped data as all but one get dummied
   expect_equal(sum(purrr::map_lgl(month.abb, ~ any(grepl(.x, names(d_clean_dummied_months))))), 11)
   expect_true("date_col_dow_Thu" %in% names(d_clean))
@@ -617,7 +617,6 @@ test_that("prep_data gets rid of logicals, when no outcome", {
 test_that("test ref levels", {
   d_clean <- prep_data(d = d_train, outcome = is_ween, song_id,
                        ref_levels = list(genre = "Jazz", reaction = "Dislike"))
-  #expect_true("ref_levels" %in% names(attributes(attr(d_clean, "recipe"))))
   expect_false("genre_Jazz" %in% names(d_clean))
   expect_false("reaction_Dislike" %in% names(d_clean))
 })

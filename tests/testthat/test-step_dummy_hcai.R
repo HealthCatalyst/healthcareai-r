@@ -1,7 +1,7 @@
 context("testing step_dummy_hcai")
 
 data(okc)
-okc <- okc[complete.cases(okc),]
+okc <- okc[complete.cases(okc), ]
 
 rec <- recipe(~ diet + age + height, data = okc)
 
@@ -26,7 +26,7 @@ test_that("testing prep.step_dummy_hcai", {
   expect_false("diet_mostly_anything" %in% names(dummy_data))
   expect_true("diet_anything" %in% names(dummy_data))
 
-  ## No levels provided - choose the Mode
+  # No levels provided - choose the Mode
   dummies <- rec %>% healthcareai:::step_dummy_hcai(diet,  levels = NULL)
   dummies <- prep(dummies, training = okc)
   actual <- attr(dummies$steps[[1]]$levels$diet, "values")
@@ -35,7 +35,7 @@ test_that("testing prep.step_dummy_hcai", {
   dummy_data <- bake(dummies, newdata = okc)
   expect_false("diet_mostly_anything" %in% names(dummy_data))
 
-  ## Add extra level
+  # Add extra level
   dummies <- rec %>% healthcareai:::step_dummy_hcai(diet,  levels = list(diet = c(diet_values, "extra")))
   dummies <- prep(dummies, training = okc)
   actual <- attr(dummies$steps[[1]]$levels$diet, "values")
@@ -44,7 +44,7 @@ test_that("testing prep.step_dummy_hcai", {
   dummy_data <- bake(dummies, newdata = okc)
   expect_true("diet_extra" %in% names(dummy_data))
 
-  ## Make dummies from reference level
+  # Make dummies from reference level
   dummies <- rec %>% healthcareai:::step_dummy_hcai(diet,  levels = list(diet = c("halal")))
   dummies <- prep(dummies, training = okc)
   actual <- attr(dummies$steps[[1]]$levels$diet, "values")
@@ -52,8 +52,4 @@ test_that("testing prep.step_dummy_hcai", {
 
   dummy_data <- bake(dummies, newdata = okc)
   expect_false("diet_halal" %in% names(dummy_data))
-})
-
-test_that("testing dummies", {
-
 })

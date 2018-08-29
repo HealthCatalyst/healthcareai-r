@@ -102,7 +102,10 @@ add_refs <- function(d, x) {
   # Store the dummies object that holds all possible dummy variables for each
   # factor feature
   steps <- (x %>% attr("recipe"))$step
-  loc <- purrr::map_lgl(steps, ~{class(.x) %>% first() == "step_dummy_hcai"})
+  loc <- purrr::map_lgl(steps, ~{
+    class(.x) %>% first() == "step_dummy_hcai"
+    }
+    )
 
   if (any(loc)) {
     dummies <- steps[loc][[1]]$dummies

@@ -6,8 +6,7 @@
 \title{Dummy Variables Creation}
 \usage{
 step_dummy_hcai(recipe, ..., role = "predictor", trained = FALSE,
-  one_hot = FALSE, naming = dummy_names, levels = NULL,
-  ref_levels = NULL, dummies = NULL, skip = FALSE)
+  one_hot = FALSE, naming = dummy_names, levels = NULL, skip = FALSE)
 
 \method{tidy}{step_dummy_hcai}(x, ...)
 }

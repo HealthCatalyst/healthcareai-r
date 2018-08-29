@@ -111,8 +111,6 @@ step_dummy_hcai <-
            one_hot = FALSE,
            naming = dummy_names,
            levels = NULL,
-           ref_levels = NULL,
-           dummies = NULL,
            skip = FALSE) {
     add_step(
       recipe,
@@ -123,8 +121,8 @@ step_dummy_hcai <-
         one_hot = one_hot,
         naming = naming,
         levels = levels,
-        ref_levels = ref_levels,
-        dummies = dummies,
+        ref_levels = NULL,
+        dummies = NULL,
         skip = skip
       )
     )
@@ -169,9 +167,9 @@ prep.step_dummy_hcai <- function(x, training, info = NULL, ...) {
       call. = FALSE
     )
 
-  ## I hate doing this but currently we are going to have
-  ## to save the terms object from the original (= training)
-  ## data
+  # I hate doing this but currently we are going to have
+  # to save the terms object from the original (= training)
+  # data
   levels <- vector(mode = "list", length = length(col_names))
   names(levels) <- col_names
   ref_levels <- character()
