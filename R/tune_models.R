@@ -95,6 +95,11 @@
 #'               hyperparameters = list(rf = rf_hyperparameters)
 #'   )
 #' plot(grid_search_models)
+#'
+#' # `tune_models` remembers outcome and ignored features from prep_data
+#' pima_diabetes %>%
+#'   prep_data(patient_id, outcome = diabetes) %>%
+#'   tune_models()
 #' }
 tune_models <- function(d,
                         outcome,

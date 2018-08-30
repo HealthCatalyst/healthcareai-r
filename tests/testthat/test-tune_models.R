@@ -101,10 +101,6 @@ test_that("If a column was ignored in prep_data it's ignored in tune", {
   expect_false("plasma_glucose" %in% names(mods[[1]]$trainingData))
 })
 
-test_that("Missing outcome variable error points user to what's missing", {
-  expect_error(tune_models(cla_df), "outcome")
-})
-
 test_that("Get informative error from setup_training if you forgot to name outcome arg in prep_data", {
   pd <- prep_data(pima_diabetes, patient_id, diabetes)
   expect_error(tune_models(pd, diabetes), "outcome")
@@ -142,7 +138,7 @@ test_that("tune_models and predict respect positive class declaration", {
 })
 
 test_that("set_outcome_class errors informatively if value not in vector", {
-  expect_error(set_outcome_class(factor(letters[1:2]), "nope"), "a and b")
+  expect_error(set_outcome_class(vec = factor(letters[1:2]), "nope"), "a and b")
 })
 
 test_that("set_outcome_class sets levels as expected", {
@@ -263,4 +259,10 @@ test_that("check_training_time works", {
                                   n_folds = 5)
   expect_true(stringr::str_detect(big_data, "MODEL TRAINING"))
   expect_true(stringr::str_detect(big_data, "1,000 features"))
+})
+
+test_that("flash_models doesn't need an outcome specified", {
+  m <- tune_models(reg_df)
+  expect_s3_class(m, "model_list")
+  expect_s3_class(m, "regression_list")
 })
