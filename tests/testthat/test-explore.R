@@ -4,6 +4,8 @@ context("explore")
 set.seed(574)
 m <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = diabetes,
                    tune = FALSE, n_folds = 2)
+multi <- machine_learn(na.omit(pima_diabetes[1:200, ]), patient_id, outcome = weight_class,
+                       tune = FALSE, models = "glm")
 variabs <-
   attr(m, "recipe")$var_info %>%
   dplyr::filter(role == "predictor") %>%
@@ -350,4 +352,8 @@ test_that("explore can handle once-logical features", {
   m <- machine_learn(d, outcome = y, tune = FALSE, models = "xgb", n_folds = 2)
   expect_error(expl <- explore(m), NA)
   expect_s3_class(expl, "explore_df")
+})
+
+test_that("multiclass errors", {
+  expect_error(explore(multi), "multiclass")
 })

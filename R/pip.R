@@ -123,8 +123,12 @@ pip <- function(model, d, new_values, n = 3, allow_same = FALSE,
   # Add row_id column used to join permutations; deleted at end
   d <- dplyr::mutate(d, row_id = dplyr::row_number())
 
+  mi <- extract_model_info(model)
+  if (mi$m_class == "Multiclass")
+    stop("pip doesn't support multiclass models. You could try a regular ",
+         "classification model in a one-vs-all fashion.")
   # Warn if any variables to be tested don't do any work
-  if (extract_model_info(model)$best_model_name == "glmnet") {
+  if (mi$best_model_name == "glmnet") {
     int <- interpret(model)
     offered_unused <- names(new_values)[!names(new_values) %in% int$variable]
     if (length(offered_unused))

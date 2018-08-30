@@ -75,7 +75,7 @@ get_random_hyperparameters <- function(models = get_supported_models(),
   grids <- list()
   if ("rf" %in% models) {
     split_rules <-
-      if (model_class == "classification") {
+      if (model_class == "classification" | model_class == "multiclass") {
         c("gini", "extratrees")
       } else {
         c("variance", "extratrees")
