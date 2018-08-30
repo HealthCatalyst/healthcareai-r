@@ -250,7 +250,9 @@ predict_model_list_main <- function(object,
     # Get prep-prep training data
     newdata <- recipe$template
     # Use out-of-fold predictions from training
-    preds <- get_oof_predictions(object, mi)
+    oof_preds <- get_oof_predictions(object, mi)
+    preds <- oof_preds$preds
+    outcomes <- oof_preds$outcomes
   } else {
     if (inherits(newdata, "prepped_df"))
       stop("predict will prep your data for you. Please pass the pre-prep ",
@@ -260,12 +262,16 @@ predict_model_list_main <- function(object,
     to_pred <- ready_with_prep(object, newdata, mi)
     type <- if (is.classification_list(object)) "prob" else "raw"
     preds <- caret::predict.train(best_models, to_pred, type = type)
+    outcomes <- to_pred[[mi$target]]
     # Probs get returned for no and yes. Keep only positive class as set in training
     if (is.classification_list(object))
       preds <- preds[[mi$positive_class]]
   }
   pred_name <- paste0("predicted_", mi$target)
   newdata[[pred_name]] <- preds
+  # Replace outcome as it came in with baked version, either from get_oof or
+  # from ready_with_prep (or with NULL if newdata doesn't have it)
+  newdata[[mi$target]] <- outcomes
   newdata <- tibble::as_tibble(newdata)
 
   # Add groups if desired
@@ -339,7 +345,7 @@ add_groups <- function(object, mi, newdata, pred_name, risk_groups, outcome_grou
     # Replace outer bounds with 0 and 1 so that any predicted prob is in bounds
     cutter <-
       cutter %>%
-      dplyr::mutate(cutpoints = stats::quantile(oof, quantiles),
+      dplyr::mutate(cutpoints = stats::quantile(oof$preds, quantiles),
                     cutpoints = dplyr::case_when(
                       quantiles == 0 ~ 0,
                       quantiles == 1 ~ 1,
@@ -362,9 +368,7 @@ add_groups <- function(object, mi, newdata, pred_name, risk_groups, outcome_grou
                      cost_fn = outcome_groups) %>%
       dplyr::filter(optimal) %>%
       dplyr::pull(threshold)
-    neg_class <-
-      dplyr::setdiff(names(attr(attr(object, "recipe"), "factor_levels")[[mi$target]]),
-                     mi$positive_class)
+    neg_class <- dplyr::setdiff(oof$outcomes, mi$positive_class)
     newdata$predicted_group <-
       ifelse(newdata[[pred_name]] >= cutpoint, mi$positive_class, neg_class) %>%
       factor(levels = c(neg_class, mi$positive_class)) %>%
@@ -391,13 +395,17 @@ get_oof_predictions <- function(x, mi = extract_model_info(x)) {
   preds <-
     tibble::as_tibble(preds) %>%
     .[!duplicated(.$rowIndex), ]
-  if (mi$m_class == "Regression")
-    return(preds$pred)
-  if (mi$m_class == "Classification")
-    return(preds[[mi$positive_class]])
-  if (mi$m_class == "Multiclass")
-    return(preds$pred)
-  stop("Eh? What kind of model is that?")
+  predictions <-
+    if (mi$m_class == "Regression") {
+      preds$pred
+    } else if (mi$m_class == "Classification") {
+      preds[[mi$positive_class]]
+    } else if (mi$m_class == "Multiclass") {
+      preds$pred
+    } else stop("Eh? What kind of model is that?")
+  obs <- preds$obs
+  tibble::tibble(preds = predictions, outcomes = obs) %>%
+    return()
 }
 
 get_pred_summary <- function(x) {

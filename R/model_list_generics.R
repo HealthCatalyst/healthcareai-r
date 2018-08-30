@@ -108,7 +108,7 @@ summary.model_list <- function(object, ...) {
 #' @importFrom purrr map_df
 #' @export
 #' @examples
-#' models <- tune_models(mtcars, mpg, models = "glm")
+#' models <- machine_learn(mtcars, outcome = mpg, models = "glm")
 #' plot(models)
 plot.model_list <- function(x, font_size = 11, point_size = 1,
                             print = TRUE, ...) {

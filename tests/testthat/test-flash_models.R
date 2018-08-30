@@ -17,8 +17,7 @@ m_df <- mpg %>%
          fl = replace(fl, sample(1:n, 10), NA),
          cty = replace(cty, sample(1:n, 30), NA))
 m_df_clean <- m_df %>% prep_data(model, outcome = drv)
-multi <-
-  flash_models(d = m_df_clean, outcome = drv)
+multi <- flash_models(d = m_df_clean, outcome = drv, models = c("xgb", "rf"))
 
 m_df2 <-
   pima_diabetes %>%

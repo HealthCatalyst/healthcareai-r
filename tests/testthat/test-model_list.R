@@ -8,13 +8,14 @@ dcla <- prep_data(short, outcome = diabetes)
 dmul <- prep_data(dplyr::sample_n(iris, 100), outcome = Species)
 
 # Implicit test that warning not issued for missing resampled performance metrics:
-r_models <- tune_models(dreg, pedigree, tune_depth = 2, n_folds = 2, models = c("rf", "glm"))
-c_models <- tune_models(dcla, diabetes, tune_depth = 2, n_folds = 2, model_name = "great_name", models = "xgb")
-m_models <- tune_models(d = dmul, outcome = Species, tune_depth = 2, n_folds = 2, models = "rf")
+r_models <- tune_models(dreg, pedigree, tune_depth = 2, n_folds = 3, models = c("rf", "glm"))
+c_models <- tune_models(dcla, diabetes, tune_depth = 2, n_folds = 3, model_name = "great_name", models = "xgb")
+m_models <- tune_models(d = dmul, outcome = Species, tune_depth = 2, n_folds = 3, models = "rf")
 c_pr <- flash_models(dcla, diabetes, metric = "PR", n_folds = 2, models = "xgb")
 single_model_tune <- tune_models(dcla, diabetes, models = "xgb", n_folds = 2, tune_depth = 2)
 r_flash <- flash_models(dreg, pedigree, n_folds = 2, models = "xgb")
 c_flash <- flash_models(dcla, diabetes, n_folds = 2, models = "xgb")
+m_flash <- flash_models(dmul, Species, n_folds = 2, models = "xgb")
 ods <- attr(c_models, "original_data_str")
 
 context("Checking model_list constructors") # ----------------------------------

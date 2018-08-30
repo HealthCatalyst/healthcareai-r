@@ -49,7 +49,6 @@ model_regression_not_prepped <-
 # And prepped newdata to go with them
 test_data_reg_prep <- prep_data(test_data, recipe = model_regression_prepped)
 test_data_class_prep <- prep_data(test_data, recipe = model_classify_prepped)
-test_data_multi_prep <- prep_data(m_test, recipe = model_multi_prepped)
 
 set.seed(1234)
 iris_char <- iris %>%
@@ -61,12 +60,12 @@ model_multi_prepped <-
   flash_models(outcome = Species)
 model_multi_not_prepped <- m_train %>%
   prep_data(potted, outcome = Species, no_prep = TRUE) %>%
-  flash_models()
+  flash_models(outcome = Species)
 
 # Output
 regression_prepped_prepped <- predict(model_regression_prepped, test_data)
 classification_prepped_prepped <- predict(model_classify_prepped, test_data)
-multi_prepped_prepped <- predict(model_multi_prepped, test_data)
+multi_prepped_prepped <- predict(model_multi_prepped, m_test)
 
 regression_not_not <-
   dplyr::mutate(test_data, Catholic = ifelse(Catholic == "Y", 1L, 0L)) %>%
@@ -287,18 +286,22 @@ test_that("predict handles positive class specified in training", {
     tm_xgb = pd %>% flash_models(y, models = "xgb") %>% predict(),
     ml = machine_learn(d, outcome = y, models = "glm", tune = FALSE) %>% predict()
   )
-  expect_true(all(purrr::map_lgl(preds, ~ {
-    mean(.x$predicted_y[.x$y]) >= mean(.x$predicted_y[!.x$y])
-  })))
+  expect_true(all(
+    purrr::map_lgl(preds, ~ {
+      mean(.x$predicted_y[.x$y == "Y"]) >= mean(.x$predicted_y[!.x$y == "N"])
+    })
+  ))
   # Set N as positive
   preds <- list(
     tm_rf = pd %>% flash_models(y, n_folds = 2, models = "rf", positive_class = "N") %>% predict(),
     tm_xgb = pd %>% flash_models(y, n_folds = 2, models = "xgb", positive_class = "N") %>% predict(),
     ml = machine_learn(d, outcome = y, models = "rf", tune_depth = 2, positive_class = "N") %>% predict()
   )
-  expect_true(all(purrr::map_lgl(preds, ~ {
-    mean(.x$predicted_y[.x$y]) <= mean(.x$predicted_y[!.x$y])
-  })))
+  expect_true(all(
+    purrr::map_lgl(preds, ~ {
+      mean(.x$predicted_y[.x$y == "Y"]) <= mean(.x$predicted_y[!.x$y == "N"])
+    })
+  ))
 })
 
 test_that("can predict on untuned classification model with new data", {
@@ -322,10 +325,19 @@ test_that("predict without new data returns out of fold predictions from trainin
 })
 
 test_that("get_oof_predictions seems to work", {
-  expect_true(is.numeric(get_oof_predictions(model_regression_prepped)))
-  expect_true(is.numeric(get_oof_predictions(model_classify_prepped)))
-  expect_true(is.numeric(get_oof_predictions(model_regression_not_prepped)))
-  expect_true(is.factor(get_oof_predictions(model_multi_prepped)))
+  oof_mrp <- get_oof_predictions(model_regression_prepped)
+  oof_mcp <- get_oof_predictions(model_classify_prepped)
+  oof_mrn <- get_oof_predictions(model_regression_not_prepped)
+  oof_mmp <- get_oof_predictions(model_multi_prepped)
+  expect_s3_class(oof_mcp, "tbl_df")
+  expect_true(is.numeric(oof_mrp$preds))
+  expect_true(is.numeric(oof_mcp$preds))
+  expect_true(is.numeric(oof_mrn$preds))
+  expect_true(is.factor(oof_mmp$preds))
+  expect_true(is.numeric(oof_mrp$outcomes))
+  expect_false(is.numeric(oof_mcp$outcomes))
+  expect_false(is.numeric(oof_mmp$outcomes))
+  expect_setequal(as.character(oof_mcp$outcomes), c("N", "Y"))
 })
 
 test_that("logging works as expected", {
@@ -467,6 +479,25 @@ test_that("get_cutoffs", {
   expect_s3_class(rg_cutoffs, "data.frame")
   expect_equal(stringr::str_extract(rg_cutoffs$group, "[0-9]$"), as.character(1:5))
   expect_true(all(diff(rg_cutoffs$minimum_probability) < 0))
+})
+
+test_that("predict bakes 0/1 outcomes", {
+  m <- pima_diabetes %>%
+    dplyr::slice(1:50) %>%
+    mutate(diabetes = ifelse(diabetes == "Y", 1, 0)) %>%
+    machine_learn(patient_id, outcome = diabetes, tune = FALSE, models = "glm")
+  expect_setequal(attr(m, "recipe")$template$diabetes, 0:1)
+  p <- predict(m, outcome_groups = TRUE)
+  expect_setequal(as.character(get_oof_predictions(m)$outcomes), c("N", "Y"))
+  expect_setequal(as.character(p$diabetes), c("N", "Y"))
+  expect_setequal(as.character(p$predicted_group), c("N", "Y"))
+
+  new_data <- pima_diabetes %>%
+    dplyr::slice(51:65) %>%
+    mutate(diabetes = ifelse(diabetes == "Y", 1, 0))
+  pnew <- predict(m, newdata = new_data, outcome_groups = TRUE)
+  expect_setequal(as.character(pnew$diabetes), c("N", "Y"))
+  expect_setequal(as.character(pnew$predicted_group), c("N", "Y"))
 })
 
 remove_logfiles()
