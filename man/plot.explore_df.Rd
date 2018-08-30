@@ -6,9 +6,9 @@
 \usage{
 \method{plot}{explore_df}(x, n_use = 2, aggregate_fun = median,
   reorder_categories = TRUE, x_var, color_var, jitter_y = TRUE,
-  sig_fig = 3, font_size = 11, strip_font_size = 0.85, line_width = 0.5,
-  line_alpha = 0.7, rotate_x = FALSE, nrows = 1, title = NULL, caption,
-  print = TRUE, ...)
+  sig_fig = 3, font_size = 11, strip_font_size = 0.85,
+  line_width = 0.5, line_alpha = 0.7, rotate_x = FALSE, nrows = 1,
+  title = NULL, caption, print = TRUE, ...)
 }
 \arguments{
 \item{x}{A explore_df object from \code{\link{explore}}}
