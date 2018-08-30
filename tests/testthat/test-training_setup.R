@@ -6,7 +6,14 @@ test_that("check_outcome gets outcome from recipe when not provided", {
     pima_diabetes %>%
     prep_data(patient_id, outcome = diabetes)
 
-  # Pass an empty quosure to the outcome
+  # check_outcome should grab the outcome variable from the recipe object when
+  # it is not provided
   outcome <- check_outcome(rlang::enquo(), names(d), attr(d, "recipe"))
   expect_equal(outcome, "diabetes")
+
+
+  expect_error(
+    check_outcome(rlang::enquo(), names(d), NULL),
+    "Your data is not prepared."
+  )
 })

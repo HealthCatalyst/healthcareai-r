@@ -97,8 +97,14 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
 }
 
 check_outcome <- function(outcome, d_names, recipe) {
-  if (rlang::quo_is_missing(outcome))
-    outcome <- recipe$var_info$variable[recipe$var_info$role == "outcome"]
+  if (rlang::quo_is_missing(outcome)){
+    if (is.null(recipe))
+      stop("Your data is not prepared. Either provide provide an outcome ",
+           "variable to tune_models and flash_models, or prepare your data in ",
+           "prep_data")
+    else
+      outcome <- recipe$var_info$variable[recipe$var_info$role == "outcome"]
+  }
   outcome_chr <- rlang::quo_name(outcome)
   if (!outcome_chr %in% d_names)
     stop(outcome_chr, " isn't a column in d.")
