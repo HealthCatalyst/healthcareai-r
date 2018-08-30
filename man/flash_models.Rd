@@ -8,7 +8,8 @@ flash_models(d, outcome, models, metric, positive_class, n_folds = 5,
   model_class, model_name = NULL, allow_parallel = FALSE)
 }
 \arguments{
-\item{d}{A data frame}
+\item{d}{A data frame from \code{\link{prep_data}}. If you want to prepare
+your data on your own, use \code{prep_data(..., no_prep = TRUE)}.}
 
 \item{outcome}{Name of the column to predict}
 

@@ -1,6 +1,7 @@
 #' Train models without tuning for performance
 #'
-#' @param d A data frame
+#' @param d A data frame from \code{\link{prep_data}}. If you want to prepare
+#' your data on your own, use \code{prep_data(..., no_prep = TRUE)}.
 #' @param outcome Name of the column to predict
 #' @param models Names of models to try. See \code{\link{get_supported_models}}
 #'   for available models. Default is all available models.

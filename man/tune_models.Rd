@@ -10,9 +10,9 @@ tune_models(d, outcome, models, metric, positive_class, n_folds = 5,
   allow_parallel = FALSE)
 }
 \arguments{
-\item{d}{A data frame}
-
-\item{outcome}{Name of the column to predict}
+\item{d}{A data frame from \code{\link{prep_data}}. If you want to prepare
+your data on your own, use \code{prep_data(..., no_prep = TRUE)}.
+#' @param outcome Name of the column to predict}
 
 \item{models}{Names of models to try. See \code{\link{get_supported_models}}
 for available models. Default is all available models.}
