@@ -13,6 +13,14 @@ r3 <- machine_learn(mtcars, outcome = mpg, tune = FALSE)
 c2 <- cl[c("eXtreme Gradient Boosting", "Random Forest")]
 best_with_vi <- healthcareai:::extract_model_info(c2)$best_model_name
 
+set.seed(1234)
+m_df <- prep_data(dplyr::sample_n(iris, 100), outcome = Species)
+m_models <-
+  tune_models(d = m_df, outcome = Species, n_folds = 2, tune_depth = 2)
+m_warns <- capture_warnings({
+  m_vi <- get_variable_importance(m_models)
+})
+
 test_that("order_models gets it right", {
   ci <- extract_model_info(cl)
   expect_equal(which(names(cl) == ci$best_model_name), unname(order_models(cl)[1]))
@@ -56,6 +64,7 @@ test_that("get_variable_importance can use xgb", {
 
 test_that("get_variable_importance warns if providing model isn't best performer", {
   expect_true(stringr::str_detect(warns, "best performing"))
+  expect_true(stringr::str_detect(m_warns, "best performing"))
 })
 
 test_that("get_variable_importance respects top_n", {
@@ -95,4 +104,8 @@ test_that("choose_vi_model works", {
   expect_false(choose_g == "glmnet")
   expect_equal(choose_g, best_with_vi)
   expect_error(choose_vi_model(cl["glmnet"]), "Can't")
+})
+
+test_that("multiclass importance is returned", {
+  expect_s3_class(m_vi, "variable_importance")
 })
