@@ -46,9 +46,9 @@
 #'   and "categories" create new variables for hour, day, month, and year.
 #'   "continuous" (recommended) uses numeric circular respresentation of these
 #'   features for model optimization. "categories" makes these features more
-#'   readable (If \code{make_dummies} is TRUE, each unique value will become a
+#'   readable. (If \code{make_dummies} is TRUE, each unique value will become a
 #'   new dummy variable. This will create wide data, which is more challenging
-#'   for some machine learning models.). "none" removes all date and time
+#'   for some machine learning models.) "none" removes all date and time
 #'   features. All features with the DTS suffix will be treated as a date.
 #' @param impute Logical or list. If TRUE (default), columns will be imputed
 #'   using mean (numeric), and new category (nominal). If FALSE, data will not
