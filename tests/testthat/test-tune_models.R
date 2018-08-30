@@ -52,7 +52,7 @@ test_that("tune errors informatively if outcome is list", {
 })
 
 test_that("tune errors informatively if the algorithm isn't supported", {
-  expect_error(tune_models(reg_df, plasma_glucose, "regression", "not a model"),
+  expect_error(tune_models(reg_df, plasma_glucose, "regression"),
                regexp = "supported")
 })
 
@@ -68,6 +68,16 @@ test_that("tune supports various loss functions in classification", {
     tune_models(d = cla_df, outcome = diabetes, model_class = "classification",
                 metric = "PR", models = "xgb", n_folds = 2, tune_depth = 2)
     , regexp = NA)
+
+  # throws error when metric from other class
+  expect_warning(
+    tune_models(d = cla_df, outcome = diabetes, model_class = "classification",
+                metric = "Rsquared", models = "xgb", n_folds = 2, tune_depth = 2))
+  # throws error when NA
+  expect_warning(
+    tune_models(d = cla_df, outcome = diabetes, model_class = "classification",
+                metric = NA, models = "xgb", n_folds = 2, tune_depth = 2)
+  )
 })
 
 test_that("tune supports various loss functions in regression", {
@@ -77,9 +87,17 @@ test_that("tune supports various loss functions in regression", {
     , regexp = NA)
   expect_warning(
     tune_models(d = reg_df, outcome = plasma_glucose, model_class = "regression",
-                metric = "Rsquared", models = "rf", n_folds = 2,
-                tune_depth = 2)
+                metric = "Rsquared", models = "rf", n_folds = 2, tune_depth = 2)
     , regexp = NA)
+
+  # throws error when metric from other class
+  expect_warning(
+    tune_models(d = reg_df, outcome = plasma_glucose, model_class = "regression",
+                metric = "PR", models = "rf", n_folds = 2, tune_depth = 2))
+  # throws error when NA
+  expect_warning(
+    tune_models(d = reg_df, outcome = plasma_glucose, model_class = "regression",
+                metric = NA, models = "rf", n_folds = 2, tune_depth = 2))
 })
 
 test_that("tune handles character outcome", {

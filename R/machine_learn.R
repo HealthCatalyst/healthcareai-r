@@ -10,10 +10,10 @@
 #' @param models Names of models to try. See \code{\link{get_supported_models}}
 #'   for available models. Default is all available models.
 #' @param metric What metric to use to assess model performance? Options for
-#'   regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
-#'   error), or "Rsquared." For classification: "ROC" (area under the receiver
-#'   operating characteristic curve), or "PR" (area under the precision-recall
-#'   curve).
+#'   classification: "ROC" (default) (area under the receiver operating
+#'   characteristic curve), or "PR" (area under the precision-recall curve).
+#'   Options for regression: "RMSE" (default) (root-mean-squared error,
+#'   default), "MAE" (mean-absolute error), or "Rsquared."
 #' @param tune If TRUE (default) models will be tuned via
 #'   \code{\link{tune_models}}. If FALSE, models will be trained via
 #'   \code{\link{flash_models}} which is substantially faster but produces
@@ -91,6 +91,7 @@
 #' machine_learn(d$train, patient_id, outcome = diabetes, tune = FALSE)
 #'
 #' ### Train models optimizing given metric ###
+#'
 #' machine_learn(d$train, patient_id, outcome = diabetes, metric = "PR")
 #' }
 machine_learn <- function(d, ..., outcome, models, metric, tune = TRUE, positive_class,

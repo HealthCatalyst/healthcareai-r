@@ -42,50 +42,62 @@ test_that("Machine learn respects tune = FALSE", {
   expect_false(attr(ut, "tuned"))
 })
 
-test_that("Machine learn respects metric - when tuning (using tune_models)", {
-  mock_tune_models <- function(d,
-                               outcome,
-                               models,
-                               metric,
-                               positive_class,
-                               n_folds = 5,
-                               tune_depth = 10,
-                               hyperparameters = NULL,
-                               model_class,
-                               model_name = NULL,
-                               allow_parallel = FALSE) {
-    return(metric)
-  }
+test_that("Machine learn respects metric - tuning", {
+  m <- machine_learn(training_data, outcome = diabetes, metric = "PR",
+                     tune_depth = 2, n_folds = 3, models = "rf")
+  expect_true(grepl("Performance Metric: AUPR", capture_output(print(m))))
 
-  with_mock(tune_models = mock_tune_models, {
-    mdl_metric <- machine_learn(training_data, outcome = diabetes,
-                                metric = "PR")
-    expect_equal(mdl_metric, "PR")
-    mdl_metric <- machine_learn(training_data, outcome = age,
-                                metric = "RMSE")
-    expect_equal(mdl_metric, "RMSE")
-  })
+  m <- machine_learn(training_data, outcome = age, metric = "MAE",
+                     tune_depth = 2, n_folds = 3, models = "rf")
+  expect_true(grepl("Performance Metric: MAE", capture_output(print(m))))
 })
 
-test_that("Machine learn respects metric - when not tuning (using flash_models)", {
-  mock_flash_models <- function(d,
-                                outcome,
-                                models,
-                                metric,
-                                positive_class,
-                                n_folds = 5,
-                                model_class,
-                                model_name = NULL,
-                                allow_parallel = FALSE) {
-    return(metric)
-  }
+test_that("Machine learn respects metric - flash", {
+  m <- machine_learn(training_data, outcome = diabetes, metric = "PR",
+                     tune = FALSE, n_folds = 3, models = "rf")
+  expect_true(grepl("Performance Metric: AUPR", capture_output(print(m))))
 
-  with_mock(flash_models = mock_flash_models, {
-    mdl_metric <- machine_learn(training_data, outcome = diabetes, tune = FALSE,
-                                metric = "PR")
-    expect_equal(mdl_metric, "PR")
-    mdl_metric <- machine_learn(training_data, outcome = age, tune = FALSE,
-                                metric = "RMSE")
-    expect_equal(mdl_metric, "RMSE")
-  })
+  m <- machine_learn(training_data, outcome = age, metric = "MAE",
+                     tune = FALSE, n_folds = 3, models = "rf")
+  expect_true(grepl("Performance Metric: MAE", capture_output(print(m))))
+})
+
+test_that("Machine learn respects metric - flash - error", {
+  # Throw warning when NA
+  expect_warning(
+    m <- machine_learn(training_data, outcome = diabetes, metric = NA,
+                       tune = FALSE, n_folds = 3, models = "rf")
+  )
+
+  # Throw warning when "garbage"
+  expect_warning(
+    m <- machine_learn(training_data, outcome = diabetes, metric = "garbage",
+                       tune = FALSE, n_folds = 3, models = "rf")
+  )
+
+  # Throw warning when PR and regression
+  expect_warning(
+    m <- machine_learn(training_data, outcome = age, metric = "PR",
+                       tune = FALSE, n_folds = 3, models = "rf")
+  )
+})
+
+test_that("Machine learn respects metric - tune - error", {
+  # Throw warning when NA
+  expect_warning(
+    m <- machine_learn(training_data, outcome = diabetes, metric = NA,
+                       tune_depth = 2, n_folds = 3, models = "rf")
+  )
+
+  # Throw warning when "garbage"
+  expect_warning(
+    m <- machine_learn(training_data, outcome = diabetes, metric = "garbage",
+                       tune_depth = 2, n_folds = 3, models = "rf")
+  )
+
+  # Throw warning when PR and regression
+  expect_warning(
+    m <- machine_learn(training_data, outcome = age, metric = "PR",
+                       tune_depth = 2, n_folds = 3, models = "rf")
+  )
 })

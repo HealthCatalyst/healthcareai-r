@@ -21,10 +21,10 @@ Unquoted. Must be named, i.e. you must specify \code{outcome = }}
 for available models. Default is all available models.}
 
 \item{metric}{What metric to use to assess model performance? Options for
-regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
-error), or "Rsquared." For classification: "ROC" (area under the receiver
-operating characteristic curve), or "PR" (area under the precision-recall
-curve).}
+classification: "ROC" (default) (area under the receiver operating
+characteristic curve), or "PR" (area under the precision-recall curve).
+Options for regression: "RMSE" (default) (root-mean-squared error,
+default), "MAE" (mean-absolute error), or "Rsquared."}
 
 \item{tune}{If TRUE (default) models will be tuned via
 \code{\link{tune_models}}. If FALSE, models will be trained via
@@ -113,6 +113,7 @@ predict(age_model)
 machine_learn(d$train, patient_id, outcome = diabetes, tune = FALSE)
 
 ### Train models optimizing given metric ###
+
 machine_learn(d$train, patient_id, outcome = diabetes, metric = "PR")
 }
 }
