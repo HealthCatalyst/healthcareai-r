@@ -36,7 +36,7 @@ Imports:
     tibble,
     tidyr,
     xgboost
-RoxygenNote: 6.1.0
+RoxygenNote: 6.0.1
 Suggests:
     DBI,
     odbc,
@@ -45,4 +45,3 @@ Suggests:
     covr
 URL: http://docs.healthcare.ai
 BugReports: https://github.com/HealthCatalyst/healthcareai-r/issues
-Encoding: UTF-8

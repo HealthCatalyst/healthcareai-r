@@ -4,11 +4,10 @@
 \alias{prep_data}
 \title{Prepare data for machine learning}
 \usage{
-prep_data(d, ..., outcome, recipe = NULL,
-  remove_near_zero_variance = TRUE, convert_dates = "continuous",
-  impute = TRUE, collapse_rare_factors = TRUE, center = FALSE,
-  scale = FALSE, make_dummies = TRUE, add_levels = TRUE,
-  factor_outcome = TRUE)
+prep_data(d, ..., outcome, recipe = NULL, remove_near_zero_variance = TRUE,
+  convert_dates = "continuous", impute = TRUE,
+  collapse_rare_factors = TRUE, center = FALSE, scale = FALSE,
+  make_dummies = TRUE, add_levels = TRUE, factor_outcome = TRUE)
 }
 \arguments{
 \item{d}{A data frame}

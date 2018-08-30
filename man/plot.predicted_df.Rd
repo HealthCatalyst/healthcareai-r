@@ -12,9 +12,8 @@
 
 plot_regression_predictions(x, point_size = 1, point_alpha = 1, target)
 
-plot_classification_predictions(x, fill_colors = c("firebrick",
-  "steelblue"), fill_alpha = 0.7, curve_flex = 1, add_labels = TRUE,
-  target)
+plot_classification_predictions(x, fill_colors = c("firebrick", "steelblue"),
+  fill_alpha = 0.7, curve_flex = 1, add_labels = TRUE, target)
 }
 \arguments{
 \item{x}{data frame as returned `predict.model_list`}

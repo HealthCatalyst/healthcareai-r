@@ -5,8 +5,7 @@
 \title{Specify imputation methods for an existing recipe}
 \usage{
 hcai_impute(recipe, nominal_method = "new_category",
-  numeric_method = "mean", numeric_params = NULL,
-  nominal_params = NULL)
+  numeric_method = "mean", numeric_params = NULL, nominal_params = NULL)
 }
 \arguments{
 \item{recipe}{A recipe object. imputation will be added to the sequence of
