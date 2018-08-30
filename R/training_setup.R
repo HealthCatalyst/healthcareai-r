@@ -200,7 +200,7 @@ check_metric <- function(model_class, metric) {
               ", evaluating models with ", new_metric, " instead")
       metric <- new_metric
   } else if (!(model_class %in% c("regression", "classification"))) {
-    stop("Don't have default metric for model class ", model_class)
+    stop("Healthcareai does not support ", model_class, " yet.")
   }
   return(metric)
 }
