@@ -186,7 +186,7 @@ test_that("list of values to vary works right", {
 test_that("explore hold custom functions (mean instead of median for numerics)", {
   sm_def <- explore(m, vary = c("weight_class", "skinfold"))
   sm2 <- explore(m, vary = c("weight_class", "skinfold"),
-                                hold = list(numerics = mean, characters = Mode))
+                 hold = list(numerics = mean, characters = Mode))
   same <- purrr::map2(sm_def, sm2, ~ isTRUE(all.equal(.x, .y)))
   expect_true(same$weight_class)
   expect_false(same$plasma_glucose)
@@ -204,8 +204,8 @@ test_that("explore hold row from test data", {
 
 test_that("explore hold custom list", {
   ch <- explore(m,
-                               vary = dplyr::setdiff(names(pima_diabetes), c("patient_id", "diabetes", "age", "skinfold")),
-                               hold = list(age = 21, skinfold = 18))
+                vary = dplyr::setdiff(names(pima_diabetes), c("patient_id", "diabetes", "age", "skinfold")),
+                hold = list(age = 21, skinfold = 18))
   varying <- purrr::map_lgl(ch, ~ dplyr::n_distinct(.x) > 1)
   expect_setequal(names(varying)[!varying], c("age", "skinfold"))
   expect_equal(unique(ch$age), 21)
@@ -364,4 +364,30 @@ test_that("explore can handle once-logical features", {
   m <- machine_learn(d, outcome = y, tune = FALSE, models = "xgb", n_folds = 2)
   expect_error(expl <- explore(m), NA)
   expect_s3_class(expl, "explore_df")
+})
+
+test_that("explore uses scaled features appropriately", {
+  n <- 100
+  d <- data.frame(x1 = sort(rnorm(n, 10, 100)),
+                  x2 = sort(rpois(n, 5)),
+                  x3 = runif(n, -10, 10),
+                  x4 = sample(letters, n, TRUE),
+                  y = sort(rnorm(n)))
+  # with centering and scaling
+  pd <- prep_data(d, outcome = y, center = TRUE, scale = TRUE)
+  m <- flash_models(pd, outcome = y, models = "xgb", n_folds = 3)
+  var1 <-
+    explore(m) %>%
+    dplyr::pull(predicted_y) %>%
+    stats::var()
+
+  # without centering and scaling
+  pd2 <- prep_data(d, outcome = y)
+  m2 <- flash_models(pd2, outcome = y, models = "xgb", n_folds = 3)
+  var2 <-
+    explore(m2) %>%
+    dplyr::pull(predicted_y) %>%
+    stats::var()
+  # var2 was 100x greater before being fixed, so large tolerance here is okay
+  expect_equal(var1, var2, tolerance = min(var1, var2))
 })
