@@ -115,7 +115,7 @@
 #' # `prep_data` also handles date and time features by default:
 #' d <-
 #'   pima_diabetes %>%
-#'   mutate(
+#'   cbind(
 #'     admitted_DTS = seq(as.POSIXct("2005-1-1 0:00"),
 #'                        length.out = nrow(pima_diabetes), by = "hour")
 #'   )
