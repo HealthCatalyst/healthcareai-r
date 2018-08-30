@@ -6,6 +6,9 @@ test_that("check_metric when correct, doesn't throw error or change metric", {
 
   expect_warning(metric <- check_metric("regression", "RMSE"), NA)
   expect_equal(metric, "RMSE")
+
+  expect_warning(metric <- check_metric("multiclass", "Kappa"), NA)
+  expect_equal(metric, "Kappa")
 })
 
 test_that("check_metric when incorrect, throws error or throws warnings and corrects", {
@@ -14,6 +17,9 @@ test_that("check_metric when incorrect, throws error or throws warnings and corr
 
   expect_warning(new_metric <- check_metric("regression", "PR"))
   expect_equal(new_metric, "RMSE")
+
+  expect_warning(new_metric <- check_metric("multiclass", "MAE"))
+  expect_equal(new_metric, "Accuracy")
 
   expect_error(check_metric("garbage", ""))
 })

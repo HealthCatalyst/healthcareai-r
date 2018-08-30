@@ -207,16 +207,20 @@ check_models <- function(models) {
 check_metric <- function(model_class, metric) {
   if (is.na(metric)) {
     metric <- set_default_metric(model_class)
-    warning("The given metric is NA, evaluating models with ", metric, " instead")
+    warning("The given metric is NA, evaluating models with ", metric,
+            " instead")
   } else if ( (model_class == "regression" &&
                !(metric %in% c("MAE", "RMSE", "Rsquared"))) ||
               (model_class == "classification" &&
-               !(metric %in% c("ROC", "PR")))) {
+               !(metric %in% c("ROC", "PR"))) ||
+              (model_class == "multiclass" &&
+               !(metric %in% c("Accuracy", "Kappa")))) {
       new_metric <- set_default_metric(model_class)
       warning("Healthcareai does not support ", metric,
               ", evaluating models with ", new_metric, " instead")
       metric <- new_metric
-  } else if (!(model_class %in% c("regression", "classification"))) {
+  } else if (!(model_class %in%
+               c("regression", "classification", "multiclass"))) {
     stop("Healthcareai does not support ", model_class, " yet.")
   }
   return(metric)
