@@ -24,7 +24,8 @@ for available models. Default is all available models.}
 classification: "ROC" (default) (area under the receiver operating
 characteristic curve), or "PR" (area under the precision-recall curve).
 Options for regression: "RMSE" (default) (root-mean-squared error,
-default), "MAE" (mean-absolute error), or "Rsquared."}
+default), "MAE" (mean-absolute error), or "Rsquared." For multiclass:
+"Accuracy" (default) or "Kappa" (accuracy, adjusted for class imbalance).}
 
 \item{tune}{If TRUE (default) models will be tuned via
 \code{\link{tune_models}}. If FALSE, models will be trained via
