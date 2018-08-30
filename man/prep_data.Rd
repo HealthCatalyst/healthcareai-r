@@ -4,10 +4,9 @@
 \alias{prep_data}
 \title{Prepare data for machine learning}
 \usage{
-prep_data(d, ..., outcome, recipe = NULL,
-  remove_near_zero_variance = TRUE, convert_dates = TRUE,
-  impute = TRUE, collapse_rare_factors = TRUE, center = FALSE,
-  scale = FALSE, make_dummies = TRUE, add_levels = TRUE,
+prep_data(d, ..., outcome, recipe = NULL, remove_near_zero_variance = TRUE,
+  convert_dates = TRUE, impute = TRUE, collapse_rare_factors = TRUE,
+  center = FALSE, scale = FALSE, make_dummies = TRUE, add_levels = TRUE,
   factor_outcome = TRUE, ref_levels = NULL)
 }
 \arguments{

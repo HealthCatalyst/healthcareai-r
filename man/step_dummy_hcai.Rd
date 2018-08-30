@@ -6,8 +6,7 @@
 \title{Dummy Variables Creation}
 \usage{
 step_dummy_hcai(recipe, ..., role = "predictor", trained = FALSE,
-  one_hot = FALSE, naming = dummy_names, levels = NULL,
-  skip = FALSE)
+  one_hot = FALSE, naming = dummy_names, levels = NULL, skip = FALSE)
 
 \method{tidy}{step_dummy_hcai}(x, ...)
 }
@@ -106,6 +105,8 @@ and interactions has more information.
  [step_ordinalscore()], [step_unorder()], [step_other()]
  [step_novel()]
 }
-\concept{preprocessing dummy_variables model_specification
- dummy_variables variable_encodings}
+\concept{
+preprocessing dummy_variables model_specification
+ dummy_variables variable_encodings
+}
 \keyword{datagen}
