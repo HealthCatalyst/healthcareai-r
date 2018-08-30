@@ -45,3 +45,4 @@ Suggests:
     covr
 URL: http://docs.healthcare.ai
 BugReports: https://github.com/HealthCatalyst/healthcareai-r/issues
+Encoding: UTF-8
