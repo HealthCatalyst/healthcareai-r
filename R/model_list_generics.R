@@ -15,7 +15,15 @@ print.model_list <- function(x, ...) {
       "\nClass: ", rinfo$m_class,
       "\nPerformance Metric: ", rinfo$metric,
       "\nNumber of Observations: ", rinfo$ddim[1],
-      "\nNumber of Features: ", rinfo$ddim[2] - 1L,
+      "\nNumber of Features: ", rinfo$ddim[2] - 1L
+      )
+    if (rinfo$m_class == "Multiclass") {
+      out <- paste0(
+        out,
+        "\nNumber of Outcome Classes: ", length(x[[1]]$levels)
+        )
+    }
+    out <- paste0(out,
       "\nModels Trained: ", rinfo$timestamp
     )
     out <- paste(

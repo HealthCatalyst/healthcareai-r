@@ -183,10 +183,13 @@ plot_classification_predictions <- function(x,
 #'   Default is c("black", "steelblue").
 #' @param text_color Character: color to write percent correct.
 #'   Default is "yellow".
+#' @param diag_color Character: color to highlight main diagonal. These are
+#'   correct predictions. Default is "red".
 #' @rdname plot.predicted_df
 plot_multiclass_predictions <- function(x,
                                         conf_colors = c("black", "steelblue"),
                                         text_color = "yellow",
+                                        diag_color = "red",
                                         target) {
   preds <- paste0("predicted_", target)
   # Only show actuals that are in the data.
@@ -233,7 +236,7 @@ plot_multiclass_predictions <- function(x,
   # Highlight diagonals
   p <-  p +
     geom_tile(data = filter(confusion, diag),
-              color = "black", size = 0.3, fill = "black", alpha = 0)
+              color = diag_color, size = 0.3, fill = "black", alpha = 0)
 
   return(p)
 }

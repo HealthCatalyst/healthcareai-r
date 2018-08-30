@@ -17,7 +17,7 @@ plot_classification_predictions(x, fill_colors = c("firebrick", "steelblue"),
   fill_alpha = 0.7, curve_flex = 1, add_labels = TRUE, target)
 
 plot_multiclass_predictions(x, conf_colors = c("black", "steelblue"),
-  text_color = "yellow", target)
+  text_color = "yellow", diag_color = "red", target)
 }
 \arguments{
 \item{x}{data frame as returned `predict.model_list`}
@@ -67,6 +67,9 @@ Default is c("black", "steelblue").}
 
 \item{text_color}{Character: color to write percent correct.
 Default is "yellow".}
+
+\item{diag_color}{Character: color to highlight main diagonal. These are
+correct predictions. Default is "red".}
 }
 \value{
 A ggplot object

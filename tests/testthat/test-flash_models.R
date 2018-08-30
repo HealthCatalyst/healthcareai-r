@@ -20,6 +20,12 @@ m_df_clean <- m_df %>% prep_data(model, outcome = drv)
 multi <-
   flash_models(d = m_df_clean, outcome = drv)
 
+m_df2 <-
+  pima_diabetes %>%
+  filter(!is.na(weight_class)) %>%
+  mutate(many_chars = as.character(sample(1:100, 757, replace = TRUE))) %>%
+  prep_data(outcome = many_chars)
+
 test_that("flash_models returns appropriate model_list", {
   expect_s3_class(cl, "model_list")
   expect_s3_class(cl, "classification_list")
@@ -54,4 +60,11 @@ test_that("AUPR is correct", {
   carets_aupr <- pr$`eXtreme Gradient Boosting`$results$AUC[1]
   actual_aupr <- evaluate(pr)[["AUPR"]]
   expect_equal(carets_aupr, actual_aupr)
+})
+
+test_that("multiclass warns when classes are sparse", {
+  expect_warning(
+    machine_learn(m_df2, patient_id, outcome = many_chars,
+                  models = "rf", tune = FALSE),
+    "sparse")
 })

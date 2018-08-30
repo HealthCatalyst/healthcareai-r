@@ -70,6 +70,11 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
            "\nYou could try turning n_folds down from its current value of ", n_folds,
            ", but it's hard to train a good model with few observations of an outcome.")
   }
+  if (model_class == "multiclass")
+    if (max(outcome_tab) / nrow(d) <= 0.05)
+      warning("Your outcome variable has categories that are sparsely ",
+              "distributed. It may be hard for the model to correctly predict ",
+              "them.")
 
   # Choose metric if not provided
   if (missing(metric))

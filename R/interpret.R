@@ -44,7 +44,8 @@ interpret <- function(x, sparsity = NULL, remove_zeros = TRUE, top_n) {
   if (mi$m_class == "Multiclass")
     stop("Interpret doesn't support multiclass models. If you're interested in ",
          "how one class is chosen, use interpret on a regular classification ",
-         "model in a one-vs-all fashion.")
+         "model in a one-vs-all fashion. Alternatively, you can use ",
+         "get_variable_importance().")
   if (mi$best_model_name != "glmnet")
     warning("Interpreting glmnet model, but ", mi$best_model_name, " performed ",
             "best in cross-validation and will be used to make predictions. ",
