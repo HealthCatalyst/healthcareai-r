@@ -79,7 +79,7 @@ system.time(
   flash_models(prepped_data, diabetes)
 )
 
-# Flash models remembers outcome and ignored features from prep_data
+# `flash_models`` remembers outcome and ignored features from prep_data
 pima_diabetes \%>\%
   prep_data(patient_id, outcome = diabetes) \%>\%
   flash_models()
