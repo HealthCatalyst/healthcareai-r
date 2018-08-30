@@ -4,10 +4,15 @@ context("Checking evaluate")
 d <- na.omit(pima_diabetes)[1:100, ]
 dtest <- na.omit(pima_diabetes)[101:110, ]
 
+m_df <- iris
+mtest <- iris[seq(1, 150, 10), ]
+
 r_models <- machine_learn(d, patient_id, outcome = plasma_glucose, tune = FALSE, n_folds = 2)
 r_models_eval <- evaluate(r_models)
 c_models <- machine_learn(d, patient_id, outcome = diabetes, tune = FALSE, n_folds = 2)
 c_models_eval <- evaluate(c_models)
+m_models <- machine_learn(d = m_df, outcome = Species, tune = FALSE, n_folds = 2)
+m_models_eval <- evaluate(m_models)
 
 r_preds_training <- predict(r_models)
 r_preds_train_eval <- evaluate(r_preds_training)
@@ -15,8 +20,11 @@ r_preds_test_eval <- predict(r_models, dtest) %>% evaluate()
 c_preds_training <- predict(c_models)
 c_preds_train_eval <- evaluate(c_preds_training)
 c_preds_test_eval <- predict(c_models, dtest) %>% evaluate()
+# m_preds_training <- predict(m_models) # nolint
+# m_preds_train_eval <- evaluate(m_preds_training) # nolint
+# m_preds_test_eval <- predict(m_models, dtest) %>% evaluate() # nolint
 
-all_evals <- list(r_models_eval, c_models_eval,
+all_evals <- list(r_models_eval, c_models_eval, m_models_eval,
                   r_preds_train_eval, c_preds_train_eval,
                   r_preds_test_eval, c_preds_test_eval)
 
@@ -31,6 +39,12 @@ test_that("evalute_regression returns numeric with names being metrics", {
   eval_reg <- evaluate_regression(c(.3, .7, .8), c(4, 6, 9))
   expect_true(is.numeric(eval_reg))
   expect_setequal(names(eval_reg), c("RMSE", "MAE", "Rsquared"))
+})
+
+test_that("evalute_regression returns numeric with names being metrics", {
+  eval_reg <- evaluate_multiclass(iris$Species, sample(iris$Species))
+  expect_true(is.numeric(eval_reg))
+  expect_setequal(names(eval_reg), c("Accuracy", "Kappa"))
 })
 
 test_that("evaluate is a registered S3 generic with methods for models and predictions", {
@@ -51,6 +65,9 @@ test_that("All evalutes methods returns appropriate metrics", {
   expect_setequal(names(c_preds_train_eval), c("AUPR", "AUROC"))
   expect_setequal(names(c_preds_test_eval), c("AUPR", "AUROC"))
   expect_setequal(names(c_models_eval), c("AUPR", "AUROC"))
+  # expect_setequal(names(m_preds_train_eval), c("Accuracy", "Kappa")) # nolint
+  # expect_setequal(names(m_preds_test_eval), c("Accuracy", "Kappa")) # nolint
+  # expect_setequal(names(m_models_eval), c("Accuracy", "Kappa")) # nolint
 })
 
 test_that("All classification metrics are in [0, 1]", {
@@ -87,11 +104,13 @@ test_that("evalute all_models works right", {
   alls <- list(
     r_all = evaluate(r_models, all_models = TRUE),
     c_all = evaluate(c_models, all_models = TRUE),
+    m_all = evaluate(m_models, all_models = TRUE),
     all1 = evaluate(r_models[1], all_models = TRUE)
   )
   purrr::map_lgl(alls, is.data.frame) %>% all() %>% expect_true()
   (diff(alls$r_all$RMSE) >= 0) %>% all() %>% expect_true()
   (diff(alls$c_all$AUROC) <= 0) %>% all() %>% expect_true()
+  (diff(alls$m_all$Accuracy) <= 0) %>% all() %>% expect_true()
 })
 
 test_that("evaluate.predicted_df na.rm works", {

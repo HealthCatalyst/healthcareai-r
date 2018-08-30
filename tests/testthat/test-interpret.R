@@ -2,6 +2,8 @@ context("Checking interpret")
 
 set.seed(271)
 m <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = diabetes)
+multi <- machine_learn(na.omit(pima_diabetes[1:200, ]), patient_id, outcome = weight_class,
+                       tune = FALSE, models = "glm")
 g <- m["glmnet"]
 
 test_that("test errors", {
@@ -174,4 +176,8 @@ test_that("test add_refs normal functionality", {
   actual <- add_refs(dat, m)
   expect_true("weight_class_normal (vs. obese)" %in% actual$variable)
   expect_true("skinfold" %in% actual$variable)
+})
+
+test_that("multiclass isn't supported", {
+  expect_error(interpret(multi), "multiclass")
 })
