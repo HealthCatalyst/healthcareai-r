@@ -17,3 +17,10 @@ test_that("check_metric when incorrect, throws error or throws warnings and corr
 
   expect_error(check_metric("garbage", ""))
 })
+
+test_that("set_default_metric returns correct metric", {
+  expect_equal(set_default_metric("regression"), "RMSE")
+  expect_equal(set_default_metric("classification"), "ROC")
+
+  expect_error(set_default_metric("garbage"), "Don't have")
+})
