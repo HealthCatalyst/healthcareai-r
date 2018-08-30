@@ -62,6 +62,12 @@ test_that("flash_ and tune_ error informatively if training data isn't prepped",
   expect_error(tune_models(mtcars, outcome = am), "no_prep")
 })
 
+test_that("flash_models doesn't need an outcome specified", {
+  m <- flash_models(cl_prep)
+  expect_s3_class(m, "model_list")
+  expect_s3_class(m, "classification_list")
+})
+
 test_that("multiclass warns when classes are sparse", {
   expect_warning(
     machine_learn(m_df2, patient_id, outcome = many_chars,
