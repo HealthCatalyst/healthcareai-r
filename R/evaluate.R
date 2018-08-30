@@ -79,8 +79,10 @@ evaluate.predicted_df <- function(x, na.rm = FALSE, ...) {
       op$obs <- ifelse(op$obs == pc, 1L, 0L)
     }
     scores <- evaluate_classification(predicted = op$pred, actual = op$obs)
+  } else if (attr(x, "model_info")[["type"]] == "Multiclass") {
+    scores <- evaluate_multiclass(predicted = op$pred, actual = op$obs)
   } else {
-    stop("Somthing's gone wrong. I don't know how to deal with model type ",
+    stop("Something's gone wrong. I don't know how to deal with model type ",
          attr(x, "model_info")[["type"]])
   }
   return(scores)
@@ -105,6 +107,9 @@ evaluate.model_list <- function(x, all_models = FALSE, ...) {
     pred_col <- mi$positive_class
     for (mod in names(x))
       x[[mod]]$pred$obs <- ifelse(x[[mod]]$pred$obs == mi$positive_class, 1L, 0L)
+  } else if (mi$m_class == "Multiclass") {
+    f <- evaluate_multiclass
+    pred_col <- "pred"
   }
   # Pull all available metrics from all models
   out <-
@@ -149,6 +154,26 @@ evaluate.model_list <- function(x, all_models = FALSE, ...) {
 evaluate_classification <- function(predicted, actual) {
   c("AUPR" = MLmetrics::PRAUC(y_pred = predicted, y_true = actual),
     "AUROC" = MLmetrics::AUC(y_pred = predicted, y_true = actual)
+  )
+}
+
+#' Get performance metrics for multiclass predictions
+#'
+#' @param predicted Vector of predicted probabilities
+#' @param actual Vector of realized outcomes, must be 0/1
+#'
+#' @importFrom MLmetrics Accuracy
+#'
+#' @return Numeric vector of scores with metric as names
+#' @export
+#'
+#' @examples
+#' evaluate_multiclass(iris$Species, sample(iris$Species))
+evaluate_multiclass <- function(predicted, actual) {
+  actual <- factor(actual, levels = levels(predicted))
+  c("Accuracy" = MLmetrics::Accuracy(y_pred = predicted, y_true = actual),
+    "Kappa" = caret::confusionMatrix(
+      data = predicted, reference = actual)$overall[["Kappa"]]
   )
 }
 

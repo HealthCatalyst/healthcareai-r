@@ -4,6 +4,8 @@ context("explore")
 set.seed(574)
 m <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = diabetes,
                    tune = FALSE, n_folds = 2)
+multi <- machine_learn(na.omit(pima_diabetes[1:200, ]), patient_id, outcome = weight_class,
+                       tune = FALSE, models = "glm")
 variabs <-
   attr(m, "recipe")$var_info %>%
   dplyr::filter(role == "predictor") %>%
@@ -398,4 +400,8 @@ test_that("explore uses scaled features appropriately", {
     stats::var()
   # var2 was 100x greater before being fixed, so large tolerance here is okay
   expect_equal(var1, var2, tolerance = min(var1, var2))
+})
+
+test_that("multiclass errors", {
+  expect_error(explore(multi), "multiclass")
 })

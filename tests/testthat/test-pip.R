@@ -13,6 +13,7 @@ suppressWarnings({
   animodel <- machine_learn(animals, id_column, outcome = y, tune = FALSE, models = c("xgb", "glm"))
   glm_model <- animodel["glmnet"]
   animodel <- animodel["eXtreme Gradient Boosting"]
+  multimodel <- machine_learn(animals, id_column, outcome = animal, tune = FALSE, models = c("rf"))
 })
 alt_list <- list(animal = c("dog", "cat"), weight = 0, super = c("yes", "no"))
 def_pip <- pip(animodel, animals, new_values = alt_list)
@@ -204,4 +205,8 @@ test_that("prohibited_transitions warns on non-integer numerics", {
     pip(animodel, animals, new_values = list(weight = 1),
         prohibited_transitions = list(weight = data.frame(from = 5, to = 1))),
     "variable_direction")
+})
+
+test_that("multiclass errors in pip", {
+  expect_error(pip(multimodel, d = animals), "multiclass")
 })

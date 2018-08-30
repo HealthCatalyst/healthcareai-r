@@ -269,6 +269,14 @@ predict_model_list_main <- function(object,
   newdata <- tibble::as_tibble(newdata)
 
   # Add groups if desired
+  if (mi$m_class == "Multiclass") {
+    if (!is.null(risk_groups) || !is.null(outcome_groups)) {
+      warning("Multiclass models don't support risk or outcome groups. ",
+              "Predict will continue without those parameters.")
+      risk_groups <- NULL
+      outcome_groups <- NULL
+    }
+  }
   newdata <- add_groups(object, mi, newdata, pred_name, risk_groups, outcome_groups)
 
   # Put predictions and, if present, the outcome and predicted group at left of newdata
@@ -387,6 +395,8 @@ get_oof_predictions <- function(x, mi = extract_model_info(x)) {
     return(preds$pred)
   if (mi$m_class == "Classification")
     return(preds[[mi$positive_class]])
+  if (mi$m_class == "Multiclass")
+    return(preds$pred)
   stop("Eh? What kind of model is that?")
 }
 

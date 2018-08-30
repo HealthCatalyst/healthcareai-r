@@ -5,9 +5,12 @@ set.seed(257056)
 short <- dplyr::sample_n(na.omit(pima_diabetes), 50)
 dreg <- prep_data(short, outcome = pedigree)
 dcla <- prep_data(short, outcome = diabetes)
+dmul <- prep_data(dplyr::sample_n(iris, 100), outcome = Species)
+
 # Implicit test that warning not issued for missing resampled performance metrics:
 r_models <- tune_models(dreg, pedigree, tune_depth = 2, n_folds = 2, models = c("rf", "glm"))
 c_models <- tune_models(dcla, diabetes, tune_depth = 2, n_folds = 2, model_name = "great_name", models = "xgb")
+m_models <- tune_models(d = dmul, outcome = Species, tune_depth = 2, n_folds = 2, models = "rf")
 c_pr <- flash_models(dcla, diabetes, metric = "PR", n_folds = 2, models = "xgb")
 single_model_tune <- tune_models(dcla, diabetes, models = "xgb", n_folds = 2, tune_depth = 2)
 r_flash <- flash_models(dreg, pedigree, n_folds = 2, models = "xgb")
@@ -79,6 +82,10 @@ test_that("print.model_list works", {
   expect_true(nchar(cprint) > 0)
   expect_true(grepl("classification", cprint, ignore.case = TRUE))
 
+  mprint <- capture_output(m_models, TRUE)
+  expect_true(nchar(mprint) > 0)
+  expect_true(grepl("multiclass", mprint, ignore.case = TRUE))
+
   # With PR as the metric
   cprint <- capture_output(c_pr, TRUE)
   expect_true(nchar(cprint) > 0)
@@ -117,22 +124,29 @@ context("Checking model_list generics on untuned model_lists") #----------------
 test_that("print.model_list works with untuned_model_lists", {
   expect_warning(flash_r_print <- capture_output(print(r_flash)), NA)
   expect_warning(flash_c_print <- capture_output(print(c_flash)), NA)
+  expect_warning(flash_m_print <- capture_output(print(m_flash)), NA)
   expect_false(grepl("Inf", flash_r_print))
   expect_false(grepl("Inf", flash_c_print))
+  expect_false(grepl("Inf", flash_m_print))
   expect_true(grepl("Target: pedigree", flash_r_print))
   expect_true(grepl("Target: diabetes", flash_c_print))
+  expect_true(grepl("Target: Species", flash_m_print))
   expect_true(grepl("Models have not been tuned", flash_r_print))
   expect_true(grepl("selected hyperparameter values", flash_c_print))
+  expect_true(grepl("Accuracy", flash_m_print))
 })
 
 test_that("summary.model_list works with untuned_model_lists", {
   expect_warning(flash_r_summary <- capture_output(summary(r_flash)), NA)
   expect_warning(flash_c_summary <- capture_output(summary(c_flash)), NA)
+  expect_warning(flash_m_summary <- capture_output(summary(m_flash)), NA)
   expect_false(grepl("Inf", flash_r_summary))
   expect_false(grepl("Inf", flash_c_summary))
+  expect_false(grepl("Inf", flash_m_summary))
   expect_false(grepl("0 rows", flash_r_summary))
   expect_false(grepl("Best performance:", flash_r_summary))
   expect_true(grepl("Best algorithm:", flash_c_summary))
+  expect_true(grepl("Kappa", flash_m_summary))
 })
 
 test_that("plot.model_list works with message untuned_model_lists", {
@@ -169,15 +183,18 @@ test_that("model_lists have time model trained attribute", {
   check_timestamp <- function(m) expect_true(lubridate::is.POSIXt(attr(m, "timestamp")))
   check_timestamp(r_models)
   check_timestamp(c_models)
+  check_timestamp(m_models)
   check_timestamp(c_pr)
   check_timestamp(r_flash)
   check_timestamp(c_flash)
+  check_timestamp(m_flash)
 })
 
 test_that("model_lists only carry training data in recipe", {
   expect_null(r_models[[1]]$trainingData)
   expect_null(c_models[[1]]$trainingData)
   expect_null(r_models[[2]]$trainingData)
+  expect_null(m_models[[1]]$trainingData)
 })
 
 test_that("[ extracts models by index", {

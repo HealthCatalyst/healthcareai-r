@@ -55,7 +55,7 @@ get_supported_models <- function() {
 #' @noRd
 #' @details Vector of currently-supported model classes.
 get_supported_model_classes <- function() {
-  return(c("regression", "classification"))
+  return(c("regression", "classification", "multiclass"))
 }
 
 #' Translate user provided model specifications to caret's expectation or
@@ -78,6 +78,8 @@ get_metric_names <- function() {
       "AUC",      "AUPR",       max,
       "RMSE",     "RMSE",       min,
       "MAE",      "MAE",        min,
-      "Rsquared", "Rsquared",   max
+      "Rsquared", "Rsquared",   max,
+      "Accuracy", "Accuracy",   max,
+      "Kappa",    "Kappa",      max
   )
 }

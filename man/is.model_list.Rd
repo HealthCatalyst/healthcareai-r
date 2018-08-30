@@ -4,6 +4,7 @@
 \alias{is.model_list}
 \alias{is.classification_list}
 \alias{is.regression_list}
+\alias{is.multiclass_list}
 \title{Type checks}
 \usage{
 is.model_list(x)
@@ -11,6 +12,8 @@ is.model_list(x)
 is.classification_list(x)
 
 is.regression_list(x)
+
+is.multiclass_list(x)
 }
 \arguments{
 \item{x}{Object}

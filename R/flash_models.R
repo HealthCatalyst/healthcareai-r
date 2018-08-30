@@ -9,7 +9,8 @@
 #'   regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
 #'   error), or "Rsquared." For classification: "ROC" (area under the receiver
 #'   operating characteristic curve), or "PR" (area under the precision-recall
-#'   curve).
+#'   curve). For multiclass: "Accuracy" (default) or "Kappa" (accuracy,
+#'   adjusted for class imbalance).
 #' @param positive_class For classification only, which outcome level is the
 #'   "yes" case, i.e. should be associated with high probabilities? Defaults to
 #'   "Y" or "yes" if present, otherwise is the first level of the outcome
@@ -105,6 +106,7 @@ flash_models <- function(d,
   train_list <- as.model_list(listed_models = train_list,
                               tuned = FALSE,
                               target = rlang::quo_name(outcome),
+                              model_class = model_class,
                               recipe = recipe,
                               positive_class = attr(train_list, "positive_class"),
                               model_name = model_name,

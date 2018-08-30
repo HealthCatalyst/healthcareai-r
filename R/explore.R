@@ -107,6 +107,9 @@ explore <- function(models,
   if (!is.model_list(models))
     stop("models must be a model_list object; this is a ", class(models)[1])
 
+  if (extract_model_info(models)$m_class == "Multiclass")
+    stop("explore doesn't support multiclass models yet.")
+
   rec <- attr(models, "recipe")
   if (is.null(rec))
     stop("models must have been trained on prepped data, either through ",
