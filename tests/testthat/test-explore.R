@@ -47,7 +47,8 @@ test_that("choose_variables glm", {
       prep_data(patient_id, outcome = diabetes, scale = TRUE) %>%
       flash_models(diabetes, models = "glm", n_folds = 2) %>%
       explore()
-  }, NA)
+  },
+  NA)
 })
 
 test_that("choose_values nums only", {

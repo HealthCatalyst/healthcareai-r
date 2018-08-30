@@ -201,7 +201,7 @@ extract_model_info <- function(x) {
   algs <- purrr::map_chr(x, ~ .x$modelInfo$label)
   m_class <- x[[1]]$modelType
   target <- attr(x, "target")
-  ddim <- dim(x[[1]]$trainingData)
+  ddim <- attr(x, "ddim")
   best_model_name <- algs[[best_model]]
   best_model_perf <- best_metrics[[best_model]]
   best_model_tune <-

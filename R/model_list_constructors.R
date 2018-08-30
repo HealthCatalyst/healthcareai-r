@@ -43,26 +43,7 @@ as.model_list <- function(...,
     listed_models
   )
 
-  if (any(!purrr::map_lgl(listed_models, inherits, "train")))
-    stop("Those don't look like caret-trained models.")
-  # Check that models were trained on the same data
-  datasets <- lapply(listed_models, function(mm) mm$trainingData)
-  if (length(unique(datasets[!purrr::map_lgl(datasets, is.null)])) > 1)
-    stop("Those models don't appear to have been trained on the same data.")
-  metrics <- unique(purrr::map_chr(listed_models, "metric"))
-  if (length(metrics) > 1)
-    stop("All models must be trained on the same evaluation metric. ",
-         "Those models were trained on ", list_variables(metrics))
-  if (!metrics %in% get_metric_names()$caret)
-    stop(metrics, " is not a healthcareai supported metric. ",
-         "Tune your models on one of: ", list_variables(get_metric_names()$caret))
-  if (any(purrr::map_lgl(listed_models, ~ is.null(.x$pred))))
-    stop("as.model_list requires training predictions to be saved. ",
-         "Use `trControl = trainControl(savePredictions = \"final\")` in `train`")
   types <- unique(tolower(purrr::map_chr(listed_models, ~ .x$modelType)))
-  if (length(types) > 1L)
-    stop("All model_class elements need to be the same. Yours: ",
-         list_variables(types))
   if (!missing(model_class) && model_class != types)
     stop("model_class doesn't match the model(s).")
   model_class <- types
@@ -70,17 +51,13 @@ as.model_list <- function(...,
   # Remove training data from models. Kept in recipe instead
   # and remove "call" object containing training data from all models
   for (i in seq_along(listed_models)) {
+    # First, get dimensions of data at training (after dummies, etc.)
+    ddim <- dim(listed_models[[i]]$trainingData)
     listed_models[[i]]$trainingData <- NULL
     listed_models[[i]]$call <- NULL
   }
   if (is.null(model_name))
     model_name <- target
-  # If this is a direct wrapping of a caret model
-  if (missing(original_data_str)) {
-    original_data_str <-
-      listed_models[[1]]$trainingData[0, ] %>%
-      select_not(".outcome")
-  }
   if (missing(versions))
     versions <- attr(attach_session_info(1), "versions")
 
@@ -94,6 +71,7 @@ as.model_list <- function(...,
             positive_class = positive_class,
             best_levels = best_levels,
             original_data_str = tibble::as_tibble(original_data_str),
+            ddim = ddim,
             versions = versions) %>%
     structure(., performance = evaluate(.))
 }
