@@ -72,13 +72,13 @@ test_that("get_factor_levels works when just one factor", {
   fl <- get_factor_levels(d)
   expect_equal("list", class(fl))
   expect_equal("reaction", names(fl))
-  expect_setequal(as.character(d$reaction), sort(fl$reaction))
+  expect_setequal(as.character(d$reaction), names(fl$reaction))
 })
 
 test_that("get_factor_levels works on character and factors", {
   pfl <- get_factor_levels(pima_diabetes)
   expect_equal("list", class(pfl))
   expect_equal(c("weight_class", "diabetes"), names(pfl))
-  expect_setequal(as.character(pima_diabetes$weight_class), pfl$weight_class)
-  expect_setequal(as.character(pima_diabetes$diabetes), pfl$diabetes)
+  expect_setequal(as.character(pima_diabetes$weight_class), names(pfl$weight_class))
+  expect_setequal(as.character(pima_diabetes$diabetes), names(pfl$diabetes))
 })
