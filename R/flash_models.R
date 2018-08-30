@@ -4,12 +4,13 @@
 #' @param outcome Name of the column to predict
 #' @param models Names of models to try. See \code{\link{get_supported_models}}
 #'   for available models. Default is all available models.
-#' @param metric What metric to use to assess model performance? Options for
-#'   regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
-#'   error), or "Rsquared." For classification: "ROC" (area under the receiver
-#'   operating characteristic curve), or "PR" (area under the precision-recall
-#'   curve). For multiclass: "Accuracy" (default) or "Kappa" (accuracy,
-#'   adjusted for class imbalance).
+#' @param metric Specifies which metric will be used to assess model
+#'   performance. Options for classification: "ROC" (default) (area under the
+#'   receiver operating characteristic curve), or "PR" (area under the
+#'   precision-recall curve). Options for regression: "RMSE" (default)
+#'   (root-mean-squared error, default), "MAE" (mean-absolute error), or
+#'   "Rsquared". Options for multiclass: "Accuracy" (default) or "Kappa"
+#'   (accuracy, adjusted for class imbalance).
 #' @param positive_class For classification only, which outcome level is the
 #'   "yes" case, i.e. should be associated with high probabilities? Defaults to
 #'   "Y" or "yes" if present, otherwise is the first level of the outcome
