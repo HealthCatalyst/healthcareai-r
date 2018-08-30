@@ -12,7 +12,9 @@ tune_models(d, outcome, models, metric, positive_class, n_folds = 5,
 \arguments{
 \item{d}{A data frame}
 
-\item{outcome}{Name of the column to predict}
+\item{outcome}{Optional. Name of the column to predict. When omitted the
+outcome from \code{\link{prep_data}} is used; otherwise it must match the
+outcome provided to \code{\link{prep_data}}.}
 
 \item{models}{Names of models to try. See \code{\link{get_supported_models}}
 for available models. Default is all available models.}
@@ -80,7 +82,7 @@ Note that this function is training a lot of models (100 by default)
 d <- prep_data(pima_diabetes, patient_id, outcome = diabetes)
 
 # Tune random forest, xgboost, and regularized regression classification models
-m <- tune_models(d, outcome = diabetes)
+m <- tune_models(d)
 
 # Get some info about the tuned models
 m
@@ -106,11 +108,6 @@ grid_search_models <-
               hyperparameters = list(rf = rf_hyperparameters)
   )
 plot(grid_search_models)
-
-# `tune_models` remembers outcome and ignored features from prep_data
-pima_diabetes \%>\%
-  prep_data(patient_id, outcome = diabetes) \%>\%
-  tune_models()
 }
 }
 \seealso{

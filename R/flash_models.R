@@ -1,7 +1,9 @@
 #' Train models without tuning for performance
 #'
 #' @param d A data frame
-#' @param outcome Name of the column to predict
+#' @param outcome Optional. Name of the column to predict. When omitted the
+#'   outcome from \code{\link{prep_data}} is used; otherwise it must match the
+#'   outcome provided to \code{\link{prep_data}}.
 #' @param models Names of models to try. See \code{\link{get_supported_models}}
 #'   for available models. Default is all available models.
 #' @param metric What metric to use to assess model performance? Options for
@@ -59,7 +61,7 @@
 #' prepped_data <- prep_data(pima_diabetes, patient_id, outcome = diabetes)
 #'
 #' # Get models quickly at default hyperparameter values
-#' flash_models(prepped_data, diabetes)
+#' flash_models(prepped_data)
 #'
 #' # Speed comparison of no tuning with flash_models vs. tuning with tune_models:
 #' # ~15 seconds:
@@ -70,11 +72,6 @@
 #' system.time(
 #'   flash_models(prepped_data, diabetes)
 #' )
-#'
-#' # `flash_models`` remembers outcome and ignored features from prep_data
-#' pima_diabetes %>%
-#'   prep_data(patient_id, outcome = diabetes) %>%
-#'   flash_models()
 #' }
 flash_models <- function(d,
                          outcome,
