@@ -48,26 +48,48 @@ suppressWarnings({
     dplyr::mutate(Catholic = ifelse(Catholic == "Y", 1L, 0L)) %>%
     flash_models(Fertility)
 })
+
+set.seed(1234)
+iris_char <- iris %>%
+  mutate(potted = sample(c("Feb", "Mar", "Apr"), 150, replace = TRUE))
+m_train <- iris_char
+m_test <- iris_char[seq(1, 150, 10), ]
+model_multi_prepped <-
+  prep_data(m_train, outcome = Species, make_dummies = TRUE) %>%
+  flash_models(outcome = Species)
+model_multi_not_prepped <- m_train %>%
+  select(-potted) %>%
+  flash_models(outcome = Species)
+
+
 # And prepped newdata to go with them
 test_data_reg_prep <- prep_data(test_data, recipe = model_regression_prepped)
 test_data_class_prep <- prep_data(test_data, recipe = model_classify_prepped)
+test_data_multi_prep <- prep_data(m_test, recipe = model_multi_prepped)
 
 # Output
 regression_prepped_prepped <-
   predict(model_regression_prepped, test_data_reg_prep)
 classification_prepped_prepped <-
   predict(model_classify_prepped, test_data_class_prep)
+multi_prepped_prepped <-
+  predict(model_multi_prepped, test_data_multi_prep)
 
 regression_not_not <-
   dplyr::mutate(test_data, Catholic = ifelse(Catholic == "Y", 1L, 0L)) %>%
   predict(model_regression_not_prepped, .)
 classification_not_not <-
   predict(model_classify_not_prepped, test_data)
+multi_not_not <-
+  predict(model_multi_not_prepped, m_test)
 
 regression_prepped_not <-
   predict(model_regression_prepped, test_data)
 suppressWarnings(classification_prepped_not <-
                    predict(model_classify_prepped, test_data))
+multi_prepped_not <-
+  predict(model_multi_prepped, m_test)
+
 
 # Test for some messages and warnings when whether to prep before predict is unclear:
 # Here, should get a warning because all predictors are numeric, so they appear
@@ -77,10 +99,12 @@ suppressWarnings({
 })
 prpn_message <- capture_message( predict(model_regression_prepped, test_data) )
 pcpn_warning <- capture_warning( predict(model_classify_prepped, test_data) )
+pmpn_message <- capture_message( predict(model_multi_prepped, m_test) )
 
 test_that("When training data is prepped but test isn't, it gets prepped", {
   expect_true(grepl("Prepping", prpn_message))
   expect_true(grepl("Prepping", pcpn_message))
+  expect_true(grepl("Prepping", pmpn_message))
 })
 test_that("When training data hasn't been prepped but has all the same columns as prepped training, get warning", {
   expect_true(grepl("Warning", pcpn_warning))
@@ -98,11 +122,19 @@ test_that("predict classification returns a tibble", {
   expect_s3_class(classification_not_not, "tbl_df")
 })
 
+test_that("predict multiclass returns a tibble", {
+  expect_s3_class(multi_prepped_not, "tbl_df")
+  expect_s3_class(multi_prepped_prepped, "tbl_df")
+  expect_s3_class(multi_not_not, "tbl_df")
+})
+
 test_that("prepping data inside or before predict produces same output", {
   expect_true(all.equal(regression_prepped_not$predicted_Fertility,
                         regression_prepped_prepped$predicted_Fertility))
   expect_true(all.equal(classification_prepped_not$predicted_Catholic,
                         classification_prepped_prepped$predicted_Catholic))
+  expect_true(all.equal(multi_prepped_not$predicted_Species,
+                        multi_prepped_prepped$predicted_Species))
 })
 
 test_that("predictions are better than chance", {
@@ -118,6 +150,12 @@ test_that("predictions are better than chance", {
        mean(abs(predicted_Fertility - Fertility)) < mean(abs(mean(Fertility) - Fertility))
   ) %>%
     expect_true()
+  # Multi
+  multi_prepped_not %>%
+    dplyr::mutate(correct = Species == predicted_Species) %>%
+    with(., sum(correct) >
+           nrow(.) / 3) %>%
+    expect_true()
 })
 
 test_that("If newdata isn't provided, make predictions on training data", {
@@ -127,6 +165,9 @@ test_that("If newdata isn't provided, make predictions on training data", {
   pr <- predict(model_regression_not_prepped)
   expect_s3_class(pr, "predicted_df")
   expect_true(all(c("Fertility", "predicted_Fertility") %in% names(pr)))
+  pm <- predict(model_multi_prepped)
+  expect_s3_class(pm, "predicted_df")
+  expect_true(all(c("Species", "predicted_Species") %in% names(pm)))
 })
 
 test_that("predict can handle binary character non Y/N columns", {
@@ -190,6 +231,10 @@ test_that("prepped and predicted data frame gets printed as predicted and not pr
   capture_output(mes <- capture_messages(print(classification_prepped_prepped)))
   expect_false(stringr::str_detect(mes, "prepped"))
   expect_true(stringr::str_detect(mes, "predicted"))
+
+  capture_output(mes <- capture_messages(print(multi_prepped_prepped)))
+  expect_false(stringr::str_detect(mes, "prepped"))
+  expect_true(stringr::str_detect(mes, "predicted"))
 })
 
 test_that("printing predicted df prints the data frame", {
@@ -212,6 +257,23 @@ test_that("printing classification df gets ROC/PR metric right", {
   })
   expect_false(stringr::str_detect(as.character(capture_message(print(roc))), "PR"))
   expect_false(stringr::str_detect(as.character(capture_message(print(pr))), "ROC"))
+})
+
+test_that("printing multiclass df gets Accruacy/Kappa metric right", {
+  suppressWarnings({
+    acc <-
+      m_train %>%
+      prep_data(outcome = Species, make_dummies = TRUE) %>%
+      flash_models(Species, models = "RF", metric = "Accuracy", n_folds = 2) %>%
+      predict()
+    kap <-
+      m_train %>%
+      prep_data(outcome = Species, make_dummies = TRUE) %>%
+      flash_models(Species, models = "RF", metric = "Kappa", n_folds = 2) %>%
+      predict()
+  })
+  expect_false(stringr::str_detect(as.character(capture_message(print(kap))), "Accuracy"))
+  expect_false(stringr::str_detect(as.character(capture_message(print(acc))), "Kappa"))
 })
 
 test_that("determine_prep FALSE when no recipe on model", {
@@ -309,6 +371,12 @@ test_that("can predict on untuned classification model with new data", {
   expect_s3_class(c_preds_test, "predicted_df")
 })
 
+test_that("can predict on untuned multiclass model with new data", {
+  m_models <- machine_learn(m_train, outcome = Species, tune = FALSE, n_folds = 2)
+  m_preds_test <- predict(m_models, m_test)
+  expect_s3_class(m_preds_test, "predicted_df")
+})
+
 test_that("predict without new data returns out of fold predictions from training", {
   preds <- predict(model_classify_prepped)$predicted_Catholic
   oofpreds <- dplyr::arrange(model_classify_prepped[[extract_model_info(model_classify_prepped)$best_model_name]]$pred, rowIndex)$Y
@@ -319,6 +387,7 @@ test_that("get_oof_predictions seems to work", {
   expect_true(is.numeric(get_oof_predictions(model_regression_prepped)))
   expect_true(is.numeric(get_oof_predictions(model_classify_prepped)))
   expect_true(is.numeric(get_oof_predictions(model_regression_not_prepped)))
+  expect_true(is.factor(get_oof_predictions(model_multi_prepped)))
 })
 
 test_that("logging works as expected", {
@@ -379,6 +448,13 @@ test_that("print.predicted_df works after join", {
                               classification_not_not,
                               by = "province")
   expect_error(capture_output(joined, TRUE), NA)
+})
+
+test_that("multiclass errors with groups", {
+  expect_warning(pr <- predict(model_multi_prepped, risk_groups = 4))
+  expect_s3_class(pr, "predicted_df")
+  expect_warning(pr <- predict(model_multi_prepped, outcome_groups = 4))
+  expect_s3_class(pr, "predicted_df")
 })
 
 test_that("risk_groups works on training data", {

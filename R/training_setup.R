@@ -44,10 +44,11 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
     # Make `models` case insensitive
     models <- tolower(models)
   }
-
   # Make sure outcome's class works with model_class, or infer it
-  model_class <- set_model_class(model_class, class(dplyr::pull(d, !!outcome)), outcome_chr)
-
+  model_class <- set_model_class(model_class,
+                                 dplyr::pull(d, !!outcome),
+                                 outcome_chr)
+  outcome_tab <- table(d[[outcome_chr]])
   if (model_class == "classification") {
     if (missing(positive_class))
       positive_class <- NULL
@@ -60,7 +61,8 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
       # Choose positive class and set it to the factor reference level
       set_outcome_class(positive_class)
     # Make sure there can be at least one instance of outcome in each fold
-    outcome_tab <- table(d[[outcome_chr]])
+  }
+  if (model_class == "classification") {
     if (min(outcome_tab) < n_folds)
       stop("There must be at least one instance of each outcome class ",
            "for each cross validation fold. Observed frequencies in d:\n",
@@ -68,6 +70,11 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
            "\nYou could try turning n_folds down from its current value of ", n_folds,
            ", but it's hard to train a good model with few observations of an outcome.")
   }
+  if (model_class == "multiclass")
+    if (max(outcome_tab) / nrow(d) <= 0.05)
+      warning("Your outcome variable has categories that are sparsely ",
+              "distributed. It may be hard for the model to correctly predict ",
+              "them.")
 
   # Choose metric if not provided
   if (missing(metric))
@@ -140,7 +147,9 @@ remove_ignored <- function(d, recipe) {
   return(d)
 }
 
-set_model_class <- function(model_class, outcome_class, outcome_chr) {
+set_model_class <- function(model_class, outcome, outcome_chr) {
+  n_outcomes <- dplyr::n_distinct(outcome)
+  outcome_class <- class(outcome)
   looks_categorical <- outcome_class %in% c("character", "factor")
   looks_numeric <- outcome_class %in% c("integer", "numeric")
   if (!looks_categorical && !looks_numeric) {
@@ -150,8 +159,13 @@ set_model_class <- function(model_class, outcome_class, outcome_chr) {
   } else if (missing(model_class)) {
     # Need to infer model_class
     if (looks_categorical) {
-      mes <- paste0(outcome_chr, " looks categorical, so training classification algorithms.")
-      model_class <- "classification"
+      if (n_outcomes > 2) {
+        mes <- paste0(outcome_chr, " looks multiclass, so training multiclass algorithms.")
+        model_class <- "multiclass"
+      } else {
+        mes <- paste0(outcome_chr, " looks categorical, so training classification algorithms.")
+        model_class <- "classification"
+      }
     } else {
       mes <- paste0(outcome_chr, " looks numeric, so training regression algorithms.")
       model_class <- "regression"
@@ -167,9 +181,12 @@ set_model_class <- function(model_class, outcome_class, outcome_chr) {
            ". You supplied this unsupported class: ", model_class)
     if (looks_categorical && model_class == "regression") {
       stop(outcome_chr, " looks categorical but you're trying to train a regression model.")
-    } else if (looks_numeric && model_class == "classification") {
+    } else if (looks_numeric && model_class %in% c("classification", "multiclass")) {
       stop(outcome_chr, " looks numeric but you're trying to train a classification ",
            "model. If that's what you want convert it explicitly with as.factor().")
+    } else if (looks_categorical && model_class == "classification" && n_outcomes > 2) {
+      stop(outcome_chr, " looks multiclass but you're trying to train a 2-class,
+           classification model. Use model_class = 'Multiclass'")
     }
   }
   return(model_class)
@@ -210,6 +227,8 @@ set_default_metric <- function(model_class) {
     return("RMSE")
   } else if (model_class == "classification") {
     return("ROC")
+  } else if (model_class == "multiclass") {
+    return("Accuracy")
   } else {
     stop("Don't have default metric for model class ", model_class)
   }

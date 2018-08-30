@@ -11,12 +11,20 @@ m_class <- tune_models(d_class, outcome = diabetes, n_folds = 2, tune_depth = 1,
 class_preds_self <- predict(m_class)
 class_preds_new <- predict(m_class, pima_diabetes[101:110, ])
 
+d_multi <- prep_data(iris[1:140, ], outcome = Species)
+m_multi <- tune_models(d_multi, outcome = Species, n_folds = 2, tune_depth = 1, models = "rf")
+multi_preds_self <- predict(m_multi)
+multi_preds_new <- predict(m_multi, iris[141:150, ])
+multi_preds_single <- predict(m_multi, iris[100, ])
+
 ### Tests
 test_that("plot.predicted_df stops if there's no outcome", {
   expect_error(plot(dplyr::select(reg_preds_self, -age)), "outcome")
   expect_error(plot(dplyr::select(reg_preds_new, -age)), "outcome")
   expect_error(plot(dplyr::select(class_preds_self, -diabetes)), "outcome")
   expect_error(plot(dplyr::select(class_preds_new, -diabetes)), "outcome")
+  expect_error(plot(dplyr::select(multi_preds_self, -Species)), "outcome")
+  expect_error(plot(dplyr::select(multi_preds_new, -Species)), "outcome")
 })
 
 test_that("plot.predicted_df stops if outcome vector is wrong length or class", {
@@ -32,6 +40,12 @@ test_that("plot.predicted_df stops if outcome vector is wrong length or class", 
   expect_error(plot(dplyr::select(class_preds_self, -diabetes),
                     outcomes = sample(10, nrow(class_preds_self), TRUE)),
                "class")
+  expect_error(plot(dplyr::select(multi_preds_self, -Species),
+                    outcomes = sample(unique(d_multi$Species), 5, TRUE)),
+               "length")
+  expect_error(plot(dplyr::select(multi_preds_self, -Species),
+                    outcomes = sample(10, nrow(multi_preds_self), TRUE)),
+               "same data")
 })
 
 test_that("plot.predicted_df warns but works if outcomes present in df and passed in", {
@@ -67,6 +81,27 @@ test_that("plot_classification_predictions handles separately supplied outcomes"
                   "gg")
 })
 
+test_that("plot_multiclass_predictions handles defaults", {
+  expect_s3_class(plot(multi_preds_new, print = FALSE), "gg")
+  expect_s3_class(plot(multi_preds_self, print = FALSE), "gg")
+})
+
+test_that("plot_multiclass_predictions handles separately supplied outcomes", {
+  expect_s3_class(plot(dplyr::select(multi_preds_self, -Species),
+                       outcomes = multi_preds_self$Species, print = FALSE),
+                  "gg")
+})
+
+test_that("single-class multiclass are correct dimensions", {
+  p <- plot(multi_preds_single, print = FALSE)
+  expect_equal(length(unique(p$data$Species)), 1)
+  expect_equal(length(unique(p$data$predicted_Species)), 3)
+})
+
+test_that("multiclass correct predictions are on main diagonal", {
+  p <- plot(multi_preds_self, print = FALSE)
+  expect_true(all(levels(p$data$Species) == rev(levels(p$data$predicted_Species))))
+})
 
 test_that("Arguments to plot.predicted_df get passed to plot_regression_predictions", {
   my_title <- "this is my title"
@@ -87,6 +122,17 @@ test_that("Arguments to plot.predicted_df get passed to plot_classification_pred
             print = FALSE)
   expect_s3_class(p, "gg")
   expect_equal(ggplot_build(p)$plot$labels$title, my_title)
+})
+
+test_that("Arguments to plot.predicted_df get passed to plot_multiclass_predictions", {
+  my_title <- "this is my title"
+  p <- plot(multi_preds_self,
+            title = my_title,
+            conf_colors = c(Y = "green", N = "red"),
+            print = FALSE)
+  expect_s3_class(p, "gg")
+  expect_equal(ggplot_build(p)$plot$labels$title, my_title)
+  expect_equal(ggplot_build(p)$data[[1]]$fill[1], "#FF0000") # green
 })
 
 test_that("fixed_aspect works", {
