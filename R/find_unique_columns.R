@@ -40,5 +40,10 @@ find_unique_columns <- function(data) {
       (is.character(col) || is.factor(col)) &&
         length(unique(col)) == nrow(data)) %>%
     names()
+  date_columns <- map_lgl(unique_columns, ~{
+    grepl("DTS$", .x)
+  }
+  )
+  unique_columns <- unique_columns[!date_columns]
   return(unique_columns)
 }
