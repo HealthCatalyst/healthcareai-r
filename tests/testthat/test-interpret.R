@@ -2,6 +2,8 @@ context("Checking interpret")
 
 set.seed(271)
 m <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = diabetes)
+multi <- machine_learn(na.omit(pima_diabetes[1:200, ]), patient_id, outcome = weight_class,
+                       tune = FALSE, models = "glm")
 g <- m["glmnet"]
 
 test_that("interpret returns a tbl w/child class coefs if glmnet is in model_list", {
@@ -131,4 +133,8 @@ test_that("alpha gets attached to interpret objects even if glm isn't best", {
   # because glmnet is the best performing model???
   suppressWarnings( i3 <- interpret(m) )
   expect_equal(attr(i3, "alpha"), attr(interpret(g), "alpha"))
+})
+
+test_that("multiclass isn't supported", {
+  expect_error(interpret(multi), "multiclass")
 })

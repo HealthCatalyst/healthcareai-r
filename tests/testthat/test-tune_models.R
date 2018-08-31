@@ -1,5 +1,4 @@
 context("test-tune_models")
-
 # Setup ------------------------------------------------------------------------
 td <- na.omit(pima_diabetes)[1:40, ]
 reg_df <- prep_data(td, patient_id, outcome = plasma_glucose)
@@ -13,16 +12,24 @@ r_models <-
   tune_models(d = reg_df, outcome = plasma_glucose,
               n_folds = 2, tune_depth = 2)
 
+set.seed(1234)
+m_df <- prep_data(dplyr::sample_n(iris, 100), outcome = Species)
+m_models <-
+  tune_models(d = m_df, outcome = Species, n_folds = 2, tune_depth = 2)
+
 test_that("Error informatively if outcome class doesn't match model_class", {
   expect_error(tune_models(cla_df, diabetes, model_class = "regression"), "categorical")
   cla_df$diabetes <- factor(cla_df$diabetes)
   expect_error(tune_models(cla_df, diabetes, model_class = "regression"), "categorical")
   expect_error(tune_models(reg_df, plasma_glucose, model_class = "classification"), "numeric")
+  expect_error(tune_models(reg_df, plasma_glucose, model_class = "multiclass"), "numeric")
+  expect_error(tune_models(m_df, Species, model_class = "classification"), "2-class")
 })
 
 test_that("reg and class train all three models", {
   expect_setequal(names(c_models), c("Random Forest", "eXtreme Gradient Boosting", "glmnet"))
   expect_setequal(names(r_models), c("Random Forest", "eXtreme Gradient Boosting", "glmnet"))
+  expect_setequal(names(m_models), c("Random Forest", "eXtreme Gradient Boosting", "glmnet"))
 })
 
 test_that("tune errors sensibly if outcome isn't present", {
@@ -41,6 +48,8 @@ test_that("tune returns a model_list of appropriate type", {
   expect_s3_class(c_models, "classification_list")
   expect_s3_class(r_models, "model_list")
   expect_s3_class(r_models, "regression_list")
+  expect_s3_class(m_models, "model_list")
+  expect_s3_class(m_models, "multiclass_list")
 })
 
 # Informative erroring
@@ -82,11 +91,30 @@ test_that("tune supports various loss functions in regression", {
     , regexp = NA)
 })
 
+test_that("tune supports various loss functions in multiclass", {
+  expect_warning(
+    tune_models(d = m_df, outcome = Species, model_class = "multiclass",
+                metric = "Accuracy", models = "rf", n_folds = 2, tune_depth = 2)
+    , regexp = NA)
+  expect_warning(
+    tune_models(d = m_df, outcome = Species, model_class = "multiclass",
+                metric = "Kappa", models = "rf", n_folds = 2,
+                tune_depth = 2)
+    , regexp = NA)
+})
+
 test_that("tune handles character outcome", {
   cla_df$diabetes <- as.character(cla_df$diabetes)
   expect_s3_class(tune_models(cla_df, diabetes, tune_depth = 2,
                               n_folds = 2, models = "glm"),
                   "classification_list")
+})
+
+test_that("tune handles multiclass character outcome", {
+  m_df$Species <- as.character(m_df$Species)
+  expect_s3_class(tune_models(m_df, Species, tune_depth = 2,
+                              n_folds = 2, models = "glm"),
+                  "multiclass_list")
 })
 
 test_that("tune handles tibble input", {
@@ -99,10 +127,6 @@ test_that("If a column was ignored in prep_data it's ignored in tune", {
   pd <- prep_data(reg_df, plasma_glucose, outcome = age)
   capture_warnings(mods <- tune_models(pd, age, tune_depth = 2, n_folds = 2, models = "xgb"))
   expect_false("plasma_glucose" %in% names(mods[[1]]$trainingData))
-})
-
-test_that("Missing outcome variable error points user to what's missing", {
-  expect_error(tune_models(cla_df), "outcome")
 })
 
 test_that("Get informative error from setup_training if you forgot to name outcome arg in prep_data", {
@@ -142,7 +166,7 @@ test_that("tune_models and predict respect positive class declaration", {
 })
 
 test_that("set_outcome_class errors informatively if value not in vector", {
-  expect_error(set_outcome_class(factor(letters[1:2]), "nope"), "a and b")
+  expect_error(set_outcome_class(vec = factor(letters[1:2]), "nope"), "a and b")
 })
 
 test_that("set_outcome_class sets levels as expected", {
@@ -244,6 +268,9 @@ test_that("Get informative error if there's not an outcome instance for each CV 
   expect_error(flash_models(small_df, diabetes), "cross validation fold")
   expect_error(tune_models(small_df, diabetes), "cross validation fold")
   expect_error(flash_models(small_df, diabetes, n_folds = 3, models = "rf"), NA)
+  set.seed(98)
+  small_df2 <- m_df[1:10, ]
+  expect_error(flash_models(small_df2, Species, models = "rf"), NA)
 })
 
 test_that("get_original_data works", {
@@ -263,4 +290,10 @@ test_that("check_training_time works", {
                                   n_folds = 5)
   expect_true(stringr::str_detect(big_data, "MODEL TRAINING"))
   expect_true(stringr::str_detect(big_data, "1,000 features"))
+})
+
+test_that("flash_models doesn't need an outcome specified", {
+  m <- tune_models(reg_df)
+  expect_s3_class(m, "model_list")
+  expect_s3_class(m, "regression_list")
 })

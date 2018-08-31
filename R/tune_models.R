@@ -2,14 +2,17 @@
 #' performance
 #'
 #' @param d A data frame
-#' @param outcome Name of the column to predict
+#' @param outcome Optional. Name of the column to predict. When omitted the
+#'   outcome from \code{\link{prep_data}} is used; otherwise it must match the
+#'   outcome provided to \code{\link{prep_data}}.
 #' @param models Names of models to try. See \code{\link{get_supported_models}}
 #'   for available models. Default is all available models.
 #' @param metric What metric to use to assess model performance? Options for
 #'   regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
 #'   error), or "Rsquared." For classification: "ROC" (area under the receiver
 #'   operating characteristic curve), or "PR" (area under the precision-recall
-#'   curve).
+#'   curve). For multiclass: "Accuracy" (default)s or "Kappa" (accuracy,
+#'   adjusted for class imbalance).
 #' @param positive_class For classification only, which outcome level is the
 #'   "yes" case, i.e. should be associated with high probabilities? Defaults to
 #'   "Y" or "yes" if present, otherwise is the first level of the outcome
@@ -69,7 +72,7 @@
 #' d <- prep_data(pima_diabetes, patient_id, outcome = diabetes)
 #'
 #' # Tune random forest, xgboost, and regularized regression classification models
-#' m <- tune_models(d, outcome = diabetes)
+#' m <- tune_models(d)
 #'
 #' # Get some info about the tuned models
 #' m
@@ -148,9 +151,11 @@ tune_models <- function(d,
 
   train_list <- train_models(d, outcome, models, metric, train_control,
                              hyperparameters, tuned, allow_parallel)
+
   train_list <- as.model_list(listed_models = train_list,
                               tuned = tuned,
                               target = rlang::quo_name(outcome),
+                              model_class = model_class,
                               recipe = recipe,
                               positive_class = attr(train_list, "positive_class"),
                               model_name = model_name,

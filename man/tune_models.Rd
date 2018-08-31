@@ -12,7 +12,9 @@ tune_models(d, outcome, models, metric, positive_class, n_folds = 5,
 \arguments{
 \item{d}{A data frame}
 
-\item{outcome}{Name of the column to predict}
+\item{outcome}{Optional. Name of the column to predict. When omitted the
+outcome from \code{\link{prep_data}} is used; otherwise it must match the
+outcome provided to \code{\link{prep_data}}.}
 
 \item{models}{Names of models to try. See \code{\link{get_supported_models}}
 for available models. Default is all available models.}
@@ -21,7 +23,8 @@ for available models. Default is all available models.}
 regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
 error), or "Rsquared." For classification: "ROC" (area under the receiver
 operating characteristic curve), or "PR" (area under the precision-recall
-curve).}
+curve). For multiclass: "Accuracy" (default)s or "Kappa" (accuracy,
+adjusted for class imbalance).}
 
 \item{positive_class}{For classification only, which outcome level is the
 "yes" case, i.e. should be associated with high probabilities? Defaults to
@@ -79,7 +82,7 @@ Note that this function is training a lot of models (100 by default)
 d <- prep_data(pima_diabetes, patient_id, outcome = diabetes)
 
 # Tune random forest, xgboost, and regularized regression classification models
-m <- tune_models(d, outcome = diabetes)
+m <- tune_models(d)
 
 # Get some info about the tuned models
 m

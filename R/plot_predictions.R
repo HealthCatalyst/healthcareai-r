@@ -74,8 +74,10 @@ plot.predicted_df <- function(x,
       stop("x comes from a classification model, but there are ",
            distinct_outcomes, " distinct outcomes in `outcomes`.")
     the_plot <- plot_classification_predictions(x, target = target, ...)
+  } else if (mi$type == "Multiclass") {
+    the_plot <- plot_multiclass_predictions(x, target = target, ...)
   } else {
-    stop("Plotting predictions of model type ", mi$type, "is not currently supported.")
+    stop("Plotting predictions of model type ", mi$type, " is not currently supported.")
   }
 
   cap <-
@@ -173,6 +175,68 @@ plot_classification_predictions <- function(x,
                        x = c(0, ct_pts), y = max_height), hjust = -.1, vjust = v_just)
     }
   }
+
+  return(p)
+}
+
+#' @param conf_colors Length-2 character vector: colors to fill density curves.
+#'   Default is c("black", "steelblue").
+#' @param text_color Character: color to write percent correct.
+#'   Default is "yellow".
+#' @param diag_color Character: color to highlight main diagonal. These are
+#'   correct predictions. Default is "red".
+#' @rdname plot.predicted_df
+plot_multiclass_predictions <- function(x,
+                                        conf_colors = c("black", "steelblue"),
+                                        text_color = "yellow",
+                                        diag_color = "red",
+                                        target) {
+  preds <- paste0("predicted_", target)
+  # Only show actuals that are in the data.
+  x[[target]] <- factor(x[[target]])
+  if (!any(levels(x[[target]]) %in% levels(x[[preds]])))
+    stop("Something went wrong, the predictions don't look like the same data ",
+         "as the true values. Predictions look like: '",
+         list_variables(levels(x[[preds]])[1:2]), "' and outcomes look like: '",
+         list_variables(levels(x[[target]])[1:2]), "'")
+  # Compute frequency of actual categories
+  actual <- tibble::as.tibble(table(x[[target]])) %>%
+    rename(!!target := Var1,
+           actual_freq = n)
+  # Build confusion matrix
+  confusion <- tibble::as.tibble(table(x[[target]], x[[preds]])) %>%
+    rename(!!target := Var1,
+           !!preds := Var2,
+           freq = n)
+  # Calculate percentage of test cases based on actual frequency
+  confusion <- inner_join(confusion, actual, by = target) %>%
+    mutate(!!target := as.factor(!!rlang::sym(target)),
+           !!preds := as.factor(!!rlang::sym(preds)),
+           percent = freq / actual_freq * 100,
+           diag = as.character(!!rlang::sym(target)) ==
+             as.character(!!rlang::sym(preds)))
+  # Reorder levels
+  confusion[[preds]] <- factor(confusion[[preds]], levels = rev(levels(confusion[[preds]])))
+  # Plot
+  # Draw tiles, fill color
+  p <- confusion %>%
+    ggplot(aes_string(x = target, y = preds)) +
+    geom_tile(mapping = aes(fill = percent),
+              color = "black",
+              size = 0.1) +
+    xlab(target) +
+    ylab(preds) +
+    coord_fixed()
+  # Write percentage in each tile
+  p <- p +
+    geom_text(aes(label = sprintf("%.1f", percent)), size = 3, color = text_color) +
+    scale_fill_gradient(name = "% Correct",
+                        low = conf_colors[1],
+                        high = conf_colors[2])
+  # Highlight diagonals
+  p <-  p +
+    geom_tile(data = filter(confusion, diag),
+              color = diag_color, size = 0.3, fill = "black", alpha = 0)
 
   return(p)
 }
