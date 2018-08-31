@@ -9,13 +9,13 @@
 #'   Unquoted. Must be named, i.e. you must specify \code{outcome = }
 #' @param models Names of models to try. See \code{\link{get_supported_models}}
 #'   for available models. Default is all available models.
-#' @param metric Specifies which metric will be used to assess model
-#'   performance. Options for classification: "ROC" (default) (area under the
-#'   receiver operating characteristic curve), or "PR" (area under the
-#'   precision-recall curve). Options for regression: "RMSE" (default)
-#'   (root-mean-squared error, default), "MAE" (mean-absolute error), or
-#'   "Rsquared". Options for multiclass: "Accuracy" (default) or "Kappa"
-#'   (accuracy, adjusted for class imbalance).
+#' @param metric Which metric should be used to assess model performance?
+#'   Options for classification: "ROC" (default) (area under the receiver
+#'   operating characteristic curve) or "PR" (area under the precision-recall
+#'   curve). Options for regression: "RMSE" (default) (root-mean-squared error,
+#'   default), "MAE" (mean-absolute error), or "Rsquared." Options for
+#'   multiclass: "Accuracy" (default) or "Kappa" (accuracy, adjusted for class
+#'   imbalance).
 #' @param tune If TRUE (default) models will be tuned via
 #'   \code{\link{tune_models}}. If FALSE, models will be trained via
 #'   \code{\link{flash_models}} which is substantially faster but produces
