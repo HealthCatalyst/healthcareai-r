@@ -296,8 +296,13 @@ test_that("dummy columns are created as expected", {
   expect_true(all(n == exp))
 })
 
-test_that("test convert_dates is `none`, `continuous`, or `categories`", {
-  expect_error(prep_data(d_train, convert_dates = TRUE), "convert_dates must")
+test_that("test convert_dates is logical, `none`, `continuous`, or `categories`", {
+  actual <- prep_data(d_train, convert_dates = TRUE)
+  expect_true("date_col_dow_sin" %in% names(actual))
+
+  actual <- prep_data(d_train, convert_dates = FALSE)
+  expect_equal(sum(grepl("date_col_dow_sin", names(actual))), 0)
+
   expect_error(prep_data(d_train, convert_dates = "test"), "convert_dates must")
 })
 

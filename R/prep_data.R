@@ -41,15 +41,15 @@
 #'   0.0167. It would be excluded by default or if
 #'   `remove_near_zero_variance` > 0.0166. Larger values will remove more columns
 #'   and this value must lie between 0 and 1.
-#' @param convert_dates Character. Specifies handling date and time features as
-#'   either "continuous" (default), "categories" or "none". Both "continuous"
-#'   and "categories" create new variables for hour, day, month, and year.
-#'   "continuous" (recommended) uses numeric circular respresentation of these
-#'   features for model optimization. "categories" makes these features more
-#'   readable (If \code{make_dummies} is TRUE, each unique value will become a
-#'   new dummy variable. This will create wide data, which is more challenging
-#'   for some machine learning models.). "none" removes all date and time
-#'   features. All features with the DTS suffix will be treated as a date.
+#' @param convert_dates Logical or character. If TRUE (default), date and time
+#'   columns are transformed to circular representation for hour, day, month,
+#'   and year for machine learning optimization. If FALSE, date and time columns
+#'   are removed. If character, use "continuous" (same as TRUE), "categories",
+#'   or "none" (same as FALSE). "categories" makes hour, day, month, and year
+#'   readable for interpretation. If \code{make_dummies} is TRUE, each unique
+#'   value in these features will become a new dummy variable. This will create
+#'   wide data, which is more challenging for some machine learning models. All
+#'   features with the DTS suffix will be treated as a date.
 #' @param impute Logical or list. If TRUE (default), columns will be imputed
 #'   using mean (numeric), and new category (nominal). If FALSE, data will not
 #'   be imputed. If this is a list, it must be named, with possible entries for
@@ -131,7 +131,7 @@ prep_data <- function(d,
                       outcome,
                       recipe = NULL,
                       remove_near_zero_variance = TRUE,
-                      convert_dates = "continuous",
+                      convert_dates = TRUE,
                       impute = TRUE,
                       collapse_rare_factors = TRUE,
                       center = FALSE,
@@ -300,18 +300,16 @@ prep_data <- function(d,
            list_variables(removing))
 
     # Convert date columns to useful features and remove original. ------------
-    if (!is.character(convert_dates))
-      stop('convert_dates must be "none", "continuous", or "categories" for ',
-           "`step_date`")
-    if (!(convert_dates %in% c("none", "continuous", "categories")))
-      stop('convert_dates must be "none", "continuous", or "categories" for ',
-           "`step_date`")
-
-    if (convert_dates == "none") {
-      cols <- find_date_cols(d)
-      if (!purrr::is_empty(cols))
-        recipe <- recipes::step_rm(recipe, cols)
-    } else {
+    if (!is.character(convert_dates)) {
+      if (!is.logical(convert_dates))
+        stop('convert_dates must be logical, "none", "continuous", or ',
+             '"categories"')
+      if (convert_dates)
+        convert_dates <- "continuous"
+      else
+        convert_dates <- "none"
+    }
+    if (convert_dates %in% c("continuous", "categories")) {
       cols <- find_date_cols(d)
       if (!purrr::is_empty(cols)) {
         recipe <-
@@ -319,6 +317,13 @@ prep_data <- function(d,
                   list(recipe = recipe, cols, feature_type = convert_dates)) %>%
           recipes::step_rm(cols)
       }
+    } else if (convert_dates == "none") {
+      cols <- find_date_cols(d)
+      if (!purrr::is_empty(cols))
+        recipe <- recipes::step_rm(recipe, cols)
+    } else {
+      stop('convert_dates must be logical, "none", "continuous", or ',
+           '"categories"')
     }
 
     # Impute ------------------------------------------------------------------
