@@ -81,6 +81,8 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
   # Choose metric if not provided
   if (missing(metric))
     metric <- set_default_metric(model_class)
+  else
+    metric <- check_metric(model_class, metric)
 
   # Make sure models are supported
   models <- check_models(models)
@@ -215,6 +217,28 @@ check_models <- function(models) {
   return(models)
 }
 
+check_metric <- function(model_class, metric) {
+  if (is.na(metric)) {
+    metric <- set_default_metric(model_class)
+    warning("The given metric is NA, evaluating models with ", metric,
+            " instead")
+  } else if ( (model_class == "regression" &&
+               !(metric %in% c("MAE", "RMSE", "Rsquared"))) ||
+              (model_class == "classification" &&
+               !(metric %in% c("ROC", "PR"))) ||
+              (model_class == "multiclass" &&
+               !(metric %in% c("Accuracy", "Kappa")))) {
+      new_metric <- set_default_metric(model_class)
+      warning("Healthcareai does not support ", metric,
+              ", evaluating models with ", new_metric, " instead")
+      metric <- new_metric
+  } else if (!(model_class %in%
+               c("regression", "classification", "multiclass"))) {
+    stop("Healthcareai does not support ", model_class, " yet.")
+  }
+  return(metric)
+}
+
 set_default_metric <- function(model_class) {
   if (model_class == "regression") {
     return("RMSE")
@@ -223,7 +247,7 @@ set_default_metric <- function(model_class) {
   } else if (model_class == "multiclass") {
     return("Accuracy")
   } else {
-    stop("Don't have default metric for model class", model_class)
+    stop("Don't have default metric for model class ", model_class)
   }
 }
 
