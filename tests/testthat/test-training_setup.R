@@ -1,4 +1,6 @@
-context("checking training setup")
+
+# Test functions from R/training_setup.R
+context("checking functions in training_setup.R")
 
 test_that("check_metric when correct, doesn't throw error or change metric", {
   expect_warning(metric <- check_metric("classification", "PR"), NA)
@@ -29,4 +31,21 @@ test_that("set_default_metric returns correct metric", {
   expect_equal(set_default_metric("classification"), "ROC")
 
   expect_error(set_default_metric("garbage"), "Don't have")
+})
+
+test_that("check_outcome gets outcome from recipe when not provided", {
+  d <-
+    pima_diabetes %>%
+    prep_data(patient_id, outcome = diabetes)
+
+  # check_outcome should grab the outcome variable from the recipe object when
+  # it is not provided
+  outcome <- check_outcome(rlang::enquo(), names(d), attr(d, "recipe"))
+  expect_equal(outcome, "diabetes")
+
+
+  expect_error(
+    check_outcome(rlang::enquo(), names(d), NULL),
+    "Your data is not prepared."
+  )
 })

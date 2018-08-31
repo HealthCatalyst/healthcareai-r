@@ -104,6 +104,12 @@ test_that("flash supports various loss functions in regression", {
                 metric = NA, models = "rf", n_folds = 2))
 })
 
+test_that("flash_models doesn't need an outcome specified", {
+  m <- flash_models(cl_prep)
+  expect_s3_class(m, "model_list")
+  expect_s3_class(m, "classification_list")
+})
+
 test_that("multiclass warns when classes are sparse", {
   expect_warning(
     machine_learn(m_df2, patient_id, outcome = many_chars,
