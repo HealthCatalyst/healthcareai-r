@@ -36,15 +36,15 @@ Example: In a column with 120 "Male" and 2 "Female", the frequency ratio is
 `remove_near_zero_variance` > 0.0166. Larger values will remove more columns
 and this value must lie between 0 and 1.}
 
-\item{convert_dates}{Character. Specifies handling date and time features as
-either "continuous" (default), "categories" or "none". Both "continuous"
-and "categories" create new variables for hour, day, month, and year.
-"continuous" (recommended) uses numeric circular respresentation of these
-features for model optimization. "categories" makes these features more
-readable. (If \code{make_dummies} is TRUE, each unique value will become a
-new dummy variable. This will create wide data, which is more challenging
-for some machine learning models.) "none" removes all date and time
-features. All features with the DTS suffix will be treated as a date.}
+\item{convert_dates}{Logical or character. If TRUE (default), date and time
+columns are transformed to circular representation for hour, day, month,
+and year for machine learning optimization. If FALSE, date and time columns
+are removed. If character, use "continuous" (same as TRUE), "categories",
+or "none" (same as FALSE). "categories" makes hour, day, month, and year
+readable for interpretation. If \code{make_dummies} is TRUE, each unique
+value in these features will become a new dummy variable. This will create
+wide data, which is more challenging for some machine learning models. All
+features with the DTS suffix will be treated as a date.}
 
 \item{impute}{Logical or list. If TRUE (default), columns will be imputed
 using mean (numeric), and new category (nominal). If FALSE, data will not
