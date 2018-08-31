@@ -42,6 +42,66 @@ test_that("Machine learn respects tune = FALSE", {
   expect_false(attr(ut, "tuned"))
 })
 
+test_that("Machine learn respects metric - tuning", {
+  m <- machine_learn(training_data, outcome = diabetes, metric = "PR",
+                     tune_depth = 2, n_folds = 3, models = "rf")
+  expect_true(grepl("Performance Metric: AUPR", capture_output(print(m))))
+
+  m <- machine_learn(training_data, outcome = age, metric = "MAE",
+                     tune_depth = 2, n_folds = 3, models = "rf")
+  expect_true(grepl("Performance Metric: MAE", capture_output(print(m))))
+})
+
+test_that("Machine learn respects metric - flash", {
+  m <- machine_learn(training_data, outcome = diabetes, metric = "PR",
+                     tune = FALSE, n_folds = 3, models = "rf")
+  expect_true(grepl("Performance Metric: AUPR", capture_output(print(m))))
+
+  m <- machine_learn(training_data, outcome = age, metric = "MAE",
+                     tune = FALSE, n_folds = 3, models = "rf")
+  expect_true(grepl("Performance Metric: MAE", capture_output(print(m))))
+})
+
+test_that("Machine learn respects metric - flash - error", {
+  # Throw warning when NA
+  expect_warning(
+    m <- machine_learn(training_data, outcome = diabetes, metric = NA,
+                       tune = FALSE, n_folds = 3, models = "rf")
+  )
+
+  # Throw warning when "garbage"
+  expect_warning(
+    m <- machine_learn(training_data, outcome = diabetes, metric = "garbage",
+                       tune = FALSE, n_folds = 3, models = "rf")
+  )
+
+  # Throw warning when PR and regression
+  expect_warning(
+    m <- machine_learn(training_data, outcome = age, metric = "PR",
+                       tune = FALSE, n_folds = 3, models = "rf")
+  )
+})
+
+test_that("Machine learn respects metric - tune - error", {
+  # Throw warning when NA
+  expect_warning(
+    m <- machine_learn(training_data, outcome = diabetes, metric = NA,
+                       tune_depth = 2, n_folds = 3, models = "rf")
+  )
+
+  # Throw warning when "garbage"
+  expect_warning(
+    m <- machine_learn(training_data, outcome = diabetes, metric = "garbage",
+                       tune_depth = 2, n_folds = 3, models = "rf")
+  )
+
+  # Throw warning when PR and regression
+  expect_warning(
+    m <- machine_learn(training_data, outcome = age, metric = "PR",
+                       tune_depth = 2, n_folds = 3, models = "rf")
+  )
+})
+
 # Testing Multiclass ---------
 set.seed(257056)
 training_data <- dplyr::sample_n(iris, 25)
