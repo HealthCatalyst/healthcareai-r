@@ -8,6 +8,11 @@ reg <- dd %>%
   prep_data(patient_id, outcome = age) %>%
   flash_models(age, models = "glm")
 
+# similar tests to tune_models added
+td <- na.omit(pima_diabetes)[1:40, ]
+reg_df <- prep_data(td, patient_id, outcome = plasma_glucose)
+cla_df <- prep_data(td, patient_id, outcome = diabetes)
+
 # Using a more complicated Multiclass dataframe
 set.seed(1998)
 n <- nrow(mpg)
@@ -60,6 +65,43 @@ test_that("AUPR is correct", {
   carets_aupr <- pr$`eXtreme Gradient Boosting`$results$AUC[1]
   actual_aupr <- evaluate(pr)[["AUPR"]]
   expect_equal(carets_aupr, actual_aupr)
+})
+
+test_that("flash supports various loss functions in classification", {
+  expect_warning(
+    flash_models(d = cla_df, outcome = diabetes, model_class = "classification",
+                metric = "PR", models = "xgb", n_folds = 2)
+    , regexp = NA)
+
+  # throws error when metric from other class
+  expect_warning(
+    flash_models(d = cla_df, outcome = diabetes, model_class = "classification",
+                metric = "Rsquared", models = "xgb", n_folds = 2))
+  # throws error when NA
+  expect_warning(
+    flash_models(d = cla_df, outcome = diabetes, model_class = "classification",
+                metric = NA, models = "xgb", n_folds = 2)
+  )
+})
+
+test_that("flash supports various loss functions in regression", {
+  expect_warning(
+    flash_models(d = reg_df, outcome = plasma_glucose, model_class = "regression",
+                metric = "MAE", models = "rf", n_folds = 2)
+    , regexp = NA)
+  expect_warning(
+    flash_models(d = reg_df, outcome = plasma_glucose, model_class = "regression",
+                metric = "Rsquared", models = "rf", n_folds = 2)
+    , regexp = NA)
+
+  # throws error when metric from other class
+  expect_warning(
+    flash_models(d = reg_df, outcome = plasma_glucose, model_class = "regression",
+                metric = "PR", models = "rf", n_folds = 2))
+  # throws error when NA
+  expect_warning(
+    flash_models(d = reg_df, outcome = plasma_glucose, model_class = "regression",
+                metric = NA, models = "rf", n_folds = 2))
 })
 
 test_that("flash_models doesn't need an outcome specified", {

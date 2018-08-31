@@ -6,12 +6,13 @@
 #'   outcome provided to \code{\link{prep_data}}.
 #' @param models Names of models to try. See \code{\link{get_supported_models}}
 #'   for available models. Default is all available models.
-#' @param metric What metric to use to assess model performance? Options for
-#'   regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
-#'   error), or "Rsquared." For classification: "ROC" (area under the receiver
-#'   operating characteristic curve), or "PR" (area under the precision-recall
-#'   curve). For multiclass: "Accuracy" (default) or "Kappa" (accuracy,
-#'   adjusted for class imbalance).
+#' @param metric Which metric should be used to assess model performance?
+#'   Options for classification: "ROC" (default) (area under the receiver
+#'   operating characteristic curve) or "PR" (area under the precision-recall
+#'   curve). Options for regression: "RMSE" (default) (root-mean-squared error,
+#'   default), "MAE" (mean-absolute error), or "Rsquared." Options for
+#'   multiclass: "Accuracy" (default) or "Kappa" (accuracy, adjusted for class
+#'   imbalance).
 #' @param positive_class For classification only, which outcome level is the
 #'   "yes" case, i.e. should be associated with high probabilities? Defaults to
 #'   "Y" or "yes" if present, otherwise is the first level of the outcome
@@ -85,6 +86,7 @@ flash_models <- function(d,
 
   model_args <- setup_training(d, rlang::enquo(outcome), model_class, models,
                                metric, positive_class, n_folds)
+  metric <- model_args$metric
   # Pull each item out of "model_args" list and assign in this environment
   for (arg in names(model_args))
     assign(arg, model_args[[arg]])

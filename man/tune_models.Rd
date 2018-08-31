@@ -19,12 +19,13 @@ outcome provided to \code{\link{prep_data}}.}
 \item{models}{Names of models to try. See \code{\link{get_supported_models}}
 for available models. Default is all available models.}
 
-\item{metric}{What metric to use to assess model performance? Options for
-regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
-error), or "Rsquared." For classification: "ROC" (area under the receiver
-operating characteristic curve), or "PR" (area under the precision-recall
-curve). For multiclass: "Accuracy" (default)s or "Kappa" (accuracy,
-adjusted for class imbalance).}
+\item{metric}{Which metric should be used to assess model performance?
+Options for classification: "ROC" (default) (area under the receiver
+operating characteristic curve) or "PR" (area under the precision-recall
+curve). Options for regression: "RMSE" (default) (root-mean-squared error,
+default), "MAE" (mean-absolute error), or "Rsquared." Options for
+multiclass: "Accuracy" (default) or "Kappa" (accuracy, adjusted for class
+imbalance).}
 
 \item{positive_class}{For classification only, which outcome level is the
 "yes" case, i.e. should be associated with high probabilities? Defaults to
