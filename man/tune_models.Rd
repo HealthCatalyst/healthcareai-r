@@ -10,7 +10,8 @@ tune_models(d, outcome, models, metric, positive_class, n_folds = 5,
   allow_parallel = FALSE)
 }
 \arguments{
-\item{d}{A data frame}
+\item{d}{A data frame from \code{\link{prep_data}}. If you want to prepare
+your data on your own, use \code{prep_data(..., no_prep = TRUE)}.}
 
 \item{outcome}{Optional. Name of the column to predict. When omitted the
 outcome from \code{\link{prep_data}} is used; otherwise it must match the

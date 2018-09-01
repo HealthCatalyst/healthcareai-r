@@ -22,8 +22,7 @@ m_df <- mpg %>%
          fl = replace(fl, sample(1:n, 10), NA),
          cty = replace(cty, sample(1:n, 30), NA))
 m_df_clean <- m_df %>% prep_data(model, outcome = drv)
-multi <-
-  flash_models(d = m_df_clean, outcome = drv)
+multi <- flash_models(d = m_df_clean, outcome = drv, models = c("xgb", "rf"))
 
 m_df2 <-
   pima_diabetes %>%
@@ -56,15 +55,16 @@ test_that("can predict on flash models", {
   expect_s3_class(predict(multi, m_df[1:7, ]), "predicted_df")
 })
 
-test_that("outcome positive class is the reference level", {
-  expect_equal(levels(cl$`eXtreme Gradient Boosting`$trainingData$.outcome)[1], "Y")
-})
-
 test_that("AUPR is correct", {
   pr <- flash_models(cl_prep, diabetes, models = "xgb", metric = "PR")
   carets_aupr <- pr$`eXtreme Gradient Boosting`$results$AUC[1]
   actual_aupr <- evaluate(pr)[["AUPR"]]
   expect_equal(carets_aupr, actual_aupr)
+})
+
+test_that("flash_ and tune_ error informatively if training data isn't prepped", {
+  expect_error(flash_models(mtcars, outcome = mpg), "no_prep")
+  expect_error(tune_models(mtcars, outcome = am), "no_prep")
 })
 
 test_that("flash supports various loss functions in classification", {

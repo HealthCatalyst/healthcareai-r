@@ -36,11 +36,10 @@
 #' @param remove_near_zero_variance Logical or numeric. If TRUE (default),
 #'   columns with near-zero variance will be removed. These columns are either a
 #'   single value, or the most common value is much more frequent than the
-#'   second most common value.
-#'   Example: In a column with 120 "Male" and 2 "Female", the frequency ratio is
-#'   0.0167. It would be excluded by default or if
-#'   `remove_near_zero_variance` > 0.0166. Larger values will remove more columns
-#'   and this value must lie between 0 and 1.
+#'   second most common value. Example: In a column with 120 "Male" and 2
+#'   "Female", the frequency ratio is 0.0167. It would be excluded by default or
+#'   if `remove_near_zero_variance` > 0.0166. Larger values will remove more
+#'   columns and this value must lie between 0 and 1.
 #' @param convert_dates Logical or character. If TRUE (default), date and time
 #'   columns are transformed to circular representation for hour, day, month,
 #'   and year for machine learning optimization. If FALSE, date and time columns
@@ -66,17 +65,23 @@
 #'   standard deviation of 1. Default is FALSE.
 #' @param make_dummies Logical. If TRUE (default), dummy columns will be created
 #'   for categorical variables.
-#' @param add_levels Logical. If TRUE (defaults), "other" and "missing" will be
+#' @param add_levels Logical. If TRUE (default), "other" and "missing" will be
 #'   added to all nominal columns. This is protective in deployment: new levels
 #'   found in deployment will become "other" and missingness in deployment can
 #'   become "missing" if the nominal imputation method is "new_category". If
 #'   FALSE, these "other" will be added to all nominal variables if
 #'   \code{collapse_rare_factors} is used, and "missingness" may be added
 #'   depending on details of imputation.
+#' @param logical_to_numeric Logical. If TRUE (default), logical variables will
+#'   be converted to 0/1 integer variables.
 #' @param factor_outcome Logical. If TRUE (default) and if all entries in
 #'   outcome are 0 or 1 they will be converted to factor with levels N and Y for
 #'   classification. Note that which level is the positive class is set in
 #'   training functions rather than here.
+#' @param no_prep Logical. If TRUE, overrides all other arguments to FALSE so
+#'   that d is returned unmodified, except that character variables may be
+#'   coverted to factors and a tibble will be returned even if the input was
+#'   a non-tibble data frame.
 #'
 #' @return Prepared data frame with reusable recipe object for future data
 #'   preparation in attribute "recipe". Attribute recipe contains the names of
@@ -138,17 +143,32 @@ prep_data <- function(d,
                       scale = FALSE,
                       make_dummies = TRUE,
                       add_levels = TRUE,
-                      factor_outcome = TRUE) {
+                      logical_to_numeric = TRUE,
+                      factor_outcome = TRUE,
+                      no_prep = FALSE) {
   # Check to make sure that d is a dframe
-  if (!is.data.frame(d)) {
+  if (!is.data.frame(d))
     stop("\"d\" must be a data frame.")
+
+  new_recipe <- TRUE
+  if (!is.null(recipe)) {
+    new_recipe <- FALSE
+    recipe <- check_rec_obj(recipe)
+    no_prep <- attr(recipe, "no_prep")
   }
+  if (no_prep)
+    remove_near_zero_variance <- convert_dates <- impute <-
+      collapse_rare_factors <- center <- scale <- make_dummies <-
+      add_levels <- logical_to_numeric <- factor_outcome <- FALSE
+
   # Capture pre-modification missingness
   d_missing <- missingness(d, return_df = FALSE)
   # Capture original data structure
   d_ods <- d[0, ]
   # Capture factor levels
   d_levels <- get_factor_levels(d)
+  # Capture best_levels attributes
+  best_levels <- attr(d, "best_levels")
 
   outcome <- rlang::enquo(outcome)
   remove_outcome <- FALSE
@@ -185,8 +205,7 @@ prep_data <- function(d,
   }
 
   # If there's a recipe in recipe, use that
-  if (!is.null(recipe)) {
-    recipe <- check_rec_obj(recipe)
+  if (!new_recipe) {
     message("Prepping data based on provided recipe")
     # Look for variables that weren't present in training, add them to ignored
     newvars <- setdiff(names(d), c(recipe$var_info$variable,
@@ -201,7 +220,7 @@ prep_data <- function(d,
     missing_vars <- setdiff(recipe$var_info$variable[recipe$var_info$role == "predictor"], names(d))
     if (length(missing_vars))
       warning("These variables were present in training but are missing or ignored here: ",
-           list_variables(missing_vars))
+              list_variables(missing_vars))
 
     # If imputing, look for variables with missingness now that didn't have any in training
     newly_missing <- find_new_missingness(d, recipe)
@@ -229,9 +248,9 @@ prep_data <- function(d,
     # Initialize a new recipe
     mes <- "Training new data prep recipe"
     ## Start by making all variables predictors...
-    ## Only pass head of d here because it's carried around with the recipe
-    ## and we don't want to pass around big datasets
-    recipe <- recipes::recipe(head(d), ~ .)
+    ## d gets stored with the recipe and it is the one copy of training data
+    ## that we carry around with the model_list
+    recipe <- recipes::recipe(d, ~ .)
     ## Then deal with outcome if present
     if (!rlang::quo_is_missing(outcome)) {
       outcome_name <- rlang::quo_name(outcome)
@@ -417,7 +436,8 @@ prep_data <- function(d,
     attr(recipe, "factor_levels") <- d_levels
   }
   # Coerces all logical predictor columns as numeric columns
-  d <- dplyr::mutate_if(d, is.logical, as.numeric)
+  if (logical_to_numeric)
+    d <- dplyr::mutate_if(d, is.logical, as.numeric)
 
   # Bake either the newly built or passed-in recipe
   d <- recipes::bake(recipe, d)
@@ -440,8 +460,12 @@ prep_data <- function(d,
     d_ods <- select_not(d_ods, outcome)
   # Add ignore columns back in and attach as attribute to recipe
   d <- dplyr::bind_cols(d_ignore, d)
+  if (new_recipe)
+    recipe$template <- dplyr::bind_cols(d_ignore, recipe$template)
   attr(recipe, "ignored_columns") <- unname(ignored)
+  attr(recipe, "no_prep") <- no_prep
   attr(d, "recipe") <- recipe
+  attr(d, "best_levels") <- best_levels
   attr(d, "original_data_str") <- d_ods
   d <- tibble::as_tibble(d)
   class(d) <- c("prepped_df", class(d))

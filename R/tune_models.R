@@ -1,7 +1,8 @@
 #' Tune multiple machine learning models using cross validation to optimize
 #' performance
 #'
-#' @param d A data frame
+#' @param d A data frame from \code{\link{prep_data}}. If you want to prepare
+#' your data on your own, use \code{prep_data(..., no_prep = TRUE)}.
 #' @param outcome Optional. Name of the column to predict. When omitted the
 #'   outcome from \code{\link{prep_data}} is used; otherwise it must match the
 #'   outcome provided to \code{\link{prep_data}}.

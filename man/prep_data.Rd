@@ -7,7 +7,7 @@
 prep_data(d, ..., outcome, recipe = NULL, remove_near_zero_variance = TRUE,
   convert_dates = TRUE, impute = TRUE, collapse_rare_factors = TRUE,
   center = FALSE, scale = FALSE, make_dummies = TRUE, add_levels = TRUE,
-  factor_outcome = TRUE)
+  logical_to_numeric = TRUE, factor_outcome = TRUE, no_prep = FALSE)
 }
 \arguments{
 \item{d}{A data frame}
@@ -30,11 +30,10 @@ argument. If present, all following arguments will be ignored.}
 \item{remove_near_zero_variance}{Logical or numeric. If TRUE (default),
 columns with near-zero variance will be removed. These columns are either a
 single value, or the most common value is much more frequent than the
-second most common value.
-Example: In a column with 120 "Male" and 2 "Female", the frequency ratio is
-0.0167. It would be excluded by default or if
-`remove_near_zero_variance` > 0.0166. Larger values will remove more columns
-and this value must lie between 0 and 1.}
+second most common value. Example: In a column with 120 "Male" and 2
+"Female", the frequency ratio is 0.0167. It would be excluded by default or
+if `remove_near_zero_variance` > 0.0166. Larger values will remove more
+columns and this value must lie between 0 and 1.}
 
 \item{convert_dates}{Logical or character. If TRUE (default), date and time
 columns are transformed to circular representation for hour, day, month,
@@ -67,7 +66,7 @@ standard deviation of 1. Default is FALSE.}
 \item{make_dummies}{Logical. If TRUE (default), dummy columns will be created
 for categorical variables.}
 
-\item{add_levels}{Logical. If TRUE (defaults), "other" and "missing" will be
+\item{add_levels}{Logical. If TRUE (default), "other" and "missing" will be
 added to all nominal columns. This is protective in deployment: new levels
 found in deployment will become "other" and missingness in deployment can
 become "missing" if the nominal imputation method is "new_category". If
@@ -75,10 +74,18 @@ FALSE, these "other" will be added to all nominal variables if
 \code{collapse_rare_factors} is used, and "missingness" may be added
 depending on details of imputation.}
 
+\item{logical_to_numeric}{Logical. If TRUE (default), logical variables will
+be converted to 0/1 integer variables.}
+
 \item{factor_outcome}{Logical. If TRUE (default) and if all entries in
 outcome are 0 or 1 they will be converted to factor with levels N and Y for
 classification. Note that which level is the positive class is set in
 training functions rather than here.}
+
+\item{no_prep}{Logical. If TRUE, overrides all other arguments to FALSE so
+that d is returned unmodified, except that character variables may be
+coverted to factors and a tibble will be returned even if the input was
+a non-tibble data frame.}
 }
 \value{
 Prepared data frame with reusable recipe object for future data
