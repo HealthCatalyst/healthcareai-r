@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.1</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.2.0</span>
       </span>
     </div>
 
@@ -199,7 +199,19 @@ performance</p></td>
         <td>
           <p><code><a href="predict.model_list.html">predict(<i>&lt;model_list&gt;</i>)</a></code> </p>
         </td>
-        <td><p>Make predictions using the best-performing model</p></td>
+        <td><p>Get predictions</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="pip.html">pip()</a></code> </p>
+        </td>
+        <td><p>Patient Impact Predictor</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="get_thresholds.html">get_thresholds()</a></code> </p>
+        </td>
+        <td><p>Get class-separating thresholds for classification predictions</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -209,6 +221,12 @@ performance</p></td>
         </th>
       </tr>
       <tr>
+        
+        <td>
+          <p><code><a href="explore.html">explore()</a></code> </p>
+        </td>
+        <td><p>Explore a model's "reasoning" via counterfactual predictions</p></td>
+      </tr><tr>
         
         <td>
           <p><code><a href="get_variable_importance.html">get_variable_importance()</a></code> </p>
@@ -237,15 +255,21 @@ performance</p></td>
       <tr>
         
         <td>
+          <p><code><a href="plot.predicted_df.html">plot(<i>&lt;predicted_df&gt;</i>)</a></code> <code><a href="plot.predicted_df.html">plot_regression_predictions()</a></code> <code><a href="plot.predicted_df.html">plot_classification_predictions()</a></code> <code><a href="plot.predicted_df.html">plot_multiclass_predictions()</a></code> </p>
+        </td>
+        <td><p>Plot model predictions vs observed outcomes</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="plot.model_list.html">plot(<i>&lt;model_list&gt;</i>)</a></code> </p>
         </td>
         <td><p>Plot performance of models</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="plot.predicted_df.html">plot(<i>&lt;predicted_df&gt;</i>)</a></code> <code><a href="plot.predicted_df.html">plot_regression_predictions()</a></code> <code><a href="plot.predicted_df.html">plot_classification_predictions()</a></code> </p>
+          <p><code><a href="plot.explore_df.html">plot(<i>&lt;explore_df&gt;</i>)</a></code> </p>
         </td>
-        <td><p>Plot model predictions vs observed outcomes</p></td>
+        <td><p>Plot Counterfactual Predictions</p></td>
       </tr><tr>
         
         <td>
@@ -255,9 +279,21 @@ performance</p></td>
       </tr><tr>
         
         <td>
+          <p><code><a href="plot.interpret.html">plot(<i>&lt;interpret&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Plot regularized model coefficients</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="plot.missingness.html">plot(<i>&lt;missingness&gt;</i>)</a></code> </p>
         </td>
         <td><p>Plot missingness</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot.thresholds_df.html">plot(<i>&lt;thresholds_df&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Plot threshold performance metrics</p></td>
       </tr><tr>
         
         <td>
@@ -277,7 +313,7 @@ performance</p></td>
         <td>
           <p><code><a href="add_best_levels.html">add_best_levels()</a></code> <code><a href="add_best_levels.html">get_best_levels()</a></code> </p>
         </td>
-        <td><p>Build efficient features from from high-cardinality, multiple-membership
+        <td><p>Build efficient features from high-cardinality, multiple-membership
 factors</p></td>
       </tr><tr>
         
@@ -288,15 +324,15 @@ factors</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="impute.html">impute()</a></code> </p>
-        </td>
-        <td><p>Impute data and return a reusable recipe</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="split_train_test.html">split_train_test()</a></code> </p>
         </td>
         <td><p>Split data into training and test data frames</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="impute.html">impute()</a></code> </p>
+        </td>
+        <td><p>Impute data and return a reusable recipe</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -323,6 +359,18 @@ factors</p></td>
           <p><code><a href="add_SAM_utility_cols.html">add_SAM_utility_cols()</a></code> </p>
         </td>
         <td><p>Add SAM utility columns to table</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="rename_with_counts.html">rename_with_counts()</a></code> </p>
+        </td>
+        <td><p>Adds the category count to each category name in a given variable column</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="make_na.html">make_na()</a></code> </p>
+        </td>
+        <td><p>Replace missingness values with NA and correct columns types</p></td>
       </tr>
     </tbody><tbody>
       <tr>

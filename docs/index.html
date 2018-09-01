@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.1</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.2.0</span>
       </span>
     </div>
 
@@ -141,15 +141,15 @@
 <a class="sourceLine" id="cb1-7" data-line-number="7"><span class="co"># &gt; Performance Metric: AUROC</span></a>
 <a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co"># &gt; Number of Observations: 768</span></a>
 <a class="sourceLine" id="cb1-9" data-line-number="9"><span class="co"># &gt; Number of Features: 12</span></a>
-<a class="sourceLine" id="cb1-10" data-line-number="10"><span class="co"># &gt; Models Trained: 2018-07-11 22:10:23 </span></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10"><span class="co"># &gt; Models Trained: 2018-09-01 17:16:55 </span></a>
 <a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co"># &gt; </span></a>
 <a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co"># &gt; Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.</span></a>
 <a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co"># &gt; Best model: Random Forest</span></a>
-<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="co"># &gt; AUPR = 0.72, AUROC = 0.85</span></a>
+<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="co"># &gt; AUPR = 0.71, AUROC = 0.84</span></a>
 <a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co"># &gt; Optimal hyperparameter values:</span></a>
-<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="co"># &gt;   mtry = 4</span></a>
+<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="co"># &gt;   mtry = 2</span></a>
 <a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co"># &gt;   splitrule = extratrees</span></a>
-<a class="sourceLine" id="cb1-18" data-line-number="18"><span class="co"># &gt;   min.node.size = 15</span></a></code></pre></div>
+<a class="sourceLine" id="cb1-18" data-line-number="18"><span class="co"># &gt;   min.node.size = 12</span></a></code></pre></div>
 <p>Make predictions and examine predictive performance:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(models)</a>
 <a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw">plot</span>(predictions)</a></code></pre></div>
@@ -182,7 +182,7 @@
 <div id="legacy" class="section level2">
 <h2 class="hasAnchor">
 <a href="#legacy" class="anchor"></a>Legacy</h2>
-<p>Version 1 of healthcare-ai has been retired. You can continue to use it, but its compatibility with changes in the R ecosystem are not guaranteed. You should always be able to install it from github with: <code>remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")</code>.</p>
+<p>Version 1 of healthcare-ai has been retired. You can continue to use it, but its compatibility with changes in the R ecosystem are not guaranteed. You should always be able to install it from github with: <code><a href="http://www.rdocumentation.org/packages/remotes/topics/install_github">remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")</a></code>.</p>
 <p>For an example of how to adapt v1 models to the v2 API, check out the <a href="https://docs.healthcare.ai/articles/site_only/transitioning.html">Transitioning vignettes</a>.</p>
 </div>
 </div>
