@@ -28,7 +28,7 @@
 #' plot(predictions)
 #' plot(predictions, caption = "Rsquared",
 #'      title = "This model's predictions regress to the mean",
-#'      point_size = 3, point_alpha = .7, font_size = 14)
+#'      point_size = 3, point_alpha = .7, font_size = 9)
 #' p <- plot(predictions, print = FALSE)
 #' p + theme_classic()
 #'
