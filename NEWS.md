@@ -1,3 +1,39 @@
+# healthcareai 2.2.0
+
+#### Added
+
+- Support for models of outcomes with more than two classes (multiclass)
+- Explore a model's logic with `explore`. Make counterfactual predictions across the most-important features in a model to see how those features influence predicted outcomes.
+    + `plot` method to visualize a model's logic.
+- Identify opportunities to improve a patient's outcome with Patient Impact Predictor, `pip`. Carefully specify variables and alternative values that exert causal influence on outcomes; then get recommended actions for a given patient with expected outcomes given the actions.
+- Predict outcome groups based on how bad false alarms are relative to missed detections (`outcome_groups` argument to `predict`).
+- Group predictions into risk groups using the `risk_groups` argument to `predict`.
+    + `plot` support for outcome- and risk-group predictions.
+- Get thresholds to split outcome classes to optimize various performance metrics with `get_thresholds`.
+    + `plot` method to compare performance across metrics at various thresholds.
+- `split_train_test` can keep multiple observations of an individual in the same split via the `grouping_col` argument.
+- Replace values that represent missingness but have been interpreted by R as strings with `NA` with `make_na`.
+    + If `missingness` finds any such strings it issues a warning with code that can be used to do the replacement.
+- Add counts to factor levels with `rename_with_counts`.
+- `summary.missingness` method for wide datasets with missingness in many columns.
+
+#### Changed
+
+- In `prep_data`, trigonometric transformations make circular features out of dates and times for more informative features in less-wide data frames.
+- Fixed AUPR in `plot.model_class` and `summary.model_class`.
+- Can specify performance metric to optimize in `machine_learn`.
+- `missingness` is faster.
+- Predict on XGBoost models now works for any column order in the new dataset.
+- Regression prediction plots are plotted at 1:1 aspect ratio.
+- `add_best_levels` works in deployment even if none of the columns to be created are present in the deployment observations.
+- `prep_data` can handle logical features.
+- `outcome` doesn't need to be re-declared in model training if it was specified in data prep.
+
+#### Removed
+
+- No longer support training models on un-prepped data.
+- No longer support wrapping `caret`-trained models into a `model_list`.
+
 # healthcareai 2.1.0
 
 #### Added

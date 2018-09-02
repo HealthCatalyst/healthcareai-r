@@ -83,7 +83,7 @@ missing values — missingness" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.1</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.2.0</span>
       </span>
     </div>
 
@@ -206,12 +206,12 @@ found in <code>d</code>, a warning is issued.</p></td>
     <pre class="examples"><div class='input'><span class='no'>d</span> <span class='kw'>&lt;-</span> <span class='fu'>data.frame</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"a"</span>, <span class='st'>"nil"</span>, <span class='st'>"b"</span>),
                 <span class='kw'>y</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>1</span>, <span class='fl'>NaN</span>, <span class='fl'>3</span>),
                 <span class='kw'>z</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>1</span>:<span class='fl'>2</span>, <span class='fl'>NA</span>))
-<span class='fu'>missingness</span>(<span class='no'>d</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Found these strings that may represent missing values: "nil". If they do represent missingness, replace them with NA.</span></div><div class='output co'>#&gt; # A tibble: 3 x 2
+<span class='fu'>missingness</span>(<span class='no'>d</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Found these strings that may represent missing values: "nil". If they do represent missingness, replace them with NA with: `make_na(d, c("nil"))`</span></div><div class='output co'>#&gt; # A tibble: 3 x 2
 #&gt;   variable percent_missing
 #&gt; * &lt;chr&gt;              &lt;dbl&gt;
 #&gt; 1 x                    0  
 #&gt; 2 y                   33.3
-#&gt; 3 z                   33.3</div><div class='input'><span class='fu'>missingness</span>(<span class='no'>d</span>) <span class='kw'>%&gt;%</span> <span class='fu'>plot</span>()</div><div class='output co'>#&gt; <span class='warning'>Warning: Found these strings that may represent missing values: "nil". If they do represent missingness, replace them with NA.</span></div><div class='img'><img src='missingness-1.png' alt='' width='576' height='288' /></div></pre>
+#&gt; 3 z                   33.3</div><div class='input'><span class='fu'>missingness</span>(<span class='no'>d</span>) <span class='kw'>%&gt;%</span> <span class='fu'>plot</span>()</div><div class='output co'>#&gt; <span class='warning'>Warning: Found these strings that may represent missing values: "nil". If they do represent missingness, replace them with NA with: `make_na(d, c("nil"))`</span></div><div class='img'><img src='missingness-1.png' alt='' width='576' height='288' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

@@ -10,8 +10,8 @@ Status](https://travis-ci.org/HealthCatalyst/healthcareai-r.svg?branch=master)](
 [![codecov
 badge](https://codecov.io/gh/HealthCatalyst/healthcareai-r/branch/master/graph/badge.svg)](https://codecov.io/gh/HealthCatalyst/healthcareai-r)
 [![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version-last-release/healthcareai)](https://cran.r-project.org/package=healthcareai)
-![CRAN downloads
-badge](https://cranlogs.r-pkg.org/badges/grand-total/healthcareai)
+[![CRAN downloads
+badge](https://cranlogs.r-pkg.org/badges/grand-total/healthcareai)](https://cranlogs.r-pkg.org/badges/last-week/healthcareai)
 [![License:
 MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/HealthCatalystSLC/healthcareai-r/blob/master/LICENSE)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.999334.svg)](https://doi.org/10.5281/zenodo.999334)
@@ -24,6 +24,7 @@ easy as possible. It does that by providing functions to:
   - Develop customized, reliable, high-performance machine learning
     models with minimal code
   - Easily make and evaluate predictions and push them to a database
+  - Understand how a model makes its predictions
   - Make data cleaning, manipulation, imputation, and visualization as
     simple as possible
 
@@ -42,7 +43,7 @@ models
 # > Performance Metric: AUROC
 # > Number of Observations: 768
 # > Number of Features: 12
-# > Models Trained: 2018-06-29 17:19:43 
+# > Models Trained: 2018-09-01 18:19:44 
 # > 
 # > Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.
 # > Best model: Random Forest
@@ -50,13 +51,13 @@ models
 # > Optimal hyperparameter values:
 # >   mtry = 2
 # >   splitrule = extratrees
-# >   min.node.size = 6
+# >   min.node.size = 12
 ```
 
 Make predictions and examine predictive performance:
 
 ``` r
-predictions <- predict(models)
+predictions <- predict(models, outcome_groups = TRUE)
 plot(predictions)
 ```
 
@@ -68,7 +69,7 @@ For details on what’s happening under the hood and for options to
 customize data preparation and model training, see [Getting Started with
 healthcareai](https://docs.healthcare.ai/articles/site_only/healthcareai.html)
 as well as the helpfiles for individual functions such as
-`?machine_learn`, `?prep_data`, and `?tune_models`.
+`?machine_learn`, `?predict.model_list`, and `?explore`.
 
 Documentation of all functions as well as vignettes on various uses of
 the package are available at the package website:
@@ -100,9 +101,8 @@ that we feel would make a good place to start.
 ### Feedback
 
 Your feedback is hugely appreciated. It is makes the package work well
-and helps us make it more useful to the community.
-
-Both feature requests and bug reports should be submitted as [Github
+and helps us make it more useful to the community. Both feature requests
+and bug reports should be submitted as [Github
 issues](https://github.com/HealthCatalyst/healthcareai-r/issues/new).
 
 **Bug reports** should be filed with a [minimal reproducable
@@ -113,10 +113,11 @@ yet, `devtools::session_info()`.
 
 ## Legacy
 
-Version 1 of healthcare-ai has been retired. You can continue to use it,
-but its compatibility with changes in the R ecosystem are not
+Version 1 of `healthcareai` has been retired. You can continue to use
+it, but its compatibility with changes in the R ecosystem are not
 guaranteed. You should always be able to install it from github with:
-`remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")`.
+`install.packages("remotes");
+remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")`.
 
 For an example of how to adapt v1 models to the v2 API, check out the
 [Transitioning

@@ -53,29 +53,37 @@ reference:
   - title: Prediction
     contents:
     - predict.model_list
+    - pip
+    - get_thresholds
   - title: Model Interpretation
     contents:
+    - explore
     - get_variable_importance
     - interpret
     - evaluate
   - title: Visualization
     contents:
-    - plot.model_list
     - plot.predicted_df
+    - plot.model_list
+    - plot.explore_df
     - plot.variable_importance
+    - plot.interpret
     - plot.missingness
+    - plot.thresholds_df
     - control_chart
   - title: Data Preparation
     contents:
     - add_best_levels
     - prep_data
-    - impute
     - split_train_test
+    - impute
   - title: Data Manipulation
     contents:
     - pivot
     - separate_drgs
     - add_SAM_utility_cols
+    - rename_with_counts
+    - make_na
   - title: Data Profiling
     contents:
     - missingness

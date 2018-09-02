@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.1</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.2.0</span>
       </span>
     </div>
 
@@ -126,7 +126,7 @@
 <p>First, check the package version with <code>packageVersion("healthcareai")</code>. If the first digit isn’t 2, you need to update. You should be able to install v2 by running <code>install.packages("healthcareai")</code>.</p>
 <p>Then, load the package.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(healthcareai)</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="co"># &gt; healthcareai version 2.1.0</span></a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="co"># &gt; healthcareai version 2.2.0</span></a>
 <a class="sourceLine" id="cb1-3" data-line-number="3"><span class="co"># &gt; Please visit https://docs.healthcare.ai for full documentation and vignettes. Join the community at https://healthcare-ai.slack.com</span></a></code></pre></div>
 </div>
 <div id="load-data" class="section level2">
@@ -229,16 +229,16 @@
 <a class="sourceLine" id="cb8-15" data-line-number="15"></a>
 <a class="sourceLine" id="cb8-16" data-line-number="16"><span class="kw">predict</span>(models, d<span class="op">$</span>test)</a>
 <a class="sourceLine" id="cb8-17" data-line-number="17"><span class="co"># &gt; Prepping data based on provided recipe</span></a>
-<a class="sourceLine" id="cb8-18" data-line-number="18"><span class="co"># &gt; "predicted_ThirtyDayReadmitFLG" predicted by Random Forest last trained: 2018-07-11 22:21:57</span></a>
+<a class="sourceLine" id="cb8-18" data-line-number="18"><span class="co"># &gt; "predicted_ThirtyDayReadmitFLG" predicted by Random Forest last trained: 2018-09-01 17:29:13</span></a>
 <a class="sourceLine" id="cb8-19" data-line-number="19"><span class="co"># &gt; Performance in training: AUROC = 0.88</span></a>
 <a class="sourceLine" id="cb8-20" data-line-number="20"><span class="co"># &gt; # A tibble: 48 x 8</span></a>
-<a class="sourceLine" id="cb8-21" data-line-number="21"><span class="co"># &gt;   ThirtyDayReadmitF… predicted_ThirtyDayReadm… PatientEncounter… PatientID</span></a>
-<a class="sourceLine" id="cb8-22" data-line-number="22"><span class="co"># &gt; * &lt;fct&gt;                                  &lt;dbl&gt;             &lt;int&gt;     &lt;int&gt;</span></a>
-<a class="sourceLine" id="cb8-23" data-line-number="23"><span class="co"># &gt; 1 N                                    0.248                  22     10004</span></a>
-<a class="sourceLine" id="cb8-24" data-line-number="24"><span class="co"># &gt; 2 N                                    0.00463                24     10005</span></a>
-<a class="sourceLine" id="cb8-25" data-line-number="25"><span class="co"># &gt; 3 N                                    0.00366                25     10005</span></a>
-<a class="sourceLine" id="cb8-26" data-line-number="26"><span class="co"># &gt; 4 N                                    0.115                  79     10014</span></a>
-<a class="sourceLine" id="cb8-27" data-line-number="27"><span class="co"># &gt; 5 N                                    0.0546                135     10024</span></a>
+<a class="sourceLine" id="cb8-21" data-line-number="21"><span class="co"># &gt;   ThirtyDayReadmi… predicted_Thirt… PatientEncounte… PatientID</span></a>
+<a class="sourceLine" id="cb8-22" data-line-number="22"><span class="co"># &gt; * &lt;fct&gt;                       &lt;dbl&gt;            &lt;int&gt;     &lt;int&gt;</span></a>
+<a class="sourceLine" id="cb8-23" data-line-number="23"><span class="co"># &gt; 1 N                         0.248                 22     10004</span></a>
+<a class="sourceLine" id="cb8-24" data-line-number="24"><span class="co"># &gt; 2 N                         0.00463               24     10005</span></a>
+<a class="sourceLine" id="cb8-25" data-line-number="25"><span class="co"># &gt; 3 N                         0.00366               25     10005</span></a>
+<a class="sourceLine" id="cb8-26" data-line-number="26"><span class="co"># &gt; 4 N                         0.115                 79     10014</span></a>
+<a class="sourceLine" id="cb8-27" data-line-number="27"><span class="co"># &gt; 5 N                         0.0546               135     10024</span></a>
 <a class="sourceLine" id="cb8-28" data-line-number="28"><span class="co"># &gt; # ... with 43 more rows, and 4 more variables: SystolicBPNBR &lt;int&gt;,</span></a>
 <a class="sourceLine" id="cb8-29" data-line-number="29"><span class="co"># &gt; #   LDLNBR &lt;int&gt;, A1CNBR &lt;dbl&gt;, GenderFLG &lt;fct&gt;</span></a></code></pre></div>
 </div>
