@@ -148,11 +148,6 @@ untuned_rf <- flash_models(d = prepped_training_data,
 
 # Model Interpretation
 
-```{r, results="markup"}
-evaluate(untuned_rf)
-evaluate(models)
-```
-
 ## Interpret
 
 If you trained a GLM model, you can extract model coefficients from it with the `interpret` function. These are coefficient estimates from a regularized logistic or linear regression model. If you didn't scale your predictors (which is the default in `prep_data`), these will be in natural units (e.g. in the plot below, a unit increase in plasma glucose corresponds to an expected log-odds increase of diabetes of just over one). Importantly, natural units mean that you can't interpret the size of the coefficients as the importance of the predictor. To get that interpretation, scale your features during data preparation by calling `prep_data` with `scale = TRUE` and then `flash_models` or `tune_models`. 
