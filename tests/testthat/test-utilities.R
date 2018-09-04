@@ -116,4 +116,3 @@ test_that("mode - test table", {
   vec_ft <- table(test_vec)
   expect_equal(Mode(vec_ft), Mode(test_vec))
 })
-
