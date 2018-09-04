@@ -3,7 +3,7 @@ context("get_thresholds")
 set.seed(2507)
 m <- mtcars %>%
   machine_learn(outcome = am, tune = FALSE, models = "xgb")
-pred <- predict(m, dplyr::sample_n(mtcars, 5), prepdata = TRUE)
+pred <- predict(m, dplyr::sample_n(mtcars, 5))
 def <- get_thresholds(pred)
 opt_cost <- get_thresholds(pred, optimize = "cost")
 

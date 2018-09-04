@@ -288,7 +288,6 @@ bake.step_dummy_hcai <- function(object, newdata, ...) {
 
 print.step_dummy_hcai <-
   function(x, width = max(20, options()$width - 20), ...) {
-    browser()
     if (x$trained) {
       cat("Dummy variables from ")
       cat(list_variables(names(x$levels)))

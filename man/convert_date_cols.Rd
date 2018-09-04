@@ -2,7 +2,7 @@
 % Please edit documentation in R/prep_data_utils.R
 \name{convert_date_cols}
 \alias{convert_date_cols}
-\title{Convert character date columns to dates}
+\title{Convert character date columns to dates and times}
 \usage{
 convert_date_cols(d)
 }
@@ -14,10 +14,10 @@ A tibble containing the converted date columns. If no columns needed
   conversion, the original data will be returned.
 }
 \description{
-This function is called in \code{\link{prep_data}} and so
+This function is called in \code{\link{prep_data}} and so it
   shouldn't usually need to be called directly. It tries to convert columns
-  ending in "DTS" to type Date. It makes a best guess at the format and
-  return a more standard one if possible. Times are be removed.
+  ending in "DTS" to type Date or DateTime (POSIXt). It makes a best guess at
+  the format and return a more standard one if possible.
 }
 \examples{
 d <- tibble::tibble(a_DTS = c("2018-3-25", "2018-3-25"),

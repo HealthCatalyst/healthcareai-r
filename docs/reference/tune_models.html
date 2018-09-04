@@ -82,7 +82,7 @@ performance" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.1</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.2.0</span>
       </span>
     </div>
 
@@ -176,11 +176,14 @@ performance</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>d</th>
-      <td><p>A data frame</p></td>
+      <td><p>A data frame from <code><a href='prep_data.html'>prep_data</a></code>. If you want to prepare
+your data on your own, use <code><a href='prep_data.html'>prep_data(..., no_prep = TRUE)</a></code>.</p></td>
     </tr>
     <tr>
       <th>outcome</th>
-      <td><p>Name of the column to predict</p></td>
+      <td><p>Optional. Name of the column to predict. When omitted the
+outcome from <code><a href='prep_data.html'>prep_data</a></code> is used; otherwise it must match the
+outcome provided to <code><a href='prep_data.html'>prep_data</a></code>.</p></td>
     </tr>
     <tr>
       <th>models</th>
@@ -189,11 +192,13 @@ for available models. Default is all available models.</p></td>
     </tr>
     <tr>
       <th>metric</th>
-      <td><p>What metric to use to assess model performance? Options for
-regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
-error), or "Rsquared." For classification: "ROC" (area under the receiver
-operating characteristic curve), or "PR" (area under the precision-recall
-curve).</p></td>
+      <td><p>Which metric should be used to assess model performance?
+Options for classification: "ROC" (default) (area under the receiver
+operating characteristic curve) or "PR" (area under the precision-recall
+curve). Options for regression: "RMSE" (default) (root-mean-squared error,
+default), "MAE" (mean-absolute error), or "Rsquared." Options for
+multiclass: "Accuracy" (default) or "Kappa" (accuracy, adjusted for class
+imbalance).</p></td>
     </tr>
     <tr>
       <th>positive_class</th>
@@ -277,7 +282,7 @@ training will be trained across cores.</p></td>
 <span class='no'>d</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='prep_data.html'>prep_data</a></span>(<span class='no'>pima_diabetes</span>, <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>)
 
 <span class='co'># Tune random forest, xgboost, and regularized regression classification models</span>
-<span class='no'>m</span> <span class='kw'>&lt;-</span> <span class='fu'>tune_models</span>(<span class='no'>d</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>)
+<span class='no'>m</span> <span class='kw'>&lt;-</span> <span class='fu'>tune_models</span>(<span class='no'>d</span>)
 
 <span class='co'># Get some info about the tuned models</span>
 <span class='no'>m</span>

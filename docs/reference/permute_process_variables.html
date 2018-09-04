@@ -41,7 +41,7 @@ values in certain columns. — permute_process_variables • healthcareai</title
 values in certain columns. — permute_process_variables" />
 
 <meta property="og:description" content="Take a dataframe and build a larger dataframe by permuting the
-values in the columns corresponding to modifiable_variable_levels." />
+values in the columns corresponding to variable_levels." />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -82,7 +82,7 @@ values in the columns corresponding to modifiable_variable_levels." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.1</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.2.0</span>
       </span>
     </div>
 
@@ -163,11 +163,11 @@ values in certain columns.</h1>
     <div class="ref-description">
     
     <p>Take a dataframe and build a larger dataframe by permuting the
-values in the columns corresponding to <code>modifiable_variable_levels</code>.</p>
+values in the columns corresponding to <code>variable_levels</code>.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>permute_process_variables</span>(<span class='no'>dataframe</span>, <span class='no'>modifiable_variable_levels</span>)</pre>
+    <pre class="usage"><span class='fu'>permute_process_variables</span>(<span class='no'>dataframe</span>, <span class='no'>variable_levels</span>, <span class='no'>variable_direction</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -177,7 +177,7 @@ values in the columns corresponding to <code>modifiable_variable_levels</code>.<
       <td><p>A dataframe.</p></td>
     </tr>
     <tr>
-      <th>modifiable_variable_levels</th>
+      <th>variable_levels</th>
       <td><p>A list indexed by the modifiable
 process variables and containing the factor levels of each such variable.</p></td>
     </tr>

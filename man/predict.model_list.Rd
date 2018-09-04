@@ -57,11 +57,7 @@ separate groups by passing the output of \code{predict} to
 \code{\link{get_cutoffs}}. Note that only one of \code{risk_groups} and
 \code{outcome_groups} can be specified.}
 
-\item{prepdata}{Logical, this should rarely be set by the user. By default,
-if `newdata` hasn't been prepped, it will be prepped by `prep_data` before
-predictions are made. Set this to TRUE to force already-prepped data
-through `prep_data` again, or set to FALSE to prevent `newdata` from being
-sent through `prep_data`.}
+\item{prepdata}{Defunct. Data are always prepped in prediction.}
 
 \item{write_log}{Write prediction metadata to a file? Default is FALSE. If
 TRUE, will create or append a file called "prediction_log.txt" in the

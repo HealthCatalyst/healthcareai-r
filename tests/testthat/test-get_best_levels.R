@@ -28,8 +28,14 @@ test_groups <- tibble::tibble(patient_id = rep("sam", 2), grouper = c("A", "new"
 test_added <- add_best_levels(test_row, test_groups, patient_id, grouper,
                               levels = attr(added, "best_levels"))
 models <- list(
-  fm = flash_models(dplyr::select(added, -patient_id), class_outcome, models = "xgb"),
-  tm = tune_models(dplyr::select(added, -patient_id), class_outcome, models = "rf", tune_depth = 2),
+  fm =
+    dplyr::select(added, -patient_id) %>%
+    prep_data(outcome = class_outcome, no_prep = TRUE) %>%
+    flash_models(class_outcome, models = "xgb"),
+  tm =
+    dplyr::select(added, -patient_id) %>%
+    prep_data(outcome = class_outcome, no_prep = TRUE) %>%
+    tune_models(class_outcome, models = "xgb", tune_depth = 2),
   ml = machine_learn(added, patient_id, outcome = reg_outcome, tune = FALSE, tune_depth = 2)
 )
 
@@ -220,7 +226,7 @@ test_that("add_best_levels - add empty levels to best_levels attribute", {
 })
 
 test_that("model_lists get X_levels attributes from input data frame", {
-  purrr::map_lgl(models, ~ all.equal(attr(.x, "best_levels"), attr(added, "best_levels"))) %>%
+  purrr::map_lgl(models, ~ isTRUE(all.equal(attr(.x, "best_levels"), attr(added, "best_levels")))) %>%
     all() %>%
     expect_true()
 })

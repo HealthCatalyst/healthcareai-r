@@ -26,8 +26,9 @@ Some algorithms provide variable importance, others don't. The
   best-performing model that offers variable importance will be used.
 }
 \examples{
-m <- flash_models(mtcars, outcome = mpg, models = "rf")
-get_variable_importance(m)
+m <- machine_learn(mtcars, outcome = mpg, models = "rf", tune = FALSE)
+(vi <- get_variable_importance(m))
+plot(vi)
 }
 \seealso{
 \code{\link{plot.variable_importance}}

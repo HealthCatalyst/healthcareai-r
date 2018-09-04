@@ -7,7 +7,8 @@
 prep_data(d, ..., outcome, recipe = NULL, remove_near_zero_variance = TRUE,
   convert_dates = TRUE, impute = TRUE, collapse_rare_factors = TRUE,
   center = FALSE, scale = FALSE, make_dummies = TRUE, add_levels = TRUE,
-  factor_outcome = TRUE, ref_levels = NULL)
+  logical_to_numeric = TRUE, factor_outcome = TRUE, no_prep = FALSE,
+  ref_levels = NULL)
 }
 \arguments{
 \item{d}{A data frame}
@@ -30,18 +31,20 @@ argument. If present, all following arguments will be ignored.}
 \item{remove_near_zero_variance}{Logical or numeric. If TRUE (default),
 columns with near-zero variance will be removed. These columns are either a
 single value, or the most common value is much more frequent than the
-second most common value.
-Example: In a column with 120 "Male" and 2 "Female", the frequency ratio is
-0.0167. It would be excluded by default or if
-`remove_near_zero_variance` > 0.0166. Larger values will remove more columns
-and this value must lie between 0 and 1.}
+second most common value. Example: In a column with 120 "Male" and 2
+"Female", the frequency ratio is 0.0167. It would be excluded by default or
+if `remove_near_zero_variance` > 0.0166. Larger values will remove more
+columns and this value must lie between 0 and 1.}
 
-\item{convert_dates}{Logical or character. If TRUE (default), date columns
-are identifed and used to generate day-of-week, month, and year columns,
-and the original date columns are removed. If FALSE, date columns are
-removed. If a character vector, it is passed to the `features` argument of
-`recipes::step_date`. E.g. if you want only quarter and year back:
-`convert_dates = c("quarter", "year")`.}
+\item{convert_dates}{Logical or character. If TRUE (default), date and time
+columns are transformed to circular representation for hour, day, month,
+and year for machine learning optimization. If FALSE, date and time columns
+are removed. If character, use "continuous" (same as TRUE), "categories",
+or "none" (same as FALSE). "categories" makes hour, day, month, and year
+readable for interpretation. If \code{make_dummies} is TRUE, each unique
+value in these features will become a new dummy variable. This will create
+wide data, which is more challenging for some machine learning models. All
+features with the DTS suffix will be treated as a date.}
 
 \item{impute}{Logical or list. If TRUE (default), columns will be imputed
 using mean (numeric), and new category (nominal). If FALSE, data will not
@@ -64,7 +67,7 @@ standard deviation of 1. Default is FALSE.}
 \item{make_dummies}{Logical. If TRUE (default), dummy columns will be created
 for categorical variables.}
 
-\item{add_levels}{Logical. If TRUE (defaults), "other" and "missing" will be
+\item{add_levels}{Logical. If TRUE (default), "other" and "missing" will be
 added to all nominal columns. This is protective in deployment: new levels
 found in deployment will become "other" and missingness in deployment can
 become "missing" if the nominal imputation method is "new_category". If
@@ -72,10 +75,18 @@ FALSE, these "other" will be added to all nominal variables if
 \code{collapse_rare_factors} is used, and "missingness" may be added
 depending on details of imputation.}
 
+\item{logical_to_numeric}{Logical. If TRUE (default), logical variables will
+be converted to 0/1 integer variables.}
+
 \item{factor_outcome}{Logical. If TRUE (default) and if all entries in
 outcome are 0 or 1 they will be converted to factor with levels N and Y for
 classification. Note that which level is the positive class is set in
 training functions rather than here.}
+
+\item{no_prep}{Logical. If TRUE, overrides all other arguments to FALSE so
+that d is returned unmodified, except that character variables may be
+coverted to factors and a tibble will be returned even if the input was
+a non-tibble data frame.}
 
 \item{ref_levels}{A named vector that provides the reference levels for
 categorical variables. If make_dummies is TRUE, the reference level will
@@ -127,15 +138,29 @@ d_test_prepped
 prep_data(d = d_train, patient_id, outcome = diabetes,
           impute = list(numeric_method = "bagimpute",
                         nominal_method = "bagimpute"),
-          collapse_rare_factors = FALSE, convert_dates = "year",
-          center = TRUE, scale = TRUE, make_dummies = FALSE,
-          remove_near_zero_variance = .02)
+          collapse_rare_factors = FALSE, center = TRUE, scale = TRUE,
+          make_dummies = FALSE, remove_near_zero_variance = .02)
 
 # Picking reference levels:
 # Dummy variables are not created for reference levels. Mode levels are
 # chosen as reference levels by default.
 prep_data(d = d_train, patient_id, outcome = diabetes,
           ref_levels = list(weight_class = "normal"))
+
+# `prep_data` also handles date and time features by default:
+d <-
+  pima_diabetes \%>\%
+  cbind(
+    admitted_DTS = seq(as.POSIXct("2005-1-1 0:00"),
+                       length.out = nrow(pima_diabetes), by = "hour")
+  )
+d_train = d[1:700, ]
+prep_data(d = d_train)
+
+# Customize how date and time features are handled:
+# When `convert_dates` is set to "categories", the prepped data will be more
+# readable, but will be wider.
+prep_data(d = d_train, convert_dates = "categories")
 }
 \seealso{
 To let data preparation happen automatically under the hood, see

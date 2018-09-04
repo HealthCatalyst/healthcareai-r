@@ -3,11 +3,10 @@
 \name{step_date_hcai}
 \alias{step_date_hcai}
 \alias{tidy.step_date_hcai}
-\title{Date Feature Generator}
+\title{Date and Time Feature Generator}
 \usage{
 step_date_hcai(recipe, ..., role = "predictor", trained = FALSE,
-  features = c("dow", "month", "year"), abbr = TRUE, label = TRUE,
-  ordinal = FALSE, columns = NULL, skip = FALSE)
+  feature_type = "continuous", columns = NULL, skip = FALSE)
 
 \method{tidy}{step_date_hcai}(x, ...)
 }
@@ -15,68 +14,46 @@ step_date_hcai(recipe, ..., role = "predictor", trained = FALSE,
 \item{recipe}{A recipe object. The step will be added to the sequence of
 operations for this recipe.}
 
-\item{...}{One or more selector functions to choose which
-variables that will be used to create the new variables. The
-selected variables should have class `Date` or
-`POSIXct`. See [selections()] for more details.
-For the `tidy` method, these are not currently used.}
+\item{...}{One or more selector functions to choose which variables that will
+be used to create the new variables. The selected variables should have
+class `Date` or `POSIXct` or their name must end with `DTS`. See
+[selections()] for more details. For the `tidy` method, these are not
+currently used.}
 
-\item{role}{For model terms created by this step, what analysis
-role should they be assigned?. By default, the function assumes
-that the new variable columns created by the original variables
-will be used as predictors in a model.}
+\item{role}{For model terms created by this step, what analysis role should
+they be assigned?. By default, the function assumes that the new variable
+columns created by the original variables will be used as predictors in a
+model.}
 
 \item{trained}{A logical to indicate if the number of NA values have been
 counted in preprocessing.}
 
-\item{features}{A character string that includes at least one
-of the following values: `month`, `dow` (day of week),
-`doy` (day of year), `week`, `month`,
-`decimal` (decimal date, e.g. 2002.197), `quarter`,
-`semester`, `year`.}
+\item{feature_type}{character, either `continuous` (default) or `categories`.}
 
-\item{abbr}{A logical. Only available for features `month`
-or `dow`. `FALSE` will display the day of the week as
-an ordered factor of character strings, such as "Sunday".
-`TRUE` will display an abbreviated version of the label,
-such as "Sun". `abbr` is disregarded if `label =
-FALSE`.}
+\item{columns}{A character string of variables that will be used as inputs.
+This field is a placeholder and will be populated once [prep.recipe()] is
+used.}
 
-\item{label}{A logical. Only available for features
-`month` or `dow`. `TRUE` will display the day of
-the week as an ordered factor of character strings, such as
-"Sunday." `FALSE` will display the day of the week as a
-number.}
-
-\item{ordinal}{A logical: should factors be ordered? Only
-available for features `month` or `dow`.}
-
-\item{columns}{A character string of variables that will be
-used as inputs. This field is a placeholder and will be
-populated once [prep.recipe()] is used.}
-
-\item{skip}{A logical. Should the step be skipped when the
-recipe is baked?}
+\item{skip}{A logical. Should the step be skipped when the recipe is baked?}
 
 \item{x}{A `step_date_hcai` object.}
 }
 \value{
-For `step_date_hcai`, an updated version of recipe with
-the new step added to the sequence of existing steps (if any).
-For the `tidy` method, a tibble with columns `terms`
-(the selectors or variables selected), `value` (the feature
-names), and `ordinal` (a logical).
+For `step_date_hcai`, an updated version of recipe with the new step
+  added to the sequence of existing steps (if any). For the `tidy` method, a
+  tibble with columns `terms` (the selectors or variables selected), `value`
+  (the feature names), and `ordinal` (a logical).
 }
 \description{
-`step_date_hcai` creates a a *specification* of a recipe
- step that will convert date data into one or more factor or
- numeric variables. It is a copy of `recipes::step_date` but will
- try to guess the date format of columns with the "_DTS" suffix.
+`step_date_hcai` creates a *specification* of a recipe step that
+ will convert date data into factor or numeric variable(s). This step will
+ guess the date format of columns with the "_DTS" suffix, and then create
+ either `categories` or `continuous` columns. Various portions of this step
+ are copied from `recipes::step_date`.
 }
 \details{
-Unlike other steps, `step_date_hcai` does *not*
-remove the original date variables. [step_rm()] can be
-used for this purpose.
+Unlike other steps, `step_date_hcai` does *not* remove the original
+  date variables. [step_rm()] can be used for this purpose.
 }
 \examples{
 library(lubridate)
@@ -92,4 +69,13 @@ date_rec <- prep(date_rec, training = examples)
 date_values <- bake(date_rec, newdata = examples)
 date_values
 
+# changing `feature_type` to `categories`
+date_rec <-
+  recipe(~ Dan + Stefan, examples) \%>\%
+  step_date_hcai(all_predictors(), feature_type = "categories")
+
+date_rec <- prep(date_rec, training = examples)
+
+date_values <- bake(date_rec, newdata = examples)
+date_values
 }

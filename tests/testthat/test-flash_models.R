@@ -8,6 +8,11 @@ reg <- dd %>%
   prep_data(patient_id, outcome = age) %>%
   flash_models(age, models = "glm")
 
+# similar tests to tune_models added
+td <- na.omit(pima_diabetes)[1:40, ]
+reg_df <- prep_data(td, patient_id, outcome = plasma_glucose)
+cla_df <- prep_data(td, patient_id, outcome = diabetes)
+
 # Using a more complicated Multiclass dataframe
 set.seed(1998)
 n <- nrow(mpg)
@@ -17,8 +22,7 @@ m_df <- mpg %>%
          fl = replace(fl, sample(1:n, 10), NA),
          cty = replace(cty, sample(1:n, 30), NA))
 m_df_clean <- m_df %>% prep_data(model, outcome = drv)
-multi <-
-  flash_models(d = m_df_clean, outcome = drv)
+multi <- flash_models(d = m_df_clean, outcome = drv, models = c("xgb", "rf"))
 
 m_df2 <-
   pima_diabetes %>%
@@ -51,15 +55,59 @@ test_that("can predict on flash models", {
   expect_s3_class(predict(multi, m_df[1:7, ]), "predicted_df")
 })
 
-test_that("outcome positive class is the reference level", {
-  expect_equal(levels(cl$`eXtreme Gradient Boosting`$trainingData$.outcome)[1], "Y")
-})
-
 test_that("AUPR is correct", {
   pr <- flash_models(cl_prep, diabetes, models = "xgb", metric = "PR")
   carets_aupr <- pr$`eXtreme Gradient Boosting`$results$AUC[1]
   actual_aupr <- evaluate(pr)[["AUPR"]]
   expect_equal(carets_aupr, actual_aupr)
+})
+
+test_that("flash_ and tune_ error informatively if training data isn't prepped", {
+  expect_error(flash_models(mtcars, outcome = mpg), "no_prep")
+  expect_error(tune_models(mtcars, outcome = am), "no_prep")
+})
+
+test_that("flash supports various loss functions in classification", {
+  expect_warning(
+    flash_models(d = cla_df, outcome = diabetes, model_class = "classification",
+                metric = "PR", models = "xgb", n_folds = 2)
+    , regexp = NA)
+
+  # throws error when metric from other class
+  expect_warning(
+    flash_models(d = cla_df, outcome = diabetes, model_class = "classification",
+                metric = "Rsquared", models = "xgb", n_folds = 2))
+  # throws error when NA
+  expect_warning(
+    flash_models(d = cla_df, outcome = diabetes, model_class = "classification",
+                metric = NA, models = "xgb", n_folds = 2)
+  )
+})
+
+test_that("flash supports various loss functions in regression", {
+  expect_warning(
+    flash_models(d = reg_df, outcome = plasma_glucose, model_class = "regression",
+                metric = "MAE", models = "rf", n_folds = 2)
+    , regexp = NA)
+  expect_warning(
+    flash_models(d = reg_df, outcome = plasma_glucose, model_class = "regression",
+                metric = "Rsquared", models = "rf", n_folds = 2)
+    , regexp = NA)
+
+  # throws error when metric from other class
+  expect_warning(
+    flash_models(d = reg_df, outcome = plasma_glucose, model_class = "regression",
+                metric = "PR", models = "rf", n_folds = 2))
+  # throws error when NA
+  expect_warning(
+    flash_models(d = reg_df, outcome = plasma_glucose, model_class = "regression",
+                metric = NA, models = "rf", n_folds = 2))
+})
+
+test_that("flash_models doesn't need an outcome specified", {
+  m <- flash_models(cl_prep)
+  expect_s3_class(m, "model_list")
+  expect_s3_class(m, "classification_list")
 })
 
 test_that("multiclass warns when classes are sparse", {

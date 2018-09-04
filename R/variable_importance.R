@@ -76,8 +76,9 @@ plot.variable_importance <- function(x,
 #' @seealso \code{\link{plot.variable_importance}}
 #'
 #' @examples
-#' m <- flash_models(mtcars, outcome = mpg, models = "rf")
-#' get_variable_importance(m)
+#' m <- machine_learn(mtcars, outcome = mpg, models = "rf", tune = FALSE)
+#' (vi <- get_variable_importance(m))
+#' plot(vi)
 get_variable_importance <- function(models, remove_zeros = TRUE, top_n) {
 
   use <- choose_vi_model(models)

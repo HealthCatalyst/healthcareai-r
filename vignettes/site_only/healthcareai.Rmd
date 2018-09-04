@@ -59,12 +59,22 @@ We can plot how effectively the model is able to separate diabetic from non-diab
 plot(predictions)
 ```
 
-# Data Profiling
-
-It is always a good idea to be aware of where there are missing values in data. The `missingness` function helps with that. In addition to looking for values R sees as missing, it looks for other values that might represent missing, such as `"NULL"`, and issues a warning if it finds any.
+If you want outcome-class predictions in addition to predicted probabilites, the `outcome_groups` argument accomplishes that. If it is `TRUE` the overall accuracy of predictions is maximized. If it is a number, it represents the relative cost of a false-negative to a false-positive outcome. The example below says that one false negative is as bad as two false positives. If you want risk groups instead, see the `risk_groups` argument.
 
 ```{r}
-missingness(pima_diabetes)
+quick_models %>% 
+  predict(outcome_groups = 2) %>% 
+  plot()
+```
+
+
+# Data Profiling
+
+It is always a good idea to be aware of where there are missing values in data. The `missingness` function helps with that. In addition to looking for values R sees as missing, it looks for other values that might represent missing, such as `"NULL"`, and issues a warning if it finds any. Like many `healthcareai` functions, it has a `plot` method so you can inspect the results more quickly and intuitively by passing the output to `plot`.
+
+```{r}
+missingness(pima_diabetes) %>% 
+  plot()
 ```
 
 It's good that we don't have any missingness in our ID or outcome columns. We'll see how missingness in predictors is addressed further down.
@@ -109,10 +119,18 @@ models <- tune_models(d = prepped_training_data,
                       metric = "PR")
 ```
 
-We can examine how the model performs across hyperparameters by plotting the model object. It looks like extratrees is a superior split rule for this model, and larger values of minimum node size tend to do better.
+You can compare performance across models with `evaluate`.
+
+```{r}
+evaluate(models, all_models = TRUE)
+```
+
+
+For more detail, you can examine how models perform across hyperparameters by plotting the model object. Here we plot only the best model's performance over hyperparameter by extracting it by name. It looks like extratrees is a superior split rule for this model.
 
 ```{r, fig.height = 6, fig.width = 9}
-plot(models)
+models["Random Forest"] %>% 
+  plot()
 ```
 
 ## Faster Model Training
@@ -129,17 +147,6 @@ untuned_rf <- flash_models(d = prepped_training_data,
 ```
 
 # Model Interpretation
-
-## Evaluate
-
-Let's see how the predictive performance of our untuned random forest compares to our extensively tuned models. The `evaluate` function gives you performance metrics for the best performing model by default, but if you set `all_models = TRUE` you can see how well all trained performed.
-
-In this the untuned model comes in just `r round(evaluate(models, all_models = TRUE)$AUPR[1] - evaluate(untuned_rf)[["AUPR"]], 2)` AUPR units ahead of the tuned models. In our experience, that's on the small side of typical, with the difference in performance growing with the size of the dataset. A workflow that often works well is to do all of your development using `flash_models`, and as a final step before putting a model into production, retrain the model using `tune_models`.
-
-```{r, results="markup"}
-evaluate(untuned_rf)
-evaluate(models, all_models = TRUE)
-```
 
 ## Interpret
 
@@ -161,6 +168,16 @@ get_variable_importance(models) %>%
   plot()
 ```
 
+## Explore
+
+The `explore` function reveals how a model makes its predictions. It takes the most important features in a model, and uses a variety of "counterfactual" observations across those features to see what predictions the model would make at various combinations of the features. To see the effect of more features adjust the `n_use` argument to `plot`, or for different features, specify `x_var` and `color_var`.
+
+```{r}
+explore(models) %>% 
+  plot()
+```
+
+
 # Prediction
 
 `predict` will automatically use the best-performing model from training (evaluated out-of-fold in cross validation). If no new data is passed to `predict` it will return out-of-fold predictions from training. The predicted probabilities appear in the `predicted_diabetes` column.
@@ -171,8 +188,14 @@ predict(models)
 
 To get predictions on a new dataset, pass the new data to `predict`, and it will automatically be prepared based on the recipe generated on the training data. We can plot the predictions to see how well our model is doing, and we see that it's separating diabetic from non-diabetic individuals pretty well, although there a fair number of non-diabetics with high predicted probabilities of diabetes. This may be due to optimizing for precision recall, or may indicate pre-diabetic patients.
 
+Above, we saw how to make outcome-class predictions. Here, we make risk-group predictions, defining four risk groups (low, moderate, high, and extreme) containing 30%, 40%, 20% and 10% of patients, respectively.
+
 ```{r}
-test_predictions <- predict(models, split_data$test)
+test_predictions <- 
+  predict(models, 
+          split_data$test, 
+          risk_groups = c(low = 30, moderate = 40, high = 20, extreme = 10)
+  )
 plot(test_predictions)
 ```
 

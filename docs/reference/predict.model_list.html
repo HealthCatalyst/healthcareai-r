@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Make predictions using the best-performing model — predict.model_list • healthcareai</title>
+<title>Get predictions — predict.model_list • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -36,9 +36,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
 
 
-<meta property="og:title" content="Make predictions using the best-performing model — predict.model_list" />
+<meta property="og:title" content="Get predictions — predict.model_list" />
 
-<meta property="og:description" content="Make predictions using the best-performing model" />
+<meta property="og:description" content="Make predictions using the best-performing model. For
+  classification models, predicted probabilities are always returned, and you
+  can get either predicted outcome class by specifying outcome_groups
+  or risk groups by specifying risk_groups." />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -79,7 +82,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.1</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.2.0</span>
       </span>
     </div>
 
@@ -151,20 +154,23 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Make predictions using the best-performing model</h1>
+    <h1>Get predictions</h1>
     
     <div class="hidden name"><code>predict.model_list.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Make predictions using the best-performing model</p>
+    <p>Make predictions using the best-performing model. For
+  classification models, predicted probabilities are always returned, and you
+  can get either predicted outcome class by specifying <code>outcome_groups</code>
+  or risk groups by specifying <code>risk_groups</code>.</p>
     
     </div>
 
     <pre class="usage"><span class='co'># S3 method for model_list</span>
-<span class='fu'>predict</span>(<span class='no'>object</span>, <span class='no'>newdata</span>, <span class='no'>prepdata</span>, <span class='kw'>write_log</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='no'>...</span>)</pre>
+<span class='fu'>predict</span>(<span class='no'>object</span>, <span class='no'>newdata</span>, <span class='kw'>risk_groups</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>outcome_groups</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>prepdata</span>, <span class='kw'>write_log</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -183,24 +189,60 @@ likely overestimate model performance relative to what will be achieved on
 new data. Should have the same structure as the input to
 `prep_data`,`tune_models` or `train_models`. `predict` will try to figure
 out if the data need to be sent through `prep_data` before making
-predictions; this can be overriden by setting `prepdata = FALSE`, but this
+predictions; this can be overridden by setting `prepdata = FALSE`, but this
 should rarely be needed.</p></td>
     </tr>
     <tr>
+      <th>risk_groups</th>
+      <td><p>Should predictions be grouped into risk groups and
+returned in column "predicted_group"? If this is NULL (default), they will
+not be. If this is a single number, that number of groups will be created
+with names "risk_group1", "risk_group2", etc. "risk_group1" is always the
+highest risk (highest predicted probability). The groups will have equal
+expected sizes, based on the distribution of out-of-fold predictions on the
+training data. If this is a character vector, its entries will be used as
+the names of the risk groups, in increasing order of risk, again with equal
+expected sizes of groups. If you want unequal-size groups, this can be a
+named numeric vector, where the names will be the names of the risk groups,
+in increasing order of risk, and the entries will be the relative
+proportion of observations in the group, again based on the distribution of
+out-of-fold predictions on the training data. For example,
+<code>risk_groups = c(low = 2, mid = 1, high = 1)</code> will put the bottom half
+of predicted probabilities in the "low" group, the next quarter in the
+"mid" group, and the highest quarter in the "high" group. You can get the
+cutoff values used to separate groups by passing the output of
+<code>predict</code> to <code><a href='get_cutoffs.html'>get_cutoffs</a></code>. Note that only one of
+<code>risk_groups</code> and <code>outcome_groups</code> can be specified.</p></td>
+    </tr>
+    <tr>
+      <th>outcome_groups</th>
+      <td><p>Should predictions be grouped into outcome classes and
+returned in column "predicted_group"? If this is NULL (default), they will
+not be. The threshold for splitting outcome classes is determined on the
+training data via <code><a href='get_thresholds.html'>get_thresholds</a></code>. If this is TRUE, the
+threshold is chosen to maximize accuracy, i.e. false positives and false
+negatives are equally weighted. If this is a number it is the ratio of cost
+(badnesss) of false negatives (missed detections) to false positives (false
+alarms). For example, <code>outcome_groups = 5</code> indicates a preferred ratio
+of five false alarms to every missed detection, and <code>outcome_groups =
+.5</code> indicates that two missed detections is as bad as one false alarm. This
+value is passed to the <code>cost_fn</code> argument of
+<code><a href='get_thresholds.html'>get_thresholds</a></code>. You can get the cutoff values used to
+separate groups by passing the output of <code>predict</code> to
+<code><a href='get_cutoffs.html'>get_cutoffs</a></code>. Note that only one of <code>risk_groups</code> and
+<code>outcome_groups</code> can be specified.</p></td>
+    </tr>
+    <tr>
       <th>prepdata</th>
-      <td><p>Logical, this should rarely be set by the user. By default,
-if `newdata` hasn't been prepped, it will be prepped by `prep_data` before
-predictions are made. Set this to TRUE to force already-prepped data
-through `prep_data` again, or set to FALSE to prevent `newdata` from being
-sent through `prep_data`.</p></td>
+      <td><p>Defunct. Data are always prepped in prediction.</p></td>
     </tr>
     <tr>
       <th>write_log</th>
       <td><p>Write prediction metadata to a file? Default is FALSE. If
-TRUE, will create or append a file called "prediction_log.txt" in
-the current directory with metadata about predictions. If a character, is
-the name of a file to create or append with prediction metadata. If you
-want a unique log file each time predictions are made, use something like
+TRUE, will create or append a file called "prediction_log.txt" in the
+current directory with metadata about predictions. If a character, is the
+name of a file to create or append with prediction metadata. If you want a
+unique log file each time predictions are made, use something like
 <code>write_log = paste0(Sys.time(), " predictions.txt")</code>. This param
 modifies error behavior and is best used in production. See details.</p></td>
     </tr>
@@ -221,8 +263,8 @@ modifies error behavior and is best used in production. See details.</p></td>
   predicted_df. If <code>write_log</code> is TRUE and this function errors, a
   zero-row dataframe will be returned.</p>
 <p>Returned data will contain an attribute, "prediction_log" that contains a
-  tibble of  logging info for writing to database. If <code>write_log</code>
-  is TRUE and predict errors, an empty dataframe with the "prediction_log"
+  tibble of  logging info for writing to database. If <code>write_log</code> is
+  TRUE and predict errors, an empty dataframe with the "prediction_log"
   attribute will still be returned. Extract this attribute using
   <code>attr(pred, "prediction_log")</code>.</p>
 <p>Data will also contain a "failed" attribute to easily filter for errors
@@ -235,48 +277,142 @@ modifies error behavior and is best used in production. See details.</p></td>
   make predictions. Prepping data inside `predict` has the advantage of
   returning your predictions with the newdata in its original format.</p>
 <p>If <code>write_log</code> is TRUE and an error is encountered, <code>predict</code>
-  will not stop. It will return the error message as:
-  - A warning in the console
-  - A field in the log file
-  - A column in the "prediction_log" attribute
-  - A zero-row data frame will be returned</p>
+  will not stop. It will return the error message as: - A warning in the
+  console - A field in the log file - A column in the "prediction_log"
+  attribute - A zero-row data frame will be returned</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='plot.predicted_df.html'>plot.predicted_df</a></code>, <code><a href='evaluate.html'>evaluate.predicted_df</a></code></p></div>
+    <div class='dont-index'><p><code><a href='plot.predicted_df.html'>plot.predicted_df</a></code>,
+  <code><a href='evaluate.html'>evaluate.predicted_df</a></code>, <code><a href='get_thresholds.html'>get_thresholds</a></code>,
+  <code><a href='get_cutoffs.html'>get_cutoffs</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># Tune models using only the first 40 rows to keep computation fast</span>
+    <pre class="examples"><div class='input'><span class='co'>### Data prep and model training ###</span>
+<span class='co'>####################################</span>
 
-<span class='no'>models</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='machine_learn.html'>machine_learn</a></span>(<span class='no'>pima_diabetes</span>[<span class='fl'>1</span>:<span class='fl'>40</span>, ], <span class='no'>patient_id</span>,
-                        <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>, <span class='kw'>tune</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe...</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'></span>
+<span class='fu'>set.seed</span>(<span class='fl'>7510</span>)
+<span class='co'># Split the first 200 rows in pima_diabetes into a model-training dataset</span>
+<span class='co'># containing 3/4 of the data and a test dataset containing 1/4 of the data.</span>
+<span class='no'>d</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='split_train_test.html'>split_train_test</a></span>(<span class='no'>pima_diabetes</span>[<span class='fl'>1</span>:<span class='fl'>200</span>, ], <span class='no'>diabetes</span>, <span class='fl'>.75</span>)
+
+<span class='co'># Prep the training data for model training and train regularized regression</span>
+<span class='co'># and extreme gradient boosted models</span>
+<span class='no'>models</span> <span class='kw'>&lt;-</span>
+  <span class='no'>d</span>$<span class='no'>train</span> <span class='kw'>%&gt;%</span>
+  <span class='fu'><a href='prep_data.html'>prep_data</a></span>(<span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>) <span class='kw'>%&gt;%</span>
+  <span class='fu'><a href='flash_models.html'>flash_models</a></span>(<span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>, <span class='kw'>models</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"glm"</span>, <span class='st'>"xgb"</span>))</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe...</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'></span>
-#&gt; <span class='message'>After data processing, models are being trained on 12 features with 40 observations.</span>
-#&gt; <span class='message'>Based on n_folds = 5 and hyperparameter settings, the following number of models will be trained: 5 rf's, 5 xgb's, and 50 glm's </span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: Random Forest</span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: eXtreme Gradient Boosting</span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: glmnet</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>After data processing, models are being trained on 12 features with 151 observations.</span>
+#&gt; <span class='message'>Based on n_folds = 5 and hyperparameter settings, the following number of models will be trained: 50 glm's and 5 xgb's </span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: glmnet</span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: eXtreme Gradient Boosting</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>*** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
 #&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='input'>
-<span class='co'># Make prediction on the next 10 rows. This uses the best-performing model from</span>
-<span class='co'># tuning cross validation, and it also prepares the new data in the same way as</span>
-<span class='co'># the training data was prepared.</span>
+<span class='co'>### Making predictions ###</span>
+<span class='co'>##########################</span>
 
-<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>pima_diabetes</span>[<span class='fl'>41</span>:<span class='fl'>50</span>, ])</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by glmnet last trained: 2018-07-11 22:10:51</span>
-#&gt; <span class='message'>Performance in training: AUROC = 0.7</span></div><div class='output co'>#&gt; # A tibble: 10 x 11
+<span class='co'># Make prediction on test data using the model that performed best in</span>
+<span class='co'># cross validation during model training. Before predictions are made, the test</span>
+<span class='co'># data is automatically prepared the same way the training data was.</span>
+<span class='no'>predictions</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>d</span>$<span class='no'>test</span>)</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='no'>predictions</span></div><div class='output co'>#&gt; <span class='message'>"predicted_diabetes" predicted by glmnet last trained: 2018-09-01 17:17:40</span>
+#&gt; <span class='message'>Performance in training: AUROC = 0.82</span></div><div class='output co'>#&gt; # A tibble: 49 x 11
 #&gt;    diabetes predicted_diabe… patient_id pregnancies plasma_glucose diastolic_bp
-#&gt;  * &lt;chr&gt;               &lt;dbl&gt;      &lt;int&gt;       &lt;int&gt;          &lt;int&gt;        &lt;int&gt;
-#&gt;  1 N                   0.656         41           3            180           64
-#&gt;  2 N                   0.569         42           7            133           84
-#&gt;  3 N                   0.478         43           7            106           92
-#&gt;  4 Y                   0.636         44           9            171          110
-#&gt;  5 N                   0.624         45           7            159           64
-#&gt;  6 Y                   0.679         46           0            180           66
-#&gt;  7 N                   0.597         47           1            146           56
-#&gt;  8 N                   0.424         48           2             71           70
-#&gt;  9 Y                   0.504         49           7            103           66
-#&gt; 10 N                   0.507         50           7            105           NA
-#&gt; # ... with 5 more variables: skinfold &lt;int&gt;, insulin &lt;int&gt;, weight_class &lt;chr&gt;,
-#&gt; #   pedigree &lt;dbl&gt;, age &lt;int&gt;</div><div class='input'><span class='fu'><a href='evaluate.html'>evaluate</a></span>(<span class='no'>predictions</span>)</div><div class='output co'>#&gt;      AUPR     AUROC 
-#&gt; 0.3045635 0.7142857 </div><div class='input'><span class='fu'>plot</span>(<span class='no'>predictions</span>)</div><div class='img'><img src='predict.model_list-1.png' alt='' width='576' height='288' /></div></pre>
+#&gt;  * &lt;fct&gt;               &lt;dbl&gt;      &lt;int&gt;       &lt;int&gt;          &lt;int&gt;        &lt;int&gt;
+#&gt;  1 N                  0.0510          2           1             85           66
+#&gt;  2 N                  0.163           6           5            116           74
+#&gt;  3 Y                  0.165           7           3             78           50
+#&gt;  4 N                  0.530           8          10            115           NA
+#&gt;  5 N                  0.191          19           1            103           30
+#&gt;  6 N                  0.395          22           8             99           84
+#&gt;  7 Y                  0.702          27           7            147           76
+#&gt;  8 N                  0.797          41           3            180           64
+#&gt;  9 Y                  0.815          44           9            171          110
+#&gt; 10 N                  0.0405         53           5             88           66
+#&gt; # ... with 39 more rows, and 5 more variables: skinfold &lt;int&gt;, insulin &lt;int&gt;,
+#&gt; #   weight_class &lt;chr&gt;, pedigree &lt;dbl&gt;, age &lt;int&gt;</div><div class='input'><span class='fu'><a href='evaluate.html'>evaluate</a></span>(<span class='no'>predictions</span>)</div><div class='output co'>#&gt;      AUPR     AUROC 
+#&gt; 0.6389405 0.7795699 </div><div class='input'><span class='fu'>plot</span>(<span class='no'>predictions</span>)</div><div class='img'><img src='predict.model_list-1.png' alt='' width='576' height='288' /></div><div class='input'>
+<span class='co'>### Outcome class predictions ###</span>
+<span class='co'>#################################</span>
+
+<span class='co'># If you want class predictions in addition to predicted probabilities for</span>
+<span class='co'># a classification model, specify outcome_groups. The number passed to</span>
+<span class='co'># outcome groups is the cost of a false negative relative to a false positive.</span>
+<span class='co'># This example specifies that one missed detection is as bad as ten false</span>
+<span class='co'># alarms, and the resulting confusion matrix reflects this preference.</span>
+<span class='no'>class_preds</span> <span class='kw'>&lt;-</span> <span class='fu'>predict</span>(<span class='no'>models</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>d</span>$<span class='no'>test</span>, <span class='kw'>outcome_groups</span> <span class='kw'>=</span> <span class='fl'>10</span>)</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='input'><span class='fu'>table</span>(<span class='kw'>actual</span> <span class='kw'>=</span> <span class='no'>class_preds</span>$<span class='no'>diabetes</span>, <span class='kw'>predicted</span> <span class='kw'>=</span> <span class='no'>class_preds</span>$<span class='no'>predicted_group</span>)</div><div class='output co'>#&gt;       predicted
+#&gt; actual  N  Y
+#&gt;      N 10 21
+#&gt;      Y  1 17</div><div class='input'>
+<span class='co'># You can extract the threshold used to separate predicted Y from predicted N</span>
+<span class='fu'><a href='get_cutoffs.html'>get_cutoffs</a></span>(<span class='no'>class_preds</span>)</div><div class='output co'>#&gt; <span class='message'>Predicted outcomes N and Y separated at: 0.0787</span></div><div class='input'>
+<span class='co'># And you can visualize that cutoff by simply plotting the predictions</span>
+<span class='fu'>plot</span>(<span class='no'>class_preds</span>)</div><div class='img'><img src='predict.model_list-2.png' alt='' width='576' height='288' /></div><div class='input'>
+<span class='co'>### Risk stratification ###</span>
+<span class='co'>###########################</span>
+
+<span class='co'># Alternatively, you can stratify observations into risk groups by specifying</span>
+<span class='co'># the risk_groups parameter. For example, this creates five risk groups</span>
+<span class='co'># with custom names. Risk group assignment is based on the distribution of</span>
+<span class='co'># predicted probabilities in model training. This is useful because it preserves</span>
+<span class='co'># a consistent notion of risk; for example, if you make daily predictions and</span>
+<span class='co'># one day happens to contain only low-risk patients, those patients will all</span>
+<span class='co'># be classified as low risk. Over the long run, group sizes will be consistent,</span>
+<span class='co'># but in any given round of predictions they may differ. If you want fixed</span>
+<span class='co'># group sizes, see the following examples.</span>
+<span class='fu'>predict</span>(<span class='no'>models</span>, <span class='no'>d</span>$<span class='no'>test</span>,
+        <span class='kw'>risk_groups</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"very low"</span>, <span class='st'>"low"</span>, <span class='st'>"medium"</span>, <span class='st'>"high"</span>, <span class='st'>"very high"</span>)) <span class='kw'>%&gt;%</span>
+  <span class='fu'>plot</span>()</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='img'><img src='predict.model_list-3.png' alt='' width='576' height='288' /></div><div class='input'>
+<span class='co'>### Fixed size groups ###</span>
+<span class='co'>#########################</span>
+
+<span class='co'># If you want groups of fixed sizes, e.g. say you have capacity to admit the three</span>
+<span class='co'># highest-risk patients, treat the next five, and have to discharge the remainder,</span>
+<span class='co'># you can use predicted probabilities to do that. One way to do that is to</span>
+<span class='co'># arrange the predictions data frame in descending order of risk, and then use the</span>
+<span class='co'># row numbers to stratify patients</span>
+<span class='fu'>library</span>(<span class='no'>dplyr</span>)
+<span class='fu'>predict</span>(<span class='no'>models</span>, <span class='no'>d</span>$<span class='no'>test</span>) <span class='kw'>%&gt;%</span>
+  <span class='fu'><a href='http://dplyr.tidyverse.org/reference/arrange.html'>arrange</a></span>(<span class='fu'><a href='http://dplyr.tidyverse.org/reference/desc.html'>desc</a></span>(<span class='no'>predicted_diabetes</span>)) <span class='kw'>%&gt;%</span>
+  <span class='fu'><a href='http://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span>(<span class='kw'>action</span> <span class='kw'>=</span> <span class='fu'><a href='http://dplyr.tidyverse.org/reference/case_when.html'>case_when</a></span>(
+    <span class='fu'><a href='http://dplyr.tidyverse.org/reference/ranking.html'>row_number</a></span>() <span class='kw'>&lt;=</span> <span class='fl'>3</span> ~ <span class='st'>"admit"</span>,
+    <span class='fu'><a href='http://dplyr.tidyverse.org/reference/ranking.html'>row_number</a></span>() <span class='kw'>&lt;=</span> <span class='fl'>8</span> ~ <span class='st'>"treat"</span>,
+    <span class='fl'>TRUE</span> ~ <span class='st'>"discharge"</span>
+  )) <span class='kw'>%&gt;%</span>
+  <span class='fu'><a href='http://dplyr.tidyverse.org/reference/select.html'>select</a></span>(<span class='no'>predicted_diabetes</span>, <span class='no'>action</span>, <span class='fu'><a href='http://dplyr.tidyverse.org/reference/reexports.html'>everything</a></span>())</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='output co'>#&gt; # A tibble: 49 x 12
+#&gt;    predicted_diabe… action diabetes patient_id pregnancies plasma_glucose
+#&gt;               &lt;dbl&gt; &lt;chr&gt;  &lt;fct&gt;         &lt;int&gt;       &lt;int&gt;          &lt;int&gt;
+#&gt;  1            0.918 admit  Y               186           7            194
+#&gt;  2            0.815 admit  Y                44           9            171
+#&gt;  3            0.798 admit  Y               115           7            160
+#&gt;  4            0.797 treat  N                41           3            180
+#&gt;  5            0.778 treat  Y               193           7            159
+#&gt;  6            0.702 treat  Y                27           7            147
+#&gt;  7            0.682 treat  N               145           4            154
+#&gt;  8            0.648 treat  Y               132           9            122
+#&gt;  9            0.635 disch… Y               190           5            139
+#&gt; 10            0.634 disch… N                87          13            106
+#&gt; # ... with 39 more rows, and 6 more variables: diastolic_bp &lt;int&gt;,
+#&gt; #   skinfold &lt;int&gt;, insulin &lt;int&gt;, weight_class &lt;chr&gt;, pedigree &lt;dbl&gt;,
+#&gt; #   age &lt;int&gt;</div><div class='input'>
+<span class='co'># Finally, if you want a fixed group size that is further down on the risk</span>
+<span class='co'># scale, you can achieve that with a combination of risk groups and the</span>
+<span class='co'># stratifying approach in the last example. For example, say you have capacity</span>
+<span class='co'># to admit 5 patients, but you don't want to admit patients in the top 10% of</span>
+<span class='co'># risk scores.</span>
+<span class='fu'>predict</span>(<span class='no'>models</span>, <span class='no'>d</span>$<span class='no'>test</span>,
+        <span class='kw'>risk_groups</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"risk acceptable"</span> <span class='kw'>=</span> <span class='fl'>90</span>, <span class='st'>"risk too high"</span> <span class='kw'>=</span> <span class='fl'>10</span>)) <span class='kw'>%&gt;%</span>
+  <span class='fu'><a href='http://dplyr.tidyverse.org/reference/filter.html'>filter</a></span>(<span class='no'>predicted_group</span> <span class='kw'>==</span> <span class='st'>"risk acceptable"</span>) <span class='kw'>%&gt;%</span>
+  <span class='fu'><a href='http://dplyr.tidyverse.org/reference/top_n.html'>top_n</a></span>(<span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>wt</span> <span class='kw'>=</span> <span class='no'>predicted_diabetes</span>)</div><div class='output co'>#&gt; <span class='message'>Prepping data based on provided recipe</span></div><div class='output co'>#&gt; # A tibble: 5 x 12
+#&gt;   diabetes predicted_diabe… predicted_group patient_id pregnancies
+#&gt;   &lt;fct&gt;               &lt;dbl&gt; &lt;fct&gt;                &lt;int&gt;       &lt;int&gt;
+#&gt; 1 Y                   0.702 risk acceptable         27           7
+#&gt; 2 Y                   0.648 risk acceptable        132           9
+#&gt; 3 N                   0.682 risk acceptable        145           4
+#&gt; 4 Y                   0.635 risk acceptable        190           5
+#&gt; 5 Y                   0.778 risk acceptable        193           7
+#&gt; # ... with 7 more variables: plasma_glucose &lt;int&gt;, diastolic_bp &lt;int&gt;,
+#&gt; #   skinfold &lt;int&gt;, insulin &lt;int&gt;, weight_class &lt;chr&gt;, pedigree &lt;dbl&gt;,
+#&gt; #   age &lt;int&gt;</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

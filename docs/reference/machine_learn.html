@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.1</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.2.0</span>
       </span>
     </div>
 
@@ -162,7 +162,7 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>machine_learn</span>(<span class='no'>d</span>, <span class='no'>...</span>, <span class='no'>outcome</span>, <span class='no'>models</span>, <span class='kw'>tune</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>positive_class</span>,
+    <pre class="usage"><span class='fu'>machine_learn</span>(<span class='no'>d</span>, <span class='no'>...</span>, <span class='no'>outcome</span>, <span class='no'>models</span>, <span class='no'>metric</span>, <span class='kw'>tune</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>positive_class</span>,
   <span class='kw'>n_folds</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>tune_depth</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>impute</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>model_name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>allow_parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
@@ -187,6 +187,16 @@ Unquoted. Must be named, i.e. you must specify <code>outcome = </code></p></td>
       <th>models</th>
       <td><p>Names of models to try. See <code><a href='get_supported_models.html'>get_supported_models</a></code>
 for available models. Default is all available models.</p></td>
+    </tr>
+    <tr>
+      <th>metric</th>
+      <td><p>Which metric should be used to assess model performance?
+Options for classification: "ROC" (default) (area under the receiver
+operating characteristic curve) or "PR" (area under the precision-recall
+curve). Options for regression: "RMSE" (default) (root-mean-squared error,
+default), "MAE" (mean-absolute error), or "Rsquared." Options for
+multiclass: "Accuracy" (default) or "Kappa" (accuracy, adjusted for class
+imbalance).</p></td>
     </tr>
     <tr>
       <th>tune</th>
@@ -289,6 +299,10 @@ training will be trained across cores.</p></td>
 <span class='co'># faster (especially on larger datasets), but produces models with less</span>
 <span class='co'># predictive power.</span>
 <span class='fu'>machine_learn</span>(<span class='no'>d</span>$<span class='no'>train</span>, <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>, <span class='kw'>tune</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+
+<span class='co'>### Train models optimizing given metric ###</span>
+
+<span class='fu'>machine_learn</span>(<span class='no'>d</span>$<span class='no'>train</span>, <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>, <span class='kw'>metric</span> <span class='kw'>=</span> <span class='st'>"PR"</span>)
 <span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

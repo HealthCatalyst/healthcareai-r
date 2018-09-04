@@ -114,6 +114,7 @@ explore <- function(models,
   if (is.null(rec))
     stop("models must have been trained on prepped data, either through ",
          "machine_learn or prep_data.")
+  training_data <- attr(models, "recipe")$template
 
   variables <-
     rec$var_info %>%
@@ -121,13 +122,15 @@ explore <- function(models,
     dplyr::mutate(type = dplyr::case_when(type == "logical" ~ "numeric",
                                           TRUE ~ type)) %>%
     split(., .$type) %>%
-    purrr::map(pull, variable)
+    purrr::map(dplyr::pull, variable)
 
   d <- create_varying_df(models = models, vary = vary, variables = variables,
-                         numerics = numerics, characters = characters)
+                         numerics = numerics, characters = characters,
+                         training_data = training_data)
   static <- choose_static_values(models = models,
                                  static_variables = purrr::map(variables, dplyr::setdiff, names(d)),
-                                 hold = hold)
+                                 hold = hold,
+                                 training_data = training_data)
   static <- do.call(dplyr::bind_rows, replicate(nrow(d), static, simplify = FALSE))
   d <- dplyr::bind_cols(d, static)
   suppressWarnings( suppressMessages( preds <- predict(models, d) ) )
@@ -138,7 +141,7 @@ explore <- function(models,
 
 # Create the data frame containing combinations of variable values on which to
 # make counterfactual predictions, but not containing fixed predictors.
-create_varying_df <- function(models, vary, variables, numerics, characters) {
+create_varying_df <- function(models, vary, variables, numerics, characters, training_data) {
 
   # If vary is a list, our job is easy
   if (is.list(vary)) {
@@ -153,7 +156,7 @@ create_varying_df <- function(models, vary, variables, numerics, characters) {
     # Now we have a character vector of variables to vary, need to choose values,
     # which come back as a named list
     vary <- choose_values(models = models, vary = vary, variables = variables,
-                          numerics = numerics, characters = characters)
+                          numerics = numerics, characters = characters, training_data)
   }
 
   # Collect variable attributes to keep with the explore_df object
@@ -183,10 +186,12 @@ choose_variables <- function(models, vary, variables) {
       suppressWarnings( get_variable_importance(models) )
     } else {
       # Format interpret to function as variable importance
-      warning("glm is the only model present in models, so using coefficients ",
-              "to determine which variables to vary. If variables weren't scaled ",
-              "this will be misleading. Consider using another algorithm or ",
-              "`prep_data(scale = TRUE)` prior to model training.")
+      if (!"scale" %in% broom::tidy(attr(models, "recipe"))$type)
+        warning("glm is the only model present in models, so coefficients will be used ",
+                "to determine which variables to vary. However, variables weren't ",
+                "scaled in `prep_data`, which means coefficients aren't a good ",
+                "measure of variable importance. Consider using another algorithm or ",
+                "`prep_data(scale = TRUE)` prior to model training.")
       interpret(models) %>%
         dplyr::transmute(variable = variable, importance = abs(coefficient)) %>%
         dplyr::filter(variable != "(Intercept)")
@@ -208,16 +213,16 @@ choose_variables <- function(models, vary, variables) {
 }
 
 
-choose_values <- function(models, vary, variables, numerics, characters) {
+choose_values <- function(models, vary, variables, numerics, characters, training_data) {
   vary_order <- vary
   # Choose nominal values
   noms_to_use <- dplyr::intersect(variables$nominal, vary)
   noms <-
     if (length(noms_to_use)) {
-      rec <- attr(models, "recipe")
-      attr(rec, "factor_levels")[noms_to_use] %>%
-        purrr::map(function(vartab) {
-          names(sort(vartab, decreasing = TRUE))[seq_len(min(length(vartab), characters))]
+      dplyr::select(training_data, noms_to_use) %>%
+        purrr::map(function(var) {
+          ft <- sort(table(var, useNA = "ifany"), decreasing = TRUE)
+          names(ft)[seq_len(min(length(ft), characters))]
         })
     } else {
       NULL
@@ -230,7 +235,7 @@ choose_values <- function(models, vary, variables, numerics, characters) {
       if (length(numerics) == 1 && numerics > 1) {
         numerics <- seq(.05, .95, len = numerics)
       }
-      dplyr::select(models[[1]]$trainingData, nums_to_use) %>%
+      dplyr::select(training_data, nums_to_use) %>%
         purrr::map(stats::quantile, numerics, na.rm = TRUE)
     } else {
       NULL
@@ -241,7 +246,7 @@ choose_values <- function(models, vary, variables, numerics, characters) {
     return()
 }
 
-choose_static_values <- function(models, static_variables, hold) {
+choose_static_values <- function(models, static_variables, hold, training_data) {
   if (!rlang::is_named(hold))
     stop("`hold` must be a named list (or data frame), whether it contains ",
          "functions to determine values or values themselves.")
@@ -255,11 +260,12 @@ choose_static_values <- function(models, static_variables, hold) {
            "character variables to use. You provided the following non-functions: ",
            list_variables(paste(names(not_funs), not_funs, sep = " is ")))
     num_holds <-
-      dplyr::select(models[[1]]$trainingData,
-                    which(names(models[[1]]$trainingData) %in% static_variables$numeric)) %>%
-      purrr::map_dbl(hold$numerics)
+      # simplify?
+      dplyr::select(training_data,
+                    which(names(training_data) %in% static_variables$numeric)) %>%
+      purrr::map_dbl(hold$numerics, na.rm = TRUE)
     nom_holds <-
-      attr(attr(models, "recipe"), "factor_levels")[static_variables$nominal] %>%
+      dplyr::select(training_data, static_variables$nominal) %>%
       purrr::map_chr(hold$characters)
     hold_values <- purrr::flatten(list(num_holds, nom_holds))
   } else {

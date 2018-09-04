@@ -218,21 +218,17 @@ d_clean2 <- d %>%
   prep_data(outcome = arr_delay, 
             ... = tailnum,
             collapse_rare_factors = 0.02,
-            convert_dates = c("dow", "month"))
+            convert_dates = "categories")
 d_clean2
 ```
-If we want numeric dates, fine for RF or XGB, we'll have to create them ourselves. 
+If we want numeric dates, fine for RF or XGB, we can specify that. 
 With numeric dates, 46 columns remain.
 ```{r}
 d_clean2 <- d %>%
-  mutate(hour_of_day = hour(time_hour),
-         month_of_year = month(time_hour),
-         day_of_week = wday(time_hour)) %>%
-  select(-time_hour) %>%
   prep_data(outcome = arr_delay, 
             ... = tailnum,
             collapse_rare_factors = 0.02,
-            convert_dates = FALSE)
+            convert_dates = "continuous")
 d_clean2
 ```
 
