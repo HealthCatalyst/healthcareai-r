@@ -121,6 +121,65 @@ test_that("data reads a pointer from special schema if not collected", {
   DBI::dbDisconnect(con)
 })
 
+#  Write to database ------------------
+cs <- build_connection_string(server = "localhost",
+                              database = "testSAM")
+
+test_that("errors when data or connection is wrong", {
+  skip_on_not_appveyor()
+  d <- tibble::tibble(id = 7,
+                      word_of_day = c("hello"))
+  expect_error(db_write("notdata", "con", "db", "schema", "table", "append"),
+               "data frame")
+  expect_error(db_write(d, "con", "db", "schema", "table", "append"),
+               "Microsoft")
+  cs <- build_connection_string(server = "localhost")
+  con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs)
+  expect_error(db_write(d, con, FALSE, "schema", "table", "append"),
+               "database")
+})
+
+test_that("errors if database/table/schema doesn't exist", {
+  skip_on_not_appveyor()
+  con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs)
+  d <- tibble::tibble(id = 7,
+                      word_of_day = c("hello"))
+  expect_error(db_write(d, con, "best_database", "teriffic_schema", "great_table"),
+               "teriffic")
+  expect_error(db_write(d, con, "testSAM", "teriffic_schema", "great_table"),
+               "exist")
+  expect_error(db_write(d, con, "testSAM", "test_schema", "great_table"),
+               "exist")
+  expect_error(db_write(d, con, "testSAM", "test_schema", "hcai_unit_tests"),
+               NA)
+})
+
+test_that("defaults to con str db if db left blank", {
+
+})
+
+test_that("errors if data types don't match", {
+
+})
+
+test_that("default schema can append and overwrite", {
+
+})
+
+test_that("special schema can append and overwrite", {
+  skip_on_not_appveyor()
+  con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs)
+  d <- tibble::tibble(id = 4:6,
+                        word_of_day = c("lentil", "automobile", "towel"))
+  res <- db_write(d,
+                  con,
+                  table_name = "hcai_unit_tests",
+                  schema = "test_schema",
+                  append = TRUE)
+
+  expect_equal(res, exp)
+  DBI::dbDisconnect(con)
+})
 
 # Utils -----------------------
 test_that("SAM utility columns are added.", {

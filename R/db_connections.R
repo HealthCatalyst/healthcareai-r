@@ -119,6 +119,75 @@ db_read <- function(con,
 }
 
 #' @title
+#' Write to a SQL Server database table
+#' @description Use a database connection to read from an existing SQL Server
+#' table with a SQL query.
+#' @param con An odbc database connection. Can be made using
+#' \code{build_connection_string}. Required.
+#' @param query A string, quoted, required. This sql query will be executed
+#' against the database you are connected to.
+#' @param pull_into_memory Logical, optional, defaults to TRUE. If FALSE,
+#' \code{db_read} will create a reference to the queried data rather than
+#' pulling into memory. Set to FALSE for very large tables.
+#' @details Use \code{pull_into_memory} when working with large tables.
+#' Rather than returning the data into memory, this
+#' function will return a reference to the specified query. It will be executed
+#' only when needed, in a "lazy" style. Or, you can execute using the
+#' \code{collect()} function.
+#' @return A tibble of data or reference to the table.
+#' @seealso \code{\link{build_connection_string}}
+#' @importFrom dbplyr as.sql
+#  ^ This is a placeholder. We need dbplyr as a backend for dplyr's db functionality
+#' @export
+#' @examples
+#' \dontrun{
+#' my_con <- build_connection_string(server = "HPHI-EDWDEV")
+#' con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con)
+#' d <- db_read(con,
+#'              "SELECT TOP 10 * FROM [Shared].[Cost].[FacilityAccountCost]")
+#'
+#' # Get a reference and collect later
+#' ref <- db_read(con,
+#'                "SELECT TOP 10 * FROM [Shared].[Cost].[FacilityAccountCost]",
+#'                pull_into_memory = FALSE)
+#' d <- collect(ref)
+#' }
+#'
+db_write <- function(d,
+                     con,
+                     database = NA,
+                     schema = "dbo",
+                     table_name,
+                     append = TRUE) {
+  if (!is.data.frame(d))
+    stop("\"d\" must be a data frame.")
+  if (class(con)[1] != "Microsoft SQL Server")
+    stop("con needs to be a Microsoft SQL Server database connection.")
+  if (is.na(database)) {
+    database <- DBI::dbGetInfo(con)$dbname
+  } else if(!is.character(database)) {
+    stop("database must be a string")
+  }
+  browser()
+  table_id <- DBI::Id(catalog = database, schema = schema, table = table_name)
+  if (!isTRUE(dbExistsTable(con, table_id)))
+    stop("'",paste(database, schema, table_name, sep = "."), "' doesn't exist. ",
+         "You must create it first.")
+
+  res <- DBI::dbWriteTable(conn = con,
+                            name = table_id,
+                            value = d,
+                            append = append)
+
+  if (isTRUE(append)) {
+    res <- paste(nrow(d), "rows successfully appended.")
+  } else {
+    res <- paste(nrow(d), "rows successfully written.")
+  }
+  return(invisible(res))
+}
+
+#' @title
 #' Add SAM utility columns to table
 #' @description When working in a Health Catalyst Source Area Mart (SAM),
 #' utility columns are added automatically when running a non-R binding
