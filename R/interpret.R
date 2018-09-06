@@ -41,6 +41,11 @@ interpret <- function(x, sparsity = NULL, remove_zeros = TRUE, top_n) {
     stop("Only glmnet models can be interpreted, and there's no glmnet model ",
          "in x. If there's a random forest, you could use get_variable_importance.")
   mi <- extract_model_info(x)
+  if (mi$m_class == "Multiclass")
+    stop("Interpret doesn't support multiclass models. If you're interested in ",
+         "how one class is chosen, use interpret on a regular classification ",
+         "model in a one-vs-all fashion. Alternatively, you can use ",
+         "get_variable_importance().")
   if (mi$best_model_name != "glmnet")
     warning("Interpreting glmnet model, but ", mi$best_model_name, " performed ",
             "best in cross-validation and will be used to make predictions. ",
@@ -64,6 +69,11 @@ interpret <- function(x, sparsity = NULL, remove_zeros = TRUE, top_n) {
   coefs <-
     tibble::tibble(variable = rownames(coefs), coefficient = coefs[, 1]) %>%
     dplyr::arrange(desc(variable == "(Intercept)"), desc(abs(coefficient)))
+
+  # caret and glmnet take opposite approaches to positive outcome handling,
+  # so need to flip the signs of coefficients for classification models
+  if (mi$m_class == "Classification")
+    coefs$coefficient <- - coefs$coefficient
 
   if (remove_zeros)
     coefs <- dplyr::filter(coefs, coefficient != 0)

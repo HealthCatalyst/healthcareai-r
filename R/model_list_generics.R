@@ -15,7 +15,15 @@ print.model_list <- function(x, ...) {
       "\nClass: ", rinfo$m_class,
       "\nPerformance Metric: ", rinfo$metric,
       "\nNumber of Observations: ", rinfo$ddim[1],
-      "\nNumber of Features: ", rinfo$ddim[2] - 1L,
+      "\nNumber of Features: ", rinfo$ddim[2] - 1L
+      )
+    if (rinfo$m_class == "Multiclass") {
+      out <- paste0(
+        out,
+        "\nNumber of Outcome Classes: ", length(x[[1]]$levels)
+        )
+    }
+    out <- paste0(out,
       "\nModels Trained: ", rinfo$timestamp
     )
     out <- paste(
@@ -100,7 +108,7 @@ summary.model_list <- function(object, ...) {
 #' @importFrom purrr map_df
 #' @export
 #' @examples
-#' models <- tune_models(mtcars, mpg, models = "glm")
+#' models <- machine_learn(mtcars, outcome = mpg, models = "glm")
 #' plot(models)
 plot.model_list <- function(x, font_size = 11, point_size = 1,
                             print = TRUE, ...) {
@@ -174,10 +182,10 @@ plot.model_list <- function(x, font_size = 11, point_size = 1,
   } else if (is.character(i)) {
     i <- which(names(x) %in% i)
   }
-  # Training data is held in first model only; move it there if it's not staying
-  if (!1 %in% i)
-    x[[min(i)]]$trainingData <- x[[1]]$trainingData
   # Rebuild the model_list, keeping the old timestamp
+  m_class <- x[[1]]$modelType
+  if (length(levels(x[[1]])) > 2)
+    m_class <- "Multiclass"
   x <-
     as.model_list(listed_models = .subset(x, i),
                   target = attrs$target,
@@ -203,8 +211,10 @@ extract_model_info <- function(x) {
   best_model <- which(best_metrics == optimum(best_metrics))[1] # 1 in case tie
   algs <- purrr::map_chr(x, ~ .x$modelInfo$label)
   m_class <- x[[1]]$modelType
+  if (length(levels(x[[1]])) > 2)
+    m_class <- "Multiclass"
   target <- attr(x, "target")
-  ddim <- dim(x[[1]]$trainingData)
+  ddim <- attr(x, "ddim")
   best_model_name <- algs[[best_model]]
   best_model_perf <- best_metrics[[best_model]]
   best_model_tune <-
@@ -265,3 +275,7 @@ is.classification_list <- function(x) "classification_list" %in% class(x)
 #' @export
 #' @rdname is.model_list
 is.regression_list <- function(x) "regression_list" %in% class(x)
+
+#' @export
+#' @rdname is.model_list
+is.multiclass_list <- function(x) "multiclass_list" %in% class(x)

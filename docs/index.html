@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.1</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.2.0</span>
       </span>
     </div>
 
@@ -117,7 +117,7 @@
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#healthcareai" class="anchor"></a>healthcareai <img src="reference/figures/logo.png" align="right">
 </h1></div>
-<p><a href="https://ci.appveyor.com/project/CatalystAdmin/healthcareai-r/"><img src="https://ci.appveyor.com/api/projects/status/0xrpe233o9a16l4l/branch/master?svg=true" alt="Appveyor Build Status"></a> <a href="https://travis-ci.org/HealthCatalyst/healthcareai-r"><img src="https://travis-ci.org/HealthCatalyst/healthcareai-r.svg?branch=master" alt="Travis-CI Build Status"></a> <a href="https://codecov.io/gh/HealthCatalyst/healthcareai-r"><img src="https://codecov.io/gh/HealthCatalyst/healthcareai-r/branch/master/graph/badge.svg" alt="codecov badge"></a> <a href="https://cran.r-project.org/package=healthcareai"><img src="https://www.r-pkg.org/badges/version-last-release/healthcareai" alt="CRAN_Status_Badge"></a> <img src="https://cranlogs.r-pkg.org/badges/grand-total/healthcareai" alt="CRAN downloads badge"><a href="https://github.com/HealthCatalystSLC/healthcareai-r/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a> <a href="https://doi.org/10.5281/zenodo.999334"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.999334.svg" alt="DOI"></a></p>
+
 <div id="overview" class="section level2">
 <h2 class="hasAnchor">
 <a href="#overview" class="anchor"></a>Overview</h2>
@@ -125,6 +125,7 @@
 <ul>
 <li>Develop customized, reliable, high-performance machine learning models with minimal code</li>
 <li>Easily make and evaluate predictions and push them to a database</li>
+<li>Understand how a model makes its predictions</li>
 <li>Make data cleaning, manipulation, imputation, and visualization as simple as possible</li>
 </ul>
 </div>
@@ -141,24 +142,24 @@
 <a class="sourceLine" id="cb1-7" data-line-number="7"><span class="co"># &gt; Performance Metric: AUROC</span></a>
 <a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co"># &gt; Number of Observations: 768</span></a>
 <a class="sourceLine" id="cb1-9" data-line-number="9"><span class="co"># &gt; Number of Features: 12</span></a>
-<a class="sourceLine" id="cb1-10" data-line-number="10"><span class="co"># &gt; Models Trained: 2018-07-11 22:10:23 </span></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10"><span class="co"># &gt; Models Trained: 2018-09-01 18:30:02 </span></a>
 <a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co"># &gt; </span></a>
 <a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co"># &gt; Models tuned via 5-fold cross validation over 10 combinations of hyperparameter values.</span></a>
 <a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co"># &gt; Best model: Random Forest</span></a>
-<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="co"># &gt; AUPR = 0.72, AUROC = 0.85</span></a>
+<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="co"># &gt; AUPR = 0.71, AUROC = 0.84</span></a>
 <a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co"># &gt; Optimal hyperparameter values:</span></a>
-<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="co"># &gt;   mtry = 4</span></a>
+<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="co"># &gt;   mtry = 2</span></a>
 <a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co"># &gt;   splitrule = extratrees</span></a>
-<a class="sourceLine" id="cb1-18" data-line-number="18"><span class="co"># &gt;   min.node.size = 15</span></a></code></pre></div>
+<a class="sourceLine" id="cb1-18" data-line-number="18"><span class="co"># &gt;   min.node.size = 12</span></a></code></pre></div>
 <p>Make predictions and examine predictive performance:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(models)</a>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(models, <span class="dt">outcome_groups =</span> <span class="ot">TRUE</span>)</a>
 <a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw">plot</span>(predictions)</a></code></pre></div>
 <p><img src="reference/figures/README-plot_predictions-1.png" width="576"></p>
 </div>
 <div id="learn-more" class="section level2">
 <h2 class="hasAnchor">
 <a href="#learn-more" class="anchor"></a>Learn More</h2>
-<p>For details on what’s happening under the hood and for options to customize data preparation and model training, see <a href="https://docs.healthcare.ai/articles/site_only/healthcareai.html">Getting Started with healthcareai</a> as well as the helpfiles for individual functions such as <code><a href="reference/machine_learn.html">?machine_learn</a></code>, <code><a href="reference/prep_data.html">?prep_data</a></code>, and <code><a href="reference/tune_models.html">?tune_models</a></code>.</p>
+<p>For details on what’s happening under the hood and for options to customize data preparation and model training, see <a href="https://docs.healthcare.ai/articles/site_only/healthcareai.html">Getting Started with healthcareai</a> as well as the helpfiles for individual functions such as <code><a href="reference/machine_learn.html">?machine_learn</a></code>, <code><a href="reference/predict.model_list.html">?predict.model_list</a></code>, and <code><a href="reference/explore.html">?explore</a></code>.</p>
 <p>Documentation of all functions as well as vignettes on various uses of the package are available at the package website: <a href="https://docs.healthcare.ai/" class="uri">https://docs.healthcare.ai/</a>.</p>
 <p>Also, be sure to read our <a href="http://healthcare.ai/blog/">blog</a> and watch our <a href="https://www.youtube.com/channel/UCGZUobs_x712KbcL6RSzfnQ">broadcasts</a> to learn more about what’s new in healthcare machine learning and how we are using this toolkit to put machine learning to work in real healthcare systems.</p>
 </div>
@@ -174,15 +175,14 @@
 <div id="feedback" class="section level3">
 <h3 class="hasAnchor">
 <a href="#feedback" class="anchor"></a>Feedback</h3>
-<p>Your feedback is hugely appreciated. It is makes the package work well and helps us make it more useful to the community.</p>
-<p>Both feature requests and bug reports should be submitted as <a href="https://github.com/HealthCatalyst/healthcareai-r/issues/new">Github issues</a>.</p>
+<p>Your feedback is hugely appreciated. It is makes the package work well and helps us make it more useful to the community. Both feature requests and bug reports should be submitted as <a href="https://github.com/HealthCatalyst/healthcareai-r/issues/new">Github issues</a>.</p>
 <p><strong>Bug reports</strong> should be filed with a <a href="https://gist.github.com/hadley/270442">minimal reproducable example</a>. The <a href="https://github.com/tidyverse/reprex">reprex package</a> is extraordinarily helpful for this. Please also include the output of <code>sessionInfo()</code> or better yet, <code><a href="http://www.rdocumentation.org/packages/devtools/topics/session_info">devtools::session_info()</a></code>.</p>
 </div>
 </div>
 <div id="legacy" class="section level2">
 <h2 class="hasAnchor">
 <a href="#legacy" class="anchor"></a>Legacy</h2>
-<p>Version 1 of healthcare-ai has been retired. You can continue to use it, but its compatibility with changes in the R ecosystem are not guaranteed. You should always be able to install it from github with: <code>remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")</code>.</p>
+<p>Version 1 of <code>healthcareai</code> has been retired. You can continue to use it, but its compatibility with changes in the R ecosystem are not guaranteed. You should always be able to install it from github with: <code>install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")</code>.</p>
 <p>For an example of how to adapt v1 models to the v2 API, check out the <a href="https://docs.healthcare.ai/articles/site_only/transitioning.html">Transitioning vignettes</a>.</p>
 </div>
 </div>
@@ -219,7 +219,19 @@
 </ul>
 </div>
 
-      </div>
+      <div class="dev-status">
+<h2>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://ci.appveyor.com/project/CatalystAdmin/healthcareai-r/"><img src="https://ci.appveyor.com/api/projects/status/0xrpe233o9a16l4l/branch/master?svg=true" alt="Appveyor Build Status"></a></li>
+<li><a href="https://travis-ci.org/HealthCatalyst/healthcareai-r"><img src="https://travis-ci.org/HealthCatalyst/healthcareai-r.svg?branch=master" alt="Travis-CI Build Status"></a></li>
+<li><a href="https://codecov.io/gh/HealthCatalyst/healthcareai-r"><img src="https://codecov.io/gh/HealthCatalyst/healthcareai-r/branch/master/graph/badge.svg" alt="codecov badge"></a></li>
+<li><a href="https://cran.r-project.org/package=healthcareai"><img src="https://www.r-pkg.org/badges/version-last-release/healthcareai" alt="CRAN_Status_Badge"></a></li>
+<li><a href="https://cranlogs.r-pkg.org/badges/last-week/healthcareai"><img src="https://cranlogs.r-pkg.org/badges/grand-total/healthcareai" alt="CRAN downloads badge"></a></li>
+<li><a href="https://github.com/HealthCatalystSLC/healthcareai-r/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a></li>
+<li><a href="https://doi.org/10.5281/zenodo.999334"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.999334.svg" alt="DOI"></a></li>
+</ul>
+</div>
+</div>
 
 </div>
 

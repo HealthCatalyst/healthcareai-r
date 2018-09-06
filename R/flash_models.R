@@ -1,14 +1,19 @@
 #' Train models without tuning for performance
 #'
-#' @param d A data frame
-#' @param outcome Name of the column to predict
+#' @param d A data frame from \code{\link{prep_data}}. If you want to prepare
+#' your data on your own, use \code{prep_data(..., no_prep = TRUE)}.
+#' @param outcome Optional. Name of the column to predict. When omitted the
+#'   outcome from \code{\link{prep_data}} is used; otherwise it must match the
+#'   outcome provided to \code{\link{prep_data}}.
 #' @param models Names of models to try. See \code{\link{get_supported_models}}
 #'   for available models. Default is all available models.
-#' @param metric What metric to use to assess model performance? Options for
-#'   regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
-#'   error), or "Rsquared." For classification: "ROC" (area under the receiver
-#'   operating characteristic curve), or "PR" (area under the precision-recall
-#'   curve).
+#' @param metric Which metric should be used to assess model performance?
+#'   Options for classification: "ROC" (default) (area under the receiver
+#'   operating characteristic curve) or "PR" (area under the precision-recall
+#'   curve). Options for regression: "RMSE" (default) (root-mean-squared error,
+#'   default), "MAE" (mean-absolute error), or "Rsquared." Options for
+#'   multiclass: "Accuracy" (default) or "Kappa" (accuracy, adjusted for class
+#'   imbalance).
 #' @param positive_class For classification only, which outcome level is the
 #'   "yes" case, i.e. should be associated with high probabilities? Defaults to
 #'   "Y" or "yes" if present, otherwise is the first level of the outcome
@@ -58,7 +63,7 @@
 #' prepped_data <- prep_data(pima_diabetes, patient_id, outcome = diabetes)
 #'
 #' # Get models quickly at default hyperparameter values
-#' flash_models(prepped_data, diabetes)
+#' flash_models(prepped_data)
 #'
 #' # Speed comparison of no tuning with flash_models vs. tuning with tune_models:
 #' # ~15 seconds:
@@ -82,6 +87,7 @@ flash_models <- function(d,
 
   model_args <- setup_training(d, rlang::enquo(outcome), model_class, models,
                                metric, positive_class, n_folds)
+  metric <- model_args$metric
   # Pull each item out of "model_args" list and assign in this environment
   for (arg in names(model_args))
     assign(arg, model_args[[arg]])
@@ -104,6 +110,7 @@ flash_models <- function(d,
   train_list <- as.model_list(listed_models = train_list,
                               tuned = FALSE,
                               target = rlang::quo_name(outcome),
+                              model_class = model_class,
                               recipe = recipe,
                               positive_class = attr(train_list, "positive_class"),
                               model_name = model_name,

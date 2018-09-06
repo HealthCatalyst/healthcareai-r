@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.1</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.2.0</span>
       </span>
     </div>
 
@@ -153,13 +153,82 @@
       
     </div>
 
-    <div id="healthcareai-2-1-0" class="section level1">
+    <div id="healthcareai-2-2-0" class="section level1">
 <h1 class="page-header">
-<a href="#healthcareai-2-1-0" class="anchor"></a>healthcareai 2.1.0<small> 2018-07-01 </small>
+<a href="#healthcareai-2-2-0" class="anchor"></a>healthcareai 2.2.0<small> 2018-09-01 </small>
 </h1>
 <div id="added" class="section level4">
 <h4 class="hasAnchor">
 <a href="#added" class="anchor"></a>Added</h4>
+<ul>
+<li>Support for models of outcomes with more than two classes (multiclass)</li>
+<li>Explore a model’s logic with <code>explore</code>. Make counterfactual predictions across the most-important features in a model to see how those features influence predicted outcomes.
+<ul>
+<li>
+<code>plot</code> method to visualize a model’s logic.</li>
+</ul>
+</li>
+<li>Identify opportunities to improve a patient’s outcome with Patient Impact Predictor, <code>pip</code>. Carefully specify variables and alternative values that exert causal influence on outcomes; then get recommended actions for a given patient with expected outcomes given the actions.</li>
+<li>Predict outcome groups based on how bad false alarms are relative to missed detections (<code>outcome_groups</code> argument to <code>predict</code>).</li>
+<li>Group predictions into risk groups using the <code>risk_groups</code> argument to <code>predict</code>.
+<ul>
+<li>
+<code>plot</code> support for outcome- and risk-group predictions.</li>
+</ul>
+</li>
+<li>Get thresholds to split outcome classes to optimize various performance metrics with <code>get_thresholds</code>.
+<ul>
+<li>
+<code>plot</code> method to compare performance across metrics at various thresholds.</li>
+</ul>
+</li>
+<li>
+<code>split_train_test</code> can keep multiple observations of an individual in the same split via the <code>grouping_col</code> argument.</li>
+<li>Replace values that represent missingness but have been interpreted by R as strings with <code>NA</code> with <code>make_na</code>.
+<ul>
+<li>If <code>missingness</code> finds any such strings it issues a warning with code that can be used to do the replacement.</li>
+</ul>
+</li>
+<li>Add counts to factor levels with <code>rename_with_counts</code>.</li>
+<li>
+<code>summary.missingness</code> method for wide datasets with missingness in many columns.</li>
+</ul>
+</div>
+<div id="changed" class="section level4">
+<h4 class="hasAnchor">
+<a href="#changed" class="anchor"></a>Changed</h4>
+<ul>
+<li>In <code>prep_data</code>, trigonometric transformations make circular features out of dates and times for more informative features in less-wide data frames.</li>
+<li>Fixed AUPR in <code>plot.model_class</code> and <code>summary.model_class</code>.</li>
+<li>Can specify performance metric to optimize in <code>machine_learn</code>.</li>
+<li>
+<code>missingness</code> is faster.</li>
+<li>Predict on XGBoost models now works for any column order in the new dataset.</li>
+<li>Regression prediction plots are plotted at 1:1 aspect ratio.</li>
+<li>
+<code>add_best_levels</code> works in deployment even if none of the columns to be created are present in the deployment observations.</li>
+<li>
+<code>prep_data</code> can handle logical features.</li>
+<li>
+<code>outcome</code> doesn’t need to be re-declared in model training if it was specified in data prep.</li>
+</ul>
+</div>
+<div id="removed" class="section level4">
+<h4 class="hasAnchor">
+<a href="#removed" class="anchor"></a>Removed</h4>
+<ul>
+<li>No longer support training models on un-prepped data.</li>
+<li>No longer support wrapping <code>caret</code>-trained models into a <code>model_list</code>.</li>
+</ul>
+</div>
+</div>
+    <div id="healthcareai-2-1-0" class="section level1">
+<h1 class="page-header">
+<a href="#healthcareai-2-1-0" class="anchor"></a>healthcareai 2.1.0<small> 2018-07-01 </small>
+</h1>
+<div id="added-1" class="section level4">
+<h4 class="hasAnchor">
+<a href="#added-1" class="anchor"></a>Added</h4>
 <ul>
 <li>Identify values of high-cardinality variables that will make good features, even with multiple values per observation with <code>add_best_levels</code> and <code>get_best_levels</code>.</li>
 <li>glmnet for regularized linear and logistic regression.</li>
@@ -170,9 +239,9 @@
 <code>variable_importance</code> returns random forest or xgboost importances, whichever model performs better.</li>
 </ul>
 </div>
-<div id="changed" class="section level4">
+<div id="changed-1" class="section level4">
 <h4 class="hasAnchor">
-<a href="#changed" class="anchor"></a>Changed</h4>
+<a href="#changed-1" class="anchor"></a>Changed</h4>
 <ul>
 <li>
 <code>predict</code> can now write an extensive log file, and if that option is activated, as in production, <code>predict</code> is a safe function that always completes; if there is an error, it returns a zero-row data frame that is otherwise the same as what would have been returned (provided <code>prep_data</code> or <code>machine_learn</code> was used).</li>
@@ -187,9 +256,9 @@
 <li>Minor changes to maintain compatibility with <code>ggplot2</code>, <code>broom</code>, and <code>recipes</code>.</li>
 </ul>
 </div>
-<div id="removed" class="section level4">
+<div id="removed-1" class="section level4">
 <h4 class="hasAnchor">
-<a href="#removed" class="anchor"></a>Removed</h4>
+<a href="#removed-1" class="anchor"></a>Removed</h4>
 <ul>
 <li>Removed support for k-nearest neighbors</li>
 <li>Remove support for maxstat splitting rule in random forests</li>
@@ -218,9 +287,9 @@
 <h1 class="page-header">
 <a href="#healthcareai-1-2-0" class="anchor"></a>healthcareai 1.2.0<small> 2017-10-27 </small>
 </h1>
-<div id="added-1" class="section level4">
+<div id="added-2" class="section level4">
 <h4 class="hasAnchor">
-<a href="#added-1" class="anchor"></a>Added</h4>
+<a href="#added-2" class="anchor"></a>Added</h4>
 <ul>
 <li>
 <em>Limone</em> – a <a href="https://www.oreilly.com/learning/introduction-to-local-interpretable-model-agnostic-explanations-lime">lime</a>-like model interpretation tool.
@@ -237,25 +306,25 @@
 <h1 class="page-header">
 <a href="#healthcareai-1-1-0" class="anchor"></a>healthcareai 1.1.0<small> Unreleased </small>
 </h1>
-<div id="added-2" class="section level4">
+<div id="added-3" class="section level4">
 <h4 class="hasAnchor">
-<a href="#added-2" class="anchor"></a>Added</h4>
+<a href="#added-3" class="anchor"></a>Added</h4>
 <ul>
 <li>Deploy now saves information about the model and deployment as an attribute of the output dataframe. This information is written to a log file in the working directory.</li>
 <li>
 <code>skip_on_not_appveyor</code> will skip a unit test unless it’s being run on Appveyor.</li>
 </ul>
 </div>
-<div id="changed-1" class="section level4">
+<div id="changed-2" class="section level4">
 <h4 class="hasAnchor">
-<a href="#changed-1" class="anchor"></a>Changed</h4>
+<a href="#changed-2" class="anchor"></a>Changed</h4>
 <ul>
 <li>Unit tests involving MSSQL now only run on Appveyor.</li>
 </ul>
 </div>
-<div id="removed-1" class="section level4">
+<div id="removed-2" class="section level4">
 <h4 class="hasAnchor">
-<a href="#removed-1" class="anchor"></a>Removed</h4>
+<a href="#removed-2" class="anchor"></a>Removed</h4>
 <ul>
 <li>
 <code>skip_if_no_mssql</code> isn’t needed as a test utility anymore.</li>
@@ -266,9 +335,9 @@
 <h1 class="page-header">
 <a href="#healthcareai-1-0-0" class="anchor"></a>healthcareai 1.0.0<small> 2017-09-11 </small>
 </h1>
-<div id="added-3" class="section level4">
+<div id="added-4" class="section level4">
 <h4 class="hasAnchor">
-<a href="#added-3" class="anchor"></a>Added</h4>
+<a href="#added-4" class="anchor"></a>Added</h4>
 <ul>
 <li>Multiclass functionality with XGBoost is supported using <code>XGBoostDevelopment</code> and <code>XGBoostDeployment</code>.</li>
 <li>K-means clustering is supported using <code>KmeansClustering</code>.</li>
@@ -278,9 +347,9 @@
 <code>variationAcrossGroups</code> will plot a boxplot of variation between groups for a chosen target measure.</li>
 </ul>
 </div>
-<div id="changed-2" class="section level4">
+<div id="changed-3" class="section level4">
 <h4 class="hasAnchor">
-<a href="#changed-2" class="anchor"></a>Changed</h4>
+<a href="#changed-3" class="anchor"></a>Changed</h4>
 <ul>
 <li>
 <code>SupervisedModelDevelopment</code> now saves the model after training</li>
@@ -294,9 +363,9 @@
 <li>Model file documentation files now accurately reflect the available methods.</li>
 </ul>
 </div>
-<div id="removed-2" class="section level4">
+<div id="removed-3" class="section level4">
 <h4 class="hasAnchor">
-<a href="#removed-2" class="anchor"></a>Removed</h4>
+<a href="#removed-3" class="anchor"></a>Removed</h4>
 <ul>
 <li>
 <code>testWindowCol</code> is no longer a param in <code>SupervisedModelDeployment</code> or used in the algorithms.</li>
@@ -311,9 +380,9 @@
 <h1 class="page-header">
 <a href="#healthcareai-0-1-12" class="anchor"></a>healthcareai 0.1.12<small> 2017-05-05 </small>
 </h1>
-<div id="added-4" class="section level4">
+<div id="added-5" class="section level4">
 <h4 class="hasAnchor">
-<a href="#added-4" class="anchor"></a>Added</h4>
+<a href="#added-5" class="anchor"></a>Added</h4>
 <ul>
 <li>Added getters for predictions <code>getPredictions()</code> in development (lasso, random forest, linear mixed model)</li>
 <li>Added getOutDf to each algorithm deploy file so predictions can go to CSV</li>
@@ -321,9 +390,9 @@
 <li>Added featureAvailabilityProfiler</li>
 </ul>
 </div>
-<div id="changed-3" class="section level4">
+<div id="changed-4" class="section level4">
 <h4 class="hasAnchor">
-<a href="#changed-3" class="anchor"></a>Changed</h4>
+<a href="#changed-4" class="anchor"></a>Changed</h4>
 <ul>
 <li>TimeStamp column predictive output is now local time (not GMT)</li>
 </ul>
@@ -337,17 +406,17 @@
 <h1 class="page-header">
 <a href="#healthcareai-0-1-11" class="anchor"></a>healthcareai 0.1.11<small> 2017-02-13 </small>
 </h1>
-<div id="added-5" class="section level4">
+<div id="added-6" class="section level4">
 <h4 class="hasAnchor">
-<a href="#added-5" class="anchor"></a>Added</h4>
+<a href="#added-6" class="anchor"></a>Added</h4>
 <ul>
 <li>Added changelog</li>
 <li>Added travis.yml to prepare for CRAN release</li>
 </ul>
 </div>
-<div id="changed-4" class="section level4">
+<div id="changed-5" class="section level4">
 <h4 class="hasAnchor">
-<a href="#changed-4" class="anchor"></a>Changed</h4>
+<a href="#changed-5" class="anchor"></a>Changed</h4>
 <ul>
 <li>generateAUC now calls getCutOffs to give guidance on ideal cutoffs.</li>
 <li>getCutOffs now generates list of cutoffs and suggests ideal ones.</li>
@@ -369,6 +438,7 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
+        <li><a href="#healthcareai-2-2-0">2.2.0</a></li>
         <li><a href="#healthcareai-2-1-0">2.1.0</a></li>
         <li><a href="#healthcareai-2-0-0">2.0.0</a></li>
         <li><a href="#healthcareai-1-2-4">1.2.4</a></li>

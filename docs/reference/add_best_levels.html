@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Build efficient features from from high-cardinality, multiple-membership
+<title>Build efficient features from high-cardinality, multiple-membership
 factors — add_best_levels • healthcareai</title>
 
 <!-- jquery -->
@@ -37,7 +37,7 @@ factors — add_best_levels • healthcareai</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
 
 
-<meta property="og:title" content="Build efficient features from from high-cardinality, multiple-membership
+<meta property="og:title" content="Build efficient features from high-cardinality, multiple-membership
 factors — add_best_levels" />
 
 <meta property="og:description" content="In healthcare, we are often faced with high cardinality
@@ -104,7 +104,7 @@ add_best_levels accepts arguments to pivot so that
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.1</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.2.0</span>
       </span>
     </div>
 
@@ -176,7 +176,7 @@ add_best_levels accepts arguments to pivot so that
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Build efficient features from from high-cardinality, multiple-membership
+    <h1>Build efficient features from high-cardinality, multiple-membership
 factors</h1>
     
     <div class="hidden name"><code>add_best_levels.Rd</code></div>
@@ -379,13 +379,13 @@ combinations of grain and spread that are not present. Defaults to NA, but
                           <span class='kw'>fun</span> <span class='kw'>=</span> <span class='no'>sum</span>,
                           <span class='kw'>missing_fill</span> <span class='kw'>=</span> <span class='fl'>0</span>)
 <span class='no'>new_df</span></div><div class='output co'>#&gt; # A tibble: 5 x 7
-#&gt;   patient   age survived drug_Dexamethasone drug_Epinephrine drug_Paclitaxel
-#&gt;   &lt;chr&gt;   &lt;int&gt; &lt;chr&gt;                 &lt;dbl&gt;            &lt;dbl&gt;           &lt;dbl&gt;
-#&gt; 1 Z5         49 Y                         0                0               0
-#&gt; 2 Z7         58 Y                         0                0               0
-#&gt; 3 Z3         22 Y                         0                0             100
-#&gt; 4 Z8         57 Y                       100                0             600
-#&gt; 5 Z6         40 N                         0              250             250
+#&gt;   patient   age survived drug_Dexamethas… drug_Epinephrine drug_Paclitaxel
+#&gt;   &lt;chr&gt;   &lt;int&gt; &lt;chr&gt;               &lt;dbl&gt;            &lt;dbl&gt;           &lt;dbl&gt;
+#&gt; 1 Z5         49 Y                       0                0               0
+#&gt; 2 Z7         58 Y                       0                0               0
+#&gt; 3 Z3         22 Y                       0                0             100
+#&gt; 4 Z8         57 Y                     100                0             600
+#&gt; 5 Z6         40 N                       0              250             250
 #&gt; # ... with 1 more variable: drug_Vancomycin &lt;dbl&gt;</div><div class='input'>
 <span class='co'># The names of the medications that were added to df in new_df are stored in the</span>
 <span class='co'># best_levels attribute of new_df so that the same columns can be added in</span>

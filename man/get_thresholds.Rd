@@ -73,6 +73,10 @@ get_thresholds(models, optimize = "acc")
 get_thresholds(models, optimize = "cost", cost_fn = 5) \%>\%
   filter(optimal)
 
+# Use that threshold to make class predictions
+(class_preds <- predict(models, outcome_groups = 5))
+attr(class_preds$predicted_group, "cutpoints")
+
 # Plot performance on all measures across threshold values
 get_thresholds(models) \%>\%
   plot()
@@ -102,8 +106,6 @@ class_predictions \%>\%
   arrange(predicted_diabetes)
 
 # Examine the expected volume of false-and-true negatives-and-positive
-# Note that you could view this in proportions by dividing by
-# \\code{nrow(class_predictions)}
 table(Actual = class_predictions$diabetes,
       Predicted = class_predictions$predicted_class_diabetes)
 }

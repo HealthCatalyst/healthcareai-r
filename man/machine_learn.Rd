@@ -4,7 +4,7 @@
 \alias{machine_learn}
 \title{Machine learning made easy}
 \usage{
-machine_learn(d, ..., outcome, models, tune = TRUE, positive_class,
+machine_learn(d, ..., outcome, models, metric, tune = TRUE, positive_class,
   n_folds = 5, tune_depth = 10, impute = TRUE, model_name = NULL,
   allow_parallel = FALSE)
 }
@@ -19,6 +19,14 @@ Unquoted. Must be named, i.e. you must specify \code{outcome = }}
 
 \item{models}{Names of models to try. See \code{\link{get_supported_models}}
 for available models. Default is all available models.}
+
+\item{metric}{Which metric should be used to assess model performance?
+Options for classification: "ROC" (default) (area under the receiver
+operating characteristic curve) or "PR" (area under the precision-recall
+curve). Options for regression: "RMSE" (default) (root-mean-squared error,
+default), "MAE" (mean-absolute error), or "Rsquared." Options for
+multiclass: "Accuracy" (default) or "Kappa" (accuracy, adjusted for class
+imbalance).}
 
 \item{tune}{If TRUE (default) models will be tuned via
 \code{\link{tune_models}}. If FALSE, models will be trained via
@@ -105,5 +113,9 @@ predict(age_model)
 # faster (especially on larger datasets), but produces models with less
 # predictive power.
 machine_learn(d$train, patient_id, outcome = diabetes, tune = FALSE)
+
+### Train models optimizing given metric ###
+
+machine_learn(d$train, patient_id, outcome = diabetes, metric = "PR")
 }
 }

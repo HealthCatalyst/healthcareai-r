@@ -98,3 +98,13 @@ test_that("mode - test numeric", {
   test_vec <- c(3, 2, 1, 2, 3, 3)
   expect_equal(3, Mode(test_vec))
 })
+
+test_that("mode - test table", {
+  test_vec <- c(3, 2, 1, 2, 3, 3)
+  vec_ft <- table(test_vec)
+  expect_equal(Mode(vec_ft), Mode(test_vec))
+
+  test_vec <- c("a", "b", "c", "d", "b")
+  vec_ft <- table(test_vec)
+  expect_equal(Mode(vec_ft), Mode(test_vec))
+})

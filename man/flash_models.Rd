@@ -8,18 +8,23 @@ flash_models(d, outcome, models, metric, positive_class, n_folds = 5,
   model_class, model_name = NULL, allow_parallel = FALSE)
 }
 \arguments{
-\item{d}{A data frame}
+\item{d}{A data frame from \code{\link{prep_data}}. If you want to prepare
+your data on your own, use \code{prep_data(..., no_prep = TRUE)}.}
 
-\item{outcome}{Name of the column to predict}
+\item{outcome}{Optional. Name of the column to predict. When omitted the
+outcome from \code{\link{prep_data}} is used; otherwise it must match the
+outcome provided to \code{\link{prep_data}}.}
 
 \item{models}{Names of models to try. See \code{\link{get_supported_models}}
 for available models. Default is all available models.}
 
-\item{metric}{What metric to use to assess model performance? Options for
-regression: "RMSE" (root-mean-squared error, default), "MAE" (mean-absolute
-error), or "Rsquared." For classification: "ROC" (area under the receiver
-operating characteristic curve), or "PR" (area under the precision-recall
-curve).}
+\item{metric}{Which metric should be used to assess model performance?
+Options for classification: "ROC" (default) (area under the receiver
+operating characteristic curve) or "PR" (area under the precision-recall
+curve). Options for regression: "RMSE" (default) (root-mean-squared error,
+default), "MAE" (mean-absolute error), or "Rsquared." Options for
+multiclass: "Accuracy" (default) or "Kappa" (accuracy, adjusted for class
+imbalance).}
 
 \item{positive_class}{For classification only, which outcome level is the
 "yes" case, i.e. should be associated with high probabilities? Defaults to
@@ -66,7 +71,7 @@ This function has two major differences from
 prepped_data <- prep_data(pima_diabetes, patient_id, outcome = diabetes)
 
 # Get models quickly at default hyperparameter values
-flash_models(prepped_data, diabetes)
+flash_models(prepped_data)
 
 # Speed comparison of no tuning with flash_models vs. tuning with tune_models:
 # ~15 seconds:

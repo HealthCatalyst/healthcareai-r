@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Convert character date columns to dates — convert_date_cols • healthcareai</title>
+<title>Convert character date columns to dates and times — convert_date_cols • healthcareai</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -36,12 +36,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
 
 
-<meta property="og:title" content="Convert character date columns to dates — convert_date_cols" />
+<meta property="og:title" content="Convert character date columns to dates and times — convert_date_cols" />
 
-<meta property="og:description" content="This function is called in prep_data and so
+<meta property="og:description" content="This function is called in prep_data and so it
   shouldn't usually need to be called directly. It tries to convert columns
-  ending in &quot;DTS&quot; to type Date. It makes a best guess at the format and
-  return a more standard one if possible. Times are be removed." />
+  ending in &quot;DTS&quot; to type Date or DateTime (POSIXt). It makes a best guess at
+  the format and return a more standard one if possible." />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -82,7 +82,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.1</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.2.0</span>
       </span>
     </div>
 
@@ -154,17 +154,17 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Convert character date columns to dates</h1>
+    <h1>Convert character date columns to dates and times</h1>
     
     <div class="hidden name"><code>convert_date_cols.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function is called in <code><a href='prep_data.html'>prep_data</a></code> and so
+    <p>This function is called in <code><a href='prep_data.html'>prep_data</a></code> and so it
   shouldn't usually need to be called directly. It tries to convert columns
-  ending in "DTS" to type Date. It makes a best guess at the format and
-  return a more standard one if possible. Times are be removed.</p>
+  ending in "DTS" to type Date or DateTime (POSIXt). It makes a best guess at
+  the format and return a more standard one if possible.</p>
     
     </div>
 

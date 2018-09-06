@@ -104,7 +104,7 @@ While preparing
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.1</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.2.0</span>
       </span>
     </div>
 
@@ -215,7 +215,7 @@ While preparing
     <pre class="usage"><span class='fu'>prep_data</span>(<span class='no'>d</span>, <span class='no'>...</span>, <span class='no'>outcome</span>, <span class='kw'>recipe</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>remove_near_zero_variance</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>convert_dates</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>impute</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>collapse_rare_factors</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>center</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>scale</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>make_dummies</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>add_levels</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>factor_outcome</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+  <span class='kw'>logical_to_numeric</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>factor_outcome</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>no_prep</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -250,20 +250,22 @@ argument. If present, all following arguments will be ignored.</p></td>
       <td><p>Logical or numeric. If TRUE (default),
 columns with near-zero variance will be removed. These columns are either a
 single value, or the most common value is much more frequent than the
-second most common value.
-Example: In a column with 120 "Male" and 2 "Female", the frequency ratio is
-0.0167. It would be excluded by default or if
-`remove_near_zero_variance` &gt; 0.0166. Larger values will remove more columns
-and this value must lie between 0 and 1.</p></td>
+second most common value. Example: In a column with 120 "Male" and 2
+"Female", the frequency ratio is 0.0167. It would be excluded by default or
+if `remove_near_zero_variance` &gt; 0.0166. Larger values will remove more
+columns and this value must lie between 0 and 1.</p></td>
     </tr>
     <tr>
       <th>convert_dates</th>
-      <td><p>Logical or character. If TRUE (default), date columns
-are identifed and used to generate day-of-week, month, and year columns,
-and the original date columns are removed. If FALSE, date columns are
-removed. If a character vector, it is passed to the `features` argument of
-`recipes::step_date`. E.g. if you want only quarter and year back:
-`convert_dates = c("quarter", "year")`.</p></td>
+      <td><p>Logical or character. If TRUE (default), date and time
+columns are transformed to circular representation for hour, day, month,
+and year for machine learning optimization. If FALSE, date and time columns
+are removed. If character, use "continuous" (same as TRUE), "categories",
+or "none" (same as FALSE). "categories" makes hour, day, month, and year
+readable for interpretation. If <code>make_dummies</code> is TRUE, each unique
+value in these features will become a new dummy variable. This will create
+wide data, which is more challenging for some machine learning models. All
+features with the DTS suffix will be treated as a date.</p></td>
     </tr>
     <tr>
       <th>impute</th>
@@ -298,7 +300,7 @@ for categorical variables.</p></td>
     </tr>
     <tr>
       <th>add_levels</th>
-      <td><p>Logical. If TRUE (defaults), "other" and "missing" will be
+      <td><p>Logical. If TRUE (default), "other" and "missing" will be
 added to all nominal columns. This is protective in deployment: new levels
 found in deployment will become "other" and missingness in deployment can
 become "missing" if the nominal imputation method is "new_category". If
@@ -307,11 +309,23 @@ FALSE, these "other" will be added to all nominal variables if
 depending on details of imputation.</p></td>
     </tr>
     <tr>
+      <th>logical_to_numeric</th>
+      <td><p>Logical. If TRUE (default), logical variables will
+be converted to 0/1 integer variables.</p></td>
+    </tr>
+    <tr>
       <th>factor_outcome</th>
       <td><p>Logical. If TRUE (default) and if all entries in
 outcome are 0 or 1 they will be converted to factor with levels N and Y for
 classification. Note that which level is the positive class is set in
 training functions rather than here.</p></td>
+    </tr>
+    <tr>
+      <th>no_prep</th>
+      <td><p>Logical. If TRUE, overrides all other arguments to FALSE so
+that d is returned unmodified, except that character variables may be
+coverted to factors and a tibble will be returned even if the input was
+a non-tibble data frame.</p></td>
     </tr>
     </table>
     
@@ -380,9 +394,8 @@ training functions rather than here.</p></td>
 <span class='fu'>prep_data</span>(<span class='kw'>d</span> <span class='kw'>=</span> <span class='no'>d_train</span>, <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>,
           <span class='kw'>impute</span> <span class='kw'>=</span> <span class='fu'>list</span>(<span class='kw'>numeric_method</span> <span class='kw'>=</span> <span class='st'>"bagimpute"</span>,
                         <span class='kw'>nominal_method</span> <span class='kw'>=</span> <span class='st'>"bagimpute"</span>),
-          <span class='kw'>collapse_rare_factors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>convert_dates</span> <span class='kw'>=</span> <span class='st'>"year"</span>,
-          <span class='kw'>center</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>scale</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>make_dummies</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-          <span class='kw'>remove_near_zero_variance</span> <span class='kw'>=</span> <span class='fl'>.02</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe...</span></div><div class='output co'>#&gt; <span class='message'>healthcareai-prepped data. Recipe used to prepare data:</span></div><div class='output co'>#&gt; Data Recipe
+          <span class='kw'>collapse_rare_factors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>center</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>scale</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+          <span class='kw'>make_dummies</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>remove_near_zero_variance</span> <span class='kw'>=</span> <span class='fl'>.02</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe...</span></div><div class='output co'>#&gt; <span class='message'>healthcareai-prepped data. Recipe used to prepare data:</span></div><div class='output co'>#&gt; Data Recipe
 #&gt; 
 #&gt; Inputs:
 #&gt; 
@@ -403,18 +416,112 @@ training functions rather than here.</p></td>
 #&gt; Adding levels to: other, missing [trained]</div><div class='output co'>#&gt; <span class='message'>Current data:</span></div><div class='output co'>#&gt; # A tibble: 700 x 10
 #&gt;    patient_id pregnancies plasma_glucose diastolic_bp skinfold insulin
 #&gt;         &lt;int&gt;       &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
-#&gt;  1          1       0.646          0.872      -0.0205  0.631     0.434
-#&gt;  2          2      -0.840         -1.19       -0.513   0.00950  -0.849
-#&gt;  3          3       1.24           2.02       -0.678  -0.765     0.605
-#&gt;  4          4      -0.840         -1.06       -0.513  -0.612    -0.603
-#&gt;  5          5      -1.14           0.512      -2.65    0.631     0.135
-#&gt;  6          6       0.349         -0.175       0.144  -0.454    -0.273
-#&gt;  7          7      -0.246         -1.42       -1.83    0.320    -0.663
-#&gt;  8          8       1.83          -0.208      -0.0477  0.408    -0.223
-#&gt;  9          9      -0.543          2.47       -0.185   1.67      3.88 
-#&gt; 10         10       1.24           0.119       1.95    0.333     0.984
+#&gt;  1          1       0.646          0.871    -0.0209    0.633     0.297
+#&gt;  2          2      -0.840         -1.19     -0.514     0.00781  -0.828
+#&gt;  3          3       1.24           2.02     -0.678    -0.701     0.539
+#&gt;  4          4      -0.840         -1.06     -0.514    -0.617    -0.597
+#&gt;  5          5      -1.14           0.511    -2.65      0.633     0.168
+#&gt;  6          6       0.349         -0.176     0.143    -0.394    -0.243
+#&gt;  7          7      -0.246         -1.42     -1.83      0.320    -0.659
+#&gt;  8          8       1.83          -0.209    -0.000626  0.490    -0.225
+#&gt;  9          9      -0.543          2.47     -0.185     1.67      4.04 
+#&gt; 10         10       1.24           0.118     1.95      0.334     0.693
 #&gt; # ... with 690 more rows, and 4 more variables: weight_class &lt;fct&gt;,
-#&gt; #   pedigree &lt;dbl&gt;, age &lt;dbl&gt;, diabetes &lt;fct&gt;</div></pre>
+#&gt; #   pedigree &lt;dbl&gt;, age &lt;dbl&gt;, diabetes &lt;fct&gt;</div><div class='input'>
+<span class='co'># `prep_data` also handles date and time features by default:</span>
+<span class='no'>d</span> <span class='kw'>&lt;-</span>
+  <span class='no'>pima_diabetes</span> <span class='kw'>%&gt;%</span>
+  <span class='fu'>cbind</span>(
+    <span class='kw'>admitted_DTS</span> <span class='kw'>=</span> <span class='fu'>seq</span>(<span class='fu'>as.POSIXct</span>(<span class='st'>"2005-1-1 0:00"</span>),
+                       <span class='kw'>length.out</span> <span class='kw'>=</span> <span class='fu'>nrow</span>(<span class='no'>pima_diabetes</span>), <span class='kw'>by</span> <span class='kw'>=</span> <span class='st'>"hour"</span>)
+  )
+<span class='no'>d_train</span> <span class='kw'>=</span> <span class='no'>d</span>[<span class='fl'>1</span>:<span class='fl'>700</span>, ]
+<span class='fu'>prep_data</span>(<span class='kw'>d</span> <span class='kw'>=</span> <span class='no'>d_train</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe with no outcome variable specified...</span></div><div class='output co'>#&gt; <span class='message'>healthcareai-prepped data. Recipe used to prepare data:</span></div><div class='output co'>#&gt; Data Recipe
+#&gt; 
+#&gt; Inputs:
+#&gt; 
+#&gt;       role #variables
+#&gt;  predictor         11
+#&gt; 
+#&gt; Training data contained 700 data points and 340 incomplete rows. 
+#&gt; 
+#&gt; Operations:
+#&gt; 
+#&gt; Sparse, unbalanced variable filter removed no terms [trained]
+#&gt; Date features from admitted_DTS [trained]
+#&gt; Variables removed admitted_DTS [trained]
+#&gt; Mean Imputation for patient_id, pregnancies, ... [trained]
+#&gt; Filling NA with missing for weight_class, diabetes [trained]
+#&gt; Adding levels to: other, missing [trained]
+#&gt; Collapsing factor levels for weight_class, diabetes [trained]
+#&gt; Adding levels to: other, missing [trained]
+#&gt; Dummy variables from weight_class, diabetes [trained]</div><div class='output co'>#&gt; <span class='message'>Current data:</span></div><div class='output co'>#&gt; # A tibble: 700 x 23
+#&gt;    patient_id pregnancies plasma_glucose diastolic_bp skinfold insulin pedigree
+#&gt;         &lt;int&gt;       &lt;int&gt;          &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;
+#&gt;  1          1           6            148         72       35      154.    0.627
+#&gt;  2          2           1             85         66       29      154.    0.351
+#&gt;  3          3           8            183         64       29.1    154.    0.672
+#&gt;  4          4           1             89         66       23       94     0.167
+#&gt;  5          5           0            137         40       35      168     2.29 
+#&gt;  6          6           5            116         74       29.1    154.    0.201
+#&gt;  7          7           3             78         50       32       88     0.248
+#&gt;  8          8          10            115         72.3     29.1    154.    0.134
+#&gt;  9          9           2            197         70       45      543     0.158
+#&gt; 10         10           8            125         96       29.1    154.    0.232
+#&gt; # ... with 690 more rows, and 16 more variables: age &lt;int&gt;,
+#&gt; #   admitted_DTS_dow_sin &lt;dbl&gt;, admitted_DTS_dow_cos &lt;dbl&gt;,
+#&gt; #   admitted_DTS_month_sin &lt;dbl&gt;, admitted_DTS_month_cos &lt;dbl&gt;,
+#&gt; #   admitted_DTS_year &lt;dbl&gt;, admitted_DTS_hour_sin &lt;dbl&gt;,
+#&gt; #   admitted_DTS_hour_cos &lt;dbl&gt;, weight_class_normal &lt;dbl&gt;,
+#&gt; #   weight_class_obese &lt;dbl&gt;, weight_class_overweight &lt;dbl&gt;,
+#&gt; #   weight_class_other &lt;dbl&gt;, weight_class_missing &lt;dbl&gt;, diabetes_Y &lt;dbl&gt;,
+#&gt; #   diabetes_other &lt;dbl&gt;, diabetes_missing &lt;dbl&gt;</div><div class='input'>
+<span class='co'># Customize how date and time features are handled:</span>
+<span class='co'># When `convert_dates` is set to "categories", the prepped data will be more</span>
+<span class='co'># readable, but will be wider.</span>
+<span class='fu'>prep_data</span>(<span class='kw'>d</span> <span class='kw'>=</span> <span class='no'>d_train</span>, <span class='kw'>convert_dates</span> <span class='kw'>=</span> <span class='st'>"categories"</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe with no outcome variable specified...</span></div><div class='output co'>#&gt; <span class='message'>healthcareai-prepped data. Recipe used to prepare data:</span></div><div class='output co'>#&gt; Data Recipe
+#&gt; 
+#&gt; Inputs:
+#&gt; 
+#&gt;       role #variables
+#&gt;  predictor         11
+#&gt; 
+#&gt; Training data contained 700 data points and 340 incomplete rows. 
+#&gt; 
+#&gt; Operations:
+#&gt; 
+#&gt; Sparse, unbalanced variable filter removed no terms [trained]
+#&gt; Date features from admitted_DTS [trained]
+#&gt; Variables removed admitted_DTS [trained]
+#&gt; Mean Imputation for patient_id, pregnancies, ... [trained]
+#&gt; Filling NA with missing for weight_class, diabetes, ... [trained]
+#&gt; Adding levels to: other, missing [trained]
+#&gt; Collapsing factor levels for weight_class, diabetes, ... [trained]
+#&gt; Adding levels to: other, missing [trained]
+#&gt; Dummy variables from weight_class, diabetes, ... [trained]</div><div class='output co'>#&gt; <span class='message'>Current data:</span></div><div class='output co'>#&gt; # A tibble: 700 x 28
+#&gt;    patient_id pregnancies plasma_glucose diastolic_bp skinfold insulin pedigree
+#&gt;         &lt;int&gt;       &lt;int&gt;          &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;
+#&gt;  1          1           6            148         72       35      154.    0.627
+#&gt;  2          2           1             85         66       29      154.    0.351
+#&gt;  3          3           8            183         64       29.1    154.    0.672
+#&gt;  4          4           1             89         66       23       94     0.167
+#&gt;  5          5           0            137         40       35      168     2.29 
+#&gt;  6          6           5            116         74       29.1    154.    0.201
+#&gt;  7          7           3             78         50       32       88     0.248
+#&gt;  8          8          10            115         72.3     29.1    154.    0.134
+#&gt;  9          9           2            197         70       45      543     0.158
+#&gt; 10         10           8            125         96       29.1    154.    0.232
+#&gt; # ... with 690 more rows, and 21 more variables: age &lt;int&gt;,
+#&gt; #   admitted_DTS_year &lt;dbl&gt;, admitted_DTS_hour &lt;int&gt;,
+#&gt; #   weight_class_normal &lt;dbl&gt;, weight_class_obese &lt;dbl&gt;,
+#&gt; #   weight_class_overweight &lt;dbl&gt;, weight_class_other &lt;dbl&gt;,
+#&gt; #   weight_class_missing &lt;dbl&gt;, diabetes_Y &lt;dbl&gt;, diabetes_other &lt;dbl&gt;,
+#&gt; #   diabetes_missing &lt;dbl&gt;, admitted_DTS_dow_Mon &lt;dbl&gt;,
+#&gt; #   admitted_DTS_dow_Tue &lt;dbl&gt;, admitted_DTS_dow_Wed &lt;dbl&gt;,
+#&gt; #   admitted_DTS_dow_Thu &lt;dbl&gt;, admitted_DTS_dow_Fri &lt;dbl&gt;,
+#&gt; #   admitted_DTS_dow_Sat &lt;dbl&gt;, admitted_DTS_dow_other &lt;dbl&gt;,
+#&gt; #   admitted_DTS_dow_missing &lt;dbl&gt;, admitted_DTS_month_other &lt;dbl&gt;,
+#&gt; #   admitted_DTS_month_missing &lt;dbl&gt;</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

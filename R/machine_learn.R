@@ -9,6 +9,13 @@
 #'   Unquoted. Must be named, i.e. you must specify \code{outcome = }
 #' @param models Names of models to try. See \code{\link{get_supported_models}}
 #'   for available models. Default is all available models.
+#' @param metric Which metric should be used to assess model performance?
+#'   Options for classification: "ROC" (default) (area under the receiver
+#'   operating characteristic curve) or "PR" (area under the precision-recall
+#'   curve). Options for regression: "RMSE" (default) (root-mean-squared error,
+#'   default), "MAE" (mean-absolute error), or "Rsquared." Options for
+#'   multiclass: "Accuracy" (default) or "Kappa" (accuracy, adjusted for class
+#'   imbalance).
 #' @param tune If TRUE (default) models will be tuned via
 #'   \code{\link{tune_models}}. If FALSE, models will be trained via
 #'   \code{\link{flash_models}} which is substantially faster but produces
@@ -84,8 +91,12 @@
 #' # faster (especially on larger datasets), but produces models with less
 #' # predictive power.
 #' machine_learn(d$train, patient_id, outcome = diabetes, tune = FALSE)
+#'
+#' ### Train models optimizing given metric ###
+#'
+#' machine_learn(d$train, patient_id, outcome = diabetes, metric = "PR")
 #' }
-machine_learn <- function(d, ..., outcome, models, tune = TRUE, positive_class,
+machine_learn <- function(d, ..., outcome, models, metric, tune = TRUE, positive_class,
                           n_folds = 5, tune_depth = 10, impute = TRUE,
                           model_name = NULL, allow_parallel = FALSE) {
 
@@ -120,12 +131,12 @@ machine_learn <- function(d, ..., outcome, models, tune = TRUE, positive_class,
   pd <- prep_data(d, !!!dots, outcome = !!outcome, impute = impute)
   m <-
     if (tune) {
-      tune_models(pd, outcome = !!outcome, models = models,
-                  positive_class = positive_class,
-                  n_folds = n_folds, tune_depth = tune_depth,
-                  model_name = model_name, allow_parallel = allow_parallel)
+      tune_models(pd, outcome = !!outcome, models = models, metric = metric,
+                  positive_class = positive_class, n_folds = n_folds,
+                  tune_depth = tune_depth, model_name = model_name,
+                  allow_parallel = allow_parallel)
     } else {
-      flash_models(pd, outcome = !!outcome, models = models,
+      flash_models(pd, outcome = !!outcome, models = models, metric = metric,
                    positive_class = positive_class, n_folds = n_folds,
                    model_name = model_name, allow_parallel = allow_parallel)
     }

@@ -10,6 +10,7 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "# >",
                       fig.path = "man/figures/README-")
 options(tibble.print_max = 5)
 library(healthcareai)
+set.seed(6751)
 ```
 
 # healthcareai <img src="man/figures/logo.png" align="right" />
@@ -18,7 +19,7 @@ library(healthcareai)
 [![Travis-CI Build Status](https://travis-ci.org/HealthCatalyst/healthcareai-r.svg?branch=master)](https://travis-ci.org/HealthCatalyst/healthcareai-r) 
 [![codecov badge](https://codecov.io/gh/HealthCatalyst/healthcareai-r/branch/master/graph/badge.svg)](https://codecov.io/gh/HealthCatalyst/healthcareai-r) 
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version-last-release/healthcareai)](https://cran.r-project.org/package=healthcareai)
-![CRAN downloads badge](https://cranlogs.r-pkg.org/badges/grand-total/healthcareai)
+[![CRAN downloads badge](https://cranlogs.r-pkg.org/badges/grand-total/healthcareai)](https://cranlogs.r-pkg.org/badges/last-week/healthcareai)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/HealthCatalystSLC/healthcareai-r/blob/master/LICENSE)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.999334.svg)](https://doi.org/10.5281/zenodo.999334)
 
@@ -28,6 +29,7 @@ The aim of `healthcareai` is to make machine learning in healthcare as easy as p
 
 - Develop customized, reliable, high-performance machine learning models with minimal code
 - Easily make and evaluate predictions and push them to a database
+- Understand how a model makes its predictions
 - Make data cleaning, manipulation, imputation, and visualization as simple as possible
 
 ## Usage
@@ -42,13 +44,13 @@ models
 Make predictions and examine predictive performance:
 
 ```{r plot_predictions}
-predictions <- predict(models)
+predictions <- predict(models, outcome_groups = TRUE)
 plot(predictions)
 ```
 
 ## Learn More
 
-For details on what's happening under the hood and for options to customize data preparation and model training, see [Getting Started with healthcareai](https://docs.healthcare.ai/articles/site_only/healthcareai.html) as well as the helpfiles for individual functions such as `?machine_learn`, `?prep_data`, and `?tune_models`. 
+For details on what's happening under the hood and for options to customize data preparation and model training, see [Getting Started with healthcareai](https://docs.healthcare.ai/articles/site_only/healthcareai.html) as well as the helpfiles for individual functions such as `?machine_learn`, `?predict.model_list`, and `?explore`. 
 
 Documentation of all functions as well as vignettes on various uses of the package are available at the package website: https://docs.healthcare.ai/.
 
@@ -64,14 +66,12 @@ If you are interested in contributing the package (great!), please read the [con
 
 ### Feedback
 
-Your feedback is hugely appreciated. It is makes the package work well and helps us make it more useful to the community.
-
-Both feature requests and bug reports should be submitted as [Github issues](https://github.com/HealthCatalyst/healthcareai-r/issues/new). 
+Your feedback is hugely appreciated. It is makes the package work well and helps us make it more useful to the community. Both feature requests and bug reports should be submitted as [Github issues](https://github.com/HealthCatalyst/healthcareai-r/issues/new). 
 
 **Bug reports** should be filed with a [minimal reproducable example](https://gist.github.com/hadley/270442). The [reprex package](https://github.com/tidyverse/reprex) is extraordinarily helpful for this. Please also include the output of `sessionInfo()` or better yet, `devtools::session_info()`.
 
 ## Legacy
 
-Version 1 of healthcare-ai has been retired. You can continue to use it, but its compatibility with changes in the R ecosystem are not guaranteed. You should always be able to install it from github with: `remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")`.
+Version 1 of `healthcareai` has been retired. You can continue to use it, but its compatibility with changes in the R ecosystem are not guaranteed. You should always be able to install it from github with: `install.packages("remotes"); remotes::install_github("HealthCatalyst/healthcareai-r@v1.2.4")`.
 
 For an example of how to adapt v1 models to the v2 API, check out the [Transitioning vignettes](https://docs.healthcare.ai/articles/site_only/transitioning.html).

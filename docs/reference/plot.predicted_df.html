@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.1</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.2.0</span>
       </span>
     </div>
 
@@ -164,12 +164,16 @@
 
     <pre class="usage"><span class='co'># S3 method for predicted_df</span>
 <span class='fu'>plot</span>(<span class='no'>x</span>, <span class='kw'>caption</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>font_size</span> <span class='kw'>=</span> <span class='fl'>11</span>, <span class='kw'>outcomes</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>print</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)
+  <span class='kw'>font_size</span> <span class='kw'>=</span> <span class='fl'>11</span>, <span class='kw'>outcomes</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>fixed_aspect</span> <span class='kw'>=</span> <span class='fu'>attr</span>(<span class='no'>x</span>,
+  <span class='st'>"model_info"</span>)$<span class='no'>type</span> <span class='kw'>==</span> <span class='st'>"Regression"</span>, <span class='kw'>print</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)
 
 <span class='fu'>plot_regression_predictions</span>(<span class='no'>x</span>, <span class='kw'>point_size</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>point_alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='no'>target</span>)
 
 <span class='fu'>plot_classification_predictions</span>(<span class='no'>x</span>, <span class='kw'>fill_colors</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"firebrick"</span>, <span class='st'>"steelblue"</span>),
-  <span class='kw'>fill_alpha</span> <span class='kw'>=</span> <span class='fl'>0.7</span>, <span class='kw'>curve_flex</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='no'>target</span>)</pre>
+  <span class='kw'>fill_alpha</span> <span class='kw'>=</span> <span class='fl'>0.7</span>, <span class='kw'>curve_flex</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>add_labels</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>target</span>)
+
+<span class='fu'>plot_multiclass_predictions</span>(<span class='no'>x</span>, <span class='kw'>conf_colors</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"black"</span>, <span class='st'>"steelblue"</span>),
+  <span class='kw'>text_color</span> <span class='kw'>=</span> <span class='st'>"yellow"</span>, <span class='kw'>diag_color</span> <span class='kw'>=</span> <span class='st'>"red"</span>, <span class='no'>target</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -197,6 +201,11 @@ all available metrics, FALSE prints nothing. Can also provide metric name
       <td><p>Vector of outcomes if not present in x</p></td>
     </tr>
     <tr>
+      <th>fixed_aspect</th>
+      <td><p>Logical: If TRUE (default for regression only), units of
+the x- and y-axis will have the same spacing.</p></td>
+    </tr>
+    <tr>
       <th>print</th>
       <td><p>Logical, if TRUE (default) the plot is printed on the current
 graphics device. The plot is always (silently) returned.</p></td>
@@ -220,8 +229,8 @@ plot_classification_predictions; listed below. These must be named.</p></td>
     </tr>
     <tr>
       <th>fill_colors</th>
-      <td><p>Length-2 character vector: colors to fill density
-curves. Default is c("firebrick", "steelblue"). If named, names must match
+      <td><p>Length-2 character vector: colors to fill density curves.
+Default is c("firebrick", "steelblue"). If named, names must match
 <code>unique(x[[target]])</code>, in any order.</p></td>
     </tr>
     <tr>
@@ -230,9 +239,31 @@ curves. Default is c("firebrick", "steelblue"). If named, names must match
     </tr>
     <tr>
       <th>curve_flex</th>
-      <td><p>Numeric. Kernal adjustment for density curves. Default is 1.
-Less than 1 makes curves more flexible, analogous to smaller bins in a
+      <td><p>Numeric. Kernal adjustment for density curves. Default is
+1. Less than 1 makes curves more flexible, analogous to smaller bins in a
 histogram; greater than 1 makes curves more rigid.</p></td>
+    </tr>
+    <tr>
+      <th>add_labels</th>
+      <td><p>If TRUE (default) and a predicted_group column was added to
+predictions by specifying <code>risk_groups</code> or <code>outcome_groups</code> in
+<code>link{predict.model_list}</code>, labels specifying groups are added to the
+plot.</p></td>
+    </tr>
+    <tr>
+      <th>conf_colors</th>
+      <td><p>Length-2 character vector: colors to fill density curves.
+Default is c("black", "steelblue").</p></td>
+    </tr>
+    <tr>
+      <th>text_color</th>
+      <td><p>Character: color to write percent correct.
+Default is "yellow".</p></td>
+    </tr>
+    <tr>
+      <th>diag_color</th>
+      <td><p>Character: color to highlight main diagonal. These are
+correct predictions. Default is "red".</p></td>
     </tr>
     </table>
     
@@ -247,7 +278,8 @@ histogram; greater than 1 makes curves more rigid.</p></td>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>models</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='machine_learn.html'>machine_learn</a></span>(<span class='no'>pima_diabetes</span>[<span class='fl'>1</span>:<span class='fl'>50</span>, ], <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>plasma_glucose</span>,
+    <pre class="examples"><div class='input'><span class='co'># Some regression examples</span>
+<span class='no'>models</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='machine_learn.html'>machine_learn</a></span>(<span class='no'>pima_diabetes</span>[<span class='fl'>1</span>:<span class='fl'>50</span>, ], <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>plasma_glucose</span>,
                         <span class='kw'>models</span> <span class='kw'>=</span> <span class='st'>"rf"</span>, <span class='kw'>tune</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe...</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>plasma_glucose looks numeric, so training regression algorithms.</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>After data processing, models are being trained on 14 features with 50 observations.</span>
@@ -257,7 +289,17 @@ histogram; greater than 1 makes curves more rigid.</p></td>
 <span class='fu'>plot</span>(<span class='no'>predictions</span>)</div><div class='img'><img src='plot.predicted_df-1.png' alt='' width='576' height='288' /></div><div class='input'><span class='fu'>plot</span>(<span class='no'>predictions</span>, <span class='kw'>caption</span> <span class='kw'>=</span> <span class='st'>"Rsquared"</span>,
      <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>"This model's predictions regress to the mean"</span>,
      <span class='kw'>point_size</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>point_alpha</span> <span class='kw'>=</span> <span class='fl'>.7</span>, <span class='kw'>font_size</span> <span class='kw'>=</span> <span class='fl'>14</span>)</div><div class='img'><img src='plot.predicted_df-2.png' alt='' width='576' height='288' /></div><div class='input'><span class='no'>p</span> <span class='kw'>&lt;-</span> <span class='fu'>plot</span>(<span class='no'>predictions</span>, <span class='kw'>print</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-<span class='no'>p</span> + <span class='fu'>coord_fixed</span>(<span class='kw'>ratio</span> <span class='kw'>=</span> <span class='fl'>1</span>) + <span class='fu'>theme_classic</span>()</div><div class='img'><img src='plot.predicted_df-3.png' alt='' width='576' height='288' /></div></pre>
+<span class='no'>p</span> + <span class='fu'>theme_classic</span>()</div><div class='img'><img src='plot.predicted_df-3.png' alt='' width='576' height='288' /></div><div class='input'>
+<span class='co'># A classification example with risk groups</span>
+<span class='no'>class_models</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='machine_learn.html'>machine_learn</a></span>(<span class='no'>pima_diabetes</span>, <span class='no'>patient_id</span>, <span class='kw'>outcome</span> <span class='kw'>=</span> <span class='no'>diabetes</span>,
+                              <span class='kw'>models</span> <span class='kw'>=</span> <span class='st'>"xgb"</span>, <span class='kw'>tune</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='message'>Training new data prep recipe...</span></div><div class='output co'>#&gt; <span class='message'>Variable(s) ignored in prep_data won't be used to tune models: patient_id</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>diabetes looks categorical, so training classification algorithms.</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>After data processing, models are being trained on 12 features with 768 observations.</span>
+#&gt; <span class='message'>Based on n_folds = 5 and hyperparameter settings, the following number of models will be trained: 5 xgb's </span></div><div class='output co'>#&gt; <span class='message'>Training at fixed values: eXtreme Gradient Boosting</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>*** Models successfully trained. The model object contains the training data minus ignored ID columns. ***</span>
+#&gt; <span class='message'>*** If there was PHI in training data, normal PHI protocols apply to the model object. ***</span></div><div class='input'><span class='fu'>predict</span>(<span class='no'>class_models</span>,
+        <span class='kw'>risk_groups</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"v low"</span>, <span class='st'>"low"</span>, <span class='st'>"medium"</span>, <span class='st'>"high"</span>, <span class='st'>"very high"</span>)) <span class='kw'>%&gt;%</span>
+  <span class='fu'>plot</span>()</div><div class='img'><img src='plot.predicted_df-4.png' alt='' width='576' height='288' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

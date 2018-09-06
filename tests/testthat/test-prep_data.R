@@ -18,7 +18,7 @@ df <- data.frame(
   drum_flag = sample(c(0, 1, NA), size = n, replace = T,
                      prob = c(0.45, 0.45, 0.1)),
   date_col = lubridate::ymd("2002-03-04") + lubridate::days(sample(1:1000, n)),
-  posixct_col = lubridate::ymd("2004-03-04") + lubridate::days(sample(1:1000, n)),
+  posixct_col = seq(as.POSIXct("2005-1-1 0:00"), length.out = n, by = "hour"),
   col_DTS = lubridate::ymd("2006-03-01") + lubridate::days(sample(1:1000, n)),
   char_DTS = sample(sample_days, n, replace = TRUE),
   missing82 = sample(1:10, n, replace = TRUE),
@@ -75,9 +75,11 @@ d_reprep <- prep_data(d_test, outcome = is_ween, song_id,
                       recipe = attr(d_prep, "recipe"))
 d_reprep2 <- prep_data(d_test, outcome = is_ween, song_id,
                        recipe = d_prep)
-animals <- tibble::tibble(
+animals <- data.frame(
   animal = sample(c("cat", "dog", "mouse"), n, TRUE),
-  weight = rexp(n, 0.5), super = sample(c(TRUE, FALSE), n, TRUE), y = rnorm(n)
+  weight = rexp(n, 0.5),
+  super = sample(c(TRUE, FALSE), n, TRUE),
+  y = rnorm(n)
 )
 animals_train <- animals[1:250, ]
 animals_test <- animals[251:300, ]
@@ -161,34 +163,37 @@ test_that("0/1 outcome is converted to N/Y", {
 
 test_that("date columns are found and converted", {
   d_clean <- prep_data(d = d_train, outcome = is_ween, song_id,
-                       make_dummies = FALSE)
+                       make_dummies = FALSE, convert_dates = "categories")
+  expect_true(is.numeric(d_clean$posixct_col_hour))
   expect_true(is.factor(d_clean$date_col_dow))
   expect_true(is.factor(d_clean$posixct_col_month))
   expect_true(is.numeric(d_clean$col_DTS_year))
   expect_true(all(c("Jan", "Mar") %in% d_clean$date_col_month))
-  expect_true(all(2004:2006 %in% d_clean$posixct_col_year))
+  expect_true(all(2006:2008 %in% d_clean$col_DTS_year))
   expect_true(all(c("Sun", "Mon", "Tue") %in% d_clean$col_DTS_dow))
+  expect_true(all(c(0:23) %in% d_clean$posixct_col_hour))
 })
 
 test_that("date columns are found, converted, and dummified", {
-  d_clean <- prep_data(d = d_train, outcome = is_ween, song_id)
+  d_clean <- prep_data(d = d_train, outcome = is_ween, song_id, convert_dates = "categories")
   # Should find 11 month names in names of prepped data as all but one get dummied
   expect_equal(sum(purrr::map_lgl(month.abb, ~ any(grepl(.x, names(d_clean))))), 11)
   expect_true("date_col_dow_Thu" %in% names(d_clean))
   expect_equal(sort(unique(d_clean$col_DTS_month_Sep)), c(0, 1))
-  expect_true(all(2004:2006 %in% d_clean$posixct_col_year))
+  expect_true(all(2006:2008 %in% d_clean$col_DTS_year))
+  expect_true(all(c(0:23) %in% d_clean$posixct_col_hour))
 })
 
-test_that("convert_dates works when non default", {
-  dd <- prep_data(d_train, convert_dates = "quarter")
-  expect_true("date_col_quarter" %in% names(dd))
+test_that("convert_dates works when continuous", {
+  dd <- prep_data(d_train)
+  expect_true("date_col_dow_sin" %in% names(dd))
   expect_false("date_col_dow" %in% names(dd))
-  dd <- prep_data(d_train, convert_dates = c("doy", "quarter"))
-  expect_true(all(c("date_col_doy", "date_col_quarter") %in% names(dd)))
+  dd <- prep_data(d_train, convert_dates = "continuous")
+  expect_true(all(c("date_col_dow_sin", "posixct_col_hour_cos") %in% names(dd)))
 })
 
-test_that("convert_dates removes date columns when false", {
-  dd <- prep_data(d_train, convert_dates = FALSE)
+test_that("convert_dates removes date columns when none", {
+  dd <- prep_data(d_train, convert_dates = "none")
   expect_true(!all(c("date_col", "posixct_col", "col_DTS") %in% names(dd)))
 })
 
@@ -282,7 +287,7 @@ test_that("centering and scaling work", {
 
 test_that("dummy columns are created as expected", {
   d_clean <- prep_data(d = d_train, outcome = is_ween, song_id,
-                       convert_dates = FALSE, make_dummies = TRUE,
+                       convert_dates = "none", make_dummies = TRUE,
                        add_levels = FALSE, collapse_rare_factors = FALSE)
   exp <- c("genre_Jazz", "genre_Rock", "genre_missing")
   n <- names(dplyr::select(d_clean, dplyr::starts_with("genre")))
@@ -291,6 +296,16 @@ test_that("dummy columns are created as expected", {
            "reaction_missing" )
   n <- names(dplyr::select(d_clean, dplyr::starts_with("reaction")))
   expect_true(all(n == exp))
+})
+
+test_that("test convert_dates is logical, `none`, `continuous`, or `categories`", {
+  actual <- prep_data(d_train, convert_dates = TRUE)
+  expect_true("date_col_dow_sin" %in% names(actual))
+
+  actual <- prep_data(d_train, convert_dates = FALSE)
+  expect_equal(sum(grepl("date_col_dow_sin", names(actual))), 0)
+
+  expect_error(prep_data(d_train, convert_dates = "test"), "convert_dates must")
 })
 
 test_that("Output of impute is same for tibble vs data frame", {
@@ -305,8 +320,8 @@ test_that("recipe attr is a recipe class object", {
   expect_s3_class(attr(dd, "recipe"), "recipe")
 })
 
-test_that("only the first few rows of training data are stored in the recipe", {
-  expect_true(nrow(attr(d_prep, "recipe")$template) <= 10)
+test_that("Training data are stored entirely in the recipe", {
+  expect_equivalent(attr(d_prep, "recipe")$template, d_train)
 })
 
 test_that("warning is given when ignored columns have missingness", {
@@ -341,8 +356,12 @@ test_that("prep_data applies recipe from training on test data", {
   expect_true(all(d_reprep$genre_missing[is.na(d_test$genre)] == 1))
 })
 
-test_that("Unignored variables present in training but not deployment error", {
-  expect_error(prep_data(dplyr::select(d_test, -length), recipe = d_prep))
+test_that("Unignored variables present in training but not deployment error if needed", {
+  expect_error(
+    expect_warning(
+      prep_data(dplyr::select(d_test, -length), recipe = d_prep)
+    ),
+    "length")
   expect_s3_class(prep_data(dplyr::select(d_test, -song_id), recipe = d_prep),
                   "prepped_df")
 })
@@ -380,6 +399,9 @@ test_that("remove_near_zero_variance is respected, works, and messages", {
   expect_true("a_nzv_col" %in% names(stay))
   expect_error(prep_data(dplyr::select(d_train, a_nzv_col, is_ween), outcome = is_ween),
                "less aggressive")
+  # Check that NZV columns missing in deployment warn but don't error
+  expect_warning(prep_data(dplyr::select(d_test, -a_nzv_col), recipe = def),
+                 "present in training")
 })
 
 test_that("remove_near_zero_variance works with params", {
@@ -583,7 +605,7 @@ test_that("prep_data warns for all unique character columns and adds the to igno
 test_that("prep_data doesn't check for all-unique columns in predict", {
   # Additional test of this in the last code chunk of healthcareai.Rmd
   d_prep <- prep_data(d = d_train, outcome = is_ween, song_id,
-                      convert_dates = FALSE, make_dummies = FALSE)
+                      convert_dates = "none", make_dummies = FALSE)
   d_test$state <- c("CA", paste0("A", seq_len(nrow(d_test) - 1)))
   expect_true("state" %in% names(pd <- prep_data(d_test, recipe = d_prep)))
   expect_equal("CA", as.character(pd$state[1]))
@@ -601,4 +623,27 @@ test_that("prep_data gets rid of logicals, when no outcome", {
   prepped_test <- prep_data(animals_test, recipe = prepped_train)
   expect_false(any(purrr::map_lgl(prepped_train, is.logical)))
   expect_false(any(purrr::map_lgl(prepped_test, is.logical)))
+})
+
+test_that("no_prep dominates", {
+  noprep <- prep_data(animals_train, outcome = y, no_prep = TRUE)
+  expect_true(attr(attr(noprep, "recipe"), "no_prep"))
+  expect_equivalent(animals_train, noprep)
+  expect_equivalent(animals_test, prep_data(animals_test, recipe = noprep))
+})
+
+test_that("prep_data doesn't throw warning if DTS character column is unique", {
+  d_train <-
+    animals_train %>%
+    mutate(
+      admitted_DTS = seq(as.POSIXct("2005-1-1 0:00"),
+                         length.out = nrow(animals_train), by = "hour")
+    )
+  d_train$admitted_DTS <- as.character(d_train$admitted_DTS)
+  prepped <- prep_data(d_train)
+  admitted_dTS_cols <- map_lgl(names(prepped), ~{
+    grepl("admitted_DTS", .x)
+  }
+  )
+  expect_true(sum(admitted_dTS_cols) > 1)
 })
