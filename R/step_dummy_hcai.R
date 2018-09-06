@@ -3,7 +3,9 @@
 #' `step_dummy_hcai` creates a a *specification* of a recipe
 #'  step that will convert nominal data (e.g. character or factors)
 #'  into one or more numeric binary model terms for the levels of
-#'  the original data.
+#'  the original data. Various portions of this step are copied from
+#'  `recipes::step_dummy`. Beyond original `recipes::step_dummy` implementation,
+#'  this step sets/resets levels to the provided criteria.
 #'
 #' @inheritParams recipes::step_center
 #' @inherit step_center return
@@ -16,8 +18,6 @@
 #'  role should they be assigned?. By default, the function assumes
 #'  that the binary dummy variable columns created by the original
 #'  variables will be used as predictors in a model.
-#' @param one_hot A logical. For C levels, should C dummy variables be created
-#' rather than C-1?
 #' @param naming A function that defines the naming convention for
 #'  new dummy columns. See Details below.
 #' @param levels A list that contains the information needed to
@@ -79,7 +79,6 @@ step_dummy_hcai <-
            ...,
            role = "predictor",
            trained = FALSE,
-           one_hot = FALSE,
            naming = dummy_names,
            levels = NULL,
            skip = FALSE) {
@@ -89,7 +88,6 @@ step_dummy_hcai <-
         terms = ellipse_check(...),
         role = role,
         trained = trained,
-        one_hot = one_hot,
         naming = naming,
         levels = levels,
         ref_levels = NULL,
@@ -103,7 +101,6 @@ step_dummy_hcai_new <-
   function(terms = NULL,
            role = "predictor",
            trained = FALSE,
-           one_hot = one_hot,
            naming = naming,
            levels = levels,
            ref_levels = ref_levels,
@@ -115,7 +112,6 @@ step_dummy_hcai_new <-
       terms = terms,
       role = role,
       trained = trained,
-      one_hot = one_hot,
       naming = naming,
       levels = levels,
       ref_levels = ref_levels,
@@ -157,9 +153,6 @@ prep.step_dummy_hcai <- function(x, training, info = NULL, ...) {
     }
 
     form_chr <- paste0("~", col_names[i])
-    if (x$one_hot) {
-      form_chr <- paste0(form_chr, "-1")
-    }
     form <- as.formula(form_chr)
     suppressWarnings(
       terms <- model.frame(form,
@@ -203,7 +196,6 @@ prep.step_dummy_hcai <- function(x, training, info = NULL, ...) {
     terms = x$terms,
     role = x$role,
     trained = TRUE,
-    one_hot = x$one_hot,
     naming = x$naming,
     levels = levels,
     ref_levels = ref_levels,
@@ -271,9 +263,7 @@ bake.step_dummy_hcai <- function(object, newdata, ...) {
     options(na.action = old_opt)
     on.exit(expr = NULL)
 
-    if (!object$one_hot) {
-      indicators <- indicators[, colnames(indicators) != "(Intercept)", drop = FALSE]
-    }
+    indicators <- indicators[, colnames(indicators) != "(Intercept)", drop = FALSE]
 
     ## use backticks for nonstandard factor levels here
     used_lvl <- gsub(paste0("^", col_names[i]), "", colnames(indicators))

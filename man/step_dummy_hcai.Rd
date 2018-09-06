@@ -6,7 +6,7 @@
 \title{Dummy Variables Creation}
 \usage{
 step_dummy_hcai(recipe, ..., role = "predictor", trained = FALSE,
-  one_hot = FALSE, naming = dummy_names, levels = NULL, skip = FALSE)
+  naming = dummy_names, levels = NULL, skip = FALSE)
 
 \method{tidy}{step_dummy_hcai}(x, ...)
 }
@@ -27,9 +27,6 @@ variables will be used as predictors in a model.}
 
 \item{trained}{A logical to indicate if the quantities for
 preprocessing have been estimated.}
-
-\item{one_hot}{A logical. For C levels, should C dummy variables be created
-rather than C-1?}
 
 \item{naming}{A function that defines the naming convention for
 new dummy columns. See Details below.}
@@ -58,7 +55,9 @@ An updated version of `recipe` with the new step
 `step_dummy_hcai` creates a a *specification* of a recipe
  step that will convert nominal data (e.g. character or factors)
  into one or more numeric binary model terms for the levels of
- the original data.
+ the original data. Various portions of this step are copied from
+ `recipes::step_dummy`. Beyond original `recipes::step_dummy` implementation,
+ this step sets/resets levels to the provided criteria.
 }
 \details{
 `step_dummy_hcai` will create a set of binary dummy
