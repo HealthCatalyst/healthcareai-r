@@ -368,13 +368,13 @@ prep_data <- function(d,
       # Center ------------------------------------------------------------------
       if (isTRUE(as.logical(center))) {
         recipe <- recipe %>%
-          recipes::step_center(all_numeric(), - all_outcomes())
+          recipes::step_center(all_numeric(), -all_outcomes())
       }
 
       # Scale -------------------------------------------------------------------
       if (isTRUE(as.logical(scale))) {
         recipe <- recipe %>%
-          recipes::step_scale(all_numeric(), - all_outcomes())
+          recipes::step_scale(all_numeric(), -all_outcomes())
       }
     }
 
@@ -385,7 +385,7 @@ prep_data <- function(d,
 
       # Add protective levels --------------------------------------------------
       if (add_levels)
-        recipe <- step_add_levels(recipe, all_nominal(), - all_outcomes())
+        recipe <- step_add_levels(recipe, all_nominal(), -all_outcomes())
 
       # Collapse rare factors into "other" --------------------------------------
       if (!is.logical(collapse_rare_factors)) {
@@ -400,13 +400,13 @@ prep_data <- function(d,
         if (!exists("fac_thresh"))
           fac_thresh <- 0.03
         recipe <- recipe %>%
-          recipes::step_other(all_nominal(), - all_outcomes(),
+          recipes::step_other(all_nominal(), -all_outcomes(),
                               threshold = fac_thresh)
       }
 
       # Re-add protective levels if missing dropped by step_other
       if (add_levels)
-        recipe <- step_add_levels(recipe, all_nominal(), - all_outcomes())
+        recipe <- step_add_levels(recipe, all_nominal(), -all_outcomes())
 
       # make_dummies -----------------------------------------------------------
       if (make_dummies) {
@@ -422,14 +422,19 @@ prep_data <- function(d,
       if (!isTRUE(as.logical(scale)) || !isTRUE(as.logical(center))) {
         warning("\"d\" must be centered and scaled to perform PCA.")
       }
-
+      if (isFALSE(impute)) {
+        stop("NAs present in \"d\". PCA not compatible when NAs are present.")
+      }
       # Set PCA to default 5 PCs if PCA input was TRUE
       if (isTRUE(PCA)) {
         PCA <- 5
       }
+      if (PCA > length(recipes::prep(recipe,training = d)$term_info$role == "predictor")){
+        stop("Can't have more components than columns in \"d\".")
+      }
       # Perform PCA
       recipe <- recipe %>%
-      recipes::step_kpca(all_numeric(), -all_outcomes(), num = as.integer(PCA))
+      recipes::step_pca(all_numeric(), -all_outcomes(), num = as.integer(PCA))
     }
 
     # Prep the newly built recipe ---------------------------------------------
