@@ -104,6 +104,6 @@ test_that("flash_models, tune_models, and predict work", {
    d_prep <- prep_data(d = d_train, song_id, outcome = is_ween, PCA = 5)
    pca_glm <- tune_models(d_prep, outcome = is_ween, tune_depth = 1, models = "glm")
    expect_equal(sum(!grepl("PC", interpret(pca_glm)$variable)), 1)
-   pca_rf <- tune_models(d_blah, outcome = is_ween, tune_depth = 1, models = "rf")
+   pca_rf <- tune_models(d_prep, outcome = is_ween, tune_depth = 1, models = "rf")
    expect_equal(sum(!grepl("PC", get_variable_importance(pca_rf)$variable)), 0)
  })
