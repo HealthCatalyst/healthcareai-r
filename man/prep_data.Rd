@@ -4,10 +4,12 @@
 \alias{prep_data}
 \title{Prepare data for machine learning}
 \usage{
-prep_data(d, ..., outcome, recipe = NULL, remove_near_zero_variance = TRUE,
-  convert_dates = TRUE, impute = TRUE, collapse_rare_factors = TRUE,
-  center = FALSE, scale = FALSE, make_dummies = TRUE, add_levels = TRUE,
-  logical_to_numeric = TRUE, factor_outcome = TRUE, no_prep = FALSE)
+prep_data(d, ..., outcome, recipe = NULL,
+  remove_near_zero_variance = TRUE, convert_dates = TRUE,
+  impute = TRUE, collapse_rare_factors = TRUE, PCA = FALSE,
+  center = PCA, scale = PCA, make_dummies = TRUE,
+  add_levels = TRUE, logical_to_numeric = TRUE,
+  factor_outcome = TRUE, no_prep = FALSE)
 }
 \arguments{
 \item{d}{A data frame}
@@ -57,11 +59,20 @@ into a new category, `other`. If numeric, must be in {0, 1}, and is the
 proportion of observations below which levels will be grouped into other.
 See `recipes::step_other`.}
 
+\item{PCA}{Integer or Logical. PCA is done to reduce training time,
+particularly for wide datasets. If integer, represents the number of
+principalcomponents to convert the numeric data into. If TRUE, will convert
+numeric data into 5 principal components. Data must also be centered and
+scaled (default).  If 0 or FALSE, the PCA step will be skipped. Default is
+FALSE.}
+
 \item{center}{Logical. If TRUE, numeric columns will be centered to have a
-mean of 0. Default is FALSE.}
+mean of 0. Default is FALSE, unless PCA is performed, in which case it is
+TRUE.}
 
 \item{scale}{Logical. If TRUE, numeric columns will be scaled to have a
-standard deviation of 1. Default is FALSE.}
+standard deviation of 1. Default is FALSE, unless PCA is performed, in
+which case it is TRUE.}
 
 \item{make_dummies}{Logical. If TRUE (default), dummy columns will be created
 for categorical variables.}
@@ -147,6 +158,21 @@ prep_data(d = d_train)
 # When `convert_dates` is set to "categories", the prepped data will be more
 # readable, but will be wider.
 prep_data(d = d_train, convert_dates = "categories")
+
+# PCA to reduce training time:
+start_time <- Sys.time()
+pd <- prep_data(pima_diabetes, patient_id, outcome = diabetes, PCA = 'nope')
+ncol(pd)
+m <- machine_learn(pd, patient_id, outcome = diabetes)
+end_time <- Sys.time()
+end_time - start_time
+
+start_time <- Sys.time()
+pcapd <- prep_data(pima_diabetes, patient_id, outcome = diabetes, PCA = TRUE)
+ncol(pcapd)
+m <- machine_learn(pcapd, patient_id, outcome = diabetes)
+end_time <- Sys.time()
+end_time - start_time
 }
 \seealso{
 To let data preparation happen automatically under the hood, see
