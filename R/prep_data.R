@@ -461,7 +461,7 @@ prep_data <- function(d,
       if (!isTRUE(as.logical(scale)) || !isTRUE(as.logical(center))) {
         warning("\"d\" must be centered and scaled to perform PCA.")
       }
-      if (isFALSE(impute)) {
+      if (!isTRUE(impute) && !is.list(impute)) {
         stop("NAs present in \"d\". PCA not compatible when NAs are present.")
       }
       # Set PCA to default 5 PCs if PCA input was TRUE
