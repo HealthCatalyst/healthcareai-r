@@ -162,6 +162,7 @@ test_that("test setting reference level/ print.reference_level", {
   output <- capture_output(print(i))
   expect_true(length(gregexpr("Reference Levels:\n", output)[[1]]) == 1)
   expect_false(grepl("All `y` estimates are relative to `N`", output))
+  expect_true(grepl("All `x1` estimates are relative to `n`", output))
 })
 
 context("Checking add_refs") # -------------------------------------------------
@@ -173,7 +174,8 @@ test_that("test add_refs normal functionality", {
   )
   m <- machine_learn(pima_diabetes[0:50, ], outcome = diabetes, models = "glm",
                      tune = FALSE)
-  actual <- add_refs(dat, m)
+  dummy_step_object <- get_recipe_step(m, "step_dummy_hcai")
+  actual <- add_refs(dat, dummy_step_object)
   expect_true("weight_class_normal (vs. obese)" %in% actual$variable)
   expect_true("skinfold" %in% actual$variable)
 })

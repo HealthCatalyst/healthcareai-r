@@ -67,14 +67,13 @@ interpret <- function(x, sparsity = NULL, remove_zeros = TRUE, top_n) {
     lambda <- g$lambda[j]
   }
 
-  ref_levels <- x %>%
-    attr("recipe") %>%
-    attr("ref_levels")
+  # find the dummy object
+  dummy_step_object <- get_recipe_step(x, "step_dummy_hcai")
 
   coefs <-
     tibble::tibble(variable = rownames(coefs), coefficient = coefs[, 1]) %>%
     dplyr::arrange(desc(variable == "(Intercept)"), desc(abs(coefficient))) %>%
-    add_refs(x)
+    add_refs(dummy_step_object)
 
   # caret and glmnet take opposite approaches to positive outcome handling,
   # so need to flip the signs of coefficients for classification models
@@ -95,7 +94,7 @@ interpret <- function(x, sparsity = NULL, remove_zeros = TRUE, top_n) {
             target = mi$target,
             lambda = lambda,
             alpha = g$tuneValue[["alpha"]],
-            ref_levels = ref_levels)
+            ref_levels = dummy_step_object$ref_levels)
 }
 
 #' Adds existing reference levels to variable names
@@ -103,17 +102,9 @@ interpret <- function(x, sparsity = NULL, remove_zeros = TRUE, top_n) {
 #' @param x a model_list object containing a glmnet model
 #' @return A tibble with reference levels added to variable names
 #' @noRd
-add_refs <- function(d, x) {
-  # Store the dummies object that holds all possible dummy variables for each
-  # factor feature
-  steps <- (x %>% attr("recipe"))$step
-  loc <- purrr::map_lgl(steps, ~{
-    class(.x) %>% first() == "step_dummy_hcai"
-  }
-  )
-
-  if (any(loc)) {
-    dummies <- steps[loc][[1]]$dummies
+add_refs <- function(d, dummy_step_object) {
+  if (!is.null(dummy_step_object)) {
+    dummies <- dummy_step_object$dummies
 
     d$variable <- map_chr(d$variable, ~{
       if (.x %in% dummies$dummy) {
@@ -126,7 +117,6 @@ add_refs <- function(d, x) {
   }
   return(d)
 }
-
 
 #' Plot regularized model coefficients
 #'
