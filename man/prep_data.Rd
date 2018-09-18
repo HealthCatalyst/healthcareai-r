@@ -88,12 +88,12 @@ that d is returned unmodified, except that character variables may be
 coverted to factors and a tibble will be returned even if the input was
 a non-tibble data frame.}
 
-\item{ref_levels}{A named vector that provides the reference levels for
-categorical variables. If make_dummies is TRUE, the reference level will
-not have a column created, making model estimates for other levels relative
-to the reference level. By default, \code{prep_data} sets the mode level to
-the reference level for all character and nominal factors features.
-Reference levels provided will be chosen in the place of the mode level.}
+\item{ref_levels}{A list that provides the reference levels for categorical
+variables. If make_dummies is TRUE, the reference level will not have a
+column created, making model estimates for other levels relative to the
+reference level. By default, \code{prep_data} sets the mode level to the
+reference level for all character and nominal factors features. Reference
+levels provided will be chosen in the place of the mode level.}
 }
 \value{
 Prepared data frame with reusable recipe object for future data

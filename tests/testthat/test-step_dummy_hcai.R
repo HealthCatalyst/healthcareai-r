@@ -1,6 +1,5 @@
 context("testing step_dummy_hcai")
 
-
 rec <- recipes::recipe(head(pima_diabetes), ~.)
 
 test_that("testing prep.step_dummy_hcai", {

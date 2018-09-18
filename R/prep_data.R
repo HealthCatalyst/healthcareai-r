@@ -82,12 +82,12 @@
 #'   that d is returned unmodified, except that character variables may be
 #'   coverted to factors and a tibble will be returned even if the input was
 #'   a non-tibble data frame.
-#' @param ref_levels A named vector that provides the reference levels for
-#'   categorical variables. If make_dummies is TRUE, the reference level will
-#'   not have a column created, making model estimates for other levels relative
-#'   to the reference level. By default, \code{prep_data} sets the mode level to
-#'   the reference level for all character and nominal factors features.
-#'   Reference levels provided will be chosen in the place of the mode level.
+#' @param ref_levels A list that provides the reference levels for categorical
+#'   variables. If make_dummies is TRUE, the reference level will not have a
+#'   column created, making model estimates for other levels relative to the
+#'   reference level. By default, \code{prep_data} sets the mode level to the
+#'   reference level for all character and nominal factors features. Reference
+#'   levels provided will be chosen in the place of the mode level.
 #'
 #' @return Prepared data frame with reusable recipe object for future data
 #'   preparation in attribute "recipe". Attribute recipe contains the names of
@@ -211,7 +211,7 @@ prep_data <- function(d,
   opt <- options("contrasts")[[1]][[1]]
   if (opt != "contr.treatment"){
     w <- paste0("Your unordered-factor contrasts option is set to ", opt,
-                ". This may produce unexpected behavior, particularly in step_dummy in prep_data. ",
+                ". This may produce unexpected behavior, particularly in make_dummies in prep_data. ",
                 "Consider resetting it by restarting R, or with: ",
                 "options(contrasts = c(\"contr.treatment\", \"contr.poly\"))")
     warning(w)
