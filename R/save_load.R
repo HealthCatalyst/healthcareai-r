@@ -11,6 +11,9 @@
 #'   the working directory (\code{getwd()}). Default for \code{load_models} is
 #'   to open a dialog box from which a file can be selected, in which case a
 #'   message will issued with code to load the same file without interactivity.
+#' @param sanitize_phi Logical. If TRUE (default) training data is removed from
+#'   the model object before being saved. Removing training data is important
+#'   when sharing models that were trained with data that contain PHI.
 #' @return \code{load_models} returns the model_list which can be assigned to
 #'   any variable name
 #'
@@ -24,11 +27,29 @@
 #' m2 <- load_models("diabetes_models.RDS")
 #' all.equal(m, m2)
 #' }
-save_models <- function(x, filename = "models.RDS") {
+save_models <- function(x, filename = "models.RDS", sanitize_phi = TRUE) {
+  if (sanitize_phi) {
+    x <- sanitize_phi(x)
+    message("This model object does not contain PHI. If you want to save the ",
+            "data along with the model use sanitize_phi = FALSE")
+  } else
+    message("The model object being saved contains training data, minus ignored ID columns.\n",
+            "If there was PHI in training data, normal PHI protocols apply to the RDS file.")
+
   saveRDS(x, filename)
-  message("The model object being saved contains training data, minus ignored ID columns.\n",
-          "If there was PHI in training data, normal PHI protocols apply to the RDS file.")
   return(invisible(NULL))
+}
+
+#' Sanitizes recipe object of PHI
+#' @param x a model object
+#' @return the model object with no PHI
+#' @noRd
+sanitize_phi <- function(x) {
+  attr(x, "recipe")$template <-
+    attr(x, "recipe")$template %>%
+    mutate_all(~{NA})
+  attr(x, "sanitize_phi") <- TRUE
+  return(x)
 }
 
 #' @rdname save_models
