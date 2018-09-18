@@ -155,7 +155,6 @@ db_read <- function(con,
 #'
 db_write <- function(d,
                      con,
-                     database = NA,
                      schema = "dbo",
                      table_name,
                      append = TRUE) {
@@ -163,15 +162,11 @@ db_write <- function(d,
     stop("\"d\" must be a data frame.")
   if (class(con)[1] != "Microsoft SQL Server")
     stop("con needs to be a Microsoft SQL Server database connection.")
-  if (is.na(database)) {
-    database <- DBI::dbGetInfo(con)$dbname
-  } else if(!is.character(database)) {
-    stop("database must be a string")
-  }
-  browser()
-  table_id <- DBI::Id(catalog = database, schema = schema, table = table_name)
-  if (!isTRUE(dbExistsTable(con, table_id)))
-    stop("'",paste(database, schema, table_name, sep = "."), "' doesn't exist. ",
+
+  table_id <- DBI::Id(schema = schema, table = table_name)
+  table_char  <- paste(database, schema, table_name, sep = ".")
+  if (!isTRUE(DBI::dbExistsTable(con, table_id)))
+    stop("'", table_char, "' doesn't exist. ",
          "You must create it first.")
 
   res <- DBI::dbWriteTable(conn = con,
@@ -180,9 +175,9 @@ db_write <- function(d,
                             append = append)
 
   if (isTRUE(append)) {
-    res <- paste(nrow(d), "rows successfully appended.")
+    res <- paste(nrow(d), "rows successfully appended to", table_char, ".")
   } else {
-    res <- paste(nrow(d), "rows successfully written.")
+    res <- paste(nrow(d), "rows successfully written to", table_char, ".")
   }
   return(invisible(res))
 }

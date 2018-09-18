@@ -60,7 +60,7 @@ test_that("connection can be made using built string and dbplyr", {
 
 
 # Read from Database ---------------------------
-context("Checking that read to database works")
+context("Checking that read from database works")
 library(dplyr)
 
 cs <- build_connection_string(server = "localhost",
@@ -129,17 +129,17 @@ test_that("errors when data or connection is wrong", {
   skip_on_not_appveyor()
   d <- tibble::tibble(id = 7,
                       word_of_day = c("hello"))
-  expect_error(db_write("notdata", "con", "db", "schema", "table", "append"),
+  expect_error(db_write("notdata", "con", "schema", "table", "append"),
                "data frame")
-  expect_error(db_write(d, "con", "db", "schema", "table", "append"),
+  expect_error(db_write(d, "con", "schema", "table", "append"),
                "Microsoft")
   cs <- build_connection_string(server = "localhost")
   con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs)
-  expect_error(db_write(d, con, FALSE, "schema", "table", "append"),
+  expect_error(db_write(d, con, "schema", "table", "append"),
                "database")
 })
 
-test_that("errors if database/table/schema doesn't exist", {
+test_that("errors if table/schema doesn't exist", {
   skip_on_not_appveyor()
   con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs)
   d <- tibble::tibble(id = 7,
