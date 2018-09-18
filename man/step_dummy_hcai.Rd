@@ -102,13 +102,13 @@ https://topepo.github.io/recipes/articles/Dummies.html)
 and interactions has more information.
 }
 \examples{
-rec <- recipes::recipe(head(pima_diabetes), ~.)
-rec <- rec \%>\% healthcareai:::step_dummy_hcai(weight_class)
-pima_diabetes <- prep(rec, training = pima_diabetes)
-pima_diabetes <- bake(rec, newdata = pima_diabetes)
+rec <- recipes::recipe(head(pima_diabetes), ~.) \%>\%
+  healthcareai:::step_dummy_hcai(weight_class)
+d <- recipes::prep(rec, training = pima_diabetes)
+d <- recipes::bake(d, newdata = pima_diabetes)
 
 # Specify ref_levels
-ref_levels = list(weight_class = "normal")
+ref_levels <- list(weight_class = "normal")
 rec <- recipes::recipe(head(pima_diabetes), ~.)
 rec <- rec \%>\% healthcareai:::step_dummy_hcai(weight_class,
                                               levels = ref_levels)

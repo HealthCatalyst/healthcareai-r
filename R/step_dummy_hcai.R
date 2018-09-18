@@ -78,13 +78,13 @@
 #'  [step_ordinalscore()], [step_unorder()], [step_other()]
 #'  [step_novel()]
 #' @examples
-#' rec <- recipes::recipe(head(pima_diabetes), ~.)
-#' rec <- rec %>% healthcareai:::step_dummy_hcai(weight_class)
-#' pima_diabetes <- prep(rec, training = pima_diabetes)
-#' pima_diabetes <- bake(rec, newdata = pima_diabetes)
+#' rec <- recipes::recipe(head(pima_diabetes), ~.) %>%
+#'   healthcareai:::step_dummy_hcai(weight_class)
+#' d <- recipes::prep(rec, training = pima_diabetes)
+#' d <- recipes::bake(d, newdata = pima_diabetes)
 #'
 #' # Specify ref_levels
-#' ref_levels = list(weight_class = "normal")
+#' ref_levels <- list(weight_class = "normal")
 #' rec <- recipes::recipe(head(pima_diabetes), ~.)
 #' rec <- rec %>% healthcareai:::step_dummy_hcai(weight_class,
 #'                                               levels = ref_levels)
@@ -301,14 +301,17 @@ bake.step_dummy_hcai <- function(object, newdata, ...) {
   newdata
 }
 
+#' @export
 print.step_dummy_hcai <-
   function(x, width = max(20, options()$width - 20), ...) {
     if (x$trained) {
       cat("Dummy variables from ")
       cat(list_variables(names(x$levels)))
     } else {
-      cat("Dummy variables from ", sep = "")
-      cat(list_variables(x$terms))
+      cat("Dummy variables from ")
+      # Not trained yet. Use selector quosures to describe which features will
+      # be dummified.
+      cat(list_variables(map_chr(x$terms, quo_name)))
     }
     if (x$trained)
       cat(" [trained]\n")
@@ -319,6 +322,7 @@ print.step_dummy_hcai <-
 
 #' @rdname step_dummy_hcai
 #' @param x A `step_dummy_hcai` object.
+#' @export
 tidy.step_dummy_hcai <- function(x, ...) {
   if (is_trained(x)) {
     res <- tibble(terms = names(x$levels))

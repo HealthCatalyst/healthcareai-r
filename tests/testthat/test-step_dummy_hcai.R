@@ -9,7 +9,7 @@ test_that("testing prep.step_dummy_hcai", {
 
   dummies <- rec %>% healthcareai:::step_dummy_hcai(weight_class)
   expect_warning(
-    dummies <- prep(dummies, training = pima_diabetes)
+    dummies <- recipes::prep(dummies, training = pima_diabetes)
   )
 
   weight_class_values_empty <- attr(dummies$steps[[1]]$levels$weight_class, "values")
@@ -67,4 +67,22 @@ test_that("testing prep.step_dummy_hcai", {
     dummy_data <- bake(dummies, newdata = pima_diabetes)
   )
   expect_false("weight_class_normal" %in% names(dummy_data))
+})
+
+
+test_that("print step_dummy_hcai", {
+  dummy <- rec %>%
+    step_dummy_hcai(all_nominal())
+  expect_error(out <- capture_output(print(dummy)), NA)
+  expect_true(grepl("Dummy variables from all_nominal()", out))
+
+  expect_warning(
+    dummy <-
+      dummy %>%
+      prep(training = pima_diabetes)
+  )
+  expect_error(out <- capture_output(print(dummy)), NA)
+  expect_true(
+    grepl("Dummy variables from weight_class and diabetes \\[trained\\]", out)
+  )
 })

@@ -109,8 +109,8 @@ add_refs <- function(d, x) {
   steps <- (x %>% attr("recipe"))$step
   loc <- purrr::map_lgl(steps, ~{
     class(.x) %>% first() == "step_dummy_hcai"
-    }
-    )
+  }
+  )
 
   if (any(loc)) {
     dummies <- steps[loc][[1]]$dummies
