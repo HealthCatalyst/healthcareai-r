@@ -118,7 +118,7 @@ test_that("mode - test table", {
 })
 
 test_that("get_recipe_step - test whether the step exists", {
-  m <- machine_learn(pima_diabetes[1:50,], outcome = diabetes)
+  m <- machine_learn(pima_diabetes[1:50, ], outcome = diabetes)
   dummy_object <- get_recipe_step(m, "step_dummy_hcai")
   expect_true("step_dummy_hcai" %in% class(dummy_object))
   expect_true(is.null(get_recipe_step(m, "not_a_step")))

@@ -180,8 +180,6 @@ Mode <- function(x) {
   }
 }
 
-
-
 #' Finds a step object
 #' @param x an object that contains a recipe
 #' @param step_name the name of a step
