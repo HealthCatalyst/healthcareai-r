@@ -236,7 +236,8 @@ extract_model_info <- function(x) {
     ddim = ddim,
     tuned = attr(x, "tuned"),
     timestamp = attr(x, "timestamp"),
-    from_rds = from_rds
+    from_rds = from_rds,
+    has_training_data = !is.null(attr(x, "recipe")$template)
   )
 }
 
