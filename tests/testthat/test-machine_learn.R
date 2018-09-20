@@ -118,3 +118,12 @@ test_that("Machine learn respects tune = FALSE", {
   expect_s3_class(ut, "multiclass_list")
   expect_false(attr(ut, "tuned"))
 })
+
+test_that("Machine learn throws error if given prepped object", {
+  prepped_d <- prep_data(pima_diabetes, patient_id, outcome = diabetes)
+  expect_error(
+    m <- machine_learn(prepped_d, patient_id, outcome = diabetes, models = "rf",
+                       tune = FALSE),
+    "\"d\" is already prepped"
+  )
+})
