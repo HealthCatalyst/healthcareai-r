@@ -500,4 +500,15 @@ test_that("predict bakes 0/1 outcomes", {
   expect_setequal(as.character(pnew$predicted_group), c("N", "Y"))
 })
 
+test_that("Predict relevels outcome",{
+  d <- split_train_test(pima_diabetes, outcome = diabetes)
+  m <- machine_learn(d$train, patient_id, outcome = diabetes, models = "glm",
+                     tune = FALSE)
+
+  predictions <- predict(m, newdata = d$test)
+  actual_levels <- levels(predictions$diabetes)
+  pos_class <- attr(m, "positive_class")
+  expect_equal(actual_levels[1], pos_class)
+})
+
 remove_logfiles()
