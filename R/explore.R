@@ -114,6 +114,9 @@ explore <- function(models,
   if (is.null(rec))
     stop("models must have been trained on prepped data, either through ",
          "machine_learn or prep_data.")
+  if (is.null(attr(models, "recipe")$template))
+    stop("When saving your model you specified that you wanted to remove your ",
+         "data, so there is not any data to explore with!")
   training_data <- attr(models, "recipe")$template
 
   variables <-
