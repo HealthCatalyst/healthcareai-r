@@ -53,7 +53,6 @@ load_models <- function(filename) {
                   filename, ")`")
     message(mes)
   }
-
   x <- readRDS(filename)
   attr(x, "loaded_from_rds") <- filename
   if (!is.null(attr(x, "recipe")$template))
