@@ -112,7 +112,6 @@ test_that("flash_models doesn't need an outcome specified", {
 
 test_that("multiclass warns when classes are sparse", {
   expect_warning(
-    machine_learn(m_df2, patient_id, outcome = many_chars,
-                  models = "rf", tune = FALSE),
+    flash_models(m_df2, outcome = many_chars, models = "rf"),
     "sparse")
 })
