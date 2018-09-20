@@ -13,7 +13,8 @@
 #'   message will issued with code to load the same file without interactivity.
 #' @param sanitize_phi Logical. If TRUE (default) training data is removed from
 #'   the model object before being saved. Removing training data is important
-#'   when sharing models that were trained with data that contain PHI.
+#'   when sharing models that were trained with data that contain PHI. If
+#'   removed, \code{\link{explore}} will have data to process.
 #' @return \code{load_models} returns the model_list which can be assigned to
 #'   any variable name
 #'
