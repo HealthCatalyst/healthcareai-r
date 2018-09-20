@@ -500,4 +500,31 @@ test_that("predict bakes 0/1 outcomes", {
   expect_setequal(as.character(pnew$predicted_group), c("N", "Y"))
 })
 
+test_that("predict empty template no error", {
+  attr(model_classify_prepped, "recipe")$template <- NULL
+  expect_error(predict(model_classify_prepped), NA)
+})
+
+test_that("predict accurate has_training_data, and acurate messages print.predicted_df", {
+  # True when normal
+  pred <- predict(model_classify_prepped)
+  expect_true(attr(pred, "model_info")$has_training_data)
+  capture_output(out <- capture_messages(print(pred)))
+  expect_false(stringr::str_detect(out, "Your model was sanitized of PHI"))
+
+  # # False when template is NULL, and no other data
+  attr(model_classify_prepped, "recipe")$template <- NULL
+  pred <- predict(model_classify_prepped)
+  expect_false(attr(pred, "model_info")$has_training_data)
+  capture_output(out <- capture_messages(print(pred)))
+  expect_true(stringr::str_detect(out, "Your model was sanitized of PHI"))
+
+  # # True when template is NULL, and other data
+  pred <- predict(model_classify_prepped, training_data)
+  expect_true(attr(pred, "model_info")$has_training_data)
+  capture_output(out <- capture_messages(print(pred)))
+  expect_false(stringr::str_detect(out, "Your model was sanitized of PHI"))
+})
+
+
 remove_logfiles()

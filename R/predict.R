@@ -267,6 +267,8 @@ predict_model_list_main <- function(object,
     if (is.classification_list(object))
       preds <- preds[[mi$positive_class]]
   }
+  if (!is.null(newdata))
+    mi[["has_training_data"]] <- TRUE
   pred_name <- paste0("predicted_", mi$target)
   newdata[[pred_name]] <- preds
   # Replace outcome as it came in with baked version, either from get_oof or
@@ -302,7 +304,8 @@ predict_model_list_main <- function(object,
          performance = mi$best_model_perf,
          timestamp = mi$timestamp,
          hyperparameters = structure(mi$best_model_tune,
-                                     "row.names" = "optimal:"))
+                                     "row.names" = "optimal:"),
+         has_training_data = mi$has_training_data)
 
   return(newdata)
 }
