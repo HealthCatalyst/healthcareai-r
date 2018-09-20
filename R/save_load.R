@@ -29,27 +29,18 @@
 #' }
 save_models <- function(x, filename = "models.RDS", sanitize_phi = TRUE) {
   if (sanitize_phi) {
-    x <- sanitize_phi(x)
+    attr(x, "recipe")$template <- NULL
     message("This model object does not contain PHI. If you want to save the ",
             "data along with the model use sanitize_phi = FALSE")
-  } else
-    message("The model object being saved contains training data, minus ignored ID columns.\n",
-            "If there was PHI in training data, normal PHI protocols apply to the RDS file.")
+  } else {
+    filename <- stringr::str_replace(filename, "\\.", "PHI.")
+    message("The model object being saved contains training data, minus ",
+            "ignored ID columns.\nIf there was PHI in training data, normal ",
+            "PHI protocols apply to the RDS file.")
+  }
 
   saveRDS(x, filename)
   return(invisible(NULL))
-}
-
-#' Sanitizes recipe object of PHI
-#' @param x a model object
-#' @return the model object with no PHI
-#' @noRd
-sanitize_phi <- function(x) {
-  attr(x, "recipe")$template <-
-    attr(x, "recipe")$template %>%
-    mutate_all(~{NA})
-  attr(x, "sanitize_phi") <- TRUE
-  return(x)
 }
 
 #' @rdname save_models
@@ -61,7 +52,11 @@ load_models <- function(filename) {
                   filename, ")`")
     message(mes)
   }
+
   x <- readRDS(filename)
   attr(x, "loaded_from_rds") <- filename
+  if (!is.null(attr(x, "recipe")$template))
+    message("Your loaded model contains PHI! To remove PHI run ",
+            "`save_models(x)`.")
   return(x)
 }
