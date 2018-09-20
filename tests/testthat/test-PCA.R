@@ -22,6 +22,9 @@ df <- data.frame(
                  prob = c(0.18, 0.1, 0.1, 0.6, 0.01, 0.01))
 )
 df$char_DTS <- as.character(df$char_DTS)
+df$genre <- as.character(df$genre)
+df$reaction <- as.character(df$reaction)
+df$state <- as.character(df$state)
 # give is_ween likeliness score
 df["is_ween"] <- df["length"] - 1 * df["weirdness"] + 2
 df$is_ween[df["genre"] == "Rock"]  <-
@@ -60,25 +63,26 @@ d_train$weirdness[3] <-  d_test$weirdness[3] <- NA
 d_train$genre[3] <- d_test$genre[3] <- NA
 
 
-
-
-
 #TEST - Make sure error with missing data
 test_that("Can't run with missing data", {
-  expect_error(prep_data(d = d_train, outcome = is_ween, impute = FALSE, PCA = 5))
+  expect_error(prep_data(d = d_train, outcome = is_ween, impute = FALSE, PCA = 5),
+               regexp = "NAs present in \"d\". PCA not compatible when NAs are present.")
 })
 
 #TEST - Make sure number of PC columns matches input param
 test_that("Number of PC columns matches input param", {
   nPCs <- 7
   d_PCA <- prep_data(d = d_train, outcome = is_ween, PCA = nPCs)
-  expect_equal(d_PCA[, grepl("PC", names(d_PCA))] %>% ncol(), nPCs)
+  res <- d_PCA %>%
+    select(starts_with("PC")) %>%
+    ncol()
+  expect_equal(res, nPCs)
 })
 
 #PCA ignores ignored columns and outcome variables
 test_that("PCA ignores outcome and ignored cols", {
   d_PCAignored <- prep_data(d = d_train, song_id, outcome = is_ween, PCA = 5)
-  d_train2 <- d_train[, !(names(d_train) %in% c("song_id", "is_ween"))]
+  d_train2 <- d_train %>% select(-song_id, -is_ween)
   expect_equal(ncol(d_train2[, names(d_train2) %in% names(d_PCAignored)]), 0)
   expect_equal(ncol(d_PCAignored[, names(d_PCAignored) %in% c("song_id", "is_ween")]), 2)
 })
@@ -88,7 +92,13 @@ test_that("Errors if number of PCs is higher than width of prepped dataframe", {
   dfwidth <- ncol(prep_data(d = d_train, outcome = is_ween))
   expect_error(prep_data(d = d_train, outcome = is_ween, PCA = (dfwidth + 1)))
 })
-
+#TEST - PCA works with all numeric columns or all character columns
+test_that("PCA works with all numeric columns or all character columns", {
+  d_nums <- select_if(d_train, is.numeric)
+  d_chars <- select_if(d_train, is.character) %>% select(-char_DTS)
+  expect_s3_class(prep_data(d = d_nums, song_id, outcome = is_ween, PCA = 5), "prepped_df")
+  expect_s3_class(prep_data(d = d_chars, outcome = state, PCA = 2), "prepped_df")
+})
 #TEST - Make sure flash_models, tune_models, and predict work for pca'd data
 test_that("flash_models, tune_models, and predict work", {
   d_prep <- prep_data(d = d_train, song_id, outcome = is_ween, PCA = 5)
@@ -96,6 +106,8 @@ test_that("flash_models, tune_models, and predict work", {
   expect_error(pca_flash <- flash_models(d_prep, outcome = is_ween), NA)
   expect_error(pca_oldpreds <- predict(pca_mod), NA)
   expect_error(pca_preds <- predict(pca_mod, newdata = d_test), NA)
+  expect_s3_class(pca_oldpreds, "predicted_df")
+  expect_s3_class(pca_preds, "predicted_df")
 })
 
 #TEST - Make sure interpret and get_variable_importance return PCA columns, not originals
