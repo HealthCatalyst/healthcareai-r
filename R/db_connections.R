@@ -120,8 +120,8 @@ db_read <- function(con,
 
 #' @title
 #' Write to a SQL Server database table
-#' @description Use a database connection to read from an existing SQL Server
-#' table with a SQL query.
+#' @description Use a database connection to write to an existing SQL Server
+#' table. Data types and columns must match exactly.
 #' @param con An odbc database connection. Can be made using
 #' \code{build_connection_string}. Required.
 #' @param query A string, quoted, required. This sql query will be executed
@@ -157,27 +157,53 @@ db_write <- function(d,
                      con,
                      schema = "dbo",
                      table_name,
-                     append = TRUE) {
+                     append = TRUE,
+                     overwrite = FALSE) {
   if (!is.data.frame(d))
     stop("\"d\" must be a data frame.")
   if (class(con)[1] != "Microsoft SQL Server")
     stop("con needs to be a Microsoft SQL Server database connection.")
 
   table_id <- DBI::Id(schema = schema, table = table_name)
-  table_char  <- paste(database, schema, table_name, sep = ".")
+  table_char  <- paste(schema, table_name, sep = ".")
   if (!isTRUE(DBI::dbExistsTable(con, table_id)))
     stop("'", table_char, "' doesn't exist. ",
          "You must create it first.")
 
+  # Error checking against destination
+  tc <- db_read(con,
+                       query = paste0("select top 1 * from ", table_char))
+  tc <- map_df(tc, class)
+  tc <- tibble(name = names(tc),
+                          table_class = tc %>% unlist(use.names = FALSE))
+  dc <- map_dfr(d, class)
+  dc <- tibble(name = names(dc),
+                          data_class = dc %>% unlist(use.names = FALSE))
+  classes <- full_join(tc, dc, by = "name") %>%
+    mutate(data_class = case_when(data_class == "factor" ~ "character",
+                                  data_class == "integer" ~ "numeric",
+                                  TRUE ~ data_class),
+           table_class = case_when(table_class == "factor" ~ "character",
+                                   table_class == "integer" ~ "numeric",
+                                  TRUE ~ table_class),
+           match = table_class == data_class) %>%
+    replace_na(list(match = FALSE))
+  if (!all(classes$match == T))
+    stop("The datatypes and columns in your data must match the destination table. ",
+         "The following columns do not match: \n",
+         dplyr::filter(classes, match != T) %>% list_tibble())
+
+
   res <- DBI::dbWriteTable(conn = con,
                             name = table_id,
                             value = d,
-                            append = append)
+                            append = append,
+                           overwrite = overwrite)
 
   if (isTRUE(append)) {
-    res <- paste(nrow(d), "rows successfully appended to", table_char, ".")
+    res <- paste0(nrow(d), " rows successfully appended to ", con@info$dbname, ".", table_char)
   } else {
-    res <- paste(nrow(d), "rows successfully written to", table_char, ".")
+    res <- paste0(nrow(d), " rows successfully written to ",con@info$dbname, ".", table_char)
   }
   return(invisible(res))
 }
