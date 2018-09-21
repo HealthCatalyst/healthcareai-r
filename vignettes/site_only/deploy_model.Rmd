@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE, results = "hold", collapse = TRUE,
                       comment = "#>", eval = FALSE)
 ```
 
-Now that you've put in the work of building a model and it's performing well on historical data, congratulations! It's now time to prepare it to make reoccurring predictions. **This document focuses on the requirements needed _before_ you actually talk to the DBA/ETL team about creating the reoccurring schedule.** At this point, you have
+Now that you've put in the work of building a model and it's performing well on historical data, congratulations! It's now time to prepare it to make reoccurring predictions. **This document focuses on the requirements needed _before_ you actually talk to the DBA/ETL team about creating the reoccurring schedule.** At this point, you have:
 
 - Chosen a use case and an outcome to predict
 - Gathered your feature (i.e., input variable) list to make predictions

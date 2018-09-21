@@ -42,6 +42,8 @@ Suggests:
     odbc,
     testthat,
     lintr,
-    covr
-URL: http://docs.healthcare.ai
+    covr,
+    pkgdown
+Remotes: r-lib/pkgdown
+URL: https://docs.healthcare.ai
 BugReports: https://github.com/HealthCatalyst/healthcareai-r/issues

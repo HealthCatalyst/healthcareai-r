@@ -13,4 +13,6 @@ txt$
 ^_pkgdown\.yml$
 ^vignettes/site_only$
 ^README\.Rmd$
+^.netlify
 ^.github/
+
