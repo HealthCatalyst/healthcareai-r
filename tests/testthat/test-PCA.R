@@ -64,8 +64,8 @@ d_train$genre[3] <- d_test$genre[3] <- NA
 
 
 #TEST - PCA param must be logical or integer
-test_that("PCA must be logical or numeric",{
-  expect_error(prep_data(d = d_train, outcome = is_ween, PCA = 'nope'),
+test_that("PCA must be logical or numeric", {
+  expect_error(prep_data(d = d_train, outcome = is_ween, PCA = "nope"),
                regexp = "PCA must be logical or numeric")
 })
 
@@ -77,9 +77,9 @@ test_that("Can't run with missing data", {
 
 #TEST - make sure no error when center/scale is false
 test_that("PCA overwrites center and scale", {
-  expect_warning(prep_data(d = d_train, outcome = is_ween, PCA = 3,center = FALSE),
+  expect_warning(prep_data(d = d_train, outcome = is_ween, PCA = 3, center = FALSE),
                  regexp = "\"d\" must be centered and scaled to perform PCA. Center and Scale are being set to TRUE.")
-  expect_s3_class(suppressWarnings(prep_data(d = d_train, outcome = is_ween, PCA = TRUE,center = FALSE)), "prepped_df")
+  expect_s3_class(suppressWarnings(prep_data(d = d_train, outcome = is_ween, PCA = TRUE, center = FALSE)), "prepped_df")
 
 })
 
