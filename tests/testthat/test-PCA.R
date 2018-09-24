@@ -63,16 +63,30 @@ d_train$weirdness[3] <-  d_test$weirdness[3] <- NA
 d_train$genre[3] <- d_test$genre[3] <- NA
 
 
+#TEST - PCA param must be logical or integer
+test_that("PCA must be logical or numeric",{
+  expect_error(prep_data(d = d_train, outcome = is_ween, PCA = 'nope'),
+               regexp = "PCA must be logical or numeric")
+})
+
 #TEST - Make sure error with missing data
 test_that("Can't run with missing data", {
-  expect_error(prep_data(d = d_train, outcome = is_ween, impute = FALSE, PCA = 5),
+  expect_error(suppressWarnings(prep_data(d = d_train, outcome = is_ween, impute = FALSE, PCA = 5)),
                regexp = "NAs present in \"d\". PCA not compatible when NAs are present.")
+})
+
+#TEST - make sure no error when center/scale is false
+test_that("PCA overwrites center and scale", {
+  expect_warning(prep_data(d = d_train, outcome = is_ween, PCA = 3,center = FALSE),
+                 regexp = "\"d\" must be centered and scaled to perform PCA. Center and Scale are being set to TRUE.")
+  expect_s3_class(suppressWarnings(prep_data(d = d_train, outcome = is_ween, PCA = TRUE,center = FALSE)), "prepped_df")
+
 })
 
 #TEST - Make sure number of PC columns matches input param
 test_that("Number of PC columns matches input param", {
   nPCs <- 7
-  d_PCA <- prep_data(d = d_train, outcome = is_ween, PCA = nPCs)
+  d_PCA <- suppressWarnings(prep_data(d = d_train, outcome = is_ween, PCA = nPCs))
   res <- d_PCA %>%
     select(starts_with("PC")) %>%
     ncol()
@@ -81,7 +95,7 @@ test_that("Number of PC columns matches input param", {
 
 #PCA ignores ignored columns and outcome variables
 test_that("PCA ignores outcome and ignored cols", {
-  d_PCAignored <- prep_data(d = d_train, song_id, outcome = is_ween, PCA = 5)
+  d_PCAignored <- suppressWarnings(prep_data(d = d_train, song_id, outcome = is_ween, PCA = 5))
   d_train2 <- d_train %>% select(-song_id, -is_ween)
   expect_equal(ncol(d_train2[, names(d_train2) %in% names(d_PCAignored)]), 0)
   expect_equal(ncol(d_PCAignored[, names(d_PCAignored) %in% c("song_id", "is_ween")]), 2)
@@ -90,18 +104,18 @@ test_that("PCA ignores outcome and ignored cols", {
 #TEST - Make sure errors if too high param
 test_that("Errors if number of PCs is higher than width of prepped dataframe", {
   dfwidth <- ncol(prep_data(d = d_train, outcome = is_ween))
-  expect_error(prep_data(d = d_train, outcome = is_ween, PCA = (dfwidth + 1)))
+  expect_error(suppressWarnings(prep_data(d = d_train, outcome = is_ween, PCA = (dfwidth + 1))))
 })
 #TEST - PCA works with all numeric columns or all character columns
 test_that("PCA works with all numeric columns or all character columns", {
   d_nums <- select_if(d_train, is.numeric)
   d_chars <- select_if(d_train, is.character) %>% select(-char_DTS)
-  expect_s3_class(prep_data(d = d_nums, song_id, outcome = is_ween, PCA = 5), "prepped_df")
-  expect_s3_class(prep_data(d = d_chars, outcome = state, PCA = 2), "prepped_df")
+  expect_s3_class(suppressWarnings(prep_data(d = d_nums, song_id, outcome = is_ween, PCA = 5)), "prepped_df")
+  expect_s3_class(suppressWarnings(prep_data(d = d_chars, outcome = state, PCA = 2)), "prepped_df")
 })
 #TEST - Make sure flash_models, tune_models, and predict work for pca'd data
 test_that("flash_models, tune_models, and predict work", {
-  d_prep <- prep_data(d = d_train, song_id, outcome = is_ween, PCA = 5)
+  d_prep <- suppressWarnings(prep_data(d = d_train, song_id, outcome = is_ween, PCA = 5))
   expect_error(pca_mod <- tune_models(d_prep, outcome = is_ween, tune_depth = 1), NA)
   expect_error(pca_flash <- flash_models(d_prep, outcome = is_ween), NA)
   expect_error(pca_oldpreds <- predict(pca_mod), NA)
@@ -113,7 +127,7 @@ test_that("flash_models, tune_models, and predict work", {
 #TEST - Make sure interpret and get_variable_importance return PCA columns, not originals
 
  test_that("Interpret and get_variable_importance return PCA columns", {
-   d_prep <- prep_data(d = d_train, song_id, outcome = is_ween, PCA = 5)
+   d_prep <- suppressWarnings(prep_data(d = d_train, song_id, outcome = is_ween, PCA = 5))
    pca_glm <- tune_models(d_prep, outcome = is_ween, tune_depth = 1, models = "glm")
    expect_equal(sum(!grepl("PC", interpret(pca_glm)$variable)), 1)
    pca_rf <- tune_models(d_prep, outcome = is_ween, tune_depth = 1, models = "rf")

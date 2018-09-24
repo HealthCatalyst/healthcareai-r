@@ -400,10 +400,17 @@ prep_data <- function(d,
     }
 
     #Set center and scale to whatever PCA is if PCA is enabled
-    if (isTRUE(as.logical(PCA)) && !(isTRUE(as.logical(center)) && isTRUE(as.logical(scale)))){
-      center <- PCA
-      scale <- PCA
+    if (!(is.numeric(PCA) || is.logical(PCA)))
+      stop("PCA must be logical or numeric")
+    if (as.logical(PCA)) {
+      if (!(as.logical(center) && as.logical(scale))) {
+        warning("\"d\" must be centered and scaled to perform PCA. Center and Scale are being set to TRUE.")
+        center <- as.logical(PCA)
+        scale <- as.logical(PCA)
+      }
     }
+
+
 
     # If there are numeric predictors, apply numeric transformations
     var_info <- recipe$var_info
@@ -463,19 +470,13 @@ prep_data <- function(d,
     }
 
     #PCA ----------------------------------------------------------------------
-    if (isTRUE(as.logical(PCA))) {
-      # Check for valid PCA parameter
-      if (!(is.numeric(PCA) || is.logical(PCA)))
-        stop("PCA parameter must be an integer or logical.")
+    if (as.logical(PCA)) {
 
-      if (!isTRUE(as.logical(scale)) || !isTRUE(as.logical(center)))
-        warning("\"d\" must be centered and scaled to perform PCA.")
-
-      if (!isTRUE(impute) && !is.list(impute))
+      if (!impute && !is.list(impute))
         stop("NAs present in \"d\". PCA not compatible when NAs are present.")
 
       # Set PCA to default 5 PCs if PCA input was TRUE
-      if (isTRUE(PCA))
+      if (is.logical(PCA))
         PCA <- 5
 
       if (PCA > length(recipes::prep(recipe, training = d)$term_info$role == "predictor"))
