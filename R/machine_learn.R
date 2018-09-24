@@ -103,6 +103,11 @@ machine_learn <- function(d, ..., outcome, models, metric, tune = TRUE, positive
   if (!is.data.frame(d))
     stop("\"d\" must be a data frame.")
 
+  if ("prepped_df" %in% class(d))
+    stop("\"d\" is already prepped. Either use original data in ",
+         "`machine_learn`, or use prepped data in `flash_models` or ",
+         "`tune_models`.")
+
   dots <- rlang::quos(...)
   ignored <- map_chr(dots, rlang::quo_name)
   if (length(ignored)) {
