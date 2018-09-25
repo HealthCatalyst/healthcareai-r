@@ -7,8 +7,7 @@
 prep_data(d, ..., outcome, recipe = NULL, remove_near_zero_variance = TRUE,
   convert_dates = TRUE, impute = TRUE, collapse_rare_factors = TRUE,
   center = FALSE, scale = FALSE, make_dummies = TRUE, add_levels = TRUE,
-  logical_to_numeric = TRUE, factor_outcome = TRUE, no_prep = FALSE,
-  ref_levels = NULL)
+  logical_to_numeric = TRUE, factor_outcome = TRUE, no_prep = FALSE)
 }
 \arguments{
 \item{d}{A data frame}
@@ -64,8 +63,13 @@ mean of 0. Default is FALSE.}
 \item{scale}{Logical. If TRUE, numeric columns will be scaled to have a
 standard deviation of 1. Default is FALSE.}
 
-\item{make_dummies}{Logical. If TRUE (default), dummy columns will be created
-for categorical variables.}
+\item{make_dummies}{Logical or list. If TRUE (default), dummy columns will be
+created for categorical variables. When dummy columns are created, a column
+is not created for reference level. By default, the levels are reassigned
+so that the mode variable value is the reference level. If a named list is
+provided, the provided character vector in each element will become the new
+levels for variables with the associated element name. If the vector is
+incomplete, the missing levels will be appended to the level vector.}
 
 \item{add_levels}{Logical. If TRUE (default), "other" and "missing" will be
 added to all nominal columns. This is protective in deployment: new levels
@@ -87,13 +91,6 @@ training functions rather than here.}
 that d is returned unmodified, except that character variables may be
 coverted to factors and a tibble will be returned even if the input was
 a non-tibble data frame.}
-
-\item{ref_levels}{A named vector that provides the reference levels for
-categorical variables. If make_dummies is TRUE, the reference level will
-not have a column created, making model estimates for other levels relative
-to the reference level. By default, \code{prep_data} sets the mode level to
-the reference level for all character and nominal factors features.
-Reference levels provided will be chosen in the place of the mode level.}
 }
 \value{
 Prepared data frame with reusable recipe object for future data
@@ -145,7 +142,7 @@ prep_data(d = d_train, patient_id, outcome = diabetes,
 # Dummy variables are not created for reference levels. Mode levels are
 # chosen as reference levels by default.
 prep_data(d = d_train, patient_id, outcome = diabetes,
-          ref_levels = list(weight_class = "normal"))
+          make_dummies = list(weight_class = "normal"))
 
 # `prep_data` also handles date and time features by default:
 d <-

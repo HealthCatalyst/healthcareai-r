@@ -631,7 +631,7 @@ test_that("prep_data gets rid of logicals, when no outcome", {
 
 test_that("test ref levels", {
   d_clean <- prep_data(d = d_train, outcome = is_ween, song_id,
-                       ref_levels = list(genre = "Jazz", reaction = "Dislike"))
+                       make_dummies = list(genre = "Jazz", reaction = "Dislike"))
   expect_false("genre_Jazz" %in% names(d_clean))
   expect_false("reaction_Dislike" %in% names(d_clean))
 })
@@ -657,4 +657,11 @@ test_that("prep_data doesn't throw warning if DTS character column is unique", {
   }
   )
   expect_true(sum(admitted_dTS_cols) > 1)
+})
+
+test_that("make_dummies throws error if not logical or list", {
+  expect_error(
+    prep_data(d_train, make_dummies = "Test"),
+    "step_dummies must be logical or list"
+  )
 })

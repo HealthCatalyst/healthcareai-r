@@ -63,8 +63,13 @@
 #'   mean of 0. Default is FALSE.
 #' @param scale Logical. If TRUE, numeric columns will be scaled to have a
 #'   standard deviation of 1. Default is FALSE.
-#' @param make_dummies Logical. If TRUE (default), dummy columns will be created
-#'   for categorical variables.
+#' @param make_dummies Logical or list. If TRUE (default), dummy columns will be
+#'   created for categorical variables. When dummy columns are created, a column
+#'   is not created for reference levels. By default, the levels are reassigned
+#'   so the mode value is the reference level. If a named list is provided, the
+#'   character vectors in each element will become the new levels for
+#'   variables with matching names. If the vector is incomplete, the missing
+#'   levels will be appended.
 #' @param add_levels Logical. If TRUE (default), "other" and "missing" will be
 #'   added to all nominal columns. This is protective in deployment: new levels
 #'   found in deployment will become "other" and missingness in deployment can
@@ -78,12 +83,6 @@
 #'   outcome are 0 or 1 they will be converted to factor with levels N and Y for
 #'   classification. Note that which level is the positive class is set in
 #'   training functions rather than here.
-#' @param ref_levels A named vector that provides the reference levels for
-#'   categorical variables. If make_dummies is TRUE, the reference level will
-#'   not have a column created, making model estimates for other levels relative
-#'   to the reference level. By default, \code{prep_data} sets the mode level to
-#'   the reference level for all character and nominal factors features.
-#'   Reference levels provided will be chosen in the place of the mode level.
 #' @param no_prep Logical. If TRUE, overrides all other arguments to FALSE so
 #'   that d is returned unmodified, except that character variables may be
 #'   coverted to factors and a tibble will be returned even if the input was
@@ -127,7 +126,7 @@
 #' # Dummy variables are not created for reference levels. Mode levels are
 #' # chosen as reference levels by default.
 #' prep_data(d = d_train, patient_id, outcome = diabetes,
-#'           ref_levels = list(weight_class = "normal"))
+#'           make_dummies = list(weight_class = "normal"))
 #'
 #' # `prep_data` also handles date and time features by default:
 #' d <-
@@ -157,8 +156,7 @@ prep_data <- function(d,
                       add_levels = TRUE,
                       logical_to_numeric = TRUE,
                       factor_outcome = TRUE,
-                      no_prep = FALSE,
-                      ref_levels = NULL) {
+                      no_prep = FALSE) {
   # Check to make sure that d is a dframe
   if (!is.data.frame(d))
     stop("\"d\" must be a data frame.")
@@ -435,9 +433,15 @@ prep_data <- function(d,
         recipe <- step_add_levels(recipe, all_nominal(), - all_outcomes())
 
       # make_dummies -----------------------------------------------------------
-      if (make_dummies) {
+      if (isTRUE(make_dummies)) {
+        make_dummies <- list()
+      }
+      if (is.list(make_dummies)) {
         recipe <- recipe %>%
-          step_dummy_hcai(all_nominal(), - all_outcomes(), levels = ref_levels)
+          step_dummy_hcai(all_nominal(), - all_outcomes(),
+                          levels = make_dummies)
+      } else if (!is.logical(make_dummies)) {
+        stop("step_dummies must be logical or list")
       }
     }
 
