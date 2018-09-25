@@ -65,11 +65,11 @@ standard deviation of 1. Default is FALSE.}
 
 \item{make_dummies}{Logical or list. If TRUE (default), dummy columns will be
 created for categorical variables. When dummy columns are created, a column
-is not created for reference level. By default, the levels are reassigned
-so that the mode variable value is the reference level. If a named list is
-provided, the provided character vector in each element will become the new
-levels for variables with the associated element name. If the vector is
-incomplete, the missing levels will be appended to the level vector.}
+is not created for reference levels. By default, the levels are reassigned
+so the mode value is the reference level. If a named list is provided, the
+character vectors in each element will become the new levels for
+variables with matching names. If the vector is incomplete, the missing
+levels will be appended.}
 
 \item{add_levels}{Logical. If TRUE (default), "other" and "missing" will be
 added to all nominal columns. This is protective in deployment: new levels

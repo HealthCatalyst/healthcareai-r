@@ -6,7 +6,7 @@
 \title{Dummy Variables Creation}
 \usage{
 step_dummy_hcai(recipe, ..., role = "predictor", trained = FALSE,
-  one_hot = FALSE, naming = dummy_names, levels = NULL, skip = FALSE)
+  naming = dummy_names, levels = NULL, skip = FALSE)
 
 \method{tidy}{step_dummy_hcai}(x, ...)
 }
@@ -17,7 +17,7 @@ sequence of operations for this recipe.}
 \item{...}{One or more selector functions to choose which
 variables will be used to create the dummy variables. See
 [selections()] for more details. The selected
-variables must be factors. For the `tidy` method, these are
+variables must be factors. For the \code{tidy} method, these are
 not currently used.}
 
 \item{role}{For model terms created by this step, what analysis
@@ -28,16 +28,15 @@ variables will be used as predictors in a model.}
 \item{trained}{A logical to indicate if the quantities for
 preprocessing have been estimated.}
 
-\item{one_hot}{A logical. For C levels, should C dummy variables be created
-rather than C-1?}
-
 \item{naming}{A function that defines the naming convention for
 new dummy columns. See Details below.}
 
-\item{levels}{A list that contains the information needed to
-create dummy variables for each variable contained in
-`terms`. This is `NULL` until the step is trained by
-[prep.recipe()].}
+\item{levels}{A list that provides the ordered levels of nominal variables.
+If all the unique values in a nominal variable are not included, the
+remaining values will be added to the given levels. The first level will be
+listed as the \code{ref_level} attribute for the step object. If levels are
+not provided for a nominal variable, the mode value will be used as the
+reference level.}
 
 \item{skip}{A logical. Should the step be skipped when the
 recipe is baked by \code{\link[=bake.recipe]{bake.recipe()}}? While all operations are baked
@@ -49,19 +48,21 @@ the computations for subsequent operations}
 \item{x}{A `step_dummy_hcai` object.}
 }
 \value{
-An updated version of `recipe` with the new step
+An updated version of \code{recipe} with the new step
  added to the sequence of existing steps (if any). For the
- `tidy` method, a tibble with columns `terms` (the
+ \code{tidy} method, a tibble with columns \code{terms} (the
  selectors or variables selected).
 }
 \description{
-`step_dummy_hcai` creates a a *specification* of a recipe
- step that will convert nominal data (e.g. character or factors)
- into one or more numeric binary model terms for the levels of
- the original data.
+\code{step_dummy_hcai} creates a *specification* of a recipe step
+ that will convert nominal data (e.g. character or factors) into one or more
+ numeric binary model terms for the levels of the original data. Various
+ portions of this step are copied from \code{recipes::step_dummy}. Beyond
+ original \code{recipes::step_dummy} implementation, this step sets reference
+ levels to provided reference levels or mode.
 }
 \details{
-`step_dummy_hcai` will create a set of binary dummy
+\code{step_dummy_hcai} will create a set of binary dummy
  variables from a factor variable. For example, if an unordered
  factor column in the data set has levels of "red", "green",
  "blue", the dummy variable bake will create two additional
@@ -96,8 +97,22 @@ When data to be processed contains novel levels (i.e., not
 contained in the training set), a missing value is assigned to
 the results. See [step_other()] for an alternative.
 
-The [package vignette for dummy variables](https://topepo.github.io/recipes/articles/Dummies.html)
+The [package vignette for dummy variables](
+https://topepo.github.io/recipes/articles/Dummies.html)
 and interactions has more information.
+}
+\examples{
+rec <- recipes::recipe(head(pima_diabetes), ~.) \%>\%
+  healthcareai:::step_dummy_hcai(weight_class)
+d <- recipes::prep(rec, training = pima_diabetes)
+d <- recipes::bake(d, newdata = pima_diabetes)
+
+# Specify ref_levels
+ref_levels <- list(weight_class = "normal")
+rec <- recipes::recipe(head(pima_diabetes), ~.)
+rec <- rec \%>\% healthcareai:::step_dummy_hcai(weight_class,
+                                              levels = ref_levels)
+
 }
 \seealso{
 [step_factor2string()], [step_string2factor()],

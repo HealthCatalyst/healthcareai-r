@@ -1,38 +1,40 @@
 #' Dummy Variables Creation
 #'
-#' `step_dummy_hcai` creates a a *specification* of a recipe
-#'  step that will convert nominal data (e.g. character or factors)
-#'  into one or more numeric binary model terms for the levels of
-#'  the original data.
+#' @description \code{step_dummy_hcai} creates a *specification* of a recipe step
+#'  that will convert nominal data (e.g. character or factors) into one or more
+#'  numeric binary model terms for the levels of the original data. Various
+#'  portions of this step are copied from \code{recipes::step_dummy}. Beyond
+#'  original \code{recipes::step_dummy} implementation, this step sets reference
+#'  levels to provided reference levels or mode.
 #'
 #' @inheritParams recipes::step_center
 #' @inherit step_center return
 #' @param ... One or more selector functions to choose which
 #'  variables will be used to create the dummy variables. See
 #'  [selections()] for more details. The selected
-#'  variables must be factors. For the `tidy` method, these are
+#'  variables must be factors. For the \code{tidy} method, these are
 #'  not currently used.
 #' @param role For model terms created by this step, what analysis
 #'  role should they be assigned?. By default, the function assumes
 #'  that the binary dummy variable columns created by the original
 #'  variables will be used as predictors in a model.
-#' @param one_hot A logical. For C levels, should C dummy variables be created
-#' rather than C-1?
 #' @param naming A function that defines the naming convention for
 #'  new dummy columns. See Details below.
-#' @param levels A list that contains the information needed to
-#'  create dummy variables for each variable contained in
-#'  `terms`. This is `NULL` until the step is trained by
-#'  [prep.recipe()].
-#' @return An updated version of `recipe` with the new step
+#' @param levels A list that provides the ordered levels of nominal variables.
+#'  If all the unique values in a nominal variable are not included, the
+#'  remaining values will be added to the given levels. The first level will be
+#'  listed as the \code{ref_level} attribute for the step object. If levels are
+#'  not provided for a nominal variable, the mode value will be used as the
+#'  reference level.
+#' @return An updated version of \code{recipe} with the new step
 #'  added to the sequence of existing steps (if any). For the
-#'  `tidy` method, a tibble with columns `terms` (the
+#'  \code{tidy} method, a tibble with columns \code{terms} (the
 #'  selectors or variables selected).
 #' @keywords datagen
 #' @concept preprocessing dummy_variables model_specification
 #'  dummy_variables variable_encodings
 #' @export
-#' @details `step_dummy_hcai` will create a set of binary dummy
+#' @details \code{step_dummy_hcai} will create a set of binary dummy
 #'  variables from a factor variable. For example, if an unordered
 #'  factor column in the data set has levels of "red", "green",
 #'  "blue", the dummy variable bake will create two additional
@@ -67,19 +69,31 @@
 #' contained in the training set), a missing value is assigned to
 #' the results. See [step_other()] for an alternative.
 #'
-#' The [package vignette for dummy variables](https://topepo.github.io/recipes/articles/Dummies.html)
+#' The [package vignette for dummy variables](
+#' https://topepo.github.io/recipes/articles/Dummies.html)
 #' and interactions has more information.
 #'
 #' @seealso [step_factor2string()], [step_string2factor()],
 #'  [dummy_names()], [step_regex()], [step_count()],
 #'  [step_ordinalscore()], [step_unorder()], [step_other()]
 #'  [step_novel()]
+#' @examples
+#' rec <- recipes::recipe(head(pima_diabetes), ~.) %>%
+#'   healthcareai:::step_dummy_hcai(weight_class)
+#' d <- recipes::prep(rec, training = pima_diabetes)
+#' d <- recipes::bake(d, newdata = pima_diabetes)
+#'
+#' # Specify ref_levels
+#' ref_levels <- list(weight_class = "normal")
+#' rec <- recipes::recipe(head(pima_diabetes), ~.)
+#' rec <- rec %>% healthcareai:::step_dummy_hcai(weight_class,
+#'                                               levels = ref_levels)
+#'
 step_dummy_hcai <-
   function(recipe,
            ...,
            role = "predictor",
            trained = FALSE,
-           one_hot = FALSE,
            naming = dummy_names,
            levels = NULL,
            skip = FALSE) {
@@ -89,7 +103,6 @@ step_dummy_hcai <-
         terms = ellipse_check(...),
         role = role,
         trained = trained,
-        one_hot = one_hot,
         naming = naming,
         levels = levels,
         ref_levels = NULL,
@@ -103,7 +116,6 @@ step_dummy_hcai_new <-
   function(terms = NULL,
            role = "predictor",
            trained = FALSE,
-           one_hot = one_hot,
            naming = naming,
            levels = levels,
            ref_levels = ref_levels,
@@ -115,7 +127,6 @@ step_dummy_hcai_new <-
       terms = terms,
       role = role,
       trained = trained,
-      one_hot = one_hot,
       naming = naming,
       levels = levels,
       ref_levels = ref_levels,
@@ -146,20 +157,25 @@ prep.step_dummy_hcai <- function(x, training, info = NULL, ...) {
   ref_levels <- character()
   for (i in seq_along(col_names)) {
     training_col <- getElement(training, col_names[i])
+
+    # See if the given levels are in the given column
     existing_levels <- levels(training_col) %in% x$levels[[col_names[i]]]
     if (any(existing_levels) &&
         x$levels[[col_names[i]]][1] %in% levels(training_col)) {
-      x$levels[[col_names[i]]] <- c(x$levels[[col_names[i]]], levels(training_col)[!existing_levels])
+      # Add the remaining levels that were not given by user
+      x$levels[[col_names[i]]] <- c(x$levels[[col_names[i]]],
+                                    levels(training_col)[!existing_levels])
     } else {
+      # If given levels are not present in given feature, set the reference
+      # level to the mode, and then add remaining levels
       training_mode <- as.character(Mode(training_col))
       training_levels <- levels(training_col)
-      x$levels[[col_names[i]]] <- c(training_mode, training_levels[-which(training_levels == training_mode)])
+      x$levels[[col_names[i]]] <- c(training_mode, training_levels[
+        -which(training_levels == training_mode)
+      ])
     }
 
     form_chr <- paste0("~", col_names[i])
-    if (x$one_hot) {
-      form_chr <- paste0(form_chr, "-1")
-    }
     form <- as.formula(form_chr)
     suppressWarnings(
       terms <- model.frame(form,
@@ -203,7 +219,6 @@ prep.step_dummy_hcai <- function(x, training, info = NULL, ...) {
     terms = x$terms,
     role = x$role,
     trained = TRUE,
-    one_hot = x$one_hot,
     naming = x$naming,
     levels = levels,
     ref_levels = ref_levels,
@@ -271,13 +286,13 @@ bake.step_dummy_hcai <- function(object, newdata, ...) {
     options(na.action = old_opt)
     on.exit(expr = NULL)
 
-    if (!object$one_hot) {
-      indicators <- indicators[, colnames(indicators) != "(Intercept)", drop = FALSE]
-    }
+    indicators <- indicators[, colnames(indicators) != "(Intercept)",
+                             drop = FALSE]
 
     ## use backticks for nonstandard factor levels here
     used_lvl <- gsub(paste0("^", col_names[i]), "", colnames(indicators))
-    colnames(indicators) <- object$naming(col_names[i], used_lvl, fac_type == "ordered")
+    colnames(indicators) <- object$naming(col_names[i], used_lvl,
+                                          fac_type == "ordered")
     newdata <- bind_cols(newdata, as_tibble(indicators))
     newdata[, col_names[i]] <- NULL
   }
@@ -286,14 +301,17 @@ bake.step_dummy_hcai <- function(object, newdata, ...) {
   newdata
 }
 
+#' @export
 print.step_dummy_hcai <-
   function(x, width = max(20, options()$width - 20), ...) {
     if (x$trained) {
       cat("Dummy variables from ")
       cat(list_variables(names(x$levels)))
     } else {
-      cat("Dummy variables from ", sep = "")
-      cat(list_variables(x$terms))
+      cat("Dummy variables from ")
+      # Not trained yet. Use selector quosures to describe which features will
+      # be dummified.
+      cat(list_variables(map_chr(x$terms, quo_name)))
     }
     if (x$trained)
       cat(" [trained]\n")
@@ -304,6 +322,7 @@ print.step_dummy_hcai <-
 
 #' @rdname step_dummy_hcai
 #' @param x A `step_dummy_hcai` object.
+#' @export
 tidy.step_dummy_hcai <- function(x, ...) {
   if (is_trained(x)) {
     res <- tibble(terms = names(x$levels))

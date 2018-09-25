@@ -209,7 +209,7 @@ prep_data <- function(d,
   opt <- options("contrasts")[[1]][[1]]
   if (opt != "contr.treatment"){
     w <- paste0("Your unordered-factor contrasts option is set to ", opt,
-                ". This may produce unexpected behavior, particularly in step_dummy in prep_data. ",
+                ". This may produce unexpected behavior, particularly in make_dummies in prep_data. ",
                 "Consider resetting it by restarting R, or with: ",
                 "options(contrasts = c(\"contr.treatment\", \"contr.poly\"))")
     warning(w)

@@ -13,7 +13,7 @@ df <- data.frame(
   weirdness = rnorm(n, mean = 4, sd = 2),
   genre = sample(c("Rock", "Jazz", "Country"), size = n, replace = T),
   reaction = sample(c("Love", "Huh", "Dislike", "Mixed"),
-                    size = n, replace = T, prob = c(1, 1, 1, 10)),
+                    size = n, replace = T, prob = c(4, 4, 4, 6)),
   guitar_flag = sample(c(0, 1), size = n, replace = T),
   drum_flag = sample(c(0, 1, NA), size = n, replace = T,
                      prob = c(0.45, 0.45, 0.1)),
@@ -629,11 +629,28 @@ test_that("prep_data gets rid of logicals, when no outcome", {
   expect_false(any(purrr::map_lgl(prepped_test, is.logical)))
 })
 
-test_that("test ref levels", {
+test_that("test ref levels input - and step_dummy_hcai attributes", {
   d_clean <- prep_data(d = d_train, outcome = is_ween, song_id,
                        make_dummies = list(genre = "Jazz", reaction = "Dislike"))
   expect_false("genre_Jazz" %in% names(d_clean))
   expect_false("reaction_Dislike" %in% names(d_clean))
+
+  # Ref levels and dummies are stored in step_dummy_hcai
+  steps <- (d_clean %>% attr("recipe"))$step
+  loc <- purrr::map_lgl(steps, ~{
+    class(.x) %>% first() == "step_dummy_hcai"
+  }
+  )
+  dummies <- steps[loc][[1]]$dummies
+  ref_levels <- steps[loc][[1]]$ref_levels
+
+  expect_true("genre_Country" %in% dummies$dummy)
+  expect_true("reaction_Love" %in% dummies$dummy)
+  expect_true("Jazz" %in% dummies$ref)
+  expect_true("Dislike" %in% dummies$ref)
+
+  expect_equal(ref_levels, c(genre = "Jazz", reaction = "Dislike",
+                             state = "CA"))
 })
 
 test_that("no_prep dominates", {
