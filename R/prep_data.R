@@ -66,10 +66,9 @@
 #' @param make_dummies Logical or list. If TRUE (default), dummy columns will be
 #'   created for categorical variables. When dummy columns are created, a column
 #'   is not created for reference levels. By default, the levels are reassigned
-#'   so the mode value is the reference level. If a named list is provided, the
-#'   character vectors in each element will become the new levels for
-#'   variables with matching names. If the vector is incomplete, the missing
-#'   levels will be appended.
+#'   so the mode value is the reference level. If a named list is provided
+#'   instead of logical, each value will replace the mode as reference level for
+#'   the variable that matches the value name.
 #' @param add_levels Logical. If TRUE (default), "other" and "missing" will be
 #'   added to all nominal columns. This is protective in deployment: new levels
 #'   found in deployment will become "other" and missingness in deployment can
