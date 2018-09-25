@@ -6,8 +6,8 @@
 performance}
 \usage{
 tune_models(d, outcome, models, metric, positive_class, n_folds = 5,
-  tune_depth = 10, hyperparameters = NULL, model_class, model_name = NULL,
-  allow_parallel = FALSE)
+  tune_depth = 10, hyperparameters = NULL, model_class,
+  model_name = NULL, allow_parallel = FALSE)
 }
 \arguments{
 \item{d}{A data frame from \code{\link{prep_data}}. If you want to prepare
