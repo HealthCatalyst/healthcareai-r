@@ -26,8 +26,8 @@ print.predicted_df <- function(x, ...) {
                     "new data was provided. If this sanitation was in ",
                     "error, use `save_models(model, sanitize_phi = FALSE)` to ",
                     "keep it. Otherwise, to include your data in this ",
-                    "dataframe, please use `cbind` or `predict` with `newdata ",
-                    "= [original_data]`.\n")
+                    "dataframe, please use `cbind` or ",
+                    "`predict(model, newdata)`.\n")
     message(mes)
     # Avoid dispatching print.prepped_df:
     y <- structure(x, class = class(x)[!stringr::str_detect(class(x), "^(predicted)|(prepped)")])
