@@ -229,7 +229,7 @@ test_that("performance drops if the best model is pulled out of model_list", {
   expect_true(original_rmse < subsetted_rmse)
 })
 
-test_that("extract_model_info correct has_training_data item", {
+test_that("extract_model_info has correct has_training_data item", {
   mi <- extract_model_info(r_models)
   expect_true(mi[["has_training_data"]])
 
