@@ -14,7 +14,7 @@
 #' @param sanitize_phi Logical. If TRUE (default) training data is removed from
 #'   the model object before being saved. Removing training data is important
 #'   when sharing models that were trained with data that contain PHI. If
-#'   removed, \code{\link{explore}} will have data to process.
+#'   removed, \code{\link{explore}} will not have data to process.
 #' @return \code{load_models} returns the model_list which can be assigned to
 #'   any variable name
 #'
@@ -29,16 +29,12 @@
 #' all.equal(m, m2)
 #' }
 save_models <- function(x, filename = "models.RDS", sanitize_phi = TRUE) {
-  if (sanitize_phi) {
+  if (sanitize_phi)
     attr(x, "recipe")$template <- NULL
-    message("This model object does not contain PHI. If you want to save the ",
-            "data along with the model use sanitize_phi = FALSE")
-  } else {
-    filename <- stringr::str_replace(filename, "\\.", "PHI.")
+  else
     message("The model object being saved contains training data, minus ",
             "ignored ID columns.\nIf there was PHI in training data, normal ",
             "PHI protocols apply to the RDS file.")
-  }
 
   saveRDS(x, filename)
   return(invisible(NULL))
@@ -56,7 +52,7 @@ load_models <- function(filename) {
   x <- readRDS(filename)
   attr(x, "loaded_from_rds") <- filename
   if (!is.null(attr(x, "recipe")$template))
-    message("Your loaded model contains PHI! To remove PHI run ",
-            "`save_models(x)`.")
+    message("*** If there was PHI in training data, normal PHI protocols apply",
+            " to this model object. ***")
   return(x)
 }
