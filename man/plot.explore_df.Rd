@@ -86,28 +86,21 @@ counterfactuals <- explore(m)
 # example shows how counterfactual predictions can provide insight into how a
 # model maps inputs (features) to the output (outcome). This plot shows that for
 # this dataset, age is the most important predictor of the number of pregnancies
-# a woman has had, and the predicted number of pregnancies rises almost
-# perfectly linearly between approximately 20 and 40 before leveling off.
+# a woman has had, and the predicted number of pregnancies rises basically
+# linearly from approximately 20 to 40 and then levels off.
 plot(counterfactuals)
 
 # To see the effects of more features in the model, increase the value of
-# `n_use`. This plot provides a nice reminder that this function does not assert
-# causality. Among low-blood pressure women, obesity is associated with greater
-# predicted pregnancies, but it seems more likely that repeated pregnancies
-# lead to greater BMI than the reverse.
-plot(counterfactuals, n_use = 4)
-
-# You can specify which of the varying features are mapped to the x-axis and
-# the color scale
-plot(counterfactuals, x_var = diastolic_bp, color_var = skinfold, n_use = 3)
-
-# There are a variety of options available to customize the appearance of the plot
-plot(counterfactuals, x_var = weight_class, color = age, n_use = 3,
-     font_size = 16, strip_font_size = 1, line_width = 3, line_alpha = .5,
-     rotate_x = TRUE, nrows = NULL)
+# `n_use`. You can also specify which of the varying features are mapped to the
+# x-axis and the color scale, and you can customize a variety of plot attributes
+plot(counterfactuals, n_use = 3, x_var = weight_class, color_var = age,
+    font_size = 9, strip_font_size = 1, line_width = 2, line_alpha = .5,
+    rotate_x = TRUE, nrows = 1)
 
 # And you can further modify the plot like any other ggplot object
-plot(counterfactuals, n_use = 1) +
+p <- plot(counterfactuals, n_use = 1, print = FALSE)
+p +
+  ylab("predicted number of pregnancies") +
   theme_classic() +
   theme(aspect.ratio = 1,
         panel.background = element_rect(fill = "slateblue"),

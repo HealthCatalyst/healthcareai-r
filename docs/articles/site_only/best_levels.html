@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.1</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.2.0</span>
       </span>
     </div>
 
@@ -135,7 +135,7 @@
 <a href="#introduction" class="anchor"></a>Introduction</h1>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(healthcareai)</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">library</span>(tidyverse)</a></code></pre></div>
-<p>For this vignette, we introduce a new data table, <code>pima_meds</code>, which contains information on what medications each patient in the <code>pima_diabetes</code> dataset has taken and for how long. This dataset is built into <code>healthcareai</code> as of version 2.1.1, which you can install before it is on CRAN with <code>remotes::install_github("HealthCatalyst/healthcareai-r@v2.1.1")</code>, or you can generate it yourself with the code in <a href="#appendix-data-generation">Appendix: Data Generation</a>.</p>
+<p>For this vignette, we introduce a new data table, <code>pima_meds</code>, which contains information on what medications each patient in the <code>pima_diabetes</code> dataset has taken and for how long. This dataset is built into <code>healthcareai</code> as of version 2.1.1, which you can install before it is on CRAN with <code><a href="http://www.rdocumentation.org/packages/remotes/topics/install_github">remotes::install_github("HealthCatalyst/healthcareai-r@v2.1.1")</a></code>, or you can generate it yourself with the code in <a href="#appendix-data-generation">Appendix: Data Generation</a>.</p>
 <p>Some patients have no meds and so don’t appear in the table, some have one med, and most have more than one. Because of this, the medication information doesn’t fit neatly into the model table (<code>pima_diabetes</code>) without being <code>pivot</code>ed. Under the hood, <code>get_best_levels</code> identifies which levels to use, and <code>add_best_levels</code> <code>pivot</code>s them into new columns on the model table. Here are the first rows in the <code>pima_meds</code> table.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">pima_meds</a>
 <a class="sourceLine" id="cb2-2" data-line-number="2"><span class="co"># &gt; # A tibble: 1,604 x 3</span></a>
@@ -317,9 +317,9 @@
 <a class="sourceLine" id="cb9-11" data-line-number="11">                <span class="dt">missing_fill =</span> <span class="dv">0</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb9-12" data-line-number="12"><span class="st">  </span><span class="kw">predict</span>(models, .)</a>
 <a class="sourceLine" id="cb9-13" data-line-number="13"><span class="co"># &gt; # A tibble: 1 x 12</span></a>
-<a class="sourceLine" id="cb9-14" data-line-number="14"><span class="co"># &gt;   predicted_diabetes patient_id pregnancies plasma_glucose diastolic_bp</span></a>
-<a class="sourceLine" id="cb9-15" data-line-number="15"><span class="co"># &gt; *              &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;</span></a>
-<a class="sourceLine" id="cb9-16" data-line-number="16"><span class="co"># &gt; 1           0.000496        999           0             94           69</span></a>
+<a class="sourceLine" id="cb9-14" data-line-number="14"><span class="co"># &gt;   predicted_diabe… patient_id pregnancies plasma_glucose diastolic_bp</span></a>
+<a class="sourceLine" id="cb9-15" data-line-number="15"><span class="co"># &gt; *            &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb9-16" data-line-number="16"><span class="co"># &gt; 1         0.000496        999           0             94           69</span></a>
 <a class="sourceLine" id="cb9-17" data-line-number="17"><span class="co"># &gt; # ... with 7 more variables: skinfold &lt;dbl&gt;, insulin &lt;lgl&gt;,</span></a>
 <a class="sourceLine" id="cb9-18" data-line-number="18"><span class="co"># &gt; #   weight_class &lt;chr&gt;, pedigree &lt;dbl&gt;, age &lt;dbl&gt;,</span></a>
 <a class="sourceLine" id="cb9-19" data-line-number="19"><span class="co"># &gt; #   medication_metoprolol &lt;dbl&gt;, medication_insulin &lt;dbl&gt;</span></a></code></pre></div>

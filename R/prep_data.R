@@ -36,17 +36,19 @@
 #' @param remove_near_zero_variance Logical or numeric. If TRUE (default),
 #'   columns with near-zero variance will be removed. These columns are either a
 #'   single value, or the most common value is much more frequent than the
-#'   second most common value.
-#'   Example: In a column with 120 "Male" and 2 "Female", the frequency ratio is
-#'   0.0167. It would be excluded by default or if
-#'   `remove_near_zero_variance` > 0.0166. Larger values will remove more columns
-#'   and this value must lie between 0 and 1.
-#' @param convert_dates Logical or character. If TRUE (default), date columns
-#'   are identifed and used to generate day-of-week, month, and year columns,
-#'   and the original date columns are removed. If FALSE, date columns are
-#'   removed. If a character vector, it is passed to the `features` argument of
-#'   `recipes::step_date`. E.g. if you want only quarter and year back:
-#'   `convert_dates = c("quarter", "year")`.
+#'   second most common value. Example: In a column with 120 "Male" and 2
+#'   "Female", the frequency ratio is 0.0167. It would be excluded by default or
+#'   if `remove_near_zero_variance` > 0.0166. Larger values will remove more
+#'   columns and this value must lie between 0 and 1.
+#' @param convert_dates Logical or character. If TRUE (default), date and time
+#'   columns are transformed to circular representation for hour, day, month,
+#'   and year for machine learning optimization. If FALSE, date and time columns
+#'   are removed. If character, use "continuous" (same as TRUE), "categories",
+#'   or "none" (same as FALSE). "categories" makes hour, day, month, and year
+#'   readable for interpretation. If \code{make_dummies} is TRUE, each unique
+#'   value in these features will become a new dummy variable. This will create
+#'   wide data, which is more challenging for some machine learning models. All
+#'   features with the DTS suffix will be treated as a date.
 #' @param impute Logical or list. If TRUE (default), columns will be imputed
 #'   using mean (numeric), and new category (nominal). If FALSE, data will not
 #'   be imputed. If this is a list, it must be named, with possible entries for
@@ -63,13 +65,15 @@
 #'   standard deviation of 1. Default is FALSE.
 #' @param make_dummies Logical. If TRUE (default), dummy columns will be created
 #'   for categorical variables.
-#' @param add_levels Logical. If TRUE (defaults), "other" and "missing" will be
+#' @param add_levels Logical. If TRUE (default), "other" and "missing" will be
 #'   added to all nominal columns. This is protective in deployment: new levels
 #'   found in deployment will become "other" and missingness in deployment can
 #'   become "missing" if the nominal imputation method is "new_category". If
 #'   FALSE, these "other" will be added to all nominal variables if
 #'   \code{collapse_rare_factors} is used, and "missingness" may be added
 #'   depending on details of imputation.
+#' @param logical_to_numeric Logical. If TRUE (default), logical variables will
+#'   be converted to 0/1 integer variables.
 #' @param factor_outcome Logical. If TRUE (default) and if all entries in
 #'   outcome are 0 or 1 they will be converted to factor with levels N and Y for
 #'   classification. Note that which level is the positive class is set in
@@ -80,6 +84,10 @@
 #'   to the reference level. By default, \code{prep_data} sets the mode level to
 #'   the reference level for all character and nominal factors features.
 #'   Reference levels provided will be chosen in the place of the mode level.
+#' @param no_prep Logical. If TRUE, overrides all other arguments to FALSE so
+#'   that d is returned unmodified, except that character variables may be
+#'   coverted to factors and a tibble will be returned even if the input was
+#'   a non-tibble data frame.
 #'
 #' @return Prepared data frame with reusable recipe object for future data
 #'   preparation in attribute "recipe". Attribute recipe contains the names of
@@ -112,15 +120,29 @@
 #' prep_data(d = d_train, patient_id, outcome = diabetes,
 #'           impute = list(numeric_method = "bagimpute",
 #'                         nominal_method = "bagimpute"),
-#'           collapse_rare_factors = FALSE, convert_dates = "year",
-#'           center = TRUE, scale = TRUE, make_dummies = FALSE,
-#'           remove_near_zero_variance = .02)
+#'           collapse_rare_factors = FALSE, center = TRUE, scale = TRUE,
+#'           make_dummies = FALSE, remove_near_zero_variance = .02)
 #'
 #' # Picking reference levels:
 #' # Dummy variables are not created for reference levels. Mode levels are
 #' # chosen as reference levels by default.
 #' prep_data(d = d_train, patient_id, outcome = diabetes,
 #'           ref_levels = list(weight_class = "normal"))
+#'
+#' # `prep_data` also handles date and time features by default:
+#' d <-
+#'   pima_diabetes %>%
+#'   cbind(
+#'     admitted_DTS = seq(as.POSIXct("2005-1-1 0:00"),
+#'                        length.out = nrow(pima_diabetes), by = "hour")
+#'   )
+#' d_train = d[1:700, ]
+#' prep_data(d = d_train)
+#'
+#' # Customize how date and time features are handled:
+#' # When `convert_dates` is set to "categories", the prepped data will be more
+#' # readable, but will be wider.
+#' prep_data(d = d_train, convert_dates = "categories")
 prep_data <- function(d,
                       ...,
                       outcome,
@@ -133,18 +155,33 @@ prep_data <- function(d,
                       scale = FALSE,
                       make_dummies = TRUE,
                       add_levels = TRUE,
+                      logical_to_numeric = TRUE,
                       factor_outcome = TRUE,
+                      no_prep = FALSE,
                       ref_levels = NULL) {
   # Check to make sure that d is a dframe
-  if (!is.data.frame(d)) {
+  if (!is.data.frame(d))
     stop("\"d\" must be a data frame.")
+
+  new_recipe <- TRUE
+  if (!is.null(recipe)) {
+    new_recipe <- FALSE
+    recipe <- check_rec_obj(recipe)
+    no_prep <- attr(recipe, "no_prep")
   }
+  if (no_prep)
+    remove_near_zero_variance <- convert_dates <- impute <-
+      collapse_rare_factors <- center <- scale <- make_dummies <-
+      add_levels <- logical_to_numeric <- factor_outcome <- FALSE
+
   # Capture pre-modification missingness
   d_missing <- missingness(d, return_df = FALSE)
   # Capture original data structure
   d_ods <- d[0, ]
   # Capture factor levels
   d_levels <- get_factor_levels(d)
+  # Capture best_levels attributes
+  best_levels <- attr(d, "best_levels")
 
   outcome <- rlang::enquo(outcome)
   remove_outcome <- FALSE
@@ -181,8 +218,7 @@ prep_data <- function(d,
   }
 
   # If there's a recipe in recipe, use that
-  if (!is.null(recipe)) {
-    recipe <- check_rec_obj(recipe)
+  if (!new_recipe) {
     message("Prepping data based on provided recipe")
     # Look for variables that weren't present in training, add them to ignored
     newvars <- setdiff(names(d), c(recipe$var_info$variable,
@@ -197,7 +233,7 @@ prep_data <- function(d,
     missing_vars <- setdiff(recipe$var_info$variable[recipe$var_info$role == "predictor"], names(d))
     if (length(missing_vars))
       warning("These variables were present in training but are missing or ignored here: ",
-           list_variables(missing_vars))
+              list_variables(missing_vars))
 
     # If imputing, look for variables with missingness now that didn't have any in training
     newly_missing <- find_new_missingness(d, recipe)
@@ -225,9 +261,9 @@ prep_data <- function(d,
     # Initialize a new recipe
     mes <- "Training new data prep recipe"
     ## Start by making all variables predictors...
-    ## Only pass head of d here because it's carried around with the recipe
-    ## and we don't want to pass around big datasets
-    recipe <- recipes::recipe(head(d), ~ .)
+    ## d gets stored with the recipe and it is the one copy of training data
+    ## that we carry around with the model_list
+    recipe <- recipes::recipe(d, ~ .)
     ## Then deal with outcome if present
     if (!rlang::quo_is_missing(outcome)) {
       outcome_name <- rlang::quo_name(outcome)
@@ -296,27 +332,30 @@ prep_data <- function(d,
            list_variables(removing))
 
     # Convert date columns to useful features and remove original. ------------
-    if (!is.logical(convert_dates)) {
-      if (!is.character(convert_dates))  #  || is.null(names(convert_date))
-        stop("convert_dates must be logical or features for step_date")
-      sdf <- convert_dates
-      convert_dates <- TRUE
+    if (!is.character(convert_dates)) {
+      if (!is.logical(convert_dates))
+        stop('convert_dates must be logical, "none", "continuous", or ',
+             '"categories"')
+      if (convert_dates)
+        convert_dates <- "continuous"
+      else
+        convert_dates <- "none"
     }
-    if (convert_dates) {
-      # If user didn't provide features, set them to defaults
-      if (!exists("sdf"))
-        sdf <- c("dow", "month", "year")
+    if (convert_dates %in% c("continuous", "categories")) {
       cols <- find_date_cols(d)
       if (!purrr::is_empty(cols)) {
         recipe <-
           do.call(step_date_hcai,
-                  list(recipe = recipe, cols, features = sdf)) %>%
+                  list(recipe = recipe, cols, feature_type = convert_dates)) %>%
           recipes::step_rm(cols)
       }
-    } else {
+    } else if (convert_dates == "none") {
       cols <- find_date_cols(d)
       if (!purrr::is_empty(cols))
         recipe <- recipes::step_rm(recipe, cols)
+    } else {
+      stop('convert_dates must be logical, "none", "continuous", or ',
+           '"categories"')
     }
 
     # Impute ------------------------------------------------------------------
@@ -410,7 +449,8 @@ prep_data <- function(d,
     attr(recipe, "factor_levels") <- d_levels
   }
   # Coerces all logical predictor columns as numeric columns
-  d <- dplyr::mutate_if(d, is.logical, as.numeric)
+  if (logical_to_numeric)
+    d <- dplyr::mutate_if(d, is.logical, as.numeric)
 
   # Bake either the newly built or passed-in recipe
   d <- recipes::bake(recipe, d)
@@ -433,8 +473,12 @@ prep_data <- function(d,
     d_ods <- select_not(d_ods, outcome)
   # Add ignore columns back in and attach as attribute to recipe
   d <- dplyr::bind_cols(d_ignore, d)
+  if (new_recipe)
+    recipe$template <- dplyr::bind_cols(d_ignore, recipe$template)
   attr(recipe, "ignored_columns") <- unname(ignored)
+  attr(recipe, "no_prep") <- no_prep
   attr(d, "recipe") <- recipe
+  attr(d, "best_levels") <- best_levels
   attr(d, "original_data_str") <- d_ods
   d <- tibble::as_tibble(d)
   class(d) <- c("prepped_df", class(d))

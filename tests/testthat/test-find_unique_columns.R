@@ -82,3 +82,15 @@ test_that("find_columns_to_ignore works right", {
                  regexp = NA)
   expect_equal(t4, character())
 })
+
+test_that("DTS will not be included in unique columns", {
+  d <-
+    dirty_data_frame() %>%
+    mutate(
+      test5_DTS = c("Oct", "Jan", "Feb", "March")
+    )
+
+  actual_unique_columns <- find_unique_columns(d)
+  expect_false("test5_DTS" %in% actual_unique_columns)
+  expect_equal(actual_unique_columns, c("id_field", "test4_field"))
+})

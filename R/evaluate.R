@@ -71,7 +71,13 @@ evaluate.predicted_df <- function(x, na.rm = FALSE, ...) {
   if (attr(x, "model_info")[["type"]] == "Regression") {
     scores <- evaluate_regression(predicted = op$pred, actual = op$obs)
   } else if (attr(x, "model_info")[["type"]] == "Classification") {
-    op$obs <- ifelse(op$obs == attr(x, "model_info")$positive_class, 1L, 0L)
+    pc <- attr(x, "model_info")$positive_class
+    if (!is.numeric(op$obs)) {
+      if (dplyr::n_distinct(op$obs) > 1 && !pc %in% op$obs)
+        stop("positive class (", pc, ") not found in outcomes (",
+             list_variables(unique(op$obs)), ")")
+      op$obs <- ifelse(op$obs == pc, 1L, 0L)
+    }
     scores <- evaluate_classification(predicted = op$pred, actual = op$obs)
   } else if (attr(x, "model_info")[["type"]] == "Multiclass") {
     scores <- evaluate_multiclass(predicted = op$pred, actual = op$obs)

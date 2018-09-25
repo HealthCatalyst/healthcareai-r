@@ -39,7 +39,7 @@
 <meta property="og:title" content="Replace all value in the column of a dataframe with a given value. — build_one_level_df" />
 
 <meta property="og:description" content="Takes a dataframe and replaces all the values in the
-modifiable_variable column with the value level. Columns
+variable column with the value level. Columns
 tracking which variable and level were used are also added to the dataframe." />
 
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
@@ -81,7 +81,7 @@ tracking which variable and level were used are also added to the dataframe." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.1.1</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.2.0</span>
       </span>
     </div>
 
@@ -161,12 +161,12 @@ tracking which variable and level were used are also added to the dataframe." />
     <div class="ref-description">
     
     <p>Takes a dataframe and replaces all the values in the
-<code>modifiable_variable</code> column with the value <code>level</code>. Columns
+<code>variable</code> column with the value <code>level</code>. Columns
 tracking which variable and level were used are also added to the dataframe.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>build_one_level_df</span>(<span class='no'>dataframe</span>, <span class='no'>modifiable_variable</span>, <span class='no'>level</span>)</pre>
+    <pre class="usage"><span class='fu'>build_one_level_df</span>(<span class='no'>dataframe</span>, <span class='no'>variable</span>, <span class='no'>level</span>, <span class='no'>one_variable_direction</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -176,13 +176,13 @@ tracking which variable and level were used are also added to the dataframe.</p>
       <td><p>a dataframe</p></td>
     </tr>
     <tr>
-      <th>modifiable_variable</th>
+      <th>variable</th>
       <td><p>The name of the column whose values we wish to
 change</p></td>
     </tr>
     <tr>
       <th>level</th>
-      <td><p>The value to use in the <code>modifiable_variable</code> column</p></td>
+      <td><p>The modified value to use in the <code>variable</code> column</p></td>
     </tr>
     </table>
     

@@ -108,7 +108,7 @@ summary.model_list <- function(object, ...) {
 #' @importFrom purrr map_df
 #' @export
 #' @examples
-#' models <- tune_models(mtcars, mpg, models = "glm")
+#' models <- machine_learn(mtcars, outcome = mpg, models = "glm")
 #' plot(models)
 plot.model_list <- function(x, font_size = 11, point_size = 1,
                             print = TRUE, ...) {
@@ -182,9 +182,6 @@ plot.model_list <- function(x, font_size = 11, point_size = 1,
   } else if (is.character(i)) {
     i <- which(names(x) %in% i)
   }
-  # Training data is held in first model only; move it there if it's not staying
-  if (!1 %in% i)
-    x[[min(i)]]$trainingData <- x[[1]]$trainingData
   # Rebuild the model_list, keeping the old timestamp
   m_class <- x[[1]]$modelType
   if (length(levels(x[[1]])) > 2)
@@ -217,7 +214,7 @@ extract_model_info <- function(x) {
   if (length(levels(x[[1]])) > 2)
     m_class <- "Multiclass"
   target <- attr(x, "target")
-  ddim <- dim(x[[1]]$trainingData)
+  ddim <- attr(x, "ddim")
   best_model_name <- algs[[best_model]]
   best_model_perf <- best_metrics[[best_model]]
   best_model_tune <-
