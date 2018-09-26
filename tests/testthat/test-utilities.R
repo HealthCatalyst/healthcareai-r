@@ -99,6 +99,14 @@ test_that("mode - test numeric", {
   expect_equal(3, Mode(test_vec))
 })
 
+test_that("get_factor_levels", {
+  fl <-
+    dplyr::mutate(pima_diabetes, weight_class =
+                    relevel(factor(weight_class), "underweight")) %>%
+    get_factor_levels()
+  expect_equal(names(fl$weight_class)[1], "underweight")
+})
+
 test_that("mode - test table", {
   test_vec <- c(3, 2, 1, 2, 3, 3)
   vec_ft <- table(test_vec)
@@ -107,4 +115,11 @@ test_that("mode - test table", {
   test_vec <- c("a", "b", "c", "d", "b")
   vec_ft <- table(test_vec)
   expect_equal(Mode(vec_ft), Mode(test_vec))
+})
+
+test_that("get_recipe_step - test whether the step exists", {
+  m <- machine_learn(pima_diabetes[1:50, ], outcome = diabetes)
+  dummy_object <- get_recipe_step(m, "step_dummy_hcai")
+  expect_true("step_dummy_hcai" %in% class(dummy_object))
+  expect_true(is.null(get_recipe_step(m, "not_a_step")))
 })
