@@ -6,6 +6,10 @@ multi <- machine_learn(na.omit(pima_diabetes[1:200, ]), patient_id, outcome = we
                        tune = FALSE, models = "glm")
 g <- m["glmnet"]
 
+test_that("test errors", {
+  expect_error(interpret(list()), "x must be a model_list")
+})
+
 test_that("interpret returns a tbl w/child class coefs if glmnet is in model_list", {
   suppressWarnings(expect_s3_class(interpret(m), "tbl_df"))
   expect_s3_class(interpret(g), "tbl_df")
@@ -57,10 +61,57 @@ test_that("interpret top_n works right", {
   expect_equal(interpret(g), interpret(g, top_n = 99))
 })
 
+test_that("Coefficient signs make sense WRT positive class", {
+  # For pima_diabetes, normal weight class should be negative
+  ip <- interpret(g)
+  expect_true(ip$coefficient[ip$variable == "weight_class_normal (vs. obese)"] < 0)
+  n <- 100
+  # x1_y should be positive
+  d <- tibble::tibble(
+    y = c(rep("N", n / 2), rep("Y", n / 2)),
+    x1 = c(rep("n", n * .4), rep("y", n * .5), rep("n", n * .1)),
+    x2 = 0
+  )
+  m <-
+    d %>%
+    prep_data(outcome = y, remove_near_zero_variance = FALSE) %>%
+    flash_models(outcome = y, models = "glm")
+  i <- interpret(m)
+  expect_true(i$coefficient[i$variable == "x1_y (vs. n)"] > 0)
+  # Declaring positive class. Here x1_y should be negative
+  m <-
+    d %>%
+    prep_data(outcome = y, remove_near_zero_variance = FALSE) %>%
+    flash_models(outcome = y, models = "glm", positive_class = "N")
+  i <- interpret(m)
+  expect_true(i$coefficient[i$variable == "x1_y (vs. n)"] < 0)
+  # With 0/1 outcome
+  m <-
+    dplyr::mutate(d, y = dplyr::case_when(y == "Y" ~ 1L, y == "N" ~ 0L)) %>%
+    prep_data(outcome = y, remove_near_zero_variance = FALSE) %>%
+    flash_models(outcome = y, models = "glm")
+  i <- interpret(m)
+  expect_true(i$coefficient[i$variable == "x1_y (vs. n)"] > 0)
+})
+
+test_that("alpha gets attached to interpret objects even if glm isn't best", {
+  # Note: On my OSX machine RF outperforms glmnet which correctly triggers a
+  # warning on `interpret(m)`. On Windows no warning is given, perhaps
+  # because glmnet is the best performing model???
+  suppressWarnings( i3 <- interpret(m) )
+  expect_equal(attr(i3, "alpha"), attr(interpret(g), "alpha"))
+})
+
 context("Checking plot.interpret")  # ------------------------------------------
 
 test_that("plot.interpret is registered generic", {
   expect_true("plot.interpret" %in% methods("plot"))
+})
+
+test_that("test errors", {
+  test <- list()
+  attr(test, "class") <- "interpret"
+  expect_error(plot(test), "x must be a data frame from interpret")
 })
 
 test_that("plot.interpret returns a ggplot", {
@@ -80,7 +131,6 @@ test_that("plot.interpet seems to respect options", {
   expect_false(isTRUE(all.equal(def, keep_int)))
   expect_false(isTRUE(all.equal(def, cust)))
   expect_false(isTRUE(all.equal(def, trunc)))
-  expect_equal(def, pseudo_trunc)
 })
 
 test_that("plot.interpret works on a data frame missing interpret class", {
@@ -90,14 +140,14 @@ test_that("plot.interpret works on a data frame missing interpret class", {
     expect_s3_class("gg")
 })
 
-test_that("Coefficient signs make sense WRT positive class", {
+context("Checking print.interpret")  # ------------------------------------------
 
-  # For pima_diabetes, normal weight class should be negative
-  ip <- interpret(g)
-  expect_true(ip$coefficient[ip$variable == "weight_class_normal"] < 0)
+test_that("print.interpret is registered generic", {
+  expect_true("print.interpret" %in% methods(class = "interpret"))
+})
 
+test_that("test setting reference level/ print.reference_level", {
   n <- 100
-  # x1_y should be positive
   d <- tibble::tibble(
     y = c(rep("N", n / 2), rep("Y", n / 2)),
     x1 = c(rep("n", n * .4), rep("y", n * .5), rep("n", n * .1)),
@@ -107,32 +157,27 @@ test_that("Coefficient signs make sense WRT positive class", {
     d %>%
     prep_data(outcome = y, remove_near_zero_variance = FALSE) %>%
     flash_models(outcome = y, models = "glm")
-  i <- interpret(m)
-  expect_true(i$coefficient[i$variable == "x1_y"] > 0)
+  i <- interpret(m, remove_zeros = FALSE)
 
-  # Declaring positive class. Here x1_y should be negative
-  m <-
-    d %>%
-    prep_data(outcome = y, remove_near_zero_variance = FALSE) %>%
-    flash_models(outcome = y, models = "glm", positive_class = "N")
-  i <- interpret(m)
-  expect_true(i$coefficient[i$variable == "x1_y"] < 0)
-
-  # With 0/1 outcome
-  m <-
-    dplyr::mutate(d, y = dplyr::case_when(y == "Y" ~ 1L, y == "N" ~ 0L)) %>%
-    prep_data(outcome = y, remove_near_zero_variance = FALSE) %>%
-    flash_models(outcome = y, models = "glm")
-  i <- interpret(m)
-  expect_true(i$coefficient[i$variable == "x1_y"] > 0)
+  output <- capture_output(print(i))
+  expect_true(length(gregexpr("Reference Levels:\n", output)[[1]]) == 1)
+  expect_false(grepl("All `y` estimates are relative to `N`", output))
+  expect_true(grepl("All `x1` estimates are relative to `n`", output))
 })
 
-test_that("alpha gets attached to interpret objects even if glm isn't best", {
-  # Note: On my OSX machine RF outperforms glmnet which correctly triggers a
-  # warning on `interpret(m)`. On Windows no warning is given, perhaps
-  # because glmnet is the best performing model???
-  suppressWarnings( i3 <- interpret(m) )
-  expect_equal(attr(i3, "alpha"), attr(interpret(g), "alpha"))
+context("Checking add_refs") # -------------------------------------------------
+
+test_that("test add_refs normal functionality", {
+  dat <- tibble(
+    variable = c("weight_class_normal", "skinfold"),
+    coefficient = c(1, .500)
+  )
+  m <- machine_learn(pima_diabetes[0:50, ], outcome = diabetes, models = "glm",
+                     tune = FALSE)
+  dummy_step_object <- get_recipe_step(m, "step_dummy_hcai")
+  actual <- add_refs(dat, dummy_step_object)
+  expect_true("weight_class_normal (vs. obese)" %in% actual$variable)
+  expect_true("skinfold" %in% actual$variable)
 })
 
 test_that("multiclass isn't supported", {
