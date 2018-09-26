@@ -211,7 +211,7 @@ db_write <- function(d,
   if (!isTRUE(overwrite)) {
     res <- paste0(nrow(d), " rows successfully appended to ", con@info$dbname, ".", table_char)
   } else {
-    res <- paste0(nrow(d), " rows successfully written to ",con@info$dbname, ".", table_char)
+    res <- paste0(nrow(d), " rows successfully written to ", con@info$dbname, ".", table_char)
   }
   return(invisible(res))
 }
