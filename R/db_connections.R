@@ -15,6 +15,7 @@
 #' @param password A string, quoted, optional. Don't include if using trusted.
 #' @return A connection string
 #' @seealso \code{\link{db_read}}
+#' @seealso \code{\link{db_write}}
 #' @export
 #' @examples
 #' \dontrun{
@@ -84,6 +85,7 @@ build_connection_string <- function(server,
 #' \code{collect()} function.
 #' @return A tibble of data or reference to the table.
 #' @seealso \code{\link{build_connection_string}}
+#' @seealso \code{\link{db_write}}
 #' @importFrom dbplyr as.sql
 #  ^ This is a placeholder. We need dbplyr as a backend for dplyr's db functionality
 #' @export
@@ -122,47 +124,53 @@ db_read <- function(con,
 #' Write to a SQL Server database table
 #' @description Use a database connection to write to an existing SQL Server
 #' table. Data types and columns must match exactly.
+#' @param d A data frame. This data will be written to the specified table. Data
+#' must match the destination table in number of columns, names of columns, and
+#' data types.
 #' @param con An odbc database connection. Can be made using
-#' \code{build_connection_string}. Required.
-#' @param query A string, quoted, required. This sql query will be executed
-#' against the database you are connected to.
-#' @param pull_into_memory Logical, optional, defaults to TRUE. If FALSE,
-#' \code{db_read} will create a reference to the queried data rather than
-#' pulling into memory. Set to FALSE for very large tables.
-#' @details Use \code{pull_into_memory} when working with large tables.
-#' Rather than returning the data into memory, this
-#' function will return a reference to the specified query. It will be executed
-#' only when needed, in a "lazy" style. Or, you can execute using the
-#' \code{collect()} function.
-#' @return A tibble of data or reference to the table.
+#' \code{build_connection_string}. This connection must specify a database.
+#' @param schema String representing the table schema. database.schema.table_name
+#' must already exist. Schema defaults to "dbo".
+#' @param table_name String representing the table name. database.schema.table_name
+#' must already exist.
+#' @param overwrite Logical. If FALSE (default), data will be appended to table.
+#' If TRUE, table will be overwritten.
+#' @details This function requires that: \enumerate{
+#' \item{A database is specified in the database connection}
+#' \item{Data matches destination table in number, name, and types of columns}
+#' \item{The destination table, made from the connection's database, specified
+#' schema, and specified table name, must exist.}
+#' }
+#' This function will not create a new table.
+#' @return Silently returns confirmation that data was written correctly.
 #' @seealso \code{\link{build_connection_string}}
-#' @importFrom dbplyr as.sql
-#  ^ This is a placeholder. We need dbplyr as a backend for dplyr's db functionality
+#' @seealso \code{\link{db_read}}
 #' @export
 #' @examples
 #' \dontrun{
-#' my_con <- build_connection_string(server = "HPHI-EDWDEV")
+#' my_con <- build_connection_string(server = "HPHI-EDWDEV",
+#'                                   database = "SAM")
 #' con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con)
-#' d <- db_read(con,
-#'              "SELECT TOP 10 * FROM [Shared].[Cost].[FacilityAccountCost]")
-#'
-#' # Get a reference and collect later
-#' ref <- db_read(con,
-#'                "SELECT TOP 10 * FROM [Shared].[Cost].[FacilityAccountCost]",
-#'                pull_into_memory = FALSE)
-#' d <- collect(ref)
+#' d <- tibble(id = 123, name = John Smith, sex = "Male")
+#' d <- db_write(d,
+#'               con,
+#'               schema = "patient",
+#'               table_name = "demographics")
 #' }
 #'
 db_write <- function(d,
                      con,
                      schema = "dbo",
                      table_name,
-                     append = TRUE,
                      overwrite = FALSE) {
   if (!is.data.frame(d))
     stop("\"d\" must be a data frame.")
   if (class(con)[1] != "Microsoft SQL Server")
     stop("con needs to be a Microsoft SQL Server database connection.")
+  if (con@info$dbname == "master")
+    stop("you must specify a database other than 'master' in your connection string.")
+  if (!is.logical(overwrite))
+    stop("overwrite must be logical.")
 
   table_id <- DBI::Id(schema = schema, table = table_name)
   table_char  <- paste(schema, table_name, sep = ".")
@@ -172,20 +180,20 @@ db_write <- function(d,
 
   # Error checking against destination
   tc <- db_read(con,
-                       query = paste0("select top 1 * from ", table_char))
+                query = paste0("select top 1 * from ", table_char))
   tc <- map_df(tc, class)
   tc <- tibble(name = names(tc),
-                          table_class = tc %>% unlist(use.names = FALSE))
+               table_class = tc %>% unlist(use.names = FALSE))
   dc <- map_dfr(d, class)
   dc <- tibble(name = names(dc),
-                          data_class = dc %>% unlist(use.names = FALSE))
+               data_class = dc %>% unlist(use.names = FALSE))
   classes <- full_join(tc, dc, by = "name") %>%
     mutate(data_class = case_when(data_class == "factor" ~ "character",
                                   data_class == "integer" ~ "numeric",
                                   TRUE ~ data_class),
            table_class = case_when(table_class == "factor" ~ "character",
                                    table_class == "integer" ~ "numeric",
-                                  TRUE ~ table_class),
+                                   TRUE ~ table_class),
            match = table_class == data_class) %>%
     replace_na(list(match = FALSE))
   if (!all(classes$match == T))
@@ -195,12 +203,12 @@ db_write <- function(d,
 
 
   res <- DBI::dbWriteTable(conn = con,
-                            name = table_id,
-                            value = d,
-                            append = append,
+                           name = table_id,
+                           value = d,
+                           append = !overwrite,
                            overwrite = overwrite)
 
-  if (isTRUE(append)) {
+  if (!isTRUE(overwrite)) {
     res <- paste0(nrow(d), " rows successfully appended to ", con@info$dbname, ".", table_char)
   } else {
     res <- paste0(nrow(d), " rows successfully written to ",con@info$dbname, ".", table_char)

@@ -48,4 +48,6 @@ d <- collect(ref)
 }
 \seealso{
 \code{\link{build_connection_string}}
+
+\code{\link{db_write}}
 }

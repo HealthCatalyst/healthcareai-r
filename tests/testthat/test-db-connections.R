@@ -129,15 +129,21 @@ test_that("write errors when data or connection is wrong", {
   skip_on_not_appveyor()
   d <- tibble::tibble(id = 7,
                       word_of_day = c("hello"))
-  expect_error(db_write("notdata", "con", "schema", "table", "append"),
+  expect_error(db_write("notdata", "con", "schema", "table", "over"),
                "data frame")
-  expect_error(db_write(d, "con", "schema", "table", "append"),
+  expect_error(db_write(d, "con", "schema", "table", "over"),
                "Microsoft")
-  cs <- build_connection_string(server = "localhost")
-  con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs)
-  expect_error(db_write(d, con, "schema", "table", "append"),
+  cs2 <- build_connection_string(server = "localhost")
+  con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs2)
+  expect_error(db_write(d, con, "schema", "table", "over"),
                "database")
   DBI::dbDisconnect(con)
+
+  con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs)
+  d <- tibble::tibble(id = 7,
+                      word_of_day = c("hello"))
+  expect_error(db_write(d, con, "test_schema", "hcai_unit_tests", "over"),
+               "overwrite")
 })
 
 test_that("write errors if table/schema doesn't exist", {
@@ -155,7 +161,13 @@ test_that("write errors if table/schema doesn't exist", {
 })
 
 test_that("write column order doesn't matter", {
-
+  skip_on_not_appveyor()
+  con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs)
+  d <- tibble::tibble(word_of_day = c("hello"),
+                      id = 8)
+  expect_error(db_write(d, con, "test_schema", "hcai_unit_tests"),
+               NA)
+  DBI::dbDisconnect(con)
 })
 
 test_that("write errors if data types don't match", {
@@ -191,15 +203,13 @@ test_that("default schema can append and overwrite", {
                       word_of_day = c("syrup", "sausage", "bar"))
   res <- db_write(d,
                   con,
-                  table_name = "hcai_unit_tests",
-                  append = TRUE)
+                  table_name = "hcai_unit_tests")
   expect_equal(res, "3 rows successfully appended to testSAM.dbo.hcai_unit_tests")
   res <- db_read(con, "select * from testSAM.dbo.hcai_unit_tests")
   expect_equal(res$id[nrow(res)], 46)
   res <- db_write(d,
                   con,
                   table_name = "hcai_unit_tests",
-                  append = FALSE,
                   overwrite = TRUE)
   expect_equal(res, "3 rows successfully written to testSAM.dbo.hcai_unit_tests")
   res <- db_read(con, "select * from testSAM.dbo.hcai_unit_tests")
@@ -215,8 +225,7 @@ test_that("special schema can append and overwrite", {
   res <- db_write(d,
                   con,
                   table_name = "hcai_unit_tests",
-                  schema = "test_schema",
-                  append = TRUE)
+                  schema = "test_schema")
   expect_equal(res, "3 rows successfully appended to testSAM.test_schema.hcai_unit_tests")
   res <- db_read(con, "select * from testSAM.test_schema.hcai_unit_tests")
   expect_equal(res$id[nrow(res)], 6)
@@ -224,7 +233,6 @@ test_that("special schema can append and overwrite", {
                   con,
                   table_name = "hcai_unit_tests",
                   schema = "test_schema",
-                  append = FALSE,
                   overwrite = TRUE)
   expect_equal(res, "3 rows successfully written to testSAM.test_schema.hcai_unit_tests")
   res <- db_read(con, "select * from testSAM.test_schema.hcai_unit_tests")
