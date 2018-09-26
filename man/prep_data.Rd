@@ -74,8 +74,12 @@ TRUE.}
 standard deviation of 1. Default is FALSE, unless PCA is performed, in
 which case it is TRUE.}
 
-\item{make_dummies}{Logical. If TRUE (default), dummy columns will be created
-for categorical variables.}
+\item{make_dummies}{Logical or list. If TRUE (default), dummy columns will be
+created for categorical variables. When dummy columns are created, a column
+is not created for reference levels. By default, the levels are reassigned
+so the mode value is the reference level. If a named list is provided
+instead of logical, each value will replace the mode as reference level for
+the variable that matches the value name.}
 
 \item{add_levels}{Logical. If TRUE (default), "other" and "missing" will be
 added to all nominal columns. This is protective in deployment: new levels
@@ -144,6 +148,12 @@ prep_data(d = d_train, patient_id, outcome = diabetes,
                         nominal_method = "bagimpute"),
           collapse_rare_factors = FALSE, center = TRUE, scale = TRUE,
           make_dummies = FALSE, remove_near_zero_variance = .02)
+
+# Picking reference levels:
+# Dummy variables are not created for reference levels. Mode levels are
+# chosen as reference levels by default.
+prep_data(d = d_train, patient_id, outcome = diabetes,
+          make_dummies = list(weight_class = "normal"))
 
 # `prep_data` also handles date and time features by default:
 d <-
