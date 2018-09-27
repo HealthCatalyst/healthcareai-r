@@ -276,6 +276,12 @@ predict_model_list_main <- function(object,
   newdata[[mi$target]] <- outcomes
   newdata <- tibble::as_tibble(newdata)
 
+  # Reorder factor levels if classification model and if outcomes exists
+  if (!is.regression_list(object) && !is.null(outcomes)) {
+    newdata[[mi$target]] <-
+      forcats::fct_relevel(newdata[[mi$target]], mi$positive_class)
+  }
+
   # Add groups if desired
   if (mi$m_class == "Multiclass") {
     if (!is.null(risk_groups) || !is.null(outcome_groups)) {
