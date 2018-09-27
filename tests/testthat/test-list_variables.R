@@ -32,3 +32,22 @@ test_that("Test that output works on factors", {
 test_that("Test error on non-equivalent Types in list", {
   expect_error(list_variables(list(x = list(a = 1, b = 2), y = 3)), "not_atomic")
 })
+
+
+test_that("list_tibble prepares tibble for printing", {
+  exp <- capture_output(print(pima_diabetes))
+  res <- list_tibble(pima_diabetes)
+  expect_equal(exp, res)
+  expect_true(stringr::str_detect(res, "tibble"))
+  expect_true(stringr::str_detect(res, "skinfold"))
+  expect_true(stringr::str_detect(res, "758 more rows"))
+})
+
+test_that("list_tibble prepares df for printing", {
+  d <- as.data.frame(mtcars[1:3, 1:3])
+  exp <- capture_output(print(d))
+  res <- list_tibble(d)
+  expect_equal(exp, res)
+  expect_true(stringr::str_detect(res, "Mazda"))
+  expect_true(stringr::str_detect(res, "22.8"))
+})

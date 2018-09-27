@@ -126,13 +126,18 @@ cs <- build_connection_string(server = "localhost",
                               database = "testSAM")
 
 test_that("write errors when data or connection is wrong", {
-  skip_on_not_appveyor()
   d <- tibble::tibble(id = 7,
                       word_of_day = c("hello"))
   expect_error(db_write("notdata", "con", "schema", "table", "over"),
                "data frame")
   expect_error(db_write(d, "con", "schema", "table", "over"),
                "Microsoft")
+})
+
+test_that("write errors when data or connection is wrong", {
+  skip_on_not_appveyor()
+  d <- tibble::tibble(id = 7,
+                      word_of_day = c("hello"))
   cs2 <- build_connection_string(server = "localhost")
   con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs2)
   expect_error(db_write(d, con, "schema", "table", "over"),
@@ -140,10 +145,9 @@ test_that("write errors when data or connection is wrong", {
   DBI::dbDisconnect(con)
 
   con <- DBI::dbConnect(odbc::odbc(), .connection_string = cs)
-  d <- tibble::tibble(id = 7,
-                      word_of_day = c("hello"))
   expect_error(db_write(d, con, "test_schema", "hcai_unit_tests", "over"),
                "overwrite")
+  DBI::dbDisconnect(con)
 })
 
 test_that("write errors if table/schema doesn't exist", {

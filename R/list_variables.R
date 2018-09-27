@@ -31,5 +31,5 @@ list_variables <- function(my_variables) {
 list_tibble <- function(d) {
   if (!is.data.frame(d))
     stop("not df or tibble")
-  paste(capture.output(print(d)), collapse = "\n")
+  capture_output(print(d))
 }
