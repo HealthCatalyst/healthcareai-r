@@ -405,3 +405,10 @@ test_that("explore uses scaled features appropriately", {
 test_that("multiclass errors", {
   expect_error(explore(multi), "multiclass")
 })
+
+test_that("test removed data throws error", {
+  save_models(m)
+  reloaded_m <- load_models("models.RDS")
+  expect_error(explore(reloaded_m), "Explore requires that data is ")
+  file.remove("models.RDS")
+})

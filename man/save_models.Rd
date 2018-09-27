@@ -5,7 +5,7 @@
 \alias{load_models}
 \title{Save models to disk and load models from disk}
 \usage{
-save_models(x, filename = "models.RDS")
+save_models(x, filename = "models.RDS", sanitize_phi = TRUE)
 
 load_models(filename)
 }
@@ -17,6 +17,11 @@ load_models(filename)
 the working directory (\code{getwd()}). Default for \code{load_models} is
 to open a dialog box from which a file can be selected, in which case a
 message will issued with code to load the same file without interactivity.}
+
+\item{sanitize_phi}{Logical. If TRUE (default) training data is removed from
+the model object before being saved. Removing training data is important
+when sharing models that were trained with data that contain PHI. If
+removed, \code{\link{explore}} will not have data to process.}
 }
 \value{
 \code{load_models} returns the model_list which can be assigned to

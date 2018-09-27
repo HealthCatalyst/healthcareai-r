@@ -229,6 +229,15 @@ test_that("performance drops if the best model is pulled out of model_list", {
   expect_true(original_rmse < subsetted_rmse)
 })
 
+test_that("extract_model_info has correct has_training_data item", {
+  mi <- extract_model_info(r_models)
+  expect_true(mi[["has_training_data"]])
+
+  attr(r_models, "recipe")$template <- NULL
+  mi <- extract_model_info(r_models)
+  expect_false(mi[["has_training_data"]])
+})
+
 test_that("extraction from model list doesn't change model-trained timestamp", {
   expect_equal(attr(c_models, "timestamp"), attr(c_models[1], "timestamp"))
 })
