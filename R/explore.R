@@ -114,6 +114,9 @@ explore <- function(models,
   if (is.null(rec))
     stop("models must have been trained on prepped data, either through ",
          "machine_learn or prep_data.")
+  if (is.null(attr(models, "recipe")$template))
+    stop("Explore requires that data is attached to the model object. You must",
+         " use `save_models(model, sanitize_phi = FALSE)` to keep it.")
   training_data <- attr(models, "recipe")$template
 
   variables <-
