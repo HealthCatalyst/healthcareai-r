@@ -23,4 +23,19 @@ test_that("load_models works", {
   expect_equal(attr(reloaded_m, "loaded_from_rds"), "models.RDS")
 })
 
+test_that("load_model allows user to pick file and alerts message", {
+  with_mock(
+    file.choose = function() "models.RDS",
+    mes <- capture_messages(reloaded_m <- load_models())
+  )
+  expect_equal(class(m)[1], "classification_list")
+  expect_equal(class(reloaded_m)[1], "classification_list")
+  expect_equal(attr(reloaded_m, "loaded_from_rds"), "models.RDS")
+
+  expect_equal(
+    mes,
+    "Loading models. You could automate this with `load_models(\"models.RDS\")`\n"
+  )
+})
+
 file.remove("models.RDS")

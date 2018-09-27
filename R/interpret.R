@@ -66,9 +66,14 @@ interpret <- function(x, sparsity = NULL, remove_zeros = TRUE, top_n) {
     coefs <- coefs[, j, drop = FALSE]
     lambda <- g$lambda[j]
   }
+
+  # find the dummy object
+  dummy_step_object <- get_recipe_step(x, "step_dummy_hcai")
+
   coefs <-
     tibble::tibble(variable = rownames(coefs), coefficient = coefs[, 1]) %>%
-    dplyr::arrange(desc(variable == "(Intercept)"), desc(abs(coefficient)))
+    dplyr::arrange(desc(variable == "(Intercept)"), desc(abs(coefficient))) %>%
+    add_refs(dummy_step_object)
 
   # caret and glmnet take opposite approaches to positive outcome handling,
   # so need to flip the signs of coefficients for classification models
@@ -88,7 +93,29 @@ interpret <- function(x, sparsity = NULL, remove_zeros = TRUE, top_n) {
             m_class = mi$m_class,
             target = mi$target,
             lambda = lambda,
-            alpha = g$tuneValue[["alpha"]])
+            alpha = g$tuneValue[["alpha"]],
+            ref_levels = dummy_step_object$ref_levels)
+}
+
+#' Adds existing reference levels to variable names
+#' @param d A tibble with a variable and coefficient column
+#' @param x a model_list object containing a glmnet model
+#' @return A tibble with reference levels added to variable names
+#' @noRd
+add_refs <- function(d, dummy_step_object) {
+  if (!is.null(dummy_step_object)) {
+    dummies <- dummy_step_object$dummies
+
+    d$variable <- map_chr(d$variable, ~{
+      if (.x %in% dummies$dummy) {
+        var <- paste0(.x, " (vs. ", dummies$ref[dummies$dummy == .x], ")")
+      } else {
+        var <- .x
+      }
+      return(var)
+    })
+  }
+  return(d)
 }
 
 #' Plot regularized model coefficients
@@ -166,4 +193,20 @@ plot.interpret <- function(x, include_intercept = FALSE, max_char = 40,
   if (print)
     print(the_plot)
   return(invisible(the_plot))
+}
+
+# Print interpret objects
+#' @export
+print.interpret <- function(x, ...) {
+  ref_levels <- attr(x, "ref_levels")
+  out <-
+    if (!purrr::is_empty(ref_levels)) {
+      paste0(c("Reference Levels:\n",
+               paste0("All `", names(ref_levels),
+                      "` estimates are relative to `", ref_levels, "`\n"),
+               "\n"), collapse = "")
+    }
+  cat(out)
+  NextMethod(x)
+  return(invisible(x))
 }

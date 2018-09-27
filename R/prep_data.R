@@ -11,14 +11,15 @@
 #'   values via imputation*} \item{Collapse rare categories into "other"*}
 #'   \item{Center numeric columns} \item{Standardize numeric columns}
 #'   \item{Create dummy variables from categorical variables*} \item{Add
-#'   protective levels to factors for rare and missing data*}} While preparing
-#'   your data, a recipe will be generated for identical transformation of
-#'   future data and stored in the `recipe` attribute of the output data frame.
-#'   If a recipe object is passed to `prep_data` via the `recipe` argument, that
-#'   recipe will be applied to the data. This allows you to transform data in
-#'   model training and apply exactly the same transformations in model testing
-#'   and deployment. The new data must be identical in structure to the data
-#'   that the recipe was prepared with.
+#'   protective levels to factors for rare and missing data*} \item{Convert
+#'   columns to principle components using PCA}} While preparing your data, a
+#'   recipe will be generated for identical transformation of future data and
+#'   stored in the `recipe` attribute of the output data frame.If a recipe
+#'   object is passed to `prep_data` via the `recipe` argument, thatrecipe will
+#'   be applied to the data. This allows you to transform data inmodel training
+#'   and apply exactly the same transformations in model testing and deployment.
+#'   The new data must be identical in structure to the data that the recipe was
+#'   prepared with.
 #'
 #' @param d A data frame
 #' @param ... Optional. Columns to be ignored in preparation and model training,
@@ -59,12 +60,23 @@
 #'   into a new category, `other`. If numeric, must be in {0, 1}, and is the
 #'   proportion of observations below which levels will be grouped into other.
 #'   See `recipes::step_other`.
+#' @param PCA Integer or Logical. PCA reduces training time, particularly for
+#'   wide datasets, though it renders models less interpretable." If integer,
+#'   represents the number of principal components to convert the numeric data
+#'   into. If TRUE, will convert numeric data into 5 principal components. PCA
+#'   requires that data is centered and scaled and will set those params to
+#'   TRUE. Default is FALSE.
 #' @param center Logical. If TRUE, numeric columns will be centered to have a
-#'   mean of 0. Default is FALSE.
+#'   mean of 0. Default is FALSE, unless PCA is performed, in which case it is
+#'   TRUE.
 #' @param scale Logical. If TRUE, numeric columns will be scaled to have a
-#'   standard deviation of 1. Default is FALSE.
-#' @param make_dummies Logical. If TRUE (default), dummy columns will be created
-#'   for categorical variables.
+#'   standard deviation of 1. Default is FALSE, unless PCA is performed, in
+#'   which case it is TRUE.
+#' @param make_dummies Logical or list. If TRUE (default), dummy columns will be
+#'   created for categorical variables. When dummy columns are created, columns
+#'   are not created for reference levels. By default, the levels are reassigned
+#'   so the mode value is the reference level. If a named list is provided,
+#'   those values will replace the reference levels. See the example for details.
 #' @param add_levels Logical. If TRUE (default), "other" and "missing" will be
 #'   added to all nominal columns. This is protective in deployment: new levels
 #'   found in deployment will become "other" and missingness in deployment can
@@ -117,6 +129,14 @@
 #'           collapse_rare_factors = FALSE, center = TRUE, scale = TRUE,
 #'           make_dummies = FALSE, remove_near_zero_variance = .02)
 #'
+#' # Picking reference levels:
+#' # Dummy variables are not created for reference levels. Mode levels are
+#' # chosen as reference levels by default. The list given to `make_dummies`
+#' # sets the reference level for `weight_class` to "normal". All other values
+#' # in `weight_class` will create a new dummy column that is relative to normal.
+#' prep_data(d = d_train, patient_id, outcome = diabetes,
+#'           make_dummies = list(weight_class = "normal"))
+#'
 #' # `prep_data` also handles date and time features by default:
 #' d <-
 #'   pima_diabetes %>%
@@ -131,6 +151,22 @@
 #' # When `convert_dates` is set to "categories", the prepped data will be more
 #' # readable, but will be wider.
 #' prep_data(d = d_train, convert_dates = "categories")
+#'
+#' # PCA to reduce training time:
+#' \dontrun{
+#' start_time <- Sys.time()
+#' pd <- prep_data(pima_diabetes, patient_id, outcome = diabetes, PCA = FALSE)
+#' ncol(pd)
+#' m <- machine_learn(pd, patient_id, outcome = diabetes)
+#' end_time <- Sys.time()
+#' end_time - start_time
+#'
+#' start_time <- Sys.time()
+#' pcapd <- prep_data(pima_diabetes, patient_id, outcome = diabetes, PCA = TRUE)
+#' ncol(pcapd)
+#' m <- machine_learn(pcapd, patient_id, outcome = diabetes)
+#' Sys.time() - start_time
+#' }
 prep_data <- function(d,
                       ...,
                       outcome,
@@ -139,6 +175,7 @@ prep_data <- function(d,
                       convert_dates = TRUE,
                       impute = TRUE,
                       collapse_rare_factors = TRUE,
+                      PCA = FALSE,
                       center = FALSE,
                       scale = FALSE,
                       make_dummies = TRUE,
@@ -198,7 +235,7 @@ prep_data <- function(d,
   opt <- options("contrasts")[[1]][[1]]
   if (opt != "contr.treatment"){
     w <- paste0("Your unordered-factor contrasts option is set to ", opt,
-                ". This may produce unexpected behavior, particularly in step_dummy in prep_data. ",
+                ". This may produce unexpected behavior, particularly in make_dummies in prep_data. ",
                 "Consider resetting it by restarting R, or with: ",
                 "options(contrasts = c(\"contr.treatment\", \"contr.poly\"))")
     warning(w)
@@ -373,6 +410,19 @@ prep_data <- function(d,
       stop("impute must be boolean or list.")
     }
 
+    #Set center and scale to whatever PCA is if PCA is enabled
+    if (!(is.numeric(PCA) || is.logical(PCA)))
+      stop("PCA must be logical or numeric")
+    if (as.logical(PCA)) {
+      if (!(as.logical(center) && as.logical(scale))) {
+        warning("\"d\" must be centered and scaled to perform PCA. Center and Scale are being set to TRUE.")
+        center <- as.logical(PCA)
+        scale <- as.logical(PCA)
+      }
+    }
+
+
+
     # If there are numeric predictors, apply numeric transformations
     var_info <- recipe$var_info
     if (any(var_info$type == "numeric" & var_info$role == "predictor")) {
@@ -380,14 +430,16 @@ prep_data <- function(d,
       # Log transform
       # Saving until columns can be specified
 
+
+
       # Center ------------------------------------------------------------------
-      if (center) {
+      if (isTRUE(as.logical(center))) {
         recipe <- recipe %>%
           recipes::step_center(all_numeric(), - all_outcomes())
       }
 
       # Scale -------------------------------------------------------------------
-      if (scale) {
+      if (isTRUE(as.logical(scale))) {
         recipe <- recipe %>%
           recipes::step_scale(all_numeric(), - all_outcomes())
       }
@@ -422,10 +474,34 @@ prep_data <- function(d,
         recipe <- step_add_levels(recipe, all_nominal(), - all_outcomes())
 
       # make_dummies -----------------------------------------------------------
-      if (make_dummies) {
-        recipe <- recipe %>%
-          recipes::step_dummy(all_nominal(), - all_outcomes())
+      if (isTRUE(make_dummies)) {
+        make_dummies <- list()
       }
+      if (is.list(make_dummies)) {
+        recipe <- recipe %>%
+          step_dummy_hcai(all_nominal(), - all_outcomes(),
+                          levels = make_dummies)
+      } else if (!is.logical(make_dummies)) {
+        stop("step_dummies must be logical or list")
+      }
+    }
+
+    #PCA ----------------------------------------------------------------------
+    if (as.logical(PCA)) {
+
+      if (!impute && !is.list(impute))
+        stop("NAs present in \"d\". PCA not compatible when NAs are present.")
+
+      # Set PCA to default 5 PCs if PCA input was TRUE
+      if (is.logical(PCA))
+        PCA <- 5
+
+      if (PCA > length(recipes::prep(recipe, training = d)$term_info$role == "predictor"))
+        stop("Can't have more components than columns in \"d\".")
+
+      # Perform PCA
+      recipe <- recipe %>%
+        recipes::step_pca(all_numeric(), -all_outcomes(), num = as.integer(PCA))
     }
 
     # Prep the newly built recipe ---------------------------------------------
