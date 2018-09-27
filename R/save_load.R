@@ -49,8 +49,8 @@ save_models <- function(x, filename = "models.RDS", sanitize_phi = TRUE) {
 load_models <- function(filename) {
   if (missing(filename)) {
     filename <- file.choose()
-    mes <- paste0("Loading models. You could automate this with `load_models(",
-                  filename, ")`")
+    mes <- paste0('Loading models. You could automate this with `load_models("',
+                  filename, '")`')
     message(mes)
   }
   x <- readRDS(filename)

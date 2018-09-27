@@ -179,3 +179,22 @@ Mode <- function(x) {
     ux[which.max(tabulate(match(x, ux)))]
   }
 }
+
+#' Finds a step object
+#' @param x an object that contains a recipe
+#' @param step_name the name of a step
+#' @return the step object
+#' @noRd
+get_recipe_step <- function(x, step_name) {
+  steps <- (x %>% attr("recipe"))$step
+  loc <- purrr::map_lgl(steps, ~{
+    class(.x) %>% first() == step_name
+  }
+  )
+  step_object <-
+    if (any(loc))
+      steps[loc][[1]]
+  else
+    NULL
+  return(step_object)
+}
