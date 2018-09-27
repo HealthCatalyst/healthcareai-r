@@ -409,6 +409,6 @@ test_that("multiclass errors", {
 test_that("test removed data throws error", {
   save_models(m)
   reloaded_m <- load_models("models.RDS")
-  expect_error(explore(reloaded_m), "there is not any data to explore with!")
+  expect_error(explore(reloaded_m), "Explore requires that data is ")
   file.remove("models.RDS")
 })

@@ -23,11 +23,11 @@ print.predicted_df <- function(x, ...) {
                   round(mi$performance, 2), "\n")
     if (!mi$has_training_data)
       mes <- paste0(mes, "Your model was sanitized of PHI when stored and no ",
-                    "data was provided. If this sanitation was in error, ",
-                    "save your model with `sanitize_phi = False` in ",
-                    "`save_models`. Otherwise, to include your data in this ",
-                    "dataframe, please use `cbind` or `predict` with `newdata ",
-                    "= [original_data]`.\n")
+                    "new data was provided. If this sanitation was in ",
+                    "error, use `save_models(model, sanitize_phi = FALSE)` to ",
+                    "keep it. Otherwise, to include your data in this ",
+                    "dataframe, please use `cbind` or ",
+                    "`predict(model, newdata)`.\n")
     message(mes)
     # Avoid dispatching print.prepped_df:
     y <- structure(x, class = class(x)[!stringr::str_detect(class(x), "^(predicted)|(prepped)")])
