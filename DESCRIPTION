@@ -23,6 +23,7 @@ Imports:
     dbplyr,
     dplyr (>= 0.7.6),
     e1071,
+    forcats,
     ggplot2,
     glmnet,
     lubridate,
