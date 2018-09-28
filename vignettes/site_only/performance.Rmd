@@ -1,5 +1,5 @@
 ---
-title: "Performance with Big Data"
+title: "Performance on Large Datasets"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Getting Started with healthcareai}
@@ -201,35 +201,38 @@ d_clean2 %>%
   select(starts_with("dest"))
 ```
 
-By default, `prep_data` will also transform dates into categorical columns that 
-make the dataset larger. That can be good, as there planes might tend to be more
-often delayed in snowy January than cool October. Categorical months
-are technically more correct than numeric months as January (1) is not less than February 
-(2). Similarly, an `hour_of_day` column could be a categorical column or a 
-numeric. Categorical columns will create a larger dataset but will perform better 
-using GLM. It's fine to leave these as numeric for tree-based methods like
-random forest or xgboost.
+By default, `prep_data` will also transform dates into circular numeric columns that
+can be used by a machine learning model. The simplest conversion is
+to use categorical columns that eventually become 0/1 columns for each month and day
+of week. That method is interpretable and will capture the fact that March is not
+greater than February. However, it will cause the
+the dataset to grow large. Circular representation ensures that the switch from
+December (12) to January (1) is equivalent to changing 1 month. Fewer columns are 
+created and models will train faster.
 
-Using categorical dates, needed for GLM, we get 81 columns. That might be slow.
+Using circular numeric dates, the one date-time column is converted into 7 numeric columns.
 ```{r}
 library(lubridate)
 d_clean2 <- d %>%
-  mutate(hour_of_day = as.character(hour(time_hour))) %>%
+  select(-year, -month, -day) %>%
+  prep_data(outcome = arr_delay, 
+            ... = tailnum,
+            collapse_rare_factors = 0.02,
+            convert_dates = TRUE)
+d_clean2 %>%
+  select(starts_with("time_hour"))
+```
+
+Using categorical dates, the one data column is turned into 23 sparse (mostly 0) columns.
+```{r}
+d_clean2 <- d %>%
+  select(-year, -month, -day) %>%
   prep_data(outcome = arr_delay, 
             ... = tailnum,
             collapse_rare_factors = 0.02,
             convert_dates = "categories")
-d_clean2
-```
-If we want numeric dates, fine for RF or XGB, we can specify that. 
-With numeric dates, 46 columns remain.
-```{r}
-d_clean2 <- d %>%
-  prep_data(outcome = arr_delay, 
-            ... = tailnum,
-            collapse_rare_factors = 0.02,
-            convert_dates = "continuous")
-d_clean2
+d_clean2 %>%
+  select(starts_with("time_hour"))
 ```
 
 ### Select Best Levels
