@@ -92,7 +92,7 @@ plot.predicted_df <- function(x,
     } else {
       NULL
     }
-  x_angle <- the_plot$theme$axis.text.x$angle
+  x_angle <- the_plot$theme$axis.text.x$angle #nolint
   the_plot <-
     the_plot +
     labs(caption = cap, title = title) +

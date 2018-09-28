@@ -136,7 +136,7 @@ test_that("Arguments to plot.predictedp_df get passed to plot_multiclass_predict
   expect_equal(ggplot_build(p)$plot$labels$title, my_title)
   expect_equal(length(p$layers), 2)
   expect_equal(ggplot_build(p)$data[[1]]$fill[1], "#FF0000") # green
-  expect_equal(p$theme$axis.text.x$angle, 30)
+  expect_equal(p$theme$axis.text.x$angle, 30)  #nolint
 })
 
 test_that("fixed_aspect works", {
