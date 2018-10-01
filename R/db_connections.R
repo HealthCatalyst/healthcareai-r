@@ -151,7 +151,7 @@ db_read <- function(con,
 #' my_con <- build_connection_string(server = "HPHI-EDWDEV",
 #'                                   database = "SAM")
 #' con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con)
-#' d <- tibble(id = 123, name = John Smith, sex = "Male")
+#' d <- tibble::tibble(id = 123, name = "Vincent Vega", sex = "Male")
 #' d <- db_write(d,
 #'               con,
 #'               schema = "patient",
