@@ -240,17 +240,17 @@ plot_multiclass_predictions <- function(x,
     coord_fixed()
   # Write percentage in each tile
   if (!is.numeric(text_size) & !is.logical(text_size))
-      stop("text_size must be logical or numeric")
+    stop("text_size must be logical or numeric")
   if (isTRUE(text_size))
     text_size <- 3
   if (is.numeric(text_size))
     p <- p +
-      geom_text(aes(label = sprintf("%.1f", percent)), size = text_size, color = text_color)
+    geom_text(aes(label = sprintf("%.1f", percent)), size = text_size, color = text_color)
 
   p <- p +
     scale_fill_gradient(name = "% Matched",
-                          low = conf_colors[1],
-                          high = conf_colors[2])
+                        low = conf_colors[1],
+                        high = conf_colors[2])
   # Highlight diagonals
   p <- p +
     geom_tile(data = filter(confusion, diag),

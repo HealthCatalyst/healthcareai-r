@@ -106,7 +106,7 @@ test_that("multiclass correct predictions are on main diagonal", {
 test_that("Arguments to plot.predicted_df get passed to plot_regression_predictions", {
   my_title <- "this is my title"
   p <- plot(reg_preds_self, title = my_title, point_size = 2,
-             point_alpha = .5, font_size = 18, print = FALSE)
+            point_alpha = .5, font_size = 18, print = FALSE)
   expect_s3_class(p, "gg")
   expect_equal(ggplot_build(p)$plot$labels$title, my_title)
 })
