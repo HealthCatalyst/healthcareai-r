@@ -4,12 +4,11 @@
 \alias{prep_data}
 \title{Prepare data for machine learning}
 \usage{
-prep_data(d, ..., outcome, recipe = NULL,
-  remove_near_zero_variance = TRUE, convert_dates = TRUE,
-  impute = TRUE, collapse_rare_factors = TRUE, PCA = FALSE,
-  center = FALSE, scale = FALSE, make_dummies = TRUE,
-  add_levels = TRUE, logical_to_numeric = TRUE,
-  factor_outcome = TRUE, no_prep = FALSE)
+prep_data(d, ..., outcome, recipe = NULL, remove_near_zero_variance = TRUE,
+  convert_dates = TRUE, impute = TRUE, collapse_rare_factors = TRUE,
+  PCA = FALSE, center = FALSE, scale = FALSE, make_dummies = TRUE,
+  add_levels = TRUE, logical_to_numeric = TRUE, factor_outcome = TRUE,
+  no_prep = FALSE)
 }
 \arguments{
 \item{d}{A data frame}
@@ -75,11 +74,10 @@ standard deviation of 1. Default is FALSE, unless PCA is performed, in
 which case it is TRUE.}
 
 \item{make_dummies}{Logical or list. If TRUE (default), dummy columns will be
-created for categorical variables. When dummy columns are created, a column
-is not created for reference levels. By default, the levels are reassigned
-so the mode value is the reference level. If a named list is provided
-instead of logical, each value will replace the mode as reference level for
-the variable that matches the value name.}
+created for categorical variables. When dummy columns are created, columns
+are not created for reference levels. By default, the levels are reassigned
+so the mode value is the reference level. If a named list is provided,
+those values will replace the reference levels. See the example for details.}
 
 \item{add_levels}{Logical. If TRUE (default), "other" and "missing" will be
 added to all nominal columns. This is protective in deployment: new levels
@@ -151,7 +149,9 @@ prep_data(d = d_train, patient_id, outcome = diabetes,
 
 # Picking reference levels:
 # Dummy variables are not created for reference levels. Mode levels are
-# chosen as reference levels by default.
+# chosen as reference levels by default. The list given to `make_dummies`
+# sets the reference level for `weight_class` to "normal". All other values
+# in `weight_class` will create a new dummy column that is relative to normal.
 prep_data(d = d_train, patient_id, outcome = diabetes,
           make_dummies = list(weight_class = "normal"))
 
