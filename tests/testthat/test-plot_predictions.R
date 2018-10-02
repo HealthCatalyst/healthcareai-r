@@ -106,7 +106,7 @@ test_that("multiclass correct predictions are on main diagonal", {
 test_that("Arguments to plot.predicted_df get passed to plot_regression_predictions", {
   my_title <- "this is my title"
   p <- plot(reg_preds_self, title = my_title, point_size = 2,
-             point_alpha = .5, font_size = 18, print = FALSE)
+            point_alpha = .5, font_size = 18, print = FALSE)
   expect_s3_class(p, "gg")
   expect_equal(ggplot_build(p)$plot$labels$title, my_title)
 })
@@ -124,15 +124,19 @@ test_that("Arguments to plot.predicted_df get passed to plot_classification_pred
   expect_equal(ggplot_build(p)$plot$labels$title, my_title)
 })
 
-test_that("Arguments to plot.predicted_df get passed to plot_multiclass_predictions", {
+test_that("Arguments to plot.predictedp_df get passed to plot_multiclass_predictions", {
   my_title <- "this is my title"
   p <- plot(multi_preds_self,
             title = my_title,
-            conf_colors = c(Y = "green", N = "red"),
+            conf_colors = c("green", "red"),
+            text_size = FALSE,
+            text_angle = 30,
             print = FALSE)
   expect_s3_class(p, "gg")
   expect_equal(ggplot_build(p)$plot$labels$title, my_title)
+  expect_equal(length(p$layers), 2)
   expect_equal(ggplot_build(p)$data[[1]]$fill[1], "#FF0000") # green
+  expect_equal(p$theme$axis.text.x$angle, 30)  #nolint
 })
 
 test_that("fixed_aspect works", {

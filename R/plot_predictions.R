@@ -92,13 +92,17 @@ plot.predicted_df <- function(x,
     } else {
       NULL
     }
+  x_angle <- the_plot$theme$axis.text.x$angle #nolint
   the_plot <-
     the_plot +
     labs(caption = cap, title = title) +
     theme_gray(base_size = font_size)
   if (!is.null(fixed_aspect) && fixed_aspect)
     the_plot <- the_plot + coord_fixed()
+  if (is.numeric(x_angle))
+    the_plot <- the_plot + theme(axis.text.x = element_text(angle = x_angle, hjust = 1))
   # Print and return
+
   if (print)
     print(the_plot)
   return(invisible(the_plot))
@@ -183,12 +187,19 @@ plot_classification_predictions <- function(x,
 #'   Default is c("black", "steelblue").
 #' @param text_color Character: color to write percent correct.
 #'   Default is "yellow".
+#' @param text_size Numeric or logical: size of percent correct text. Defaults to
+#' 3, a readable size. Greater than 20 classes might need smaller text. Text can be
+#'  turned off by setting to FALSE.
+#' @param text_angle Numeric or logical: angle to rotate x axis text. Defaults to
+#' 60 degrees. Setting to FALSE will turn text horizontal.
 #' @param diag_color Character: color to highlight main diagonal. These are
 #'   correct predictions. Default is "red".
 #' @rdname plot.predicted_df
 plot_multiclass_predictions <- function(x,
                                         conf_colors = c("black", "steelblue"),
                                         text_color = "yellow",
+                                        text_size = 3,
+                                        text_angle = 60,
                                         diag_color = "red",
                                         target) {
   preds <- paste0("predicted_", target)
@@ -228,15 +239,29 @@ plot_multiclass_predictions <- function(x,
     ylab(preds) +
     coord_fixed()
   # Write percentage in each tile
+  if (!is.numeric(text_size) & !is.logical(text_size))
+    stop("text_size must be logical or numeric")
+  if (isTRUE(text_size))
+    text_size <- 3
+  if (is.numeric(text_size))
+    p <- p +
+    geom_text(aes(label = sprintf("%.1f", percent)), size = text_size, color = text_color)
+
   p <- p +
-    geom_text(aes(label = sprintf("%.1f", percent)), size = 3, color = text_color) +
-    scale_fill_gradient(name = "% Correct",
+    scale_fill_gradient(name = "% Matched",
                         low = conf_colors[1],
                         high = conf_colors[2])
   # Highlight diagonals
-  p <-  p +
+  p <- p +
     geom_tile(data = filter(confusion, diag),
               color = diag_color, size = 0.3, fill = "black", alpha = 0)
 
+  # Rotate labels
+  if (!is.numeric(text_angle) & !is.logical(text_angle))
+    stop("text_angle must be logical or numeric")
+  if (isTRUE(text_angle))
+    text_size <- 3
+  if (is.numeric(text_angle))
+    p <- p + theme(axis.text.x = element_text(angle = text_angle, hjust = 1))
   return(p)
 }
