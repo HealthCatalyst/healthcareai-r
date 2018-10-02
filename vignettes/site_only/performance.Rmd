@@ -206,7 +206,8 @@ can be used by a machine learning model. The simplest conversion is
 to use categorical columns that eventually become 0/1 columns for each month and day
 of week. That method is interpretable and will capture the fact that March is not
 greater than February. However, it will cause the
-the dataset to grow large. Circular representation ensures that the switch from
+the dataset to grow large. Circular representation allows all the same information to be
+stored in fewer, numeric columns. It ensures that the switch from
 December (12) to January (1) is equivalent to changing 1 month. Fewer columns are 
 created and models will train faster.
 
