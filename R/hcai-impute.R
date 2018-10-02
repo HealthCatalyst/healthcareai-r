@@ -78,11 +78,13 @@ hcai_impute <- function(recipe,
   }
 
   # If methods dont exist, use defaults
-  if (!(numeric_method %in% c("mean", "bagimpute", "knnimpute"))) {
+  possible_numeric_methods <- c("mean", "bagimpute", "knnimpute")
+  if (!(numeric_method %in% possible_numeric_methods)) {
     stop("non-supported numeric method. Use \"mean\", \"bagimpute\",
          or \"knnimpute\"")
   }
-  if (!(nominal_method %in% c("new_category", "bagimpute", "knnimpute"))) {
+  possible_nominal_method <- c("new_category", "bagimpute", "knnimpute")
+  if (!(nominal_method %in% possible_nominal_method)) {
     stop("non-supported nominal method. Use \"new_category\", \"bagimpute\",
          or \"knnimpute\"")
   }
@@ -102,15 +104,8 @@ hcai_impute <- function(recipe,
   nom_p[names(nom_p) %in% names(nominal_params)] <- nominal_params
 
   # Warn if extra bag names
-  available_param_names <- c("bag_model", "bag_options", "knn_K", "impute_with",
-                             "seed_val")
-  all_user_params <- names(c(numeric_params, nominal_params))
-  extras  <- all_user_params[!(all_user_params %in% available_param_names)]
-  if (length(extras > 0)) {
-    warning("You have extra imputation parameters that won't be used: ",
-            list_variables(extras),
-            ". Available params are: ", list_variables(available_param_names))
-  }
+  check_params(possible_numeric_methods, numeric_method, numeric_params)
+  check_params(possible_nominal_method, nominal_method, nominal_params)
 
   # Catch datasets where all predictors are of one type
   vi <- recipe$var_info
@@ -163,4 +158,31 @@ hcai_impute <- function(recipe,
     }
   }
   return(recipe)
+}
+
+check_params <- function(possible_methods, cur_method, cur_params) {
+  available_params <- list(
+    knnimpute = c("knn_K", "impute_with", "seed_val"),
+    bagimpute = c("bag_model", "bag_options", "impute_with", "seed_val"),
+    mean = NULL,
+    new_category = NULL
+  )
+
+  purrr::map(possible_methods, ~{
+    if (cur_method == .x) {
+      matched_params <- names(cur_params) %in% available_params[[.x]]
+      new_params <- names(cur_params)[!matched_params]
+      if (length(new_params)) {
+        mes <-
+          if (is.null(available_params[[.x]]))
+            paste0(.x, " doesn't take any parameters")
+          else
+            paste0("Available params are: ",
+                   list_variables(available_params[[.x]]))
+        warning("You have extra imputation parameters that won't be used for ",
+                .x, ": ", list_variables(new_params),
+                ". ", mes)
+      }
+    }
+  })
 }
