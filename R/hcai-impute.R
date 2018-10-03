@@ -160,6 +160,9 @@ hcai_impute <- function(recipe,
   return(recipe)
 }
 
+
+#' Throws a warning if the parameters given don't match the supported parameters
+#' @noRd
 check_params <- function(possible_methods, cur_method, cur_params) {
   available_params <- list(
     knnimpute = c("knn_K", "impute_with", "seed_val"),
@@ -175,13 +178,12 @@ check_params <- function(possible_methods, cur_method, cur_params) {
       if (length(new_params)) {
         mes <-
           if (is.null(available_params[[.x]]))
-            paste0(.x, " doesn't take any parameters")
+            paste0("There are no required parameters for ", .x, ".")
           else
             paste0("Available params are: ",
-                   list_variables(available_params[[.x]]))
+                   list_variables(available_params[[.x]]), ".")
         warning("You have extra imputation parameters that won't be used for ",
-                .x, ": ", list_variables(new_params),
-                ". ", mes)
+                .x, ": ", list_variables(new_params), ". ", mes)
       }
     }
   })
