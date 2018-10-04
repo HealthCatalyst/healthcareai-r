@@ -84,7 +84,7 @@ hcai_impute <- function(recipe,
          or \"knnimpute\"")
   }
   possible_nominal_methods <- c("new_category", "bagimpute", "knnimpute")
-  if (!(nominal_method %in% possible_nominal_method)) {
+  if (!(nominal_method %in% possible_nominal_methods)) {
     stop("non-supported nominal method. Use \"new_category\", \"bagimpute\",
          or \"knnimpute\"")
   }
