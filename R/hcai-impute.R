@@ -83,7 +83,7 @@ hcai_impute <- function(recipe,
     stop("non-supported numeric method. Use \"mean\", \"bagimpute\",
          or \"knnimpute\"")
   }
-  possible_nominal_method <- c("new_category", "bagimpute", "knnimpute")
+  possible_nominal_methods <- c("new_category", "bagimpute", "knnimpute")
   if (!(nominal_method %in% possible_nominal_method)) {
     stop("non-supported nominal method. Use \"new_category\", \"bagimpute\",
          or \"knnimpute\"")
@@ -109,7 +109,7 @@ hcai_impute <- function(recipe,
 
   # Warn if params don't match chosen imputation method
   check_params(possible_numeric_methods, numeric_method, numeric_params)
-  check_params(possible_nominal_method, nominal_method, nominal_params)
+  check_params(possible_nominal_methods, nominal_method, nominal_params)
 
   # Catch datasets where all predictors are of one type
   vi <- recipe$var_info
