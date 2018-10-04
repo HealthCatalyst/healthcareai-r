@@ -100,10 +100,14 @@ hcai_impute <- function(recipe,
 
   # Fill in user-specified params
   num_p <- nom_p <- defaults
-  num_p[names(num_p) %in% names(numeric_params)] <- numeric_params
-  nom_p[names(nom_p) %in% names(nominal_params)] <- nominal_params
+  suppressWarnings( # Silence confusing warning when params don't match
+    num_p[names(num_p) %in% names(numeric_params)] <- numeric_params
+  )
+  suppressWarnings(
+    nom_p[names(nom_p) %in% names(nominal_params)] <- nominal_params
+  )
 
-  # Warn if extra bag names
+  # Warn if params don't match chosen imputation method
   check_params(possible_numeric_methods, numeric_method, numeric_params)
   check_params(possible_nominal_method, nominal_method, nominal_params)
 
@@ -176,14 +180,14 @@ check_params <- function(possible_methods, cur_method, cur_params) {
       matched_params <- names(cur_params) %in% available_params[[.x]]
       new_params <- names(cur_params)[!matched_params]
       if (length(new_params)) {
-        mes <-
+        available_params_mes <-
           if (is.null(available_params[[.x]]))
-            paste0("There are no required parameters for ", .x, ".")
+            paste0("There are not available parameters for ", .x, ".")
           else
-            paste0("Available params are: ",
+            paste0("Available ", .x, " params are: ",
                    list_variables(available_params[[.x]]), ".")
-        warning("You have extra imputation parameters that won't be used for ",
-                .x, ": ", list_variables(new_params), ". ", mes)
+        warning("The following extra parameters won't be used for ", .x, ": ",
+                list_variables(new_params), ". ", available_params_mes)
       }
     }
   })

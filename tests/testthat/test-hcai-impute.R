@@ -84,7 +84,7 @@ test_that("Non-supported params throw warnings.", {
   expect_warning(
     recipe %>%
       hcai_impute(numeric_method = "knnimpute",
-        numeric_params = list(knn_K = 5, bag_model = "m")),
+                  numeric_params = list(knn_K = 5, bag_model = "m")),
     regexp = "bag_model"
   )
   expect_warning(
