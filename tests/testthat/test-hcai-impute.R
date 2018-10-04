@@ -226,7 +226,7 @@ test_that("test warning for bag imputation mal function", {
   # warning above.
   expect_true(any(is.na(out_data)))
 
-  expect_warning(
+  expect_message(
     my_recipe <-
       recipe(hot_dog ~ ., data = df) %>%
       hcai_impute(numeric_method = "knnimpute"),
@@ -240,7 +240,7 @@ test_that("test warning for bag imputation mal function", {
     regexp = "STRING_ELT()"
   )
 
-  expect_warning(
+  expect_message(
     my_recipe <-
       recipe(hot_dog ~ ., data = df) %>%
       hcai_impute(nominal_method = "knnimpute"),
