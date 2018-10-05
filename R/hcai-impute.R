@@ -131,7 +131,7 @@ hcai_impute <- function(recipe,
         seed_val = num_p$seed_val)
     } else if (numeric_method == "knnimpute") {
       if ("character" %in% map_chr(recipe$template, ~{
-        class(.x)
+        class(.x) %>% first()
       }))
         message("`knnimpute` depends on another library that does not support ",
                 "character columns yet. If `knnimpute` fails please convert ",
@@ -152,7 +152,7 @@ hcai_impute <- function(recipe,
       recipe <- step_missing(recipe, all_nominal(), - all_outcomes())
     } else if (nominal_method == "bagimpute") {
       if ("character" %in% map_chr(recipe$template, ~{
-        class(.x)
+        class(.x) %>% first()
       }))
         warning("`bagimpute` depends on another library that does not support",
                 " character columns yet. If `bagimpute` does not impute missing",
@@ -168,7 +168,7 @@ hcai_impute <- function(recipe,
         seed_val = nom_p$seed_val)
     }  else if (nominal_method == "knnimpute") {
       if ("character" %in% map_chr(recipe$template, ~{
-        class(.x)
+        class(.x) %>% first()
       }))
         message("`knnimpute` depends on another library that does not support ",
                 "character columns yet. If `knnimpute` fails please convert ",
