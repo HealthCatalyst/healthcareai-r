@@ -134,7 +134,7 @@ hcai_impute <- function(recipe,
       }))
         message("`knnimpute` depends on another library that does not support ",
                 "character columns yet. If `knnimpute` fails please convert ",
-                "all character columns to factors for bag imputation.")
+                "all character columns to factors for knn imputation.")
       recipe <- step_knnimpute(
         recipe,
         all_numeric(), - all_outcomes(),
@@ -172,7 +172,7 @@ hcai_impute <- function(recipe,
       }))
         message("`knnimpute` depends on another library that does not support ",
                 "character columns yet. If `knnimpute` fails please convert ",
-                "all character columns to factors for bag imputation.")
+                "all character columns to factors for knn imputation.")
       recipe <- step_knnimpute(
         recipe,
         all_nominal(), - all_outcomes(),
