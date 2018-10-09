@@ -130,6 +130,12 @@ hcai_impute <- function(recipe,
         impute_with = num_p$impute_with,
         seed_val = num_p$seed_val)
     } else if (numeric_method == "knnimpute") {
+      if ("character" %in% map_chr(recipe$template, ~{
+        class(.x) %>% first()
+      }))
+        message("`knnimpute` depends on another library that does not support ",
+                "character columns yet. If `knnimpute` fails please convert ",
+                "all character columns to factors for knn imputation.")
       recipe <- step_knnimpute(
         recipe,
         all_numeric(), - all_outcomes(),
@@ -149,6 +155,15 @@ hcai_impute <- function(recipe,
     if (nominal_method == "new_category") {
       recipe <- step_missing(recipe, all_nominal(), - all_outcomes())
     } else if (nominal_method == "bagimpute") {
+      if ("character" %in% map_chr(recipe$template, ~{
+        class(.x) %>% first()
+      }))
+        warning("`bagimpute` depends on another library that does not support",
+                " character columns yet. Check `bagimpute` by setting ",
+                "`collapse_rare_factors = FALSE`, and verify that missing ",
+                "values have been imputed with `missingness()`. If `bagimpute`",
+                " does not impute missing values, please convert all character",
+                " columns to factors.")
       recipe <- step_bagimpute(
         recipe,
         all_nominal(),
@@ -157,6 +172,12 @@ hcai_impute <- function(recipe,
         impute_with = nom_p$impute_with,
         seed_val = nom_p$seed_val)
     }  else if (nominal_method == "knnimpute") {
+      if ("character" %in% map_chr(recipe$template, ~{
+        class(.x) %>% first()
+      }))
+        message("`knnimpute` depends on another library that does not support ",
+                "character columns yet. If `knnimpute` fails please convert ",
+                "all character columns to factors for knn imputation.")
       recipe <- step_knnimpute(
         recipe,
         all_nominal(), - all_outcomes(),

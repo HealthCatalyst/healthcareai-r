@@ -33,6 +33,7 @@ df$hot_dog[df["condiment"] == "Syrup"] <-
 # Add noise
 df$hot_dog <- df$hot_dog + rnorm(n, mean = 0, sd = 1.25)
 df$hot_dog <- ifelse(df$hot_dog > 0, "Y", "N")
+df$hot_dog <- as.factor(df$hot_dog)
 
 # Add missing data
 df$condiment[sample(1:n, 32, replace = FALSE)] <- NA
@@ -199,16 +200,13 @@ test_that("locf imputation bakes expected results", {
   expect_equal(d_imputed$length[14], 5.850319)
 })
 
-test_that("random columns don't get imputed", {
-  # If a categorical column is completely uncorrelated with other columns, bag
-  # impute will not fill in the missing data. This test is mostly just to make
-  # sure this function is behaving as it was when it was written.
-
+test_that("random columns get imputed when factors", {
   # add randomly distributed columns with NAs
   df$random_chars <- sample(c("NYC", "Chicago"), n, replace = TRUE)
   df$random_nums <- sample(1:n, n, replace = FALSE)
   df$random_chars[sample(1:n, 55, replace = FALSE)] <- NA
   df$random_nums[sample(1:n, 45, replace = FALSE)] <- NA
+  df$random_chars <- as.factor(df$random_chars)
 
   d_train <- df[train_index$Resample1, ]
   d_test <- df[-train_index$Resample1, ]
@@ -223,7 +221,7 @@ test_that("random columns don't get imputed", {
                           prep(training = d_train) %>%
                           bake(newdata = d_test))
 
-  expect_true(any(missingness(d_imputed, return_df = FALSE) != 0))
+  expect_false(any(missingness(d_imputed, return_df = FALSE) != 0))
 
   # knn
   recipe <- recipe(hot_dog ~ ., data = d_train)
@@ -232,7 +230,7 @@ test_that("random columns don't get imputed", {
                                       nominal_method = "knnimpute") %>%
                           prep(training = d_train))
 
-  expect_error(prepped %>% bake(newdata = d_test))
+  expect_error(prepped %>% bake(newdata = d_test), NA)
 })
 
 test_that("all nominal or all numeric columns add 1 step", {
@@ -249,4 +247,49 @@ test_that("all nominal or all numeric columns add 1 step", {
     hcai_impute() %>%
     prep(training = nom_dat)
   expect_equal(length(rec$steps), 1)
+})
+
+test_that("test warning for bag imputation mal function", {
+  df$heat <- as.character(df$heat)
+  df$condiment <- as.character(df$condiment)
+
+  expect_warning(
+    out_data <-
+      recipe(hot_dog ~ ., data = df) %>%
+      hcai_impute(nominal_method = "bagimpute") %>%
+      prep() %>%
+      bake(newdata = df),
+    "`bagimpute` depends on another library"
+  )
+  # If this not true, recipes has fixed bag imputation. Please remove the
+  # warning above.
+  expect_true(any(is.na(out_data)))
+
+  expect_message(
+    my_recipe <-
+      recipe(hot_dog ~ ., data = df) %>%
+      hcai_impute(numeric_method = "knnimpute"),
+    "`knnimpute` depends on another library"
+  )
+  # If this is not throwing an error, recipes has fixed knn imputation. Please
+  # remove the warning above.
+  expect_error(
+    prep(my_recipe) %>%
+      bake(newdata = df),
+    regexp = "STRING_ELT()"
+  )
+
+  expect_message(
+    my_recipe <-
+      recipe(hot_dog ~ ., data = df) %>%
+      hcai_impute(nominal_method = "knnimpute"),
+    "`knnimpute` depends on another library"
+  )
+  # If this is not throwing an error, recipes has fixed knn imputation. Please
+  # remove the warning above.
+  expect_error(
+    prep(my_recipe) %>%
+      bake(newdata = df),
+    regexp = "STRING_ELT()"
+  )
 })
