@@ -61,12 +61,12 @@ test_that("Returns Tibble", {
     step_locfimpute(fac_1, fac_2) %>%
     prep() %>%
     bake(newdata = d)
-  expect_true(is.tibble(out))
+  expect_true(tibble::is.tibble(out))
 })
 
 test_that("Imputes Tibble", {
   out <-
-    recipes::recipe(formula = "~.", as.tibble(d)) %>% #nolint
+    recipes::recipe(formula = "~.", tibble::as.tibble(d)) %>% #nolint
     step_locfimpute(all_nominal(), all_numeric()) %>%
     prep() %>%
     bake(newdata = d)
