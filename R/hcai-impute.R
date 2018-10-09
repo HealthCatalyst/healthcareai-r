@@ -154,10 +154,11 @@ hcai_impute <- function(recipe,
         class(.x) %>% first()
       }))
         warning("`bagimpute` depends on another library that does not support",
-                " character columns yet. If `bagimpute` does not impute missing",
-                " values, please convert all character columns to factors. If ",
-                "`collapse_rare_factors` is TRUE, the values that are not ",
-                'imputed might be contained in "other".')
+                " character columns yet. Check `bagimpute` by setting ",
+                "`collapse_rare_factors = FALSE`, and verify that missing ",
+                "values have been imputed with `missingness()`. If `bagimpute`",
+                " does not impute missing values, please convert all character",
+                " columns to factors.")
       recipe <- step_bagimpute(
         recipe,
         all_nominal(),
