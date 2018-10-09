@@ -10,7 +10,7 @@ d <- data.frame(
   fac_2 = factor(c(NA, "a", "b", "c")),
   stringsAsFactors = FALSE
 )
-rec <- recipes::recipe(formula = "~.", d)
+rec <- recipes::recipe(formula = "~.", d) #nolint
 
 # Tests ------------------------------------------------------------------------
 test_that("Impute numeric", {
@@ -66,7 +66,7 @@ test_that("Returns Tibble", {
 
 test_that("Imputes Tibble", {
   out <-
-    recipes::recipe(formula = "~.", as.tibble(d)) %>%
+    recipes::recipe(formula = "~.", as.tibble(d)) %>% #nolint
     step_locfimpute(all_nominal(), all_numeric()) %>%
     prep() %>%
     bake(newdata = d)
@@ -96,16 +96,16 @@ test_that("Print works both before and after prepping", {
     step_locfimpute(char_1, char_2)
 
   out <- capture_output(print(tmp_rec))
-  expect_true(str_detect(out, "LOCF Imputation for char_1, char_2"))
-  expect_false(str_detect(out, "trained"))
+  expect_true(stringr::str_detect(out, "LOCF Imputation for char_1, char_2"))
+  expect_false(stringr::str_detect(out, "trained"))
 
   prepped_rec <-
     tmp_rec %>%
     prep()
 
   out <- capture_output(print(prepped_rec))
-  expect_true(str_detect(out, "LOCF Imputation for char_1, char_2"))
-  expect_true(str_detect(out, "trained"))
+  expect_true(stringr::str_detect(out, "LOCF Imputation for char_1, char_2"))
+  expect_true(stringr::str_detect(out, "trained"))
 })
 
 test_that("Tidy works both before and after training", {
@@ -114,12 +114,12 @@ test_that("Tidy works both before and after training", {
     step_locfimpute(char_1, char_2)
 
   out <- tidy(tmp_rec$steps[[1]])
-  expect_false(any(out %>% pull(imputed)))
+  expect_false(any(out %>% pull(trained)))
 
   prepped <-
     tmp_rec %>%
     prep()
 
   out <- tidy(prepped$steps[[1]])
-  expect_true(all(out %>% pull(imputed)))
+  expect_true(all(out %>% pull(trained)))
 })

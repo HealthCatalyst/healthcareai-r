@@ -3,7 +3,7 @@
 \name{step_locfimpute}
 \alias{step_locfimpute}
 \alias{tidy.step_locfimpute}
-\title{Last Observation Carried Forward}
+\title{Last Observation Carried Forward Imputation}
 \usage{
 step_locfimpute(recipe, ..., role = NA, trained = FALSE, skip = FALSE)
 
@@ -17,8 +17,7 @@ operations for this recipe.}
 imputed. See [selections()] for more details. For the `tidy` method, these
 are not currently used.}
 
-\item{role}{Not used by this step since no new variables are
-created.}
+\item{role}{Not used by this step since no new variables are created.}
 
 \item{trained}{A logical to indicate if the number of NA values have been
 counted in preprocessing.}
@@ -28,22 +27,17 @@ counted in preprocessing.}
 \item{x}{A `step_locfimpute` object.}
 }
 \value{
-For `step_locfimpute`, an updated version of recipe with the new step
-  added to the sequence of existing steps (if any). For the `tidy` method, a
-  tibble with columns `terms` (the selectors or variables selected), `value` ### GOING TO NEED TO CHANGE THIS AFTER I FIGURE OUT TIDY
-  (the feature names), and `ordinal` (a logical).
+For \code{step_locfimpute}, an updated version of recipe with the new
+  step added to the sequence of existing steps (if any). For the \code{tidy}
+  method, a tibble with columns \code{terms} (the selectors or variables
+  selected) and \code{trained} (a logical that states whether the recipe has
+  been prepped).
 }
 \description{
-`step_locfimpute` creates a *specification* of a recipe step that
- will convert date data into factor or numeric variable(s). This step will
- guess the date format of columns with the "_DTS" suffix, and then create
- either `categories` or `continuous` columns. Various portions of this step
- are copied from `recipes::step_date`.
-}
-\details{
-`step_locfimpute` imputes by using the last observation and carrying
-  it forward. If the first observation is missing, it is imputed with the
-  first observation.
+\code{step_locfimpute} creates a *specification* of a recipe
+  step that will substitute missing values with the most recent variable
+  value. If the first variable value is missing, it is imputed with the first
+  present value.
 }
 \examples{
 library(recipes)

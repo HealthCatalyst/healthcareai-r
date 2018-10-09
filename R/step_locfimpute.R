@@ -1,29 +1,25 @@
-#' Last Observation Carried Forward
+#' Last Observation Carried Forward Imputation
 #'
-#' @description `step_locfimpute` creates a *specification* of a recipe step that
-#'  will convert date data into factor or numeric variable(s). This step will
-#'  guess the date format of columns with the "_DTS" suffix, and then create
-#'  either `categories` or `continuous` columns. Various portions of this step
-#'  are copied from `recipes::step_date`.
+#' @description \code{step_locfimpute} creates a *specification* of a recipe
+#'   step that will substitute missing values with the most recent variable
+#'   value. If the first variable value is missing, it is imputed with the first
+#'   present value.
 #'
 #' @param recipe A recipe object. The step will be added to the sequence of
 #'   operations for this recipe.
 #' @param ... One or more selector functions to choose which variables will be
 #'   imputed. See [selections()] for more details. For the `tidy` method, these
 #'   are not currently used.
-#' @param role Not used by this step since no new variables are
-#'  created.
+#' @param role Not used by this step since no new variables are created.
 #' @param trained A logical to indicate if the number of NA values have been
 #'   counted in preprocessing.
 #' @param skip A logical. Should the step be skipped when the recipe is baked?
-#' @return For `step_locfimpute`, an updated version of recipe with the new step
-#'   added to the sequence of existing steps (if any). For the `tidy` method, a
-#'   tibble with columns `terms` (the selectors or variables selected), `value` ### GOING TO NEED TO CHANGE THIS AFTER I FIGURE OUT TIDY
-#'   (the feature names), and `ordinal` (a logical).
+#' @return For \code{step_locfimpute}, an updated version of recipe with the new
+#'   step added to the sequence of existing steps (if any). For the \code{tidy}
+#'   method, a tibble with columns \code{terms} (the selectors or variables
+#'   selected) and \code{trained} (a logical that states whether the recipe has
+#'   been prepped).
 #' @export
-#' @details `step_locfimpute` imputes by using the last observation and carrying
-#'   it forward. If the first observation is missing, it is imputed with the
-#'   first observation.
 #' @examples
 #' library(recipes)
 #'
@@ -83,13 +79,13 @@ tidy.step_locfimpute <- function(x, ...) {
   if (x$trained == TRUE) {
     res <- expand.grid(
       terms = x$cols,
-      imputed = TRUE
+      trained = TRUE
     )
   } else {
     term_names <- sel2char(x$terms)
     res <- expand.grid(
       terms = term_names,
-      imputed = FALSE
+      trained = FALSE
     )
   }
   as_tibble(res)
