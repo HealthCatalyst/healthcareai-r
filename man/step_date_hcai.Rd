@@ -21,7 +21,7 @@ class `Date` or `POSIXct` or their name must end with `DTS`. See
 currently used.}
 
 \item{role}{For model terms created by this step, what analysis role should
-they be assigned?. By default, the function assumes that the new variable
+they be assigned? By default, the function assumes that the new variable
 columns created by the original variables will be used as predictors in a
 model.}
 

@@ -12,10 +12,10 @@ hcai_impute(recipe, nominal_method = "new_category",
 operations for this recipe.}
 
 \item{nominal_method}{Defaults to \code{"new_category"}. Other choices are
-\code{"bagimpute"} or \code{"knnimpute"}.}
+\code{"bagimpute"}, \code{"knnimpute"} or \code{"locfimpute"}.}
 
 \item{numeric_method}{Defaults to \code{"mean"}. Other choices are
-\code{"bagimpute"} or \code{"knnimpute"}.}
+\code{"bagimpute"}, \code{"knnimpute"} or \code{"locfimpute"}.}
 
 \item{numeric_params}{A named list with parmeters to use with chosen
 imputation method on numeric data. Options are \code{bag_model} (bagimpute
@@ -70,7 +70,7 @@ missingness(data_modified)
 # Specify methods:
 my_recipe <- my_recipe \%>\%
   hcai_impute(numeric_method = "bagimpute",
-    nominal_method = "new_category")
+    nominal_method = "locfimpute")
 my_recipe
 
 # Specify methods and params:

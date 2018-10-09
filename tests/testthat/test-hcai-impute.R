@@ -105,6 +105,12 @@ test_that("Non-supported params throw warnings.", {
                   numeric_params = list(bag_model = "m")),
     regexp = "bag_model"
   )
+  expect_warning(
+    recipe %>%
+      hcai_impute(numeric_method = "locfimpute",
+                  numeric_params = list(bag_model = "m")),
+    regexp = "bag_model"
+  )
 })
 
 test_that("bag impute called on both types", {
@@ -125,6 +131,16 @@ test_that("knnimpute impute called on both types", {
   rec_obj_new <- recipe %>%
     hcai_impute(nominal_method = "knnimpute")
   expect_equal(class(rec_obj_new$steps[[2]])[1], "step_knnimpute")
+})
+
+test_that("knnimpute impute called on both types", {
+  rec_obj_new <- recipe %>%
+    hcai_impute(numeric_method = "locfimpute")
+  expect_equal(class(rec_obj_new$steps[[1]])[1], "step_locfimpute")
+
+  rec_obj_new <- recipe %>%
+    hcai_impute(nominal_method = "locfimpute")
+  expect_equal(class(rec_obj_new$steps[[2]])[1], "step_locfimpute")
 })
 
 test_that("API takes knnimpute and bagimpute params", {
@@ -170,6 +186,17 @@ test_that("bag imputation bakes expected results", {
   expect_equal(as.character(d_imputed$heat[8]), "Cold")
   expect_equal(as.character(d_imputed$condiment[8]), "Mustard")
   expect_equal(d_imputed$length[14], 7.797, tolerance = 2)
+})
+
+test_that("locf imputation bakes expected results", {
+  d_imputed <- recipe %>%
+    hcai_impute(numeric_method = "locfimpute",
+                nominal_method = "locfimpute") %>%
+    prep(training = d_train) %>%
+    bake(newdata = d_test)
+  expect_equal(as.character(d_imputed$heat[8]), "Hot")
+  expect_equal(as.character(d_imputed$condiment[8]), "Syrup")
+  expect_equal(d_imputed$length[14], 5.850319)
 })
 
 test_that("random columns don't get imputed", {

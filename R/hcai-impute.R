@@ -7,9 +7,9 @@
 #' @param recipe A recipe object. imputation will be added to the sequence of
 #'  operations for this recipe.
 #' @param numeric_method Defaults to \code{"mean"}. Other choices are
-#' \code{"bagimpute"} or \code{"knnimpute"}.
+#' \code{"bagimpute"}, \code{"knnimpute"} or \code{"locfimpute"}.
 #' @param nominal_method Defaults to \code{"new_category"}. Other choices are
-#' \code{"bagimpute"} or \code{"knnimpute"}.
+#' \code{"bagimpute"}, \code{"knnimpute"} or \code{"locfimpute"}.
 #' @param numeric_params A named list with parmeters to use with chosen
 #' imputation method on numeric data. Options are \code{bag_model} (bagimpute
 #' only), \code{bag_options} (bagimpute only), \code{knn_K}, (knnimpute only),
@@ -58,7 +58,7 @@
 #' # Specify methods:
 #' my_recipe <- my_recipe %>%
 #'   hcai_impute(numeric_method = "bagimpute",
-#'     nominal_method = "new_category")
+#'     nominal_method = "locfimpute")
 #' my_recipe
 #'
 #' # Specify methods and params:
@@ -78,15 +78,16 @@ hcai_impute <- function(recipe,
   }
 
   # If methods dont exist, use defaults
-  possible_numeric_methods <- c("mean", "bagimpute", "knnimpute")
+  possible_numeric_methods <- c("mean", "bagimpute", "knnimpute", "locfimpute")
   if (!(numeric_method %in% possible_numeric_methods)) {
     stop("non-supported numeric method. Use \"mean\", \"bagimpute\",
-         or \"knnimpute\"")
+         \"locfimpute\" or \"knnimpute\"")
   }
-  possible_nominal_methods <- c("new_category", "bagimpute", "knnimpute")
+  possible_nominal_methods <- c("new_category", "bagimpute", "knnimpute",
+                                "locfimpute")
   if (!(nominal_method %in% possible_nominal_methods)) {
     stop("non-supported nominal method. Use \"new_category\", \"bagimpute\",
-         or \"knnimpute\"")
+         \"locfimpute\" or \"knnimpute\"")
   }
 
   # Assign defaults for params
@@ -134,6 +135,10 @@ hcai_impute <- function(recipe,
         all_numeric(), - all_outcomes(),
         K = num_p$knn_K,
         impute_with = num_p$impute_with)
+    } else if (numeric_method == "locfimpute") {
+      recipe <- step_locfimpute(
+        recipe,
+        all_numeric(), - all_outcomes())
     } else {
       stop("non-supported numeric method")
     }
@@ -157,6 +162,10 @@ hcai_impute <- function(recipe,
         all_nominal(), - all_outcomes(),
         K = nom_p$knn_K,
         impute_with = nom_p$impute_with)
+    } else if (nominal_method == "locfimpute") {
+      recipe <- step_locfimpute(
+        recipe,
+        all_nominal(), - all_outcomes())
     } else {
       stop("non-supported nominal method")
     }
@@ -171,6 +180,7 @@ check_params <- function(possible_methods, cur_method, cur_params) {
   available_params <- list(
     knnimpute = c("knn_K", "impute_with", "seed_val"),
     bagimpute = c("bag_model", "bag_options", "impute_with", "seed_val"),
+    locfimpute = NULL,
     mean = NULL,
     new_category = NULL
   )
