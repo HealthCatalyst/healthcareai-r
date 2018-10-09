@@ -241,6 +241,11 @@ test_that("impute works with partial/extra params", {
                                        numeric_params = list(knn_K = 5),
                                        the_best_params = "Moi!")),
     regexp = "the_best_params")
+
+  d_clean <- prep_data(d = d_train, outcome = is_ween, song_id,
+                       impute = list(numeric_method = "locfimpute"))
+  m <- missingness(d_clean)
+  expect_true(all(m$percent_missing == 0))
 })
 
 test_that("rare factors go to other by default", {
