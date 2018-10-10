@@ -14,7 +14,7 @@
 #'   [selections()] for more details. For the `tidy` method, these are not
 #'   currently used.
 #' @param role For model terms created by this step, what analysis role should
-#'   they be assigned?. By default, the function assumes that the new variable
+#'   they be assigned? By default, the function assumes that the new variable
 #'   columns created by the original variables will be used as predictors in a
 #'   model.
 #' @param feature_type character, either `continuous` (default) or `categories`.
