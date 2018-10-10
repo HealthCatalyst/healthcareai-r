@@ -81,13 +81,13 @@ hcai_impute <- function(recipe,
   possible_numeric_methods <- c("mean", "bagimpute", "knnimpute", "locfimpute")
   if (!(numeric_method %in% possible_numeric_methods)) {
     stop("non-supported numeric method. Use \"mean\", \"bagimpute\",
-         \"locfimpute\" or \"knnimpute\"")
+         \"locfimpute\", or \"knnimpute\"")
   }
   possible_nominal_methods <- c("new_category", "bagimpute", "knnimpute",
                                 "locfimpute")
   if (!(nominal_method %in% possible_nominal_methods)) {
     stop("non-supported nominal method. Use \"new_category\", \"bagimpute\",
-         \"locfimpute\" or \"knnimpute\"")
+         \"locfimpute\", or \"knnimpute\"")
   }
 
   # Assign defaults for params
