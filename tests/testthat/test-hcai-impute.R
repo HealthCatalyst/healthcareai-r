@@ -161,7 +161,7 @@ test_that("Default imputation methods bake expected results", {
   res <- capture_output(d_imputed <- recipe %>%
     hcai_impute() %>%
     prep(training = d_train) %>%
-    bake(newdata = d_test))
+    bake(new_data = d_test))
   expect_equal(d_imputed$length[13], 6.87, tolerance = 2)
   expect_equal(as.character(d_imputed$heat[3]), "missing")
 })
@@ -171,7 +171,7 @@ test_that("knn imputation bakes expected results", {
                           hcai_impute(numeric_method = "knnimpute",
                             nominal_method = "knnimpute") %>%
                           prep(training = d_train) %>%
-                          bake(newdata = d_test))
+                          bake(new_data = d_test))
   expect_equal(d_imputed$diameter[18], 2.16, tolerance = 2)
   expect_equal(as.character(d_imputed$condiment[3]), "Syrup")
 })
@@ -183,7 +183,7 @@ test_that("bag imputation bakes expected results", {
                             numeric_params = list(seed_val = 30),
                             nominal_params = list(seed_val = 30)) %>%
                           prep(training = d_train) %>%
-                          bake(newdata = d_test))
+                          bake(new_data = d_test))
   expect_equal(as.character(d_imputed$heat[8]), "Cold")
   expect_equal(as.character(d_imputed$condiment[8]), "Mustard")
   expect_equal(d_imputed$length[14], 7.797, tolerance = 2)
@@ -194,7 +194,7 @@ test_that("locf imputation bakes expected results", {
     hcai_impute(numeric_method = "locfimpute",
                 nominal_method = "locfimpute") %>%
     prep(training = d_train) %>%
-    bake(newdata = d_test)
+    bake(new_data = d_test)
   expect_equal(as.character(d_imputed$heat[8]), "Hot")
   expect_equal(as.character(d_imputed$condiment[8]), "Syrup")
   expect_equal(d_imputed$length[14], 5.850319)
@@ -219,7 +219,7 @@ test_that("random columns get imputed when factors", {
                                       numeric_params = list(seed_val = 30),
                                       nominal_params = list(seed_val = 30)) %>%
                           prep(training = d_train) %>%
-                          bake(newdata = d_test))
+                          bake(new_data = d_test))
 
   expect_false(any(missingness(d_imputed, return_df = FALSE) != 0))
 
@@ -230,7 +230,7 @@ test_that("random columns get imputed when factors", {
                                       nominal_method = "knnimpute") %>%
                           prep(training = d_train))
 
-  expect_error(prepped %>% bake(newdata = d_test), NA)
+  expect_error(prepped %>% bake(new_data = d_test), NA)
 })
 
 test_that("all nominal or all numeric columns add 1 step", {
@@ -258,7 +258,7 @@ test_that("test warning for bag imputation mal function", {
       recipe(hot_dog ~ ., data = df) %>%
       hcai_impute(nominal_method = "bagimpute") %>%
       prep() %>%
-      bake(newdata = df),
+      bake(new_data = df),
     "`bagimpute` depends on another library"
   )
   # If this not true, recipes has fixed bag imputation. Please remove the
@@ -275,7 +275,7 @@ test_that("test warning for bag imputation mal function", {
   # remove the warning above.
   expect_error(
     prep(my_recipe) %>%
-      bake(newdata = df),
+      bake(new_data = df),
     regexp = "STRING_ELT()"
   )
 
@@ -289,7 +289,7 @@ test_that("test warning for bag imputation mal function", {
   # remove the warning above.
   expect_error(
     prep(my_recipe) %>%
-      bake(newdata = df),
+      bake(new_data = df),
     regexp = "STRING_ELT()"
   )
 })
