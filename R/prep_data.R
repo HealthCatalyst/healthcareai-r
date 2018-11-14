@@ -304,7 +304,7 @@ prep_data <- function(d,
              "remove these rows before training a model.")
       # Changing the role of outcome from predictor to outcome warns, shush:
       suppressWarnings({
-        recipe <- recipes::add_role(recipe, !!outcome, new_role = "outcome")
+        recipe <- recipes::update_role(recipe, !!outcome, new_role = "outcome")
       })
       # If outcome is binary 0/1, convert to N/Y -----------------------------
       if (factor_outcome && all(outcome_vec %in% 0:1)) {
@@ -501,7 +501,7 @@ prep_data <- function(d,
 
       # Perform PCA
       recipe <- recipe %>%
-        recipes::step_pca(all_numeric(), -all_outcomes(), num = as.integer(PCA))
+        recipes::step_pca(all_numeric(), -all_outcomes(), num_comp = as.integer(PCA))
     }
 
     # Prep the newly built recipe ---------------------------------------------
