@@ -6,7 +6,8 @@
 \title{Add levels to nominal variables}
 \usage{
 step_add_levels(recipe, ..., role = NA, trained = FALSE, cols = NULL,
-  levels = c("other", "missing"), skip = FALSE)
+  levels = c("other", "missing"), skip = FALSE,
+  id = rand_id("bagimpute"))
 
 \method{tidy}{step_add_levels}(x, ...)
 }
