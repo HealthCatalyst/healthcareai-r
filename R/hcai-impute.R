@@ -10,16 +10,20 @@
 #' \code{"bagimpute"}, \code{"knnimpute"} or \code{"locfimpute"}.
 #' @param nominal_method Defaults to \code{"new_category"}. Other choices are
 #' \code{"bagimpute"}, \code{"knnimpute"} or \code{"locfimpute"}.
-#' @param numeric_params A named list with parmeters to use with chosen
-#' imputation method on numeric data. Options are \code{bag_model} (bagimpute
-#' only), \code{bag_options} (bagimpute only), \code{knn_K}, (knnimpute only),
-#' \code{impute_with}, (bag or knn) or \code{seed_val} (bag or knn).
-#' See \link{step_bagimpute} or \link{step_knnimpute} for details.
-#' @param nominal_params A named list with parmeters to use with chosen
-#' imputation method on nominal data. Options are \code{bag_model} (bagimpute
-#' only), \code{bag_options} (bagimpute only), \code{knn_K}, (knnimpute only),
-#' \code{impute_with}, (bag or knn) or \code{seed_val} (bag or knn).
-#' See \link{step_bagimpute} or \link{step_knnimpute} for details.
+#' @param numeric_params A named list with parmeters to use with
+#'  chosen imputation method on numeric data. Options are
+#'  \code{bag_model} (bagimpute only), \code{bag_trees} (bagimpute
+#'  only)\code{bag_options} (bagimpute only), \code{knn_K},
+#'  (knnimpute only), \code{impute_with}, (bag or knn) or
+#'  \code{seed_val} (bag or knn). See \link{step_bagimpute} or
+#'  \link{step_knnimpute} for details.
+#' @param nominal_params A named list with parmeters to use with
+#'  chosen imputation method on nominal data. Options are
+#'  \code{bag_model} (bagimpute only), \code{bag_trees} (bagimpute
+#'  only), \code{bag_options} (bagimpute only), \code{knn_K},
+#'  (knnimpute only), \code{impute_with}, (bag or knn) or
+#'  \code{seed_val} (bag or knn). See \link{step_bagimpute} or
+#'  \link{step_knnimpute} for details. 
 #' @return An updated version of `recipe` with the new step
 #'  added to the sequence of existing steps.
 #'
@@ -51,7 +55,7 @@
 #' trained_recipe <- prep(my_recipe, training = d)
 #'
 #' # Apply recipe
-#' data_modified <- bake(trained_recipe, newdata = d)
+#' data_modified <- bake(trained_recipe, new_data = d)
 #' missingness(data_modified)
 #'
 #'
@@ -93,8 +97,9 @@ hcai_impute <- function(recipe,
   # Assign defaults for params
   defaults <- list(
     bag_model = NULL,
-    bag_options = list(nbagg = 25, keepX = FALSE),
+    bag_options = list(keepX = FALSE),
     knn_K = 5,
+    bag_trees = 25,
     impute_with = imp_vars(all_predictors()),
     seed_val = sample.int(1000, 1)
   )
@@ -126,6 +131,7 @@ hcai_impute <- function(recipe,
         recipe,
         all_numeric(), - all_outcomes(),
         models = num_p$bag_model,
+        trees = num_p$trees,
         options = num_p$bag_options,
         impute_with = num_p$impute_with,
         seed_val = num_p$seed_val)
@@ -168,6 +174,7 @@ hcai_impute <- function(recipe,
         recipe,
         all_nominal(),
         models = nom_p$bag_model, - all_outcomes(),
+        trees = nom_p$trees,
         options = nom_p$bag_options,
         impute_with = nom_p$impute_with,
         seed_val = nom_p$seed_val)
@@ -181,7 +188,7 @@ hcai_impute <- function(recipe,
       recipe <- step_knnimpute(
         recipe,
         all_nominal(), - all_outcomes(),
-        K = nom_p$knn_K,
+        neighbors = nom_p$knn_K,
         impute_with = nom_p$impute_with)
     } else if (nominal_method == "locfimpute") {
       recipe <- step_locfimpute(
@@ -200,7 +207,7 @@ hcai_impute <- function(recipe,
 check_params <- function(possible_methods, cur_method, cur_params) {
   available_params <- list(
     knnimpute = c("knn_K", "impute_with", "seed_val"),
-    bagimpute = c("bag_model", "bag_options", "impute_with", "seed_val"),
+    bagimpute = c("bag_model", "bag_trees", "bag_options", "impute_with", "seed_val"),
     locfimpute = NULL,
     mean = NULL,
     new_category = NULL

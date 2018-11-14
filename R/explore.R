@@ -189,7 +189,7 @@ choose_variables <- function(models, vary, variables) {
       suppressWarnings( get_variable_importance(models) )
     } else {
       # Format interpret to function as variable importance
-      if (!"scale" %in% broom::tidy(attr(models, "recipe"))$type)
+      if (!"scale" %in% tidy(attr(models, "recipe"))$type)
         warning("glm is the only model present in models, so coefficients will be used ",
                 "to determine which variables to vary. However, variables weren't ",
                 "scaled in `prep_data`, which means coefficients aren't a good ",
