@@ -126,7 +126,7 @@ impute <- function(d = NULL,
       prep(training = d)
   }
   # Predict
-  d_imputed <- bake(recipe, newdata = d)
+  d_imputed <- bake(recipe, new_data = d)
 
   # Add ignore columns back in.
   d_imputed <- dplyr::bind_cols(d_imputed, d_ignore)
