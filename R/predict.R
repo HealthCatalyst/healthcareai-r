@@ -164,15 +164,16 @@ predict_model_list_main <- function(object,
     # If classification, want probabilities. If regression, raw's the only option
     type <- if (is.classification_list(object)) "prob" else "raw"
     preds <- caret::predict.train(best_models, to_pred, type = type)
-  # Probs get returned for no and yes. Keep only positive class as set in training
-    if (is.classification_list(object))
-      if (ensemble == FALSE){
+    # Probs get returned for no and yes. Keep only positive class as set in training
+    if (is.classification_list(object)) {
+      if (ensemble == FALSE) {
         preds <- preds[[mi$positive_class]]
       }
       else{
         preds_all <- lapply(object, caret::predict.train, newdata = to_pred, type = type)
         preds <- weighted_average_ensemble(object, mi = extract_model_info(object), preds_all, mi$positive_class)
       }
+    }
   }
 
   pred_name <- paste0("predicted_", mi$target)
@@ -218,8 +219,8 @@ get_oof_predictions <- function(x, mi = extract_model_info(x), to_pred, ensemble
     .[!duplicated(.$rowIndex), ]
   if (mi$m_class == "Regression"){
     if (ensemble == FALSE){
-       return(preds$pred)
-      }
+      return(preds$pred)
+    }
     else{
       preds_all <- lapply(x, caret::predict.train, newdata = to_pred, type = "raw")
       preds$pred <- weighted_average_ensemble(x, mi = extract_model_info(x), preds_all)
@@ -248,18 +249,26 @@ weighted_average_ensemble <- function(x, mi = extract_model_info(x), preds_all, 
   }else{
     preds <- map(preds_all, pred_class)
   }
+  target <- function(x) {
+    if (x == mod) {
+      x <- "target_variable"
+    }
+    else{(x != mod)
+      x <- x
+    }
+  }
+  names(preds) <- lapply(names(preds), target)
   preds_data_frame <- data.frame(preds)
-  target <- preds[[mod]]
-  weight_modeling <- glm(target ~ ., data = preds_data_frame)
+  weight_modeling <- glm(target_variable ~ ., data = preds_data_frame)
   weight_model_coefficient <- summary(weight_modeling)$coefficient
   weight_model <- data.frame(weight_model_coefficient)
   weight_model$variables <- row.names(weight_model)
   weight_model <- weight_model[c("variables", "Estimate")][-1, ]
-  weight_model$Estimate <- abs(weight_model$Estimate)
-  weight_model$weight <- weight_model$Estimate / sum(weight_model$Estimate)
-  Weighted_model <- Map("*", preds, weight_model$weight)
+  Preds_new <- list.remove(preds, 'target_variable')
+  Weighted_model <- Map("*", Preds_new, weight_model$Estimate)
+  Weighted_model_updated <- list.append(Weighted_model, preds$target_variable)
   add <- function(x) Reduce("+", x)
-  preds_outcome <- add(Weighted_model)
+  preds_outcome <- add(Weighted_model_updated)
   return(preds_outcome)
 }
 
@@ -270,4 +279,49 @@ get_pred_summary <- function(x) {
     summary() %>%
     dplyr::bind_rows()
   return(pred_summary)
+}
+
+
+#' Get cutoff values for group predictions
+#'
+#' @param x Data frame from \code{\link{predict.model_list}} where
+#'   \code{outcome_groups} or \code{risk_groups} was specified
+#'
+#' @return A message is printed about the thresholds. If \code{outcome_groups}
+#'   were defined the return value is a single numeric value, the threshold used
+#'   to separate predicted probabilities into outcome groups. If
+#'   \code{risk_groups} were defined the return value is a data frame with one
+#'   column giving the group names and another column giving the minimum
+#'   predicted probability for an observation to be in that group.
+#' @export
+#'
+#' @examples
+#' machine_learn(pima_diabetes[1:20, ], patient_id, outcome = diabetes,
+#'               models = "xgb", tune = FALSE) %>%
+#'   predict(risk_groups = 5) %>%
+#'   get_cutoffs()
+get_cutoffs <- function(x) {
+  if (!is.predicted_df(x))
+    stop("`get_cutoffs` only works on the output of `predict`. Do you want `get_thresholds`?")
+  if (!"predicted_group" %in% names(x))
+    stop("`get_cutoffs` requires that groups were created during prediction. ",
+         "Specify `risk_groups` or `outcome_groups` in your `predict` call.")
+
+  ats <- attributes(x$predicted_group)
+
+  if (ats$group_type == "outcome") {
+    message("Predicted outcomes ", list_variables(ats$levels),
+            " separated at: ", signif(ats$cutpoints, 3))
+    return(invisible(ats$cutpoints))
+  } else {
+    message("Risk groups defined by the following thresholds:\n")
+    d <-
+      tibble::tibble(
+        group = ats$levels,
+        minimum_probability = ats$cutpoints[-length(ats$cutpoints)]
+      ) %>%
+      dplyr::arrange(desc(minimum_probability))
+    print(d)
+    return(invisible(d))
+  }
 }
