@@ -37,5 +37,25 @@ significant interactions.
 get_interactions is dependent an tidyverse, gbm, recipes, and rlang.
   This does not support data columns of type character or date. This function
   also doesn't support columns that only contain missing values. Currently
-  only supports regression output.
+  supports regression and binomial output.
+}
+\examples{
+library(dplyr)
+d <-
+  pima_diabetes \%>\%
+  mutate_if(is.character, as.factor)
+
+
+# finds interactions for binomial classification
+interactions <- find_interactions(d, diabetes)
+
+# finds interactions for regression classification
+interactions <- find_interactions(d, pregnancies)
+
+# Choosing the greedy instead
+interactions <- find_interactions(d, pregnancies, brute_force = FALSE)
+
+# Choosing the threshold for the greedy
+interactions <- find_interactions(d, pregnancies, brute_force = FALSE,
+                                  greedy_cutoff = .02)
 }

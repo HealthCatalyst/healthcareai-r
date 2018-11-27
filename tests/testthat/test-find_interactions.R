@@ -64,7 +64,7 @@ test_that("test verbos", {
   mes <- capture_message(
     find_interactions(d_2vars, outcome = diabetes, brute_force = FALSE)
   )
-  expect_false(str_detect(paste(mes), "This will take"))
+  expect_false(stringr::str_detect(paste(mes), "This will take"))
 })
 
 test_that("test brute force", {
@@ -102,12 +102,10 @@ test_that("test greedy", {
 
 test_that("test estimate_time", {
   estimate <- estimate_time(5, 1, 2)
-  actual <- factorial(5)/(2*3*2)
+  actual <- factorial(5) / (2 * 3 * 2)
   expect_equal(estimate, actual)
 
   estimate <- estimate_time(5, 1, 3)
-  actual <- factorial(5)/(2*3*2) + factorial(5)/(2*3*2)
+  actual <- factorial(5) / (2 * 3 * 2) + factorial(5) / (2 * 3 * 2)
   expect_equal(estimate, actual)
 })
-
-

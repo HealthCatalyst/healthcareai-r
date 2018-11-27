@@ -18,7 +18,27 @@
 #'   This does not support data columns of type character or date. This function
 #'   also doesn't support columns that only contain missing values. Currently
 #'   supports regression and binomial output.
+#' @import gbm
 #' @export
+#' @examples
+#' library(dplyr)
+#' d <-
+#'   pima_diabetes %>%
+#'   mutate_if(is.character, as.factor)
+#'
+#'
+#' # finds interactions for binomial classification
+#' interactions <- find_interactions(d, diabetes)
+#'
+#' # finds interactions for regression classification
+#' interactions <- find_interactions(d, pregnancies)
+#'
+#' # Choosing the greedy instead
+#' interactions <- find_interactions(d, pregnancies, brute_force = FALSE)
+#'
+#' # Choosing the threshold for the greedy
+#' interactions <- find_interactions(d, pregnancies, brute_force = FALSE,
+#'                                   greedy_cutoff = .02)
 find_interactions <- function(d, outcome, brute_force = TRUE, order = 3,
                               random_seed, verbose = TRUE, greedy_cutoff = .05) {
   quo_outcome <- rlang::enquo(outcome)
@@ -64,7 +84,7 @@ find_interactions <- function(d, outcome, brute_force = TRUE, order = 3,
     important_features <- rownames(summary(m, plotit = FALSE))[summary(m, plotit = FALSE)$rel.inf != 0]
     interactions <- list(combinations = list(), significance = c())
     starting_order <- 2 # H-statistic starts at 2nd order interactions
-    greedy_interactions(d, m, map(important_features, ~{.x}),
+    greedy_interactions(d, m, map(important_features, ~.x),
                         important_features, interactions, starting_order, order,
                         greedy_cutoff)
   }
@@ -78,7 +98,7 @@ estimate_time <- function(n_variables, interact_time, order) {
   for (i in 2:order) {
     n_iterations <- n_iterations + choose(n_variables, i)
   }
-  return(n_iterations*interact_time)
+  return(n_iterations * interact_time)
 }
 
 #' Calculates the H statistic for evey possible interaction of the order given
@@ -107,7 +127,7 @@ brute_force_interactions <- function(d, quo_outcome, m, order, verbose,
     length(indepedent_vars)
 
   # fina all combinations from 2nd to 4th order interactions
-  combn_vars = list()
+  combn_vars <- list()
   for (i in 2:order_limit) {
     combn_vars <- c(combn_vars, combn(indepedent_vars, i, simplify = FALSE))
   }
