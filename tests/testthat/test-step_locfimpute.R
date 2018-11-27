@@ -18,7 +18,7 @@ test_that("Impute numeric", {
     rec %>%
     step_locfimpute(all_numeric()) %>%
     prep() %>%
-    bake(newdata = d)
+    bake(new_data = d)
 
   expect_false(any(is.na(out$num_1)))
   expect_equal(out %>% slice(2) %>% pull(num_1), 1)
@@ -32,7 +32,7 @@ test_that("Imputes character", {
     rec %>%
     step_locfimpute(char_1, char_2) %>%
     prep() %>%
-    bake(newdata = d)
+    bake(new_data = d)
 
   expect_false(any(is.na(out$char_1)))
   expect_equal(out %>% slice(2) %>% pull(char_1) %>% as.character(), "a")
@@ -46,7 +46,7 @@ test_that("Imputes factor", {
     rec %>%
     step_locfimpute(fac_1, fac_2) %>%
     prep() %>%
-    bake(newdata = d)
+    bake(new_data = d)
 
   expect_false(any(is.na(out$fac_1)))
   expect_equal(out %>% slice(2) %>% pull(fac_1) %>% as.character(), "a")
@@ -60,7 +60,7 @@ test_that("Returns Tibble", {
     rec %>%
     step_locfimpute(fac_1, fac_2) %>%
     prep() %>%
-    bake(newdata = d)
+    bake(new_data = d)
   expect_true(tibble::is.tibble(out))
 })
 
@@ -69,7 +69,7 @@ test_that("Imputes Tibble", {
     recipes::recipe(formula = "~.", tibble::as.tibble(d)) %>% #nolint
     step_locfimpute(all_nominal(), all_numeric()) %>%
     prep() %>%
-    bake(newdata = d)
+    bake(new_data = d)
 
   expect_false(any(is.na(out$num_1)))
   expect_equal(out %>% slice(2) %>% pull(num_1), 1)

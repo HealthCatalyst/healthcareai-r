@@ -24,7 +24,7 @@ test_that("testing prep.step_dummy_hcai", {
   expect_equal(actual, weight_class_values)
 
   expect_warning(
-    dummy_data <- bake(dummies, newdata = pima_diabetes)
+    dummy_data <- bake(dummies, new_data = pima_diabetes)
   )
   expect_false("weight_class_overweight" %in% names(dummy_data))
   expect_true("weight_class_obese" %in% names(dummy_data))
@@ -38,7 +38,7 @@ test_that("testing prep.step_dummy_hcai", {
   expect_equal(actual, weight_class_values_empty)
 
   expect_warning(
-    dummy_data <- bake(dummies, newdata = pima_diabetes)
+    dummy_data <- bake(dummies, new_data = pima_diabetes)
   )
   expect_false("weight_class_obese" %in% names(dummy_data))
 
@@ -51,7 +51,7 @@ test_that("testing prep.step_dummy_hcai", {
   expect_equal(actual, c(weight_class_values, "missing"))
 
   expect_warning(
-    dummy_data <- bake(dummies, newdata = pima_diabetes)
+    dummy_data <- bake(dummies, new_data = pima_diabetes)
   )
   expect_true("weight_class_missing" %in% names(dummy_data))
 
@@ -64,7 +64,7 @@ test_that("testing prep.step_dummy_hcai", {
   expect_equal(actual, weight_class_orig_levels[c(2, 1, 3:length(weight_class_orig_levels))])
 
   expect_warning(
-    dummy_data <- bake(dummies, newdata = pima_diabetes)
+    dummy_data <- bake(dummies, new_data = pima_diabetes)
   )
   expect_false("weight_class_normal" %in% names(dummy_data))
 })
@@ -106,7 +106,7 @@ test_that("converts data to tibble", {
   expect_warning(
     d <-
       prep(dummy, training = data.frame(pima_diabetes)) %>%
-      bake(newdata = data.frame(pima_diabetes))
+      bake(new_data = data.frame(pima_diabetes))
   )
   expect_true(is_tibble(d))
 })

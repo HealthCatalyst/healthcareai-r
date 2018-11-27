@@ -5,7 +5,7 @@
 \title{Clean NA values from categorical/nominal variables}
 \usage{
 step_missing(recipe, ..., role = NA, trained = FALSE,
-  na_percentage = NULL, skip = FALSE)
+  na_percentage = NULL, skip = FALSE, id = rand_id("bagimpute"))
 }
 \arguments{
 \item{recipe}{A recipe object. The step will be added to the sequence of
@@ -64,5 +64,5 @@ my_recipe
 trained_recipe <- prep(my_recipe, training = d)
 
 # Apply recipe
-data_modified <- bake(trained_recipe, newdata = d)
+data_modified <- bake(trained_recipe, new_data = d)
 }

@@ -5,8 +5,8 @@
 \title{Find missingness in each column and search for strings that might represent
 missing values}
 \usage{
-missingness(d, return_df = TRUE, to_search = c("NA", "NAs", "na", "NaN",
-  "?", "??", "nil", "NULL", " ", ""))
+missingness(d, return_df = TRUE, to_search = c("NA", "NAs", "na",
+  "NaN", "?", "??", "nil", "NULL", " ", ""))
 }
 \arguments{
 \item{d}{A data frame or matrix}
