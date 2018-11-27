@@ -93,15 +93,15 @@ test_that("No recipe with methods trains and predicts.", {
                                animal_id, kitty,
                                nominal_method = "bagimpute",
                                numeric_method = "knnimpute"))
-  expect_equal(res$length[1], 6.6, tol = .02)
-  expect_equal(as.character(res$color[2]), "Black")
+  expect_equal(res$length[1], 7.31, tol = .02)
+  expect_equal(as.character(res$color[2]), "Orange")
   expect_equal(as.character(res$fur[3]), "Short")
-  expect_equal(res$width[3], 1.73, tol = .02)
+  expect_equal(res$width[3], 1.91, tol = .02)
 
   capture_output(res <- impute(d = d_test,
                                animal_id, kitty,
                                recipe = attr(res, "recipe")))
-  expect_equal(res$length[1], 4.78, tol = .02)
+  expect_equal(res$length[1], 5.82, tol = .02)
   expect_equal(as.character(res$color[2]), "Mixed")
   expect_equal(as.character(res$fur[3]), "Long")
   expect_equal(res$width[3], 1.95, tol = .02)
@@ -112,10 +112,9 @@ test_that("No recipe with methods and params trains and predicts.", {
                                animal_id, kitty,
                                nominal_method = "bagimpute",
                                numeric_method = "knnimpute",
-                               nominal_params =
-                                 list(bag_options = list(nbagg = 20)),
+                               nominal_params = list(bag_trees = 20),
                                numeric_params = list(knn_K = 3)))
-  expect_equal(res$length[1], 7.1, tol = .02)
+  expect_equal(res$length[1], 6.45, tol = .02)
   expect_equal(as.character(res$color[2]), "Black")
   expect_equal(as.character(res$fur[3]), "Short")
   expect_equal(res$width[3], 1.83, tol = .02)
@@ -123,7 +122,7 @@ test_that("No recipe with methods and params trains and predicts.", {
   capture_output(res <- impute(d = d_test,
                                animal_id, kitty,
                                recipe = attr(res, "recipe")))
-  expect_equal(res$length[1], 4.68, tol = .02)
+  expect_equal(res$length[1], 4.57, tol = .02)
   expect_equal(as.character(res$color[2]), "Mixed")
   expect_equal(as.character(res$fur[3]), "Short")
   expect_equal(res$width[3], 1.95, tol = .02)

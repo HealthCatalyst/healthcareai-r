@@ -117,7 +117,7 @@ explore <- function(models,
   if (is.null(attr(models, "recipe")$template))
     stop("Explore requires that data is attached to the model object. You must",
          " use `save_models(model, sanitize_phi = FALSE)` to keep it.")
-  training_data <- attr(models, "recipe")$template
+  training_data <- attr(models, "recipe")$orig_data
 
   variables <-
     rec$var_info %>%

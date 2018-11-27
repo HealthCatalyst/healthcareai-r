@@ -187,6 +187,8 @@ prep_data <- function(d,
   if (!is.data.frame(d))
     stop("\"d\" must be a data frame.")
 
+  orig_data <- d
+
   new_recipe <- TRUE
   if (!is.null(recipe)) {
     new_recipe <- FALSE
@@ -288,6 +290,8 @@ prep_data <- function(d,
     ## d gets stored with the recipe and it is the one copy of training data
     ## that we carry around with the model_list
     recipe <- recipes::recipe(d, ~ .)
+    recipe$orig_data <- orig_data
+
     ## Then deal with outcome if present
     if (!rlang::quo_is_missing(outcome)) {
       outcome_name <- rlang::quo_name(outcome)

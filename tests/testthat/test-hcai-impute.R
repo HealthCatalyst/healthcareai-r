@@ -148,13 +148,12 @@ test_that("API takes knnimpute and bagimpute params", {
   rec_obj_new <- recipe %>%
     hcai_impute(numeric_method = "knnimpute",
                 numeric_params = list(knn_K = 3))
-  expect_equal(rec_obj_new$steps[[1]]$K, 3)
+  expect_equal(rec_obj_new$steps[[1]]$neighbors, 3)
 
   rec_obj_new <- recipe %>%
     hcai_impute(nominal_method = "bagimpute",
-                nominal_params = list(bag_options = list(nbagg = 10,
-                  keepX = FALSE)))
-  expect_equal(rec_obj_new$steps[[2]]$options$nbagg, 10)
+                nominal_params = list(bag_trees = 10))
+  expect_equal(rec_obj_new$steps[[2]]$trees, 10)
 })
 
 test_that("Default imputation methods bake expected results", {

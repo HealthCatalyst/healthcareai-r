@@ -24,6 +24,7 @@
 #' @param trained A logical to indicate if the number of NA values have been
 #'   counted in preprocessing.
 #' @param skip A logical. Should the step be skipped when the recipe is baked?
+#' @param id a unique step id that will be used to unprep
 #' @return For `step_date_hcai`, an updated version of recipe with the new step
 #'   added to the sequence of existing steps (if any). For the `tidy` method, a
 #'   tibble with columns `terms` (the selectors or variables selected), `value`

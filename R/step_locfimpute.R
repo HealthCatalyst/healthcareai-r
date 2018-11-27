@@ -13,6 +13,7 @@
 #' @param role Not used by this step since no new variables are created.
 #' @param trained A logical to indicate if the number of NA values have been
 #'   counted in preprocessing.
+#' @param id a unique step id that will be used to unprep
 #' @param skip A logical. Should the step be skipped when the recipe is baked?
 #' @return For \code{step_locfimpute}, an updated version of recipe with the new
 #'   step added to the sequence of existing steps (if any). For the \code{tidy}

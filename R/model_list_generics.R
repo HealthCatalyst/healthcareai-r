@@ -237,7 +237,7 @@ extract_model_info <- function(x) {
     tuned = attr(x, "tuned"),
     timestamp = attr(x, "timestamp"),
     from_rds = from_rds,
-    has_training_data = !is.null(attr(x, "recipe")$template)
+    has_training_data = (!is.null(attr(x, "recipe")$orig_data) | !is.null(attr(x, "recipe")$template))
   )
 }
 

@@ -9,6 +9,7 @@
 #'   "missing")
 #' @param skip A logical. Should the step be skipped when the
 #'  recipe is baked?
+#' @param id a unique step id that will be used to unprep
 #'
 #' @return Recipe with the new step
 #' @export

@@ -123,7 +123,7 @@ test_that("tidy method prints correctly for categories features", {
   exp <- tibble::as_tibble(
     data.frame(
       terms = "e_date",
-      feature_type = "categories", 
+      feature_type = "categories",
       id = "id"
     )
   )

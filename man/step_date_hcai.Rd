@@ -37,6 +37,8 @@ used.}
 
 \item{skip}{A logical. Should the step be skipped when the recipe is baked?}
 
+\item{id}{a unique step id that will be used to unprep}
+
 \item{x}{A `step_date_hcai` object.}
 }
 \value{

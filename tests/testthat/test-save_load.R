@@ -32,6 +32,7 @@ test_that("save_models removes data and alerts user", {
 
   reloaded_m <- load_models("models.RDS")
   expect_true(is.null(attr(reloaded_m, "recipe")$template))
+  expect_true(is.null(attr(reloaded_m, "recipe")$orig_data))
 })
 
 test_that("save_models keeps data and issues warning if data is present", {
@@ -41,6 +42,7 @@ test_that("save_models keeps data and issues warning if data is present", {
                                    stringr::fixed("PHI protocols apply")))
   reloaded_m <- load_models("models.RDS")
   expect_false(is.null(attr(reloaded_m, "recipe")$template))
+  expect_false(is.null(attr(reloaded_m, "recipe")$orig_data))
 })
 
 test_that("load_model allows user to pick file and alerts message", {

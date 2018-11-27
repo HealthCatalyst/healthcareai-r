@@ -14,6 +14,7 @@
 #'  is \code{NULL} until computed by \code{prep.recipe()}.
 #' @param skip A logical. Should the step be skipped when the
 #'  recipe is baked?
+#' @param id a unique step id that will be used to unprep
 #' @return An updated version of \code{recipe} with the new step
 #'  added to the sequence of existing steps (if any). For the
 #'  \code{tidy} method, a tibble with columns \code{terms} (the
@@ -153,6 +154,8 @@ print.step_missing <-
   }
 
 #' @importFrom tibble tibble
+#' @rdname step_missing
+#' @param x A `step_missing` object.
 #' @export
 #' @export tidy.step_missing
 tidy.step_missing <- function(x, ...) {
