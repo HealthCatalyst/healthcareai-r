@@ -131,3 +131,29 @@ test_that("test step ref_levels and dummy attributes", {
 
   expect_equal(ref_levels, c(weight_class = "obese", diabetes = "N"))
 })
+
+test_that("test tidy prints correctly", {
+  weight_class_orig_levels <- unique(pima_diabetes$weight_class)
+  weight_class_orig_levels <- weight_class_orig_levels[!is.na(weight_class_orig_levels)]
+  weight_class_orig_levels <- weight_class_orig_levels[order(weight_class_orig_levels)]
+
+  dummies_rec <- rec %>% healthcareai:::step_dummy_hcai(weight_class,
+                                                        id = "bagimpute_rN6wq")
+
+  exp <- tibble(
+    terms = c("weight_class"),
+    id = c("bagimpute_rN6wq")
+  )
+  expect_equal(
+    exp,
+    tidy(dummies_rec$steps[[1]])
+  )
+
+  expect_warning(
+    dummies_rec <- recipes::prep(dummies_rec, training = pima_diabetes)
+  )
+  expect_equal(
+    exp,
+    tidy(dummies_rec$steps[[1]])
+  )
+})

@@ -168,3 +168,30 @@ test_that("ord2fac - df", {
   actual <- ord2fac(d, "test1")
   expect_false(is.ordered(actual))
 })
+
+test_that("test tidy prints correctly", {
+  d <- d %>% dplyr::select(e_date, b_nums, d_chars)
+  cols <- find_date_cols(d)
+  sdf <- c("dow", "month", "year")
+
+  date_rec <- recipes::recipe(head(d), ~ .)
+  date_rec <- step_date_hcai(date_rec, cols = cols, feature_type = "categories",
+                             id = "bagimpute_9tNN4") %>%
+    recipes::step_rm(cols = cols)
+
+  exp <- tibble(
+    terms = as.factor("cols"),
+    feature_type = as.factor("categories"),
+    id = as.factor("bagimpute_9tNN4")
+  )
+  expect_equal(
+    exp,
+    tidy(date_rec$steps[[1]])
+  )
+  exp$terms <- as.factor("e_date")
+  date_rec <- recipes::prep(date_rec, training = d)
+  expect_equal(
+    exp,
+    tidy(date_rec$steps[[1]])
+  )
+})
