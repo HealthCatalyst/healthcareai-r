@@ -45,10 +45,10 @@ test_that("Warning is triggered for greater than 50% NA", {
 })
 
 test_that("tidy method prints correctly", {
-  tidy_step <- broom::tidy(stepped$steps[[1]])
+  tidy_step <- tidy(stepped$steps[[1]])
   expect_s3_class(tidy_step, "tbl_df")
   expect_true(all.equal(names(tidy_step), c("terms", "value", "id")))
-  tidy_prep <- broom::tidy(prepped$steps[[1]])
+  tidy_prep <- tidy(prepped$steps[[1]])
   expect_s3_class(tidy_prep, "tbl_df")
   expect_true(all.equal(names(tidy_prep), c("terms", "value", "id")))
   expect_true(all.equal(tidy_prep$terms, names(d)[purrr::map_lgl(d, is.factor)]))

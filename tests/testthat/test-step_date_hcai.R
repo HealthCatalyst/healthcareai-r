@@ -130,8 +130,8 @@ test_that("tidy method prints correctly for categories features", {
 
   expect_equal(
     exp,
-    broom::tidy(date_rec$steps[[1]]))
-  expect_s3_class(broom::tidy(date_rec$steps[[1]]), "tbl_df")
+    tidy(date_rec$steps[[1]]))
+  expect_s3_class(tidy(date_rec$steps[[1]]), "tbl_df")
 })
 
 test_that("test possible values for `feature_type`", {

@@ -130,8 +130,8 @@ test_that("tidy method prints correctly", {
                         value = c(33.20, 8.71), id = rep("id", 2))
   expect_equal(
     exp,
-    broom::tidy(rec_obj$steps[[1]])
+    tidy(rec_obj$steps[[1]])
   )
   rec_obj <- recipe(is_goomba ~ ., data = d) %>% step_missing(all_nominal(), id = "id")
-  expect_s3_class(broom::tidy(rec_obj$steps[[1]]), "tbl_df")
+  expect_s3_class(tidy(rec_obj$steps[[1]]), "tbl_df")
 })
