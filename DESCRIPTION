@@ -1,7 +1,7 @@
 Package: healthcareai
 Type: Package
 Title: Tools for Healthcare Machine Learning
-Version: 2.2.0
+Version: 2.3.0
 Date: 2018-09-01
 Authors@R: c(
     person("Levi", "Thatcher", email = "levi.thatcher@healthcatalyst.com", role = "aut"),
@@ -16,33 +16,37 @@ Depends:
     R (>= 3.3),
     methods
 Imports:
-    broom,
-    caret (>= 6.0.78),
+    caret (>= 6.0.81),
     cowplot,
     data.table,
     dbplyr,
     dplyr (>= 0.7.6),
     e1071,
     forcats,
+    generics,
     ggplot2,
     glmnet,
     lubridate,
     MLmetrics,
     purrr,
     ranger (>= 0.8.0),
-    recipes (>= 0.1.3),
+    recipes (>= 0.1.3.9002),
     rlang,
     ROCR,
     stringr,
     tibble,
     tidyr,
     xgboost
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 Suggests:
     DBI,
     odbc,
     testthat,
     lintr,
     covr
+Remotes:
+    topepo/caret/pkg/caret,
+    tidymodels/recipes
 URL: http://docs.healthcare.ai
 BugReports: https://github.com/HealthCatalyst/healthcareai-r/issues
+Encoding: UTF-8

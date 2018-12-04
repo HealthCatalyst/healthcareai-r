@@ -24,6 +24,7 @@
 #' @param trained A logical to indicate if the number of NA values have been
 #'   counted in preprocessing.
 #' @param skip A logical. Should the step be skipped when the recipe is baked?
+#' @param id a unique step id that will be used to unprep
 #' @return For `step_date_hcai`, an updated version of recipe with the new step
 #'   added to the sequence of existing steps (if any). For the `tidy` method, a
 #'   tibble with columns `terms` (the selectors or variables selected), `value`
@@ -42,7 +43,7 @@
 #'
 #' date_rec <- prep(date_rec, training = examples)
 #'
-#' date_values <- bake(date_rec, newdata = examples)
+#' date_values <- bake(date_rec, new_data = examples)
 #' date_values
 #'
 #' # changing `feature_type` to `categories`
@@ -52,11 +53,12 @@
 #'
 #' date_rec <- prep(date_rec, training = examples)
 #'
-#' date_values <- bake(date_rec, newdata = examples)
+#' date_values <- bake(date_rec, new_data = examples)
 #' date_values
 step_date_hcai <- function(recipe, ..., role = "predictor", trained = FALSE,
                            feature_type = "continuous", columns = NULL,
-                           skip = FALSE) {
+                           skip = FALSE,
+                           id = rand_id("bagimpute")) {
   possible_feature_types <- c("categories", "continuous")
   if (!(feature_type %in% possible_feature_types))
     stop("Possible values of `feature_type` should include: ",
@@ -69,17 +71,19 @@ step_date_hcai <- function(recipe, ..., role = "predictor", trained = FALSE,
       trained = trained,
       feature_type = feature_type,
       columns = columns,
-      skip = skip
+      skip = skip,
+      id = id
     )
   )
 }
 
 step_date_hcai_new <- function(terms = NULL, role = "predictor",
                                trained = FALSE, feature_type = NULL,
-                               columns = NULL, skip = FALSE) {
+                               columns = NULL, skip = FALSE,
+                               id) {
   step(subclass = "date_hcai", terms = terms, role = role, trained = trained,
        new_features = NULL, feature_type = feature_type, columns = columns,
-       skip = skip)
+       skip = skip, id = id)
 }
 
 #' @importFrom stats as.formula model.frame
@@ -90,7 +94,7 @@ prep.step_date_hcai <- function(x, training, info = NULL, ...) {
 
   step_date_hcai_new(terms = x$terms, role = x$role, trained = TRUE,
                      feature_type = x$feature_type, columns = col_names,
-                     skip = x$skip)
+                     skip = x$skip, id = x$id)
 }
 
 
@@ -152,26 +156,26 @@ get_date_features <- function(dt, feats, column_name) {
 
 #' @importFrom tibble as_tibble is_tibble
 #' @export
-bake.step_date_hcai <- function(object, newdata, ...) {
+bake.step_date_hcai <- function(object, new_data, ...) {
   # convert to standard date format
-  newdata <- convert_date_cols(newdata)
+  new_data <- convert_date_cols(new_data)
 
   # get date info for each date column. A list of dataframes.
   date_info <- purrr::map(object$columns, ~{
     get_date_features(
-      dt = dplyr::pull(newdata, .x),
+      dt = dplyr::pull(new_data, .x),
       feats = object$feature_type,
       column_name = .x
     )
   })
 
   # combines all cols that exist in each df in the `date_info` list with the
-  # cols in newdata
-  newdata <- dplyr::bind_cols(newdata, date_info)
+  # cols in new_data
+  new_data <- dplyr::bind_cols(new_data, date_info)
 
-  if (!is_tibble(newdata))
-    newdata <- as_tibble(newdata)
-  newdata
+  if (!is_tibble(new_data))
+    new_data <- as_tibble(new_data)
+  new_data
 }
 
 #' @export
@@ -185,17 +189,20 @@ print.step_date_hcai <- function(x, width = max(20, options()$width - 29),
 #' @rdname step_date_hcai
 #' @param x A `step_date_hcai` object.
 #' @export
+#' @export tidy.step_date_hcai
 tidy.step_date_hcai <- function(x, ...) {
   if (x$trained == TRUE) {
     res <- expand.grid(
       terms = x$columns,
-      feature_type = x$feature_type
+      feature_type = x$feature_type,
+      id = x$id
     )
   } else {
     term_names <- sel2char(x$terms)
     res <- expand.grid(
       terms = term_names,
-      feature_type = x$feature_type
+      feature_type = x$feature_type,
+      id = x$id
     )
   }
   as_tibble(res)

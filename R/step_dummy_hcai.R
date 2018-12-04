@@ -81,7 +81,7 @@
 #' rec <- recipes::recipe(head(pima_diabetes), ~.) %>%
 #'   healthcareai:::step_dummy_hcai(weight_class)
 #' d <- recipes::prep(rec, training = pima_diabetes)
-#' d <- recipes::bake(d, newdata = pima_diabetes)
+#' d <- recipes::bake(d, new_data = pima_diabetes)
 #'
 #' # Specify ref_levels
 #' ref_levels <- list(weight_class = "normal")
@@ -96,7 +96,8 @@ step_dummy_hcai <-
            trained = FALSE,
            naming = dummy_names,
            levels = NULL,
-           skip = FALSE) {
+           skip = FALSE,
+           id = rand_id("bagimpute")) {
     add_step(
       recipe,
       step_dummy_hcai_new(
@@ -107,7 +108,8 @@ step_dummy_hcai <-
         levels = levels,
         ref_levels = NULL,
         dummies = NULL,
-        skip = skip
+        skip = skip,
+        id = id
       )
     )
   }
@@ -120,7 +122,8 @@ step_dummy_hcai_new <-
            levels = levels,
            ref_levels = ref_levels,
            dummies = dummies,
-           skip = FALSE
+           skip = FALSE,
+           id
   ) {
     step(
       subclass = "dummy_hcai",
@@ -131,7 +134,8 @@ step_dummy_hcai_new <-
       levels = levels,
       ref_levels = ref_levels,
       dummies = dummies,
-      skip = skip
+      skip = skip,
+      id = id
     )
   }
 
@@ -223,7 +227,8 @@ prep.step_dummy_hcai <- function(x, training, info = NULL, ...) {
     levels = levels,
     ref_levels = ref_levels,
     dummies = dummies,
-    skip = x$skip
+    skip = x$skip,
+    id = x$id
   )
 }
 
@@ -239,7 +244,7 @@ warn_new_levels <- function(dat, lvl) {
 }
 
 #' @export
-bake.step_dummy_hcai <- function(object, newdata, ...) {
+bake.step_dummy_hcai <- function(object, new_data, ...) {
   ## Maybe do this in C?
   col_names <- names(object$levels)
 
@@ -259,19 +264,19 @@ bake.step_dummy_hcai <- function(object, newdata, ...) {
       stop("Factor level values not recorded", call. = FALSE)
 
     warn_new_levels(
-      newdata[[orig_var]],
+      new_data[[orig_var]],
       attr(object$levels[[i]], "values")
     )
 
-    newdata[, orig_var] <-
-      factor(getElement(newdata, orig_var),
+    new_data[, orig_var] <-
+      factor(getElement(new_data, orig_var),
              levels = attr(object$levels[[i]], "values"),
              ordered = fac_type == "ordered")
 
     indicators <-
       model.frame(
         as.formula(paste0("~", orig_var)),
-        data = newdata[, orig_var],
+        data = new_data[, orig_var],
         xlev = attr(object$levels[[i]], "values"),
         na.action = na.pass
       )
@@ -293,12 +298,12 @@ bake.step_dummy_hcai <- function(object, newdata, ...) {
     used_lvl <- gsub(paste0("^", col_names[i]), "", colnames(indicators))
     colnames(indicators) <- object$naming(col_names[i], used_lvl,
                                           fac_type == "ordered")
-    newdata <- bind_cols(newdata, as_tibble(indicators))
-    newdata[, col_names[i]] <- NULL
+    new_data <- bind_cols(new_data, as_tibble(indicators))
+    new_data[, col_names[i]] <- NULL
   }
-  if (!is_tibble(newdata))
-    newdata <- as_tibble(newdata)
-  newdata
+  if (!is_tibble(new_data))
+    new_data <- as_tibble(new_data)
+  new_data
 }
 
 #' @export
@@ -323,11 +328,12 @@ print.step_dummy_hcai <-
 #' @rdname step_dummy_hcai
 #' @param x A `step_dummy_hcai` object.
 #' @export
+#' @export tidy.step_dummy_hcai
 tidy.step_dummy_hcai <- function(x, ...) {
   if (is_trained(x)) {
-    res <- tibble(terms = names(x$levels))
+    res <- tibble(terms = names(x$levels), id = x$id)
   } else {
-    res <- tibble(terms = sel2char(x$terms))
+    res <- tibble(terms = sel2char(x$terms), id = x$id)
   }
   res
 }

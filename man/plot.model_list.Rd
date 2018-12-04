@@ -4,8 +4,8 @@
 \alias{plot.model_list}
 \title{Plot performance of models}
 \usage{
-\method{plot}{model_list}(x, font_size = 11, point_size = 1, print = TRUE,
-  ...)
+\method{plot}{model_list}(x, font_size = 11, point_size = 1,
+  print = TRUE, ...)
 }
 \arguments{
 \item{x}{modellist object as returned by \code{\link{tune_models}} or

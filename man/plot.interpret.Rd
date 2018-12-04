@@ -4,8 +4,8 @@
 \alias{plot.interpret}
 \title{Plot regularized model coefficients}
 \usage{
-\method{plot}{interpret}(x, include_intercept = FALSE, max_char = 40, title,
-  caption, font_size = 11, point_size = 3, print = TRUE, ...)
+\method{plot}{interpret}(x, include_intercept = FALSE, max_char = 40,
+  title, caption, font_size = 11, point_size = 3, print = TRUE, ...)
 }
 \arguments{
 \item{x}{A \code{interpret} object or a data frame with columns "variable"

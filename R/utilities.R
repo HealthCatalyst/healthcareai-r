@@ -187,14 +187,11 @@ Mode <- function(x) {
 #' @noRd
 get_recipe_step <- function(x, step_name) {
   steps <- (x %>% attr("recipe"))$step
-  loc <- purrr::map_lgl(steps, ~{
-    class(.x) %>% first() == step_name
-  }
-  )
+  loc <- purrr::map_lgl(steps, ~class(.x) %>% first() == step_name)
   step_object <-
     if (any(loc))
       steps[loc][[1]]
-  else
-    NULL
+    else
+      NULL
   return(step_object)
 }

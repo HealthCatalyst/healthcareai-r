@@ -327,7 +327,7 @@ test_that("recipe attr is a recipe class object", {
 })
 
 test_that("Training data are stored entirely in the recipe", {
-  expect_equivalent(attr(d_prep, "recipe")$template, d_train)
+  expect_equivalent(attr(d_prep, "recipe")$orig_data, d_train)
 })
 
 test_that("warning is given when ignored columns have missingness", {
@@ -612,6 +612,10 @@ test_that("prep_data warns for all unique character columns and adds the to igno
 })
 
 test_that("prep_data doesn't check for all-unique columns in predict", {
+  d_train <-
+    d_train %>%
+    dplyr::mutate_if(is.factor, as.character)
+
   # Additional test of this in the last code chunk of healthcareai.Rmd
   d_prep <- prep_data(d = d_train, outcome = is_ween, song_id,
                       convert_dates = "none", make_dummies = FALSE)

@@ -1,3 +1,13 @@
+# healthcareai 2.3.0
+
+#### Breaking changes 
+
+- `healthcareai` now depends on recipes 0.1.4 and caret 6.0.81. You will need these versions or later. Various hidden changes were made to be compatible with these packages' [lastest breaking changes](https://github.com/tidymodels/recipes/blob/master/NEWS.md). 
+
+#### Changed
+
+- `bagimpute` in `prep_data` now accepts `bag_trees` to specify the number of trees. This is updated to be compatible with [recipes 0.1.4](https://github.com/tidymodels/recipes/blob/master/NEWS.md).
+
 # healthcareai 2.2.0
 
 #### Added

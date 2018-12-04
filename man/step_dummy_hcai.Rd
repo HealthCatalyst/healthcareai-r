@@ -6,7 +6,8 @@
 \title{Dummy Variables Creation}
 \usage{
 step_dummy_hcai(recipe, ..., role = "predictor", trained = FALSE,
-  naming = dummy_names, levels = NULL, skip = FALSE)
+  naming = dummy_names, levels = NULL, skip = FALSE,
+  id = rand_id("bagimpute"))
 
 \method{tidy}{step_dummy_hcai}(x, ...)
 }
@@ -44,6 +45,8 @@ when \code{\link[=prep.recipe]{prep.recipe()}} is run, some operations may not b
 conducted on new data (e.g. processing the outcome variable(s)).
 Care should be taken when using \code{skip = TRUE} as it may affect
 the computations for subsequent operations}
+
+\item{id}{A character string that is unique to this step to identify it.}
 
 \item{x}{A `step_dummy_hcai` object.}
 }
@@ -105,7 +108,7 @@ and interactions has more information.
 rec <- recipes::recipe(head(pima_diabetes), ~.) \%>\%
   healthcareai:::step_dummy_hcai(weight_class)
 d <- recipes::prep(rec, training = pima_diabetes)
-d <- recipes::bake(d, newdata = pima_diabetes)
+d <- recipes::bake(d, new_data = pima_diabetes)
 
 # Specify ref_levels
 ref_levels <- list(weight_class = "normal")
@@ -120,8 +123,6 @@ rec <- rec \%>\% healthcareai:::step_dummy_hcai(weight_class,
  [step_ordinalscore()], [step_unorder()], [step_other()]
  [step_novel()]
 }
-\concept{
-preprocessing dummy_variables model_specification
- dummy_variables variable_encodings
-}
+\concept{preprocessing dummy_variables model_specification
+ dummy_variables variable_encodings}
 \keyword{datagen}

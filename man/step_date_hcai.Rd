@@ -6,7 +6,8 @@
 \title{Date and Time Feature Generator}
 \usage{
 step_date_hcai(recipe, ..., role = "predictor", trained = FALSE,
-  feature_type = "continuous", columns = NULL, skip = FALSE)
+  feature_type = "continuous", columns = NULL, skip = FALSE,
+  id = rand_id("bagimpute"))
 
 \method{tidy}{step_date_hcai}(x, ...)
 }
@@ -35,6 +36,8 @@ This field is a placeholder and will be populated once [prep.recipe()] is
 used.}
 
 \item{skip}{A logical. Should the step be skipped when the recipe is baked?}
+
+\item{id}{a unique step id that will be used to unprep}
 
 \item{x}{A `step_date_hcai` object.}
 }
@@ -66,7 +69,7 @@ date_rec <- recipe(~ Dan + Stefan, examples) \%>\%
 
 date_rec <- prep(date_rec, training = examples)
 
-date_values <- bake(date_rec, newdata = examples)
+date_values <- bake(date_rec, new_data = examples)
 date_values
 
 # changing `feature_type` to `categories`
@@ -76,6 +79,6 @@ date_rec <-
 
 date_rec <- prep(date_rec, training = examples)
 
-date_values <- bake(date_rec, newdata = examples)
+date_values <- bake(date_rec, new_data = examples)
 date_values
 }

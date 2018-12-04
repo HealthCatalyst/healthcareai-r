@@ -5,7 +5,8 @@
 \title{Specify imputation methods for an existing recipe}
 \usage{
 hcai_impute(recipe, nominal_method = "new_category",
-  numeric_method = "mean", numeric_params = NULL, nominal_params = NULL)
+  numeric_method = "mean", numeric_params = NULL,
+  nominal_params = NULL)
 }
 \arguments{
 \item{recipe}{A recipe object. imputation will be added to the sequence of
@@ -17,16 +18,20 @@ operations for this recipe.}
 \item{numeric_method}{Defaults to \code{"mean"}. Other choices are
 \code{"bagimpute"}, \code{"knnimpute"} or \code{"locfimpute"}.}
 
-\item{numeric_params}{A named list with parmeters to use with chosen
-imputation method on numeric data. Options are \code{bag_model} (bagimpute
-only), \code{bag_options} (bagimpute only), \code{knn_K}, (knnimpute only),
-\code{impute_with}, (bag or knn) or \code{seed_val} (bag or knn).
+\item{numeric_params}{A named list with parmeters to use with
+chosen imputation method on numeric data. Options are
+\code{bag_model} (bagimpute only), \code{bag_trees} (bagimpute
+only), \code{bag_options} (bagimpute only), \code{bag_trees}
+(bagimpute only), \code{knn_K} (knnimpute only), \code{impute_with}
+(knnimpute only), (bag or knn) or \code{seed_val} (bag or knn).
 See \link{step_bagimpute} or \link{step_knnimpute} for details.}
 
-\item{nominal_params}{A named list with parmeters to use with chosen
-imputation method on nominal data. Options are \code{bag_model} (bagimpute
-only), \code{bag_options} (bagimpute only), \code{knn_K}, (knnimpute only),
-\code{impute_with}, (bag or knn) or \code{seed_val} (bag or knn).
+\item{nominal_params}{A named list with parmeters to use with
+chosen imputation method on nominal data. Options are
+\code{bag_model} (bagimpute only), \code{bag_trees} (bagimpute
+only), \code{bag_options} (bagimpute only), \code{bag_trees}
+(bagimpute only), \code{knn_K} (knnimpute only), \code{impute_with}
+(knnimpute only), (bag or knn) or \code{seed_val} (bag or knn).
 See \link{step_bagimpute} or \link{step_knnimpute} for details.}
 }
 \value{
@@ -63,7 +68,7 @@ my_recipe
 trained_recipe <- prep(my_recipe, training = d)
 
 # Apply recipe
-data_modified <- bake(trained_recipe, newdata = d)
+data_modified <- bake(trained_recipe, new_data = d)
 missingness(data_modified)
 
 
