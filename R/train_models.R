@@ -58,7 +58,7 @@ attach_session_info <- function(x) {
   structure(x,
             versions = list(
               r_version = paste0(si$R.version$major, ".", si$R.version$minor),
-              hcai_version = installed.packages()["healthcareai", "Version"],
+              hcai_version = packageVersion("healthcareai"),
               other_packages =
                 purrr::map_chr(si$loadedOnly, ~ .x$Version) %>%
                 tibble::tibble(package = names(.), version = .))
