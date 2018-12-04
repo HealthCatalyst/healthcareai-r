@@ -248,7 +248,7 @@ predict_model_list_main <- function(object,
   recipe <- attr(object, "recipe")
   if (missing(newdata)) {
     # Get prep-prep training data
-    newdata <- recipe$template
+    newdata <- recipe$orig_data
     # Use out-of-fold predictions from training
     oof_preds <- get_oof_predictions(object, mi)
     preds <- oof_preds$preds

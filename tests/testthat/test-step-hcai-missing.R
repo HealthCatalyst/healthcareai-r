@@ -36,7 +36,7 @@ d_test <- d[-train_index$Resample1, ]
 rec_obj <- recipe(is_goomba ~ ., data = d)
 
 rec_obj <- rec_obj %>%
-  step_missing(all_nominal())
+  step_missing(all_nominal(), id = "id")
 
 junk <- capture_output(
   rec_obj <- prep(rec_obj, training = d_train)
@@ -127,11 +127,11 @@ test_that("Warning is triggered for greater than 50% NA", {
 
 test_that("tidy method prints correctly", {
   exp <- tibble::tibble(terms = c("character", "suit"),
-                value = c(33.20, 8.71))
+                        value = c(33.20, 8.71), id = rep("id", 2))
   expect_equal(
     exp,
-    broom::tidy(rec_obj$steps[[1]])
+    tidy(rec_obj$steps[[1]])
   )
-  rec_obj <- recipe(is_goomba ~ ., data = d) %>% step_missing(all_nominal())
-  expect_s3_class(broom::tidy(rec_obj$steps[[1]]), "tbl_df")
+  rec_obj <- recipe(is_goomba ~ ., data = d) %>% step_missing(all_nominal(), id = "id")
+  expect_s3_class(tidy(rec_obj$steps[[1]]), "tbl_df")
 })

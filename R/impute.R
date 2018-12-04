@@ -17,15 +17,19 @@
 #' @param nominal_method Defaults to \code{"new_category"}. Other choices are
 #'   \code{"bagimpute"} or \code{"knnimpute"}.
 #' @param numeric_params A named list with parmeters to use with chosen
-#'   imputation method on numeric data. Options are \code{bag_model} (bagimpute
-#'   only), \code{bag_options} (bagimpute only), \code{knn_K}, (knnimpute only),
-#'   \code{impute_with}, (bag or knn) or \code{seed_val} (bag or knn). See
-#'   \link{step_bagimpute} or \link{step_knnimpute} for details.
+#'   imputation method on numeric data. Options are
+#'  \code{bag_model} (bagimpute only), \code{bag_trees} (bagimpute
+#'  only), \code{bag_options} (bagimpute only), \code{bag_trees}
+#'  (bagimpute only), \code{knn_K} (knnimpute only), \code{impute_with}
+#'  (knnimpute only), (bag or knn) or \code{seed_val} (bag or knn).
+#'  See \link{step_bagimpute} or \link{step_knnimpute} for details.
 #' @param nominal_params A named list with parmeters to use with chosen
-#'   imputation method on nominal data. Options are \code{bag_model} (bagimpute
-#'   only), \code{bag_options} (bagimpute only), \code{knn_K}, (knnimpute only),
-#'   \code{impute_with}, (bag or knn) or \code{seed_val} (bag or knn). See
-#'   \link{step_bagimpute} or \link{step_knnimpute} for details.
+#'   imputation method on nominal data. Options are
+#'  \code{bag_model} (bagimpute only), \code{bag_trees} (bagimpute
+#'  only), \code{bag_options} (bagimpute only), \code{bag_trees}
+#'  (bagimpute only), \code{knn_K} (knnimpute only), \code{impute_with}
+#'  (knnimpute only), (bag or knn) or \code{seed_val} (bag or knn).
+#'  See \link{step_bagimpute} or \link{step_knnimpute} for details.
 #' @param verbose Gives a print out of what will be imputed and which method
 #'   will be used.
 #' @return Imputed data frame with reusable recipe object for future imputation
@@ -126,7 +130,7 @@ impute <- function(d = NULL,
       prep(training = d)
   }
   # Predict
-  d_imputed <- bake(recipe, newdata = d)
+  d_imputed <- bake(recipe, new_data = d)
 
   # Add ignore columns back in.
   d_imputed <- dplyr::bind_cols(d_imputed, d_ignore)

@@ -7,8 +7,8 @@
 factors}
 \usage{
 add_best_levels(d, longsheet, id, groups, outcome, n_levels = 100,
-  min_obs = 1, positive_class = "Y", cohesion_weight = 2, levels = NULL,
-  fill, fun = sum, missing_fill = NA)
+  min_obs = 1, positive_class = "Y", cohesion_weight = 2,
+  levels = NULL, fill, fun = sum, missing_fill = NA)
 
 get_best_levels(d, longsheet, id, groups, outcome, n_levels = 100,
   min_obs = 1, positive_class = "Y", cohesion_weight = 2)

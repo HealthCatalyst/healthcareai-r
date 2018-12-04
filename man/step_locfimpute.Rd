@@ -5,7 +5,8 @@
 \alias{tidy.step_locfimpute}
 \title{Last Observation Carried Forward Imputation}
 \usage{
-step_locfimpute(recipe, ..., role = NA, trained = FALSE, skip = FALSE)
+step_locfimpute(recipe, ..., role = NA, trained = FALSE,
+  skip = FALSE, id = rand_id("bagimpute"))
 
 \method{tidy}{step_locfimpute}(x, ...)
 }
@@ -23,6 +24,8 @@ are not currently used.}
 counted in preprocessing.}
 
 \item{skip}{A logical. Should the step be skipped when the recipe is baked?}
+
+\item{id}{a unique step id that will be used to unprep}
 
 \item{x}{A `step_locfimpute` object.}
 }
@@ -47,5 +50,5 @@ prepped <-
   step_locfimpute(weight_class, insulin, skinfold, diastolic_bp) \%>\%
   prep()
 
-bake(prepped, newdata = pima_diabetes)
+bake(prepped, new_data = pima_diabetes)
 }

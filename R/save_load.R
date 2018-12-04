@@ -29,13 +29,14 @@
 #' all.equal(m, m2)
 #' }
 save_models <- function(x, filename = "models.RDS", sanitize_phi = TRUE) {
-  if (sanitize_phi)
+  if (sanitize_phi) {
     attr(x, "recipe")$template <- NULL
-  else
+    attr(x, "recipe")$orig_data <- NULL
+  } else {
     message("The model object being saved contains training data, minus ",
             "ignored ID columns.\nIf there was PHI in training data, normal ",
             "PHI protocols apply to the RDS file.")
-
+  }
   saveRDS(x, filename)
   return(invisible(NULL))
 }
@@ -51,7 +52,7 @@ load_models <- function(filename) {
   }
   x <- readRDS(filename)
   attr(x, "loaded_from_rds") <- filename
-  if (!is.null(attr(x, "recipe")$template))
+  if (!is.null(attr(x, "recipe")$template) | !is.null(attr(x, "recipe")$orig_data))
     message("*** If there was PHI in training data, normal PHI protocols apply",
             " to this model object. ***")
   return(x)

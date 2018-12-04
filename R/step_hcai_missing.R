@@ -14,6 +14,7 @@
 #'  is \code{NULL} until computed by \code{prep.recipe()}.
 #' @param skip A logical. Should the step be skipped when the
 #'  recipe is baked?
+#' @param id a unique step id that will be used to unprep
 #' @return An updated version of \code{recipe} with the new step
 #'  added to the sequence of existing steps (if any). For the
 #'  \code{tidy} method, a tibble with columns \code{terms} (the
@@ -49,13 +50,14 @@
 #' trained_recipe <- prep(my_recipe, training = d)
 #'
 #' # Apply recipe
-#' data_modified <- bake(trained_recipe, newdata = d)
+#' data_modified <- bake(trained_recipe, new_data = d)
 step_missing <- function(recipe,
                               ...,
                               role = NA,
                               trained = FALSE,
                               na_percentage = NULL,
-                              skip = FALSE) {
+                              skip = FALSE,
+                         id = rand_id("bagimpute")) {
   terms <- quos(...)
   if (length(terms) == 0)
     stop("Please supply at least one variable specification. See ?selections.")
@@ -66,24 +68,27 @@ step_missing <- function(recipe,
       role = role,
       trained = trained,
       na_percentage = na_percentage,
-      skip = skip
+      skip = skip,
+      id = id
     )
   )
 }
 
 # Initialze a new object
 step_missing_new <- function(terms = NULL,
-                                  role = NA,
-                                  trained = FALSE,
-                                  na_percentage = NULL,
-                                  skip = FALSE) {
+                             role = NA,
+                             trained = FALSE,
+                             na_percentage = NULL,
+                             skip = FALSE,
+                             id) {
   step(
     subclass = "missing",
     terms = terms,
     role = role,
     trained = trained,
     na_percentage = na_percentage,
-    skip = skip
+    skip = skip,
+    id = id
   )
 }
 
@@ -110,22 +115,23 @@ prep.step_missing <- function(x, training, info = NULL, ...) {
     role = x$role,
     trained = TRUE,
     na_percentage = na_percentage,
-    skip = x$skip
+    skip = x$skip,
+    id = x$id
   )
 }
 
 #' @importFrom tidyr replace_na
 #' @importFrom stats setNames
 #' @export
-bake.step_missing <- function(object, newdata, ...) {
+bake.step_missing <- function(object, new_data, ...) {
 
   # If no columns to be imputed, return the input data
   if (is.null(object$na_percentage))
-    return(newdata)
+    return(new_data)
 
   vars <- names(object$na_percentage)
   # Add new level to all factors
-  newdata[vars] <- lapply(newdata[vars], function(x){
+  new_data[vars] <- lapply(new_data[vars], function(x){
     levels(x) <- c(levels(x), "missing")
     x
   })
@@ -135,7 +141,7 @@ bake.step_missing <- function(object, newdata, ...) {
     rep("missing", length(vars)) %>%
     as.list %>%
     setNames(vars)
-  newdata %>%
+  new_data %>%
     replace_na(replacement_list)
 }
 
@@ -148,15 +154,18 @@ print.step_missing <-
   }
 
 #' @importFrom tibble tibble
-#' @importFrom broom tidy
+#' @rdname step_missing
+#' @param x A `step_missing` object.
 #' @export
+#' @export tidy.step_missing
 tidy.step_missing <- function(x, ...) {
   if (x$trained == TRUE) {
     res <- tibble(terms = names(x$na_percentage),
-                  value = round(x$na_percentage, 2))
+                  value = round(x$na_percentage, 2),
+                  id = x$id)
   } else {
     term_names <- sel2char(x$terms)
-    res <- tibble(terms = term_names, value = NA_real_)
+    res <- tibble(terms = term_names, value = NA_real_, id = x$id)
   }
   res
 }

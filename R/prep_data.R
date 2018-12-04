@@ -187,6 +187,8 @@ prep_data <- function(d,
   if (!is.data.frame(d))
     stop("\"d\" must be a data frame.")
 
+  orig_data <- d
+
   new_recipe <- TRUE
   if (!is.null(recipe)) {
     new_recipe <- FALSE
@@ -288,6 +290,8 @@ prep_data <- function(d,
     ## d gets stored with the recipe and it is the one copy of training data
     ## that we carry around with the model_list
     recipe <- recipes::recipe(d, ~ .)
+    recipe$orig_data <- orig_data
+
     ## Then deal with outcome if present
     if (!rlang::quo_is_missing(outcome)) {
       outcome_name <- rlang::quo_name(outcome)
@@ -304,7 +308,7 @@ prep_data <- function(d,
              "remove these rows before training a model.")
       # Changing the role of outcome from predictor to outcome warns, shush:
       suppressWarnings({
-        recipe <- recipes::add_role(recipe, !!outcome, new_role = "outcome")
+        recipe <- recipes::update_role(recipe, !!outcome, new_role = "outcome")
       })
       # If outcome is binary 0/1, convert to N/Y -----------------------------
       if (factor_outcome && all(outcome_vec %in% 0:1)) {
@@ -501,7 +505,7 @@ prep_data <- function(d,
 
       # Perform PCA
       recipe <- recipe %>%
-        recipes::step_pca(all_numeric(), -all_outcomes(), num = as.integer(PCA))
+        recipes::step_pca(all_numeric(), -all_outcomes(), num_comp = as.integer(PCA))
     }
 
     # Prep the newly built recipe ---------------------------------------------
