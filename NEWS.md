@@ -7,6 +7,7 @@
 #### Changed
 
 - `bagimpute` in `prep_data` now accepts `bag_trees` to specify the number of trees. This is updated to be compatible with [recipes 0.1.4](https://github.com/tidymodels/recipes/blob/master/NEWS.md).
+- Local loaded `healthcareai` library versions now are saved to model objects.
 
 # healthcareai 2.2.0
 
