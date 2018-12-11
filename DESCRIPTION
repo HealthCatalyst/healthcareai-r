@@ -8,7 +8,8 @@ Authors@R: c(
     person("Michael", "Levy", email = "michael.levy@healthcatalyst.com", role = c("aut", "cre")),
     person("Mike", "Mastanduno", email = "michael.mastanduno@healthcatalyst.com", role = "aut"),
     person("Taylor", "Larsen", email = "taylor.larsen@healthcatalyst.com", role = "aut"),
-    person("Taylor", "Miller", email = "taylor.miller@healthcatalyst.com", role = "aut"))
+    person("Taylor", "Miller", email = "taylor.miller@healthcatalyst.com", role = "aut"),
+    person("Rex", "Sumsion", email = "rex.sumsion@healthcatalyst.com", role = "aut"))
 Description: A machine learning toolbox tailored to healthcare data.
 License: MIT + file LICENSE
 LazyData: TRUE
