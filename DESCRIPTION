@@ -2,11 +2,11 @@ Package: healthcareai
 Type: Package
 Title: Tools for Healthcare Machine Learning
 Version: 2.3.0
-Date: 2018-09-01
+Date: 2018-12-11
 Authors@R: c(
     person("Levi", "Thatcher", email = "levi.thatcher@healthcatalyst.com", role = "aut"),
-    person("Michael", "Levy", email = "michael.levy@healthcatalyst.com", role = c("aut", "cre")),
-    person("Mike", "Mastanduno", email = "michael.mastanduno@healthcatalyst.com", role = "aut"),
+    person("Michael", "Levy", email = "michael.levy@healthcatalyst.com", role = "aut"),
+    person("Mike", "Mastanduno", email = "michael.mastanduno@healthcatalyst.com", role = c("aut", "cre")),
     person("Taylor", "Larsen", email = "taylor.larsen@healthcatalyst.com", role = "aut"),
     person("Taylor", "Miller", email = "taylor.miller@healthcatalyst.com", role = "aut"),
     person("Rex", "Sumsion", email = "rex.sumsion@healthcatalyst.com", role = "aut"))
