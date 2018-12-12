@@ -45,9 +45,6 @@ Suggests:
     testthat,
     lintr,
     covr
-Remotes:
-    topepo/caret/pkg/caret,
-    tidymodels/recipes
 URL: http://docs.healthcare.ai
 BugReports: https://github.com/HealthCatalyst/healthcareai-r/issues
 Encoding: UTF-8
