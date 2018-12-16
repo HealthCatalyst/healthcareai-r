@@ -92,8 +92,9 @@ plot.missingness <- function(x, remove_zeros = FALSE, max_char = 40,
   if (inherits(x, "missingness") && !is.data.frame(x))
     x <- data.frame(variable = names(x), percent_missing = x)
 
-  if ( (is.data.frame(x) && names(x) != c("variable", "percent_missing") ) ||
-       !is.data.frame(x))
+  if (!is.data.frame(x))
+    stop("x must be a data frame from missingness, or at least look like one!")
+  if (any(names(x) != c("variable", "percent_missing")))
     stop("x must be a data frame from missingness, or at least look like one!")
 
   if (remove_zeros)

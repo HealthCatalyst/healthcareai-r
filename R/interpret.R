@@ -154,8 +154,9 @@ plot.interpret <- function(x, include_intercept = FALSE, max_char = 40,
 
   ats <- attributes(x)
 
-  if ( (is.data.frame(x) && names(x) != c("variable", "coefficient") ) ||
-       !is.data.frame(x))
+  if (!is.data.frame(x))
+    stop("x must be a data frame from interpret, or at least look like one!")
+  if (any(names(x) != c("variable", "coefficient")))
     stop("x must be a data frame from interpret, or at least look like one!")
 
   if (!include_intercept)

@@ -31,8 +31,9 @@ plot.variable_importance <- function(x,
                                      print = TRUE,
                                      ... ) {
 
-  if ( (is.data.frame(x) & names(x) != c("variable", "importance") ) ||
-       !is.data.frame(x))
+  if (!is.data.frame(x))
+    stop("x must be a data frame from get_variable_importance, or at least look like one!")
+  if (any(names(x) != c("variable", "importance")))
     stop("x must be a data frame from get_variable_importance, or at least look like one!")
 
   if (title == "model") {
