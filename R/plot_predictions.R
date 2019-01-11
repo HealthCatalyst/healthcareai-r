@@ -210,15 +210,19 @@ plot_multiclass_predictions <- function(x,
          "as the true values. Predictions look like: '",
          list_variables(levels(x[[preds]])[1:2]), "' and outcomes look like: '",
          list_variables(levels(x[[target]])[1:2]), "'")
+
   # Compute frequency of actual categories
-  actual <- tibble::as.tibble(table(x[[target]])) %>%
+  actual <- as.data.frame(table(x[[target]])) %>%
     rename(!!target := Var1,
-           actual_freq = n)
+           actual_freq = Freq) %>%
+    as_tibble()
   # Build confusion matrix
-  confusion <- tibble::as.tibble(table(x[[target]], x[[preds]])) %>%
+  confusion <- as.data.frame(table(x[[target]], x[[preds]])) %>%
     rename(!!target := Var1,
            !!preds := Var2,
-           freq = n)
+           freq = Freq) %>%
+    as_tibble()
+
   # Calculate percentage of test cases based on actual frequency
   confusion <- inner_join(confusion, actual, by = target) %>%
     mutate(!!target := as.factor(!!rlang::sym(target)),
