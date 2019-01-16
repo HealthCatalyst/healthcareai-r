@@ -102,7 +102,8 @@ test_that("data reads a pointer if not collected", {
   res <- pt %>% collect()
   exp <- tibble::tibble(id = 1:3,
                         word_of_day = c("bagel", "box", "toaster"))
-  expect_equal(class(pt)[1], "tbl_dbi")
+  expect_equal(class(pt)[1], "tbl_Microsoft SQL Server")
+  expect_equal(class(pt)[2], "tbl_dbi")
   expect_equal(res, exp)
   DBI::dbDisconnect(con)
 })
@@ -116,7 +117,8 @@ test_that("data reads a pointer from special schema if not collected", {
   res <- pt %>% collect()
   exp <- tibble::tibble(id = 4:6,
                         word_of_day = c("lentil", "automobile", "towel"))
-  expect_equal(class(pt)[1], "tbl_dbi")
+  expect_equal(class(pt)[1], "tbl_Microsoft SQL Server")
+  expect_equal(class(pt)[2], "tbl_dbi")
   expect_equal(res, exp)
   DBI::dbDisconnect(con)
 })
