@@ -13,6 +13,14 @@ r3 <- machine_learn(mtcars, outcome = mpg, tune = FALSE)
 c2 <- cl[c("eXtreme Gradient Boosting", "Random Forest")]
 best_with_vi <- healthcareai:::extract_model_info(c2)$best_model_name
 
+set.seed(20)
+m_df <- prep_data(dplyr::sample_n(iris, 100), outcome = Species)
+m_models <-
+  tune_models(d = m_df, outcome = Species, n_folds = 2, tune_depth = 2)
+m_warns <- capture_warnings({
+  m_vi <- get_variable_importance(m_models)
+})
+
 test_that("order_models gets it right", {
   ci <- extract_model_info(cl)
   expect_equal(which(names(cl) == ci$best_model_name), unname(order_models(cl)[1]))
