@@ -275,7 +275,7 @@ test_that("test warning for bag imputation mal function", {
   expect_error(
     prep(my_recipe) %>%
       bake(new_data = df),
-    regexp = "STRING_ELT()"
+    regexp = "factor"
   )
 
   expect_message(
@@ -289,6 +289,6 @@ test_that("test warning for bag imputation mal function", {
   expect_error(
     prep(my_recipe) %>%
       bake(new_data = df),
-    regexp = "STRING_ELT()"
+    regexp = "factor"
   )
 })

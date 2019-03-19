@@ -3,8 +3,6 @@
 
 # healthcareai <img src="man/figures/logo.png" align="right" />
 
-[![Appveyor Build
-Status](https://ci.appveyor.com/api/projects/status/0xrpe233o9a16l4l/branch/master?svg=true)](https://ci.appveyor.com/project/CatalystAdmin/healthcareai-r/)
 [![Travis-CI Build
 Status](https://travis-ci.org/HealthCatalyst/healthcareai-r.svg?branch=master)](https://travis-ci.org/HealthCatalyst/healthcareai-r)
 [![codecov
