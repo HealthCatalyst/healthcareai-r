@@ -40,8 +40,8 @@ Imports:
     xgboost
 RoxygenNote: 6.1.1
 Suggests:
-    DBI,
-    odbc,
+    DBI (>= 1.0.0),
+    odbc(>= 1.1.6),
     testthat,
     lintr,
     covr

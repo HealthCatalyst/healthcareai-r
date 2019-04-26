@@ -3,7 +3,7 @@
 #' @param my_variables a vector or list of variables
 #' @return a string that lists all the unique elements of the vector or list in sentence form
 #' @noRd
-#' 
+#'
 list_variables <- function(my_variables) {
   if (!is.atomic(my_variables)) {
     stop("not_atomic")
@@ -20,4 +20,16 @@ list_variables <- function(my_variables) {
     tmp <- paste(my_unique_variables[1:last_index - 1], collapse = ", ")
     return(paste(tmp, my_unique_variables[last_index], sep = ", and "))
   }
+}
+
+#' Prepares a tibble or dataframe for printing in a message
+#'
+#' @param d a dataframe or tibble
+#' @return a string that mimics the print.tibble method when put in a stop or message.
+#' @noRd
+#'
+list_tibble <- function(d) {
+  if (!is.data.frame(d))
+    stop("not df or tibble")
+  capture_output(print(d))
 }

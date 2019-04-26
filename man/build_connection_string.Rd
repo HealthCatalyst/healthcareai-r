@@ -46,4 +46,6 @@ con <- DBI::dbConnect(odbc::odbc(), .connection_string = my_con)
 }
 \seealso{
 \code{\link{db_read}}
+
+\code{\link{db_write}}
 }
