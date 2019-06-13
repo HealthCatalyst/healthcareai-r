@@ -450,9 +450,8 @@ test_that("outcome_groups works on training data", {
 })
 
 test_that("outcome_groups works on test data", {
-  set.seed(5270)
   cg <- predict(model_classify_prepped, test_data, outcome_groups = TRUE)$predicted_group
-  expect_setequal(test_data$Catholic, as.character(cg))
+  expect_true(all(c("Y", "N") %in% as.character(cg)))
   fp_cheap <- predict(model_classify_prepped, test_data, outcome_groups = 10)$predicted_group
   fp_expensive <- predict(model_classify_prepped, test_data, outcome_groups = .1)$predicted_group
   expect_true(sum(fp_cheap == "Y") >= sum(cg == "Y"))
