@@ -360,9 +360,9 @@ test_that("prep_data applies recipe from training on test data", {
   expect_equal(unique(d_reprep$weirdness[is.na(d_test$weirdness)]),
                mean(d_train$weirdness, na.rm = TRUE))
   # When missing is the reference level
-  expect_true(all(d_reprep$genre_Country[is.na(d_test$genre)] == 0 &&
-                    d_reprep$genre_Rock[is.na(d_test$genre)] == 0 &&
-                    d_reprep$genre_Jazz[is.na(d_test$genre)] == 0))
+  expect_equal(sum(d_reprep$genre_Country[is.na(d_test$genre)]), 0)
+  expect_equal(sum(d_reprep$genre_Rock[is.na(d_test$genre)]), 0)
+  expect_equal(sum(d_reprep$genre_Jazz[is.na(d_test$genre)]), 0)
 })
 
 test_that("Unignored variables present in training but not deployment error if needed", {
