@@ -125,7 +125,7 @@ test_that("variable_direction", {
 
 test_that("prohibited_transitions", {
   # Canonical format
-  expect_true(any(with(def_pip, (original_value == "dog" & modified_value == "cat"))))
+  expect_true(any(with(def_pip, (original_value == "cat" & modified_value == "dog"))))
   no_dog_cat <- pip(animodel, animals, new_values = alt_list,
                     prohibited_transitions = list(animal = data.frame(from = "dog", to = "cat")))
   expect_false(any(with(no_dog_cat, (original_value == "dog" & modified_value == "cat"))))
