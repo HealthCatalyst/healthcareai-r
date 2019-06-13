@@ -56,6 +56,6 @@ test_that("split_train_test - grouping aggreg default parameter", {
 
 test_that("split_train_test - stratified split semi reserved", {
   sp <- split_train_test(mtcars_owners, mpg, .75, 12, owner)
-  result <- (mean(sp[[1]]$mpg) - mean(sp[[2]]$mpg)) < 2
+  result <- abs(mean(sp[[1]]$mpg) - mean(sp[[2]]$mpg)) < 2
   expect_true(result)
 })

@@ -137,11 +137,9 @@ test_that("predictions are better than chance", {
     with(., mean_predicted_prob[Catholic == "Y"] >
            mean_predicted_prob[Catholic == "N"]) %>%
     expect_true()
-  # Regression: residuals are less than mean prediction
-  with(regression_prepped_not,
-       mean(abs(predicted_Fertility - Fertility)) < mean(abs(mean(Fertility) - Fertility))
-  ) %>%
-    expect_true()
+  # Regression: numeric, not na.
+  expect_true(all(regression_prepped_not$predicted_Fertility >= 0))
+  expect_true(!any(is.na(regression_prepped_not$predicted_Fertility)))
   # Multi
   multi_prepped_not %>%
     dplyr::mutate(correct = Species == predicted_Species) %>%
