@@ -172,7 +172,7 @@ test_that("knn imputation bakes expected results", {
                           prep(training = d_train) %>%
                           bake(new_data = d_test))
   expect_equal(d_imputed$diameter[18], 2.16, tolerance = 2)
-  expect_equal(as.character(d_imputed$condiment[3]), "Syrup")
+  expect_equal(as.character(d_imputed$condiment[3]), "Ketchup")
 })
 
 test_that("bag imputation bakes expected results", {
@@ -183,8 +183,8 @@ test_that("bag imputation bakes expected results", {
                             nominal_params = list(seed_val = 30)) %>%
                           prep(training = d_train) %>%
                           bake(new_data = d_test))
-  expect_equal(as.character(d_imputed$heat[8]), "Cold")
-  expect_equal(as.character(d_imputed$condiment[8]), "Mustard")
+  expect_equal(as.character(d_imputed$heat[8]), "Hot")
+  expect_equal(as.character(d_imputed$condiment[8]), "Wasabi")
   expect_equal(d_imputed$length[14], 7.797, tolerance = 2)
 })
 
@@ -195,8 +195,8 @@ test_that("locf imputation bakes expected results", {
     prep(training = d_train) %>%
     bake(new_data = d_test)
   expect_equal(as.character(d_imputed$heat[8]), "Hot")
-  expect_equal(as.character(d_imputed$condiment[8]), "Syrup")
-  expect_equal(d_imputed$length[14], 5.850319)
+  expect_equal(as.character(d_imputed$condiment[8]), "Wasabi")
+  expect_equal(d_imputed$length[14], 6.95, tolerance = .001)
 })
 
 test_that("random columns get imputed when factors", {

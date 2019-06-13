@@ -1,7 +1,7 @@
 context("Checking get_best_levels")
 
 # Setup ----------------------------------------
-set.seed(56073)
+set.seed(56075)
 n <- 25
 d <- tibble::tibble(
   patient_id = letters[1:n],

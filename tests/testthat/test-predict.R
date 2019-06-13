@@ -9,7 +9,7 @@ remove_logfiles <- function() {
 remove_logfiles()
 
 ### Setup. Data from caret.
-set.seed(2570)
+set.seed(2572)
 data("swiss")
 swiss <-
   swiss %>%
