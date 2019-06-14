@@ -16,7 +16,7 @@ swiss <-
   tibble::rownames_to_column("province") %>%
   dplyr::mutate(Catholic = ifelse(Catholic > 70, "Y", "N")) %>%
   tibble::as_tibble()
-part <- split_train_test(swiss, Catholic, .8)
+part <- split_train_test(swiss, Catholic, .6)
 training_data <- part$train
 test_data <- part$test
 test_data_newlevel <- test_data
