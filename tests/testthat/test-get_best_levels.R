@@ -1,7 +1,7 @@
 context("Checking get_best_levels")
 
 # Setup ----------------------------------------
-set.seed(56073)
+set.seed(56075)
 n <- 25
 d <- tibble::tibble(
   patient_id = letters[1:n],
@@ -114,7 +114,7 @@ test_that("add_best_levels respects options passed to pivot", {
                            fill = dose, fun = prod, missing_fill = 0L)
   expect_equal(4, sum(stringr::str_detect(names(added_custom), "grouper_")))
   expect_false(any(is.na(added_custom)))
-  expect_true(all(c(0, 2, 4) %in% added_custom$grouper_F))
+  expect_true(all(c(0, 2) %in% added_custom$grouper_A))
 })
 
 test_that("add_best_levels attaches levels as attribute", {

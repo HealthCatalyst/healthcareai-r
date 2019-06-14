@@ -35,6 +35,7 @@ test_that("group_strat_split - grouping aggreg default parameter", {
 })
 
 test_that("group_strat_split - grouping stratified split semi reserved", {
+  set.seed(12)
   train_rows <- group_strat_split(mtcars_owners, rlang::quo(mpg), .75, rlang::quo(owner))
   sp <- list(train = mtcars_owners[train_rows, ], test = mtcars_owners[-train_rows, ])
   result <- (mean(sp[[1]]$mpg) - mean(sp[[2]]$mpg)) < 2
@@ -54,7 +55,7 @@ test_that("split_train_test - grouping aggreg default parameter", {
 })
 
 test_that("split_train_test - stratified split semi reserved", {
-  sp <- split_train_test(mtcars_owners, mpg, .75, 123, owner)
-  result <- (mean(sp[[1]]$mpg) - mean(sp[[2]]$mpg)) < 2
+  sp <- split_train_test(mtcars_owners, mpg, .75, 12, owner)
+  result <- abs(mean(sp[[1]]$mpg) - mean(sp[[2]]$mpg)) < 2
   expect_true(result)
 })
