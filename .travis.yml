@@ -21,6 +21,7 @@ matrix:
   allow_failures:
   - r: devel
 r_packages:
+- knitr
 - covr
 - lintr
 addons:
