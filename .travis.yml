@@ -20,8 +20,9 @@ r:
 matrix:
   allow_failures:
   - r: devel
+r_binary_packages:
+  - stringi
 r_packages:
-- stringi
 - stringr
 - knitr
 - covr
