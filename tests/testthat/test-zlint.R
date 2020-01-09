@@ -9,5 +9,7 @@ test_that("Package is lint free", {
                                  object_length_linter = lintr::object_length_linter(length = 45L))
 
   # Anything changed here must be changed in .lintr too.
-  lintr::expect_lint_free(linters = linters)
+  lintr::expect_lint_free(path = getwd(),
+                          relative_path = FALSE,
+                          linters = linters)
 })
