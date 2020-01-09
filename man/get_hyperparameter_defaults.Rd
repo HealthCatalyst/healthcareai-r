@@ -6,11 +6,20 @@
 \alias{get_random_hyperparameters}
 \title{Get hyperparameter values}
 \usage{
-get_hyperparameter_defaults(models = get_supported_models(), n = 100,
-  k = 10, model_class = "classification")
+get_hyperparameter_defaults(
+  models = get_supported_models(),
+  n = 100,
+  k = 10,
+  model_class = "classification"
+)
 
-get_random_hyperparameters(models = get_supported_models(), n = 100,
-  k = 10, tune_depth = 5, model_class = "classification")
+get_random_hyperparameters(
+  models = get_supported_models(),
+  n = 100,
+  k = 10,
+  tune_depth = 5,
+  model_class = "classification"
+)
 }
 \arguments{
 \item{models}{which algorithms?}

@@ -4,8 +4,13 @@
 \alias{explore}
 \title{Explore a model's "reasoning" via counterfactual predictions}
 \usage{
-explore(models, vary = 4, hold = list(numerics = median, characters =
-  Mode), numerics = c(0.05, 0.25, 0.5, 0.75, 0.95), characters = 5)
+explore(
+  models,
+  vary = 4,
+  hold = list(numerics = median, characters = Mode),
+  numerics = c(0.05, 0.25, 0.5, 0.75, 0.95),
+  characters = 5
+)
 }
 \arguments{
 \item{models}{A model_list object. The data the model was trained on must

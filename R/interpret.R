@@ -150,7 +150,7 @@ add_refs <- function(d, dummy_step_object) {
 #'   plot(font_size = 14)
 plot.interpret <- function(x, include_intercept = FALSE, max_char = 40,
                            title, caption, font_size = 11, point_size = 3,
-                           print = TRUE, ... ) {
+                           print = TRUE, ...) {
 
   ats <- attributes(x)
 

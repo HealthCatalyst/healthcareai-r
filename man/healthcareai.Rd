@@ -3,7 +3,6 @@
 \docType{package}
 \name{healthcareai}
 \alias{healthcareai}
-\alias{healthcareai-package}
 \title{Machine Learning Made Easy}
 \description{
 healthcare.ai makes it as easy as possible to pull data from a database, get

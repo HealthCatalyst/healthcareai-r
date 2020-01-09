@@ -4,8 +4,14 @@
 \alias{build_connection_string}
 \title{Build a connection string for use with MSSQL and dbConnect}
 \usage{
-build_connection_string(server, driver = "SQL Server", database,
-  trusted = TRUE, user_id, password)
+build_connection_string(
+  server,
+  driver = "SQL Server",
+  database,
+  trusted = TRUE,
+  user_id,
+  password
+)
 }
 \arguments{
 \item{server}{A string, quoted, required. The name of the server you are

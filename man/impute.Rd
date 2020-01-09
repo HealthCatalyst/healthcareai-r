@@ -4,9 +4,16 @@
 \alias{impute}
 \title{Impute data and return a reusable recipe}
 \usage{
-impute(d = NULL, ..., recipe = NULL, numeric_method = "mean",
-  nominal_method = "new_category", numeric_params = NULL,
-  nominal_params = NULL, verbose = FALSE)
+impute(
+  d = NULL,
+  ...,
+  recipe = NULL,
+  numeric_method = "mean",
+  nominal_method = "new_category",
+  numeric_params = NULL,
+  nominal_params = NULL,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{d}{A dataframe or tibble containing data to impute.}

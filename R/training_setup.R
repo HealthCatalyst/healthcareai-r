@@ -101,7 +101,7 @@ setup_training <- function(d, outcome, model_class, models, metric, positive_cla
 }
 
 check_outcome <- function(outcome, d_names, recipe) {
-  if (rlang::quo_is_missing(outcome)){
+  if (rlang::quo_is_missing(outcome)) {
     if (is.null(recipe))
       stop("Your data is not prepared. Either provide provide an outcome ",
            "variable to tune_models and flash_models, or prepare your data in ",
@@ -142,7 +142,7 @@ set_outcome_class <- function(vec, positive_class, original_classes) {
   }
   if (!positive_class %in% levels(vec))
     stop("positive_class, ", positive_class, ", not found in the outcome column. ",
-         "Outcome has values ", list_variables(levels(vec)) )
+         "Outcome has values ", list_variables(levels(vec)))
   vec <- stats::relevel(vec, positive_class)
   return(vec)
 }
@@ -222,7 +222,7 @@ check_metric <- function(model_class, metric) {
     metric <- set_default_metric(model_class)
     warning("The given metric is NA, evaluating models with ", metric,
             " instead")
-  } else if ( (model_class == "regression" &&
+  } else if ((model_class == "regression" &&
                !(metric %in% c("MAE", "RMSE", "Rsquared"))) ||
               (model_class == "classification" &&
                !(metric %in% c("ROC", "PR"))) ||

@@ -5,8 +5,15 @@
 \alias{tidy.step_missing}
 \title{Clean NA values from categorical/nominal variables}
 \usage{
-step_missing(recipe, ..., role = NA, trained = FALSE,
-  na_percentage = NULL, skip = FALSE, id = rand_id("bagimpute"))
+step_missing(
+  recipe,
+  ...,
+  role = NA,
+  trained = FALSE,
+  na_percentage = NULL,
+  skip = FALSE,
+  id = rand_id("bagimpute")
+)
 
 \method{tidy}{step_missing}(x, ...)
 }

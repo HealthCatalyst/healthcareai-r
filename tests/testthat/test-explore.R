@@ -40,7 +40,7 @@ test_that("choose_variables default", {
 })
 
 test_that("choose_variables glm", {
-  expect_warning( g3 <- choose_variables(m["glmnet"], 3, variabs), "glm")
+  expect_warning(g3 <- choose_variables(m["glmnet"], 3, variabs), "glm")
   expect_length(g3, 3)
   expect_true(all(g3 %in% names(pima_diabetes)))
   # No warning if glm and variables were scaled:
@@ -248,7 +248,7 @@ test_that("explore errors as expected", {
 
 ##### explore generics
 test_that("printing a explored df doesn't print training performance info", {
-  sim_print <- capture_output( sim_mess <- capture_messages( print(sm)))
+  sim_print <- capture_output(sim_mess <- capture_messages(print(sm)))
   sim_output <- paste(sim_print, sim_mess)
   expect_false(stringr::str_detect(sim_print, "Performance"))
 })

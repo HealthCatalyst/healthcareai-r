@@ -29,7 +29,7 @@ plot.variable_importance <- function(x,
                                      font_size = 11,
                                      point_size = 3,
                                      print = TRUE,
-                                     ... ) {
+                                     ...) {
 
   if (!is.data.frame(x))
     stop("x must be a data frame from get_variable_importance, or at least look like one!")

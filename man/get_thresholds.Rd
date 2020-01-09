@@ -4,8 +4,7 @@
 \alias{get_thresholds}
 \title{Get class-separating thresholds for classification predictions}
 \usage{
-get_thresholds(x, optimize = NULL, measures = "all", cost_fp = 1,
-  cost_fn = 1)
+get_thresholds(x, optimize = NULL, measures = "all", cost_fp = 1, cost_fn = 1)
 }
 \arguments{
 \item{x}{Either a predictions data frame (from \code{predict}) or a

@@ -3,7 +3,7 @@
 #' @param my_variables a vector or list of variables
 #' @return a string that lists all the unique elements of the vector or list in sentence form
 #' @noRd
-#' 
+#'
 list_variables <- function(my_variables) {
   if (!is.atomic(my_variables)) {
     stop("not_atomic")

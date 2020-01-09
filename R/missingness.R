@@ -87,7 +87,7 @@ missingness <- function(d,
 #'   plot()
 plot.missingness <- function(x, remove_zeros = FALSE, max_char = 40,
                              title = NULL, font_size = 11, point_size = 3,
-                             print = TRUE, ... ) {
+                             print = TRUE, ...) {
 
   if (inherits(x, "missingness") && !is.data.frame(x))
     x <- data.frame(variable = names(x), percent_missing = x)
@@ -109,7 +109,7 @@ plot.missingness <- function(x, remove_zeros = FALSE, max_char = 40,
     coord_flip() +
     scale_x_discrete(name = NULL) +
     scale_y_continuous(name = "Percent of Observations Missing",
-                       labels = function (x) paste0(x, "%"),
+                       labels = function(x) paste0(x, "%"),
                        limits = c(0, NA)) +
     scale_color_manual(values = c("TRUE" = "darkgray", "FALSE" = "black"),
                        guide = FALSE)

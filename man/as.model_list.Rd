@@ -4,9 +4,19 @@
 \alias{as.model_list}
 \title{Make models into model_list object}
 \usage{
-as.model_list(..., listed_models = NULL, target = ".outcome",
-  model_class, tuned = TRUE, recipe = NULL, positive_class = NULL,
-  model_name = NULL, best_levels = NULL, original_data_str, versions)
+as.model_list(
+  ...,
+  listed_models = NULL,
+  target = ".outcome",
+  model_class,
+  tuned = TRUE,
+  recipe = NULL,
+  positive_class = NULL,
+  model_name = NULL,
+  best_levels = NULL,
+  original_data_str,
+  versions
+)
 }
 \arguments{
 \item{...}{\code{caret}-trained models to put into a model list}

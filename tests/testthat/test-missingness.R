@@ -13,8 +13,8 @@ dat_tibble <- tibble(a = c(1, 2, "NA", NA, "none", "??", "?", 5),
                      b = c("blank", 0, "na", "None", "none", 3, 10, 4),
                      c = c(10, 5, 8, 1, NA, "NULL", NaN, "Nas"),
                      d = c(1, 6, 7, 8, 9, 5, 10, 1078950492))
-suppressWarnings( out <- missingness(dat) )
-suppressWarnings( out_vec <- missingness(dat, return_df = FALSE) )
+suppressWarnings(out <- missingness(dat))
+suppressWarnings(out_vec <- missingness(dat, return_df = FALSE))
 manual <- sort(100 * sapply(dat, function(x) sum(is.na(x))) / nrow(dat))
 
 test_that("For a given dataframe, function returns expected output", {
@@ -31,7 +31,7 @@ test_that("For a given dataframe, function returns expected output", {
 test_that("For a given matrix, function returns expected output", {
   n <- matrix(c(1, 3, NA, NaN, "NULL", "NAs", "nil", "NONE"),
               nrow = 4, ncol = 2)
-  expect_warning( out <- missingness(n) )
+  expect_warning(out <- missingness(n))
   expect_equal(out$percent_missing, c(0, 25))
 })
 
@@ -40,7 +40,7 @@ test_that("With user defined NA values, function returns expected output", {
                      b = c("blank", 0, "na", "None", "none", 3, 10, 4),
                      c = c(10, 5, 8, "void", NA, "NULL", NaN, "Nas"),
                      d = c(1, 6, 7, 8, 9, 5, 10, "what"))
-  expect_warning( out <- missingness(dat2, to_search = "void"), "void")
+  expect_warning(out <- missingness(dat2, to_search = "void"), "void")
   expect_equal(out$percent_missing, c(0, 0, 12.5, 12.5))
 })
 
@@ -95,13 +95,13 @@ test_that("all rows of a missingness data frame are printed", {
                    tocol = paste0("v", 1:100),
                    val = 1:100) %>%
     pivot(id, tocol, val)
-  print_out <- capture_output( print(missingness(dd)) )
+  print_out <- capture_output(print(missingness(dd)))
   expect_true(all(stringr::str_detect(print_out, paste0("v", 1:100))))
 })
 
 test_that("printing works whether return_df or not", {
-  expect_error(capture_output( print(out) ), NA)
-  expect_error(capture_output( print(out_vec) ), NA)
+  expect_error(capture_output(print(out)), NA)
+  expect_error(capture_output(print(out_vec)), NA)
 })
 
 test_that("plot.missingness respects max_char", {

@@ -8,7 +8,7 @@ dcla <- prep_data(short, outcome = diabetes)
 dmul <- prep_data(dplyr::sample_n(iris, 100), outcome = Species)
 
 # Implicit test that warning not issued for missing resampled performance metrics:
-r_models <- tune_models(dreg, pedigree, tune_depth = 2, n_folds = 3, models = c("rf", "glm"))
+suppressWarnings(r_models <- tune_models(dreg, pedigree, tune_depth = 2, n_folds = 3, models = c("rf", "glm")))
 c_models <- tune_models(dcla, diabetes, tune_depth = 2, n_folds = 3, model_name = "great_name", models = "xgb")
 m_models <- tune_models(d = dmul, outcome = Species, tune_depth = 2, n_folds = 3, models = "rf")
 c_pr <- flash_models(dcla, diabetes, metric = "PR", n_folds = 2, models = "xgb")
@@ -199,19 +199,20 @@ test_that("model_lists only carry training data in recipe", {
 })
 
 test_that("[ extracts models by index", {
-  expect_s3_class(r_flash[1], "model_list")
-  expect_s3_class(r_models[2], "model_list")
-  expect_s3_class(r_models[1:2], "model_list")
-  expect_equivalent(r_models[seq_along(r_models)], r_models)
+  # Warnings here are due to tiny models that didn't converge.
+  expect_s3_class(suppressWarnings(r_flash[1]), "model_list")
+  expect_s3_class(suppressWarnings(r_models[2]), "model_list")
+  expect_s3_class(suppressWarnings(r_models[1:2]), "model_list")
+  expect_equivalent(suppressWarnings(r_models[seq_along(r_models)]), r_models)
 })
 
 test_that("[ extracts by name, index, or logical vector", {
-  expect_equivalent(r_models[1], r_models[names(r_models)[1]])
-  expect_equivalent(c_models[1], c_models[names(c_models)[1]])
-  expect_equivalent(r_models[1], r_models[c(TRUE, FALSE)])
-  expect_equivalent(r_models[2], r_models[names(r_models)[2]])
-  expect_equivalent(r_models[1:2], r_models[names(r_models)[1:2]])
-  expect_equivalent(r_models, r_models[c(TRUE, TRUE)])
+  expect_equivalent(suppressWarnings(r_models[1]), suppressWarnings(r_models[names(r_models)[1]]))
+  expect_equivalent(suppressWarnings(c_models[1]), suppressWarnings(c_models[names(c_models)[1]]))
+  expect_equivalent(suppressWarnings(r_models[1]), suppressWarnings(r_models[c(TRUE, FALSE)]))
+  expect_equivalent(suppressWarnings(r_models[2]), suppressWarnings(r_models[names(r_models)[2]]))
+  expect_equivalent(suppressWarnings(r_models[1:2]), suppressWarnings(r_models[names(r_models)[1:2]]))
+  expect_equivalent(suppressWarnings(r_models), suppressWarnings(r_models[c(TRUE, TRUE)]))
 })
 
 test_that("metrics and predict are same for extracted best model", {

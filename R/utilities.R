@@ -172,7 +172,7 @@ trunc_char <- function(x, max_char) {
 Mode <- function(x) {
   if (is.table(x)) {
     x <- names(sort(x, decreasing = TRUE))[1]
-    suppressWarnings( if (!is.na(as.numeric(x))) x <- as.numeric(x) )
+    suppressWarnings(if (!is.na(as.numeric(x))) x <- as.numeric(x))
     x
   } else {
     ux <- unique(x)

@@ -5,8 +5,14 @@
 \alias{tidy.step_locfimpute}
 \title{Last Observation Carried Forward Imputation}
 \usage{
-step_locfimpute(recipe, ..., role = NA, trained = FALSE,
-  skip = FALSE, id = rand_id("bagimpute"))
+step_locfimpute(
+  recipe,
+  ...,
+  role = NA,
+  trained = FALSE,
+  skip = FALSE,
+  id = rand_id("bagimpute")
+)
 
 \method{tidy}{step_locfimpute}(x, ...)
 }

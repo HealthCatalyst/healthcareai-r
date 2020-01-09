@@ -5,9 +5,16 @@
 \alias{tidy.step_date_hcai}
 \title{Date and Time Feature Generator}
 \usage{
-step_date_hcai(recipe, ..., role = "predictor", trained = FALSE,
-  feature_type = "continuous", columns = NULL, skip = FALSE,
-  id = rand_id("bagimpute"))
+step_date_hcai(
+  recipe,
+  ...,
+  role = "predictor",
+  trained = FALSE,
+  feature_type = "continuous",
+  columns = NULL,
+  skip = FALSE,
+  id = rand_id("bagimpute")
+)
 
 \method{tidy}{step_date_hcai}(x, ...)
 }

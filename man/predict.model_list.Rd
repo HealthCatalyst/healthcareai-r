@@ -4,8 +4,15 @@
 \alias{predict.model_list}
 \title{Get predictions}
 \usage{
-\method{predict}{model_list}(object, newdata, risk_groups = NULL,
-  outcome_groups = NULL, prepdata, write_log = FALSE, ...)
+\method{predict}{model_list}(
+  object,
+  newdata,
+  risk_groups = NULL,
+  outcome_groups = NULL,
+  prepdata,
+  write_log = FALSE,
+  ...
+)
 }
 \arguments{
 \item{object}{model_list object, as from `tune_models`}

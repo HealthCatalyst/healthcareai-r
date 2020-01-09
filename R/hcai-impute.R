@@ -106,7 +106,8 @@ hcai_impute <- function(recipe,
 
   # Fill in user-specified params
   num_p <- nom_p <- defaults
-  suppressWarnings( # Silence confusing warning when params don't match
+  # Silence confusing warning when params don't match
+  suppressWarnings(
     num_p[names(num_p) %in% names(numeric_params)] <- numeric_params
   )
   suppressWarnings(
