@@ -20,16 +20,8 @@ r:
 matrix:
   allow_failures:
   - r: devel
-r_github_packages:
-- stringi
 r_packages:
-- stringr
-- knitr
 - covr
 - lintr
-addons:
-  apt:
-    packages:
-    - libnlopt-dev
 after_success:
 - travis_wait 30 Rscript -e 'covr::codecov()'
