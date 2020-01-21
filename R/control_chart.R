@@ -30,7 +30,7 @@
 #'
 #' @examples
 #' d <-
-#'   tibble::data_frame(
+#'   tibble::tibble(
 #'     day = sample(c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"),
 #'                  100, TRUE),
 #'     person = sample(c("Tom", "Jane", "Alex"), 100, TRUE),
