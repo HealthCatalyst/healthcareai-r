@@ -277,7 +277,7 @@ test_that("plot.cf args work", {
     plot(sm, print = FALSE, jitter_y = FALSE, reorder_categories = FALSE),
     plot(sm, print = FALSE, jitter_y = TRUE),
     plot(sm, print = FALSE, jitter_y = FALSE, x_var = weight_class),
-    plot(sm, print = FALSE, jitter_y = FALSE, color_var = skinfold),
+    plot(sm, print = FALSE, jitter_y = FALSE, color_var = weight_class),
     plot(sm, print = FALSE, jitter_y = FALSE, font_size = 8),
     plot(sm, print = FALSE, jitter_y = FALSE, strip_font_size = .5),
     plot(sm, print = FALSE, jitter_y = FALSE, line_width = 1),
