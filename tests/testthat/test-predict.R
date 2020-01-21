@@ -359,7 +359,7 @@ test_that("logging works as expected", {
 })
 
 test_that("get_pred_summary seems to work", {
-  expect_true(tibble::is.tibble(get_pred_summary(classification_prepped_prepped)))
+  expect_true(tibble::is_tibble(get_pred_summary(classification_prepped_prepped)))
   expect_equal(dim(get_pred_summary(classification_prepped_prepped)), c(1, 6))
 })
 
