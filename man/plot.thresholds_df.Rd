@@ -4,9 +4,17 @@
 \alias{plot.thresholds_df}
 \title{Plot threshold performance metrics}
 \usage{
-\method{plot}{thresholds_df}(x, title = NULL, caption = NULL,
-  font_size = 11, line_size = 0.5, point_size = NA, ncol = 2,
-  print = TRUE, ...)
+\method{plot}{thresholds_df}(
+  x,
+  title = NULL,
+  caption = NULL,
+  font_size = 11,
+  line_size = 0.5,
+  point_size = NA,
+  ncol = 2,
+  print = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{A \code{threshold_df} object from \code{\link{get_thresholds}} or a

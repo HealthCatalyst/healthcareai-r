@@ -92,12 +92,12 @@ test_that("predict errors informatively if prepped data is passed", {
                "prep_data")
 })
 
-prpn_message <- capture_message( predict(model_regression_prepped, test_data) )
-pcpn_warning <- capture_warning( predict(model_classify_prepped, test_data) )
-pmpn_message <- capture_message( predict(model_multi_prepped, m_test) )
+prpn_message <- capture_message(predict(model_regression_prepped, test_data))
+pcpn_warning <- capture_warning(predict(model_classify_prepped, test_data))
+pmpn_message <- capture_message(predict(model_multi_prepped, m_test))
 
 test_that("When training data is prepped but test isn't, it gets prepped", {
-  prpn_message <- capture_message( predict(model_regression_prepped, test_data) )
+  prpn_message <- capture_message(predict(model_regression_prepped, test_data))
   expect_true(grepl("Prepping", prpn_message))
   expect_true(grepl("Prepping", pmpn_message))
 })
@@ -359,7 +359,7 @@ test_that("logging works as expected", {
 })
 
 test_that("get_pred_summary seems to work", {
-  expect_true(tibble::is.tibble(get_pred_summary(classification_prepped_prepped)))
+  expect_true(tibble::is_tibble(get_pred_summary(classification_prepped_prepped)))
   expect_equal(dim(get_pred_summary(classification_prepped_prepped)), c(1, 6))
 })
 
@@ -467,8 +467,8 @@ test_that("add_groups errors informatively", {
 test_that("get_cutoffs", {
   og <- predict(model_classify_prepped, outcome_groups = 2)
   rg <- predict(model_classify_prepped, risk_groups = 5)
-  og_mes <- capture_messages( og_cutoffs <- get_cutoffs(og) )
-  junk <- capture_output(rg_mes <- capture_messages( rg_cutoffs <- get_cutoffs(rg)))
+  og_mes <- capture_messages(og_cutoffs <- get_cutoffs(og))
+  junk <- capture_output(rg_mes <- capture_messages(rg_cutoffs <- get_cutoffs(rg)))
   expect_true(stringr::str_detect(tolower(og_mes), "outcome"))
   expect_true(stringr::str_detect(tolower(rg_mes), "risk"))
   expect_true(is.numeric(og_cutoffs))

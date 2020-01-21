@@ -197,8 +197,8 @@ get_measures <- function(measures) {
 #'   plot(point_size = .5, ncol = 1)
 plot.thresholds_df <- function(x, title = NULL, caption = NULL, font_size = 11,
                                line_size = .5, point_size = NA, ncol = 2,
-                               print = TRUE, ... ) {
-  if ( !is.data.frame(x) || !"threshold" %in% names(x) )
+                               print = TRUE, ...) {
+  if (!is.data.frame(x) || !"threshold" %in% names(x))
     stop("x must be a data frame from get_thresholds, or at least look like one!")
 
   # Process optimal

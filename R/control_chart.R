@@ -30,7 +30,7 @@
 #'
 #' @examples
 #' d <-
-#'   tibble::data_frame(
+#'   tibble::tibble(
 #'     day = sample(c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"),
 #'                  100, TRUE),
 #'     person = sample(c("Tom", "Jane", "Alex"), 100, TRUE),
@@ -56,7 +56,7 @@
 #'   ylab("Number of Adverse Events") +
 #'   scale_x_date(name = "Week of ... ", date_breaks = "week") +
 #'   theme(axis.text.x = element_text(angle = -90, vjust = 0.5, hjust=1))
-control_chart <- function(d, measure, x, group1, group2,
+control_chart <- function(d, measure, x, group1, group2, #nolint
                           center_line = mean, sigmas = 3,
                           title = NULL, catpion = NULL,
                           font_size = 11,

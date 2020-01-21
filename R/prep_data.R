@@ -214,7 +214,6 @@ prep_data <- function(d,
   # Deal with "..." columns to be ignored
   ignore_columns <- rlang::quos(...)
   ignored <- purrr::map_chr(ignore_columns, rlang::quo_name)
-
   d_ignore <- NULL
   if (length(ignored)) {
     present <- ignored %in% names(d)
@@ -235,7 +234,7 @@ prep_data <- function(d,
 
   # Check global options for factor handling
   opt <- options("contrasts")[[1]][[1]]
-  if (opt != "contr.treatment"){
+  if (opt != "contr.treatment") {
     w <- paste0("Your unordered-factor contrasts option is set to ", opt,
                 ". This may produce unexpected behavior, particularly in make_dummies in prep_data. ",
                 "Consider resetting it by restarting R, or with: ",
@@ -255,10 +254,25 @@ prep_data <- function(d,
       ignored <- c(ignored, newvars)
       d_ignore <- dplyr::bind_cols(d_ignore, dplyr::select(d, !!newvars))
     }
-    # Look for predictors unignored in training but missing here and error
+
+    # Look for predictors unignored in training but missing here and error if not removed by nzv
     missing_vars <- setdiff(recipe$var_info$variable[recipe$var_info$role == "predictor"], names(d))
     if (length(missing_vars))
       warning("These variables were present in training but are missing or ignored here: ",
+              list_variables(missing_vars))
+    # If data was prepped at all
+    if (!is.null(recipe$steps)) {
+      # If nzv was done
+      if (attr(recipe$steps[[1]], "class")[1] == "step_nzv") {
+        # If there were removed columns
+        if (length(recipe$steps[[1]]$removals)) {
+          # Removed nzv columns should be removed from list. If there are still missing columns, error.
+          missing_vars <- missing_vars[missing_vars == length(recipe$steps[[1]]$removals)]
+        }
+      }
+    }
+    if (length(missing_vars))
+      stop("These variables were present in training but are missing or ignored here: ",
               list_variables(missing_vars))
 
     # If imputing, look for variables with missingness now that didn't have any in training
@@ -332,18 +346,21 @@ prep_data <- function(d,
     # recipe <- recipe %>% step_hcai_mostly_missing_to_factor()  # nolint
 
     # Remove columns with near zero variance ----------------------------------
-    nzv_opts <- list(freq_cut = 49, unique_cut = 10)
+    freq_cut <- 49
+    unique_cut <- 10
     if (!is.logical(remove_near_zero_variance)) {
       if (!is.numeric(remove_near_zero_variance))
         stop("remove_near_zero_variance must be logical or numeric for step_nzv")
       if (remove_near_zero_variance < 0 | remove_near_zero_variance > 1)
         stop("remove_near_zero_variance must be numeric between 0 and 1")
-      nzv_opts$freq_cut <- remove_near_zero_variance ^ -1
+      freq_cut <- remove_near_zero_variance ^ -1
       remove_near_zero_variance <- TRUE
     }
     if (remove_near_zero_variance) {
       recipe <- recipe %>%
-        recipes::step_nzv(all_predictors(), options = nzv_opts)
+        recipes::step_nzv(all_predictors(),
+                          freq_cut = freq_cut,
+                          unique_cut = unique_cut)
     }
 
     # Check if there are any nominal predictors that won't be removed; stop if not.

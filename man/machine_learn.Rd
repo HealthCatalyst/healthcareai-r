@@ -4,9 +4,20 @@
 \alias{machine_learn}
 \title{Machine learning made easy}
 \usage{
-machine_learn(d, ..., outcome, models, metric, tune = TRUE,
-  positive_class, n_folds = 5, tune_depth = 10, impute = TRUE,
-  model_name = NULL, allow_parallel = FALSE)
+machine_learn(
+  d,
+  ...,
+  outcome,
+  models,
+  metric,
+  tune = TRUE,
+  positive_class,
+  n_folds = 5,
+  tune_depth = 10,
+  impute = TRUE,
+  model_name = NULL,
+  allow_parallel = FALSE
+)
 }
 \arguments{
 \item{d}{A data frame}

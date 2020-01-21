@@ -4,9 +4,18 @@
 \alias{pip}
 \title{Patient Impact Predictor}
 \usage{
-pip(model, d, new_values, n = 3, allow_same = FALSE,
-  repeated_factors = FALSE, smaller_better = TRUE,
-  variable_direction = NULL, prohibited_transitions = NULL, id)
+pip(
+  model,
+  d,
+  new_values,
+  n = 3,
+  allow_same = FALSE,
+  repeated_factors = FALSE,
+  smaller_better = TRUE,
+  variable_direction = NULL,
+  prohibited_transitions = NULL,
+  id
+)
 }
 \arguments{
 \item{model}{A model_list object, as from \code{\link{machine_learn}} or

@@ -17,7 +17,7 @@ d <- tibble::tibble(id = 1:n,
                  )
 
 # target
-d$is_goomba <- ifelse( (d$world - 2 * d$level - 1) > 0, "Y", "N")
+d$is_goomba <- ifelse((d$world - 2 * d$level - 1) > 0, "Y", "N")
 # Add NAs
 inds <- sample(n, 30, replace = FALSE)
 d$suit[inds] <- NA

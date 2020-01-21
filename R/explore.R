@@ -136,7 +136,7 @@ explore <- function(models,
                                  training_data = training_data)
   static <- do.call(dplyr::bind_rows, replicate(nrow(d), static, simplify = FALSE))
   d <- dplyr::bind_cols(d, static)
-  suppressWarnings( suppressMessages( preds <- predict(models, d) ) )
+  suppressWarnings(suppressMessages(preds <- predict(models, d)))
   # Intentionally leave off the predicted_df class here to avoid performance-
   # in-training info printing
   structure(preds, class = c("explore_df", class(d)))
@@ -186,7 +186,7 @@ choose_variables <- function(models, vary, variables) {
   var_imp <-
     if (!dplyr::setequal(names(models), "glmnet")) {
       # Suppress warning that glmnet is best model if it is
-      suppressWarnings( get_variable_importance(models) )
+      suppressWarnings(get_variable_importance(models))
     } else {
       # Format interpret to function as variable importance
       if (!"scale" %in% tidy(attr(models, "recipe"))$type)

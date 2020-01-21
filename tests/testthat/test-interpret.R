@@ -98,7 +98,7 @@ test_that("alpha gets attached to interpret objects even if glm isn't best", {
   # Note: On my OSX machine RF outperforms glmnet which correctly triggers a
   # warning on `interpret(m)`. On Windows no warning is given, perhaps
   # because glmnet is the best performing model???
-  suppressWarnings( i3 <- interpret(m) )
+  suppressWarnings(i3 <- interpret(m))
   expect_equal(attr(i3, "alpha"), attr(interpret(g), "alpha"))
 })
 

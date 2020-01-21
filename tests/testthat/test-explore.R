@@ -2,7 +2,7 @@ context("explore")
 
 ##### Setup
 set.seed(400)
-m <- machine_learn(pima_diabetes[1:50, ], patient_id, outcome = diabetes,
+m <- machine_learn(pima_diabetes[1:200, ], patient_id, outcome = diabetes,
                    tune = FALSE, n_folds = 2)
 multi <- machine_learn(na.omit(pima_diabetes[1:200, ]), patient_id, outcome = weight_class,
                        tune = FALSE, models = "glm")
@@ -40,7 +40,7 @@ test_that("choose_variables default", {
 })
 
 test_that("choose_variables glm", {
-  expect_warning( g3 <- choose_variables(m["glmnet"], 3, variabs), "glm")
+  expect_warning(g3 <- choose_variables(m["glmnet"], 3, variabs), "glm")
   expect_length(g3, 3)
   expect_true(all(g3 %in% names(pima_diabetes)))
   # No warning if glm and variables were scaled:
@@ -248,7 +248,7 @@ test_that("explore errors as expected", {
 
 ##### explore generics
 test_that("printing a explored df doesn't print training performance info", {
-  sim_print <- capture_output( sim_mess <- capture_messages( print(sm)))
+  sim_print <- capture_output(sim_mess <- capture_messages(print(sm)))
   sim_output <- paste(sim_print, sim_mess)
   expect_false(stringr::str_detect(sim_print, "Performance"))
 })
@@ -277,7 +277,7 @@ test_that("plot.cf args work", {
     plot(sm, print = FALSE, jitter_y = FALSE, reorder_categories = FALSE),
     plot(sm, print = FALSE, jitter_y = TRUE),
     plot(sm, print = FALSE, jitter_y = FALSE, x_var = weight_class),
-    plot(sm, print = FALSE, jitter_y = FALSE, color_var = skinfold),
+    plot(sm, print = FALSE, jitter_y = FALSE, color_var = weight_class),
     plot(sm, print = FALSE, jitter_y = FALSE, font_size = 8),
     plot(sm, print = FALSE, jitter_y = FALSE, strip_font_size = .5),
     plot(sm, print = FALSE, jitter_y = FALSE, line_width = 1),

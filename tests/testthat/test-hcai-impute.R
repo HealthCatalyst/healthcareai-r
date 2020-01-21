@@ -235,14 +235,14 @@ test_that("random columns get imputed when factors", {
 test_that("all nominal or all numeric columns add 1 step", {
   num_dat <- dplyr::select_if(d_train, is.numeric)
   rec <-
-    recipe( ~ ., num_dat) %>%
+    recipe(~ ., num_dat) %>%
     hcai_impute() %>%
     prep(training = num_dat)
   expect_equal(length(rec$steps), 1)
 
   nom_dat <- dplyr::select_if(d_train, function(x) is.character(x) | is.factor(x))
   rec <-
-    recipe( ~ ., nom_dat) %>%
+    recipe(~ ., nom_dat) %>%
     hcai_impute() %>%
     prep(training = nom_dat)
   expect_equal(length(rec$steps), 1)

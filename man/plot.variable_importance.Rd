@@ -4,9 +4,16 @@
 \alias{plot.variable_importance}
 \title{Plot variable importance}
 \usage{
-\method{plot}{variable_importance}(x, title = "model", max_char = 40,
-  caption = NULL, font_size = 11, point_size = 3, print = TRUE,
-  ...)
+\method{plot}{variable_importance}(
+  x,
+  title = "model",
+  max_char = 40,
+  caption = NULL,
+  font_size = 11,
+  point_size = 3,
+  print = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{A data frame from \code{\link{get_variable_importance}}}

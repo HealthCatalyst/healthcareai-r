@@ -4,8 +4,17 @@
 \alias{flash_models}
 \title{Train models without tuning for performance}
 \usage{
-flash_models(d, outcome, models, metric, positive_class, n_folds = 5,
-  model_class, model_name = NULL, allow_parallel = FALSE)
+flash_models(
+  d,
+  outcome,
+  models,
+  metric,
+  positive_class,
+  n_folds = 5,
+  model_class,
+  model_name = NULL,
+  allow_parallel = FALSE
+)
 }
 \arguments{
 \item{d}{A data frame from \code{\link{prep_data}}. If you want to prepare

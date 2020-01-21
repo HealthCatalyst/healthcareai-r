@@ -117,7 +117,7 @@ convert_date_cols <- function(d) {
 
   d_dates <- d_dates %>%
     filter(has_guesses == TRUE) %>%
-    tidyr::unnest()
+    tidyr::unnest(cols = guessed_formats)
 
   # Try to convert each row using the format, then group by name
   d_dates <- d_dates %>%

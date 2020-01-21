@@ -4,9 +4,19 @@
 \alias{control_chart}
 \title{Create a control chart}
 \usage{
-control_chart(d, measure, x, group1, group2, center_line = mean,
-  sigmas = 3, title = NULL, catpion = NULL, font_size = 11,
-  print = TRUE)
+control_chart(
+  d,
+  measure,
+  x,
+  group1,
+  group2,
+  center_line = mean,
+  sigmas = 3,
+  title = NULL,
+  catpion = NULL,
+  font_size = 11,
+  print = TRUE
+)
 }
 \arguments{
 \item{d}{data frame or a path to a csv file that will be read in}
@@ -47,7 +57,7 @@ Create a control chart, aka Shewhart chart:
 }
 \examples{
 d <-
-  tibble::data_frame(
+  tibble::tibble(
     day = sample(c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"),
                  100, TRUE),
     person = sample(c("Tom", "Jane", "Alex"), 100, TRUE),

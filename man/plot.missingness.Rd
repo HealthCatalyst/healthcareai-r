@@ -4,8 +4,16 @@
 \alias{plot.missingness}
 \title{Plot missingness}
 \usage{
-\method{plot}{missingness}(x, remove_zeros = FALSE, max_char = 40,
-  title = NULL, font_size = 11, point_size = 3, print = TRUE, ...)
+\method{plot}{missingness}(
+  x,
+  remove_zeros = FALSE,
+  max_char = 40,
+  title = NULL,
+  font_size = 11,
+  point_size = 3,
+  print = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{Data frame from \code{\link{missingness}}}

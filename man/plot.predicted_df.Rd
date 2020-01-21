@@ -7,19 +7,37 @@
 \alias{plot_multiclass_predictions}
 \title{Plot model predictions vs observed outcomes}
 \usage{
-\method{plot}{predicted_df}(x, caption = TRUE, title = NULL,
-  font_size = 11, outcomes = NULL, fixed_aspect = attr(x,
-  "model_info")$type == "Regression", print = TRUE, ...)
+\method{plot}{predicted_df}(
+  x,
+  caption = TRUE,
+  title = NULL,
+  font_size = 11,
+  outcomes = NULL,
+  fixed_aspect = attr(x, "model_info")$type == "Regression",
+  print = TRUE,
+  ...
+)
 
 plot_regression_predictions(x, point_size = 1, point_alpha = 1, target)
 
-plot_classification_predictions(x, fill_colors = c("firebrick",
-  "steelblue"), fill_alpha = 0.7, curve_flex = 1, add_labels = TRUE,
-  target)
+plot_classification_predictions(
+  x,
+  fill_colors = c("firebrick", "steelblue"),
+  fill_alpha = 0.7,
+  curve_flex = 1,
+  add_labels = TRUE,
+  target
+)
 
-plot_multiclass_predictions(x, conf_colors = c("black", "steelblue"),
-  text_color = "yellow", text_size = 3, text_angle = 60,
-  diag_color = "red", target)
+plot_multiclass_predictions(
+  x,
+  conf_colors = c("black", "steelblue"),
+  text_color = "yellow",
+  text_size = 3,
+  text_angle = 60,
+  diag_color = "red",
+  target
+)
 }
 \arguments{
 \item{x}{data frame as returned `predict.model_list`}

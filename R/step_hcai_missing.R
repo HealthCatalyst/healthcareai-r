@@ -131,7 +131,7 @@ bake.step_missing <- function(object, new_data, ...) {
 
   vars <- names(object$na_percentage)
   # Add new level to all factors
-  new_data[vars] <- lapply(new_data[vars], function(x){
+  new_data[vars] <- lapply(new_data[vars], function(x) {
     levels(x) <- c(levels(x), "missing")
     x
   })
