@@ -45,7 +45,7 @@ test_that("choose_variables glm", {
   expect_true(all(g3 %in% names(pima_diabetes)))
   # No warning if glm and variables were scaled:
   expect_warning({
-    pima_diabetes[1:40, ] %>%
+    pima_diabetes[1:200, ] %>%
       prep_data(patient_id, outcome = diabetes, scale = TRUE) %>%
       flash_models(diabetes, models = "glm", n_folds = 2) %>%
       explore()
