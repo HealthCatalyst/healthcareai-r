@@ -84,7 +84,7 @@ build_connection_string <- function(server,
 #' \code{collect()} function.
 #' @return A tibble of data or reference to the table.
 #' @seealso \code{\link{build_connection_string}}
-#' @importFrom dbplyr as.sql
+#' importFrom dbplyr as.sql
 #  ^ This is a placeholder. We need dbplyr as a backend for dplyr's db functionality
 #' @export
 #' @examples

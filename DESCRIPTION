@@ -18,12 +18,15 @@ Depends:
     methods
 Imports:
     caret (>= 6.0.81),
+    cowplot,
     data.table,
     dplyr (>= 0.7.6),
     e1071,
     forcats,
     generics,
+    ggplot2,
     glmnet,
+    lubridate,
     MLmetrics,
     purrr,
     ranger (>= 0.8.0),
@@ -31,20 +34,17 @@ Imports:
     rlang,
     ROCR,
     stringr,
+    tibble,
     tidyr,
     xgboost
 RoxygenNote: 7.0.2
 Suggests:
     covr,
-    cowplot,
     DBI,
     dbplyr,
-    ggplot2,
     lintr,
-    lubridate,
     odbc,
-    testthat,
-    tibble
+    testthat
 URL: http://docs.healthcare.ai
 BugReports: https://github.com/HealthCatalyst/healthcareai-r/issues
 Encoding: UTF-8
