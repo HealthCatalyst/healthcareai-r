@@ -22,7 +22,6 @@ Imports:
     data.table,
     dplyr (>= 0.7.6),
     e1071,
-    forcats,
     generics,
     ggplot2,
     glmnet,

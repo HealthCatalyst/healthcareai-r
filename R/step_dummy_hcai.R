@@ -31,8 +31,6 @@
 #'  \code{tidy} method, a tibble with columns \code{terms} (the
 #'  selectors or variables selected).
 #' @keywords datagen
-#' @concept preprocessing dummy_variables model_specification
-#'  dummy_variables variable_encodings
 #' @export
 #' @details \code{step_dummy_hcai} will create a set of binary dummy
 #'  variables from a factor variable. For example, if an unordered

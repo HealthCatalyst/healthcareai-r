@@ -130,6 +130,4 @@ rec <- rec \%>\% healthcareai:::step_dummy_hcai(weight_class,
  [step_ordinalscore()], [step_unorder()], [step_other()]
  [step_novel()]
 }
-\concept{preprocessing dummy_variables model_specification
- dummy_variables variable_encodings}
 \keyword{datagen}

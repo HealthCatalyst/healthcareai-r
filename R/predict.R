@@ -278,8 +278,9 @@ predict_model_list_main <- function(object,
 
   # Reorder factor levels if classification model and if outcomes exists
   if (!is.regression_list(object) && !is.null(outcomes)) {
-    newdata[[mi$target]] <-
-      forcats::fct_relevel(newdata[[mi$target]], mi$positive_class)
+    levs <- c(mi$positive_class,
+              levels(newdata[[mi$target]])[levels(newdata[[mi$target]]) != mi$positive_class])
+    newdata[[mi$target]] <- factor(newdata[[mi$target]], levels = levs)
   }
 
   # Add groups if desired
