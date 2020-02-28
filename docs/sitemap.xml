@@ -166,6 +166,12 @@
     <loc>https://docs.healthcare.ai/reference/step_date_hcai.html</loc>
   </url>
   <url>
+    <loc>https://docs.healthcare.ai/reference/step_dummy_hcai.html</loc>
+  </url>
+  <url>
+    <loc>https://docs.healthcare.ai/reference/step_locfimpute.html</loc>
+  </url>
+  <url>
     <loc>https://docs.healthcare.ai/reference/step_missing.html</loc>
   </url>
   <url>

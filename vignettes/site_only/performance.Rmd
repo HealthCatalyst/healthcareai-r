@@ -114,7 +114,7 @@ d <- d %>%
   select(-dep_time, -arr_time, -dep_delay, hour, minute)
 d_clean <- d %>% 
   prep_data(outcome = arr_delay,
-            ... = tailnum,
+            tailnum,
             collapse_rare_factors = FALSE, 
             add_levels = FALSE)
 dim(d_clean)
@@ -194,7 +194,7 @@ contains less than 2% of the total data into "other." `destination` is shrunk to
 d_clean2 <- d %>%
   mutate(hour_of_day = lubridate::hour(time_hour)) %>%
   prep_data(outcome = arr_delay,
-            ... = tailnum,
+            tailnum,
             collapse_rare_factors = 0.02)
 
 d_clean2 %>%
@@ -217,7 +217,7 @@ library(lubridate)
 d_clean2 <- d %>%
   select(-year, -month, -day) %>%
   prep_data(outcome = arr_delay, 
-            ... = tailnum,
+            tailnum,
             collapse_rare_factors = 0.02,
             convert_dates = TRUE)
 d_clean2 %>%
@@ -229,7 +229,7 @@ Using categorical dates, the one data column is turned into 23 sparse (mostly 0)
 d_clean2 <- d %>%
   select(-year, -month, -day) %>%
   prep_data(outcome = arr_delay, 
-            ... = tailnum,
+            tailnum,
             collapse_rare_factors = 0.02,
             convert_dates = "categories")
 d_clean2 %>%
