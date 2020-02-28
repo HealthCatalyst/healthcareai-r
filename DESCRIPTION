@@ -20,10 +20,8 @@ Imports:
     caret (>= 6.0.81),
     cowplot,
     data.table,
-    dbplyr,
     dplyr (>= 0.7.6),
     e1071,
-    forcats,
     generics,
     ggplot2,
     glmnet,
@@ -40,11 +38,12 @@ Imports:
     xgboost
 RoxygenNote: 7.0.2
 Suggests:
+    covr,
     DBI,
-    odbc,
-    testthat,
+    dbplyr,
     lintr,
-    covr
+    odbc,
+    testthat
 URL: http://docs.healthcare.ai
 BugReports: https://github.com/HealthCatalyst/healthcareai-r/issues
 Encoding: UTF-8

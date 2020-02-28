@@ -48,4 +48,5 @@ d <- collect(ref)
 }
 \seealso{
 \code{\link{build_connection_string}}
+importFrom dbplyr as.sql
 }
