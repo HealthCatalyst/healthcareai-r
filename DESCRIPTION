@@ -1,8 +1,8 @@
 Package: healthcareai
 Type: Package
 Title: Tools for Healthcare Machine Learning
-Version: 2.4.0
-Date: 2020-02-27
+Version: 2.5.0
+Date: 2020-08-04
 Authors@R: c(
     person("Levi", "Thatcher", email = "levi.thatcher@healthcatalyst.com", role = "aut"),
     person("Michael", "Levy", email = "michael.levy@healthcatalyst.com", role = "aut"),
@@ -20,7 +20,7 @@ Imports:
     caret (>= 6.0.81),
     cowplot,
     data.table,
-    dplyr (>= 0.7.6),
+    dplyr (>= 1.0.0),
     e1071,
     generics,
     ggplot2,
@@ -33,7 +33,7 @@ Imports:
     rlang,
     ROCR,
     stringr,
-    tibble,
+    tibble (>=3.0.0),
     tidyr,
     xgboost
 RoxygenNote: 7.1.1
