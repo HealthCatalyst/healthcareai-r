@@ -38,14 +38,13 @@ test_that("pivot fills in NAs where no instances present, and only there", {
 })
 
 test_that("pivot returns expected data frame summing column", {
-  expect_equal(
-    tibble::tibble(
+    expected <- tibble::tibble(
       person = factor(c("Jack", "Jane")),
       day_1 = c(9L, 27L),
       day_2 = c(12L, 30L)
-    ),
-    pivot(dd, person, day, count, sum)
-  )
+    )
+    actual <- pivot(dd, person, day, count, sum)
+  expect_equal(expected, actual, check.attributes = FALSE)
 })
 
 test_that("pivot returns expected data frame with no fill column", {
@@ -55,7 +54,8 @@ test_that("pivot returns expected data frame with no fill column", {
       day_1 = c(3L, 3L),
       day_2 = c(3L, 3L)
     ),
-    suppressWarnings(pivot(dd, person, day))
+    suppressWarnings(pivot(dd, person, day)),
+    check.attributes = FALSE
   )
 })
 
@@ -66,7 +66,8 @@ test_that("pivot returns expected data frame with custom function", {
       day_1 = c(6L, 4L),
       day_2 = c(6L, 4L)
     ),
-    pivot(dd, person, day, fill = activity, fun = function(x) min(nchar(x)))
+    pivot(dd, person, day, fill = activity, fun = function(x) min(nchar(x))),
+    check.attributes = FALSE
   )
 })
 
@@ -119,7 +120,7 @@ test_that("do_aggregate produces informative error if aggregation failed", {
                  fill = rlang::quo(count),
                  fun = function(x) x - 1,
                  default_fun = FALSE),
-    regexp = "Aggregation"
+    regexp = "No aggregration occured"
   )
 })
 
@@ -162,7 +163,8 @@ test_that("aggregate_rows errors if fill is character and fun needs numeric", {
                               spread = rlang::quo(day),
                               fill = rlang::quo(activity),
                               fun = sum),
-               regexp = "character")
+               regexp = "character",
+               class = "dplyr_error")
 })
 
 test_that("aggregate_rows takes function(x) and works with character `fill`", {
@@ -206,7 +208,8 @@ test_that("pivot_maker pivots correctly with defaults", {
                 spread = rlang::quo(cols),
                 fill = rlang::quo(num_fill),
                 missing_fill = NA),
-    num_pivot
+    num_pivot,
+    check.attributes = FALSE
   )
   expect_equal(
     pivot_maker(d = to_pivot,
@@ -214,7 +217,8 @@ test_that("pivot_maker pivots correctly with defaults", {
                 spread = rlang::quo(cols),
                 fill = rlang::quo(char_fill),
                 missing_fill = NA),
-    char_pivot
+    char_pivot,
+    check.attributes = FALSE
   )
 })
 
@@ -226,7 +230,8 @@ test_that("pivot_maker respects missing_fill", {
                 spread = rlang::quo(cols),
                 fill = rlang::quo(num_fill),
                 missing_fill = 0L),
-    num_pivot
+    num_pivot,
+    check.attributes = FALSE
   )
 })
 

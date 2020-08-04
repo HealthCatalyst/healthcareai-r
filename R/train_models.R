@@ -31,8 +31,6 @@ train_models <- function(d, outcome, models, metric, train_control,
                   "The estimates are very rough, and you should expect the progress ",
                   "ticker to cycle ", train_control$number + 1, " times.")
       } else if (model == "xgbTree") {
-        # train_args$allowParallel <- allow_parallel
-        # train_args$allowParallel <- FALSE # avoid nested parallelism. See https://github.com/topepo/caret/issues/924
         # If regression, overwrite caret's default of "reg:linear"
         if (metric %in% c("MAE", "RMSE", "Rsquared")) {
           train_args$objective <- "reg:squarederror"

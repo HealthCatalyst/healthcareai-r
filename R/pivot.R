@@ -138,12 +138,16 @@ pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA, extra_co
 do_aggregate <- function(d, grain, spread, fill, fun, default_fun) {
 
   start_rows <- nrow(d)
+  exp_groups <- d %>%
+    count(!!grain, !!spread) %>%
+    nrow()
   # Define "safe" version of aggregate_rows for error handling
   ar <- purrr::safely(aggregate_rows)
   d <- ar(d, grain, spread, fill, fun)
-
   # If aggregate_rows didn't error, return result
-  if (is.null(d$error)) {
+  if (nrow(d$result) != exp_groups) {
+    stop("No aggregration occured, check your'fun'.")
+  } else if (is.null(d$error)) {
     # If the user didn't provide fun, and aggregation happened warn that we'll use sum
     if (default_fun && nrow(d$result) < start_rows) {
       message("There are rows that contain the same values of both ",

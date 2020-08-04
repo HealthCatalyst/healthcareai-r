@@ -128,7 +128,7 @@ test_that("Warning is triggered for greater than 50% NA", {
 test_that("tidy method prints correctly", {
   res <- tidy(rec_obj$steps[[1]])
   expect_equal(res$terms, c("character", "suit", "is_goomba"))
-  expect_equal(res$value, c(34, 10.8, 0), tolerance = 3)
+  expect_equal(as.numeric(res$value), c(34.0, 10.8, 0), tolerance = 1e-3)
 
   rec_obj <- recipe(is_goomba ~ ., data = d) %>% step_missing(all_nominal(), id = "id")
   expect_s3_class(tidy(rec_obj$steps[[1]]), "tbl_df")

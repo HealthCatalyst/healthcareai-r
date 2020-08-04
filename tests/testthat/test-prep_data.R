@@ -317,7 +317,8 @@ test_that("test convert_dates is logical, `none`, `continuous`, or `categories`"
 test_that("Output of impute is same for tibble vs data frame", {
   expect_equal(
     prep_data(d_train),
-    prep_data(tibble::as_tibble(d_train)))
+    prep_data(tibble::as_tibble(d_train)),
+    check.attributes = FALSE)
 })
 
 test_that("recipe attr is a recipe class object", {
@@ -601,9 +602,12 @@ test_that("data prepped on existing recipe returns ID columns", {
 
 test_that("prep_data outcome or ignored columns can be provided quoted", {
   std <- prep_data(d_train, song_id, state, outcome = is_ween)
-  expect_equal(prep_data(d_train, song_id, state, outcome = "is_ween"), std)
-  expect_equal(prep_data(d_train, song_id, "state", outcome = is_ween), std)
-  expect_equal(prep_data(d_train, "song_id", "state", outcome = "is_ween"), std)
+  expect_equal(prep_data(d_train, song_id, state, outcome = "is_ween"), std,
+               check.attributes = FALSE)
+  expect_equal(prep_data(d_train, song_id, "state", outcome = is_ween), std,
+               check.attributes = FALSE)
+  expect_equal(prep_data(d_train, "song_id", "state", outcome = "is_ween"), std,
+               check.attributes = FALSE)
 })
 
 test_that("prep_data warns for all unique character columns and adds the to ignored", {

@@ -38,7 +38,7 @@ test_that("model_lists have original data str as zero-row DF with right names an
 
 test_that("model_list's original_data_str is the same as predict's return", {
   preds <- predict(c_models, short)[0, - (1:2)]
-  expect_equal(preds, ods)
+  expect_equal(preds, ods, check.attributes = FALSE)
 })
 
 test_that("model_lists have r, hcai, and other-package versions as attrs", {

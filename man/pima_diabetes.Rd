@@ -4,7 +4,8 @@
 \name{pima_diabetes}
 \alias{pima_diabetes}
 \title{Patient diabetes dataset}
-\format{A tibble data frame with 768 rows and 10 variables:
+\format{
+A tibble data frame with 768 rows and 10 variables:
 \describe{
   \item{patient_id}{Unique identifier}
   \item{pregnancies}{Number of times pregnant}
@@ -17,7 +18,8 @@
   \item{pedigree}{Diabetes pedigree function}
   \item{age}{Age (years)}
   \item{diabetes}{Y/N diagnosis per WHO criteria}
-}}
+}
+}
 \source{
 \url{https://archive.ics.uci.edu/ml/datasets/pima+indians+diabetes}
 }

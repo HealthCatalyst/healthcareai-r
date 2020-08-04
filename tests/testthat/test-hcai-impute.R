@@ -252,40 +252,28 @@ test_that("test warning for bag imputation mal function", {
   df$heat <- as.character(df$heat)
   df$condiment <- as.character(df$condiment)
 
-  expect_warning(
     out_data <-
       recipe(hot_dog ~ ., data = df) %>%
       hcai_impute(nominal_method = "bagimpute") %>%
       prep() %>%
-      bake(new_data = df),
-    "`bagimpute` depends on another library"
-  )
-  # If this not true, recipes has fixed bag imputation. Please remove the
-  # warning above.
-  expect_true(any(is.na(out_data)))
+      bake(new_data = df)
 
-  expect_message(
+  expect_true(!any(is.na(out_data)))
+
     my_recipe <-
       recipe(hot_dog ~ ., data = df) %>%
-      hcai_impute(numeric_method = "knnimpute"),
-    "`knnimpute` depends on another library"
-  )
-  # If this is not throwing an error, recipes has fixed knn imputation. Please
-  # remove the warning above.
+      hcai_impute(numeric_method = "knnimpute")
+
   expect_error(
     prep(my_recipe) %>%
       bake(new_data = df),
     regexp = "factor"
   )
 
-  expect_message(
     my_recipe <-
       recipe(hot_dog ~ ., data = df) %>%
-      hcai_impute(nominal_method = "knnimpute"),
-    "`knnimpute` depends on another library"
-  )
-  # If this is not throwing an error, recipes has fixed knn imputation. Please
-  # remove the warning above.
+      hcai_impute(nominal_method = "knnimpute")
+
   expect_error(
     prep(my_recipe) %>%
       bake(new_data = df),

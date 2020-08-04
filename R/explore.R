@@ -135,7 +135,9 @@ explore <- function(models,
                                  hold = hold,
                                  training_data = training_data)
   static <- do.call(dplyr::bind_rows, replicate(nrow(d), static, simplify = FALSE))
-  d <- dplyr::bind_cols(d, static)
+  if (!all(dim(static) == c(0, 0))) {
+    d <- dplyr::bind_cols(d, static)
+  }
   suppressWarnings(suppressMessages(preds <- predict(models, d)))
   # Intentionally leave off the predicted_df class here to avoid performance-
   # in-training info printing
@@ -250,7 +252,6 @@ choose_values <- function(models, vary, variables, numerics, characters, trainin
 }
 
 choose_static_values <- function(models, static_variables, hold, training_data) {
-  browser()
   if (!rlang::is_named(hold))
     stop("`hold` must be a named list (or data frame), whether it contains ",
          "functions to determine values or values themselves.")
