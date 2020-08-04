@@ -250,6 +250,7 @@ choose_values <- function(models, vary, variables, numerics, characters, trainin
 }
 
 choose_static_values <- function(models, static_variables, hold, training_data) {
+  browser()
   if (!rlang::is_named(hold))
     stop("`hold` must be a named list (or data frame), whether it contains ",
          "functions to determine values or values themselves.")

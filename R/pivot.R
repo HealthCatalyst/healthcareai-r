@@ -181,6 +181,7 @@ aggregate_rows <- function(d, grain, spread, fill, fun) {
 #' @details All variables come through from pivot
 #' @importFrom data.table dcast.data.table
 #' @importFrom data.table as.data.table
+#' @importFrom tibble as_tibble
 #' @return Pivoted tibble. One row for each grain; one column for each spread
 #' @noRd
 pivot_maker <- function(d, grain, spread, fill, missing_fill) {
@@ -190,7 +191,7 @@ pivot_maker <- function(d, grain, spread, fill, missing_fill) {
                                     formula = f,
                                     fill = missing_fill,
                                     value.var = rlang::quo_name(fill))
-  d <- as.tbl(d)
+  d <- tibble::as_tibble(d)
   ## Add spread as prefix to nonID columns
   names(d)[2:ncol(d)] <- paste0(rlang::quo_name(spread), "_", names(d)[2:ncol(d)])
   return(d)

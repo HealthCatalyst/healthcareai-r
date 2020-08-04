@@ -35,9 +35,8 @@
 #'   \code{\link{hcai_impute}}
 #' @param model_name Quoted, name of the model. Defaults to the name of the
 #'   outcome variable.
-#' @param allow_parallel Logical, defaults to FALSE. If TRUE and a parallel
-#'   backend is set up (e.g. with \code{doMC}) models with support for parallel
-#'   training will be trained across cores.
+#' @param allow_parallel Depreciated. Instead, control the number of cores though your
+#' parallel back end (e.g. with \code{doMC}).
 #'
 #' @return A model_list object. You can call \code{plot}, \code{summary},
 #'   \code{evaluate}, or \code{predict} on a model_list.

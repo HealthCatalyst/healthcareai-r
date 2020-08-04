@@ -207,9 +207,11 @@ test_that("explore hold row from test data", {
   p51 <- explore(m, hold = pima_diabetes[51, ], vary = c("weight_class"))
   varying <- purrr::map_lgl(p51, ~ dplyr::n_distinct(.x) > 1)
   expect_setequal(names(varying)[varying], c("predicted_diabetes", "weight_class"))
-  p51[, !varying] %>%
+  actual <- p51[, !varying] %>%
     dplyr::distinct() %>%
-    expect_equal(pima_diabetes[51, which(names(pima_diabetes) %in% names(varying)[!varying])])
+    as.numeric()
+  expected <- as.numeric(pima_diabetes[51, which(names(pima_diabetes) %in% names(varying)[!varying])])
+    expect_equal(actual, expected)
 })
 
 test_that("explore hold custom list", {
