@@ -17,23 +17,27 @@
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="bootstrap-toc.css">
+<script src="bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="pkgdown.css" rel="stylesheet">
@@ -42,7 +46,7 @@
 
 <!-- docsearch -->
 <script src="docsearch.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.1/docsearch.min.css" integrity="sha256-QOSRU/ra9ActyXkIBbiIB144aDBdtvXBcNc3OTNuX/Q=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.3/docsearch.min.css" integrity="sha256-QOSRU/ra9ActyXkIBbiIB144aDBdtvXBcNc3OTNuX/Q=" crossorigin="anonymous" />
 <link href="docsearch.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
 
@@ -50,7 +54,6 @@
 
 <meta property="og:title" content="Contributing Guidelines" />
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
-<meta name="twitter:card" content="summary" />
 
 
 
@@ -78,7 +81,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-title-body">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -92,7 +95,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">healthcareai</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.5.0</span>
       </span>
     </div>
 
@@ -175,7 +178,7 @@
 <a href="#feature-requests-and-bug-reports" class="anchor"></a>Feature Requests and Bug Reports</h2>
 <p>The easiest way to contribute to making <code>healthcareai</code> better is to provide feedback about what you want the package to do and what it isn’t doing well.</p>
 <p>Both feature requests and bug reports should be submitted as <a href="https://github.com/HealthCatalyst/healthcareai-r/issues">Github issues</a>.</p>
-<p><strong>Bug reports</strong> should be filed with a <a href="https://gist.github.com/hadley/270442">minimal reproducable example</a>. The <a href="https://github.com/tidyverse/reprex">reprex package</a> is extraordinarily helpful for this. Please also include the output of <code><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo()</a></code> or better yet, <code><a href="https://rdrr.io/pkg/devtools/man/reexports.html">devtools::session_info()</a></code>.</p>
+<p><strong>Bug reports</strong> should be filed with a <a href="https://gist.github.com/hadley/270442">minimal reproducable example</a>. The <a href="https://github.com/tidyverse/reprex">reprex package</a> is extraordinarily helpful for this. Please also include the output of <code><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo()</a></code> or better yet, <code><a href="https://devtools.r-lib.org//reference/reexports.html">devtools::session_info()</a></code>.</p>
 </div>
 <div id="writing-code-and-documentation" class="section level2">
 <h2 class="hasAnchor">
@@ -184,19 +187,19 @@
 <div id="pull-request-checklist" class="section level4">
 <h4 class="hasAnchor">
 <a href="#pull-request-checklist" class="anchor"></a>Pull Request Checklist</h4>
-<p>When submitting a pull request, here’s what you need to check. Some of these things should be done iteratively during the development process, especially building the documentation, building the package, and running tests. To speed up testing during development, you can run a subset of tests with <code><a href="https://rdrr.io/pkg/devtools/man/test.html">devtools::test(filter = "predict")</a></code>. Some of these things will be tested by continuous integration, others will not, so please be sure to run through this list.</p>
+<p>When submitting a pull request, here’s what you need to check. Some of these things should be done iteratively during the development process, especially building the documentation, building the package, and running tests. To speed up testing during development, you can run a subset of tests with <code><a href="https://devtools.r-lib.org//reference/test.html">devtools::test(filter = "predict")</a></code>. Some of these things will be tested by continuous integration, others will not, so please be sure to run through this list.</p>
 <ul>
 <li>[ ] Pull the current remote master branch and ensure your branch is up to date: <code>git checkout master; git pull; git checkout feature_branch; git merge master</code>
 </li>
-<li>[ ] Generate package documentation: <code><a href="https://rdrr.io/pkg/devtools/man/document.html">devtools::document()</a></code>
+<li>[ ] Generate package documentation: <code><a href="https://devtools.r-lib.org//reference/document.html">devtools::document()</a></code>
 </li>
-<li>[ ] Build package: <code><a href="https://rdrr.io/pkg/devtools/man/build.html">devtools::build()</a></code>
+<li>[ ] Build package: <code><a href="https://devtools.r-lib.org//reference/build.html">devtools::build()</a></code>
 </li>
 <li>[ ] Ensure any code you’ve added is well tested. A coverage report will automatically be added to the PR. You can get a sense of coverage by running <code><a href="http://covr.r-lib.org/reference/package_coverage.html">covr::package_coverage()</a></code>
 </li>
 <li>[ ] Ensure code is lint free: <code><a href="https://rdrr.io/pkg/lintr/man/lint_package.html">lintr::lint_package()</a></code>. This will also be checked in tests…</li>
-<li>[ ] Ensure code passes all tests: <code><a href="https://rdrr.io/pkg/devtools/man/test.html">devtools::test()</a></code>. This will also be checked in check…</li>
-<li>[ ] Ensure code passes all CRAN checks without warnings or notes: <code><a href="https://rdrr.io/pkg/devtools/man/check.html">devtools::check()</a></code>
+<li>[ ] Ensure code passes all tests: <code><a href="https://devtools.r-lib.org//reference/test.html">devtools::test()</a></code>. This will also be checked in check…</li>
+<li>[ ] Ensure code passes all CRAN checks without warnings or notes: <code><a href="https://devtools.r-lib.org//reference/check.html">devtools::check()</a></code>
 <ul>
 <li>If you get NOTEs about global variables with no visible binding for variables defined via NSE (e.g. in dplyr functions), add them to the list of <code>globalVariables</code> in <code>R/globals.R</code>.</li>
 </ul>
@@ -219,13 +222,13 @@
 <div id="documentation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#documentation" class="anchor"></a>Documentation</h2>
-<p>All of the function documentation is generated automatically. Do not edit any files in <code>man/</code>, <code>docs/</code>, or <code>NAMESPACE</code>. Instead, construct the appropriate <a href="http://r-pkgs.had.co.nz/man.html">roxygen2</a> documentation in the function files in <code>R/</code> themselves. Documentation should be generated before issuing a pull request by running <code><a href="https://rdrr.io/pkg/devtools/man/document.html">devtools::document()</a></code> (shift-command-R in RStudio).</p>
+<p>All of the function documentation is generated automatically. Do not edit any files in <code>man/</code>, <code>docs/</code>, or <code>NAMESPACE</code>. Instead, construct the appropriate <a href="http://r-pkgs.had.co.nz/man.html">roxygen2</a> documentation in the function files in <code>R/</code> themselves. Documentation should be generated before issuing a pull request by running <code><a href="https://devtools.r-lib.org//reference/document.html">devtools::document()</a></code> (shift-command-R in RStudio).</p>
 </div>
 <div id="testing" class="section level2">
 <h2 class="hasAnchor">
 <a href="#testing" class="anchor"></a>Testing</h2>
 <p>Any new code should include a unit-test demonstrating the change. We subscribe to <a href="http://butunclebob.com/ArticleS.UncleBob.TheThreeRulesOfTdd">test-driven development</a>, which suggests starting by writing a now-failing test that describes the functionality or bug fix you want to implement.</p>
-<p>Tests are implemented via <code>testthat</code> and are located in <code>tests/testthat/</code>. All tests must pass before a pull request can be merged; you can check that this is the case by running <code><a href="https://rdrr.io/pkg/devtools/man/test.html">devtools::test()</a></code>. This will also check your package for code style.</p>
+<p>Tests are implemented via <code>testthat</code> and are located in <code>tests/testthat/</code>. All tests must pass before a pull request can be merged; you can check that this is the case by running <code><a href="https://devtools.r-lib.org//reference/test.html">devtools::test()</a></code>. This will also check your package for code style.</p>
 <p>The package uses <a href="https://codecov.io/">codecov.io</a> to measure test coverage. Try to avoid decreasing coverage by writing unit tests for any contributed code. codecov.io will flag PRs that decrease coverage.</p>
 </div>
 <div id="code-style" class="section level2">
@@ -280,6 +283,12 @@
 
   </div>
 
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
+  </div>
+
 </div>
 
 
@@ -290,7 +299,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

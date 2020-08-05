@@ -17,23 +17,27 @@
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -42,7 +46,7 @@
 
 <!-- docsearch -->
 <script src="../docsearch.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.1/docsearch.min.css" integrity="sha256-QOSRU/ra9ActyXkIBbiIB144aDBdtvXBcNc3OTNuX/Q=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.3/docsearch.min.css" integrity="sha256-QOSRU/ra9ActyXkIBbiIB144aDBdtvXBcNc3OTNuX/Q=" crossorigin="anonymous" />
 <link href="../docsearch.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
 
@@ -57,7 +61,6 @@
   different. Note, however, that this function does not establish
   causality and the latter use case should be deployed judiciously." />
 <meta property="og:image" content="https://docs.healthcare.ai/logo.png" />
-<meta name="twitter:card" content="summary" />
 
 
 
@@ -85,7 +88,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -99,7 +102,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">healthcareai</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.5.0</span>
       </span>
     </div>
 
@@ -172,7 +175,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Explore a model's "reasoning" via counterfactual predictions</h1>
-    
+    <small class="dont-index">Source: <a href='https://github.com/HealthCatalyst/healthcareai-r/blob/master/R/explore.R'><code>R/explore.R</code></a></small>
     <div class="hidden name"><code>explore.Rd</code></div>
     </div>
 
@@ -292,13 +295,13 @@ values to use? Values are used from most- to least-common; default is 5.</p></td
 #&gt; </span><span style='color: #555555;'> 8</span><span>           0.095</span><span style='text-decoration: underline;'>4</span><span>            117    0.244    21           52           3
 #&gt; </span><span style='color: #555555;'> 9</span><span>           0.318             141    0.244    21           52           3
 #&gt; </span><span style='color: #555555;'>10</span><span>           0.690             181    0.244    21           52           3
-#&gt; </span><span style='color: #555555;'># … with 615 more rows, and 3 more variables: skinfold </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, insulin </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>,
-#&gt; #   weight_class </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span></div><div class='input'>
+#&gt; </span><span style='color: #555555;'># … with 615 more rows, and 3 more variables: skinfold </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, insulin </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>,</span><span>
+#&gt; </span><span style='color: #555555;'>#   weight_class </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span></div><div class='input'>
 <span class='co'># It is easy to plot counterfactual predictions. By default, only the two most</span>
 <span class='co'># important features are plotted over; see `?plot.explore_df` for</span>
 <span class='co'># customization options</span>
 <span class='fu'>explore</span>(<span class='no'>m</span>) <span class='kw'>%&gt;%</span>
-  <span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>()</div><div class='output co'>#&gt; <span class='message'>With 4 varying features and n_use = 2, using median to aggregate predicted outcomes across age and diastolic_bp. You could turn `n_use` up to see the impact of more features.</span></div><div class='img'><img src='explore-1.png' alt='' width='576' height='288' /></div><div class='input'>
+  <span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>()</div><div class='output co'>#&gt; <span class='message'>With 4 varying features and n_use = 2, using median to aggregate predicted outcomes across age and diastolic_bp. You could turn `n_use` up to see the impact of more features.</span></div><div class='img'><img src='explore-1.png' alt='' width='576' height='288' /></div><div class='input'>
 <span class='co'># You can specify which features vary and what values they take in a variety of</span>
 <span class='co'># ways. For example, you could vary only "weight_class" and "plasma_glucose"</span>
 <span class='fu'>explore</span>(<span class='no'>m</span>, <span class='kw'>vary</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"weight_class"</span>, <span class='st'>"plasma_glucose"</span>))</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 25 x 9</span><span>
@@ -314,8 +317,8 @@ values to use? Values are used from most- to least-common; default is 5.</p></td
 #&gt; </span><span style='color: #555555;'> 8</span><span>          0.019</span><span style='text-decoration: underline;'>6</span><span>  normal                   99           3           72
 #&gt; </span><span style='color: #555555;'> 9</span><span>          0.148   morbidly ob…             99           3           72
 #&gt; </span><span style='color: #555555;'>10</span><span>          0.066</span><span style='text-decoration: underline;'>7</span><span>  </span><span style='color: #BB0000;'>NA</span><span>                       99           3           72
-#&gt; </span><span style='color: #555555;'># … with 15 more rows, and 4 more variables: skinfold </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, insulin </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>,
-#&gt; #   pedigree </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, age </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span></div><div class='input'>
+#&gt; </span><span style='color: #555555;'># … with 15 more rows, and 4 more variables: skinfold </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, insulin </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>,</span><span>
+#&gt; </span><span style='color: #555555;'>#   pedigree </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, age </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span></div><div class='input'>
 <span class='co'># You can also control what values non-varying features take.</span>
 <span class='co'># For example, if you want to simulate alternative scenarios for patient 321</span>
 <span class='no'>patient321</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>dplyr</span><span class='kw ns'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span>(<span class='no'>pima_diabetes</span>, <span class='no'>patient_id</span> <span class='kw'>==</span> <span class='fl'>321</span>)
@@ -323,8 +326,8 @@ values to use? Values are used from most- to least-common; default is 5.</p></td
 #&gt;   patient_id pregnancies plasma_glucose diastolic_bp skinfold insulin
 #&gt;        </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>          </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>        </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>
 #&gt; </span><span style='color: #555555;'>1</span><span>        321           4            129           60       12     231
-#&gt; </span><span style='color: #555555;'># … with 4 more variables: weight_class </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>, pedigree </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, age </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span style='color: #555555;'>,
-#&gt; #   diabetes </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span></div><div class='input'><span class='fu'>explore</span>(<span class='no'>m</span>, <span class='kw'>hold</span> <span class='kw'>=</span> <span class='no'>patient321</span>)</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 625 x 9</span><span>
+#&gt; </span><span style='color: #555555;'># … with 4 more variables: weight_class </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>, pedigree </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, age </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span style='color: #555555;'>,</span><span>
+#&gt; </span><span style='color: #555555;'>#   diabetes </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span></div><div class='input'><span class='fu'>explore</span>(<span class='no'>m</span>, <span class='kw'>hold</span> <span class='kw'>=</span> <span class='no'>patient321</span>)</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 625 x 9</span><span>
 #&gt;    predicted_diabe… plasma_glucose pedigree   age diastolic_bp pregnancies
 #&gt;  </span><span style='color: #555555;'>*</span><span>            </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>          </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>        </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>
 #&gt; </span><span style='color: #555555;'> 1</span><span>          0.004</span><span style='text-decoration: underline;'>56</span><span>             80    0.140    21           52           4
@@ -337,8 +340,8 @@ values to use? Values are used from most- to least-common; default is 5.</p></td
 #&gt; </span><span style='color: #555555;'> 8</span><span>          0.018</span><span style='text-decoration: underline;'>8</span><span>             117    0.244    21           52           4
 #&gt; </span><span style='color: #555555;'> 9</span><span>          0.024</span><span style='text-decoration: underline;'>0</span><span>             141    0.244    21           52           4
 #&gt; </span><span style='color: #555555;'>10</span><span>          0.289              181    0.244    21           52           4
-#&gt; </span><span style='color: #555555;'># … with 615 more rows, and 3 more variables: skinfold </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span style='color: #555555;'>, insulin </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span style='color: #555555;'>,
-#&gt; #   weight_class </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span></div><div class='input'>
+#&gt; </span><span style='color: #555555;'># … with 615 more rows, and 3 more variables: skinfold </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span style='color: #555555;'>, insulin </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span style='color: #555555;'>,</span><span>
+#&gt; </span><span style='color: #555555;'>#   weight_class </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span></div><div class='input'>
 <span class='co'># Here is an example in which both the varying and non-varying feature values</span>
 <span class='co'># are explicitly specified.</span>
 <span class='fu'>explore</span>(<span class='no'>m</span>,
@@ -350,18 +353,12 @@ values to use? Values are used from most- to least-common; default is 5.</p></td
                     <span class='kw'>insulin</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
                     <span class='kw'>skinfold</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
                     <span class='kw'>diastolic_bp</span> <span class='kw'>=</span> <span class='fl'>85</span>)) <span class='kw'>%&gt;%</span>
-  <span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>()</div><div class='img'><img src='explore-2.png' alt='' width='576' height='288' /></div></span></pre>
+  <span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>()</div><div class='img'><img src='explore-2.png' alt='' width='576' height='288' /></div></span></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
-      <li><a href="#details">Details</a></li>
-      <li><a href="#see-also">See also</a></li>
-      <li><a href="#examples">Examples</a></li>
-    </ul>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
@@ -372,7 +369,7 @@ values to use? Values are used from most- to least-common; default is 5.</p></td
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>
