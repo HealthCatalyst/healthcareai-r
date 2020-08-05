@@ -1,5 +1,5 @@
 pandoc: 2.3.1
-pkgdown: 1.4.1
+pkgdown: 1.5.1
 pkgdown_sha: ~
 articles:
   best_levels: site_only/best_levels.html
@@ -8,6 +8,7 @@ articles:
   healthcareai: site_only/healthcareai.html
   performance: site_only/performance.html
   transitioning: site_only/transitioning.html
+last_built: 2020-08-05T15:07Z
 urls:
   reference: https://docs.healthcare.ai/reference
   article: https://docs.healthcare.ai/articles

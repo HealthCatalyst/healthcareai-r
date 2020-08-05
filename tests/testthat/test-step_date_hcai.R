@@ -1,14 +1,13 @@
 context("Testing step_date_hcai")
 
 # Setup ------------------------------------------------------------------------
-d <- data.frame(
+d <- tibble(
   z_DTS = c("2018-3-5", "2018-3-26", "2019-6-5"),
   b_nums = c(2, 4, 6),
   c_DTS = c("03-05-2018", "03-26-2018", "06-05-2019"),
   d_chars = c("a", "b", "d"),
   e_date = lubridate::mdy(c("3-05-2018", "3-26-2018", "06-05-2019")),
-  f_DTS = c("2000-1-1 13:30:05", "2000-1-10 1:50:10", "2001-5-10 12:50:10"),
-  stringsAsFactors = FALSE
+  f_DTS = c("2000-1-1 13:30:05", "2000-1-10 1:50:10", "2001-5-10 12:50:10")
 )
 
 # Tests ------------------------------------------------------------------------
@@ -34,7 +33,7 @@ test_that("categories - check dow, month, and year with recipes::step_date", {
 })
 
 test_that("categories - check hour column created corectly", {
-  expected <- data.frame(
+  expected <- tibble(
     f_DTS_hour = c(13, 1, 12)
   )
 
@@ -51,7 +50,7 @@ test_that("categories - check hour column created corectly", {
 })
 
 test_that("continuous - check date time column created correctly", {
-  expected <- data.frame(
+  expected <- tibble(
     b_nums = d$b_nums,
     f_DTS_dow_sin = sin(2 * pi / 7 * c(7, 2, 5)),
     f_DTS_dow_cos = cos(2 * pi / 7 * c(7, 2, 5)),
@@ -75,7 +74,7 @@ test_that("continuous - check date time column created correctly", {
 })
 
 test_that("continuous - check date only column created correctly - no hour", {
-  expected <- data.frame(
+  expected <- tibble(
     b_nums = d$b_nums,
     c_DTS_dow_sin = sin(2 * pi / 7 * c(2, 2, 4)),
     c_DTS_dow_cos = cos(2 * pi / 7 * c(2, 2, 4)),
@@ -93,7 +92,7 @@ test_that("continuous - check date only column created correctly - no hour", {
   date_rec <- recipes::prep(date_rec, training = d)
   d_hcai <- recipes::bake(date_rec, new_data = d)
 
-  expect_equal(data.frame(d_hcai), expected)
+  expect_equal(tibble(d_hcai), expected)
 })
 
 test_that("Print method works correctly", {
@@ -121,7 +120,7 @@ test_that("tidy method prints correctly for categories features", {
     recipes::prep(training = d)
 
   exp <- tibble::as_tibble(
-    data.frame(
+    tibble(
       terms = "e_date",
       feature_type = "categories",
       id = "id"
@@ -129,8 +128,9 @@ test_that("tidy method prints correctly for categories features", {
   )
 
   expect_equal(
-    exp,
-    tidy(date_rec$steps[[1]]))
+    as.character(exp),
+    as.character(tidy(date_rec$steps[[1]]) %>% unlist(., use.names = FALSE))
+  )
   expect_s3_class(tidy(date_rec$steps[[1]]), "tbl_df")
 })
 
@@ -161,7 +161,7 @@ test_that("ord2fac - tibble", {
 })
 
 test_that("ord2fac - df", {
-  d <- data.frame(
+  d <- tibble(
     test1 = factor(c("slow", "medium", "fast", "slow"),
                    levels = c("slow", "medium", "fast"), ordered = TRUE)
   )
@@ -186,12 +186,14 @@ test_that("test tidy prints correctly", {
   )
   expect_equal(
     exp,
-    tidy(date_rec$steps[[1]])
+    tidy(date_rec$steps[[1]]),
+    check.attributes = FALSE
   )
   exp$terms <- as.factor("e_date")
   date_rec <- recipes::prep(date_rec, training = d)
   expect_equal(
     exp,
-    tidy(date_rec$steps[[1]])
+    tidy(date_rec$steps[[1]]),
+    check.attributes = FALSE
   )
 })

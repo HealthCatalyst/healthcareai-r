@@ -7,7 +7,7 @@ set.seed(7)
 n <- 300
 sample_days <- c("03-23-2008", "04-13-2008", "10-10-2008", "12-19-2008",
                  "05-27-2008", "07-20-2008", "09-22-2008", "01-13-2008")
-df <- data.frame(
+df <- tibble(
   song_id = 1:n,
   length = rnorm(n, mean = 4, sd = 1),
   weirdness = rnorm(n, mean = 4, sd = 2),
@@ -55,6 +55,7 @@ df$reaction[sample(1:n, 32, replace = FALSE)] <- NA
 df$length[sample(1:n, 51, replace = FALSE)] <- NA
 df$genre[sample(1:n, 125, replace = FALSE)] <- NA
 df$weirdness[sample(1:n, 9, replace = FALSE)] <- NA
+df$genre <- as.factor(df$genre)
 
 train_index <- caret::createDataPartition(
   df$is_ween,
@@ -75,12 +76,13 @@ d_reprep <- prep_data(d_test, outcome = is_ween, song_id,
                       recipe = attr(d_prep, "recipe"))
 d_reprep2 <- prep_data(d_test, outcome = is_ween, song_id,
                        recipe = d_prep)
-animals <- data.frame(
+animals <- tibble(
   animal = sample(c("cat", "dog", "mouse"), n, TRUE),
   weight = rexp(n, 0.5),
   super = sample(c(TRUE, FALSE), n, TRUE),
   y = rnorm(n)
 )
+animals$animal <- as.factor(animals$animal)
 animals_train <- animals[1:250, ]
 animals_test <- animals[251:300, ]
 
@@ -216,7 +218,24 @@ test_that("impute gives warning when column has 50% or more NA", {
                  regexp = "reaction")
 })
 
-test_that("impute works with params", {
+test_that("impute fails with params and character columns", {
+  suppressWarnings({
+    expect_error(
+      expect_message(
+        d_clean <- prep_data(d_train, outcome = is_ween, song_id,
+                             impute = list(numeric_method = "knnimpute",
+                                           nominal_method = "bagimpute",
+                                           numeric_params = list(knn_K = 5),
+                                           nominal_params = NULL),
+                             make_dummies = FALSE),
+        regexp = "depends on another library"
+      ), regexp = "class character"
+    )
+  })
+})
+
+test_that("impute works with params and factor columns", {
+  d_train <- d_train %>% mutate(across(where(is.character), as.factor))
   suppressWarnings({
     d_clean <- prep_data(d_train, outcome = is_ween, song_id,
                          impute = list(numeric_method = "knnimpute",
@@ -231,6 +250,7 @@ test_that("impute works with params", {
 })
 
 test_that("impute works with partial/extra params", {
+  d_train <- d_train %>% mutate(across(where(is.character), as.factor))
   d_clean <- prep_data(d = d_train, outcome = is_ween, song_id,
                        impute = list(numeric_method = "bagimpute"))
   m <- missingness(d_clean)
@@ -317,7 +337,8 @@ test_that("test convert_dates is logical, `none`, `continuous`, or `categories`"
 test_that("Output of impute is same for tibble vs data frame", {
   expect_equal(
     prep_data(d_train),
-    prep_data(tibble::as_tibble(d_train)))
+    prep_data(tibble::as_tibble(d_train)),
+    check.attributes = FALSE)
 })
 
 test_that("recipe attr is a recipe class object", {
@@ -601,9 +622,12 @@ test_that("data prepped on existing recipe returns ID columns", {
 
 test_that("prep_data outcome or ignored columns can be provided quoted", {
   std <- prep_data(d_train, song_id, state, outcome = is_ween)
-  expect_equal(prep_data(d_train, song_id, state, outcome = "is_ween"), std)
-  expect_equal(prep_data(d_train, song_id, "state", outcome = is_ween), std)
-  expect_equal(prep_data(d_train, "song_id", "state", outcome = "is_ween"), std)
+  expect_equal(prep_data(d_train, song_id, state, outcome = "is_ween"), std,
+               check.attributes = FALSE)
+  expect_equal(prep_data(d_train, song_id, "state", outcome = is_ween), std,
+               check.attributes = FALSE)
+  expect_equal(prep_data(d_train, "song_id", "state", outcome = "is_ween"), std,
+               check.attributes = FALSE)
 })
 
 test_that("prep_data warns for all unique character columns and adds the to ignored", {

@@ -241,10 +241,11 @@ add_best_levels <- function(d, longsheet, id, groups, outcome, n_levels = 100,
   pivoted <-
     pivoted %>%
     dplyr::left_join(d, ., by = rlang::quo_name(id))
-
   # Replace any rows not found in the pivot table in the join with missing_fill
   new_cols <- setdiff(names(pivoted), names(d))
-  pivoted[new_cols][is.na(pivoted[new_cols])] <- missing_fill
+  if (!is.na(missing_fill)) {
+    pivoted[new_cols][is.na(pivoted[new_cols])] <- missing_fill
+  }
   # Add new best_levels to any that came in on d
   attr(pivoted, "best_levels") <-
     c(attr(d, "best_levels"),
@@ -284,7 +285,7 @@ get_best_levels <- function(d, longsheet, id, groups, outcome, n_levels = 100,
     dplyr::inner_join(d, ., by = rlang::quo_name(id)) %>%
     # Filter any level present in only one grain
     group_by(!!groups) %>%
-    filter(n_distinct(!!id) >= min_obs) %>%
+    filter(n_distinct(!!sym(quo_name(id))) >= min_obs) %>%
     ungroup()
 
   if (!nrow(tomodel)) {
@@ -320,9 +321,10 @@ get_best_levels <- function(d, longsheet, id, groups, outcome, n_levels = 100,
                   fraction_positive == 1 ~ 1 - (.5 / total_observations),
                   fraction_positive == 0 ~ .5 / total_observations,
                   TRUE ~ fraction_positive),
+
                 # If level present in every observation, call it every one minus one-half
-                present_in = ifelse(n_distinct(!!id) == total_observations,
-                                    total_observations - .5, n_distinct(!!id)),
+                present_in = ifelse(n_distinct(rlang::quo_name(id)) == total_observations,
+                                    total_observations - .5, n_distinct(rlang::quo_name(id))),
                 log_dist_from_in_all = -log(present_in / total_observations)) %>%
       dplyr::select(-present_in)
     median_positive <- stats::median(levs$fraction_positive)

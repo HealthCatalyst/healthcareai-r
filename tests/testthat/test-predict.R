@@ -375,7 +375,8 @@ test_that("predict xgboost works when columns are in different order", {
     dplyr::select(Agriculture, Education, dplyr::everything()) %>%
     predict(xgb_mod, .)
   expect_equal(same_order[, order(names(same_order))],
-               new_order[, order(names(new_order))])
+               new_order[, order(names(new_order))],
+               check.attributes = FALSE)
 })
 
 test_that("print.predicted_df works", {

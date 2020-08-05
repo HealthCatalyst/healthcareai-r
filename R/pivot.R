@@ -138,12 +138,16 @@ pivot <- function(d, grain, spread, fill, fun = sum, missing_fill = NA, extra_co
 do_aggregate <- function(d, grain, spread, fill, fun, default_fun) {
 
   start_rows <- nrow(d)
+  exp_groups <- d %>%
+    count(!!grain, !!spread) %>%
+    nrow()
   # Define "safe" version of aggregate_rows for error handling
   ar <- purrr::safely(aggregate_rows)
   d <- ar(d, grain, spread, fill, fun)
-
   # If aggregate_rows didn't error, return result
-  if (is.null(d$error)) {
+  if (nrow(d$result) != exp_groups) {
+    stop("No aggregration occured, check your'fun'.")
+  } else if (is.null(d$error)) {
     # If the user didn't provide fun, and aggregation happened warn that we'll use sum
     if (default_fun && nrow(d$result) < start_rows) {
       message("There are rows that contain the same values of both ",
@@ -181,6 +185,7 @@ aggregate_rows <- function(d, grain, spread, fill, fun) {
 #' @details All variables come through from pivot
 #' @importFrom data.table dcast.data.table
 #' @importFrom data.table as.data.table
+#' @importFrom tibble as_tibble
 #' @return Pivoted tibble. One row for each grain; one column for each spread
 #' @noRd
 pivot_maker <- function(d, grain, spread, fill, missing_fill) {
@@ -190,7 +195,7 @@ pivot_maker <- function(d, grain, spread, fill, missing_fill) {
                                     formula = f,
                                     fill = missing_fill,
                                     value.var = rlang::quo_name(fill))
-  d <- as.tbl(d)
+  d <- tibble::as_tibble(d)
   ## Add spread as prefix to nonID columns
   names(d)[2:ncol(d)] <- paste0(rlang::quo_name(spread), "_", names(d)[2:ncol(d)])
   return(d)

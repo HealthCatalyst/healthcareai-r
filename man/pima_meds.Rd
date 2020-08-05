@@ -4,13 +4,15 @@
 \name{pima_meds}
 \alias{pima_meds}
 \title{Patient medications dataset}
-\format{A tibble data frame with 1,604 rows and 3 variables:
+\format{
+A tibble data frame with 1,604 rows and 3 variables:
 \describe{
   \item{patient_id}{Unique identifier, used to join \code{pima_diabetes}}
   \item{medication}{One of the six medications described above}
   \item{years_taken}{Numeric value indicating the duration the medication has
   been used}
-}}
+}
+}
 \usage{
 pima_meds
 }

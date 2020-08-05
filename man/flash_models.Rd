@@ -52,9 +52,8 @@ displayed in a message.}
 \item{model_name}{Quoted, name of the model. Defaults to the name of the
 outcome variable.}
 
-\item{allow_parallel}{Logical, defaults to FALSE. If TRUE and a parallel
-backend is set up (e.g. with \code{doMC}) models with support for parallel
-training will be trained across cores.}
+\item{allow_parallel}{Depreciated. Instead, control the number of cores though your
+parallel back end (e.g. with \code{doMC}).}
 }
 \value{
 A model_list object. You can call \code{plot}, \code{summary},

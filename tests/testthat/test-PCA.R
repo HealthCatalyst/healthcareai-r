@@ -117,7 +117,9 @@ test_that("PCA works with all numeric columns or all character columns", {
 test_that("flash_models, tune_models, and predict work", {
   d_prep <- suppressWarnings(prep_data(d = d_train, song_id, outcome = is_ween, PCA = 5))
   expect_error(pca_mod <- tune_models(d_prep, outcome = is_ween, tune_depth = 1), NA)
-  expect_error(pca_flash <- flash_models(d_prep, outcome = is_ween), NA)
+  suppressWarnings({
+    expect_error(pca_flash <- flash_models(d_prep, outcome = is_ween), NA)
+  })
   expect_error(pca_oldpreds <- predict(pca_mod), NA)
   expect_error(pca_preds <- predict(pca_mod, newdata = d_test), NA)
   expect_s3_class(pca_oldpreds, "predicted_df")

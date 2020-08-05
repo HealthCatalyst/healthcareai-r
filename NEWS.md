@@ -1,3 +1,13 @@
+# healthcareai 2.5.0
+
+#### Breaking changes 
+
+- `healthcareai` now depends on dplyr 1.0.0 and tibble 3.0.0. You will need these versions or later. Various hidden changes were made to be compatible with these packages' [lastest breaking changes](https://github.com/tidymodels/recipes/blob/master/NEWS.md). 
+
+#### Changed
+
+- The `allow_parallel` parameter was removed to prevent nested parallelism.
+
 # healthcareai 2.3.0
 
 #### Breaking changes 

@@ -5,13 +5,13 @@ context("Checking hcai-impute recipe builder")
 set.seed(7)
 # build hot dog set
 n <- 300
-df <- data.frame(id = 1:n,
-                 vendorID = sample(1:9, size = n, replace = T),
-                 length = rnorm(n, mean = 7, sd = 2),
-                 diameter = rnorm(n, mean = 2, sd = 0.5),
-                 heat = sample(c("Cold", "Hot"), size = n, replace = T),
-                 condiment = sample(c("Ketchup", "Mustard", "Wasabi", "Syrup"),
-                                    size = n, replace = T)
+df <- tibble(id = 1:n,
+             vendorID = sample(1:9, size = n, replace = T),
+             length = rnorm(n, mean = 7, sd = 2),
+             diameter = rnorm(n, mean = 2, sd = 0.5),
+             heat = sample(c("Cold", "Hot"), size = n, replace = T),
+             condiment = sample(c("Ketchup", "Mustard", "Wasabi", "Syrup"),
+                                size = n, replace = T)
 )
 conds <- as.character(unique(df$condiment))
 # give hotdog likeliness score
@@ -40,6 +40,8 @@ df$condiment[sample(1:n, 32, replace = FALSE)] <- NA
 df$length[sample(1:n, 51, replace = FALSE)] <- NA
 df$heat[sample(1:n, 125, replace = FALSE)] <- NA
 df$diameter[sample(1:n, 9, replace = FALSE)] <- NA
+
+df <- df %>% mutate(across(.cols = 5:6, .fns = as.factor))
 
 train_index <- caret::createDataPartition(
   df$hot_dog,
@@ -252,17 +254,13 @@ test_that("test warning for bag imputation mal function", {
   df$heat <- as.character(df$heat)
   df$condiment <- as.character(df$condiment)
 
-  expect_warning(
-    out_data <-
-      recipe(hot_dog ~ ., data = df) %>%
-      hcai_impute(nominal_method = "bagimpute") %>%
-      prep() %>%
-      bake(new_data = df),
-    "`bagimpute` depends on another library"
-  )
-  # If this not true, recipes has fixed bag imputation. Please remove the
-  # warning above.
-  expect_true(any(is.na(out_data)))
+  out_data <-
+    recipe(hot_dog ~ ., data = df) %>%
+    hcai_impute(nominal_method = "bagimpute") %>%
+    prep() %>%
+    bake(new_data = df)
+
+  expect_true(!any(is.na(out_data)))
 
   expect_message(
     my_recipe <-
@@ -270,22 +268,17 @@ test_that("test warning for bag imputation mal function", {
       hcai_impute(numeric_method = "knnimpute"),
     "`knnimpute` depends on another library"
   )
-  # If this is not throwing an error, recipes has fixed knn imputation. Please
-  # remove the warning above.
+
   expect_error(
     prep(my_recipe) %>%
       bake(new_data = df),
     regexp = "factor"
   )
 
-  expect_message(
-    my_recipe <-
-      recipe(hot_dog ~ ., data = df) %>%
-      hcai_impute(nominal_method = "knnimpute"),
-    "`knnimpute` depends on another library"
-  )
-  # If this is not throwing an error, recipes has fixed knn imputation. Please
-  # remove the warning above.
+  my_recipe <-
+    recipe(hot_dog ~ ., data = df) %>%
+    hcai_impute(nominal_method = "knnimpute")
+
   expect_error(
     prep(my_recipe) %>%
       bake(new_data = df),

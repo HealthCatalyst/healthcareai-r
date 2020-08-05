@@ -135,7 +135,9 @@ explore <- function(models,
                                  hold = hold,
                                  training_data = training_data)
   static <- do.call(dplyr::bind_rows, replicate(nrow(d), static, simplify = FALSE))
-  d <- dplyr::bind_cols(d, static)
+  if (!all(dim(static) == c(0, 0))) {
+    d <- dplyr::bind_cols(d, static)
+  }
   suppressWarnings(suppressMessages(preds <- predict(models, d)))
   # Intentionally leave off the predicted_df class here to avoid performance-
   # in-training info printing
