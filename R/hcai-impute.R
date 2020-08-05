@@ -137,6 +137,12 @@ hcai_impute <- function(recipe,
         impute_with = num_p$impute_with,
         seed_val = num_p$seed_val)
     } else if (numeric_method == "knnimpute") {
+      if ("character" %in% map_chr(recipe$template, ~{
+        class(.x) %>% first()
+      }))
+        message("`knnimpute` depends on another library that does not support ",
+                "character columns yet. If `knnimpute` fails please convert ",
+                "all character columns to factors for knn imputation.")
       recipe <- step_knnimpute(
         recipe,
         all_numeric(), - all_outcomes(),

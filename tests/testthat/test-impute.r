@@ -5,12 +5,12 @@ context("Testing impute")
 set.seed(7)
 # build data set to predict whether or not animal_id is a kitty
 n <- 300
-df <- data.frame(animal_id = 1:n,
-                 length = rnorm(n, mean = 7, sd = 2),
-                 width = rnorm(n, mean = 2, sd = 0.5),
-                 fur = sample(c("Long", "Short"), size = n, replace = T),
-                 color = sample(c("Orange", "Black", "White", "Mixed"),
-                                    size = n, replace = T)
+df <- tibble(animal_id = 1:n,
+             length = rnorm(n, mean = 7, sd = 2),
+             width = rnorm(n, mean = 2, sd = 0.5),
+             fur = sample(c("Long", "Short"), size = n, replace = T),
+             color = sample(c("Orange", "Black", "White", "Mixed"),
+                            size = n, replace = T)
 )
 
 colors <- c("Orange", "Black", "White", "Mixed")
@@ -40,6 +40,8 @@ df$color[sample(1:n, 32, replace = FALSE)] <- NA
 df$length[sample(1:n, 51, replace = FALSE)] <- NA
 df$fur[sample(1:n, 125, replace = FALSE)] <- NA
 df$width[sample(1:n, 9, replace = FALSE)] <- NA
+
+df <- df %>% mutate(across(.cols = 4:6, .fns = as.factor))
 
 train_index <- caret::createDataPartition(
   df$kitty,

@@ -33,7 +33,7 @@ Imports:
     rlang,
     ROCR,
     stringr,
-    tibble (>=3.0.0),
+    tibble (>= 3.0.0),
     tidyr,
     xgboost
 RoxygenNote: 7.1.1

@@ -1,12 +1,12 @@
 context("Checking recipe step_add_levels")
 
-library(recipes)
 # Setup ------------------------------------------------------------------------
-d <- data.frame(num = 1:30,
-                has_missing = c(rep(NA, 10), rep("b", 20)),
-                has_rare = c("rare", rep("common", 29)),
-                has_both = c("rare", NA, rep("common", 28)),
-                has_neither = c(rep("cat1", 15), rep("cat2", 15)))
+d <- tibble(num = 1:30,
+            has_missing = c(rep(NA, 10), rep("b", 20)),
+            has_rare = c("rare", rep("common", 29)),
+            has_both = c("rare", NA, rep("common", 28)),
+            has_neither = c(rep("cat1", 15), rep("cat2", 15)))
+d <- d %>% mutate(across(where(is.character), as.factor))
 init <- recipe(~ ., d)
 stepped <- step_add_levels(init, all_nominal())
 prepped <- prep(stepped, training = d)
