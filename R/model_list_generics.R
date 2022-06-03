@@ -144,8 +144,8 @@ plot.model_list <- function(x, font_size = 11, point_size = 1,
             geom_point(size = point_size) +
             coord_flip() +
             scale_y_continuous(limits = y_range) +
-            scale_color_discrete(guide = FALSE) +
-            scale_shape_manual(values = c("TRUE" = 17, "FALSE" = 16), guide = FALSE) +
+            scale_color_discrete(guide = "none") +
+            scale_shape_manual(values = c("TRUE" = 17, "FALSE" = 16), guide = "none") +
             xlab(NULL) +
             labs(title = .x) +
             theme_gray(base_size = font_size)

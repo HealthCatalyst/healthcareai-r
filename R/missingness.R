@@ -112,7 +112,7 @@ plot.missingness <- function(x, remove_zeros = FALSE, max_char = 40,
                        labels = function(x) paste0(x, "%"),
                        limits = c(0, NA)) +
     scale_color_manual(values = c("TRUE" = "darkgray", "FALSE" = "black"),
-                       guide = FALSE)
+                       guide = "none")
     ggtitle(title) +
     theme_gray(base_size = font_size)
 

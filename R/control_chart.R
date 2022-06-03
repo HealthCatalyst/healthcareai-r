@@ -101,7 +101,7 @@ control_chart <- function(d, measure, x, group1, group2, #nolint
     geom_line() +
     geom_point(aes(color = outside), size = 2) +
     scale_color_manual(values = c("out" = "firebrick", "in" = "black"),
-                                guide = FALSE) +
+                                guide = "none") +
     labs(title = title, caption = catpion) +
     theme_gray(base_size = font_size) +
     theme(panel.grid.major.y = element_blank(),
