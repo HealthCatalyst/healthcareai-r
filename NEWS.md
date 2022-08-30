@@ -1,3 +1,8 @@
+# healthcareai 2.5.1
+
+#### Fixed
+- Numerous bugs with recipes and other updated packages.
+
 # healthcareai 2.5.0
 
 #### Breaking changes 

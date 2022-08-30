@@ -51,5 +51,5 @@ test_that("tidy method prints correctly", {
   tidy_prep <- tidy(prepped$steps[[1]])
   expect_s3_class(tidy_prep, "tbl_df")
   expect_true(all.equal(names(tidy_prep), c("terms", "value", "id")))
-  expect_true(all.equal(tidy_prep$terms, names(d)[purrr::map_lgl(d, is.factor)]))
+  expect_true(all.equal(unname(tidy_prep$terms), names(d)[purrr::map_lgl(d, is.factor)]))
 })

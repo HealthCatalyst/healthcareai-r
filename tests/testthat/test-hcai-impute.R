@@ -66,7 +66,7 @@ test_that("Defaults return mean on numeric, hcai on nominal", {
   rec_obj_new <- recipe %>%
     hcai_impute()
 
-  expect_equal(class(rec_obj_new$steps[[1]])[1], "step_meanimpute")
+  expect_equal(class(rec_obj_new$steps[[1]])[1], "step_impute_mean")
   expect_equal(class(rec_obj_new$steps[[2]])[1], "step_missing")
 })
 
@@ -119,21 +119,21 @@ test_that("Non-supported params throw warnings.", {
 test_that("bag impute called on both types", {
   rec_obj_new <- recipe %>%
     hcai_impute(numeric_method = "bagimpute")
-  expect_equal(class(rec_obj_new$steps[[1]])[1], "step_bagimpute")
+  expect_equal(class(rec_obj_new$steps[[1]])[1], "step_impute_bag")
 
   rec_obj_new <- recipe %>%
     hcai_impute(nominal_method = "bagimpute")
-  expect_equal(class(rec_obj_new$steps[[2]])[1], "step_bagimpute")
+  expect_equal(class(rec_obj_new$steps[[2]])[1], "step_impute_bag")
 })
 
 test_that("knnimpute impute called on both types", {
   rec_obj_new <- recipe %>%
     hcai_impute(numeric_method = "knnimpute")
-  expect_equal(class(rec_obj_new$steps[[1]])[1], "step_knnimpute")
+  expect_equal(class(rec_obj_new$steps[[1]])[1], "step_impute_knn")
 
   rec_obj_new <- recipe %>%
     hcai_impute(nominal_method = "knnimpute")
-  expect_equal(class(rec_obj_new$steps[[2]])[1], "step_knnimpute")
+  expect_equal(class(rec_obj_new$steps[[2]])[1], "step_impute_knn")
 })
 
 test_that("knnimpute impute called on both types", {

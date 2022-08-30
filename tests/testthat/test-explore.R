@@ -267,11 +267,10 @@ test_that("plot.explore_df returns a ggplot", {
 
 test_that("plot.cf args work", {
   default_plot <- plot(sm, print = FALSE, jitter_y = FALSE)
-  suppressWarnings({
-    expect_false(isTRUE(all.equal(
-      plot(sm, print = FALSE, jitter_y = FALSE, n_use = 2),
-      plot(sm, print = FALSE, jitter_y = FALSE, n_use = 2, aggregate_fun = mean))))
-  })
+  a <- plot(sm, print = FALSE, jitter_y = FALSE, n_use = 2)
+  b <- plot(sm, print = FALSE, jitter_y = FALSE, n_use = 2, aggregate_fun = mean)
+  expect_false(isTRUE(all.equal(a$data, b$data)))
+
   expect_message(plot(sm, print = FALSE, n_use = 2), "aggregate")
 
   # make sure each argument changes something
@@ -289,10 +288,14 @@ test_that("plot.cf args work", {
   purrr::map_lgl(altered_plots, ~ isTRUE(all.equal(.x, default_plot))) %>%
     any() %>%
     expect_false()
+
   use2 <- plot(sm, print = FALSE, jitter_y = FALSE, n_use = 2)
   expect_equal(nrow(ggplot2::ggplot_build(use2)$layout$layout), 1)
+
+  use2 <- plot(sm, print = FALSE, jitter_y = FALSE, n_use = 2)
   use1 <- plot(sm, print = FALSE, jitter_y = FALSE, n_use = 1)
   expect_false(isTRUE(all.equal(use1, use2)))
+
   use3 <- plot(sm, print = FALSE, jitter_y = FALSE, n_use = 3)
   expect_false(isTRUE(all.equal(use3, use2)))
 })

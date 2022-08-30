@@ -89,7 +89,7 @@ step_date_hcai_new <- function(terms = NULL, role = "predictor",
 #' @importFrom stats as.formula model.frame
 #' @export
 prep.step_date_hcai <- function(x, training, info = NULL, ...) {
-  col_names <- terms_select(x$terms, info = info)
+  col_names <- recipes::recipes_eval_select(quos = x$terms, data = training, info = info)
   date_data <- info[info$variable %in% col_names, ]
 
   step_date_hcai_new(terms = x$terms, role = x$role, trained = TRUE,

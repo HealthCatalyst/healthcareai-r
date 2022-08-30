@@ -164,7 +164,7 @@ test_that("aggregate_rows errors if fill is character and fun needs numeric", {
                               fill = rlang::quo(activity),
                               fun = sum),
                regexp = "character",
-               class = "dplyr_error")
+               class = "rlang_error")
 })
 
 test_that("aggregate_rows takes function(x) and works with character `fill`", {

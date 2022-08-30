@@ -94,7 +94,7 @@ step_missing_new <- function(terms = NULL,
 
 #' @export
 prep.step_missing <- function(x, training, info = NULL, ...) {
-  col_names <- recipes::terms_select(terms = x$terms, info = info)
+  col_names <- recipes::recipes_eval_select(quos = x$terms, data = training, info = info)
   na_percentage <- sapply(training[, col_names], function(x) {
     100 * sum(is.na(x)) / length(x)
   }

@@ -16,14 +16,14 @@
 #'  only), \code{bag_options} (bagimpute only), \code{bag_trees}
 #'  (bagimpute only), \code{knn_K} (knnimpute only), \code{impute_with}
 #'  (knnimpute only), (bag or knn) or \code{seed_val} (bag or knn).
-#'  See \link{step_bagimpute} or \link{step_knnimpute} for details.
+#'  See \link{step_impute_bag} or \link{step_impute_knn} for details.
 #' @param nominal_params A named list with parmeters to use with
 #'  chosen imputation method on nominal data. Options are
 #'  \code{bag_model} (bagimpute only), \code{bag_trees} (bagimpute
 #'  only), \code{bag_options} (bagimpute only), \code{bag_trees}
 #'  (bagimpute only), \code{knn_K} (knnimpute only), \code{impute_with}
 #'  (knnimpute only), (bag or knn) or \code{seed_val} (bag or knn).
-#'  See \link{step_bagimpute} or \link{step_knnimpute} for details.
+#'  See \link{step_impute_bag} or \link{step_impute_knn} for details.
 #' @return An updated version of `recipe` with the new step
 #'  added to the sequence of existing steps.
 #'
@@ -126,9 +126,9 @@ hcai_impute <- function(recipe,
   # Numerics
   if (!all_nominal) {
     if (numeric_method == "mean") {
-      recipe <- step_meanimpute(recipe, all_numeric(), - all_outcomes())
+      recipe <- step_impute_mean(recipe, all_numeric(), - all_outcomes())
     } else if (numeric_method == "bagimpute") {
-      recipe <- step_bagimpute(
+      recipe <- step_impute_bag(
         recipe,
         all_numeric(), - all_outcomes(),
         models = num_p$bag_model,
@@ -143,7 +143,7 @@ hcai_impute <- function(recipe,
         message("`knnimpute` depends on another library that does not support ",
                 "character columns yet. If `knnimpute` fails please convert ",
                 "all character columns to factors for knn imputation.")
-      recipe <- step_knnimpute(
+      recipe <- step_impute_knn(
         recipe,
         all_numeric(), - all_outcomes(),
         neighbors = num_p$knn_K,
@@ -162,7 +162,7 @@ hcai_impute <- function(recipe,
     if (nominal_method == "new_category") {
       recipe <- step_missing(recipe, all_nominal(), - all_outcomes())
     } else if (nominal_method == "bagimpute") {
-      recipe <- step_bagimpute(
+      recipe <- step_impute_bag(
         recipe,
         all_nominal(),
         models = nom_p$bag_model, - all_outcomes(),
@@ -171,7 +171,7 @@ hcai_impute <- function(recipe,
         impute_with = nom_p$impute_with,
         seed_val = nom_p$seed_val)
     } else if (nominal_method == "knnimpute") {
-      recipe <- step_knnimpute(
+      recipe <- step_impute_knn(
         recipe,
         all_nominal(), - all_outcomes(),
         neighbors = nom_p$knn_K,

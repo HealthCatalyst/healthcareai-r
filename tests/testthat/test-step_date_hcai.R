@@ -18,14 +18,14 @@ test_that("categories - check dow, month, and year with recipes::step_date", {
   sdf <- c("dow", "month", "year")
 
   date_rec <- recipes::recipe(head(d), ~ .)
-  date_rec <- step_date_hcai(date_rec, cols = cols, feature_type = "categories") %>%
-    recipes::step_rm(cols = cols)
+  date_rec <- step_date_hcai(date_rec, cols, feature_type = "categories") %>%
+    recipes::step_rm(cols)
   date_rec <- recipes::prep(date_rec, training = d)
   d_hcai <- recipes::bake(date_rec, new_data = d)
 
   date_rec <- recipes::recipe(head(d), ~ .)
-  date_rec <- recipes::step_date(date_rec, cols = cols, features = sdf) %>%
-    recipes::step_rm(cols = cols)
+  date_rec <- recipes::step_date(date_rec, cols, features = sdf) %>%
+    recipes::step_rm(cols)
   date_rec <- recipes::prep(date_rec, training = d)
   d_recipes <- recipes::bake(date_rec, new_data = d)
 
@@ -41,8 +41,8 @@ test_that("categories - check hour column created corectly", {
   cols <- find_date_cols(d)
 
   date_rec <- recipes::recipe(head(d), ~ .)
-  date_rec <- step_date_hcai(date_rec, cols = cols, feature_type = "categories") %>%
-    recipes::step_rm(cols = cols)
+  date_rec <- step_date_hcai(date_rec, cols, feature_type = "categories") %>%
+    recipes::step_rm(cols)
   date_rec <- recipes::prep(date_rec, training = d)
   d_hcai <- recipes::bake(date_rec, new_data = d)
 
@@ -65,8 +65,8 @@ test_that("continuous - check date time column created correctly", {
   cols <- find_date_cols(d)
 
   date_rec <- recipes::recipe(head(d), ~ .)
-  date_rec <- step_date_hcai(date_rec, cols = cols, feature_type = "continuous") %>%
-    recipes::step_rm(cols = cols)
+  date_rec <- step_date_hcai(date_rec, cols, feature_type = "continuous") %>%
+    recipes::step_rm(cols)
   date_rec <- recipes::prep(date_rec, training = d)
   d_hcai <- recipes::bake(date_rec, new_data = d)
 
@@ -87,8 +87,8 @@ test_that("continuous - check date only column created correctly - no hour", {
   cols <- find_date_cols(d)
 
   date_rec <- recipes::recipe(head(d), ~ .)
-  date_rec <- step_date_hcai(date_rec, cols = cols, feature_type = "continuous") %>%
-    recipes::step_rm(cols = cols)
+  date_rec <- step_date_hcai(date_rec, cols, feature_type = "continuous") %>%
+    recipes::step_rm(cols)
   date_rec <- recipes::prep(date_rec, training = d)
   d_hcai <- recipes::bake(date_rec, new_data = d)
 
@@ -101,7 +101,7 @@ test_that("Print method works correctly", {
   sdf <- c("dow", "month", "year")
 
   date_rec <- recipes::recipe(head(d), ~ .)
-  date_rec <- step_date_hcai(date_rec, cols = cols, feature_type = "categories")
+  date_rec <- step_date_hcai(date_rec, cols, feature_type = "categories")
   date_rec <- recipes::prep(date_rec, training = d)
 
   expect_output(
@@ -116,7 +116,7 @@ test_that("tidy method prints correctly for categories features", {
 
   date_rec <-
     recipes::recipe(head(d), ~ .) %>%
-    step_date_hcai(cols = cols, feature_type = "categories", id = "id") %>%
+    step_date_hcai(cols, feature_type = "categories", id = "id") %>%
     recipes::prep(training = d)
 
   exp <- tibble::as_tibble(
@@ -175,9 +175,9 @@ test_that("test tidy prints correctly", {
   sdf <- c("dow", "month", "year")
 
   date_rec <- recipes::recipe(head(d), ~ .)
-  date_rec <- step_date_hcai(date_rec, cols = cols, feature_type = "categories",
+  date_rec <- step_date_hcai(date_rec, cols, feature_type = "categories",
                              id = "bagimpute_9tNN4") %>%
-    recipes::step_rm(cols = cols)
+    recipes::step_rm(cols)
 
   exp <- tibble(
     terms = as.factor("cols"),

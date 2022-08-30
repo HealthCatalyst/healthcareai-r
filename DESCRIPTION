@@ -1,8 +1,8 @@
 Package: healthcareai
 Type: Package
 Title: Tools for Healthcare Machine Learning
-Version: 2.5.0
-Date: 2020-08-04
+Version: 2.5.1
+Date: 2022-08-30
 Authors@R: c(
     person("Levi", "Thatcher", email = "levi.thatcher@healthcatalyst.com", role = "aut"),
     person("Michael", "Levy", email = "michael.levy@healthcatalyst.com", role = "aut"),
@@ -36,7 +36,7 @@ Imports:
     tibble (>= 3.0.0),
     tidyr,
     xgboost
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.1
 Suggests:
     covr,
     DBI,

@@ -55,7 +55,7 @@ step_locfimpute_new <- function(terms = NULL, role = NA,
 #' @importFrom stats as.formula model.frame
 #' @export
 prep.step_locfimpute <- function(x, training, info = NULL, ...) {
-  col_names <- terms_select(x$terms, info = info)
+  col_names <- recipes::recipes_eval_select(quos = x$terms, data = training, info = info)
   step_locfimpute_new(terms = x$terms, role = x$role, trained = TRUE,
                       cols = col_names, skip = x$skip, id = x$id)
 }

@@ -48,7 +48,7 @@ step_add_levels_new <- function(terms = NULL, role = NA, trained = FALSE,
 
 #' @export
 prep.step_add_levels <- function(x, training, info) {
-  col_names <- recipes::terms_select(terms = x$terms, info = info)
+  col_names <- recipes::recipes_eval_select(quos = x$terms, data = training, info = info)
   if (any(info$type[info$variable %in% col_names] != "nominal"))
     stop("step_add_levels is only appropriate for nominal variables")
   step_add_levels_new(terms = x$terms, role = x$role, trained = TRUE,

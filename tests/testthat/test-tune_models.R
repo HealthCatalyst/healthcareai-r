@@ -252,7 +252,7 @@ test_that("tune models takes a list of one-row data frames of hyperparameters an
       xgb = data.frame(
         eta = 1.5,
         gamma = 0,
-        max_depth = 0,
+        max_depth = 10,
         subsample = .2,
         colsample_bytree = .5,
         min_child_weight = 2,

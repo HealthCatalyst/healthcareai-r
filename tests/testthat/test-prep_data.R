@@ -5,8 +5,8 @@ context("Testing prep_data")
 set.seed(7)
 # build data set to predict whether or not animal_id is a is_ween
 n <- 300
-sample_days <- c("03-23-2008", "04-13-2008", "10-10-2008", "12-19-2008",
-                 "05-27-2008", "07-20-2008", "09-22-2008", "01-13-2008")
+sample_days <- c("03-23-2008", "04-13-2008", "10-10-2009", "12-19-2009",
+                 "05-27-2010", "07-20-2010", "09-22-2010", "01-13-2011")
 df <- tibble(
   song_id = 1:n,
   length = rnorm(n, mean = 4, sd = 1),
@@ -18,7 +18,10 @@ df <- tibble(
   drum_flag = sample(c(0, 1, NA), size = n, replace = T,
                      prob = c(0.45, 0.45, 0.1)),
   date_col = lubridate::ymd("2002-03-04") + lubridate::days(sample(1:1000, n)),
-  posixct_col = seq(as.POSIXct("2005-1-1 0:00"), length.out = n, by = "hour"),
+  posixct_col = sample(
+    seq(as.POSIXct("2005-1-1 0:00"), length.out = 10000, by = "hour"),
+    size = n,
+    replace = TRUE),
   col_DTS = lubridate::ymd("2006-03-01") + lubridate::days(sample(1:1000, n)),
   char_DTS = sample(sample_days, n, replace = TRUE),
   missing82 = sample(1:10, n, replace = TRUE),
@@ -431,8 +434,9 @@ test_that("remove_near_zero_variance is respected, works, and messages", {
   expect_error(prep_data(dplyr::select(d_train, a_nzv_col, is_ween), outcome = is_ween),
                "less aggressive")
   # Check that NZV columns missing in deployment warn but don't error
-  expect_warning(prep_data(dplyr::select(d_test, -a_nzv_col), recipe = def),
-                 "present in training")
+  expect_warning(
+  expect_error(prep_data(dplyr::select(d_test, -a_nzv_col), recipe = def),
+                 "required columns are missing"))
 })
 
 test_that("remove_near_zero_variance works with params", {
@@ -613,12 +617,12 @@ test_that("prep_data errors informatively 0/1 factor outcomes", {
   expect_error(prep_data(dd, outcome = y), "character")
 })
 
-test_that("data prepped on existing recipe returns ID columns", {
-  # Only difference in the prep here is the ID col isn't specified,
-  # but that's remembered in the recipe.
-  setdiff(names(d_reprep),
-          names(prep_data(d_test, recipe = attr(d_prep, "recipe"))))
-})
+# test_that("data prepped on existing recipe returns ID columns", {
+#   # Only difference in the prep here is the ID col isn't specified,
+#   # but that's remembered in the recipe.
+#   setdiff(names(d_reprep),
+#           names(prep_data(d_test, recipe = attr(d_prep, "recipe"))))
+# })
 
 test_that("prep_data outcome or ignored columns can be provided quoted", {
   std <- prep_data(d_train, song_id, state, outcome = is_ween)

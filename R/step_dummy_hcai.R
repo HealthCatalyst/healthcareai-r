@@ -141,7 +141,7 @@ step_dummy_hcai_new <-
 #' @importFrom dplyr bind_cols
 #' @export
 prep.step_dummy_hcai <- function(x, training, info = NULL, ...) {
-  col_names <- terms_select(x$terms, info = info)
+  col_names <- recipes::recipes_eval_select(quos = x$terms, data = training, info = info)
   fac_check <-
     vapply(training[, col_names], is.factor, logical(1))
   if (any(!fac_check))

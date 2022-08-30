@@ -28,7 +28,7 @@ chosen imputation method on numeric data. Options are
 only), \code{bag_options} (bagimpute only), \code{bag_trees}
 (bagimpute only), \code{knn_K} (knnimpute only), \code{impute_with}
 (knnimpute only), (bag or knn) or \code{seed_val} (bag or knn).
-See \link{step_bagimpute} or \link{step_knnimpute} for details.}
+See \link{step_impute_bag} or \link{step_impute_knn} for details.}
 
 \item{nominal_params}{A named list with parmeters to use with
 chosen imputation method on nominal data. Options are
@@ -36,7 +36,7 @@ chosen imputation method on nominal data. Options are
 only), \code{bag_options} (bagimpute only), \code{bag_trees}
 (bagimpute only), \code{knn_K} (knnimpute only), \code{impute_with}
 (knnimpute only), (bag or knn) or \code{seed_val} (bag or knn).
-See \link{step_bagimpute} or \link{step_knnimpute} for details.}
+See \link{step_impute_bag} or \link{step_impute_knn} for details.}
 }
 \value{
 An updated version of `recipe` with the new step
