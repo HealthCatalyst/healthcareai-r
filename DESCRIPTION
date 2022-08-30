@@ -44,6 +44,6 @@ Suggests:
     lintr,
     odbc,
     testthat
-URL: http://docs.healthcare.ai
+URL: https://docs.healthcare.ai/
 BugReports: https://github.com/HealthCatalyst/healthcareai-r/issues
 Encoding: UTF-8

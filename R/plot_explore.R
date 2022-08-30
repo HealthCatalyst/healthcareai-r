@@ -44,6 +44,7 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # First, we need a model
 #' set.seed(4956)
 #' m <- machine_learn(pima_diabetes, patient_id, outcome = pregnancies,
@@ -74,6 +75,7 @@
 #'   theme(aspect.ratio = 1,
 #'         panel.background = element_rect(fill = "slateblue"),
 #'         plot.caption = element_text(face = "italic"))
+#' }
 plot.explore_df <- function(x, n_use = 2, aggregate_fun = median,
                             reorder_categories = TRUE, x_var, color_var,
                             jitter_y = TRUE, sig_fig = 3,

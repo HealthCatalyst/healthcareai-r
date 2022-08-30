@@ -6,12 +6,12 @@
 [![Travis-CI Build
 Status](https://travis-ci.org/HealthCatalyst/healthcareai-r.svg?branch=master)](https://travis-ci.org/HealthCatalyst/healthcareai-r)
 [![codecov
-badge](https://codecov.io/gh/HealthCatalyst/healthcareai-r/branch/master/graph/badge.svg)](https://codecov.io/gh/HealthCatalyst/healthcareai-r)
+badge](https://codecov.io/gh/HealthCatalyst/healthcareai-r/branch/master/graph/badge.svg)](https://app.codecov.io/gh/HealthCatalyst/healthcareai-r)
 [![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version-last-release/healthcareai)](https://cran.r-project.org/package=healthcareai)
 [![CRAN downloads
 badge](https://cranlogs.r-pkg.org/badges/grand-total/healthcareai)](https://cranlogs.r-pkg.org/badges/last-week/healthcareai)
 [![License:
-MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/HealthCatalystSLC/healthcareai-r/blob/master/LICENSE)
+MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/HealthCatalyst/healthcareai-r/blob/master/LICENSE)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.999334.svg)](https://doi.org/10.5281/zenodo.999334)
 
 ## Overview
@@ -73,7 +73,7 @@ Documentation of all functions as well as vignettes on various uses of
 the package are available at the package website:
 <https://docs.healthcare.ai/>.
 
-Also, be sure to read our [blog](http://healthcare.ai/blog/) and watch
+Also, be sure to read our [blog](https://healthcare.ai/blog/) and watch
 our
 [broadcasts](https://www.youtube.com/channel/UCGZUobs_x712KbcL6RSzfnQ)
 to learn more about what’s new in healthcare machine learning and how we
