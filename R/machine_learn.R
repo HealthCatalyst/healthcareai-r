@@ -49,7 +49,7 @@
 #' @examples
 #' # These examples take about 30 seconds to execute so aren't run automatically,
 #' # but you should be able to execute this code locally.
-#' \dontrun{
+#' \donttest{
 #' # Split the data into training and test sets
 #' d <- split_train_test(d = pima_diabetes,
 #'                       outcome = diabetes,

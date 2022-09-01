@@ -412,8 +412,9 @@ test_that("multiclass errors", {
 })
 
 test_that("test removed data throws error", {
-  save_models(m)
-  reloaded_m <- load_models("models.RDS")
+  file <- paste0(tempdir(), "/models.RDS")
+  save_models(m, file)
+  reloaded_m <- load_models(file)
   expect_error(explore(reloaded_m), "Explore requires that data is ")
-  file.remove("models.RDS")
+  file.remove(file)
 })

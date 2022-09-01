@@ -2,7 +2,7 @@ Package: healthcareai
 Type: Package
 Title: Tools for Healthcare Machine Learning
 Version: 2.5.1
-Date: 2022-08-30
+Date: 2022-09-01
 Authors@R: c(
     person("Levi", "Thatcher", email = "levi.thatcher@healthcatalyst.com", role = "aut"),
     person("Michael", "Levy", email = "michael.levy@healthcatalyst.com", role = "aut"),
@@ -10,7 +10,17 @@ Authors@R: c(
     person("Taylor", "Larsen", email = "taylor.larsen@healthcatalyst.com", role = "aut"),
     person("Taylor", "Miller", email = "taylor.miller@healthcatalyst.com", role = "aut"),
     person("Rex", "Sumsion", email = "rex.sumsion@healthcatalyst.com", role = "aut"))
-Description: A machine learning toolbox tailored to healthcare data.
+Description: Aims to make machine learning in healthcare as easy as possible. 
+  You can develop customized, reliable, high-performance machine learning models with minimal code. 
+  Models are created with automatic preprocessing, hyperparameter tuning, and
+  algorithm selection (between 
+  'xgboost' Chen, T. & Guestrin, C. (2016) <arXiv:1603.02754>,
+  'ranger' Wright, M. N., & Ziegler, A. (2017) <doi:10.18637/jss.v077.i01>,
+  and 'glm' Friedman J, Hastie T, Tibshirani R. (2010) <doi:10.18637/jss.v033.i01>) 
+  so that they can be easily
+  put into production. Additionally, there are tools to help understand how a model makes its 
+  predictions, select prediction threshholds for operational use, and evaluate model performance over time.
+  Code uses 'tidyverse' syntax and most methods have an associated visualization.
 License: MIT + file LICENSE
 LazyData: TRUE
 Depends:

@@ -55,7 +55,8 @@ models <- machine_learn(d = d,
                         outcome = Readmit30FLG)
 
 # Save my model
-healthcareai::save_models(models, "readmit_models.RDS")
+file <- paste0(tempdir(), "/readmit_models.RDS")
+healthcareai::save_models(models, file)
 ```
 
 # Pushing predictions to a database
@@ -85,7 +86,7 @@ prod_query <- "SELECT
 
 d_out <- db_read(con, prod_query)
 
-models <- healthcareai::load_models("readmit_models.RDS")
+models <- healthcareai::load_models(file) # path from previous cell
 
 predictions <- predict(models, d_out)
 ```

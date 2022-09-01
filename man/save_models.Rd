@@ -34,11 +34,12 @@ Note that model objects contain training data, except columns
   \code{save_models} issues a message saying as much.
 }
 \examples{
-\dontrun{
+\donttest{
 m <- machine_learn(pima_diabetes, patient_id, outcome = diabetes)
-save_models(m, "diabetes_models.RDS")
+file <- paste0(tempdir(), "/diabetes_models.RDS")
+save_models(m, file)
 # Restart R, move RDS file to another computer, etc.
-m2 <- load_models("diabetes_models.RDS")
+m2 <- load_models(file)
 all.equal(m, m2)
 }
 }

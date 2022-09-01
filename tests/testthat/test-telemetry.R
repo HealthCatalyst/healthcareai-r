@@ -8,24 +8,28 @@ remove_logfiles <- function() {
 remove_logfiles()
 
 # Setup ========================================
-if (file.exists("telemetry_test_prediction_log.txt"))
-  file.remove("telemetry_test_prediction_log.txt")
-if (file.exists("telemetry_test.RDS"))
-  file.remove("telemetry_test.RDS")
+model_file <- paste0(tempdir(), "/telemetry_test.RDS")
+log_file <- paste0(tempdir(), "/telemetry_test_prediction_log.txt")
+if (file.exists(log_file))
+  file.remove(log_file)
+if (file.exists(model_file))
+  file.remove(model_file)
 
 m <- machine_learn(pima_diabetes[1:50, 6:10], outcome = diabetes, models = "rf",
                    model_name = "telemetry_test")
 p <- predict(object = m, newdata = pima_diabetes[1:50, 6:10],
-             write_log = TRUE)
+             write_log = TRUE,
+             log_location = tempdir())
 
-save_models(m, "telemetry_test.RDS")
-m_reloaded <- load_models("telemetry_test.RDS")
+save_models(m, model_file)
+m_reloaded <- load_models(model_file)
 p_reloaded <- predict(object = m_reloaded, newdata = pima_diabetes[1:50, 6:10],
-                      write_log = TRUE)
+                      write_log = TRUE,
+                      log_location = tempdir())
 
 # Tests =========================================
 test_that("log_predictions writes info to file correctly", {
-  d <- readLines("telemetry_test_prediction_log.txt")
+  d <- readLines(log_file)
   expect_true(any(grepl("name: telemetry_test", d)))
   expect_true(any(grepl("predicted: diabetes", d)))
   expect_true(any(grepl("missingness in new data", d)))
@@ -34,7 +38,7 @@ test_that("log_predictions writes info to file correctly", {
 test_that("log_predictions returns data correctly", {
   d_pred <- attr(p_reloaded, "prediction_log")
   expect_equal(dim(d_pred), c(1, 23))
-  expect_equal(d_pred$loaded_from, "telemetry_test.RDS")
+  expect_equal(d_pred$loaded_from, model_file)
   expect_equal(d_pred$model_name, "telemetry_test")
   expect_equal(d_pred$n_predictions, 50)
   expect_equal(d_pred$outcome_variable, "diabetes")
@@ -71,10 +75,11 @@ test_that("Errors are put in log file properly", {
   # Error should print error message
   expect_warning(p <- predict(object = m,
                               newdata = pima_diabetes[1:50, 7:10],
-                              write_log = TRUE),
+                              write_log = TRUE,
+                              log_location = tempdir()),
                  "insulin")
   # Log should contain error info.
-  e <- readLines("telemetry_test_prediction_log.txt")
+  e <- readLines(log_file)
   expect_true(any(grepl("insulin", e)))
 
 })
@@ -141,5 +146,5 @@ test_that("parse safe and quiet works", {
 
 
 # Cleanup =======================================
-file.remove("telemetry_test_prediction_log.txt")
-file.remove("telemetry_test.RDS")
+file.remove(log_file)
+file.remove(model_file)

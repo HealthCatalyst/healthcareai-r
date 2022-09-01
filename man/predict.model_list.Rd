@@ -11,6 +11,7 @@
   outcome_groups = NULL,
   prepdata,
   write_log = FALSE,
+  log_location = NA,
   ...
 )
 }
@@ -73,6 +74,9 @@ name of a file to create or append with prediction metadata. If you want a
 unique log file each time predictions are made, use something like
 \code{write_log = paste0(Sys.time(), " predictions.txt")}. This param
 modifies error behavior and is best used in production. See details.}
+
+\item{log_location}{File path to write the logs to. If blank, they go to the
+working directory.}
 
 \item{...}{Unused.}
 }

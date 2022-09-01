@@ -204,7 +204,8 @@ plot(test_predictions)
 Everything we have done above happens "in memory". It's all within one R session, so there's no need to save anything to disk or load anything back into R. Putting a machine learning model in production typically means moving the model into a production environment. To do that, save the model with `save_models` function. 
 
 ```{r, eval = FALSE}
-save_models(models, file = "my_models.RDS")
+file <- paste0(tempdir(), "/my_models.RDS")
+save_models(models, file = file)
 ```
 
 The above code will store the `models` object with all its metadata in the `my_models.RDS` file in the working directory, which you can identify with `getwd()`. You can move that file to any other directory or machine, even across operating systems, and pull it back into R with the `load_models` function. 
@@ -212,7 +213,7 @@ The above code will store the `models` object with all its metadata in the `my_m
 The only tricky thing here is you have to direct `load_models` to the directory that the model file is in. If you don't provide a filepath, i.e. call `load_models()`, you'll get a dialog box from which you can choose your model file. Otherwise, you can provide `load_models` an absolute path to the file, e.g. `load_models("C:/Users/user.name/Documents/diabetes/my_models.RDS")`, or a path relative to your working directory, which again you can find with `getwd()`, e.g. `load_models("data/my_models.RDS")`. If you put the models in the same directory as your R script or project, you can load the models without any file path.
 
 ```{r, eval = FALSE}
-models <- load_models("my_models.RDS")
+models <- load_models(file)
 ```
 
 That will reestablish the `models` object in your R session. You can confirm this by clicking on the "Environment" tab in R Studio or running `ls()` to list all objects in your R session. 

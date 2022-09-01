@@ -138,29 +138,3 @@ add_SAM_utility_cols <- function(d) {
            LastLoadDTS = Sys.time())
   return(d)
 }
-
-
-
-
-# Old functions ------------------
-
-#' @title
-#' Defunct. See \code{\link{db_read}}
-#' @description Removed in v2.0.0
-#' @param ... Garbage collector
-#' @export
-#'
-selectData <- function(...) {
-  .Defunct("db_read")
-}
-
-#' @title Defunct. See
-#' \href{https://docs.healthcare.ai/articles/site_only/db_connections.html}{this
-#' vignette} for help writing to databases.
-#' @description Removed in v2.0.0
-#' @param ... Garbage collector
-#' @export
-#'
-writeData <- function(...) {
-  .Defunct("db_write")
-}

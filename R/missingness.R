@@ -130,19 +130,6 @@ print.missingness <- function(x, ...) {
   }
 }
 
-#' @title
-#' Function to find proportion of NAs in each column of a dataframe or matrix
-#'
-#' @description DEPRICATED. Use \code{\link{missingness}} instead.
-#' @param x A data frame or matrix
-#' @param userNAs A vector of user defined NA values.
-#' @export
-countMissingData <- function(x, userNAs = NULL) {
-
-  .Deprecated("missingness", "healthcareai")
-  missingness(x)
-}
-
 #' Summarizes data given by \code{\link{missingness}}
 #'
 #' @description Interpreting \code{\link{missingness}} results from wide

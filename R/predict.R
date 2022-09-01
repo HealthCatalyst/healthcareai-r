@@ -58,6 +58,8 @@
 #'   unique log file each time predictions are made, use something like
 #'   \code{write_log = paste0(Sys.time(), " predictions.txt")}. This param
 #'   modifies error behavior and is best used in production. See details.
+#' @param log_location File path to write the logs to. If blank, they go to the
+#'  working directory.
 #' @param ... Unused.
 #'
 #' @return A tibble data frame: newdata with an additional column for the
@@ -186,6 +188,7 @@ predict.model_list <- function(object,
                                outcome_groups = NULL,
                                prepdata,
                                write_log = FALSE,
+                               log_location = NA,
                                ...) {
   if (missing(prepdata)) {
     prepdata <- TRUE
@@ -218,7 +221,11 @@ predict.model_list <- function(object,
     out <- parse_safe_n_quiet(out, mi, object)
     # Get log file name
     if (isTRUE(write_log)) {
-      write_log <- paste0(mi$model_name, "_prediction_log.txt")
+      if (!is.na(log_location)) {
+        write_log <- paste0(log_location, "/", mi$model_name, "_prediction_log.txt")
+      } else {
+        write_log <- paste0(mi$model_name, "_prediction_log.txt")
+      }
     }
   }
 

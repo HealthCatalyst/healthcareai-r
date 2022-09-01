@@ -87,7 +87,7 @@ Note that this function is training a lot of models (100 by default)
   good laptop.
 }
 \examples{
-\dontrun{
+\donttest{
 ### Examples take about 30 seconds to run
 # Prepare data for tuning
 d <- prep_data(pima_diabetes, patient_id, outcome = diabetes)

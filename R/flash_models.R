@@ -57,7 +57,7 @@
 #'   the hyperparameters arguemet.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Prepare data
 #' prepped_data <- prep_data(pima_diabetes, patient_id, outcome = diabetes)
 #'

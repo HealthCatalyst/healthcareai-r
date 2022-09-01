@@ -184,18 +184,18 @@ prep_data(d = d_train)
 prep_data(d = d_train, convert_dates = "categories")
 
 # PCA to reduce training time:
-\dontrun{
+\donttest{
 start_time <- Sys.time()
 pd <- prep_data(pima_diabetes, patient_id, outcome = diabetes, PCA = FALSE)
 ncol(pd)
-m <- machine_learn(pd, patient_id, outcome = diabetes)
+m <- tune_models(pd, outcome = diabetes, tune_depth = 3)
 end_time <- Sys.time()
 end_time - start_time
 
 start_time <- Sys.time()
 pcapd <- prep_data(pima_diabetes, patient_id, outcome = diabetes, PCA = TRUE)
 ncol(pcapd)
-m <- machine_learn(pcapd, patient_id, outcome = diabetes)
+m <- tune_models(pcapd, outcome = diabetes, tune_depth = 3)
 Sys.time() - start_time
 }
 }

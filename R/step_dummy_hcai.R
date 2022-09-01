@@ -77,14 +77,14 @@
 #'  [step_novel()]
 #' @examples
 #' rec <- recipes::recipe(head(pima_diabetes), ~.) %>%
-#'   healthcareai:::step_dummy_hcai(weight_class)
+#'   healthcareai::step_dummy_hcai(weight_class)
 #' d <- recipes::prep(rec, training = pima_diabetes)
 #' d <- recipes::bake(d, new_data = pima_diabetes)
 #'
 #' # Specify ref_levels
 #' ref_levels <- list(weight_class = "normal")
 #' rec <- recipes::recipe(head(pima_diabetes), ~.)
-#' rec <- rec %>% healthcareai:::step_dummy_hcai(weight_class,
+#' rec <- rec %>% healthcareai::step_dummy_hcai(weight_class,
 #'                                               levels = ref_levels)
 #'
 step_dummy_hcai <-

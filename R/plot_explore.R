@@ -44,7 +44,7 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # First, we need a model
 #' set.seed(4956)
 #' m <- machine_learn(pima_diabetes, patient_id, outcome = pregnancies,

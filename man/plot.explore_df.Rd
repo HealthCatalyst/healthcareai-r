@@ -90,6 +90,7 @@ ggplot object, invisibly
 Plot Counterfactual Predictions
 }
 \examples{
+\donttest{
 # First, we need a model
 set.seed(4956)
 m <- machine_learn(pima_diabetes, patient_id, outcome = pregnancies,
@@ -120,4 +121,5 @@ p +
   theme(aspect.ratio = 1,
         panel.background = element_rect(fill = "slateblue"),
         plot.caption = element_text(face = "italic"))
+}
 }
