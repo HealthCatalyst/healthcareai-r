@@ -253,7 +253,7 @@ test_that("ready_with_prep preps appropriately", {
   rec <- attr(model_regression_prepped, "recipe")
   predictors <-
     rec$var_info %>%
-    dplyr::filter(role == "predictor" & type == "numeric") %>%
+    dplyr::filter(role == "predictor" & purrr::map_lgl(type, ~ "numeric" %in% .x)) %>%
     dplyr::pull(variable) %>%
     c(paste0("Catholic", "_", c("Y", "other", "missing")))
   expect_setequal(prepped_predictors, predictors)

@@ -122,7 +122,11 @@ explore <- function(models,
   variables <-
     rec$var_info %>%
     dplyr::filter(role == "predictor") %>%
-    dplyr::mutate(type = dplyr::case_when(type == "logical" ~ "numeric",
+    dplyr::mutate(type = purrr::map_chr(type, paste, collapse = "_")) %>%
+    dplyr::mutate(type = dplyr::case_when(type == "string_unordered_nominal" ~ "nominal",
+                                          type == "integer_numeric" ~ "numeric",
+                                          type == "double_numeric" ~ "numeric",
+                                          type == "logical" ~ "numeric",
                                           TRUE ~ type)) %>%
     split(., .$type) %>%
     purrr::map(dplyr::pull, variable)

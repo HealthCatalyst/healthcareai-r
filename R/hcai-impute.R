@@ -120,8 +120,12 @@ hcai_impute <- function(recipe,
 
   # Catch datasets where all predictors are of one type
   vi <- recipe$var_info
-  all_nominal <- !any(vi$type[vi$role == "predictor"] == "numeric")
-  all_numeric <- !any(vi$type[vi$role == "predictor"] == "nominal")
+  all_nominal <- !any(
+    purrr::map_int(vi$type[vi$role == "predictor"], ~ "numeric" %in% .x)
+  )
+  all_numeric <- !any(
+    purrr::map_int(vi$type[vi$role == "predictor"], ~ "nominal" %in% .x)
+  )
 
   # Numerics
   if (!all_nominal) {
