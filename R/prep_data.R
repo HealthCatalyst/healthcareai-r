@@ -367,7 +367,9 @@ prep_data <- function(d,
     prep_check <- recipes::prep(recipe, training = d)
     removing <- prep_check$steps[[1]]$removals
     vi <- recipe$var_info
-    nom_preds <- vi$variable[vi$role == "predictor" & vi$type == "nominal"]
+    nom_preds <- vi$variable[
+      vi$role == "predictor" & purrr::map_lgl(vi$type, ~ "nominal" %in% .x)
+    ]
     if (length(nom_preds) && all(nom_preds %in% removing))
       stop("All your categorical columns will be removed because they have ",
            "near-zero variance, which will break prep_data. ",
@@ -446,7 +448,8 @@ prep_data <- function(d,
 
     # If there are numeric predictors, apply numeric transformations
     var_info <- recipe$var_info
-    if (any(var_info$type == "numeric" & var_info$role == "predictor")) {
+    if (any(purrr::map_lgl(var_info$type, ~ "numeric" %in% .x) &
+              var_info$role == "predictor")) {
 
       # Log transform
       # Saving until columns can be specified
@@ -467,7 +470,8 @@ prep_data <- function(d,
     }
 
     # If there are nominal predictors, apply nominal transformations
-    if (any(var_info$type == "nominal" & var_info$role == "predictor")) {
+    if (any(purrr::map_lgl(var_info$type, ~ "nominal" %in% .x) &
+              var_info$role == "predictor")) {
 
       # Add protective levels --------------------------------------------------
       if (add_levels)
